@@ -4,6 +4,9 @@ from typing import List
 def md5(password: str):
     return hashlib.md5(password.encode("utf8")).hexdigest()
 
+def sha256(password: str):
+    return hashlib.sha256(password.encode("utf8")).hexdigest()
+
 def generate_failsafe_password(passwords: List[str]):
     result = ""
 
@@ -21,5 +24,5 @@ if __name__ == "__main__":
         for line in data.split("\n"):
             passwords.append(line.strip())
 
-    combined_password = generate_failsafe_password(passwords)
+    combined_password = sha256(generate_failsafe_password(passwords))
     print(f"Veracrypt password\n{combined_password}")
