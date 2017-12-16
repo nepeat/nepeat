@@ -22,4 +22,4 @@ if __name__ == "__main__":
             passwords.append(line.strip())
 
     combined_password = generate_failsafe_password(passwords)
-    print(f"Veracrypt password: {combined_password}")
+    print(f"Veracrypt password\n{combined_password}")
