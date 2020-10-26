@@ -14,7 +14,7 @@ class ANSIColor:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-class VETItem:
+class OpportunitiesItem:
     def __init__(self, data: dict):
         self.data = data
 
@@ -42,6 +42,14 @@ class VETItem:
     def length(self):
         return self.data["minutes_to_cover_opportunity"]
 
+    @property
+    def vto(self):
+        return self.data["opportunity_type"] == "vto"
+
+    @property
+    def vet(self):
+        return self.data["opportunity_type"] == "vet"
+
     """
         Parses surge pay ncentives and turns it into a human readable string.
     """
@@ -62,8 +70,8 @@ class VETItem:
 
 @click.command()
 @click.argument("vetfile", type=click.File("r"))
-def parse_vet(vetfile):
-    vets = []
+def parse_file(vetfile):
+    opportunities = []
 
     # VET files are whole responses from the /api/v1/opportunities/get_opportunities endpoint.
     # Grab these with the Inspect Element network tab.
@@ -75,33 +83,37 @@ def parse_vet(vetfile):
         print("Not a valid opportunities file.")
         return
 
-    # Add all the VETs to an array and sort it by date as actual dates instead of strings. ;)
+    # Add all the VETs and VTOs to an array and sort it by date as actual dates instead of strings. ;)
     for vet in data["vetOpportunities"]:
-        vets.append(VETItem(vet))
-    
-    vets.sort(key=lambda _: _.start_time)
+        opportunities.append(OpportunitiesItem(vet))
+
+    for vto in data["vtoOpportunities"]:
+        opportunities.append(OpportunitiesItem(vto))
+
+    opportunities.sort(key=lambda _: _.start_time)
 
     # Disgusting code to print it all out on the console.
-    for vet in vets:
+    for opportunitiy in opportunities:
         color = ""
 
         # Green for taken.
         # Red for unavailable.
 
-        if not vet.inactive_reason or "ALREADY_ACCEPTED" in vet.inactive_reason:
+        if not opportunitiy.inactive_reason or "ALREADY_ACCEPTED" in opportunitiy.inactive_reason:
             color = ANSIColor.OKGREEN
         else:
             color = ANSIColor.FAIL
 
         print(" ".join([
             color,
-            vet.start_time.astimezone().strftime("%D %H:%M"),
+            "[" + opportunitiy.opportunity_type + "]",
+            opportunitiy.start_time.astimezone().strftime("%D %H:%M"),
             "-",
-            vet.end_time.astimezone().strftime("%H:%M"),
-            vet.incentives,
-            vet.inactive_reason or "AVAILABLE",
+            opportunitiy.end_time.astimezone().strftime("%H:%M"),
+            opportunitiy.incentives,
+            opportunitiy.inactive_reason or "AVAILABLE",
             ANSIColor.ENDC
-        ]))
+        ]).strip())
 
 if __name__ == "__main__":
-    parse_vet()
+    parse_file()
