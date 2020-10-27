@@ -99,7 +99,9 @@ def parse_file(vetfile):
         # Green for taken.
         # Red for unavailable.
 
-        if not opportunitiy.inactive_reason or "ALREADY_ACCEPTED" in opportunitiy.inactive_reason:
+        if opportunitiy.inactive_reason == "ALREADY_ACCEPTED":
+            color = ANSIColor.OKBLUE
+        elif not opportunitiy.inactive_reason:
             color = ANSIColor.OKGREEN
         else:
             color = ANSIColor.FAIL
