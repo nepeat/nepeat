@@ -108,7 +108,7 @@ def parse_file(vetfile):
 
         print(" ".join([
             color,
-            "[" + opportunitiy.opportunity_type + "]",
+            f"[{opportunitiy.opportunity_type}] [{opportunitiy.workgroup}]",
             opportunitiy.start_time.astimezone().strftime("%D %H:%M"),
             "-",
             opportunitiy.end_time.astimezone().strftime("%H:%M"),
