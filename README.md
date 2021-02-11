@@ -1,4 +1,4 @@
-# nepeat [they/them]
+# nepeat [she/her/they/them]
 
 generic human being that makes bad code and infrastructure.
 
