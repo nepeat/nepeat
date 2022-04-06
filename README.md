@@ -10,7 +10,7 @@ i curse this site with my bad code and disaster of an infrastructure.
     * [nomad](https://github.com/general-programming/megarepo/tree/mainline/infrastructure/nomad) jobs to run log egress + updates + warrior tasks on all the nodes
     * [beatbeatlarge](https://github.com/nepeat/beatbeatlarge), a set of scripts that ingests logs from a stream and outposts compressed log files. includes a rust prototype to process compressed log files in bulk!
 * [barf](https://github.com/general-programming/megarepo/tree/mainline/projects/barf) (2022) - config generation and basic management prototype for my vpn backbone and soon the rest of my lab networks
-* [ansible playbooks] (2018 - present)(https://github.com/general-programming/megarepo/tree/mainline/infrastructure/ansible)
+* [ansible playbooks](https://github.com/general-programming/megarepo/tree/mainline/infrastructure/ansible) (2018 - present)
     * evolving mess that manages my current colo infra and cloud infra
 * [r/place (2022) archiver](https://github.com/Snakeroom/bad-nep-archive-code) (2022)
     * mass downloading of every single websocket message and frame reddit sends? fun stuff! 
