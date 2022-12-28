@@ -17,16 +17,14 @@ if ! command -v vscode &> /dev/null; then
 fi
 
 # install rust stable + nightly
-if ! command -v rustc &> /dev/null
-then
+if ! command -v rustc &> /dev/null; then
     rustup-init -v --no-modify-path --default-toolchain nightly
     source "$HOME/.cargo/env"
     rustup install stable
 fi
 
 # create nvm folder and install nodejs lts
-if ! command -v node &> /dev/null
-then
+if ! command -v node &> /dev/null; then
 mkdir ~/.nvm
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
