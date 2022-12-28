@@ -40,6 +40,12 @@ if [[ -d "$HOME/etc/nomad.d" ]]; then
 	export NOMAD_CLIENT_KEY=$HOME/etc/nomad.d/cli.key
 fi
 
+# rvm
+## Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+
 # aliases
 ## good for yeeting log files
 alias yeet='zstd -T0 -19 -vv --rm'
