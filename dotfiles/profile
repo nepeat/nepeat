@@ -25,6 +25,21 @@ export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 # https://github.com/MBoxPlus/mbox
 [ -f "$HOME/.mboxrc" ] && . "$HOME/.mboxrc"
 
+# twilio
+TWILIO_AC_ZSH_SETUP_PATH=$HOME/.twilio-cli/autocomplete/zsh_setup && test -f $TWILIO_AC_ZSH_SETUP_PATH && source $TWILIO_AC_ZSH_SETUP_PATH;
+
+# ccache
+[ -d "=/opt/homebrew/opt/ccache/libexec" ] && export PATH=/opt/homebrew/opt/ccache/libexec:$PATH
+
+# vault + nomad
+if [[ -d "$HOME/etc/nomad.d" ]]; then
+    export VAULT_ADDR=https://vault-proxy.catgirls.dev:8200
+    export NOMAD_ADDR=https://127.0.0.1:4646
+    export NOMAD_CACERT=$HOME/etc/nomad.d/ca.crt
+    export NOMAD_CLIENT_CERT=$HOME/etc/nomad.d/cli.crt
+    export NOMAD_CLIENT_KEY=$HOME/etc/nomad.d/cli.key
+fi
+
 # aliases
 ## good for yeeting log files
 alias yeet='zstd -T0 -19 -vv --rm'
