@@ -33,11 +33,11 @@ TWILIO_AC_ZSH_SETUP_PATH=$HOME/.twilio-cli/autocomplete/zsh_setup && test -f $TW
 
 # vault + nomad
 if [[ -d "$HOME/etc/nomad.d" ]]; then
-    export VAULT_ADDR=https://vault-proxy.catgirls.dev:8200
-    export NOMAD_ADDR=https://127.0.0.1:4646
-    export NOMAD_CACERT=$HOME/etc/nomad.d/ca.crt
-    export NOMAD_CLIENT_CERT=$HOME/etc/nomad.d/cli.crt
-    export NOMAD_CLIENT_KEY=$HOME/etc/nomad.d/cli.key
+	export VAULT_ADDR=https://vault-proxy.catgirls.dev:8200
+	export NOMAD_ADDR=https://127.0.0.1:4646
+	export NOMAD_CACERT=$HOME/etc/nomad.d/ca.crt
+	export NOMAD_CLIENT_CERT=$HOME/etc/nomad.d/cli.crt
+	export NOMAD_CLIENT_KEY=$HOME/etc/nomad.d/cli.key
 fi
 
 # aliases
