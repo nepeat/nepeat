@@ -2,6 +2,15 @@
 
 set -x
 
+# enable dark mode + ui tweaks
+osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to true'
+defaults -currentHost write com.apple.controlcenter.plist BatteryShowPercentage -bool true
+defaults -currentHost write com.apple.menuextra.clock.plist ShowSeconds -bool true
+defaults write com.apple.dock "autohide" -bool "true"
+
+# kill after settings updates
+killall Dock
+
 # install homebrew if not found
 if ! command -v brew &> /dev/null; then
 	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -38,15 +47,6 @@ if ! command -v rvm &> /dev/null; then
 	[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 	rvm install ruby
 fi
-
-# enable dark mode + ui tweaks
-osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to true'
-defaults -currentHost write com.apple.controlcenter.plist BatteryShowPercentage -bool true
-defaults -currentHost write com.apple.menuextra.clock.plist ShowSeconds -bool true
-defaults write com.apple.dock "autohide" -bool "true"
-
-# kill after settings updates
-killall Dock
 
 if [[ -d "${INTERNAL_DOTFILES}" ]]; then
 	cd "${INTERNAL_DOTFILES}"
