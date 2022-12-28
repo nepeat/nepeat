@@ -35,7 +35,7 @@ nvm install --lts
 fi
 
 # enable dark mode + ui tweaks
-osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to not dark mode'
+osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to true'
 defaults -currentHost write com.apple.controlcenter.plist BatteryShowPercentage -bool true
 defaults -currentHost write com.apple.menuextra.clock.plist ShowSeconds -bool true
 defaults write com.apple.dock "autohide" -bool "true"
