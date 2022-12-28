@@ -20,7 +20,7 @@ export PATH="$PNPM_HOME:$PATH"
 export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 
 # rust
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 # https://github.com/MBoxPlus/mbox
 [ -f "$HOME/.mboxrc" ] && . "$HOME/.mboxrc"
