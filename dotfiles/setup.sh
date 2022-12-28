@@ -46,6 +46,7 @@ if ! command -v rvm &> /dev/null; then
 	curl -sSL https://get.rvm.io | bash -s stable
 	[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 	rvm install ruby
+	rvm docs generate-ri
 fi
 
 if [[ -d "${INTERNAL_DOTFILES}" ]]; then
