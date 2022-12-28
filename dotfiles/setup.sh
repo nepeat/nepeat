@@ -8,8 +8,7 @@ if ! command -v brew &> /dev/null; then
 fi
 
 # install brew packages
-xargs brew -v install < brew/formula
-xargs brew -v install --cask < brew/casks
+brew bundle --file=brew/Brewfile
 
 # link code -> vscode
 if ! command -v vscode &> /dev/null; then
