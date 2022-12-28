@@ -1,0 +1,13 @@
+# Added by Toolbox App
+export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
+. "$HOME/.cargo/env"
+
+[ -f "$HOME/.mboxrc" ] && . "$HOME/.mboxrc"
+
+# good for yeeting log files
+alias yeet='zstd -T0 -19 -vv --rm'
+
+# include internal
+if [ -f "$HOME/.profile-internal" ]; then
+    source "$HOME/.profile-internal"
+fi

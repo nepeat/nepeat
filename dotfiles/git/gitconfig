@@ -1,0 +1,29 @@
+[user]
+    name = nepeat
+    email = nepeat@gmail.com
+[include]
+    path = ~/.gitconfig-internal
+[alias]
+    co = checkout
+    ci = commit
+    st = status
+    pl = pull
+    plr = pull --rebase
+    br = branch
+    ps = push
+    psr = push origin HEAD:refs/for/master%r=erin.liman
+    dt = difftool
+    l = log --stat
+    cp = cherry-pick
+    ca = commit -a
+[push]
+    default = simple
+[core]
+    editor = vim
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[merge]
+	tool = opendiff
