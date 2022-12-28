@@ -6,24 +6,8 @@ plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 
-# personal / autogen configuration
-export PATH=$PATH:/usr/local/go/bin
-export GOPATH=$HOME/go
-export GOBIN=$HOME/go/bin
-export PATH=$PATH:$GOBIN
-export PATH="/opt/homebrew/bin:$PATH"
-source "$HOME/.cargo/env"
+# include .profile
+source "$HOME/.profile"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
-export PATH="$PNPM_HOME:$PATH"
-# pnpm end
-
-# include internal
-if [ -f "$HOME/.zshrc-internal" ]; then
-    source "$HOME/.zshrc-internal"
-fi
+# include internal zshrc
+[ -f "$HOME/.zshrc-internal" ] && . "$HOME/.zshrc-internal"

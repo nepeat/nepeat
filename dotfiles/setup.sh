@@ -24,6 +24,16 @@ then
     rustup install stable
 fi
 
+# create nvm folder and install nodejs lts
+if ! command -v node &> /dev/null
+then
+mkdir ~/.nvm
+export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+nvm install --lts
+fi
+
 # enable dark mode + ui tweaks
 osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to not dark mode'
 defaults -currentHost write com.apple.controlcenter.plist BatteryShowPercentage -bool true
