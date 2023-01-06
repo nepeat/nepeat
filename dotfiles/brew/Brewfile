@@ -140,3 +140,4 @@ cask "rar"
 cask "swiftdefaultappsprefpane"
 # Code editor
 cask "visual-studio-code-insiders"
+brew "grepcidr"
