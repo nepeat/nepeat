@@ -1,3 +1,5 @@
+tap "1password/tap"
+tap "derailed/k9s"
 tap "homebrew-ffmpeg/ffmpeg"
 tap "homebrew/bundle"
 tap "homebrew/cask"
@@ -6,138 +8,93 @@ tap "homebrew/core"
 tap "homebrew/services"
 tap "rfidresearchgroup/proxmark3"
 tap "twilio/brew"
-# Library for command-line editing
-brew "readline", link: true
-# Automate deployment, configuration, and upgrading
+brew "python@3.11"
 brew "ansible"
-# Password hashing library and CLI utility
+brew "webp"
 brew "argon2"
-# Manage compile and link flags for libraries
-brew "pkg-config"
-# Zstandard is a real-time compression algorithm
-brew "zstd"
-# Object-file caching compiler wrapper
+brew "aria2"
+brew "autoconf"
+brew "automake"
+brew "borgbackup"
 brew "ccache"
-# Generic template rendering and notifications with Consul
+brew "certbot"
 brew "consul-template"
-# Securely send things from one computer to another
 brew "croc"
-# Load/unload environment variables based on $PWD
 brew "direnv"
-# Validating, recursive, caching DNS resolver
+brew "exiftool"
 brew "unbound"
-# GNU Transport Layer Security (TLS) Library
 brew "gnutls"
-# Play, record, convert, and stream audio and video
+brew "tesseract"
 brew "ffmpeg"
-# Library for USB device access
+brew "fswatch"
+brew "git-filter-repo"
+brew "guile"
 brew "libusb"
-# Bash-tool to store the private data inside a git repo
+brew "gnupg"
 brew "git-secret"
-# Open source programming language to build simple/reliable/efficient software
 brew "go"
-# Graph visualization software from AT&T and Bell Labs
 brew "graphviz"
-# Improved top (interactive process viewer)
-brew "htop"
-# Cryptography and SSL/TLS Toolkit
-brew "openssl@3"
-# Update of iperf: measures TCP, UDP, and SCTP bandwidth
-brew "iperf3"
-# Lightweight and flexible command-line JSON processor
-brew "jq"
-# Implementation of the file(1) command
-brew "libmagic"
-# Postgres C API library
-brew "libpq"
-# Library for USB device access
-brew "libusb-compat"
-# 'traceroute' and 'ping' in a single tool
-brew "mtr"
-# Port scanning utility for large networks
-brew "nmap"
-# Platform built on V8 to build network applications
-brew "node"
-# Distributed, Highly Available, Datacenter-Aware Scheduler
-brew "nomad"
-# 7-Zip (high compression file archiver) implementation
-brew "p7zip"
-# Tool for creating identical machine images for multiple platforms
-brew "packer"
-# Parallel bzip2
-brew "pbzip2"
-# Pretty system information tool written in POSIX sh
-brew "pfetch"
-# Steel Bank Common Lisp system
-brew "sbcl"
-# Data loading tool for PostgreSQL
-brew "pgloader"
-# Object-relational database system
-brew "postgresql@14", restart_service: true
-# Protocol buffers (Google's data interchange format)
-brew "protobuf"
-# Monitor data's progress through a pipe
-brew "pv"
-# Interpreted, interactive, object-oriented programming language
-brew "python@3.10"
-# Emulator for x86 and PowerPC
-brew "qemu"
-# Cross-platform application and UI framework
-brew "qt@5"
-# Rsync for cloud storage
-brew "rclone"
-# Persistent key-value database, with built-in net interface
-brew "redis"
-# Search tool like grep and The Silver Searcher
-brew "ripgrep"
-# Standard unix software packaging tool
-brew "rpm"
-# Utility that provides fast incremental file transfer
-brew "rsync"
-# Rust toolchain installer
-brew "rustup-init"
-# SMART hard drive monitoring
-brew "smartmontools"
-# Soak up standard input and write to a file
-brew "sponge"
-# User interface to the TELNET protocol
-brew "telnet"
-# Tool to build, change, and version infrastructure
-brew "terraform"
-# Secures, stores, and tightly controls access to secrets
-brew "vault"
-# Executes a program periodically, showing output fullscreen
-brew "watch"
-# Internet file retriever
-brew "wget"
-# Tools for the WireGuard secure network tunnel
-brew "wireguard-tools"
-# HTTP benchmarking tool
-brew "wrk"
-# GNU compiler collection for x86_64-elf
-brew "x86_64-elf-gcc"
-# Download YouTube videos from the command-line
-brew "youtube-dl"
-# RRG/Iceman Proxmark3 client, CDC flasher and firmware bundle
-brew "rfidresearchgroup/proxmark3/proxmark3", args: ["with-generic"]
-# unleash the power of Twilio from your command prompt
-brew "twilio/brew/twilio"
-# Virtual Audio Driver
-cask "blackhole-2ch"
-# Web browser
-cask "firefox-developer-edition"
-# Git interface focused on visual interaction
-cask "gitup"
-# Terminal emulator as alternative to Apple's Terminal app
-cask "iterm2-nightly"
-# JetBrains tools manager
-cask "jetbrains-toolbox"
-# Reverse proxy, secure introspectable tunnels to localhost
-cask "ngrok"
-# Archive manager for data compression and backups
-cask "rar"
-# Replacement for RCDefaultApps, written in Swift
-cask "swiftdefaultappsprefpane"
-# Code editor
-cask "visual-studio-code-insiders"
+brew "grep"
 brew "grepcidr"
+brew "htop"
+brew "iperf3"
+brew "jq"
+brew "lastpass-cli"
+brew "libmagic"
+brew "libpq"
+brew "libusb-compat"
+brew "protobuf"
+brew "mosh"
+brew "mtr"
+brew "nginx"
+brew "nmap"
+brew "node"
+brew "nomad"
+brew "nvm"
+brew "oci-cli"
+brew "p7zip"
+brew "packer"
+brew "pbzip2"
+brew "pfetch"
+brew "sbcl"
+brew "pgloader"
+brew "postgresql@14", restart_service: true
+brew "pv"
+brew "pyenv"
+brew "python@3.10"
+brew "qemu"
+brew "qt@5"
+brew "rclone"
+brew "redis"
+brew "ripgrep"
+brew "rpm"
+brew "rsync"
+brew "rustup-init"
+brew "smartmontools"
+brew "sponge"
+brew "telnet"
+brew "terraform"
+brew "thefuck"
+brew "vault"
+brew "watch"
+brew "wget"
+brew "wireguard-tools"
+brew "wrk"
+brew "x86_64-elf-gcc"
+brew "youtube-dl"
+brew "zlib"
+brew "derailed/k9s/k9s"
+brew "rfidresearchgroup/proxmark3/proxmark3", args: ["with-generic"]
+brew "twilio/brew/twilio"
+cask "1password-cli"
+cask "blackhole-2ch"
+cask "firefox-developer-edition"
+cask "gitup"
+cask "iterm2-nightly"
+cask "jetbrains-toolbox"
+cask "ngrok"
+cask "openlens"
+cask "rar"
+cask "swiftdefaultappsprefpane"
+cask "visual-studio-code-insiders"
+cask "vlc"
