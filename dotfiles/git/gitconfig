@@ -27,3 +27,5 @@
 	process = git-lfs filter-process
 [merge]
 	tool = opendiff
+[http]
+	sslverify = false
