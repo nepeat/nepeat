@@ -1,1 +1,8 @@
+Host *
+	KexAlgorithms +diffie-hellman-group1-sha1
+	Ciphers +aes128-cbc
+	HostKeyAlgorithms +ssh-rsa
+	PubkeyAcceptedAlgorithms +ssh-rsa
+	StrictHostKeychecking no
+
 Include conf.d/*
