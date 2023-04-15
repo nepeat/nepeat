@@ -49,8 +49,17 @@ export PATH="$PATH:$HOME/.rvm/bin"
 eval $(thefuck --alias)
 
 # aliases
+
 ## good for yeeting log files
 alias yeet='zstd -T0 -19 -vv --rm'
+
+## json prettifier
+json_pretty () {
+	tmpfile=$(mktemp)
+	nano -w $tmpfile
+	cat $tmpfile | jq
+	rm $tmpfile
+}
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
