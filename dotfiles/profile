@@ -53,6 +53,9 @@ eval $(thefuck --alias)
 ## good for yeeting log files
 alias yeet='zstd -T0 -19 -vv --rm'
 
+## git pull all git folders in a directory
+alias codepull='find . -name ".git" -type d | xargs -P4 -I{} git --git-dir={} pull'
+
 ## json prettifier
 json_pretty () {
 	tmpfile=$(mktemp)
