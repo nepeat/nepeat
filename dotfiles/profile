@@ -74,6 +74,10 @@ export PATH=$PATH:$HOME/Library/Android/sdk/tools/:$HOME/Library/Android/sdk/pla
 export PATH=$PATH:/Applications/Android\ Studio.app/Contents/jbr/Contents/Home
 export JAVA_HOME=/Applications/Android\ Studio.app/Contents/jbr/Contents/Home
 
+# Chrome Depot Tools if it exists
+if [ -d "$HOME/depot_tools" ]; then
+	export PATH=$HOME/depot_tools:$PATH
+fi
 
 # include internal profile
 [ -f "$HOME/.profile-internal" ] && . "$HOME/.profile-internal"
