@@ -20,6 +20,7 @@
     default = simple
 [core]
     editor = vim
+	excludesfile = ~/.gitignore
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
