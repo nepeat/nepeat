@@ -77,6 +77,8 @@ brew "grepcidr"
 brew "htop"
 # Tools and libraries to manipulate images in many formats
 brew "imagemagick"
+# Cryptography and SSL/TLS Toolkit
+brew "openssl@3"
 # Update of iperf: measures TCP, UDP, and SCTP bandwidth
 brew "iperf3"
 # Lightweight and flexible command-line JSON processor
@@ -85,12 +87,16 @@ brew "jq"
 brew "kubeseal"
 # Implementation of the file(1) command
 brew "libmagic"
+# PKCS#11 wrapper library in C
+brew "libp11"
 # Postgres C API library
 brew "libpq"
 # Library for USB device access
 brew "libusb-compat"
 # 'traceroute' and 'ping' in a single tool
 brew "mtr"
+# Fast, highly customisable system info script
+brew "neofetch"
 # Port scanning utility for large networks
 brew "nmap"
 # Platform built on V8 to build network applications
@@ -183,6 +189,8 @@ cask "iterm2-nightly"
 cask "jetbrains-toolbox"
 # Reverse proxy, secure introspectable tunnels to localhost
 cask "ngrok"
+# Smart card libraries and utilities
+cask "opensc"
 # Archive manager for data compression and backups
 cask "rar"
 # Replacement for RCDefaultApps, written in Swift
