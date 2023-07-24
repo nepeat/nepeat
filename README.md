@@ -12,7 +12,7 @@ i curse this site with my bad code and disaster of an infrastructure.
 * [barf](https://github.com/general-programming/megarepo/tree/mainline/projects/barf) (2022) - config generation and basic management prototype for my vpn backbone and soon the rest of my lab networks
 * [ansible playbooks](https://github.com/general-programming/megarepo/tree/mainline/infrastructure/ansible) (2018 - present)
     * evolving mess that manages my current colo infra and cloud infra
-* [r/place (2022) archiver](https://github.com/Snakeroom/bad-nep-archive-code) (2022)
+* [r/place (2022) archiver](https://github.com/Snakeroom/bad-nep-archive-code) (2022 + 2023)
     * mass downloading of every single websocket message and frame reddit sends? fun stuff! 
 * [twitch drives](https://github.com/general-programming/twitch-drives) (2021)
     * i let a discord channel and twitch drive my car.
