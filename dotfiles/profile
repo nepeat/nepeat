@@ -1,5 +1,5 @@
 # homebrew
-export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$PATH:/opt/homebrew/bin"
 
 # golang
 export PATH=$PATH:/usr/local/go/bin
@@ -29,7 +29,7 @@ export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 TWILIO_AC_ZSH_SETUP_PATH=$HOME/.twilio-cli/autocomplete/zsh_setup && test -f $TWILIO_AC_ZSH_SETUP_PATH && source $TWILIO_AC_ZSH_SETUP_PATH;
 
 # ccache
-[ -d "=/opt/homebrew/opt/ccache/libexec" ] && export PATH=/opt/homebrew/opt/ccache/libexec:$PATH
+[ -d "=/opt/homebrew/opt/ccache/libexec" ] && export PATH=$PATH:/opt/homebrew/opt/ccache/libexec
 
 # vault + nomad
 if [[ -d "$HOME/etc/nomad.d" ]]; then

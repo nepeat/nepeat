@@ -1,5 +1,8 @@
 { pkgs, lib, ... }:
 {
+  # https://github.com/nix-community/home-manager/issues/4026
+  users.users.nep.home = "/Users/nep";
+
   # Nix configuration ------------------------------------------------------------------------------
 
   nix.binaryCaches = [
@@ -23,6 +26,7 @@
   '';
 
   # Create /etc/bashrc that loads the nix-darwin environment.
+  programs.bash.enable = true;
   programs.zsh.enable = true;
 
   # Auto upgrade nix package and the daemon service.

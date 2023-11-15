@@ -3,6 +3,21 @@
 {
   home.stateVersion = "23.11";
 
+    # zsh specific
+    programs.zsh = {
+        enable = true;
+        oh-my-zsh = {
+            enable = true;
+            plugins = [ "git" "ssh-agent" "thefuck" "direnv" ];
+            theme = "gentoo";
+        };
+
+        initExtra = ''
+        source "$HOME/.profile"
+        [ -f "$HOME/.zshrc-internal" ] && . "$HOME/.zshrc-internal"
+        '';
+    };
+
   # https://github.com/malob/nixpkgs/blob/master/home/default.nix
 
   # Direnv, load and unload environment variables depending on the current directory.

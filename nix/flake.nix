@@ -26,16 +26,7 @@
     # Configuration for `nixpkgs`
     nixpkgsConfig = {
       config = { allowUnfree = true; };
-    #   overlays = attrValues self.overlays ++ singleton (
-    #     # Sub in x86 version of packages that don't build on Apple Silicon yet
-    #     final: prev: (optionalAttrs (prev.stdenv.system == "aarch64-darwin") {
-    #       inherit (final.pkgs-x86)
-    #         idris2
-    #         nix-index
-    #         niv
-    #         purescript;
-    #     })
-    #   );
+      overlays = attrValues self.overlays;
     };
   in
   {
