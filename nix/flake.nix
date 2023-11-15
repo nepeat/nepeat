@@ -46,7 +46,7 @@
         system = "aarch64-darwin";
         modules = [
           # Main `nix-darwin` config
-          ../../base/configuration.nix
+          ./base/configuration.nix
           # `home-manager` module
           home-manager.darwinModules.home-manager
           {
@@ -54,7 +54,7 @@
             # `home-manager` config
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.nep = import ../../base/home.nix;
+            home-manager.users.nep = import ./base/home.nix;
           }
         ];
       };
