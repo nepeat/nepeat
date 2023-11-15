@@ -18,7 +18,6 @@
         };
 
         initExtra = ''
-        source "$HOME/.profile"
         [ -f "$HOME/.zshrc-internal" ] && . "$HOME/.zshrc-internal"
         '';
     };
@@ -42,7 +41,46 @@
     curl
     wget
 
+    # flexing
+    neofetch
+    pfetch
+
+    # good utils
+    cmake
+    ripgrep
+    exiftool
+    dyff
+    jq
+    yq
+    aria2
+    nmap
+    binwalk
+    parallel
+    smartmontools
+    wget
+    rsync
+    wrk
+    gnupg
+    iperf3
+    imagemagick
+    graphviz
+    croc
+    vault
+    pv
+    rclone
+    watch
+    inetutils
+    grepcidr
+    pbzip2
+    mtr
+    hugo
+    thefuck
+
     # Dev stuff
+
+    ## local db
+    postgresql
+    pgloader
 
     ## nodejs
     nodePackages.typescript
@@ -66,18 +104,40 @@
     ## java
     temurin-bin-21
 
-    ## misc
-    openssh
+    ## cloud
+    oci-cli
     google-cloud-sdk
+    terraform
+    packer
+
+    ## k8s
+    kubectl
+    kustomize
+    kubeseal
+    kubernetes-helm
+
+    ## misc
+    consul-template
+    ffmpeg_6
+    redis
+    ansible
+    openssh
     idris2
-    jq
     purescript
     twilio-cli
+    zstd
+    qemu
+    git-secret
+    p7zip
+    protobuf
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
     comma # run software from without installing it
     niv # easy dependency management for nix projects
+
+    # smartcard stuff
+    opensc
 
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods
