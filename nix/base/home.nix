@@ -3,7 +3,12 @@
 {
   home.stateVersion = "23.11";
 
-    # zsh specific
+    # shell stuff
+    programs.bash = {
+        enable = true;
+        profileExtra = (builtins.readFile ./dotfiles/profile);
+    };
+
     programs.zsh = {
         enable = true;
         oh-my-zsh = {
@@ -38,19 +43,40 @@
     wget
 
     # Dev stuff
-    # (agda.withPackages (p: [ p.standard-library ]))
+
+    ## nodejs
+    nodePackages.typescript
+    nodePackages.pnpm
+    nodejs_21
+    nodePackages.node2nix
+
+    ## go
+    go
+
+    ## rust
+    rustc
+    cargo
+
+    ## ruby
+    ruby_3_2
+
+    ## android
+    android-tools
+
+    ## java
+    temurin-bin-21
+
+    ## misc
     google-cloud-sdk
     idris2
     jq
-    nodePackages.typescript
-    nodejs
     purescript
+    twilio-cli
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
     comma # run software from without installing it
     niv # easy dependency management for nix projects
-    nodePackages.node2nix
 
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods
