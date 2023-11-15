@@ -11,10 +11,6 @@
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs-unstable";
-
-    # Other sources
-    comma = { url = github:Shopify/comma; flake = false; };
-
   };
 
   outputs = { self, darwin, nixpkgs, home-manager, ... }@inputs:
@@ -54,12 +50,7 @@
     # Overlays --------------------------------------------------------------- {{{
 
     overlays = {
-      # Overlays to add various packages into package set
-        comma = final: prev: {
-          comma = import inputs.comma { inherit (prev) pkgs; };
-        };
-
-      # Overlay useful on Macs with Apple Silicon
+        # Overlay useful on Macs with Apple Silicon
         apple-silicon = final: prev: optionalAttrs (prev.stdenv.system == "aarch64-darwin") {
           # Add access to x86 packages system is running Apple Silicon
           pkgs-x86 = import inputs.nixpkgs-unstable {
