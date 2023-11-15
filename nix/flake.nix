@@ -44,7 +44,7 @@
     darwinConfigurations = rec {
       personal = darwinSystem {
         system = "aarch64-darwin";
-        modules = attrValues self.darwinModules ++ [
+        modules = [
           # Main `nix-darwin` config
           ../../base/configuration.nix
           # `home-manager` module
