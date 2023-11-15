@@ -67,6 +67,7 @@
     temurin-bin-21
 
     ## misc
+    openssh
     google-cloud-sdk
     idris2
     jq
