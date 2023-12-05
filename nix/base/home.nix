@@ -75,6 +75,7 @@
     mtr
     hugo
     thefuck
+    yt-dlp
 
     # Dev stuff
 
@@ -103,6 +104,10 @@
 
     ## java
     temurin-bin-21
+
+    ## python
+    python3
+    python311Packages.python-magic
 
     ## cloud
     oci-cli
