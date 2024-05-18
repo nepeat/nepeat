@@ -44,6 +44,10 @@
     terminal-notifier
     file
 
+    # hsm + smartcard stuff
+    opensc
+    libp11
+
     # misc
     wireguard-tools
   ];
@@ -55,6 +59,7 @@
   fonts.fontDir.enable = true;
   fonts.fonts = with pkgs; [
      recursive
+     mona-sans
      (nerdfonts.override { fonts = [
         "JetBrainsMono"
         "ComicShannsMono"

@@ -4,10 +4,10 @@ ZSH_THEME="gentoo"
 ENABLE_CORRECTION="true"
 plugins=(git ssh-agent direnv thefuck)
 
-source $ZSH/oh-my-zsh.sh
+. $ZSH/oh-my-zsh.sh
 
 # include .profile
-source "$HOME/.profile"
+. "$HOME/.profile"
 
 # include internal zshrc
 [ -f "$HOME/.zshrc-internal" ] && . "$HOME/.zshrc-internal"

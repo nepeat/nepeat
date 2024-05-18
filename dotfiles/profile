@@ -1,4 +1,9 @@
 # don't import anything if we are in nix
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+
 if ! type "nix" > /dev/null; then
 	# homebrew
 	export PATH="$PATH:/opt/homebrew/bin"

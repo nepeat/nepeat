@@ -18,6 +18,7 @@
         };
 
         initExtra = ''
+        . "$HOME/.profile"
         [ -f "$HOME/.zshrc-internal" ] && . "$HOME/.zshrc-internal"
         '';
     };
@@ -65,7 +66,6 @@
     imagemagick
     graphviz
     croc
-    vault
     pv
     rclone
     watch
@@ -81,13 +81,13 @@
 
     ## local db
     postgresql
-    pgloader
 
     ## nodejs
     nodePackages.typescript
     nodePackages.pnpm
-    nodejs_21
+    nodejs_22
     nodePackages.node2nix
+    bun
 
     ## go
     go
@@ -106,20 +106,27 @@
     temurin-bin-21
 
     ## python
-    python3
-    python311Packages.python-magic
+    python312
+    python312Packages.python-magic
+    python312Packages.pytz
 
-    ## cloud
+    ## c#
+    mono
+
+    ## cloud providers
     oci-cli
     google-cloud-sdk
-    terraform
-    packer
 
     ## k8s
     kubectl
     kustomize
     kubeseal
     kubernetes-helm
+
+    ## hashicorp + forks
+    vault
+    opentofu
+    packer
 
     ## misc
     consul-template
@@ -135,15 +142,12 @@
     git-secret
     p7zip
     protobuf
+    openssl_3_3
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
     comma # run software from without installing it
     niv # easy dependency management for nix projects
-
-    # smartcard stuff
-    opensc
-
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods
     m-cli # useful macOS CLI commands
