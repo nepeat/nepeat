@@ -44,8 +44,11 @@
     terminal-notifier
     file
 
+    # global tools
+    pkg-config
+
     # hsm + smartcard stuff
-    opensc
+    openssl
     libp11
 
     # misc
@@ -56,8 +59,7 @@
   programs.nix-index.enable = true;
 
   # Fonts
-  fonts.fontDir.enable = true;
-  fonts.fonts = with pkgs; [
+  fonts.packages = with pkgs; [
      recursive
      mona-sans
      (nerdfonts.override { fonts = [

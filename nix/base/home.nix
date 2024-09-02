@@ -85,7 +85,7 @@
     # Dev stuff
 
     ## local db
-    postgresql
+    postgresql_16_jit
 
     ## nodejs
     nodePackages.typescript
@@ -114,6 +114,7 @@
     python312
     python312Packages.python-magic
     python312Packages.pytz
+    python312Packages.psycopg2
 
     ## c#
     mono
@@ -147,7 +148,6 @@
     git-secret
     p7zip
     protobuf
-    openssl_3_3
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
