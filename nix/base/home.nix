@@ -23,6 +23,11 @@
         '';
     };
 
+    # shell history
+    programs.atuin = {
+        enable = true;
+    };
+
   # https://github.com/malob/nixpkgs/blob/master/home/default.nix
 
   # Direnv, load and unload environment variables depending on the current directory.

@@ -11,3 +11,10 @@ plugins=(git ssh-agent direnv thefuck)
 
 # include internal zshrc
 [ -f "$HOME/.zshrc-internal" ] && . "$HOME/.zshrc-internal"
+
+# include atuin
+local FOUND_ATUIN=$+commands[atuin]
+
+if [[ $FOUND_ATUIN -eq 1 ]]; then
+  source <(atuin init zsh)
+fi
