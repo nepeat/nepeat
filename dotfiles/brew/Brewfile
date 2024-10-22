@@ -177,23 +177,3 @@ brew "zlib"
 brew "rfidresearchgroup/proxmark3/proxmark3", args: ["with-generic"]
 # unleash the power of Twilio from your command prompt
 brew "twilio/brew/twilio"
-# Virtual Audio Driver
-cask "blackhole-2ch"
-# Web browser
-cask "firefox-developer-edition"
-# Git interface focused on visual interaction
-cask "gitup"
-# Terminal emulator as alternative to Apple's Terminal app
-cask "iterm2-nightly"
-# JetBrains tools manager
-cask "jetbrains-toolbox"
-# Reverse proxy, secure introspectable tunnels to localhost
-cask "ngrok"
-# Smart card libraries and utilities
-cask "opensc"
-# Archive manager for data compression and backups
-cask "rar"
-# Replacement for RCDefaultApps, written in Swift
-cask "swiftdefaultappsprefpane"
-# Code editor
-cask "visual-studio-code-insiders"
