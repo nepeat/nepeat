@@ -29,4 +29,4 @@ relink	.gitignore	"$DOTFILES/git/gitignore"
 
 # ssh config
 relink .ssh/config "$DOTFILES/ssh/config"
-mkdir ~/.ssh/conf.d
+mkdir ~/.ssh/conf.d || true
