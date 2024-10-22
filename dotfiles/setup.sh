@@ -17,7 +17,7 @@ if ! command -v brew &> /dev/null; then
 fi
 
 # install brew packages
-brew bundle --file=brew/Brewfile
+brew bundle --file=brew/Brewfile -v
 
 # link code -> vscode
 if ! command -v vscode &> /dev/null; then
