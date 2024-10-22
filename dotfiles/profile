@@ -93,6 +93,7 @@ json_pretty () {
 }
 
 ## tofu gang
+alias tf=tofu
 alias terraform=tofu
 
 # include internal profile
