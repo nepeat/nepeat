@@ -87,5 +87,8 @@ json_pretty () {
 	rm $tmpfile
 }
 
+## tofu gang
+alias terraform=tofu
+
 # include internal profile
 [ -f "$HOME/.profile-internal" ] && . "$HOME/.profile-internal"
