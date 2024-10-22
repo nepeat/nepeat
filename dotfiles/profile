@@ -71,6 +71,11 @@ if [[ -d "$HOME/etc/nomad.d" ]]; then
 	export NOMAD_CLIENT_KEY=$HOME/etc/nomad.d/cli.key
 fi
 
+# personal bin folder
+if [[ -d "$HOME/bin" ]]; then
+	export PATH="$HOME/bin:$PATH"
+fi
+
 # aliases
 
 ## good for yeeting log files
