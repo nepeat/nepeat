@@ -148,6 +148,8 @@
     git-secret
     p7zip
     protobuf
+    httpie
+    websocat
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
