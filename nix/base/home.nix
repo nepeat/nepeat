@@ -110,12 +110,6 @@
     ## java
     temurin-bin-21
 
-    ## python
-    python312
-    python312Packages.python-magic
-    python312Packages.pytz
-    python312Packages.psycopg2
-
     ## c#
     mono
 
@@ -138,7 +132,6 @@
     consul-template
     ffmpeg_6
     redis
-    ansible
     openssh
     idris2
     purescript

@@ -8,7 +8,6 @@
     # lix
     lix = {
       url = "git+https://git@git.lix.systems/lix-project/lix";
-      flake = false;
     };
 
     lix-module = {
@@ -20,7 +19,7 @@
     # Environment/system management
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 

@@ -48,12 +48,19 @@
     terminal-notifier
     file
 
+    # fuck macos
+    gnutar
+    bash
+
     # global tools
     pkg-config
 
     # hsm + smartcard stuff
     openssl
     libp11
+
+    # python
+    python312
 
     # misc
     wireguard-tools
