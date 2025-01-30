@@ -60,7 +60,6 @@
     yq
     aria2
     nmap
-    binwalk
     parallel
     smartmontools
     wget
@@ -76,7 +75,6 @@
     watch
     inetutils
     grepcidr
-    pbzip2
     mtr
     hugo
     thefuck

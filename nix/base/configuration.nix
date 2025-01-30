@@ -71,12 +71,10 @@
 
   # Fonts
   fonts.packages = with pkgs; [
-     recursive
+     nerd-fonts.recursive-mono
+     nerd-fonts.jetbrains-mono
+     nerd-fonts.comic-shanns-mono
      mona-sans
-     (nerdfonts.override { fonts = [
-        "JetBrainsMono"
-        "ComicShannsMono"
-    ]; })
    ];
 
   # Add ability to used TouchID for sudo authentication
