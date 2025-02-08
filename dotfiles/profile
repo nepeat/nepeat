@@ -1,30 +1,31 @@
 # don't import anything if we are in nix
 
+# personal bin folder
+if [[ -d "$HOME/bin" ]]; then
+	export PATH="$HOME/bin:$PATH"
+fi
+
 # pnpm
 export PNPM_HOME="$HOME/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
+
+# rust
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# golang
+export PATH=$PATH:/usr/local/go/bin
+export GOPATH=$HOME/go
+export GOBIN=$HOME/go/bin
+export PATH=$PATH:$GOBIN
 
 if ! type "nix" > /dev/null; then
 	# homebrew
 	export PATH="$PATH:/opt/homebrew/bin"
 
-	# golang
-	export PATH=$PATH:/usr/local/go/bin
-	export GOPATH=$HOME/go
-	export GOBIN=$HOME/go/bin
-	export PATH=$PATH:$GOBIN
-
 	# nodejs
 	export NVM_DIR="$HOME/.nvm"
 	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-	# pnpm
-	export PNPM_HOME="$HOME/Library/pnpm"
-	export PATH="$PNPM_HOME:$PATH"
-
-	# rust
-	[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 	# https://github.com/MBoxPlus/mbox
 	[ -f "$HOME/.mboxrc" ] && . "$HOME/.mboxrc"
@@ -69,11 +70,6 @@ if [[ -d "$HOME/etc/nomad.d" ]]; then
 	export NOMAD_CACERT=$HOME/etc/nomad.d/ca.crt
 	export NOMAD_CLIENT_CERT=$HOME/etc/nomad.d/cli.crt
 	export NOMAD_CLIENT_KEY=$HOME/etc/nomad.d/cli.key
-fi
-
-# personal bin folder
-if [[ -d "$HOME/bin" ]]; then
-	export PATH="$HOME/bin:$PATH"
 fi
 
 # aliases
