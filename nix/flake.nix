@@ -44,7 +44,7 @@
         modules = [
           lix-module.nixosModules.default
           # Main `nix-darwin` config
-          ./base/configuration.nix
+          ./baseo/configuration.nix
           # `home-manager` module
           home-manager.darwinModules.home-manager
           {

@@ -9,6 +9,8 @@
 
   # Nix configuration ------------------------------------------------------------------------------
 
+  nix.enable = true;
+
   nix.settings.substituters = [
     "https://cache.nixos.org/"
     "https://nix-community.cachix.org"
@@ -23,13 +25,11 @@
     "@admin"
   ];
 
-  nix.configureBuildUsers = true;
-
   # Enable experimental nix command and flakes
   # nix.package = pkgs.nixUnstable;
   nix.extraOptions = ''
     auto-optimise-store = false
-    experimental-features = nix-command flakes repl-flake
+    experimental-features = nix-command flakes
   '' + lib.optionalString (pkgs.system == "aarch64-darwin") ''
     extra-platforms = x86_64-darwin aarch64-darwin
   '';
@@ -37,9 +37,6 @@
   # Create /etc/bashrc that loads the nix-darwin environment.
   programs.bash.enable = true;
   programs.zsh.enable = true;
-
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
 
   # Apps
   # `home-manager` currently has issues adding them to `~/Applications`
@@ -60,7 +57,8 @@
     libp11
 
     # python
-    python312
+    python313
+    uv
 
     # misc
     wireguard-tools
@@ -78,5 +76,5 @@
    ];
 
   # Add ability to used TouchID for sudo authentication
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 }

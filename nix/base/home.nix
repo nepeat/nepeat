@@ -79,6 +79,7 @@
     hugo
     thefuck
     yt-dlp
+    sops
 
     # Dev stuff
 
@@ -125,6 +126,7 @@
     vault
     opentofu
     packer
+    openbao
 
     ## misc
     consul-template
