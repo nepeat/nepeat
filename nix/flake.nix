@@ -39,12 +39,29 @@
     # My `nix-darwin` configs
 
     darwinConfigurations = rec {
+      newPersonal = darwinSystem {
+        system = "aarch64-darwin";
+        modules = [
+          lix-module.nixosModules.default
+          # Main `nix-darwin` config
+          ./base/configuration.nix
+          # `home-manager` module
+          home-manager.darwinModules.home-manager
+          {
+            nixpkgs = nixpkgsConfig;
+            # `home-manager` config
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.nepeat = import ./base/home.nix;
+          }
+        ];
+      };
       personal = darwinSystem {
         system = "aarch64-darwin";
         modules = [
           lix-module.nixosModules.default
           # Main `nix-darwin` config
-          ./baseo/configuration.nix
+          ./base/configuration.nix
           # `home-manager` module
           home-manager.darwinModules.home-manager
           {

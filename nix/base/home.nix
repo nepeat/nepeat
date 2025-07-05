@@ -77,7 +77,7 @@
     grepcidr
     mtr
     hugo
-    thefuck
+    pay-respects
     yt-dlp
     sops
 
