@@ -56,6 +56,7 @@
     # hsm + smartcard stuff
     openssl
     libp11
+    opensc
 
     # python
     python313
