@@ -12,6 +12,19 @@
 
   nix.enable = true;
 
+  nix.distributedBuilds = true;
+
+	nix.buildMachines = [ {
+    hostName = "10g.warc.zip";
+    sshUser = "erin";
+    sshKey = "/Users/nep/.ssh/id_ed25519";
+    system = "x86_64-linux";
+    protocol = "ssh-ng";
+    maxJobs = 8;
+    supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" ];
+    mandatoryFeatures = [ ];
+	}] ;
+
   nix.settings.substituters = [
     "https://cache.nixos.org/"
     "https://nix-community.cachix.org"

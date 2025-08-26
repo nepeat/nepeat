@@ -23,7 +23,14 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, darwin, nixpkgs, lix-module, home-manager, ... }@inputs:
+  outputs = {
+    self,
+    darwin,
+    nixpkgs,
+    lix-module,
+    home-manager,
+    ...
+  } @inputs:
   let
 
     inherit (darwin.lib) darwinSystem;
@@ -31,7 +38,7 @@
 
     # Configuration for `nixpkgs`
     nixpkgsConfig = {
-      config = { allowUnfree = true; };
+      config = {allowUnfree = true; };
       overlays = attrValues self.overlays;
     };
   in
