@@ -48,7 +48,7 @@
     wget
 
     # flexing
-    neofetch
+    fastfetch
     pfetch
 
     # good utils
@@ -101,7 +101,7 @@
     cargo
 
     ## ruby
-    ruby_3_2
+    ruby_3_5
 
     ## android
     android-tools
@@ -155,22 +155,45 @@
 
   programs.git = {
     enable = true;
-    userName = "nepeat";
-    userEmail = "nepeat@gmail.com";
 
-    aliases = {
-        co = "checkout";
-        ci = "commit";
-        st = "status";
-        pl = "pull";
-        plr = "pull --rebase";
-        br = "branch";
-        ps = "push";
-        psr = "push origin HEAD:refs/for/master%r=erin.liman";
-        dt = "difftool";
-        l = "log --stat";
-        cp = "cherry-pick";
-        ca = "commit -a";
+    settings = {
+        user = {
+            name = "nepeat";
+            email = "nepeat@gmail.com";
+        };
+
+        alias = {
+            co = "checkout";
+            ci = "commit";
+            st = "status";
+            pl = "pull";
+            plr = "pull --rebase";
+            br = "branch";
+            ps = "push";
+            psr = "push origin HEAD:refs/for/master%r=erin.liman";
+            dt = "difftool";
+            l = "log --stat";
+            cp = "cherry-pick";
+            ca = "commit -a";
+        };
+
+        extraConfig = {
+            push = {
+                default = "simple";
+            };
+            merge = {
+                tool = "opendiff";
+            };
+            http = {
+                sslverify = "false";
+            };
+            "filter \"lfs\"" = {
+                required = "true";
+                clean = "git-lfs clean -- %f";
+                smudge = "git-lfs smudge -- %f";
+                process = "git-lfs filter-process";
+            };
+        };
     };
 
     includes = [
@@ -180,23 +203,5 @@
     ignores = [
         ".DS_Store"
     ];
-
-    extraConfig = {
-        push = {
-            default = "simple";
-        };
-        merge = {
-            tool = "opendiff";
-        };
-        http = {
-            sslverify = "false";
-        };
-        "filter \"lfs\"" = {
-            required = "true";
-            clean = "git-lfs clean -- %f";
-            smudge = "git-lfs smudge -- %f";
-            process = "git-lfs filter-process";
-        };
-    };
   };
 }

@@ -72,7 +72,7 @@
     opensc
 
     # python
-    python313
+    python314
     uv
 
     # misc
