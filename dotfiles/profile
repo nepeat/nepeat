@@ -110,5 +110,8 @@ alias tfi="tofu init"
 alias tfp="tofu plan"
 alias tfa="tofu apply"
 
+## i like rust
+alias pip="uv pip"
+
 # include internal profile
 [ -f "$HOME/.profile-internal" ] && . "$HOME/.profile-internal"
