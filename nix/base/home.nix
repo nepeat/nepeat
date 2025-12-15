@@ -13,7 +13,7 @@
         enable = true;
         oh-my-zsh = {
             enable = true;
-            plugins = [ "git" "ssh-agent" "thefuck" "direnv" ];
+            plugins = [ "git" "thefuck" "direnv" ];
             theme = "gentoo";
         };
 
@@ -143,6 +143,8 @@
     protobuf
     httpie
     websocat
+    tmux
+    just
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
