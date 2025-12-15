@@ -75,6 +75,9 @@
     python314
     uv
 
+    # nix
+    nixos-rebuild
+
     # misc
     wireguard-tools
   ];
