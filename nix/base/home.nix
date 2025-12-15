@@ -160,6 +160,7 @@
         user = {
             name = "nepeat";
             email = "nepeat@gmail.com";
+            signingkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnTPYFFfFpbQ5vaBYdlScyGO76LByosMax56GsWUCsy";
         };
 
         alias = {
@@ -181,17 +182,32 @@
             push = {
                 default = "simple";
             };
+
             merge = {
                 tool = "opendiff";
             };
+
             http = {
                 sslverify = "false";
             };
+
             "filter \"lfs\"" = {
                 required = "true";
                 clean = "git-lfs clean -- %f";
                 smudge = "git-lfs smudge -- %f";
                 process = "git-lfs filter-process";
+            };
+
+            commit = {
+                gpgsign = "true";
+            };
+
+            gpg = {
+                format = "ssh";
+            };
+
+            "gpg \"ssh\"" = {
+                program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
             };
         };
     };
