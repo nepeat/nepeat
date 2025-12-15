@@ -77,6 +77,15 @@ if [[ -d "$HOME/etc/nomad.d" ]]; then
 	export NOMAD_CLIENT_KEY=$HOME/etc/nomad.d/cli.key
 fi
 
+# personal bin folders
+if [[ -d "$HOME/bin" ]]; then
+	export PATH="$HOME/bin:$PATH"
+fi
+
+if [[ -d "$HOME/.local/bin" ]]; then
+	export PATH="$HOME/.local/bin:$PATH"
+fi
+
 # aliases
 
 ## good for yeeting log files
@@ -96,6 +105,10 @@ json_pretty () {
 ## tofu gang
 alias tf=tofu
 alias terraform=tofu
+
+alias tfi="tofu init"
+alias tfp="tofu plan"
+alias tfa="tofu apply"
 
 # include internal profile
 [ -f "$HOME/.profile-internal" ] && . "$HOME/.profile-internal"
