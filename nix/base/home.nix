@@ -178,6 +178,18 @@
             ca = "commit -a";
         };
 
+        commit = {
+            gpgsign = "true";
+        };
+
+        gpg = {
+            format = "ssh";
+        };
+
+        "gpg \"ssh\"" = {
+            program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
+        };
+
         extraConfig = {
             push = {
                 default = "simple";
@@ -196,18 +208,6 @@
                 clean = "git-lfs clean -- %f";
                 smudge = "git-lfs smudge -- %f";
                 process = "git-lfs filter-process";
-            };
-
-            commit = {
-                gpgsign = "true";
-            };
-
-            gpg = {
-                format = "ssh";
-            };
-
-            "gpg \"ssh\"" = {
-                program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
             };
         };
     };
