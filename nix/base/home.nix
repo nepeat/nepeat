@@ -17,7 +17,7 @@
             theme = "gentoo";
         };
 
-        initExtra = ''
+        initContent = lib.mkOrder 1500 ''
         . "$HOME/.profile"
         [ -f "$HOME/.zshrc-internal" ] && . "$HOME/.zshrc-internal"
         '';

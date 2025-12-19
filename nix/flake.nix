@@ -45,6 +45,7 @@
     nixpkgsConfig = {
       config = {allowUnfree = true; };
       overlays = attrValues self.overlays;
+      hostPlatform = "aarch64-darwin";
     };
   in
   {
@@ -52,7 +53,6 @@
 
     darwinConfigurations = rec {
       newPersonal = darwinSystem {
-        system = "aarch64-darwin";
         modules = [
           lix-module.nixosModules.default
           # Main `nix-darwin` config
@@ -81,7 +81,6 @@
         ];
       };
       personal = darwinSystem {
-        system = "aarch64-darwin";
         modules = [
           lix-module.nixosModules.default
           # Main `nix-darwin` config
