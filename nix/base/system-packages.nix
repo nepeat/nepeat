@@ -15,4 +15,12 @@
     # misc
     wireguard-tools
   ];
+
+  # Fonts
+  fonts.packages = with pkgs; [
+     nerd-fonts.recursive-mono
+     nerd-fonts.jetbrains-mono
+     nerd-fonts.comic-shanns-mono
+     mona-sans
+   ];
 }
