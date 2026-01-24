@@ -1,9 +1,5 @@
 { pkgs, lib, ... }:
 {
-  # nix-darwin state version
-  # https://github.com/LnL7/nix-darwin/blob/master/CHANGELOG
-  system.stateVersion = 5;
-
   # https://github.com/nix-community/home-manager/issues/4026
   users.users.nep.home = "/Users/nep";
   users.users.nepeat.home = "/Users/nepeat";
