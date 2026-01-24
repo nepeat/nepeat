@@ -41,36 +41,6 @@
   programs.bash.enable = true;
   programs.zsh.enable = true;
 
-  # Apps
-  # `home-manager` currently has issues adding them to `~/Applications`
-  # Issue: https://github.com/nix-community/home-manager/issues/1341
-  environment.systemPackages = with pkgs; [
-    terminal-notifier
-    file
-
-    # fuck macos
-    gnutar
-    bash
-
-    # global tools
-    pkg-config
-
-    # hsm + smartcard stuff
-    openssl
-    libp11
-    opensc
-
-    # python
-    python314
-    uv
-
-    # nix
-    nixos-rebuild
-
-    # misc
-    wireguard-tools
-  ];
-
   # https://github.com/nix-community/home-manager/issues/423
   programs.nix-index.enable = true;
 

@@ -83,6 +83,10 @@
 
     # Dev stuff
 
+    # python
+    python314
+    uv
+
     ## local db
     postgresql_16_jit
 
@@ -130,6 +134,13 @@
     packer
     openbao
 
+    ## c + misc
+    pkg-config
+
+    ## override macos specific stuff
+    gnutar
+    bash
+
     ## misc
     consul-template
     ffmpeg_6
@@ -153,6 +164,7 @@
     cachix # adding/managing alternative binary caches hosted by Cachix
     comma # run software from without installing it
     niv # easy dependency management for nix projects
+    nixos-rebuild # work with nixos machines a lot
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods
     m-cli # useful macOS CLI commands

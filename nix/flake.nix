@@ -60,6 +60,7 @@
           lix-module.darwinModules.default
           # Main `nix-darwin` config
           ./base/configuration.nix
+          ./base/system-packages.nix
           ./machine/m4mac.nix
           # `home-manager` module
           home-manager.darwinModules.home-manager
@@ -88,6 +89,7 @@
           lix-module.darwinModules.default
           # Main `nix-darwin` config
           ./base/configuration.nix
+          ./base/system-packages.nix
           ./machine/m1laptop.nix
           # `home-manager` module
           home-manager.darwinModules.home-manager
