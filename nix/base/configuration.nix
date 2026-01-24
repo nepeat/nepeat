@@ -1,9 +1,5 @@
 { pkgs, lib, ... }:
 {
-  # https://github.com/nix-community/home-manager/issues/4026
-  users.users.nep.home = "/Users/nep";
-  users.users.nepeat.home = "/Users/nepeat";
-
   # Nix configuration ------------------------------------------------------------------------------
 
   nix.enable = true;
