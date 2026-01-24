@@ -61,6 +61,7 @@
           # Main `nix-darwin` config
           ./base/configuration.nix
           ./base/system-packages.nix
+          ./base/darwin.nix
           ./machine/m4mac.nix
           # `home-manager` module
           home-manager.darwinModules.home-manager
@@ -90,6 +91,7 @@
           # Main `nix-darwin` config
           ./base/configuration.nix
           ./base/system-packages.nix
+          ./base/darwin.nix
           ./machine/m1laptop.nix
           # `home-manager` module
           home-manager.darwinModules.home-manager

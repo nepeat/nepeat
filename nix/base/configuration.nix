@@ -43,7 +43,4 @@
 
   # https://github.com/nix-community/home-manager/issues/423
   programs.nix-index.enable = true;
-
-  # Add ability to used TouchID for sudo authentication
-  security.pam.services.sudo_local.touchIdAuth = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin true;
 }
