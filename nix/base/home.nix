@@ -92,6 +92,7 @@
     nodejs_22
     nodePackages.node2nix
     bun
+    deno
 
     ## go
     go
@@ -121,6 +122,7 @@
     kustomize
     kubeseal
     kubernetes-helm
+    talhelper
 
     ## hashicorp + forks
     vault
@@ -145,6 +147,7 @@
     websocat
     tmux
     just
+    bitwarden-cli
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix

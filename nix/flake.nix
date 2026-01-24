@@ -25,6 +25,7 @@
       url = "github:cpick/nix-rosetta-builder";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    talhelper.url = "github:budimanjojo/talhelper";
   };
 
   outputs = {
@@ -43,7 +44,9 @@
 
     # Configuration for `nixpkgs`
     nixpkgsConfig = {
-      config = {allowUnfree = true; };
+      config = {
+        allowUnfree = true;
+      };
       overlays = attrValues self.overlays;
       hostPlatform = "aarch64-darwin";
     };
@@ -54,7 +57,7 @@
     darwinConfigurations = rec {
       newPersonal = darwinSystem {
         modules = [
-          lix-module.nixosModules.default
+          lix-module.darwinModules.default
           # Main `nix-darwin` config
           ./base/configuration.nix
           ./machine/m4mac.nix
@@ -82,7 +85,7 @@
       };
       personal = darwinSystem {
         modules = [
-          lix-module.nixosModules.default
+          lix-module.darwinModules.default
           # Main `nix-darwin` config
           ./base/configuration.nix
           ./machine/m1laptop.nix

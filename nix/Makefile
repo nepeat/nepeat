@@ -7,7 +7,7 @@ update:
 updateNew:
 	nix flake update -vvv
 	nix-channel --update
-	nix build --always-allow-substitutes --abort-on-warn --show-trace ".#darwinConfigurations.newPersonal.system"
+	nix build --always-allow-substitutes ".#darwinConfigurations.newPersonal.system"
 	sudo ./result/sw/bin/darwin-rebuild switch --flake ".#newPersonal" -vL
 
 clean:
