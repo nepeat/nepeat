@@ -181,8 +181,8 @@
                 "PubkeyAcceptedAlgorithms +ssh-rsa"
                 "StrictHostKeychecking no"
             ];
-        }
-    }
+        };
+    };
   };
 
   programs.git = {
