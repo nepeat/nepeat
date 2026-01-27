@@ -164,7 +164,7 @@
     cachix # adding/managing alternative binary caches hosted by Cachix
     comma # run software from without installing it
     niv # easy dependency management for nix projects
-    nixos-rebuild # work with nixos machines a lot
+    nixos-rebuild-ng # work with nixos machines a lot
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods
     m-cli # useful macOS CLI commands
