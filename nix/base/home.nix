@@ -129,7 +129,7 @@
     talhelper
 
     ## hashicorp + forks
-    vault
+    vault-bin
     opentofu
     packer
     openbao
