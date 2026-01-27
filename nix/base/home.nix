@@ -177,7 +177,7 @@
         user = {
             name = "nepeat";
             email = "nepeat@gmail.com";
-            signingkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnTPYFFfFpbQ5vaBYdlScyGO76LByosMax56GsWUCsy";
+            signingkey = lib.mkDefault "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnTPYFFfFpbQ5vaBYdlScyGO76LByosMax56GsWUCsy";
         };
 
         alias = {
@@ -196,14 +196,14 @@
         };
 
         commit = {
-            gpgsign = "true";
+            gpgsign = lib.mkDefault "true";
         };
 
         gpg = {
             format = "ssh";
         };
 
-        "gpg \"ssh\"" = {
+        "gpg \"ssh\"" = lib.mkDefault {
             program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
         };
 
