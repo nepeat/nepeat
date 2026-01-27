@@ -145,7 +145,6 @@
     consul-template
     ffmpeg_6
     redis
-    openssh
     idris2
     purescript
     twilio-cli
@@ -169,6 +168,11 @@
     cocoapods
     m-cli # useful macOS CLI commands
   ];
+
+  programs.ssh = {
+    enable = true;
+    extraConfig = (builtins.readFile ./dotfiles/ssh/config);
+  };
 
   programs.git = {
     enable = true;
