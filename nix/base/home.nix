@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  home.stateVersion = "23.11";
+  home.stateVersion = "26.05";
 
     # shell stuff
     programs.bash = {
