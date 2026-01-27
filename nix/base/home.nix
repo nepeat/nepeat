@@ -172,7 +172,17 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    extraConfig = (builtins.readFile ./dotfiles/ssh/config);
+    matchBlocks = {
+        "*" = {
+            kexAlgorithms = ["+diffie-hellman-group1-sha1"];
+            extraOptions = [
+                "Ciphers +aes128-cbc"
+                "HostKeyAlgorithms +ssh-rsa"
+                "PubkeyAcceptedAlgorithms +ssh-rsa"
+                "StrictHostKeychecking no"
+            ];
+        }
+    }
   };
 
   programs.git = {
