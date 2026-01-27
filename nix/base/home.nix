@@ -175,8 +175,8 @@
 
     settings = {
         user = {
-            name = "nepeat";
-            email = "nepeat@gmail.com";
+            name = lib.mkDefault "nepeat";
+            email = lib.mkDefault "nepeat@gmail.com";
             signingkey = lib.mkDefault "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnTPYFFfFpbQ5vaBYdlScyGO76LByosMax56GsWUCsy";
         };
 
