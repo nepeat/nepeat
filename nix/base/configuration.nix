@@ -36,3 +36,4 @@
   # https://github.com/nix-community/home-manager/issues/423
   programs.nix-index.enable = true;
 }
+
