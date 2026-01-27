@@ -76,7 +76,6 @@
     inetutils
     grepcidr
     mtr
-    hugo
     pay-respects
     yt-dlp
     sops
@@ -88,7 +87,7 @@
     uv
 
     ## local db
-    postgresql_16_jit
+    postgresql_18_jit
 
     ## nodejs
     nodePackages.typescript
@@ -107,9 +106,6 @@
 
     ## ruby
     ruby_3_5
-
-    ## android
-    android-tools
 
     ## java
     temurin-bin-21
@@ -142,19 +138,14 @@
     bash
 
     ## misc
-    consul-template
     ffmpeg_6
     redis
-    idris2
-    purescript
-    twilio-cli
     zstd
     qemu
     git-secret
     p7zip
     protobuf
     httpie
-    websocat
     tmux
     just
     bitwarden-cli
