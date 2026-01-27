@@ -171,6 +171,7 @@
 
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     extraConfig = (builtins.readFile ./dotfiles/ssh/config);
   };
 
