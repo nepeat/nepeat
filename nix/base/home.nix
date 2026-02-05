@@ -125,7 +125,7 @@
     talhelper
 
     ## hashicorp + forks
-    vault-bin
+    vault
     opentofu
     packer
     openbao
@@ -138,8 +138,8 @@
     bash
 
     ## misc
-    ffmpeg_6
-    redis
+    ffmpeg_7
+    valkey
     zstd
     qemu
     git-secret
