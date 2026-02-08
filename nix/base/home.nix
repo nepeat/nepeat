@@ -140,6 +140,7 @@
     tmux
     just
     bitwarden-cli
+    pre-commit
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
