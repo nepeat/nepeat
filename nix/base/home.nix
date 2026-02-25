@@ -121,7 +121,7 @@
     ## hashicorp + forks
     opentofu
     packer
-    openbao
+    (openbao.override { buildUI = false; })
 
     ## c + misc
     pkg-config
