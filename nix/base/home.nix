@@ -93,9 +93,6 @@
     nodePackages.typescript
     nodePackages.pnpm
     nodejs_22
-    nodePackages.node2nix
-    bun
-    deno
 
     ## go
     go
