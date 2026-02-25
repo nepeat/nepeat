@@ -110,9 +110,6 @@
     ## java
     temurin-bin-21
 
-    ## c#
-    mono
-
     ## cloud providers
     oci-cli
     google-cloud-sdk
@@ -125,7 +122,6 @@
     talhelper
 
     ## hashicorp + forks
-    vault
     opentofu
     packer
     openbao
@@ -141,11 +137,9 @@
     ffmpeg_7
     valkey
     zstd
-    qemu
     git-secret
     p7zip
     protobuf
-    httpie
     tmux
     just
     bitwarden-cli
