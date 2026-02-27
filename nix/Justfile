@@ -1,0 +1,41 @@
+# Darwin rebuild helper
+# Default recipe
+default:
+    @just --list
+
+# Update flake and channel, then rebuild system
+update machine_name="":
+    #!/bin/zsh
+    set -e
+
+    # Get machine name from argument, /etc/machine_name, or error
+    if [ -n "{{ machine_name }}" ]; then
+        MACHINE="{{ machine_name }}"
+    elif [ -f /etc/machine_name ]; then
+        MACHINE=$(cat /etc/machine_name)
+    else
+        echo "Error: No machine name provided and /etc/machine_name not found" >&2
+        exit 1
+    fi
+
+    echo "Updating for machine: $MACHINE"
+
+    # Update flake and channel (shared across all machines)
+    nix flake update -vvv
+    nix-channel --update
+
+    # Build the system
+    nix build ".#darwinConfigurations.$MACHINE.system"
+
+    # Apply the update using darwin-rebuild if available, otherwise use result
+    if command -v darwin-rebuild &> /dev/null; then
+        echo "Using darwin-rebuild from PATH"
+        sudo darwin-rebuild switch --flake ".#$MACHINE" -vL
+    else
+        echo "Using darwin-rebuild from built result"
+        sudo ./result/sw/bin/darwin-rebuild switch --flake ".#$MACHINE" -vL
+    fi
+
+# Clean nix store
+clean:
+    nix-store --gc

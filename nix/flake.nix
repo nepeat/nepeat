@@ -90,6 +90,7 @@
           {
             # see available options in module.nix's `options.nix-rosetta-builder`
             nix-rosetta-builder.onDemand = true;
+            environment.etc."machine_name".text = "newPersonal";
           }
         ];
       };
@@ -111,6 +112,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.nep = import ./base/home.nix;
+            environment.etc."machine_name".text = "personal";
           }
         ];
       };
