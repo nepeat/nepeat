@@ -77,7 +77,6 @@
     grepcidr
     mtr
     pay-respects
-    yt-dlp
     sops
 
     # Dev stuff
