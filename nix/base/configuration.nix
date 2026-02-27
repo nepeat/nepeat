@@ -34,6 +34,8 @@
   programs.zsh.enable = true;
 
   # https://github.com/nix-community/home-manager/issues/423
+  # nix-index with pre-built database (no local indexing needed)
   programs.nix-index.enable = true;
+  programs.nix-index-database.comma.enable = true;
 }
 

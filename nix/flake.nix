@@ -26,6 +26,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     talhelper.url = "github:budimanjojo/talhelper";
+
+    nix-index-database.url = "github:nix-community/nix-index-database";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -63,6 +66,7 @@
           ./base/system-packages.nix
           ./base/darwin.nix
           ./machine/m4mac.nix
+          inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
           home-manager.darwinModules.home-manager
           {
@@ -93,6 +97,7 @@
           ./base/system-packages.nix
           ./base/darwin.nix
           ./machine/m1laptop.nix
+          inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
           home-manager.darwinModules.home-manager
           {
