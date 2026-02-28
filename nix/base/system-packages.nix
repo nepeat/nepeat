@@ -12,9 +12,6 @@
     libp11
     opensc
 
-    # prefer devenv in the system
-    devenv
-
     # misc
     wireguard-tools
   ];

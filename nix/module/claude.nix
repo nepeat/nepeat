@@ -5,7 +5,7 @@
         trusted-public-keys = [ "claude-code.cachix.org-1:YeXf2aNu7UTX8Vwrze0za1WEDS+4DuI2kVeWEE4fsRk=" ];
     };
 
-    environment.systemPackages = [ pkgs.claude-code ];
+    home.packages = [ pkgs.claude-code ];
 
     home-manager.sharedModules = [
         {

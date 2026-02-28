@@ -54,12 +54,34 @@
         allowUnfree = true;
       };
       overlays = attrValues self.overlays;
-      hostPlatform = "aarch64-darwin";
+      # hostPlatform = "aarch64-darwin";
     };
   in
   {
-    # My `nix-darwin` configs
+    # home-manager
+    homeConfigurations = rec {
+      "erin" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages."x86_64-linux";
+        modules = [
+          inputs.nix-index-database.homeModules.nix-index
+          ./base/configuration.nix
+          {
+            nixpkgs = nixpkgsConfig;
+            imports = [
+              ./base/home.nix
+            ];
+          }
+          ./base/non_nix_home.nix
+          {
+            programs.home-manager.enable = true;
+            home.homeDirectory = "/home/erin";
+            home.username = "erin";
+          }
+        ];
+      };
+    };
 
+    # nix-darwin
     darwinConfigurations = rec {
       newPersonal = darwinSystem {
         modules = [

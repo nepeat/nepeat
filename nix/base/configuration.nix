@@ -2,7 +2,7 @@
 {
   # Nix configuration ------------------------------------------------------------------------------
 
-  nix.enable = true;
+  nix.enable = lib.mkDefault true;
 
   nix.distributedBuilds = true;
 

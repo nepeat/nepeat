@@ -140,6 +140,7 @@
     just
     bitwarden-cli
     pre-commit
+    devenv
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
@@ -199,10 +200,6 @@
 
         gpg = {
             format = "ssh";
-        };
-
-        "gpg \"ssh\"" = lib.mkDefault {
-            program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
         };
 
         extraConfig = {
