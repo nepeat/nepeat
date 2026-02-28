@@ -130,11 +130,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1772164835,
-        "narHash": "sha256-zRcwrZDeBfYipqv/7K7TqsfPb87LFU6b7JhoNUGSnvQ=",
+        "lastModified": 1772218752,
+        "narHash": "sha256-G8nArvOTZXU8DRvrzAdz3Elcj6kA/vMtvY9mrGLATtA=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "2a39b0828bbffce0d73769a61e46e780488d098b",
+        "rev": "f3a30376bb9eb2f6f61816be7d6ed954b6d2a3b9",
         "type": "github"
       },
       "original": {
@@ -154,11 +154,11 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1772182300,
-        "narHash": "sha256-epiEFqqQDEgXaTg8+i8/UIHYYP1SNE3NFXcMHpmPrz8=",
+        "lastModified": 1772214187,
+        "narHash": "sha256-fXrFFmgZI+Bk+m0keV5VHkVsrGqnzsq91vqtlbMizS0=",
         "ref": "refs/heads/main",
-        "rev": "f13566a3f65ca5aa56674b42f2622e2890603aa7",
-        "revCount": 18998,
+        "rev": "dda934965dfa1beaede1f3b46ea730d1bab52c02",
+        "revCount": 19010,
         "type": "git",
         "url": "https://git@git.lix.systems/lix-project/lix"
       },
@@ -373,11 +373,11 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1772213473,
-        "narHash": "sha256-SlIkz0zl9Ho5DjD33V+u/H8Q9pV0cFKTQdCCtf+Kuhs=",
+        "lastModified": 1772246245,
+        "narHash": "sha256-4MTUUPCJFH7End4OiMUHGsI0YznAvOcMjYByYi6M8M8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "ce1584c6c4a85dca48f484a80cce3c05162c00e4",
+        "rev": "c71144f9aea7539adeae35eca75d8e862d79543f",
         "type": "github"
       },
       "original": {
@@ -468,11 +468,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1772091403,
-        "narHash": "sha256-MkHItgj+0w+SSNz9rOZi44Dlz41h/3+QSdBjZpLlafg=",
+        "lastModified": 1772246032,
+        "narHash": "sha256-sBRkCJ2vaWNuTZlqETqq+DyDlayyu3Yo/C80bHvSKgg=",
         "owner": "budimanjojo",
         "repo": "talhelper",
-        "rev": "da8f95967b2f0449c95ead2c2214e922b8d0a89c",
+        "rev": "efb223b018fbd7cbdc4fa297c3fa3eb72a67dd65",
         "type": "github"
       },
       "original": {

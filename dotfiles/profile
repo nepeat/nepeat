@@ -105,6 +105,7 @@ json_pretty () {
 ## tofu gang
 alias tf=tofu
 alias terraform=tofu
+alias vault=bao
 
 alias tfi="tofu init"
 alias tfp="tofu plan"
