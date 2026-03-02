@@ -25,7 +25,7 @@ update machine_name="":
     nix-channel --update
 
     # Build the system
-    nix build ".#darwinConfigurations.$MACHINE.system"
+    nix build -vL --always-allow-substitutes ".#darwinConfigurations.$MACHINE.system"
 
     # Apply the update using darwin-rebuild if available, otherwise use result
     if command -v darwin-rebuild &> /dev/null; then

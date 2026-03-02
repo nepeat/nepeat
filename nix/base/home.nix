@@ -1,7 +1,11 @@
 { config, pkgs, lib, ... }:
 
 {
-  home.stateVersion = "26.05";
+    imports = [
+        ./darwin_home.nix
+    ];
+
+    home.stateVersion = "26.05";
 
     # shell stuff
     programs.bash = {
