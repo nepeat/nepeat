@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-    imports = [] ++ lib.optionals stdenv.isDarwin [
+    imports = [
         ./darwin_home.nix
     ];
 
@@ -149,7 +149,7 @@
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
     niv # easy dependency management for nix projects
-  ] ++ lib.optionals stdenv.isDarwin [
+  ] ++ lib.optionals pkgs.stdenv.isDarwin [
     cocoapods
     m-cli # useful macOS CLI commands
   ];

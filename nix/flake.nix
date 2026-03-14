@@ -61,16 +61,14 @@
     # home-manager
     homeConfigurations = rec {
       "erin" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages."x86_64-linux";
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          config.allowUnfree = true;
+        };
         modules = [
           inputs.nix-index-database.homeModules.nix-index
           ./base/configuration.nix
-          {
-            nixpkgs = nixpkgsConfig;
-            imports = [
-              ./base/home.nix
-            ];
-          }
+          ./base/home.nix
           ./base/non_nix_home.nix
           {
             programs.home-manager.enable = true;
@@ -144,7 +142,7 @@
 
     overlays = {
         # Overlay useful on Macs with Apple Silicon
-        apple-silicon = final: prev: optionalAttrs (prev.stdenv.system == "aarch64-darwin") {
+        apple-silicon = final: prev: optionalAttrs (prev.system == "aarch64-darwin") {
           # Add access to x86 packages system is running Apple Silicon
           pkgs-x86 = import inputs.nixpkgs {
             system = "x86_64-darwin";
