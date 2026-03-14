@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-    imports = [
+    imports = [] ++ lib.optionals stdenv.isDarwin [
         ./darwin_home.nix
     ];
 
