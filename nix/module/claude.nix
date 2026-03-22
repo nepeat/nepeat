@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 {
     nix.settings = {
         substituters = [ "https://claude-code.cachix.org" ];
@@ -7,7 +7,7 @@
 
     home-manager.sharedModules = [
         {
-            home.packages = [ pkgs.claude-code ];
+            home.packages = [ inputs.claude-code.packages.${pkgs.system}.default ];
 
             home.file.".claude/CLAUDE.md".text = ''
                 You are a helpful programmer cat. :3

@@ -82,6 +82,7 @@
     # nix-darwin
     darwinConfigurations = rec {
       newPersonal = darwinSystem {
+        specialArgs = { inherit inputs; };
         modules = [
           lix-module.darwinModules.default
           # Main `nix-darwin` config
@@ -103,6 +104,7 @@
         ];
       };
       personal = darwinSystem {
+        specialArgs = { inherit inputs; };
         modules = [
           lix-module.darwinModules.default
           # Main `nix-darwin` config
@@ -130,14 +132,13 @@
 
     overlays = {
         # Overlay useful on Macs with Apple Silicon
-        apple-silicon = final: prev: optionalAttrs (prev.system == "aarch64-darwin") {
+        apple-silicon = final: prev: optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
           # Add access to x86 packages system is running Apple Silicon
           pkgs-x86 = import inputs.nixpkgs {
             system = "x86_64-darwin";
             inherit (nixpkgsConfig) config;
           };
         };
-        claude-code = claude-code.overlays.default;
       };
  };
 }

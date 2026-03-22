@@ -145,6 +145,7 @@
     bitwarden-cli
     pre-commit
     devenv
+    gemini-cli-bin
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
