@@ -13,4 +13,21 @@
             fi
         '';
     };
+
+    # SSH agent socket persistence across tmux/screen sessions
+    home.file.".ssh/rc" = {
+        text = ''
+            if test "$SSH_AUTH_SOCK"; then
+                ln -sf $SSH_AUTH_SOCK ~/.ssh/ssh_auth_sock
+            fi
+        '';
+        executable = true;
+    };
+
+    home.file.".ssh/conf.d/agent-socket.conf" = {
+        text = ''
+            Host *
+                IdentityAgent ~/.ssh/ssh_auth_sock
+        '';
+    };
 }
