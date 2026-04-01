@@ -93,8 +93,8 @@
     postgresql_18_jit
 
     ## nodejs
-    nodePackages.typescript
-    nodePackages.pnpm
+    typescript
+    pnpm
     nodejs_22
 
     ## go
