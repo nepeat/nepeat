@@ -70,6 +70,7 @@
           ./base/configuration.nix
           ./base/home.nix
           ./base/non_nix_home.nix
+          ./machine/nonwork_home.nix
           {
             programs.home-manager.enable = true;
             home.homeDirectory = "/home/erin";
