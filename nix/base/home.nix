@@ -121,10 +121,11 @@
     kubernetes-helm
     talhelper
 
-    ## hashicorp + forks
+    ## iac stuff
     opentofu
     packer
     (openbao.override { withUi = false; })
+    pulumi
 
     ## c + misc
     pkg-config
