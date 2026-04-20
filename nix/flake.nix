@@ -65,6 +65,7 @@
           system = "x86_64-linux";
           config.allowUnfree = true;
         };
+        extraSpecialArgs = { inherit inputs; isStandalone = true; };
         modules = [
           inputs.nix-index-database.homeModules.nix-index
           ./base/configuration.nix
@@ -84,7 +85,7 @@
     # nix-darwin
     darwinConfigurations = rec {
       newPersonal = darwinSystem {
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs; isStandalone = false; };
         modules = [
           lix-module.darwinModules.default
           # Main `nix-darwin` config
@@ -106,7 +107,7 @@
         ];
       };
       personal = darwinSystem {
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs; isStandalone = false; };
         modules = [
           lix-module.darwinModules.default
           # Main `nix-darwin` config
