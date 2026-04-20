@@ -71,6 +71,7 @@
           ./base/home.nix
           ./base/non_nix_home.nix
           ./machine/nonwork_home.nix
+          ./module/claude.nix
           {
             programs.home-manager.enable = true;
             home.homeDirectory = "/home/erin";
