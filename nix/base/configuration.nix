@@ -6,6 +6,12 @@
 
   nix.distributedBuilds = true;
 
+  nix. extraOptions = ''
+    experimental-features = nix-command flakes
+  '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "aarch64-darwin") ''
+    extra-platforms = x86_64-darwin aarch64-darwin
+  '';
+
   nix.settings = {
     substituters = [
       "https://cache.nixos.org/"
@@ -25,11 +31,6 @@
 
     # Enable experimental nix command and flakes
     # nix.package = pkgs.nixUnstable;
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '' + lib.optionalString (pkgs.stdenv.hostPlatform.system == "aarch64-darwin") ''
-      extra-platforms = x86_64-darwin aarch64-darwin
-    '';
   };
 
   # Create /etc/bashrc that loads the nix-darwin environment.

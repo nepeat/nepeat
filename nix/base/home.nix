@@ -154,6 +154,7 @@
   ] ++ lib.optionals pkgs.stdenv.isDarwin [
     cocoapods
     m-cli # useful macOS CLI commands
+    nix-output-monitor
   ];
 
   programs.ssh = {
