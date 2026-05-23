@@ -107,6 +107,25 @@ json_pretty () {
 	rm $tmpfile
 }
 
+## infinitely retry an SSH connection; defaults to root@ if no user given
+ssh_loop () {
+	if [ "$#" -eq 0 ]; then
+		echo "uwu pwease give a host~ usage: ssh_loop [ssh-awgs...] [usew@]host >w<" >&2
+		return 1
+	fi
+	local args=("$@")
+	local last_idx=$((${#args[@]} - 1))
+	local host="${args[$last_idx]}"
+	if [[ "$host" != *"@"* ]]; then
+		args[$last_idx]="root@$host"
+	fi
+	while true; do
+		ssh "${args[@]}"
+		echo "nyaa~ disconnyected (exit $?), wetwying in a sec... :3" >&2
+		sleep 1
+	done
+}
+
 ## tofu gang
 alias tf=tofu
 alias terraform=tofu
