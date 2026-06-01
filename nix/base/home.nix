@@ -163,15 +163,13 @@
     includes = [
         "conf.d/*"
     ];
-    matchBlocks = {
+    settings = {
         "*" = {
-            kexAlgorithms = ["+diffie-hellman-group1-sha1"];
-            extraOptions = {
-                "Ciphers" = "+aes128-cbc";
-                "HostKeyAlgorithms" = "+ssh-rsa";
-                "PubkeyAcceptedAlgorithms" = "+ssh-rsa";
-                "StrictHostKeychecking" = "no";
-            };
+            KexAlgorithms = ["+diffie-hellman-group1-sha1"];
+            Ciphers = "+aes128-cbc";
+            HostKeyAlgorithms = "+ssh-rsa";
+            PubkeyAcceptedAlgorithms = "+ssh-rsa";
+            StrictHostKeyChecking = "no";
         };
     };
   };
@@ -202,7 +200,7 @@
         };
 
         commit = {
-            gpgsign = lib.mkDefault "true";
+            gpgsign = lib.mkDefault "false";
         };
 
         gpg = {
