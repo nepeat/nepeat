@@ -24,6 +24,26 @@ update machine_name="":
     nix flake update -vvv
     nix-channel --update
 
+    # Build and switch the system
+    just switch "$MACHINE"
+
+# Build and switch the system without updating the flake
+switch machine_name="":
+    #!/bin/zsh
+    set -e
+
+    # Get machine name from argument, /etc/machine_name, or error
+    if [ -n "{{ machine_name }}" ]; then
+        MACHINE="{{ machine_name }}"
+    elif [ -f /etc/machine_name ]; then
+        MACHINE=$(cat /etc/machine_name)
+    else
+        echo "Error: No machine name provided and /etc/machine_name not found" >&2
+        exit 1
+    fi
+
+    echo "Switching for machine: $MACHINE"
+
     # Build the system
     nix build -vL --always-allow-substitutes --log-format internal-json ".#darwinConfigurations.$MACHINE.system" |& nix run 'nixpkgs#nix-output-monitor' -- --json
 
