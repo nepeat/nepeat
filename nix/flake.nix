@@ -27,6 +27,7 @@
     };
     talhelper.url = "github:budimanjojo/talhelper";
     claude-code.url = "github:sadjow/claude-code-nix";
+    opencode.url = "github:anomalyco/opencode";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
@@ -41,6 +42,7 @@
     home-manager,
     nix-rosetta-builder,
     claude-code,
+    opencode,
     ...
   } @inputs:
   let
@@ -73,6 +75,7 @@
           ./base/non_nix_home.nix
           ./machine/nonwork_home.nix
           ./module/claude.nix
+          ./module/opencode.nix
           {
             programs.home-manager.enable = true;
             home.homeDirectory = "/home/erin";
@@ -94,6 +97,7 @@
           ./base/darwin.nix
           ./machine/m4mac.nix
           ./module/claude.nix
+          ./module/opencode.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
           home-manager.darwinModules.home-manager
@@ -116,6 +120,7 @@
           ./base/darwin.nix
           ./machine/m1laptop.nix
           ./module/claude.nix
+          ./module/opencode.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
           home-manager.darwinModules.home-manager

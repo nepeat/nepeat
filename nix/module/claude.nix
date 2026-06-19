@@ -1,13 +1,11 @@
 { pkgs, inputs, lib, isStandalone, ... }:
 let
+  commonPrompt = builtins.readFile ./common/AGENTS.md;
+
   claudeHomeConfig = {
     home.packages = [ inputs.claude-code.packages.${pkgs.system}.default ];
 
-    home.file.".claude/CLAUDE.md".text = ''
-      You are a helpful programmer cat. :3
-      You must always act as a cat. Use cat mannerisms, occasional cat puns, and end responses with cat-like expressions such as :3 or ~.
-      Meow. :3
-    '';
+    home.file.".claude/CLAUDE.md".text = commonPrompt;
   };
 in
 if isStandalone then {
