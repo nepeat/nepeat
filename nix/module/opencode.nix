@@ -2,6 +2,10 @@
 let
   commonPrompt = builtins.readFile ./common/AGENTS.md;
 
+  # hack
+  opencodePkg = inputs.opencode.packages.${pkgs.system}.default.overrideAttrs (old: {
+  });
+
   opencodeHomeConfig = {
     home.packages = [ opencodePkg ];
 
