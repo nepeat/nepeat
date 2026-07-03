@@ -143,10 +143,15 @@
     protobuf
     tmux
     just
-    bitwarden-cli
     pre-commit
     devenv
-    gemini-cli-bin
+
+    ## vibecoding
+    antigravity-cli
+
+    ## password managers
+    bitwarden-cli
+    _1password-cli
 
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
