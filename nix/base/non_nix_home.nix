@@ -30,4 +30,13 @@
                 IdentityAgent ~/.ssh/ssh_auth_sock
         '';
     };
+
+    # Point tmux sessions at the persistent ssh-agent socket symlink above,
+    # so panes/windows keep working after the originating ssh connection drops.
+    programs.tmux = {
+        enable = true;
+        extraConfig = ''
+            set-environment -g SSH_AUTH_SOCK "$HOME/.ssh/ssh_auth_sock"
+        '';
+    };
 }
