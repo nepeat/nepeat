@@ -61,8 +61,8 @@
   in
   {
     # home-manager
-    homeConfigurations = rec {
-      "erin" = home-manager.lib.homeManagerConfiguration {
+    homeConfigurations = inputs.nixpkgs.lib.genAttrs [ "erin" "coder" ] (username:
+      home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;
@@ -78,12 +78,12 @@
           ./module/opencode.nix
           {
             programs.home-manager.enable = true;
-            home.homeDirectory = "/home/erin";
-            home.username = "erin";
+            home.homeDirectory = "/home/${username}";
+            home.username = username;
           }
         ];
-      };
-    };
+      }
+    );
 
     # nix-darwin
     darwinConfigurations = rec {
