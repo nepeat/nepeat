@@ -45,11 +45,16 @@
   programs.htop.enable = true;
   programs.htop.settings.show_program_path = true;
 
+  home.sessionVariables = lib.optionalAttrs (config.home.username != "byteide") {
+    VAULT_ADDR = "https://vault-proxy.catgirls.dev:8200";
+  };
+
   home.packages = with pkgs; [
     # Some basics
     coreutils
     curl
     wget
+    less
 
     # flexing
     fastfetch
