@@ -82,6 +82,7 @@
     mtr
     pay-respects
     sops
+    openssh
 
     # Dev stuff
 
