@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
     nix.package = pkgs.lix;
 
@@ -35,6 +35,17 @@
         executable = true;
     };
 
+    # ~/.ssh/rc only runs under a real sshd; environments like coder handle
+    # ssh in-process, so also maintain the symlink from shell init. Skip when
+    # SSH_AUTH_SOCK already points at the symlink (e.g. inside tmux), or we
+    # would link the symlink to itself.
+    programs.zsh.initContent = lib.mkOrder 550 ''
+        if [ -n "$SSH_AUTH_SOCK" ] && [ -S "$SSH_AUTH_SOCK" ] \
+            && [ "$SSH_AUTH_SOCK" != "$HOME/.ssh/ssh_auth_sock" ]; then
+            ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
+        fi
+    '';
+
     home.file.".ssh/conf.d/agent-socket.conf" = {
         text = ''
             Host *
@@ -48,6 +59,10 @@
         enable = true;
         extraConfig = ''
             set-environment -g SSH_AUTH_SOCK "$HOME/.ssh/ssh_auth_sock"
+            # Keep SSH_AUTH_SOCK/SSH_AGENT_PID out of update-environment:
+            # otherwise attaching copies the client's (soon-stale) socket into
+            # the session environment, shadowing the global value above.
+            set-option -g update-environment "DISPLAY KRB5CCNAME MSYSTEM SSH_ASKPASS SSH_CONNECTION WAYLAND_DISPLAY WINDOWID XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE"
         '';
     };
 }
