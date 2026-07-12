@@ -14,6 +14,17 @@
         '';
     };
 
+    # On foreign distros the single-user Nix installer wires Nix onto PATH via
+    # /etc/profile.d/nix.sh, an /etc/profile fragment. bash login shells source
+    # /etc/profile, but zsh never does (and the Debian /etc/zsh/zprofile bridge
+    # is absent here), so an ssh login lands in a zsh with no nix/devenv/direnv
+    # on PATH. Bridge it for login shells the same way Debian's /etc/zsh/zprofile
+    # normally would. NixOS/darwin already source /etc/profile, so this module —
+    # scoped to standalone (non-NixOS) home configs — is the right place for it.
+    programs.zsh.profileExtra = ''
+        [ -r /etc/profile ] && emulate sh -c 'source /etc/profile'
+    '';
+
     # SSH agent socket persistence across tmux/screen sessions
     home.file.".ssh/rc" = {
         text = ''
