@@ -59,6 +59,15 @@
         enable = true;
         extraConfig = ''
             set-environment -g SSH_AUTH_SOCK "$HOME/.ssh/ssh_auth_sock"
+            # Don't pass one-shot profile guards into new panes. If the tmux
+            # server is spawned from an already-initialized shell it inherits
+            # these, so pane login shells reset PATH via /etc/profile but then
+            # skip re-sourcing nix-daemon.sh/hm-session-vars.sh, losing
+            # ~/.nix-profile/bin. Removing the guards lets each pane rebuild
+            # the nix environment from scratch.
+            set-environment -gr __ETC_PROFILE_NIX_SOURCED
+            set-environment -gr __HM_SESS_VARS_SOURCED
+            set-environment -gr __HM_ZSH_SESS_VARS_SOURCED
             # Keep SSH_AUTH_SOCK/SSH_AGENT_PID out of update-environment:
             # otherwise attaching copies the client's (soon-stale) socket into
             # the session environment, shadowing the global value above.
