@@ -76,6 +76,7 @@
           ./machine/nonwork_home.nix
           ./module/claude.nix
           ./module/opencode.nix
+          ./module/openviking.nix
           {
             programs.home-manager.enable = true;
             home.homeDirectory = "/home/${username}";
@@ -98,6 +99,7 @@
           ./machine/m4mac.nix
           ./module/claude.nix
           ./module/opencode.nix
+          ./module/openviking.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
           home-manager.darwinModules.home-manager
@@ -121,6 +123,7 @@
           ./machine/m1laptop.nix
           ./module/claude.nix
           ./module/opencode.nix
+          ./module/openviking.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
           home-manager.darwinModules.home-manager
