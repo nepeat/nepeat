@@ -17,7 +17,7 @@
         enable = true;
         oh-my-zsh = {
             enable = true;
-            plugins = [ "git" "thefuck" "direnv" ];
+            plugins = [ "git" "direnv" ];
             theme = "gentoo";
         };
 
@@ -87,7 +87,7 @@
     mtr
     pay-respects
     sops
-    openssh
+    (openssh.override { withKerberos = true; })
 
     # Dev stuff
 
