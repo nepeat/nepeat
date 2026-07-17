@@ -159,6 +159,9 @@
     bitwarden-cli
     _1password-cli
 
+    ## devenv
+    coder
+
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
     niv # easy dependency management for nix projects
