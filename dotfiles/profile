@@ -6,7 +6,11 @@ if [[ -d "$HOME/bin" ]]; then
 fi
 
 # pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
+if [[ "$OSTYPE" == darwin* ]]; then
+	export PNPM_HOME="$HOME/Library/pnpm"
+else
+	export PNPM_HOME="$HOME/.local/share/pnpm"
+fi
 export PATH="$PNPM_HOME:$PATH"
 
 # rust
@@ -56,12 +60,14 @@ if ! type "nix" > /dev/null; then
 	eval "$(pyenv init -)"
 
 	# Android Studio
-	export PATH=$PATH:$HOME/Library/Android/sdk/tools/:$HOME/Library/Android/sdk/platform-tools
-
-	# Java 11 Configuration (new) - Use this to build the project for app version > 11.8.*
-	### Android Studio Electric Eel 2022.1.1 and up
-	export PATH=$PATH:/Applications/Android\ Studio.app/Contents/jbr/Contents/Home
-	export JAVA_HOME=/Applications/Android\ Studio.app/Contents/jbr/Contents/Home
+	if [[ "$OSTYPE" == darwin* ]]; then
+		export ANDROID_HOME="$HOME/Library/Android/sdk"
+		export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+	else
+		export ANDROID_HOME="$HOME/Android/Sdk"
+		export JAVA_HOME="/opt/android-studio/jbr"
+	fi
+	export PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin"
 
 	# Chrome Depot Tools
 	if [ -d "$HOME/depot_tools" ]; then
@@ -71,7 +77,11 @@ if ! type "nix" > /dev/null; then
 fi
 
 # jetbrains toolbox
-export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
+if [[ "$OSTYPE" == darwin* ]]; then
+	export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
+else
+	export PATH="$PATH:$HOME/.local/share/JetBrains/Toolbox/scripts"
+fi
 
 # vault + nomad
 if [[ -d "$HOME/etc/nomad.d" ]]; then
