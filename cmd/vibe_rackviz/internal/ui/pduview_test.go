@@ -47,10 +47,11 @@ func TestPDUView(t *testing.T) {
 		{Name: "output2", Endpoints: []netbox.Endpoint{{Name: "Power", Device: netbox.Named{Name: "home-assistant-one"}}}},
 		{Name: "output3"},
 		{Name: "output4", Endpoints: []netbox.Endpoint{{Name: "PSU1", Device: netbox.Named{Name: "dma-con-sw-1"}}}},
-		{Name: "output5", Description: "space heater (temporary)"},
+		{Name: "output5", Description: "space heater (temporary)", MarkConnected: true},
+		{Name: "output6", Description: "described but unconnected"},
 	}
 	cmd := step(pduViewMsg{PDU: "dma-pdu-01", Outlets: outlets, States: map[int]pdu.OutletState{
-		1: pdu.StateOn, 2: pdu.StateOn, 3: pdu.StateOff, 4: pdu.StateOff, 5: pdu.StateOn,
+		1: pdu.StateOn, 2: pdu.StateOn, 3: pdu.StateOff, 4: pdu.StateOff, 5: pdu.StateOn, 6: pdu.StateOff,
 	}})
 	// The follow-up draw batch must include the free outlets too.
 	if cmd == nil {
@@ -64,7 +65,9 @@ func TestPDUView(t *testing.T) {
 
 	app.focus = focusElevation
 	view := app.render()
-	for _, want := range []string{"⚡ dma-pdu-01", "01 ╶─ dma-core-a-1 · PS-B", "03 ╶─ (free)", "05 ╶─ space heater (temporary)", "3 on · 2 off · 2 free"} {
+	// mark_connected (output5) is NetBox-canon connected → not counted free;
+	// a described-but-unconnected outlet (output6) still is.
+	for _, want := range []string{"⚡ dma-pdu-01", "01 ╶─ dma-core-a-1 · PS-B", "03 ╶─ (free)", "05 ╶─ space heater (temporary)", "06 ╶─ described but unconnected", "3 on · 3 off · 2 free"} {
 		if !strings.Contains(view, want) {
 			t.Errorf("pdu view missing %q\n%s", want, view)
 		}
@@ -128,4 +131,16 @@ func TestPDUView(t *testing.T) {
 		t.Fatal("free-outlet menu did not open")
 	}
 	step(tea.KeyPressMsg{Code: tea.KeyEsc})
+
+	// A successful power action schedules the settle refresh; the refresh
+	// message re-polls state, draw, and the live PDU view.
+	if cmd := step(actionResultMsg{Desc: "power_on dma-pdu-01 outlet 4", PDU: "dma-pdu-01", Outlet: 4}); cmd == nil {
+		t.Fatal("action result scheduled no follow-ups")
+	}
+	if cmd := step(actionRefreshMsg{PDU: "dma-pdu-01", Outlet: 4}); cmd == nil {
+		t.Fatal("action refresh issued no commands")
+	}
+	if e := app.outletDraw["dma-pdu-01/4"]; e == nil || !e.loading {
+		t.Fatal("action refresh did not re-queue the outlet's draw")
+	}
 }

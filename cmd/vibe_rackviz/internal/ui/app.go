@@ -264,7 +264,7 @@ func (a *App) powerSweepCmds(devices []netbox.Device) []tea.Cmd {
 	var cmds []tea.Cmd
 	for _, d := range devices {
 		if _, ok := a.cfg.PDUs[d.Name]; ok {
-			cmds = append(cmds, a.loadPowerStatesCmd(d.Name, d.ID, a.outletsCache[d.Name]))
+			cmds = append(cmds, a.loadPowerStatesCmd(d.Name, a.outletsCache[d.Name]))
 		}
 	}
 	return cmds
@@ -491,14 +491,26 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds := []tea.Cmd{tea.Tick(5*time.Second, func(time.Time) tea.Msg {
 			return toastClearMsg{gen: gen}
 		})}
-		// Re-sweep the PDU so the elevation colors reflect the new state.
-		if rd := a.rackData[a.currentRackID()]; rd != nil && msg.PDU != "" {
-			for _, d := range rd.devices {
-				if d.Name == msg.PDU {
-					cmds = append(cmds, a.loadPowerStatesCmd(d.Name, d.ID, a.outletsCache[d.Name]))
-					break
-				}
-			}
+		if msg.PDU != "" {
+			// Re-sweep immediately so the switch result shows, then again
+			// after the outlet settles (power cycles, inrush, draw ramp).
+			cmds = append(cmds, a.loadPowerStatesCmd(msg.PDU, a.outletsCache[msg.PDU]))
+			refresh := actionRefreshMsg{PDU: msg.PDU, Outlet: msg.Outlet}
+			cmds = append(cmds, tea.Tick(3*time.Second, func(time.Time) tea.Msg {
+				return refresh
+			}))
+		}
+		return a, tea.Batch(cmds...)
+
+	case actionRefreshMsg:
+		cmds := []tea.Cmd{a.loadPowerStatesCmd(msg.PDU, a.outletsCache[msg.PDU])}
+		if msg.Outlet > 0 {
+			a.outletDraw[orKey(msg.PDU, msg.Outlet)] = &outletReadingEntry{loading: true}
+			cmds = append(cmds, a.outletReadingsCmd(msg.PDU, []int{msg.Outlet}))
+		}
+		// Refresh the PDU view's outlet states in place (no loading flicker).
+		if e := a.pduViews[msg.PDU]; e != nil && !e.loading {
+			cmds = append(cmds, a.loadPDUViewCmd(msg.PDU, a.outletsCache[msg.PDU]))
 		}
 		return a, tea.Batch(cmds...)
 

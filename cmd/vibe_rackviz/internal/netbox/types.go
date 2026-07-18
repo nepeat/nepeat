@@ -104,7 +104,16 @@ type PowerOutlet struct {
 	Device      Named       `json:"device"`
 	Type        *valueLabel `json:"type"`
 	Description string      `json:"description"`
-	Endpoints   []Endpoint  `json:"connected_endpoints"`
+	// MarkConnected is NetBox's "treat as if a cable is connected" flag —
+	// the connected canon for outlets feeding unmodeled loads.
+	MarkConnected bool       `json:"mark_connected"`
+	Endpoints     []Endpoint `json:"connected_endpoints"`
+}
+
+// IsConnected reports NetBox's canonical connected state: a real cable or
+// the mark_connected flag.
+func (o PowerOutlet) IsConnected() bool {
+	return len(o.Endpoints) > 0 || o.MarkConnected
 }
 
 type Status struct {

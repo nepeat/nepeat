@@ -19,11 +19,12 @@ import (
 // middle pane into a vertical outlet list with live state and draw.
 
 type pduOutletRow struct {
-	Index  int
-	Name   string // NetBox outlet name
-	Device string // connected device name, "" when free
-	Port   string // device-side power port name
-	Desc   string // NetBox outlet description (ad-hoc loads on free outlets)
+	Index     int
+	Name      string // NetBox outlet name
+	Device    string // cabled device name, "" when uncabled
+	Port      string // device-side power port name
+	Desc      string // NetBox outlet description (ad-hoc loads)
+	Connected bool   // NetBox connected canon: cabled or mark_connected
 }
 
 type pduViewEntry struct {
@@ -104,7 +105,7 @@ func (a *App) loadPDUViewCmd(name string, cached []netbox.PowerOutlet) tea.Cmd {
 func buildPDURows(outlets []netbox.PowerOutlet, regex string) []pduOutletRow {
 	rows := make([]pduOutletRow, 0, len(outlets))
 	for _, o := range outlets {
-		r := pduOutletRow{Name: o.Name, Desc: o.Description}
+		r := pduOutletRow{Name: o.Name, Desc: o.Description, Connected: o.IsConnected()}
 		if idx, err := pdu.MapOutlet(o.Name, regex); err == nil {
 			r.Index = idx
 		}
@@ -222,6 +223,10 @@ func (a *App) renderPDUView(width int) string {
 			if r.Port != "" {
 				label += " · " + r.Port
 			}
+		case r.Connected && r.Desc != "":
+			label = r.Desc
+		case r.Connected:
+			label = "(marked connected)"
 		case r.Desc != "":
 			free++
 			label = r.Desc
@@ -244,8 +249,10 @@ func (a *App) renderPDUView(width int) string {
 			draw = "…"
 		case d.err == "":
 			draw = fmt.Sprintf("%.1f W", d.watts)
-			// A described free outlet is a documented ad-hoc load, not a ghost.
-			ghostLoad = r.Device == "" && r.Desc == "" && d.watts >= 1
+			// NetBox connectedness (cable or mark_connected) is canon; a
+			// described free outlet is a documented ad-hoc load. Only truly
+			// unaccounted-for draw gets flagged.
+			ghostLoad = !r.Connected && r.Desc == "" && d.watts >= 1
 		}
 		if ghostLoad {
 			label = "(free) ⚠ undocumented load"
@@ -264,7 +271,7 @@ func (a *App) renderPDUView(width int) string {
 			line = styleSelected.Render(pad(line, inner))
 		case ghostLoad:
 			line = styleToast.Render(line)
-		case r.Device == "":
+		case !r.Connected:
 			line = styleDim.Render(line)
 		}
 		sb.WriteString(" " + dot + " " + line + "\n")

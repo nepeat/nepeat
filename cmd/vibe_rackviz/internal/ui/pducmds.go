@@ -25,9 +25,17 @@ type readingsMsg struct {
 type readingsTickMsg struct{ PDU string }
 
 type actionResultMsg struct {
-	Desc string
-	PDU  string
-	Err  error
+	Desc   string
+	PDU    string
+	Outlet int
+	Err    error
+}
+
+// actionRefreshMsg fires a few seconds after a successful power action so
+// the affected outlet's state and draw reflect the settled reality.
+type actionRefreshMsg struct {
+	PDU    string
+	Outlet int
 }
 
 // powerStatesMsg carries one PDU's outlet states joined to the device names
@@ -45,7 +53,7 @@ type toastClearMsg struct{ gen int }
 // loadPowerStatesCmd sweeps one PDU: NetBox outlet→device cabling (cached
 // after the first sweep) narrows the driver query to just the outlets that
 // actually feed something.
-func (a *App) loadPowerStatesCmd(pduName string, pduDeviceID int, cached []netbox.PowerOutlet) tea.Cmd {
+func (a *App) loadPowerStatesCmd(pduName string, cached []netbox.PowerOutlet) tea.Cmd {
 	return func() tea.Msg {
 		c, err := a.controllerFor(pduName)
 		if err != nil {
@@ -55,7 +63,7 @@ func (a *App) loadPowerStatesCmd(pduName string, pduDeviceID int, cached []netbo
 		defer cancel()
 		outlets := cached
 		if outlets == nil {
-			outlets, err = a.client.PowerOutlets(ctx, pduDeviceID)
+			outlets, err = a.client.PowerOutletsByName(ctx, pduName)
 			if err != nil {
 				return powerStatesMsg{PDU: pduName, Err: err}
 			}
@@ -266,14 +274,14 @@ func (a *App) powerActionCmd(action powerAction, pduName string, outlet int, dev
 		desc := fmt.Sprintf("%s %s outlet %d (%s)", action, pduName, outlet, device)
 		if a.dryRun {
 			logAction("DRY-RUN " + desc)
-			return actionResultMsg{Desc: "dry-run: " + desc, PDU: pduName}
+			return actionResultMsg{Desc: "dry-run: " + desc, PDU: pduName, Outlet: outlet}
 		}
 		c, err := a.controllerFor(pduName)
 		if err != nil {
-			return actionResultMsg{Desc: desc, PDU: pduName, Err: err}
+			return actionResultMsg{Desc: desc, PDU: pduName, Outlet: outlet, Err: err}
 		}
 		if c.Caps()&pdu.CapSwitch == 0 {
-			return actionResultMsg{Desc: desc, PDU: pduName, Err: fmt.Errorf("%s: no switching support", pduName)}
+			return actionResultMsg{Desc: desc, PDU: pduName, Outlet: outlet, Err: fmt.Errorf("%s: no switching support", pduName)}
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
@@ -290,7 +298,7 @@ func (a *App) powerActionCmd(action powerAction, pduName string, outlet int, dev
 		} else {
 			logAction("OK " + desc)
 		}
-		return actionResultMsg{Desc: desc, PDU: pduName, Err: err}
+		return actionResultMsg{Desc: desc, PDU: pduName, Outlet: outlet, Err: err}
 	}
 }
 
