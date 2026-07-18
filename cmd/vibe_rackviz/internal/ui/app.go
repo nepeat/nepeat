@@ -629,13 +629,9 @@ func (a *App) render() string {
 		titleRight = r.Name
 	}
 
-	pane := func(area focusArea, w int, title, content string) string {
-		bar := styleTitle.Render(truncate(title, w-2))
-		return a.paneStyle(area).Width(w).Height(bodyHeight - 2).Render(bar + "\n" + content)
-	}
-	left := pane(focusRacks, leftW, "RACKS", a.renderRackList(leftW))
-	mid := pane(focusElevation, midW, titleMid, a.renderElevationScrolled(midW, bodyHeight-3))
-	right := pane(focusInfo, rightW, titleRight, a.renderInfo(rightW))
+	left := a.renderPane(focusRacks, leftW, bodyHeight-2, "RACKS", a.renderRackList(leftW))
+	mid := a.renderPane(focusElevation, midW, bodyHeight-2, titleMid, a.renderElevationScrolled(midW, bodyHeight-3))
+	right := a.renderPane(focusInfo, rightW, bodyHeight-2, titleRight, a.renderInfo(rightW))
 
 	body := lipgloss.JoinHorizontal(lipgloss.Top, left, mid, right)
 	if overlay := a.renderOverlay(); overlay != "" {
@@ -652,6 +648,25 @@ func (a *App) renderOverlay() string {
 		return a.renderMenu()
 	}
 	return ""
+}
+
+// renderPane draws one bordered pane. Every line is pre-padded to the exact
+// content width and the style gets no Width/Height: lipgloss v2's width
+// handling re-wraps lines and strips styling from trailing whitespace, which
+// clipped block backgrounds at the text edge.
+func (a *App) renderPane(area focusArea, w, h int, title, content string) string {
+	innerW := w - 2 // horizontal padding
+	lines := strings.Split(styleTitle.Render(truncate(title, innerW))+"\n"+content, "\n")
+	if len(lines) > h {
+		lines = lines[:h]
+	}
+	for len(lines) < h {
+		lines = append(lines, "")
+	}
+	for i := range lines {
+		lines[i] = pad(lines[i], innerW)
+	}
+	return a.paneStyle(area).Render(strings.Join(lines, "\n"))
 }
 
 func (a *App) paneStyle(area focusArea) lipgloss.Style {

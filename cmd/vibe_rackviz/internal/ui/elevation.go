@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/x/ansi"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"
@@ -148,21 +149,21 @@ func (a *App) renderElevation(width int) string {
 			b := blocks[bi]
 			label := ""
 			if b.TopU == r.U {
-				label = " " + b.Device.Name
+				label = b.Device.Name
 			} else if ch := kids[b.Device.ID]; len(ch) > 0 {
 				names := make([]string, len(ch))
 				for i, c := range ch {
 					names[i] = c.Device.Name
 				}
-				label = " └ " + strings.Join(names, ", ")
+				label = "└ " + strings.Join(names, ", ")
 			} else if b.Device.DeviceType.Model != "" {
-				label = " " + b.Device.DeviceType.Model
+				label = b.Device.DeviceType.Model
 			}
 			st := a.powerStyle(b.Device.Name)
 			if bi == a.devCursor && a.focus == focusElevation {
 				st = st.Reverse(true).Bold(true)
 			}
-			body = st.Render(pad(label, inner))
+			body = st.Render(centerPad(label, inner))
 		} else {
 			body = styleDim.Render(pad(strings.Repeat(" ", inner/2)+"·", inner))
 		}
@@ -223,21 +224,30 @@ func (a *App) powerDot(deviceName string) string {
 	return "  "
 }
 
+// pad right-pads s to width. The last pad char is a NBSP: lipgloss v2's
+// bordered-pane rendering strips styling from trailing regular spaces, which
+// would clip block backgrounds at the text edge.
 func pad(s string, width int) string {
 	w := lipgloss.Width(s)
 	if w >= width {
 		return truncate(s, width)
 	}
-	return s + strings.Repeat(" ", width-w)
+	return s + strings.Repeat(" ", width-w-1) + " "
+}
+
+// centerPad centers s within width with the same NBSP tail trick.
+func centerPad(s string, width int) string {
+	w := lipgloss.Width(s)
+	if w >= width {
+		return truncate(s, width)
+	}
+	left := (width - w) / 2
+	return strings.Repeat(" ", left) + pad(s, width-left)
 }
 
 func truncate(s string, width int) string {
 	if lipgloss.Width(s) <= width {
 		return s
 	}
-	runes := []rune(s)
-	for len(runes) > 0 && lipgloss.Width(string(runes)) > width-1 {
-		runes = runes[:len(runes)-1]
-	}
-	return string(runes) + "…"
+	return ansi.Truncate(s, width, "…")
 }
