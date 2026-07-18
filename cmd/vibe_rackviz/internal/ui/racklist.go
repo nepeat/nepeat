@@ -1,0 +1,31 @@
+package ui
+
+import (
+	"fmt"
+	"strings"
+)
+
+func (a *App) renderRackList(width int) string {
+	var sb strings.Builder
+	if len(a.racks) == 0 {
+		sb.WriteString(styleDim.Render("(loading…)"))
+		return sb.String()
+	}
+	inner := width - 3
+	for i, r := range a.racks {
+		line := fmt.Sprintf("%s %dU", r.Name, r.UHeight)
+		line = pad(truncate(line, inner), inner)
+		if i == a.rackCursor {
+			if a.focus == focusRacks {
+				line = styleSelected.Render(line)
+			} else {
+				line = styleTitle.Render(line)
+			}
+		}
+		sb.WriteString(line + "\n")
+		if i == a.rackCursor {
+			sb.WriteString(styleDim.Render(fmt.Sprintf("  %s · %d devices", r.Site.Name, r.DeviceCount)) + "\n")
+		}
+	}
+	return strings.TrimRight(sb.String(), "\n")
+}

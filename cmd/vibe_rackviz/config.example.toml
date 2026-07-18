@@ -1,0 +1,37 @@
+# vibe_rackviz config — copy to ~/.config/vibe_rackviz/config.toml
+# Everything here has sane defaults except the [pdu] sections; the app works
+# read-only with no config file at all.
+
+[netbox]
+url = "https://infra.dma.space"
+token_op_ref = "op://Personal/netbox-dma/apikey"
+
+# Raritan PX3-5475V PDUs (switched + outlet metered), keyed by NetBox device
+# name. The management VLAN (10.20.10.0/24) is only reachable from a machine
+# with a route to it (e.g. via the jump host).
+#
+# Two drivers:
+#   raritan-json — JSON-RPC over HTTPS. All TCP, so it works through
+#                  PROXY=socks5://… from a plain `ssh -D` tunnel. Recommended.
+#   raritan-snmp — SNMP v2c PDU2-MIB (UDP; needs direct reachability or a
+#                  SOCKS proxy with UDP ASSOCIATE).
+#
+# [pdu."dma-pdu-01"]
+# driver = "raritan-json"
+# host = "10.20.10.110"
+# username = "admin"
+# password_op_ref = "op://Personal/pdu-admin/password"   # or password = "..."
+# # tls_verify = false                 # default: skip verify (self-signed cert)
+# # outlet_name_regex = '(\d+)$'       # NetBox "output6" → outlet 6 (default)
+#
+# [pdu."dma-pdu-02"]
+# driver = "raritan-json"
+# host = "10.20.10.111"
+# username = "admin"
+# password_op_ref = "op://Personal/pdu-admin/password"
+#
+# SNMP variant:
+# [pdu."dma-pdu-01"]
+# driver = "raritan-snmp"
+# host = "10.20.10.110"
+# snmp_community = "public"            # or snmp_op_ref = "op://…"
