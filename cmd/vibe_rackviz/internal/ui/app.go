@@ -223,9 +223,9 @@ func (a *App) selectDevice() tea.Cmd {
 }
 
 // outletDrawCmds refreshes stale per-outlet W/A readings for the outlets
-// feeding the selected device.
+// feeding the selected device — batched per PDU.
 func (a *App) outletDrawCmds(det *deviceDetail) []tea.Cmd {
-	var cmds []tea.Cmd
+	byPDU := map[string][]int{}
 	for _, t := range a.buildTargets(det) {
 		key := orKey(t.PDU, t.Outlet)
 		e := a.outletDraw[key]
@@ -233,7 +233,11 @@ func (a *App) outletDrawCmds(det *deviceDetail) []tea.Cmd {
 			continue
 		}
 		a.outletDraw[key] = &outletReadingEntry{loading: true}
-		cmds = append(cmds, a.outletReadingCmd(t.PDU, t.Outlet))
+		byPDU[t.PDU] = append(byPDU[t.PDU], t.Outlet)
+	}
+	var cmds []tea.Cmd
+	for name, outlets := range byPDU {
+		cmds = append(cmds, a.outletReadingsCmd(name, outlets))
 	}
 	return cmds
 }
@@ -498,15 +502,21 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return a, tea.Batch(cmds...)
 
-	case outletReadingMsg:
-		e := a.outletDraw[orKey(msg.PDU, msg.Outlet)]
-		if e == nil {
-			return a, nil
-		}
-		if msg.Err != nil {
-			*e = outletReadingEntry{at: time.Now(), err: msg.Err.Error()}
-		} else {
-			*e = outletReadingEntry{at: time.Now(), watts: msg.Reading.Watts, amps: msg.Reading.Amps}
+	case outletReadingsMsg:
+		for _, outlet := range msg.Requested {
+			e := a.outletDraw[orKey(msg.PDU, outlet)]
+			if e == nil {
+				continue
+			}
+			rd, ok := msg.ByOutlet[outlet]
+			switch {
+			case msg.Err != nil:
+				*e = outletReadingEntry{at: time.Now(), err: msg.Err.Error()}
+			case !ok:
+				*e = outletReadingEntry{at: time.Now(), err: "no reading"}
+			default:
+				*e = outletReadingEntry{at: time.Now(), watts: rd.Watts, amps: rd.Amps}
+			}
 		}
 		return a, nil
 

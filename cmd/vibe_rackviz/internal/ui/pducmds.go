@@ -121,31 +121,33 @@ type outletStateMsg struct {
 	Err    error
 }
 
-// outletReadingMsg is one outlet's live W/A for the device info pane.
-type outletReadingMsg struct {
-	PDU     string
-	Outlet  int
-	Reading pdu.PowerReading
-	Err     error
+// outletReadingsMsg carries live W/A for a batch of outlets on one PDU.
+type outletReadingsMsg struct {
+	PDU       string
+	Requested []int
+	ByOutlet  map[int]pdu.PowerReading
+	Err       error
 }
 
 func orKey(pduName string, outlet int) string {
 	return fmt.Sprintf("%s/%d", pduName, outlet)
 }
 
-func (a *App) outletReadingCmd(pduName string, outlet int) tea.Cmd {
+// outletReadingsCmd fetches draw for several outlets in one shot (performBulk
+// on the PX3 JSON-RPC driver, one SNMP session otherwise).
+func (a *App) outletReadingsCmd(pduName string, outlets []int) tea.Cmd {
 	return func() tea.Msg {
 		c, err := a.controllerFor(pduName)
 		if err != nil {
-			return outletReadingMsg{PDU: pduName, Outlet: outlet, Err: err}
+			return outletReadingsMsg{PDU: pduName, Requested: outlets, Err: err}
 		}
 		if c.Caps()&pdu.CapMeter == 0 {
-			return outletReadingMsg{PDU: pduName, Outlet: outlet, Err: fmt.Errorf("%s: no metering", pduName)}
+			return outletReadingsMsg{PDU: pduName, Requested: outlets, Err: fmt.Errorf("%s: no metering", pduName)}
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
-		rd, err := c.OutletReading(ctx, outlet)
-		return outletReadingMsg{PDU: pduName, Outlet: outlet, Reading: rd, Err: err}
+		byOutlet, err := c.OutletReadings(ctx, outlets)
+		return outletReadingsMsg{PDU: pduName, Requested: outlets, ByOutlet: byOutlet, Err: err}
 	}
 }
 

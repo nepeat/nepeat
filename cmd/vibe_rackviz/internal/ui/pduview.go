@@ -23,6 +23,7 @@ type pduOutletRow struct {
 	Name   string // NetBox outlet name
 	Device string // connected device name, "" when free
 	Port   string // device-side power port name
+	Desc   string // NetBox outlet description (ad-hoc loads on free outlets)
 }
 
 type pduViewEntry struct {
@@ -103,7 +104,7 @@ func (a *App) loadPDUViewCmd(name string, cached []netbox.PowerOutlet) tea.Cmd {
 func buildPDURows(outlets []netbox.PowerOutlet, regex string) []pduOutletRow {
 	rows := make([]pduOutletRow, 0, len(outlets))
 	for _, o := range outlets {
-		r := pduOutletRow{Name: o.Name}
+		r := pduOutletRow{Name: o.Name, Desc: o.Description}
 		if idx, err := pdu.MapOutlet(o.Name, regex); err == nil {
 			r.Index = idx
 		}
@@ -122,16 +123,17 @@ func buildPDURows(outlets []netbox.PowerOutlet, regex string) []pduOutletRow {
 	return rows
 }
 
-// pduDrawCmds refreshes stale per-outlet W/A readings for every cabled
-// outlet of the PDU (shown inline in the outlet list).
+// pduDrawCmds refreshes stale per-outlet W/A readings for every outlet of
+// the PDU in one batch — including NetBox-free ones, which may have
+// undocumented loads plugged in.
 func (a *App) pduDrawCmds(name string) []tea.Cmd {
 	e := a.pduViews[name]
 	if e == nil || e.loading {
 		return nil
 	}
-	var cmds []tea.Cmd
+	var need []int
 	for _, r := range e.rows {
-		if r.Device == "" || r.Index == 0 {
+		if r.Index == 0 {
 			continue
 		}
 		key := orKey(name, r.Index)
@@ -139,9 +141,12 @@ func (a *App) pduDrawCmds(name string) []tea.Cmd {
 			continue
 		}
 		a.outletDraw[key] = &outletReadingEntry{loading: true}
-		cmds = append(cmds, a.outletReadingCmd(name, r.Index))
+		need = append(need, r.Index)
 	}
-	return cmds
+	if len(need) == 0 {
+		return nil
+	}
+	return []tea.Cmd{a.outletReadingsCmd(name, need)}
 }
 
 // openOutletMenu opens the power action menu for the outlet under the cursor
@@ -217,6 +222,9 @@ func (a *App) renderPDUView(width int) string {
 			if r.Port != "" {
 				label += " · " + r.Port
 			}
+		case r.Desc != "":
+			free++
+			label = r.Desc
 		default:
 			free++
 			label = "(free)"
@@ -229,14 +237,18 @@ func (a *App) renderPDUView(width int) string {
 		}
 
 		draw := ""
-		if r.Device != "" {
-			switch d := a.outletDraw[orKey(name, r.Index)]; {
-			case d == nil:
-			case d.loading:
-				draw = "…"
-			case d.err == "":
-				draw = fmt.Sprintf("%.1f W", d.watts)
-			}
+		ghostLoad := false // a NetBox-free outlet that is actually drawing power
+		switch d := a.outletDraw[orKey(name, r.Index)]; {
+		case d == nil:
+		case d.loading:
+			draw = "…"
+		case d.err == "":
+			draw = fmt.Sprintf("%.1f W", d.watts)
+			// A described free outlet is a documented ad-hoc load, not a ghost.
+			ghostLoad = r.Device == "" && r.Desc == "" && d.watts >= 1
+		}
+		if ghostLoad {
+			label = "(free) ⚠ undocumented load"
 		}
 		line := fmt.Sprintf("%02d ╶─ %s", r.Index, label)
 		if draw != "" {
@@ -247,9 +259,12 @@ func (a *App) renderPDUView(width int) string {
 			line += strings.Repeat(" ", gap) + draw
 		}
 		line = truncate(line, inner)
-		if i == a.outletCursor && a.focus == focusElevation {
+		switch {
+		case i == a.outletCursor && a.focus == focusElevation:
 			line = styleSelected.Render(pad(line, inner))
-		} else if r.Device == "" {
+		case ghostLoad:
+			line = styleToast.Render(line)
+		case r.Device == "":
 			line = styleDim.Render(line)
 		}
 		sb.WriteString(" " + dot + " " + line + "\n")

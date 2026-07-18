@@ -99,11 +99,12 @@ type PowerPort struct {
 }
 
 type PowerOutlet struct {
-	ID        int         `json:"id"`
-	Name      string      `json:"name"`
-	Device    Named       `json:"device"`
-	Type      *valueLabel `json:"type"`
-	Endpoints []Endpoint  `json:"connected_endpoints"`
+	ID          int         `json:"id"`
+	Name        string      `json:"name"`
+	Device      Named       `json:"device"`
+	Type        *valueLabel `json:"type"`
+	Description string      `json:"description"`
+	Endpoints   []Endpoint  `json:"connected_endpoints"`
 }
 
 type Status struct {

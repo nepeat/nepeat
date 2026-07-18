@@ -47,22 +47,48 @@ func TestPDUView(t *testing.T) {
 		{Name: "output2", Endpoints: []netbox.Endpoint{{Name: "Power", Device: netbox.Named{Name: "home-assistant-one"}}}},
 		{Name: "output3"},
 		{Name: "output4", Endpoints: []netbox.Endpoint{{Name: "PSU1", Device: netbox.Named{Name: "dma-con-sw-1"}}}},
+		{Name: "output5", Description: "space heater (temporary)"},
 	}
-	step(pduViewMsg{PDU: "dma-pdu-01", Outlets: outlets, States: map[int]pdu.OutletState{
-		1: pdu.StateOn, 2: pdu.StateOn, 3: pdu.StateOff, 4: pdu.StateOff,
+	cmd := step(pduViewMsg{PDU: "dma-pdu-01", Outlets: outlets, States: map[int]pdu.OutletState{
+		1: pdu.StateOn, 2: pdu.StateOn, 3: pdu.StateOff, 4: pdu.StateOff, 5: pdu.StateOn,
 	}})
+	// The follow-up draw batch must include the free outlets too.
+	if cmd == nil {
+		t.Fatal("pduViewMsg scheduled no draw batch")
+	}
+	for _, o := range []int{3, 5} {
+		if e := app.outletDraw[orKey("dma-pdu-01", o)]; e == nil || !e.loading {
+			t.Errorf("free outlet %d not queued for readings", o)
+		}
+	}
 
 	app.focus = focusElevation
 	view := app.render()
-	for _, want := range []string{"⚡ dma-pdu-01", "01 ╶─ dma-core-a-1 · PS-B", "03 ╶─ (free)", "2 on · 2 off · 1 free"} {
+	for _, want := range []string{"⚡ dma-pdu-01", "01 ╶─ dma-core-a-1 · PS-B", "03 ╶─ (free)", "05 ╶─ space heater (temporary)", "3 on · 2 off · 2 free"} {
 		if !strings.Contains(view, want) {
 			t.Errorf("pdu view missing %q\n%s", want, view)
 		}
 	}
 
+	// A NetBox-free outlet that is actually drawing power gets flagged.
+	step(outletReadingsMsg{PDU: "dma-pdu-01", Requested: []int{3, 5}, ByOutlet: map[int]pdu.PowerReading{
+		3: {Watts: 66.6, Amps: 0.55},
+		5: {Watts: 800, Amps: 6.6},
+	}})
+	view = app.render()
+	if !strings.Contains(view, "⚠ undocumented load") || !strings.Contains(view, "66.6 W") {
+		t.Errorf("ghost load not flagged:\n%s", view)
+	}
+	if strings.Contains(view, "space heater (temporary) ⚠") {
+		t.Error("described free outlet wrongly flagged as undocumented")
+	}
+	if !strings.Contains(view, "800.0 W") {
+		t.Error("described free outlet missing its draw")
+	}
+
 	// Inline draw appears once the reading lands.
 	app.outletDraw["dma-pdu-01/1"] = &outletReadingEntry{loading: true}
-	step(outletReadingMsg{PDU: "dma-pdu-01", Outlet: 1, Reading: pdu.PowerReading{Watts: 145.3, Amps: 1.2}})
+	step(outletReadingsMsg{PDU: "dma-pdu-01", Requested: []int{1}, ByOutlet: map[int]pdu.PowerReading{1: {Watts: 145.3, Amps: 1.2}}})
 	view = app.render()
 	if !strings.Contains(view, "145.3 W") {
 		t.Errorf("pdu view missing inline draw:\n%s", view)

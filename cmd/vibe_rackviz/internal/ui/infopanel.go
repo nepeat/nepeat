@@ -181,19 +181,22 @@ func (a *App) renderPDUInfo(name string, width int) string {
 				st = s.String()
 			}
 			writeKV(&sb, "State", st)
-			if r.Device != "" {
+			switch {
+			case r.Device != "":
 				writeKV(&sb, "Feeds", truncate(r.Device+" · "+r.Port, inner-10))
-				switch d := a.outletDraw[orKey(name, r.Index)]; {
-				case d == nil:
-				case d.loading:
-					writeKV(&sb, "Draw", "measuring…")
-				case d.err != "":
-					writeKV(&sb, "Draw", "—")
-				default:
-					writeKV(&sb, "Draw", fmt.Sprintf("%.1f W · %.2f A", d.watts, d.amps))
-				}
-			} else {
+			case r.Desc != "":
+				writeKV(&sb, "Feeds", truncate(r.Desc, inner-10))
+			default:
 				writeKV(&sb, "Feeds", "(free)")
+			}
+			switch d := a.outletDraw[orKey(name, r.Index)]; {
+			case d == nil:
+			case d.loading:
+				writeKV(&sb, "Draw", "measuring…")
+			case d.err != "":
+				writeKV(&sb, "Draw", "—")
+			default:
+				writeKV(&sb, "Draw", fmt.Sprintf("%.1f W · %.2f A", d.watts, d.amps))
 			}
 		}
 	}

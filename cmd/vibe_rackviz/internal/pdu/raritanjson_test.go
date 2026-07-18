@@ -18,17 +18,12 @@ type fakePX3 struct {
 	mu         sync.Mutex
 	powerState int
 	cycles     int
+	bulkCalls  int
 	lastAuth   string
 }
 
-func (f *fakePX3) handler() http.HandlerFunc {
-	rpc := func(w http.ResponseWriter, ret any) {
-		json.NewEncoder(w).Encode(map[string]any{
-			"jsonrpc": "2.0",
-			"id":      1,
-			"result":  map[string]any{"_ret_": ret},
-		})
-	}
+// exec dispatches one JSON-RPC call; ok=false means unknown method/rid.
+func (f *fakePX3) exec(path, method string, params json.RawMessage) (any, bool) {
 	readings := map[string]float64{
 		"/sensor/inlet-current": 11.5,
 		"/sensor/inlet-power":   2640,
@@ -38,6 +33,83 @@ func (f *fakePX3) handler() http.HandlerFunc {
 		"/sensor/l2-power":      1440,
 		"/sensor/out5-current":  0.38,
 		"/sensor/out5-power":    45.2,
+		"/sensor/out0-current":  1.0,
+		"/sensor/out0-power":    120,
+	}
+	if path == "/model/pdu/0" && method == "getOutlets" {
+		refs := make([]map[string]string, 8)
+		for i := range refs {
+			refs[i] = map[string]string{"rid": fmt.Sprintf("/model/pdu/0/outlet/%d", i)}
+		}
+		return refs, true
+	}
+	if v, ok := readings[path]; ok && method == "getReading" {
+		return map[string]any{"valid": true, "value": v}, true
+	}
+	// getState/getSensors work on outlets 0..7; outlet 5 (0-based) mirrors
+	// the switchable state, the rest are on.
+	if strings.HasPrefix(path, "/model/pdu/0/outlet/") {
+		idx, err := strconv.Atoi(strings.TrimPrefix(path, "/model/pdu/0/outlet/"))
+		if err == nil && idx >= 0 && idx < 8 {
+			switch method {
+			case "getState":
+				st := 1
+				if idx == 5 {
+					f.mu.Lock()
+					st = f.powerState
+					f.mu.Unlock()
+				}
+				return map[string]any{"available": true, "powerState": st}, true
+			case "getSensors":
+				// Only outlets 0 and 5 expose sensors in the fake.
+				if idx == 0 || idx == 5 {
+					return map[string]any{
+						"current":     map[string]string{"rid": fmt.Sprintf("/sensor/out%d-current", idx)},
+						"activePower": map[string]string{"rid": fmt.Sprintf("/sensor/out%d-power", idx)},
+					}, true
+				}
+				return map[string]any{"current": nil, "activePower": nil}, true
+			}
+		}
+	}
+	switch path + " " + method {
+	case "/model/pdu/0/outlet/5 setPowerState":
+		var p struct {
+			Pstate int `json:"pstate"`
+		}
+		json.Unmarshal(params, &p)
+		f.mu.Lock()
+		f.powerState = p.Pstate
+		f.mu.Unlock()
+		return nil, true
+	case "/model/pdu/0/outlet/5 cyclePowerState":
+		f.mu.Lock()
+		f.cycles++
+		f.mu.Unlock()
+		return nil, true
+	case "/model/pdu/0/inlet/0 getSensors":
+		return map[string]any{
+			"current":     map[string]string{"rid": "/sensor/inlet-current"},
+			"activePower": map[string]string{"rid": "/sensor/inlet-power"},
+		}, true
+	case "/model/pdu/0/inlet/0 getPoles":
+		return []map[string]any{
+			{"current": map[string]string{"rid": "/sensor/l1-current"}, "activePower": map[string]string{"rid": "/sensor/l1-power"}},
+			{"current": map[string]string{"rid": "/sensor/l2-current"}, "activePower": map[string]string{"rid": "/sensor/l2-power"}},
+		}, true
+	}
+	return nil, false
+}
+
+func (f *fakePX3) handler() http.HandlerFunc {
+	envelope := func(ret any) map[string]any {
+		return map[string]any{"jsonrpc": "2.0", "id": 1, "result": map[string]any{"_ret_": ret}}
+	}
+	rpcError := func(method, path string) map[string]any {
+		return map[string]any{
+			"jsonrpc": "2.0", "id": 1,
+			"error": map[string]any{"code": -32601, "message": "no such method " + method + " on " + path},
+		}
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, pass, _ := r.BasicAuth()
@@ -52,70 +124,41 @@ func (f *fakePX3) handler() http.HandlerFunc {
 			http.Error(w, err.Error(), 400)
 			return
 		}
-		if r.URL.Path == "/model/pdu/0" && req.Method == "getOutlets" {
-			refs := make([]map[string]string, 8)
-			for i := range refs {
-				refs[i] = map[string]string{"rid": fmt.Sprintf("/model/pdu/0/outlet/%d", i)}
-			}
-			rpc(w, refs)
-			return
-		}
-		if v, ok := readings[r.URL.Path]; ok && req.Method == "getReading" {
-			rpc(w, map[string]any{"valid": true, "value": v})
-			return
-		}
-		// getState works on outlets 0..7; outlet 5 (0-based) mirrors the
-		// switchable state, the rest are on. Out-of-range falls through to
-		// the rpc-error default like real firmware.
-		if req.Method == "getState" && strings.HasPrefix(r.URL.Path, "/model/pdu/0/outlet/") {
-			idx, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/model/pdu/0/outlet/"))
-			if err == nil && idx >= 0 && idx < 8 {
-				st := 1
-				if idx == 5 {
-					f.mu.Lock()
-					st = f.powerState
-					f.mu.Unlock()
-				}
-				rpc(w, map[string]any{"available": true, "powerState": st})
-				return
-			}
-		}
-		switch r.URL.Path + " " + req.Method {
-		case "/model/pdu/0/outlet/5 setPowerState":
+		if r.URL.Path == "/bulk" && req.Method == "performBulk" {
+			f.mu.Lock()
+			f.bulkCalls++
+			f.mu.Unlock()
 			var p struct {
-				Pstate int `json:"pstate"`
+				Requests []struct {
+					Rid  string `json:"rid"`
+					JSON struct {
+						Method string          `json:"method"`
+						Params json.RawMessage `json:"params"`
+					} `json:"json"`
+				} `json:"requests"`
 			}
 			json.Unmarshal(req.Params, &p)
-			f.mu.Lock()
-			f.powerState = p.Pstate
-			f.mu.Unlock()
-			rpc(w, nil)
-		case "/model/pdu/0/outlet/5 cyclePowerState":
-			f.mu.Lock()
-			f.cycles++
-			f.mu.Unlock()
-			rpc(w, nil)
-		case "/model/pdu/0/outlet/5 getSensors":
-			rpc(w, map[string]any{
-				"current":     map[string]string{"rid": "/sensor/out5-current"},
-				"activePower": map[string]string{"rid": "/sensor/out5-power"},
-			})
-		case "/model/pdu/0/inlet/0 getSensors":
-			rpc(w, map[string]any{
-				"current":     map[string]string{"rid": "/sensor/inlet-current"},
-				"activePower": map[string]string{"rid": "/sensor/inlet-power"},
-			})
-		case "/model/pdu/0/inlet/0 getPoles":
-			rpc(w, []map[string]any{
-				{"current": map[string]string{"rid": "/sensor/l1-current"}, "activePower": map[string]string{"rid": "/sensor/l1-power"}},
-				{"current": map[string]string{"rid": "/sensor/l2-current"}, "activePower": map[string]string{"rid": "/sensor/l2-power"}},
-			})
-		default:
+			responses := make([]map[string]any, len(p.Requests))
+			for i, br := range p.Requests {
+				var inner map[string]any
+				if ret, ok := f.exec(br.Rid, br.JSON.Method, br.JSON.Params); ok {
+					inner = envelope(ret)
+				} else {
+					inner = rpcError(br.JSON.Method, br.Rid)
+				}
+				responses[i] = map[string]any{"json": inner, "statcode": 200}
+			}
 			json.NewEncoder(w).Encode(map[string]any{
 				"jsonrpc": "2.0", "id": 1,
-				"error": map[string]any{"code": -32601, "message": "no such method " + req.Method + " on " + r.URL.Path},
+				"result": map[string]any{"responses": responses},
 			})
+			return
 		}
+		if ret, ok := f.exec(r.URL.Path, req.Method, req.Params); ok {
+			json.NewEncoder(w).Encode(envelope(ret))
+			return
+		}
+		json.NewEncoder(w).Encode(rpcError(req.Method, r.URL.Path))
 	}
 }
 
@@ -203,6 +246,24 @@ func TestRaritanJSONDriver(t *testing.T) {
 	}
 	if or.Watts != 45.2 || or.Amps != 0.38 {
 		t.Errorf("outlet reading = %+v, want 45.2W/0.38A", or)
+	}
+
+	// Bulk readings: sensor discovery + all reads via performBulk.
+	fake.mu.Lock()
+	before := fake.bulkCalls
+	fake.mu.Unlock()
+	brs, err := c.OutletReadings(ctx, []int{1, 6})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if brs[6].Watts != 45.2 || brs[1].Watts != 120 {
+		t.Errorf("bulk readings = %+v", brs)
+	}
+	fake.mu.Lock()
+	used := fake.bulkCalls - before
+	fake.mu.Unlock()
+	if used == 0 {
+		t.Error("OutletReadings did not use performBulk")
 	}
 
 	rds, err := c.Readings(ctx)

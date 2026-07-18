@@ -51,6 +51,9 @@ type Controller interface {
 	OutletStates(ctx context.Context, outlets []int) (map[int]OutletState, error)
 	// OutletReading returns one outlet's live draw (outlet-metered PDUs).
 	OutletReading(ctx context.Context, outlet int) (PowerReading, error)
+	// OutletReadings returns live draw for many outlets in as few round
+	// trips as the backend allows.
+	OutletReadings(ctx context.Context, outlets []int) (map[int]PowerReading, error)
 	PowerOn(ctx context.Context, outlet int) error
 	PowerOff(ctx context.Context, outlet int) error
 	PowerCycle(ctx context.Context, outlet int) error

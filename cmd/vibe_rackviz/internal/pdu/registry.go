@@ -79,6 +79,9 @@ func (n noneController) OutletStates(context.Context, []int) (map[int]OutletStat
 func (n noneController) OutletReading(context.Context, int) (PowerReading, error) {
 	return PowerReading{}, errNotConfigured
 }
+func (n noneController) OutletReadings(context.Context, []int) (map[int]PowerReading, error) {
+	return nil, errNotConfigured
+}
 func (n noneController) PowerOn(context.Context, int) error    { return errNotConfigured }
 func (n noneController) PowerOff(context.Context, int) error   { return errNotConfigured }
 func (n noneController) PowerCycle(context.Context, int) error { return errNotConfigured }

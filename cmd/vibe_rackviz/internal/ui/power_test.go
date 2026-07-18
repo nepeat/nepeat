@@ -139,7 +139,7 @@ func TestPowerStatesAndToast(t *testing.T) {
 	if !strings.Contains(app.render(), "measuring…") {
 		t.Error("info pane missing measuring placeholder")
 	}
-	step(outletReadingMsg{PDU: "dma-pdu-01", Outlet: 6, Reading: pdu.PowerReading{Watts: 45.2, Amps: 0.38}})
+	step(outletReadingsMsg{PDU: "dma-pdu-01", Requested: []int{6}, ByOutlet: map[int]pdu.PowerReading{6: {Watts: 45.2, Amps: 0.38}}})
 	view := app.render()
 	if !strings.Contains(view, "45.2 W") || !strings.Contains(view, "0.38 A") {
 		t.Errorf("info pane missing outlet draw, view:\n%s", view)
@@ -148,7 +148,7 @@ func TestPowerStatesAndToast(t *testing.T) {
 	if !strings.Contains(view, "Total 45.2 W · 0.38 A …") {
 		t.Errorf("info pane missing partial total, view:\n%s", view)
 	}
-	step(outletReadingMsg{PDU: "dma-pdu-01", Outlet: 7, Reading: pdu.PowerReading{Watts: 23.1, Amps: 0.21}})
+	step(outletReadingsMsg{PDU: "dma-pdu-01", Requested: []int{7}, ByOutlet: map[int]pdu.PowerReading{7: {Watts: 23.1, Amps: 0.21}}})
 	view = app.render()
 	if !strings.Contains(view, "Total 68.3 W · 0.59 A") || strings.Contains(view, "0.59 A …") {
 		t.Errorf("info pane missing final total, view:\n%s", view)

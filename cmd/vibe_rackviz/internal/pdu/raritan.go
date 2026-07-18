@@ -201,6 +201,35 @@ func (r *raritan) OutletReading(ctx context.Context, outlet int) (PowerReading, 
 	}, nil
 }
 
+// OutletReadings fetches many outlets' draw over one SNMP session.
+func (r *raritan) OutletReadings(ctx context.Context, outlets []int) (map[int]PowerReading, error) {
+	g, done, err := r.session(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer done()
+	out := map[int]PowerReading{}
+	for _, outlet := range outlets {
+		oids := []string{
+			fmt.Sprintf("%s.%d.%d", oidOutletValues, outlet, sensorRMSCurrent),
+			fmt.Sprintf("%s.%d.%d", oidOutletValues, outlet, sensorActivePow),
+			fmt.Sprintf("%s.%d.%d", oidOutletDigits, outlet, sensorRMSCurrent),
+			fmt.Sprintf("%s.%d.%d", oidOutletDigits, outlet, sensorActivePow),
+		}
+		res, err := g.Get(oids)
+		if err != nil || len(res.Variables) != 4 {
+			continue
+		}
+		v := func(i int) int64 { return gosnmp.ToBigInt(res.Variables[i].Value).Int64() }
+		out[outlet] = PowerReading{
+			Label: fmt.Sprintf("outlet %d", outlet),
+			Amps:  float64(v(0)) / math.Pow10(int(v(2))),
+			Watts: float64(v(1)) / math.Pow10(int(v(3))),
+		}
+	}
+	return out, nil
+}
+
 // Readings walks per-pole current+power on inlet 1 plus the inlet totals.
 func (r *raritan) Readings(ctx context.Context) ([]PowerReading, error) {
 	g, done, err := r.session(ctx)

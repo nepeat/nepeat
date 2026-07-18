@@ -32,12 +32,20 @@ const (
 	psOn  = 1
 )
 
+type outletSensorRefs struct {
+	current string
+	power   string
+}
+
 type raritanJSON struct {
 	name string
 	base string // https://host
 	user string
 	pass string
 	http *http.Client
+
+	mu         sync.Mutex
+	sensorRids map[int]outletSensorRefs
 }
 
 func newRaritanJSON(name, host, user, pass string, tlsVerify bool) Controller {
@@ -46,10 +54,11 @@ func newRaritanJSON(name, host, user, pass string, tlsVerify bool) Controller {
 		base = "https://" + base
 	}
 	return &raritanJSON{
-		name: name,
-		base: strings.TrimRight(base, "/"),
-		user: user,
-		pass: pass,
+		name:       name,
+		base:       strings.TrimRight(base, "/"),
+		user:       user,
+		pass:       pass,
+		sensorRids: map[int]outletSensorRefs{},
 		http: &http.Client{
 			Timeout:   15 * time.Second,
 			Transport: proxy.HTTPTransport(!tlsVerify),
@@ -60,9 +69,9 @@ func newRaritanJSON(name, host, user, pass string, tlsVerify bool) Controller {
 func (r *raritanJSON) Name() string { return r.name }
 func (r *raritanJSON) Caps() Caps   { return CapSwitch | CapMeter }
 
-// call performs one JSON-RPC request against rid and decodes result._ret_
-// into out (out may be nil for methods without a useful return).
-func (r *raritanJSON) call(ctx context.Context, rid, method string, params, out any) error {
+// callResult performs one JSON-RPC request against rid and returns the raw
+// result object.
+func (r *raritanJSON) callResult(ctx context.Context, rid, method string, params any) (json.RawMessage, error) {
 	if params == nil {
 		params = struct{}{}
 	}
@@ -73,22 +82,22 @@ func (r *raritanJSON) call(ctx context.Context, rid, method string, params, out 
 		"id":      1,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, r.base+rid, bytes.NewReader(body))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.SetBasicAuth(r.user, r.pass)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := r.http.Do(req)
 	if err != nil {
-		return fmt.Errorf("%s: %s %s: %w", r.name, method, rid, err)
+		return nil, fmt.Errorf("%s: %s %s: %w", r.name, method, rid, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(io.LimitReader(resp.Body, 256))
-		return fmt.Errorf("%s: %s %s: %s: %s", r.name, method, rid, resp.Status, strings.TrimSpace(string(b)))
+		return nil, fmt.Errorf("%s: %s %s: %s: %s", r.name, method, rid, resp.Status, strings.TrimSpace(string(b)))
 	}
 	var envelope struct {
 		Result json.RawMessage `json:"result"`
@@ -98,10 +107,20 @@ func (r *raritanJSON) call(ctx context.Context, rid, method string, params, out 
 		} `json:"error"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&envelope); err != nil {
-		return fmt.Errorf("%s: %s %s: bad response: %w", r.name, method, rid, err)
+		return nil, fmt.Errorf("%s: %s %s: bad response: %w", r.name, method, rid, err)
 	}
 	if envelope.Error != nil {
-		return fmt.Errorf("%s: %s %s: rpc error %d: %s", r.name, method, rid, envelope.Error.Code, envelope.Error.Message)
+		return nil, fmt.Errorf("%s: %s %s: rpc error %d: %s", r.name, method, rid, envelope.Error.Code, envelope.Error.Message)
+	}
+	return envelope.Result, nil
+}
+
+// call performs one JSON-RPC request against rid and decodes result._ret_
+// into out (out may be nil for methods without a useful return).
+func (r *raritanJSON) call(ctx context.Context, rid, method string, params, out any) error {
+	result, err := r.callResult(ctx, rid, method, params)
+	if err != nil {
+		return err
 	}
 	if out == nil {
 		return nil
@@ -109,13 +128,62 @@ func (r *raritanJSON) call(ctx context.Context, rid, method string, params, out 
 	var ret struct {
 		Ret json.RawMessage `json:"_ret_"`
 	}
-	if err := json.Unmarshal(envelope.Result, &ret); err != nil {
+	if err := json.Unmarshal(result, &ret); err != nil {
 		return fmt.Errorf("%s: %s %s: bad result: %w", r.name, method, rid, err)
 	}
 	if ret.Ret == nil {
 		return nil
 	}
 	return json.Unmarshal(ret.Ret, out)
+}
+
+// bulkItem is one batched JSON-RPC call for performBulk.
+type bulkItem struct {
+	Rid  string         `json:"rid"`
+	JSON map[string]any `json:"json"`
+}
+
+func bulkCall(rid, method string, id int) bulkItem {
+	return bulkItem{Rid: rid, JSON: map[string]any{
+		"jsonrpc": "2.0", "method": method, "params": nil, "id": id,
+	}}
+}
+
+// performBulk executes many JSON-RPC calls in a single round trip (the stock
+// web UI's batching endpoint: POST /bulk with a performBulk envelope).
+// Returns one raw _ret_ per item, nil for items that individually failed.
+func (r *raritanJSON) performBulk(ctx context.Context, items []bulkItem) ([]json.RawMessage, error) {
+	result, err := r.callResult(ctx, "/bulk", "performBulk", map[string]any{"requests": items})
+	if err != nil {
+		return nil, err
+	}
+	var out struct {
+		Responses []struct {
+			JSON struct {
+				Result struct {
+					Ret json.RawMessage `json:"_ret_"`
+				} `json:"result"`
+				Error *struct {
+					Message string `json:"message"`
+				} `json:"error"`
+			} `json:"json"`
+			Statcode int `json:"statcode"`
+		} `json:"responses"`
+	}
+	if err := json.Unmarshal(result, &out); err != nil {
+		return nil, fmt.Errorf("%s: performBulk: bad result: %w", r.name, err)
+	}
+	if len(out.Responses) != len(items) {
+		return nil, fmt.Errorf("%s: performBulk: %d responses for %d requests", r.name, len(out.Responses), len(items))
+	}
+	rets := make([]json.RawMessage, len(items))
+	for i, rsp := range out.Responses {
+		if rsp.JSON.Error != nil || (rsp.Statcode != 0 && rsp.Statcode != http.StatusOK) {
+			continue
+		}
+		rets[i] = rsp.JSON.Result.Ret
+	}
+	return rets, nil
 }
 
 // outletRid maps the 1-based NetBox outlet number to the 0-based rid.
@@ -140,11 +208,9 @@ func (r *raritanJSON) OutletState(ctx context.Context, outlet int) (OutletState,
 	return StateUnknown, nil
 }
 
-// OutletStates fetches outlet states with bounded-concurrency getState
-// calls (validated against PX3 Xerus 3.x, which has no /bulk endpoint). When
-// the narrowing hint is empty, getOutlets supplies the outlet count. The
-// concurrency is deliberately modest: the PDU's web server serializes TLS
-// handshakes, so few reused connections beat many fresh ones.
+// OutletStates fetches outlet states — one performBulk round trip, with a
+// bounded-concurrency fan-out fallback for firmware without /bulk. When the
+// narrowing hint is empty, getOutlets supplies the outlet count.
 func (r *raritanJSON) OutletStates(ctx context.Context, outlets []int) (map[int]OutletState, error) {
 	if len(outlets) == 0 {
 		var refs []struct {
@@ -160,6 +226,42 @@ func (r *raritanJSON) OutletStates(ctx context.Context, outlets []int) (map[int]
 	if len(outlets) == 0 {
 		return map[int]OutletState{}, nil
 	}
+
+	items := make([]bulkItem, len(outlets))
+	for i, outlet := range outlets {
+		items[i] = bulkCall(outletRid(outlet), "getState", i+1)
+	}
+	rets, err := r.performBulk(ctx, items)
+	if err != nil {
+		return r.outletStatesFanout(ctx, outlets)
+	}
+	out := map[int]OutletState{}
+	for i, ret := range rets {
+		if ret == nil {
+			continue
+		}
+		var st struct {
+			PowerState int `json:"powerState"`
+		}
+		if json.Unmarshal(ret, &st) != nil {
+			continue
+		}
+		switch st.PowerState {
+		case psOn:
+			out[outlets[i]] = StateOn
+		case psOff:
+			out[outlets[i]] = StateOff
+		default:
+			out[outlets[i]] = StateUnknown
+		}
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("%s: bulk getState returned no usable states", r.name)
+	}
+	return out, nil
+}
+
+func (r *raritanJSON) outletStatesFanout(ctx context.Context, outlets []int) (map[int]OutletState, error) {
 	states := make([]OutletState, len(outlets))
 	errs := make([]error, len(outlets))
 	sem := make(chan struct{}, 4)
@@ -185,6 +287,145 @@ func (r *raritanJSON) OutletStates(ctx context.Context, outlets []int) (map[int]
 	}
 	if failed == len(outlets) {
 		return nil, fmt.Errorf("%s: all %d outlet state queries failed: %w", r.name, len(outlets), errs[0])
+	}
+	return out, nil
+}
+
+// ensureSensorRids resolves (and caches) each outlet's current/activePower
+// sensor rids — they're stable, so getSensors only ever runs once per outlet.
+func (r *raritanJSON) ensureSensorRids(ctx context.Context, outlets []int) (map[int]outletSensorRefs, error) {
+	r.mu.Lock()
+	var missing []int
+	for _, o := range outlets {
+		if _, ok := r.sensorRids[o]; !ok {
+			missing = append(missing, o)
+		}
+	}
+	r.mu.Unlock()
+
+	if len(missing) > 0 {
+		items := make([]bulkItem, len(missing))
+		for i, o := range missing {
+			items[i] = bulkCall(outletRid(o), "getSensors", i+1)
+		}
+		rets, err := r.performBulk(ctx, items)
+		if err != nil {
+			return nil, err
+		}
+		r.mu.Lock()
+		for i, ret := range rets {
+			if ret == nil {
+				continue
+			}
+			var sensors struct {
+				Current     *sensorRef `json:"current"`
+				RMSCurrent  *sensorRef `json:"rmsCurrent"`
+				ActivePower *sensorRef `json:"activePower"`
+			}
+			if json.Unmarshal(ret, &sensors) != nil {
+				continue
+			}
+			refs := outletSensorRefs{}
+			if sensors.Current != nil {
+				refs.current = sensors.Current.Rid
+			} else if sensors.RMSCurrent != nil {
+				refs.current = sensors.RMSCurrent.Rid
+			}
+			if sensors.ActivePower != nil {
+				refs.power = sensors.ActivePower.Rid
+			}
+			r.sensorRids[missing[i]] = refs
+		}
+		r.mu.Unlock()
+	}
+
+	out := map[int]outletSensorRefs{}
+	r.mu.Lock()
+	for _, o := range outlets {
+		if refs, ok := r.sensorRids[o]; ok {
+			out[o] = refs
+		}
+	}
+	r.mu.Unlock()
+	return out, nil
+}
+
+// OutletReadings fetches live W/A for many outlets: one bulk to discover any
+// uncached sensor rids, one bulk for all the readings.
+func (r *raritanJSON) OutletReadings(ctx context.Context, outlets []int) (map[int]PowerReading, error) {
+	if len(outlets) == 0 {
+		return map[int]PowerReading{}, nil
+	}
+	refs, err := r.ensureSensorRids(ctx, outlets)
+	if err != nil {
+		return r.outletReadingsFanout(ctx, outlets)
+	}
+	type slot struct {
+		outlet int
+		watts  bool
+	}
+	var items []bulkItem
+	var slots []slot
+	for _, o := range outlets {
+		ref, ok := refs[o]
+		if !ok {
+			continue
+		}
+		if ref.current != "" {
+			items = append(items, bulkCall(ref.current, "getReading", len(items)+1))
+			slots = append(slots, slot{outlet: o})
+		}
+		if ref.power != "" {
+			items = append(items, bulkCall(ref.power, "getReading", len(items)+1))
+			slots = append(slots, slot{outlet: o, watts: true})
+		}
+	}
+	if len(items) == 0 {
+		return map[int]PowerReading{}, nil
+	}
+	rets, err := r.performBulk(ctx, items)
+	if err != nil {
+		return r.outletReadingsFanout(ctx, outlets)
+	}
+	out := map[int]PowerReading{}
+	for i, ret := range rets {
+		if ret == nil {
+			continue
+		}
+		var rd struct {
+			Valid bool    `json:"valid"`
+			Value float64 `json:"value"`
+		}
+		if json.Unmarshal(ret, &rd) != nil || !rd.Valid {
+			continue
+		}
+		pr := out[slots[i].outlet]
+		pr.Label = fmt.Sprintf("outlet %d", slots[i].outlet)
+		if slots[i].watts {
+			pr.Watts = rd.Value
+		} else {
+			pr.Amps = rd.Value
+		}
+		out[slots[i].outlet] = pr
+	}
+	return out, nil
+}
+
+func (r *raritanJSON) outletReadingsFanout(ctx context.Context, outlets []int) (map[int]PowerReading, error) {
+	out := map[int]PowerReading{}
+	var firstErr error
+	for _, o := range outlets {
+		pr, err := r.OutletReading(ctx, o)
+		if err != nil {
+			if firstErr == nil {
+				firstErr = err
+			}
+			continue
+		}
+		out[o] = pr
+	}
+	if len(out) == 0 && firstErr != nil {
+		return nil, firstErr
 	}
 	return out, nil
 }
