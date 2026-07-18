@@ -170,7 +170,7 @@ func TestRaritanJSONDriver(t *testing.T) {
 	fake.mu.Lock()
 	fake.powerState = psOff
 	fake.mu.Unlock()
-	states, err := c.OutletStates(ctx)
+	states, err := c.OutletStates(ctx, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,6 +182,15 @@ func TestRaritanJSONDriver(t *testing.T) {
 	}
 	if states[1] != StateOn {
 		t.Errorf("outlet 1 = %v, want on", states[1])
+	}
+
+	// Narrowed sweep queries only the requested outlets.
+	narrowed, err := c.OutletStates(ctx, []int{6, 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(narrowed) != 2 || narrowed[6] != StateOff || narrowed[2] != StateOn {
+		t.Errorf("narrowed states = %v, want {6:off 2:on}", narrowed)
 	}
 	fake.mu.Lock()
 	fake.powerState = psOn

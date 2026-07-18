@@ -116,8 +116,9 @@ func (r *raritan) OutletState(ctx context.Context, outlet int) (OutletState, err
 	return StateUnknown, nil
 }
 
-// OutletStates walks the onOff sensor column for every outlet in one sweep.
-func (r *raritan) OutletStates(ctx context.Context) (map[int]OutletState, error) {
+// OutletStates walks the onOff sensor column for every outlet in one sweep
+// (the SNMP walk is a single operation, so the narrowing hint is ignored).
+func (r *raritan) OutletStates(ctx context.Context, _ []int) (map[int]OutletState, error) {
 	g, done, err := r.session(ctx)
 	if err != nil {
 		return nil, err

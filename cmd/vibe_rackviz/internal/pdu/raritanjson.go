@@ -140,46 +140,51 @@ func (r *raritanJSON) OutletState(ctx context.Context, outlet int) (OutletState,
 	return StateUnknown, nil
 }
 
-// OutletStates fetches every outlet's state: getOutlets for the outlet count
-// (the returned rids are opaque on real firmware — /tfwopaque/… — so only the
-// count is used), then direct getState calls with bounded concurrency.
-// Validated against PX3 Xerus 3.x, which has no /bulk endpoint.
-func (r *raritanJSON) OutletStates(ctx context.Context) (map[int]OutletState, error) {
-	var outlets []struct {
-		Rid string `json:"rid"`
+// OutletStates fetches outlet states with bounded-concurrency getState
+// calls (validated against PX3 Xerus 3.x, which has no /bulk endpoint). When
+// the narrowing hint is empty, getOutlets supplies the outlet count. The
+// concurrency is deliberately modest: the PDU's web server serializes TLS
+// handshakes, so few reused connections beat many fresh ones.
+func (r *raritanJSON) OutletStates(ctx context.Context, outlets []int) (map[int]OutletState, error) {
+	if len(outlets) == 0 {
+		var refs []struct {
+			Rid string `json:"rid"`
+		}
+		if err := r.call(ctx, "/model/pdu/0", "getOutlets", nil, &refs); err != nil {
+			return nil, err
+		}
+		for i := range refs {
+			outlets = append(outlets, i+1)
+		}
 	}
-	if err := r.call(ctx, "/model/pdu/0", "getOutlets", nil, &outlets); err != nil {
-		return nil, err
-	}
-	n := len(outlets)
-	if n == 0 {
+	if len(outlets) == 0 {
 		return map[int]OutletState{}, nil
 	}
-	states := make([]OutletState, n)
-	errs := make([]error, n)
-	sem := make(chan struct{}, 8)
+	states := make([]OutletState, len(outlets))
+	errs := make([]error, len(outlets))
+	sem := make(chan struct{}, 4)
 	var wg sync.WaitGroup
-	for i := 0; i < n; i++ {
+	for i, outlet := range outlets {
 		wg.Add(1)
-		go func(i int) {
+		go func(i, outlet int) {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			states[i], errs[i] = r.OutletState(ctx, i+1)
-		}(i)
+			states[i], errs[i] = r.OutletState(ctx, outlet)
+		}(i, outlet)
 	}
 	wg.Wait()
 	out := map[int]OutletState{}
 	failed := 0
-	for i := 0; i < n; i++ {
+	for i, outlet := range outlets {
 		if errs[i] != nil {
 			failed++
 			continue
 		}
-		out[i+1] = states[i]
+		out[outlet] = states[i]
 	}
-	if failed == n {
-		return nil, fmt.Errorf("%s: all %d outlet state queries failed: %w", r.name, n, errs[0])
+	if failed == len(outlets) {
+		return nil, fmt.Errorf("%s: all %d outlet state queries failed: %w", r.name, len(outlets), errs[0])
 	}
 	return out, nil
 }

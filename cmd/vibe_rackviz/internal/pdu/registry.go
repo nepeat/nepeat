@@ -73,7 +73,7 @@ func (n noneController) Caps() Caps   { return 0 }
 func (n noneController) OutletState(context.Context, int) (OutletState, error) {
 	return StateUnknown, errNotConfigured
 }
-func (n noneController) OutletStates(context.Context) (map[int]OutletState, error) {
+func (n noneController) OutletStates(context.Context, []int) (map[int]OutletState, error) {
 	return nil, errNotConfigured
 }
 func (n noneController) OutletReading(context.Context, int) (PowerReading, error) {

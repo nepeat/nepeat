@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	tea "charm.land/bubbletea/v2"
-	"golang.org/x/sync/errgroup"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"
@@ -31,18 +31,21 @@ type actionResultMsg struct {
 }
 
 // powerStatesMsg carries one PDU's outlet states joined to the device names
-// each outlet feeds (per NetBox cabling).
+// each outlet feeds (per NetBox cabling). Outlets rides along so the cabling
+// can be cached — re-sweeps after power actions then skip the NetBox call.
 type powerStatesMsg struct {
 	PDU      string
 	ByDevice map[string]pdu.OutletState
+	Outlets  []netbox.PowerOutlet
 	Err      error
 }
 
 type toastClearMsg struct{ gen int }
 
-// loadPowerStatesCmd sweeps one PDU: NetBox outlet→device cabling plus the
-// driver's bulk outlet states, joined into device name → powered on/off.
-func (a *App) loadPowerStatesCmd(pduName string, pduDeviceID int) tea.Cmd {
+// loadPowerStatesCmd sweeps one PDU: NetBox outlet→device cabling (cached
+// after the first sweep) narrows the driver query to just the outlets that
+// actually feed something.
+func (a *App) loadPowerStatesCmd(pduName string, pduDeviceID int, cached []netbox.PowerOutlet) tea.Cmd {
 	return func() tea.Msg {
 		c, err := a.controllerFor(pduName)
 		if err != nil {
@@ -50,19 +53,29 @@ func (a *App) loadPowerStatesCmd(pduName string, pduDeviceID int) tea.Cmd {
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 		defer cancel()
-		// NetBox cabling and PDU states are independent — fetch both at once.
-		var (
-			outlets []netbox.PowerOutlet
-			states  map[int]pdu.OutletState
-		)
-		g, gctx := errgroup.WithContext(ctx)
-		g.Go(func() (err error) { outlets, err = a.client.PowerOutlets(gctx, pduDeviceID); return })
-		g.Go(func() (err error) { states, err = c.OutletStates(gctx); return })
-		if err := g.Wait(); err != nil {
+		outlets := cached
+		if outlets == nil {
+			outlets, err = a.client.PowerOutlets(ctx, pduDeviceID)
+			if err != nil {
+				return powerStatesMsg{PDU: pduName, Err: err}
+			}
+		}
+		regex := a.cfg.PDUs[pduName].OutletRegex()
+		var need []int
+		for _, o := range outlets {
+			if len(o.Endpoints) == 0 {
+				continue
+			}
+			if idx, err := pdu.MapOutlet(o.Name, regex); err == nil {
+				need = append(need, idx)
+			}
+		}
+		states, err := c.OutletStates(ctx, need)
+		if err != nil {
 			return powerStatesMsg{PDU: pduName, Err: err}
 		}
-		byDev := joinOutletStates(outlets, states, a.cfg.PDUs[pduName].OutletRegex())
-		return powerStatesMsg{PDU: pduName, ByDevice: byDev}
+		byDev := joinOutletStates(outlets, states, regex)
+		return powerStatesMsg{PDU: pduName, ByDevice: byDev, Outlets: outlets}
 	}
 }
 
@@ -136,25 +149,79 @@ func (a *App) outletReadingCmd(pduName string, outlet int) tea.Cmd {
 	}
 }
 
+// ctrlEntry deduplicates concurrent controller builds for one PDU.
+type ctrlEntry struct {
+	once sync.Once
+	c    pdu.Controller
+	err  error
+}
+
 // controllerFor builds (and caches) the controller for a configured PDU.
-// Called from tea.Cmd goroutines — guarded by the app mutex; may block on
-// `op read` the first time.
+// Distinct PDUs build in parallel; concurrent calls for the same PDU share
+// one build (which may block on `op read` the first time). Failed builds are
+// retried on the next call.
 func (a *App) controllerFor(name string) (pdu.Controller, error) {
 	cfg, ok := a.cfg.PDUs[name]
 	if !ok {
 		return nil, fmt.Errorf("pdu %s not configured", name)
 	}
 	a.ctrlMu.Lock()
-	defer a.ctrlMu.Unlock()
-	if c, ok := a.controllers[name]; ok {
-		return c, nil
+	e, ok := a.controllers[name]
+	if !ok {
+		e = &ctrlEntry{}
+		a.controllers[name] = e
 	}
-	c, err := pdu.New(name, cfg)
-	if err != nil {
-		return nil, err
+	a.ctrlMu.Unlock()
+	e.once.Do(func() { e.c, e.err = pdu.New(name, cfg) })
+	if e.err != nil {
+		a.ctrlMu.Lock()
+		delete(a.controllers, name)
+		a.ctrlMu.Unlock()
 	}
-	a.controllers[name] = c
-	return c, nil
+	return e.c, e.err
+}
+
+type prewarmedMsg struct{}
+
+// prewarmControllersCmd resolves credentials and builds every configured
+// PDU controller while NetBox data is still loading, so the first power
+// sweep doesn't pay the op-read cost.
+func (a *App) prewarmControllersCmd() tea.Cmd {
+	names := make([]string, 0, len(a.cfg.PDUs))
+	for name := range a.cfg.PDUs {
+		names = append(names, name)
+	}
+	if len(names) == 0 {
+		return nil
+	}
+	return func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		var wg sync.WaitGroup
+		for _, name := range names {
+			wg.Add(1)
+			go func(name string) {
+				defer wg.Done()
+				c, err := a.controllerFor(name)
+				if err != nil {
+					return
+				}
+				// Open a few connections now (TLS handshakes are the
+				// expensive part) so the first sweep reuses warm ones.
+				var cw sync.WaitGroup
+				for i := 0; i < 3; i++ {
+					cw.Add(1)
+					go func() {
+						defer cw.Done()
+						_, _ = c.OutletState(ctx, 1)
+					}()
+				}
+				cw.Wait()
+			}(name)
+		}
+		wg.Wait()
+		return prewarmedMsg{}
+	}
 }
 
 func (a *App) loadReadingsCmd(pduName string) tea.Cmd {

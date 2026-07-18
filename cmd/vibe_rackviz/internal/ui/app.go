@@ -98,14 +98,15 @@ type App struct {
 
 	details map[int]*deviceDetail
 
-	ctrlMu      sync.Mutex
-	controllers map[string]pdu.Controller
-	readings    map[string]*readingsEntry
-	powerByPDU  map[string]map[string]pdu.OutletState // pdu → device → state
-	outletDraw  map[string]*outletReadingEntry        // "pdu/outlet" → live W/A
-	modal       *modal
-	menu        *actionMenu
-	pendingMenu bool // enter pressed while details were still loading
+	ctrlMu       sync.Mutex
+	controllers  map[string]*ctrlEntry
+	readings     map[string]*readingsEntry
+	powerByPDU   map[string]map[string]pdu.OutletState // pdu → device → state
+	outletDraw   map[string]*outletReadingEntry        // "pdu/outlet" → live W/A
+	outletsCache map[string][]netbox.PowerOutlet       // pdu → NetBox cabling
+	modal        *modal
+	menu         *actionMenu
+	pendingMenu  bool // enter pressed while details were still loading
 
 	toast    string
 	toastGen int
@@ -119,24 +120,25 @@ func NewApp(cfg *config.Config, jumpRack string, dryRun bool) *App {
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
 	return &App{
-		cfg:         cfg,
-		dryRun:      dryRun,
-		jumpRack:    jumpRack,
-		spinner:     sp,
-		face:        "front",
-		rackData:    map[int]*rackState{},
-		details:     map[int]*deviceDetail{},
-		roleColors:  map[string]string{},
-		controllers: map[string]pdu.Controller{},
-		readings:    map[string]*readingsEntry{},
-		powerByPDU:  map[string]map[string]pdu.OutletState{},
-		outletDraw:  map[string]*outletReadingEntry{},
-		statusLine:  "fetching token from 1Password…",
+		cfg:          cfg,
+		dryRun:       dryRun,
+		jumpRack:     jumpRack,
+		spinner:      sp,
+		face:         "front",
+		rackData:     map[int]*rackState{},
+		details:      map[int]*deviceDetail{},
+		roleColors:   map[string]string{},
+		controllers:  map[string]*ctrlEntry{},
+		readings:     map[string]*readingsEntry{},
+		powerByPDU:   map[string]map[string]pdu.OutletState{},
+		outletDraw:   map[string]*outletReadingEntry{},
+		outletsCache: map[string][]netbox.PowerOutlet{},
+		statusLine:   "fetching token from 1Password…",
 	}
 }
 
 func (a *App) Init() tea.Cmd {
-	return tea.Batch(a.spinner.Tick, fetchTokenCmd(a.cfg.NetBox.TokenOpRef))
+	return tea.Batch(a.spinner.Tick, fetchTokenCmd(a.cfg.NetBox.TokenOpRef), a.prewarmControllersCmd())
 }
 
 func (a *App) currentRackID() int {
@@ -238,7 +240,7 @@ func (a *App) powerSweepCmds(devices []netbox.Device) []tea.Cmd {
 	var cmds []tea.Cmd
 	for _, d := range devices {
 		if _, ok := a.cfg.PDUs[d.Name]; ok {
-			cmds = append(cmds, a.loadPowerStatesCmd(d.Name, d.ID))
+			cmds = append(cmds, a.loadPowerStatesCmd(d.Name, d.ID, a.outletsCache[d.Name]))
 		}
 	}
 	return cmds
@@ -408,6 +410,9 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return a, nil
 		}
 		a.powerByPDU[msg.PDU] = msg.ByDevice
+		if msg.Outlets != nil {
+			a.outletsCache[msg.PDU] = msg.Outlets
+		}
 		return a, nil
 
 	case actionResultMsg:
@@ -427,7 +432,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if rd := a.rackData[a.currentRackID()]; rd != nil && msg.PDU != "" {
 			for _, d := range rd.devices {
 				if d.Name == msg.PDU {
-					cmds = append(cmds, a.loadPowerStatesCmd(d.Name, d.ID))
+					cmds = append(cmds, a.loadPowerStatesCmd(d.Name, d.ID, a.outletsCache[d.Name]))
 					break
 				}
 			}

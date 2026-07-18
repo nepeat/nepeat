@@ -19,11 +19,16 @@ import (
 // tlsInsecure skips certificate verification — PDUs ship self-signed certs.
 func HTTPTransport(tlsInsecure bool) *http.Transport {
 	tr := http.DefaultTransport.(*http.Transport).Clone()
+	// The default of 2 idle conns per host forces fresh TLS handshakes on
+	// every concurrent fan-out wave (expensive through a SOCKS tunnel), and
+	// a session cache makes unavoidable new handshakes resume abbreviated.
+	tr.MaxIdleConnsPerHost = 16
+	tr.TLSClientConfig = &tls.Config{
+		InsecureSkipVerify: tlsInsecure,
+		ClientSessionCache: tls.NewLRUClientSessionCache(32),
+	}
 	if u, err := FromEnv(); err == nil && u != nil {
 		tr.Proxy = http.ProxyURL(u)
-	}
-	if tlsInsecure {
-		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 	return tr
 }

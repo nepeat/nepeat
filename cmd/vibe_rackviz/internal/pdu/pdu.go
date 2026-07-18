@@ -45,9 +45,10 @@ type Controller interface {
 	Name() string
 	Caps() Caps
 	OutletState(ctx context.Context, outlet int) (OutletState, error)
-	// OutletStates returns the state of every outlet in one sweep (for
-	// painting a whole rack without N round-trips).
-	OutletStates(ctx context.Context) (map[int]OutletState, error)
+	// OutletStates returns outlet states in one sweep. A non-empty outlets
+	// list narrows the query to just those outlets (drivers may ignore the
+	// hint and return more).
+	OutletStates(ctx context.Context, outlets []int) (map[int]OutletState, error)
 	// OutletReading returns one outlet's live draw (outlet-metered PDUs).
 	OutletReading(ctx context.Context, outlet int) (PowerReading, error)
 	PowerOn(ctx context.Context, outlet int) error
