@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/config"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
@@ -46,20 +46,20 @@ func TestPowerModalFlow(t *testing.T) {
 	}
 
 	// Enter opens the menu; items appear once outlet states resolve.
-	step(tea.KeyMsg{Type: tea.KeyEnter})
+	step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	if app.menu == nil {
 		t.Fatal("menu did not open on enter")
 	}
 	if len(app.menu.items) != 0 {
 		t.Fatal("items built before outlet states resolved")
 	}
-	if !strings.Contains(app.View(), "checking outlet states") {
+	if !strings.Contains(app.render(), "checking outlet states") {
 		t.Error("menu view missing state-check spinner")
 	}
 
 	// Outlet reports ON → "Power on" is gated out.
 	step(outletStateMsg{PDU: "dma-pdu-01", Outlet: 6, State: pdu.StateOn})
-	view := app.View()
+	view := app.render()
 	if strings.Contains(view, "Power on") {
 		t.Error("all-on device still offers Power on")
 	}
@@ -70,7 +70,7 @@ func TestPowerModalFlow(t *testing.T) {
 	}
 
 	// Cursor 0 is Power off; enter opens the modal for it.
-	cmd := step(tea.KeyMsg{Type: tea.KeyEnter})
+	cmd := step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	if app.menu != nil || app.modal == nil {
 		t.Fatal("modal did not open from menu")
 	}
@@ -80,19 +80,19 @@ func TestPowerModalFlow(t *testing.T) {
 	_ = cmd
 
 	// y must NOT confirm power_off.
-	step(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'y'}})
+	step(tea.KeyPressMsg{Code: 'y', Text: "y"})
 	if app.modal == nil {
 		t.Fatal("y confirmed power_off — it must require the outlet number")
 	}
 	// Wrong outlet number is rejected.
-	step(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'9'}})
-	step(tea.KeyMsg{Type: tea.KeyEnter})
+	step(tea.KeyPressMsg{Code: '9', Text: "9"})
+	step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	if app.modal == nil {
 		t.Fatal("wrong outlet number was accepted")
 	}
 	// Correct outlet number confirms and yields the dry-run action.
-	step(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'6'}})
-	cmd = step(tea.KeyMsg{Type: tea.KeyEnter})
+	step(tea.KeyPressMsg{Code: '6', Text: "6"})
+	cmd = step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	if app.modal != nil {
 		t.Fatal("modal still open after correct confirmation")
 	}
@@ -108,36 +108,36 @@ func TestPowerModalFlow(t *testing.T) {
 	}
 
 	// Reopen with outlet OFF → "Power off" gated out, cursor 0 is Power on.
-	step(tea.KeyMsg{Type: tea.KeyEnter})
+	step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	step(outletStateMsg{PDU: "dma-pdu-01", Outlet: 6, State: pdu.StateOff})
-	if strings.Contains(app.View(), "Power off") {
+	if strings.Contains(app.render(), "Power off") {
 		t.Error("all-off device still offers Power off")
 	}
-	step(tea.KeyMsg{Type: tea.KeyEnter})
+	step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	if app.modal == nil || app.modal.Action != actionOn {
 		t.Fatal("cursor 0 on all-off device should be Power on")
 	}
-	step(tea.KeyMsg{Type: tea.KeyEsc})
+	step(tea.KeyPressMsg{Code: tea.KeyEsc})
 	if app.modal != nil {
 		t.Fatal("esc did not close modal")
 	}
 
 	// Unknown state (query error) → nothing gated.
-	step(tea.KeyMsg{Type: tea.KeyEnter})
+	step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	step(outletStateMsg{PDU: "dma-pdu-01", Outlet: 6, Err: errFake})
-	view = app.View()
+	view = app.render()
 	for _, want := range []string{"Power on", "Power off", "Power cycle"} {
 		if !strings.Contains(view, want) {
 			t.Errorf("unknown-state menu missing %q", want)
 		}
 	}
-	step(tea.KeyMsg{Type: tea.KeyEsc})
+	step(tea.KeyPressMsg{Code: tea.KeyEsc})
 
 	// Race: enter while details are still in flight — the menu must open
 	// automatically once the detail message lands.
 	delete(app.details, 15)
 	app.details[15] = &deviceDetail{loading: true}
-	step(tea.KeyMsg{Type: tea.KeyEnter})
+	step(tea.KeyPressMsg{Code: tea.KeyEnter})
 	if app.menu != nil {
 		t.Fatal("menu opened before details loaded")
 	}

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/config"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
@@ -30,7 +30,7 @@ func TestViewAfterRackLoad(t *testing.T) {
 	step(racksMsg{Version: "4.5.9", Racks: racks, Roles: []netbox.DeviceRole{{Name: "server", Color: "9e9e9e"}}})
 	step(rackDataMsg{RackID: 1, Front: slots, Rear: slots, Devices: devices})
 
-	view := app.View()
+	view := app.render()
 	for _, want := range []string{"u39-nuc-shelf", "dreamflasher", "RACKS", "MDF FRONT"} {
 		if !strings.Contains(view, want) {
 			t.Errorf("view missing %q", want)
@@ -45,7 +45,7 @@ func TestViewAfterRackLoad(t *testing.T) {
 	app.focus = focusElevation
 	rd := app.rackData[1]
 	app.devCursor = len(rd.blocks("front")) - 1
-	view = app.View()
+	view = app.render()
 	for _, want := range []string{"── bays", "u39-nuc-shelf/left", "── 0U", "dma-pdu-01"} {
 		if !strings.Contains(view, want) {
 			t.Errorf("scrolled view missing %q", want)
@@ -54,20 +54,20 @@ func TestViewAfterRackLoad(t *testing.T) {
 
 	// Left/right arrows move pane focus, clamped at the ends.
 	app.focus = focusRacks
-	step(tea.KeyMsg{Type: tea.KeyLeft})
+	step(tea.KeyPressMsg{Code: tea.KeyLeft})
 	if app.focus != focusRacks {
 		t.Errorf("left from racks should clamp, got %v", app.focus)
 	}
-	step(tea.KeyMsg{Type: tea.KeyRight})
-	step(tea.KeyMsg{Type: tea.KeyRight})
+	step(tea.KeyPressMsg{Code: tea.KeyRight})
+	step(tea.KeyPressMsg{Code: tea.KeyRight})
 	if app.focus != focusInfo {
 		t.Errorf("two rights should reach info pane, got %v", app.focus)
 	}
-	step(tea.KeyMsg{Type: tea.KeyRight})
+	step(tea.KeyPressMsg{Code: tea.KeyRight})
 	if app.focus != focusInfo {
 		t.Errorf("right from info should clamp, got %v", app.focus)
 	}
-	step(tea.KeyMsg{Type: tea.KeyLeft})
+	step(tea.KeyPressMsg{Code: tea.KeyLeft})
 	if app.focus != focusElevation {
 		t.Errorf("left from info should reach elevation, got %v", app.focus)
 	}
@@ -75,19 +75,19 @@ func TestViewAfterRackLoad(t *testing.T) {
 	// Key handling: tab focuses elevation, j moves, f flips to rear.
 	app.devCursor = 0
 	app.focus = focusRacks
-	step(tea.KeyMsg{Type: tea.KeyTab})
+	step(tea.KeyPressMsg{Code: tea.KeyTab})
 	if app.focus != focusElevation {
 		t.Fatalf("focus after tab = %v, want elevation", app.focus)
 	}
-	step(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'j'}})
+	step(tea.KeyPressMsg{Code: 'j', Text: "j"})
 	if app.devCursor != 1 {
 		t.Errorf("devCursor after j = %d, want 1", app.devCursor)
 	}
-	step(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'f'}})
+	step(tea.KeyPressMsg{Code: 'f', Text: "f"})
 	if app.face != "rear" {
 		t.Errorf("face after f = %q, want rear", app.face)
 	}
-	if !strings.Contains(app.View(), "MDF REAR") {
+	if !strings.Contains(app.render(), "MDF REAR") {
 		t.Error("rear view missing MDF REAR title")
 	}
 
@@ -97,7 +97,7 @@ func TestViewAfterRackLoad(t *testing.T) {
 	step(detailMsg{DeviceID: 15, Interfaces: ifaces, PowerPorts: []netbox.PowerPort{}})
 	app.face = "front"
 	app.devCursor = indexOfBlock(t, app.rackData[1].blocks("front"), "dreamflasher")
-	view = app.View()
+	view = app.render()
 	for _, want := range []string{"Network", "BMC → dma-core-a-1 Gi1/0/13", "eth0 → dma-core-a-1 Gi1/0/1"} {
 		if !strings.Contains(view, want) {
 			t.Errorf("detail view missing %q", want)

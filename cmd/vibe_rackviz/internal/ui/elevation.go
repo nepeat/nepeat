@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"

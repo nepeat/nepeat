@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/config"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
@@ -86,7 +86,7 @@ func TestPowerStatesAndToast(t *testing.T) {
 	if cmd == nil {
 		t.Fatal("no toast-expiry command scheduled")
 	}
-	if !strings.Contains(app.View(), "power_on dma-pdu-01") {
+	if !strings.Contains(app.render(), "power_on dma-pdu-01") {
 		t.Error("footer missing toast")
 	}
 	step(toastClearMsg{gen: app.toastGen})
@@ -101,7 +101,7 @@ func TestPowerStatesAndToast(t *testing.T) {
 		t.Error("stale toastClearMsg cleared a newer toast")
 	}
 	// Any keypress clears it.
-	step(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'j'}})
+	step(tea.KeyPressMsg{Code: 'j', Text: "j"})
 	if app.toast != "" {
 		t.Error("keypress did not clear toast")
 	}
@@ -134,11 +134,11 @@ func TestPowerStatesAndToast(t *testing.T) {
 	if e := app.outletDraw["dma-pdu-01/6"]; e == nil || !e.loading {
 		t.Fatal("no loading entry for dma-pdu-01/6")
 	}
-	if !strings.Contains(app.View(), "measuring…") {
+	if !strings.Contains(app.render(), "measuring…") {
 		t.Error("info pane missing measuring placeholder")
 	}
 	step(outletReadingMsg{PDU: "dma-pdu-01", Outlet: 6, Reading: pdu.PowerReading{Watts: 45.2, Amps: 0.38}})
-	view := app.View()
+	view := app.render()
 	if !strings.Contains(view, "45.2 W") || !strings.Contains(view, "0.38 A") {
 		t.Errorf("info pane missing outlet draw, view:\n%s", view)
 	}
@@ -147,7 +147,7 @@ func TestPowerStatesAndToast(t *testing.T) {
 		t.Errorf("info pane missing partial total, view:\n%s", view)
 	}
 	step(outletReadingMsg{PDU: "dma-pdu-01", Outlet: 7, Reading: pdu.PowerReading{Watts: 23.1, Amps: 0.21}})
-	view = app.View()
+	view = app.render()
 	if !strings.Contains(view, "Total 68.3 W · 0.59 A") || strings.Contains(view, "0.59 A …") {
 		t.Errorf("info pane missing final total, view:\n%s", view)
 	}

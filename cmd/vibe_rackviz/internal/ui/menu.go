@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"
 )
@@ -103,7 +103,7 @@ func (m *actionMenu) rebuild() {
 	m.cursor = 0
 }
 
-func (a *App) handleMenuKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (a *App) handleMenuKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	m := a.menu
 	switch msg.String() {
 	case "esc", "q", "ctrl+c":

@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/config"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
@@ -455,7 +455,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return a, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		if a.modal != nil {
 			return a.handleModalKey(msg)
 		}
@@ -467,7 +467,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return a, nil
 }
 
-func (a *App) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (a *App) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	if os.Getenv("RACKVIZ_DEBUG") != "" {
 		d := a.selectedDevice()
 		name := "<none>"
@@ -577,7 +577,13 @@ func clamp(v, lo, hi int) int {
 	return v
 }
 
-func (a *App) View() string {
+func (a *App) View() tea.View {
+	v := tea.NewView(a.render())
+	v.AltScreen = true
+	return v
+}
+
+func (a *App) render() string {
 	if a.width == 0 {
 		return "starting…"
 	}

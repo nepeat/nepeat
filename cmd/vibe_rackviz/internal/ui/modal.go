@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"
 )
@@ -99,7 +99,7 @@ func (a *App) openModal(action powerAction) tea.Cmd {
 }
 
 // handleModalKey processes keys while the modal is open.
-func (a *App) handleModalKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (a *App) handleModalKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	m := a.modal
 	switch msg.String() {
 	case "esc", "ctrl+c", "q":
@@ -121,8 +121,8 @@ func (a *App) handleModalKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return a, a.powerActionCmd(m.Action, t.PDU, t.Outlet, m.Device)
 		}
 	}
-	if len(msg.Runes) == 1 && msg.Runes[0] >= '0' && msg.Runes[0] <= '9' {
-		m.Input += string(msg.Runes)
+	if len(msg.Text) == 1 && msg.Text[0] >= '0' && msg.Text[0] <= '9' {
+		m.Input += msg.Text
 	}
 	return a, nil
 }

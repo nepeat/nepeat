@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/config"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/ui"
@@ -20,6 +20,6 @@ func runTUI(cfg *config.Config, jumpRack string, dryRun bool) error {
 		defer f.Close()
 	}
 	app := ui.NewApp(cfg, jumpRack, dryRun)
-	_, err := tea.NewProgram(app, tea.WithAltScreen()).Run()
+	_, err := tea.NewProgram(app).Run()
 	return err
 }
