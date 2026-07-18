@@ -68,6 +68,13 @@ func TestPowerModalFlow(t *testing.T) {
 			t.Errorf("gated menu missing %q", want)
 		}
 	}
+	// The menu is a popup composited OVER the panes — the background UI must
+	// still be visible around it.
+	for _, want := range []string{"RACKS", "MDF FRONT", "u39-nuc-shelf"} {
+		if !strings.Contains(view, want) {
+			t.Errorf("popup hid background UI: missing %q", want)
+		}
+	}
 
 	// Cursor 0 is Power off; enter opens the modal for it.
 	cmd := step(tea.KeyPressMsg{Code: tea.KeyEnter})

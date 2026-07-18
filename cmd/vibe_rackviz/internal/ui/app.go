@@ -635,7 +635,14 @@ func (a *App) render() string {
 
 	body := lipgloss.JoinHorizontal(lipgloss.Top, left, mid, right)
 	if overlay := a.renderOverlay(); overlay != "" {
-		body = lipgloss.Place(a.width, lipgloss.Height(body), lipgloss.Center, lipgloss.Center, overlay)
+		// Composite the popup over the panes instead of replacing them.
+		bw, bh := lipgloss.Width(body), lipgloss.Height(body)
+		x := max((bw-lipgloss.Width(overlay))/2, 0)
+		y := max((bh-lipgloss.Height(overlay))/2, 0)
+		body = lipgloss.NewCompositor(
+			lipgloss.NewLayer(body),
+			lipgloss.NewLayer(overlay).X(x).Y(y).Z(1),
+		).Render()
 	}
 	return header + "\n" + body + "\n" + footer
 }
