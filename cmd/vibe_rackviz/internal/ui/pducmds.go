@@ -8,6 +8,7 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"
@@ -49,12 +50,15 @@ func (a *App) loadPowerStatesCmd(pduName string, pduDeviceID int) tea.Cmd {
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 		defer cancel()
-		outlets, err := a.client.PowerOutlets(ctx, pduDeviceID)
-		if err != nil {
-			return powerStatesMsg{PDU: pduName, Err: err}
-		}
-		states, err := c.OutletStates(ctx)
-		if err != nil {
+		// NetBox cabling and PDU states are independent — fetch both at once.
+		var (
+			outlets []netbox.PowerOutlet
+			states  map[int]pdu.OutletState
+		)
+		g, gctx := errgroup.WithContext(ctx)
+		g.Go(func() (err error) { outlets, err = a.client.PowerOutlets(gctx, pduDeviceID); return })
+		g.Go(func() (err error) { states, err = c.OutletStates(gctx); return })
+		if err := g.Wait(); err != nil {
 			return powerStatesMsg{PDU: pduName, Err: err}
 		}
 		byDev := joinOutletStates(outlets, states, a.cfg.PDUs[pduName].OutletRegex())

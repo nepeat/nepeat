@@ -5,6 +5,7 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/netbox"
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/secrets"
@@ -51,16 +52,16 @@ func loadRacksCmd(client *netbox.Client) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), apiTimeout)
 		defer cancel()
-		status, err := client.Status(ctx)
-		if err != nil {
-			return racksMsg{Err: err}
-		}
-		racks, err := client.ListRacks(ctx)
-		if err != nil {
-			return racksMsg{Err: err}
-		}
-		roles, err := client.ListRoles(ctx)
-		if err != nil {
+		var (
+			status *netbox.Status
+			racks  []netbox.Rack
+			roles  []netbox.DeviceRole
+		)
+		g, gctx := errgroup.WithContext(ctx)
+		g.Go(func() (err error) { status, err = client.Status(gctx); return })
+		g.Go(func() (err error) { racks, err = client.ListRacks(gctx); return })
+		g.Go(func() (err error) { roles, err = client.ListRoles(gctx); return })
+		if err := g.Wait(); err != nil {
 			return racksMsg{Err: err}
 		}
 		return racksMsg{Version: status.NetBoxVersion, Racks: racks, Roles: roles}
@@ -71,16 +72,15 @@ func loadRackCmd(client *netbox.Client, rackID int) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), apiTimeout)
 		defer cancel()
-		front, err := client.Elevation(ctx, rackID, "front")
-		if err != nil {
-			return rackDataMsg{RackID: rackID, Err: err}
-		}
-		rear, err := client.Elevation(ctx, rackID, "rear")
-		if err != nil {
-			return rackDataMsg{RackID: rackID, Err: err}
-		}
-		devices, err := client.DevicesInRack(ctx, rackID)
-		if err != nil {
+		var (
+			front, rear []netbox.ElevationSlot
+			devices     []netbox.Device
+		)
+		g, gctx := errgroup.WithContext(ctx)
+		g.Go(func() (err error) { front, err = client.Elevation(gctx, rackID, "front"); return })
+		g.Go(func() (err error) { rear, err = client.Elevation(gctx, rackID, "rear"); return })
+		g.Go(func() (err error) { devices, err = client.DevicesInRack(gctx, rackID); return })
+		if err := g.Wait(); err != nil {
 			return rackDataMsg{RackID: rackID, Err: err}
 		}
 		return rackDataMsg{RackID: rackID, Front: front, Rear: rear, Devices: devices}
@@ -91,20 +91,19 @@ func loadDetailCmd(client *netbox.Client, deviceID int, isPDU bool) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), apiTimeout)
 		defer cancel()
-		ifaces, err := client.CabledInterfaces(ctx, deviceID)
-		if err != nil {
-			return detailMsg{DeviceID: deviceID, Err: err}
-		}
-		ports, err := client.PowerPorts(ctx, deviceID)
-		if err != nil {
-			return detailMsg{DeviceID: deviceID, Err: err}
-		}
-		var outlets []netbox.PowerOutlet
+		var (
+			ifaces  []netbox.Interface
+			ports   []netbox.PowerPort
+			outlets []netbox.PowerOutlet
+		)
+		g, gctx := errgroup.WithContext(ctx)
+		g.Go(func() (err error) { ifaces, err = client.CabledInterfaces(gctx, deviceID); return })
+		g.Go(func() (err error) { ports, err = client.PowerPorts(gctx, deviceID); return })
 		if isPDU {
-			outlets, err = client.PowerOutlets(ctx, deviceID)
-			if err != nil {
-				return detailMsg{DeviceID: deviceID, Err: err}
-			}
+			g.Go(func() (err error) { outlets, err = client.PowerOutlets(gctx, deviceID); return })
+		}
+		if err := g.Wait(); err != nil {
+			return detailMsg{DeviceID: deviceID, Err: err}
 		}
 		return detailMsg{DeviceID: deviceID, Interfaces: ifaces, PowerPorts: ports, Outlets: outlets}
 	}

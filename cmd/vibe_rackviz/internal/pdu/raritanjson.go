@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/proxy"
 )
 
@@ -229,60 +231,92 @@ func (r *raritanJSON) OutletReading(ctx context.Context, outlet int) (PowerReadi
 	if cur == nil {
 		cur = sensors.RMSCurrent
 	}
-	if v, ok := r.reading(ctx, cur); ok {
-		pr.Amps = v
-	}
-	if v, ok := r.reading(ctx, sensors.ActivePower); ok {
-		pr.Watts = v
-	}
+	r.readAll(ctx, []readJob{
+		{ref: cur, dst: &pr.Amps},
+		{ref: sensors.ActivePower, dst: &pr.Watts},
+	})
 	return pr, nil
 }
 
 // Readings returns per-pole current/power (when the PDU exposes poles) plus
-// the inlet totals.
+// the inlet totals. The sensor discovery calls run in parallel, then every
+// getReading fires in one bounded wave.
 func (r *raritanJSON) Readings(ctx context.Context) ([]PowerReading, error) {
 	const inletRid = "/model/pdu/0/inlet/0"
 
-	var out []PowerReading
-
-	// Per-leg poles; not all models expose them — errors are non-fatal.
 	var poles []struct {
 		Current     *sensorRef `json:"current"`
 		ActivePower *sensorRef `json:"activePower"`
 	}
-	if err := r.call(ctx, inletRid, "getPoles", nil, &poles); err == nil {
-		for i, p := range poles {
-			pr := PowerReading{Label: fmt.Sprintf("L%d", i+1)}
-			if v, ok := r.reading(ctx, p.Current); ok {
-				pr.Amps = v
-			}
-			if v, ok := r.reading(ctx, p.ActivePower); ok {
-				pr.Watts = v
-			}
-			if pr.Amps != 0 || pr.Watts != 0 {
-				out = append(out, pr)
-			}
-		}
-	}
-
 	var sensors struct {
 		Current     *sensorRef `json:"current"`
 		RMSCurrent  *sensorRef `json:"rmsCurrent"`
 		ActivePower *sensorRef `json:"activePower"`
 	}
-	if err := r.call(ctx, inletRid, "getSensors", nil, &sensors); err != nil {
+	g, gctx := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		// Not all models expose poles — non-fatal.
+		_ = r.call(gctx, inletRid, "getPoles", nil, &poles)
+		return nil
+	})
+	g.Go(func() error { return r.call(gctx, inletRid, "getSensors", nil, &sensors) })
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
-	total := PowerReading{Label: "Total"}
+
+	readings := make([]PowerReading, len(poles)+1)
+	var jobs []readJob
+	for i, p := range poles {
+		readings[i].Label = fmt.Sprintf("L%d", i+1)
+		jobs = append(jobs,
+			readJob{ref: p.Current, dst: &readings[i].Amps},
+			readJob{ref: p.ActivePower, dst: &readings[i].Watts})
+	}
+	total := &readings[len(poles)]
+	total.Label = "Total"
 	cur := sensors.Current
 	if cur == nil {
 		cur = sensors.RMSCurrent
 	}
-	if v, ok := r.reading(ctx, cur); ok {
-		total.Amps = v
+	jobs = append(jobs,
+		readJob{ref: cur, dst: &total.Amps},
+		readJob{ref: sensors.ActivePower, dst: &total.Watts})
+	r.readAll(ctx, jobs)
+
+	out := make([]PowerReading, 0, len(readings))
+	for i, pr := range readings {
+		if i < len(poles) && pr.Amps == 0 && pr.Watts == 0 {
+			continue
+		}
+		out = append(out, pr)
 	}
-	if v, ok := r.reading(ctx, sensors.ActivePower); ok {
-		total.Watts = v
+	return out, nil
+}
+
+// readJob is one getReading call whose value lands in dst.
+type readJob struct {
+	ref *sensorRef
+	dst *float64
+}
+
+// readAll runs every sensor read concurrently (bounded); failed or invalid
+// readings simply leave their destination at zero.
+func (r *raritanJSON) readAll(ctx context.Context, jobs []readJob) {
+	sem := make(chan struct{}, 8)
+	var wg sync.WaitGroup
+	for _, j := range jobs {
+		if j.ref == nil || j.ref.Rid == "" {
+			continue
+		}
+		wg.Add(1)
+		go func(j readJob) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			if v, ok := r.reading(ctx, j.ref); ok {
+				*j.dst = v
+			}
+		}(j)
 	}
-	return append(out, total), nil
+	wg.Wait()
 }
