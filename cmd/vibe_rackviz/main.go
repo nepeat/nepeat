@@ -52,7 +52,7 @@ func runList(cfg *config.Config) error {
 	if err != nil {
 		return err
 	}
-	racks, err := client.ListRacks(ctx)
+	racks, _, err := client.Bootstrap(ctx)
 	if err != nil {
 		return err
 	}

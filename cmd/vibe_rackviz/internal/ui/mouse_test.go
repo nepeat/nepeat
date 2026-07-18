@@ -11,8 +11,7 @@ import (
 )
 
 func TestMouseInteractions(t *testing.T) {
-	slots := loadFixture[netbox.ElevationSlot](t, "elevation_front.json")
-	devices := loadFixture[netbox.Device](t, "devices_mdf.json")
+	devices := loadGQLDevices(t)
 	racks := loadFixture[netbox.Rack](t, "racks.json")
 
 	cfg, _ := config.Load("")
@@ -31,7 +30,7 @@ func TestMouseInteractions(t *testing.T) {
 	}
 	step(tea.WindowSizeMsg{Width: 150, Height: 45})
 	step(racksMsg{Racks: racks})
-	step(rackDataMsg{RackID: 1, Front: slots, Rear: slots, Devices: devices})
+	step(rackDataMsg{RackID: 1, Devices: devices})
 
 	// Click the first rack line (left pane, content row 0 → y=3).
 	click(3, 3)

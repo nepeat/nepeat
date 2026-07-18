@@ -14,8 +14,7 @@ import (
 // Drives menu → modal end to end in dry-run mode, including outlet-state
 // gating: an all-on device must not offer "Power on", all-off no "Power off".
 func TestPowerModalFlow(t *testing.T) {
-	slots := loadFixture[netbox.ElevationSlot](t, "elevation_front.json")
-	devices := loadFixture[netbox.Device](t, "devices_mdf.json")
+	devices := loadGQLDevices(t)
 	racks := loadFixture[netbox.Rack](t, "racks.json")
 
 	cfg, _ := config.Load("")
@@ -30,7 +29,7 @@ func TestPowerModalFlow(t *testing.T) {
 	}
 	step(tea.WindowSizeMsg{Width: 150, Height: 45})
 	step(racksMsg{Racks: racks, Roles: nil})
-	step(rackDataMsg{RackID: 1, Front: slots, Rear: slots, Devices: devices})
+	step(rackDataMsg{RackID: 1, Devices: devices})
 
 	// Select dreamflasher and inject its power-port detail (PSU1 → dma-pdu-01/output6).
 	app.focus = focusElevation

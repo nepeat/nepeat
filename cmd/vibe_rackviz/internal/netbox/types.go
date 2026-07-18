@@ -67,22 +67,15 @@ type DeviceType struct {
 	ID           int    `json:"id"`
 	Model        string `json:"model"`
 	Manufacturer Named  `json:"manufacturer"`
+	// Populated by the GraphQL path only (REST brief serializers omit them).
+	UHeight     float64 `json:"u_height"`
+	IsFullDepth bool    `json:"is_full_depth"`
 }
 
 type DeviceRole struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`
 	Color string `json:"color"`
-}
-
-// ElevationSlot is one entry of /racks/{id}/elevation/?render=json.
-// Slots step by 0.5 U; ID is the U coordinate.
-type ElevationSlot struct {
-	ID       float64    `json:"id"`
-	Name     string     `json:"name"`
-	Face     valueLabel `json:"face"`
-	Device   *Named     `json:"device"`
-	Occupied bool       `json:"occupied"`
 }
 
 // Endpoint is one entry of connected_endpoints on an interface/power-port.

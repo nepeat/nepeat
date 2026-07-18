@@ -11,8 +11,7 @@ import (
 )
 
 func TestViewAfterRackLoad(t *testing.T) {
-	slots := loadFixture[netbox.ElevationSlot](t, "elevation_front.json")
-	devices := loadFixture[netbox.Device](t, "devices_mdf.json")
+	devices := loadGQLDevices(t)
 	racks := loadFixture[netbox.Rack](t, "racks.json")
 
 	cfg, err := config.Load("")
@@ -28,7 +27,7 @@ func TestViewAfterRackLoad(t *testing.T) {
 	}
 	step(tea.WindowSizeMsg{Width: 150, Height: 45})
 	step(racksMsg{Version: "4.5.9", Racks: racks, Roles: []netbox.DeviceRole{{Name: "server", Color: "9e9e9e"}}})
-	step(rackDataMsg{RackID: 1, Front: slots, Rear: slots, Devices: devices})
+	step(rackDataMsg{RackID: 1, Devices: devices})
 
 	view := app.render()
 	for _, want := range []string{"u39-nuc-shelf", "dreamflasher", "RACKS", "MDF FRONT"} {

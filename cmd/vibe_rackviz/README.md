@@ -2,7 +2,9 @@
 
 Terminal rack visualizer for NetBox. Three panes: rack list, rack elevation,
 info + actions. Reads the API token from 1Password (`op read`), never writes
-to NetBox.
+to NetBox. Data loads via GraphQL one-shots (racks+roles, rack devices,
+device detail each in a single query); elevations are computed locally from
+device positions/u_height since the elevation renderer is REST-only.
 
 ```
 cd cmd/vibe_rackviz

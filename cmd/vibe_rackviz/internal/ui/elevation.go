@@ -28,33 +28,43 @@ type block struct {
 	Bay    string // device-bay name for children of a racked parent
 }
 
-// buildRows collapses the 0.5-U elevation slots into whole-U rows, ordered
-// top-down as NetBox returns them.
-func buildRows(slots []netbox.ElevationSlot) []row {
-	occupant := map[int]int{}
-	var units []int
-	seen := map[int]bool{}
-	for _, s := range slots {
-		u := int(math.Floor(s.ID))
-		if !seen[u] {
-			seen[u] = true
-			units = append(units, u)
+// buildRows computes rack occupancy locally from device positions and unit
+// heights (the REST elevation endpoint has no GraphQL equivalent). A device
+// occupies a face if mounted on it or full-depth; same-face devices win
+// slot conflicts over full-depth devices from the other face.
+func buildRows(devices []netbox.Device, uHeight int, descUnits bool, face string) []row {
+	occ := map[int]int{}
+	place := func(d *netbox.Device) {
+		base := int(math.Floor(*d.Position))
+		h := int(d.DeviceType.UHeight + 0.5)
+		if h < 1 {
+			h = 1
 		}
-		if s.Device != nil && occupant[u] == 0 {
-			occupant[u] = s.Device.ID
+		for u := base; u < base+h; u++ {
+			if occ[u] == 0 {
+				occ[u] = d.ID
+			}
 		}
 	}
-	// NetBox returns slots top-down already; keep that order but make sure it
-	// is strictly by U in the direction of first appearance.
-	sort.SliceStable(units, func(i, j int) bool {
-		if len(units) > 1 && units[0] > units[len(units)-1] {
-			return units[i] > units[j]
+	for i := range devices {
+		if d := &devices[i]; d.Position != nil && d.FaceValue() == face {
+			place(d)
 		}
-		return units[i] < units[j]
-	})
-	rows := make([]row, 0, len(units))
-	for _, u := range units {
-		rows = append(rows, row{U: u, DeviceID: occupant[u]})
+	}
+	for i := range devices {
+		if d := &devices[i]; d.Position != nil && d.FaceValue() != face && d.DeviceType.IsFullDepth {
+			place(d)
+		}
+	}
+	rows := make([]row, 0, uHeight)
+	if descUnits {
+		for u := 1; u <= uHeight; u++ {
+			rows = append(rows, row{U: u, DeviceID: occ[u]})
+		}
+	} else {
+		for u := uHeight; u >= 1; u-- {
+			rows = append(rows, row{U: u, DeviceID: occ[u]})
+		}
 	}
 	return rows
 }

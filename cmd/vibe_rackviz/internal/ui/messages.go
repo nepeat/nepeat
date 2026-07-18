@@ -27,8 +27,6 @@ type racksMsg struct {
 
 type rackDataMsg struct {
 	RackID  int
-	Front   []netbox.ElevationSlot
-	Rear    []netbox.ElevationSlot
 	Devices []netbox.Device
 	Err     error
 }
@@ -57,10 +55,10 @@ func loadRacksCmd(client *netbox.Client) tea.Cmd {
 			racks  []netbox.Rack
 			roles  []netbox.DeviceRole
 		)
+		// One GraphQL query (racks+roles) alongside the REST status probe.
 		g, gctx := errgroup.WithContext(ctx)
 		g.Go(func() (err error) { status, err = client.Status(gctx); return })
-		g.Go(func() (err error) { racks, err = client.ListRacks(gctx); return })
-		g.Go(func() (err error) { roles, err = client.ListRoles(gctx); return })
+		g.Go(func() (err error) { racks, roles, err = client.Bootstrap(gctx); return })
 		if err := g.Wait(); err != nil {
 			return racksMsg{Err: err}
 		}
@@ -72,37 +70,20 @@ func loadRackCmd(client *netbox.Client, rackID int) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), apiTimeout)
 		defer cancel()
-		var (
-			front, rear []netbox.ElevationSlot
-			devices     []netbox.Device
-		)
-		g, gctx := errgroup.WithContext(ctx)
-		g.Go(func() (err error) { front, err = client.Elevation(gctx, rackID, "front"); return })
-		g.Go(func() (err error) { rear, err = client.Elevation(gctx, rackID, "rear"); return })
-		g.Go(func() (err error) { devices, err = client.DevicesInRack(gctx, rackID); return })
-		if err := g.Wait(); err != nil {
+		devices, err := client.RackDevices(ctx, rackID)
+		if err != nil {
 			return rackDataMsg{RackID: rackID, Err: err}
 		}
-		return rackDataMsg{RackID: rackID, Front: front, Rear: rear, Devices: devices}
+		return rackDataMsg{RackID: rackID, Devices: devices}
 	}
 }
 
-func loadDetailCmd(client *netbox.Client, deviceID int, isPDU bool) tea.Cmd {
+func loadDetailCmd(client *netbox.Client, deviceID int) tea.Cmd {
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), apiTimeout)
 		defer cancel()
-		var (
-			ifaces  []netbox.Interface
-			ports   []netbox.PowerPort
-			outlets []netbox.PowerOutlet
-		)
-		g, gctx := errgroup.WithContext(ctx)
-		g.Go(func() (err error) { ifaces, err = client.CabledInterfaces(gctx, deviceID); return })
-		g.Go(func() (err error) { ports, err = client.PowerPorts(gctx, deviceID); return })
-		if isPDU {
-			g.Go(func() (err error) { outlets, err = client.PowerOutlets(gctx, deviceID); return })
-		}
-		if err := g.Wait(); err != nil {
+		ifaces, ports, outlets, err := client.DeviceDetail(ctx, deviceID)
+		if err != nil {
 			return detailMsg{DeviceID: deviceID, Err: err}
 		}
 		return detailMsg{DeviceID: deviceID, Interfaces: ifaces, PowerPorts: ports, Outlets: outlets}

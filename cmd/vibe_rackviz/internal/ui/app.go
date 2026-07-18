@@ -26,9 +26,9 @@ const (
 
 type rackState struct {
 	loading    bool
-	front      []netbox.ElevationSlot
-	rear       []netbox.ElevationSlot
 	devices    []netbox.Device
+	uHeight    int
+	descUnits  bool
 	rowsCache  map[string][]row
 	blockCache map[string][]block
 }
@@ -38,11 +38,7 @@ func (r *rackState) rows(face string) []row {
 		r.rowsCache = map[string][]row{}
 	}
 	if _, ok := r.rowsCache[face]; !ok {
-		slots := r.front
-		if face == "rear" {
-			slots = r.rear
-		}
-		r.rowsCache[face] = buildRows(slots)
+		r.rowsCache[face] = buildRows(r.devices, r.uHeight, r.descUnits, face)
 	}
 	return r.rowsCache[face]
 }
@@ -170,14 +166,6 @@ func (a *App) selectedDevice() *netbox.Device {
 	return blocks[a.devCursor].Device
 }
 
-func (a *App) isPDU(d *netbox.Device) bool {
-	if d == nil {
-		return false
-	}
-	_, configured := a.cfg.PDUs[d.Name]
-	return configured || strings.EqualFold(d.Role.Name, "power")
-}
-
 func (a *App) selectRack() tea.Cmd {
 	id := a.currentRackID()
 	if id == 0 {
@@ -199,7 +187,7 @@ func (a *App) selectDevice() tea.Cmd {
 	var cmds []tea.Cmd
 	if det, ok := a.details[d.ID]; !ok {
 		a.details[d.ID] = &deviceDetail{loading: true}
-		cmds = append(cmds, loadDetailCmd(a.client, d.ID, a.isPDU(d)))
+		cmds = append(cmds, loadDetailCmd(a.client, d.ID))
 	} else if !det.loading {
 		cmds = append(cmds, a.outletDrawCmds(det)...)
 	}
@@ -325,7 +313,14 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			a.errMsg = msg.Err.Error()
 			return a, nil
 		}
-		*rd = rackState{front: msg.Front, rear: msg.Rear, devices: msg.Devices}
+		uh, du := 0, false
+		for _, r := range a.racks {
+			if r.ID == msg.RackID {
+				uh, du = r.UHeight, r.DescUnits
+				break
+			}
+		}
+		*rd = rackState{devices: msg.Devices, uHeight: uh, descUnits: du}
 		cmds := a.powerSweepCmds(msg.Devices)
 		if msg.RackID == a.currentRackID() {
 			if cmd := a.selectDevice(); cmd != nil {

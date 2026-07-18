@@ -42,8 +42,7 @@ func TestJoinOutletStates(t *testing.T) {
 }
 
 func TestPowerStatesAndToast(t *testing.T) {
-	slots := loadFixture[netbox.ElevationSlot](t, "elevation_front.json")
-	devices := loadFixture[netbox.Device](t, "devices_mdf.json")
+	devices := loadGQLDevices(t)
 	racks := loadFixture[netbox.Rack](t, "racks.json")
 
 	cfg, _ := config.Load("")
@@ -59,7 +58,7 @@ func TestPowerStatesAndToast(t *testing.T) {
 	step(tea.WindowSizeMsg{Width: 150, Height: 45})
 	step(racksMsg{Racks: racks})
 	// Rack load must schedule a power sweep for the configured PDU.
-	if cmd := step(rackDataMsg{RackID: 1, Front: slots, Rear: slots, Devices: devices}); cmd == nil {
+	if cmd := step(rackDataMsg{RackID: 1, Devices: devices}); cmd == nil {
 		t.Fatal("rack load returned no commands (expected power sweep)")
 	}
 
