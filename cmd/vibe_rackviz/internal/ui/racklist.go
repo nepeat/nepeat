@@ -6,6 +6,7 @@ import (
 )
 
 func (a *App) renderRackList(width int) string {
+	a.hit.rackLines = a.hit.rackLines[:0]
 	var sb strings.Builder
 	if len(a.racks) == 0 {
 		sb.WriteString(styleDim.Render("(loading…)"))
@@ -23,8 +24,10 @@ func (a *App) renderRackList(width int) string {
 			}
 		}
 		sb.WriteString(line + "\n")
+		a.hit.rackLines = append(a.hit.rackLines, i)
 		if i == a.rackCursor {
 			sb.WriteString(styleDim.Render(fmt.Sprintf("  %s · %d devices", r.Site.Name, r.DeviceCount)) + "\n")
+			a.hit.rackLines = append(a.hit.rackLines, i)
 		}
 	}
 	return strings.TrimRight(sb.String(), "\n")

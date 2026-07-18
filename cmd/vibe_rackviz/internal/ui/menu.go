@@ -136,32 +136,46 @@ func (a *App) handleMenuKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 
 func (a *App) renderMenu() string {
 	m := a.menu
-	var sb strings.Builder
-	sb.WriteString(styleTitle.Render(m.device) + "\n\n")
-	if m.note != "" {
-		sb.WriteString(styleDim.Render(m.note) + "\n\n" + styleHelp.Render("esc to close"))
-		return styleMenu.Render(sb.String())
+	// lines/owners built in parallel: owners maps each popup content line to
+	// the menu-item index it activates on click (-1 for none).
+	var lines []string
+	var owners []int
+	add := func(line string, owner int) {
+		lines = append(lines, line)
+		owners = append(owners, owner)
 	}
-	for _, t := range m.targets {
-		state := "?"
-		if t.StateKnown {
-			state = t.State.String()
+	add(styleTitle.Render(m.device), -1)
+	add("", -1)
+	switch {
+	case m.note != "":
+		add(styleDim.Render(m.note), -1)
+		add("", -1)
+		add(styleHelp.Render("esc to close"), -1)
+	default:
+		for _, t := range m.targets {
+			state := "?"
+			if t.StateKnown {
+				state = t.State.String()
+			}
+			add(styleDim.Render(fmt.Sprintf("outlet %d  %s/%s — %s", t.Outlet, t.PDU, t.OutletName, state)), -1)
 		}
-		sb.WriteString(styleDim.Render(fmt.Sprintf("outlet %d  %s/%s — %s", t.Outlet, t.PDU, t.OutletName, state)) + "\n")
-	}
-	sb.WriteString("\n")
-	if len(m.items) == 0 {
-		sb.WriteString(a.spinner.View() + " checking outlet states…\n")
-		sb.WriteString("\n" + styleHelp.Render("esc to close"))
-		return styleMenu.Render(sb.String())
-	}
-	for i, item := range m.items {
-		line := "  " + item.label + "  "
-		if i == m.cursor {
-			line = styleSelected.Render(line)
+		add("", -1)
+		if len(m.items) == 0 {
+			add(a.spinner.View()+" checking outlet states…", -1)
+			add("", -1)
+			add(styleHelp.Render("esc to close"), -1)
+			break
 		}
-		sb.WriteString(line + "\n")
+		for i, item := range m.items {
+			line := "  " + item.label + "  "
+			if i == m.cursor {
+				line = styleSelected.Render(line)
+			}
+			add(line, i)
+		}
+		add("", -1)
+		add(styleHelp.Render("enter select · esc close"), -1)
 	}
-	sb.WriteString("\n" + styleHelp.Render("enter select · esc close"))
-	return styleMenu.Render(sb.String())
+	a.hit.menuLines = owners
+	return styleMenu.Render(strings.Join(lines, "\n"))
 }

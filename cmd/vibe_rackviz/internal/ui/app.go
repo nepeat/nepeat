@@ -113,6 +113,8 @@ type App struct {
 
 	toast    string
 	toastGen int
+
+	hit hitState // mouse hit-test geometry, captured during render
 }
 
 const loadingDetailsStatus = "loading device details…"
@@ -455,6 +457,15 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return a, nil
 
+	case tea.MouseClickMsg:
+		if msg.Button == tea.MouseLeft {
+			return a.handleClick(msg.Mouse())
+		}
+		return a, nil
+
+	case tea.MouseWheelMsg:
+		return a.handleWheel(msg.Mouse())
+
 	case tea.KeyPressMsg:
 		if a.modal != nil {
 			return a.handleModalKey(msg)
@@ -580,6 +591,7 @@ func clamp(v, lo, hi int) int {
 func (a *App) View() tea.View {
 	v := tea.NewView(a.render())
 	v.AltScreen = true
+	v.MouseMode = tea.MouseModeCellMotion
 	return v
 }
 
@@ -629,16 +641,24 @@ func (a *App) render() string {
 		titleRight = r.Name
 	}
 
+	// Pane geometry for mouse hit-testing (each pane renders w+2 wide).
+	a.hit.paneX = [3]int{0, leftW + 2, leftW + midW + 4}
+	a.hit.paneW = [3]int{leftW + 2, midW + 2, rightW + 2}
+
 	left := a.renderPane(focusRacks, leftW, bodyHeight-2, "RACKS", a.renderRackList(leftW))
 	mid := a.renderPane(focusElevation, midW, bodyHeight-2, titleMid, a.renderElevationScrolled(midW, bodyHeight-3))
 	right := a.renderPane(focusInfo, rightW, bodyHeight-2, titleRight, a.renderInfo(rightW))
 
 	body := lipgloss.JoinHorizontal(lipgloss.Top, left, mid, right)
+	a.hit.overlayW = 0
 	if overlay := a.renderOverlay(); overlay != "" {
 		// Composite the popup over the panes instead of replacing them.
 		bw, bh := lipgloss.Width(body), lipgloss.Height(body)
-		x := max((bw-lipgloss.Width(overlay))/2, 0)
-		y := max((bh-lipgloss.Height(overlay))/2, 0)
+		ow, oh := lipgloss.Width(overlay), lipgloss.Height(overlay)
+		x := max((bw-ow)/2, 0)
+		y := max((bh-oh)/2, 0)
+		a.hit.overlayX, a.hit.overlayY = x, y
+		a.hit.overlayW, a.hit.overlayH = ow, oh
 		body = lipgloss.NewCompositor(
 			lipgloss.NewLayer(body),
 			lipgloss.NewLayer(overlay).X(x).Y(y).Z(1),
@@ -688,6 +708,7 @@ func (a *App) paneStyle(area focusArea) lipgloss.Style {
 func (a *App) renderElevationScrolled(width, height int) string {
 	content := a.renderElevation(width)
 	lines := strings.Split(content, "\n")
+	a.hit.elevScroll = 0
 	if len(lines) <= height {
 		return content
 	}
@@ -712,5 +733,6 @@ func (a *App) renderElevationScrolled(width, height int) string {
 		}
 	}
 	start := clamp(target-height/2, 0, len(lines)-height)
+	a.hit.elevScroll = start
 	return strings.Join(lines[start:start+height], "\n")
 }

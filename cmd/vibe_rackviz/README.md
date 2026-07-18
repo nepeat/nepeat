@@ -45,6 +45,11 @@ PROXY=socks5://127.0.0.1:1080 go run .      # + SNMP too if the proxy does UDP
 | r | refresh current rack (drops cache) |
 | q | quit |
 
+Mouse: click a rack or device to select it (focus follows), click the
+selected device again to open the power menu, click a menu item to pick it,
+click outside a popup to dismiss it, and scroll to move through racks (over
+the rack list) or devices (elsewhere).
+
 Pane titles read `RACKS | <rack_name> <FACE> | <hostname>`. Power actions
 (on/off/cycle) live in the enter submenu and lead into the confirmation
 modal. Set `RACKVIZ_DEBUG=/path/to/log` to trace key/message handling.

@@ -141,11 +141,13 @@ func (a *App) renderElevation(width int) string {
 		inner = 8
 	}
 	kids := childrenByParent(blocks)
+	a.hit.elevLines = a.hit.elevLines[:0]
 	var sb strings.Builder
 	for _, r := range rows {
 		gutter := styleDim.Render(fmt.Sprintf("%3d", r.U))
 		var body string
 		if bi, ok := blockAt[r.U]; ok {
+			a.hit.elevLines = append(a.hit.elevLines, bi)
 			b := blocks[bi]
 			label := ""
 			if b.TopU == r.U {
@@ -165,6 +167,7 @@ func (a *App) renderElevation(width int) string {
 			}
 			body = st.Render(centerPad(label, inner))
 		} else {
+			a.hit.elevLines = append(a.hit.elevLines, -1)
 			body = styleDim.Render(pad(strings.Repeat(" ", inner/2)+"·", inner))
 		}
 		fmt.Fprintf(&sb, " %s %s\n", gutter, body)
@@ -180,12 +183,14 @@ func (a *App) renderElevation(width int) string {
 		if b.Bay != "" {
 			if firstBay {
 				sb.WriteString(styleDim.Render(" ── bays ──") + "\n")
+				a.hit.elevLines = append(a.hit.elevLines, -1)
 				firstBay = false
 			}
 			line = " " + b.Device.Parent.Name + "/" + b.Bay + "  " + b.Device.Name
 		} else {
 			if firstZero {
 				sb.WriteString(styleDim.Render(" ── 0U ──") + "\n")
+				a.hit.elevLines = append(a.hit.elevLines, -1)
 				firstZero = false
 			}
 			line = " " + b.Device.Name
@@ -198,6 +203,7 @@ func (a *App) renderElevation(width int) string {
 			line = styleSelected.Render(pad(line, width-4))
 		}
 		sb.WriteString(a.powerDot(b.Device.Name) + line + "\n")
+		a.hit.elevLines = append(a.hit.elevLines, bi)
 	}
 	return strings.TrimRight(sb.String(), "\n")
 }
