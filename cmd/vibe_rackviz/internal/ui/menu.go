@@ -129,7 +129,14 @@ func (a *App) handleMenuKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		}
 		action := m.items[m.cursor].action
 		a.menu = nil
-		return a, a.openModal(action)
+		// The menu already carries the resolved targets — hand them to the
+		// confirmation modal and refresh their states.
+		a.modal = &modal{Action: action, Device: m.device, Targets: m.targets}
+		var cmds []tea.Cmd
+		for _, t := range m.targets {
+			cmds = append(cmds, a.outletStateCmd(t.PDU, t.Outlet))
+		}
+		return a, tea.Batch(cmds...)
 	}
 	return a, nil
 }

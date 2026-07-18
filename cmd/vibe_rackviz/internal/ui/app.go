@@ -3,6 +3,7 @@ package ui
 import (
 	"log"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -96,6 +97,10 @@ type App struct {
 	face      string
 	devCursor int
 
+	pduNames     []string // configured PDUs, listed under the racks
+	pduViews     map[string]*pduViewEntry
+	outletCursor int
+
 	details map[int]*deviceDetail
 
 	ctrlMu       sync.Mutex
@@ -119,7 +124,14 @@ const loadingDetailsStatus = "loading device details…"
 func NewApp(cfg *config.Config, jumpRack string, dryRun bool) *App {
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
+	pduNames := make([]string, 0, len(cfg.PDUs))
+	for name := range cfg.PDUs {
+		pduNames = append(pduNames, name)
+	}
+	sort.Strings(pduNames)
 	return &App{
+		pduNames:     pduNames,
+		pduViews:     map[string]*pduViewEntry{},
 		cfg:          cfg,
 		dryRun:       dryRun,
 		jumpRack:     jumpRack,
@@ -142,17 +154,25 @@ func (a *App) Init() tea.Cmd {
 }
 
 func (a *App) currentRackID() int {
-	if len(a.racks) == 0 {
-		return 0
+	if r := a.currentRack(); r != nil {
+		return r.ID
 	}
-	return a.racks[a.rackCursor].ID
+	return 0
 }
 
 func (a *App) currentRack() *netbox.Rack {
-	if len(a.racks) == 0 {
+	if len(a.racks) == 0 || a.rackCursor >= len(a.racks) {
 		return nil
 	}
 	return &a.racks[a.rackCursor]
+}
+
+// selectLeft dispatches the left-pane selection to a rack or PDU load.
+func (a *App) selectLeft() tea.Cmd {
+	if name := a.selectedPDUName(); name != "" {
+		return a.selectPDU(name)
+	}
+	return a.selectRack()
 }
 
 // selectedDevice returns the device under the elevation cursor, if any.
@@ -252,15 +272,31 @@ func (a *App) maybeLoadReadings(d *netbox.Device) tea.Cmd {
 	if d == nil {
 		return nil
 	}
-	if _, configured := a.cfg.PDUs[d.Name]; !configured {
+	return a.maybeLoadReadingsName(d.Name)
+}
+
+func (a *App) maybeLoadReadingsName(name string) tea.Cmd {
+	if _, configured := a.cfg.PDUs[name]; !configured {
 		return nil
 	}
-	re := a.readings[d.Name]
+	re := a.readings[name]
 	if re != nil && (re.loading || time.Since(re.at) < readingsRefresh) {
 		return nil
 	}
-	a.readings[d.Name] = &readingsEntry{loading: true}
-	return a.loadReadingsCmd(d.Name)
+	a.readings[name] = &readingsEntry{loading: true}
+	return a.loadReadingsCmd(name)
+}
+
+// selectedPowerName is the PDU whose readings the info pane is showing:
+// either the PDU view selection or a PDU device selected in a rack.
+func (a *App) selectedPowerName() string {
+	if name := a.selectedPDUName(); name != "" {
+		return name
+	}
+	if d := a.selectedDevice(); d != nil {
+		return d.Name
+	}
+	return ""
 }
 
 func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -372,17 +408,40 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			*re = readingsEntry{at: time.Now(), data: msg.Readings}
 		}
 		// Keep polling while this PDU stays selected.
-		if d := a.selectedDevice(); d != nil && d.Name == msg.PDU {
+		if a.selectedPowerName() == msg.PDU {
 			return a, readingsTickCmd(msg.PDU)
 		}
 		return a, nil
 
 	case readingsTickMsg:
-		if d := a.selectedDevice(); d != nil && d.Name == msg.PDU {
+		if a.selectedPowerName() == msg.PDU {
 			if re := a.readings[msg.PDU]; re != nil && !re.loading {
 				re.loading = true
 				return a, a.loadReadingsCmd(msg.PDU)
 			}
+		}
+		return a, nil
+
+	case pduViewMsg:
+		e := a.pduViews[msg.PDU]
+		if e == nil {
+			return a, nil
+		}
+		if msg.Err != nil {
+			*e = pduViewEntry{at: time.Now(), err: msg.Err.Error()}
+			return a, nil
+		}
+		regex := a.cfg.PDUs[msg.PDU].OutletRegex()
+		*e = pduViewEntry{
+			at:     time.Now(),
+			rows:   buildPDURows(msg.Outlets, regex),
+			states: msg.States,
+		}
+		// Full states came along — refresh the elevation colors + caches too.
+		a.outletsCache[msg.PDU] = msg.Outlets
+		a.powerByPDU[msg.PDU] = joinOutletStates(msg.Outlets, msg.States, regex)
+		if a.selectedPDUName() == msg.PDU {
+			return a, tea.Batch(a.pduDrawCmds(msg.PDU)...)
 		}
 		return a, nil
 
@@ -508,6 +567,9 @@ func (a *App) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		return a, nil
 
 	case "f":
+		if a.selectedPDUName() != "" {
+			return a, nil // no faces in the PDU view
+		}
 		if a.face == "front" {
 			a.face = "rear"
 		} else {
@@ -517,6 +579,10 @@ func (a *App) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		return a, a.selectDevice()
 
 	case "r":
+		if name := a.selectedPDUName(); name != "" {
+			delete(a.pduViews, name)
+			return a, a.selectPDU(name)
+		}
 		id := a.currentRackID()
 		if id != 0 {
 			delete(a.rackData, id)
@@ -536,7 +602,10 @@ func (a *App) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	case "enter":
 		if a.focus == focusRacks {
 			a.focus = focusElevation
-			return a, a.selectRack()
+			return a, a.selectLeft()
+		}
+		if a.selectedPDUName() != "" {
+			return a, a.openOutletMenu()
 		}
 		return a, a.openMenu()
 	}
@@ -558,12 +627,20 @@ func (a *App) detailIDsInRack(rackID int) []int {
 func (a *App) moveCursor(delta int) tea.Cmd {
 	switch a.focus {
 	case focusRacks:
-		if len(a.racks) == 0 {
+		if a.leftCount() == 0 {
 			return nil
 		}
-		a.rackCursor = clamp(a.rackCursor+delta, 0, len(a.racks)-1)
-		return a.selectRack()
+		a.rackCursor = clamp(a.rackCursor+delta, 0, a.leftCount()-1)
+		return a.selectLeft()
 	case focusElevation:
+		if name := a.selectedPDUName(); name != "" {
+			e := a.pduViews[name]
+			if e == nil || e.loading || len(e.rows) == 0 {
+				return nil
+			}
+			a.outletCursor = clamp(a.outletCursor+delta, 0, len(e.rows)-1)
+			return nil
+		}
 		rd := a.rackData[a.currentRackID()]
 		if rd == nil || rd.loading {
 			return nil
@@ -631,14 +708,18 @@ func (a *App) render() string {
 
 	// Pane titles: RACKS | <rack_name> <FACE> | <hostname>.
 	titleMid := ""
-	if r := a.currentRack(); r != nil {
-		titleMid = r.Name + " " + strings.ToUpper(a.face)
-	}
 	titleRight := ""
-	if d := a.selectedDevice(); d != nil {
-		titleRight = d.Name
-	} else if r := a.currentRack(); r != nil {
-		titleRight = r.Name
+	if name := a.selectedPDUName(); name != "" {
+		titleMid = "⚡ " + name
+		titleRight = name
+	} else {
+		if r := a.currentRack(); r != nil {
+			titleMid = r.Name + " " + strings.ToUpper(a.face)
+			titleRight = r.Name
+		}
+		if d := a.selectedDevice(); d != nil {
+			titleRight = d.Name
+		}
 	}
 
 	// Pane geometry for mouse hit-testing (each pane renders w+2 wide).
@@ -706,6 +787,9 @@ func (a *App) paneStyle(area focusArea) lipgloss.Style {
 // renderElevationScrolled clips the elevation to the pane height, keeping the
 // cursor's block visible.
 func (a *App) renderElevationScrolled(width, height int) string {
+	if a.selectedPDUName() != "" {
+		return a.renderPDUView(width)
+	}
 	content := a.renderElevation(width)
 	lines := strings.Split(content, "\n")
 	a.hit.elevScroll = 0

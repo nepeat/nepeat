@@ -77,20 +77,28 @@ func (a *App) handleClick(m tea.Mouse) (tea.Model, tea.Cmd) {
 		if line >= 0 && line < len(a.hit.rackLines) && a.hit.rackLines[line] >= 0 {
 			if a.rackCursor != a.hit.rackLines[line] {
 				a.rackCursor = a.hit.rackLines[line]
-				return a, a.selectRack()
+				return a, a.selectLeft()
 			}
 		}
 	case focusElevation:
 		idx := a.hit.elevScroll + line
-		if line >= 0 && idx >= 0 && idx < len(a.hit.elevLines) && a.hit.elevLines[idx] >= 0 {
-			bi := a.hit.elevLines[idx]
-			if bi == a.devCursor {
-				// Clicking the selected device again opens the action menu.
-				return a, a.openMenu()
-			}
-			a.devCursor = bi
-			return a, a.selectDevice()
+		if line < 0 || idx < 0 || idx >= len(a.hit.elevLines) || a.hit.elevLines[idx] < 0 {
+			return a, nil
 		}
+		hit := a.hit.elevLines[idx]
+		if a.selectedPDUName() != "" {
+			if hit == a.outletCursor {
+				return a, a.openOutletMenu()
+			}
+			a.outletCursor = hit
+			return a, nil
+		}
+		if hit == a.devCursor {
+			// Clicking the selected device again opens the action menu.
+			return a, a.openMenu()
+		}
+		a.devCursor = hit
+		return a, a.selectDevice()
 	}
 	return a, nil
 }

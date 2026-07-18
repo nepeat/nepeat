@@ -71,33 +71,6 @@ func (a *App) buildTargets(det *deviceDetail) []outletTarget {
 	return targets
 }
 
-// openModal builds targets from the loaded power-port detail; returns nil cmds
-// and a toast error when nothing is actionable.
-func (a *App) openModal(action powerAction) tea.Cmd {
-	d := a.selectedDevice()
-	if d == nil {
-		return nil
-	}
-	det := a.details[d.ID]
-	if det == nil || det.loading {
-		a.errMsg = "device details not loaded yet"
-		return nil
-	}
-	targets := a.buildTargets(det)
-	if len(targets) == 0 {
-		if a.errMsg == "" {
-			a.errMsg = "no outlet on a configured PDU feeds " + d.Name
-		}
-		return nil
-	}
-	var cmds []tea.Cmd
-	for _, t := range targets {
-		cmds = append(cmds, a.outletStateCmd(t.PDU, t.Outlet))
-	}
-	a.modal = &modal{Action: action, Device: d.Name, Targets: targets}
-	return tea.Batch(cmds...)
-}
-
 // handleModalKey processes keys while the modal is open.
 func (a *App) handleModalKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	m := a.modal

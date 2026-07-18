@@ -9,6 +9,9 @@ import (
 )
 
 func (a *App) renderInfo(width int) string {
+	if name := a.selectedPDUName(); name != "" {
+		return a.renderPDUInfo(name, width)
+	}
 	d := a.selectedDevice()
 	if d == nil {
 		rack := a.currentRack()
@@ -146,6 +149,56 @@ func (a *App) writeReadings(sb *strings.Builder, deviceName string) {
 		}
 		sb.WriteString(styleDim.Render("as of "+re.at.Format("15:04:05")) + "\n")
 	}
+}
+
+// renderPDUInfo is the right pane for the PDU view: outlet summary, the
+// selected outlet's detail + draw, and the PDU's per-leg readings.
+func (a *App) renderPDUInfo(name string, width int) string {
+	inner := width - 2
+	var sb strings.Builder
+	e := a.pduViews[name]
+	if e != nil && !e.loading && e.err == "" {
+		on, off, free := 0, 0, 0
+		for _, r := range e.rows {
+			if r.Device == "" {
+				free++
+			}
+			switch e.states[r.Index] {
+			case pdu.StateOn:
+				on++
+			case pdu.StateOff:
+				off++
+			}
+		}
+		writeKV(&sb, "Outlets", fmt.Sprintf("%d", len(e.rows)))
+		writeKV(&sb, "State", fmt.Sprintf("%d on · %d off · %d free", on, off, free))
+
+		if a.outletCursor >= 0 && a.outletCursor < len(e.rows) {
+			r := e.rows[a.outletCursor]
+			sb.WriteString("\n" + styleTitle.Render(fmt.Sprintf("Outlet %d · %s", r.Index, r.Name)) + "\n")
+			st := "unknown"
+			if s, ok := e.states[r.Index]; ok {
+				st = s.String()
+			}
+			writeKV(&sb, "State", st)
+			if r.Device != "" {
+				writeKV(&sb, "Feeds", truncate(r.Device+" · "+r.Port, inner-10))
+				switch d := a.outletDraw[orKey(name, r.Index)]; {
+				case d == nil:
+				case d.loading:
+					writeKV(&sb, "Draw", "measuring…")
+				case d.err != "":
+					writeKV(&sb, "Draw", "—")
+				default:
+					writeKV(&sb, "Draw", fmt.Sprintf("%.1f W · %.2f A", d.watts, d.amps))
+				}
+			} else {
+				writeKV(&sb, "Feeds", "(free)")
+			}
+		}
+	}
+	a.writeReadings(&sb, name)
+	return strings.TrimRight(sb.String(), "\n")
 }
 
 func (a *App) renderRackInfo(rack *netbox.Rack, width int) string {

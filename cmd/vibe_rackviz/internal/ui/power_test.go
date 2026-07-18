@@ -107,6 +107,9 @@ func TestPowerStatesAndToast(t *testing.T) {
 
 	// Selecting a dual-PSU device with loaded detail fires per-outlet draw
 	// readings; the info pane shows W/A per outlet and a summed Total line.
+	// (The toast keypress above walked the left cursor into the PDU section —
+	// return to MDF first.)
+	app.rackCursor = 3
 	app.focus = focusElevation
 	app.devCursor = indexOfBlock(t, app.rackData[1].blocks("front"), "dreamflasher")
 	app.details[15] = &deviceDetail{

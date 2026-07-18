@@ -66,6 +66,13 @@ in a "bays" section as `parent/bay  name` with power dots, the parent block
 shows a `└ child, child` summary row, and the child's info pane shows its
 bay. Bare 0U devices keep their own section.
 
+Configured PDUs get their own **PDUs section** under the rack list. Selecting
+one turns the middle pane into a live outlet list — state dot, outlet number,
+connected device, and inline wattage per outlet, with an on/off/free summary —
+and the info pane shows the selected outlet's detail plus per-leg readings.
+Enter (or clicking the selected outlet) opens the power menu for exactly that
+outlet, including free ones.
+
 Elevation block backgrounds encode **live power state**, swept from every
 configured PDU when a rack loads (and re-swept after power actions / `r`):
 green = powered on, red = powered off, gray = no power info (not fed by a
