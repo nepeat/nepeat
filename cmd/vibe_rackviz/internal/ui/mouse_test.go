@@ -32,20 +32,20 @@ func TestMouseInteractions(t *testing.T) {
 	step(racksMsg{Racks: racks})
 	step(rackDataMsg{RackID: 1, Devices: devices})
 
-	// Click the first rack line (left pane, content row 0 → y=3).
-	click(3, 3)
+	// Click the first rack line (left pane, content row 0 → y=2).
+	click(3, 2)
 	if app.focus != focusRacks || app.rackCursor != 0 {
 		t.Fatalf("rack click: focus=%v cursor=%d, want racks/0", app.focus, app.rackCursor)
 	}
 
-	// Back to MDF (list shows rack0 + its detail line first → MDF at y=7).
-	click(3, 7)
+	// Back to MDF (list shows rack0 + its detail line first → MDF at y=6).
+	click(3, 6)
 	if app.racks[app.rackCursor].Name != "MDF" {
 		t.Fatalf("rack click: selected %q, want MDF", app.racks[app.rackCursor].Name)
 	}
 
-	// Click dreamflasher's block: rows are U40..U1, U34 is row index 6 → y=9.
-	click(30, 9)
+	// Click dreamflasher's block: rows are U40..U1, U34 is row index 6 → y=8.
+	click(30, 8)
 	if app.focus != focusElevation {
 		t.Fatalf("elevation click: focus=%v", app.focus)
 	}
@@ -64,7 +64,7 @@ func TestMouseInteractions(t *testing.T) {
 			}},
 		}},
 	}
-	click(30, 9)
+	click(30, 8)
 	if app.menu == nil {
 		t.Fatal("second click did not open the menu")
 	}

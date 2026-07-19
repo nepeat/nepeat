@@ -5,10 +5,10 @@ import (
 )
 
 // Hit-test geometry captured during render. Screen rows: 0 = header,
-// 1 = pane top border, 2 = pane title, 3+ = pane content lines.
+// 1 = pane top border (with embedded title), 2+ = pane content lines.
 const (
 	mouseBodyTop    = 1 // first body row (pane border)
-	mouseContentTop = 2 // first pane content row (title line)
+	mouseContentTop = 2 // first pane content row
 )
 
 type hitState struct {
@@ -70,7 +70,7 @@ func (a *App) handleClick(m tea.Mouse) (tea.Model, tea.Cmd) {
 		return a, nil
 	}
 	a.focus = focusArea(pane)
-	line := m.Y - mouseContentTop - 1 // skip the title line
+	line := m.Y - mouseContentTop
 
 	switch focusArea(pane) {
 	case focusRacks:

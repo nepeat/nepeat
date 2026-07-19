@@ -820,8 +820,8 @@ func (a *App) render() string {
 	a.hit.paneW = [3]int{leftW + 2, midW + 2, rightW + 2}
 
 	left := a.renderPane(focusRacks, leftW, bodyHeight-2, "RACKS", a.renderRackList(leftW))
-	mid := a.renderPane(focusElevation, midW, bodyHeight-2, titleMid, a.renderElevationScrolled(midW, bodyHeight-3))
-	right := a.renderPane(focusInfo, rightW, bodyHeight-2, titleRight, a.renderInfoScrolled(rightW, bodyHeight-3))
+	mid := a.renderPane(focusElevation, midW, bodyHeight-2, titleMid, a.renderElevationScrolled(midW, bodyHeight-2))
+	right := a.renderPane(focusInfo, rightW, bodyHeight-2, titleRight, a.renderInfoScrolled(rightW, bodyHeight-2))
 
 	body := lipgloss.JoinHorizontal(lipgloss.Top, left, mid, right)
 	a.hit.overlayW = 0
@@ -851,13 +851,14 @@ func (a *App) renderOverlay() string {
 	return ""
 }
 
-// renderPane draws one bordered pane. Every line is pre-padded to the exact
+// renderPane draws one bordered pane with the title embedded in the top
+// border line (╭ TITLE ────╮). Every line is pre-padded to the exact
 // content width and the style gets no Width/Height: lipgloss v2's width
 // handling re-wraps lines and strips styling from trailing whitespace, which
 // clipped block backgrounds at the text edge.
 func (a *App) renderPane(area focusArea, w, h int, title, content string) string {
 	innerW := w - 2 // horizontal padding
-	lines := strings.Split(styleTitle.Render(truncate(title, innerW))+"\n"+content, "\n")
+	lines := strings.Split(content, "\n")
 	if len(lines) > h {
 		lines = lines[:h]
 	}
@@ -867,7 +868,19 @@ func (a *App) renderPane(area focusArea, w, h int, title, content string) string
 	for i := range lines {
 		lines[i] = pad(lines[i], innerW)
 	}
-	return a.paneStyle(area).Render(strings.Join(lines, "\n"))
+	st := a.paneStyle(area)
+	box := st.Render(strings.Join(lines, "\n"))
+	if title == "" || w < 6 {
+		return box
+	}
+	// Rebuild the top border row with the title spliced in.
+	_, rest, _ := strings.Cut(box, "\n")
+	borderSt := lipgloss.NewStyle().Foreground(st.GetBorderTopForeground())
+	t := " " + truncate(title, w-4) + " "
+	dashes := w - 1 - lipgloss.Width(t)
+	top := borderSt.Render("╭─") + styleTitle.Render(t) +
+		borderSt.Render(strings.Repeat("─", dashes)+"╮")
+	return top + "\n" + rest
 }
 
 func (a *App) paneStyle(area focusArea) lipgloss.Style {
