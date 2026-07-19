@@ -145,6 +145,7 @@
     valkey
     zstd
     git-secret
+    git-lfs
     p7zip
     protobuf
     tmux
