@@ -17,7 +17,7 @@ Rules and conventions for hardware RE work in this project. These OVERRIDE defau
   - Send input: `tmux send-keys -t serial '<command>' Enter`
   - Read output: `tmux capture-pane -t serial -p`
 - Never assume the baud rate — record the confirmed baud/parity/framing in the device's subdir notes once known.
-- Log serial sessions to a file in the device subdir when capturing boot logs or dumps (`tio --log-file …` or tmux `pipe-pane`).
+- Log serial sessions to a file in the device subdir when capturing boot logs or dumps (`tio --log-file …` or tmux `pipe-pane`). **Save captures as `.txt`, not `.log`** — the monorepo's root `.gitignore` excludes `*.log`, so a `.log` capture would be silently dropped from commits.
 - On macOS, serial adapters appear as `/dev/tty.usbserial-*` or `/dev/tty.usbmodem*`. List with `ls /dev/tty.*`.
 
 ## Notes & organization
