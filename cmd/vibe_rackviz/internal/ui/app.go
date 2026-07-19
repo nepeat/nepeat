@@ -93,9 +93,10 @@ type App struct {
 	roleColors map[string]string
 	rackCursor int
 
-	rackData  map[int]*rackState
-	face      string
-	devCursor int
+	rackData   map[int]*rackState
+	face       string
+	devCursor  int
+	infoScroll int // right pane scroll offset, clamped during render
 
 	pduNames     []string // configured PDUs, listed under the racks
 	pduViews     map[string]*pduViewEntry
@@ -169,6 +170,7 @@ func (a *App) currentRack() *netbox.Rack {
 
 // selectLeft dispatches the left-pane selection to a rack or PDU load.
 func (a *App) selectLeft() tea.Cmd {
+	a.infoScroll = 0
 	if name := a.selectedPDUName(); name != "" {
 		return a.selectPDU(name)
 	}
@@ -202,6 +204,7 @@ func (a *App) selectRack() tea.Cmd {
 }
 
 func (a *App) selectDevice() tea.Cmd {
+	a.infoScroll = 0
 	d := a.selectedDevice()
 	if d == nil {
 		return nil
@@ -216,6 +219,7 @@ func (a *App) selectDevice() tea.Cmd {
 	if cmd := a.maybeLoadReadings(d); cmd != nil {
 		cmds = append(cmds, cmd)
 	}
+	cmds = append(cmds, a.tallDeviceDrawCmds()...)
 	if len(cmds) == 0 {
 		return nil
 	}
@@ -234,6 +238,67 @@ func (a *App) outletDrawCmds(det *deviceDetail) []tea.Cmd {
 		}
 		a.outletDraw[key] = &outletReadingEntry{loading: true}
 		byPDU[t.PDU] = append(byPDU[t.PDU], t.Outlet)
+	}
+	var cmds []tea.Cmd
+	for name, outlets := range byPDU {
+		cmds = append(cmds, a.outletReadingsCmd(name, outlets))
+	}
+	return cmds
+}
+
+// drawTarget names one switchable outlet on a configured PDU.
+type drawTarget struct {
+	pdu    string
+	outlet int
+}
+
+// feedingOutlets finds the outlets cabled to a device across all configured
+// PDUs, from the NetBox cabling cache (populated by the power sweep).
+func (a *App) feedingOutlets(deviceName string) []drawTarget {
+	var out []drawTarget
+	for pduName, outlets := range a.outletsCache {
+		pcfg, ok := a.cfg.PDUs[pduName]
+		if !ok {
+			continue
+		}
+		re := pcfg.OutletRegex()
+		for _, o := range outlets {
+			for _, ep := range o.Endpoints {
+				if ep.Device.Name != deviceName {
+					continue
+				}
+				if idx, err := pdu.MapOutlet(o.Name, re); err == nil {
+					out = append(out, drawTarget{pdu: pduName, outlet: idx})
+				}
+				break
+			}
+		}
+	}
+	return out
+}
+
+// tallDeviceDrawCmds refreshes stale W/A readings for outlets feeding >2U
+// blocks in the current rack, keeping the elevation's power line live.
+// Batched per PDU; no-ops for fresh or in-flight readings.
+func (a *App) tallDeviceDrawCmds() []tea.Cmd {
+	rd := a.rackData[a.currentRackID()]
+	if rd == nil || rd.loading {
+		return nil
+	}
+	byPDU := map[string][]int{}
+	for _, b := range rd.blocks(a.face) {
+		if b.Rows <= 2 {
+			continue
+		}
+		for _, t := range a.feedingOutlets(b.Device.Name) {
+			key := orKey(t.pdu, t.outlet)
+			e := a.outletDraw[key]
+			if e != nil && (e.loading || time.Since(e.at) < readingsRefresh) {
+				continue
+			}
+			a.outletDraw[key] = &outletReadingEntry{loading: true}
+			byPDU[t.pdu] = append(byPDU[t.pdu], t.outlet)
+		}
 	}
 	var cmds []tea.Cmd
 	for name, outlets := range byPDU {
@@ -476,7 +541,9 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Outlets != nil {
 			a.outletsCache[msg.PDU] = msg.Outlets
 		}
-		return a, nil
+		// Cabling for this PDU just (re)landed — top up the elevation's
+		// per-device draw readings for tall blocks.
+		return a, tea.Batch(a.tallDeviceDrawCmds()...)
 
 	case actionResultMsg:
 		a.statusLine = ""
@@ -661,6 +728,7 @@ func (a *App) moveCursor(delta int) tea.Cmd {
 				return nil
 			}
 			a.outletCursor = clamp(a.outletCursor+delta, 0, len(e.rows)-1)
+			a.infoScroll = 0
 			return nil
 		}
 		rd := a.rackData[a.currentRackID()]
@@ -673,6 +741,9 @@ func (a *App) moveCursor(delta int) tea.Cmd {
 		}
 		a.devCursor = clamp(a.devCursor+delta, 0, n-1)
 		return a.selectDevice()
+	case focusInfo:
+		a.infoScroll = max(a.infoScroll+delta, 0)
+		return nil
 	}
 	return nil
 }
@@ -750,7 +821,7 @@ func (a *App) render() string {
 
 	left := a.renderPane(focusRacks, leftW, bodyHeight-2, "RACKS", a.renderRackList(leftW))
 	mid := a.renderPane(focusElevation, midW, bodyHeight-2, titleMid, a.renderElevationScrolled(midW, bodyHeight-3))
-	right := a.renderPane(focusInfo, rightW, bodyHeight-2, titleRight, a.renderInfo(rightW))
+	right := a.renderPane(focusInfo, rightW, bodyHeight-2, titleRight, a.renderInfoScrolled(rightW, bodyHeight-3))
 
 	body := lipgloss.JoinHorizontal(lipgloss.Top, left, mid, right)
 	a.hit.overlayW = 0

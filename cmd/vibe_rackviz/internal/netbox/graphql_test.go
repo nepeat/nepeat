@@ -74,3 +74,29 @@ func TestLiveGraphQL(t *testing.T) {
 		t.Fatal("empty results")
 	}
 }
+
+func TestNaturalLess(t *testing.T) {
+	sorted := []string{
+		"StackPort1/1",
+		"StackPort1/2",
+		"TenGigabitEthernet1/0/1",
+		"TenGigabitEthernet1/0/2",
+		"TenGigabitEthernet1/0/10",
+		"TenGigabitEthernet1/0/11",
+		"TenGigabitEthernet2/0/9",
+		"TenGigabitEthernet2/0/24",
+		"TenGigabitEthernet2/1/1",
+		"TwentyFiveGigE1/1/1",
+	}
+	for i := 0; i < len(sorted)-1; i++ {
+		if !naturalLess(sorted[i], sorted[i+1]) {
+			t.Errorf("naturalLess(%q, %q) = false, want true", sorted[i], sorted[i+1])
+		}
+		if naturalLess(sorted[i+1], sorted[i]) {
+			t.Errorf("naturalLess(%q, %q) = true, want false", sorted[i+1], sorted[i])
+		}
+	}
+	if naturalLess("Te1/0/1", "Te1/0/1") {
+		t.Error("naturalLess must be false for equal strings")
+	}
+}

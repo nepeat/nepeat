@@ -40,4 +40,8 @@ var (
 
 	dotOn  = lipgloss.NewStyle().Foreground(lipgloss.Color("#4caf50")).Render("●")
 	dotOff = lipgloss.NewStyle().Foreground(lipgloss.Color("#f44336")).Render("●")
+
+	// colorBlockRule draws the thin divider between stacked device blocks —
+	// a mid-gray that stands out against the block fills and the background.
+	colorBlockRule = lipgloss.Color("#9aa4ad")
 )

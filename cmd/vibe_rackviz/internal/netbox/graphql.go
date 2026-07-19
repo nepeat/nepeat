@@ -8,6 +8,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -244,6 +245,38 @@ const deviceDetailQuery = `query {
   }
 }`
 
+// naturalLess compares strings chunk-wise, treating digit runs as numbers,
+// so "Te1/0/2" sorts before "Te1/0/10".
+func naturalLess(a, b string) bool {
+	for a != "" && b != "" {
+		ca, ra, na := nextChunk(a)
+		cb, rb, nb := nextChunk(b)
+		if na && nb {
+			ta, tb := strings.TrimLeft(ca, "0"), strings.TrimLeft(cb, "0")
+			if len(ta) != len(tb) {
+				return len(ta) < len(tb)
+			}
+			if ta != tb {
+				return ta < tb
+			}
+		} else if ca != cb {
+			return ca < cb
+		}
+		a, b = ra, rb
+	}
+	return len(a) < len(b)
+}
+
+// nextChunk splits off the leading run of digits or non-digits.
+func nextChunk(s string) (chunk, rest string, digits bool) {
+	digits = s[0] >= '0' && s[0] <= '9'
+	i := 1
+	for i < len(s) && (s[i] >= '0' && s[i] <= '9') == digits {
+		i++
+	}
+	return s[:i], s[i:], digits
+}
+
 type gqlEndpoint struct {
 	Name   string `json:"name"`
 	Device struct {
@@ -295,6 +328,9 @@ func (c *Client) DeviceDetail(ctx context.Context, deviceID int) ([]Interface, [
 		}
 		ifaces = append(ifaces, iface)
 	}
+	// GraphQL returns interfaces in creation order; sort them like NetBox's
+	// natural name ordering (Te1/0/2 before Te1/0/10).
+	sort.SliceStable(ifaces, func(i, j int) bool { return naturalLess(ifaces[i].Name, ifaces[j].Name) })
 	ports := make([]PowerPort, len(d.PowerPorts))
 	for i, p := range d.PowerPorts {
 		ports[i] = PowerPort{Name: p.Name}

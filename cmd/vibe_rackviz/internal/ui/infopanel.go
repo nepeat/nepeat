@@ -8,6 +8,29 @@ import (
 	"github.com/nepeat/nepeat/cmd/vibe_rackviz/internal/pdu"
 )
 
+// renderInfoScrolled clips the info pane to the pane height at the current
+// scroll offset (j/k or wheel while the pane is focused), with dim ↑/↓
+// markers standing in for the hidden lines.
+func (a *App) renderInfoScrolled(width, height int) string {
+	content := a.renderInfo(width)
+	lines := strings.Split(content, "\n")
+	if height < 3 || len(lines) <= height {
+		a.infoScroll = 0
+		return content
+	}
+	maxScroll := len(lines) - height
+	a.infoScroll = clamp(a.infoScroll, 0, maxScroll)
+	view := make([]string, height)
+	copy(view, lines[a.infoScroll:a.infoScroll+height])
+	if a.infoScroll > 0 {
+		view[0] = styleDim.Render(fmt.Sprintf("↑ %d more", a.infoScroll))
+	}
+	if a.infoScroll < maxScroll {
+		view[height-1] = styleDim.Render(fmt.Sprintf("↓ %d more", maxScroll-a.infoScroll))
+	}
+	return strings.Join(view, "\n")
+}
+
 func (a *App) renderInfo(width int) string {
 	if name := a.selectedPDUName(); name != "" {
 		return a.renderPDUInfo(name, width)

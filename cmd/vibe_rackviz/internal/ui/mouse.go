@@ -122,9 +122,12 @@ func (a *App) handleWheel(m tea.Mouse) (tea.Model, tea.Cmd) {
 		}
 		return a, nil
 	}
-	if a.paneAt(m.X) == int(focusRacks) {
+	switch a.paneAt(m.X) {
+	case int(focusRacks):
 		a.focus = focusRacks
-	} else {
+	case int(focusInfo):
+		a.focus = focusInfo
+	default:
 		a.focus = focusElevation
 	}
 	return a, a.moveCursor(delta)

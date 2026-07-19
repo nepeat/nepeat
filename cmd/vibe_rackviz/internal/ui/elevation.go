@@ -153,27 +153,42 @@ func (a *App) renderElevation(width int) string {
 	kids := childrenByParent(blocks)
 	a.hit.elevLines = a.hit.elevLines[:0]
 	var sb strings.Builder
-	for _, r := range rows {
+	for ri, r := range rows {
 		gutter := styleDim.Render(fmt.Sprintf("%3d", r.U))
 		var body string
 		if bi, ok := blockAt[r.U]; ok {
 			a.hit.elevLines = append(a.hit.elevLines, bi)
 			b := blocks[bi]
 			label := ""
-			if b.TopU == r.U {
+			switch b.TopU - r.U {
+			case 0:
 				label = b.Device.Name
-			} else if ch := kids[b.Device.ID]; len(ch) > 0 {
-				names := make([]string, len(ch))
-				for i, c := range ch {
-					names[i] = c.Device.Name
+			case 1:
+				if ch := kids[b.Device.ID]; len(ch) > 0 {
+					names := make([]string, len(ch))
+					for i, c := range ch {
+						names[i] = c.Device.Name
+					}
+					label = "└ " + strings.Join(names, ", ")
+				} else {
+					label = strings.TrimSpace(b.Device.DeviceType.Manufacturer.Name + " " + b.Device.DeviceType.Model)
 				}
-				label = "└ " + strings.Join(names, ", ")
-			} else if b.Device.DeviceType.Model != "" {
-				label = b.Device.DeviceType.Model
+			case 2:
+				label = a.devicePowerLine(b.Device.Name)
 			}
 			st := a.powerStyle(b.Device.Name)
-			if bi == a.devCursor && a.focus == focusElevation {
+			isCursor := bi == a.devCursor && a.focus == focusElevation
+			if isCursor {
 				st = st.Reverse(true).Bold(true)
+			}
+			// Solid rule across the block's last row when another device sits
+			// directly below, so adjacent blocks don't merge into one slab.
+			// Skipped on the cursor row: lipgloss's underline path styles
+			// spaces without Reverse, which mangles the highlight.
+			if ri+1 < len(rows) && !isCursor {
+				if nbi, below := blockAt[rows[ri+1].U]; below && nbi != bi {
+					st = st.Underline(true).UnderlineSpaces(true).UnderlineColor(colorBlockRule)
+				}
 			}
 			body = st.Render(centerPad(label, inner))
 		} else {
@@ -216,6 +231,26 @@ func (a *App) renderElevation(width int) string {
 		a.hit.elevLines = append(a.hit.elevLines, bi)
 	}
 	return strings.TrimRight(sb.String(), "\n")
+}
+
+// devicePowerLine sums the live draw of every outlet feeding a device, for
+// the third row of tall elevation blocks. Empty until readings arrive.
+func (a *App) devicePowerLine(deviceName string) string {
+	var watts, amps float64
+	measured := 0
+	for _, t := range a.feedingOutlets(deviceName) {
+		e := a.outletDraw[orKey(t.pdu, t.outlet)]
+		if e == nil || e.loading || e.err != "" {
+			continue
+		}
+		watts += e.watts
+		amps += e.amps
+		measured++
+	}
+	if measured == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%.1f W · %.2f A", watts, amps)
 }
 
 // powerStyle picks the block background for a device's live power state.
