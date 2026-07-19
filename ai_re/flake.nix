@@ -36,6 +36,13 @@
             # I2C 24Cxx EEPROM reader for the CH341A (flashrom is SPI-only)
             ch341eeprom
 
+            # git-lfs — firmware dumps (ai_re/**/*.bin) are stored via LFS.
+            # NOTE: LFS filters run on `git` at the repo root (outside this
+            # devshell), so git-lfs must ALSO be on your global PATH
+            # (`nix profile install nixpkgs#git-lfs` or brew). This entry keeps
+            # it available in-shell and documents the dependency.
+            git-lfs
+
             # General RE / analysis helpers
             binwalk
             hexyl # friendly hex viewer
