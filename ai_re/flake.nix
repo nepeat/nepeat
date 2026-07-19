@@ -45,9 +45,15 @@
 
             # General RE / analysis helpers
             binwalk
+            squashfsTools # unsquashfs (xz) — extract Raritan PP/SquashFS rootfs
+            dtc # device tree compiler — decompile firmware DTBs
             hexyl # friendly hex viewer
             file
             ripgrep
+
+            # Password / hash cracking (Raritan PX3 root $5$ hash — see
+            # devices/raritan-px3-5475v). john has OpenCL/Metal on Apple silicon.
+            john
           ];
 
           shellHook = ''
