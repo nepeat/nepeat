@@ -1,0 +1,7 @@
+# nix/direnv local caches — not source
+.direnv/
+result
+result-*
+
+# scratch / working dumps kept out of git by default; commit real artifacts explicitly
+*.tmp

@@ -1,0 +1,328 @@
+LinuxLoader built Nov 12 2014 18:01:50
+init_pll ok
+init_spi ok
+init_memctl ok
+wait_memctl ok
+Training DRAM ok
+init_irq ok
+init_dram_uncached ok
+init_icache ok
+init_dcache ok
+enable_caches ok
+init_pi ok
+init_board ok
+Low level initialization complete, exiting boot mode
+[    0.000000] Linux version 3.18.122-meraki-elemental (anlester@sf201.meraki.com) (gcc version 5.4.0 (GCC) ) #1 Wed Oct 10 15:27:35 PDT 2018
+[    0.000000] bootconsole [early0] enabled
+[    0.000000] CPU0 revision is: 01019654 (MIPS 24KEc)
+[    0.000000] Determined physical RAM map:
+[    0.000000]  memory: 00317000 @ 00100000 (usable)
+[    0.000000]  memory: 00079000 @ 00417000 (usable after init)
+[    0.000000] User-defined physical RAM map:
+[    0.000000]  memory: 07ff0000 @ 00000000 (usable)
+[    0.000000] Initrd not found or empty - disabling initrd
+[    0.000000] Zone ranges:
+[    0.000000]   Normal   [mem 0x00000000-0x07feffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x00000000-0x07feffff]
+[    0.000000] Initmem setup node 0 [mem 0x00000000-0x07feffff]
+[    0.000000] Reserving 0MB of memory at 0MB for crashkernel
+[    0.000000] Primary instruction cache 32kB, VIPT, 4-way, linesize 32 bytes.
+[    0.000000] Primary data cache 32kB, 4-way, VIPT, cache aliases, linesize 32 bytes
+[    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 32496
+[    0.000000] Kernel command line:  console=ttyS0,115200 mtdparts=m25p80:0x40000(loader1),0x3c0000(boot1),0x40000(loader2),0x3c0000(boot2),0x80000(rsvd),0x600000(bootubi),0x40000(conf),0x100000(stackconf),0x40000(syslog) ubi.mtd=bootubi ubi.mtd=gen_nand.0 mem=134152192
+[    0.000000] PID hash table entries: 512 (order: -1, 2048 bytes)
+[    0.000000] Dentry cache hash table entries: 16384 (order: 4, 65536 bytes)
+[    0.000000] Inode-cache hash table entries: 8192 (order: 3, 32768 bytes)
+[    0.000000] Writing ErrCtl register=80042000
+[    0.000000] Readback ErrCtl register=80042000
+[    0.000000] Cache parity protection enabled
+[    0.000000] Memory: 125064K/131008K available (2658K kernel code, 132K rwdata, 364K rodata, 484K init, 101K bss, 5944K reserved, 0K cma-reserved)
+[    0.000000] SLUB: HWalign=32, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] NR_IRQS:66
+[    0.000000] sched_clock: 32 bits at 1kHz, resolution 1000000ns, wraps every 2147483648000000ns
+[    0.002000] VCore-III slave device ID 7460 found
+[    0.003000] Calibrating delay loop... 276.99 BogoMIPS (lpj=138496)
+[    0.014000] pid_max: default: 32768 minimum: 301
+[    0.015000] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.016000] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.023000] devtmpfs: initialized
+[    0.027000] NET: Registered protocol family 16
+[    0.060000] Switched to clocksource MIPS
+[    0.069000] NET: Registered protocol family 2
+[    0.076000] TCP established hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.083000] TCP bind hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.090000] TCP: Hash tables configured (established 1024 bind 1024)
+[    0.096000] TCP: reno registered
+[    0.100000] UDP hash table entries: 256 (order: 0, 4096 bytes)
+[    0.105000] UDP-Lite hash table entries: 256 (order: 0, 4096 bytes)
+[    0.112000] NET: Registered protocol family 1
+[    0.689000] VCORE-III Watchdog Timer enabled (30 seconds).  Prev boot was not caused by WDT reset.
+[    0.721000] futex hash table entries: 256 (order: -1, 3072 bytes)
+[    0.745000] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.751000] msgmni has been set to 244
+[    0.803000] io scheduler noop registered
+[    0.807000] io scheduler deadline registered (default)
+[    0.812000] Serial: 8250/16550 driver, 1 ports, IRQ sharing disabled
+[    0.823000] console [ttyS0] disabled
+[    0.827000] serial8250.0: ttyS0 at MMIO 0x70100000 (irq = 14, base_baud = 13020833) is a 16550A
+[    0.835000] console [ttyS0] enabled
+[    0.835000] console [ttyS0] enabled
+[    0.842000] bootconsole [early0] disabled
+[    0.842000] bootconsole [early0] disabled
+[    0.854000] nand: device found, Manufacturer ID: 0x2c, Chip ID: 0xf1
+[    0.860000] nand: Micron MT29F1G08ABADAWP
+[    0.865000] nand: 128MiB, SLC, page size: 2048, OOB size: 64
+[    0.876000] Scanning device for bad blocks
+[    0.999000] m25p80 spi0.1: found mx25l12805d, expected m25p80
+[    1.005000] m25p80 spi0.1: mx25l12805d (16384 Kbytes)
+[    1.010000] 9 cmdlinepart partitions found on MTD device m25p80
+[    1.016000] Creating 9 MTD partitions on "m25p80":
+[    1.021000] 0x000000000000-0x000000040000 : "loader1"
+[    1.035000] 0x000000040000-0x000000400000 : "boot1"
+[    1.044000] 0x000000400000-0x000000440000 : "loader2"
+[    1.053000] 0x000000440000-0x000000800000 : "boot2"
+[    1.065000] 0x000000800000-0x000000880000 : "rsvd"
+[    1.075000] 0x000000880000-0x000000e80000 : "bootubi"
+[    1.090000] 0x000000e80000-0x000000ec0000 : "conf"
+[    1.100000] 0x000000ec0000-0x000000fc0000 : "stackconf"
+[    1.113000] 0x000000fc0000-0x000001000000 : "syslog"
+[    1.123000] i2c /dev entries driver
+[    1.128000] TCP: cubic registered
+[    1.132000] NET: Registered protocol family 17
+[    1.136000] 8021q: 802.1Q VLAN Support v1.8
+[    1.152000] i2c-gpio i2c-gpio.1: using pins 15 (SDA) and 14 (SCL)
+[    1.159000] at24 1-0051: 1024 byte 24c08 EEPROM, writable, 8 bytes/write
+[    1.167000] meraki-config meraki-config: Meraki config device loaded
+[    1.236000] i2c-gpio i2c-gpio.2: using pins 708 (SDA) and 709 (SCL)
+[    1.248000] i2c-gpio i2c-gpio.3: using pins 714 (SDA) and 715 (SCL)
+[    1.262000] i2c-gpio i2c-gpio.4: using pins 720 (SDA) and 721 (SCL)
+[    1.273000] i2c-gpio i2c-gpio.5: using pins 726 (SDA) and 727 (SCL)
+[    1.281000] i2c-gpio i2c-gpio.6: using pins 47 (SDA) and 46 (SCL)
+[    1.291000] i2c-gpio i2c-gpio.7: using pins 51 (SDA) and 50 (SCL)
+[    1.303000] i2c-gpio i2c-gpio.8: using pins 53 (SDA) and 52 (SCL)
+[    1.310000] platform thermal-gpio.0: Driver thermal-gpio requests probe deferral
+[    1.318000] at24 2-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[    1.325000] at24 3-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[    1.333000] at24 4-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[    1.340000] at24 5-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[    1.355000] platform thermal-gpio.0: Driver thermal-gpio requests probe deferral
+[    1.364000] UBI: attaching mtd6 to ubi0
+[    2.455000] UBI: scanning is finished
+[    2.498000] UBI: attached mtd6 (name "bootubi", size 6 MiB) to ubi0
+[    2.505000] UBI: PEB size: 4096 bytes (4 KiB), LEB size: 3968 bytes
+[    2.511000] UBI: min./max. I/O unit sizes: 1/256, sub-page size 1
+[    2.518000] UBI: VID header offset: 64 (aligned 64), data offset: 128
+[    2.524000] UBI: good PEBs: 1536, bad PEBs: 0, corrupted PEBs: 0
+[    2.530000] UBI: user volume: 0, internal volumes: 1, max. volumes count: 23
+[    2.537000] UBI: max/mean erase counter: 2/1, WL threshold: 4096, image sequence number: 2672668579
+[    2.546000] UBI: available PEBs: 1532, total reserved PEBs: 4, PEBs reserved for bad PEB handling: 0
+[    2.556000] UBI: background thread "ubi_bgt0d" started, PID 259
+[    2.562000] UBI: attaching mtd0 to ubi1
+[    3.362000] UBI: scanning is finished
+[    3.403000] UBI: attached mtd0 (name "gen_nand.0", size 128 MiB) to ubi1
+[    3.410000] UBI: PEB size: 131072 bytes (128 KiB), LEB size: 129024 bytes
+[    3.417000] UBI: min./max. I/O unit sizes: 2048/2048, sub-page size 512
+[    3.424000] UBI: VID header offset: 512 (aligned 512), data offset: 2048
+[    3.431000] UBI: good PEBs: 1024, bad PEBs: 0, corrupted PEBs: 0
+[    3.437000] UBI: user volume: 12, internal volumes: 1, max. volumes count: 128
+[    3.444000] UBI: max/mean erase counter: 3313/2256, WL threshold: 4096, image sequence number: 2124770675
+[    3.454000] UBI: available PEBs: 462, total reserved PEBs: 562, PEBs reserved for bad PEB handling: 20
+[    3.464000] UBI: background thread "ubi_bgt1d" started, PID 265
+[    3.565000] devtmpfs: mounted
+[    3.580000] Freeing unused kernel memory: 484K
+[    3.589000] random: init urandom read with 49 bits of entropy available
+[    3.597000] Made it into bootsh: Oct 10 2018 15:26:18
+[    3.603000] bootsh build T-201810101312-Gf89a12ba-anlester-session
+[    3.852000] UBIFS: background thread "ubifs_bgt1_4" started, PID 351
+[    3.910000] UBIFS: recovery needed
+[    4.215000] UBIFS: recovery completed
+[    4.219000] UBIFS: mounted UBI device 1, volume 4, name "storage"
+[    4.225000] UBIFS: LEB size: 129024 bytes (126 KiB), min./max. I/O unit sizes: 2048 bytes/2048 bytes
+[    4.234000] UBIFS: FS size: 7354368 bytes (7 MiB, 57 LEBs), journal size 1032193 bytes (0 MiB, 6 LEBs)
+[    4.243000] UBIFS: reserved for root: 347364 bytes (339 KiB)
+[    4.249000] UBIFS: media format: w4/r0 (latest is w4/r0), UUID DF5CCA92-C585-44F1-A2B2-FD9C32692B8F, small LPT model
+In manufacturing: FALSE
+In rma mode: FALSE
+[    8.710000] random: nonblocking pool is initialized
+[   14.437000] kexec: Starting new kernel
+[   14.441000] Will call new kernel at 00480210
+[   14.441000] Bye ...
+[    0.000000] Linux version 3.18.131-meraki-elemental (jenkins@dal248.meraki.com) (gcc version 5.4.0 (GCC) ) #2 Tue Aug 25 01:07:52 UTC 2020
+[    0.000000] bootconsole [early0] enabled
+[    0.000000] CPU0 revision is: 01019654 (MIPS 24KEc)
+[    0.000000] Determined physical RAM map:
+[    0.000000]  memory: 00472000 @ 00100000 (usable)
+[    0.000000]  memory: 00e0e000 @ 00572000 (usable after init)
+[    0.000000] User-defined physical RAM map:
+[    0.000000]  memory: 07ff0000 @ 00000000 (usable)
+[    0.000000] Initrd not found or empty - disabling initrd
+[    0.000000] Zone ranges:
+[    0.000000]   Normal   [mem 0x00000000-0x07feffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x00000000-0x07feffff]
+[    0.000000] Initmem setup node 0 [mem 0x00000000-0x07feffff]
+[    0.000000] Reserving 0MB of memory at 0MB for crashkernel
+[    0.000000] Primary instruction cache 32kB, VIPT, 4-way, linesize 32 bytes.
+[    0.000000] Primary data cache 32kB, 4-way, VIPT, cache aliases, linesize 32 bytes
+[    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 32496
+[    0.000000] Kernel command line:  console=ttyS0,115200 mtdparts=m25p80:0x40000(loader1),0x3c0000(boot1),0x40000(loader2),0x3c0000(boot2),0x80000(rsvd),0x600000(bootubi),0x40000(conf),0x100000(stackconf),0x40000(syslog) ubi.mtd=bootubi ubi.mtd=gen_nand.0 mem=0x7FF0000 ramoops.mem_address=0x7FF0000 ramoops.mem_size=0x10000 ramoops.block_size=0x10000
+[    0.000000] PID hash table entries: 512 (order: -1, 2048 bytes)
+[    0.000000] Dentry cache hash table entries: 16384 (order: 4, 65536 bytes)
+[    0.000000] Inode-cache hash table entries: 8192 (order: 3, 32768 bytes)
+[    0.000000] Writing ErrCtl register=80042000
+[    0.000000] Readback ErrCtl register=80042000
+[    0.000000] Cache parity protection enabled
+[    0.000000] Memory: 109752K/131008K available (3616K kernel code, 189K rwdata, 736K rodata, 14392K init, 119K bss, 21256K reserved, 0K cma-reserved)
+[    0.000000] SLUB: HWalign=32, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] NR_IRQS:66
+[    0.000000] sched_clock: 32 bits at 1kHz, resolution 1000000ns, wraps every 2147483648000000ns
+[    0.002000] VCore-III slave device ID 7460 found
+[    0.003000] Calibrating delay loop... 275.45 BogoMIPS (lpj=137728)
+[    0.014000] pid_max: default: 32768 minimum: 301
+[    0.015000] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.016000] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.019000] ftrace: allocating 12065 entries in 24 pages
+[    0.047000] Performance counters: mips/24K PMU enabled, 2 32-bit counters available to each CPU, irq -1 (share with timer interrupt)
+[    0.055000] devtmpfs: initialized
+[    0.063000] NET: Registered protocol family 16
+[    0.065000] ramoops: using module parameters
+[    0.066000] pstore: Registered ramoops as persistent store backend
+[    0.067000] ramoops: attached 0x10000@0x7ff0000, ecc: 0/0
+[    0.105000] Switched to clocksource MIPS
+[    0.141000] NET: Registered protocol family 2
+[    0.149000] TCP established hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.156000] TCP bind hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.162000] TCP: Hash tables configured (established 1024 bind 1024)
+[    0.169000] TCP: reno registered
+[    0.172000] UDP hash table entries: 256 (order: 0, 4096 bytes)
+[    0.178000] UDP-Lite hash table entries: 256 (order: 0, 4096 bytes)
+[    0.185000] NET: Registered protocol family 1
+[    6.003000] VCORE-III Watchdog Timer enabled (30 seconds).  Prev boot was not caused by WDT reset.
+[    6.026000] futex hash table entries: 256 (order: -1, 3072 bytes)
+[    6.062000] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    6.068000] msgmni has been set to 214
+[    6.481000] io scheduler noop registered
+[    6.485000] io scheduler deadline registered (default)
+[    6.569000] Serial: 8250/16550 driver, 1 ports, IRQ sharing disabled
+[    6.590000] console [ttyS0] disabled
+[    6.594000] serial8250.0: ttyS0 at MMIO 0x70100000 (irq = 14, base_baud = 13020833) is a 16550A
+[    6.603000] console [ttyS0] enabled
+[    6.603000] console [ttyS0] enabled
+[    6.610000] bootconsole [early0] disabled
+[    6.610000] bootconsole [early0] disabled
+[    6.669000] nand: device found, Manufacturer ID: 0x2c, Chip ID: 0xf1
+[    6.676000] nand: Micron MT29F1G08ABADAWP
+[    6.680000] nand: 128MiB, SLC, page size: 2048, OOB size: 64
+[    6.692000] Scanning device for bad blocks
+[    7.952000] m25p80 spi0.1: found mx25l12805d, expected m25p80
+[    7.958000] m25p80 spi0.1: mx25l12805d (16384 Kbytes)
+[    7.963000] 9 cmdlinepart partitions found on MTD device m25p80
+[    7.969000] Creating 9 MTD partitions on "m25p80":
+[    7.974000] 0x000000000000-0x000000040000 : "loader1"
+[    8.145000] 0x000000040000-0x000000400000 : "boot1"
+[    8.159000] 0x000000400000-0x000000440000 : "loader2"
+[    8.205000] 0x000000440000-0x000000800000 : "boot2"
+[    8.223000] 0x000000800000-0x000000880000 : "rsvd"
+[    8.292000] 0x000000880000-0x000000e80000 : "bootubi"
+[    8.313000] 0x000000e80000-0x000000ec0000 : "conf"
+[    8.416000] random: nonblocking pool is initialized
+[    8.436000] 0x000000ec0000-0x000000fc0000 : "stackconf"
+[    8.460000] 0x000000fc0000-0x000001000000 : "syslog"
+[    8.602000] tun: Universal TUN/TAP device driver, 1.6
+[    8.607000] tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+[    8.637000] i2c /dev entries driver
+[    8.644000] TCP: cubic registered
+[    8.648000] Initializing XFRM netlink socket
+[    8.655000] NET: Registered protocol family 10
+[    9.199000] NET: Registered protocol family 17
+[    9.204000] NET: Registered protocol family 15
+[    9.208000] 8021q: 802.1Q VLAN Support v1.8
+[    9.329000] i2c-gpio i2c-gpio.1: using pins 15 (SDA) and 14 (SCL)
+[    9.336000] at24 1-0051: 1024 byte 24c08 EEPROM, writable, 8 bytes/write
+[    9.481000] meraki-config meraki-config: Meraki config device loaded
+[   10.827000] i2c-gpio i2c-gpio.2: using pins 708 (SDA) and 709 (SCL)
+[   10.933000] i2c-gpio i2c-gpio.3: using pins 714 (SDA) and 715 (SCL)
+[   11.039000] i2c-gpio i2c-gpio.4: using pins 720 (SDA) and 721 (SCL)
+[   11.145000] i2c-gpio i2c-gpio.5: using pins 726 (SDA) and 727 (SCL)
+[   11.162000] tmp401 6-004c: Detected TI TMP411 chip
+[   11.180000] i2c-gpio i2c-gpio.6: using pins 47 (SDA) and 46 (SCL)
+[   11.251000] i2c-gpio i2c-gpio.7: using pins 51 (SDA) and 50 (SCL)
+[   11.360000] i2c-gpio i2c-gpio.8: using pins 53 (SDA) and 52 (SCL)
+[   11.369000] at24 2-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[   11.376000] at24 3-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[   11.383000] at24 4-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[   11.391000] at24 5-0050: 256 byte 24c02 EEPROM, read-only, 0 bytes/write
+[   11.404000] pca953x 6-0022: interrupt support not compiled in
+[   11.478000] UBI: attaching mtd6 to ubi0
+[   13.211000] UBI: scanning is finished
+[   13.259000] UBI: attached mtd6 (name "bootubi", size 6 MiB) to ubi0
+[   13.266000] UBI: PEB size: 4096 bytes (4 KiB), LEB size: 3968 bytes
+[   13.272000] UBI: min./max. I/O unit sizes: 1/256, sub-page size 1
+[   13.278000] UBI: VID header offset: 64 (aligned 64), data offset: 128
+[   13.285000] UBI: good PEBs: 1536, bad PEBs: 0, corrupted PEBs: 0
+[   13.291000] UBI: user volume: 0, internal volumes: 1, max. volumes count: 23
+[   13.298000] UBI: max/mean erase counter: 2/1, WL threshold: 4096, image sequence number: 2672668579
+[   13.307000] UBI: available PEBs: 1532, total reserved PEBs: 4, PEBs reserved for bad PEB handling: 0
+[   13.317000] UBI: background thread "ubi_bgt0d" started, PID 393
+[   13.379000] UBI: attaching mtd0 to ubi1
+[   14.214000] UBI: scanning is finished
+[   14.268000] UBI: attached mtd0 (name "gen_nand.0", size 128 MiB) to ubi1
+[   14.275000] UBI: PEB size: 131072 bytes (128 KiB), LEB size: 129024 bytes
+[   14.282000] UBI: min./max. I/O unit sizes: 2048/2048, sub-page size 512
+[   14.289000] UBI: VID header offset: 512 (aligned 512), data offset: 2048
+[   14.296000] UBI: good PEBs: 1024, bad PEBs: 0, corrupted PEBs: 0
+[   14.302000] UBI: user volume: 12, internal volumes: 1, max. volumes count: 128
+[   14.309000] UBI: max/mean erase counter: 3313/2256, WL threshold: 4096, image sequence number: 2124770675
+[   14.319000] UBI: available PEBs: 462, total reserved PEBs: 562, PEBs reserved for bad PEB handling: 20
+[   14.330000] UBI: background thread "ubi_bgt1d" started, PID 400
+[   16.919000] devtmpfs: mounted
+[   17.269000] Freeing unused kernel memory: 14392K
+[   18.210000] Made it into bootsh: Aug 25 2020 00:56:53
+[   18.216000] bootsh build switch-12-202008242327-G4db7ce45-rel-zoology
+[   18.486000] UBIFS: background thread "ubifs_bgt1_4" started, PID 608
+[   18.569000] UBIFS: recovery needed
+[   18.872000] UBIFS: recovery completed
+[   18.877000] UBIFS: mounted UBI device 1, volume 4, name "storage"
+[   18.883000] UBIFS: LEB size: 129024 bytes (126 KiB), min./max. I/O unit sizes: 2048 bytes/2048 bytes
+[   18.892000] UBIFS: FS size: 7354368 bytes (7 MiB, 57 LEBs), journal size 1032193 bytes (0 MiB, 6 LEBs)
+[   18.901000] UBIFS: reserved for root: 347364 bytes (339 KiB)
+[   18.907000] UBIFS: media format: w4/r0 (latest is w4/r0), UUID DF5CCA92-C585-44F1-A2B2-FD9C32692B8F, small LPT model
+In manufacturing: FALSE
+In rma mode: FALSE
+init started: BusyBox v1.29.0 (2020-08-25 00:25:02 UTC)
+WARNING! THIS CONSOLE IS LOGGED! UNAUTHORIZED ACCESS FORBIDDEN!
+<Meraki> [   20.127000] Quick boot reason lookup: reset_button
+[   20.133000] Rebooting due to safe reason, skip unsafe config check
+[   20.250000] sysctl: error: 'kernel.softlockup_panic' is an unknown key
+[   20.258000] sysctl: error: 'kernel.watchdog_thresh' is an unknown key
+[   20.501000] net.ipv6.conf.all.accept_ra = 0
+[   20.527000] ICMPv6: process `sysctl' is using deprecated sysctl (syscall) net.ipv6.neigh.default.base_reachable_time - use net.ipv6.neigh.default.base_reachable_time_ms instead
+[   20.571000] nr_pdflush_threads exported in /proc is scheduled for removal
+[   20.603000] net.ipv6.conf.default.accept_ra = 0
+[   20.626000] net.ipv6.conf.lo.accept_ra = 0
+[   20.880000] sh: write error: Resource busy
+[   21.049000] vtss_core: module license '(c) Vitesse Semiconductor Inc.' taints kernel.
+[   21.057000] Disabling lock debugging due to kernel taint
+[   21.446000] switch: 'Meraki MS320-48' board detected
+[   21.969000] grep: /storage/config: No such file or directory
+[   22.722000] [1970-01-01 00:00:22.721] sysctl -w vm.panic_on_oom=2
+[   22.747000] vm.panic_on_oom = 2
+[   23.405000] click: starting router thread pid 789 (80b9f900)
+[   24.562000] Single synchronous check for reset
+[   24.911000] 
+[   24.950000] boot 40 build switch-12-202008242327-G4db7ce45-rel-zoology board elemental mac 00:18:0A:CC:52:D0
+[   24.988000] Module: vtss_core  .text=0xc2563000 .data=0xc2693d70 .bss=0xc26ae3a0
+[   24.988000] Module: proclikefs  .text=0xc10eb000 .data= .bss=0xc10ec040
+[   24.988000] Module: merakiclick  .text=0xc2e7a000 .data=0xc2fe31f0 .bss=0xc2fe3480
+[   24.988000] Module: elts_meraki  .text=0xc3734000 .data=0xc3af5e70 .bss=0xc3af7be0
+[   24.988000] Module: vc_click  .text=0xc3cc7000 .data=0xc3d0ad40 .bss=0xc3d0aed0
+[   25.309000] RUNIT: not installed
+[   25.354000] No hardware support for TAM on this device
+[   45.381000] chatter: from_sw0 :: FromVitesse: initializing fdma
+[   47.202000] chatter: dhcp_tracker :: DHCPTracker: skipping undersized restore buffer (buf size: 0)
+[   51.999000] chatter: big_acl :: BigACL: skipping undersized restore buffer (buf size: 0)
+[   62.910000] !!!!! {/usr/bin/config_updater} failsafe_mode "value='0' state='0' bootloop='0' ver='1' " ""
+[   69.850000] !!!!! {connection_monitor} reading /tmp/gateway_configuration_json failed, error 2 (No such file or directory)
