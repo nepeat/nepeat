@@ -1,0 +1,3 @@
+# Chip dumps + rebuilt recovery images: large, and contain machine-unique
+# identity (serial/UUID). Kept on disk, out of git. SHAs live in ../PROGRESS.md.
+*.bin
