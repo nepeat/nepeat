@@ -35,6 +35,11 @@
             flashrom
             # I2C 24Cxx EEPROM reader for the CH341A (flashrom is SPI-only)
             ch341eeprom
+            # XGecu/TL866-family universal programmer driver (flashrom does NOT
+            # support these smart programmers). Drives the XGecu Pro (T48/T56)
+            # and TL866II+ over their proprietary USB proto; VCC/VPP follow the
+            # `-p <chip>` profile, not a manual voltage knob.
+            minipro
 
             # git-lfs — firmware dumps (ai_re/**/*.bin) are stored via LFS.
             # NOTE: LFS filters run on `git` at the repo root (outside this
