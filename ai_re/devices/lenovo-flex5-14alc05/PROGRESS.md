@@ -3,7 +3,8 @@
 Recovering a laptop bricked by a bad in-Windows BIOS update. Goal: reflash the
 SPI BIOS chip with a good image via external programmer.
 
-**STATUS: chip reflashed & verified OK (2026-07-20). Awaiting power-on test.**
+**STATUS: ✅ RECOVERED (2026-07-20). Reflashed, verified OK, and the laptop
+POSTs/boots. Serial + activation preserved. Case closed.**
 
 ## Latest status (2026-07-20)
 
