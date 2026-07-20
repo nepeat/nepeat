@@ -1,0 +1,6 @@
+# Lenovo firmware blobs — large & re-downloadable (provenance/SHA in ../PROGRESS.md)
+*.exe
+*.cap
+*.bin
+extracted/
+inno/
