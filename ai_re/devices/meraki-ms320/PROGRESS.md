@@ -6,6 +6,16 @@ Entry point for this project. When this file gets large, break detail into sibli
 (`uart.md`, `bootloader.md`, `flash-dump.md`, `firmware-build.md`) and keep this as index + latest status.
 
 ## Latest status
+- **2026-07-20 (in-circuit SPI attempt — FAILED, U10 desolder required)**: Tried
+  to dump U10 (MX25L12845E, SO16) in-circuit with the **TL866II+ + SOP-16 clip**
+  (`minipro -p MX25L12845E@SOP16`). `-z` pin test **passed** every time, but
+  `-D` returned **`0xFFFFFF`** (bus held/rail sag) across multiple reseats, and a
+  later attempt tripped **`Overcurrent protection!`** — the TL866II+ can't
+  energize this 48-port switch's 3.3V rail through one clip pin, and with power
+  applied the VCore-III SoC contends the shared SPI bus. Both failure modes hit
+  = in-circuit is not viable here (matches the caution in `hardware-flash.md`).
+  **Next: desolder U10** (hot air), read in a SOP16→DIP16 adapter in the ZIF.
+  JEDEC target `0xC22018`.
 - **2026-07-18**: UART serial contact made (`/dev/cu.usbserial-0001 @115200`, tmux session `serial`, logging to
   `serial-*.log`). Unit is already booted and sitting at the `<Meraki>` prompt. It is a **locked-down CLI**, not a
   shell: any unknown command returns `UNRECOGNIZED COMMAND LOGGED TO CLOUD SERVERS.` and `?`/`help` give nothing.
