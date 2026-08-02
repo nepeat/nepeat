@@ -304,6 +304,11 @@ python.pkgs.buildPythonApplication {
   nativeBuildInputs = [ cmake ];
   dontUseCmakeConfigure = true;
 
+  # The bundled leveldb/spdlog trees compile with their own warning flags that
+  # drop -Wformat, which turns nixpkgs' injected -Werror=format-security into a
+  # hard error on every translation unit.
+  hardeningDisable = [ "format" ];
+
   # cmake comes from nativeBuildInputs rather than pip, and maturin is only
   # needed for the ragfs-python build we skip (see OV_SKIP_RAGFS_BUILD).
   postPatch = ''
