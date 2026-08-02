@@ -1,4 +1,4 @@
-{ pkgs, lib, isStandalone, ... }:
+{ pkgs, lib, inputs, isStandalone, ... }:
 let
   setupOpenvikingConfig = pkgs.writeShellApplication {
     name = "setup-openviking-config";
@@ -12,7 +12,11 @@ let
   };
 
   openvikingHomeConfig = {
-    home.packages = [ setupOpenvikingConfig ];
+    # Provides `ov`, `openviking` and `openviking-server`.
+    home.packages = [
+      setupOpenvikingConfig
+      inputs.self.packages.${pkgs.system}.openviking
+    ];
   };
 in
 if isStandalone then {

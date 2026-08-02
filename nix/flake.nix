@@ -29,6 +29,14 @@
     claude-code.url = "github:sadjow/claude-code-nix";
     opencode.url = "github:anomalyco/opencode";
 
+    # Built from source; bump with `nix flake update openviking-src`.  Doing so
+    # usually also requires refreshing cargoHash / npmDepsHash in
+    # package/openviking.nix — nix will print the correct values.
+    openviking-src = {
+      url = "github:volcengine/OpenViking";
+      flake = false;
+    };
+
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -141,7 +149,20 @@
 
     # Overlays --------------------------------------------------------------- {{{
 
+    packages = inputs.nixpkgs.lib.genAttrs
+      [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ]
+      (system: {
+        openviking = (import nixpkgs { inherit system; config.allowUnfree = true; })
+          .callPackage ./package/openviking.nix { src = inputs.openviking-src; };
+      });
+
     overlays = {
+        openviking = final: prev: {
+          openviking = final.callPackage ./package/openviking.nix {
+            src = inputs.openviking-src;
+          };
+        };
+
         # Overlay useful on Macs with Apple Silicon
         apple-silicon = final: prev: optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-darwin") {
           # Add access to x86 packages system is running Apple Silicon

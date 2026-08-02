@@ -24,8 +24,59 @@ update machine_name="":
     nix flake update -vvv
     nix-channel --update
 
+    # `nix flake update` moves openviking-src, which invalidates the vendored
+    # cargo/npm hashes pinned in package/openviking.nix.
+    just refresh-openviking-hashes
+
     # Build and switch the system
     just switch "$MACHINE"
+
+# Bump OpenViking to the latest upstream master and refresh its hashes
+update-openviking:
+    #!/bin/zsh
+    set -e
+    nix flake update openviking-src
+    just refresh-openviking-hashes
+
+# Recompute the vendored cargo/npm hashes in package/openviking.nix.
+# Each is deliberately invalidated, then read back from the build failure.
+refresh-openviking-hashes:
+    #!/bin/zsh
+    set -e
+
+    PKG="package/openviking.nix"
+    FAKE="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+
+    # A hash only lands in the flake's view of the tree once git knows about
+    # the file, so an untracked package file would silently use a stale copy.
+    git add -N "$PKG" 2>/dev/null || true
+
+    refresh() {
+        local name="$1" attr="$2" got
+
+        # Skip the rebuild when the pin is already correct.
+        if nix build ".#openviking.$attr" --no-link 2>/dev/null; then
+            echo "$name: already up to date"
+            return
+        fi
+
+        sed -i '' "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$FAKE\";|" "$PKG"
+        got=$(nix build ".#openviking.$attr" --no-link 2>&1 \
+                | awk '/got:/ { print $2; exit }')
+
+        if [ -z "$got" ]; then
+            echo "error: could not determine $name; build failed for another reason" >&2
+            nix build ".#openviking.$attr" --no-link 2>&1 | tail -30 >&2
+            exit 1
+        fi
+
+        sed -i '' "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$got\";|" "$PKG"
+        echo "$name: $got"
+    }
+
+    # cargoHash first — ovCli cannot build until the vendor tree resolves.
+    refresh cargoHash ovCli
+    refresh npmDepsHash webStudio
 
 # Build and switch the system without updating the flake
 switch machine_name="":
