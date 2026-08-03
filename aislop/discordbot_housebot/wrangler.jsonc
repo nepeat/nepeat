@@ -22,8 +22,7 @@
     {
       "binding": "DB",
       "database_name": "housebot",
-      // Replace with the id printed by `wrangler d1 create housebot`.
-      "database_id": "PLACEHOLDER_RUN_WRANGLER_D1_CREATE",
+      "database_id": "7d1aa078-b83c-448e-8aed-f62f175de3c8",
       "migrations_dir": "migrations"
     }
   ],
