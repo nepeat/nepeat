@@ -90,16 +90,19 @@ trigger:
   - platform: state
     entity_id: !input vibration_sensor
     to: "on"
+    id: vibration
   # confirm window elapsed with no vibration -> was just a bump, reset watch
   - platform: event
     event_type: timer.finished
     event_data:
       entity_id: !input watch_timer
+    id: watch_done
   # quiet window elapsed -> DONE
   - platform: event
     event_type: timer.finished
     event_data:
       entity_id: !input quiet_timer
+    id: quiet_done
 
 condition: []
 
@@ -155,10 +158,8 @@ action:
 
       # ---- watch timer finished: it was a one-off bump, stay disarmed ----
       - conditions:
-          - condition: event
-            event_type: timer.finished
-            event_data:
-              entity_id: !input watch_timer
+          - condition: trigger
+            id: watch_done
         sequence:
           - service: timer.cancel
             target:
@@ -166,10 +167,8 @@ action:
 
       # ---- quiet timer finished while running -> DONE, announce ----
       - conditions:
-          - condition: event
-            event_type: timer.finished
-            event_data:
-              entity_id: !input quiet_timer
+          - condition: trigger
+            id: quiet_done
           - condition: state
             entity_id: !input running_helper
             state: "on"
