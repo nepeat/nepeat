@@ -83,9 +83,10 @@ export class DiscordRest {
     return this.request<{ id: string }>('PATCH', `/channels/${threadId}`, { archived });
   }
 
-  postMessage(channelId: string, content: string) {
+  postMessage(channelId: string, content: string, embeds?: unknown[]) {
     return this.request<{ id: string }>('POST', `/channels/${channelId}/messages`, {
-      content,
+      ...(content ? { content } : {}),
+      ...(embeds?.length ? { embeds } : {}),
       allowed_mentions: { parse: [] },
     });
   }

@@ -1,5 +1,10 @@
 import { boundFetch } from '../http';
-import { COMMUTE_DESTINATIONS, type CommuteEstimate } from './index';
+import {
+  COMMUTE_DESTINATIONS,
+  type CommuteEstimate,
+  type TransitItinerary,
+} from './index';
+import { hopsFromSteps, type RawTransitStep } from './transit';
 
 /**
  * Drive times via the Google Routes API.
@@ -21,8 +26,13 @@ export interface CommuteConfig {
   timeoutMs?: number;
 }
 
+export interface CommuteValue {
+  drive: CommuteEstimate[];
+  transit: TransitItinerary[];
+}
+
 export type CommuteResult =
-  | { status: 'ok'; provenance: string; value: CommuteEstimate[] }
+  | { status: 'ok'; provenance: string; value: CommuteValue }
   | { status: 'unavailable'; provenance: string };
 
 /**
@@ -86,62 +96,67 @@ export async function estimateCommutes(
   const departure = cfg.departureIso?.trim() || nextTuesday8am(now);
   const doFetch = boundFetch(cfg.fetchImpl);
   const url = cfg.apiUrl ?? ROUTES_URL;
-  const estimates: CommuteEstimate[] = [];
+  const drive: CommuteEstimate[] = [];
+  const transit: TransitItinerary[] = [];
   const failures: string[] = [];
 
   for (const dest of COMMUTE_DESTINATIONS) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), cfg.timeoutMs ?? 8000);
-    try {
-      const res = await doFetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': cfg.apiKey,
-          'X-Goog-FieldMask': 'routes.duration,routes.staticDuration,routes.distanceMeters',
-        },
-        body: JSON.stringify({
-          origin: { location: { latLng: { latitude: lat, longitude: lon } } },
-          destination: { address: dest.address },
-          travelMode: 'DRIVE',
-          routingPreference: 'TRAFFIC_AWARE_OPTIMAL',
-          departureTime: departure,
-        }),
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        const body = await res.text().catch(() => '');
-        failures.push(`${dest.label}: HTTP ${res.status} ${redact(body).slice(0, 120)}`);
-        continue;
-      }
-      const json = (await res.json()) as {
-        routes?: Array<{ duration?: string; staticDuration?: string; distanceMeters?: number }>;
-      };
-      const route = json.routes?.[0];
-      const seconds = parseDuration(route?.duration);
+    // DRIVE: traffic-aware at the pinned departure time.
+    const driveRoute = await callRoutes(doFetch, url, cfg, {
+      lat,
+      lon,
+      destination: dest.address,
+      departure,
+      mode: 'DRIVE',
+    });
+    if (driveRoute.ok) {
+      const seconds = parseDuration(driveRoute.route?.duration);
       if (seconds === undefined) {
-        failures.push(`${dest.label}: no route returned`);
-        continue;
+        failures.push(`${dest.label} drive: no route returned`);
+      } else {
+        drive.push({
+          label: dest.label,
+          destination: dest.address,
+          driveSeconds: seconds,
+          provider: 'google-routes',
+          freeFlowSeconds: parseDuration(driveRoute.route?.staticDuration),
+          distanceMeters: driveRoute.route?.distanceMeters,
+        });
       }
-      estimates.push({
-        label: dest.label,
-        destination: dest.address,
-        driveSeconds: seconds,
-        provider: 'google-routes',
-        freeFlowSeconds: parseDuration(route?.staticDuration),
-        distanceMeters: route?.distanceMeters,
-      });
-    } catch (err) {
-      failures.push(
-        `${dest.label}: ${controller.signal.aborted ? 'timeout' : redact(errText(err))}`,
-      );
-    } finally {
-      clearTimeout(timer);
+    } else {
+      failures.push(`${dest.label} drive: ${driveRoute.detail}`);
+    }
+
+    // TRANSIT: note that top-level routingPreference is DRIVE-only and errors
+    // here, so it is deliberately omitted.
+    const transitRoute = await callRoutes(doFetch, url, cfg, {
+      lat,
+      lon,
+      destination: dest.address,
+      departure,
+      mode: 'TRANSIT',
+    });
+    if (transitRoute.ok) {
+      const seconds = parseDuration(transitRoute.route?.duration);
+      const steps = transitRoute.route?.legs?.flatMap((l) => l.steps ?? []) ?? [];
+      const { hops, walkSeconds } = hopsFromSteps(steps, parseDuration);
+      if (seconds === undefined || hops.length === 0) {
+        failures.push(`${dest.label} transit: no usable itinerary`);
+      } else {
+        transit.push({
+          label: dest.label,
+          destination: dest.address,
+          totalSeconds: seconds,
+          hops,
+          walkSeconds,
+        });
+      }
+    } else {
+      failures.push(`${dest.label} transit: ${transitRoute.detail}`);
     }
   }
 
-  if (estimates.length === 0) {
+  if (drive.length === 0 && transit.length === 0) {
     return {
       status: 'unavailable',
       provenance: `google routes returned nothing — ${failures.join('; ') || 'unknown'}`,
@@ -150,9 +165,74 @@ export async function estimateCommutes(
   const partial = failures.length ? ` (partial: ${failures.join('; ')})` : '';
   return {
     status: 'ok',
-    provenance: `google routes, TRAFFIC_AWARE_OPTIMAL, departing ${departure}${partial}`,
-    value: estimates,
+    provenance: `google routes (drive TRAFFIC_AWARE_OPTIMAL + transit), departing ${departure}${partial}`,
+    value: { drive, transit },
   };
+}
+
+interface RawRoute {
+  duration?: string;
+  staticDuration?: string;
+  distanceMeters?: number;
+  legs?: Array<{ steps?: RawTransitStep[] }>;
+}
+
+type RoutesCall =
+  | { ok: true; route: RawRoute | undefined }
+  | { ok: false; detail: string };
+
+const DRIVE_MASK = 'routes.duration,routes.staticDuration,routes.distanceMeters';
+const TRANSIT_MASK =
+  'routes.duration,routes.legs.steps.transitDetails,routes.legs.steps.travelMode,routes.legs.steps.staticDuration';
+
+async function callRoutes(
+  doFetch: typeof fetch,
+  url: string,
+  cfg: CommuteConfig,
+  req: {
+    lat: number;
+    lon: number;
+    destination: string;
+    departure: string;
+    mode: 'DRIVE' | 'TRANSIT';
+  },
+): Promise<RoutesCall> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), cfg.timeoutMs ?? 8000);
+  try {
+    const body: Record<string, unknown> = {
+      origin: { location: { latLng: { latitude: req.lat, longitude: req.lon } } },
+      destination: { address: req.destination },
+      travelMode: req.mode,
+      departureTime: req.departure,
+    };
+    if (req.mode === 'DRIVE') body['routingPreference'] = 'TRAFFIC_AWARE_OPTIMAL';
+
+    const res = await doFetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': cfg.apiKey as string,
+        'X-Goog-FieldMask': req.mode === 'DRIVE' ? DRIVE_MASK : TRANSIT_MASK,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      return { ok: false, detail: `HTTP ${res.status} ${redact(text).slice(0, 120)}` };
+    }
+    const json = (await res.json()) as { routes?: RawRoute[] };
+    return { ok: true, route: json.routes?.[0] };
+  } catch (err) {
+    return {
+      ok: false,
+      detail: controller.signal.aborted ? 'timeout' : redact(errText(err)),
+    };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /** Routes API returns durations as protobuf strings: "1115s". */

@@ -10,6 +10,44 @@ import { asD1, FakeD1 } from './helpers/d1';
 import { fakeRest, htmlResponse, type RecordedCall } from './helpers/discord';
 
 const HOUSE_CHANNEL = '1533771541106655423';
+
+// Shaped like a real Routes TRANSIT response: walk, bus, light rail, bus, walk.
+const TRANSIT_RESPONSE = {
+  routes: [
+    {
+      duration: '3900s',
+      legs: [
+        {
+          steps: [
+            { travelMode: 'WALK', staticDuration: '360s' },
+            {
+              travelMode: 'TRANSIT',
+              transitDetails: {
+                stopCount: 12,
+                transitLine: { nameShort: '535', name: 'Lynnwood - Bellevue', vehicle: { type: 'BUS' } },
+              },
+            },
+            {
+              travelMode: 'TRANSIT',
+              transitDetails: {
+                stopCount: 6,
+                transitLine: { nameShort: '1 Line', name: 'Link 1 Line', vehicle: { type: 'LIGHT_RAIL' } },
+              },
+            },
+            {
+              travelMode: 'TRANSIT',
+              transitDetails: {
+                stopCount: 4,
+                transitLine: { nameShort: '8', name: 'Metro 8', vehicle: { type: 'BUS' } },
+              },
+            },
+            { travelMode: 'WALK', staticDuration: '240s' },
+          ],
+        },
+      ],
+    },
+  ],
+};
 const ZILLOW_LINK =
   'https://www.zillow.com/homedetails/400-Cedar-Ave-S-Renton-WA-98057/49059541_zpid/';
 
@@ -57,16 +95,19 @@ function harness(): Harness {
       apiKey: 'test-key',
       departureIso: '2026-08-11T08:00:00-07:00',
       apiUrl: 'https://routes.test/compute',
-      fetchImpl: (async () => {
+      fetchImpl: (async (_u: unknown, init: RequestInit | undefined) => {
         routesCalls += 1;
-        return routesUp
-          ? new Response(
-              JSON.stringify({
-                routes: [{ duration: '1115s', staticDuration: '1189s', distanceMeters: 18083 }],
-              }),
-              { status: 200 },
-            )
-          : new Response('boom', { status: 500 });
+        if (!routesUp) return new Response('boom', { status: 500 });
+        const body = JSON.parse(String(init?.body)) as { travelMode: string };
+        if (body.travelMode === 'TRANSIT') {
+          return new Response(JSON.stringify(TRANSIT_RESPONSE), { status: 200 });
+        }
+        return new Response(
+          JSON.stringify({
+            routes: [{ duration: '1115s', staticDuration: '1189s', distanceMeters: 18083 }],
+          }),
+          { status: 200 },
+        );
       }) as unknown as typeof fetch,
     },
     fetchImpl: listingFetch,
@@ -146,6 +187,22 @@ function followUps(calls: RecordedCall[]): string[] {
   return calls
     .filter((c) => c.method === 'PATCH' && c.path.includes('/messages/@original'))
     .map((c) => String((c.body as { content?: string }).content));
+}
+
+interface EmbedShape {
+  title?: string;
+  fields: Array<{ name: string; value: string }>;
+  footer?: { text: string };
+  color?: number;
+}
+
+function lastEmbed(calls: RecordedCall[]): EmbedShape | null {
+  const withEmbeds = calls.filter(
+    (c) => c.method === 'POST' && (c.body as { embeds?: unknown[] })?.embeds?.length,
+  );
+  const last = withEmbeds.at(-1);
+  if (!last) return null;
+  return ((last.body as { embeds: EmbedShape[] }).embeds[0] ?? null) as EmbedShape;
 }
 
 function threadMessages(calls: RecordedCall[]): string[] {
@@ -359,15 +416,34 @@ describe('enrichment', () => {
     expect(row?.lon).toBeCloseTo(-122.20163);
   });
 
-  it('posts commute + heating into the thread on add', async () => {
+  it('posts an enrichment embed with driving, transit and heating', async () => {
     const h = liveHarness();
     await h.run(interaction('add', { link: LIVE_LINK }));
-    const posted = threadMessages(h.calls);
-    expect(posted).toHaveLength(2); // snapshot, then enrichment
-    expect(posted[1]).toContain('Bellevue office (nep): **19 min**');
-    expect(posted[1]).toContain('heat pump');
-    expect(posted[1]).toContain('unverified');
-    expect(h.routesCalls()).toBe(2);
+    const embed = lastEmbed(h.calls)!;
+    expect(embed.title).toContain('400 Cedar Avenue S');
+
+    const names = embed.fields.map((f) => f.name);
+    expect(names).toContain('🚗 Driving');
+    expect(names.some((n) => n.startsWith('🚆 Transit'))).toBe(true);
+    expect(names).toContain('🔥 Heating');
+
+    const byName = Object.fromEntries(embed.fields.map((f) => [f.name, f.value]));
+    expect(byName['🚗 Driving']).toContain('Bellevue office (nep): **19 min**');
+    expect(byName['🔥 Heating']).toContain('heat pump');
+    expect(byName['🔥 Heating']).toContain('unverified');
+    expect(embed.footer?.text).toContain('TRAFFIC_AWARE_OPTIMAL');
+    expect(h.routesCalls()).toBe(4);
+  });
+
+  it('renders the transit route as a vehicle chain', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const embed = lastEmbed(h.calls)!;
+    const transit = embed.fields.find((f) => f.name.startsWith('🚆 Transit'))!;
+    expect(transit.value).toContain('House → 535 🚌 → 1 Line 🚈 → 8 🚌 → Bellevue office (nep)');
+    expect(transit.value).toContain('**65 min**');
+    expect(transit.value).toContain('2 transfer(s)');
+    expect(transit.value).toContain('10 min walking');
   });
 
   it('persists enrichment rows with provenance', async () => {
@@ -408,8 +484,10 @@ describe('enrichment', () => {
     const after = await h.repo.listEnrichment(row!.id);
     const commute = after.find((e) => e.kind === 'commute');
     expect(commute?.status).toBe('ok');
-    expect(JSON.parse(commute!.value_json!)).toHaveLength(2);
-    expect(threadMessages(h.calls).at(-1)).toContain('Bellevue office (nep)');
+    expect(JSON.parse(commute!.value_json!).drive).toHaveLength(2);
+    expect(lastEmbed(h.calls)!.fields.some((f) => f.value.includes('Bellevue office (nep)'))).toBe(
+      true,
+    );
     expect(followUps(h.calls).at(-1)).toContain('filled in');
   });
 
@@ -428,7 +506,7 @@ describe('enrichment', () => {
 
     const updated = await h.repo.getByThreadId(row!.thread_id);
     expect(updated?.lat).toBeCloseTo(47.4779);
-    expect(h.routesCalls()).toBe(2);
+    expect(h.routesCalls()).toBe(4);
     const commute = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute');
     expect(commute?.status).toBe('ok');
   });
@@ -449,7 +527,7 @@ describe('enrichment', () => {
 
     const hvac = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'hvac');
     expect(JSON.parse(hvac!.value_json!).disliked).toEqual(['oil']);
-    expect(threadMessages(h.calls).at(-1)).toContain('⚠️');
+    expect(JSON.stringify(lastEmbed(h.calls))).toContain('⚠️');
     // Reclassifying is free; it must not trigger another pair of Google calls.
     expect(h.routesCalls()).toBe(routesBefore);
   });
@@ -466,7 +544,7 @@ describe('enrichment', () => {
         reenrich: true,
       }),
     );
-    expect(h.routesCalls()).toBe(before + 2);
+    expect(h.routesCalls()).toBe(before + 4);
     expect(followUps(h.calls).at(-1)).toContain('filled in');
   });
 
@@ -498,8 +576,10 @@ describe('enrichment', () => {
     const commute = rows.find((r) => r.kind === 'commute');
     expect(commute?.status).toBe('unavailable');
     expect(commute?.value_json).toBeNull();
-    // Heating still posted; only the commute line is missing.
-    expect(threadMessages(h.calls).at(-1)).toContain('heat pump');
+    // Heating still posted; only the commute fields are missing.
+    const embed = lastEmbed(h.calls)!;
+    expect(embed.fields.map((f) => f.name)).toEqual(['🔥 Heating']);
+    expect(embed.fields[0]!.value).toContain('heat pump');
   });
 
   it('records commute as unavailable when the page has no coordinates', async () => {
@@ -650,13 +730,14 @@ describe('/house status', () => {
     );
     const body = (await res.json()) as {
       type: number;
-      data: { content: string; flags?: number };
+      data: { flags?: number; embeds?: EmbedShape[] };
     };
     expect(body.type).toBe(4);
     // Public on purpose: everyone in the thread should see the summary.
     expect(body.data.flags).toBeUndefined();
-    expect(body.data.content).toContain('**Listing key:** `zillow:49059541`');
-    expect(body.data.content).toContain('Last checked');
+    const embed = body.data.embeds![0]!;
+    expect(embed.footer?.text).toBe('zillow:49059541');
+    expect(embed.fields.map((f) => f.name)).toContain('History');
     expect(h.calls.length).toBe(callsBefore); // no REST, no listing fetch
   });
 });

@@ -144,6 +144,23 @@ street-centerline snapping problem. `lat`/`lon` live on `properties` (they are
 part of the observation) and are backfilled with `COALESCE` on later fetches, so
 a page that starts publishing geo upgrades an existing row.
 
+**Transit is one extra Routes call per destination, not a GTFS pipeline.** The
+roadmap proposed preloading GTFS stops into D1 for proximity; for *itineraries*
+that is the wrong tool — Routes already knows the schedule, the transfers and the
+walk legs. Two caveats the API forced: top-level `routingPreference` is
+DRIVE-only and errors on TRANSIT, and the transit field mask must name
+`routes.legs.steps.transitDetails` explicitly or the steps come back empty.
+
+Walking legs are collapsed into a single "N min walking" figure rather than
+appearing in the chain, because what a rider needs to remember is which vehicles
+in what order. `nameShort` is preferred over `name` (riders say "1 Line", not
+"Link 1 Line") with a fallback — verified live, where South Lake Union Streetcar
+ships only the long name.
+
+**Embeds over markdown.** Enrichment and `/house status` post embeds so commute,
+transit and heating are separately labeled fields rather than one wall of text,
+colored by listing status. Field values are truncated at Discord's 1024-char cap.
+
 **Split tsconfigs.** `@types/node` and `@cloudflare/workers-types` disagree about
 `fetch`/`CryptoKey`. `tsconfig.json` typechecks `src/` against workers-types only
 (what actually runs); `tsconfig.test.json` adds node types for tests and scripts.
@@ -185,17 +202,22 @@ a page that starts publishing geo upgrades an existing row.
 - **HVAC classification is still listing prose.** The King County Assessor
   `Heat Source` verification path is designed but not built, so a listing that
   says "forced air" about a heat pump will still say that.
-- **The commute number is one live-verified call, not a proven feature.** The
-  Google Routes key was validated end to end from the Worker (18,083 m / 1,115 s
-  to Bellevue), but the adapter itself has only run against mocks. The first real
-  `/house add` is the actual test.
+- **Commute (drive + transit) is live-verified from the Worker**, via a
+  temporary token-gated route that was removed afterwards: Bellevue 34 min drive
+  (20 free-flow) / 42 min transit via the 566; Seattle 46 min drive / 74 min
+  transit via 101 + South Lake Union Streetcar. It has not yet run through a real
+  `/house add`.
+- **Which SKU transit bills to is unconfirmed.** Google's docs name
+  `TRAFFIC_AWARE_OPTIMAL` as a Pro feature but say nothing about TRANSIT. At 4
+  calls per house it does not matter for cost, but the free-tier headroom
+  estimate assumes the worst case (Pro).
 
 ## Verification performed
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 141 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 72.50 KiB
+npm test            # vitest: 10 files, 148 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 80.14 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.

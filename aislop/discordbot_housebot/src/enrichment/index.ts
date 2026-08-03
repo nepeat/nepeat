@@ -59,6 +59,25 @@ export interface TransitStop {
   walkMeters?: number;
 }
 
+/** One boarded vehicle in a transit itinerary. Walking legs are dropped. */
+export interface TransitHop {
+  /** Public-facing line name: "535", "1 Line", "S Line". */
+  line: string;
+  /** Routes API vehicle enum, e.g. LIGHT_RAIL. */
+  vehicle: string;
+  emoji: string;
+  stopCount?: number;
+}
+
+export interface TransitItinerary {
+  label: string;
+  destination: string;
+  totalSeconds: number;
+  hops: TransitHop[];
+  /** Walking minutes across the whole itinerary. */
+  walkSeconds?: number;
+}
+
 export interface IspOffer {
   provider: string;
   technology: string;

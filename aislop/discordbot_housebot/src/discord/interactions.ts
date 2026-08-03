@@ -35,10 +35,14 @@ function deferEphemeral(): Response {
 }
 
 /** Visible to everyone in the channel. Used where the answer is for the room. */
-function replyPublic(content: string): Response {
+function replyPublic(content: string, embeds?: unknown[]): Response {
   return jsonResponse({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { content, allowed_mentions: { parse: [] } },
+    data: {
+      ...(content ? { content } : {}),
+      ...(embeds?.length ? { embeds } : {}),
+      allowed_mentions: { parse: [] },
+    },
   });
 }
 
@@ -180,7 +184,8 @@ export async function handleInteraction(
       // house summary is for the room, not just whoever asked.
       const row = threadId ? await deps.repo.getByThreadId(threadId) : null;
       if (!row) return replyEphemeral(propertyMissingText(null));
-      return replyPublic(deps.service.status(row).message);
+      const { embed } = await deps.service.status(row);
+      return replyPublic('', [embed]);
     }
 
     default:

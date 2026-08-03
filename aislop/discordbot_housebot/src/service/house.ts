@@ -1,6 +1,8 @@
 import { syncListing, type AirtableConfig, type AirtableSyncResult } from '../airtable/client';
 import { estimateCommutes, formatCommute, type CommuteConfig } from '../enrichment/commute';
-import { classifyHvac, formatHvac } from '../enrichment/hvac';
+import { classifyHvac, type HvacClassification } from '../enrichment/hvac';
+import { buildEnrichmentEmbed, buildStatusEmbed, type Embed } from '../discord/embeds';
+import type { CommuteValue } from '../enrichment/commute';
 import {
   backoffSeconds,
   parseSnapshot,
@@ -349,33 +351,46 @@ export class HouseService {
     return { message: `re-opened (listing status: ${statusLabel(status)}).` };
   }
 
-  /** `/house status` — pure D1 read, no outgoing fetch. */
-  status(row: PropertyRow): { message: string } {
-    const s = parseSnapshot(row);
-    const closed = isClosed({
-      forceClosed: row.force_closed === 1,
-      listingStatus: (row.status as ListingStatus) ?? 'unknown',
-    });
-    const lines = [
-      `${closed ? '❌ ' : ''}**${row.title ?? row.listing_key}**`,
-      `**Status:** ${statusLabel((row.status as ListingStatus) ?? 'unknown')}${
-        row.force_closed === 1 ? ' (force-closed)' : ''
-      }`,
-      `**Source:** ${row.source_url}`,
-      `**Listing key:** \`${row.listing_key}\``,
-      row.last_checked_at
-        ? `**Last checked:** <t:${row.last_checked_at}:R>`
-        : '**Last checked:** never',
-      row.last_changed_at
-        ? `**Last change:** <t:${row.last_changed_at}:R>`
-        : '**Last change:** none recorded',
-      `**Next scheduled check:** <t:${row.next_check_at}:R>`,
-    ];
-    if (row.fail_count > 0) {
-      lines.push(`**Consecutive failures:** ${row.fail_count} — ${row.last_error ?? 'unknown'}`);
+  /** `/house status` — D1 only, including stored enrichment. No outgoing fetch. */
+  async status(row: PropertyRow): Promise<{ embed: Embed }> {
+    const snapshot = parseSnapshot(row);
+
+    let commute: CommuteValue | null = null;
+    let commuteProvenance: string | null = null;
+    let commuteStatus: string | null = null;
+    let hvac: HvacClassification | null = null;
+    try {
+      for (const e of await this.repo.listEnrichment(row.id)) {
+        if (e.kind === 'commute') {
+          commuteProvenance = e.provenance;
+          commuteStatus = e.status;
+          commute = e.value_json ? (JSON.parse(e.value_json) as CommuteValue) : null;
+        } else if (e.kind === 'hvac' && e.value_json) {
+          hvac = JSON.parse(e.value_json) as HvacClassification;
+        }
+      }
+    } catch (err) {
+      console.error('status enrichment read failed', { id: row.id, error: errText(err) });
     }
-    if (s?.hvac) lines.push(`**HVAC (unverified):** ${s.hvac}`);
-    return { message: lines.join('\n') };
+
+    return {
+      embed: buildStatusEmbed({
+        title: row.title ?? row.listing_key,
+        sourceUrl: row.source_url,
+        listingKey: row.listing_key,
+        status: (row.status as ListingStatus) ?? 'unknown',
+        forceClosed: row.force_closed === 1,
+        lastCheckedAt: row.last_checked_at,
+        lastChangedAt: row.last_changed_at,
+        failCount: row.fail_count,
+        lastError: row.last_error,
+        snapshot,
+        commute,
+        commuteProvenance,
+        commuteStatus,
+        hvac,
+      }),
+    };
   }
 
   /**
@@ -400,6 +415,9 @@ export class HouseService {
     const now = this.now();
     const mode = opts.mode ?? 'force';
     const lines: string[] = [];
+    let hvacValue: HvacClassification | null = null;
+    let commuteValue: CommuteValue | null = null;
+    let commuteProvenance = '';
 
     let existing: EnrichmentRow[] = [];
     if (mode === 'missing') {
@@ -429,7 +447,8 @@ export class HouseService {
           value: hvac,
           now,
         });
-        lines.push(`**Heating:** ${formatHvac(hvac)}`);
+        hvacValue = hvac;
+        lines.push('heating');
       } else {
         await this.repo.putEnrichment({
           propertyId: row.id,
@@ -447,7 +466,12 @@ export class HouseService {
     // Commute: two Google Routes calls on the Pro SKU. Skipping this when we
     // already have an answer is the entire point of `missing` mode.
     if (mode === 'missing' && settled('commute')) {
-      return this.postEnrichment(row, lines, opts);
+      return this.postEnrichment(row, lines, opts, {
+        snapshot,
+        hvac: hvacValue,
+        commute: null,
+        commuteProvenance: '',
+      });
     }
     try {
       const result = await estimateCommutes(
@@ -464,24 +488,47 @@ export class HouseService {
         now,
       });
       if (result.status === 'ok') {
-        lines.push(`**Commute:**\n${formatCommute(result.value)}`);
-        lines.push(`-# ${result.provenance}`);
+        commuteValue = result.value;
+        commuteProvenance = result.provenance;
+        if (result.value.drive.length) lines.push('driving');
+        if (result.value.transit.length) lines.push('transit');
       }
     } catch (err) {
       console.error('commute enrichment failed', { id: row.id, error: errText(err) });
     }
 
-    return this.postEnrichment(row, lines, opts);
+    return this.postEnrichment(row, lines, opts, {
+      snapshot,
+      hvac: hvacValue,
+      commute: commuteValue,
+      commuteProvenance,
+    });
   }
 
   private async postEnrichment(
     row: PropertyRow,
     lines: string[],
     opts: { post?: boolean },
+    payload: {
+      snapshot: Snapshot;
+      hvac: HvacClassification | null;
+      commute: CommuteValue | null;
+      commuteProvenance: string;
+    },
   ): Promise<{ lines: string[] }> {
-    if (opts.post !== false && lines.length > 0) {
-      await this.rest.postMessage(row.thread_id, lines.join('\n'));
-    }
+    if (opts.post === false || lines.length === 0) return { lines };
+    const embed: Embed = buildEnrichmentEmbed({
+      snapshot: payload.snapshot,
+      commute: payload.commute,
+      commuteProvenance: payload.commuteProvenance,
+      hvac: payload.hvac,
+      closed: isClosed({
+        forceClosed: row.force_closed === 1,
+        listingStatus: payload.snapshot.status,
+      }),
+    });
+    if (!embed.fields?.length) return { lines };
+    await this.rest.postMessage(row.thread_id, '', [embed]);
     return { lines };
   }
 

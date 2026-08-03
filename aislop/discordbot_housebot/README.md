@@ -22,7 +22,7 @@ notice.
 | `/house update [link] [reenrich]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved, and fills in any enrichment that is still blank. `reenrich:true` forces a full recompute. |
 | `/house close` | inside a house thread | Force-closes the house (no fetch). Prefixes the title with `❌ ` and removes it from the cron. |
 | `/house open` | inside a house thread | Re-opens **only** if the live listing is not sold/closed. Explains cleanly otherwise. |
-| `/house status` | inside a house thread | Diagnostic read from D1 — status, source, last checked/changed, failure count. Posted **publicly** in the thread; makes no network calls. |
+| `/house status` | inside a house thread | Rich embed built from D1 — status, price, size, driving + transit commutes, heating, history. Posted **publicly**; makes no network calls. |
 
 Material fields: `status`, `price`, `beds`, `baths`, `sqft`, `address`,
 `yearBuilt`, `hvac`.
@@ -36,19 +36,30 @@ everything already succeeded — and self-heals anything that previously failed
 (routing down, coordinates missing) with no manual step. There is no separate
 enrich command: `/house update reenrich:true` forces a full recompute.
 
-- **Commute** — Google Routes API, `TRAFFIC_AWARE_OPTIMAL`, departing at a pinned
-  time (`COMMUTE_DEPARTURE_ISO`, default next Tue 08:00 Pacific). Two calls per
-  house on the Compute Routes **Pro** SKU: 5,000 free calls/month, so ~2,500
-  house-adds/month before it costs anything. Origin coordinates come from the
-  listing page's own `geo` markup — housebot never geocodes.
+- **Commute** — Google Routes API, driving *and* transit, departing at a pinned
+  time (`COMMUTE_DEPARTURE_ISO`, default next Tue 08:00 Pacific — rush hour, so
+  the number means something). Driving uses `TRAFFIC_AWARE_OPTIMAL` and reports a
+  free-flow comparison; transit renders the itinerary as a vehicle chain:
+
+  ```
+  House → 101 🚌 → South Lake Union Streetcar 🚊 → Seattle office (partner)
+  ```
+
+  Light rail (🚈), heavy rail (🚆), tram (🚊), bus (🚌) and ferry (⛴️) get distinct
+  glyphs. **4 calls per house** (2 destinations × 2 modes) against the Compute
+  Routes free tier, so ~1,250 house-adds/month before it costs anything. Origin
+  coordinates come from the listing page's own `geo` markup — housebot never
+  geocodes.
 - **Heating** — classified from listing text into heat pump / forced air (gas or
   electric) / baseboard / radiant floor / radiators / oil / none. **Oil and steam
   radiators are flagged with ⚠️.** Always labeled unverified; `radiant floor` and
   `radiator` are deliberately distinct. Reclassifies whenever the listing's
   heating text changes, since it costs nothing.
 
-Both degrade to a recorded `unavailable` with a reason rather than failing the
-command. Transit, ISP and photos are still scaffolded interfaces — see
+Results are posted as a Discord embed, colored by listing status (green active,
+yellow pending, red closed). Both adapters degrade to a recorded `unavailable`
+with a reason rather than failing the command, and `/house status` says *why* a
+section is missing instead of silently omitting it. Transit, ISP and photos are still scaffolded interfaces — see
 [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Bootstrap

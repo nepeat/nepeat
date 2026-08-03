@@ -6,6 +6,12 @@ import {
   parseDuration,
 } from '../src/enrichment/commute';
 import { classifyHvac, formatHvac } from '../src/enrichment/hvac';
+import {
+  emojiForVehicle,
+  formatTransit,
+  formatTransitRoute,
+  hopsFromSteps,
+} from '../src/enrichment/transit';
 
 describe('classifyHvac', () => {
   it('classifies the real listing text from the test house', () => {
@@ -130,21 +136,25 @@ describe('estimateCommutes', () => {
       fetchImpl,
     });
 
-    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    // 2 destinations x 2 travel modes
+    expect(fetchImpl).toHaveBeenCalledTimes(4);
     expect(bodies[0]).toMatchObject({
       travelMode: 'DRIVE',
       routingPreference: 'TRAFFIC_AWARE_OPTIMAL',
       departureTime: '2026-08-11T08:00:00-07:00',
       origin: { location: { latLng: { latitude: 47.4779, longitude: -122.20163 } } },
     });
+    // routingPreference is DRIVE-only; sending it with TRANSIT is an API error.
+    expect(bodies[1]).toMatchObject({ travelMode: 'TRANSIT' });
+    expect(bodies[1]).not.toHaveProperty('routingPreference');
     // The key travels in a header, never in the URL or body.
     expect(headers[0]?.['X-Goog-Api-Key']).toBe('test-key');
     expect(JSON.stringify(bodies)).not.toContain('test-key');
 
     expect(r.status).toBe('ok');
     if (r.status === 'ok') {
-      expect(r.value).toHaveLength(2);
-      expect(r.value[0]).toMatchObject({
+      expect(r.value.drive).toHaveLength(2);
+      expect(r.value.drive[0]).toMatchObject({
         label: 'Bellevue office (nep)',
         driveSeconds: 1115,
         freeFlowSeconds: 1189,
@@ -166,7 +176,7 @@ describe('estimateCommutes', () => {
 
     const r = await estimateCommutes(1, 2, { apiKey: 'k', fetchImpl });
     expect(r.status).toBe('ok');
-    if (r.status === 'ok') expect(r.value).toHaveLength(1);
+    if (r.status === 'ok') expect(r.value.drive).toHaveLength(1);
     expect(r.provenance).toContain('partial');
   });
 
@@ -203,5 +213,128 @@ describe('formatCommute', () => {
     expect(out).toContain('Bellevue office (nep): **19 min**');
     expect(out).toContain('20 min free-flow');
     expect(out).toContain('11.2 mi');
+  });
+});
+
+describe('transit itineraries', () => {
+  const transitBody = {
+    routes: [
+      {
+        duration: '3900s',
+        legs: [
+          {
+            steps: [
+              { travelMode: 'WALK', staticDuration: '360s' },
+              {
+                travelMode: 'TRANSIT',
+                transitDetails: {
+                  stopCount: 12,
+                  transitLine: { nameShort: '535', name: 'Bellevue', vehicle: { type: 'BUS' } },
+                },
+              },
+              {
+                travelMode: 'TRANSIT',
+                transitDetails: {
+                  transitLine: {
+                    nameShort: '1 Line',
+                    name: 'Link 1 Line',
+                    vehicle: { type: 'LIGHT_RAIL' },
+                  },
+                },
+              },
+              { travelMode: 'WALK', staticDuration: '240s' },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  it('collapses steps into boarded vehicles and sums walking', () => {
+    const { hops, walkSeconds } = hopsFromSteps(
+      transitBody.routes[0]!.legs[0]!.steps,
+      parseDuration,
+    );
+    expect(hops).toEqual([
+      { line: '535', vehicle: 'BUS', emoji: '🚌', stopCount: 12 },
+      { line: '1 Line', vehicle: 'LIGHT_RAIL', emoji: '🚈' },
+    ]);
+    expect(walkSeconds).toBe(600);
+  });
+
+  it('maps vehicle types to distinct emoji — rail is not light rail', () => {
+    expect(emojiForVehicle('BUS')).toBe('🚌');
+    expect(emojiForVehicle('LIGHT_RAIL')).toBe('🚈');
+    expect(emojiForVehicle('HEAVY_RAIL')).toBe('🚆');
+    expect(emojiForVehicle('FERRY')).toBe('⛴️');
+    expect(emojiForVehicle('SUBWAY')).toBe('🚇');
+    expect(emojiForVehicle(undefined)).toBe('🚉');
+    expect(emojiForVehicle('SOMETHING_NEW')).toBe('🚉');
+  });
+
+  it('prefers nameShort but falls back to the long name', () => {
+    const { hops } = hopsFromSteps(
+      [{ travelMode: 'TRANSIT', transitDetails: { transitLine: { name: 'Sounder S Line' } } }],
+      parseDuration,
+    );
+    expect(hops[0]!.line).toBe('Sounder S Line');
+  });
+
+  it('formats the route as a vehicle chain', () => {
+    const it = {
+      label: 'Bellevue office (nep)',
+      destination: 'x',
+      totalSeconds: 3900,
+      walkSeconds: 600,
+      hops: [
+        { line: '535', vehicle: 'BUS', emoji: '🚌' },
+        { line: '1 Line', vehicle: 'LIGHT_RAIL', emoji: '🚈' },
+        { line: '8', vehicle: 'BUS', emoji: '🚌' },
+      ],
+    };
+    expect(formatTransitRoute(it)).toBe(
+      'House → 535 🚌 → 1 Line 🚈 → 8 🚌 → Bellevue office (nep)',
+    );
+    const out = formatTransit(it);
+    expect(out).toContain('**65 min**');
+    expect(out).toContain('2 transfer(s)');
+    expect(out).toContain('10 min walking');
+  });
+
+  it('returns a transit itinerary from the API alongside driving', async () => {
+    const fetchImpl = vi.fn(async (_u: unknown, init: RequestInit | undefined) => {
+      const body = JSON.parse(String(init?.body)) as { travelMode: string };
+      return body.travelMode === 'TRANSIT'
+        ? new Response(JSON.stringify(transitBody), { status: 200 })
+        : new Response(
+            JSON.stringify({ routes: [{ duration: '1115s', distanceMeters: 18083 }] }),
+            { status: 200 },
+          );
+    }) as unknown as typeof fetch;
+
+    const r = await estimateCommutes(47.4779, -122.20163, { apiKey: 'k', fetchImpl });
+    expect(r.status).toBe('ok');
+    if (r.status === 'ok') {
+      expect(r.value.drive).toHaveLength(2);
+      expect(r.value.transit).toHaveLength(2);
+      expect(r.value.transit[0]!.hops.map((h) => h.line)).toEqual(['535', '1 Line']);
+    }
+  });
+
+  it('keeps driving when transit has no usable itinerary', async () => {
+    const fetchImpl = vi.fn(async (_u: unknown, init: RequestInit | undefined) => {
+      const body = JSON.parse(String(init?.body)) as { travelMode: string };
+      return body.travelMode === 'TRANSIT'
+        ? new Response(JSON.stringify({ routes: [] }), { status: 200 })
+        : new Response(JSON.stringify({ routes: [{ duration: '1115s' }] }), { status: 200 });
+    }) as unknown as typeof fetch;
+
+    const r = await estimateCommutes(1, 2, { apiKey: 'k', fetchImpl });
+    expect(r.status).toBe('ok');
+    if (r.status === 'ok') {
+      expect(r.value.drive).toHaveLength(2);
+      expect(r.value.transit).toHaveLength(0);
+    }
+    expect(r.provenance).toContain('no usable itinerary');
   });
 });
