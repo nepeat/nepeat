@@ -35,7 +35,7 @@ The cost model is then just *requests × D1 rows × outbound fetches*:
 
 | Operation | D1 statements | Outbound fetches |
 | --- | --- | --- |
-| `/house status` | 2 (idempotency insert, thread lookup) | 0 |
+| `/house info` | 2 (idempotency insert, thread lookup) | 0 |
 | `/house close` | 3 | 0 (+2 Discord REST) |
 | `/house add` | 4 (claim, dedupe, insert, snapshot) | 1 listing (+2 Discord REST, +≤1 Airtable) |
 | `/house update` | 3–4 | 1 listing (+0–2 Discord REST) |
@@ -71,7 +71,7 @@ passes `cf: { cacheTtl: 300 }` so bursts collapse at the edge.
   before any side effect. The log is pruned by the cron (7-day retention).
 - **Defer correctly.** Anything with a network call answers type 5 (deferred,
   ephemeral) immediately and finishes in `ctx.waitUntil`, then replaces the
-  placeholder via the follow-up webhook. `/house status` does no I/O so it
+  placeholder via the follow-up webhook. `/house info` does no I/O so it
   answers inline with type 4.
 - **Dedupe on identity, not URL text.** The canonical key is
   `provider:listingId` derived from the URL path (`..._zpid/`, `/home/<id>`), so

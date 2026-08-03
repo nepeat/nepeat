@@ -58,7 +58,7 @@ with the observed status would let a refresh silently undo a human decision.
 `unknown` rather than guessing).
 
 **Deferred + follow-up for anything with I/O.** Discord's 3-second budget cannot
-absorb an 8-second listing fetch. `/house status` is the exception — pure D1, so
+absorb an 8-second listing fetch. `/house info` is the exception — pure D1, so
 it answers inline.
 
 **Idempotency in D1, not in memory.** `INSERT OR IGNORE` on `interaction.id`
@@ -193,7 +193,7 @@ that: a strong negative signal, a weak positive one. Two calls — the 2010 cens
 block (Form 477 is keyed on 2010 blocks; a 2020 block silently returns nothing)
 then the Socrata query.
 
-**Embeds over markdown.** Enrichment and `/house status` post embeds so commute,
+**Embeds over markdown.** Enrichment and `/house info` post embeds so commute,
 transit and heating are separately labeled fields rather than one wall of text,
 colored by listing status. Field values are truncated at Discord's 1024-char cap.
 
