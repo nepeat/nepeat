@@ -1,7 +1,13 @@
 import { syncListing, type AirtableConfig, type AirtableSyncResult } from '../airtable/client';
 import { estimateCommutes, formatCommute, type CommuteConfig } from '../enrichment/commute';
 import { classifyHvac, formatHvac } from '../enrichment/hvac';
-import { backoffSeconds, parseSnapshot, Repo, type PropertyRow } from '../db/repo';
+import {
+  backoffSeconds,
+  parseSnapshot,
+  Repo,
+  type EnrichmentRow,
+  type PropertyRow,
+} from '../db/repo';
 import type { DiscordRest } from '../discord/rest';
 import { computeChanges } from '../listing/diff';
 import { explainFailure, fetchListing } from '../listing/fetcher';
@@ -37,6 +43,8 @@ export interface RefreshOutcome {
   changes: FieldChange[];
   snapshot?: Snapshot;
   detail?: string;
+  /** How many enrichment lines this refresh newly filled in. */
+  enriched?: number;
 }
 
 export class HouseService {
@@ -274,12 +282,17 @@ export class HouseService {
       await this.rest.postMessage(row.thread_id, buildChangeMessage(changes, next, closed));
     }
 
+    // Fill whatever enrichment is still blank. Free when everything already
+    // succeeded, and it self-heals rows added before a parser improvement.
+    const filled = await this.enrich(row, next, { mode: 'missing' });
+
     await this.syncAirtable(row, next);
 
     return {
       kind: changes.length > 0 ? 'changed' : 'unchanged',
       changes,
       snapshot: next,
+      enriched: filled.lines.length,
     };
   }
 
@@ -365,20 +378,45 @@ export class HouseService {
   }
 
   /**
-   * Location-derived facts. Runs once at add/bind time (and on `/house enrich`),
-   * never on refresh: nothing here changes when a price does, and re-running it
-   * would burn API quota to produce noise. Failures are recorded, never thrown.
+   * Location-derived facts.
+   *
+   * `mode: 'missing'` (the refresh path) computes only what is still blank. A
+   * kind that already holds a value is skipped, so a routine `/house update`
+   * costs zero Google calls. A kind previously recorded `unavailable` IS
+   * retried -- that is what makes update self-healing: a house added before we
+   * parsed coordinates picks up its commute on the next update, with no manual
+   * step. HVAC additionally re-runs when the listing's heating text changed,
+   * since reclassifying costs nothing.
+   *
+   * `mode: 'force'` (`/house enrich`, and the first add/bind) recomputes all.
    */
   async enrich(
     row: PropertyRow,
     snapshot: Snapshot,
-    opts: { post?: boolean } = { post: true },
+    opts: { post?: boolean; mode?: 'missing' | 'force' } = {},
   ): Promise<{ lines: string[] }> {
     const now = this.now();
+    const mode = opts.mode ?? 'force';
     const lines: string[] = [];
 
+    let existing: EnrichmentRow[] = [];
+    if (mode === 'missing') {
+      try {
+        existing = await this.repo.listEnrichment(row.id);
+      } catch (err) {
+        console.error('enrichment lookup failed', { id: row.id, error: errText(err) });
+      }
+    }
+    const settled = (kind: string): boolean =>
+      existing.some((e) => e.kind === kind && e.value_json !== null);
+
+    const hvacStale =
+      mode === 'force' ||
+      !settled('hvac') ||
+      storedHvacRaw(existing) !== (snapshot.hvac ?? null);
+
     // HVAC: pure classification of text we already have. No network.
-    try {
+    if (hvacStale) try {
       const hvac = classifyHvac(snapshot.hvac);
       if (hvac) {
         await this.repo.putEnrichment({
@@ -404,7 +442,11 @@ export class HouseService {
       console.error('hvac enrichment failed', { id: row.id, error: errText(err) });
     }
 
-    // Commute: two Google Routes calls, Pro SKU.
+    // Commute: two Google Routes calls on the Pro SKU. Skipping this when we
+    // already have an answer is the entire point of `missing` mode.
+    if (mode === 'missing' && settled('commute')) {
+      return this.postEnrichment(row, lines, opts);
+    }
     try {
       const result = await estimateCommutes(
         snapshot.lat ?? row.lat,
@@ -427,6 +469,14 @@ export class HouseService {
       console.error('commute enrichment failed', { id: row.id, error: errText(err) });
     }
 
+    return this.postEnrichment(row, lines, opts);
+  }
+
+  private async postEnrichment(
+    row: PropertyRow,
+    lines: string[],
+    opts: { post?: boolean },
+  ): Promise<{ lines: string[] }> {
     if (opts.post !== false && lines.length > 0) {
       await this.rest.postMessage(row.thread_id, lines.join('\n'));
     }
@@ -459,6 +509,17 @@ export class HouseService {
       // Sync bookkeeping is never allowed to fail a user command.
     }
     return result;
+  }
+}
+
+/** The heating text a stored HVAC classification was derived from, if any. */
+function storedHvacRaw(rows: EnrichmentRow[]): string | null {
+  const row = rows.find((r) => r.kind === 'hvac');
+  if (!row?.value_json) return null;
+  try {
+    return (JSON.parse(row.value_json) as { raw?: string }).raw ?? null;
+  } catch {
+    return null;
   }
 }
 

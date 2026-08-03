@@ -30,9 +30,12 @@ Material fields: `status`, `price`, `beds`, `baths`, `sqft`, `address`,
 
 ## Enrichment
 
-Location-derived facts, computed **once at add/bind time** (houses don't move) and
-stored in the `enrichment` table with a provenance string. Re-run with
-`/house enrich`.
+Location-derived facts, stored in the `enrichment` table with a provenance
+string. Computed in full at add/bind time; after that **`/house update` fills in
+only what is still blank**, so a routine refresh costs zero API calls when
+everything already succeeded — and self-heals anything that previously failed
+(routing down, coordinates missing) with no manual step. `/house enrich` forces a
+full recompute.
 
 - **Commute** — Google Routes API, `TRAFFIC_AWARE_OPTIMAL`, departing at a pinned
   time (`COMMUTE_DEPARTURE_ISO`, default next Tue 08:00 Pacific). Two calls per
@@ -42,7 +45,8 @@ stored in the `enrichment` table with a provenance string. Re-run with
 - **Heating** — classified from listing text into heat pump / forced air (gas or
   electric) / baseboard / radiant floor / radiators / oil / none. **Oil and steam
   radiators are flagged with ⚠️.** Always labeled unverified; `radiant floor` and
-  `radiator` are deliberately distinct.
+  `radiator` are deliberately distinct. Reclassifies whenever the listing's
+  heating text changes, since it costs nothing.
 
 Both degrade to a recorded `unavailable` with a reason rather than failing the
 command. Transit, ISP and photos are still scaffolded interfaces — see

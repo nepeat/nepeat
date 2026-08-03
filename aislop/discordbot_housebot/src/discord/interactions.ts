@@ -136,9 +136,9 @@ export async function handleInteraction(
           const outcome = await deps.service.refresh(row, 'manual', link ?? undefined);
           switch (outcome.kind) {
             case 'changed':
-              return `updated — ${outcome.changes.length} field(s) changed; notice posted in the thread.`;
+              return `updated — ${outcome.changes.length} field(s) changed${enrichedNote(outcome.enriched)}; notice posted in the thread.`;
             case 'unchanged':
-              return 'checked — nothing material changed.';
+              return `checked — nothing material changed${enrichedNote(outcome.enriched)}.`;
             case 'not-modified':
               return 'checked — the listing page reported no changes since last fetch.';
             case 'error':
@@ -217,6 +217,10 @@ async function resolveProperty(
     if (ident) return deps.repo.getByListingKey(ident.listingKey);
   }
   return null;
+}
+
+function enrichedNote(count: number | undefined): string {
+  return count ? `, filled in ${count} missing enrichment item(s)` : '';
 }
 
 function propertyMissingText(link: string | null): string {

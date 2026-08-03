@@ -371,13 +371,76 @@ describe('enrichment', () => {
     expect(JSON.parse(byKind['hvac']!.value_json!).kinds).toContain('heat-pump');
   });
 
-  it('does NOT re-run enrichment on refresh', async () => {
+  it('does NOT re-run enrichment on refresh when it already succeeded', async () => {
     const h = liveHarness();
     await h.run(interaction('add', { link: LIVE_LINK }));
     const before = h.routesCalls();
     const row = await h.repo.getByListingKey('zillow:49024254');
     await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
     expect(h.routesCalls()).toBe(before);
+    expect(followUps(h.calls).at(-1)).not.toContain('filled in');
+  });
+
+  it('update self-heals a commute that was previously unavailable', async () => {
+    const h = liveHarness();
+    h.setRoutesUp(false);
+    await h.run(interaction('add', { link: LIVE_LINK }));
+
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    const before = await h.repo.listEnrichment(row!.id);
+    expect(before.find((e) => e.kind === 'commute')?.status).toBe('unavailable');
+
+    // Routing recovers; a routine update should backfill it with no /house enrich.
+    h.setRoutesUp(true);
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+
+    const after = await h.repo.listEnrichment(row!.id);
+    const commute = after.find((e) => e.kind === 'commute');
+    expect(commute?.status).toBe('ok');
+    expect(JSON.parse(commute!.value_json!)).toHaveLength(2);
+    expect(threadMessages(h.calls).at(-1)).toContain('Bellevue office (nep)');
+    expect(followUps(h.calls).at(-1)).toContain('filled in');
+  });
+
+  it('update backfills commute once coordinates appear on the page', async () => {
+    const h = harness(); // old fixture: no geo, so no origin to route from
+    await h.run(interaction('add', { link: ZILLOW_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49059541');
+    expect(h.routesCalls()).toBe(0);
+    expect(row?.lat).toBeNull();
+
+    // Same listing key, but the page now publishes geo.
+    h.setPage(
+      fixture('zillow-live-2026.html').replace(/49024254/g, '49059541'),
+    );
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+
+    const updated = await h.repo.getByThreadId(row!.thread_id);
+    expect(updated?.lat).toBeCloseTo(47.4779);
+    expect(h.routesCalls()).toBe(2);
+    const commute = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute');
+    expect(commute?.status).toBe('ok');
+  });
+
+  it('re-classifies heating when the listing text changes, without routing again', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    const routesBefore = h.routesCalls();
+
+    h.setPage(
+      fixture('zillow-live-2026.html').replace('Heating</h6>', 'Heating</h6>').replace(
+        'Fireplace',
+        'Oil furnace, Fireplace',
+      ),
+    );
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+
+    const hvac = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'hvac');
+    expect(JSON.parse(hvac!.value_json!).disliked).toEqual(['oil']);
+    expect(threadMessages(h.calls).at(-1)).toContain('⚠️');
+    // Reclassifying is free; it must not trigger another pair of Google calls.
+    expect(h.routesCalls()).toBe(routesBefore);
   });
 
   it('recomputes on /house enrich', async () => {

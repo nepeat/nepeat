@@ -126,9 +126,15 @@ location*. Merging them would corrupt `computeChanges`, which diffs observations
 — a commute recomputation would surface as a listing change. `enrichment` is
 keyed `(property_id, kind)` with a mandatory `provenance` string.
 
-**Enrichment runs at add/bind, not on refresh.** Nothing it computes changes when
-a price does, so re-running it hourly would burn Google quota to produce noise.
-`/house enrich` forces recomputation when you want it.
+**Enrichment on refresh fills blanks only.** Recomputing everything on each
+refresh would burn Google quota to produce noise; never recomputing means a house
+enriched while routing was down stays permanently empty. So `/house update` runs
+enrichment in `missing` mode: a kind holding a value is skipped, a kind recorded
+`unavailable` is retried. That makes update self-healing — a row added before the
+parser learned to read coordinates picks up its commute on the next update with
+no manual step — while a steady-state update still costs zero API calls. HVAC is
+the exception: it reclassifies whenever the listing's heating text changed,
+because it is pure local computation. `/house enrich` forces a full recompute.
 
 **Coordinates come from the listing, not from a geocoder.** Zillow publishes
 `offers.itemOffered.geo`, so there is no Geocoding SKU in the loop and no
@@ -186,8 +192,8 @@ a page that starts publishing geo upgrades an existing row.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 137 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 71.31 KiB
+npm test            # vitest: 10 files, 140 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 72.96 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.
