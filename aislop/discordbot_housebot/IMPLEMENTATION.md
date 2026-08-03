@@ -161,6 +161,20 @@ ships only the long name.
 transit and heating are separately labeled fields rather than one wall of text,
 colored by listing status. Field values are truncated at Discord's 1024-char cap.
 
+**Stored enrichment values are versioned by shape, not by a version column.**
+Adding transit changed the commute payload from `CommuteEstimate[]` to
+`{drive, transit}`. Rows written by the older adapter still sit in D1, so two
+things were needed: `normalizeCommuteValue` accepts both shapes when reading (an
+old row renders its drive times instead of vanishing), and `isCurrentCommuteShape`
+decides whether `missing` mode considers the row settled. A legacy row is
+deliberately *not* settled, so the next update upgrades it. Treating "non-null
+value" as "settled" would have frozen those rows forever.
+
+**A 304 still runs enrichment.** The refresh path used to return early on
+not-modified, which stranded any house whose page reliably answers 304 — the
+listing never changes, so blank enrichment never gets filled. It now backfills
+from the stored snapshot before returning.
+
 **Split tsconfigs.** `@types/node` and `@cloudflare/workers-types` disagree about
 `fetch`/`CryptoKey`. `tsconfig.json` typechecks `src/` against workers-types only
 (what actually runs); `tsconfig.test.json` adds node types for tests and scripts.
@@ -216,8 +230,8 @@ colored by listing status. Field values are truncated at Discord's 1024-char cap
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 148 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 80.14 KiB
+npm test            # vitest: 10 files, 155 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 81.16 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.

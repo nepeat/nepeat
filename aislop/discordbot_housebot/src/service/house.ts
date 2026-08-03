@@ -2,7 +2,11 @@ import { syncListing, type AirtableConfig, type AirtableSyncResult } from '../ai
 import { estimateCommutes, formatCommute, type CommuteConfig } from '../enrichment/commute';
 import { classifyHvac, type HvacClassification } from '../enrichment/hvac';
 import { buildEnrichmentEmbed, buildStatusEmbed, type Embed } from '../discord/embeds';
-import type { CommuteValue } from '../enrichment/commute';
+import {
+  isCurrentCommuteShape,
+  normalizeCommuteValue,
+  type CommuteValue,
+} from '../enrichment/commute';
 import {
   backoffSeconds,
   parseSnapshot,
@@ -254,7 +258,13 @@ export class HouseService {
 
     if (result.kind === 'not-modified') {
       await this.repo.touchChecked(row.id, now, now + this.config.refreshIntervalSeconds);
-      return { kind: 'not-modified', changes: [] };
+      // The listing did not change, but enrichment may still be blank or stale.
+      // Skipping it here would strand a house whose page always answers 304.
+      const stored = parseSnapshot(row);
+      const backfilled = stored
+        ? await this.enrich(row, stored, { mode: opts.enrichMode ?? 'missing' })
+        : { lines: [] };
+      return { kind: 'not-modified', changes: [], enriched: backfilled.lines.length };
     }
 
     const prev = parseSnapshot(row);
@@ -364,7 +374,7 @@ export class HouseService {
         if (e.kind === 'commute') {
           commuteProvenance = e.provenance;
           commuteStatus = e.status;
-          commute = e.value_json ? (JSON.parse(e.value_json) as CommuteValue) : null;
+          commute = e.value_json ? normalizeCommuteValue(JSON.parse(e.value_json)) : null;
         } else if (e.kind === 'hvac' && e.value_json) {
           hvac = JSON.parse(e.value_json) as HvacClassification;
         }
@@ -427,8 +437,19 @@ export class HouseService {
         console.error('enrichment lookup failed', { id: row.id, error: errText(err) });
       }
     }
+    // "settled" means: holds a value the CURRENT adapter would produce. A row
+    // written by an older adapter version is deliberately not settled, so an
+    // update upgrades it instead of preserving a stale shape forever.
     const settled = (kind: string): boolean =>
-      existing.some((e) => e.kind === kind && e.value_json !== null);
+      existing.some((e) => {
+        if (e.kind !== kind || e.value_json === null) return false;
+        if (kind !== 'commute') return true;
+        try {
+          return isCurrentCommuteShape(JSON.parse(e.value_json));
+        } catch {
+          return false;
+        }
+      });
 
     const hvacStale =
       mode === 'force' ||

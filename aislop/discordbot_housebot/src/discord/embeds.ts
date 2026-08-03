@@ -110,7 +110,7 @@ export function buildStatusEmbed(i: StatusEmbedInput): Embed {
     fields.push(
       field(
         '🚗 Commute',
-        i.commuteProvenance
+        i.commuteStatus === 'unavailable' && i.commuteProvenance
           ? `_not available — ${i.commuteProvenance}_`
           : '_not computed yet — run `/house update`_',
       ),

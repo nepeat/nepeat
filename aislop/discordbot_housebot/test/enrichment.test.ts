@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   estimateCommutes,
   formatCommute,
+  isCurrentCommuteShape,
   nextTuesday8am,
+  normalizeCommuteValue,
   parseDuration,
 } from '../src/enrichment/commute';
 import { classifyHvac, formatHvac } from '../src/enrichment/hvac';
@@ -336,5 +338,41 @@ describe('transit itineraries', () => {
       expect(r.value.transit).toHaveLength(0);
     }
     expect(r.provenance).toContain('no usable itinerary');
+  });
+});
+
+describe('legacy stored commute values', () => {
+  // Exactly what is sitting in production D1 from before transit existed.
+  const LEGACY = [
+    {
+      label: 'Bellevue office (nep)',
+      destination: '601 108th Ave NE, Bellevue, WA 98004',
+      driveSeconds: 2043,
+      provider: 'google-routes',
+    },
+  ];
+
+  it('reads the pre-transit array shape instead of showing nothing', () => {
+    const v = normalizeCommuteValue(LEGACY)!;
+    expect(v.drive).toHaveLength(1);
+    expect(v.transit).toEqual([]);
+    expect(formatCommute(v.drive)).toContain('34 min');
+  });
+
+  it('reads the current shape unchanged', () => {
+    const v = normalizeCommuteValue({ drive: LEGACY, transit: [] })!;
+    expect(v.drive).toHaveLength(1);
+  });
+
+  it('rejects junk', () => {
+    expect(normalizeCommuteValue(null)).toBeNull();
+    expect(normalizeCommuteValue('nope')).toBeNull();
+    expect(normalizeCommuteValue({ nope: 1 })).toBeNull();
+  });
+
+  it('does NOT treat the legacy shape as settled, so update upgrades it', () => {
+    expect(isCurrentCommuteShape(LEGACY)).toBe(false);
+    expect(isCurrentCommuteShape({ drive: LEGACY })).toBe(false);
+    expect(isCurrentCommuteShape({ drive: LEGACY, transit: [] })).toBe(true);
   });
 });

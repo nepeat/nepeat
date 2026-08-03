@@ -31,6 +31,35 @@ export interface CommuteValue {
   transit: TransitItinerary[];
 }
 
+/**
+ * Read a stored commute value, tolerating the pre-transit shape.
+ *
+ * Before transit existed the value was a bare `CommuteEstimate[]`. Rows written
+ * then still exist in D1, so parsing has to accept both -- otherwise an old row
+ * silently renders as "not available" despite holding real drive times.
+ */
+export function normalizeCommuteValue(raw: unknown): CommuteValue | null {
+  if (Array.isArray(raw)) return { drive: raw as CommuteEstimate[], transit: [] };
+  if (raw && typeof raw === 'object') {
+    const v = raw as Partial<CommuteValue>;
+    if (Array.isArray(v.drive)) {
+      return { drive: v.drive, transit: Array.isArray(v.transit) ? v.transit : [] };
+    }
+  }
+  return null;
+}
+
+/**
+ * True only for a value produced by the current adapter. A legacy row has drive
+ * times but no `transit` key at all, and must be recomputed rather than treated
+ * as settled -- otherwise `missing` mode would skip it forever.
+ */
+export function isCurrentCommuteShape(raw: unknown): boolean {
+  return Boolean(raw && typeof raw === 'object' && !Array.isArray(raw) &&
+    Array.isArray((raw as Partial<CommuteValue>).drive) &&
+    Array.isArray((raw as Partial<CommuteValue>).transit));
+}
+
 export type CommuteResult =
   | { status: 'ok'; provenance: string; value: CommuteValue }
   | { status: 'unavailable'; provenance: string };

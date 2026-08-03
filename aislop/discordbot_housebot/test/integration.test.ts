@@ -77,8 +77,18 @@ function harness(): Harness {
   let routesCalls = 0;
   let routesUp = true;
 
-  const listingFetch: typeof fetch = async () =>
-    typeof page === 'number' ? new Response('', { status: page }) : htmlResponse(page);
+  const listingFetch: typeof fetch = async () => {
+    if (page === 304) {
+      // 304 cannot be built with `new Response`; stub the shape we read.
+      return {
+        status: 304,
+        ok: false,
+        headers: new Headers(),
+        text: async () => '',
+      } as unknown as Response;
+    }
+    return typeof page === 'number' ? new Response('', { status: page }) : htmlResponse(page);
+  };
 
   const service = new HouseService({
     repo,
@@ -591,6 +601,83 @@ describe('enrichment', () => {
     expect(commute?.status).toBe('unavailable');
     expect(commute?.provenance).toContain('coordinates');
     expect(h.routesCalls()).toBe(0);
+  });
+});
+
+describe('enrichment upgrade paths', () => {
+  const LIVE_LINK =
+    'https://www.zillow.com/homedetails/400-Cedar-Ave-S-Renton-WA-98057/49024254_zpid/';
+
+  it('backfills enrichment even when the listing returns 304', async () => {
+    const h = harness();
+    h.setPage(fixture('zillow-live-2026.html'));
+    h.setRoutesUp(false);
+    await h.run(interaction('add', { link: LIVE_LINK }));
+
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    expect(
+      (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute')?.status,
+    ).toBe('unavailable');
+
+    // Page is unchanged (304) but enrichment is still blank: it must retry.
+    h.setRoutesUp(true);
+    h.setPage(304);
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+
+    const commute = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute');
+    expect(commute?.status).toBe('ok');
+    expect(JSON.parse(commute!.value_json!).transit).toHaveLength(2);
+  });
+
+  it('upgrades a commute row stored in the pre-transit shape', async () => {
+    const h = harness();
+    h.setPage(fixture('zillow-live-2026.html'));
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+
+    // Simulate a row written by the older adapter: bare array, no transit key.
+    await h.repo.putEnrichment({
+      propertyId: row!.id,
+      kind: 'commute',
+      status: 'ok',
+      provenance: 'google routes, TRAFFIC_AWARE_OPTIMAL, departing 2026-08-04T15:00:00.000Z',
+      value: [{ label: 'Bellevue office (nep)', destination: 'x', driveSeconds: 2043 }],
+      now: h.now(),
+    });
+    const before = h.routesCalls();
+
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+
+    // Not settled -> recomputed into the current shape, with transit.
+    expect(h.routesCalls()).toBe(before + 4);
+    const commute = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute');
+    const value = JSON.parse(commute!.value_json!);
+    expect(value.drive).toHaveLength(2);
+    expect(value.transit).toHaveLength(2);
+  });
+
+  it('still renders a legacy row in /house status rather than hiding it', async () => {
+    const h = harness();
+    h.setPage(fixture('zillow-live-2026.html'));
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    await h.repo.putEnrichment({
+      propertyId: row!.id,
+      kind: 'commute',
+      status: 'ok',
+      provenance: 'legacy',
+      value: [
+        { label: 'Bellevue office (nep)', destination: 'x', driveSeconds: 2043 },
+      ],
+      now: h.now(),
+    });
+
+    const res = await h.run(
+      interaction('status', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }),
+    );
+    const body = (await res.json()) as { data: { embeds: EmbedShape[] } };
+    const driving = body.data.embeds[0]!.fields.find((f) => f.name === '🚗 Driving');
+    expect(driving?.value).toContain('34 min');
   });
 });
 
