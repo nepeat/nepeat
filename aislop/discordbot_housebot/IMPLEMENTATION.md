@@ -84,6 +84,21 @@ the D1 API the repo uses on top of `node:sqlite`, applying the *real*
 webcrypto supports Ed25519, so signature verification is tested against real
 generated keypairs, valid and invalid.
 
+**Never store a detached `fetch`.** `this.fetchImpl = opts.fetchImpl ?? fetch`
+looks harmless and passes every local test, because Node's fetch does not care
+about its `this`. workerd does: calling it as a method throws *"Illegal
+invocation: function called with incorrect `this` reference"*, which took down
+every outbound call in production while the whole suite stayed green. All three
+call sites now route through `boundFetch()` in `src/http.ts`, and
+`test/bound-fetch.test.ts` installs a strict `fetch` stub that reproduces
+workerd's behavior so the regression cannot come back.
+
+**Tracebacks go to Discord.** Single-operator bot, ephemeral responses — an
+error reply carries the full stack (truncated to 1500 chars) instead of a vague
+apology, so a failure is debuggable without catching it in a live
+`wrangler tail`. Airtable details are token-redacted before they reach this
+path. Revisit if the bot ever gains other users.
+
 **Split tsconfigs.** `@types/node` and `@cloudflare/workers-types` disagree about
 `fetch`/`CryptoKey`. `tsconfig.json` typechecks `src/` against workers-types only
 (what actually runs); `tsconfig.test.json` adds node types for tests and scripts.
@@ -129,8 +144,8 @@ generated keypairs, valid and invalid.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 8 files, 96 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 56.97 KiB
+npm test            # vitest: 9 files, 104 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 57.53 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.

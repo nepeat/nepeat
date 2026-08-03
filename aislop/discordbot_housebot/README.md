@@ -155,6 +155,9 @@ Deployed at **<https://housebot.butt.workers.dev>** — interactions endpoint
 - **Thread names cap at 100 chars.** Titles are truncated with `…` after the
   price/size/beds segments, so the numbers always survive.
 - `/house` is refused outside the house channel and its threads.
+- **Errors reply with the full traceback**, ephemerally. This is deliberate for a
+  single-operator bot; if you add other users, trim `formatError` usage in
+  `src/discord/interactions.ts` and `src/index.ts` back to a generic message.
 
 ## Docs
 

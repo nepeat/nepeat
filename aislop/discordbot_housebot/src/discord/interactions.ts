@@ -1,4 +1,5 @@
 import type { PropertyRow, Repo } from '../db/repo';
+import { formatError } from '../http';
 import type { HouseService } from '../service/house';
 import {
   InteractionResponseType,
@@ -211,11 +212,11 @@ async function runDeferred(
   } catch (err) {
     console.error('house command failed', {
       interaction: interaction.id,
-      error: err instanceof Error ? err.message : String(err),
+      error: err instanceof Error ? (err.stack ?? err.message) : String(err),
     });
-    message = `something broke while handling that: ${
-      err instanceof Error ? err.message : 'unknown error'
-    }`;
+    // Ephemeral + single-operator bot: the traceback goes straight to chat so a
+    // failure is debuggable without a live `wrangler tail`.
+    message = `something broke while handling that:\n\`\`\`\n${formatError(err)}\n\`\`\``;
   }
   try {
     await deps.editOriginal(interaction.token, message);

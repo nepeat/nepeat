@@ -1,3 +1,4 @@
+import { boundFetch } from '../http';
 import { ChannelType } from './types';
 
 export const DISCORD_API = 'https://discord.com/api/v10';
@@ -29,7 +30,7 @@ export class DiscordRest {
   private readonly base: string;
 
   constructor(private readonly opts: DiscordRestOptions) {
-    this.fetchImpl = opts.fetchImpl ?? fetch;
+    this.fetchImpl = boundFetch(opts.fetchImpl);
     this.base = opts.apiBase ?? DISCORD_API;
   }
 

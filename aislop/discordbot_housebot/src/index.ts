@@ -4,6 +4,7 @@ import { DiscordRest } from './discord/rest';
 import type { Interaction } from './discord/types';
 import { verifyDiscordRequest } from './discord/verify';
 import { DEFAULT_USER_AGENT, intVar, type Env } from './env';
+import { formatError } from './http';
 import { runScheduledRefresh } from './scheduled/refresh';
 import { HouseService } from './service/house';
 
@@ -74,12 +75,15 @@ export default {
     } catch (err) {
       console.error('interaction handler failed', {
         id: interaction.id,
-        error: err instanceof Error ? err.message : String(err),
+        error: err instanceof Error ? (err.stack ?? err.message) : String(err),
       });
       // Still answer Discord so the user does not see "application did not respond".
       return jsonResponse({
         type: 4,
-        data: { content: 'internal error handling that command.', flags: 1 << 6 },
+        data: {
+          content: `internal error handling that command:\n\`\`\`\n${formatError(err)}\n\`\`\``,
+          flags: 1 << 6,
+        },
       });
     }
   },

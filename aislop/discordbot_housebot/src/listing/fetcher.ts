@@ -1,3 +1,4 @@
+import { boundFetch } from '../http';
 import { redfinSource } from './providers/redfin';
 import { zillowSource } from './providers/zillow';
 import type { FetchOptions, FetchResult, ListingSource } from './types';
@@ -38,7 +39,7 @@ export async function fetchListing(
     return { ok: false, kind: 'error', reason: 'unsupported-url', detail: u.toString() };
   }
 
-  const doFetch = opts.fetchImpl ?? fetch;
+  const doFetch = boundFetch(opts.fetchImpl);
   const headers: Record<string, string> = {
     'User-Agent': opts.userAgent,
     Accept: 'text/html,application/xhtml+xml',

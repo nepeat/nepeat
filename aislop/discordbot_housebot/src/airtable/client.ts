@@ -1,3 +1,4 @@
+import { boundFetch } from '../http';
 import type { Snapshot } from '../listing/types';
 import { buildFields, parseFieldMap, type ExportContext } from './fieldmap';
 
@@ -52,7 +53,7 @@ export async function syncListing(
     typecast: true,
   };
 
-  const doFetch = cfg.fetchImpl ?? fetch;
+  const doFetch = boundFetch(cfg.fetchImpl);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), cfg.timeoutMs ?? 6000);
   try {
