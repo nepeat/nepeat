@@ -18,6 +18,7 @@ notice.
 | Command | Where | What it does |
 | --- | --- | --- |
 | `/house add <link>` | house channel or any of its threads | Normalizes the URL, fetches one snapshot, dedupes by canonical listing key, creates the thread, posts the first snapshot. |
+| `/house bind <link>` | inside an existing thread | Binds **that** thread to a listing instead of creating a new one, renames it to the canonical title, and posts the first snapshot. |
 | `/house update [link]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved. |
 | `/house close` | inside a house thread | Force-closes the house (no fetch). Prefixes the title with `❌ ` and removes it from the cron. |
 | `/house open` | inside a house thread | Re-opens **only** if the live listing is not sold/closed. Explains cleanly otherwise. |
@@ -48,8 +49,9 @@ npm test
 npm run build                # wrangler deploy --dry-run --outdir=dist
 ```
 
-`wrangler.jsonc` ships with `database_id: "PLACEHOLDER_RUN_WRANGLER_D1_CREATE"`.
-Replace it before deploying — no remote resources were created for you.
+`wrangler.jsonc` already points at the live D1 database
+(`7d1aa078-b83c-448e-8aed-f62f175de3c8`, region WNAM). A fresh environment
+should run `wrangler d1 create` and swap that id.
 
 ## Discord Developer Portal setup
 
@@ -61,9 +63,15 @@ Replace it before deploying — no remote resources were created for you.
    permissions: **View Channel**, **Send Messages**, **Create Public Threads**,
    **Send Messages in Threads**, **Manage Threads** (needed to rename/archive).
    Invite the bot to the guild.
-5. **Interactions Endpoint URL** → `https://<your-worker>.workers.dev/interactions`.
-   Discord immediately sends a signed PING; the Worker must already be deployed
-   with `DISCORD_PUBLIC_KEY` set or the save will fail.
+5. **General Information → Interactions Endpoint URL** →
+   `https://<your-worker>.workers.dev/interactions`. Discord immediately sends a
+   signed PING; the Worker must already be deployed with `DISCORD_PUBLIC_KEY` set
+   or the save will fail.
+   ⚠️ This is **not** the *Webhooks* page. That page's "Endpoint URL" is for
+   Event Webhooks (`APPLICATION_AUTHORIZED` etc.) — housebot consumes none of
+   them, so leave it blank with the **Events** toggle off. Putting the
+   interactions URL there produces "The application did not respond" with no
+   traffic ever reaching the Worker.
 
 ### Register the command
 
@@ -124,8 +132,9 @@ npm run build      # dry run, no account needed
 npm run deploy     # requires CLOUDFLARE_API_TOKEN / wrangler login
 ```
 
-Nothing in this repo has been deployed and no remote Cloudflare resources were
-created — no account or token was provided.
+Deployed at **<https://housebot.butt.workers.dev>** — interactions endpoint
+`https://housebot.butt.workers.dev/interactions`, cron `17 * * * *`, D1 migration
+`0001_init.sql` applied remotely.
 
 ## Operational caveats
 

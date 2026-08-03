@@ -22,6 +22,19 @@ export const HOUSE_COMMAND = {
     },
     {
       type: ApplicationCommandOptionType.SUB_COMMAND,
+      name: 'bind',
+      description: 'Bind THIS existing thread to a listing and post the first snapshot',
+      options: [
+        {
+          type: ApplicationCommandOptionType.STRING,
+          name: 'link',
+          description: 'Zillow or Redfin listing URL',
+          required: true,
+        },
+      ],
+    },
+    {
+      type: ApplicationCommandOptionType.SUB_COMMAND,
       name: 'update',
       description: 'Refresh this house from its listing (run inside a house thread)',
       options: [

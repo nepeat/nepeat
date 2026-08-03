@@ -130,6 +130,81 @@ export class HouseService {
   }
 
   /**
+   * `/house bind` — adopt an existing thread instead of creating one.
+   * Same dedupe rules as `add`; the thread is renamed to the canonical title so
+   * D1 and Discord never disagree about what this thread is.
+   */
+  async bind(input: {
+    link: string;
+    guildId: string | null;
+    threadId: string;
+    parentChannelId: string;
+    currentName?: string | null;
+  }): Promise<{ message: string }> {
+    const ident = identifyUrl(input.link);
+    if (!ident) {
+      return {
+        message:
+          "that doesn't look like a Zillow or Redfin listing URL. I need a `/homedetails/..._zpid/` or `/home/<id>` link.",
+      };
+    }
+
+    const bound = await this.repo.getByThreadId(input.threadId);
+    if (bound) {
+      return {
+        message: `this thread is already bound to \`${bound.listing_key}\`. Use \`/house update\` to refresh it.`,
+      };
+    }
+    const elsewhere = await this.repo.getByListingKey(ident.listingKey);
+    if (elsewhere) {
+      return { message: `that listing is already tracked in <#${elsewhere.thread_id}>` };
+    }
+
+    const now = this.now();
+    const result = await fetchListing(ident.canonicalUrl, this.fetchOpts(), now);
+    if (!result.ok) {
+      return {
+        message: `couldn't bind that house: ${explainFailure(result.reason, result.detail)}`,
+      };
+    }
+    if (result.kind === 'not-modified') {
+      return { message: 'unexpected 304 from the listing page; try again.' };
+    }
+
+    // Re-check after the slow network work in case a concurrent command won.
+    if (await this.repo.getByThreadId(input.threadId)) {
+      return { message: 'this thread just got bound by another command.' };
+    }
+    if (await this.repo.getByListingKey(ident.listingKey)) {
+      return { message: 'that listing just got tracked by another command.' };
+    }
+
+    const snapshot = result.snapshot;
+    const closed = isClosed({ forceClosed: false, listingStatus: snapshot.status });
+    const title = buildThreadTitle(snapshot, { closed, fallback: ident.listingKey });
+
+    const row = await this.repo.insertProperty({
+      snapshot,
+      guildId: input.guildId,
+      parentChannelId: input.parentChannelId,
+      threadId: input.threadId,
+      title,
+      etag: result.etag ?? null,
+      lastModified: result.lastModified ?? null,
+      now,
+      nextCheckAt: now + this.config.refreshIntervalSeconds,
+    });
+
+    if (input.currentName !== title) {
+      await this.rest.renameThread(input.threadId, title);
+    }
+    await this.rest.postMessage(input.threadId, buildSnapshotMessage(snapshot, closed));
+    await this.syncAirtable(row, snapshot);
+
+    return { message: `bound this thread to \`${snapshot.listingKey}\`.` };
+  }
+
+  /**
    * Shared refresh path for `/house update` and the cron.
    * Posts a change notice only when a material field moved.
    */

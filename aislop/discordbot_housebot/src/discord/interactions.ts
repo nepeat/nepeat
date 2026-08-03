@@ -96,6 +96,29 @@ export async function handleInteraction(
       return deferEphemeral();
     }
 
+    case 'bind': {
+      if (!link) return replyEphemeral('`/house bind` needs a `link`.');
+      const parentId = interaction.channel?.parent_id ?? null;
+      if (!threadId || !parentId) {
+        return replyEphemeral(
+          'run `/house bind` inside the thread you want to bind, not in the channel itself.',
+        );
+      }
+      deps.waitUntil(
+        runDeferred(deps, interaction, async () => {
+          const r = await deps.service.bind({
+            link,
+            guildId: interaction.guild_id ?? null,
+            threadId,
+            parentChannelId: parentId,
+            currentName: interaction.channel?.name ?? null,
+          });
+          return r.message;
+        }),
+      );
+      return deferEphemeral();
+    }
+
     case 'update': {
       deps.waitUntil(
         runDeferred(deps, interaction, async () => {

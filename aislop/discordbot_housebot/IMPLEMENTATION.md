@@ -103,11 +103,16 @@ generated keypairs, valid and invalid.
   request shape, upsert merge field, skip reasons, and token redaction are unit
   tested against a mock. See `docs/AIRTABLE.md` — verify with one real
   `/house add` before trusting it.
-- **Nothing was deployed.** No Cloudflare account or API token was provided, so
-  no D1 database, no Worker, and no cron exist remotely. `database_id` in
-  `wrangler.jsonc` is a placeholder; `npm run build` is a `--dry-run` only.
+- **Deployed, but the listing path is unproven in production.** The Worker is
+  live at `housebot.butt.workers.dev` with D1 `7d1aa078-…` migrated and the cron
+  armed; signature rejection and the interactions endpoint are verified against
+  the real deployment. No successful live listing fetch has been observed yet.
 - **`/house update` with an explicit `link` only works for an already-tracked
   house.** It is a refresh escape hatch, not a second `add`.
+- **`/house bind` renames the thread it adopts.** Storing a canonical title while
+  leaving the Discord name untouched would make D1 and Discord disagree, and the
+  next refresh would rename it anyway — so bind does it up front. Both unique
+  constraints still apply: one listing per thread, one thread per listing.
 - **Threads are never auto-archived.** `DiscordRest.setThreadArchived` exists but
   is unused: archiving a closed house would hide the history that makes the
   thread useful. Wire it up if the channel gets noisy.
@@ -124,8 +129,8 @@ generated keypairs, valid and invalid.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 8 files, 88 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 53.88 KiB
+npm test            # vitest: 8 files, 96 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 56.97 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.
@@ -134,7 +139,7 @@ transitions, Ed25519 verification (valid/tampered/replayed/wrong-key/malformed),
 provider parsers against fixtures (active/sold/unparseable), fetcher behavior
 (conditional headers, 304, 403-as-blocked, 500, timeout, network error,
 unsupported URL), Airtable field map + client, and end-to-end interaction flows
-(`add`/`update`/`close`/`open`/`status`, wrong channel, idempotent retry, deferral)
+(`add`/`bind`/`update`/`close`/`open`/`status`, wrong channel, idempotent retry, deferral)
 plus scheduled-refresh batching, force-close exclusion, per-property failure
 isolation, and interaction-log pruning — all against a mock Discord REST and an
 in-memory D1. No test touches the network.

@@ -212,6 +212,100 @@ describe('/house add', () => {
   });
 });
 
+describe('/house bind', () => {
+  const THREAD = '7000000000000001';
+  const inThread = (link?: string, name?: string) => {
+    const i = interaction('bind', { channelId: THREAD, parentId: HOUSE_CHANNEL, link });
+    if (name !== undefined) i.channel!.name = name;
+    return i;
+  };
+
+  it('adopts an existing thread, renames it, and posts the first snapshot', async () => {
+    const h = harness();
+    await h.run(inThread(ZILLOW_LINK, 'old thread name'));
+
+    const row = await h.repo.getByThreadId(THREAD);
+    expect(row).toMatchObject({
+      listing_key: 'zillow:49059541',
+      thread_id: THREAD,
+      parent_channel_id: HOUSE_CHANNEL,
+      force_closed: 0,
+    });
+    // No thread was created -- it bound the one it was run in.
+    expect(h.calls.filter((c) => c.path.endsWith('/threads'))).toHaveLength(0);
+
+    const rename = h.calls.find((c) => c.method === 'PATCH' && c.path === `/channels/${THREAD}`);
+    expect(rename?.body).toMatchObject({
+      name: '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+    });
+    expect(threadMessages(h.calls)[0]).toContain('**Price:** $725,000');
+    expect(followUps(h.calls).at(-1)).toContain('bound this thread to `zillow:49059541`');
+  });
+
+  it('skips the rename when the thread name already matches', async () => {
+    const h = harness();
+    await h.run(
+      inThread(ZILLOW_LINK, '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057'),
+    );
+    expect(h.calls.filter((c) => c.method === 'PATCH' && c.path === `/channels/${THREAD}`)).toHaveLength(0);
+  });
+
+  it('refuses when run in the channel instead of a thread', async () => {
+    const h = harness();
+    const res = await h.run(interaction('bind', { channelId: HOUSE_CHANNEL, link: ZILLOW_LINK }));
+    const body = (await res.json()) as { data: { content: string } };
+    expect(body.data.content).toContain('inside the thread you want to bind');
+    expect(h.calls).toHaveLength(0);
+  });
+
+  it('refuses to rebind an already-bound thread', async () => {
+    const h = harness();
+    await h.run(inThread(ZILLOW_LINK));
+    await h.run(inThread('https://www.redfin.com/WA/Bellevue/x/home/173510'));
+    expect(followUps(h.calls).at(-1)).toContain('already bound to `zillow:49059541`');
+    expect(await h.repo.getByListingKey('redfin:173510')).toBeNull();
+  });
+
+  it('refuses when the listing is already tracked in another thread', async () => {
+    const h = harness();
+    await h.run(interaction('add', { link: ZILLOW_LINK }));
+    const existing = await h.repo.getByListingKey('zillow:49059541');
+    await h.run(inThread(ZILLOW_LINK));
+    expect(followUps(h.calls).at(-1)).toContain(`already tracked in <#${existing!.thread_id}>`);
+    expect(await h.repo.getByThreadId(THREAD)).toBeNull();
+  });
+
+  it('binds nothing when the listing fetch fails', async () => {
+    const h = harness();
+    h.setPage(403);
+    await h.run(inThread(ZILLOW_LINK));
+    expect(followUps(h.calls).at(-1)).toContain('blocked');
+    expect(await h.repo.getByThreadId(THREAD)).toBeNull();
+    expect(threadMessages(h.calls)).toHaveLength(0);
+  });
+
+  it('rejects a non-listing link', async () => {
+    const h = harness();
+    await h.run(inThread('https://www.realtor.com/x'));
+    expect(followUps(h.calls).at(-1)).toContain("doesn't look like a Zillow or Redfin listing URL");
+  });
+
+  it('leaves the bound thread refreshable by the cron', async () => {
+    const h = harness();
+    await h.run(inThread(ZILLOW_LINK));
+    h.setNow(h.now() + 7200);
+    h.setPage(fixture('zillow-sold.html'));
+    const report = await runScheduledRefresh({
+      repo: h.repo,
+      service: h.service,
+      batchSize: 10,
+      now: () => h.now(),
+    });
+    expect(report).toMatchObject({ considered: 1, changed: 1 });
+    expect(threadMessages(h.calls).at(-1)).toContain('**Status:** Active → Closed / Sold');
+  });
+});
+
 describe('/house update', () => {
   async function seeded() {
     const h = harness();
