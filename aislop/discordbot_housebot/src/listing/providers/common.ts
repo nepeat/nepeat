@@ -77,6 +77,14 @@ export function snapshotFromJsonLd(
 
   out.yearBuilt = num(place['yearBuilt']);
 
+  // Zillow publishes GeoCoordinates on itemOffered -- free, exact, and it means
+  // we never have to geocode a street address (or fight centerline snapping).
+  const geo = place['geo'];
+  if (isRecord(geo)) {
+    out.lat = num(geo['latitude']);
+    out.lon = num(geo['longitude']);
+  }
+
   if (isRecord(offer)) {
     out.price = num(offer['price']);
     const avail = str(offer['availability']);

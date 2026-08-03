@@ -25,6 +25,8 @@ interface Harness {
   setPage: (html: string | number) => void;
   now: () => number;
   setNow: (t: number) => void;
+  routesCalls: () => number;
+  setRoutesUp: (up: boolean) => void;
 }
 
 function harness(): Harness {
@@ -34,6 +36,8 @@ function harness(): Harness {
 
   let page: string | number = fixture('zillow-active.html');
   let clock = 1_700_000_000;
+  let routesCalls = 0;
+  let routesUp = true;
 
   const listingFetch: typeof fetch = async () =>
     typeof page === 'number' ? new Response('', { status: page }) : htmlResponse(page);
@@ -49,6 +53,22 @@ function harness(): Harness {
     },
     // Airtable intentionally unconfigured: the Discord path must not care.
     airtable: {},
+    commute: {
+      apiKey: 'test-key',
+      departureIso: '2026-08-11T08:00:00-07:00',
+      apiUrl: 'https://routes.test/compute',
+      fetchImpl: (async () => {
+        routesCalls += 1;
+        return routesUp
+          ? new Response(
+              JSON.stringify({
+                routes: [{ duration: '1115s', staticDuration: '1189s', distanceMeters: 18083 }],
+              }),
+              { status: 200 },
+            )
+          : new Response('boom', { status: 500 });
+      }) as unknown as typeof fetch,
+    },
     fetchImpl: listingFetch,
     now: () => clock,
   });
@@ -65,6 +85,10 @@ function harness(): Harness {
     },
     setPage: (html) => {
       page = html;
+    },
+    routesCalls: () => routesCalls,
+    setRoutesUp: (up) => {
+      routesUp = up;
     },
     run: async (interaction) => {
       const res = await handleInteraction(interaction, {
@@ -303,6 +327,95 @@ describe('/house bind', () => {
     });
     expect(report).toMatchObject({ considered: 1, changed: 1 });
     expect(threadMessages(h.calls).at(-1)).toContain('**Status:** Active → Closed / Sold');
+  });
+});
+
+describe('enrichment', () => {
+  const LIVE_LINK =
+    'https://www.zillow.com/homedetails/400-Cedar-Ave-S-Renton-WA-98057/49024254_zpid/';
+
+  function liveHarness() {
+    const h = harness();
+    h.setPage(fixture('zillow-live-2026.html'));
+    return h;
+  }
+
+  it('stores coordinates from the listing page', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    expect(row?.lat).toBeCloseTo(47.4779);
+    expect(row?.lon).toBeCloseTo(-122.20163);
+  });
+
+  it('posts commute + heating into the thread on add', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const posted = threadMessages(h.calls);
+    expect(posted).toHaveLength(2); // snapshot, then enrichment
+    expect(posted[1]).toContain('Bellevue office (nep): **19 min**');
+    expect(posted[1]).toContain('heat pump');
+    expect(posted[1]).toContain('unverified');
+    expect(h.routesCalls()).toBe(2);
+  });
+
+  it('persists enrichment rows with provenance', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    const rows = await h.repo.listEnrichment(row!.id);
+    const byKind = Object.fromEntries(rows.map((r) => [r.kind, r]));
+    expect(byKind['commute']?.status).toBe('ok');
+    expect(byKind['commute']?.provenance).toContain('TRAFFIC_AWARE_OPTIMAL');
+    expect(byKind['hvac']?.status).toBe('unverified');
+    expect(JSON.parse(byKind['hvac']!.value_json!).kinds).toContain('heat-pump');
+  });
+
+  it('does NOT re-run enrichment on refresh', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const before = h.routesCalls();
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+    expect(h.routesCalls()).toBe(before);
+  });
+
+  it('recomputes on /house enrich', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const before = h.routesCalls();
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    await h.run(interaction('enrich', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+    expect(h.routesCalls()).toBe(before + 2);
+    expect(followUps(h.calls).at(-1)).toContain('enrichment recomputed');
+  });
+
+  it('still adds the house when routing is down', async () => {
+    const h = liveHarness();
+    h.setRoutesUp(false);
+    await h.run(interaction('add', { link: LIVE_LINK }));
+
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    expect(row).not.toBeNull();
+    expect(followUps(h.calls).at(-1)).toContain('tracking');
+
+    const rows = await h.repo.listEnrichment(row!.id);
+    const commute = rows.find((r) => r.kind === 'commute');
+    expect(commute?.status).toBe('unavailable');
+    expect(commute?.value_json).toBeNull();
+    // Heating still posted; only the commute line is missing.
+    expect(threadMessages(h.calls).at(-1)).toContain('heat pump');
+  });
+
+  it('records commute as unavailable when the page has no coordinates', async () => {
+    const h = harness(); // the old fixture has no geo block
+    await h.run(interaction('add', { link: ZILLOW_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49059541');
+    const rows = await h.repo.listEnrichment(row!.id);
+    const commute = rows.find((r) => r.kind === 'commute');
+    expect(commute?.status).toBe('unavailable');
+    expect(commute?.provenance).toContain('coordinates');
+    expect(h.routesCalls()).toBe(0);
   });
 });
 

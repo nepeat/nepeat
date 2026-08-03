@@ -53,8 +53,10 @@ export class FakeD1 {
 
   constructor() {
     this.db = new DatabaseSync(':memory:');
-    const path = fileURLToPath(new URL('../../migrations/0001_init.sql', import.meta.url));
-    this.db.exec(readFileSync(path, 'utf8'));
+    for (const name of ['0001_init.sql', '0002_geo_and_enrichment.sql']) {
+      const path = fileURLToPath(new URL(`../../migrations/${name}`, import.meta.url));
+      this.db.exec(readFileSync(path, 'utf8'));
+    }
   }
 
   prepare(sql: string): FakeStatement {

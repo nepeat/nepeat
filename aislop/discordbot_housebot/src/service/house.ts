@@ -1,4 +1,6 @@
 import { syncListing, type AirtableConfig, type AirtableSyncResult } from '../airtable/client';
+import { estimateCommutes, formatCommute, type CommuteConfig } from '../enrichment/commute';
+import { classifyHvac, formatHvac } from '../enrichment/hvac';
 import { backoffSeconds, parseSnapshot, Repo, type PropertyRow } from '../db/repo';
 import type { DiscordRest } from '../discord/rest';
 import { computeChanges } from '../listing/diff';
@@ -25,6 +27,7 @@ export interface HouseServiceDeps {
   rest: DiscordRest;
   config: HouseServiceConfig;
   airtable: AirtableConfig;
+  commute?: CommuteConfig;
   fetchImpl?: typeof fetch;
   now?: () => number;
 }
@@ -41,6 +44,7 @@ export class HouseService {
   private readonly rest: DiscordRest;
   private readonly config: HouseServiceConfig;
   private readonly airtable: AirtableConfig;
+  private readonly commute: CommuteConfig;
   private readonly fetchImpl?: typeof fetch;
   private readonly nowFn: () => number;
 
@@ -49,6 +53,7 @@ export class HouseService {
     this.rest = deps.rest;
     this.config = deps.config;
     this.airtable = deps.airtable;
+    this.commute = deps.commute ?? {};
     this.fetchImpl = deps.fetchImpl;
     this.nowFn = deps.now ?? (() => Math.floor(Date.now() / 1000));
   }
@@ -124,6 +129,7 @@ export class HouseService {
     });
 
     await this.rest.postMessage(thread.id, buildSnapshotMessage(snapshot, closed));
+    await this.enrich(row, snapshot);
     await this.syncAirtable(row, snapshot);
 
     return { message: `tracking → <#${thread.id}>` };
@@ -199,6 +205,7 @@ export class HouseService {
       await this.rest.renameThread(input.threadId, title);
     }
     await this.rest.postMessage(input.threadId, buildSnapshotMessage(snapshot, closed));
+    await this.enrich(row, snapshot);
     await this.syncAirtable(row, snapshot);
 
     return { message: `bound this thread to \`${snapshot.listingKey}\`.` };
@@ -357,6 +364,75 @@ export class HouseService {
     return { message: lines.join('\n') };
   }
 
+  /**
+   * Location-derived facts. Runs once at add/bind time (and on `/house enrich`),
+   * never on refresh: nothing here changes when a price does, and re-running it
+   * would burn API quota to produce noise. Failures are recorded, never thrown.
+   */
+  async enrich(
+    row: PropertyRow,
+    snapshot: Snapshot,
+    opts: { post?: boolean } = { post: true },
+  ): Promise<{ lines: string[] }> {
+    const now = this.now();
+    const lines: string[] = [];
+
+    // HVAC: pure classification of text we already have. No network.
+    try {
+      const hvac = classifyHvac(snapshot.hvac);
+      if (hvac) {
+        await this.repo.putEnrichment({
+          propertyId: row.id,
+          kind: 'hvac',
+          status: 'unverified',
+          provenance: 'classified from public listing text; not confirmed against county records',
+          value: hvac,
+          now,
+        });
+        lines.push(`**Heating:** ${formatHvac(hvac)}`);
+      } else {
+        await this.repo.putEnrichment({
+          propertyId: row.id,
+          kind: 'hvac',
+          status: 'unavailable',
+          provenance: 'listing page did not expose a heating field',
+          value: null,
+          now,
+        });
+      }
+    } catch (err) {
+      console.error('hvac enrichment failed', { id: row.id, error: errText(err) });
+    }
+
+    // Commute: two Google Routes calls, Pro SKU.
+    try {
+      const result = await estimateCommutes(
+        snapshot.lat ?? row.lat,
+        snapshot.lon ?? row.lon,
+        this.commute,
+      );
+      await this.repo.putEnrichment({
+        propertyId: row.id,
+        kind: 'commute',
+        status: result.status,
+        provenance: result.provenance,
+        value: result.status === 'ok' ? result.value : null,
+        now,
+      });
+      if (result.status === 'ok') {
+        lines.push(`**Commute:**\n${formatCommute(result.value)}`);
+        lines.push(`-# ${result.provenance}`);
+      }
+    } catch (err) {
+      console.error('commute enrichment failed', { id: row.id, error: errText(err) });
+    }
+
+    if (opts.post !== false && lines.length > 0) {
+      await this.rest.postMessage(row.thread_id, lines.join('\n'));
+    }
+    return { lines };
+  }
+
   /** Airtable is advisory: results are recorded, failures never propagate. */
   private async syncAirtable(row: PropertyRow, snapshot: Snapshot): Promise<AirtableSyncResult> {
     let result: AirtableSyncResult;
@@ -384,4 +460,8 @@ export class HouseService {
     }
     return result;
   }
+}
+
+function errText(err: unknown): string {
+  return err instanceof Error ? (err.stack ?? err.message) : String(err);
 }

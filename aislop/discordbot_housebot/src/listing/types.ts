@@ -37,6 +37,10 @@ export interface Snapshot {
   /** Parsed from listing text when present. Always unverified. */
   hvac?: string;
 
+  /** From the listing page's own geo markup. Not geocoded by us. */
+  lat?: number;
+  lon?: number;
+
   /** Unix seconds when this observation was taken. */
   fetchedAt: number;
 }

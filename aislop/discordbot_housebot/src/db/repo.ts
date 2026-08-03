@@ -22,6 +22,17 @@ export interface PropertyRow {
   last_error: string | null;
   created_at: number;
   updated_at: number;
+  lat: number | null;
+  lon: number | null;
+}
+
+export interface EnrichmentRow {
+  property_id: number;
+  kind: string;
+  status: string;
+  provenance: string;
+  value_json: string | null;
+  computed_at: number;
 }
 
 export interface SnapshotRow {
@@ -76,8 +87,9 @@ export class Repo {
         `INSERT INTO properties
            (listing_key, provider, listing_id, source_url, guild_id, parent_channel_id,
             thread_id, snapshot_json, status, title, force_closed, etag, last_modified,
-            last_checked_at, last_changed_at, next_check_at, fail_count, created_at, updated_at)
-         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,0,?11,?12,?13,?13,?14,0,?13,?13)`,
+            last_checked_at, last_changed_at, next_check_at, fail_count, created_at, updated_at,
+            lat, lon)
+         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,0,?11,?12,?13,?13,?14,0,?13,?13,?15,?16)`,
       )
       .bind(
         s.listingKey,
@@ -94,6 +106,8 @@ export class Repo {
         input.lastModified ?? null,
         input.now,
         input.nextCheckAt,
+        s.lat ?? null,
+        s.lon ?? null,
       )
       .run();
 
@@ -121,6 +135,7 @@ export class Repo {
            snapshot_json = ?2, status = ?3, title = ?4, etag = ?5, last_modified = ?6,
            last_checked_at = ?7, next_check_at = ?8, fail_count = 0, last_error = NULL,
            last_changed_at = CASE WHEN ?9 = 1 THEN ?7 ELSE last_changed_at END,
+           lat = COALESCE(?10, lat), lon = COALESCE(?11, lon),
            updated_at = ?7
          WHERE id = ?1`,
       )
@@ -134,6 +149,8 @@ export class Repo {
         input.now,
         input.nextCheckAt,
         changed ? 1 : 0,
+        input.snapshot.lat ?? null,
+        input.snapshot.lon ?? null,
       )
       .run();
 
@@ -257,6 +274,41 @@ export class Repo {
       .prepare('DELETE FROM interaction_log WHERE created_at < ?1')
       .bind(olderThan)
       .run();
+  }
+
+  async putEnrichment(input: {
+    propertyId: number;
+    kind: string;
+    status: string;
+    provenance: string;
+    value: unknown;
+    now: number;
+  }): Promise<void> {
+    await this.db
+      .prepare(
+        `INSERT INTO enrichment (property_id, kind, status, provenance, value_json, computed_at)
+         VALUES (?1,?2,?3,?4,?5,?6)
+         ON CONFLICT(property_id, kind) DO UPDATE SET
+           status = excluded.status, provenance = excluded.provenance,
+           value_json = excluded.value_json, computed_at = excluded.computed_at`,
+      )
+      .bind(
+        input.propertyId,
+        input.kind,
+        input.status,
+        input.provenance.slice(0, 500),
+        input.value === undefined || input.value === null ? null : JSON.stringify(input.value),
+        input.now,
+      )
+      .run();
+  }
+
+  async listEnrichment(propertyId: number): Promise<EnrichmentRow[]> {
+    const res = await this.db
+      .prepare('SELECT * FROM enrichment WHERE property_id = ?1 ORDER BY kind')
+      .bind(propertyId)
+      .all<EnrichmentRow>();
+    return res.results ?? [];
   }
 
   async recordAirtableSync(

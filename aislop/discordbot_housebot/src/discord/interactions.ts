@@ -1,4 +1,4 @@
-import type { PropertyRow, Repo } from '../db/repo';
+import { parseSnapshot, type PropertyRow, type Repo } from '../db/repo';
 import { formatError } from '../http';
 import type { HouseService } from '../service/house';
 import {
@@ -144,6 +144,22 @@ export async function handleInteraction(
             case 'error':
               return `refresh failed: ${outcome.detail}`;
           }
+        }),
+      );
+      return deferEphemeral();
+    }
+
+    case 'enrich': {
+      deps.waitUntil(
+        runDeferred(deps, interaction, async () => {
+          const row = threadId ? await deps.repo.getByThreadId(threadId) : null;
+          if (!row) return propertyMissingText(null);
+          const snapshot = parseSnapshot(row);
+          if (!snapshot) return 'no stored snapshot yet — run `/house update` first.';
+          const { lines } = await deps.service.enrich(row, snapshot);
+          return lines.length
+            ? 'enrichment recomputed; posted in the thread.'
+            : 'nothing to report — no coordinates on the listing and no heating text.';
         }),
       );
       return deferEphemeral();

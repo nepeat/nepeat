@@ -44,8 +44,12 @@ export const COMMUTE_DESTINATIONS = [
 export interface CommuteEstimate {
   label: string;
   destination: string;
+  /** Traffic-aware seconds at the pinned departure time. */
   driveSeconds: number;
   provider: string;
+  /** Same route with no traffic model, for comparison. */
+  freeFlowSeconds?: number;
+  distanceMeters?: number;
 }
 
 export interface TransitStop {
@@ -68,10 +72,8 @@ export const photosAdapter = stub<string[]>(
   'listing photo URLs are provider-hosted assets under their terms; needs an explicit licensed feed or manual upload',
 );
 
-export const commuteAdapter = stub<CommuteEstimate[]>(
-  'commute',
-  'needs a routing/geocoding provider (Google/Mapbox/HERE) or self-hosted OSRM+Valhalla; no free reliable car ETA exists',
-);
+// Commute is implemented in ./commute.ts against the Google Routes API.
+// Kept out of the stub list so nothing claims it is unavailable when it is not.
 
 export const transitAdapter = stub<TransitStop[]>(
   'transit',
@@ -107,7 +109,6 @@ export const hvacAdapter: EnrichmentAdapter<string> = {
 
 export const ADAPTERS = {
   photos: photosAdapter,
-  commute: commuteAdapter,
   transit: transitAdapter,
   isp: ispAdapter,
   hvac: hvacAdapter,

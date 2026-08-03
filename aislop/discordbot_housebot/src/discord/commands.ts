@@ -48,6 +48,11 @@ export const HOUSE_COMMAND = {
     },
     {
       type: ApplicationCommandOptionType.SUB_COMMAND,
+      name: 'enrich',
+      description: 'Recompute commute + heating for this house (run inside a house thread)',
+    },
+    {
+      type: ApplicationCommandOptionType.SUB_COMMAND,
       name: 'close',
       description: 'Force this house closed (run inside a house thread)',
     },

@@ -120,6 +120,22 @@ The handler and tests stay so re-enabling is a one-line config change.
 summary is for the room — it is the thing people actually want to point at in a
 thread.
 
+**Enrichment lives in its own table, never in `snapshot_json`.** The snapshot is
+an *observation of the listing*; enrichment is *derived facts about the
+location*. Merging them would corrupt `computeChanges`, which diffs observations
+— a commute recomputation would surface as a listing change. `enrichment` is
+keyed `(property_id, kind)` with a mandatory `provenance` string.
+
+**Enrichment runs at add/bind, not on refresh.** Nothing it computes changes when
+a price does, so re-running it hourly would burn Google quota to produce noise.
+`/house enrich` forces recomputation when you want it.
+
+**Coordinates come from the listing, not from a geocoder.** Zillow publishes
+`offers.itemOffered.geo`, so there is no Geocoding SKU in the loop and no
+street-centerline snapping problem. `lat`/`lon` live on `properties` (they are
+part of the observation) and are backfilled with `COALESCE` on later fetches, so
+a page that starts publishing geo upgrades an existing row.
+
 **Split tsconfigs.** `@types/node` and `@cloudflare/workers-types` disagree about
 `fetch`/`CryptoKey`. `tsconfig.json` typechecks `src/` against workers-types only
 (what actually runs); `tsconfig.test.json` adds node types for tests and scripts.
@@ -156,15 +172,22 @@ thread.
   full, total, or a `2.5` decimal; the adapters prefer
   `numberOfBathroomsTotal`/`bathrooms` and fall back through the LD+JSON
   vocabulary. Titles render `4b2.5b` for fractional values.
-- **Enrichment is interfaces only** (photos, commute, transit, ISP). See
-  `docs/ENRICHMENT.md` for the concrete integration options and their costs.
+- **Transit, ISP and photos are still interfaces only.** See `docs/ROADMAP.md`
+  for the costed plan; the FCC Form 477 path is verified working and unbuilt.
+- **HVAC classification is still listing prose.** The King County Assessor
+  `Heat Source` verification path is designed but not built, so a listing that
+  says "forced air" about a heat pump will still say that.
+- **The commute number is one live-verified call, not a proven feature.** The
+  Google Routes key was validated end to end from the Worker (18,083 m / 1,115 s
+  to Bellevue), but the adapter itself has only run against mocks. The first real
+  `/house add` is the actual test.
 
 ## Verification performed
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 9 files, 111 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 59.69 KiB
+npm test            # vitest: 10 files, 137 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 71.31 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.

@@ -20,12 +20,33 @@ notice.
 | `/house add <link>` | house channel or any of its threads | Normalizes the URL, fetches one snapshot, dedupes by canonical listing key, creates the thread, posts the first snapshot. |
 | `/house bind <link>` | inside an existing thread | Binds **that** thread to a listing instead of creating a new one, renames it to the canonical title, and posts the first snapshot. |
 | `/house update [link]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved. |
+| `/house enrich` | inside a house thread | Recomputes commute + heating and posts them. Enrichment otherwise runs once, at add/bind time. |
 | `/house close` | inside a house thread | Force-closes the house (no fetch). Prefixes the title with `❌ ` and removes it from the cron. |
 | `/house open` | inside a house thread | Re-opens **only** if the live listing is not sold/closed. Explains cleanly otherwise. |
 | `/house status` | inside a house thread | Diagnostic read from D1 — status, source, last checked/changed, failure count. Posted **publicly** in the thread; makes no network calls. |
 
 Material fields: `status`, `price`, `beds`, `baths`, `sqft`, `address`,
 `yearBuilt`, `hvac`.
+
+## Enrichment
+
+Location-derived facts, computed **once at add/bind time** (houses don't move) and
+stored in the `enrichment` table with a provenance string. Re-run with
+`/house enrich`.
+
+- **Commute** — Google Routes API, `TRAFFIC_AWARE_OPTIMAL`, departing at a pinned
+  time (`COMMUTE_DEPARTURE_ISO`, default next Tue 08:00 Pacific). Two calls per
+  house on the Compute Routes **Pro** SKU: 5,000 free calls/month, so ~2,500
+  house-adds/month before it costs anything. Origin coordinates come from the
+  listing page's own `geo` markup — housebot never geocodes.
+- **Heating** — classified from listing text into heat pump / forced air (gas or
+  electric) / baseboard / radiant floor / radiators / oil / none. **Oil and steam
+  radiators are flagged with ⚠️.** Always labeled unverified; `radiant floor` and
+  `radiator` are deliberately distinct.
+
+Both degrade to a recorded `unavailable` with a reason rather than failing the
+command. Transit, ISP and photos are still scaffolded interfaces — see
+[docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Bootstrap
 

@@ -128,6 +128,8 @@ describe('zillow live markup (captured 2026-08-03, zpid 49024254)', () => {
       baths: 2,
       sqft: 4670,
       yearBuilt: 1908,
+      lat: 47.4779,
+      lon: -122.20163,
     });
   });
 
