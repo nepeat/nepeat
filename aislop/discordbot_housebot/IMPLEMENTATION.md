@@ -157,6 +157,12 @@ in what order. `nameShort` is preferred over `name` (riders say "1 Line", not
 "Link 1 Line") with a fallback — verified live, where South Lake Union Streetcar
 ships only the long name.
 
+**Driving and transit depart at different times on purpose.** 08:00 answers "what
+is my commute"; transit at 08:00 would be scored against peak-only runs you
+cannot reproduce at any other hour, so it departs at 10:00 and answers "can I
+actually get there on transit". Both are overridable and both are printed in the
+provenance, because either number is meaningless without its assumption.
+
 **Embeds over markdown.** Enrichment and `/house status` post embeds so commute,
 transit and heating are separately labeled fields rather than one wall of text,
 colored by listing status. Field values are truncated at Discord's 1024-char cap.
@@ -211,8 +217,10 @@ from the stored snapshot before returning.
   full, total, or a `2.5` decimal; the adapters prefer
   `numberOfBathroomsTotal`/`bathrooms` and fall back through the LD+JSON
   vocabulary. Titles render `4b2.5b` for fractional values.
-- **Transit, ISP and photos are still interfaces only.** See `docs/ROADMAP.md`
-  for the costed plan; the FCC Form 477 path is verified working and unbuilt.
+- **ISP is still an interface only.** See `docs/ROADMAP.md`; the FCC Form 477
+  path is verified working and unbuilt.
+- **Photos are the single `og:image` only.** Hotlinked from the provider, so a
+  provider that blocks hotlinking or rotates the URL breaks the image silently.
 - **HVAC classification is still listing prose.** The King County Assessor
   `Heat Source` verification path is designed but not built, so a listing that
   says "forced air" about a heat pump will still say that.
@@ -230,8 +238,8 @@ from the stored snapshot before returning.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 155 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 81.16 KiB
+npm test            # vitest: 10 files, 164 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 82.54 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.

@@ -27,6 +27,12 @@ export interface Env {
    * Defaults to the next Tuesday 08:00 America/Los_Angeles when unset.
    */
   COMMUTE_DEPARTURE_ISO?: string;
+  /**
+   * Pinned transit departure, ISO-8601 with offset. Defaults to the next
+   * Tuesday 10:00 America/Los_Angeles — off-peak enough that the itinerary
+   * reflects ordinary service, not commuter-only runs.
+   */
+  TRANSIT_DEPARTURE_ISO?: string;
 }
 
 export function intVar(value: string | undefined, fallback: number): number {

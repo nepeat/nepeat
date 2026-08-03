@@ -22,6 +22,7 @@ const TRANSIT_RESPONSE = {
             { travelMode: 'WALK', staticDuration: '360s' },
             {
               travelMode: 'TRANSIT',
+              staticDuration: '900s',
               transitDetails: {
                 stopCount: 12,
                 transitLine: { nameShort: '535', name: 'Lynnwood - Bellevue', vehicle: { type: 'BUS' } },
@@ -29,6 +30,7 @@ const TRANSIT_RESPONSE = {
             },
             {
               travelMode: 'TRANSIT',
+              staticDuration: '1200s',
               transitDetails: {
                 stopCount: 6,
                 transitLine: { nameShort: '1 Line', name: 'Link 1 Line', vehicle: { type: 'LIGHT_RAIL' } },
@@ -36,6 +38,7 @@ const TRANSIT_RESPONSE = {
             },
             {
               travelMode: 'TRANSIT',
+              staticDuration: '600s',
               transitDetails: {
                 stopCount: 4,
                 transitLine: { nameShort: '8', name: 'Metro 8', vehicle: { type: 'BUS' } },
@@ -204,6 +207,8 @@ interface EmbedShape {
   fields: Array<{ name: string; value: string }>;
   footer?: { text: string };
   color?: number;
+  image?: { url: string };
+  thumbnail?: { url: string };
 }
 
 function lastEmbed(calls: RecordedCall[]): EmbedShape | null {
@@ -442,7 +447,14 @@ describe('enrichment', () => {
     expect(byName['🔥 Heating']).toContain('heat pump');
     expect(byName['🔥 Heating']).toContain('unverified');
     expect(embed.footer?.text).toContain('TRAFFIC_AWARE_OPTIMAL');
-    expect(h.routesCalls()).toBe(4);
+    expect(h.routesCalls()).toBe(6);
+  });
+
+  it('puts the listing photo on the enrichment embed', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const embed = lastEmbed(h.calls)!;
+    expect(embed.image?.url).toMatch(/^https:\/\/photos\.zillowstatic\.com\//);
   });
 
   it('renders the transit route as a vehicle chain', async () => {
@@ -450,7 +462,9 @@ describe('enrichment', () => {
     await h.run(interaction('add', { link: LIVE_LINK }));
     const embed = lastEmbed(h.calls)!;
     const transit = embed.fields.find((f) => f.name.startsWith('🚆 Transit'))!;
-    expect(transit.value).toContain('House → 535 🚌 → 1 Line 🚈 → 8 🚌 → Bellevue office (nep)');
+    expect(transit.value).toContain(
+      'House → 535 🚌 15m → 1 Line 🚈 20m → 8 🚌 10m → Bellevue office (nep)',
+    );
     expect(transit.value).toContain('**65 min**');
     expect(transit.value).toContain('2 transfer(s)');
     expect(transit.value).toContain('10 min walking');
@@ -494,7 +508,7 @@ describe('enrichment', () => {
     const after = await h.repo.listEnrichment(row!.id);
     const commute = after.find((e) => e.kind === 'commute');
     expect(commute?.status).toBe('ok');
-    expect(JSON.parse(commute!.value_json!).drive).toHaveLength(2);
+    expect(JSON.parse(commute!.value_json!).drive).toHaveLength(3);
     expect(lastEmbed(h.calls)!.fields.some((f) => f.value.includes('Bellevue office (nep)'))).toBe(
       true,
     );
@@ -516,7 +530,7 @@ describe('enrichment', () => {
 
     const updated = await h.repo.getByThreadId(row!.thread_id);
     expect(updated?.lat).toBeCloseTo(47.4779);
-    expect(h.routesCalls()).toBe(4);
+    expect(h.routesCalls()).toBe(6);
     const commute = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute');
     expect(commute?.status).toBe('ok');
   });
@@ -554,7 +568,7 @@ describe('enrichment', () => {
         reenrich: true,
       }),
     );
-    expect(h.routesCalls()).toBe(before + 4);
+    expect(h.routesCalls()).toBe(before + 6);
     expect(followUps(h.calls).at(-1)).toContain('filled in');
   });
 
@@ -626,7 +640,7 @@ describe('enrichment upgrade paths', () => {
 
     const commute = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute');
     expect(commute?.status).toBe('ok');
-    expect(JSON.parse(commute!.value_json!).transit).toHaveLength(2);
+    expect(JSON.parse(commute!.value_json!).transit).toHaveLength(3);
   });
 
   it('upgrades a commute row stored in the pre-transit shape', async () => {
@@ -649,11 +663,11 @@ describe('enrichment upgrade paths', () => {
     await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
 
     // Not settled -> recomputed into the current shape, with transit.
-    expect(h.routesCalls()).toBe(before + 4);
+    expect(h.routesCalls()).toBe(before + 6);
     const commute = (await h.repo.listEnrichment(row!.id)).find((e) => e.kind === 'commute');
     const value = JSON.parse(commute!.value_json!);
-    expect(value.drive).toHaveLength(2);
-    expect(value.transit).toHaveLength(2);
+    expect(value.drive).toHaveLength(3);
+    expect(value.transit).toHaveLength(3);
   });
 
   it('still renders a legacy row in /house status rather than hiding it', async () => {

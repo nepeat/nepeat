@@ -195,6 +195,16 @@ export function finalize(
   } as Snapshot;
 }
 
+/** The listing's preview photo, if it publishes one. https only. */
+export function photoFromMeta(html: string): Partial<Snapshot> {
+  const m =
+    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i.exec(html) ??
+    /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i.exec(html);
+  const url = m?.[1]?.trim();
+  if (!url || !/^https:\/\//i.test(url)) return {};
+  return { photoUrl: url };
+}
+
 /** og:title is a decent last-resort address on both providers. */
 export function addressFromMeta(html: string): Partial<Snapshot> {
   const m =

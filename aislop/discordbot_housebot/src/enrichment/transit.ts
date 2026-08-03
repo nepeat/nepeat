@@ -67,19 +67,28 @@ export function hopsFromSteps(
     // nameShort is the rider-facing designator ("535", "1 Line"); name is the
     // long marketing string. Prefer the short one, fall back to the long.
     const label = (line.nameShort ?? line.name ?? '?').trim();
+    const seconds = parseSeconds(step.staticDuration);
     hops.push({
       line: label,
       vehicle: line.vehicle?.type ?? 'OTHER',
       emoji: emojiForVehicle(line.vehicle?.type),
       ...(details.stopCount !== undefined ? { stopCount: details.stopCount } : {}),
+      ...(seconds !== undefined ? { seconds } : {}),
     });
   }
   return { hops, walkSeconds };
 }
 
-/** `House → 535 🚌 → 1 Line 🚈 → 8 🚌 → Bellevue office (nep)` */
+/** `House → 535 🚌 18m → 1 Line 🚈 12m → 8 🚌 6m → Bellevue office (nep)` */
 export function formatTransitRoute(it: TransitItinerary): string {
-  const chain = ['House', ...it.hops.map((h) => `${h.line} ${h.emoji}`), it.label];
+  const chain = [
+    'House',
+    ...it.hops.map((h) => {
+      const mins = h.seconds === undefined ? '' : ` ${Math.max(1, Math.round(h.seconds / 60))}m`;
+      return `${h.line} ${h.emoji}${mins}`;
+    }),
+    it.label,
+  ];
   return chain.join(' → ');
 }
 

@@ -4,6 +4,7 @@ import {
   addressFromMeta,
   factsFromMetaDescription,
   finalize,
+  photoFromMeta,
   mergeSnapshot,
   snapshotFromJsonLd,
   snapshotFromScan,
@@ -28,6 +29,7 @@ export const zillowSource: ListingSource = {
       factsFromMetaDescription(html),
       snapshotFromScan(html),
       addressFromMeta(html),
+      photoFromMeta(html),
     );
     return finalize(merged, 'zillow', listingId, canonicalUrl, fetchedAt);
   },

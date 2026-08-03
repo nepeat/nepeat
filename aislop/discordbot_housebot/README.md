@@ -42,14 +42,23 @@ enrich command: `/house update reenrich:true` forces a full recompute.
   free-flow comparison; transit renders the itinerary as a vehicle chain:
 
   ```
-  House → 101 🚌 → South Lake Union Streetcar 🚊 → Seattle office (partner)
+  House → 101 🚌 12m → South Lake Union Streetcar 🚊 8m → Seattle office (partner)
   ```
 
   Light rail (🚈), heavy rail (🚆), tram (🚊), bus (🚌) and ferry (⛴️) get distinct
-  glyphs. **4 calls per house** (2 destinations × 2 modes) against the Compute
-  Routes free tier, so ~1,250 house-adds/month before it costs anything. Origin
+  glyphs, and each leg carries its own riding time. Driving departs at 08:00
+  (`COMMUTE_DEPARTURE_ISO`) and **transit departs at 10:00**
+  (`TRANSIT_DEPARTURE_ISO`) — peak-only service would otherwise flatter an
+  itinerary you could not actually reproduce mid-morning.
+
+  Destinations: Bellevue office (nep), Seattle office (partner), Hackerspace.
+  **6 calls per house** (3 destinations × 2 modes) against the Compute Routes
+  free tier, so ~830 house-adds/month before it costs anything. Origin
   coordinates come from the listing page's own `geo` markup — housebot never
   geocodes.
+- **Photo** — the listing's own `og:image`, hotlinked exactly as a link preview
+  would: full-width on the enrichment embed, a thumbnail on `/house status`. The
+  full gallery is a licensing question and is deliberately untouched.
 - **Heating** — classified from listing text into heat pump / forced air (gas or
   electric) / baseboard / radiant floor / radiators / oil / none. **Oil and steam
   radiators are flagged with ⚠️.** Always labeled unverified; `radiant floor` and
@@ -138,7 +147,8 @@ Vars live in `wrangler.jsonc` (non-secret). Secrets go in `.dev.vars` locally an
 | `AIRTABLE_TABLE` | secret | no | Table id or name. **No default is assumed.** |
 | `AIRTABLE_FIELD_MAP_JSON` | secret | no | Field mapping — see [docs/AIRTABLE.md](docs/AIRTABLE.md). |
 | `GOOGLE_MAPS_API_KEY` | secret | no | Routes API key; enables commute ETAs. Restrict by API, **not** by IP. |
-| `COMMUTE_DEPARTURE_ISO` | secret | no | Pinned departure time for ETAs. Default: next Tue 08:00 Pacific. |
+| `COMMUTE_DEPARTURE_ISO` | secret | no | Pinned driving departure. Default: next Tue 08:00 Pacific. |
+| `TRANSIT_DEPARTURE_ISO` | secret | no | Pinned transit departure. Default: next Tue 10:00 Pacific. |
 
 ```bash
 for s in DISCORD_PUBLIC_KEY DISCORD_BOT_TOKEN DISCORD_APPLICATION_ID; do

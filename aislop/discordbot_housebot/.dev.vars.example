@@ -27,5 +27,7 @@ AIRTABLE_FIELD_MAP_JSON=
 # Workers egress from many addresses, so an IP allowlist will break it.
 GOOGLE_MAPS_API_KEY=
 # Optional. ISO-8601 with offset, e.g. 2026-08-11T08:00:00-07:00.
-# Unset = next Tuesday 08:00 Pacific.
+# Unset = next Tuesday 08:00 Pacific (driving / rush hour).
 COMMUTE_DEPARTURE_ISO=
+# Optional. Transit departure; unset = next Tuesday 10:00 Pacific.
+TRANSIT_DEPARTURE_ISO=

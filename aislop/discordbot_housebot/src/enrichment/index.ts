@@ -39,6 +39,7 @@ function stub<T>(name: string, provenance: string): EnrichmentAdapter<T> {
 export const COMMUTE_DESTINATIONS = [
   { label: 'Bellevue office (nep)', address: '601 108th Ave NE, Bellevue, WA 98004' },
   { label: 'Seattle office (partner)', address: '551 Boren Ave N, Seattle, WA 98109' },
+  { label: 'Hackerspace', address: '1517 12th Ave Suite 207, Seattle, WA 98122' },
 ] as const;
 
 export interface CommuteEstimate {
@@ -67,6 +68,8 @@ export interface TransitHop {
   vehicle: string;
   emoji: string;
   stopCount?: number;
+  /** Time riding this vehicle, from the step's own duration. */
+  seconds?: number;
 }
 
 export interface TransitItinerary {

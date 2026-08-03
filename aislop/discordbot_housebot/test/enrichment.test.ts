@@ -4,6 +4,7 @@ import {
   formatCommute,
   isCurrentCommuteShape,
   nextTuesday8am,
+  nextTuesdayAt,
   normalizeCommuteValue,
   parseDuration,
 } from '../src/enrichment/commute';
@@ -138,8 +139,8 @@ describe('estimateCommutes', () => {
       fetchImpl,
     });
 
-    // 2 destinations x 2 travel modes
-    expect(fetchImpl).toHaveBeenCalledTimes(4);
+    // 3 destinations x 2 travel modes
+    expect(fetchImpl).toHaveBeenCalledTimes(6);
     expect(bodies[0]).toMatchObject({
       travelMode: 'DRIVE',
       routingPreference: 'TRAFFIC_AWARE_OPTIMAL',
@@ -155,7 +156,7 @@ describe('estimateCommutes', () => {
 
     expect(r.status).toBe('ok');
     if (r.status === 'ok') {
-      expect(r.value.drive).toHaveLength(2);
+      expect(r.value.drive).toHaveLength(3);
       expect(r.value.drive[0]).toMatchObject({
         label: 'Bellevue office (nep)',
         driveSeconds: 1115,
@@ -175,6 +176,7 @@ describe('estimateCommutes', () => {
         ? new Response(JSON.stringify(okBody), { status: 200 })
         : new Response('nope', { status: 500 });
     }) as unknown as typeof fetch;
+    // only the first of six calls succeeds
 
     const r = await estimateCommutes(1, 2, { apiKey: 'k', fetchImpl });
     expect(r.status).toBe('ok');
@@ -261,6 +263,7 @@ describe('transit itineraries', () => {
       { line: '535', vehicle: 'BUS', emoji: '🚌', stopCount: 12 },
       { line: '1 Line', vehicle: 'LIGHT_RAIL', emoji: '🚈' },
     ]);
+    expect(hops.every((h) => h.seconds === undefined)).toBe(true);
     expect(walkSeconds).toBe(600);
   });
 
@@ -289,13 +292,13 @@ describe('transit itineraries', () => {
       totalSeconds: 3900,
       walkSeconds: 600,
       hops: [
-        { line: '535', vehicle: 'BUS', emoji: '🚌' },
-        { line: '1 Line', vehicle: 'LIGHT_RAIL', emoji: '🚈' },
-        { line: '8', vehicle: 'BUS', emoji: '🚌' },
+        { line: '535', vehicle: 'BUS', emoji: '🚌', seconds: 1080 },
+        { line: '1 Line', vehicle: 'LIGHT_RAIL', emoji: '🚈', seconds: 720 },
+        { line: '8', vehicle: 'BUS', emoji: '🚌', seconds: 360 },
       ],
     };
     expect(formatTransitRoute(it)).toBe(
-      'House → 535 🚌 → 1 Line 🚈 → 8 🚌 → Bellevue office (nep)',
+      'House → 535 🚌 18m → 1 Line 🚈 12m → 8 🚌 6m → Bellevue office (nep)',
     );
     const out = formatTransit(it);
     expect(out).toContain('**65 min**');
@@ -317,8 +320,8 @@ describe('transit itineraries', () => {
     const r = await estimateCommutes(47.4779, -122.20163, { apiKey: 'k', fetchImpl });
     expect(r.status).toBe('ok');
     if (r.status === 'ok') {
-      expect(r.value.drive).toHaveLength(2);
-      expect(r.value.transit).toHaveLength(2);
+      expect(r.value.drive).toHaveLength(3);
+      expect(r.value.transit).toHaveLength(3);
       expect(r.value.transit[0]!.hops.map((h) => h.line)).toEqual(['535', '1 Line']);
     }
   });
@@ -334,7 +337,7 @@ describe('transit itineraries', () => {
     const r = await estimateCommutes(1, 2, { apiKey: 'k', fetchImpl });
     expect(r.status).toBe('ok');
     if (r.status === 'ok') {
-      expect(r.value.drive).toHaveLength(2);
+      expect(r.value.drive).toHaveLength(3);
       expect(r.value.transit).toHaveLength(0);
     }
     expect(r.provenance).toContain('no usable itinerary');
@@ -374,5 +377,120 @@ describe('legacy stored commute values', () => {
     expect(isCurrentCommuteShape(LEGACY)).toBe(false);
     expect(isCurrentCommuteShape({ drive: LEGACY })).toBe(false);
     expect(isCurrentCommuteShape({ drive: LEGACY, transit: [] })).toBe(true);
+  });
+});
+
+describe('per-leg times and split departures', () => {
+  it('carries each leg duration into the hop and the chain', () => {
+    const { hops } = hopsFromSteps(
+      [
+        { travelMode: 'WALK', staticDuration: '300s' },
+        {
+          travelMode: 'TRANSIT',
+          staticDuration: '1080s',
+          transitDetails: { transitLine: { nameShort: '545', vehicle: { type: 'BUS' } } },
+        },
+        {
+          travelMode: 'TRANSIT',
+          staticDuration: '720s',
+          transitDetails: { transitLine: { nameShort: '1 Line', vehicle: { type: 'LIGHT_RAIL' } } },
+        },
+      ],
+      parseDuration,
+    );
+    expect(hops[0]).toMatchObject({ line: '545', seconds: 1080 });
+    expect(hops[1]).toMatchObject({ line: '1 Line', seconds: 720 });
+    expect(
+      formatTransitRoute({ label: 'Hackerspace', destination: 'x', totalSeconds: 2100, hops }),
+    ).toBe('House → 545 🚌 18m → 1 Line 🚈 12m → Hackerspace');
+  });
+
+  it('rounds a sub-minute leg up to 1m rather than showing 0m', () => {
+    const { hops } = hopsFromSteps(
+      [
+        {
+          travelMode: 'TRANSIT',
+          staticDuration: '20s',
+          transitDetails: { transitLine: { nameShort: 'SLU', vehicle: { type: 'TRAM' } } },
+        },
+      ],
+      parseDuration,
+    );
+    expect(
+      formatTransitRoute({ label: 'X', destination: 'x', totalSeconds: 20, hops }),
+    ).toContain('SLU 🚊 1m');
+  });
+
+  it('drives at 08:00 and rides transit at 10:00 Pacific', async () => {
+    const bodies: Array<{ travelMode: string; departureTime: string }> = [];
+    const fetchImpl = vi.fn(async (_u: unknown, init: RequestInit | undefined) => {
+      bodies.push(JSON.parse(String(init?.body)));
+      return new Response(JSON.stringify({ routes: [{ duration: '600s' }] }), { status: 200 });
+    }) as unknown as typeof fetch;
+
+    await estimateCommutes(47.6, -122.3, { apiKey: 'k', fetchImpl }, new Date('2026-08-03T12:00:00Z'));
+
+    const hourIn = (iso: string) =>
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        hour: 'numeric',
+        hour12: false,
+      }).format(new Date(iso));
+
+    const drive = bodies.filter((b) => b.travelMode === 'DRIVE');
+    const transit = bodies.filter((b) => b.travelMode === 'TRANSIT');
+    expect(drive).toHaveLength(3);
+    expect(transit).toHaveLength(3);
+    expect(drive.every((b) => hourIn(b.departureTime) === '08')).toBe(true);
+    expect(transit.every((b) => hourIn(b.departureTime) === '10')).toBe(true);
+  });
+
+  it('honours explicit departure overrides independently', async () => {
+    const bodies: Array<{ travelMode: string; departureTime: string }> = [];
+    const fetchImpl = vi.fn(async (_u: unknown, init: RequestInit | undefined) => {
+      bodies.push(JSON.parse(String(init?.body)));
+      return new Response(JSON.stringify({ routes: [{ duration: '600s' }] }), { status: 200 });
+    }) as unknown as typeof fetch;
+
+    await estimateCommutes(47.6, -122.3, {
+      apiKey: 'k',
+      fetchImpl,
+      departureIso: '2026-08-11T07:30:00-07:00',
+      transitDepartureIso: '2026-08-11T11:15:00-07:00',
+    });
+    expect(bodies.find((b) => b.travelMode === 'DRIVE')!.departureTime).toBe(
+      '2026-08-11T07:30:00-07:00',
+    );
+    expect(bodies.find((b) => b.travelMode === 'TRANSIT')!.departureTime).toBe(
+      '2026-08-11T11:15:00-07:00',
+    );
+  });
+
+  it('includes the hackerspace as a third destination', async () => {
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({ routes: [{ duration: '900s' }] }), { status: 200 }),
+    ) as unknown as typeof fetch;
+    const r = await estimateCommutes(47.6, -122.3, { apiKey: 'k', fetchImpl });
+    expect(r.status).toBe('ok');
+    if (r.status === 'ok') {
+      expect(r.value.drive.map((d) => d.label)).toEqual([
+        'Bellevue office (nep)',
+        'Seattle office (partner)',
+        'Hackerspace',
+      ]);
+      expect(r.value.drive[2]!.destination).toBe('1517 12th Ave Suite 207, Seattle, WA 98122');
+    }
+  });
+
+  it('nextTuesdayAt honours the requested local hour', () => {
+    const iso = nextTuesdayAt(new Date('2026-12-25T12:00:00Z'), 10); // PST window
+    const label = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      weekday: 'short',
+      hour: 'numeric',
+      hour12: false,
+    }).format(new Date(iso));
+    expect(label).toContain('Tue');
+    expect(label).toMatch(/\b10\b/);
   });
 });

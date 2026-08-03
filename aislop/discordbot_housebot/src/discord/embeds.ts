@@ -16,6 +16,7 @@ export interface Embed {
   fields?: Array<{ name: string; value: string; inline?: boolean }>;
   footer?: { text: string };
   thumbnail?: { url: string };
+  image?: { url: string };
 }
 
 const COLOR_ACTIVE = 0x2ecc71;
@@ -59,6 +60,8 @@ export function buildEnrichmentEmbed(input: {
     url: input.snapshot.sourceUrl,
     color: colorFor(input.snapshot.status, input.closed),
     fields,
+    // Hotlinked provider preview image, same one a link unfurl would show.
+    ...(input.snapshot.photoUrl ? { image: { url: input.snapshot.photoUrl } } : {}),
     ...(input.commuteProvenance ? { footer: { text: input.commuteProvenance.slice(0, 2048) } } : {}),
   };
 }
@@ -133,6 +136,9 @@ export function buildStatusEmbed(i: StatusEmbedInput): Embed {
     url: i.sourceUrl,
     color: colorFor(i.status, closed),
     fields,
+    // Thumbnail rather than a full image: status is a dense readout, not a
+    // listing card, and a hero shot would push the fields off-screen.
+    ...(i.snapshot?.photoUrl ? { thumbnail: { url: i.snapshot.photoUrl } } : {}),
     footer: { text: i.listingKey },
   };
 }

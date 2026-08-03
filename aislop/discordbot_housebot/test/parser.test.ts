@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { hvacFromSection, normalizeStatus, splitAddress } from '../src/listing/parse';
 import { buildThreadTitle } from '../src/listing/format';
-import { factsFromMetaDescription } from '../src/listing/providers/common';
+import { factsFromMetaDescription, photoFromMeta } from '../src/listing/providers/common';
 import { redfinSource } from '../src/listing/providers/redfin';
 import { zillowSource } from '../src/listing/providers/zillow';
 
@@ -172,5 +172,25 @@ describe('hvacFromSection', () => {
 
   it('returns undefined when there is no heating section', () => {
     expect(hvacFromSection('<h6>Cooling</h6><ul><li>Central</li></ul>')).toBeUndefined();
+  });
+});
+
+describe('listing photo', () => {
+  it('takes og:image from the live zillow fixture', () => {
+    const snap = zillowSource.parse(
+      fixture('zillow-live-2026.html'),
+      'https://www.zillow.com/homedetails/x/49024254_zpid/',
+      '49024254',
+      1,
+    );
+    expect(snap?.photoUrl).toMatch(/^https:\/\/photos\.zillowstatic\.com\//);
+  });
+
+  it('ignores non-https and missing images', () => {
+    expect(photoFromMeta('<meta property="og:image" content="http://insecure/x.jpg" />')).toEqual({});
+    expect(photoFromMeta('<html></html>')).toEqual({});
+    expect(
+      photoFromMeta('<meta name="twitter:image" content="https://ok/x.jpg" />'),
+    ).toEqual({ photoUrl: 'https://ok/x.jpg' });
   });
 });

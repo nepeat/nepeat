@@ -19,8 +19,10 @@ const ROUTES_URL = 'https://routes.googleapis.com/directions/v2:computeRoutes';
 
 export interface CommuteConfig {
   apiKey?: string;
-  /** ISO-8601 with offset. Unset = next Tuesday 08:00 Pacific. */
+  /** Driving departure, ISO-8601. Unset = next Tuesday 08:00 Pacific. */
   departureIso?: string;
+  /** Transit departure, ISO-8601. Unset = next Tuesday 10:00 Pacific. */
+  transitDepartureIso?: string;
   fetchImpl?: typeof fetch;
   apiUrl?: string;
   timeoutMs?: number;
@@ -65,14 +67,16 @@ export type CommuteResult =
   | { status: 'unavailable'; provenance: string };
 
 /**
- * Next Tuesday at 08:00 America/Los_Angeles, as an ISO instant.
+ * Next Tuesday at a given local hour in America/Los_Angeles, as an ISO instant.
  *
  * A commute ETA with no stated departure assumption is a number that lies: at
- * 05:00 the traffic-aware time comes in *below* free-flow. Pacific is UTC-7
- * (PDT) or UTC-8 (PST); we resolve the offset by asking Intl rather than
- * hardcoding, so this stays right across DST.
+ * 05:00 the traffic-aware drive time comes in *below* free-flow. Driving uses
+ * 08:00 (the actual rush hour you would sit in); transit uses 10:00, where
+ * headways are representative rather than peak-only. Pacific is UTC-7 (PDT) or
+ * UTC-8 (PST); the offset is resolved via Intl rather than hardcoded, so this
+ * stays correct across DST.
  */
-export function nextTuesday8am(now: Date): string {
+export function nextTuesdayAt(now: Date, localHour: number): string {
   const day = now.getUTCDay();
   // 2 = Tuesday. Always land on a future Tuesday, never today.
   const ahead = ((2 - day + 7) % 7) || 7;
@@ -89,10 +93,18 @@ export function nextTuesday8am(now: Date): string {
     target.getUTCFullYear(),
     target.getUTCMonth(),
     target.getUTCDate(),
-    8 - offsetHours,
+    localHour - offsetHours,
     0,
     0,
   )).toISOString();
+}
+
+export const DRIVE_HOUR_LOCAL = 8;
+export const TRANSIT_HOUR_LOCAL = 10;
+
+/** Back-compat helper: the driving default. */
+export function nextTuesday8am(now: Date): string {
+  return nextTuesdayAt(now, DRIVE_HOUR_LOCAL);
 }
 
 /** -7 during PDT, -8 during PST. */
@@ -122,7 +134,12 @@ export async function estimateCommutes(
     };
   }
 
-  const departure = cfg.departureIso?.trim() || nextTuesday8am(now);
+  const departure = cfg.departureIso?.trim() || nextTuesdayAt(now, DRIVE_HOUR_LOCAL);
+  // Transit gets its own, later departure: 08:00 answers "my commute", 10:00
+  // answers "can I actually get there on transit" without peak-only service
+  // flattering the result.
+  const transitDeparture =
+    cfg.transitDepartureIso?.trim() || nextTuesdayAt(now, TRANSIT_HOUR_LOCAL);
   const doFetch = boundFetch(cfg.fetchImpl);
   const url = cfg.apiUrl ?? ROUTES_URL;
   const drive: CommuteEstimate[] = [];
@@ -162,7 +179,7 @@ export async function estimateCommutes(
       lat,
       lon,
       destination: dest.address,
-      departure,
+      departure: transitDeparture,
       mode: 'TRANSIT',
     });
     if (transitRoute.ok) {
@@ -194,7 +211,9 @@ export async function estimateCommutes(
   const partial = failures.length ? ` (partial: ${failures.join('; ')})` : '';
   return {
     status: 'ok',
-    provenance: `google routes (drive TRAFFIC_AWARE_OPTIMAL + transit), departing ${departure}${partial}`,
+    provenance:
+      `google routes — drive TRAFFIC_AWARE_OPTIMAL departing ${departure}, ` +
+      `transit departing ${transitDeparture}${partial}`,
     value: { drive, transit },
   };
 }

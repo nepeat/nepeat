@@ -41,6 +41,13 @@ export interface Snapshot {
   lat?: number;
   lon?: number;
 
+  /**
+   * The listing's own `og:image` — the single photo any link preview would
+   * already show. Provider-hosted and hotlinked, never rehosted; the full
+   * gallery is a licensing question we deliberately do not touch.
+   */
+  photoUrl?: string;
+
   /** Unix seconds when this observation was taken. */
   fetchedAt: number;
 }
