@@ -1,0 +1,155 @@
+# housebot
+
+A Discord bot that tracks Zillow / Redfin property listings as threads under one
+channel. It runs entirely on **Cloudflare Workers + D1** using **HTTP
+interactions** (no gateway connection, no always-on process, no AI calls).
+
+Each tracked house gets a public thread whose name is the listing at a glance:
+
+```
+$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057
+```
+
+Sold/closed houses get an `❌ ` prefix on the thread name and on the change
+notice.
+
+## Commands
+
+| Command | Where | What it does |
+| --- | --- | --- |
+| `/house add <link>` | house channel or any of its threads | Normalizes the URL, fetches one snapshot, dedupes by canonical listing key, creates the thread, posts the first snapshot. |
+| `/house update [link]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved. |
+| `/house close` | inside a house thread | Force-closes the house (no fetch). Prefixes the title with `❌ ` and removes it from the cron. |
+| `/house open` | inside a house thread | Re-opens **only** if the live listing is not sold/closed. Explains cleanly otherwise. |
+| `/house status` | inside a house thread | Diagnostic read from D1 — status, source, last checked/changed, next scheduled check, failure count. Makes no network calls. |
+
+Material fields: `status`, `price`, `beds`, `baths`, `sqft`, `address`,
+`yearBuilt`, `hvac`.
+
+## Bootstrap
+
+```bash
+git clone <this repo> && cd discordbot_housebot
+npm install
+
+# 1. Create the D1 database, then paste the printed database_id into wrangler.jsonc
+npx wrangler d1 create housebot
+
+# 2. Apply migrations
+npm run db:migrate:local     # local dev
+npm run db:migrate:remote    # production
+
+# 3. Local secrets
+cp .dev.vars.example .dev.vars   # fill in the Discord values
+
+# 4. Verify
+npm run typecheck
+npm test
+npm run build                # wrangler deploy --dry-run --outdir=dist
+```
+
+`wrangler.jsonc` ships with `database_id: "PLACEHOLDER_RUN_WRANGLER_D1_CREATE"`.
+Replace it before deploying — no remote resources were created for you.
+
+## Discord Developer Portal setup
+
+1. **Create the application** at <https://discord.com/developers/applications>.
+2. **General Information** → copy the **Application ID** and **Public Key**.
+3. **Bot** → *Reset Token* → copy it. The bot needs no privileged intents (HTTP
+   interactions only).
+4. **OAuth2 → URL Generator** → scopes `bot` + `applications.commands`, bot
+   permissions: **View Channel**, **Send Messages**, **Create Public Threads**,
+   **Send Messages in Threads**, **Manage Threads** (needed to rename/archive).
+   Invite the bot to the guild.
+5. **Interactions Endpoint URL** → `https://<your-worker>.workers.dev/interactions`.
+   Discord immediately sends a signed PING; the Worker must already be deployed
+   with `DISCORD_PUBLIC_KEY` set or the save will fail.
+
+### Register the command
+
+```bash
+npm run commands:print      # dry run: prints the exact PUT + JSON body, no network
+npm run commands:register   # actually registers (guild-scoped, instant)
+```
+
+Reads `DISCORD_APPLICATION_ID`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN` from the
+environment or from `.dev.vars`.
+
+## Secrets and vars
+
+Vars live in `wrangler.jsonc` (non-secret). Secrets go in `.dev.vars` locally and
+`wrangler secret put <NAME>` in production.
+
+| Name | Kind | Required | Purpose |
+| --- | --- | --- | --- |
+| `HOUSE_CHANNEL_ID` | var | yes | Parent channel for all property threads (`1533771541106655423`). |
+| `REFRESH_INTERVAL_MINUTES` | var | no (720) | Base staleness window before a property is due. |
+| `REFRESH_BATCH_SIZE` | var | no (10) | Max properties refreshed per cron tick. |
+| `USER_AGENT` | var | no | Identifying UA sent to listing pages. |
+| `AIRTABLE_BASE_ID` | var | no | Airtable base (`appc5LQi7Uo9Y75yN`). |
+| `DISCORD_PUBLIC_KEY` | secret | yes | Ed25519 signature verification. |
+| `DISCORD_BOT_TOKEN` | secret | yes | REST calls (threads, messages). |
+| `DISCORD_APPLICATION_ID` | secret | yes | Follow-up webhook routing. |
+| `DISCORD_GUILD_ID` | secret | registration only | Guild-scoped command registration. |
+| `AIRTABLE_TOKEN` | secret | no | Enables the optional Airtable sync. |
+| `AIRTABLE_TABLE` | secret | no | Table id or name. **No default is assumed.** |
+| `AIRTABLE_FIELD_MAP_JSON` | secret | no | Field mapping — see [docs/AIRTABLE.md](docs/AIRTABLE.md). |
+
+```bash
+for s in DISCORD_PUBLIC_KEY DISCORD_BOT_TOKEN DISCORD_APPLICATION_ID; do
+  npx wrangler secret put "$s"
+done
+```
+
+## Scheduled refresh
+
+`wrangler.jsonc` sets `triggers.crons = ["17 * * * *"]` — one tick per hour. A
+tick selects at most `REFRESH_BATCH_SIZE` properties whose `next_check_at` is
+due, refreshes each **independently**, and backs off exponentially (capped at
+24h) on consecutive failures. Force-closed houses are excluded in SQL, so they
+cost nothing. Delete the `triggers` block to disable scheduling entirely; every
+command still works on demand.
+
+Test a tick locally:
+
+```bash
+npx wrangler dev --test-scheduled
+curl "http://localhost:8787/__scheduled?cron=17+*+*+*+*"
+```
+
+## Deploy
+
+```bash
+npm run build      # dry run, no account needed
+npm run deploy     # requires CLOUDFLARE_API_TOKEN / wrangler login
+```
+
+Nothing in this repo has been deployed and no remote Cloudflare resources were
+created — no account or token was provided.
+
+## Operational caveats
+
+- **Public pages are best effort.** Zillow and Redfin ship bot protection. A
+  `403`/`429` is reported as `blocked` and backed off; housebot never rotates
+  user agents, solves challenges, logs in, or touches private APIs. Expect
+  refreshes to fail sometimes — the stored snapshot simply stays stale, and
+  `/house status` shows the failure.
+- **Parsers are fixture-tested, not provider-guaranteed.** Both adapters read
+  schema.org LD+JSON first, then fall back to hydration-blob keys. When a
+  provider changes markup, the result is `unparseable` — never invented data.
+- **HVAC is unverified.** It is parsed from listing text when present and always
+  labeled as such. Everything else in
+  [docs/ENRICHMENT.md](docs/ENRICHMENT.md) (photos, commute, transit, ISP) is a
+  scaffolded interface only.
+- **Airtable is advisory.** Absent or broken Airtable never blocks a command; the
+  result is recorded in the `airtable_sync` table.
+- **Thread names cap at 100 chars.** Titles are truncated with `…` after the
+  price/size/beds segments, so the numbers always survive.
+- `/house` is refused outside the house channel and its threads.
+
+## Docs
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — design, economics, and limits
+- [docs/AIRTABLE.md](docs/AIRTABLE.md) — field-map discovery and configuration
+- [docs/ENRICHMENT.md](docs/ENRICHMENT.md) — commute / transit / ISP / photos options
+- [IMPLEMENTATION.md](IMPLEMENTATION.md) — decisions and known limitations

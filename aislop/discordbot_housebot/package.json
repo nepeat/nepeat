@@ -1,0 +1,28 @@
+{
+  "name": "housebot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Discord HTTP-interactions bot that tracks property listings in per-house threads",
+  "scripts": {
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "lint": "npm run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "wrangler deploy --dry-run --outdir=dist",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply housebot --local",
+    "db:migrate:remote": "wrangler d1 migrations apply housebot --remote",
+    "commands:print": "tsx scripts/register-commands.ts --dry-run",
+    "commands:register": "tsx scripts/register-commands.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260730.1",
+    "@types/node": "^22.20.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9",
+    "wrangler": "^4.20.0"
+  }
+}

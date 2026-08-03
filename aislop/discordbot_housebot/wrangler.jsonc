@@ -1,0 +1,41 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "housebot",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-01",
+
+  // Non-secret configuration. Secrets live in `.dev.vars` locally and in
+  // `wrangler secret put` remotely -- never in this file.
+  "vars": {
+    // Parent channel that owns every property thread.
+    "HOUSE_CHANNEL_ID": "1533771541106655423",
+    // Airtable base for the optional best-effort sync.
+    "AIRTABLE_BASE_ID": "appc5LQi7Uo9Y75yN",
+    // How stale a property may get before the cron refreshes it.
+    "REFRESH_INTERVAL_MINUTES": "720",
+    // Upper bound on properties touched per cron tick (cost control).
+    "REFRESH_BATCH_SIZE": "10",
+    "USER_AGENT": "housebot/0.1 (+https://github.com/nepeat/discordbot_housebot)"
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "housebot",
+      // Replace with the id printed by `wrangler d1 create housebot`.
+      "database_id": "PLACEHOLDER_RUN_WRANGLER_D1_CREATE",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Conservative: one tick per hour. Each tick refreshes at most
+  // REFRESH_BATCH_SIZE due properties, so this is a trickle, not a fan-out.
+  // Remove this block to disable scheduled refresh entirely.
+  "triggers": {
+    "crons": ["17 * * * *"]
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

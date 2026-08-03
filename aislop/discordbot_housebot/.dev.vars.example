@@ -1,0 +1,22 @@
+# Copy to `.dev.vars` for local `wrangler dev`. NEVER commit the real file.
+# In production set each of these with `wrangler secret put <NAME>`.
+
+# --- Discord (required) ---
+# Developer Portal -> your app -> General Information -> Public Key
+DISCORD_PUBLIC_KEY=
+# Developer Portal -> Bot -> Token (used for REST: threads, messages)
+DISCORD_BOT_TOKEN=
+# Developer Portal -> General Information -> Application ID
+DISCORD_APPLICATION_ID=
+# Guild the /house command is registered into (guild-scoped = instant updates)
+DISCORD_GUILD_ID=
+
+# --- Airtable (optional, best effort) ---
+# Personal access token with data.records:read + data.records:write on the base.
+AIRTABLE_TOKEN=
+# Table id (tblXXXXXXXXXXXXXX) or exact table name. No default is assumed.
+AIRTABLE_TABLE=
+# JSON object mapping housebot snapshot keys -> Airtable field ids or names.
+# Discover the real field ids first (see docs/AIRTABLE.md). Example:
+# AIRTABLE_FIELD_MAP_JSON={"key":"fldXXXX","url":"fldYYYY","price":"fldZZZZ"}
+AIRTABLE_FIELD_MAP_JSON=
