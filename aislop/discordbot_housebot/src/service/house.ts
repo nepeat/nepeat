@@ -1,7 +1,8 @@
 import { syncListing, type AirtableConfig, type AirtableSyncResult } from '../airtable/client';
 import { estimateCommutes, formatCommute, type CommuteConfig } from '../enrichment/commute';
 import { classifyHvac, type HvacClassification } from '../enrichment/hvac';
-import { buildEnrichmentEmbed, buildStatusEmbed, type Embed } from '../discord/embeds';
+import { buildHouseEmbed, buildStatusEmbed, type Embed } from '../discord/embeds';
+import { lookupIsp, type IspConfig, type IspOffer } from '../enrichment/isp';
 import {
   isCurrentCommuteShape,
   normalizeCommuteValue,
@@ -17,12 +18,7 @@ import {
 import type { DiscordRest } from '../discord/rest';
 import { computeChanges } from '../listing/diff';
 import { explainFailure, fetchListing } from '../listing/fetcher';
-import {
-  buildChangeMessage,
-  buildSnapshotMessage,
-  buildThreadTitle,
-  statusLabel,
-} from '../listing/format';
+import { buildChangeMessage, buildThreadTitle, statusLabel } from '../listing/format';
 import { evaluateOpen, isClosed, OPEN_FAILURE_TEXT } from '../listing/status';
 import type { FieldChange, ListingStatus, Snapshot } from '../listing/types';
 import { identifyUrl } from '../listing/url';
@@ -40,6 +36,7 @@ export interface HouseServiceDeps {
   config: HouseServiceConfig;
   airtable: AirtableConfig;
   commute?: CommuteConfig;
+  isp?: IspConfig;
   fetchImpl?: typeof fetch;
   now?: () => number;
 }
@@ -59,6 +56,7 @@ export class HouseService {
   private readonly config: HouseServiceConfig;
   private readonly airtable: AirtableConfig;
   private readonly commute: CommuteConfig;
+  private readonly isp: IspConfig;
   private readonly fetchImpl?: typeof fetch;
   private readonly nowFn: () => number;
 
@@ -68,6 +66,7 @@ export class HouseService {
     this.config = deps.config;
     this.airtable = deps.airtable;
     this.commute = deps.commute ?? {};
+    this.isp = deps.isp ?? {};
     this.fetchImpl = deps.fetchImpl;
     this.nowFn = deps.now ?? (() => Math.floor(Date.now() / 1000));
   }
@@ -130,10 +129,25 @@ export class HouseService {
     } catch (err) {
       console.error('channel type lookup failed', { error: errText(err) });
     }
-    const starterContent = buildSnapshotMessage(snapshot, closed);
+    // Enrichment runs BEFORE the thread exists so the starter message can be
+    // the complete house card rather than a stub followed by a second embed.
+    const bundle = await this.computeEnrichment(snapshot, {
+      hvac: true,
+      commute: true,
+      isp: true,
+    });
+    const starterEmbed = buildHouseEmbed({
+      snapshot,
+      closed,
+      commute: (bundle.commute?.value as CommuteValue | null) ?? null,
+      commuteProvenance: bundle.commute?.provenance ?? null,
+      hvac: (bundle.hvac?.value as HvacClassification | null) ?? null,
+      isp: (bundle.isp?.value as IspOffer[] | null) ?? null,
+      ispProvenance: bundle.isp?.provenance ?? null,
+    });
     const thread = await this.rest.createThread(this.config.houseChannelId, title, {
       parentType,
-      starter: { content: starterContent },
+      starter: { embeds: [starterEmbed] },
     });
 
     // Re-check after the (slow) network work in case a concurrent /house add won.
@@ -154,12 +168,12 @@ export class HouseService {
       nextCheckAt: now + this.config.refreshIntervalSeconds,
     });
 
-    // In a forum channel the snapshot IS the starter message; posting it again
-    // would duplicate it.
+    // In a forum channel the embed IS the starter message; a text channel needs
+    // it posted separately.
     if (!thread.usedStarter) {
-      await this.rest.postMessage(thread.id, starterContent);
+      await this.rest.postMessage(thread.id, '', [starterEmbed]);
     }
-    await this.enrich(row, snapshot);
+    await this.persistEnrichment(row.id, bundle, now);
     await this.syncAirtable(row, snapshot);
 
     return { message: `tracking → <#${thread.id}>` };
@@ -234,8 +248,23 @@ export class HouseService {
     if (input.currentName !== title) {
       await this.rest.renameThread(input.threadId, title);
     }
-    await this.rest.postMessage(input.threadId, buildSnapshotMessage(snapshot, closed));
-    await this.enrich(row, snapshot);
+    const bundle = await this.computeEnrichment(snapshot, {
+      hvac: true,
+      commute: true,
+      isp: true,
+    });
+    await this.rest.postMessage(input.threadId, '', [
+      buildHouseEmbed({
+        snapshot,
+        closed,
+        commute: (bundle.commute?.value as CommuteValue | null) ?? null,
+        commuteProvenance: bundle.commute?.provenance ?? null,
+        hvac: (bundle.hvac?.value as HvacClassification | null) ?? null,
+        isp: (bundle.isp?.value as IspOffer[] | null) ?? null,
+        ispProvenance: bundle.isp?.provenance ?? null,
+      }),
+    ]);
+    await this.persistEnrichment(row.id, bundle, now);
     await this.syncAirtable(row, snapshot);
 
     return { message: `bound this thread to \`${snapshot.listingKey}\`.` };
@@ -385,17 +414,165 @@ export class HouseService {
     return { message: `re-opened (listing status: ${statusLabel(status)}).` };
   }
 
+  /**
+   * Compute location-derived facts. Pure of the database and of Discord, so it
+   * can run BEFORE the thread exists — which is what lets the thread's starter
+   * message be the complete house embed instead of a bare snapshot followed by
+   * a second, disaggregated card.
+   */
+  async computeEnrichment(
+    snapshot: Snapshot,
+    want: { hvac: boolean; commute: boolean; isp: boolean },
+  ): Promise<EnrichmentBundle> {
+    const out: EnrichmentBundle = {};
+
+    if (want.hvac) {
+      try {
+        const hvac = classifyHvac(snapshot.hvac);
+        out.hvac = hvac
+          ? {
+              status: 'unverified',
+              provenance:
+                'classified from public listing text; not confirmed against county records',
+              value: hvac,
+            }
+          : {
+              status: 'unavailable',
+              provenance: 'listing page did not expose a heating field',
+              value: null,
+            };
+      } catch (err) {
+        console.error('hvac enrichment failed', { error: errText(err) });
+      }
+    }
+
+    if (want.commute) {
+      try {
+        const r = await estimateCommutes(snapshot.lat, snapshot.lon, this.commute);
+        out.commute =
+          r.status === 'ok'
+            ? { status: 'ok', provenance: r.provenance, value: r.value }
+            : { status: 'unavailable', provenance: r.provenance, value: null };
+      } catch (err) {
+        console.error('commute enrichment failed', { error: errText(err) });
+      }
+    }
+
+    if (want.isp) {
+      try {
+        const r = await lookupIsp(snapshot.lat, snapshot.lon, this.isp);
+        out.isp =
+          r.status === 'unverified'
+            ? { status: 'unverified', provenance: r.provenance, value: r.value }
+            : { status: 'unavailable', provenance: r.provenance, value: null };
+      } catch (err) {
+        console.error('isp enrichment failed', { error: errText(err) });
+      }
+    }
+
+    return out;
+  }
+
+  /** Persist whatever was computed. Failures never propagate to the command. */
+  private async persistEnrichment(
+    propertyId: number,
+    bundle: EnrichmentBundle,
+    now: number,
+  ): Promise<void> {
+    for (const kind of ['hvac', 'commute', 'isp'] as const) {
+      const entry = bundle[kind];
+      if (!entry) continue;
+      try {
+        await this.repo.putEnrichment({
+          propertyId,
+          kind,
+          status: entry.status,
+          provenance: entry.provenance,
+          value: entry.value,
+          now,
+        });
+      } catch (err) {
+        console.error('enrichment persist failed', { propertyId, kind, error: errText(err) });
+      }
+    }
+  }
+
+  /**
+   * Which enrichments a refresh still needs.
+   *
+   * `force` recomputes everything. Otherwise a kind holding a current-shaped
+   * value is skipped — so a routine update costs no API calls — while a kind
+   * recorded `unavailable` IS retried, which is what makes update self-healing.
+   * HVAC additionally re-runs when the listing's heating text changed, since
+   * reclassifying is free.
+   */
+  private async decideWanted(
+    row: PropertyRow,
+    snapshot: Snapshot,
+    mode: 'missing' | 'force',
+  ): Promise<{ hvac: boolean; commute: boolean; isp: boolean }> {
+    if (mode === 'force') return { hvac: true, commute: true, isp: true };
+
+    let existing: EnrichmentRow[] = [];
+    try {
+      existing = await this.repo.listEnrichment(row.id);
+    } catch (err) {
+      console.error('enrichment lookup failed', { id: row.id, error: errText(err) });
+    }
+    const settled = (kind: string): boolean =>
+      existing.some((e) => {
+        if (e.kind !== kind || e.value_json === null) return false;
+        if (kind !== 'commute') return true;
+        try {
+          return isCurrentCommuteShape(JSON.parse(e.value_json));
+        } catch {
+          return false;
+        }
+      });
+
+    return {
+      hvac: !settled('hvac') || storedHvacRaw(existing) !== (snapshot.hvac ?? null),
+      commute: !settled('commute'),
+      isp: !settled('isp'),
+    };
+  }
+
+  /** Merge freshly computed values over what is already stored. */
+  private async mergeForDisplay(
+    row: PropertyRow,
+    bundle: EnrichmentBundle,
+  ): Promise<{
+    commute: CommuteValue | null;
+    commuteProvenance: string | null;
+    hvac: HvacClassification | null;
+    isp: IspOffer[] | null;
+    ispProvenance: string | null;
+  }> {
+    const stored = await this.loadEnrichment(row);
+    return {
+      commute: (bundle.commute?.value as CommuteValue | null) ?? stored.commute,
+      commuteProvenance: bundle.commute?.provenance ?? stored.commuteProvenance,
+      hvac: (bundle.hvac?.value as HvacClassification | null) ?? stored.hvac,
+      isp: (bundle.isp?.value as IspOffer[] | null) ?? stored.isp,
+      ispProvenance: bundle.isp?.provenance ?? stored.ispProvenance,
+    };
+  }
+
   /** Stored enrichment, decoded. Shared by `/house status` and the embed path. */
   private async loadEnrichment(row: PropertyRow): Promise<{
     commute: CommuteValue | null;
     commuteProvenance: string | null;
     commuteStatus: string | null;
     hvac: HvacClassification | null;
+    isp: IspOffer[] | null;
+    ispProvenance: string | null;
   }> {
     let commute: CommuteValue | null = null;
     let commuteProvenance: string | null = null;
     let commuteStatus: string | null = null;
     let hvac: HvacClassification | null = null;
+    let isp: IspOffer[] | null = null;
+    let ispProvenance: string | null = null;
     try {
       for (const e of await this.repo.listEnrichment(row.id)) {
         if (e.kind === 'commute') {
@@ -404,18 +581,22 @@ export class HouseService {
           commute = e.value_json ? normalizeCommuteValue(JSON.parse(e.value_json)) : null;
         } else if (e.kind === 'hvac' && e.value_json) {
           hvac = JSON.parse(e.value_json) as HvacClassification;
+        } else if (e.kind === 'isp') {
+          ispProvenance = e.provenance;
+          isp = e.value_json ? (JSON.parse(e.value_json) as IspOffer[]) : null;
         }
       }
     } catch (err) {
       console.error('enrichment read failed', { id: row.id, error: errText(err) });
     }
-    return { commute, commuteProvenance, commuteStatus, hvac };
+    return { commute, commuteProvenance, commuteStatus, hvac, isp, ispProvenance };
   }
 
   /** `/house status` — D1 only, including stored enrichment. No outgoing fetch. */
   async status(row: PropertyRow): Promise<{ embed: Embed }> {
     const snapshot = parseSnapshot(row);
-    const { commute, commuteProvenance, commuteStatus, hvac } = await this.loadEnrichment(row);
+    const { commute, commuteProvenance, commuteStatus, hvac, isp, ispProvenance } =
+      await this.loadEnrichment(row);
 
     return {
       embed: buildStatusEmbed({
@@ -433,23 +614,20 @@ export class HouseService {
         commuteProvenance,
         commuteStatus,
         hvac,
+        isp,
+        ispProvenance,
       }),
     };
   }
 
   /**
-   * Location-derived facts.
+   * Refresh enrichment for an existing house and post the merged embed.
    *
-   * `mode: 'missing'` (the refresh path) computes only what is still blank. A
-   * kind that already holds a value is skipped, so a routine `/house update`
-   * costs zero Google calls. A kind previously recorded `unavailable` IS
-   * retried -- that is what makes update self-healing: a house added before we
-   * parsed coordinates picks up its commute on the next update, with no manual
-   * step. HVAC additionally re-runs when the listing's heating text changed,
-   * since reclassifying costs nothing.
-   *
-   * `mode: 'force'` (the first add/bind, or `/house update reenrich:true`)
-   * recomputes everything.
+   * `mode: 'missing'` computes only what is blank or stale; `'force'` redoes
+   * everything. The embed is posted only when something new was learned (or a
+   * photo just appeared), and it always shows the FULL picture — freshly
+   * computed values merged over what D1 already holds — so the thread never
+   * ends up with two half-cards describing one house.
    */
   async enrich(
     row: PropertyRow,
@@ -458,147 +636,28 @@ export class HouseService {
   ): Promise<{ lines: string[] }> {
     const now = this.now();
     const mode = opts.mode ?? 'force';
+    const want = await this.decideWanted(row, snapshot, mode);
+
+    const bundle = await this.computeEnrichment(snapshot, want);
+    await this.persistEnrichment(row.id, bundle, now);
+
     const lines: string[] = [];
-    let hvacValue: HvacClassification | null = null;
-    let commuteValue: CommuteValue | null = null;
-    let commuteProvenance = '';
+    if (bundle.hvac?.value) lines.push('heating');
+    if (bundle.commute?.value) lines.push('commute');
+    if (bundle.isp?.value) lines.push('internet');
+    if (opts.photoAdded) lines.push('photo');
 
-    let existing: EnrichmentRow[] = [];
-    if (mode === 'missing') {
-      try {
-        existing = await this.repo.listEnrichment(row.id);
-      } catch (err) {
-        console.error('enrichment lookup failed', { id: row.id, error: errText(err) });
-      }
-    }
-    // "settled" means: holds a value the CURRENT adapter would produce. A row
-    // written by an older adapter version is deliberately not settled, so an
-    // update upgrades it instead of preserving a stale shape forever.
-    const settled = (kind: string): boolean =>
-      existing.some((e) => {
-        if (e.kind !== kind || e.value_json === null) return false;
-        if (kind !== 'commute') return true;
-        try {
-          return isCurrentCommuteShape(JSON.parse(e.value_json));
-        } catch {
-          return false;
-        }
-      });
+    if (opts.post === false || lines.length === 0) return { lines };
 
-    const hvacStale =
-      mode === 'force' ||
-      !settled('hvac') ||
-      storedHvacRaw(existing) !== (snapshot.hvac ?? null);
-
-    // HVAC: pure classification of text we already have. No network.
-    if (hvacStale) try {
-      const hvac = classifyHvac(snapshot.hvac);
-      if (hvac) {
-        await this.repo.putEnrichment({
-          propertyId: row.id,
-          kind: 'hvac',
-          status: 'unverified',
-          provenance: 'classified from public listing text; not confirmed against county records',
-          value: hvac,
-          now,
-        });
-        hvacValue = hvac;
-        lines.push('heating');
-      } else {
-        await this.repo.putEnrichment({
-          propertyId: row.id,
-          kind: 'hvac',
-          status: 'unavailable',
-          provenance: 'listing page did not expose a heating field',
-          value: null,
-          now,
-        });
-      }
-    } catch (err) {
-      console.error('hvac enrichment failed', { id: row.id, error: errText(err) });
-    }
-
-    // Commute: two Google Routes calls on the Pro SKU. Skipping this when we
-    // already have an answer is the entire point of `missing` mode.
-    if (mode === 'missing' && settled('commute')) {
-      return this.postEnrichment(row, lines, opts, {
-        snapshot,
-        hvac: hvacValue,
-        commute: null,
-        commuteProvenance: '',
-      });
-    }
-    try {
-      const result = await estimateCommutes(
-        snapshot.lat ?? row.lat,
-        snapshot.lon ?? row.lon,
-        this.commute,
-      );
-      await this.repo.putEnrichment({
-        propertyId: row.id,
-        kind: 'commute',
-        status: result.status,
-        provenance: result.provenance,
-        value: result.status === 'ok' ? result.value : null,
-        now,
-      });
-      if (result.status === 'ok') {
-        commuteValue = result.value;
-        commuteProvenance = result.provenance;
-        if (result.value.drive.length) lines.push('driving');
-        if (result.value.transit.length) lines.push('transit');
-      }
-    } catch (err) {
-      console.error('commute enrichment failed', { id: row.id, error: errText(err) });
-    }
-
-    return this.postEnrichment(row, lines, opts, {
+    const merged = await this.mergeForDisplay(row, bundle);
+    const embed = buildHouseEmbed({
       snapshot,
-      hvac: hvacValue,
-      commute: commuteValue,
-      commuteProvenance,
-    });
-  }
-
-  private async postEnrichment(
-    row: PropertyRow,
-    lines: string[],
-    opts: { post?: boolean; photoAdded?: boolean },
-    payload: {
-      snapshot: Snapshot;
-      hvac: HvacClassification | null;
-      commute: CommuteValue | null;
-      commuteProvenance: string;
-    },
-  ): Promise<{ lines: string[] }> {
-    if (opts.post === false) return { lines };
-
-    let { commute, hvac, commuteProvenance } = payload;
-
-    // A newly-acquired photo is worth an embed on its own -- but an embed
-    // carrying ONLY a picture is useless, so backfill the facts we already have
-    // from D1 rather than recomputing anything.
-    if (opts.photoAdded && lines.length === 0) {
-      const stored = await this.loadEnrichment(row);
-      commute = commute ?? stored.commute;
-      hvac = hvac ?? stored.hvac;
-      commuteProvenance = commuteProvenance || (stored.commuteProvenance ?? '');
-      lines.push('photo');
-    }
-    if (lines.length === 0) return { lines };
-
-    const embed: Embed = buildEnrichmentEmbed({
-      snapshot: payload.snapshot,
-      commute,
-      commuteProvenance,
-      hvac,
       closed: isClosed({
         forceClosed: row.force_closed === 1,
-        listingStatus: payload.snapshot.status,
+        listingStatus: snapshot.status,
       }),
+      ...merged,
     });
-    // A photo alone is a legitimate embed; otherwise require something to say.
-    if (!embed.fields?.length && !embed.image) return { lines };
     await this.rest.postMessage(row.thread_id, '', [embed]);
     return { lines };
   }
@@ -630,6 +689,18 @@ export class HouseService {
     }
     return result;
   }
+}
+
+export interface EnrichmentEntry {
+  status: string;
+  provenance: string;
+  value: unknown;
+}
+
+export interface EnrichmentBundle {
+  hvac?: EnrichmentEntry;
+  commute?: EnrichmentEntry;
+  isp?: EnrichmentEntry;
 }
 
 /** The heating text a stored HVAC classification was derived from, if any. */

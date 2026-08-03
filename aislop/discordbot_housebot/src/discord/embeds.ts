@@ -1,8 +1,9 @@
 import type { CommuteValue } from '../enrichment/commute';
 import { formatCommute } from '../enrichment/commute';
 import { formatHvac, type HvacClassification } from '../enrichment/hvac';
+import { formatIsp, type IspOffer } from '../enrichment/isp';
 import { formatTransit } from '../enrichment/transit';
-import { formatAddress, statusLabel } from '../listing/format';
+import { formatAddress, formatBeds, formatPrice, formatSqft, statusLabel } from '../listing/format';
 import type { ListingStatus, Snapshot } from '../listing/types';
 
 import type { APIEmbed } from './types';
@@ -28,15 +29,40 @@ function field(name: string, value: string, inline = false) {
   return { name, value: value.slice(0, FIELD_VALUE_MAX), inline };
 }
 
-/** Commute + heating, posted after a house is added or enriched. */
-export function buildEnrichmentEmbed(input: {
+export interface HouseEmbedInput {
   snapshot: Snapshot;
-  commute?: CommuteValue | null;
-  commuteProvenance?: string;
-  hvac?: HvacClassification | null;
   closed: boolean;
-}): Embed {
+  commute?: CommuteValue | null;
+  commuteProvenance?: string | null;
+  hvac?: HvacClassification | null;
+  isp?: IspOffer[] | null;
+  ispProvenance?: string | null;
+}
+
+/**
+ * THE house embed: listing facts and every enrichment in one card.
+ *
+ * There used to be two messages — a plain-text snapshot and a separate
+ * enrichment embed — which split one house across two disaggregated blobs. This
+ * is the single view, used as the thread's starter message and re-posted
+ * whenever something material changes.
+ */
+export function buildHouseEmbed(input: HouseEmbedInput): Embed {
+  const s = input.snapshot;
   const fields: Embed['fields'] = [];
+
+  // Inline trio: the numbers you scan first.
+  const price = formatPrice(s.price);
+  if (price) fields.push(field('Price', price, true));
+  const bb = formatBeds(s.beds, s.baths);
+  if (bb) fields.push(field('Beds/Baths', bb, true));
+  const sqft = formatSqft(s.sqft);
+  if (sqft) fields.push(field('Size', sqft, true));
+
+  const detail: string[] = [`**Status:** ${statusLabel(s.status)}`];
+  if (s.yearBuilt) detail.push(`**Built:** ${s.yearBuilt}`);
+  if (s.lotSqft) detail.push(`**Lot:** ${formatSqft(s.lotSqft)}`);
+  fields.push(field('Details', detail.join(' · ')));
 
   if (input.commute?.drive?.length) {
     fields.push(field('🚗 Driving', formatCommute(input.commute.drive)));
@@ -44,18 +70,21 @@ export function buildEnrichmentEmbed(input: {
   for (const itinerary of input.commute?.transit ?? []) {
     fields.push(field(`🚆 Transit — ${itinerary.label}`, formatTransit(itinerary)));
   }
-  if (input.hvac) {
-    fields.push(field('🔥 Heating', formatHvac(input.hvac)));
-  }
+  if (input.hvac) fields.push(field('🔥 Heating', formatHvac(input.hvac)));
+  if (input.isp?.length) fields.push(field('🌐 Internet', formatIsp(input.isp)));
+
+  const footer = [input.commuteProvenance, input.ispProvenance]
+    .filter((x): x is string => Boolean(x))
+    .join(' · ');
 
   return {
-    title: formatAddress(input.snapshot) ?? input.snapshot.listingKey,
-    url: input.snapshot.sourceUrl,
-    color: colorFor(input.snapshot.status, input.closed),
+    title: `${input.closed ? '❌ ' : ''}${formatAddress(s) ?? s.listingKey}`,
+    url: s.sourceUrl,
+    color: colorFor(s.status, input.closed),
     fields,
     // Hotlinked provider preview image, same one a link unfurl would show.
-    ...(input.snapshot.photoUrl ? { image: { url: input.snapshot.photoUrl } } : {}),
-    ...(input.commuteProvenance ? { footer: { text: input.commuteProvenance.slice(0, 2048) } } : {}),
+    ...(s.photoUrl ? { image: { url: s.photoUrl } } : {}),
+    ...(footer ? { footer: { text: footer.slice(0, 2048) } } : {}),
   };
 }
 
@@ -74,6 +103,8 @@ export interface StatusEmbedInput {
   commuteProvenance?: string | null;
   commuteStatus?: string | null;
   hvac?: HvacClassification | null;
+  isp?: IspOffer[] | null;
+  ispProvenance?: string | null;
 }
 
 /** `/house status` — everything we know, without fetching anything. */
@@ -114,6 +145,7 @@ export function buildStatusEmbed(i: StatusEmbedInput): Embed {
   }
 
   if (i.hvac) fields.push(field('🔥 Heating', formatHvac(i.hvac)));
+  if (i.isp?.length) fields.push(field('🌐 Internet', formatIsp(i.isp)));
 
   const times = [
     i.lastCheckedAt ? `Checked <t:${i.lastCheckedAt}:R>` : 'Never checked',

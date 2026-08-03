@@ -217,6 +217,7 @@ function followUps(calls: RecordedCall[]): string[] {
 
 interface EmbedShape {
   title?: string;
+  url?: string;
   fields: Array<{ name: string; value: string }>;
   footer?: { text: string };
   color?: number;
@@ -236,7 +237,8 @@ function lastEmbed(calls: RecordedCall[]): EmbedShape | null {
 function threadMessages(calls: RecordedCall[]): string[] {
   return calls
     .filter((c) => c.method === 'POST' && /\/channels\/\d+\/messages$/.test(c.path))
-    .map((c) => String((c.body as { content?: string }).content));
+    .map((c) => (c.body as { content?: string }).content)
+    .filter((c): c is string => typeof c === 'string' && c.length > 0);
 }
 
 describe('interaction plumbing', () => {
@@ -297,9 +299,12 @@ describe('/house add', () => {
       type: 11,
     });
 
-    const posted = threadMessages(h.calls);
-    expect(posted[0]).toContain('**Price:** $725,000');
-    expect(posted[0]).toContain(ZILLOW_LINK);
+    // One merged embed, not a plain-text snapshot plus a second card.
+    const embed = lastEmbed(h.calls)!;
+    expect(embed.title).toContain('400 Cedar Avenue S');
+    expect(embed.url).toBe(ZILLOW_LINK);
+    expect(embed.fields.find((f) => f.name === 'Price')?.value).toBe('$725,000');
+    expect(threadMessages(h.calls)).toHaveLength(0);
 
     const row = await h.repo.getByListingKey('zillow:49059541');
     expect(row).toMatchObject({
@@ -348,15 +353,24 @@ describe('forum and media channels', () => {
       const create = h.calls.find(
         (c) => c.method === 'POST' && c.path === `/channels/${HOUSE_CHANNEL}/threads`,
       )!;
-      const body = create.body as { name: string; message?: { content: string }; type?: number };
+      const body = create.body as {
+        name: string;
+        message?: { embeds?: EmbedShape[] };
+        type?: number;
+      };
       expect(body.name).toContain('$725K');
-      expect(body.message?.content).toContain('**Price:** $725,000');
       // A forum thread body must NOT carry `type`.
       expect(body.type).toBeUndefined();
 
-      // The starter IS the snapshot, so it must not be posted a second time.
-      const snapshotPosts = threadMessages(h.calls).filter((m) => m.includes('**Price:**'));
-      expect(snapshotPosts).toHaveLength(0);
+      // The starter IS the full house embed: facts + enrichment in one card.
+      const starter = body.message?.embeds?.[0]!;
+      expect(starter.fields.find((f) => f.name === 'Price')?.value).toBe('$725,000');
+      expect(starter.fields.some((f) => f.name === '🚗 Driving')).toBe(true);
+      expect(starter.fields.some((f) => f.name === '🔥 Heating')).toBe(true);
+      expect(starter.image?.url).toMatch(/photos\.zillowstatic\.com/);
+
+      // ...and it is not posted a second time.
+      expect(h.calls.filter((c) => /\/channels\/\d+\/messages$/.test(c.path))).toHaveLength(0);
 
       expect(await h.repo.getByListingKey('zillow:49024254')).not.toBeNull();
       expect(h.calls.some((c) => c.method === 'GET' && c.path === `/channels/${HOUSE_CHANNEL}`)).toBe(
@@ -376,7 +390,12 @@ describe('forum and media channels', () => {
     const body = create.body as { type?: number; message?: unknown };
     expect(body.type).toBe(11);
     expect(body.message).toBeUndefined();
-    expect(threadMessages(h.calls).some((m) => m.includes('**Price:**'))).toBe(true);
+    // Text channels need the embed posted separately, exactly once.
+    const embedPosts = h.calls.filter(
+      (c) => /\/channels\/\d+\/messages$/.test(c.path) &&
+        (c.body as { embeds?: unknown[] })?.embeds?.length,
+    );
+    expect(embedPosts).toHaveLength(1);
   });
 
   it('uses an announcement thread under an announcement channel', async () => {
@@ -444,7 +463,7 @@ describe('/house bind', () => {
     expect(rename?.body).toMatchObject({
       name: '$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
     });
-    expect(threadMessages(h.calls)[0]).toContain('**Price:** $725,000');
+    expect(lastEmbed(h.calls)!.fields.find((f) => f.name === 'Price')?.value).toBe('$725,000');
     expect(followUps(h.calls).at(-1)).toContain('bound this thread to `zillow:49059541`');
   });
 
@@ -537,6 +556,7 @@ describe('enrichment', () => {
     expect(embed.title).toContain('400 Cedar Avenue S');
 
     const names = embed.fields.map((f) => f.name);
+    expect(names).toContain('Price');
     expect(names).toContain('🚗 Driving');
     expect(names.some((n) => n.startsWith('🚆 Transit'))).toBe(true);
     expect(names).toContain('🔥 Heating');
@@ -699,10 +719,12 @@ describe('enrichment', () => {
     const commute = rows.find((r) => r.kind === 'commute');
     expect(commute?.status).toBe('unavailable');
     expect(commute?.value_json).toBeNull();
-    // Heating still posted; only the commute fields are missing.
+    // The card still renders; only the commute fields are missing from it.
     const embed = lastEmbed(h.calls)!;
-    expect(embed.fields.map((f) => f.name)).toEqual(['🔥 Heating']);
-    expect(embed.fields[0]!.value).toContain('heat pump');
+    const names = embed.fields.map((f) => f.name);
+    expect(names).toContain('🔥 Heating');
+    expect(names).not.toContain('🚗 Driving');
+    expect(embed.fields.find((f) => f.name === '🔥 Heating')!.value).toContain('heat pump');
   });
 
   it('records commute as unavailable when the page has no coordinates', async () => {

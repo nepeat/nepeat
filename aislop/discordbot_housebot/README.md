@@ -61,6 +61,12 @@ enrich command: `/house update reenrich:true` forces a full recompute.
   free tier, so ~830 house-adds/month before it costs anything. Origin
   coordinates come from the listing page's own `geo` markup — housebot never
   geocodes.
+- **Internet** — FCC **Form 477** fixed-broadband availability for the census
+  block, keyless. Flags whether anything **symmetrical** (≥900 Mbps both ways) is
+  on record. Two caveats printed with the data: it is frozen at **Dec 2020** and
+  is **block-level**, making it a strong negative signal and a weak positive one.
+  Current address-level data (BDC) needs registered credentials — see
+  [docs/ROADMAP.md](docs/ROADMAP.md).
 - **Photo** — the listing's own `og:image`, hotlinked exactly as a link preview
   would: full-width on the enrichment embed, a thumbnail on `/house status`. The
   full gallery is a licensing question and is deliberately untouched. A house
@@ -74,8 +80,9 @@ enrich command: `/house update reenrich:true` forces a full recompute.
   `radiator` are deliberately distinct. Reclassifies whenever the listing's
   heating text changes, since it costs nothing.
 
-Results are posted as a Discord embed, colored by listing status (green active,
-yellow pending, red closed). Both adapters degrade to a recorded `unavailable`
+Everything lands in **one embed** — listing facts, driving, transit, heating,
+internet and the photo — which is also the thread's starter message. Colored by
+listing status (green active, yellow pending, red closed). Both adapters degrade to a recorded `unavailable`
 with a reason rather than failing the command, and `/house status` says *why* a
 section is missing instead of silently omitting it. Transit, ISP and photos are still scaffolded interfaces — see
 [docs/ROADMAP.md](docs/ROADMAP.md).

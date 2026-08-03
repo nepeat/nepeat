@@ -31,6 +31,7 @@ function build(env: Env) {
       table: env.AIRTABLE_TABLE,
       fieldMapJson: env.AIRTABLE_FIELD_MAP_JSON,
     },
+    isp: {},
     commute: {
       apiKey: env.GOOGLE_MAPS_API_KEY,
       departureIso: env.COMMUTE_DEPARTURE_ISO,

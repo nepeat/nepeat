@@ -179,6 +179,20 @@ buys characters against the 100-char cap, but a change notice saying
 embeds — still returns the exact figure, and a test asserts the snapshot message
 never contains the short form.
 
+**One embed, and it is the starter message.** The thread used to open with a
+plain-text snapshot and then get a second embed for enrichment — one house split
+across two half-cards. Enrichment now computes *before* the thread is created
+(`computeEnrichment` touches neither D1 nor Discord), so `add` can hand the
+complete card to `createThread` as the forum starter — or post it once in a text
+channel. Refreshes re-post the same merged view, freshly computed values layered
+over what D1 already holds.
+
+**ISP is Form 477, with its caveats attached to the data.** Keyless and verified
+live. But it is Dec-2020 and block-level, so the provenance string says exactly
+that: a strong negative signal, a weak positive one. Two calls — the 2010 census
+block (Form 477 is keyed on 2010 blocks; a 2020 block silently returns nothing)
+then the Socrata query.
+
 **Embeds over markdown.** Enrichment and `/house status` post embeds so commute,
 transit and heating are separately labeled fields rather than one wall of text,
 colored by listing status. Field values are truncated at Discord's 1024-char cap.
@@ -251,8 +265,9 @@ until someone actually adds a house.
   full, total, or a `2.5` decimal; the adapters prefer
   `numberOfBathroomsTotal`/`bathrooms` and fall back through the LD+JSON
   vocabulary. Titles render `4b2.5b` for fractional values.
-- **ISP is still an interface only.** See `docs/ROADMAP.md`; the FCC Form 477
-  path is verified working and unbuilt.
+- **ISP data is four years stale by construction.** Form 477 stopped in Dec 2020,
+  so fiber built since is invisible. The BDC upgrade needs FCC credentials plus an
+  address→Fabric Location ID step.
 - **Photos are the single `og:image` only.** Hotlinked from the provider, so a
   provider that blocks hotlinking or rotates the URL breaks the image silently.
 - **HVAC classification is still listing prose.** The King County Assessor
@@ -272,7 +287,7 @@ until someone actually adds a house.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 180 tests, all passing
+npm test            # vitest: 11 files, 190 tests, all passing
 npm run build       # wrangler deploy --dry-run --outdir=dist — 82.54 KiB
 ```
 
