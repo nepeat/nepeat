@@ -13,6 +13,9 @@
 #   dryer  done : 3 min          (set as the DRYER quiet timer duration)
 #   (simple binary-sensor version; may tighten to ~2 min later with
 #    axis-magnitude-stability gating once the live capture stabilizes)
+#
+# On DONE: TTS announce (announce_script) + optional Discord @everyone
+# (discord_notify -> discord_target).
 blueprint:
   name: Universal Laundry Machine Done Notifier
   description: >
@@ -59,6 +62,25 @@ blueprint:
     is_washing:
       name: Is this the washing machine?
       description: Controls the verb in the announcement ("washing" vs "drying")
+      default: true
+      selector:
+        boolean: {}
+    discord_notify:
+      name: Discord notify entity
+      description: notify.* entity that posts to a Discord channel
+      default: notify.dorkhouse
+      selector:
+        entity:
+          domain: notify
+    discord_target:
+      name: Discord target
+      description: Channel/thread ID to post to
+      default: "1277156725622968382"
+      selector:
+        text: {}
+    discord_mention:
+      name: Prepend @everyone
+      description: Add an @everyone mention to the Discord message
       default: true
       selector:
         boolean: {}
@@ -158,11 +180,13 @@ action:
           - service: !input announce_script
             data:
               message: >-
-                {% if !input is_washing %}
-                {{ !input appliance_name }} is done washing.
-                {% else %}
-                {{ !input appliance_name }} is done drying.
-                {% endif %}
+                {% if !input is_washing %}{{ !input appliance_name }} is done washing.{% else %}{{ !input appliance_name }} is done drying.{% endif %}
+          - service: !input discord_notify
+            data:
+              target:
+                - !input discord_target
+              message: >-
+                {% if !input discord_mention %}@everyone {% endif %}{% if !input is_washing %}{{ !input appliance_name }} is done washing.{% else %}{{ !input appliance_name }} is done drying.{% endif %}
 
 mode: single
 max_exceeded: silent
