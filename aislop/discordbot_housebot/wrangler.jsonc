@@ -27,11 +27,12 @@
     }
   ],
 
-  // Conservative: one tick per hour. Each tick refreshes at most
-  // REFRESH_BATCH_SIZE due properties, so this is a trickle, not a fan-out.
-  // Remove this block to disable scheduled refresh entirely.
+  // Scheduled refresh is DISABLED on purpose: repeated automated hits are what
+  // gets an IP blocked by Zillow/Redfin, so refreshes are manual (`/house
+  // update`) only. The handler and its tests remain; re-enable by restoring
+  // `"crons": ["17 * * * *"]` here. An empty array actively removes the trigger.
   "triggers": {
-    "crons": ["17 * * * *"]
+    "crons": []
   },
 
   "observability": {

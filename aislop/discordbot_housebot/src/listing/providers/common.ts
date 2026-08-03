@@ -25,19 +25,33 @@ export function snapshotFromJsonLd(
   fetchedAt: number,
 ): Partial<Snapshot> {
   const nodes = extractJsonLd(html);
-  const place =
+  const node =
     findByType(nodes, [
       'SingleFamilyResidence',
       'Residence',
       'House',
       'Apartment',
+      'RealEstateListing',
       'Product',
       'Place',
       'Offer',
     ]) ?? undefined;
 
   const out: Partial<Snapshot> = { provider, listingId, sourceUrl: canonicalUrl, fetchedAt };
-  if (!place) return out;
+  if (!node) return out;
+
+  // Zillow nests the residence under offers.itemOffered; older/other shapes put
+  // the facts on the node itself. Read the outer node first, then the inner one.
+  const offersRaw = node['offers'];
+  const offer = Array.isArray(offersRaw) ? offersRaw[0] : offersRaw;
+  const itemOffered = isRecord(offer) ? offer['itemOffered'] : undefined;
+  const sources = [node, isRecord(itemOffered) ? itemOffered : null].filter(isRecord);
+  const place: Record<string, unknown> = {};
+  for (const src of sources) {
+    for (const [k, v] of Object.entries(src)) {
+      if (place[k] === undefined) place[k] = v;
+    }
+  }
 
   const addr = place['address'];
   if (isRecord(addr)) {
@@ -63,8 +77,6 @@ export function snapshotFromJsonLd(
 
   out.yearBuilt = num(place['yearBuilt']);
 
-  const offers = place['offers'];
-  const offer = Array.isArray(offers) ? offers[0] : offers;
   if (isRecord(offer)) {
     out.price = num(offer['price']);
     const avail = str(offer['availability']);
@@ -73,6 +85,38 @@ export function snapshotFromJsonLd(
       out.status = normalizeStatus(avail);
     }
   }
+
+  // itemOffered.name / node.name is often the full one-line address.
+  if (!out.address) {
+    const name = str(place['name']);
+    if (name) Object.assign(out, splitAddress(name));
+  }
+  return out;
+}
+
+/**
+ * Zillow's `<meta name="description">` is the most stable facts source on the
+ * page -- it survived the hydration-blob rewrite that broke the JSON key scan:
+ * "Zillow has 36 photos of this $725,000 4 beds, 2 baths, 4,670 sqft single
+ *  family home located at ... built in 1908."
+ */
+export function factsFromMetaDescription(html: string): Partial<Snapshot> {
+  const m = /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i.exec(html);
+  const desc = m?.[1];
+  if (!desc) return {};
+
+  const out: Partial<Snapshot> = {};
+  const beds = /([\d.]+)\s*beds?\b/i.exec(desc)?.[1];
+  const baths = /([\d.]+)\s*baths?\b/i.exec(desc)?.[1];
+  const sqft = /([\d,]+)\s*(?:sqft|sq\.? ?ft)\b/i.exec(desc)?.[1];
+  const year = /built in (\d{4})/i.exec(desc)?.[1];
+  const price = /\$([\d,]+)/.exec(desc)?.[1];
+
+  if (beds !== undefined) out.beds = num(beds);
+  if (baths !== undefined) out.baths = num(baths);
+  if (sqft !== undefined) out.sqft = num(sqft.replace(/,/g, ''));
+  if (year !== undefined) out.yearBuilt = num(year);
+  if (price !== undefined) out.price = num(price.replace(/,/g, ''));
   return out;
 }
 

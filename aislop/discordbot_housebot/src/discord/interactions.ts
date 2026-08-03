@@ -34,6 +34,14 @@ function deferEphemeral(): Response {
   });
 }
 
+/** Visible to everyone in the channel. Used where the answer is for the room. */
+function replyPublic(content: string): Response {
+  return jsonResponse({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: { content, allowed_mentions: { parse: [] } },
+  });
+}
+
 function replyEphemeral(content: string): Response {
   return jsonResponse({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -166,10 +174,11 @@ export async function handleInteraction(
     }
 
     case 'status': {
-      // No fetch, so answer inline instead of deferring.
+      // No fetch, so answer inline instead of deferring. Posted publicly: the
+      // house summary is for the room, not just whoever asked.
       const row = threadId ? await deps.repo.getByThreadId(threadId) : null;
       if (!row) return replyEphemeral(propertyMissingText(null));
-      return replyEphemeral(deps.service.status(row).message);
+      return replyPublic(deps.service.status(row).message);
     }
 
     default:

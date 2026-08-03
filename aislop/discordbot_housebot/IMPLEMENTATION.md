@@ -99,6 +99,27 @@ apology, so a failure is debuggable without catching it in a live
 `wrangler tail`. Airtable details are token-redacted before they reach this
 path. Revisit if the bot ever gains other users.
 
+**The first live fetch broke two parser assumptions.** A real `/house add`
+returned price/address/status but no beds/baths/sqft. The captured page showed
+why: Zillow nests the residence under `offers.itemOffered` (the outer node is
+`RealEstateListing`/`Product` and carries no facts), and the `__NEXT_DATA__`
+hydration keys the scanner looked for (`bedrooms`, `livingArea`, `homeStatus`)
+no longer exist anywhere in the document. The fix reads through `itemOffered`
+and adds `<meta name="description">` — "…$725,000 4 beds, 2 baths, 4,670 sqft …
+built in 1908" — as a second source, which also supplies `yearBuilt`. HVAC now
+comes from tag-stripping a bounded window after the rendered `Heating` heading,
+since it is markup rather than JSON. `test/fixtures/zillow-live-2026.html` is
+trimmed verbatim from that live page so these stay honest.
+
+**Scheduled refresh is off.** `triggers.crons` is `[]`: automated repeat traffic
+is what earns an IP block, and the value of hourly polling did not justify the
+risk to a bot whose only source is public pages. Manual `/house update` only.
+The handler and tests stay so re-enabling is a one-line config change.
+
+**`/house status` is public.** Everything else stays ephemeral, but the house
+summary is for the room — it is the thing people actually want to point at in a
+thread.
+
 **Split tsconfigs.** `@types/node` and `@cloudflare/workers-types` disagree about
 `fetch`/`CryptoKey`. `tsconfig.json` typechecks `src/` against workers-types only
 (what actually runs); `tsconfig.test.json` adds node types for tests and scripts.
@@ -106,14 +127,12 @@ path. Revisit if the bot ever gains other users.
 
 ## Known limitations
 
-- **Parsers are fixture-tested, not provider-guaranteed.** The fixtures in
-  `test/fixtures/` are hand-authored to match the *shape* of Zillow/Redfin public
-  markup (schema.org LD+JSON + a hydration blob), not captured from live pages.
-  If a provider changes markup, the adapter returns `unparseable` and nothing is
-  written — but no test here will have warned you first.
-- **No live fetch has been performed** against Zillow or Redfin from this repo.
-  Bot protection is likely on real traffic from Cloudflare egress; the `blocked`
-  path exists because that is the expected steady state, not a rare case.
+- **Redfin has never seen a live page.** Its fixture is hand-authored to match
+  the *shape* of the markup, not captured. The Zillow adapter is now verified
+  against real markup (see below), but Redfin's remains a guess.
+- **Zillow served Cloudflare egress fine** on 2026-08-03 — no bot protection on
+  a single manual fetch. That is one data point, not a guarantee; the `blocked`
+  path still exists and the cron is off precisely to avoid earning one.
 - **Airtable is untested against a live base.** No token was available. The
   request shape, upsert merge field, skip reasons, and token redaction are unit
   tested against a mock. See `docs/AIRTABLE.md` — verify with one real
@@ -144,8 +163,8 @@ path. Revisit if the bot ever gains other users.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 9 files, 104 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 57.53 KiB
+npm test            # vitest: 9 files, 111 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 59.69 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.

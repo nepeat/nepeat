@@ -2,6 +2,7 @@ import { identifyUrl } from '../url';
 import type { ListingSource, Snapshot } from '../types';
 import {
   addressFromMeta,
+  factsFromMetaDescription,
   finalize,
   mergeSnapshot,
   snapshotFromJsonLd,
@@ -24,6 +25,7 @@ export const redfinSource: ListingSource = {
   parse(html, canonicalUrl, listingId, fetchedAt): Snapshot | null {
     const merged = mergeSnapshot(
       snapshotFromJsonLd(html, 'redfin', listingId, canonicalUrl, fetchedAt),
+      factsFromMetaDescription(html),
       snapshotFromScan(html),
       addressFromMeta(html),
     );

@@ -440,9 +440,13 @@ describe('/house status', () => {
     const res = await h.run(
       interaction('status', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }),
     );
-    const body = (await res.json()) as { type: number; data: { content: string; flags: number } };
+    const body = (await res.json()) as {
+      type: number;
+      data: { content: string; flags?: number };
+    };
     expect(body.type).toBe(4);
-    expect(body.data.flags).toBe(64);
+    // Public on purpose: everyone in the thread should see the summary.
+    expect(body.data.flags).toBeUndefined();
     expect(body.data.content).toContain('**Listing key:** `zillow:49059541`');
     expect(body.data.content).toContain('Last checked');
     expect(h.calls.length).toBe(callsBefore); // no REST, no listing fetch

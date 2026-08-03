@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { normalizeStatus, splitAddress } from '../src/listing/parse';
+import { hvacFromSection, normalizeStatus, splitAddress } from '../src/listing/parse';
+import { buildThreadTitle } from '../src/listing/format';
+import { factsFromMetaDescription } from '../src/listing/providers/common';
 import { redfinSource } from '../src/listing/providers/redfin';
 import { zillowSource } from '../src/listing/providers/zillow';
 
@@ -106,5 +108,67 @@ describe('splitAddress', () => {
 
   it('falls back to a single line when it cannot split', () => {
     expect(splitAddress('somewhere odd')).toEqual({ address: 'somewhere odd' });
+  });
+});
+
+describe('zillow live markup (captured 2026-08-03, zpid 49024254)', () => {
+  const LIVE = 'https://www.zillow.com/homedetails/400-Cedar-Ave-S-Renton-WA-98057/49024254_zpid/';
+
+  it('reads facts nested under offers.itemOffered plus the meta description', () => {
+    const snap = zillowSource.parse(fixture('zillow-live-2026.html'), LIVE, '49024254', 500);
+    expect(snap).toMatchObject({
+      listingKey: 'zillow:49024254',
+      status: 'active',
+      price: 725000,
+      address: '400 Cedar Avenue S',
+      city: 'Renton',
+      state: 'WA',
+      zip: '98057',
+      beds: 4,
+      baths: 2,
+      sqft: 4670,
+      yearBuilt: 1908,
+    });
+  });
+
+  it('produces the canonical thread title from live markup', () => {
+    const snap = zillowSource.parse(fixture('zillow-live-2026.html'), LIVE, '49024254', 500);
+    expect(buildThreadTitle(snap!, { closed: false })).toBe(
+      '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+    );
+  });
+
+  it('extracts heating from the rendered section, not from a JSON key', () => {
+    const snap = zillowSource.parse(fixture('zillow-live-2026.html'), LIVE, '49024254', 500);
+    expect(snap?.hvac).toBe('Fireplace, Heat Pump, Natural Gas');
+  });
+});
+
+describe('factsFromMetaDescription', () => {
+  it('parses beds/baths/sqft/year/price out of the description', () => {
+    const html =
+      '<meta name="description" content="Zillow has 36 photos of this $1,250,000 3 beds, 2.5 baths, 2,100 sqft single family home located at 1 A St built in 1975." />';
+    expect(factsFromMetaDescription(html)).toEqual({
+      price: 1250000,
+      beds: 3,
+      baths: 2.5,
+      sqft: 2100,
+      yearBuilt: 1975,
+    });
+  });
+
+  it('returns nothing when there is no description', () => {
+    expect(factsFromMetaDescription('<html></html>')).toEqual({});
+  });
+});
+
+describe('hvacFromSection', () => {
+  it('stops at the next facts label', () => {
+    const html = '<h6>Heating</h6><ul><li>Heat Pump, Natural Gas</li></ul><h6>Cooling</h6><ul><li>Window Unit(s)</li></ul>';
+    expect(hvacFromSection(html)).toBe('Heat Pump, Natural Gas');
+  });
+
+  it('returns undefined when there is no heating section', () => {
+    expect(hvacFromSection('<h6>Cooling</h6><ul><li>Central</li></ul>')).toBeUndefined();
   });
 });

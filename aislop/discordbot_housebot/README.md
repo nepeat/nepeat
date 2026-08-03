@@ -22,7 +22,7 @@ notice.
 | `/house update [link]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved. |
 | `/house close` | inside a house thread | Force-closes the house (no fetch). Prefixes the title with `❌ ` and removes it from the cron. |
 | `/house open` | inside a house thread | Re-opens **only** if the live listing is not sold/closed. Explains cleanly otherwise. |
-| `/house status` | inside a house thread | Diagnostic read from D1 — status, source, last checked/changed, next scheduled check, failure count. Makes no network calls. |
+| `/house status` | inside a house thread | Diagnostic read from D1 — status, source, last checked/changed, failure count. Posted **publicly** in the thread; makes no network calls. |
 
 Material fields: `status`, `price`, `beds`, `baths`, `sqft`, `address`,
 `yearBuilt`, `hvac`.
@@ -111,12 +111,15 @@ done
 
 ## Scheduled refresh
 
-`wrangler.jsonc` sets `triggers.crons = ["17 * * * *"]` — one tick per hour. A
-tick selects at most `REFRESH_BATCH_SIZE` properties whose `next_check_at` is
-due, refreshes each **independently**, and backs off exponentially (capped at
-24h) on consecutive failures. Force-closed houses are excluded in SQL, so they
-cost nothing. Delete the `triggers` block to disable scheduling entirely; every
-command still works on demand.
+**Currently disabled.** `wrangler.jsonc` sets `triggers.crons = []` — repeated
+automated hits are exactly what gets an IP blocked by Zillow/Redfin, so refreshes
+happen only when you run `/house update`. The handler, its batching/backoff
+logic, and its tests all remain in place.
+
+To re-enable, restore `"crons": ["17 * * * *"]`. A tick then selects at most
+`REFRESH_BATCH_SIZE` properties whose `next_check_at` is due, refreshes each
+**independently**, and backs off exponentially (capped at 24h) on consecutive
+failures. Force-closed houses are excluded in SQL, so they cost nothing.
 
 Test a tick locally:
 
@@ -143,9 +146,13 @@ Deployed at **<https://housebot.butt.workers.dev>** — interactions endpoint
   user agents, solves challenges, logs in, or touches private APIs. Expect
   refreshes to fail sometimes — the stored snapshot simply stays stale, and
   `/house status` shows the failure.
-- **Parsers are fixture-tested, not provider-guaranteed.** Both adapters read
-  schema.org LD+JSON first, then fall back to hydration-blob keys. When a
-  provider changes markup, the result is `unparseable` — never invented data.
+- **Parsers read four sources, in confidence order:** schema.org LD+JSON
+  (including the residence nested under `offers.itemOffered`, which is how Zillow
+  ships it), the `<meta name="description">` facts line, hydration-blob JSON
+  keys, and `og:title`. The Zillow path is verified against markup captured live
+  on 2026-08-03 (`test/fixtures/zillow-live-2026.html`). **Redfin is still
+  fixture-only** — its adapter has never seen a live page. When markup changes,
+  the result is `unparseable` — never invented data.
 - **HVAC is unverified.** It is parsed from listing text when present and always
   labeled as such. Everything else in
   [docs/ENRICHMENT.md](docs/ENRICHMENT.md) (photos, commute, transit, ISP) is a

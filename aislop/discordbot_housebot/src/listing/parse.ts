@@ -108,6 +108,33 @@ export function normalizeStatus(raw: string | undefined): ListingStatus {
   return 'unknown';
 }
 
+/** Labels that mark the end of the heating section in a rendered facts list. */
+const HVAC_STOP_WORDS =
+  /\b(?:Cooling|Appliances|Features|Utilities|Parking|Interior|Flooring|Heating type|Has heating)\b/i;
+
+/**
+ * Pull the heating facts out of a rendered `<h6>Heating</h6><ul>…` block.
+ * Zillow renders these as markup, not as JSON keys, so tag-stripping a bounded
+ * window after the heading is the only honest way to read it.
+ */
+export function hvacFromSection(html: string): string | undefined {
+  const heading = /<[^>]*>\s*Heat(?:ing| Source| Type)\s*<\/(?:h\d|dt|span|strong)>/i.exec(html);
+  if (!heading) return undefined;
+
+  const window = html.slice(heading.index, heading.index + 1200);
+  const text = window
+    .replace(/<!--.*?-->/gs, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const after = text.replace(/^Heat(?:ing| Source| Type)\s*:?\s*/i, '');
+  const stop = HVAC_STOP_WORDS.exec(after);
+  const value = (stop ? after.slice(0, stop.index) : after).trim().replace(/[,;]$/, '');
+  if (value.length < 3 || value.length > 120) return undefined;
+  return value;
+}
+
 /** Grab an HVAC-ish phrase from listing text. Always treated as unverified. */
 export function scanHvac(html: string): string | undefined {
   const direct =
@@ -116,10 +143,7 @@ export function scanHvac(html: string): string | undefined {
     scanString(html, 'heatSource');
   if (direct && direct.length <= 80 && !/^https?:/i.test(direct)) return direct;
 
-  const m =
-    /(?:Heating|Heat Source|Heat Type)["'\s:>]+([A-Za-z0-9 ,/&()-]{3,60})/i.exec(html);
-  const v = m?.[1]?.trim().replace(/\s+/g, ' ');
-  return v && v.length >= 3 ? v : undefined;
+  return hvacFromSection(html);
 }
 
 /** Split "400 Cedar Avenue S, Renton, WA 98057" into parts. */
