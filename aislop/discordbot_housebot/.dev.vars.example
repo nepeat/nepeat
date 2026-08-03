@@ -20,3 +20,12 @@ AIRTABLE_TABLE=
 # Discover the real field ids first (see docs/AIRTABLE.md). Example:
 # AIRTABLE_FIELD_MAP_JSON={"key":"fldXXXX","url":"fldYYYY","price":"fldZZZZ"}
 AIRTABLE_FIELD_MAP_JSON=
+
+# --- Google Maps Platform (optional, enables commute ETAs) ---
+# GCP project -> enable "Routes API" -> Credentials -> API key.
+# Restrict it to the Routes API. Do NOT use an IP restriction: Cloudflare
+# Workers egress from many addresses, so an IP allowlist will break it.
+GOOGLE_MAPS_API_KEY=
+# Optional. ISO-8601 with offset, e.g. 2026-08-11T08:00:00-07:00.
+# Unset = next Tuesday 08:00 Pacific.
+COMMUTE_DEPARTURE_ISO=

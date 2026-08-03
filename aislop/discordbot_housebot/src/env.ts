@@ -17,6 +17,16 @@ export interface Env {
   AIRTABLE_TOKEN?: string;
   AIRTABLE_TABLE?: string;
   AIRTABLE_FIELD_MAP_JSON?: string;
+
+  /** Google Maps Platform key, Routes API enabled. Enables commute estimates. */
+  GOOGLE_MAPS_API_KEY?: string;
+  /**
+   * Pinned departure time for commute ETAs, ISO-8601 with offset. A commute
+   * number with no stated departure assumption is a number that lies, so this
+   * is stored and echoed into the thread message alongside the ETA.
+   * Defaults to the next Tuesday 08:00 America/Los_Angeles when unset.
+   */
+  COMMUTE_DEPARTURE_ISO?: string;
 }
 
 export function intVar(value: string | undefined, fallback: number): number {

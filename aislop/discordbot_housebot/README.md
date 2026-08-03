@@ -102,6 +102,8 @@ Vars live in `wrangler.jsonc` (non-secret). Secrets go in `.dev.vars` locally an
 | `AIRTABLE_TOKEN` | secret | no | Enables the optional Airtable sync. |
 | `AIRTABLE_TABLE` | secret | no | Table id or name. **No default is assumed.** |
 | `AIRTABLE_FIELD_MAP_JSON` | secret | no | Field mapping — see [docs/AIRTABLE.md](docs/AIRTABLE.md). |
+| `GOOGLE_MAPS_API_KEY` | secret | no | Routes API key; enables commute ETAs. Restrict by API, **not** by IP. |
+| `COMMUTE_DEPARTURE_ISO` | secret | no | Pinned departure time for ETAs. Default: next Tue 08:00 Pacific. |
 
 ```bash
 for s in DISCORD_PUBLIC_KEY DISCORD_BOT_TOKEN DISCORD_APPLICATION_ID; do
