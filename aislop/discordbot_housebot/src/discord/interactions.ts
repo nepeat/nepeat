@@ -188,12 +188,12 @@ export async function handleInteraction(
       return deferReply(deps);
     }
 
-    case 'status': {
+    case 'info': {
       // No fetch, so answer inline instead of deferring. Posted publicly: the
       // house summary is for the room, not just whoever asked.
       const row = threadId ? await deps.repo.getByThreadId(threadId) : null;
       if (!row) return reply(deps, propertyMissingText(null));
-      const { embed } = await deps.service.status(row);
+      const { embed } = await deps.service.info(row);
       return replyPublic('', [embed]);
     }
 

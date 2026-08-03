@@ -592,8 +592,8 @@ export class HouseService {
     return { commute, commuteProvenance, commuteStatus, hvac, isp, ispProvenance };
   }
 
-  /** `/house status` — D1 only, including stored enrichment. No outgoing fetch. */
-  async status(row: PropertyRow): Promise<{ embed: Embed }> {
+  /** `/house info` — D1 only, including stored enrichment. No outgoing fetch. */
+  async info(row: PropertyRow): Promise<{ embed: Embed }> {
     const snapshot = parseSnapshot(row);
     const { commute, commuteProvenance, commuteStatus, hvac, isp, ispProvenance } =
       await this.loadEnrichment(row);

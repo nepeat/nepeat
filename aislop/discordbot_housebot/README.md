@@ -26,7 +26,7 @@ notice.
 | `/house update [link] [reenrich]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved, and fills in any enrichment that is still blank. `reenrich:true` forces a full recompute. |
 | `/house close` | inside a house thread | Force-closes the house (no fetch). Prefixes the title with `❌ ` and removes it from the cron. |
 | `/house open` | inside a house thread | Re-opens **only** if the live listing is not sold/closed. Explains cleanly otherwise. |
-| `/house status` | inside a house thread | Rich embed built from D1 — status, price, size, driving + transit commutes, heating, history. Posted **publicly**; makes no network calls. |
+| `/house info` | inside a house thread | Rich embed built from D1 — status, price, size, driving + transit commutes, heating, internet, history. Posted **publicly**; makes no network calls. |
 
 Material fields: `status`, `price`, `beds`, `baths`, `sqft`, `address`,
 `yearBuilt`, `hvac`.
@@ -68,7 +68,7 @@ enrich command: `/house update reenrich:true` forces a full recompute.
   Current address-level data (BDC) needs registered credentials — see
   [docs/ROADMAP.md](docs/ROADMAP.md).
 - **Photo** — the listing's own `og:image`, hotlinked exactly as a link preview
-  would: full-width on the enrichment embed, a thumbnail on `/house status`. The
+  would: full-width on the enrichment embed, a thumbnail on `/house info`. The
   full gallery is a licensing question and is deliberately untouched. A house
   stored before photos existed bootstraps one on the next `/house update`: while
   the photo is missing the refresh drops its conditional-GET headers (a 304 has
@@ -83,7 +83,7 @@ enrich command: `/house update reenrich:true` forces a full recompute.
 Everything lands in **one embed** — listing facts, driving, transit, heating,
 internet and the photo — which is also the thread's starter message. Colored by
 listing status (green active, yellow pending, red closed). Both adapters degrade to a recorded `unavailable`
-with a reason rather than failing the command, and `/house status` says *why* a
+with a reason rather than failing the command, and `/house info` says *why* a
 section is missing instead of silently omitting it. Transit, ISP and photos are still scaffolded interfaces — see
 [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -209,7 +209,7 @@ Deployed at **<https://housebot.butt.workers.dev>** — interactions endpoint
   `403`/`429` is reported as `blocked` and backed off; housebot never rotates
   user agents, solves challenges, logs in, or touches private APIs. Expect
   refreshes to fail sometimes — the stored snapshot simply stays stale, and
-  `/house status` shows the failure.
+  `/house info` shows the failure.
 - **Parsers read four sources, in confidence order:** schema.org LD+JSON
   (including the residence nested under `offers.itemOffered`, which is how Zillow
   ships it), the `<meta name="description">` facts line, hydration-blob JSON

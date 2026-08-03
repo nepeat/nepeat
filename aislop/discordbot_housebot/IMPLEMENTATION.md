@@ -116,7 +116,7 @@ is what earns an IP block, and the value of hourly polling did not justify the
 risk to a bot whose only source is public pages. Manual `/house update` only.
 The handler and tests stay so re-enabling is a one-line config change.
 
-**`/house status` is public.** Everything else stays ephemeral, but the house
+**`/house info` is public.** Everything else stays ephemeral, but the house
 summary is for the room — it is the thing people actually want to point at in a
 thread.
 
@@ -297,7 +297,7 @@ transitions, Ed25519 verification (valid/tampered/replayed/wrong-key/malformed),
 provider parsers against fixtures (active/sold/unparseable), fetcher behavior
 (conditional headers, 304, 403-as-blocked, 500, timeout, network error,
 unsupported URL), Airtable field map + client, and end-to-end interaction flows
-(`add`/`bind`/`update`/`close`/`open`/`status`, wrong channel, idempotent retry, deferral)
+(`add`/`bind`/`update`/`close`/`open`/`info`, wrong channel, idempotent retry, deferral)
 plus scheduled-refresh batching, force-close exclusion, per-property failure
 isolation, and interaction-log pruning — all against a mock Discord REST and an
 in-memory D1. No test touches the network.

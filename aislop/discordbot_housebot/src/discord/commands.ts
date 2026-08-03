@@ -64,8 +64,8 @@ export const HOUSE_COMMAND = {
     },
     {
       type: ApplicationCommandOptionType.Subcommand,
-      name: 'status',
-      description: 'Show stored info for this house without fetching anything',
+      name: 'info',
+      description: 'Show everything known about this house without fetching anything',
     },
   ],
 } as const;

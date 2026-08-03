@@ -808,7 +808,7 @@ describe('enrichment upgrade paths', () => {
     });
 
     const res = await h.run(
-      interaction('status', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }),
+      interaction('info', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }),
     );
     const body = (await res.json()) as { data: { embeds: EmbedShape[] } };
     const driving = body.data.embeds[0]!.fields.find((f) => f.name === '🚗 Driving');
@@ -1011,7 +1011,7 @@ describe('/house close and /house open', () => {
   });
 });
 
-describe('/house status', () => {
+describe('/house info', () => {
   it('answers inline from D1 with no outgoing fetch', async () => {
     const h = harness();
     await h.run(interaction('add', { link: ZILLOW_LINK }));
@@ -1019,7 +1019,7 @@ describe('/house status', () => {
     const callsBefore = h.calls.length;
 
     const res = await h.run(
-      interaction('status', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }),
+      interaction('info', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }),
     );
     const body = (await res.json()) as {
       type: number;
@@ -1103,7 +1103,7 @@ describe('scheduled refresh', () => {
       now: () => h.now(),
     });
     // The id is now free to be reused, proving the row was pruned.
-    const res = await h.run(interaction('status', { id: 'old-1' }));
+    const res = await h.run(interaction('info', { id: 'old-1' }));
     const body = (await res.json()) as { data: { content: string } };
     expect(body.data.content).not.toContain('already handled');
   });
