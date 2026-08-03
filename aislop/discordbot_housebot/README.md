@@ -46,10 +46,11 @@ enrich command: `/house update reenrich:true` forces a full recompute.
   ```
 
   Light rail (🚈), heavy rail (🚆), tram (🚊), bus (🚌) and ferry (⛴️) get distinct
-  glyphs, and each leg carries its own riding time. Driving departs at 08:00
-  (`COMMUTE_DEPARTURE_ISO`) and **transit departs at 10:00**
-  (`TRANSIT_DEPARTURE_ISO`) — peak-only service would otherwise flatter an
-  itinerary you could not actually reproduce mid-morning.
+  glyphs, and each leg carries its own riding time. **Both modes depart at 10:00
+  Pacific** on the next Tuesday, so drive-vs-transit is directly comparable;
+  override independently with `COMMUTE_DEPARTURE_ISO` / `TRANSIT_DEPARTURE_ISO`.
+  The departure is always printed in the provenance — an ETA without its
+  assumption is a number that lies.
 
   Destinations: Bellevue office (nep), Seattle office (partner), Hackerspace.
   **6 calls per house** (3 destinations × 2 modes) against the Compute Routes
@@ -58,7 +59,11 @@ enrich command: `/house update reenrich:true` forces a full recompute.
   geocodes.
 - **Photo** — the listing's own `og:image`, hotlinked exactly as a link preview
   would: full-width on the enrichment embed, a thumbnail on `/house status`. The
-  full gallery is a licensing question and is deliberately untouched.
+  full gallery is a licensing question and is deliberately untouched. A house
+  stored before photos existed bootstraps one on the next `/house update`: while
+  the photo is missing the refresh drops its conditional-GET headers (a 304 has
+  no body to parse), and the acquired photo is posted as an embed carrying the
+  facts already in D1.
 - **Heating** — classified from listing text into heat pump / forced air (gas or
   electric) / baseboard / radiant floor / radiators / oil / none. **Oil and steam
   radiators are flagged with ⚠️.** Always labeled unverified; `radiant floor` and
@@ -147,7 +152,7 @@ Vars live in `wrangler.jsonc` (non-secret). Secrets go in `.dev.vars` locally an
 | `AIRTABLE_TABLE` | secret | no | Table id or name. **No default is assumed.** |
 | `AIRTABLE_FIELD_MAP_JSON` | secret | no | Field mapping — see [docs/AIRTABLE.md](docs/AIRTABLE.md). |
 | `GOOGLE_MAPS_API_KEY` | secret | no | Routes API key; enables commute ETAs. Restrict by API, **not** by IP. |
-| `COMMUTE_DEPARTURE_ISO` | secret | no | Pinned driving departure. Default: next Tue 08:00 Pacific. |
+| `COMMUTE_DEPARTURE_ISO` | secret | no | Pinned driving departure. Default: next Tue 10:00 Pacific. |
 | `TRANSIT_DEPARTURE_ISO` | secret | no | Pinned transit departure. Default: next Tue 10:00 Pacific. |
 
 ```bash

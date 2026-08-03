@@ -237,8 +237,12 @@ export class HouseService {
   ): Promise<RefreshOutcome> {
     const now = this.now();
     const url = overrideUrl ?? row.source_url;
-    // An explicit override URL means "ignore my cached validators".
-    const fetchOptions = overrideUrl ? this.fetchOpts() : this.fetchOpts(row);
+    // An explicit override URL means "ignore my cached validators". So does a
+    // missing photo: a 304 returns no body, so a house stored before we parsed
+    // og:image could never acquire one. Bootstrapping it is worth one full GET.
+    const storedSnapshot = parseSnapshot(row);
+    const needsPhoto = !storedSnapshot?.photoUrl;
+    const fetchOptions = overrideUrl || needsPhoto ? this.fetchOpts() : this.fetchOpts(row);
     const result = await fetchListing(url, fetchOptions, now);
 
     if (!result.ok) {
@@ -267,8 +271,9 @@ export class HouseService {
       return { kind: 'not-modified', changes: [], enriched: backfilled.lines.length };
     }
 
-    const prev = parseSnapshot(row);
+    const prev = storedSnapshot;
     const next = result.snapshot;
+    const photoAdded = !prev?.photoUrl && Boolean(next.photoUrl);
     const changes = computeChanges(prev, next);
     const closed = isClosed({
       forceClosed: row.force_closed === 1,
@@ -297,7 +302,10 @@ export class HouseService {
 
     // Fill whatever enrichment is still blank. Free when everything already
     // succeeded, and it self-heals rows added before a parser improvement.
-    const filled = await this.enrich(row, next, { mode: opts.enrichMode ?? 'missing' });
+    const filled = await this.enrich(row, next, {
+      mode: opts.enrichMode ?? 'missing',
+      photoAdded,
+    });
 
     await this.syncAirtable(row, next);
 
@@ -361,10 +369,13 @@ export class HouseService {
     return { message: `re-opened (listing status: ${statusLabel(status)}).` };
   }
 
-  /** `/house status` — D1 only, including stored enrichment. No outgoing fetch. */
-  async status(row: PropertyRow): Promise<{ embed: Embed }> {
-    const snapshot = parseSnapshot(row);
-
+  /** Stored enrichment, decoded. Shared by `/house status` and the embed path. */
+  private async loadEnrichment(row: PropertyRow): Promise<{
+    commute: CommuteValue | null;
+    commuteProvenance: string | null;
+    commuteStatus: string | null;
+    hvac: HvacClassification | null;
+  }> {
     let commute: CommuteValue | null = null;
     let commuteProvenance: string | null = null;
     let commuteStatus: string | null = null;
@@ -380,8 +391,15 @@ export class HouseService {
         }
       }
     } catch (err) {
-      console.error('status enrichment read failed', { id: row.id, error: errText(err) });
+      console.error('enrichment read failed', { id: row.id, error: errText(err) });
     }
+    return { commute, commuteProvenance, commuteStatus, hvac };
+  }
+
+  /** `/house status` — D1 only, including stored enrichment. No outgoing fetch. */
+  async status(row: PropertyRow): Promise<{ embed: Embed }> {
+    const snapshot = parseSnapshot(row);
+    const { commute, commuteProvenance, commuteStatus, hvac } = await this.loadEnrichment(row);
 
     return {
       embed: buildStatusEmbed({
@@ -420,7 +438,7 @@ export class HouseService {
   async enrich(
     row: PropertyRow,
     snapshot: Snapshot,
-    opts: { post?: boolean; mode?: 'missing' | 'force' } = {},
+    opts: { post?: boolean; mode?: 'missing' | 'force'; photoAdded?: boolean } = {},
   ): Promise<{ lines: string[] }> {
     const now = this.now();
     const mode = opts.mode ?? 'force';
@@ -529,7 +547,7 @@ export class HouseService {
   private async postEnrichment(
     row: PropertyRow,
     lines: string[],
-    opts: { post?: boolean },
+    opts: { post?: boolean; photoAdded?: boolean },
     payload: {
       snapshot: Snapshot;
       hvac: HvacClassification | null;
@@ -537,18 +555,34 @@ export class HouseService {
       commuteProvenance: string;
     },
   ): Promise<{ lines: string[] }> {
-    if (opts.post === false || lines.length === 0) return { lines };
+    if (opts.post === false) return { lines };
+
+    let { commute, hvac, commuteProvenance } = payload;
+
+    // A newly-acquired photo is worth an embed on its own -- but an embed
+    // carrying ONLY a picture is useless, so backfill the facts we already have
+    // from D1 rather than recomputing anything.
+    if (opts.photoAdded && lines.length === 0) {
+      const stored = await this.loadEnrichment(row);
+      commute = commute ?? stored.commute;
+      hvac = hvac ?? stored.hvac;
+      commuteProvenance = commuteProvenance || (stored.commuteProvenance ?? '');
+      lines.push('photo');
+    }
+    if (lines.length === 0) return { lines };
+
     const embed: Embed = buildEnrichmentEmbed({
       snapshot: payload.snapshot,
-      commute: payload.commute,
-      commuteProvenance: payload.commuteProvenance,
-      hvac: payload.hvac,
+      commute,
+      commuteProvenance,
+      hvac,
       closed: isClosed({
         forceClosed: row.force_closed === 1,
         listingStatus: payload.snapshot.status,
       }),
     });
-    if (!embed.fields?.length) return { lines };
+    // A photo alone is a legitimate embed; otherwise require something to say.
+    if (!embed.fields?.length && !embed.image) return { lines };
     await this.rest.postMessage(row.thread_id, '', [embed]);
     return { lines };
   }

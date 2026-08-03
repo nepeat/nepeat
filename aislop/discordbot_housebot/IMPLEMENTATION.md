@@ -157,11 +157,20 @@ in what order. `nameShort` is preferred over `name` (riders say "1 Line", not
 "Link 1 Line") with a fallback — verified live, where South Lake Union Streetcar
 ships only the long name.
 
-**Driving and transit depart at different times on purpose.** 08:00 answers "what
-is my commute"; transit at 08:00 would be scored against peak-only runs you
-cannot reproduce at any other hour, so it departs at 10:00 and answers "can I
-actually get there on transit". Both are overridable and both are printed in the
-provenance, because either number is meaningless without its assumption.
+**Both modes depart at 10:00 Pacific.** 05:00 makes traffic-aware driving come in
+*below* free-flow; 08:00 scores transit against peak-only service. 10:00 asks
+what the trip normally looks like, and keeping both modes on one clock makes
+drive-vs-transit directly comparable. Each is overridable independently, and both
+departures are printed in the provenance — an ETA without its assumption is a
+number that lies.
+
+**A missing photo suspends conditional GETs.** A house stored before `og:image`
+parsing existed can never acquire one from a 304, because a 304 has no body. So
+while `photoUrl` is absent the refresh omits its validators and takes one full
+GET; once acquired, validators resume. The newly-found photo is worth an embed on
+its own, but an embed containing *only* a picture is useless — so that path
+backfills commute and heating from D1 rather than recomputing them, and posts a
+complete card for zero API calls.
 
 **Embeds over markdown.** Enrichment and `/house status` post embeds so commute,
 transit and heating are separately labeled fields rather than one wall of text,
@@ -238,7 +247,7 @@ from the stored snapshot before returning.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 164 tests, all passing
+npm test            # vitest: 10 files, 167 tests, all passing
 npm run build       # wrangler deploy --dry-run --outdir=dist — 82.54 KiB
 ```
 

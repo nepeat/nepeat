@@ -70,11 +70,10 @@ export type CommuteResult =
  * Next Tuesday at a given local hour in America/Los_Angeles, as an ISO instant.
  *
  * A commute ETA with no stated departure assumption is a number that lies: at
- * 05:00 the traffic-aware drive time comes in *below* free-flow. Driving uses
- * 08:00 (the actual rush hour you would sit in); transit uses 10:00, where
- * headways are representative rather than peak-only. Pacific is UTC-7 (PDT) or
- * UTC-8 (PST); the offset is resolved via Intl rather than hardcoded, so this
- * stays correct across DST.
+ * 05:00 the traffic-aware drive time comes in *below* free-flow, and at 08:00 a
+ * transit itinerary can be scored against peak-only service. Both modes default
+ * to 10:00. Pacific is UTC-7 (PDT) or UTC-8 (PST); the offset is resolved via
+ * Intl rather than hardcoded, so this stays correct across DST.
  */
 export function nextTuesdayAt(now: Date, localHour: number): string {
   const day = now.getUTCDay();
@@ -99,13 +98,14 @@ export function nextTuesdayAt(now: Date, localHour: number): string {
   )).toISOString();
 }
 
-export const DRIVE_HOUR_LOCAL = 8;
+/**
+ * Both modes depart mid-morning. 08:00 answers "the worst version of this
+ * commute"; 10:00 answers "what this trip normally looks like", and keeping the
+ * two modes on the same clock makes drive-vs-transit directly comparable.
+ * Either can be overridden independently.
+ */
+export const DRIVE_HOUR_LOCAL = 10;
 export const TRANSIT_HOUR_LOCAL = 10;
-
-/** Back-compat helper: the driving default. */
-export function nextTuesday8am(now: Date): string {
-  return nextTuesdayAt(now, DRIVE_HOUR_LOCAL);
-}
 
 /** -7 during PDT, -8 during PST. */
 function pacificOffsetHours(at: Date): number {
@@ -135,9 +135,6 @@ export async function estimateCommutes(
   }
 
   const departure = cfg.departureIso?.trim() || nextTuesdayAt(now, DRIVE_HOUR_LOCAL);
-  // Transit gets its own, later departure: 08:00 answers "my commute", 10:00
-  // answers "can I actually get there on transit" without peak-only service
-  // flattering the result.
   const transitDeparture =
     cfg.transitDepartureIso?.trim() || nextTuesdayAt(now, TRANSIT_HOUR_LOCAL);
   const doFetch = boundFetch(cfg.fetchImpl);

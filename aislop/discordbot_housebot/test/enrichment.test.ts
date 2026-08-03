@@ -3,7 +3,6 @@ import {
   estimateCommutes,
   formatCommute,
   isCurrentCommuteShape,
-  nextTuesday8am,
   nextTuesdayAt,
   normalizeCommuteValue,
   parseDuration,
@@ -82,10 +81,10 @@ describe('parseDuration', () => {
   });
 });
 
-describe('nextTuesday8am', () => {
-  it('always lands on a future Tuesday at 08:00 Pacific', () => {
+describe('nextTuesdayAt', () => {
+  it('always lands on a future Tuesday at the requested Pacific hour', () => {
     for (const day of ['2026-08-03', '2026-08-04', '2026-08-08', '2026-12-25']) {
-      const iso = nextTuesday8am(new Date(`${day}T12:00:00Z`));
+      const iso = nextTuesdayAt(new Date(`${day}T12:00:00Z`), 10);
       const d = new Date(iso);
       expect(d.getTime()).toBeGreaterThan(new Date(`${day}T12:00:00Z`).getTime());
       const pacific = new Intl.DateTimeFormat('en-US', {
@@ -95,12 +94,12 @@ describe('nextTuesday8am', () => {
         hour12: false,
       }).format(d);
       expect(pacific).toContain('Tue');
-      expect(pacific).toMatch(/\b0?8\b/);
+      expect(pacific).toMatch(/\b10\b/);
     }
   });
 
   it('never returns today even when today is Tuesday', () => {
-    const iso = nextTuesday8am(new Date('2026-08-04T12:00:00Z')); // a Tuesday
+    const iso = nextTuesdayAt(new Date('2026-08-04T12:00:00Z'), 10); // a Tuesday
     expect(new Date(iso).getUTCDate()).toBe(11);
   });
 });
@@ -421,7 +420,7 @@ describe('per-leg times and split departures', () => {
     ).toContain('SLU 🚊 1m');
   });
 
-  it('drives at 08:00 and rides transit at 10:00 Pacific', async () => {
+  it('defaults both driving and transit to 10:00 Pacific', async () => {
     const bodies: Array<{ travelMode: string; departureTime: string }> = [];
     const fetchImpl = vi.fn(async (_u: unknown, init: RequestInit | undefined) => {
       bodies.push(JSON.parse(String(init?.body)));
@@ -441,7 +440,7 @@ describe('per-leg times and split departures', () => {
     const transit = bodies.filter((b) => b.travelMode === 'TRANSIT');
     expect(drive).toHaveLength(3);
     expect(transit).toHaveLength(3);
-    expect(drive.every((b) => hourIn(b.departureTime) === '08')).toBe(true);
+    expect(drive.every((b) => hourIn(b.departureTime) === '10')).toBe(true);
     expect(transit.every((b) => hourIn(b.departureTime) === '10')).toBe(true);
   });
 

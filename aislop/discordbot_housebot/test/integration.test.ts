@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { Repo } from '../src/db/repo';
+import { parseSnapshot, Repo } from '../src/db/repo';
 import { handleInteraction } from '../src/discord/interactions';
 import type { Interaction } from '../src/discord/types';
 import { runScheduledRefresh } from '../src/scheduled/refresh';
@@ -68,6 +68,7 @@ interface Harness {
   setNow: (t: number) => void;
   routesCalls: () => number;
   setRoutesUp: (up: boolean) => void;
+  listingHeaders: () => Array<Record<string, string>>;
 }
 
 function harness(): Harness {
@@ -80,7 +81,9 @@ function harness(): Harness {
   let routesCalls = 0;
   let routesUp = true;
 
-  const listingFetch: typeof fetch = async () => {
+  const listingHeaders: Array<Record<string, string>> = [];
+  const listingFetch: typeof fetch = async (_u: unknown, init?: RequestInit) => {
+    listingHeaders.push((init?.headers as Record<string, string>) ?? {});
     if (page === 304) {
       // 304 cannot be built with `new Response`; stub the shape we read.
       return {
@@ -90,7 +93,9 @@ function harness(): Harness {
         text: async () => '',
       } as unknown as Response;
     }
-    return typeof page === 'number' ? new Response('', { status: page }) : htmlResponse(page);
+    return typeof page === 'number'
+      ? new Response('', { status: page })
+      : htmlResponse(page, { etag: 'W/"fixture"' });
   };
 
   const service = new HouseService({
@@ -141,6 +146,7 @@ function harness(): Harness {
       page = html;
     },
     routesCalls: () => routesCalls,
+    listingHeaders: () => listingHeaders,
     setRoutesUp: (up) => {
       routesUp = up;
     },
@@ -692,6 +698,77 @@ describe('enrichment upgrade paths', () => {
     const body = (await res.json()) as { data: { embeds: EmbedShape[] } };
     const driving = body.data.embeds[0]!.fields.find((f) => f.name === '🚗 Driving');
     expect(driving?.value).toContain('34 min');
+  });
+});
+
+describe('photo bootstrap', () => {
+  const LIVE_LINK =
+    'https://www.zillow.com/homedetails/400-Cedar-Ave-S-Renton-WA-98057/49024254_zpid/';
+
+  /** The live fixture with its og:image stripped — i.e. a pre-photo house. */
+  function noPhoto(): string {
+    return fixture('zillow-live-2026.html').replace(/<meta property="og:image"[^>]*>/i, '');
+  }
+
+  it('a plain update posts an embed purely to surface a newly-found photo', async () => {
+    const h = harness();
+    h.setPage(noPhoto());
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    expect(parseSnapshot(row!)?.photoUrl).toBeUndefined();
+
+    const embedsBefore = h.calls.filter(
+      (c) => (c.body as { embeds?: unknown[] })?.embeds?.length,
+    ).length;
+    const routesBefore = h.routesCalls();
+
+    // Nothing about the listing changed except that we can now see the photo.
+    h.setPage(fixture('zillow-live-2026.html'));
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+
+    const after = h.calls.filter((c) => (c.body as { embeds?: unknown[] })?.embeds?.length);
+    expect(after.length).toBe(embedsBefore + 1);
+    const embed = lastEmbed(h.calls)!;
+    expect(embed.image?.url).toMatch(/photos\.zillowstatic\.com/);
+    // The photo embed carries the facts we already had, not an empty card.
+    expect(embed.fields.some((f) => f.name === '🚗 Driving')).toBe(true);
+    // ...and it did not recompute anything to do it.
+    expect(h.routesCalls()).toBe(routesBefore);
+
+    expect(parseSnapshot((await h.repo.getByThreadId(row!.thread_id))!)?.photoUrl).toContain(
+      'photos.zillowstatic.com',
+    );
+  });
+
+  it('skips conditional headers while the photo is missing, so a 304 cannot strand it', async () => {
+    const h = harness();
+    h.setPage(noPhoto());
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+
+    h.setPage(fixture('zillow-live-2026.html'));
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+
+    // Once acquired, later updates go back to using validators.
+    const before = h.listingHeaders().length;
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+    const latest = h.listingHeaders().at(-1)!;
+    expect(before).toBeGreaterThan(0);
+    expect(latest['If-None-Match']).toBe('W/"fixture"');
+  });
+
+  it('does not re-post an embed when the photo was already known', async () => {
+    const h = harness();
+    h.setPage(fixture('zillow-live-2026.html'));
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    const embedsBefore = h.calls.filter(
+      (c) => (c.body as { embeds?: unknown[] })?.embeds?.length,
+    ).length;
+
+    await h.run(interaction('update', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+    const after = h.calls.filter((c) => (c.body as { embeds?: unknown[] })?.embeds?.length).length;
+    expect(after).toBe(embedsBefore);
   });
 });
 
