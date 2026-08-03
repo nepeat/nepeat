@@ -1,31 +1,41 @@
-export const InteractionType = {
-  PING: 1,
-  APPLICATION_COMMAND: 2,
-  MESSAGE_COMPONENT: 3,
-  APPLICATION_COMMAND_AUTOCOMPLETE: 4,
-  MODAL_SUBMIT: 5,
-} as const;
+/**
+ * Discord wire types.
+ *
+ * Enums and payload shapes come from `discord-api-types/v10` rather than being
+ * hand-rolled — hand-rolled constants are exactly how the forum-channel bug got
+ * shipped: `{name, type: PublicThread}` is a valid *text-channel* thread body,
+ * and nothing checked that a forum channel needs a starter `message`.
+ */
+export {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  ChannelType,
+  InteractionResponseType,
+  InteractionType,
+  MessageFlags,
+} from 'discord-api-types/v10';
 
-export const InteractionResponseType = {
-  PONG: 1,
-  CHANNEL_MESSAGE_WITH_SOURCE: 4,
-  DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE: 5,
-} as const;
+export type {
+  APIEmbed,
+  APIInteractionResponseCallbackData,
+  RESTPostAPIChannelMessageJSONBody,
+  RESTPostAPIChannelThreadsJSONBody,
+  RESTPostAPIGuildForumThreadsJSONBody,
+} from 'discord-api-types/v10';
 
-export const MessageFlags = {
-  EPHEMERAL: 1 << 6,
-} as const;
+import { ApplicationCommandOptionType, ChannelType } from 'discord-api-types/v10';
 
-export const ApplicationCommandOptionType = {
-  SUB_COMMAND: 1,
-  STRING: 3,
-  BOOLEAN: 5,
-} as const;
+/** Channels whose threads must be created with a starter message. */
+export function requiresStarterMessage(type: number | undefined): boolean {
+  return type === ChannelType.GuildForum || type === ChannelType.GuildMedia;
+}
 
-export const ChannelType = {
-  GUILD_TEXT: 0,
-  PUBLIC_THREAD: 11,
-} as const;
+/** The thread type to request for a given parent channel. */
+export function threadTypeFor(parentType: number | undefined): ChannelType {
+  return parentType === ChannelType.GuildAnnouncement
+    ? ChannelType.AnnouncementThread
+    : ChannelType.PublicThread;
+}
 
 export interface InteractionOption {
   name: string;
@@ -41,6 +51,10 @@ export interface InteractionChannel {
   parent_id?: string | null;
 }
 
+/**
+ * A narrowed view of APIInteraction: only the fields housebot reads. The full
+ * union carries every interaction kind and would obscure what we depend on.
+ */
 export interface Interaction {
   id: string;
   type: number;
@@ -63,7 +77,7 @@ export function subcommandOf(interaction: Interaction): {
   options: Map<string, string>;
 } {
   const sub = interaction.data?.options?.find(
-    (o) => o.type === ApplicationCommandOptionType.SUB_COMMAND,
+    (o) => o.type === ApplicationCommandOptionType.Subcommand,
   );
   const options = new Map<string, string>();
   for (const o of sub?.options ?? []) {

@@ -7,6 +7,12 @@ export interface Env {
   REFRESH_INTERVAL_MINUTES?: string;
   REFRESH_BATCH_SIZE?: string;
   USER_AGENT?: string;
+  /**
+   * "false" makes command replies ephemeral (caller-only). Default is public:
+   * this is a shared house-hunting channel, so the answers are for the room.
+   * Note that error tracebacks go public too.
+   */
+  PUBLIC_REPLIES?: string;
 
   // secrets (.dev.vars / wrangler secret put)
   DISCORD_PUBLIC_KEY: string;
@@ -38,6 +44,11 @@ export interface Env {
 export function intVar(value: string | undefined, fallback: number): number {
   const n = value === undefined ? NaN : Number.parseInt(value, 10);
   return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+export function boolVar(value: string | undefined, fallback: boolean): boolean {
+  if (value === undefined || value.trim() === '') return fallback;
+  return !/^(false|0|no|off)$/i.test(value.trim());
 }
 
 export const DEFAULT_USER_AGENT =

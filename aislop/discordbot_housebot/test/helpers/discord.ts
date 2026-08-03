@@ -10,7 +10,10 @@ export interface RecordedCall {
  * DiscordRest backed by a recording fetch. No network, and every call the bot
  * makes is asserted against in the integration tests.
  */
-export function fakeRest(): { rest: DiscordRest; calls: RecordedCall[] } {
+export function fakeRest(opts: { channelType?: number } = {}): {
+  rest: DiscordRest;
+  calls: RecordedCall[];
+} {
   const calls: RecordedCall[] = [];
   let threadSeq = 0;
 
@@ -22,11 +25,33 @@ export function fakeRest(): { rest: DiscordRest; calls: RecordedCall[] } {
     calls.push({ method, path, body });
 
     if (method === 'POST' && /\/channels\/\d+\/threads$/.test(path)) {
+      // Mirror Discord: forum/media channels reject a body with no `message`,
+      // text channels reject one that has it.
+      const isForum = opts.channelType === 15 || opts.channelType === 16;
+      if (isForum !== Boolean(body?.message)) {
+        return new Response(
+          JSON.stringify({
+            message: 'Invalid Form Body',
+            code: 50035,
+            errors: isForum
+              ? { message: { _errors: [{ code: 'BASE_TYPE_REQUIRED' }] } }
+              : { type: { _errors: [{ code: 'BASE_TYPE_REQUIRED' }] } },
+          }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
       threadSeq += 1;
       return new Response(
         JSON.stringify({ id: `900000000000000${threadSeq}`, name: body?.name }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       );
+    }
+
+    if (method === 'GET' && /\/channels\/\d+$/.test(path)) {
+      return new Response(JSON.stringify({ id: '1', type: opts.channelType ?? 0 }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
     return new Response(JSON.stringify({ id: '1' }), {
       status: 200,

@@ -197,6 +197,24 @@ not-modified, which stranded any house whose page reliably answers 304 — the
 listing never changes, so blank enrichment never gets filled. It now backfills
 from the stored snapshot before returning.
 
+**Discord wire types come from `discord-api-types`, not from hand-rolled
+constants.** The hand-rolled version is precisely how the forum bug shipped:
+`{name, type: PUBLIC_THREAD}` is a valid *text-channel* thread body, and nothing
+could tell me a forum channel needs a starter `message` instead. Enums,
+`RESTPostAPIGuildForumThreadsJSONBody`, `APIEmbed` and `Routes` now come from the
+library, so the two thread bodies are distinct types and endpoint paths are not
+string-built. It costs bundle size (84 KiB → 296 KiB raw, 23 → 57 KiB gzipped,
+against a 1 MB compressed limit) and is worth it.
+
+`Routes.webhookMessage(...,'@original')` percent-encodes to `%40original`, which
+Discord decodes server-side — the follow-up path still works, but a test matching
+the literal `@original` had to learn about it.
+
+**Thread creation asks the channel what it is.** One `GET /channels/{id}` per
+`/house add`, then a forum/media body (with `message`) or a text/announcement
+body (with `type`). Guessing wrong is a hard 400, and the failure is invisible
+until someone actually adds a house.
+
 **Split tsconfigs.** `@types/node` and `@cloudflare/workers-types` disagree about
 `fetch`/`CryptoKey`. `tsconfig.json` typechecks `src/` against workers-types only
 (what actually runs); `tsconfig.test.json` adds node types for tests and scripts.
@@ -254,7 +272,7 @@ from the stored snapshot before returning.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 173 tests, all passing
+npm test            # vitest: 10 files, 180 tests, all passing
 npm run build       # wrangler deploy --dry-run --outdir=dist — 82.54 KiB
 ```
 

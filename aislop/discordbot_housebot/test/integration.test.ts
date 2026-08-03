@@ -69,17 +69,19 @@ interface Harness {
   routesCalls: () => number;
   setRoutesUp: (up: boolean) => void;
   listingHeaders: () => Array<Record<string, string>>;
+  setPublicReplies: (v: boolean) => void;
 }
 
-function harness(): Harness {
+function harness(opts: { channelType?: number } = {}): Harness {
   const d1 = new FakeD1();
   const repo = new Repo(asD1(d1));
-  const { rest, calls } = fakeRest();
+  const { rest, calls } = fakeRest(opts);
 
   let page: string | number = fixture('zillow-active.html');
   let clock = 1_700_000_000;
   let routesCalls = 0;
   let routesUp = true;
+  let publicReplies = false;
 
   const listingHeaders: Array<Record<string, string>> = [];
   const listingFetch: typeof fetch = async (_u: unknown, init?: RequestInit) => {
@@ -147,6 +149,9 @@ function harness(): Harness {
     },
     routesCalls: () => routesCalls,
     listingHeaders: () => listingHeaders,
+    setPublicReplies: (v) => {
+      publicReplies = v;
+    },
     setRoutesUp: (up) => {
       routesUp = up;
     },
@@ -158,6 +163,7 @@ function harness(): Harness {
         now: () => clock,
         waitUntil: (p) => pending.push(p),
         editOriginal: (token, content) => rest.editOriginalResponse(token, content),
+        publicReplies,
       });
       await Promise.all(pending.splice(0));
       return res;
@@ -204,7 +210,8 @@ function interaction(
 
 function followUps(calls: RecordedCall[]): string[] {
   return calls
-    .filter((c) => c.method === 'PATCH' && c.path.includes('/messages/@original'))
+    // Routes.webhookMessage percent-encodes the '@' -> /messages/%40original
+    .filter((c) => c.method === 'PATCH' && /\/messages\/(@|%40)original$/.test(c.path))
     .map((c) => String((c.body as { content?: string }).content));
 }
 
@@ -322,6 +329,92 @@ describe('/house add', () => {
     await h.run(interaction('add', { link: ZILLOW_LINK }));
     expect(followUps(h.calls)[0]).toContain('blocked');
     expect(await h.repo.getByListingKey('zillow:49059541')).toBeNull();
+  });
+});
+
+describe('forum and media channels', () => {
+  const LIVE_LINK =
+    'https://www.zillow.com/homedetails/400-Cedar-Ave-S-Renton-WA-98057/49024254_zpid/';
+
+  for (const [label, channelType] of [
+    ['forum', 15],
+    ['media', 16],
+  ] as const) {
+    it(`creates a thread with a starter message in a ${label} channel`, async () => {
+      const h = harness({ channelType });
+      h.setPage(fixture('zillow-live-2026.html'));
+      await h.run(interaction('add', { link: LIVE_LINK }));
+
+      const create = h.calls.find(
+        (c) => c.method === 'POST' && c.path === `/channels/${HOUSE_CHANNEL}/threads`,
+      )!;
+      const body = create.body as { name: string; message?: { content: string }; type?: number };
+      expect(body.name).toContain('$725K');
+      expect(body.message?.content).toContain('**Price:** $725,000');
+      // A forum thread body must NOT carry `type`.
+      expect(body.type).toBeUndefined();
+
+      // The starter IS the snapshot, so it must not be posted a second time.
+      const snapshotPosts = threadMessages(h.calls).filter((m) => m.includes('**Price:**'));
+      expect(snapshotPosts).toHaveLength(0);
+
+      expect(await h.repo.getByListingKey('zillow:49024254')).not.toBeNull();
+      expect(h.calls.some((c) => c.method === 'GET' && c.path === `/channels/${HOUSE_CHANNEL}`)).toBe(
+        true,
+      );
+    });
+  }
+
+  it('still uses the bare text-channel body for a normal channel', async () => {
+    const h = harness({ channelType: 0 });
+    h.setPage(fixture('zillow-live-2026.html'));
+    await h.run(interaction('add', { link: LIVE_LINK }));
+
+    const create = h.calls.find(
+      (c) => c.method === 'POST' && c.path === `/channels/${HOUSE_CHANNEL}/threads`,
+    )!;
+    const body = create.body as { type?: number; message?: unknown };
+    expect(body.type).toBe(11);
+    expect(body.message).toBeUndefined();
+    expect(threadMessages(h.calls).some((m) => m.includes('**Price:**'))).toBe(true);
+  });
+
+  it('uses an announcement thread under an announcement channel', async () => {
+    const h = harness({ channelType: 5 });
+    h.setPage(fixture('zillow-live-2026.html'));
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const create = h.calls.find(
+      (c) => c.method === 'POST' && c.path === `/channels/${HOUSE_CHANNEL}/threads`,
+    )!;
+    expect((create.body as { type: number }).type).toBe(10);
+  });
+});
+
+describe('public vs ephemeral replies', () => {
+  it('defers and replies publicly when PUBLIC_REPLIES is on', async () => {
+    const h = harness();
+    h.setPublicReplies(true);
+    const res = await h.run(interaction('add', { link: ZILLOW_LINK }));
+    const body = (await res.json()) as { type: number; data: { flags?: number } };
+    expect(body.type).toBe(5);
+    expect(body.data.flags).toBeUndefined();
+  });
+
+  it('marks replies ephemeral when it is off', async () => {
+    const h = harness();
+    h.setPublicReplies(false);
+    const res = await h.run(interaction('add', { link: ZILLOW_LINK }));
+    const body = (await res.json()) as { data: { flags?: number } };
+    expect(body.data.flags).toBe(64);
+  });
+
+  it('applies to inline validation replies too', async () => {
+    const h = harness();
+    h.setPublicReplies(true);
+    const res = await h.run(interaction('update', { channelId: '999', parentId: '888' }));
+    const body = (await res.json()) as { data: { flags?: number; content: string } };
+    expect(body.data.content).toContain('only works in');
+    expect(body.data.flags).toBeUndefined();
   });
 });
 

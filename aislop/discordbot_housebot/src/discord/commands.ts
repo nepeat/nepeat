@@ -8,12 +8,12 @@ export const HOUSE_COMMAND = {
   type: 1,
   options: [
     {
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       name: 'add',
       description: 'Track a Zillow or Redfin listing and open a thread for it',
       options: [
         {
-          type: ApplicationCommandOptionType.STRING,
+          type: ApplicationCommandOptionType.String,
           name: 'link',
           description: 'Zillow or Redfin listing URL',
           required: true,
@@ -21,12 +21,12 @@ export const HOUSE_COMMAND = {
       ],
     },
     {
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       name: 'bind',
       description: 'Bind THIS existing thread to a listing and post the first snapshot',
       options: [
         {
-          type: ApplicationCommandOptionType.STRING,
+          type: ApplicationCommandOptionType.String,
           name: 'link',
           description: 'Zillow or Redfin listing URL',
           required: true,
@@ -34,18 +34,18 @@ export const HOUSE_COMMAND = {
       ],
     },
     {
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       name: 'update',
       description: 'Refresh this house from its listing (run inside a house thread)',
       options: [
         {
-          type: ApplicationCommandOptionType.STRING,
+          type: ApplicationCommandOptionType.String,
           name: 'link',
           description: 'Optional explicit listing URL to refresh instead',
           required: false,
         },
         {
-          type: ApplicationCommandOptionType.BOOLEAN,
+          type: ApplicationCommandOptionType.Boolean,
           name: 'reenrich',
           description: 'Recompute commute + heating even if already known (uses API quota)',
           required: false,
@@ -53,17 +53,17 @@ export const HOUSE_COMMAND = {
       ],
     },
     {
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       name: 'close',
       description: 'Force this house closed (run inside a house thread)',
     },
     {
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       name: 'open',
       description: 'Re-open this house if the listing is not sold/closed',
     },
     {
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionType.Subcommand,
       name: 'status',
       description: 'Show stored info for this house without fetching anything',
     },

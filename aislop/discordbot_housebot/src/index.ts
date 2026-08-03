@@ -1,9 +1,9 @@
 import { Repo } from './db/repo';
 import { handleInteraction, jsonResponse } from './discord/interactions';
 import { DiscordRest } from './discord/rest';
-import type { Interaction } from './discord/types';
+import { MessageFlags, type Interaction } from './discord/types';
 import { verifyDiscordRequest } from './discord/verify';
-import { DEFAULT_USER_AGENT, intVar, type Env } from './env';
+import { boolVar, DEFAULT_USER_AGENT, intVar, type Env } from './env';
 import { formatError } from './http';
 import { runScheduledRefresh } from './scheduled/refresh';
 import { HouseService } from './service/house';
@@ -76,6 +76,7 @@ export default {
         houseChannelId: env.HOUSE_CHANNEL_ID,
         waitUntil: (p) => ctx.waitUntil(p),
         editOriginal: (token, content) => rest.editOriginalResponse(token, content),
+        publicReplies: boolVar(env.PUBLIC_REPLIES, true),
       });
     } catch (err) {
       console.error('interaction handler failed', {
@@ -87,7 +88,7 @@ export default {
         type: 4,
         data: {
           content: `internal error handling that command:\n\`\`\`\n${formatError(err)}\n\`\`\``,
-          flags: 1 << 6,
+          ...(boolVar(env.PUBLIC_REPLIES, true) ? {} : { flags: MessageFlags.Ephemeral }),
         },
       });
     }

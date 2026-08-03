@@ -20,6 +20,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260730.1",
     "@types/node": "^22.20.1",
+    "discord-api-types": "^0.38.52",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^2.1.9",

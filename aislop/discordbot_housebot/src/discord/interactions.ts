@@ -18,6 +18,11 @@ export interface InteractionDeps {
   waitUntil: (p: Promise<unknown>) => void;
   /** Replaces the deferred "thinking" response via the follow-up webhook. */
   editOriginal: (token: string, content: string) => Promise<unknown>;
+  /**
+   * When true, command replies are visible to the whole channel instead of only
+   * the caller. Errors and tracebacks go public too — that is the point.
+   */
+  publicReplies?: boolean;
 }
 
 export function jsonResponse(body: unknown, status = 200): Response {
@@ -27,17 +32,17 @@ export function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-function deferEphemeral(): Response {
+function deferReply(deps: InteractionDeps): Response {
   return jsonResponse({
-    type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { flags: MessageFlags.EPHEMERAL },
+    type: InteractionResponseType.DeferredChannelMessageWithSource,
+    data: deps.publicReplies ? {} : { flags: MessageFlags.Ephemeral },
   });
 }
 
 /** Visible to everyone in the channel. Used where the answer is for the room. */
 function replyPublic(content: string, embeds?: unknown[]): Response {
   return jsonResponse({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    type: InteractionResponseType.ChannelMessageWithSource,
     data: {
       ...(content ? { content } : {}),
       ...(embeds?.length ? { embeds } : {}),
@@ -46,10 +51,14 @@ function replyPublic(content: string, embeds?: unknown[]): Response {
   });
 }
 
-function replyEphemeral(content: string): Response {
+function reply(deps: InteractionDeps, content: string): Response {
   return jsonResponse({
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { content, flags: MessageFlags.EPHEMERAL, allowed_mentions: { parse: [] } },
+    type: InteractionResponseType.ChannelMessageWithSource,
+    data: {
+      content,
+      ...(deps.publicReplies ? {} : { flags: MessageFlags.Ephemeral }),
+      allowed_mentions: { parse: [] },
+    },
   });
 }
 
@@ -65,28 +74,28 @@ export async function handleInteraction(
   interaction: Interaction,
   deps: InteractionDeps,
 ): Promise<Response> {
-  if (interaction.type === InteractionType.PING) {
-    return jsonResponse({ type: InteractionResponseType.PONG });
+  if (interaction.type === InteractionType.Ping) {
+    return jsonResponse({ type: InteractionResponseType.Pong });
   }
-  if (interaction.type !== InteractionType.APPLICATION_COMMAND) {
-    return replyEphemeral('unsupported interaction type.');
+  if (interaction.type !== InteractionType.ApplicationCommand) {
+    return reply(deps, 'unsupported interaction type.');
   }
   if (interaction.data?.name !== 'house') {
-    return replyEphemeral('unknown command.');
+    return reply(deps, 'unknown command.');
   }
 
   const { name: sub, options } = subcommandOf(interaction);
-  if (!sub) return replyEphemeral('missing subcommand.');
+  if (!sub) return reply(deps, 'missing subcommand.');
 
   const now = deps.now?.() ?? Math.floor(Date.now() / 1000);
   const fresh = await deps.repo.claimInteraction(interaction.id, `house ${sub}`, now);
   if (!fresh) {
     // Discord retried a delivery we already handled.
-    return replyEphemeral('already handled that one.');
+    return reply(deps, 'already handled that one.');
   }
 
   if (!inHouseScope(interaction, deps.houseChannelId)) {
-    return replyEphemeral(
+    return reply(deps, 
       `\`/house\` only works in <#${deps.houseChannelId}> or one of its property threads.`,
     );
   }
@@ -96,7 +105,7 @@ export async function handleInteraction(
 
   switch (sub) {
     case 'add': {
-      if (!link) return replyEphemeral('`/house add` needs a `link`.');
+      if (!link) return reply(deps, '`/house add` needs a `link`.');
       deps.waitUntil(
         runDeferred(deps, interaction, async () => {
           const r = await deps.service.add({
@@ -106,14 +115,14 @@ export async function handleInteraction(
           return r.message;
         }),
       );
-      return deferEphemeral();
+      return deferReply(deps);
     }
 
     case 'bind': {
-      if (!link) return replyEphemeral('`/house bind` needs a `link`.');
+      if (!link) return reply(deps, '`/house bind` needs a `link`.');
       const parentId = interaction.channel?.parent_id ?? null;
       if (!threadId || !parentId) {
-        return replyEphemeral(
+        return reply(deps, 
           'run `/house bind` inside the thread you want to bind, not in the channel itself.',
         );
       }
@@ -129,7 +138,7 @@ export async function handleInteraction(
           return r.message;
         }),
       );
-      return deferEphemeral();
+      return deferReply(deps);
     }
 
     case 'update': {
@@ -152,7 +161,7 @@ export async function handleInteraction(
           }
         }),
       );
-      return deferEphemeral();
+      return deferReply(deps);
     }
 
     case 'close': {
@@ -164,7 +173,7 @@ export async function handleInteraction(
           return r.message;
         }),
       );
-      return deferEphemeral();
+      return deferReply(deps);
     }
 
     case 'open': {
@@ -176,20 +185,20 @@ export async function handleInteraction(
           return r.message;
         }),
       );
-      return deferEphemeral();
+      return deferReply(deps);
     }
 
     case 'status': {
       // No fetch, so answer inline instead of deferring. Posted publicly: the
       // house summary is for the room, not just whoever asked.
       const row = threadId ? await deps.repo.getByThreadId(threadId) : null;
-      if (!row) return replyEphemeral(propertyMissingText(null));
+      if (!row) return reply(deps, propertyMissingText(null));
       const { embed } = await deps.service.status(row);
       return replyPublic('', [embed]);
     }
 
     default:
-      return replyEphemeral(`unknown subcommand \`${sub}\`.`);
+      return reply(deps, `unknown subcommand \`${sub}\`.`);
   }
 }
 

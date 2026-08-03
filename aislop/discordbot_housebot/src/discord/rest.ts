@@ -1,5 +1,13 @@
 import { boundFetch } from '../http';
-import { ChannelType } from './types';
+import { Routes } from 'discord-api-types/v10';
+import {
+  ChannelType,
+  requiresStarterMessage,
+  threadTypeFor,
+  type APIEmbed,
+  type RESTPostAPIChannelThreadsJSONBody,
+  type RESTPostAPIGuildForumThreadsJSONBody,
+} from './types';
 
 export const DISCORD_API = 'https://discord.com/api/v10';
 
@@ -58,7 +66,13 @@ export class DiscordRest {
       }
       if (!res.ok) {
         const text = await res.text().catch(() => '');
-        throw new DiscordRestError(`${method} ${path} -> ${res.status}`, res.status, text);
+        // Discord puts the actual reason in the body ("Invalid Form Body" plus
+        // the offending field). A bare status code is not debuggable.
+        throw new DiscordRestError(
+          `${method} ${path} -> ${res.status} ${text.slice(0, 600)}`,
+          res.status,
+          text,
+        );
       }
       if (res.status === 204) return undefined as T;
       return (await res.json()) as T;
@@ -66,25 +80,68 @@ export class DiscordRest {
     throw new DiscordRestError(`${method} ${path} -> rate limited`, 429, '');
   }
 
-  /** Public thread with no starter message, directly under a text channel. */
-  createThread(channelId: string, name: string, autoArchiveMinutes = 10080) {
-    return this.request<{ id: string; name: string }>(
+  /**
+   * Create a thread under `channelId`.
+   *
+   * Forum and media channels REQUIRE a starter message and reject a bare
+   * `{name, type}` body with `50035 / message: BASE_TYPE_REQUIRED`; text and
+   * announcement channels require the opposite. The caller passes the parent
+   * channel's type so the right body is built.
+   */
+  async createThread(
+    channelId: string,
+    name: string,
+    opts: {
+      parentType?: number;
+      starter?: { content?: string; embeds?: APIEmbed[] };
+      autoArchiveMinutes?: number;
+    } = {},
+  ): Promise<{ id: string; name: string; usedStarter: boolean }> {
+    const autoArchive = opts.autoArchiveMinutes ?? 10080;
+
+    if (requiresStarterMessage(opts.parentType)) {
+      const body: RESTPostAPIGuildForumThreadsJSONBody = {
+        name,
+        auto_archive_duration: autoArchive,
+        message: {
+          ...(opts.starter?.content ? { content: opts.starter.content } : {}),
+          ...(opts.starter?.embeds?.length ? { embeds: opts.starter.embeds } : {}),
+          allowed_mentions: { parse: [] },
+        },
+      };
+      const thread = await this.request<{ id: string; name: string }>(
+        'POST',
+        Routes.threads(channelId),
+        body,
+      );
+      return { ...thread, usedStarter: true };
+    }
+
+    const body: RESTPostAPIChannelThreadsJSONBody = {
+      name,
+      type: threadTypeFor(opts.parentType) as
+        | ChannelType.PublicThread
+        | ChannelType.AnnouncementThread,
+      auto_archive_duration: autoArchive,
+    };
+    const thread = await this.request<{ id: string; name: string }>(
       'POST',
-      `/channels/${channelId}/threads`,
-      { name, type: ChannelType.PUBLIC_THREAD, auto_archive_duration: autoArchiveMinutes },
+      Routes.threads(channelId),
+      body,
     );
+    return { ...thread, usedStarter: false };
   }
 
   renameThread(threadId: string, name: string) {
-    return this.request<{ id: string; name: string }>('PATCH', `/channels/${threadId}`, { name });
+    return this.request<{ id: string; name: string }>('PATCH', Routes.channel(threadId), { name });
   }
 
   setThreadArchived(threadId: string, archived: boolean) {
-    return this.request<{ id: string }>('PATCH', `/channels/${threadId}`, { archived });
+    return this.request<{ id: string }>('PATCH', Routes.channel(threadId), { archived });
   }
 
-  postMessage(channelId: string, content: string, embeds?: unknown[]) {
-    return this.request<{ id: string }>('POST', `/channels/${channelId}/messages`, {
+  postMessage(channelId: string, content: string, embeds?: APIEmbed[]) {
+    return this.request<{ id: string }>('POST', Routes.channelMessages(channelId), {
       ...(content ? { content } : {}),
       ...(embeds?.length ? { embeds } : {}),
       allowed_mentions: { parse: [] },
@@ -94,7 +151,7 @@ export class DiscordRest {
   getChannel(channelId: string) {
     return this.request<{ id: string; type: number; parent_id?: string | null; name?: string }>(
       'GET',
-      `/channels/${channelId}`,
+      Routes.channel(channelId),
     );
   }
 
@@ -102,7 +159,7 @@ export class DiscordRest {
   editOriginalResponse(interactionToken: string, content: string) {
     return this.request<{ id: string }>(
       'PATCH',
-      `/webhooks/${this.opts.applicationId}/${interactionToken}/messages/@original`,
+      Routes.webhookMessage(this.opts.applicationId, interactionToken, '@original'),
       { content, allowed_mentions: { parse: [] } },
       'none',
     );
@@ -111,7 +168,7 @@ export class DiscordRest {
   followUp(interactionToken: string, content: string, ephemeral = false) {
     return this.request<{ id: string }>(
       'POST',
-      `/webhooks/${this.opts.applicationId}/${interactionToken}`,
+      Routes.webhook(this.opts.applicationId, interactionToken),
       {
         content,
         flags: ephemeral ? 1 << 6 : 0,

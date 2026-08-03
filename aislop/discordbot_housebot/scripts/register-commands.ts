@@ -8,6 +8,7 @@
  * Read from the process environment or from ./.dev.vars if present.
  */
 import { readFileSync } from 'node:fs';
+import { Routes } from 'discord-api-types/v10';
 import { COMMANDS } from '../src/discord/commands';
 
 function loadDevVars(): Record<string, string> {
@@ -34,8 +35,8 @@ async function main(): Promise<void> {
 
   const path =
     appId && guildId
-      ? `/applications/${appId}/guilds/${guildId}/commands`
-      : '/applications/<DISCORD_APPLICATION_ID>/guilds/<DISCORD_GUILD_ID>/commands';
+      ? Routes.applicationGuildCommands(appId, guildId)
+      : Routes.applicationGuildCommands('<DISCORD_APPLICATION_ID>', '<DISCORD_GUILD_ID>');
 
   if (dryRun) {
     console.log(`PUT https://discord.com/api/v10${path}`);

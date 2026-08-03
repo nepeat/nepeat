@@ -15,7 +15,10 @@
     "REFRESH_INTERVAL_MINUTES": "720",
     // Upper bound on properties touched per cron tick (cost control).
     "REFRESH_BATCH_SIZE": "10",
-    "USER_AGENT": "housebot/0.1 (+https://github.com/nepeat/discordbot_housebot)"
+    "USER_AGENT": "housebot/0.1 (+https://github.com/nepeat/discordbot_housebot)",
+    // Command replies land in the channel for everyone. Set "false" to make
+    // them caller-only (ephemeral). Error tracebacks follow the same setting.
+    "PUBLIC_REPLIES": "true"
   },
 
   "d1_databases": [

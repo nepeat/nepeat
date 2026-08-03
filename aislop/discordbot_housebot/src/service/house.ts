@@ -122,7 +122,19 @@ export class HouseService {
     const closed = isClosed({ forceClosed: false, listingStatus: snapshot.status });
     const title = buildThreadTitle(snapshot, { closed, fallback: ident.listingKey });
 
-    const thread = await this.rest.createThread(this.config.houseChannelId, title);
+    // Forum/media channels reject a thread with no starter message; text
+    // channels reject one that has it. Ask what this channel is, don't assume.
+    let parentType: number | undefined;
+    try {
+      parentType = (await this.rest.getChannel(this.config.houseChannelId)).type;
+    } catch (err) {
+      console.error('channel type lookup failed', { error: errText(err) });
+    }
+    const starterContent = buildSnapshotMessage(snapshot, closed);
+    const thread = await this.rest.createThread(this.config.houseChannelId, title, {
+      parentType,
+      starter: { content: starterContent },
+    });
 
     // Re-check after the (slow) network work in case a concurrent /house add won.
     const raced = await this.repo.getByListingKey(ident.listingKey);
@@ -142,7 +154,11 @@ export class HouseService {
       nextCheckAt: now + this.config.refreshIntervalSeconds,
     });
 
-    await this.rest.postMessage(thread.id, buildSnapshotMessage(snapshot, closed));
+    // In a forum channel the snapshot IS the starter message; posting it again
+    // would duplicate it.
+    if (!thread.usedStarter) {
+      await this.rest.postMessage(thread.id, starterContent);
+    }
     await this.enrich(row, snapshot);
     await this.syncAirtable(row, snapshot);
 

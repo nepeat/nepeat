@@ -5,19 +5,12 @@ import { formatTransit } from '../enrichment/transit';
 import { formatAddress, statusLabel } from '../listing/format';
 import type { ListingStatus, Snapshot } from '../listing/types';
 
+import type { APIEmbed } from './types';
+
 /** Discord caps: 25 fields, 1024 chars per field value, 4096 per description. */
 const FIELD_VALUE_MAX = 1024;
 
-export interface Embed {
-  title?: string;
-  url?: string;
-  description?: string;
-  color?: number;
-  fields?: Array<{ name: string; value: string; inline?: boolean }>;
-  footer?: { text: string };
-  thumbnail?: { url: string };
-  image?: { url: string };
-}
+export type Embed = APIEmbed;
 
 const COLOR_ACTIVE = 0x2ecc71;
 const COLOR_PENDING = 0xf1c40f;

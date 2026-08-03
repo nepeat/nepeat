@@ -147,6 +147,7 @@ Vars live in `wrangler.jsonc` (non-secret). Secrets go in `.dev.vars` locally an
 | `REFRESH_INTERVAL_MINUTES` | var | no (720) | Base staleness window before a property is due. |
 | `REFRESH_BATCH_SIZE` | var | no (10) | Max properties refreshed per cron tick. |
 | `USER_AGENT` | var | no | Identifying UA sent to listing pages. |
+| `PUBLIC_REPLIES` | var | no (true) | Command replies go to the channel. `"false"` makes them caller-only. Tracebacks follow this too. |
 | `AIRTABLE_BASE_ID` | var | no | Airtable base (`appc5LQi7Uo9Y75yN`). |
 | `DISCORD_PUBLIC_KEY` | secret | yes | Ed25519 signature verification. |
 | `DISCORD_BOT_TOKEN` | secret | yes | REST calls (threads, messages). |
@@ -218,9 +219,14 @@ Deployed at **<https://housebot.butt.workers.dev>** — interactions endpoint
 - **Thread names cap at 100 chars.** Titles are truncated with `…` after the
   price/size/beds segments, so the numbers always survive.
 - `/house` is refused outside the house channel and its threads.
-- **Errors reply with the full traceback**, ephemerally. This is deliberate for a
-  single-operator bot; if you add other users, trim `formatError` usage in
-  `src/discord/interactions.ts` and `src/index.ts` back to a generic message.
+- **Errors reply with the full traceback.** With `PUBLIC_REPLIES=true` (the
+  default) those land in the channel for everyone. Deliberate for a
+  single-operator bot; if you add other users, either set `PUBLIC_REPLIES=false`
+  or trim `formatError` usage in `src/discord/interactions.ts` and `src/index.ts`.
+- **The house channel may be a text, announcement, forum or media channel.**
+  housebot asks the channel its type and builds the matching thread body — forum
+  and media channels require a starter message, text and announcement channels
+  require a `type` and reject a message.
 
 ## Docs
 
