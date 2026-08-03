@@ -108,11 +108,22 @@ function harness(): Harness {
 let seq = 0;
 function interaction(
   sub: string,
-  opts: { channelId?: string; parentId?: string | null; link?: string; id?: string } = {},
+  opts: {
+    channelId?: string;
+    parentId?: string | null;
+    link?: string;
+    id?: string;
+    reenrich?: boolean;
+  } = {},
 ): Interaction {
   seq += 1;
-  const options = opts.link
-    ? [{ type: 1, name: sub, options: [{ type: 3, name: 'link', value: opts.link }] }]
+  const subOptions: Array<{ type: number; name: string; value: string | boolean }> = [];
+  if (opts.link) subOptions.push({ type: 3, name: 'link', value: opts.link });
+  if (opts.reenrich !== undefined) {
+    subOptions.push({ type: 5, name: 'reenrich', value: opts.reenrich });
+  }
+  const options = subOptions.length
+    ? [{ type: 1, name: sub, options: subOptions }]
     : [{ type: 1, name: sub }];
   return {
     id: opts.id ?? `interaction-${seq}`,
@@ -443,14 +454,35 @@ describe('enrichment', () => {
     expect(h.routesCalls()).toBe(routesBefore);
   });
 
-  it('recomputes on /house enrich', async () => {
+  it('recomputes on /house update reenrich:true', async () => {
     const h = liveHarness();
     await h.run(interaction('add', { link: LIVE_LINK }));
     const before = h.routesCalls();
     const row = await h.repo.getByListingKey('zillow:49024254');
-    await h.run(interaction('enrich', { channelId: row!.thread_id, parentId: HOUSE_CHANNEL }));
+    await h.run(
+      interaction('update', {
+        channelId: row!.thread_id,
+        parentId: HOUSE_CHANNEL,
+        reenrich: true,
+      }),
+    );
     expect(h.routesCalls()).toBe(before + 2);
-    expect(followUps(h.calls).at(-1)).toContain('enrichment recomputed');
+    expect(followUps(h.calls).at(-1)).toContain('filled in');
+  });
+
+  it('reenrich:false behaves like a normal update', async () => {
+    const h = liveHarness();
+    await h.run(interaction('add', { link: LIVE_LINK }));
+    const before = h.routesCalls();
+    const row = await h.repo.getByListingKey('zillow:49024254');
+    await h.run(
+      interaction('update', {
+        channelId: row!.thread_id,
+        parentId: HOUSE_CHANNEL,
+        reenrich: false,
+      }),
+    );
+    expect(h.routesCalls()).toBe(before);
   });
 
   it('still adds the house when routing is down', async () => {

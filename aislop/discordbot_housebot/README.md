@@ -19,8 +19,7 @@ notice.
 | --- | --- | --- |
 | `/house add <link>` | house channel or any of its threads | Normalizes the URL, fetches one snapshot, dedupes by canonical listing key, creates the thread, posts the first snapshot. |
 | `/house bind <link>` | inside an existing thread | Binds **that** thread to a listing instead of creating a new one, renames it to the canonical title, and posts the first snapshot. |
-| `/house update [link]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved. |
-| `/house enrich` | inside a house thread | Recomputes commute + heating and posts them. Enrichment otherwise runs once, at add/bind time. |
+| `/house update [link] [reenrich]` | inside a house thread (or the channel with an explicit `link` to an already-tracked house) | Refetches, updates the snapshot/title/status, posts a change notice **only** when a tracked material field moved, and fills in any enrichment that is still blank. `reenrich:true` forces a full recompute. |
 | `/house close` | inside a house thread | Force-closes the house (no fetch). Prefixes the title with `❌ ` and removes it from the cron. |
 | `/house open` | inside a house thread | Re-opens **only** if the live listing is not sold/closed. Explains cleanly otherwise. |
 | `/house status` | inside a house thread | Diagnostic read from D1 — status, source, last checked/changed, failure count. Posted **publicly** in the thread; makes no network calls. |
@@ -34,8 +33,8 @@ Location-derived facts, stored in the `enrichment` table with a provenance
 string. Computed in full at add/bind time; after that **`/house update` fills in
 only what is still blank**, so a routine refresh costs zero API calls when
 everything already succeeded — and self-heals anything that previously failed
-(routing down, coordinates missing) with no manual step. `/house enrich` forces a
-full recompute.
+(routing down, coordinates missing) with no manual step. There is no separate
+enrich command: `/house update reenrich:true` forces a full recompute.
 
 - **Commute** — Google Routes API, `TRAFFIC_AWARE_OPTIMAL`, departing at a pinned
   time (`COMMUTE_DEPARTURE_ISO`, default next Tue 08:00 Pacific). Two calls per

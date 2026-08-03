@@ -133,7 +133,9 @@ export async function handleInteraction(
         runDeferred(deps, interaction, async () => {
           const row = await resolveProperty(deps, threadId, link);
           if (!row) return propertyMissingText(link);
-          const outcome = await deps.service.refresh(row, 'manual', link ?? undefined);
+          const outcome = await deps.service.refresh(row, 'manual', link ?? undefined, {
+            enrichMode: options.get('reenrich') === 'true' ? 'force' : 'missing',
+          });
           switch (outcome.kind) {
             case 'changed':
               return `updated — ${outcome.changes.length} field(s) changed${enrichedNote(outcome.enriched)}; notice posted in the thread.`;
@@ -144,22 +146,6 @@ export async function handleInteraction(
             case 'error':
               return `refresh failed: ${outcome.detail}`;
           }
-        }),
-      );
-      return deferEphemeral();
-    }
-
-    case 'enrich': {
-      deps.waitUntil(
-        runDeferred(deps, interaction, async () => {
-          const row = threadId ? await deps.repo.getByThreadId(threadId) : null;
-          if (!row) return propertyMissingText(null);
-          const snapshot = parseSnapshot(row);
-          if (!snapshot) return 'no stored snapshot yet — run `/house update` first.';
-          const { lines } = await deps.service.enrich(row, snapshot);
-          return lines.length
-            ? 'enrichment recomputed; posted in the thread.'
-            : 'nothing to report — no coordinates on the listing and no heating text.';
         }),
       );
       return deferEphemeral();

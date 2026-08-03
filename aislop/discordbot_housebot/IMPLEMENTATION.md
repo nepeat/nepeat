@@ -134,7 +134,9 @@ enrichment in `missing` mode: a kind holding a value is skipped, a kind recorded
 parser learned to read coordinates picks up its commute on the next update with
 no manual step — while a steady-state update still costs zero API calls. HVAC is
 the exception: it reclassifies whenever the listing's heating text changed,
-because it is pure local computation. `/house enrich` forces a full recompute.
+because it is pure local computation. `/house update reenrich:true` forces a full recompute — a flag on the refresh
+command rather than a separate verb, since "look at this house again" is one
+user intention, not two.
 
 **Coordinates come from the listing, not from a geocoder.** Zillow publishes
 `offers.itemOffered.geo`, so there is no Geocoding SKU in the loop and no
@@ -192,8 +194,8 @@ a page that starts publishing geo upgrades an existing row.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 140 tests, all passing
-npm run build       # wrangler deploy --dry-run --outdir=dist — 72.96 KiB
+npm test            # vitest: 10 files, 141 tests, all passing
+npm run build       # wrangler deploy --dry-run --outdir=dist — 72.50 KiB
 ```
 
 Coverage by area: URL normalization/dedupe, title + message formatting (incl.

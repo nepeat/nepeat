@@ -227,12 +227,13 @@ export class HouseService {
     row: PropertyRow,
     source: 'manual' | 'scheduled',
     overrideUrl?: string,
+    opts: { enrichMode?: 'missing' | 'force' } = {},
   ): Promise<RefreshOutcome> {
     const now = this.now();
     const url = overrideUrl ?? row.source_url;
     // An explicit override URL means "ignore my cached validators".
-    const opts = overrideUrl ? this.fetchOpts() : this.fetchOpts(row);
-    const result = await fetchListing(url, opts, now);
+    const fetchOptions = overrideUrl ? this.fetchOpts() : this.fetchOpts(row);
+    const result = await fetchListing(url, fetchOptions, now);
 
     if (!result.ok) {
       const nextAt = now + backoffSeconds(row.fail_count + 1, this.config.refreshIntervalSeconds);
@@ -284,7 +285,7 @@ export class HouseService {
 
     // Fill whatever enrichment is still blank. Free when everything already
     // succeeded, and it self-heals rows added before a parser improvement.
-    const filled = await this.enrich(row, next, { mode: 'missing' });
+    const filled = await this.enrich(row, next, { mode: opts.enrichMode ?? 'missing' });
 
     await this.syncAirtable(row, next);
 
@@ -388,7 +389,8 @@ export class HouseService {
    * step. HVAC additionally re-runs when the listing's heating text changed,
    * since reclassifying costs nothing.
    *
-   * `mode: 'force'` (`/house enrich`, and the first add/bind) recomputes all.
+   * `mode: 'force'` (the first add/bind, or `/house update reenrich:true`)
+   * recomputes everything.
    */
   async enrich(
     row: PropertyRow,

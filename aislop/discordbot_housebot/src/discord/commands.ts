@@ -44,12 +44,13 @@ export const HOUSE_COMMAND = {
           description: 'Optional explicit listing URL to refresh instead',
           required: false,
         },
+        {
+          type: ApplicationCommandOptionType.BOOLEAN,
+          name: 'reenrich',
+          description: 'Recompute commute + heating even if already known (uses API quota)',
+          required: false,
+        },
       ],
-    },
-    {
-      type: ApplicationCommandOptionType.SUB_COMMAND,
-      name: 'enrich',
-      description: 'Recompute commute + heating for this house (run inside a house thread)',
     },
     {
       type: ApplicationCommandOptionType.SUB_COMMAND,

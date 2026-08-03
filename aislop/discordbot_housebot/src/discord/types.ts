@@ -19,6 +19,7 @@ export const MessageFlags = {
 export const ApplicationCommandOptionType = {
   SUB_COMMAND: 1,
   STRING: 3,
+  BOOLEAN: 5,
 } as const;
 
 export const ChannelType = {
