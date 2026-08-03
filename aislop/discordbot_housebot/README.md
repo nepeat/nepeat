@@ -171,4 +171,5 @@ Deployed at **<https://housebot.butt.workers.dev>** — interactions endpoint
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — design, economics, and limits
 - [docs/AIRTABLE.md](docs/AIRTABLE.md) — field-map discovery and configuration
 - [docs/ENRICHMENT.md](docs/ENRICHMENT.md) — commute / transit / ISP / photos options
+- [docs/ROADMAP.md](docs/ROADMAP.md) — costed plan for the enrichment features, with live API probe results
 - [IMPLEMENTATION.md](IMPLEMENTATION.md) — decisions and known limitations

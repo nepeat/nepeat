@@ -37,8 +37,8 @@ function stub<T>(name: string, provenance: string): EnrichmentAdapter<T> {
 
 /** Commute destinations the household actually cares about. */
 export const COMMUTE_DESTINATIONS = [
-  { label: 'Seattle office', address: '551 Boren Ave N, Seattle, WA 98109' },
-  { label: 'Bellevue office', address: '601 108th Ave NE, Bellevue, WA 98004' },
+  { label: 'Bellevue office (nep)', address: '601 108th Ave NE, Bellevue, WA 98004' },
+  { label: 'Seattle office (partner)', address: '551 Boren Ave N, Seattle, WA 98109' },
 ] as const;
 
 export interface CommuteEstimate {
