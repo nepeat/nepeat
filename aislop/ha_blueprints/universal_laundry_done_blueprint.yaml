@@ -1,0 +1,168 @@
+# Universal Laundry "Machine is Done" blueprint
+# One blueprint, instantiated once per appliance (washer, dryer, etc).
+# State machine:
+#   - watch  : short timer refreshed by each vibration. A 2nd vibration while
+#              it's still active => machine confirmed RUNNING (this is the
+#              "sustained motion" guard that rejects one-off bumps).
+#   - quiet  : long timer. Any vibration while RUNNING restarts it. When it
+#              FINISHES => no motion for quiet_minutes => machine is DONE.
+#
+# AGREED TUNING (2026-08-03):
+#   confirm/arm : 5 min          (set as the WATCH timer duration)
+#   washer done : 4 min          (set as the WASHER quiet timer duration)
+#   dryer  done : 3 min          (set as the DRYER quiet timer duration)
+#   (simple binary-sensor version; may tighten to ~2 min later with
+#    axis-magnitude-stability gating once the live capture stabilizes)
+blueprint:
+  name: Universal Laundry Machine Done Notifier
+  description: >
+    Watches a vibration/motion sensor on a washer or dryer, confirms the
+    machine is actually running, then announces when it goes quiet (done).
+  domain: automation
+  source_url: "https://github.com/nepeat/nepeat/blob/master/aislop/ha_blueprints/universal_laundry_done_blueprint.yaml"
+  input:
+    vibration_sensor:
+      name: Vibration / motion sensor
+      description: binary_sensor that fires while the machine is running
+      selector:
+        entity:
+          domain: binary_sensor
+    running_helper:
+      name: Running helper
+      description: input_boolean tracking "machine confirmed running" (create one)
+      selector:
+        entity:
+          domain: input_boolean
+    watch_timer:
+      name: Confirmation timer
+      description: timer whose DURATION you set to your confirm_minutes (create one)
+      selector:
+        entity:
+          domain: timer
+    quiet_timer:
+      name: Quiet/done timer
+      description: timer whose DURATION you set to your quiet_minutes (create one)
+      selector:
+        entity:
+          domain: timer
+    announce_script:
+      name: Announce (TTS) script
+      default: script.1714900338808
+      selector:
+        entity:
+          domain: script
+    appliance_name:
+      name: Appliance display name
+      default: The machine
+      selector:
+        text: {}
+    is_washing:
+      name: Is this the washing machine?
+      description: Controls the verb in the announcement ("washing" vs "drying")
+      default: true
+      selector:
+        boolean: {}
+
+trigger:
+  # any new vibration
+  - platform: state
+    entity_id: !input vibration_sensor
+    to: "on"
+  # confirm window elapsed with no vibration -> was just a bump, reset watch
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: !input watch_timer
+  # quiet window elapsed -> DONE
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: !input quiet_timer
+
+condition: []
+
+action:
+  - choose:
+      # ---- vibration detected ----
+      - conditions:
+          - condition: state
+            entity_id: !input vibration_sensor
+            state: "on"
+        sequence:
+          - choose:
+              # not currently running: use watch timer to confirm sustained motion
+              - conditions:
+                  - condition: state
+                    entity_id: !input running_helper
+                    state: "off"
+                sequence:
+                  - choose:
+                      # first trigger in a fresh window -> start confirming
+                      - conditions:
+                          - condition: state
+                            entity_id: !input watch_timer
+                            state: idle
+                        sequence:
+                          - service: timer.start
+                            target:
+                              entity_id: !input watch_timer
+                      # 2nd trigger while watch still active -> CONFIRMED RUNNING
+                      - conditions:
+                          - condition: state
+                            entity_id: !input watch_timer
+                            state: active
+                        sequence:
+                          - service: timer.cancel
+                            target:
+                              entity_id: !input watch_timer
+                          - service: input_boolean.turn_on
+                            target:
+                              entity_id: !input running_helper
+                          - service: timer.start
+                            target:
+                              entity_id: !input quiet_timer
+              # running: any vibration restarts the quiet timer
+              - conditions:
+                  - condition: state
+                    entity_id: !input running_helper
+                    state: "on"
+                sequence:
+                  - service: timer.start
+                    target:
+                      entity_id: !input quiet_timer
+
+      # ---- watch timer finished: it was a one-off bump, stay disarmed ----
+      - conditions:
+          - condition: event
+            event_type: timer.finished
+            event_data:
+              entity_id: !input watch_timer
+        sequence:
+          - service: timer.cancel
+            target:
+              entity_id: !input watch_timer
+
+      # ---- quiet timer finished while running -> DONE, announce ----
+      - conditions:
+          - condition: event
+            event_type: timer.finished
+            event_data:
+              entity_id: !input quiet_timer
+          - condition: state
+            entity_id: !input running_helper
+            state: "on"
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input running_helper
+          - service: !input announce_script
+            data:
+              message: >-
+                {% if !input is_washing %}
+                {{ !input appliance_name }} is done washing.
+                {% else %}
+                {{ !input appliance_name }} is done drying.
+                {% endif %}
+
+mode: single
+max_exceeded: silent
