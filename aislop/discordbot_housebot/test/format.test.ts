@@ -5,6 +5,7 @@ import {
   buildThreadTitle,
   formatBeds,
   formatPrice,
+  formatPriceShort,
   formatSqft,
   THREAD_NAME_MAX,
 } from '../src/listing/format';
@@ -39,22 +40,54 @@ describe('scalar formatters', () => {
   });
 });
 
+describe('formatPriceShort', () => {
+  it('abbreviates thousands, trimming trailing zeros', () => {
+    expect(formatPriceShort(725000)).toBe('$725K');
+    expect(formatPriceShort(749900)).toBe('$749.9K');
+    expect(formatPriceShort(1000)).toBe('$1K');
+    expect(formatPriceShort(999000)).toBe('$999K');
+  });
+
+  it('abbreviates millions', () => {
+    expect(formatPriceShort(1000000)).toBe('$1M');
+    expect(formatPriceShort(1250000)).toBe('$1.25M');
+    expect(formatPriceShort(1495000)).toBe('$1.5M');
+    expect(formatPriceShort(12750000)).toBe('$12.75M');
+  });
+
+  it('leaves sub-thousand prices alone and rejects junk', () => {
+    expect(formatPriceShort(950)).toBe('$950');
+    expect(formatPriceShort(0)).toBeNull();
+    expect(formatPriceShort(undefined)).toBeNull();
+  });
+
+  it('does not change the exact formatter used everywhere else', () => {
+    expect(formatPrice(749900)).toBe('$749,900');
+  });
+});
+
 describe('buildThreadTitle', () => {
-  it('matches the canonical format', () => {
+  it('matches the canonical format with an abbreviated price', () => {
     expect(buildThreadTitle(base, { closed: false })).toBe(
-      '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+      '$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+    );
+  });
+
+  it('keeps one decimal when the price is not a round thousand', () => {
+    expect(buildThreadTitle({ ...base, price: 749900 }, { closed: false })).toBe(
+      '$749.9K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
     );
   });
 
   it('prefixes closed houses', () => {
     expect(buildThreadTitle(base, { closed: true })).toBe(
-      '❌ $725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+      '❌ $725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
     );
   });
 
   it('omits missing segments instead of leaving holes', () => {
     expect(buildThreadTitle({ price: 500000, address: 'Somewhere' }, { closed: false })).toBe(
-      '$500,000 - Somewhere',
+      '$500K - Somewhere',
     );
   });
 
@@ -82,9 +115,10 @@ describe('buildThreadTitle', () => {
 });
 
 describe('messages', () => {
-  it('renders an initial snapshot message with an honest source url', () => {
+  it('renders an initial snapshot message with the EXACT price, not the short one', () => {
     const msg = buildSnapshotMessage(base, false);
     expect(msg).toContain('**Price:** $725,000');
+    expect(msg).not.toContain('$725K');
     expect(msg).toContain('**Beds/Baths:** 4b2b');
     expect(msg).toContain('**Status:** Active');
     expect(msg).toContain(base.sourceUrl);
@@ -105,5 +139,14 @@ describe('messages', () => {
     );
     expect(notice.startsWith('❌ ')).toBe(true);
     expect(notice).toContain('**Status:** Active → Closed / Sold');
+  });
+
+  it('change notices keep exact prices', () => {
+    const notice = buildChangeMessage(
+      [{ field: 'price', from: '$725,000', to: '$699,000' }],
+      base,
+      false,
+    );
+    expect(notice).toContain('$725,000 → $699,000');
   });
 });

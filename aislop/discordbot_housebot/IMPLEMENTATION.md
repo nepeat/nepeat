@@ -172,6 +172,13 @@ its own, but an embed containing *only* a picture is useless — so that path
 backfills commute and heating from D1 rather than recomputing them, and posts a
 complete card for zero API calls.
 
+**Abbreviated prices are title-only.** `$725K` reads better in a thread list and
+buys characters against the 100-char cap, but a change notice saying
+"$725K → $700K" would hide a $4,900 cut. `formatPriceShort` is therefore used by
+`buildThreadTitle` alone; `renderField` — which feeds both the diff and the
+embeds — still returns the exact figure, and a test asserts the snapshot message
+never contains the short form.
+
 **Embeds over markdown.** Enrichment and `/house status` post embeds so commute,
 transit and heating are separately labeled fields rather than one wall of text,
 colored by listing status. Field values are truncated at Discord's 1024-char cap.
@@ -247,7 +254,7 @@ from the stored snapshot before returning.
 
 ```
 npm run typecheck   # tsc src + tsc tests/scripts — clean
-npm test            # vitest: 10 files, 167 tests, all passing
+npm test            # vitest: 10 files, 173 tests, all passing
 npm run build       # wrangler deploy --dry-run --outdir=dist — 82.54 KiB
 ```
 

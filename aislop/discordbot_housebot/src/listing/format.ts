@@ -8,6 +8,24 @@ export function formatPrice(n: number | undefined): string | null {
   return `$${Math.round(n).toLocaleString('en-US')}`;
 }
 
+/**
+ * Compact price for thread titles: 725000 -> $725K, 749900 -> $749.9K,
+ * 1250000 -> $1.25M. The exact figure still appears in the snapshot message,
+ * the embed and every change notice -- this abbreviation exists only to buy
+ * back characters against Discord's 100-char thread-name cap.
+ */
+export function formatPriceShort(n: number | undefined): string | null {
+  if (n === undefined || !Number.isFinite(n) || n <= 0) return null;
+  if (n >= 1_000_000) return `$${trimZeros(n / 1_000_000, 2)}M`;
+  if (n >= 1_000) return `$${trimZeros(n / 1_000, 1)}K`;
+  return `$${Math.round(n)}`;
+}
+
+/** Round to at most `places` decimals, then drop trailing zeros. */
+function trimZeros(value: number, places: number): string {
+  return String(Number(value.toFixed(places)));
+}
+
 export function formatSqft(n: number | undefined): string | null {
   if (n === undefined || !Number.isFinite(n) || n <= 0) return null;
   return `${Math.round(n).toLocaleString('en-US')}ft`;
@@ -35,7 +53,7 @@ export function formatAddress(s: Partial<Snapshot>): string | null {
 
 /**
  * Deterministic thread title.
- * `$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057`
+ * `$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057`
  * Closed houses get a leading `❌ `. Result always fits Discord's 100-char cap.
  */
 export function buildThreadTitle(
@@ -43,7 +61,7 @@ export function buildThreadTitle(
   opts: { closed: boolean; fallback?: string } = { closed: false },
 ): string {
   const segments = [
-    formatPrice(snapshot.price),
+    formatPriceShort(snapshot.price),
     formatSqft(snapshot.sqft),
     formatBeds(snapshot.beds, snapshot.baths),
     formatAddress(snapshot),

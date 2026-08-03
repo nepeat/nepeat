@@ -286,7 +286,7 @@ describe('/house add', () => {
 
     const create = h.calls.find((c) => c.path === `/channels/${HOUSE_CHANNEL}/threads`);
     expect(create?.body).toMatchObject({
-      name: '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+      name: '$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
       type: 11,
     });
 
@@ -349,7 +349,7 @@ describe('/house bind', () => {
 
     const rename = h.calls.find((c) => c.method === 'PATCH' && c.path === `/channels/${THREAD}`);
     expect(rename?.body).toMatchObject({
-      name: '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+      name: '$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
     });
     expect(threadMessages(h.calls)[0]).toContain('**Price:** $725,000');
     expect(followUps(h.calls).at(-1)).toContain('bound this thread to `zillow:49059541`');
@@ -358,7 +358,7 @@ describe('/house bind', () => {
   it('skips the rename when the thread name already matches', async () => {
     const h = harness();
     await h.run(
-      inThread(ZILLOW_LINK, '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057'),
+      inThread(ZILLOW_LINK, '$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057'),
     );
     expect(h.calls.filter((c) => c.method === 'PATCH' && c.path === `/channels/${THREAD}`)).toHaveLength(0);
   });
@@ -795,7 +795,7 @@ describe('/house update', () => {
 
     const rename = h.calls.filter((c) => c.method === 'PATCH' && c.path === `/channels/${threadId}`);
     expect(rename.at(-1)?.body).toMatchObject({
-      name: '❌ $699,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+      name: '❌ $699K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
     });
 
     const notice = threadMessages(h.calls).at(-1)!;

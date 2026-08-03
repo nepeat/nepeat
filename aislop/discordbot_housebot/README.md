@@ -7,8 +7,12 @@ interactions** (no gateway connection, no always-on process, no AI calls).
 Each tracked house gets a public thread whose name is the listing at a glance:
 
 ```
-$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057
+$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057
 ```
+
+Prices are abbreviated **in the title only** (`$725K`, `$749.9K`, `$1.25M`) to buy
+back characters against the 100-char cap; the snapshot message, the embed and
+every change notice keep the exact figure.
 
 Sold/closed houses get an `❌ ` prefix on the thread name and on the change
 notice.

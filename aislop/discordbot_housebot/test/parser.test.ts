@@ -136,7 +136,7 @@ describe('zillow live markup (captured 2026-08-03, zpid 49024254)', () => {
   it('produces the canonical thread title from live markup', () => {
     const snap = zillowSource.parse(fixture('zillow-live-2026.html'), LIVE, '49024254', 500);
     expect(buildThreadTitle(snap!, { closed: false })).toBe(
-      '$725,000 - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
+      '$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057',
     );
   });
 
