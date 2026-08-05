@@ -32,7 +32,7 @@ let
   # Hashes of the vendored dependency trees.  These change whenever
   # openviking-src moves; `just update-openviking` rewrites both lines in
   # place, so keep them on one line each in `name = "sha256-...";` form.
-  cargoHash = "sha256-v9bPp2QROTY7ekWeoJYeyf70QVf7rBjV8e9JsNPUf2o=";
+  cargoHash = "sha256-sj3ZRJ8lOgCRPX/Yr0XTL2VSfqRGUURP6qAExWrYnEY=";
   npmDepsHash = "sha256-Jn/au7BWkwDK4mEmi3xg+7etKMWjzr2KpPw47VPyoEo=";
 
   # One vendored cargo tree covers the whole workspace, so both ov_cli and
