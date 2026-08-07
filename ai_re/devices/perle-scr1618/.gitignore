@@ -1,0 +1,9 @@
+# Large firmware blobs kept locally for analysis, NOT committed by default
+# (231 MB .img + 546 MB .emg). If you want them in the repo, prefer git-lfs:
+#   git lfs track "ai_re/devices/perle-scr1618/*.img"
+# and remove the relevant line below.
+*.img
+*.emg
+
+# Extracted firmware tree (large; regenerable from the .img)
+extracted/

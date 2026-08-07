@@ -5,3 +5,9 @@ result-*
 
 # scratch / working dumps kept out of git by default; commit real artifacts explicitly
 *.tmp
+
+# firmware noise
+extracted/
+extract/
+*.jpg_original
+*.bin

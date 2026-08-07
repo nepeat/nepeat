@@ -1,0 +1,14 @@
+# Whole extraction/analysis workspace — regenerable, and contains the previous
+# owner's cleartext Wi-Fi creds. Never commit.
+analysis/
+
+# Regenerable from the *_GOOD.bin images — don't commit
+root.sqfs
+sb_root.sqfs
+uImage.bin
+rootfs_extract/
+sb_rootfs/
+retry_*.bin
+sb_try*.bin
+p25q64_[123].bin
+sensorboard_[0-9]*.bin
