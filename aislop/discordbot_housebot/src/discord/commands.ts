@@ -56,6 +56,19 @@ export const HOUSE_COMMAND = {
       type: ApplicationCommandOptionType.Subcommand,
       name: 'close',
       description: 'Force this house closed (run inside a house thread)',
+      options: [
+        {
+          type: ApplicationCommandOptionType.String,
+          name: 'reason',
+          description: 'Why this house is being closed',
+          required: false,
+          choices: [
+            { name: 'Not interested', value: 'not_interested' },
+            { name: 'Bad', value: 'bad' },
+            { name: 'Purchased', value: 'purchased' },
+          ],
+        },
+      ],
     },
     {
       type: ApplicationCommandOptionType.Subcommand,

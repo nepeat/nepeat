@@ -13,6 +13,7 @@ export interface PropertyRow {
   status: string;
   title: string | null;
   force_closed: number;
+  close_reason: string | null;
   etag: string | null;
   last_modified: string | null;
   last_checked_at: number | null;
@@ -195,12 +196,13 @@ export class Repo {
     forceClosed: boolean,
     title: string,
     now: number,
+    closeReason: string | null = null,
   ): Promise<void> {
     await this.db
       .prepare(
-        'UPDATE properties SET force_closed = ?2, title = ?3, updated_at = ?4 WHERE id = ?1',
+        'UPDATE properties SET force_closed = ?2, close_reason = ?3, title = ?4, updated_at = ?5 WHERE id = ?1',
       )
-      .bind(propertyId, forceClosed ? 1 : 0, title, now)
+      .bind(propertyId, forceClosed ? 1 : 0, forceClosed ? closeReason : null, title, now)
       .run();
   }
 

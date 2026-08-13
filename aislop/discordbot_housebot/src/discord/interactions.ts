@@ -169,7 +169,11 @@ export async function handleInteraction(
         runDeferred(deps, interaction, async () => {
           const row = threadId ? await deps.repo.getByThreadId(threadId) : null;
           if (!row) return propertyMissingText(null);
-          const r = await deps.service.close(row);
+          const reason = options.get('reason') ?? null;
+          if (reason && !['not_interested', 'bad', 'purchased'].includes(reason)) {
+            return 'unknown reason — use not_interested, bad, or purchased.';
+          }
+          const r = await deps.service.close(row, reason);
           return r.message;
         }),
       );

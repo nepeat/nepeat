@@ -363,17 +363,22 @@ export class HouseService {
   }
 
   /** `/house close` — force closed, no fetch required. */
-  async close(row: PropertyRow): Promise<{ message: string }> {
+  async close(row: PropertyRow, reason: string | null = null): Promise<{ message: string }> {
+    const normalized = reason && ['not_interested', 'bad', 'purchased'].includes(reason) ? reason : null;
     const now = this.now();
     const snapshot = parseSnapshot(row);
+    const closed = true;
     const title = buildThreadTitle(snapshot ?? {}, {
-      closed: true,
+      closed,
+      closeReason: normalized,
       fallback: row.title ?? row.listing_key,
     });
-    await this.repo.setForceClosed(row.id, true, title, now);
+    await this.repo.setForceClosed(row.id, true, title, now, normalized);
     if (title !== row.title) await this.rest.renameThread(row.thread_id, title);
-    await this.rest.postMessage(row.thread_id, `❌ **Closed** — marked closed manually.`);
-    return { message: 'marked closed. it will stop being refreshed by the cron.' };
+    const label = normalized === 'purchased' ? '✅ **Purchased**' : normalized === 'bad' ? '❌ **Closed — bad**' : normalized === 'not_interested' ? '❌ **Closed — not interested**' : '❌ **Closed**';
+    const suffix = normalized ? ` (${normalized})` : '';
+    await this.rest.postMessage(row.thread_id, `${label} — marked closed manually${suffix}.`);
+    return { message: `marked closed${normalized ? ` (${normalized})` : ''}. it will stop being refreshed by the cron.` };
   }
 
   /** `/house open` — only if the live listing agrees the house is available. */

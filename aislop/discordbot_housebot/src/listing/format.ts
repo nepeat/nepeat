@@ -2,6 +2,18 @@ import type { FieldChange, ListingStatus, Snapshot } from './types';
 
 export const THREAD_NAME_MAX = 100;
 export const CLOSED_PREFIX = '❌ ';
+export const PURCHASED_PREFIX = '✅ ';
+
+export type CloseReason = 'not_interested' | 'bad' | 'purchased';
+export const CLOSE_REASONS: readonly CloseReason[] = ['not_interested', 'bad', 'purchased'] as const;
+
+export function isCloseReason(v: string | null | undefined): v is CloseReason {
+  return v === 'not_interested' || v === 'bad' || v === 'purchased';
+}
+
+export function closedPrefixFor(reason: string | null | undefined): string {
+  return reason === 'purchased' ? PURCHASED_PREFIX : CLOSED_PREFIX;
+}
 
 export function formatPrice(n: number | undefined): string | null {
   if (n === undefined || !Number.isFinite(n) || n <= 0) return null;
@@ -54,11 +66,11 @@ export function formatAddress(s: Partial<Snapshot>): string | null {
 /**
  * Deterministic thread title.
  * `$725K - 4,670ft - 4b2b - 400 Cedar Avenue S, Renton, WA 98057`
- * Closed houses get a leading `❌ `. Result always fits Discord's 100-char cap.
+ * Closed houses get a leading `❌ ` (or `✅ ` when purchased). Result always fits Discord's 100-char cap.
  */
 export function buildThreadTitle(
   snapshot: Partial<Snapshot>,
-  opts: { closed: boolean; fallback?: string } = { closed: false },
+  opts: { closed: boolean; closeReason?: string | null; fallback?: string } = { closed: false },
 ): string {
   const segments = [
     formatPriceShort(snapshot.price),
@@ -70,7 +82,7 @@ export function buildThreadTitle(
   let body = segments.join(' - ');
   if (!body) body = opts.fallback?.trim() || 'house';
 
-  const prefix = opts.closed ? CLOSED_PREFIX : '';
+  const prefix = opts.closed ? closedPrefixFor(opts.closeReason ?? null) : '';
   const budget = THREAD_NAME_MAX - prefix.length;
   if (body.length > budget) {
     // Trim from the tail (the address) and mark the truncation.
