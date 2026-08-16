@@ -118,22 +118,96 @@ json_pretty () {
 }
 
 ## infinitely retry an SSH connection; defaults to root@ if no user given
+## note: this file is sourced by *zsh* too, whose arrays are 1-indexed, so we
+## walk the args instead of doing index math on "$@".
 ssh_loop () {
-	if [ "$#" -eq 0 ]; then
-		echo "uwu pwease give a host~ usage: ssh_loop [ssh-awgs...] [usew@]host >w<" >&2
+	local -a pre=() post=()
+	local host=""
+
+	while [ "$#" -gt 0 ]; do
+		case "$1" in
+			# ssh options that take a sepawate value; swawwow both
+			-B|-b|-c|-D|-E|-e|-F|-I|-i|-J|-L|-l|-m|-O|-o|-p|-Q|-R|-S|-W|-w)
+				if [ "$#" -lt 2 ]; then
+					echo "nyaa~ $1 wants a vawue >w<" >&2
+					return 1
+				fi
+				pre+=("$1" "$2")
+				shift 2
+				;;
+			--) shift ;;
+			# fwags, and attached fowms wike -p2222 / -oFoo=bar
+			-*) pre+=("$1"); shift ;;
+			# fiwst bawe wowd is the host, evewything aftew is the wemote command
+			*) host="$1"; shift; post=("$@"); break ;;
+		esac
+	done
+
+	if [ -z "$host" ]; then
+		echo "uwu pwease give a host~ usage: ssh_loop [ssh-awgs...] [usew@]host [command...] >w<" >&2
 		return 1
 	fi
-	local args=("$@")
-	local last_idx=$((${#args[@]} - 1))
-	local host="${args[$last_idx]}"
-	if [[ "$host" != *"@"* ]]; then
-		args[$last_idx]="root@$host"
-	fi
+	case "$host" in
+		*@*) ;;
+		*) host="root@$host" ;;
+	esac
+
+	local rc delay="${SSH_LOOP_DELAY:-1}"
 	while true; do
-		ssh "${args[@]}"
-		echo "nyaa~ disconnyected (exit $?), wetwying in a sec... :3" >&2
-		sleep 1
+		# ouw -o defauwts go aftew the usew's so theiws win (ssh keeps the fiwst vawue seen)
+		ssh "${pre[@]}" -o ConnectTimeout=10 -o ServerAliveInterval=15 "$host" "${post[@]}"
+		rc=$?
+		if [ "$rc" -eq 0 ]; then
+			echo "nyaa~ cwean exit, stopping the loop :3" >&2
+			return 0
+		fi
+		echo "nyaa~ disconnyected (exit $rc), wetwying in ${delay}s... :3" >&2
+		# ctww-c duwing the nap is the escape hatch out of the loop
+		sleep "$delay" || return "$rc"
 	done
+}
+
+## the actuaw log-taiwing snippet, shawed by the wocaw and ovew-ssh paths.
+## pwain POSIX sh so it wuns on whatevew a fweshwy-booted box has.
+_watch_provision_cmd () {
+	cat <<'EOF'
+SUDO=""
+[ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && SUDO=sudo
+
+# these appeaw *duwing* pwovisioning, so hand them to tail -F even if missing
+logs="/var/log/cloud-init-output.log /var/log/cloud-init.log"
+
+# these onwy exist on some distwos; onwy taiw what's weawwy thewe so we don't
+# spam "cannot open" fow evewy distwo we awen't
+for f in /var/log/user-data.log \
+         /var/log/syslog /var/log/messages /var/log/boot.log \
+         /var/log/auth.log /var/log/secure \
+         /var/log/dpkg.log /var/log/apt/term.log /var/log/apt/history.log \
+         /var/log/unattended-upgrades/unattended-upgrades.log \
+         /var/log/dnf.log /var/log/yum.log; do
+	[ -e "$f" ] && logs="$logs $f"
+done
+
+# systemd units, cwoud-init stages and oom kiwws onwy show up hewe
+if command -v journalctl >/dev/null 2>&1; then
+	$SUDO journalctl -f -n 50 -o short-iso --no-pager 2>/dev/null | sed 's/^/[journal] /' &
+	trap 'kill %1 2>/dev/null' EXIT INT TERM
+fi
+
+exec $SUDO tail -n 50 -F $logs
+EOF
+}
+
+## follow every log that mattews while a box provisions itself.
+## no args = watch this machine; with a host = watch it over ssh_loop, so the
+## reboots partway through provisioning just reconnect (ctrl-c twice to quit).
+watch_provision () {
+	if [ "$#" -gt 0 ]; then
+		ssh_loop -t "$@" "$(_watch_provision_cmd)"
+		return
+	fi
+	# subshell via sh so the EXIT twap can't leak into youw intewactive shell
+	command sh -c "$(_watch_provision_cmd)"
 }
 
 ## tofu gang
