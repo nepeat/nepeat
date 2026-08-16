@@ -148,5 +148,8 @@ alias tfa="tofu apply"
 ## i like rust
 alias pip="uv pip"
 
+## slop machine
+alias yoloclaude="claude --dangerously-skip-permissions"
+
 # include internal profile
 [ -f "$HOME/.profile-internal" ] && . "$HOME/.profile-internal"
