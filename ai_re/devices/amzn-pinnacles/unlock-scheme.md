@@ -129,3 +129,81 @@ their provenance is the next thing to resolve.
 The `sl` question is **closed**: it is IDME `t_unlock_code`, not the `flash
 unlock` payload. That guess was wrong and is corrected above — which is the
 reason for labelling inferences in the first place.
+
+## NEW: `fastboot flash tucode` exists — a second unauthenticated IDME write
+
+The IDME write dispatcher at `0xe4c8` compares the flash-target name against
+**two** strings, not one:
+
+```
+0xe4cc  strcmp(name, "tucert")   -> 0x1d9c   ; write t_unlock_cert
+0xe4fa  strcmp(name, "tucode")   -> 0x1dbc   ; write t_unlock_code
+```
+
+with matching failure strings `write tucert failed!` (`0x4bac1`) and
+**`write tucode failed!`** (`0x4bad6`).
+
+Every prior note in this project listed the locked-hardware flash surface as
+`flash:unlock` and `flash:tucert` only. **`tucode` was never discovered.** It is
+the writer for the 256-byte signature field that phase 2 consumes — so both
+halves of the temp-unlock credential are writable through the same
+unauthenticated path.
+
+**Observed:** the LK-side writer accepts both names, and each has its own
+distinct error string.
+**NOT yet tested:** whether `flash:tucode` passes fastboot's *locked-hardware
+allowlist*. That allowlist is a separate gate, and for `tucert` it was
+established empirically, not from this dispatcher. Do not assume `tucode` is
+reachable on a locked device until `fastboot flash tucode` has actually been
+run against one.
+
+### Why this matters
+
+If `flash:tucode` is permitted on locked hardware, then a complete temp-unlock
+credential — cert **and** signature — can be installed on any locked unit with
+no root and no Amazon involvement at flash time. The remaining barrier is purely
+**obtaining one valid pair**, not installing it.
+
+That reframes the whole problem for the community: the question stops being
+"how do we defeat LK's crypto" and becomes "can one valid cert+code pair be
+recovered from any unit Amazon ever temp-unlocked, and is it portable?"
+
+## The per-device challenge: `unlock_version`
+
+`0xe27c` reads an **8-byte IDME field `unlock_version`** (`0x4ba09`). If it is
+absent or its first word is zero, LK **generates a value and writes it back**:
+
+```
+0xe29a  movw r6, #0xc181
+0xe29e  movs r0, #0
+0xe2a0  bl   #0x44248        ; rand()
+0xe2a4  muls r0, r6, r0      ; * 0xc181
+0xe2a6  adds.w r4, r0, #0x11 ; + 0x11
+0xe2aa  beq  #0xe29e         ; retry if 0
+0xe2ac  cmp  r4, #0x30
+0xe2ae  beq  #0xe29e         ; retry if 0x30
+0xe2ba  bl   #0x208          ; idme_write("unlock_version", &r4, 8)
+```
+
+So the device mints its own per-unit value on first use and persists it. It is
+then formatted with `0x%08x%08x%08x` (`0x4b9fa`) — a 96-bit rendering — into the
+BSS buffer at `0x9d244`, alongside a 45-byte IDME field read into `0x9d234`, and
+the strings `unlock_code` (`0x77115`) and `unlock_status` (`0x77128`) label this
+area.
+
+**Inferred, not proven:** that the 32-byte codes consumed by phase 2 are derived
+from `unlock_version` (and therefore that a cert+code pair is bound to one unit).
+The codes table at `0x9d264` is **BSS**, populated at runtime, so it is *not*
+baked into the image — my first hypothesis that the codes were static constants
+shared across all units was checked and is **wrong**.
+
+**This is now the single most important open question**, because it decides
+whether a recovered credential is portable:
+
+* if the codes derive from `unlock_version`, each unit needs its own Amazon
+  signature — but note LK *generates* that value itself, so if `unlock_version`
+  can be written (it is an IDME field), a unit could potentially be made to
+  match a credential we already have;
+* if the codes are constant across units, one leaked pair unlocks the family.
+
+Resolving where `0x9d264` is filled from is the next step.
