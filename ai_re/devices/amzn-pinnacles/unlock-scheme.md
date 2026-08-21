@@ -207,3 +207,37 @@ whether a recovered credential is portable:
 * if the codes are constant across units, one leaked pair unlocks the family.
 
 Resolving where `0x9d264` is filled from is the next step.
+
+### Where the codes table is filled — partially traced
+
+`0xe534` is the setter: `memcpy(0x9d264, src, 0x144)`, and **`0x144` = 324 =
+4-byte count + 10 × 32-byte entries**, matching the getter's `count <= 10` bound
+exactly. That confirms the table layout.
+
+Its single caller is `0x11188`, inside a **tag-dispatched TLV parser**:
+
+```
+0x11184  add.w r0, r4, #8
+0x11188  bl    #0xe534        ; codes := record payload
+```
+
+The parser is `0x10d40` (entered from `0x11270`, no arguments — it reads a
+global). Records carry a 16-bit tag at `+2` and payload at `+8`, and sibling
+cases write into a large config struct at base `+0x5880` / `+0x5900` / `+0x5980`
+— the same struct the codes getter gates on (`ldrb [r2, #0x59a6]` at `0xe55e`).
+The struct is `0x5d70` bytes (`0x10d78`).
+
+**So the 32-byte codes arrive as one TLV record inside a larger config blob**,
+not from IDME and not as image constants.
+
+**Not yet identified: where that blob comes from.** Candidates are the
+preloader→LK handoff, a config partition, or a runtime-built structure.
+`0x2bef6`, called just before the parse loop, turns out to be a bare `bx lr`
+stub, so it is not the loader. Literal resolution inside `0x10d40` lands in a
+data island and needs care — the naive `ldr`/`add pc` formula returns garbage
+there, so the globals at `0x10d46`/`0x10d50` were **not** resolved.
+
+This is the remaining thread on portability. If the blob is preloader-supplied,
+the codes are outside reach without preloader code execution. If it comes from a
+writable partition, that is a much more interesting story — but nothing here
+establishes which, and it should not be guessed.
