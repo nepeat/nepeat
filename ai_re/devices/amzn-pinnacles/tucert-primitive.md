@@ -314,3 +314,60 @@ the container level, because the container is rigid.
    `-8` (`0x1f72`, null ptr/len), `-4` (`0x1f78`), `-5` (`0x1f7e`), `-10`
    (`0x1f84`), `-6` (`0x1f8a`), `-12` (`0x1f90`) — so a single observed `ret`
    value would immediately identify which check failed.
+
+## ⛔ CORRECTION: tucert does NOT reach the DER/X.509 stack
+
+The section "Why this is the attack surface" above claims attacker-controlled
+DER reaches `der_decode_sequence_flexi` "parsed *before* any signature is
+validated". **That is wrong.** It was inferred from the mere presence of the
+LibTomCrypt filename strings in the binary, never from a call path.
+
+Resolved the actual call graph:
+
+| region | what it is | reaches DER cluster? |
+| --- | --- | --- |
+| `0x1e00`–`0x2000` | tucert verifier | **NO** |
+| `0x19a8`–`0x1b00` | signature verify | **NO** |
+| `0x1a80`–`0x1c00` | unlock verifier | **NO** |
+| `0x1200`–`0x1600` | X.509 chain handling | yes — `0x9e80`, `0xa4b0`, `0xa864`, `0xbe60` … |
+
+The DER/LTC code occupies `0x8688`–`0x416d0`, and **no reference to it appears
+anywhere in the tucert or unlock verifiers**. The four X.509 strings
+(*"Failed to decode user certificate"* etc.) are referenced only from
+`0x1346`, `0x136a`, `0x141e`, `0x1540` — inside the `0x1200`–`0x1600` function,
+which neither the tucert nor the unlock path calls. That code belongs to the
+**image verification** chain, whose inputs are signed images we cannot write on
+locked hardware.
+
+### What the tucert pre-auth surface really is
+
+From the decompiled flow, the 592 decoded bytes are laid out as:
+
+```
+[ 336 bytes payload ][ 256 bytes RSA-2048 signature ]
+   ^ cert+0x000         ^ cert+0x150
+```
+
+confirmed by `0x1f0c`–`0x1f18`: `r0=cert, r1=len-0x100 (=336),
+r2=cert+0x150, r3=0x100`, then `bl 0x19a8` — an RSA verify over payload with the
+trailing signature. **That call happens first**, and `0x1f1c` bails to `-4` on
+failure. The attacker-controlled length field at `[cert+0x20]` is only consumed
+at `0x1f3e`, *after* the signature check passes.
+
+So everything an unauthenticated attacker touches before RSA verification is:
+
+1. a 4-byte `memcmp` against `AZTU`,
+2. the base64 decoder at `0x2028`, bounded to a hardcoded 592, and
+3. RSA-PSS verify internals (LibTomCrypt `rsa_verify_hash`, well-trodden).
+
+That is a **much smaller surface than this document originally claimed**, and it
+contains no ASN.1 parser. The base64 decoder is the only non-trivial parser
+handling attacker bytes pre-auth, and its output is bounded by the same constant
+as its buffer.
+
+### Consequence for priority
+
+`fastboot flash tucert` remains a genuine unauthenticated persistent write —
+that part stands and was verified on the device. But the reason it was called
+"the most promising path found so far" — a recursive ASN.1 decoder reachable
+pre-auth — **does not exist**. Downgrade accordingly.
