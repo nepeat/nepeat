@@ -160,6 +160,17 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 
 ## Log (newest first)
 
+- **2026-08-21**: Reversed **Shipmode** (`com.amazon.shpm`) — it is a **factory
+  wipe**, not a battery/transport mode. Triggered by the **unprotected**
+  broadcast `com.amazon.kindle.otter.shipmode`; runs as system uid; wipes
+  `/data/misc/wifi`, deletes `locksettings.db`/`password.key`, **strips `adb`
+  from `persist.sys.usb.config`**, sets `vendor.amazon.fos_flags.wipe=1`, then
+  shuts down. **Its guard is a no-op** — `PreVerificationTask` logs
+  *"ShipMode called when device was provisioned"* but returns `true` on every
+  path, so it does not abort on a provisioned device. ⚠️ An accidental broadcast
+  would cost us ADB, dev options and the root foothold. See
+  [customization.md](customization.md).
+
 - **2026-08-21**: **Static analysis cracked; unlock decision located in the
   PRELOADER.** Solved xref recovery (scan from every 2-byte boundary, validate
   `ldr [pc]`/`add pc` pairs against known strings) — all 12 target strings

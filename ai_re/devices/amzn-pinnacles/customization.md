@@ -187,6 +187,64 @@ The counterweight to all of this is `ro.oem_unlock_supported=1`, which retail
 Fire tablets ship as `0`. That difference is real and unexplained, and is the
 most promising thread.
 
+## Shipmode (`com.amazon.shpm`) — a factory wipe, and a live footgun
+
+Not a battery/transport mode, despite the name. **`Shipmode.apk` returns the
+device to out-of-box state**: it is the routine Amazon runs before a unit ships
+(or is decommissioned).
+
+It runs as `sharedUserId="android.uid.system"` in the `system` process, holding
+`MOUNT_FORMAT_FILESYSTEMS`, `CLEAR_APP_USER_DATA`, `FORCE_STOP_PACKAGES`,
+`WRITE_SECURE_SETTINGS`, `REBOOT` and `SHUTDOWN`.
+
+**Trigger:** a broadcast, `com.amazon.kindle.otter.shipmode`, on a receiver with
+**no `android:permission` guard**. Extras: `ship_mode` selects
+`mode_factory` / `mode_demo` / `mode_default`, plus an optional `rebootStatus`.
+The receiver hands off to `ShipModeService` and then **disables itself**, so it
+is one-shot.
+
+`FactoryShipMode.populateTaskList()` runs, in order:
+
+```
+PreVerificationTask -> RemovePkgSettingsTask -> DeleteWiFiData -> ResetPropTask
+  -> ReenableTask -> PostVerificationTask -> ShipModeFinishTask
+  -> RebootTask (if com.amazon.hardware.multimodal) else ShutdownTask
+```
+
+What the individual tasks actually do:
+
+- `DeleteWiFiData` → wipes `/data/misc/wifi`
+- `RemoveDeviceFiles` → deletes `/data/system/locksettings.db`,
+  `/data/system/password.key`, `/data/system/FACTORYMODE`
+- **`ResetPropTask` → strips `adb` out of `persist.sys.usb.config`**, i.e.
+  **turns USB debugging off**, and sets
+  `SystemProperties.set("vendor.amazon.fos_flags.wipe", "1")`
+- `ShipModeFinishTask` → sets `shipmode_status=shipmode_complete` and waits for
+  a `shipmode_complete_acked` reply ("Failed to get ShipMode complete
+  acknowledgement from the remote")
+
+> ⚠️ **The safety guard does not work.** `PreVerificationTask.executeImpl()`
+> checks `device_provisioned` and `user_setup_complete`, logs
+> *"ShipMode called when device was provisioned"* / *"…when user setup was
+> complete"* — and then **`return true` on every path**. It never aborts. So on
+> this device, which *is* provisioned, a shipmode broadcast would proceed and
+> wipe anyway.
+>
+> **Consequence for this project:** an accidental or malicious
+> `am broadcast -a com.amazon.kindle.otter.shipmode --es ship_mode mode_factory`
+> would disable ADB, delete the Wi-Fi config, and shut the device down —
+> costing us the ADB authorization, developer options and the root foothold in
+> one go. Treat that intent string as radioactive. It is worth considering
+> `pm disable com.amazon.shpm` as a precaution.
+
+Incidentally this is probably how the unit was cleaned before it reached the
+surplus channel, and `RemoveDeviceFiles` deleting `locksettings.db` and
+`password.key` explains why the RAFT credential files were absent — see
+[raft-lockscreen.md](raft-lockscreen.md).
+
+`mode_demo` routes to `DemoShipMode`, which pairs with the `com.amazon.kor.demo`
+retail-demo package also present on this image.
+
 ## Absent by design
 
 Worth stating what *isn't* here, since it's equally deliberate: no Google Play /
