@@ -11,7 +11,7 @@ have is insufficient.
 | --- | --- | --- |
 | **cert** | IDME `t_unlock_cert`, `"AZTU"` + base64, decodes to 592 B | **we can write it** (unauthenticated) |
 | **codes** | IDME `t_unlock_code`, an array of 32-byte entries | fetched at `0xe54c` |
-| **signature** | the 256-byte blob passed to `fastboot flash unlock` | **we supply it** |
+| **signature** | IDME `t_unlock_code`, exactly 256 bytes | fetched at `0x1d3c` |
 
 The decoded 592-byte cert is laid out as:
 
@@ -55,7 +55,7 @@ hashes** — LK can blacklist a leaked temp-unlock key.
 0x1fbe  ldr r0, [r7, #0x18]   ; codes array
 0x1fca  add.w r0, r0, r4, lsl #5   ; code[i], 32 bytes
 0x1fc6  movs r1, #0x20        ; datalen = 32
-0x1fbc  mov  r2, sl           ; sig    = the 256-byte blob we supplied
+0x1fbc  mov  r2, sl           ; sig    = t_unlock_code (256 B, from IDME)
 0x1fce  mov.w r3, #0x100      ; siglen = 256
 0x1fc0  add.w r1, r3, #0x24 -> [sp]      ; key    = cert+0x24
 0x1fc8  ldr  r5, [r3, #0x20] -> [sp+4]   ; keylen = cert+0x20
@@ -68,6 +68,32 @@ Return value: **0 = unlocked**, `1` = not unlocked (`0x1fea`), negative = error.
 
 So a successful unlock requires a 256-byte signature over one of the 32-byte
 codes, made with the private half of the key **embedded in the cert**.
+
+### Where `sl` comes from — RESOLVED, and my earlier guess was wrong
+
+The previous revision of this file listed the signature as "the 256-byte blob
+passed to `fastboot flash unlock`", flagged as inferred. **It is not.** The
+entry point is a wrapper at `0x1e0c` (the real verifier is `0x1e48`):
+
+```
+0x1e0c  push {r0, r1, r4, lr}
+0x1e12  mov.w r3, #0x100     ; capacity = 256
+0x1e1c  str  r3, [sp]
+0x1e1e  bl   #0x1d3c         ; get IDME t_unlock_code (the malloc(0x100) getter)
+0x1e26  ldr  r0, [sp, #4]    ; fetched buffer
+0x1e2a  ldr  r1, [sp]        ; decoded length
+0x1e2c  cmp.w r1, #0x100     ; must be EXACTLY 256
+0x1e30  bne  #0x1e42
+0x1e32  bl   #0x1e48         ; verifier(buf, 256)  -> sl = buf
+```
+
+So `sl` is **IDME `t_unlock_code`**, a second 256-byte IDME field carrying the
+signature — the same `"AZTU"`-style container treatment as the cert, with its
+own exact-length requirement. Nothing in this path comes from `fastboot flash
+unlock` at all.
+
+That makes the whole mechanism **entirely IDME-driven and offline**: a unit is
+temp-unlocked by writing two IDME fields, with no live challenge/response.
 
 ## Why our write primitive does not help
 
@@ -96,10 +122,10 @@ layout of both `0x19a8` calls, the 336/256 split, the revocation semantics
 
 **Inferred, not proven**: that `0x19a8` is specifically RSA-PSS rather than
 another RSA padding mode; that `0xe58c` returns LK's root key (its position and
-use strongly imply it, but the function was not reversed); that `sl` is the
-`flash unlock` payload rather than another 256-byte buffer — the outer
-function's prologue does not decode cleanly, and `0x1e66` only shows it requires
-an argument of length exactly `0x100`.
+use strongly imply it, but the function was not reversed); that the 32-byte
+codes from `0xe54c` are device-bound values (e.g. a hash of the DSN/serial) —
+their provenance is the next thing to resolve.
 
-The `sl` provenance is the one worth nailing down, since it determines whether
-phase 2's signature is really the `flash unlock` input.
+The `sl` question is **closed**: it is IDME `t_unlock_code`, not the `flash
+unlock` payload. That guess was wrong and is corrected above — which is the
+reason for labelling inferences in the first place.
