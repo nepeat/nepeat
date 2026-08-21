@@ -21,6 +21,10 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[lk-emulation.md](lk-emulation.md)** — ⚠️ **the unlock decision lives in the
+  PRELOADER, not LK** (LK only reads a single boot-arg byte). Also: xrefs solved,
+  LibTomCrypt pinned to 1.18.2 with a real unbounded-recursion bug but **no write
+  primitive**, and a **bricking warning** for the tucert path.
 - **[tucert-primitive.md](tucert-primitive.md)** — ⭐ **`fastboot flash tucert`
   writes arbitrary bytes into IDME on a locked device with NO root and no
   signature check.** Feeds a LibTomCrypt DER/X.509 parser at every boot. The
@@ -155,6 +159,25 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: **Static analysis cracked; unlock decision located in the
+  PRELOADER.** Solved xref recovery (scan from every 2-byte boundary, validate
+  `ldr [pc]`/`add pc` pairs against known strings) — all 12 target strings
+  resolved, and the whole image is base 0, so the earlier multi-blob theory was
+  wrong. Ghidra's original xrefs were right after all. Found
+  `amzn_target_is_unlocked` at `0xe234`: the entire runtime lock state is **one
+  byte** at boot-arg struct `+0x59a7`, and **LK only ever reads it** — all four
+  references are loads, and the offset exceeds Thumb's immediate range so a write
+  would need a `movw` that does not exist. The RSA verification is in the
+  **preloader** (`AMZN_UNLOCK`, *"Fail to compose unlock code"*, *"Fail to read
+  unlock signature"*, *"rsa2048 public key decryption"*), now extracted with load
+  address `0x00200D00`. Separately, LibTomCrypt pinned to **1.18.2** with a
+  genuine unbounded-recursion bug (298 levels in 1021 B, ~12–17 KB stack vs LK's
+  ~8 KB) and a novel 32-bit `_fetch_length` overflow — but **every write is
+  bounded**, so crash/OOB-read only, no code execution.
+  ⚠️ **Bricking risk:** tucert is parsed every boot before verification, so a
+  crashing blob is a permanent boot loop with no fastboot recovery. **UART is now
+  a prerequisite, not a convenience.**
 
 - **2026-08-21**: Bounded the tucert primitive and mapped the blockers. The
   write is **correctly bounded to 1024 bytes** (1025 → `write tucert failed!`,

@@ -74,7 +74,10 @@
             # Thumb-2 disassembly for the Amazon LK bootloader. Ghidra decodes
             # that payload as garbage unless TMode is set, so capstone is the
             # quicker route for targeted reads. See devices/amzn-pinnacles.
-            (python3.withPackages (ps: with ps; [ capstone pyelftools ]))
+            # unicorn: emulate LK functions directly (full-system QEMU is out —
+            # there is no MT8183 machine model). Gives the instruction-level
+            # visibility the locked device refuses to provide.
+            (python3.withPackages (ps: with ps; [ capstone pyelftools unicorn ]))
           ];
 
           shellHook = ''
