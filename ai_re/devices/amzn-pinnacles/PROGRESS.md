@@ -8,6 +8,31 @@ and a rear camera flash added over retail, running an AOSP-app-layer Fire OS
 sibling is `trona` / KFTRWI. Never sold; no marketing name because it was never
 marketed. See [identification.md](identification.md).
 
+**🔑 UNLOCK MECHANISM FULLY MAPPED 2026-08-21.** The whole temp-unlock scheme
+is now reconstructed and verified. Two new unauthenticated write primitives were
+found, and the central "could a leaked credential unlock the family?" question
+is answered — **no**.
+
+* **`fastboot flash tucode` exists**, alongside `tucert`. The locked-hw
+  allowlist is exactly `{oem relock, oem flags, flash:unlock, flash:tucert,
+  flash:tucode}` (verified by reading the table at `0x8366c`, base
+  `0x56000000`). So **both halves of a temp-unlock credential are installable on
+  a locked, unrooted device.**
+* **But there is nothing durable to install.** The ten 32-byte codes are
+  `HMAC-SHA256(S_device, counter)` where `S_device` is 32 RNG bytes sealed in
+  **eMMC RPMB block 1** and the counter increments **every boot**. A cert+code
+  pair cannot unlock another unit (2⁻²⁵⁶) and expires within 10 reboots. Amazon
+  temp unlock is an online challenge/response. See
+  [unlock-codes-rpmb.md](unlock-codes-rpmb.md).
+* **`fos_flags`/`dev_flags` (dm-verity off / SELinux permissive) are a decoy** —
+  the restriction gate sits *inside* the flag-test primitive, so even a
+  successful write returns 0 on a restricted device. See
+  [fos-flags.md](fos-flags.md).
+* **One live primitive remains:** the USBDL **PMIC** commands (`0xC6`/`0xC7`)
+  never call `sec_region_check` and so bypass the memory whitelist entirely.
+  Orthogonal to SBC/DAA/BROM-fused. Read-only probes are safe; rail writes are
+  potentially terminal. See [usbdl-pmic-primitive.md](usbdl-pmic-primitive.md).
+
 **⛔ RETRACTED 2026-08-21 — there is no root-free preloader memory write.** An
 earlier entry here claimed one was confirmed. It was not: that claim came from
 misreading mtkclient log lines which describe **host-side** patching of the DA
@@ -205,6 +230,54 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: 🔑 **Unlock system mapped end to end; two new write primitives;
+  portability question closed.** Multi-agent sweep, every load-bearing claim
+  re-verified against our own binaries.
+  - **`fastboot flash tucode` discovered** — the IDME dispatcher at `0xe4c8`
+    accepts *two* names (`tucert` → `0x1d9c`, `tucode` → `0x1dbc`), each with its
+    own error string. Prior notes listed only `tucert`. Confirmed by reading the
+    locked-hw allowlist table at `0x8366c`: `{oem relock, oem flags,
+    flash:unlock, flash:tucert, flash:tucode}`.
+  - **The scheme:** cert (`AZTU`+base64, 592 B = 336-byte payload + 256-byte RSA
+    sig, embedded pubkey at `+0x24`) → phase 1 verifies it against LK's root key
+    → phase 2 verifies IDME `t_unlock_code` over one of ten 32-byte codes using
+    *the cert's* key. `"Device is temporarily unlocked, %d reboots remaining"`
+    takes the matching code index as `%d`.
+  - **Codes are an RPMB per-boot nonce.** Delivered as ATAG tag `0x886100A7` in
+    the preloader→LK hand-off (magic `LPLP`, blob pointer = `r4` at LK entry);
+    zero `LPLP`/`0x8861xxxx` in any writable partition. Derived in the preloader
+    at `0x252c` as `HMAC-SHA256(S_device, counter)` from an `AZTU`-magic block in
+    **RPMB block 1**, counter incremented every boot. **Not portable, expires in
+    ≤10 reboots** — no leaked pair helps anyone.
+  - **`fos_flags` bit `0x80` = dm-verity off; `dev_flags` bit `0x40` = SELinux
+    permissive** — real switches, but `bl #0xdaf2` sits *inside*
+    `fos_flags_test` (`0x2bf28`), so a write changes nothing while restricted.
+    `oem flags` permits only `usr_flags`, which nothing reads.
+  - **PMIC USBDL commands bypass the whitelist** (`usbdl_pwr_write16`
+    `VA 0x205dcc` → `pmic_config_interface`, hardcoded status, no
+    `sec_region_check`). The only surviving USBDL primitive; enables rail control
+    / glitching without a rig. Read probes safe, rail writes potentially
+    terminal.
+  - **Whitelist tables read directly:** write `{0x10007000/0x1000,
+    0x1001a080/0x4}`, read those plus `{0x11f10000/0x1000}`. Matches the live
+    probe exactly. The **eFuse page is read-only**, and `0x1001a080` was never
+    probed.
+  - **Refuted (recorded so they are not retried):** the `is_in_region` integer
+    overflow (our `sec_region_check` opens with a `cmn`/`blo` carry check;
+    `is_in_region` has five comparisons vs upstream's two); `CMD_SEND_DA`'s
+    missing `da_region_check` (real, but `CFG_DA_RAM_ADDR 0x40200000` overwrites
+    the attacker `da_addr`); and the tucert DER theory (tucert never reaches a
+    DER parser).
+  - **ARB is RPMB-backed, not eFuse-backed**, so downgrade is blocked and
+    ARB-clearing is a *product* of preloader code exec, not a route to it. The
+    koboreru marker `check_part_overlapped` is **absent** from both preloader
+    images.
+  - **Scene corrections:** `mustang` is Fire 7 9th gen **MT8163** (wrong family);
+    the MT8183 sibling is `maverick`/KFMAWI, unlocked, giving a public signed
+    preloader for diffing. No hardware BROM test point exists on this board
+    family; `fastbrick` and HeapB8 are inapplicable.
+
 
 - **2026-08-21**: ⛔ **The USBDL patch plan is DEAD, and the "root-free memory
   write" claim is RETRACTED.** Ran the whole thing against the live device.
