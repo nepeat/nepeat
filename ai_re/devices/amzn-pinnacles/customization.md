@@ -99,17 +99,24 @@ Plus Amazon init scripts: `amazond.rc`, `amazon_crash_reporter.rc`,
 ## IDME — the factory identity block
 
 `fireos.hardware.idme@1.0-service` is running and exposes `/proc/idme/`, a
-26-field factory-programmed identity area. This is Amazon-specific; there is no
-AOSP analogue.
+**35-field** factory-programmed identity area. This is Amazon-specific; there is
+no AOSP analogue. Full capture in [`dumps/idme.txt`](dumps/idme.txt).
 
 ```
-bootcount      bootmode       bt_mac_addr    bt_mfg        co_tms_cal
-dev_flags      device_type_id fos_flags      front_cam_otp iaicr
-mac_addr       mac_sec        manufacturing  miccal.0      miccal.1
-postmode       product_name   productid      productid2    rear_cam_otp
-region         sensorcal      serial         t_unlock_cert t_unlock_code
-tp_cg_color
+DKB            KB             alscal         board_id      bootcount
+bootmode       bt_mac_addr    bt_mfg         co_tms_cal    dev_flags
+device_type_id fos_flags      front_cam_otp  iaicr         mac_addr
+mac_sec        manufacturing  miccal.0       miccal.1      postmode
+product_name   productid      productid2     rear_cam_otp  region
+sensorcal      serial         t_unlock_cert  t_unlock_code tp_cg_color
+unlock_code    unlock_version usr_flags      wifi_mfg      wpc_cal
 ```
+
+Note `wpc_cal` — wireless power charging calibration. The Fire HD 10 **Plus**
+is precisely the variant with Qi charging, which corroborates the
+identification in [identification.md](identification.md) and the
+`ro.boot.hardware.sku=plus` string. (The field is empty on this unit, so treat
+it as "the platform provisions for it", not proof the coil is fitted.)
 
 Values read off this unit:
 
@@ -121,9 +128,21 @@ Values read off this unit:
 | `bootmode` / `postmode` | `1` / `0` |
 | `dev_flags` / `fos_flags` | `0` / `0` |
 | `product_name` / `productid` | `0` / `0` (unset) |
-| `manufacturing` | `PSN=P002…` `FSN=7792…` (unit serials — kept out of notes) |
-| **`t_unlock_code`** | **empty** |
-| **`t_unlock_cert`** | **empty** |
+| `board_id` | `0060001400000021` |
+| `usr_flags` | `0` |
+| `manufacturing` | `PSN=P002…` `FSN=7792…` (unit serials) |
+| **`unlock_code`** | **empty** — permanent unlock |
+| **`t_unlock_code`** | **empty** — temporary unlock |
+| **`t_unlock_cert`** | **empty** — temporary unlock cert |
+| `unlock_version` | `7e bd 9a 96 0c 71 a1 00` — 8 bytes, **not** empty |
+
+There are **four** unlock-related fields, not two. `unlock_code` is the
+permanent-unlock slot and `t_unlock_*` the temporary-unlock pair; all three are
+empty, i.e. this device has never been unlocked by either route.
+`unlock_version` is the odd one — it holds eight bytes of non-printable data on
+an otherwise never-unlocked device, so it is presumably a scheme/version tag
+written at the factory rather than an unlock artefact. Worth resolving when LK
+is dumped.
 
 `device_type_id` is Amazon's internal device-type identifier, the same class of
 string used in their OTA and registration APIs — the most searchable identifier
@@ -135,16 +154,38 @@ this was designed in-house, not an ODM white-label.
 
 ### Why this matters for the unlock
 
-`t_unlock_code` and `t_unlock_cert` being **empty** is the concrete reason
+All three unlock slots being **empty** is the concrete reason
 `ro.boot.flash.locked=1`. On Fire hardware the bootloader consults these IDME
-fields, and unlocking means getting a valid entry written there — historically
-an Amazon-signed certificate bound to the device serial, which is why community
-Fire unlocks have gone through exploits rather than `fastboot flashing unlock`.
+fields, and unlocking means getting a valid entry written there.
 
-`/proc/idme/*` is `r--r--r--` (read-only even for root, via procfs); writes go
-through the `IIdme` HAL on the vendor side. So this is a lead to chase, not a
-door that's currently open. Research on `AJDZ5ML3MICE5` and on the documented
-unlock-cert mechanism is pending.
+What's publicly documented about the mechanism (sourced, but note
+`xdaforums.com` blocks automated fetching so some is second-hand):
+
+- The official path is `fastboot flash unlock unlock.bin`, and the image **must
+  be signed by Amazon**, who do not issue signed unlock images to consumers.
+- The signed value is **device-bound**, derived from the eMMC manufacturer ID
+  and production serial number — so a cert is valid for one unit only, not a
+  reusable key. (Both `/sys/block/mmcblk0/device/manfid` and `serial` are
+  `Permission denied` to an unprivileged shell here.)
+- 2019-and-newer Fire bootloaders added the **Temporary Unlock** path, good for
+  a limited number of reboots — LK carries symbols
+  `amzn_get_temp_unlock_idme_data` / `_cert` / `_code` and a runtime string
+  *"Device is temporarily unlocked, %d reboots remaining"*. Those accessors are
+  almost certainly the backing store for the `t_unlock_*` fields here.
+- `amonet` / `cuber` cover only **pre-2020** Amazon hardware. There is a claim
+  that newer Amazon units blow e-fuses to disable MediaTek download mode at the
+  BootROM level — if that holds for this 2022 unit it would close the mtkclient
+  route, so it is the first thing to test.
+
+`/proc/idme/*` is `r--r--r--` (read-only even to root via procfs); writes go
+through the `IIdme` HAL on the vendor side. And given `rpmb_state=2` plus
+separate `tee1`/`tee2` partitions, unlock state may be anchored in RPMB rather
+than IDME alone — in which case writing IDME directly would not be sufficient.
+Unresolved; being researched.
+
+The counterweight to all of this is `ro.oem_unlock_supported=1`, which retail
+Fire tablets ship as `0`. That difference is real and unexplained, and is the
+most promising thread.
 
 ## Absent by design
 

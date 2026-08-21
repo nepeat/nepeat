@@ -1,0 +1,38 @@
+# /proc/idme dump â€” 2026-08-21T07:17:15Z
+# via fireos.hardware.idme@1.0-service; procfs is r--r--r--
+
+DKB              = .
+KB               = KBPFH..
+alscal           = 16,336,0,0.
+board_id         = 0060001400000021.
+bootcount        = 0.
+bootmode         = 1.
+bt_mac_addr      = ECA1385E642D.
+bt_mfg           = 00004600000160002310000007800006060703401f401f00048000FFFFFF00000000000000000000000000000000000000000000000000000000000000000000.
+co_tms_cal       = 0xbb.
+dev_flags        = 0.
+device_type_id   = AJDZ5ML3MICE5.
+fos_flags        = 0.
+front_cam_otp    = front camera otp.
+iaicr            = 0.
+mac_addr         = ECA1383EC67D.
+mac_sec          = cat: /proc/idme/mac_sec: Permission denied
+manufacturing    =  PSN=P002FQ02409701WM FSN=7792961600091.
+miccal.0         = 1481.
+miccal.1         = 1544.
+postmode         = 0.
+product_name     = 0.
+productid        = 0.
+productid2       = 1441FFFFFFFFFFFFFFFF.
+rear_cam_otp     = rear camera otp.
+region           = US.
+sensorcal        = 6,2,0.
+serial           = G002G402413303RL.
+t_unlock_cert    = .
+t_unlock_code    = .
+tp_cg_color      = 1.
+unlock_code      = .
+unlock_version   = ~½...q¡.
+usr_flags        = 0.
+wifi_mfg         = 070100000000000000000000232300001B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B2020202020202020202020201E1E1E1E1E1E0000000000000000000000151515000000000000000000000000000000000001000000000000000000000000080808081010101001000000000000001E1E1E1E1E1E1E00FFFFFF010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101001C
+wpc_cal          = .
