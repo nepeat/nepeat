@@ -176,6 +176,20 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 
 ## Log (newest first)
 
+- **2026-08-21**: Exhausted the read-only routes to the SBC fuse and found the
+  clean way in. Tried and ruled out: `/dev/mem` (`CONFIG_DEVMEM` unset), the
+  `efusec` device (no attributes), root `/proc/cmdline` (no fuse field),
+  `/proc/lk_env` (empty), `atag,masp` (**genuinely 0 bytes**), `dmesg` (no MASP
+  lines), debugfs `fuseio` (FUSE *filesystem* logging — false lead), and any
+  vendor binary touching `/dev/sec`. `boot_para` magics are
+  META/FACT/ADVEMETA/FACTORYM/FASTBOOT/METAFORB — **no USBDL magic**, so there is
+  no software path into download mode. **But `/proc/kallsyms` exports
+  `masp_hal_sbc_enabled`**, with `/dev/sec` as its driver node — so a kernel
+  module can call it directly (or just `ioremap(0x11f10060)`), which is now the
+  concrete plan. Also spotted **`masp_hal_set_dm_verity_error`**, a kernel entry
+  point that manipulates dm-verity state. Note `kptr_restrict=2` zeroes kallsyms
+  addresses even for root, so a module is cleaner than an exploit read primitive.
+
 - **2026-08-21**: **Unsigned kernel modules are loadable.** `CONFIG_MODULES=y`,
   **`CONFIG_MODULE_SIG` is NOT set**, `CONFIG_MODVERSIONS=y`, and `/proc/modules`
   shows `wlan_drv_gen3`/`gps_drv` Live — so with root we can insmod arbitrary

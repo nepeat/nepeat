@@ -163,6 +163,43 @@ strictly root-free — but note there is **no OTA client on this image**
 (see [network-behavior.md](network-behavior.md)), so the usual "an update will
 patch your exploit" risk does not apply here.
 
+### Read-only routes tried and exhausted (2026-08-21, with root)
+
+Recording these so they are not re-tried:
+
+| route | result |
+| --- | --- |
+| `/dev/mem` | `CONFIG_DEVMEM` not set — cannot be created |
+| `efusec` platform device | no readable attributes, no `nvmem` interface |
+| `/proc/cmdline` (root) | no SBC/fuse field |
+| `boot_para` magics | `METAMETA`/`FACTFACT`/`ADVEMETA`/`FACTORYM`/`FASTBOOT`/`METAFORB` — **no USBDL magic**, so no software route into download mode |
+| `/sys/kernel/debug/fuseio` | FUSE *filesystem* logging, not eFuse — false lead |
+| `/proc/lk_env` | empty |
+| `/proc/device-tree/chosen/atag,masp` | **genuinely 0 bytes** |
+| `atag,devinfo` | 804 B present (hwcode `0x788` visible at +0x28), but the security-bit index mapping is unknown |
+| `dmesg` | no MASP/SBC/secure-boot lines |
+| vendor binaries | nothing references `/dev/sec` or `masp` except init `.rc` permission lines |
+
+**But the kernel exports the answer as a symbol.** `/proc/kallsyms` contains:
+
+```
+T masp_hal_sbc_enabled
+T masp_hal_get_sbc_checksum
+T masp_hal_secure_algo
+T masp_hal_set_dm_verity_error
+T devinfo_ready / devinfo_get_size
+```
+
+and `/dev/sec` (char major 182, `root:system`) is that driver's node. So
+`masp_hal_sbc_enabled()` is *right there* — a kernel module can either call it
+by name or simply `ioremap(0x11f10060)`. Note `kptr_restrict=2` zeroes all
+addresses in `/proc/kallsyms` even for root, so calling it from an exploit's read
+primitive would first require locating it by content scan; a module avoids that
+entirely.
+
+Also worth noting for later: **`masp_hal_set_dm_verity_error`** exists — a kernel
+entry point that manipulates dm-verity state.
+
 ## Next steps
 
 - **Get UART.** It answers this, the BROM fuse question, and the tucert-fuzzing
