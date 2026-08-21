@@ -19,15 +19,18 @@ Detail lives in siblings:
   public-source research and what was ruled out.
 - **[dumps/](dumps/)** — raw artifacts. **[apks/](apks/)** — pulled system APKs.
 
-> ⚠️ **Careful with screen locks.** The keyguard is Amazon's RAFT corporate
-> login. An alphanumeric password maps to a Kerberos account login that
-> **cannot succeed on this device** (the authenticator is missing), and a
-> numeric PIN maps to a "session PIN" validated against a session that does not
-> exist. Pattern/swipe/none fall through to stock AOSP and are safe.
+> ⚠️ **Setting any screen lock hands you to Amazon's RAFT corporate login** —
+> PIN, password *and* pattern alike, because RAFT discards the quality you chose
+> and substitutes an uninitialised `enterprise_password_type` that defaults to
+> "account login". Only leaving it unset keeps stock AOSP behaviour.
 >
-> **If you do get stranded:** `adb shell locksettings clear --old <credential>`
-> — tested working, since ADB authorization survives the keyguard and
-> `locksettings` bypasses RAFT entirely. Full detail and fallbacks in
+> **Emergency credential (hardcoded in the APK): blank username + password
+> `letmein`.** Bypasses Kerberos entirely, then suppresses the ticket-expiry and
+> clock-skew checks. Enrol a session PIN when prompted (typed twice) and the
+> lockscreen behaves normally afterwards.
+>
+> **Or over ADB:** `adb shell locksettings clear --old <credential>` — tested
+> working; ADB authorization survives the keyguard. Full detail in
 > [raft-lockscreen.md](raft-lockscreen.md).
 
 ## Identity
@@ -121,6 +124,15 @@ Unlocking wipes `/data`, which is empty anyway, so there's nothing to lose.
 
 ## Log (newest first)
 
+- **2026-08-21**: Found the **hardcoded emergency credential** in
+  `RaftLockPatternUtils.verifyAccount()` — blank username + password `letmein`,
+  checked *before* Kerberos, which then stores the username `backdoor` to
+  suppress ticket-expiry and clock-skew checks. Also **corrected yesterday's
+  analysis**: the redirect is not "PIN→Session", it is
+  `RaftLockPatternUtils.getActivePasswordQuality()` discarding the real quality
+  and substituting `lockscreen.enterprise_password_type` (default `COMPLEX` →
+  Account) whenever any credential is set. So pattern is *not* a safe lock type,
+  contrary to what was written yesterday.
 - **2026-08-20**: Explained the username/password lockscreen — see
   [raft-lockscreen.md](raft-lockscreen.md). SystemUI is Amazon's
   **RaftSystemUI** (keeping the `com.android.systemui` name), which replaces

@@ -40,14 +40,39 @@ if (security == 131072 || security == 196608)          // NUMERIC, NUMERIC_COMPL
 if (security == 262144 || security == 327680
     || security == 393216 || security == 524288)       // ALPHABETIC, ALPHANUMERIC,
     return SecurityMode.Account;                       // COMPLEX, MANAGED
-return super.getSecurityMode(userId);                  // pattern/none/swipe → stock
+return super.getSecurityMode(userId);
 ```
 
-So **a PIN is not a PIN.** Numeric quality maps to `SecurityMode.Session`,
-which draws `RaftKeyguardSessionView` — a PIN pad whose entry is checked by
-`RaftLockPatternChecker.verifySession()`, not against a local gatekeeper hash.
-A "session" only exists after a Kerberos login, and on this device there is
-none, so verification fails and you land on the account login instead.
+The trap is in the *first line*. `mLockPatternUtils` is
+`RaftLockPatternUtils`, which also overrides `getActivePasswordQuality()` —
+and it does not report the quality you chose:
+
+```java
+public int getActivePasswordQuality(int userId) {
+    int adminQuality = getAdminPasswordQuality(userId);   // the real AOSP quality
+    if (adminQuality == 0) return adminQuality;           // no credential set → 0
+    return (int) getLong("lockscreen.enterprise_password_type", 393216L, 1000);
+}
+```
+
+So the moment **any** credential exists, the real quality is discarded and RAFT
+substitutes `lockscreen.enterprise_password_type`, which on a fresh device is
+unset and **defaults to 393216 (`PASSWORD_QUALITY_COMPLEX`) → `SecurityMode.Account`**
+— the username/password login.
+
+That is the whole answer. It is not that "PIN maps to Session". It is that
+**setting any lock at all — PIN, password, or pattern — puts you on the
+Kerberos account login**, because the enterprise password type has never been
+initialised. Only `adminQuality == 0`, i.e. no credential whatsoever, falls
+through to stock AOSP behaviour.
+
+`lockscreen.enterprise_password_type` is only ever written in one place:
+`verifyTemporaryToken()` sets it to 131072 (NUMERIC) *after* a successful login
+and session-PIN enrolment. So the Session PIN pad is unreachable until you have
+logged in at least once — which is exactly the shift-login model.
+
+Note these values live under **userHandle 1000**, a hardcoded pseudo-user, in
+the locksettings database — not in `Settings.Secure` and not under user 0.
 
 `RaftKeyguardSecurityContainer.showNextSecurityScreenOrFinish()` spells out the
 intended order:
@@ -80,9 +105,70 @@ keyguard_session_clock_skew "Session is invalid. System clock needs to be synced
 `UnlockSessionEvent` metrics. That is a device meant to be handed between people
 on shift, not owned by one person.
 
-## Why it can never succeed here
+## The emergency credential — hardcoded, and it works offline
 
-Two halves, and only one is present.
+`RaftLockPatternUtils.verifyAccount()` checks a hardcoded credential **before**
+it ever contacts Kerberos:
+
+```java
+public boolean verifyAccount(String username, String password) throws VerificationException {
+    ...
+    terminateSession();
+    if (username.equals("") && password.equals("letmein")) {
+        setString("USERNAME_KEY", "backdoor", 1000);
+        sendMetrics(this.loginEvent, false, "");
+        return true;                       // authenticated — no Kerberos involved
+    }
+    if (!isAccountValidKerberos(username, password)) {
+        return false;
+    }
+    ...
+```
+
+> **Username: *(leave blank)* — Password: `letmein`**
+
+Because the check sits above `isAccountValidKerberos()`, it needs no KDC, no
+network, no `com.amazon.kerberos` authenticator, and no valid clock. It works on
+exactly this device, in exactly this stripped state.
+
+It then stores the literal username **`backdoor`**, and that value is special-
+cased again in `verifySession()`:
+
+```java
+if (!getString("USERNAME_KEY", 1000).equals("backdoor")) {
+    if (isSessionExpired())  throw new VerificationException(SESSION_EXPIRED);
+    if (!isAccountVerified()) throw new VerificationException(SESSION_CLOCK_SKEW);
+}
+```
+
+So a `backdoor` session **skips the ticket-expiry and clock-skew checks
+permanently** — which matters here, because this unit's RTC is wrong and those
+checks would otherwise fail forever.
+
+### The full unlock sequence
+
+1. At the RAFT login screen, leave **Username empty**, enter **`letmein`** as
+   the password, tap **Login**.
+2. `showNextSecurityScreenOrFinish()` advances you to the session PIN screen
+   rather than unlocking.
+3. `verifyTemporaryToken()` runs a two-pass enrolment: the first PIN you type is
+   stashed in `TEMP_TOKEN` and throws `VERIFY_TOKEN` → *"Confirm session pin."*
+   Type the **same PIN again**; it matches, gets promoted to `TOKEN_KEY`, and
+   `lockscreen.enterprise_password_type` is set to 131072 (NUMERIC).
+4. You're in. From now on `getSecurityMode()` returns `Session`, so the
+   lockscreen shows the PIN pad and your session PIN works normally.
+
+Note the session PIN is stored via `ILockSettings.setString` as **`TOKEN_KEY`
+in cleartext** and compared with `String.equals` — no hashing, no gatekeeper.
+
+This is a hardcoded static credential in production-signed, release-keys Amazon
+firmware. It is not a debug build. Worth flagging as a finding in its own right,
+not just as a way in.
+
+## Why a *real* login can never succeed here
+
+The emergency credential above works. A genuine Kerberos login does not, and
+this is why. Two halves, and only one is present.
 
 **The service half is alive.** `raft_kerberos` is a registered binder service:
 
@@ -145,16 +231,19 @@ account at all.
 
 ## Practical consequences
 
-- **Do not set an alphanumeric password.** Quality `ALPHABETIC` and up maps to
-  `SecurityMode.Account`, which requires a Kerberos login that cannot succeed.
-  That is a genuine lockout risk on a device with no recovery credential.
-- **A numeric PIN is nearly as bad** — it maps to `SecurityMode.Session` and is
-  validated by `verifySession()` against a session that does not exist.
-- **Pattern, swipe and none fall through to `super`**, i.e. stock AOSP
-  behaviour, and are the only safe lock choices while RAFT is in place.
+- **Every lock type lands on the account login.** PIN, password *and pattern*
+  all set a non-zero `adminQuality`, at which point
+  `getActivePasswordQuality()` substitutes the uninitialised
+  `lockscreen.enterprise_password_type` (default `COMPLEX`) and you get
+  `SecurityMode.Account`. There is no "safe" lock type while RAFT is in place —
+  only *no lock at all* falls through to stock AOSP.
+- **It is not a lockout, though**, thanks to the emergency credential above:
+  blank username + `letmein` gets you in without Kerberos, and the `backdoor`
+  username then suppresses the expiry and clock-skew checks that would
+  otherwise defeat you on this dead-clock unit.
 - Right now the device has **no credential set at all**
-  (`gatekeeper.password.key` absent), so it is not locked out. Keep it that way
-  until the bootloader is unlocked and RaftSystemUI can be replaced.
+  (`gatekeeper.password.key` absent), so nothing is engaged. Simplest to keep it
+  that way until the bootloader is unlocked and RaftSystemUI can be replaced.
 
 Replacing `RaftSystemUI.apk` with stock AOSP SystemUI would restore normal
 PIN/password unlock, but that needs a writable `/system` — so it is gated on
@@ -175,9 +264,10 @@ itself is a stock AOSP gatekeeper credential written by the unmodified
 `lock_settings` binder service (`ILockSettings`) — it never goes near
 `RaftKeyguardSecurityModel`. So the layer that traps you is bypassed entirely.
 
-Verified on the device 2026-08-20 with a pattern, which
-`RaftKeyguardSecurityModel` passes through to stock AOSP and so carries no
-RAFT risk:
+Verified on the device 2026-08-20 by setting a pattern and clearing it again.
+(The pattern was chosen believing it bypassed RAFT — per the corrected analysis
+above it does not, so the escape hatch was in fact exercised against a live RAFT
+lock, which makes the result stronger, not weaker.)
 
 ```
 $ locksettings set-pattern 1236
@@ -204,29 +294,33 @@ keyguard.** A locked screen does not revoke the ADB key, and `adb shell` keeps
 working while the device sits at the RAFT login. Verified — the login screen is
 an app-layer trap, not a debug-access one.
 
-### Fallback ladder, if ADB is ever lost
+### Fallback ladder
 
-1. `adb shell locksettings clear --old <credential>` — above; the only
-   non-destructive option.
-2. `adb shell locksettings set-pattern <digits>` to *replace* the credential
-   with a pattern, which falls through to the stock keyguard and can be entered
-   normally on the screen. Useful if you want a lock but not RAFT's.
+1. **On the device itself:** blank username + `letmein` at the login screen,
+   then enrol a session PIN. No host, no cable needed.
+2. **`adb shell locksettings clear --old <credential>`** — above; removes the
+   lock entirely and returns to stock behaviour.
 3. Recovery → factory reset. Guaranteed, and `/data` holds ~133 MB of nothing,
    so no data is lost. **But it wipes developer options and the ADB
    authorization**, which is this project's actual crown jewel — you'd be back
-   to the setup wizard and re-enabling USB debugging by hand. Treat as a last
-   resort, not a convenience.
+   to the setup wizard and re-enabling USB debugging by hand. Last resort, not
+   a convenience.
 4. `fastboot flashing unlock`, once the bootloader work in
    [PROGRESS.md](PROGRESS.md) happens. Also wipes.
 
+Two independent routes — one on-device, one over ADB — so being stranded would
+take both failing at once.
+
 ### Rules of thumb
 
-- Prefer **pattern** if you want a working lock today — it's the one quality
-  RAFT passes through to stock AOSP.
-- **Never set an alphanumeric password.** It maps to `SecurityMode.Account`,
-  which needs a Kerberos login that cannot succeed here.
-- Before setting anything, confirm ADB still works, and write the credential
-  down.
+- **No lock type avoids RAFT.** Don't reach for pattern thinking it's safe; it
+  isn't. Only "None"/"Swipe" leaves stock behaviour intact.
+- Before setting anything, confirm ADB still works and write the credential
+  down — `locksettings clear` needs the correct `--old` value.
+- If you *want* a working lock today, the intended path is to log in with the
+  emergency credential once and enrol a session PIN. After that
+  `enterprise_password_type` is NUMERIC and the lockscreen behaves like a normal
+  PIN pad.
 
 ## Other non-stock system apps
 
