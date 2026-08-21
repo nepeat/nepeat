@@ -371,3 +371,30 @@ as its buffer.
 that part stands and was verified on the device. But the reason it was called
 "the most promising path found so far" — a recursive ASN.1 decoder reachable
 pre-auth — **does not exist**. Downgrade accordingly.
+
+### The base64 decoder — bounds-checked, no overflow evident
+
+`0x2028` is only a thunk (`b.w #0x8308`); the codec worker is `0x822c`, wrapped
+by `0x8308` which supplies the standard alphabet table.
+
+The LTC base64 routines in this build do **explicit output-capacity checks**
+rather than trusting the caller. Visible directly, e.g. at `0x8350`–`0x8368`:
+
+```
+0835c  ldr   r7, [r3]      ; *outlen (caller capacity)
+0835e  adds  r4, #1
+08360  cmp   r7, r4
+08362  bhs   #0x836c       ; enough room -> proceed
+08364  str   r4, [r3]      ; else report required size
+08366  movs  r0, #6        ; CRYPT_BUFFER_OVERFLOW
+08368  pop
+```
+
+Combined with the hardcoded 592 capacity and the `decoded_len == capacity`
+equality requirement in `0x1b6c`, there is **no evident overflow** on this path.
+
+**Scope of this claim:** `0x822c` was not exhaustively reverse-engineered
+instruction by instruction. What is established is that this codec family does
+bounds-check its output and signals `CRYPT_BUFFER_OVERFLOW` instead of writing
+past the buffer. A dedicated audit of `0x822c` is the only remaining way to be
+categorical, and it is a small function if anyone wants to finish it.
