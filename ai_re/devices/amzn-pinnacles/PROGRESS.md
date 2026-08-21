@@ -21,6 +21,9 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[efuse-answer.md](efuse-answer.md)** — ⭐ **the eFuse question is ANSWERED**:
+  `0x11f10060 = 0x946` → SBC **enabled** (DA validation enforced) and BROM
+  download **fused off**. Read without UART, from data already dumped.
 - **[theories-closed.md](theories-closed.md)** — everything **tested and ruled
   out**, so it isn't retried. Read before proposing a new angle.
 - **[da-validation.md](da-validation.md)** — ⭐⭐ **DA signature validation is
@@ -177,6 +180,20 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: ⭐ **eFuse question ANSWERED without UART.** The preloader
+  builds MediaTek's `devinfo[]` from a table of eFuse register addresses at
+  `0x383a0` and passes it to the kernel as `atag,devinfo` — so the fuse values
+  were already readable from data we had. `0x11f10060` sits at table index **27**;
+  `devinfo[27] = 0x00000946`. **Verified** by index 28 mapping to the chipid
+  register and reading back `0x788`, the MT8183 hwcode. Decoding: **bit 2 = 1 →
+  SBC enabled → DA validation ENFORCED** (so the unsigned-DA bypass in
+  [da-validation.md](da-validation.md) is **closed**), and **bit 8 = 1 →
+  `EFUSE_Disable_BROM_CMD` set → BROM download is fused off** on this unit
+  specifically, no longer second-hand. ⛔ **Consequently the force-BROM-recovery
+  path is a CONFIRMED BRICK, not a risk** — with no BROM command handler, wiping
+  the preloader is unrecoverable. Only the root + unsigned-kernel-module soft-mod
+  route survives. See [efuse-answer.md](efuse-answer.md).
 
 - **2026-08-21**: Swept a batch of remaining theories, all negative — collected in
   [theories-closed.md](theories-closed.md). `AMZN_PL_VERIFY` is a textbook

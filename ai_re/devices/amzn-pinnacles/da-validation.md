@@ -1,4 +1,10 @@
-# DA validation is conditional — the best root-free lead
+# DA validation is conditional — CLOSED, the condition is not met
+
+> **RESULT: `efuse 0x11f10060 = 0x946`, bit 2 = 1 → SBC is ENABLED → DA
+> signature validation is ENFORCED on this device.** The bypass below does not
+> apply. See [efuse-answer.md](efuse-answer.md) for how the value was read
+> without UART. The analysis is kept because it is correct — only the condition
+> fails.
 
 **Found in the preloader: `usbdl_verify_da` skips Download Agent signature
 validation entirely on a "non-secure chip".** If MediaTek Secure Boot Control

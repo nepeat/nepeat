@@ -87,7 +87,19 @@ carries `[EFUSE] sbc: %x`, `[EFUSE] sbc_key_hash is correct/incorrect`, plus
 secure-boot and download-mode fuse state at boot.** That is the cheap, safe way
 to answer the question.
 
-## ⚠️ Do NOT trigger this yet
+## ⛔ RESOLVED: this is a CONFIRMED BRICK — never trigger it
+
+**The fuse question is answered.** `efuse 0x11f10060 = 0x946`, **bit 8 is set**,
+so `EFUSE_Disable_BROM_CMD` is blown on this unit — see
+[efuse-answer.md](efuse-answer.md). There is **no BROM command handler to fall
+back to.** Wiping the preloader here leaves the device with no valid preloader
+and no recovery path: **permanently, unrecoverably bricked.**
+
+This also resolves the tension below: Amazon shipped a recovery routine that
+cannot work on this hardware — inherited common source, not evidence that BROM is
+open.
+
+## ⚠️ Original warning (now upgraded to certainty)
 
 Wiping the preloader is **irreversible from software**. If `EFUSE_Disable_BROM_CMD`
 *is* blown on this unit, the result is:
