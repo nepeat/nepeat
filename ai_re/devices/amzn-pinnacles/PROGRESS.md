@@ -176,6 +176,20 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 
 ## Log (newest first)
 
+- **2026-08-21**: **Unsigned kernel modules are loadable.** `CONFIG_MODULES=y`,
+  **`CONFIG_MODULE_SIG` is NOT set**, `CONFIG_MODVERSIONS=y`, and `/proc/modules`
+  shows `wlan_drv_gen3`/`gps_drv` Live — so with root we can insmod arbitrary
+  kernel code. That answers the SBC fuse question on-device (a module that
+  `ioremap`s `0x11f10060`), and more importantly puts **runtime dm-verity defeat**
+  within reach — a plausible route to a persistently modified `/system` without
+  unlocking. Ruled out the easier routes first: **no `CONFIG_DEVMEM`** (so
+  `/dev/mem` cannot be created), the `efusec` device exposes no attributes, and
+  the full root-read `/proc/cmdline` carries no fuse field. `boot_para` magics
+  are `METAMETA`/`FACTFACT`/`ADVEMETA`/`FACTORYM`/`FASTBOOT`/`METAFORB` —
+  **no USBDL magic**, so there is no software route into download mode. Also
+  confirmed **`androidboot.wpc.support=1`**: the Qi coil *is* fitted, which
+  earlier notes hedged on because `wpc_cal` is empty.
+
 - **2026-08-21**: ⭐⭐ **Best lead of the project: DA validation is conditional.**
   `usbdl_verify_da` in the preloader calls a secure-chip query and, if it does
   **not** return 1, prints *"DA validation disabled on non-secure chip"* and

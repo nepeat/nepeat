@@ -113,6 +113,56 @@ fuse. This is genuinely undetermined.
    If it is accepted, bit 2 is clear. Requires physical button entry, but is
    read-only in effect: a rejected DA changes nothing.
 
+## Reading the fuse on-device: unsigned kernel modules are loadable
+
+Chased every software route to `0x11f10060`:
+
+- **No `/dev/mem`** — `CONFIG_DEVMEM is not set` (and `DEVKMEM` too), so it
+  cannot be `mknod`'d into existence.
+- **The `efusec` platform device exposes nothing** — `driver_override`,
+  `modalias`, `uevent` are all permission-denied, and there is no `nvmem`
+  interface.
+- **The kernel cmdline does not carry it** either. Full `/proc/cmdline` read with
+  root shows `secure_cpu=1`, `rpmb_state=2`, `verifiedbootstate=green`,
+  `veritymode=eio`, the pl/lk build descs — but **no SBC or fuse field**.
+  *(It did confirm `androidboot.wpc.support=1` and `nfc.support=1` — so the Qi
+  coil really is fitted, which earlier notes had hedged on because `wpc_cal` is
+  empty.)*
+
+**But there is a way in:**
+
+```
+CONFIG_MODULES=y
+# CONFIG_MODULE_SIG is not set      <-- no signature required
+CONFIG_MODVERSIONS=y
+CONFIG_KALLSYMS=y
+```
+
+and module loading is demonstrably working — `/proc/modules` lists
+`wlan_drv_gen3`, `wmt_chrdev_wifi`, `gps_drv` all Live.
+
+**So with root we can load an unsigned kernel module.** A trivial module that
+`ioremap`s `0x11f10060` and `printk`s the value answers the SBC question
+definitively, on-device, with no UART and no physical access.
+
+Practical notes for building it: the kernel is **arm64**, `4.4.146+`, and
+`CONFIG_MODVERSIONS=y` means symbol CRCs are checked, so the module must either
+match the build or have its vermagic/CRCs handled. Amazon published no source for
+`pinnacles`, but the closest tree is
+[`amazon-mt8183-devs/android_kernel_amazon_mt8183`](https://github.com/amazon-mt8183-devs/android_kernel_amazon_mt8183)
+(trona/maverick, same SoC), and we hold the exact `/proc/config.gz`.
+`CONFIG_MODULE_FORCE_LOAD` is *not* set, so `insmod --force` is unavailable —
+the vermagic has to actually match.
+
+**This is bigger than the fuse question.** An unsigned kernel module is arbitrary
+kernel code execution, which also puts runtime dm-verity defeat within reach —
+`CONFIG_DM_VERITY=y` is a kernel feature, and kernel code can neuter it. That is
+a plausible route to a persistently modified `/system` *without* unlocking the
+bootloader, i.e. a soft-modded custom ROM. It does depend on root, so it is not
+strictly root-free — but note there is **no OTA client on this image**
+(see [network-behavior.md](network-behavior.md)), so the usual "an update will
+patch your exploit" risk does not apply here.
+
 ## Next steps
 
 - **Get UART.** It answers this, the BROM fuse question, and the tucert-fuzzing
