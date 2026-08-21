@@ -393,8 +393,26 @@ rather than trusting the caller. Visible directly, e.g. at `0x8350`–`0x8368`:
 Combined with the hardcoded 592 capacity and the `decoded_len == capacity`
 equality requirement in `0x1b6c`, there is **no evident overflow** on this path.
 
-**Scope of this claim:** `0x822c` was not exhaustively reverse-engineered
-instruction by instruction. What is established is that this codec family does
-bounds-check its output and signals `CRYPT_BUFFER_OVERFLOW` instead of writing
-past the buffer. A dedicated audit of `0x822c` is the only remaining way to be
-categorical, and it is a small function if anyone wants to finish it.
+**`0x822c` audited in full — the decoder is correct.** Signature is
+`(src, srclen, dst, *dstlen, table)`. It null-checks `src`/`dst`/`dstlen`, then
+accumulates 4 base64 chars into `r6` and, before emitting each group, does:
+
+```
+0829e  ldr   r4, [r3]        ; r4 = *dstlen (capacity)
+082a0  add.w lr, r7, r5      ; lr = bytes_this_group + bytes_written
+082a4  cmp   lr, r4
+082a6  bhi   #0x82e4         ; -> return 6 (CRYPT_BUFFER_OVERFLOW)
+082a8  ...                   ; only then strb at [r2,r5], [r2,r5+1], [r2,r5+2]
+```
+
+The check is **exact, with no off-by-one**: it permits the group only when
+`written + n <= capacity`, and the highest byte written is `written + n - 1`,
+i.e. at most `capacity - 1`. Padding (`0xFE`) decrements the group size and
+errors if it underruns or if data follows padding; a trailing partial group
+(`r4 != 0` at `0x82da`) is rejected with error 7. On success it stores the true
+decoded length to `*dstlen` and returns 0.
+
+**So there is no overflow in the base64 layer — this is now categorical, not
+"none evident".** Every pre-auth parser on the tucert path has been audited:
+the 4-byte `AZTU` memcmp, this decoder, and then RSA verify. None of them yields
+a memory-safety primitive.
