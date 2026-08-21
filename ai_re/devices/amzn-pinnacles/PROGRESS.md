@@ -21,6 +21,10 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[brom-recovery.md](brom-recovery.md)** — ⭐ **the preloader has a built-in
+  "force BROM download recovery"** that wipes itself to drop into USB download
+  mode. Best lead yet — and the most dangerous thing found. **Do not trigger
+  before the fuse question is answered.**
 - **[lk-emulation.md](lk-emulation.md)** — ⚠️ **the unlock decision lives in the
   PRELOADER, not LK** (LK only reads a single boot-arg byte). Also: xrefs solved,
   LibTomCrypt pinned to 1.18.2 with a real unbounded-recursion bug but **no write
@@ -161,6 +165,20 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: ⭐ **Found "Force brom download recovery" in the preloader**
+  (`0x24f84`–`0x2504e`) — see [brom-recovery.md](brom-recovery.md). Holding key
+  id 0 through a 1500 ms window (plus two internal gates) makes the preloader
+  **write 2048 zero bytes over its own `preloader` partition**, destroying the
+  EMMC_BOOT header so the BootROM falls through to USB download mode. Amazon
+  shipped a deliberate self-brick-to-recover path. **This undercuts the working
+  assumption that BROM is fused off** — such a path is worthless, and a
+  permanent brick, unless BROM USBDL actually works on this hardware. Not proof,
+  but it moves the fuse question from "almost certainly closed" to "must be
+  tested". Also noted the preloader prints `sbc_enabled`/`daa_enabled` and
+  `[EFUSE] sbc_key_hash` at every boot — **UART reads the fuse state directly,
+  risk-free.** ⚠️ Do NOT trigger the recovery path first: if the fuse *is*
+  blown, wiping the preloader is an unrecoverable brick.
 
 - **2026-08-21**: **Mapped the preloader's unlock decision end to end** — see
   [lk-emulation.md](lk-emulation.md). It reads IDME at **hardcoded offsets that
