@@ -209,6 +209,56 @@ Rather than keep fighting the disassembly, test the cheap half first:
 
 Only if that works is it worth considering `fos_flags`.
 
+## Disassembly: solved, partially
+
+Later work cracked most of the earlier blockers. Recording the mechanics because
+they cost hours to find.
+
+**1. Use capstone in Thumb mode, not Ghidra.** `Cs(CS_ARCH_ARM, CS_MODE_THUMB)`
+produces clean, obviously-correct output on this payload:
+
+```
+0x31232  bl       #0xdb14
+0x31238  cbz      r0, #0x31240
+0x3123a  ldr      r0, [pc, #0xa0]
+0x3123c  add      r0, pc
+```
+
+**2. The first sub-image is linked at base 0.** Confirmed by a genuine literal
+pool at `0xfc64` holding `0x00048054`, which is exactly the file offset of the
+`amzn_verify_unlock` string, alongside neighbouring pointers into the same
+string block. So for *this* blob, literal value == file offset.
+
+**3. String references are PC-relative GOT-style, not absolute.** The idiom is:
+
+```
+ldr rX, [pc, #imm]     ; load an OFFSET from the literal pool
+add rX, pc             ; add current PC to get the final address
+```
+
+so `target = literal + pc_of_add + 4`. **This is why every absolute-pointer
+search failed**, and why the earlier "no base explains the references"
+conclusion was misleading — the references are real, just computed.
+
+**4. The image is multi-blob with differing bases.** The `0x48xxx` cluster
+(amzn unlock strings) resolves against base 0, while the `0x76xxx` cluster
+(`[SELINUX]`, `[DM-VERITY]`) does not — those belong to a different sub-image.
+Consistent with the extra MTK header magics at `0x126d0`, `0x30ba4`, `0x33208`,
+`0x3f9a0`.
+
+**What is still missing:** automated xref recovery. Linear Thumb disassembly
+desyncs through the interleaved data/literal regions, so naive `ldr`/`add pc`
+pairing across the whole image produces nothing usable. Doing this properly
+needs real function-boundary recovery — walk from known entry points and
+disassemble along control flow, rather than linearly. That is the remaining
+work, and it is a normal (if unglamorous) reversing job now that the decoding
+and addressing are understood.
+
+A confirmed useful anchor to start from: the literal pool at `0x312c0` holds
+pointers to `t_unlock_cert` and `"Verify temp unlock cert fail, ret = %d"`, and
+the function body immediately before it (`0x31200`–`0x312b2`) disassembles
+cleanly. That is the temp-unlock cert path.
+
 ## Tooling notes
 
 - The LK container is **MTK v1.0**: header magic `0x58881688`, name `lk`,
