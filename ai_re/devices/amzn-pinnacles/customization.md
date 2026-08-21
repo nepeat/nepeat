@@ -87,7 +87,7 @@ Amazon defined their own HIDL namespace, `fireos.hardware.*`, parallel to
 | HAL | Purpose |
 | --- | --- |
 | `fireos.hardware.idme@1.0` | factory identity block — see below |
-| `fireos.hardware.fireosdha@2.0` | device health agent |
+| `fireos.hardware.fireosdha@2.0` | Device Hardware **Attestation** — a HIDL signing HAL (`getDhaPublicKey`, `getDhaCertificateChain`, `sign`). *Not* a "health agent", as earlier notes guessed. No network. |
 | `fireos.hardware.amazonthermal@1.0` | thermal management |
 | `fireos.hardware.audio@2.0` | audio |
 | `fireos.hardware.connectivity.networkpower@1.0` | network power |
