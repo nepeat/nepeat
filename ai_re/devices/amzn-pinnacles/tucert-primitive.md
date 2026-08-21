@@ -108,6 +108,43 @@ overrun could only touch a name byte.
 buffer-overflow primitive here. Any attack has to be a **parse** bug in the
 DER/X.509 handling, not a memory-safety bug at write time.
 
+## `flash unlock` length handling — sloppy, and an anomalous success path
+
+`flash unlock` never writes on failure, so its length handling can be probed
+freely. Full sweep (raw output in
+[`dumps/unlock-length-probe.txt`](dumps/unlock-length-probe.txt)):
+
+| input size | response |
+| --- | --- |
+| 4 – 255 B | `signature length error, wrong signature file? do nothing!` |
+| **256 – 1024 B** | `unlock signature verify failed, do nothing!` |
+| **1025 B – 64 KB** | **`OKAY`** |
+
+Two findings:
+
+**1. The length check is a minimum, not an exact match.** Anything ≥ 256 bytes
+passes the length gate and reaches RSA-PSS verification, even though an RSA-2048
+signature is exactly 256 bytes. Sloppy, though LibTomCrypt's `rsa_verify_hash`
+should still reject a siglen ≠ modulus length.
+
+**2. Oversized input returns `OKAY` without verifying.** Anything past the
+1024-byte field size reports success. Tested whether it actually writes, using
+2048 printable bytes (`0x55`) to avoid the strlen trap — **it does not**:
+`unlock_code` stays empty, `flash.locked` stays `1`, `verifiedbootstate` stays
+`green`. So it is a **silent no-op that reports success**, not a write.
+
+That is still a genuine logic bug — a handler returning success on a path that
+skips both verification and the write — and the asymmetry is notable:
+oversized `tucert` returns `write tucert failed!` while oversized `unlock`
+returns `OKAY`. Different branches. Worth understanding when the unlock handler
+is reversed, but it does not unlock anything by itself.
+
+**The useful by-product: `flash unlock` is an oracle.** It distinguishes three
+states (length error / verify failure / silent OK) with no write and no reboot
+required. That is the only feedback channel found anywhere on this device, and
+it makes the *unlock* path far cheaper to probe than the tucert path — no reboot
+per iteration.
+
 ## The blocker: no visibility into LK
 
 Fuzzing the DER parser through this primitive is the obvious next move, but it

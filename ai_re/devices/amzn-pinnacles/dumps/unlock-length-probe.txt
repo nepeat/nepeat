@@ -1,0 +1,16 @@
+     4 bytes -> remote: 'signature length error, wrong signature file? do nothing!')
+    64 bytes -> remote: 'signature length error, wrong signature file? do nothing!')
+   128 bytes -> remote: 'signature length error, wrong signature file? do nothing!')
+   255 bytes -> remote: 'signature length error, wrong signature file? do nothing!')
+   256 bytes -> remote: 'unlock signature verify failed, do nothing!')
+   257 bytes -> remote: 'unlock signature verify failed, do nothing!')
+   384 bytes -> remote: 'unlock signature verify failed, do nothing!')
+   512 bytes -> remote: 'unlock signature verify failed, do nothing!')
+   768 bytes -> remote: 'unlock signature verify failed, do nothing!')
+  1024 bytes -> remote: 'unlock signature verify failed, do nothing!')
+   1025 bytes -> OKAY
+   1280 bytes -> OKAY
+   2048 bytes -> OKAY
+   4096 bytes -> OKAY
+   8192 bytes -> OKAY
+  65536 bytes -> OKAY
