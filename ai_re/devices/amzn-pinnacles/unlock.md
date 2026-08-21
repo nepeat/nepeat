@@ -75,7 +75,86 @@ the AOSP unlock protocol entirely (it checks IDME, not `seccfg`, not
 Fastboot itself is reachable and stable, and `fastboot reboot` returns the
 device to Android with ADB authorization intact — the probe is safe to repeat.
 
-## How the unlock actually works
+## Definitive answer, from Amazon's own bootloader source
+
+A leak of Amazon's **UFBL** (Universal Fire BootLoader) source settles the
+mechanism exactly, replacing the inference below.
+
+**Lock state is the IDME `unlock_code` field, stored in eMMC Boot Partition 2**
+— Linux `mmcblk0boot1`, mtkclient `--parttype boot2`. Not `seccfg` (Amazon has
+no such partition), and not primarily RPMB.
+
+The field holds a **256-byte RSA-2048 PSS / SHA-256 signature** over:
+
+```c
+sprintf("0x%08x%08x%08x", SoC_ID, HW_ID, unlock_version)
+```
+
+verified with **LibTomCrypt** against a **product-specific Amazon public key
+compiled into LK** as `UFBL_UNLOCK_PUBK_<PRODUCT>`. The relevant routines are
+`amzn_target_is_unlocked`, `amzn_check_unlock_status`, and
+`idme_get_var_external`.
+
+**This resolves the `unlock_version` mystery.** Our 8 non-empty bytes
+(`7ebd9a960c71a100`) are the **anti-replay nonce** — it's part of the signed
+message, and `cmd_oem_relock` rerolls it to fresh randomness on relock,
+deliberately invalidating any previously issued signature. So a cert is bound
+not just to the device but to the *current* nonce.
+
+**So: rewriting IDME is insufficient — but not because of RPMB.** It's
+insufficient because those bytes are a signature over device-unique data checked
+against a private key Amazon holds. Arbitrary bytes just fail `rsa_verify_hash`.
+RPMB (`rpmb_state=2`) is a *secondary* anchor, gating the temp-unlock reboot
+counter and its HMAC.
+
+That makes `lk.bin` the single highest-value read-only dump: it carries the
+embedded `UFBL_UNLOCK_PUBK_<PRODUCT>` modulus and the verification routines. The
+realistic attack surface is a **length/parse bug in `idme_get_var_external`, or
+an inverted/ignored PSS return value** — not the cryptography.
+
+### `kb` / `dkb` — identified, and they are secrets
+
+Not Amazon inventions; standard MediaTek, accessed via MTK's `kisd.te` (Key
+Installation Service Daemon) and `hal_drm_widevine.te`. **`kb` is the
+Widevine/attestation keybox, `dkb` the device keybox.** Amazon's own IDME table
+defines `KB` (5120 bytes) and `DKB` (1024 bytes) as literal *backups* of those
+partitions — which is why `/proc/idme/KB` returns a `KBPFH…` header here, and
+why the empty `DKB` means the device keybox was never derived or was cleared.
+`keys` (p3) remains unconfirmed.
+
+> ⚠️ **`kb`, `dkb`, `keys` and any raw boot2/IDME dump are per-device secrets.**
+> They must stay local and out of git — the device `.gitignore` now blocks them.
+> Commit hashes, not bytes. (The committed `dumps/idme.txt` was checked: `KB`
+> yielded only a 5-byte header, `mac_sec` was permission-denied, and the
+> `bt_mfg`/`wifi_mfg` blobs are RF calibration tables, so no key material is in
+> the repo.)
+
+### mtkclient traps, if BROM ever opens
+
+- **The boot partitions are off by one.** `mmcblk0boot0` = `--parttype boot1`
+  (preloader); `mmcblk0boot1` = **`--parttype boot2`** (IDME, incl.
+  `unlock_code`). Read the latter with
+  `mtk r idme idme_boot2.bin --parttype boot2`. When `--parttype != user`,
+  mtkclient ignores the partition *name* entirely and dumps the whole hardware
+  partition, so the name is a dummy label.
+- `mtk rl <dir> --parttype boot1` finds no GPT, **silently falls back to
+  `--parttype user`**, and hands you a mislabelled full user-area image.
+- `mtk rf rpmb.bin --parttype rpmb` returns **zeros** — RPMB isn't a block
+  device. Only `mtk da rpmb r rpmb.bin` speaks the real protocol.
+- **`da seccfg unlock` fails safe here** (it scans the user GPT for `seccfg`,
+  finds none, aborts) — **but it has an interactive fallback prompting for
+  `v3`/`v4` that writes a *fresh lock state*. Never answer that prompt.**
+- `dumpbrom` produces a genuine complete 128 KiB BootROM, not partial output —
+  the only obstacle is the fuse.
+
+⚠️ **Unresolved discrepancy:** the two research passes disagree on the MT8183
+hwcode — `0x788` vs `0x766`. Confirm against `brom_config.py` before relying on
+either.
+
+## How the unlock works — earlier inference, now superseded
+
+*Kept because it was independently derived and mostly correct; the UFBL source
+above is authoritative where they differ (notably boot1 vs boot2).*
 
 Confirmed as Amazon-wide architecture across generations:
 

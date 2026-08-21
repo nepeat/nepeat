@@ -3,6 +3,16 @@
 apks/
 screens/
 
+# PER-DEVICE SECRETS — never commit. kb is the Widevine/attestation keybox
+# (5120B) and dkb the device keybox (1024B); eMMC boot2 holds the IDME region.
+# Raw dumps of these contain real key material. Commit hashes, not bytes.
+kb.bin
+dkb.bin
+keys.bin
+*boot2*
+*keybox*
+rpmb*.bin
+
 # belt and braces if anything lands outside apks/
 *.apk
 *.dex
