@@ -1,9 +1,12 @@
 # amzn-pinnacles — Amazon "yacht" / KFYAWI
 
-**Identified 2026-08-20: a Fire HD 10 Plus (11th gen) hardware derivative with
-NFC and a rear camera flash added, running an AOSP-app-layer Fire OS 7.4.0.1
-build on MediaTek MT8183.** Not a retail product; never sold. No marketing name
-found in any public source.
+**IDENTIFIED: an Amazon employee work tablet.** `yacht` / KFYAWI is a
+non-retail, Amazon-internal variant of the **Fire HD 10 11th gen (2021)**,
+issued to staff in **Europe** as a work device — MediaTek MT8183, 4 GB, with NFC
+and a rear camera flash added over retail, running an AOSP-app-layer Fire OS
+7.4.0.1 build whose lockscreen is a **Kerberos corporate shift login**. Retail
+sibling is `trona` / KFTRWI. Never sold; no marketing name because it was never
+marketed. See [identification.md](identification.md).
 
 **Status: full ADB shell (unprivileged). Bootloader is locked and stays that
 way — `ro.oem_unlock_supported=1` was tested on 2026-08-21 and is a dead
@@ -11,11 +14,20 @@ lead** (fastboot rejects everything with *"restricted on locked hw"*). The only
 remaining path to a real unlock is dumping and reversing **LK**. See
 [unlock.md](unlock.md).
 
+**Custom-ROM outlook: root looks achievable, a bootloader unlock does not.**
+Amazon's LK contains no unlock commands at all, and the only unlock surface
+needs an RSA-2048 Amazon signature nobody has ever obtained. So the realistic
+ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
+[root.md](root.md) and [unlock.md](unlock.md).
+
 Detail lives in siblings:
 
-- **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version: the
-  `oem_unlock_supported=1` lead is **tested and dead**; the only live path is
-  dumping and reversing LK.
+- **[root.md](root.md)** — the rooting plan. Free system-UID exploit first
+  (`PS7401` < `PS7704`), then CVE-2022-38181, for which a published exploit
+  targets this exact SoC/kernel/ABI.
+- **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version:
+  **dead**. `oem_unlock_supported=1` tested and disproved; LK has no unlock
+  commands; only path with any ceiling is reversing LK.
 - **[customization.md](customization.md)** — what Amazon actually changed:
   boot-classpath framework, custom SELinux class, `fireos.hardware.*` HALs, and
   the IDME factory block (incl. the empty unlock fields).
@@ -133,6 +145,18 @@ driver version against the known CVEs.
 
 ## Log (newest first)
 
+- **2026-08-21**: **DEVICE IDENTIFIED** — an Amazon **employee work tablet**, a
+  non-retail internal variant of the Fire HD 10 11th gen issued to staff in
+  Europe, identified via the XDA Fire Toolbox community from an employee's own
+  unit. This corroborates the hardware analysis *and* explains the RAFT Kerberos
+  shift login. Also mapped the root path — see [root.md](root.md): `/dev/mali0`
+  is world-accessible (`crw-rw-rw-`), `PS7401` qualifies for the free
+  CVE-2024-31317 system-UID exploit (< `PS7704`), and there is a published
+  CVE-2022-38181 exploit for this exact SoC/kernel/ABI whose Amazon fix
+  (7.3.2.9, June 2024) postdates this build by six months. `adb root` refused —
+  `ro.debuggable=0`, production build. Unlock confirmed dead: R0rt1z2's Ghidra
+  work on stock Amazon LK found *no reference* to `flashing unlock`/`oem unlock`
+  at all.
 - **2026-08-21**: **Tested the unlock lead on hardware — it's dead.** Rebooted
   to fastboot: `getvar all`, `oem device-info`, `flashing get_unlock_ability`
   and `oem lks` all return *"the command you input is restricted on locked hw"*.

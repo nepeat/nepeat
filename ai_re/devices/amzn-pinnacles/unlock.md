@@ -7,6 +7,35 @@ re-treads it.
 Research 2026-08-21 plus a live fastboot test on the device. Raw output in
 [`dumps/fastboot-getvar.txt`](dumps/fastboot-getvar.txt).
 
+## Correction: dumping the BootROM does almost nothing here
+
+Worth stating plainly, because it was an appealing idea and it's wrong.
+
+**The BootROM does not participate in the unlock decision.** The chain of trust
+splits the responsibilities cleanly:
+
+| Stage | Is | Verifies | Knows about unlock? |
+| --- | --- | --- | --- |
+| BL1 — BootROM | mask ROM in the SoC | preloader, via SBC against a key hash burned in eFuse; gates DAA/SLA in download mode | **No** |
+| BL2 — preloader | `mmcblk0boot0` | the bootloaders image — for LK v2.0 that's `lk` + `bl2_ext` + `aee` + dtbs, each with its own `cert1`/`cert2` | **No** |
+| **BL3 — LK** | `mmcblk0p5` | reads IDME, runs `amzn_unlock_verify` / `amzn_verify_temp_unlock_code`, sets lock state, then verifies boot via AVB2 | **Yes — only stage that does** |
+
+Amazon's unlock logic is pure LK code. The BootROM's entire remit is "is this
+preloader signed by the key whose hash is in my fuses" — it has never heard of
+`unlock.bin`, IDME, or `t_unlock_cert`.
+
+Two further reasons it's not worth chasing: the MT8183 BootROM is **generic
+MediaTek silicon**, identical on every MT8183 part (including MT8183
+Chromebooks and the pre-fuse Fire HD 10 2019), so it needn't come from this
+device; and mtkclient's `dumpbrom` **requires a working BROM command handler
+plus an exploit payload** — i.e. it is gated on the very access the e-fuse
+removes. It's a consequence of winning, not a way to win.
+
+So of the three dumps: **flash matters enormously** (specifically `lk`), the
+**bootloader IS the flash dump**, and **BootROM is a footnote**. The good news
+is that the LK dump doesn't depend on the e-fuse question at all if the firmware
+can be obtained another way — which decouples the two priorities.
+
 ## Tested: `ro.oem_unlock_supported=1` is not a real policy difference
 
 This was the one genuine anomaly — retail Fire tablets ship it as `0`, this
@@ -162,25 +191,113 @@ Acquisition, cheapest first:
 2. Root → `dd if=/dev/block/mmcblk0p5`.
 3. BROM readback, if the fuse test surprises us.
 
-Analysis, per [R0rt1z2's guide](https://blog.r0rt1z2.com/posts/reverse-engineering-mediatek-lk/):
-extract with `lkpatcher` (emits the LK sub-partition and its load base), import
-to Ghidra as ARMv8 for LK v2.0 (matching our 2022 BSP), set the base address,
-disable RAM write perms, disable "Eliminate Unreachable Code" in the decompiler,
-then analyse. LK v2.0 containers hold `lk`, `bl2_ext`, `aee`, `lk_main_dtb`,
-`lk_dtbo`, each with `cert1`/`cert2`.
+### Analysis workflow
 
-Targets once loaded: `amzn_unlock_verify`, `amzn_verify_temp_unlock_code`, the
-three `amzn_get_temp_unlock_idme_*` accessors, the *"temporarily unlocked, %d
-reboots remaining"* format string (xref back to its success branch), the
-embedded RSA-2048 modulus, the consumers of `dev_flags` / `fos_flags`, and
-whatever reads `unlock_version` (8 bytes, `7ebd9a960c71a100` here).
+Per [R0rt1z2's guide](https://blog.r0rt1z2.com/posts/reverse-engineering-mediatek-lk/),
+the canonical write-up for exactly this:
 
-Also worth a hypothesis when LK is in hand: what the small `keys` (p3), `kb`
-(p1) and `dkb` (p2) partitions hold, and whether they are the trust anchor.
+1. **Extract.** `lkpatcher` parses the container and — importantly — prints each
+   sub-partition's **load base address**:
+   ```
+   lkpatcher lk.bin --list-partitions
+   lkpatcher lk.bin --dump-partition lk -o lk_raw.bin
+   ```
+   Use it only as a parser; we are not patching. LK v2.0 containers hold `lk`,
+   `bl2_ext`, `aee`, `lk_main_dtb`, `lk_dtbo`, each with its own `cert1`/`cert2`.
+   The LK code itself is **not compressed** — a raw image, which is what makes
+   static analysis straightforward.
+2. **Ghidra language: ARM v8 64-bit LE.** LK v2.0 is ARM64; only legacy v1.0 is
+   ARMv7. Our 2022 BSP means v2.0 — get this wrong and nothing disassembles.
+3. **Set the base address** to what lkpatcher printed; don't guess it. Sanity
+   check: `ADRP`/`ADD` pairs should start resolving into the string region.
+4. **Fix the memory map before auto-analysis** — mark RAM read+execute but
+   **not write** (otherwise Ghidra treats globals as volatile and decompiler
+   output degrades), and **disable "Eliminate Unreachable Code"** in the
+   decompiler. That second one matters here specifically: we are hunting
+   verification branches Ghidra might otherwise prune.
+
+### The symbols are not exported — find them via strings
+
+Amazon ships a stripped release build. The `amzn_*` names the community knows
+are recoverable because **LK's logging macros embed `__func__` and function-name
+literals in the string table** — someone simply ran `strings` on a dump.
+
+So the method is **string → xref → containing function → rename**. Start with
+`strings -a lk_raw.bin | grep -i amzn` before even opening Ghidra; that yields
+the roster for *this* build in seconds and shows whether Amazon added or removed
+routines since the trona-era analyses.
+
+The behavioural strings are the real signposts:
+
+- *"Device is temporarily unlocked, %d reboots remaining"* — xrefs straight into
+  the **success branch** of the temp-unlock path. Walk backwards; the
+  conditional guarding it is the check we care about.
+- *"fail to pass RSA-PSS verification"* and the 256-byte PSS length checks —
+  land in the crypto verifier.
+- Also grep: `unlock`, `idme`, `t_unlock`, `dev_flags`, `fos_flags`,
+  `boot_state`, `orange`, `green`.
+
+MTK LK is a debug-heavy codebase and Amazon did not strip the format strings,
+which makes this far more tractable than "reverse a stripped bootloader" sounds.
+
+### Where the public key probably lives
+
+Three hypotheses, in order of likelihood:
+
+1. **Embedded in LK as a constant** (most likely) — find the 256-byte
+   high-entropy modulus referenced by the verifier, or a `{n, e}` struct with
+   `e = 0x10001`. Earlier Fire LKs did it this way. Mildly good news: an in-LK
+   key means the check is self-contained and a logic flaw in it is exploitable
+   without fighting the TEE.
+2. **Read from `keys` (p3) at runtime** — would show as the key pointer tracing
+   back to a partition read rather than a `.rodata` address.
+3. **Delegated to TEE** — would appear as an SMC call instead of in-LK RSA.
+   Unlikely, since the RSA-PSS strings are *in LK*.
+
+On `kb` (p1), `dkb` (p2), `keys` (p3): the likeliest reading is **keybox /
+device-keybox** material (Widevine, attestation) rather than the unlock anchor —
+because the unlock verifier needs a key *identical across every `yacht`*, while
+those look per-device provisioned, which is the wrong shape for a vendor signing
+key. Unverified; confirm by tracing the key pointer rather than assuming.
+
+### Ranked attack surface, once LK is in hand
+
+| Rank | Surface | Why |
+| --- | --- | --- |
+| 1 | **Debug/eng path gated on a writable flag** (`dev_flags`, `fos_flags`) | **No cryptography needed.** IDME as a whole is *not* signature-protected — only the `unlock` blob is. If a consumer branch sits upstream of or bypasses the unlock check, and the HAL exposes a setter reachable with root, that's a complete chain. |
+| 2 | **Length/parse bug in cert handling** | The visible 256-byte PSS length validation is exactly the check whose mismatch-with-actual-length has burned many vendors. Statically auditable. |
+| 3 | **Unchecked return values around the verify call** | Classic `memcmp` truncation / error path falling through. Five-minute read of every call site once the verifier is located. |
+| 4 | **Fastboot command-handler bugs in LK** | Reachable from the bootloader mode we already have — and the restriction check itself is code worth auditing. amonet carried an LK-stage exploit for Fire HD 8 2018, so Amazon LK bugs have precedent. Needs neither root nor BROM. |
+| 5 | Patching LK to skip the check | Not independent — requires flashing LK, which requires beating the preloader, which requires BROM. Yields only a *tethered* unlock. |
+| 6 | LK downgrade | Blocked twice (anti-rollback armed + preloader verifies LK). **Most likely way to hard-brick.** |
+| 7 | Forge the signature | RSA-2048. Infeasible. |
+| 8 | Write IDME directly | Zero value alone — only useful as the *delivery* mechanism for 1–3. |
 
 Honest expectation: auditing a modern secure-boot-verified LK for a flaw a
 motivated community hasn't found in four years on the sibling device. Low
-probability — but free to try and the payoff is the whole goal.
+probability — but free to try, zero device risk, and the payoff is the goal.
+
+## Blocked pending root
+
+These were the cheap tests worth running; all but one need privileges we don't
+have. Recording so they get run the moment root lands:
+
+- **Does `unlock_version` encode the device binding?** If `7ebd9a96` (or its
+  byte-reversal) matches the eMMC PSN and `0c71a100` relates to `manfid`/CID,
+  the device-binding claim upgrades from "inferred from 2014-era firmware" to
+  confirmed — and we'd know the exact signed message, which is the input needed
+  before reversing the verifier. Blocked:
+  `/sys/block/mmcblk0/device/{manfid,serial,cid}` are all `Permission denied`.
+- **Partition sizes for `kb`/`dkb`/`keys`** — KB-scale means key material,
+  MB-scale means firmware. Blocked: `/proc/partitions` denied and
+  `/sys/class/block/mmcblk0p*/size` unreadable.
+- **The IDME HAL write path** — the service is
+  `/vendor/bin/hw/fireos.hardware.idme@1.0-service`, running as **user
+  system**. A HIDL HAL with a getter very often has a setter, and that decides
+  whether attack-surface item 1 is reachable at all. Blocked: `/vendor/bin/hw`
+  is not readable by shell.
+
+The one unblocked lead is the **OTA hunt** below.
 
 ## Prior art: there is none
 

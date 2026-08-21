@@ -3,12 +3,24 @@
 Desk research 2026-08-20, then reconciled against the device shell the same
 day. Sources inline; anything marked **inferred** is reasoning, not a citation.
 
-> **Conclusion (added after the shell dump): `yacht`/`pinnacles` is a
-> Fire HD 10 Plus (11th gen) hardware derivative with NFC and a rear camera
-> flash added, running an AOSP-app-layer Fire OS 7.4 build.**
-> See [The answer](#the-answer) at the bottom. The Echo Show lead below turned
-> out to be a false trail — kept because the reasoning is still worth having on
-> record, and because the build-band decode that produced it is sound.
+> ## RESOLVED (2026-08-21)
+>
+> **`yacht` / KFYAWI is a non-retail, Amazon-internal variant of the Fire HD 10
+> 11th gen (2021) — issued to Amazon employees, in Europe, as a work device.**
+>
+> Identified on XDA by the Fire Toolbox community from an Amazon employee's own
+> unit: [Fire Toolbox thread, p.727](https://xdaforums.com/t/windows-linux-tool-fire-toolbox-v45-1.3889604/page-727).
+> The retail sibling is `trona` / KFTRWI.
+>
+> This independently confirms the hardware analysis below (Fire HD 10 Plus-class
+> MT8183, 4 GB) **and** explains the RAFT Kerberos corporate shift-login in
+> [raft-lockscreen.md](raft-lockscreen.md): staff logging into a work tablet
+> against Amazon's corporate directory. It also explains the £5 UK car-boot
+> provenance of the other known unit — European staff device, decommissioned,
+> wiped, sold on.
+>
+> The Echo Show lead below was a false trail; kept on record because the
+> build-band decode that produced it is sound.
 
 ## The build-number decode (the good lead)
 
@@ -169,7 +181,20 @@ which this is an unlisted member. `ro.build.characteristics` is `tablet`, not
 `tv` or `speaker`, and there is not a single Alexa package — so Echo is ruled
 out on the device's own evidence.
 
-**Still unresolved:** the marketing name, if it ever had one. The OTA package
+**Update — this is now resolved.** It is an **Amazon employee work device**, a
+non-retail internal variant of the Fire HD 10 11th gen issued to staff in
+Europe (see the box at the top of this file). Every inference below held up:
+non-retail, never sold, Fire HD 10 Plus-class hardware, purpose-built shell.
+The "fixed-purpose device" reading was right in shape; the specific purpose was
+*employee work login*, which is exactly what the RAFT Kerberos lockscreen
+implements. There is no marketing name because it was never marketed.
+
+Note also a `PS7409.5134N` build exists in the wild (seen in user-agent
+strings), confirming PS74xx is a distinct internal firmware train running
+parallel to retail's PS73xx.
+
+**Prior "unresolved" note, kept for context:** the marketing name, if it ever
+had one. The OTA package
 name is `ro.product.package_name` = **`com.amazon.pinnacles.android.os`** —
 keyed on the *board*, not the product, which is why the earlier
 `com.amazon.yacht.android.os` lookup 404'd. Unfortunately
