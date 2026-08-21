@@ -306,3 +306,21 @@ table. The "untested" caveat now applies only to running it on the device, not
 to whether it is reachable.
 
 See [fos-flags.md](fos-flags.md) for the surrounding analysis.
+
+## ⛔ SUPERSEDED: the credential is a per-boot nonce, not something recoverable
+
+The framing above — "installing is easy, so the question becomes whether a valid
+pair can be recovered and is portable" — is **answered, and the answer is no.**
+
+The ten 32-byte codes are `HMAC-SHA256(S_device, counter)`, where `S_device` is
+32 bytes minted by the unit's own RNG and sealed in **eMMC RPMB block 1**, and
+`counter` is incremented and rewritten to RPMB **every boot**. A cert+code pair
+therefore cannot unlock a different device, and expires within 10 reboots on the
+device it was issued for.
+
+Amazon's temp unlock is an **online challenge/response**, not a portable
+credential. `flash:tucert` and `flash:tucode` remain genuine unauthenticated
+writes — there is simply nothing durable to write.
+
+Full evidence, independently verified, in
+[unlock-codes-rpmb.md](unlock-codes-rpmb.md).
