@@ -21,6 +21,10 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[da-validation.md](da-validation.md)** — ⭐⭐ **DA signature validation is
+  SKIPPED on a non-secure chip.** If eFuse bit 2 is clear, preloader USBDL
+  accepts an unsigned Download Agent — full flash access, **no root, no BROM, no
+  unlock**. Gated on one bit the preloader prints at every boot.
 - **[brom-recovery.md](brom-recovery.md)** — ⭐ **the preloader has a built-in
   "force BROM download recovery"** that wipes itself to drop into USB download
   mode. Best lead yet — and the most dangerous thing found. **Do not trigger
@@ -171,6 +175,24 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: ⭐⭐ **Best lead of the project: DA validation is conditional.**
+  `usbdl_verify_da` in the preloader calls a secure-chip query and, if it does
+  **not** return 1, prints *"DA validation disabled on non-secure chip"* and
+  returns the success value **without checking the signature at all**. The query
+  (`0x2cbb8`) is four instructions: read `0x11f10060`, extract **bit 2**. That
+  address is `efuse_base + 0x60` on the MT8183 eFuse controller — confirmed live,
+  the device exposes `/sys/devices/platform/11f10000.efusec`. **The same register's
+  bit 8 is the community-reported `EFUSE_Disable_BROM_CMD`**, so one register
+  answers both open questions and our own binary corroborates that second-hand
+  claim. If bit 2 is clear, preloader USBDL (`0e8d:2000` — a *different* mode from
+  BROM, reachable even where BROM is fused) accepts an **unsigned DA** → full
+  flash access with **no root, no unlock, and OTA-proof**. Whether it is clear is
+  genuinely undetermined: Amazon runs their own `AMZN_PL_VERIFY` layer
+  independent of MTK SBC. **UART settles it for free — the preloader prints
+  `sbc_enabled` and `[EFUSE] sbc` at every boot.** No `/dev/mem` and the `efusec`
+  device exposes no readable attributes, so on-device reading needs the Mali
+  read primitive. See [da-validation.md](da-validation.md).
 
 - **2026-08-21**: **Found a downloadable 7.4-branch OTA** — see
   [firmware-sources.md](firmware-sources.md). `cypress` PS7466 (Fire OS 7.4.6.6,
