@@ -1,0 +1,24 @@
+### fastboot getvar all
+getvar:all                                         FAILED (remote: 'the command you input is restricted on locked hw')
+Finished. Total time: 0.005s
+
+### fastboot oem device-info
+FAILED (remote: 'the command you input is restricted on locked hw')
+fastboot: error: Command failed
+
+### fastboot flashing get_unlock_ability
+FAILED (remote: 'the command you input is restricted on locked hw')
+fastboot: error: Command failed
+
+### fastboot oem lks
+FAILED (remote: 'the command you input is restricted on locked hw')
+fastboot: error: Command failed
+getvar product                  -> product: pinnacles
+getvar version                  -> getvar:version                                     FAILED (remote: 'the command you input is restricted on locked hw')
+getvar unlocked                 -> getvar:unlocked                                    FAILED (remote: 'the command you input is restricted on locked hw')
+getvar secure                   -> getvar:secure                                      FAILED (remote: 'the command you input is restricted on locked hw')
+getvar serialno                 -> serialno: G002G402413303RL
+getvar hw-revision              -> getvar:hw-revision                                 FAILED (remote: 'the command you input is restricted on locked hw')
+getvar partition-type:boot      -> getvar:partition-type:boot                         FAILED (remote: 'the command you input is restricted on locked hw')
+getvar max-download-size        -> max-download-size: 0x8000000
+getvar version-bootloader       -> getvar:version-bootloader                          FAILED (remote: 'the command you input is restricted on locked hw')

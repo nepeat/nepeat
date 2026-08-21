@@ -5,12 +5,17 @@ NFC and a rear camera flash added, running an AOSP-app-layer Fire OS 7.4.0.1
 build on MediaTek MT8183.** Not a retail product; never sold. No marketing name
 found in any public source.
 
-**Status: full ADB shell (unprivileged). Bootloader is locked, but
-`ro.oem_unlock_supported=1` — an unlock path is advertised and untested.**
-That's the next move.
+**Status: full ADB shell (unprivileged). Bootloader is locked and stays that
+way — `ro.oem_unlock_supported=1` was tested on 2026-08-21 and is a dead
+lead** (fastboot rejects everything with *"restricted on locked hw"*). The only
+remaining path to a real unlock is dumping and reversing **LK**. See
+[unlock.md](unlock.md).
 
 Detail lives in siblings:
 
+- **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version: the
+  `oem_unlock_supported=1` lead is **tested and dead**; the only live path is
+  dumping and reversing LK.
 - **[customization.md](customization.md)** — what Amazon actually changed:
   boot-classpath framework, custom SELinux class, `fireos.hardware.*` HALs, and
   the IDME factory block (incl. the empty unlock fields).
@@ -84,48 +89,26 @@ Two XDA claims the handoff (and I) had downgraded to hearsay turn out to be
 **correct**: 4 GB RAM and a rear camera flash. The poster was guessing, but
 guessed right.
 
-## Next step — bootloader unlock
+## Next step
 
-`ro.boot.flash.locked=1` but `ro.oem_unlock_supported=1`. Retail Fire tablets
-ship that second one disabled and hide the bootloader; this platform advertises
-unlock as supported, which also explains why recovery exposes "reboot to
-bootloader".
+The bootloader unlock question is now **answered and largely closed** — see
+[unlock.md](unlock.md). `oem_unlock_supported=1` turned out to be an unscrubbed
+build flag, not a policy difference: every meaningful fastboot command returns
+*"restricted on locked hw"*. Amazon's LK verifies an RSA-2048 signature over a
+device-bound unlock blob, so writing IDME is worthless without their key, and
+BROM is almost certainly fused off on 2020+ Amazon hardware.
 
-1. Settings → Developer options → is there an **OEM unlocking** toggle, and
-   does it set?
-2. Then, from the bootloader:
+The one live path, and it carries zero device risk because it is host-side
+analysis:
 
-   ```bash
-   fastboot -i 0x1949 getvar all 2>&1 | tee dumps/fastboot-getvar.txt
-   fastboot -i 0x1949 flashing get_unlock_ability
-   ```
+1. **Acquire `lk`** — cheapest first: a public `yacht` OTA (search key
+   `com.amazon.pinnacles.android.os`), else root and `dd` `mmcblk0p5`, else a
+   BROM readback if the fuse test surprises us.
+2. **Reverse it in Ghidra**, hunting `amzn_unlock_verify`,
+   `amzn_verify_temp_unlock_code`, and the `dev_flags`/`fos_flags` consumers.
 
-   `getvar all` is still worth capturing regardless — it's the one surface not
-   yet touched.
-
-Unlocking wipes `/data`, which is empty anyway, so there's nothing to lose.
-
-**Strategy — the three goals converge on one capability.** Rooting, dumping,
-and producing an unlock code all bottom out in the same prerequisite: getting
-code/read access below the OS. Concretely, dumping **LK** (`mmcblk0p5`) turns
-the unlock problem from *"forge an Amazon signature"* into *"read the
-verification routine and find its weakness"* — LK is where the unlock check
-lives, including the `amzn_get_temp_unlock_idme_*` accessors. Dumping the
-**BootROM** (mtkclient `dumpbrom`) and the **preloader** (eMMC boot0/boot1,
-outside the by-name table) establishes which stage actually enforces what.
-So the dump work is not a parallel goal to the unlock work — it is the
-precondition for it. Everything gates on whether MediaTek BROM/download mode is
-reachable on this 2022 unit, or fused off.
-
-**What the lock actually hangs on:** the IDME factory block exposes
-`t_unlock_code` and `t_unlock_cert`, and both are **empty** on this unit — see
-[customization.md](customization.md). That is the concrete reason
-`flash.locked=1`. On Fire hardware the bootloader consults those fields, and
-unlocking means getting a valid entry written there, historically an
-Amazon-signed cert bound to the device serial. `/proc/idme/*` is read-only via
-procfs; writes go through the vendor-side `fireos.hardware.idme@1.0::IIdme`
-HAL. So `oem_unlock_supported=1` may mean "this platform has the mechanism",
-not "you can turn it on from Settings" — verify before assuming.
+Cheap unresolved checks: the BROM fuse test (read-only USB probe), and the Mali
+driver version against the known CVEs.
 
 ## Also worth doing
 
@@ -150,6 +133,18 @@ not "you can turn it on from Settings" — verify before assuming.
 
 ## Log (newest first)
 
+- **2026-08-21**: **Tested the unlock lead on hardware — it's dead.** Rebooted
+  to fastboot: `getvar all`, `oem device-info`, `flashing get_unlock_ability`
+  and `oem lks` all return *"the command you input is restricted on locked hw"*.
+  Only `product`, `serialno` and `max-download-size` answer, so Amazon's LK runs
+  a command allowlist while locked, and `ro.oem_unlock_supported=1` is an
+  unscrubbed build flag rather than a policy difference. Research also resolved
+  the mechanism: unlock is an RSA-2048 signature verified in LK over a
+  device-bound blob, `rpmb_state=2` is **anti-rollback and not** unlock state
+  (so the RPMB worry is retired), and BROM is fused off on 2020+ Amazon
+  hardware. Writing IDME is worthless without Amazon's key. Only live path is
+  dumping and reversing LK — see [unlock.md](unlock.md). Device returned to
+  Android with ADB intact.
 - **2026-08-21**: Surveyed what Amazon actually customized — see
   [customization.md](customization.md). `fosframework.jar` is on the
   BOOTCLASSPATH and AOT-compiled into the boot image; `fosinit`/`fosservices`
