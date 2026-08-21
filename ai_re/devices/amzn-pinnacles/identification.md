@@ -122,6 +122,18 @@ independent source. **Treat the RAM figure and the rear flash as unconfirmed
 until measured on this unit** (`/proc/meminfo` and `pm list features` — both in
 `collect.sh`).
 
+> **CORRECTION (later): a PS74xx image IS publicly downloadable.** Notes below
+> imply no 7.4-branch artifact could be obtained. The `cypress` PS7466 OTA
+> (Fire OS 7.4.6.6, Android 9, `amz-p` release-keys) is confirmed downloadable —
+> see [firmware-sources.md](firmware-sources.md). It remains u-boot rather than
+> MTK LK, so it is useless for bootloader comparison, but it is a valid target
+> for diffing the **7.4-branch framework**. The narrower claim — that no Fire
+> *tablet* is on 7.4 — still holds.
+>
+> Also: FTVDB can *never* index `pinnacles`, because it is populated from OTA
+> URLs captured off real devices and this device has no OTA client. That 404 is
+> structural.
+
 ## The answer
 
 The shell dump ([hardware.md](hardware.md)) makes the hardware unambiguous, and

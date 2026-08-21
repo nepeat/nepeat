@@ -45,6 +45,9 @@ Detail lives in siblings:
 - **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version:
   **dead**. `oem_unlock_supported=1` tested and disproved; LK has no unlock
   commands; only path with any ceiling is reversing LK.
+- **[firmware-sources.md](firmware-sources.md)** — **a 7.4-branch OTA IS
+  downloadable** (`cypress` PS7466). Diff targets, the real OTA endpoint, and
+  why brute-forcing URLs is impossible.
 - **[app-layer-audit.md](app-layer-audit.md)** — full sweep of all 87 APKs.
   **The app layer is closed for the flashing goal**, and there is **no FRP
   partition**, which kills the `oem_unlock_supported=1` thread for good.
@@ -168,6 +171,22 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: **Found a downloadable 7.4-branch OTA** — see
+  [firmware-sources.md](firmware-sources.md). `cypress` PS7466 (Fire OS 7.4.6.6,
+  Android 9, `amz-p` release-keys, 1.23 GB) is confirmed fetchable and is the
+  only public 7.4 artifact in existence — no Fire *tablet* is on 7.4. Good for
+  diffing the 7.4-specific framework; useless for LK (it is u-boot). Also 8 more
+  `trona` builds are available for an over-time diff on the closest MT8183
+  relative. The real OTA endpoint is
+  `POST softwareupdates.amazon.com/software/inventory`, but it is **identity-
+  gated** — unauthenticated requests never reach deviceType validation, and no
+  public tool implements a working manifest client. **Two corrections:** token
+  directories are per-(device, build), *not* shared (`Fire_HD10` 200 vs
+  `Fire_HD10_Plus` 403 in the same dir), and S3 **masks 404 as 403** so filename
+  brute-forcing yields zero signal. Re-ran the endpoint hunt properly with all 90
+  APKs and 50 JARs decompressed plus the recovery ramdisk unpacked: still **zero**
+  OTA hosts, and `sbin/recovery` is **sideload-only with no network stack**.
 
 - **2026-08-21**: Audited all 87 APKs — see
   [app-layer-audit.md](app-layer-audit.md). **The app layer is closed for the
