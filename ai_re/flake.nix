@@ -70,6 +70,11 @@
             # android-tools' unpack_bootimg for boot.img on darwin.
             simg2img # android sparse image -> raw, for pulled partitions
             payload-dumper-go # extract partitions from OTA payload.bin
+
+            # Thumb-2 disassembly for the Amazon LK bootloader. Ghidra decodes
+            # that payload as garbage unless TMode is set, so capstone is the
+            # quicker route for targeted reads. See devices/amzn-pinnacles.
+            (python3.withPackages (ps: with ps; [ capstone pyelftools ]))
           ];
 
           shellHook = ''

@@ -137,6 +137,78 @@ dm-verity disabled at boot, persistently, on a still-locked bootloader.
 > device with production certificate"* path. Both are answerable by reading the
 > Thumb code around those strings before touching anything.
 
+## Verification attempt: how far it got, and where it stopped
+
+The plan was to read the code around the flag strings and confirm LK honours
+`dev_flags`/`fos_flags` on a locked production unit. **That verification is
+incomplete** — instruction-level analysis is blocked. Recording the dead ends so
+nobody repeats them.
+
+**What blocked it.** String references in this payload resolve to *neither*
+PC-relative `ADR` nor absolute literal-pool pointers:
+
+- Decoded every Thumb `ADR.N` (T1) and `ADR.W` (T2/T3) encoding in the image and
+  computed targets — **zero** hit any of the seven target strings.
+- Searched for absolute literals at 20 known string offsets across every
+  plausible base. Best consensus was **7 of 17 strings at an unaligned base**
+  (`0x44739150`), i.e. noise. A correct base would hit nearly all of them.
+- Literal-value distribution *does* point at an image around `0x44780000` (the
+  `0x4478` prefix dominates at 1433 hits, tailing through `0x4479`–`0x447c`,
+  consistent with a `0x93710` span), but no base in `0x44700000–0x44840000` at
+  4-byte granularity explains the string references.
+
+The likely explanation: **`lk.img` is not one flat blob.** There are extra MTK
+header magics (`0x58881688`) at `0x126d0`, `0x30ba4`, `0x33208`, `0x3f9a0`, GFH
+magics around `0x325b4`, and the strings fall into three distinct clusters
+(`0x47xxx–0x4c000`, `0x57xxx`, `0x76xxx`) each with its own nearby RSA keys. So
+this is several sub-images concatenated, each with its own load base — the code
+for the `0x76xxx` SELinux/dm-verity strings is probably in a different sub-image
+than the one starting at offset `0x200`.
+
+Also note **Ghidra was misleading here**: with the payload imported as
+`ARM:LE:32:v7` it produced apparently-real xrefs (e.g. `amzn_verify_unlock` at
+`0x48054` referenced from `0x1b1a`). Those were **artifacts of decoding Thumb-2
+as ARM** — the byte patterns are plainly Thumb (`46xx`, `b0xx`, `f0bd`, `00bf`).
+Don't trust xrefs from that program.
+
+## What the evidence *does* support
+
+Short of instruction-level proof, the **string locality** is meaningful, because
+the linker groups strings by translation unit:
+
+- The gate — `Only usr_flags can be set for a locked device` (`0x4b75f`) — sits
+  in the same tight cluster as the fastboot command strings: `oem flags`
+  (`0x4b679`), `flash:unlock` (`0x4b683`), `flash:tucert` (`0x4b690`),
+  `%s: Assuming fos_flags…` (`0x4b78d`), `%s: Managed to set flags.`
+  (`0x4b85d`), `oem flags [<type>: <modifier>] <value>` (`0x4b878`). That is the
+  **`oem flags` command handler**.
+- The consumers — `[SELINUX] set to permissive mode by dev_flags` (`0x76a80`),
+  `[SELINUX] enforced by dev_flags`, `[DM-VERITY] verify off by fos_flags`
+  (`0x769bd`) — are in a **completely different cluster**, ~0x2b000 away, with no
+  lock-state string anywhere near them.
+
+So the lock check lives in the *setter* (fastboot), and the *consumers* read the
+flag values and branch on them, with no lock-state string in their vicinity.
+That is consistent with the theory — root writing IDME directly bypasses the
+gate — but it is **circumstantial, not proven**.
+
+## Recommended next step: a low-risk empirical test
+
+Rather than keep fighting the disassembly, test the cheap half first:
+
+**Write `dev_flags = 1` only. Leave `fos_flags` at 0.**
+
+- `dev_flags` only affects SELinux mode. If LK honours it, `getenforce` reports
+  `Permissive` after a clean reboot — a clear, readable signal.
+- It does **not** touch dm-verity, so `/system` integrity checking stays on and
+  the boot path is unchanged.
+- One byte at `0x2290` of `mmcblk0boot1`, with a full backup of the region and
+  root available to revert.
+- If LK ignores it, we learn that for free and `fos_flags` is almost certainly
+  the same.
+
+Only if that works is it worth considering `fos_flags`.
+
 ## Tooling notes
 
 - The LK container is **MTK v1.0**: header magic `0x58881688`, name `lk`,
