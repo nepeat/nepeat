@@ -1,0 +1,2 @@
+$ adb shell cat /proc/cmdline
+cat: /proc/cmdline: Permission denied

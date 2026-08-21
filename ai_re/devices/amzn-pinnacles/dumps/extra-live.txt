@@ -1,0 +1,55 @@
+=== wm size/density ===
+Physical size: 1200x1920
+Physical density: 240
+
+=== full by-name ===
+total 0
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 boot -> /dev/block/mmcblk0p16
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 boot_para -> /dev/block/mmcblk0p9
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cache -> /dev/block/mmcblk0p18
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu1 -> /dev/block/mmcblk0p13
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu2 -> /dev/block/mmcblk0p14
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu3 -> /dev/block/mmcblk0p15
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 dkb -> /dev/block/mmcblk0p2
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 kb -> /dev/block/mmcblk0p1
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 keys -> /dev/block/mmcblk0p3
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 lk -> /dev/block/mmcblk0p5
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 metadata -> /dev/block/mmcblk0p8
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 misc -> /dev/block/mmcblk0p4
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 nvcfg -> /dev/block/mmcblk0p10
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 recovery -> /dev/block/mmcblk0p17
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 spmfw -> /dev/block/mmcblk0p11
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 sspm_1 -> /dev/block/mmcblk0p12
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 system -> /dev/block/mmcblk0p19
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 tee1 -> /dev/block/mmcblk0p6
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 tee2 -> /dev/block/mmcblk0p7
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 userdata -> /dev/block/mmcblk0p21
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 vendor -> /dev/block/mmcblk0p20
+
+=== camera summary ===
+    Has a flash unit: true
+    Facing: Back
+      android.flash.info.available (50000): byte[1]
+      android.flash.info.chargeDuration (50001): int64[1]
+      android.lens.facing (80005): byte[1]
+    Has a flash unit: false
+    Facing: Front
+      android.flash.info.available (50000): byte[1]
+      android.flash.info.chargeDuration (50001): int64[1]
+      android.lens.facing (80005): byte[1]
+
+=== ethernet/nfc svc ===
+[init.svc.nfc_hal_service]: [running]
+[nfc.initialized]: [true]
+[ro.hardware.nfc_nci]: [nxp]
+[ro.vendor.nfc.support]: [1]
+
+=== df ===
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/root             3.4G  1.2G  2.1G  38% /
+tmpfs                 1.8G  1.3M  1.8G   1% /dev
+tmpfs                 1.8G     0  1.8G   0% /mnt
+/dev/block/dm-1       381M  159M  215M  43% /vendor
+/dev/block/mmcblk0p21  24G  133M   24G   1% /data
+/dev/block/mmcblk0p18 519M  760K  502M   1% /cache
+/data/media            24G  133M   24G   1% /storage/emulated

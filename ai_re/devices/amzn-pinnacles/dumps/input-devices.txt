@@ -1,0 +1,2 @@
+$ adb shell cat /proc/bus/input/devices
+cat: /proc/bus/input/devices: Permission denied

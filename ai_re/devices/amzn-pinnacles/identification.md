@@ -1,11 +1,14 @@
-# Identifying "yacht" / KFYAWI — public-source research
+# Identifying "yacht" / KFYAWI
 
-Desk research, 2026-08-20. No device shell involved. Sources given inline;
-anything marked **inferred** is reasoning, not a citation.
+Desk research 2026-08-20, then reconciled against the device shell the same
+day. Sources inline; anything marked **inferred** is reasoning, not a citation.
 
-**Summary: the device is undocumented in every public source reachable.** The
-only evidence available is negative-space evidence. But one positive decode
-came out of it, and it is the most useful identification lead so far.
+> **Conclusion (added after the shell dump): `yacht`/`pinnacles` is a
+> Fire HD 10 Plus (11th gen) hardware derivative with NFC and a rear camera
+> flash added, running an AOSP-app-layer Fire OS 7.4 build.**
+> See [The answer](#the-answer) at the bottom. The Echo Show lead below turned
+> out to be a false trail — kept because the reasoning is still worth having on
+> record, and because the build-band decode that produced it is sound.
 
 ## The build-number decode (the good lead)
 
@@ -106,6 +109,74 @@ spec sheet. That is an LLM paraphrasing that one garbled forum sentence, not an
 independent source. **Treat the RAM figure and the rear flash as unconfirmed
 until measured on this unit** (`/proc/meminfo` and `pm list features` — both in
 `collect.sh`).
+
+## The answer
+
+The shell dump ([hardware.md](hardware.md)) makes the hardware unambiguous, and
+it matches exactly one retail product.
+
+| | This device | Fire HD 10 Plus (11th gen, 2021) |
+| --- | --- | --- |
+| SoC | MediaTek MT8183 | MediaTek MT8183 Helio P60T |
+| Display | 1200×1920 | 1920×1200, 10.1" |
+| RAM | 4 GB | 4 GB |
+| Storage | 32 GB | 32 GB |
+| Battery | 6500 mAh | 6500 mAh |
+| SKU string | `ro.boot.hardware.sku` = **`plus`** | "Plus" |
+
+Retail spec source: [GSMArena, Fire HD 10 Plus (2021)](https://www.gsmarena.com/amazon_fire_hd_10_plus_(2021)-10882.php).
+The retail codename for this generation is `trona`.
+
+Every hardware axis matches, and the firmware literally calls its SKU `plus`.
+So this is Fire HD 10 Plus **hardware**. But it is not a Fire HD 10 Plus, and
+the differences are the interesting part:
+
+**Hardware Amazon added.** GSMArena lists the retail Fire HD 10 Plus as
+**NFC: No**, and lists no rear LED flash. This device has both — NFC via an
+**NXP** controller with `hce`, `hcef` and **`com.nxp.mifare`**, plus a rear
+camera flash. Neither is a software flag; both are physical additions to the
+retail platform.
+
+**Software Amazon removed.** The app layer is AOSP reference apps —
+`com.android.launcher3`, `camera2`, `email`, `music`, `gallery3d`,
+`deskclock`, `calculator2`. There is **no Fire launcher, no Amazon Appstore,
+no Silk, no Alexa, no `com.amazon.dcp`**. Only eight Amazon packages survive,
+all platform plumbing (`amazon.fireos`, `com.amazon.shpm`,
+`com.amazon.wirelessmetrics.service`, `com.amazon.webview.chromium`,
+`com.fireos.arcus.proxy`, `com.amazon.platform.fdrw`,
+`com.amazon.kindleautomatictimezone`, `android.amazon.perm`).
+
+Underneath, though, it is still Fire OS: `pm list features` carries the full
+`com.fireos.sdk.*` set and `com.amazon.software.fireos`. So the *platform* is
+Fire OS 7.4.0.1 with the *consumer shell deleted and AOSP apps put in its
+place* — which is exactly why the handoff's photos looked like stock AOSP.
+
+A leftover MediaTek factory-test app, `com.mediatek.ygps`, is also still
+installed — not something that survives onto a consumer image.
+
+**What it was for.** NFC with Mifare, a rear flash camera, Ethernet
+(`android.hardware.ethernet`), a 10" screen and no consumer shell is the
+signature of a fixed-purpose device: badge/tag reading, inventory or
+access control, kiosk or point-of-sale. That is consistent with the
+"non-retail SKU" hypothesis in the handoff, and now rests on hardware evidence
+rather than absence-from-catalog.
+
+**Why the Echo Show lead misfired.** The `PS74xx` → Fire OS 7.4.x decode is
+correct, and Echo Show 15 2nd Gen genuinely is the only *public* 7.4.x device.
+The flaw was assuming the public firmware archives are complete. 7.4 is better
+read as a branch Amazon uses for non-Fire-tablet-shell products generally, of
+which this is an unlisted member. `ro.build.characteristics` is `tablet`, not
+`tv` or `speaker`, and there is not a single Alexa package — so Echo is ruled
+out on the device's own evidence.
+
+**Still unresolved:** the marketing name, if it ever had one. The OTA package
+name is `ro.product.package_name` = **`com.amazon.pinnacles.android.os`** —
+keyed on the *board*, not the product, which is why the earlier
+`com.amazon.yacht.android.os` lookup 404'd. Unfortunately
+[the pinnacles URL 404s too](https://ftvdb.com/firetablet/firmware/com.amazon.pinnacles.android.os/),
+so it is genuinely absent from FTVDB rather than merely misfiled. That package
+name is still the correct string to search future firmware archives and OTA
+endpoints for.
 
 ## Research tooling notes
 

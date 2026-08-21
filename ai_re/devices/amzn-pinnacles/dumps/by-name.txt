@@ -1,0 +1,48 @@
+$ adb shell ls -l /dev/block/by-name/ /dev/block/platform/*/by-name/ 2>&1
+/dev/block/by-name/:
+total 0
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 boot -> /dev/block/mmcblk0p16
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 boot_para -> /dev/block/mmcblk0p9
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cache -> /dev/block/mmcblk0p18
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu1 -> /dev/block/mmcblk0p13
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu2 -> /dev/block/mmcblk0p14
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu3 -> /dev/block/mmcblk0p15
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 dkb -> /dev/block/mmcblk0p2
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 kb -> /dev/block/mmcblk0p1
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 keys -> /dev/block/mmcblk0p3
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 lk -> /dev/block/mmcblk0p5
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 metadata -> /dev/block/mmcblk0p8
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 misc -> /dev/block/mmcblk0p4
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 nvcfg -> /dev/block/mmcblk0p10
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 recovery -> /dev/block/mmcblk0p17
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 spmfw -> /dev/block/mmcblk0p11
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 sspm_1 -> /dev/block/mmcblk0p12
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 system -> /dev/block/mmcblk0p19
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 tee1 -> /dev/block/mmcblk0p6
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 tee2 -> /dev/block/mmcblk0p7
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 userdata -> /dev/block/mmcblk0p21
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 vendor -> /dev/block/mmcblk0p20
+
+/dev/block/platform/bootdevice/by-name/:
+total 0
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 boot -> /dev/block/mmcblk0p16
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 boot_para -> /dev/block/mmcblk0p9
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cache -> /dev/block/mmcblk0p18
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu1 -> /dev/block/mmcblk0p13
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu2 -> /dev/block/mmcblk0p14
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 cam_vpu3 -> /dev/block/mmcblk0p15
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 dkb -> /dev/block/mmcblk0p2
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 kb -> /dev/block/mmcblk0p1
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 keys -> /dev/block/mmcblk0p3
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 lk -> /dev/block/mmcblk0p5
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 metadata -> /dev/block/mmcblk0p8
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 misc -> /dev/block/mmcblk0p4
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 nvcfg -> /dev/block/mmcblk0p10
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 recovery -> /dev/block/mmcblk0p17
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 spmfw -> /dev/block/mmcblk0p11
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 sspm_1 -> /dev/block/mmcblk0p12
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 system -> /dev/block/mmcblk0p19
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 tee1 -> /dev/block/mmcblk0p6
+lrwxrwxrwx 1 root root 20 2023-12-05 20:38 tee2 -> /dev/block/mmcblk0p7
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 userdata -> /dev/block/mmcblk0p21
+lrwxrwxrwx 1 root root 21 2023-12-05 20:38 vendor -> /dev/block/mmcblk0p20

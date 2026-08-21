@@ -1,0 +1,2 @@
+$ adb shell cat /proc/partitions
+cat: /proc/partitions: Permission denied

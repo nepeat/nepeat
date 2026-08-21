@@ -1,0 +1,2 @@
+$ adb shell cat /system/build.prop
+cat: /system/build.prop: Permission denied

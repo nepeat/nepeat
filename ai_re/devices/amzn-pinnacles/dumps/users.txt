@@ -1,0 +1,3 @@
+$ adb shell pm list users
+Users:
+	UserInfo{0:Owner:13} running
