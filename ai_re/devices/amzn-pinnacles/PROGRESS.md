@@ -21,6 +21,10 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[usbdl-memory-commands.md](usbdl-memory-commands.md)** — ⭐ **the last
+  root-free lead.** The preloader's USBDL handler implements `WRITE16`/`READ32`.
+  Preloader USBDL is a *different* mode from the fused-off BROM. Read-only test
+  defined, zero risk.
 - **[efuse-answer.md](efuse-answer.md)** — ⭐ **the eFuse question is ANSWERED**:
   `0x11f10060 = 0x946` → SBC **enabled** (DA validation enforced) and BROM
   download **fused off**. Read without UART, from data already dumped.
@@ -180,6 +184,22 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: Mapped the **preloader USBDL command dispatcher** — it accepts
+  **`0xa1 WRITE16` and `0xa2 READ32`**, MediaTek's arbitrary memory primitives,
+  alongside `SEND_DA`/`JUMP_DA`/`SEND_CERT`/`GET_ME_ID`. This matters because the
+  fuse we confirmed (bit 8) disables the **BootROM** command handler, **not the
+  preloader's** — and preloader USBDL (`0e8d:2000`) is a separate mode from BROM
+  (`0e8d:0003`). Also established that `Tool connection is unlocked` is printed
+  **unconditionally** before `bldr_handshake`, so it is a status line rather than
+  a gate. Whether SLA additionally gates the memory commands is the open
+  question, and there are no SLA challenge strings in the binary. Confirmed the
+  preloader→LK security block layout (`+8 sbc_enabled`, `+9 daa_enabled`,
+  `+a rpmb_state`, `+b prod_dev`) — the latter two match `ro.boot.rpmb_state=2`
+  and `ro.boot.prod=1`, validating it. **Defined a zero-risk read-only test** with
+  a perfect oracle: `READ32` of chipid `0x08000000` should return `0x788`, which
+  we already know from `devinfo[28]`. See
+  [usbdl-memory-commands.md](usbdl-memory-commands.md).
 
 - **2026-08-21**: ⭐ **eFuse question ANSWERED without UART.** The preloader
   builds MediaTek's `devinfo[]` from a table of eFuse register addresses at
