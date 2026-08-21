@@ -7,6 +7,9 @@ table. Working theory: a non-retail SKU (enterprise / logistics / kiosk).
 `unauthorized` — blocked on someone unlocking the screen and accepting the
 RSA prompt.** See [Next step](#next-step).
 
+Detail lives in siblings: **[identification.md](identification.md)** — public
+-source research, the build-number decode, and what's been ruled out.
+
 ## Identity
 
 Everything in this table came off the device screens in a prior chat-only
@@ -106,15 +109,47 @@ fastboot, which bypasses the lockscreen entirely:
 fastboot -i 0x1949 getvar all 2>&1 | tee dumps/fastboot-getvar.txt
 ```
 
+## What the research settled (2026-08-20)
+
+Full writeup in [identification.md](identification.md). The headline:
+
+**`PS7401` decodes to Fire OS 7.4.0.1.** The build band is `PS` + the four Fire
+OS version digits, now confirmed against FTVDB rather than inferred. Sweeping
+every Amazon device family for a `PS74xx` build returns **exactly one hit** —
+Echo Show 15 2nd Gen (`cypress`, model `AEOCY`, 7.4.6.6). No retail Fire tablet
+and no Fire TV device uses the 7.4 branch.
+
+So `yacht` has a Fire *tablet* model number (`KF__WI` convention) but runs a
+software branch otherwise seen only on a wall-mounted Echo Show — and at a much
+earlier build than the 2024 Echo Show. That tension is the best identification
+lead available, and `pm list packages -s` tests it directly: Echo/Alexa shell
+packages would corroborate, Fire tablet packages would refute.
+
+Otherwise the device is genuinely undocumented — absent from the codename
+wikis, from FTVDB, and from Amazon's GPL source pages; and ASIN `B0BPK28DW2`
+has **no Keepa price history on .com or .co.uk**, meaning it was essentially
+never offered at retail.
+
+Also worth knowing: the XDA "4 GB RAM + rear flash" detail is weaker than the
+handoff suggested. It traces to one garbled sentence in a two-post thread that
+nobody answered. Search engines now echo it as if it were a spec sheet; that's
+an LLM artifact, not a source. Measure it here.
+
 ## Open questions
 
-- What is the marketing name / intended product for **yacht**?
-- What is **pinnacles** — SoC, reference board, or Amazon-internal platform
-  name? Kernel 4.4.x hints MediaTek, unconfirmed.
+- What is the marketing name / intended product for **yacht**? *(unresolved —
+  no public source names it)*
+- Does the package list look Echo/Alexa or Fire tablet? **← best next test**
+- What is **pinnacles**? Unattested publicly; inferred to be an Amazon-internal
+  board name (Amazon's tablet boards use California minerals/places, and
+  Pinnacles is a California national park). The MediaTek guess from kernel
+  4.4.146 is unverified — `/proc/cpuinfo` settles it.
 - Is the bootloader locked? Is `flashing unlock` permitted?
 - Real modem hardware, or telephony framework only?
 - Was this provisioned through an enterprise/MDM path? (`dumpsys
   device_policy` answers this.)
+- Actual RAM and whether a rear flash exists (`/proc/meminfo`,
+  `pm list features`).
 
 ## Cautions
 
@@ -126,26 +161,35 @@ fastboot -i 0x1949 getvar all 2>&1 | tee dumps/fastboot-getvar.txt
 - The DSN is Amazon's registration/blacklist identifier — keep it out of
   public posts.
 
-## Leads not yet chased
+## Leads
 
-- **Amazon GPL kernel source release.** Amazon must publish kernel sources per
-  device, named by codename — look for a `yacht` tarball.
-- **Keepa on ASIN `B0BPK28DW2`.** Keepa retains listing metadata after Amazon
-  pulls a product page, which is the situation here. Plain web search cannot
-  resolve a bare ASIN token.
-- **`pinnacles` as a shared board name.** Worth grepping firmware archives and
-  codename wikis for other devices on the same platform.
-  `bitbyte.miraheze.org/wiki/Amazon_device_codenames` is relevant but blocks
-  automated fetches — needs a human browser.
-- **XDA thread** ["Plz help find what kindle this is"](https://xdaforums.com/t/plz-help-find-what-kindle-this-is.4787518/)
-  (May 2026) posts a byte-identical fingerprint — a £5 UK car-boot unit. The
-  poster claimed 4 GB RAM and a rear camera flash, which retail Fire tablets
-  lack. Unverified hearsay about a *different* unit; confirm on this one. A
-  rear flash would fit barcode/inventory scanning duty, which is the main
-  support for the enterprise theory.
+All of the handoff's public-source leads have now been chased and came back
+negative — see [identification.md](identification.md) for each, with sources
+and the tooling notes needed to re-run them (most of these sites bot-wall
+automated fetches).
+
+Remaining, in rough order of value:
+
+- **On-device package list.** The Echo-branch hypothesis above is testable and
+  cheap. Highest-value single artifact.
+- **Fire OS 7.4.x siblings.** If other 7.4-branch devices can be enumerated
+  from firmware archives, `yacht`'s cohort becomes visible even though `yacht`
+  itself is unlisted.
+- **Amazon source tarballs by market name.** Tarballs are named for the market
+  name, not the codename, so once the marketing name is known the GPL page
+  becomes checkable again. Blocked on identification, not the reverse.
+- **Teardown.** Chip markings would settle the SoC question independently of
+  anything Amazon publishes. Case not yet opened.
 
 ## Log (newest first)
 
+- **2026-08-20**: Public-source research pass — see
+  [identification.md](identification.md). Decoded the build band (`PS7401` =
+  Fire OS 7.4.0.1) and found 7.4.x is used by no retail Fire tablet or Fire TV,
+  only Echo Show 15 2nd Gen. Ruled out: codename wikis, FTVDB, Amazon GPL
+  source pages, Keepa/camel (ASIN never retailed), the XDA thread (two posts,
+  no ID). Downgraded the "4 GB RAM + rear flash" claim to a single garbled
+  forum sentence.
 - **2026-08-20**: Created project. Added Android tooling to the RE flake
   (`android-tools`, `scrcpy`, `jadx`, `apktool`, `simg2img`,
   `payload-dumper-go`; `abootimg` skipped — Linux-only, use `binwalk` for
