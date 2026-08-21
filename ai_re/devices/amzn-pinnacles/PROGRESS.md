@@ -61,6 +61,18 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[unlock-scheme.md](unlock-scheme.md)** — 🔑 **the temp-unlock mechanism,
+  reconstructed.** cert + codes + signature, both phases, and why our
+  unauthenticated write cannot be levered.
+- **[unlock-codes-rpmb.md](unlock-codes-rpmb.md)** — 🔑 **the codes are an RPMB
+  per-boot nonce.** Credentials are neither portable nor durable. Also: ARB is
+  RPMB-backed, koboreru marker absent, and the scene survey.
+- **[fos-flags.md](fos-flags.md)** — ⛔ **dm-verity/SELinux switches are a
+  decoy**, gated inside the test primitive. Includes the verified locked-hw
+  allowlist and three corrections to older notes.
+- **[usbdl-pmic-primitive.md](usbdl-pmic-primitive.md)** — ⭐ **the one surviving
+  USBDL primitive**: PMIC commands bypass the memory whitelist. Read probes safe,
+  rail writes potentially terminal.
 - **[preloader-usbdl.md](preloader-usbdl.md)** — ⛔ **USBDL memory access is
   address-filtered; the patch is denied.** Retracts the earlier "root-free
   arbitrary memory write" claim. Keeps what is real: software-only preloader
@@ -76,29 +88,31 @@ Detail lives in siblings:
   download **fused off**. Read without UART, from data already dumped.
 - **[theories-closed.md](theories-closed.md)** — everything **tested and ruled
   out**, so it isn't retried. Read before proposing a new angle.
-- **[da-validation.md](da-validation.md)** — ⭐⭐ **DA signature validation is
-  SKIPPED on a non-secure chip.** If eFuse bit 2 is clear, preloader USBDL
-  accepts an unsigned Download Agent — full flash access, **no root, no BROM, no
-  unlock**. Gated on one bit the preloader prints at every boot.
-- **[brom-recovery.md](brom-recovery.md)** — ⭐ **the preloader has a built-in
-  "force BROM download recovery"** that wipes itself to drop into USB download
-  mode. Best lead yet — and the most dangerous thing found. **Do not trigger
-  before the fuse question is answered.**
-- **[lk-emulation.md](lk-emulation.md)** — ⚠️ **the unlock decision lives in the
-  PRELOADER, not LK** (LK only reads a single boot-arg byte). Also: xrefs solved,
-  LibTomCrypt pinned to 1.18.2 with a real unbounded-recursion bug but **no write
-  primitive**, and a **bricking warning** for the tucert path.
-- **[tucert-primitive.md](tucert-primitive.md)** — ⭐ **`fastboot flash tucert`
+- **[da-validation.md](da-validation.md)** — ⛔ **CLOSED.** DA validation is
+  skipped only on a *non-secure* chip; the fuse read `0x946` shows DAA is
+  enforced here. (Note the bit labels in that file: bit 1 = sbc, bit 2 = daa.)
+- **[brom-recovery.md](brom-recovery.md)** — ⛔ **CONFIRMED BRICK — never
+  trigger.** The preloader can wipe itself to force BROM download, but bit 8 of
+  the fuse is blown, so there is no BROM command handler to fall back to.
+- **[lk-emulation.md](lk-emulation.md)** — xrefs solved (scan every 2-byte
+  boundary), LibTomCrypt pinned to 1.18.2, and a **bricking warning** for the
+  tucert path. ⚠️ Its "lock state is one byte" framing is **retired**: byte
+  `+0x59a7` is `androidboot.prod`, and `0xdaf2`/`0xdc70` are
+  `amzn_is_restricted()` (1 = restricted). See [fos-flags.md](fos-flags.md).
+- **[tucert-primitive.md](tucert-primitive.md)** — **`fastboot flash tucert`
   writes arbitrary bytes into IDME on a locked device with NO root and no
-  signature check.** Feeds a LibTomCrypt DER/X.509 parser at every boot. The
-  most promising path, and OTA-proof.
+  signature check** — that part stands and was verified on the device. ⛔ But its
+  "feeds a DER/X.509 parser" rationale is **retracted**: tucert never reaches a
+  DER parser. See [unlock-scheme.md](unlock-scheme.md).
 - **[lk-reversing.md](lk-reversing.md)** — **our own LK reversed.** The unlock
-  key is unforgeable (RSA-2048, keys extracted), but `dev_flags`/`fos_flags` in
-  the *unsigned* IDME structure are writable with root and give SELinux
-  permissive + dm-verity off without any unlock. **Decision pending.**
+  key is unforgeable (RSA-2048, keys extracted). ⛔ Its `dev_flags`/`fos_flags`
+  proposal is **closed**: the restriction gate sits inside the flag-test
+  primitive, so writing them changes nothing while locked — the planned
+  experiment at line 199 is predicted to no-op. See [fos-flags.md](fos-flags.md).
 - **[lk-analysis.md](lk-analysis.md)** — analysis of a contemporaneous Amazon
-  MT8183 bootloader. **`dev_flags` sets SELinux permissive and `fos_flags`
-  turns off dm-verity** — which may matter more than a bootloader unlock.
+  MT8183 bootloader. Its `dev_flags`/`fos_flags` optimism is superseded by
+  [fos-flags.md](fos-flags.md) (correct bits: fos `0x80`, dev `0x40` — and both
+  are gated).
 - **[root.md](root.md)** — **root achieved**, how to re-obtain it, and the
   firmware dump inventory.
 - **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version:
