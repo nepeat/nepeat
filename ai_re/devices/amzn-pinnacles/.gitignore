@@ -24,3 +24,6 @@ jadx-out/
 # Reference firmware pulled from public Amazon OTAs — binary, regenerable.
 # Hashes and findings are recorded in lk-analysis.md instead.
 ref-firmware/
+
+# Pulled system/vendor trees — ~1.2GB, regenerable from the device.
+fw/

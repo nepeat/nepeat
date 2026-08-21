@@ -1,0 +1,49 @@
+# Pulled system/vendor inventory — 2026-08-21T07:48:41Z
+# Unprivileged adb pull; binaries live in fw/ (gitignored). Hashes only here.
+# Totals: framework 208M, lib 705M, priv-app 161M, app 148M, vendor 90M, bin 3.4M, etc 1000K
+
+## Amazon framework (BOOTCLASSPATH / SYSTEMSERVERCLASSPATH)
+364603c0228058973ed976ff1bef51c3cab2fa8fc163ec63c727157bb92dec96  fw/framework/AWSRemoteConfigurationAndroidClient.jar
+364603c0228058973ed976ff1bef51c3cab2fa8fc163ec63c727157bb92dec96  fw/framework/aspclient.jar
+7eec29b4da43b3610d78537d12c75b4f5b07a985a031841707e826b538ff7be8  fw/framework/fosframework.jar
+aab24bc0a61e760a200f18b0a89d4218ef46993ef70db7ffe2db2229b89eabee  fw/framework/fosservices.jar
+364603c0228058973ed976ff1bef51c3cab2fa8fc163ec63c727157bb92dec96  fw/framework/retaildemolibrary.jar
+364603c0228058973ed976ff1bef51c3cab2fa8fc163ec63c727157bb92dec96  fw/framework/webviewext.jar
+
+## Amazon AOT boot-image artifacts
+0cc80d6f51b3d7227903a30c78008b74cdcb6ad6e447b89ae41e6532b784399d  fw/framework/arm/boot-fosframework.art
+f04b319f5a263a56633fce656cb890586ab48cdc63c834dfe17b6774badde5a3  fw/framework/arm/boot-fosframework.art.rel
+2119fc1535489473255126b8d5ac784ad587febf35945fc1fafe090a23c8dd37  fw/framework/arm/boot-fosframework.oat
+76adf8aa6ce2fba181c82c0096fe33ca52111dd2cf244fb2d41d50a82418bb8b  fw/framework/arm/boot-fosframework.vdex
+6c1741e055e647b0a545d81cf8d106d6a4a23a9d31c128f42f18911fea16bc23  fw/framework/arm/boot-webviewext.art
+9031926bd33f0ccf5bbeb613a25c5602c8976355a46a4175c2dad95b33216cee  fw/framework/arm/boot-webviewext.art.rel
+fbb67f4259fb5cce69fae432082ed394a8178f0cedac0cab6c2b6e7daf458181  fw/framework/arm/boot-webviewext.oat
+fb07afcea0c5c42aaef73956e6f4704fa34227f19051a9381fe39031f7995bec  fw/framework/arm/boot-webviewext.vdex
+
+## Non-AOSP priv-app / app
+8109f3c81e8c518ab22d92feeff647ddf80c2cf7fcd4a93e3dd72b7ad8b070f8  fw/priv-app/ArcusListener/ArcusListener.apk
+21691c6b1677f34f9607071f6d9148eb2600e7703f457dc055ff184d3ec1fcd4  fw/priv-app/ArcusListener/oat/arm/ArcusListener.odex
+d699ced820a9c76e949beac26322dacf3f479ff402b260e26e499137c67eeaa7  fw/priv-app/ArcusListener/oat/arm/ArcusListener.vdex
+59ef8c27ba877d8ad605112a5cd9391c83870278070cf422020232cec155f8c1  fw/priv-app/RaftSystemUI/RaftSystemUI.apk
+600a7eabc0dcd1895026390d0c188df2fac2d829aecc07536bc7defe5b885deb  fw/priv-app/RaftSystemUI/oat/arm/RaftSystemUI.odex
+b613eda1e2743b35244d50275186316b5e2abdfcf2ca3514960bc67a5bb4b7a3  fw/priv-app/RaftSystemUI/oat/arm/RaftSystemUI.vdex
+5af77b42c30e1f44ede8066b84c42410c9c51d1297f2842d7cf94964859bc539  fw/priv-app/Shipmode/Shipmode.apk
+d711dca5bf28c0344c5820f619c87a8198348f85c45f8ee0ba0be8b5c8e90f4a  fw/priv-app/Shipmode/oat/arm/Shipmode.odex
+bda42ac2c8cce005051c7727396c47544f988fad0e14cbe7e8335b22be19f995  fw/priv-app/Shipmode/oat/arm/Shipmode.vdex
+1de63ae80f1f50483d0ae698a04abb0defba3e054a404720dc6023578c8d36c7  fw/priv-app/TabletLockscreenWallpaper/TabletLockscreenWallpaper.apk
+8fb85afaf1fc23031e947fc8dd64cdc4e2dfd5281ffb6498c8b776916f955e9e  fw/priv-app/TabletLockscreenWallpaper/oat/arm/TabletLockscreenWallpaper.odex
+ca9891c40d0ca2c338236b4b773545bae5bd549971610a9bc0bc7ec68135edb7  fw/priv-app/TabletLockscreenWallpaper/oat/arm/TabletLockscreenWallpaper.vdex
+656bad7a0b3fe92729bd8d241f8feb8f8f4dee50fd4996f03118b147af9685f4  fw/priv-app/com.amazon.kor.demo/com.amazon.kor.demo.apk
+e5703f1d9aed2628a8981e5e1d0d593715db8c7f41a60ab3513493e72e05875b  fw/priv-app/com.amazon.kor.demo/oat/arm/com.amazon.kor.demo.odex
+08cdc8dcff4b87d26a6e80bdcc0803c828acb29aaa0bbb492ca9aa266cc13143  fw/priv-app/com.amazon.kor.demo/oat/arm/com.amazon.kor.demo.vdex
+b7f72fc95b4eea0b0a89fb9dafb6e935d92f49cd134b1ba22bf22f2672059e16  fw/priv-app/com.amazon.redstone/lib/arm/libblueshift-audioprocessing.so
+c2e5d7573f18ad4af55e9ab691f65f4e40390dd074c6f2f8e8e20c861070d306  fw/priv-app/com.amazon.redstone/lib/arm/libblueshift-opus.so
+2ff9816251c218bc70866aa05f19ad7feaceef0c14dadc089edaf8bf36c5e24b  fw/priv-app/com.amazon.redstone/lib/arm/libgesture_sibyl.so
+114b91f9dc591d2b7206711940c9f5a28826370640e8ed84e95ee5533ea8de3b  fw/priv-app/com.amazon.redstone/lib/arm/libjni_latinime.so
+
+## fireos.hardware.* HALs
+887e32999ccd42643cc919f4a61fd95b82be2f082ca934d099c2a845ec9f1268  fw/vendor/etc/init/fireos.hardware.amazonthermal@1.0-service.rc
+d24bacf3f14b98f20d9e644d42b5b024fb58fc1bc1955a06504be199d39a675f  fw/vendor/etc/init/fireos.hardware.audio@2.0-service.rc
+2b95c96f9fdd8356d2dfd4437bbd45af52ad53060957d9c06111abcbc3ff413b  fw/vendor/etc/init/fireos.hardware.connectivity.networkpower@1.0-service.rc
+a20245129dc08afebb503e5a876f48f37e927778d3c33bc0d26764912d4962d2  fw/vendor/etc/init/fireos.hardware.fireosdha@2.0-service.rc
+42af91c71c0497ebfd8700f1c91e01ac9fdecbcc97fa6d1a93db3036eae12e81  fw/vendor/etc/init/fireos.hardware.idme@1.0-service.rc
