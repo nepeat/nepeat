@@ -91,23 +91,62 @@ the shape of bug worth hunting.
 - **Repeatable and low-risk** — writes stay inside the declared 1024-byte field;
   restoring is another `flash tucert` with zeros.
 
-## Next steps
+## Bounds: tested, and it is NOT an overflow
 
-1. **Determine the length bound.** Does LK reject >1024 bytes, or does it
-   overflow forward into the next IDME entry (`rear_cam_otp`, entry header at
-   `0x3158`)? An unbounded copy would be a second, more direct corruption
-   primitive. ⚠️ Test carefully — one byte over lands on the `rear_cam_otp`
-   entry *name*, which could break IDME parsing. That is recoverable (LK has
-   *"IDME initialize failed, force to fastboot mode"*) but would need care, and
-   we hold a full `idme_boot1.img` backup.
-2. **Fuzz the DER parser** through `flash tucert` — malformed lengths, deep
-   nesting for recursion depth, oversized INTEGER/BIT STRING headers, truncated
-   sequences. Failure modes are observable: boot messages, `ret = %d` values,
-   and whether the device reaches Android at all. Every iteration is a reboot,
-   so this wants scripting.
-3. **Static-analyse `amzn_verify_temp_unlock_code`** to find the buffer it
-   parses into and whether the cert's declared length is trusted. Blocked on the
-   Thumb-2 / multi-blob issue in [lk-reversing.md](lk-reversing.md).
+Probed safely — the field after `t_unlock_cert` is `rear_cam_otp`, whose value
+is the placeholder string *"rear camera otp"* rather than real calibration, and
+the IDME table walk is driven by size fields rather than names, so a one-byte
+overrun could only touch a name byte.
+
+| payload | result | stored |
+| --- | --- | --- |
+| 256 B | `OKAY` | 256 |
+| 1024 B (exact field size) | `OKAY` | 1024, all field names intact |
+| **1025 B (one over)** | **`FAILED (remote: 'write tucert failed!')`** | unchanged, nothing written |
+
+**The write is correctly bounded to the declared 1024 bytes.** There is no
+buffer-overflow primitive here. Any attack has to be a **parse** bug in the
+DER/X.509 handling, not a memory-safety bug at write time.
+
+## The blocker: no visibility into LK
+
+Fuzzing the DER parser through this primitive is the obvious next move, but it
+would currently be **blind**:
+
+- `oem logcat lk` and `oem dump-boot-args` are both refused on locked hardware,
+  so LK's own messages — including *"Verify temp unlock cert fail, ret = %d"* —
+  are unreadable.
+- LK exposes **no boot property** reflecting cert state. Diffed the whole
+  `ro.boot.*` set with a 1024-byte bogus cert installed against the original
+  capture: no difference.
+- So the only observable is coarse — does the device still reach Android — which
+  detects hard crashes and nothing else. Each iteration costs a full
+  flash + reboot cycle (~90 s).
+
+**UART is the unlock for this work.** With LK console output, every malformed
+cert yields a specific error and return code, turning blind fuzzing into a real
+feedback loop, and `ret = %d` alone would map the parser's error paths. Finding
+the UART pads is now the highest-value hardware task — see the serial workflow in
+`ai_re/CLAUDE.md`.
+
+## Also ruled out: software entry to MediaTek download mode
+
+`adb reboot edl` does **not** drop this device into BROM or preloader USBDL — it
+performs a normal reboot and comes back as `0x1949:0x0642` (ordinary ADB), not
+`0e8d:0003` (BROM) or `0e8d:2000` (USBDL). So there is no software path into
+download mode; the remaining BROM fuse test needs physical button combos while
+powering on (VolUp, VolDown, or both), which is a hands-on task.
+
+## Remaining next steps
+
+1. **Get UART.** Everything else is gated on it.
+2. **Then fuzz the DER parser** via `flash tucert` — malformed lengths, deep
+   nesting to probe `der_decode_sequence_flexi` recursion, oversized
+   INTEGER/BIT STRING headers, truncated sequences.
+3. **Static-analyse `amzn_verify_temp_unlock_code`** to find the parse buffer
+   and whether the cert's declared length is trusted. Blocked on the Thumb-2 /
+   multi-blob problem in [lk-reversing.md](lk-reversing.md).
+4. **Physical BROM probe** while the case is open for UART anyway.
 
 ## Safety notes
 

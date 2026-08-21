@@ -156,6 +156,16 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 
 ## Log (newest first)
 
+- **2026-08-21**: Bounded the tucert primitive and mapped the blockers. The
+  write is **correctly bounded to 1024 bytes** (1025 → `write tucert failed!`,
+  nothing written), so there is **no overflow primitive** — any attack must be a
+  DER/X.509 **parse** bug. Also ruled out a software route into MediaTek
+  download mode: `adb reboot edl` just reboots normally
+  (`0x1949:0x0642`, not `0e8d:0003`/`0e8d:2000`). And confirmed there is **no
+  boot-property oracle** — `ro.boot.*` is byte-identical with a bogus cert
+  installed. **UART is now the gating task**: `oem logcat lk` is refused on
+  locked hw, so DER fuzzing would be blind to everything but hard crashes.
+
 - **2026-08-21**: ⭐ **Found an unauthenticated, root-free write primitive.**
   `fastboot flash tucert` accepts arbitrary bytes on a **locked** bootloader and
   writes them into the IDME `t_unlock_cert` field — confirmed by flashing 256
