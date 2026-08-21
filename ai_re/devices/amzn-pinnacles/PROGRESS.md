@@ -8,12 +8,20 @@ and a rear camera flash added over retail, running an AOSP-app-layer Fire OS
 sibling is `trona` / KFTRWI. Never sold; no marketing name because it was never
 marketed. See [identification.md](identification.md).
 
-**⭐ ROOT-FREE PRELOADER MEMORY WRITE CONFIRMED 2026-08-21** — mtkclient
-attaches to preloader USBDL (`0e8d:2000`, reachable via plain `adb reboot`, no
-buttons) on a **locked** device and **writes into the running preloader's
-memory**. Only DA authentication still blocks full flash access, and the exact
-check to patch is known (`runtime 0x0022D8B8`). See
-[preloader-usbdl-CONFIRMED.md](preloader-usbdl-CONFIRMED.md).
+**⛔ RETRACTED 2026-08-21 — there is no root-free preloader memory write.** An
+earlier entry here claimed one was confirmed. It was not: that claim came from
+misreading mtkclient log lines which describe **host-side** patching of the DA
+blob, not writes to the device. Tested live, the preloader's USBDL memory
+commands are **address-filtered to a 5-address allowlist** (the eFuse window
+plus the WDT); `WRITE16` to the patch target `0x0022D8B8` returns status
+`0x1001` (denied), and even `READ32` there returns `0x1000`. See
+[preloader-usbdl.md](preloader-usbdl.md).
+
+What *is* real from that work: preloader USBDL is reachable purely from software
+with no buttons (`adb reboot`), the handshake succeeds on a locked unrooted
+device reporting `HW code: 0x788`, and **`efuse 0x11f10060 = 0x00000946` was
+read live off the device** — independently confirming the value previously
+derived from `atag,devinfo`.
 
 **✅ ROOTED 2026-08-21** — `uid=0(root) context=u:r:kernel:s0`, SELinux
 **Permissive**, via CVE-2022-38181 (unpatched on this build). All key partitions
@@ -194,6 +202,34 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: ⛔ **The USBDL patch plan is DEAD, and the "root-free memory
+  write" claim is RETRACTED.** Ran the whole thing against the live device.
+  - **Reached the preloader** from software with no buttons, handshaked on a
+    locked unrooted device, `HW code: 0x788`. That part works.
+  - **Read `efuse 0x11f10060 = 0x00000946` live off the device**, matching the
+    `atag,devinfo` derivation exactly. Two independent methods agree.
+  - **But memory access is address-filtered.** Probing 15 addresses: only
+    `0x11f10000`–`0x11f10100` (eFuse window) and `0x10007000` (WDT) are
+    readable. `0x08000000`, DRAM, and the entire preloader code region all
+    return status `0x1000`. `WRITE16 0x0022D8B8` returns `0x1001` — **denied**.
+    The patch can never be applied over USBDL.
+  - **The earlier "CONFIRMED root-free arbitrary memory write" was my error.**
+    mtkclient's `Patched "hash_check" in preloader` lines come from
+    `patch_preloader_security_da1(self, data)`, which patches a **host-side
+    bytearray** — the DA blob being prepared for upload. Nothing was ever
+    written to the device. A tool's log line is not an observation of the
+    device; it should have taken a read-back to call that confirmed.
+  - **Opcode correction:** the dispatcher is `READ16=0xD0, READ32=0xD1,
+    WRITE16=0xD2, WRITE32=0xD4`; `0xA2` is a *legacy 16-bit* read. Earlier notes
+    saying `0xa1 WRITE16 / 0xa2 READ32` were wrong — caught because `0xA2`
+    returned two bytes, not four.
+  - **macOS can never use mtkclient's USB path here**: AppleUSBCDC claims the
+    interface, so libusb never enumerates `0e8d:2000` at all. Only the serial
+    path (`/dev/cu.usbmodem*`) works. Preloader window measured at **~4 s after
+    `adb reboot`, lasting ~2–3 s**.
+  - Full detail, including protocol framing and resync, in
+    [preloader-usbdl.md](preloader-usbdl.md).
 
 - **2026-08-21**: 🔧 **Corrected the fuse bit labels, and fixed a real flaw in
   our own exploit's safety check** — both found offline while the tablet was

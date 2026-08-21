@@ -71,3 +71,25 @@ however it compiles, then patch its `.modinfo` vermagic to `4.4.146+` and its
 `__versions` entries to the device's actual CRCs. For a module that only touches
 `printk` and `ioremap`, ABI drift between 4.4.146 and 4.4.302 is low risk. This
 remains the most promising way to answer the SBC question without UART.
+
+## USBDL memory patch of the `daa_enabled` gate — CLOSED 2026-08-21 (tested live)
+
+Plan was: reach preloader USBDL, `WRITE16` at runtime `0x0022D8B8` to make the
+`daa_enabled` query return 0, so `usbdl_verify_da` takes the "DA validation
+disabled on non-secure chip" path and accepts an unsigned DA.
+
+**Tested against the device. Denied.**
+
+```
+READ32  0x0022D8B8              -> status 0x1000   (address refused)
+WRITE16 0x0022D8B8 = 2000,4770  -> status 0x1001   (write refused)
+```
+
+The preloader's USBDL memory commands are restricted to an address allowlist —
+measured as the eFuse window `0x11f10000`–`0x11f10100` plus the WDT
+`0x10007000`, 5 of 15 probed addresses. SRAM, DRAM, and all preloader code are
+outside it. No signature or SLA is involved; the address filter alone closes it.
+
+This also **retracts** the earlier claim of a root-free arbitrary memory write
+in the preloader — that came from misreading mtkclient's host-side DA-patching
+log lines. See [preloader-usbdl.md](preloader-usbdl.md).
