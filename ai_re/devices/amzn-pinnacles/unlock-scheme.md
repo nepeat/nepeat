@@ -241,3 +241,47 @@ This is the remaining thread on portability. If the blob is preloader-supplied,
 the codes are outside reach without preloader code execution. If it comes from a
 writable partition, that is a much more interesting story — but nothing here
 establishes which, and it should not be guessed.
+
+## Why `tucert`/`tucode` bypass the locked-hardware gate — the call path
+
+This explains the long-standing empirical puzzle: why `fastboot flash tucert`
+succeeds on a locked device while every other flash target is refused.
+
+The fastboot `flash` handler is `0x33538`, taking `(name, data, size)`. Its
+order of evaluation:
+
+```
+0x33548  bl #0x37c0e          ; strcmp(name, "unlock")   [str @0x4b689]
+0x3354c  cbnz r0, #0x33558    ; not "unlock" -> fall through
+0x33552  bl #0xe468           ;   "unlock"   -> dedicated verified handler
+0x3355e  bl #0xe4c8           ; IDME dispatcher: "tucert" / "tucode"
+0x33562  cmp r0, #0
+0x33564  bne.w #0x33692       ; HANDLED -> return immediately
+0x3356e  bl #0x37c0e          ; strcmp(name, "partition") [str @0x7ac92]
+0x33578  ...                  ;   -> "Attempt to write partition image."
+0x3357e  ...                  ;      "Do not support this operation." [0x7a75c]
+0x33584  bl #0x4028c          ; partition lookup by name
+0x335f0  bl #0x44ca8          ; ... the locked-hardware checks live down here
+0x335f8  cmp r0, #1
+```
+
+`0xe4c8` returns **1 when it handled the name** (`0xe4f6`) and **0 otherwise**
+(`0x33562`'s `bne` therefore exits the function). So a `tucert` or `tucode`
+flash is fully serviced and **returns before the lock gate at `~0x335f0` is
+ever evaluated**.
+
+**This is a call-path argument, not an inference from strings.** It predicts
+exactly the behaviour already observed on the device for `tucert`, and it puts
+`tucode` on the *same* pre-gate path — same function, same early return, same
+dispatcher.
+
+**Still not run against hardware.** The prediction is strong and mechanism-based,
+but `fastboot flash tucode` has not been executed on a locked unit, and it will
+not be recorded as confirmed until it has.
+
+### Net effect
+
+Both halves of the temp-unlock credential — the cert and the 256-byte signature
+— are installable on a locked, unrooted device through a path that never
+consults the lock state. The bootloader's entire defence rests on the RSA-2048
+signature inside the cert, and nothing else.
