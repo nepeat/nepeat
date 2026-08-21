@@ -59,6 +59,17 @@
             # Password / hash cracking (Raritan PX3 root $5$ hash — see
             # devices/raritan-px3-5475v). john has OpenCL/Metal on Apple silicon.
             john
+
+            # Android RE (devices/amzn-pinnacles — Amazon "yacht"/KFYAWI).
+            # adb + fastboot; Amazon USB VID is 0x1949, pass `-i 0x1949`.
+            android-tools
+            scrcpy # mirror/control the screen over adb — locked-device triage
+            jadx # dex -> java, for pulling apart Amazon system APKs
+            apktool # apk resource/smali unpack
+            # NOTE: abootimg is linux-only; use `binwalk` (above) or
+            # android-tools' unpack_bootimg for boot.img on darwin.
+            simg2img # android sparse image -> raw, for pulled partitions
+            payload-dumper-go # extract partitions from OTA payload.bin
           ];
 
           shellHook = ''
