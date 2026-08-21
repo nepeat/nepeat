@@ -105,6 +105,18 @@ bootloader".
 
 Unlocking wipes `/data`, which is empty anyway, so there's nothing to lose.
 
+**Strategy — the three goals converge on one capability.** Rooting, dumping,
+and producing an unlock code all bottom out in the same prerequisite: getting
+code/read access below the OS. Concretely, dumping **LK** (`mmcblk0p5`) turns
+the unlock problem from *"forge an Amazon signature"* into *"read the
+verification routine and find its weakness"* — LK is where the unlock check
+lives, including the `amzn_get_temp_unlock_idme_*` accessors. Dumping the
+**BootROM** (mtkclient `dumpbrom`) and the **preloader** (eMMC boot0/boot1,
+outside the by-name table) establishes which stage actually enforces what.
+So the dump work is not a parallel goal to the unlock work — it is the
+precondition for it. Everything gates on whether MediaTek BROM/download mode is
+reachable on this 2022 unit, or fused off.
+
 **What the lock actually hangs on:** the IDME factory block exposes
 `t_unlock_code` and `t_unlock_cert`, and both are **empty** on this unit — see
 [customization.md](customization.md). That is the concrete reason
