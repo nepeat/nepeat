@@ -20,3 +20,7 @@ rpmb*.bin
 *.png
 jadx-out/
 *-res/
+
+# Reference firmware pulled from public Amazon OTAs — binary, regenerable.
+# Hashes and findings are recorded in lk-analysis.md instead.
+ref-firmware/

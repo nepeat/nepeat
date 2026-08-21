@@ -22,6 +22,9 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[lk-analysis.md](lk-analysis.md)** — analysis of a contemporaneous Amazon
+  MT8183 bootloader. **`dev_flags` sets SELinux permissive and `fos_flags`
+  turns off dm-verity** — which may matter more than a bootloader unlock.
 - **[root.md](root.md)** — the rooting plan. Free system-UID exploit first
   (`PS7401` < `PS7704`), then CVE-2022-38181, for which a published exploit
   targets this exact SoC/kernel/ABI.
@@ -145,6 +148,17 @@ driver version against the known CVEs.
 
 ## Log (newest first)
 
+- **2026-08-21**: Obtained a **contemporaneous Amazon MT8183 LK** — no `yacht`
+  firmware exists publicly, but a `trona` (retail sibling) OTA yielded an
+  `lk.img` from build `PS7326`, incremental **days apart** from ours. Confirmed
+  from the binary that this is UFBL + LibTomCrypt RSA-PSS, recovered the full
+  `amzn_*` routine roster, and found that **`dev_flags` sets SELinux permissive
+  and `fos_flags` disables dm-verity** — the two switches actually needed to run
+  a modified system, and a far smaller target than forging RSA-2048. Gate is
+  *"Only usr_flags can be set for a locked device"*, now the top Ghidra target.
+  Confirmed on hardware that **all** `oem` commands are refused while locked,
+  including read-only `oem logcat`/`oem dump-boot-args`. See
+  [lk-analysis.md](lk-analysis.md).
 - **2026-08-21**: **DEVICE IDENTIFIED** — an Amazon **employee work tablet**, a
   non-retail internal variant of the Fire HD 10 11th gen issued to staff in
   Europe, identified via the XDA Fire Toolbox community from an employee's own

@@ -1,0 +1,4 @@
+### oem logcat lk
+FAILED (remote: the command you input is restricted on locked hw)
+### oem dump-boot-args
+FAILED (remote: the command you input is restricted on locked hw)
