@@ -162,3 +162,40 @@ family is unlockable from one blob. Different ⇒ per-chip unique ⇒ dead.
 
 ⚠️ Those 16 hex digits are a **device identifier** — treat them like the DSN and
 keep them out of public posts.
+
+## Key-sharing structure across the family — measured
+
+Compared all RSA-2048 SPKIs in `yacht_lk.bin` against the two reference `trona`
+LK images in `ref-firmware/`. Six keys each, at structurally corresponding
+offsets. **Four of six are shared; the two that differ are exactly the unlock
+keys.**
+
+| slot (yacht) | sha256 prefix | role | shared with trona |
+| --- | --- | --- | --- |
+| `0x473df` | `2af78db6…` | image verification | **yes** |
+| `0x47939` | `3ab387e5…` | image verification | **yes** |
+| `0x4b8d4` | `de6344d4…` | **permanent unlock** | **NO — yacht-only** |
+| `0x4baec` | `851766d2…` | **temp unlock root** | **NO — yacht-only** |
+| `0x57384` | `85d7f6f7…` | image verification | **yes** |
+| `0x574ac` | `be68a42f…` | image verification | **yes** |
+
+The two `trona` images (`PS7326`, `PS7331`) share **6/6** keys with each other,
+so keys are **stable per variant across firmware versions**.
+
+This refines the community claim that "Amazon uses different signing keys per
+device". More precisely: **the image-signing keys are common across the Amazon
+MT8183 family, and only the unlock keys are per-variant.**
+
+Two consequences:
+
+1. **A `trona` unlock blob can never work on `yacht`** — different unlock key,
+   independent of anything else. Cross-variant credential reuse is dead.
+2. **Within `yacht`, every unit's LK carries the same permanent-unlock key**
+   (`de6344d4…`), since keys are baked into LK and stable across versions. So a
+   blob issued for one `yacht` unit verifies on another **iff the signed message
+   matches** — i.e. iff `devinfo[12]`, `devinfo[13]` and `unlock_version` match.
+
+`unlock_version` is settable (IDME, and root can write `mmcblk0boot1`
+directly). **So the entire question reduces, cleanly, to whether `devinfo[12]`
+and `devinfo[13]` are unit-unique** — exactly the free, read-only test described
+above. Nothing else stands in the way.
