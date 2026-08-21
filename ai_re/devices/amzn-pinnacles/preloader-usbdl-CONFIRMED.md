@@ -103,10 +103,29 @@ unattended. It polls for the preloader, verifies addressing against the read
 oracle **before** writing anything, applies the patch, and reads back to confirm:
 
 ```
-READ32 0x08000000  -> must be 0x788      (refuses to patch otherwise)
-READ32 0x0022D8B8  -> before
-write16 0x0022D8B8 = 0x2000, 0x4770      (movs r0,#0 ; bx lr)
-READ32 0x0022D8B8  -> must be 0x47702000
+READ32 0x08000000  -> must be 0x788        (oracle 1: memory reads work)
+READ32 0x0022D8B8  -> must be 0x68184b02   (oracle 2: PL_BASE is right)
+write16 0x0022D8B8 = 0x2000, 0x4770        (movs r0,#0 ; bx lr)
+READ32 0x0022D8B8  -> must be 0x47702000   (patch verified)
+```
+
+**Two independent interlocks, both verified offline against the dumped image.**
+Oracle 1 proves reads work at all. Oracle 2 is the stronger one: `0x68184b02` is
+the first four bytes of the secure-chip query itself (`ldr r3,[pc,#8]` /
+`ldr r0,[r3]`), so reading it back confirms the `0x00200D00` load-address
+derivation is correct *before* a single byte is written. If either check fails
+the script refuses to patch, so a wrong address can never be poked into the
+preloader.
+
+Patch encoding confirmed with capstone:
+
+```
+00 20 70 47   ->  0022d8b8  movs r0, #0
+                  0022d8ba  bx   lr
+original      ->  0022d8b8  ldr  r3, [pc, #8]
+                  0022d8ba  ldr  r0, [r3]
+                  0022d8bc  ubfx r0, r0, #2, #1
+                  0022d8c0  bx   lr
 ```
 
 Run it with the tablet powered **off**, then power on — it catches the

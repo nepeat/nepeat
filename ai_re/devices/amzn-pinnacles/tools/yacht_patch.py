@@ -16,6 +16,8 @@ PL_BASE      = 0x00200D00   # preloader GFH load address
 SECCHK_FILE  = 0x2cbb8      # file offset of the secure-chip query
 SECCHK_ADDR  = PL_BASE + SECCHK_FILE          # -> 0x0022D8B8
 PATCH        = [0x2000, 0x4770]               # movs r0,#0 ; bx lr
+SECCHK_BEFORE= 0x68184b02   # "ldr r3,[pc,#8] / ldr r0,[r3]" -- validates PL_BASE
+SECCHK_AFTER = 0x47702000   # "movs r0,#0 / bx lr"
 
 def main():
     cfg = MtkConfig(loglevel=logging.INFO, gui=None)
@@ -34,7 +36,12 @@ def main():
 
     before, _ = mtk.preloader.read32(SECCHK_ADDR, 1)
     b = before[0] if isinstance(before, list) else before
-    print(f"[*] before  0x{SECCHK_ADDR:08x} = 0x{b:08x}")
+    print(f"[*] before  0x{SECCHK_ADDR:08x} = 0x{b:08x} (expect 0x{SECCHK_BEFORE:08x})")
+    if b != SECCHK_BEFORE:
+        print("[-] target does not contain the expected secure-chip query.")
+        print("    PL_BASE is wrong or the preloader differs — refusing to patch.")
+        return 1
+    print("[+] target verified — this is the secure-chip query")
 
     print(f"[*] patching {[hex(x) for x in PATCH]} -> movs r0,#0 ; bx lr")
     mtk.preloader.write16(SECCHK_ADDR, PATCH)
@@ -42,7 +49,7 @@ def main():
     after, _ = mtk.preloader.read32(SECCHK_ADDR, 1)
     a = after[0] if isinstance(after, list) else after
     print(f"[*] after   0x{SECCHK_ADDR:08x} = 0x{a:08x}")
-    if a == 0x47702000:
+    if a == SECCHK_AFTER:
         print("[+] PATCH VERIFIED — secure-chip query now returns 0")
         print("[+] now run:  mtk.py printgpt      (DA should be accepted)")
         return 0
