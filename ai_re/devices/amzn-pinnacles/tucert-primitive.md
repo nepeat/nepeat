@@ -193,3 +193,110 @@ powering on (VolUp, VolDown, or both), which is a hands-on task.
   mode rather than bricking.
 - **Do not** attempt this against `flash unlock`; that path *does* verify before
   writing, so it offers no primitive and only burns reboots.
+
+---
+
+## Static analysis of the verifier — UNBLOCKED 2026-08-21
+
+Step 3 above was blocked on the "Thumb-2 / multi-blob" problem. That problem was
+later solved (the image is base 0; the old scanner was broken). Re-running the
+literal-resolution technique on `lk.img` locates the verifier and, more
+importantly, **reveals the container format — which invalidates the fuzzing plan
+in step 2 above.**
+
+### Recovering the xrefs
+
+Ghidra finds no references to the tucert strings (its analysis of this blob is
+incomplete). They are reachable by resolving the `ldr rX,[pc,#imm]` /
+`add rX,pc` pairs, where `target = *literal + addr_of_add + 4`:
+
+| string | ldr | add |
+| --- | --- | --- |
+| `Failed to get temp unlock codes` | `0x01c76` | `0x01c7a` |
+| `Failed to get temp unlock cert` | `0x01ea0` | `0x01ea8` |
+| `Verify temp unlock cert fail, ret = %d` | `0x01f9a` | `0x01fa4` |
+
+So the temp-unlock verifier lives at roughly **`0x1e00`–`0x2000`**.
+
+**Method validated:** the same resolution applied to the name argument at
+`0x1d10`/`0x1d14` yields the string **`t_unlock_cert`** — the exact IDME field we
+already know is involved. That is the sanity check that the addressing is right,
+in the same spirit as `devinfo[28] == 0x788`.
+
+### ⚠️ The field is NOT raw DER — it is `AZTU` + base64
+
+`idme_get` → helper at `0x1b6c` does, in order:
+
+```
+0x1bb8  bl #0x274        ; read the raw IDME field into a temp heap buffer
+0x1bd4  bl #0x37bd4      ; memcmp(buf, <literal>, 4)   <-- 4-byte magic
+0x1be4  bl #0x2028       ; base64-decode buf+4 into the caller's buffer
+0x1bee  cmp r2, r1       ; require decoded_len == caller capacity EXACTLY
+```
+
+The magic literal resolves to **`AZTU`** (`0x480df`, bytes `41 5a 54 55`) —
+presumably *AmaZon Temp Unlock*.
+
+**This means the DER fuzzing plan in "Remaining next steps" would not have
+worked as written.** Raw malformed DER written with `fastboot flash tucert`
+never reaches the parser: it fails the `AZTU` memcmp first. A payload must be:
+
+```
+"AZTU" || base64( <DER bytes> )
+```
+
+and the base64 must decode to a length that exactly matches the capacity the
+caller passed, or `0x1b6c` returns -1 before the parser is reached.
+
+The temp-buffer size is computed from that capacity as
+`((cap+2) * magic >> 1) << 2 + 5` — the usual 4/3 base64 expansion — so the
+encoded form is sized from the expected decoded length.
+
+### Two candidate bugs, both UNVERIFIED
+
+Recording these as leads, not findings. Neither has been tested, and the
+prologue that would settle the first one does not decode cleanly (literal pool
+in the middle), so the capacity's provenance is still unknown.
+
+**1. Undersized cert heap buffer.** The cert getter at `0x1cdc` allocates a
+fixed **`0x250` = 592-byte** buffer:
+
+```
+0x1cee  mov.w r0, #0x250
+0x1cf2  bl    #0x378a0     ; malloc(592)
+```
+
+while the `t_unlock_cert` IDME field is **1024 bytes**. If the decode capacity
+can exceed 592, this is an attacker-controlled heap overflow reached *before any
+signature check*. **But** `0x1b6c` bounds the decode by the caller-supplied
+capacity, so this only bites if that capacity is wrong or uninitialised. Not
+established — do not treat as a bug yet.
+
+**2. Length underflow at `0x1f0c`.** The cert length gets only a zero-check:
+
+```
+0x1ebe  ldr.w sb, [r7, #0x14]   ; cert length
+0x1ee8  cmp.w sb, #0            ; only checked against zero
+0x1f0c  sub.w r1, sb, #0x100    ; len - 256  -> underflows if len < 256
+0x1f18  bl    #0x19a8           ; passed straight in as a length
+```
+
+and the callee at `0x19a8` likewise only zero-checks it (`0x19da`). A cert whose
+decoded length is 1–255 would pass a huge value as a length. Whether a short
+cert can survive the `decoded_len == capacity` equality check is exactly the open
+question — if capacity is derived from the stored data, it may be reachable; if
+it is a fixed 1024, it is not.
+
+### Revised next steps
+
+1. Resolve where the capacity at `[r7+0x14]` is set. This single fact decides
+   whether either candidate above is real. The prologue needs manual
+   reconstruction around the literal pool.
+2. Only then fuzz, and fuzz with correctly-framed payloads:
+   `"AZTU" || base64(DER)`.
+3. UART remains the multiplier — `ret = %d` from
+   *"Verify temp unlock cert fail, ret = %d"* would distinguish every error path.
+   Note the return codes are visible statically as `mvn` constants:
+   `-8` (`0x1f72`, null ptr/len), `-4` (`0x1f78`), `-5` (`0x1f7e`), `-10`
+   (`0x1f84`), `-6` (`0x1f8a`), `-12` (`0x1f90`) — so a single observed `ret`
+   value would immediately identify which check failed.
