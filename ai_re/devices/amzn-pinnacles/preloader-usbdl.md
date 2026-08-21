@@ -64,6 +64,32 @@ So the `daa_enabled` patch cannot be applied over USBDL. **That plan is dead.**
 controller window, it *is* in the allowlist, and a stray write there could
 program fuses irreversibly. Reads only.
 
+## The address filter is sound — no count-overflow bug (tested 2026-08-21)
+
+Address filters commonly validate the *start* address but not `addr + count*4`.
+This one does not have that bug. Probed read-only from the allowed base
+`0x11f10060`:
+
+| count | last address covered | result |
+| --- | --- | --- |
+| 256 | `0x11f1045c` | OK |
+| 512 | `0x11f1085c` | OK |
+| 1004 | `0x11f11000` | **DENY `0x1000`** |
+| 2048 | `0x11f12060` | **DENY `0x1000`** |
+
+`0x11f11000` is exactly where the single-address probe also flipped to DENY, so
+the permitted window is the **4 KB eFuse page `0x11f10000`–`0x11f10fff`**, and
+the check covers the whole requested range. A large count cannot be used to walk
+out of the window.
+
+Even if it could, it would not reach the target: reads and writes run *upward*
+from the base, and every allowed base (`0x11f1xxxx`, `0x10007000`) sits far
+**above** the preloader at `0x00200D00`. Reaching `0x0022D8B8` by wraparound
+would need ~1e9 words pushed over a 115200-baud serial link — roughly 4 GB of
+traffic, which is not a practical primitive even if the arithmetic allowed it.
+
+**Conclusion: USBDL memory access cannot be levered into a preloader patch.**
+
 ## How the wrong claim happened
 
 The earlier run produced these lines, which I read as writes into the device:
