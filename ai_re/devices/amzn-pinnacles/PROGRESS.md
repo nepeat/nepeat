@@ -21,6 +21,10 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[lk-reversing.md](lk-reversing.md)** — **our own LK reversed.** The unlock
+  key is unforgeable (RSA-2048, keys extracted), but `dev_flags`/`fos_flags` in
+  the *unsigned* IDME structure are writable with root and give SELinux
+  permissive + dm-verity off without any unlock. **Decision pending.**
 - **[lk-analysis.md](lk-analysis.md)** — analysis of a contemporaneous Amazon
   MT8183 bootloader. **`dev_flags` sets SELinux permissive and `fos_flags`
   turns off dm-verity** — which may matter more than a bootloader unlock.
@@ -147,6 +151,19 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: Reversed **our own** `lk.img` — see
+  [lk-reversing.md](lk-reversing.md). **Unlock key generation is definitively
+  impossible**: confirmed the signed message format `0x%08x%08x%08x`
+  (SoC_ID, HW_ID, unlock_version) at `0x4b9fa` and extracted **six embedded
+  RSA-2048 public keys**, two of which sit in the unlock code. Found a second
+  fastboot entry point, `flash:tucert`. **But** found a better path: LK
+  validates IDME by **magic number only** — no CRC or signature over the field
+  table — and `dev_flags`/`fos_flags` are plain ASCII at byte offsets `0x2290`
+  and `0x22b4` of `mmcblk0boot1`, with `force_ro` clearable by root. The
+  *"Only usr_flags…"* gate is in the **fastboot** handler, which root bypasses.
+  Two single-byte writes would give SELinux permissive + dm-verity off on a
+  locked bootloader. Not attempted — needs a decision.
 
 - **2026-08-21**: **ROOT.** CVE-2022-38181 confirmed unpatched (`jit_trigger`),
   then `exploit_trona` succeeded — `uid=0(root) context=u:r:kernel:s0`, SELinux
