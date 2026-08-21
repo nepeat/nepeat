@@ -252,48 +252,62 @@ The temp-buffer size is computed from that capacity as
 `((cap+2) * magic >> 1) << 2 + 5` — the usual 4/3 base64 expansion — so the
 encoded form is sized from the expected decoded length.
 
-### Two candidate bugs, both UNVERIFIED
+### Both candidate bugs are DEAD — capacity resolved
 
-Recording these as leads, not findings. Neither has been tested, and the
-prologue that would settle the first one does not decode cleanly (literal pool
-in the middle), so the capacity's provenance is still unknown.
-
-**1. Undersized cert heap buffer.** The cert getter at `0x1cdc` allocates a
-fixed **`0x250` = 592-byte** buffer:
+The unresolved question was where the decode capacity at `[r7+0x14]` is set.
+Found it, immediately before the getter call:
 
 ```
-0x1cee  mov.w r0, #0x250
-0x1cf2  bl    #0x378a0     ; malloc(592)
+0x1e4e  movs  r3, #0
+0x1e50  mov.w r2, #0x250      ; 592
+0x1e56  str   r3, [r7, #0xc]
+0x1e5a  str   r3, [r7, #0x10] ; cert ptr = NULL
+0x1e5c  str   r2, [r7, #0x14] ; capacity = 0x250 = 592
 ```
 
-while the `t_unlock_cert` IDME field is **1024 bytes**. If the decode capacity
-can exceed 592, this is an attacker-controlled heap overflow reached *before any
-signature check*. **But** `0x1b6c` bounds the decode by the caller-supplied
-capacity, so this only bites if that capacity is wrong or uninitialised. Not
-established — do not treat as a bug yet.
+**The capacity is a hardcoded `0x250` = 592 — exactly the size of the
+`malloc(0x250)` in the getter.** That settles both candidates, and both are
+dead:
 
-**2. Length underflow at `0x1f0c`.** The cert length gets only a zero-check:
+**1. Undersized heap buffer — NOT a bug.** The decode is bounded by the same 592
+the buffer was allocated with. The 1024-byte IDME field is simply larger than
+the container ever uses; the extra bytes are never decoded into the 592-byte
+buffer. No overflow.
+
+**2. Length underflow at `0x1f0c` — NOT reachable.** `0x1b6c` requires
+`decoded_len == capacity` exactly and **never writes back** to `*lenptr` (it
+compares the caller's unchanged value against a locally-updated copy). So
+`[r7+0x14]` is still 592 when it is loaded into `sb` at `0x1ebe`, and
+`sub r1, sb, #0x100` is always `592 - 256 = 336`. A short cert cannot get
+through: it fails the equality check and returns -1 as
+*"Failed to get temp unlock cert"* long before `0x1f0c`. `sb` can never be
+< 256 at that instruction.
+
+Recorded within the hour of raising them, and both are refuted by the same
+four instructions. No integer or memory-safety bug exists on this path.
+
+### What the surface actually is
+
+A valid tucert payload is exactly:
 
 ```
-0x1ebe  ldr.w sb, [r7, #0x14]   ; cert length
-0x1ee8  cmp.w sb, #0            ; only checked against zero
-0x1f0c  sub.w r1, sb, #0x100    ; len - 256  -> underflows if len < 256
-0x1f18  bl    #0x19a8           ; passed straight in as a length
+"AZTU" || base64( <exactly 592 bytes of DER> )
 ```
 
-and the callee at `0x19a8` likewise only zero-checks it (`0x19da`). A cert whose
-decoded length is 1–255 would pass a huge value as a length. Whether a short
-cert can survive the `decoded_len == capacity` equality check is exactly the open
-question — if capacity is derived from the stored data, it may be reachable; if
-it is a fixed 1024, it is not.
+That is ~794 bytes, comfortably inside the 1024-byte field. Any remaining
+attack has to be a **parse** bug inside LibTomCrypt's DER/X.509 handling of
+those 592 bytes — `der_decode_sequence_flexi` recursion, malformed
+INTEGER/BIT STRING headers, nesting depth — and not a length-handling bug at
+the container level, because the container is rigid.
 
 ### Revised next steps
 
-1. Resolve where the capacity at `[r7+0x14]` is set. This single fact decides
-   whether either candidate above is real. The prologue needs manual
-   reconstruction around the literal pool.
-2. Only then fuzz, and fuzz with correctly-framed payloads:
-   `"AZTU" || base64(DER)`.
+1. ~~Resolve where the capacity is set.~~ **Done — hardcoded 592, both
+   candidate bugs refuted.**
+2. Fuzz the DER parser with correctly-framed payloads:
+   `"AZTU" || base64(<exactly 592 bytes of DER>)`. The framing is rigid, so
+   every payload must decode to exactly 592 bytes or it is rejected before the
+   parser runs.
 3. UART remains the multiplier — `ret = %d` from
    *"Verify temp unlock cert fail, ret = %d"* would distinguish every error path.
    Note the return codes are visible statically as `mvn` constants:
