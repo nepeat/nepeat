@@ -11,11 +11,24 @@ That's the next move.
 
 Detail lives in siblings:
 
+- **[raft-lockscreen.md](raft-lockscreen.md)** — the Kerberos shift-login
+  keyguard, and why setting a PIN sends you to a username/password screen.
 - **[hardware.md](hardware.md)** — SoC, partitions, boot chain, lock state, all
   from the device.
 - **[identification.md](identification.md)** — how it was identified, plus the
   public-source research and what was ruled out.
-- **[dumps/](dumps/)** — raw artifacts.
+- **[dumps/](dumps/)** — raw artifacts. **[apks/](apks/)** — pulled system APKs.
+
+> ⚠️ **Careful with screen locks.** The keyguard is Amazon's RAFT corporate
+> login. An alphanumeric password maps to a Kerberos account login that
+> **cannot succeed on this device** (the authenticator is missing), and a
+> numeric PIN maps to a "session PIN" validated against a session that does not
+> exist. Pattern/swipe/none fall through to stock AOSP and are safe.
+>
+> **If you do get stranded:** `adb shell locksettings clear --old <credential>`
+> — tested working, since ADB authorization survives the keyguard and
+> `locksettings` bypasses RAFT entirely. Full detail and fallbacks in
+> [raft-lockscreen.md](raft-lockscreen.md).
 
 ## Identity
 
@@ -108,6 +121,16 @@ Unlocking wipes `/data`, which is empty anyway, so there's nothing to lose.
 
 ## Log (newest first)
 
+- **2026-08-20**: Explained the username/password lockscreen — see
+  [raft-lockscreen.md](raft-lockscreen.md). SystemUI is Amazon's
+  **RaftSystemUI** (keeping the `com.android.systemui` name), which replaces
+  the AOSP keyguard with a Kerberos corporate shift login: username/password →
+  session PIN → unlocked, with a logout button. Decompiled
+  `RaftKeyguardSecurityModel` — numeric quality maps to `SecurityMode.Session`,
+  alphanumeric to `SecurityMode.Account`. The `raft_kerberos` binder service is
+  registered, but the `com.amazon.kerberos` AccountAuthenticator is absent, so
+  login can never succeed. Also found `com.amazon.redstone` with its APK
+  stripped but native voice/gesture libs intact.
 - **2026-08-20**: ADB authorized; ran `collect.sh`. **Device identified** — see
   [identification.md](identification.md). MT8183 / 4 GB / 1200×1920 / 6500 mAh
   / `sku=plus` matches Fire HD 10 Plus (11th gen) on every axis, but this unit

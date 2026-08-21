@@ -1,0 +1,12 @@
+# Pulled binaries and anything derived from them — regenerable from the device,
+# far too big for git. The findings live in the .md files instead.
+apks/
+screens/
+
+# belt and braces if anything lands outside apks/
+*.apk
+*.dex
+*.arsc
+*.png
+jadx-out/
+*-res/
