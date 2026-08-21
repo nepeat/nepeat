@@ -162,6 +162,16 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 
 ## Log (newest first)
 
+- **2026-08-21**: **Mapped the preloader's unlock decision end to end** — see
+  [lk-emulation.md](lk-emulation.md). It reads IDME at **hardcoded offsets that
+  match our parsed table** (`0x4ec` = `unlock_code`, 256 B; `0x2afc` =
+  `unlock_version`, 4 B), composes the 26-byte message `"0x"` + three `%08x`
+  values, does **one RSA-2048 verify**, and stores the result with
+  `clz(r0)>>5` — a branchless exact zero-test — into the lock-state global that
+  becomes LK's boot-arg byte. Memoised per boot via a `-255` sentinel.
+  **No logic flaw at any step.** This closes the "find a bug in the unlock
+  check" line of attack; the verification chain is clean.
+
 - **2026-08-21**: Answered the Wi-Fi question — see
   [network-behavior.md](network-behavior.md). **RAFT is inert** (no INTERNET
   permission; its metrics target `com.amazon.raftsystemservice`, which is not

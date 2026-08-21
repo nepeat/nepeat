@@ -157,6 +157,63 @@ memory-map exploit that does not exist publicly.
 Reproducers generated (in scratchpad, not committed): `nest298.bin` (1021-byte,
 298-deep), `crash1.bin` (`0c 01 81`).
 
+## The preloader's unlock decision — mapped end to end
+
+Applied the same xref technique to `yacht_preloader.bin`. `unlock_code` is
+referenced at `0x28f2`, `unlock_version` at `0x2920`, and the whole routine sits
+at roughly `0x28dc`–`0x2a10`.
+
+**It reads IDME at hardcoded byte offsets**, and they match our parsed IDME
+table exactly:
+
+```
+0x028fc  movw r2, #0x4ec     ; = IDME entry offset of unlock_code
+0x0290a  mov.w r3, #0x100    ; 256 bytes = RSA-2048 signature
+...
+0x0292e  movw r2, #0x2afc    ; = IDME entry offset of unlock_version
+0x02932  movs r3, #4         ; read as 4 bytes -> confirms the 32-bit %08x
+0x02948  movw r2, #0x26fc    ; a second read, 4 bytes (backup/secondary copy)
+```
+
+Then it composes the signed message in place — `strb '0'`, `strb 'x'` at
+`0x2980`, building `0x%08x%08x%08x`:
+
+```
+0x029c4  strb r0, [r4, #0x1a]   ; NUL-terminate at 26 chars = "0x" + 24 hex digits
+0x029c6  bl   #0x203c           ; fetch the verifying key
+0x029cc  movs r1, #0x1a         ; message length 26
+0x029de  bl   #0x2048           ; <<< RSA VERIFY
+0x029e6  clz  r0, r0
+0x029ea  lsrs r0, r0, #5        ; branchless (result == 0) ? 1 : 0
+0x029ec  str  r0, [r3]          ; <<< STORE LOCK STATE
+0x029ee  cbnz r0, #0x29f6
+0x029f0  ...'locked'  /  0x029f6 ...'unlocked'
+```
+
+That confirms the message is **exactly 26 bytes**, `"0x"` plus three 32-bit
+values as `%08x` — matching the format string found in LK.
+
+**There is no logic flaw in this check.** `clz(r0) >> 5` is a branchless exact
+equality test against zero — no sloppy comparison, no signed/unsigned confusion,
+no early-out. The result goes straight into the lock-state global that is later
+handed to LK as the byte at boot-arg `+0x59a7`.
+
+There is one cached-state guard at the top:
+
+```
+0x028e6  ldr  r5, [r3]
+0x028e8  cmn.w r5, #0xff        ; is the cached state == -255 (uncomputed)?
+0x028ec  bne.w #0x2a0c          ; already computed -> return cached value
+```
+
+so the verification runs once per boot and is memoised. Nothing exploitable
+there either — the sentinel is in preloader RAM, not attacker-reachable storage.
+
+**Verdict: the unlock verification chain is clean.** Preloader reads IDME →
+composes a 26-byte device-bound message → single RSA-2048 verify → exact
+zero-test → lock state. No flaw found at any step. This closes the "find a bug
+in the unlock check" line of attack.
+
 ## Where this leaves the goal
 
 The tucert DER path gives a **denial of service, not an unlock** — and per the
