@@ -21,6 +21,8 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[theories-closed.md](theories-closed.md)** — everything **tested and ruled
+  out**, so it isn't retried. Read before proposing a new angle.
 - **[da-validation.md](da-validation.md)** — ⭐⭐ **DA signature validation is
   SKIPPED on a non-secure chip.** If eFuse bit 2 is clear, preloader USBDL
   accepts an unsigned Download Agent — full flash access, **no root, no BROM, no
@@ -175,6 +177,22 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: Swept a batch of remaining theories, all negative — collected in
+  [theories-closed.md](theories-closed.md). `AMZN_PL_VERIFY` is a textbook
+  RSA-PSS verify with no flaw; the eng-vs-prod key split is not an entry point
+  (the verifier is sound and eng images are Amazon-signed too); recovery sideload
+  needs Amazon's OTA key (`otacerts.zip` = one self-signed RSA-2048 cert,
+  `CN=Amazon`, valid 2022→2049). Confirmed dm-verity is **AVB 1.0**
+  (`android-verity` target, `veritykeyid=f3530e18…`, `verity_enabled=Y`), so a
+  modified `/system` fails signature check and defeat needs unlock *or* kernel
+  code. `keys` is sparse (21 of 2048 pages); `tee1`/`tee2` are byte-identical.
+  Pulled the previously-missing `/system/etc/{security,permissions,sysconfig,init}`
+  with root, closing the audit gap. **Kernel module build is blocked on
+  toolchain, not concept**: the only public MT8183 tree is 4.4.302 on all
+  branches vs our 4.4.146+, and our kernel was built with clang 6.0.2 which
+  nixpkgs cannot provide. Way through is **CRC patching** — extract `__kcrctab`
+  from our own `boot.img` and patch the module's `__versions` + vermagic.
 
 - **2026-08-21**: Exhausted the read-only routes to the SBC fuse and found the
   clean way in. Tried and ruled out: `/dev/mem` (`CONFIG_DEVMEM` unset), the
