@@ -36,12 +36,15 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
-- **[preloader-usbdl-CONFIRMED.md](preloader-usbdl-CONFIRMED.md)** — ⭐⭐
-  **root-free arbitrary memory write in the preloader, demonstrated.** The one
-  remaining check and its exact runtime address.
-- **[usbdl-memory-commands.md](usbdl-memory-commands.md)** — ⭐ **the last
-  root-free lead.** The preloader's USBDL handler implements `WRITE16`/`READ32`.
-  Preloader USBDL is a *different* mode from the fused-off BROM. Read-only test
+- **[preloader-usbdl.md](preloader-usbdl.md)** — ⛔ **USBDL memory access is
+  address-filtered; the patch is denied.** Retracts the earlier "root-free
+  arbitrary memory write" claim. Keeps what is real: software-only preloader
+  entry, a live handshake on a locked device, the measured allowlist, the
+  protocol framing, and the macOS serial-path requirement.
+- **[usbdl-memory-commands.md](usbdl-memory-commands.md)** — ⛔ **closed.** The
+  preloader's USBDL handler does implement `READ32`/`WRITE16`, but they are
+  restricted to a 5-address allowlist. Note this file's opcode table is
+  superseded by [preloader-usbdl.md](preloader-usbdl.md). Read-only test
   defined, zero risk.
 - **[efuse-answer.md](efuse-answer.md)** — ⭐ **the eFuse question is ANSWERED**:
   `0x11f10060 = 0x946` → SBC **enabled** (DA validation enforced) and BROM
