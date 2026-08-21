@@ -11,8 +11,12 @@ That's the next move.
 
 Detail lives in siblings:
 
+- **[customization.md](customization.md)** — what Amazon actually changed:
+  boot-classpath framework, custom SELinux class, `fireos.hardware.*` HALs, and
+  the IDME factory block (incl. the empty unlock fields).
 - **[raft-lockscreen.md](raft-lockscreen.md)** — the Kerberos shift-login
-  keyguard, and why setting a PIN sends you to a username/password screen.
+  keyguard, why setting a PIN sends you to a username/password screen, and the
+  hardcoded emergency credential.
 - **[hardware.md](hardware.md)** — SoC, partitions, boot chain, lock state, all
   from the device.
 - **[identification.md](identification.md)** — how it was identified, plus the
@@ -101,6 +105,16 @@ bootloader".
 
 Unlocking wipes `/data`, which is empty anyway, so there's nothing to lose.
 
+**What the lock actually hangs on:** the IDME factory block exposes
+`t_unlock_code` and `t_unlock_cert`, and both are **empty** on this unit — see
+[customization.md](customization.md). That is the concrete reason
+`flash.locked=1`. On Fire hardware the bootloader consults those fields, and
+unlocking means getting a valid entry written there, historically an
+Amazon-signed cert bound to the device serial. `/proc/idme/*` is read-only via
+procfs; writes go through the vendor-side `fireos.hardware.idme@1.0::IIdme`
+HAL. So `oem_unlock_supported=1` may mean "this platform has the mechanism",
+not "you can turn it on from Settings" — verify before assuming.
+
 ## Also worth doing
 
 - **Pull the system image.** Shell is unprivileged so `/system/build.prop` and
@@ -124,6 +138,15 @@ Unlocking wipes `/data`, which is empty anyway, so there's nothing to lose.
 
 ## Log (newest first)
 
+- **2026-08-21**: Surveyed what Amazon actually customized — see
+  [customization.md](customization.md). `fosframework.jar` is on the
+  BOOTCLASSPATH and AOT-compiled into the boot image; `fosinit`/`fosservices`
+  run inside `system_server`; 17 of 175 binder services are Amazon's; there is a
+  custom SELinux **object class** `amazon_policies` with 12 permissions; and a
+  `fireos.hardware.*` HIDL namespace. Found the **IDME factory block** at
+  `/proc/idme` (26 fields) — `device_type_id=AJDZ5ML3MICE5`,
+  `ro.build.lab126.project=yacht_fireos_ship_7401`, and **`t_unlock_code` /
+  `t_unlock_cert` both empty**, which is what the bootloader lock rests on.
 - **2026-08-21**: Found the **hardcoded emergency credential** in
   `RaftLockPatternUtils.verifyAccount()` — blank username + password `letmein`,
   checked *before* Kerberos, which then stores the username `backdoor` to
