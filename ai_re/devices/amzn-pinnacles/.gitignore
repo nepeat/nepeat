@@ -27,3 +27,8 @@ ref-firmware/
 
 # Pulled system/vendor trees — ~1.2GB, regenerable from the device.
 fw/
+
+# Raw partition dumps — contain per-device SECRETS (kb/dkb keyboxes, keys,
+# IDME boot area with serials). Never commit. Hashes go in dumps/.
+fw-partitions/
+*.img

@@ -1,9 +1,101 @@
-# Rooting `yacht` — plan
+# Rooting `yacht`
 
-**Root looks achievable. A bootloader unlock does not, and therefore neither
-does a custom ROM.** Worth saying that plainly up front so effort goes where it
-can pay off. What's realistically on the table is **per-boot root, permissive
-SELinux, and debloat** — not LineageOS.
+## ✅ ROOT ACHIEVED — 2026-08-21
+
+```
+uid=0(root) gid=0(root) groups=0(root) context=u:r:kernel:s0
+Permissive
+```
+
+CVE-2022-38181 via `ericpardee/fire-hd-ownership`, unmodified, on the first
+successful run. SELinux is **Permissive**. All key partitions are dumped,
+including `lk`.
+
+### The exploit reported failure when it had actually won
+
+Worth recording, because it nearly cost us the result. `exploit_trona` printed:
+
+```
+[C] trigger 0..5: nothing (enforce=1)
+[E3] not found (enforce=1)
+[D] === CRED ATTACK === [-] calibration failed
+[-] kill stage did not land
+```
+
+…but the payload script writes its proof to **`/data/local/tmp/pwned2`**, while
+the exploit's `pwned()` win-check reads **`/data/local/tmp/pwned`**. Off-by-one
+filename. The modprobe usermodehelper had already fired, run as root, and
+flipped SELinux to permissive. The chain succeeded and the program said it
+failed.
+
+Lesson: with a stateful kernel exploit, check the device rather than trusting
+the tool's own verdict. `getenforce` returning `Permissive` was the tell.
+
+### Root shell, reusable
+
+The `rootsh` setuid binary the payload drops **does not work** — `/data` is
+`nosuid`. Use the modprobe trigger instead, which is what actually grants
+execution:
+
+```sh
+# write commands into the usermodehelper target, then fire it
+cat > /data/local/tmp/x <<'EOF'
+#!/system/bin/sh
+<commands run as uid=0 u:r:kernel:s0>
+EOF
+chmod 755 /data/local/tmp/x
+/data/local/tmp/trig          # unknown binfmt -> request_module -> runs x as root
+```
+
+`modprobe_path` is overwritten in kernel `.data`, so it **survives until
+reboot** but not across one. Re-run the exploit after each boot. Have the
+payload `chmod 666` anything you want to `adb pull`, and `chmod 777` the
+directory — otherwise the pull silently returns "0 files".
+
+## Firmware dumped
+
+**Raw partitions** (needed root) — in `fw-partitions/` (gitignored), hashes in
+[`dumps/partition-manifest.txt`](dumps/partition-manifest.txt):
+
+| image | size | notes |
+| --- | --- | --- |
+| `lk.img` | 1 MB | **the bootloader — the prize** |
+| `preloader_boot0.img` | 8 MB | eMMC boot0 |
+| `idme_boot1.img` | 8 MB | eMMC boot1, the IDME region |
+| `boot.img` | 33 MB | kernel + ramdisk |
+| `recovery.img` | 43 MB | |
+| `tee1/tee2.img` | 5 MB each | **byte-identical to each other** |
+| `keys.img` | 8 MB | ⚠️ secrets |
+| `kb.img` / `dkb.img` | 1 MB each | ⚠️ Widevine / device keybox |
+| `misc`, `boot_para`, `nvcfg`, `gpt` | | |
+
+Confirmed our own `lk.img` carries the identical machinery to the trona
+reference in [lk-analysis.md](lk-analysis.md) — same full `amzn_*` roster, and
+the same `[SELINUX] set to permissive mode by dev_flags`,
+`[DM-VERITY] verify off by fos_flags`, `Only usr_flags can be set for a locked
+device`. **So the reference analysis transfers directly, and we now have the
+real target binary.**
+
+**Readable trees** (no root needed) — 1.3 GB in `fw/`, inventory in
+[`dumps/fw-manifest.txt`](dumps/fw-manifest.txt).
+
+Partition sizes, now visible: `kb`/`dkb` 1 MB, `keys` 8 MB, `lk` 1 MB, eMMC
+~29 GB.
+
+> ⚠️ `keys`, `kb`, `dkb` and `idme_boot1` hold per-device secrets — keyboxes,
+> attestation material and serials. `.gitignore` blocks `fw-partitions/` and
+> `*.img`; verified with `git check-ignore`. Commit hashes, never bytes.
+
+## What this does and doesn't buy
+
+Root is **per-boot** and does not unlock the bootloader — see
+[unlock.md](unlock.md). `/system` stays read-only under dm-verity. What it does
+buy: full partition dumps, `pm uninstall --user 0` (persists across reboots),
+permissive SELinux, and the ability to read everything previously blocked.
+
+The interesting question now is whether root can reach `dev_flags` / `fos_flags`
+via the IDME HAL, since those are the switches that turn off verity and make
+SELinux permissive *at boot* — see [lk-analysis.md](lk-analysis.md).
 
 See [unlock.md](unlock.md) for why the bootloader is a dead end.
 

@@ -8,13 +8,12 @@ and a rear camera flash added over retail, running an AOSP-app-layer Fire OS
 sibling is `trona` / KFTRWI. Never sold; no marketing name because it was never
 marketed. See [identification.md](identification.md).
 
-**Status: full ADB shell (unprivileged). Bootloader is locked and stays that
-way — `ro.oem_unlock_supported=1` was tested on 2026-08-21 and is a dead
-lead** (fastboot rejects everything with *"restricted on locked hw"*). The only
-remaining path to a real unlock is dumping and reversing **LK**. See
-[unlock.md](unlock.md).
+**✅ ROOTED 2026-08-21** — `uid=0(root) context=u:r:kernel:s0`, SELinux
+**Permissive**, via CVE-2022-38181 (unpatched on this build). All key partitions
+dumped including **`lk`**. See [root.md](root.md).
 
-**Custom-ROM outlook: root looks achievable, a bootloader unlock does not.**
+**Custom-ROM outlook: root is per-boot; a bootloader unlock is still not
+available.**
 Amazon's LK contains no unlock commands at all, and the only unlock surface
 needs an RSA-2048 Amazon signature nobody has ever obtained. So the realistic
 ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
@@ -25,9 +24,8 @@ Detail lives in siblings:
 - **[lk-analysis.md](lk-analysis.md)** — analysis of a contemporaneous Amazon
   MT8183 bootloader. **`dev_flags` sets SELinux permissive and `fos_flags`
   turns off dm-verity** — which may matter more than a bootloader unlock.
-- **[root.md](root.md)** — the rooting plan. Free system-UID exploit first
-  (`PS7401` < `PS7704`), then CVE-2022-38181, for which a published exploit
-  targets this exact SoC/kernel/ABI.
+- **[root.md](root.md)** — **root achieved**, how to re-obtain it, and the
+  firmware dump inventory.
 - **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version:
   **dead**. `oem_unlock_supported=1` tested and disproved; LK has no unlock
   commands; only path with any ceiling is reversing LK.
@@ -106,31 +104,32 @@ guessed right.
 
 ## Next step
 
-The bootloader unlock question is now **answered and largely closed** — see
-[unlock.md](unlock.md). `oem_unlock_supported=1` turned out to be an unscrubbed
-build flag, not a policy difference: every meaningful fastboot command returns
-*"restricted on locked hw"*. Amazon's LK verifies an RSA-2048 signature over a
-device-bound unlock blob, so writing IDME is worthless without their key, and
-BROM is almost certainly fused off on 2020+ Amazon hardware.
+`lk` is now dumped from this device, so the analysis can start. It carries the
+same `amzn_*` roster and the same `dev_flags`/`fos_flags` strings as the trona
+reference, so [lk-analysis.md](lk-analysis.md) transfers directly.
 
-The one live path, and it carries zero device risk because it is host-side
-analysis:
+1. **Load `fw-partitions/dump/lk.img` into Ghidra** and xref
+   `"Only usr_flags can be set for a locked device"` — that gate stands between
+   us and setting `dev_flags` (SELinux permissive at boot) and `fos_flags`
+   (dm-verity off), which together matter more than a bootloader unlock.
+2. **Check whether root can reach the flags via the IDME HAL** —
+   `/vendor/bin/hw/fireos.hardware.idme@1.0-service` is now readable, and LK has
+   an `oem idme` command, so a write path exists in principle.
+3. Extract the kernel from `boot.img` and run `vmlinux-to-elf` for kallsyms —
+   this would give `selinux_enforcing` and make the exploit's own SELinux stage
+   work rather than relying on the modprobe side-effect.
+4. Reverse `amzn_verify_temp_unlock_code` hunting a length/parse bug in
+   `idme_get_var_external` or an ignored PSS return.
 
-1. **Acquire `lk`** — cheapest first: a public `yacht` OTA (search key
-   `com.amazon.pinnacles.android.os`), else root and `dd` `mmcblk0p5`, else a
-   BROM readback if the fuse test surprises us.
-2. **Reverse it in Ghidra**, hunting `amzn_unlock_verify`,
-   `amzn_verify_temp_unlock_code`, and the `dev_flags`/`fos_flags` consumers.
-
-Cheap unresolved checks: the BROM fuse test (read-only USB probe), and the Mali
-driver version against the known CVEs.
+Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 
 ## Also worth doing
 
-- **Pull the system image.** Shell is unprivileged so `/system/build.prop` and
-  `/proc/cmdline` are unreadable. Unlock first, or pull partitions from
-  fastboot, then `jadx` the eight Amazon APKs — `com.fireos.arcus.proxy` and
-  `com.amazon.shpm` are the unfamiliar ones and may say what the device was for.
+- **`jadx` the Amazon APKs** now pulled into `fw/priv-app` —
+  `com.fireos.arcus.proxy` and `com.amazon.shpm` are the unfamiliar ones and may
+  say more about what the device did.
+- **Deoptimise `boot-fosframework.oat/.vdex`** to get readable code for Amazon's
+  framework; the `.jar` files are stubs.
 - **Search firmware archives for `com.amazon.pinnacles.android.os`.** That's
   the correct OTA package string; FTVDB 404s on it, but other archives and OTA
   endpoints may not.
@@ -139,14 +138,28 @@ driver version against the known CVEs.
 
 ## Cautions
 
-- **Do not accept OTAs.** Firmware is frozen at a Jan 2022 patch baseline; an
-  update could close the unlock path. This is the one caution from the handoff
+- **Do not accept OTAs.** An update would patch CVE-2022-38181 and cost us
+  root. Amazon fixed it in 7.3.2.9 (June 2024); we are on an older internal
+  train. This is the one caution from the handoff
   that still fully applies.
 - The DSN is Amazon's registration/blacklist identifier — keep it out of public
   posts.
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: **ROOT.** CVE-2022-38181 confirmed unpatched (`jit_trigger`),
+  then `exploit_trona` succeeded — `uid=0(root) context=u:r:kernel:s0`, SELinux
+  **Permissive**. The exploit *reported failure*: its win-check reads
+  `/data/local/tmp/pwned` while the payload writes `pwned2`, so the chain had
+  already won while the tool said it hadn't. Also corrected an earlier wrong
+  call of mine — aarch64 static binaries **do** run here (arm64 kernel, 32-bit
+  Android userspace only). Dumped `lk`, preloader (boot0), IDME (boot1), boot,
+  recovery, tee1/tee2, keys, kb, dkb, misc, boot_para, nvcfg, gpt — plus 1.3 GB
+  of readable `/system`+`/vendor` without root. Our own `lk.img` carries the
+  identical `amzn_*` roster and dev_flags/fos_flags strings as the trona
+  reference, so that analysis transfers. Secrets (`keys`/`kb`/`dkb`/IDME)
+  gitignored; hashes committed.
 
 - **2026-08-21**: Obtained a **contemporaneous Amazon MT8183 LK** — no `yacht`
   firmware exists publicly, but a `trona` (retail sibling) OTA yielded an
