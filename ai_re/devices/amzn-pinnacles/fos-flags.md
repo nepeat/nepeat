@@ -34,17 +34,24 @@ LK-only and absent from the shell script.
 
 ## Storage: plain IDME fields, ASCII hex
 
-From LK's baked-in IDME descriptor table (32-byte entries
-`{u32 size; u32 flags; u32 perm; u32 default_ptr; char name[16]}`, validated
-against the known 1024-byte `t_unlock_cert`):
+> **⚠️ Correction:** an earlier revision of this table read the descriptor as
+> *size-first* and was **shifted by one field**, reporting `dev_flags` as `0x20`.
+> The layout is **name-first**: `{char name[16]; u32 size; u32 flags; u32 perm;
+> u32 default_ptr}`. Verified by decoding at the name-first offsets, which yields
+> clean names and sensible sizes:
 
-| field | file offset | size | perm |
+| field | entry base | size | perm |
 | --- | --- | --- | --- |
-| `dev_flags` | `0x832c8` | `0x20` | `0444` |
-| `fos_flags` | `0x832e8` | `8` | `0444` |
-| `usr_flags` | `0x83308` | `8` | `0444` |
-| `t_unlock_code` | `0x83388` | `0x200` | |
-| `t_unlock_cert` | `0x833a8` | `0x400` | |
+| `unlock_code` | `0x83218` | `0x400` | 0444 |
+| `dev_flags` | `0x832d8` | **`0x8`** | 0444 |
+| `fos_flags` | `0x832f8` | `0x8` | 0444 |
+| `usr_flags` | `0x83318` | `0x8` | 0444 |
+| `unlock_version` | `0x83358` | `0x8` | 0444 |
+| `t_unlock_code` | `0x83378` | `0x200` | 0444 |
+| `t_unlock_cert` | `0x83398` | `0x400` | 0444 |
+
+Cross-validated: `0x1d9c` caps `t_unlock_cert` writes at `0x400`, `0x1dbc` caps
+`t_unlock_code` at `0x200`, and `0xe27c` reads `unlock_version` as 8 bytes.
 
 Physically the IDME block in **eMMC boot1** (`mmcblk0boot1`); values previously
 located at `0x2290` (dev), `0x22b4` (fos), `0x22d8` (usr). **Not** boot_para,

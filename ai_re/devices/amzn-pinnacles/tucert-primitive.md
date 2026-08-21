@@ -416,3 +416,31 @@ decoded length to `*dstlen` and returns 0.
 "none evident".** Every pre-auth parser on the tucert path has been audited:
 the 4-byte `AZTU` memcmp, this decoder, and then RSA verify. None of them yields
 a memory-safety primitive.
+
+
+## ⚠️ Correction: the "oversized `unlock` returns OKAY" result is probably an artifact
+
+This file records `flash unlock` with 1025 B – 64 KB returning `OKAY` without
+writing, and builds a **"three-state oracle"** on it. **That branch does not
+exist in LK.**
+
+Every path between the USB command and `0xe468` was traced, and there is **no
+size-dependent branch above 255 bytes**: `download:` (`0x333c8`) only checks
+against `max-download-size`; the dispatcher passes the byte count verbatim;
+`cmd_flash` (`0x33c7c`) skips the `singlebootloader`/`gpt`/sparse paths for an
+arbitrary name and calls `0x33538` with the size untouched; `0x33538` strcmps
+`"unlock"` and calls `0xe468(data, size)`, whose only length test is
+`cmp r1,#0xff / bhi`. The single OKAY-without-write branch in the whole flash
+command is **`size == 0`** (`0x33c8a`), which the probe never exercised.
+
+`1024` being the declared IDME size of `unlock_code` makes the boundary *look*
+meaningful, but nothing in LK compares the download size to it.
+
+The likely explanation is the harness: `dumps/unlock-length-probe.txt` records
+only extracted `remote: '…'` strings and prints `OKAY` when none is present — so
+any non-`remote:` failure (USB error, host-side abort, transient disconnect)
+would have been logged as `OKAY`. "It wrote nothing" is equally consistent with
+the command having simply failed.
+
+**Treat the oracle as two-state** (length error / verify failure) until the
+≥1025 B cases are re-run capturing raw `fastboot` stdout and stderr.
