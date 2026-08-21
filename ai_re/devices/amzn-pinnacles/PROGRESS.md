@@ -8,6 +8,13 @@ and a rear camera flash added over retail, running an AOSP-app-layer Fire OS
 sibling is `trona` / KFTRWI. Never sold; no marketing name because it was never
 marketed. See [identification.md](identification.md).
 
+**⭐ ROOT-FREE PRELOADER MEMORY WRITE CONFIRMED 2026-08-21** — mtkclient
+attaches to preloader USBDL (`0e8d:2000`, reachable via plain `adb reboot`, no
+buttons) on a **locked** device and **writes into the running preloader's
+memory**. Only DA authentication still blocks full flash access, and the exact
+check to patch is known (`runtime 0x0022D8B8`). See
+[preloader-usbdl-CONFIRMED.md](preloader-usbdl-CONFIRMED.md).
+
 **✅ ROOTED 2026-08-21** — `uid=0(root) context=u:r:kernel:s0`, SELinux
 **Permissive**, via CVE-2022-38181 (unpatched on this build). All key partitions
 dumped including **`lk`**. See [root.md](root.md).
@@ -21,6 +28,9 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[preloader-usbdl-CONFIRMED.md](preloader-usbdl-CONFIRMED.md)** — ⭐⭐
+  **root-free arbitrary memory write in the preloader, demonstrated.** The one
+  remaining check and its exact runtime address.
 - **[usbdl-memory-commands.md](usbdl-memory-commands.md)** — ⭐ **the last
   root-free lead.** The preloader's USBDL handler implements `WRITE16`/`READ32`.
   Preloader USBDL is a *different* mode from the fused-off BROM. Read-only test
@@ -184,6 +194,22 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: ⭐⭐ **CONFIRMED root-free memory write inside the running
+  preloader.** Preloader USBDL turns out to be reachable **from software with no
+  buttons** — start mtkclient polling, then `adb reboot`, and the device
+  enumerates as `0e8d:2000` "MT65xx Preloader". mtkclient then handshakes and
+  reports `Patched "hash_check" in preloader` / `Patched "get_vfy_policy" in
+  preloader`, i.e. **`WRITE16`/`WRITE32` are ungated — no SLA**, answering the
+  open question in [usbdl-memory-commands.md](usbdl-memory-commands.md). The DA
+  upload then fails `DAA_SIG_VERIFY_FAILED (0x7024)` — **exactly the constant we
+  had already found at file `0x4dfc` in `usbdl_verify_da`**, so static analysis
+  and live behaviour agree. Next step is patching the secure-chip query at file
+  `0x2cbb8` → **runtime `0x0022D8B8`** (preloader loads at `0x00200D00`) to
+  `movs r0,#0; bx lr`, which forces the *"DA validation disabled on non-secure
+  chip"* path. Read oracle for verifying addressing: `READ32 0x08000000` should
+  give `0x788`. ⚠️ Device is currently parked in preloader USBDL — **hold power
+  ~10 s** to recover; not bricked.
 
 - **2026-08-21**: Mapped the **preloader USBDL command dispatcher** — it accepts
   **`0xa1 WRITE16` and `0xa2 READ32`**, MediaTek's arbitrary memory primitives,
