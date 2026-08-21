@@ -32,3 +32,5 @@ fw/
 # IDME boot area with serials). Never commit. Hashes go in dumps/.
 fw-partitions/
 *.img
+
+# tools/ holds source scripts only — safe to commit (no binaries)

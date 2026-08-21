@@ -96,6 +96,23 @@ A read oracle is available to sanity-check addressing before writing: `READ32` o
 the chipid register `0x08000000` should return **`0x788`**, a value we already
 know independently from `devinfo[28]`.
 
+## Ready-to-run exploit
+
+[`tools/yacht_patch.py`](tools/yacht_patch.py) does the whole sequence
+unattended. It polls for the preloader, verifies addressing against the read
+oracle **before** writing anything, applies the patch, and reads back to confirm:
+
+```
+READ32 0x08000000  -> must be 0x788      (refuses to patch otherwise)
+READ32 0x0022D8B8  -> before
+write16 0x0022D8B8 = 0x2000, 0x4770      (movs r0,#0 ; bx lr)
+READ32 0x0022D8B8  -> must be 0x47702000
+```
+
+Run it with the tablet powered **off**, then power on — it catches the
+enumeration itself. If the patch verifies, `mtk.py printgpt` should then upload
+the DA successfully, giving full eMMC access.
+
 ## Status and next step
 
 The primitive is confirmed; the specific patch has **not** yet been applied. The
