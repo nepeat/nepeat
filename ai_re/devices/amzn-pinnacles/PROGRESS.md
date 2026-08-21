@@ -21,6 +21,10 @@ ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
 
 Detail lives in siblings:
 
+- **[tucert-primitive.md](tucert-primitive.md)** — ⭐ **`fastboot flash tucert`
+  writes arbitrary bytes into IDME on a locked device with NO root and no
+  signature check.** Feeds a LibTomCrypt DER/X.509 parser at every boot. The
+  most promising path, and OTA-proof.
 - **[lk-reversing.md](lk-reversing.md)** — **our own LK reversed.** The unlock
   key is unforgeable (RSA-2048, keys extracted), but `dev_flags`/`fos_flags` in
   the *unsigned* IDME structure are writable with root and give SELinux
@@ -151,6 +155,20 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: ⭐ **Found an unauthenticated, root-free write primitive.**
+  `fastboot flash tucert` accepts arbitrary bytes on a **locked** bootloader and
+  writes them into the IDME `t_unlock_cert` field — confirmed by flashing 256
+  `0x41` bytes and reading them back from `/proc/idme` after reboot, then
+  restoring. `flash unlock` by contrast verifies before writing
+  (*"signature length error"* / *"unlock signature verify failed, do nothing!"*),
+  so the asymmetry is the bug: tucert defers verification to boot. **Corrects an
+  earlier claim** that the locked-hw allowlist was only three getvars — that was
+  inferred from `getvar`/`oem` probes; `flash:unlock` and `flash:tucert` are
+  permitted too. The 1024-byte field is parsed at every boot by a full
+  LibTomCrypt ASN.1/X.509 stack including `der_decode_sequence_flexi`, *before*
+  signature validation. Root-free and OTA-proof. See
+  [tucert-primitive.md](tucert-primitive.md).
 
 - **2026-08-21**: Reversed **our own** `lk.img` — see
   [lk-reversing.md](lk-reversing.md). **Unlock key generation is definitively
