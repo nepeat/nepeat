@@ -285,3 +285,24 @@ Both halves of the temp-unlock credential — the cert and the 256-byte signatur
 — are installable on a locked, unrooted device through a path that never
 consults the lock state. The bootloader's entire defence rests on the RSA-2048
 signature inside the cert, and nothing else.
+
+### Refinement: the allowlist is the real gate, and `tucode` is on it
+
+The call-path argument above (early return before the checks at `~0x335f0`) is
+accurate but is **not the primary mechanism**. The actual gate is an explicit
+command allowlist consulted by `0xdb14`, verified by dereferencing the pointer
+table at `0x8366c` (relocation base `0x56000000`):
+
+```
+ALLOWED when restricted:  oem relock | oem flags | flash:unlock
+                          flash:tucert | flash:tucode
+RESTRICTED (@0x83680):    verify | dump | boot | env | signature | oem
+                          | flash | erase
+```
+
+So **`flash:tucode` is explicitly permitted on locked hardware** — this is no
+longer a prediction from control flow, it is a named entry in the allowlist
+table. The "untested" caveat now applies only to running it on the device, not
+to whether it is reachable.
+
+See [fos-flags.md](fos-flags.md) for the surrounding analysis.
