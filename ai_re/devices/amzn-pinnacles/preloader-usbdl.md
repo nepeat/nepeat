@@ -137,11 +137,26 @@ This was caught empirically: `0xA2` against `0x11f10060` returned **two** bytes
 
 ## Protocol notes (for whoever picks this up)
 
-**macOS cannot use the USB path at all.** The AppleUSBCDC kernel driver claims
-the preloader's CDC interface, so libusb/pyusb never enumerate `0e8d:2000` —
-a `usb.core.find(idVendor=0x0e8d)` scan returns nothing while the device is
-plainly present. It appears only as `/dev/cu.usbmodem1101`. Use mtkclient's
-serial path (`serialportname=`), not the USB path.
+**The serial path works on macOS; use `serialportname=`.** The preloader appears
+as `/dev/cu.usbmodem1101` and mtkclient's serial path handshakes fine.
+
+> **⚠️ Correction 2026-08-21 (same day).** This section originally asserted that
+> *"the AppleUSBCDC kernel driver claims the interface, so libusb/pyusb never
+> enumerate `0e8d:2000`."* **That explanation was wrong.** The scan that
+> "returned nothing" was actually raising
+> `usb.core.NoBackendError: No backend available` — the venv simply had no
+> libusb shared library — and my probe caught the exception and reported it as
+> "not present".
+>
+> Proven wrong later the same day: with an explicit backend
+> (`usb.backend.libusb1.get_backend(find_library=lambda _: "…/libusb-1.0.dylib")`)
+> libusb enumerates an Amazon USB device on this same Mac and
+> `usb.util.claim_interface()` **succeeds**. So macOS was never the obstacle.
+>
+> Whether the USB path *specifically* reaches the preloader is now untested. It
+> changes nothing about the outcome — the write was refused by the preloader's
+> **address filter**, which is transport-independent — but the stated reason was
+> not a measurement, and is retracted as such.
 
 **Timing.** Measured across three reboots: the preloader VCOM appears **~4 s
 after `adb reboot`** and is present for only **~2–3 s**. mtkclient's
