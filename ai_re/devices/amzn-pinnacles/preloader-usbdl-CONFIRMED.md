@@ -66,9 +66,39 @@ secure path. That decision is made by the four-instruction query at file offset
 ```
 0x2cbb8  ldr  r3, [pc, #8]
 0x2cbba  ldr  r0, [r3]          ; read 0x11f10060
-0x2cbbc  ubfx r0, r0, #2, #1    ; bit 2 = SBC
+0x2cbbc  ubfx r0, r0, #2, #1    ; bit 2 = daa_enabled
 0x2cbc0  bx   lr
 ```
+
+**This stub is `daa_enabled`, not `sbc_enabled`** — see the correction in
+[efuse-answer.md](efuse-answer.md). That is the *right* target: the failure is
+`DAA_SIG_VERIFY_FAILED`, and DAA is precisely what this stub gates.
+
+Full control flow of `usbdl_verify_da`, recovered 2026-08-21:
+
+```
+0x4d16  bl   #0x2cbb8        ; daa_enabled?
+0x4d1c  cmp  r0, #1
+0x4d1e  beq  #0x4d34         ; 1 -> secure path
+0x4d22  movs r5, #0          ; 0 -> "DA validation disabled on non-secure chip"
+0x4d32  b    #0x4e10         ;      -> mov r0,r5 => returns 0 = VALIDATED
+  secure path:
+0x4d36  bl   #0x24b70        ; key init;  fail -> 0x4dfc
+0x4d50  cmp  r3, #0x120000   ; da_len vs DA_RAM_LENGTH; fail -> r5=0x1d10
+0x4d72  cmp  r3, r5          ; da_len > sig_len;        fail -> r5=0x1d18
+0x4dc0  bl   #0x24b60        ; RSA verify; fail -> 0x4dfc: r5 = 0x7024
+0x4e02  ...                  ; success: "DA authenticated", r5 = 0
+```
+
+**`0x2cbb8` is the only branch in this function that selects secure vs
+non-secure**, and it has exactly two callers image-wide (`0x4d16` here, and
+`0x1ff10` which builds the security block for LK). So the patch is narrowly
+scoped.
+
+There is a second `movw r5, #0x7024` at `0x4e48`, but it is reached only from
+`0x4bf8` (`cmp r3,#0xd5; beq`) — the **JUMP_DA** command handler, which refuses
+because no DA was ever authenticated. It is a downstream symptom, not an
+independent gate, and our failure came from the `upload_data` phase.
 
 mtkclient's generic patches did not hit this — its `SBC patched to be disabled`
 line refers to the *DA's* own security state, not the preloader's fuse read.
@@ -104,18 +134,34 @@ oracle **before** writing anything, applies the patch, and reads back to confirm
 
 ```
 READ32 0x08000000  -> must be 0x788        (oracle 1: memory reads work)
-READ32 0x0022D8B8  -> must be 0x68184b02   (oracle 2: PL_BASE is right)
+READ32 0x0022D8B8  -> must be 0x68184b02   (oracle 2: a fuse stub is here)
+READ32 0x0022D8A8+4-> must be 0x0040f3c0   (oracle 3: ubfx #1 = sbc, at -0x10)
+READ32 0x0022D8B8+4-> must be 0x0080f3c0   (oracle 3: ubfx #2 = daa, TARGET)
+READ32 0x0022D8C8+4-> must be 0x0001f000   (oracle 3: and #1, at +0x10)
 write16 0x0022D8B8 = 0x2000, 0x4770        (movs r0,#0 ; bx lr)
-READ32 0x0022D8B8  -> must be 0x47702000   (patch verified)
+READ32 0x0022D8B8  -> must be 0x47702000   (patch took)
+READ32 0x0022D8B8+4-> must still be 0x0080f3c0  (no collateral damage)
 ```
 
-**Two independent interlocks, both verified offline against the dumped image.**
-Oracle 1 proves reads work at all. Oracle 2 is the stronger one: `0x68184b02` is
-the first four bytes of the secure-chip query itself (`ldr r3,[pc,#8]` /
-`ldr r0,[r3]`), so reading it back confirms the `0x00200D00` load-address
-derivation is correct *before* a single byte is written. If either check fails
-the script refuses to patch, so a wrong address can never be poked into the
-preloader.
+**⚠️ Oracle 2 alone was not sufficient — fixed 2026-08-21.** All three fuse
+stubs begin with the *identical* four bytes `0x68184b02` (`ldr r3,[pc,#8]` /
+`ldr r0,[r3]`), because they differ only in the `ubfx` that follows. So a
+`PL_BASE` that was wrong by exactly ±16 bytes would have **passed** the old
+check and silently patched `sbc_enabled` instead of `daa_enabled` — a wrong
+write into a running preloader.
+
+**Oracle 3 fixes this** by reading the `ubfx` word at +4 of the target *and* of
+both neighbours. Those three words are mutually distinct, so they pin the
+address to the byte. Verified offline against the dumped image:
+
+```
+sbc stub (bit1)   @file 0x2cba8   +0=0x68184b02   +4=0x0040f3c0
+daa stub (bit2)   @file 0x2cbb8   +0=0x68184b02   +4=0x0080f3c0   <-- TARGET
+bit0 stub         @file 0x2cbc8   +0=0x68184b02   +4=0x0001f000
+```
+
+If any oracle fails the script refuses to patch, so a wrong address can never be
+poked into the preloader.
 
 Patch encoding confirmed with capstone:
 

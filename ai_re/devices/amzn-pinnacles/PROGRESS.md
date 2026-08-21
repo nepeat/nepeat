@@ -195,6 +195,31 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 
 ## Log (newest first)
 
+- **2026-08-21**: 🔧 **Corrected the fuse bit labels, and fixed a real flaw in
+  our own exploit's safety check** — both found offline while the tablet was
+  powered off, before the patch ever ran.
+  1. **bit 2 of `0x11f10060` is `daa_enabled`, not `sbc_enabled`.** `sbc` is
+     **bit 1**. The preloader has *three* near-identical fuse stubs 16 bytes
+     apart (`0x2cba8` bit1, `0x2cbb8` bit2, `0x2cbc8` bit0); the caller at
+     `0x1ff0a`–`0x1ff1a` calls the first two back to back and stores them to
+     security block `+8`/`+9`, which fixes the mapping. Both bits are set, so
+     **no conclusion changes** — but the target we are patching is the **DAA**
+     gate, which is exactly why the failure reads `DAA_SIG_VERIFY_FAILED`.
+     Corrected in [efuse-answer.md](efuse-answer.md).
+  2. **The old "oracle 2" could not tell those three stubs apart.** All three
+     begin with the identical bytes `0x68184b02`, so a `PL_BASE` wrong by ±16
+     would have passed the check and silently patched `sbc_enabled` instead.
+     Added **oracle 3**, which reads the `ubfx` word at +4 of the target *and*
+     both neighbours (`0x0040f3c0` / `0x0080f3c0` / `0x0001f000` — mutually
+     distinct), pinning the address to the byte. Post-patch it also re-checks +4
+     is untouched. Verified offline against the dumped image.
+  3. Mapped `usbdl_verify_da` end to end. **`0x2cbb8` is the only branch that
+     selects secure vs non-secure**, with just two callers image-wide. The
+     second `movw r5,#0x7024` at `0x4e48` is reached only from `0x4bf8`
+     (`cmp r3,#0xd5`) — the **JUMP_DA** handler — so it is a downstream symptom,
+     not an independent gate. Nothing else stands between the patch and an
+     accepted DA. **Still untested on hardware.**
+
 - **2026-08-21**: ⭐⭐ **CONFIRMED root-free memory write inside the running
   preloader.** Preloader USBDL turns out to be reachable **from software with no
   buttons** — start mtkclient polling, then `adb reboot`, and the device

@@ -4,9 +4,31 @@
 
 ```
 0x946 = 0b1001_0100_0110
-  bit 2 = 1   SBC enabled            -> DA validation is ENFORCED
+  bit 1 = 1   sbc_enabled            -> Secure Boot Control
+  bit 2 = 1   daa_enabled            -> DA validation is ENFORCED
   bit 8 = 1   EFUSE_Disable_BROM_CMD -> BROM download is FUSED OFF
 ```
+
+> **Correction (2026-08-21):** earlier revisions of these notes labelled **bit 2
+> as SBC**. It is not — **bit 2 is `daa_enabled`** (Download Agent
+> Authentication) and **bit 1 is `sbc_enabled`**. The preloader has three
+> near-identical fuse stubs 16 bytes apart, all reading `0x11f10060`:
+>
+> | stub | extract | stored to | meaning |
+> | --- | --- | --- | --- |
+> | `0x2cba8` | `ubfx r0,r0,#1,#1` | sec block **+8** | `sbc_enabled` |
+> | `0x2cbb8` | `ubfx r0,r0,#2,#1` | sec block **+9** | `daa_enabled` |
+> | `0x2cbc8` | `and r0,r0,#1` | — | (bit 0) |
+>
+> The `+8`/`+9` mapping is fixed by the caller at `0x1ff0a`–`0x1ff1a`, which
+> calls the two stubs back to back and `strb`s the results to `[r4,#8]` and
+> `[r4,#9]`. That matches the security-block layout already confirmed against
+> `ro.boot.rpmb_state` / `ro.boot.prod`.
+>
+> **Both bits are set, so no conclusion changes** — DA validation is enforced
+> either way. But the label matters: `usbdl_verify_da` gates on the **DAA** stub,
+> not the SBC one, which is exactly why the observed failure is
+> `DAA_SIG_VERIFY_FAILED`.
 
 Both open questions are closed, and neither answer is the one we wanted. No UART
 and no kernel module were needed — the value was already in data pulled from the
