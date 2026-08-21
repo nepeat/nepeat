@@ -45,6 +45,9 @@ Detail lives in siblings:
 - **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version:
   **dead**. `oem_unlock_supported=1` tested and disproved; LK has no unlock
   commands; only path with any ceiling is reversing LK.
+- **[app-layer-audit.md](app-layer-audit.md)** — full sweep of all 87 APKs.
+  **The app layer is closed for the flashing goal**, and there is **no FRP
+  partition**, which kills the `oem_unlock_supported=1` thread for good.
 - **[network-behavior.md](network-behavior.md)** — what leaves the device on
   Wi-Fi. **RAFT transmits nothing; there is no OTA client at all.**
 - **[customization.md](customization.md)** — what Amazon actually changed:
@@ -165,6 +168,24 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: Audited all 87 APKs — see
+  [app-layer-audit.md](app-layer-audit.md). **The app layer is closed for the
+  flashing goal.** Decisively: **there is no FRP / `persistent_data_block` /
+  `seccfg` partition**, so AOSP's `OemLockManager` has no backing store and the
+  "OEM unlocking" toggle is inert at *both* ends — that finally closes the
+  `ro.oem_unlock_supported=1` thread. `Settings` is stock AOSP; only three
+  packages on the image reference IDME/flags and all were already known.
+  **`fdrw` is the Factory Data Reset *Whitelist*** (not a KV store) — it writes
+  `/cache/recovery/fdrw.conf` and hooks `getExtraFactoryResetBootCommand`, a
+  vendor callback that appends arguments to the recovery boot command; whether
+  those args are influenced by file contents is **the top unresolved question**
+  (AOT code, needs CompactDex conversion). Found a real privesc: **`ArcusProxy`
+  is an exported binder with zero permission checks** (config disclosure,
+  attribute steering, and `amazon.arcus.*` broadcast injection to all users) —
+  though nothing it reaches touches lock state. Also **corrected
+  [network-behavior.md](network-behavior.md)**: the lockscreen wallpaper service
+  fetches from CloudFront on **every boot**, which the first pass missed.
 
 - **2026-08-21**: ⭐ **Found "Force brom download recovery" in the preloader**
   (`0x24f84`–`0x2504e`) — see [brom-recovery.md](brom-recovery.md). Holding key

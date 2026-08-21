@@ -2,7 +2,7 @@
 
 Assessment before putting the tablet on a WLAN. **Headline: RAFT transmits
 nothing, there is no OTA client on this image at all, and what does leave is
-three low-sensitivity beacons.**
+four low-sensitivity beacons.**
 
 Evidence is from the pulled trees in `fw/` and the live captures in `dumps/`.
 
@@ -73,6 +73,15 @@ the whole RAFT risk.
 | 1 | Captive-portal probe | `http://tabletcaptiveportal.com/generate_204` (Amazon-operated) | bare GET + your public IP | low, but Amazon-branded |
 | 2 | **Arcus remote config** | **`https://arcus-uswest.amazon.com`**, every **24 h** | appId ARNs, `_applicationIdentifier`, `_applicationVersion`, locale, `_hardware`, `product=pinnacles buildConfig=raft`. **No DSN, no account.** | low data, but fingerprints an Amazon-internal RAFT build |
 | 3 | NTP | `time.android.com`, fallback `kindle-time.amazon.com` | time query | negligible |
+| 4 | **Lockscreen wallpaper fetch** | `https://d21m0ezw6fosyw.cloudfront.net/tablet_wallpaper_v2/gen13/<dim>/manifest_v4_wallpaper_md5.json` | manifest + image downloads | low — images only, but it is **unattended, on every boot** |
+
+**Correction (added later):** item 4 was missed in the first pass.
+`com.amazon.wallpaper` (`TabletLockscreenWallpaper`) has an `AmazonBootUpReceiver`
+on `BOOT_COMPLETED` that schedules `WallpaperDownloaderService`, which fetches a
+CloudFront manifest and downloads images validated **only by MD5 from that same
+manifest** — no signature. Low impact (images), but it is a real egress on every
+boot that the table above originally omitted. `DEVELOPMENT`/`STAGING` bucket
+names are also hardcoded in `CloudFrontConfig.java`.
 
 Arcus (`com.fireos.arcus.proxy`) is the notable one — it is a config **pull**, not
 a metrics upload, and logcat shows it has never synced
@@ -135,6 +144,7 @@ Most robust — block by name at the router:
 
 ```
 arcus-uswest.amazon.com        tabletcaptiveportal.com
+d21m0ezw6fosyw.cloudfront.net  <-- lockscreen wallpaper, every boot
 fireoscaptiveportal.com        kindle-time.amazon.com
 dcape-na.amazon.com            firs-ta-g7g.amazon.com
 api.amazon.com                 *.account.amazon.com
