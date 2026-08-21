@@ -120,11 +120,21 @@ next step is a small script that connects via mtkclient's library, verifies the
 read oracle, applies the two `write16`s above, and then lets the DA upload
 proceed.
 
-⚠️ **The device is currently held in preloader USBDL** (no ADB). It is *not*
-bricked — mtkclient's own hint gives the recovery: **hold power for ~10 seconds**
-to force a reset, after which it boots to Android normally. That is the only
-physical action needed, and only because the failed DA upload left it parked
-there.
+⚠️ **The device is currently wedged in preloader USBDL** (no ADB), and a power
+cycle is unavoidable. It is *not* bricked — **hold power for ~10 seconds** and it
+boots to Android normally.
+
+Proven three independent ways that nothing software-side can recover it:
+
+| attempt | result |
+| --- | --- |
+| mtkclient (USB and `--serialport`) | `Please disconnect, start mtkclient and reconnect` / `Handshake failed after retries` |
+| raw MediaTek handshake over `/dev/cu.usbmodem1101` | no response to `0xA0` (3 tries) |
+| raw USB bulk endpoints (`0x01` OUT / `0x81` IN, found via pyusb) | `USBTimeoutError` on both `0xA0` and `0xFD` |
+
+So the preloader halted after the failed DA upload rather than returning to its
+command loop. The handshake window only opens at **enumeration**, which is why
+re-attaching cannot work.
 
 ## Why this matters for the goal
 
