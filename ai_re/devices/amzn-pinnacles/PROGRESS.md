@@ -41,6 +41,8 @@ Detail lives in siblings:
 - **[unlock.md](unlock.md)** — bootloader unlock feasibility. Short version:
   **dead**. `oem_unlock_supported=1` tested and disproved; LK has no unlock
   commands; only path with any ceiling is reversing LK.
+- **[network-behavior.md](network-behavior.md)** — what leaves the device on
+  Wi-Fi. **RAFT transmits nothing; there is no OTA client at all.**
 - **[customization.md](customization.md)** — what Amazon actually changed:
   boot-classpath framework, custom SELinux class, `fireos.hardware.*` HALs, and
   the IDME factory block (incl. the empty unlock fields).
@@ -159,6 +161,20 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-21**: Answered the Wi-Fi question — see
+  [network-behavior.md](network-behavior.md). **RAFT is inert** (no INTERNET
+  permission; its metrics target `com.amazon.raftsystemservice`, which is not
+  installed), and **no OTA client exists on this image**, so an unattended
+  update cannot take our root. What does leave: an Amazon-branded captive-portal
+  probe, a 24h Arcus config *pull* to `arcus-uswest.amazon.com`, and NTP. The one
+  RAFT risk is a DNS SRV lookup for `_kerberos._tcp.ant.amazon.com`, which fires
+  **only** if someone types credentials at the lockscreen. Also corrected:
+  **`fireosdha` is Device Hardware *Attestation*, not a health agent.**
+  Reversed `com.amazon.kor.demo` (present but unregistered) — the retail store
+  demo, enterable by cloud push, a search easter egg, or a physical **"Tardis
+  Key"** USB. Its USB system-update path is dead here (no OTA package) and would
+  be a signed sideload anyway.
 
 - **2026-08-21**: Reversed **Shipmode** (`com.amazon.shpm`) — it is a **factory
   wipe**, not a battery/transport mode. Triggered by the **unprotected**

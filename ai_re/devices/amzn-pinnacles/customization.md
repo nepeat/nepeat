@@ -243,7 +243,48 @@ surplus channel, and `RemoveDeviceFiles` deleting `locksettings.db` and
 [raft-lockscreen.md](raft-lockscreen.md).
 
 `mode_demo` routes to `DemoShipMode`, which pairs with the `com.amazon.kor.demo`
-retail-demo package also present on this image.
+retail-demo package below.
+
+## `com.amazon.kor.demo` — "Amazon Retail Demo"
+
+Present on disk (5.3 MB in `/system/priv-app`) but **not registered** —
+`pm list packages` does not know it, same as the stripped `redstone`. So it
+cannot run without being installed first.
+
+It is the **in-store display mode** for Fire tablets: `KioskHome`,
+`PageflipperActivity`, `DemoConfigurationHubActivity`, `DemoStoreInfoActivity`,
+`ResellDemoActivity`, `DOOBEInitiationActivity` (demo out-of-box experience).
+Strings include *"Do you wish to activate demo mode? This is for retail store
+use only."*, *"Alexa is enabled/disabled for this demo"*, and a "Resell Device"
+flow that strips demo content before a unit is sold.
+
+Three entry paths, which is the interesting part:
+
+- **Cloud** — `com.amazon.dcp.messaging.topic.KindleDemoCloudApproach.ActivateDemo`
+  / `.GetAvailableDemos`, i.e. remotely activated over DCP push.
+- **Easter egg** — `SearchCommandBroadcastReceiver` listens for
+  `com.amazon.kindle.unifiedSearch.EasterEgg`: the classic type-a-magic-string
+  -into-search trick to drop a shop-floor unit into demo mode.
+- **"Tardis Key"** — a **physical USB key** retail staff insert to load demo
+  content. Strings: *"please insert a Tardis Key"*, *"Tardis Key might be
+  corrupted"*, *"Incompatible Tardis Key"*, and a guard, *"Tardis Key does not
+  work with devices that are provisioned and not in demo mode"*.
+
+### The Tardis Key can carry system updates — but not usefully for us
+
+`tardiskey/` contains `SystemUpdateService`, `SystemUpdater`,
+`OTAControllerFactory`, and the string *"No system update or content update to
+the device from this Tardis Key"* — so a Tardis Key is a **USB-delivered system
+update** channel, which would be an attractive flashing path.
+
+It is **dead on this image.** `SystemUpdateService.onHandleIntent()` copies the
+file then calls `systemUpdater.install()`, which goes through
+`OTAControllerFactory` and can throw `OTAUnavailableException` — and
+`com.amazon.device.software.ota` **is not installed** here
+(`E/RuntimePersistent: Package com.amazon.device.software.ota not found`, see
+[network-behavior.md](network-behavior.md)). Even with it present, the install
+would be a signed OTA sideload verified against Amazon's `otacerts`, so it is
+not a signature bypass.
 
 ## Absent by design
 
