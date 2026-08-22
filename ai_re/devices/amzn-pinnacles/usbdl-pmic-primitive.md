@@ -229,3 +229,42 @@ inside `usbdl_verify_da`'s RSA check needs a timing side channel — UART or a
 current shunt — and this board's UART pads are firmware-disabled.
 
 Everything up to and including this survey is non-destructive and repeatable.
+
+## Full USBDL command audit — the PMIC pair is the ONLY unguarded capability
+
+To check whether the PMIC bypass was one of several holes or genuinely unique,
+every entry in the dispatch table was audited for whether its handler calls
+`sec_region_check` (`VA 0x225ba0`) or `is_in_region` (`VA 0x225b04`).
+
+| cmd | handler VA | guarded | what it is |
+| --- | --- | --- | --- |
+| `0x80` | `0x205bb6` | no | **"USB Disconnect and Enter Dead Loop"** — a halt |
+| `0xA1` | `0x205bf0` | **YES** | WRITE16 |
+| `0xA2` | `0x205be8` | **YES** | legacy READ16 |
+| `0xC4` | `0x205d7a` | no | stub: consumes 2 dwords, echoes them, returns 0 |
+| `0xC5` | `0x205e22` | no | stub: returns 0 |
+| **`0xC6`** | `0x205d94` | **no** | **PMIC READ16 — live primitive** |
+| **`0xC7`** | `0x205dcc` | **no** | **PMIC WRITE16 — live primitive** |
+| `0xD1` | `0x205ca4` | **YES** | READ32 |
+| `0xD2` | `0x205bf0` | **YES** | WRITE16 |
+| `0xD4` | `0x205d00` | **YES** | WRITE32 |
+| `0xD5` | `0x205b48` | no | JUMP_DA — refuses, needs an authenticated DA |
+| `0xD8` | `0x205be4` | **YES** | — |
+| `0xDB` | `0x205e22` | no | stub: returns 0 |
+| `0xE7` | `0x205e04` | no | `memset(buf,0,0x20)` then sends it — **returns 32 zero bytes** |
+| `0xF0` | `0x205e26` | no | magic compare, returns 0 / −1 |
+| `0xFC` | `0x2059d0` | no | info |
+| `0xFD` | `0x2059e4` | no | GET_HW_CODE |
+| `0xFE` | `0x205a00` | no | info |
+
+**Every memory-access command is guarded. Every unguarded command is either a
+stub, an info query, or a halt — except the PMIC pair.**
+
+`0xE7` deserves a note because it looked promising: it is shaped like a
+`GET_SOC_ID`-style leak, but it zeroes the buffer immediately before sending it
+(`0x205e04: movs r1,#0 ; movs r2,#0x20 ; bl memset`), so it discloses nothing.
+
+This closes the "maybe another command helps" question. The PMIC path is not one
+hole among several — it is **the only unguarded hardware capability in the entire
+USBDL interface**, which is why fault injection is the sole remaining avenue
+here rather than one option among many.
