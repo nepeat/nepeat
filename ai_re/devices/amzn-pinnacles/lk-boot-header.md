@@ -221,3 +221,67 @@ pre-authentication, and the three flash reads at
 no NUL guarantee and `hdr+0x40` (cmdline) is passed to a `strlen`/`memcmp`
 keyword scanner at `0x3fb48` — an unterminated cmdline gives a heap **over-read**,
 read-only, at worst a fault.
+
+---
+
+# `amzn_lk_verify_image_maybe` (the `cam_vpu*`/`spm` surface) — closed
+
+Flagged earlier as an unaudited surface: `cam_vpu1/2/3` (`mmcblk0p13/14/15`) and
+`spm` (`mmcblk0p11`) are **root-writable partitions** with an LK verifier, and
+nobody had checked the parse-vs-verify ordering on them.
+
+**Result: the LK-side verifier is well-formed AND appears to be dead code.**
+
+## It rejects unknown images correctly
+
+The function (body at `~0x2c860`) strcmp-chains four names and picks a version
+tag for each:
+
+```
+0x2c876 "cam_vpu1" ─┐
+0x2c884 "cam_vpu2"  ├─> "_VPUx_VER:"   (0x2c8ac / 0x2c8b2 / 0x2c8b8)
+0x2c890 "cam_vpu3" ─┘
+0x2c89c "spm"       ──> "__SPM_VER:"   (0x2c8a6)
+0x2c8a2 cbnz r0, #0x2c8c4              ; no match ->
+```
+
+The unknown-name path was the concern — a name-allowlist verifier that no-ops on
+unknown input is exactly "missing proper image authentication". It does not:
+
+```
+0x2c8c4  -> "AMZN_LK_VERIFY" + "...doesn't support verifying %s"
+0x2c8cc  b #0x2ca84
+0x2ca84  mov r2,r4 ; mov r3,r4
+0x2ca88  b #0x2c8f0
+0x2c8f0  bl #0x374b2         ; log it
+0x2c8f4  mov.w r5, #-1       ; <-- REJECT
+0x2ca9a  mov r0, r5 ; pop    ; return -1
+```
+
+**Unknown images return `-1`.** Clean negative.
+
+## And nothing calls it
+
+- **No `bl` callers** to any address in `0x2c850`–`0x2c874` (the neighbourhood
+  was swept, having learned from the BROM off-by-4 that a single wrong entry
+  address manufactures a fake "no callers" mystery).
+- **No pointer-table entry.** The only 4-byte match anywhere is `0x0002c86a` at
+  file `0x1dd60` — a *file-relative* value pointing mid-function, whereas real LK
+  pointers are `0x56000000`-based. Coincidental data.
+- The `cam_vpu1/2/3` strings are referenced from **exactly one place each**
+  (`0x2c876`, `0x2c884`, `0x2c890`) — inside the verifier itself. Nothing else in
+  LK mentions them.
+
+So LK carries the verifier but never invokes it. The live verification of these
+images is presumably the **preloader's** `amzn_pl_verify_image_maybe` — a
+different function, with its own name allowlist and its own
+`"doesn't support verifying %s"` string, which is where the question properly
+belongs.
+
+**Verdict: no LK-side surface here.** Whether the *preloader* copy rejects
+unknown names the same way is the open question, and is the one that matters,
+since the preloader is what actually loads these images.
+
+*(Aside: there is a descriptor table at file `0x88ca5`–`0x88e54` holding `spm`
+and `cam_vpu1/2/3` names at a 0x20 stride — plainly an image/partition table,
+reached as data rather than via `ldr`/`add pc`. Not chased.)*
