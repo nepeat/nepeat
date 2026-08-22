@@ -64,7 +64,51 @@ i.e. voltage glitching with no hardware rig. The natural target is the RSA check
 inside `usbdl_verify_da`: brown out the core rail during verification, then send
 an unsigned DA.
 
-### Staged test plan — the first two steps are safe
+## ✅ CONFIRMED ON HARDWARE 2026-08-21 — steps 1 and 2 executed
+
+Run against the live device: **locked, unrooted, no credential, no flash access.**
+
+**Step 1 — `PWR_READ16` (cmd `0xC6`), pure read:**
+
+```
+cmd echo    : c6
+after addr  : 000a 0000 0000 5820
+  addr echo   = 0x000a          (MT6358 SWCID)
+  status word = 0x0000          <-- hardcoded; NO region check
+  pmic status = 0x0000
+  VALUE       = 0x5820
+```
+
+`0x58` is `MT6358_CHIP_ID` (Linux `include/linux/mfd/mt6397/core.h`), `0x20` the
+revision, and `SWCID = 0x0a` comes from `include/linux/mfd/mt6358/registers.h`.
+The value was predicted from documentation *before* the read and matched — so
+this is a real oracle, not a coincidental non-error return.
+
+**Step 2 — `PWR_WRITE16` (cmd `0xC7`), same value written back** (a true no-op,
+since `pmic_config_interface` is read-modify-write):
+
+```
+cmd echo=c7  addr=000a  tail=5820 0000 0000
+before: addr=0xa st=0x0 pmicst=0x0 value=0x5820
+after : addr=0xa st=0x0 pmicst=0x0 value=0x5820
+```
+
+**Both directions reachable, both returning status `0`, neither consulting the
+memory whitelist.** Contrast the memory commands on the same device in the same
+session, which return `0x1000` (read) / `0x1001` (write) for any address outside
+the two whitelisted regions.
+
+### What this establishes
+
+An **unauthenticated, root-free, credential-free read/write channel to the PMIC**
+on a locked device — orthogonal to SBC, DAA and the BROM fuse, and outside the
+memory-region filter entirely. A genuine new primitive on this platform,
+demonstrated rather than inferred.
+
+It is **not** an unlock. It is the prerequisite for attempting one by fault
+injection, and everything past this point carries brick risk.
+
+### Original staged plan (steps 1–2 now done)
 
 1. **Prove the path is live, read-only.** Issue `CMD_PWR_READ16` (`0xC6`)
    against a benign MT6358 register (chip-ID/status). Success looks like two
