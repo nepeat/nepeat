@@ -199,3 +199,70 @@ Two consequences:
 directly). **So the entire question reduces, cleanly, to whether `devinfo[12]`
 and `devinfo[13]` are unit-unique** — exactly the free, read-only test described
 above. Nothing else stands in the way.
+
+## ✅ LIVE CONFIRMATION via `fastboot getvar` (2026-08-21)
+
+### The locked-hardware getvar allowlist is EIGHT entries, not three
+
+Earlier notes recorded the locked-hw getvar allowlist as "only `product`,
+`serialno`, `max-download-size`". **That was incomplete.** The pointer table at
+`0x8c274` (base `0x56000000`), read directly, holds:
+
+```
+getvar:unlock_code        getvar:unlock_status     getvar:max-download-size
+getvar:slot-count         getvar:slot-suffixes     getvar:product
+getvar:serialno           getvar:tu_code
+```
+
+All are readable on a **locked** device with no root. Queried live:
+
+| variable | result |
+| --- | --- |
+| `unlock_code` | `0x` + 24 hex digits (**26 chars total**) |
+| `tu_code` | base64 → decodes to exactly **32 bytes** |
+| `unlock_status` | `false` |
+| `slot-count` | `0` |
+| `slot-suffixes` | `FAILED (remote: 'GetVar Variable Not found')` — listed but unimplemented |
+| `product` | `pinnacles` |
+| `max-download-size` | `0x8000000` (128 MB) |
+
+*(Raw `unlock_code` / `tu_code` values are deliberately not recorded — the former
+embeds the per-chip eFuse ID and is a device identifier of DSN sensitivity.)*
+
+### Both reverse-engineered mechanisms confirmed empirically
+
+**Permanent unlock — the message format and field sources are exactly as
+reversed.** `unlock_code` returns 26 characters, matching LK's
+`snprintf(buf, 0x29, "0x%08x%08x%08x", devinfo[13], devinfo[12], unlock_version)`
+at `0xe250` and the `capacity > 0x1a` guard at `0xe38c`. Splitting the three
+fields:
+
+```
+field1 == devinfo[13]        field2 == devinfo[12]        field3 == unlock_version
+```
+
+and fields 1 and 2 **match byte-for-byte** the values read independently from
+`/proc/device-tree/chosen/atag,devinfo` while booted in Android. Two entirely
+separate paths — a kernel devicetree read and a bootloader getvar — agreeing
+exactly. The static analysis is confirmed end to end.
+
+**Temp unlock — the code really is a single 32-byte HMAC output.** `tu_code`
+base64-decodes to exactly 32 bytes with 31 distinct byte values, consistent with
+`HMAC-SHA256(S_device, counter)` from the preloader at `0x252c`. Note getvar
+exposes **one** code, while LK's verifier iterates up to ten — consistent with
+this being the current counter's value.
+
+### Does this change the outlook?
+
+**No, and it is worth being clear why.** Reading the challenge was never the
+barrier — the challenge was always designed to be readable, because it is what
+you would send to Amazon to have signed. What is missing is the *signature*, and
+both signing keys are Amazon's:
+
+* permanent → RSA-2048 key `de6344d4…` embedded in LK at `0x4b8d4`;
+* temp → the cert key, itself gated by the root key at `0x4baec`.
+
+So this is a clean confirmation of the model rather than a way through it. Its
+real value is that anyone continuing this work can now read a unit's challenge
+in seconds, on a locked device, with no root — and can verify against these notes
+that the mechanism behaves exactly as documented.
