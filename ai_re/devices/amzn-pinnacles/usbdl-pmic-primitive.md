@@ -184,3 +184,48 @@ makes "the `check_part_overlapped` string is absent because the routine was
 removed or rewritten" more plausible than a neutral reading of a missing string
 would suggest — so the evidence against koboreru applying should be weighted a
 little more strongly.
+
+## Read-only rail survey (executed 2026-08-21)
+
+With the read primitive confirmed, the rail configuration was surveyed —
+**reads only, no writes** — using documented MT6358 register addresses from
+Linux `include/linux/mfd/mt6358/registers.h`:
+
+```
+  0x000a SWCID (oracle)       = 0x5820
+  0x1388 BUCK_VPROC11_CON0    = 0x0001      (enabled)
+  0x139e VPROC11_DBG0         = 0x2830      vosel=48 -> ~800.00 mV
+  0x13a0 VPROC11_DBG1         = 0x0043
+  0x13a6 VPROC11_ELR0         = 0x0030      vosel=48 -> ~800.00 mV
+  0x1408 BUCK_VPROC12_CON0    = 0x0001      (enabled)
+  0x141e VPROC12_DBG0         = 0x2830      vosel=48 -> ~800.00 mV
+  0x1420 VPROC12_DBG1         = 0x0043
+  0x1426 VPROC12_ELR0         = 0x0030      vosel=48 -> ~800.00 mV
+  0x1488 BUCK_VCORE_CON0      = 0x0001      (enabled)
+  0x149e VCORE_DBG0           = 0x2830      vosel=48 -> ~800.00 mV
+  0x14a0 VCORE_DBG1           = 0x0043
+  0x14aa VCORE_ELR0           = 0x0030      vosel=48 -> ~800.00 mV
+  0x180c VPROC_ANA_CON0       = 0x0078
+```
+
+Voltage decoded with the MT6358 buck formula `500 mV + vosel × 6.25 mV`; the low
+7 bits of `DBG0` and of `ELR0` agree on `vosel = 48` for all three rails, and
+`800 mV` is a plausible core voltage. Three independent rails returning
+identically-structured values in the documented format is strong evidence the
+reads are genuine PMIC data rather than noise — the SWCID oracle also still
+reads `0x5820` mid-survey.
+
+### The glitch target is now fully characterised
+
+For anyone continuing this: the voltage-select fields are
+**`VPROC11_ELR0 = 0x13a6`**, **`VPROC12_ELR0 = 0x1426`**, **`VCORE_ELR0 = 0x14aa`**,
+each currently `0x0030`. A `PWR_WRITE16` lowering `vosel` browns out that rail;
+restoring `0x0030` returns it. The write path is confirmed reachable (step 2).
+
+⚠️ **That write is the terminal-risk step and was NOT performed.** An
+out-of-spec core voltage can hang the part in a state with no BROM fallback and
+no unbrick path on this board family. Additionally, tuning a glitch to land
+inside `usbdl_verify_da`'s RSA check needs a timing side channel — UART or a
+current shunt — and this board's UART pads are firmware-disabled.
+
+Everything up to and including this survey is non-destructive and repeatable.
