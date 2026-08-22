@@ -34,3 +34,6 @@ fw-partitions/
 *.img
 
 # tools/ holds source scripts only — safe to commit (no binaries)
+
+# TWRP prebuilt kernel (regenerate with extract-prebuilt-kernel.sh)
+twrp/device/amazon/yacht/prebuilt/

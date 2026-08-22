@@ -1,0 +1,30 @@
+# TWRP fstab for Amazon "yacht" / KFYAWI (MT8183)
+# Derived from the stock recovery ramdisk's /etc/recovery.fstab.
+# Block device paths and partition names verified against
+# /dev/block/platform/bootdevice/by-name/ on the live device.
+#
+# mount point   fstype   device                                                      flags
+
+/system         ext4     /dev/block/platform/bootdevice/by-name/system                flags=display="System";backup=SM
+/vendor         ext4     /dev/block/platform/bootdevice/by-name/vendor                flags=display="Vendor";backup=SM
+/data           ext4     /dev/block/platform/bootdevice/by-name/userdata              flags=display="Data";backup=D;wipeingui
+/cache          ext4     /dev/block/platform/bootdevice/by-name/cache                 flags=display="Cache";backup=;wipeingui
+/metadata       ext4     /dev/block/platform/bootdevice/by-name/metadata              flags=display="Metadata";backup=;
+/mnt/vendor/nvcfg ext4   /dev/block/platform/bootdevice/by-name/nvcfg                 flags=display="NvCfg";backup=;
+
+# Raw / image partitions
+/boot           emmc     /dev/block/platform/bootdevice/by-name/boot                  flags=display="Boot";backup=1;flashimg=1
+/recovery       emmc     /dev/block/platform/bootdevice/by-name/recovery              flags=display="Recovery";backup=1;flashimg=1
+/lk             emmc     /dev/block/platform/bootdevice/by-name/lk                    flags=display="LK";backup=1;flashimg=1
+/misc           emmc     /dev/block/platform/bootdevice/by-name/misc                  flags=display="Misc";backup=0
+/boot_para      emmc     /dev/block/platform/bootdevice/by-name/boot_para             flags=display="BootPara";backup=0
+
+# Removable / OTG
+/external_sd    auto     /dev/block/mmcblk1p1  /dev/block/mmcblk1                     flags=display="MicroSD";storage;wipeingui;removable
+/usb_otg        auto     /dev/block/sda1       /dev/block/sda                         flags=display="USB-OTG";storage;wipeingui;removable
+
+# DELIBERATELY OMITTED — per-device secrets and irreversible targets:
+#   kb, dkb, keys        : Widevine / attestation keyboxes (per-device secrets)
+#   tee1, tee2           : TrustZone; a bad write here is unrecoverable
+#   preloader            : bricks the device (BROM is fused off, no fallback)
+# Do not add these without a specific reason and a verified backup.
