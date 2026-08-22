@@ -33,7 +33,7 @@ let
   # openviking-src moves; `just update-openviking` rewrites both lines in
   # place, so keep them on one line each in `name = "sha256-...";` form.
   cargoHash = "sha256-/rHFdldLX4eWwTQuaUwKenbmuZNoJ7vMe8banl7UT94=";
-  npmDepsHash = "sha256-Jn/au7BWkwDK4mEmi3xg+7etKMWjzr2KpPw47VPyoEo=";
+  npmDepsHash = "sha256-cLsZCAoP7odJgW5yeVb3AfLeTKJ9VSi+lMm1JHgj78I=";
 
   # One vendored cargo tree covers the whole workspace, so both ov_cli and
   # ragfs-python share it.
@@ -409,7 +409,15 @@ python.pkgs.buildPythonApplication {
 
   # nixpkgs carries tree-sitter-language-pack 1.4.1; openviking asks for >=1.12
   # but never imports it directly (only grep-ast does, against the stable API).
-  pythonRelaxDeps = [ "tree-sitter-language-pack" ];
+  #
+  # litellm is capped at <1.91.2 upstream while nixpkgs is on 1.97; openviking
+  # only touches the stable surface (completion/embedding + their async twins,
+  # drop_params, suppress_debug_info), so the cap is dropped rather than
+  # pinning an older litellm.
+  pythonRelaxDeps = [
+    "litellm"
+    "tree-sitter-language-pack"
+  ];
 
   postInstall = ''
     # `vikingbot` needs the huge [bot] extra, which we do not package.
