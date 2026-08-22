@@ -1,4 +1,10 @@
-# ⭐ LK parses the boot header BEFORE verifying it — and yacht is missing trona's size guard
+# LK parses the boot header BEFORE verifying it — and yacht is missing trona's size guard
+
+> **⛔ RESOLVED: INERT. The missing guard is real and the wrap is reachable, but
+> it is not load-bearing** — two independent downstream checks that yacht *does*
+> have already cover everything it would have caught. Verified by emulation. See
+> the verdict at the end. Kept in full because the parse-before-verify ordering
+> is a genuine and reusable finding.
 
 **The most promising surface found on this project.** Two independent facts that
 compose, both verified in our own binary.
@@ -96,3 +102,122 @@ There is **no published bootloader unlock for any Amazon MT8183 device** and
 **no public analysis of Amazon's LK image-verification path**. Every historical
 Fire unlock went through the BootROM, which is fused off here. If this pans out,
 it is new work.
+
+
+---
+
+# ⛔ VERDICT: inert missing check — closed
+
+Reversed the full chain and emulated the parser. **The guard was genuinely
+missing and genuinely not load-bearing.**
+
+## What `0x125ec` actually validates
+
+Only two things: the `ANDROID!` magic (`0x12818`) and **`page_size <= 0x800`**
+(`0x1283e: cmp.w r0,#0x800 ; bhi.w 0x1271c`). Not validated: `page_size != 0`,
+power-of-two, `kernel_size`, `ramdisk_size`, `header_version`,
+`recovery_dtbo_size`, or any product bound. `0x44e24` is `__aeabi_uidiv` and
+**explicitly handles a zero divisor**, so `page_size = 0` is benign rather than a
+fault.
+
+## Where the products actually go
+
+Resolved through the GOT (base `0x93148`, link base `0x56000000`):
+
+| global | runtime | meaning |
+| --- | --- | --- |
+| `0x4ac` | `0x5609d9ac` | `g_loadbase` = **`0x56900000`** (hardcoded, `0x13a4c`) |
+| `0x3a4` | `0x5609d9b8` | `g_rootfs_off` = the **`mla`** product |
+| `0x1c`/`0x3b4` | `0x5609d9a0`/`0x5609d9b0` | `g_total` = the **`mul`** product |
+
+`g_total` **is** used as both a copy length and a copy destination
+**pre-authentication**, in three flash reads at `0x12e26`/`0x12e46`/`0x12e66`,
+all before the header hash (`0x12ed6`) and the RSA verify (`0x12f2c`). So the
+concern was well-founded in shape.
+
+`g_rootfs_off` is dereferenced as a raw pointer at `0x12ff2` — but only after the
+hash passes **and** (`sig_ok == 1` or `is_unlocked()`). Locked with a bad
+signature never reaches it. Dead for us.
+
+## Why it is still inert — two guards yacht does have
+
+**(a) `0x12208` `range_check(addr, size)`**, called at `0x12d16` with
+`(loadbase, g_total)` *before* any read:
+
+```
+0x12208  adds r3, r0, r1 ; bhs -> -1        ; 32-bit add-overflow rejected
+0x12210  cmp.w r1, #0x1400000 ; bhi -> -1   ; size capped at 20 MiB
+0x12230  addr < 0x56000000 -> require addr+size < 0x56000000
+0x12244  else                -> require addr >= 0x56400000
+```
+
+**(b) `0x41adc` (partition read) bounds in 64 bits**, so the wrapped values
+cannot slip through:
+
+```
+0x41b0c  bl 0x403b8              ; partition size, 64-bit r0:r1
+0x41b10  adds r2,r6,r5 ; adc r3,r7,#0   ; offset+len in 64 bits — cannot wrap
+0x41b1a  cmp/cmpeq ; bhs -> reject       ; require partsize >= offset+len
+```
+
+The underflowed `total - 2*page_size` (~4 GiB) is rejected by (b); the
+destination is confined by (a).
+
+**Residual effect, real but useless:** a wrapped `g_total` puts read #1 up to
+`0x1000` below the load base — a ≤2048-byte write of attacker-controlled header
+bytes into `0x568FF000–0x56900000`, a region `range_check` already blesses (LK
+legitimately decrements `loadbase` by `0x200` at `0x12dc0`). Read #2 or #3 then
+fails and verify returns `-5`. No control of anything.
+
+## Emulation, with an exact oracle
+
+Unicorn over `0x12838`→`0x128f0` with the real `__aeabi_uidiv`. Against the
+**real `boot.img`** (`ps=0x800, kernel=0x98a830, rd=0, hv=1`):
+
+```
+g_total = 0x0098c000   ->  read2 offset = 0x98b800
+boot.img[0x98b800] = 30 82 04 35 ...     <- the Amazon DER signature cert
+last non-zero byte  = 0x98bc38            <- inside that same page
+```
+
+The model predicts the signature's exact location from the header arithmetic —
+independently re-verified here. Mutations:
+
+```
+ps=0,      k=0x1000,     rd=0x1000  -> total=0          (no fault; uidiv handles /0)
+ps=0x800,  k=0xFFFFF800, rd=0xFFFFF800 -> total=0       read1 dst=0x568FF000 len=0x800
+                                                        read2/3 rejected by 0x41adc
+ps=0x800,  k=0xFFFFF800, rd=0, hv=0   -> total=0x800    read3 len=0xFFFFF800 rejected
+ps=0x800,  k=0xFFFFFFFF               -> total=0x1000   benign (add wraps first)
+ps=0x7FF,  k=rd=0xFFFFFFFF            -> total=0xFFE    benign
+```
+
+## What Amazon actually added in trona
+
+Two instructions, both absent from yacht:
+
+```
+0x12a10  cbnz r1, #0x12a2a      ; page_size != 0   -> "boot image page size error"
+0x12ae2  cmp  r4, r2
+0x12ae4  bhs  #0x12afa          ; total >= page_size -> "boot image size error"
+```
+
+i.e. precisely the 32-bit multiply-wrap guard plus a zero check. Yacht's
+recovery-side twins (`0x129e4` parse, `0x13120` verify, `range_check` at
+`0x13152`) are missing both in the same way — and are inert for the same reasons.
+
+## Conclusion
+
+**"The guard is missing" was not the same as "the guard was load-bearing."**
+Recording it as a lead rather than a vulnerability was the right call. No
+`boot.img` needs crafting and nothing should be flashed.
+
+**The parse-before-verify ordering stands as a real finding** and is worth
+carrying forward: any *future* bug in the header path is reachable
+pre-authentication, and the three flash reads at
+`0x12e26`/`0x12e46`/`0x12e66` all execute on unauthenticated data.
+
+**Minor leads, not chased:** the `0x670` header buffer is filled from flash with
+no NUL guarantee and `hdr+0x40` (cmdline) is passed to a `strlen`/`memcmp`
+keyword scanner at `0x3fb48` — an unterminated cmdline gives a heap **over-read**,
+read-only, at worst a fault.
