@@ -59,38 +59,166 @@ reached from a single caller at `0xD76A`. It reads a command byte via `0xDCE8`,
 echoes it, and dispatches on `0xDC`, `0xD4`, `0xD0`, `0xD1`, `0xD2`, `0xD3`,
 `0xD5`–`0xDB`, `0xA2`, `0xC8`, `0x88`.
 
-**The eFuse accessor family at `0x7A5C`–`0x7B68`** — the BROM's own copies of the
-same stubs found in the preloader, each reading `[efuse_base + 0x60]` and
-extracting one bit:
+**The eFuse accessor family** — each doing `ldr r0,[r0,#0x60]` then
+`ubfx r0,r0,#N,#1`, reading the same `0x11f10060` already confirmed on-device:
+
+> **⚠️ Correction:** an earlier revision of this file listed these entries **4
+> bytes too low** (e.g. `0x7ABE` for bit 8). Those addresses are *mid-instruction*
+> — `0x7ABE` disassembles as `lsls r0,r0,#3 ; bx lr`, the tail of the previous
+> stub. That off-by-4 is the entire reason the "no callers anywhere" puzzle
+> existed: the searches were run against addresses that are not function entries.
+> Corrected and re-verified:
 
 | stub | bit | meaning |
 | --- | --- | --- |
-| `0x7B3C` | 0 | — |
-| `0x7AA0` | 1 | `sbc_enabled` |
-| `0x7AAA` | 2 | `daa_enabled` |
-| `0x7AB4` | 3 | — |
-| `0x7A5C` | 4 | — |
-| `0x7A66` | 5 | — |
-| `0x7B1E` | 7 | — |
-| **`0x7ABE`** | **8** | **`EFUSE_Disable_BROM_CMD` — the one blown on our unit** |
-| `0x7B46` / `0x7B50` / `0x7B5A` | 9 / 10 / 11 | — |
+| `0x7B40` | 0 | — |
+| `0x7AA4` | 1 | `sbc_enabled` |
+| `0x7AAE` | 2 | `daa_enabled` |
+| `0x7AB8` | 3 | — |
+| `0x7A60` | 4 | — |
+| `0x7A6A` | 5 | — |
+| `0x7B1E`* | 7 | — |
+| **`0x7AC2`** | **8** | **`EFUSE_Disable_BROM_CMD` — blown on our unit** |
+| `0x7B4A` / `0x7B54` / `0x7B5E` | 9 / 10 / 11 | — |
 
-This is the same register (`0x11f10060`) and the same bit numbering already
-confirmed on our device by direct read (`0x946`).
+Literal pool: `0x7BC8 = 0x11F10000` (so `+0x60` is our register), plus
+`0x7BCC = 0x11F10130` and `0x7BD0 = 0x11F10120` — **a second fuse/config bank**
+whose stubs load at offset 0 rather than `+0x60`.
 
-## Open question — handed to dedicated analysis
+With the addresses corrected, every stub has ordinary `bl` callers. No computed
+dispatch, no pointer tables — the puzzle was self-inflicted.
 
-**None of these stubs has a direct `bl` caller, and none appears as a Thumb
-function pointer (`addr|1`) anywhere in the image.** So either they are reached
-by some other mechanism, or the BROM's real gating is inlined elsewhere and
-these are out-of-line copies. Resolving *what bit 8 actually gates* is the
-decisive question: it determines whether any BROM command survives the fuse, and
-whether there is a window before the check.
+## ⛔ What bit 8 gates: EVERYTHING, with no pre-check window
 
-Do **not** assume the fuse disables the whole handler until the gate is found —
-that is exactly the kind of unverified inference this project has had to retract
-repeatedly.
+`0x7AC2` has exactly one caller, `0xDEE0`, inside `0xDED8`, whose only caller is
+`0xD6A2`:
 
+```
+0xDED8  push {r4,r5,r6,lr} ; r4=r5=r6=0
+0xDEE0  bl #0x7AC2              ; EFUSE_Disable_BROM_CMD
+0xDEE4  cbz r0, #0xDEEC
+0xDEE6  movw r4,#0x8000
+0xDEEA  movs r6,#1              ; "skip download mode" verdict
+...
+0xDF68  mov r0,r6 ; pop
+```
+
+and the decision:
+
+```
+0xD6A2  bl #0xDED8
+0xD6A6  cbnz r0, #0xD6C6        ; nonzero -> skip both channels
+        ... UART path -> 0xD6C4 b #0xD76A -> bl #0xEBE8 (cmd handler)
+        ... USB  path -> 0xD76A            -> bl #0xEBE8
+0xD79A  bl #0xD550              ; load bootloader from boot device
+0xD7A4  bl #0xD346              ; jump to it
+```
+
+**There are exactly two paths to the command handler — `0xD6C4` (UART) and
+`0xD76A` (USB) — and both are downstream of the single `cbnz` at `0xD6A6`.** It
+is not a per-command filter and not USB-only; it removes both channels at once.
+
+**No pre-check window exists.** The full path from reset is
+`0x0 → 0x28 → 0xA0 (blx) → main 0xD118 → 0xD67A → 0xD6A2`. `0xDCAA`, the only
+call before it, merely installs a vtable of channel putc/getc pointers. No
+handshake (`0xDB74` UART / `0x3890` USB), no `0xDCE8` (get command byte), and no
+USB controller init runs first. **On a bit-8-blown die, no host byte is ever
+read, echoed, or buffered before the fuse is consulted.** Clean negative — not a
+race, not a late check.
+
+## The command handler bit 8 protects is itself hardened
+
+Even reaching it would not have handed over an easy primitive. Both the read
+funnel (`0xE216`) and write funnel (`0xE116`) perform, in order: zero-length
+reject, alignment check, a **multiplication-overflow guard** (`cmp r5,#0x40000000`
+for 32-bit / `#0x80000000` for 16-bit) *before* computing byte length, then range
+validation via `0xE066`. The range primitive `0xD130` has the **carry
+hardening**:
+
+```
+0xD130  cbz r1 -> error 0x706A      ; len == 0
+0xD136  adds r6, r0, r1             ; start + len
+0xD138  blo  0xD146                 ; no carry -> proceed
+0xD13A  movw r0,#0x706b             ; wraparound -> error
+```
+
+the same newer form as the preloader. Three blacklist tables are consulted on
+every access. mtkclient's `0x102834` and `0x106A60` are **entry counts**, not the
+tables themselves (`[0x102830]=0x00012614` table, `[0x102834]=10` count;
+runtime table at `0x1069E0` with count at `0x106A60`).
+
+**Verdict: no unbounded access, no integer-overflow bypass, no off-by-one.**
+
+## SBC and DAA at BROM level
+
+**SBC (`0x7AA4`, six callers)** is the real restrictor. When set, BROM reads are
+confined to three windows — `11F10000–11F11000`, `10007000–10008000`,
+`1001A080–1001A110` — and writes to the latter two. (Compare the preloader's own
+whitelist, measured live: read `{0x11f10000/0x1000, 0x10007000/0x1000,
+0x1001a080/0x4}`, write the latter two. Same policy, one layer down.)
+
+**DAA (`0x7AAE`) does essentially nothing at BROM level** — only two callers,
+neither in the memory path; it is one of three OR'd inputs to a generic "some
+secure mode is on" predicate at `0x6DFC`. The DA-authentication enforcement we
+mapped in the preloader is **not** mirrored in the BROM. Worth recording as a
+clean negative.
+
+### ✅ Second restrictor confirmed SET on our device
+
+`0x11F10130` **bit 10** (stub `0x7ACC`) **short-circuits SBC** — when set, reads
+and writes are restricted regardless of SBC. We already had this value without
+knowing it mattered: the preloader devinfo table maps entry 11 to reg
+`0x11f10130`, and our live `atag,devinfo` read gave **`devinfo[11] = 0x00000460`**.
+
+```
+0x460 = 0b0100_0110_0000  ->  bit5=1, bit6=1, bit10=1
+```
+
+**Bit 10 is set.** So the second, independent restrictor is enabled on this unit
+too. Anyone modelling "SBC off ⇒ unrestricted BROM" must check `0x11F10130` as
+well.
+
+## Is the ROM readable?
+
+**BROM's own commands refuse it.** The range `00000000–00018000` — exactly the
+populated ROM extent — is a blacklist entry under mask `0x2`, inside the `0x19F`
+deny mask queried at `0xE070`. That is why mtkclient dumps this ROM with an
+injected SRAM payload rather than `READ32`.
+
+**But there is no hardware lockdown on the handoff path.** The exit is
+`0xD79A → 0xD550 → 0xD346`, and `0xD346` is a bare indirect jump
+(`ldr r2,[pc]; ldr r2,[r2]; ldr r2,[r2,#4]; bx r2`) — no ROM-disable write, no
+MPU programming. **The BROM does not unmap or access-control itself before
+handing off.** So the blacklist is evidence the ROM *is* physically readable from
+a non-BROM context (you do not blacklist an address that faults), and our
+preloader's refusal of `0x0` is a *software* filter. Whether a read succeeds
+under the preloader is untested.
+
+## Open leads
+
+1. **`'RESV'` at SRAM `0x100000`** (`0xD206`–`0xD22E`): the BROM preserves
+   `0x100000–0x100040` across warm resets if the magic is present, and both
+   sub-ranges are separately blacklisted from command writes — i.e. protected
+   *because* they persist. A warm-reset persistence channel.
+2. **`0xD290` structure mismatch**: it writes `start→[0x102838]`,
+   `end→[0x10283C]`, `1→[0x102848]`, but the consumer at `0xD278` reads a
+   12-byte `{mask,start,end}` stride from base `0x102840`. Those do not line up.
+   Either a mis-resolved literal or a genuine mismatch — **not** claimed as a
+   bug, but the most interesting loose thread in the range-check machinery.
+3. `globals[7]`/`globals[8]` at `[0x106A70]`/`[0x106A74]` drive a
+   `0xC975E033` magic and `'R'`/`'U'` override bytes that can *disable* download
+   channels (never enable). Where they are populated is unmapped.
+
+## Bottom line for the goal
+
+**The BROM avenue is closed, and now for a proven reason rather than an assumed
+one.** Bit 8 is a hard, early, single-branch kill of both download channels,
+taken before any port is initialised and before a single host byte is read — so
+there is no window to attack. And the handler it protects is properly
+bounds-checked, so reaching it would not have yielded a memory primitive anyway.
+
+The one thing this *opens* is the preloader-side question: the ROM is not
+hardware-locked at handoff.
 ## Why this matters
 
 The root of trust is now reversible **offline**, with no risk to the device and
