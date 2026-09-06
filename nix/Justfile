@@ -60,7 +60,8 @@ refresh-openviking-hashes:
             return
         fi
 
-        sed -i '' "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$FAKE\";|" "$PKG"
+        # -i.bak + rm is the only in-place form GNU and BSD sed agree on.
+        sed -i.bak "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$FAKE\";|" "$PKG" && rm -f "$PKG.bak"
         got=$(nix build ".#openviking.$attr" --no-link 2>&1 \
                 | awk '/got:/ { print $2; exit }')
 
@@ -70,7 +71,7 @@ refresh-openviking-hashes:
             exit 1
         fi
 
-        sed -i '' "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$got\";|" "$PKG"
+        sed -i.bak "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$got\";|" "$PKG" && rm -f "$PKG.bak"
         echo "$name: $got"
     }
 

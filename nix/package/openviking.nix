@@ -9,6 +9,8 @@
   rustc,
   cmake,
   buildNpmPackage,
+  pkg-config,
+  openssl,
 }:
 
 let
@@ -32,8 +34,8 @@ let
   # Hashes of the vendored dependency trees.  These change whenever
   # openviking-src moves; `just update-openviking` rewrites both lines in
   # place, so keep them on one line each in `name = "sha256-...";` form.
-  cargoHash = "sha256-/rHFdldLX4eWwTQuaUwKenbmuZNoJ7vMe8banl7UT94=";
-  npmDepsHash = "sha256-cLsZCAoP7odJgW5yeVb3AfLeTKJ9VSi+lMm1JHgj78I=";
+  cargoHash = "sha256-hVugRWUTV+JSgahiSLAaNfyUXSYPGritnPOiV+vccDo=";
+  npmDepsHash = "sha256-nzmEp/jj4B9RPh3aosqpkAlNGsbZikqUV29Qa4Mnh1s=";
 
   # One vendored cargo tree covers the whole workspace, so both ov_cli and
   # ragfs-python share it.
@@ -123,13 +125,13 @@ let
 
       openviking-sdk = final.buildPythonPackage rec {
         pname = "openviking-sdk";
-        version = "0.1.5";
+        version = "0.1.9";
         pyproject = true;
 
         src = fetchPypi {
           pname = "openviking_sdk";
           inherit version;
-          hash = "sha256-8BfeyTgmeq6mWRIhZfKHLhiZM6VgS6bZ7AroZ7VY7K8=";
+          hash = "sha256-pOZs1TzXF50CMy//+5EW/C/qpDGwu9Hrk8aQZ1EGjio=";
         };
 
         build-system = with final; [
@@ -261,6 +263,36 @@ let
         hash = "sha256-VzaaN5pj7jMAb/u1fyyH6XmLI+yJpsTlkwpLReTlFNY=";
       };
 
+      # Rust document->Markdown converter behind openviking's AnyDoc parser.
+      # Installs as firecrawl-anydoc, imports as `anydoc`.
+      firecrawl-anydoc = final.buildPythonPackage rec {
+        pname = "firecrawl-anydoc";
+        version = "0.2.4";
+        pyproject = true;
+
+        src = fetchPypi {
+          pname = "firecrawl_anydoc";
+          inherit version;
+          hash = "sha256-PilGAnL+qBzeCP1a8R9rDx/wWRkhTdyTmGf3I2LIMDI=";
+        };
+
+        cargoDeps = rustPlatform.fetchCargoVendor {
+          inherit src;
+          name = "firecrawl-anydoc-cargo-deps-${version}";
+          hash = "sha256-yhW5HSzVrZCms4x36J2NGIn1e5YLIgjuNKXM9EJ9J8c=";
+        };
+
+        nativeBuildInputs = [
+          rustPlatform.cargoSetupHook
+          rustPlatform.maturinBuildHook
+          cargo
+          rustc
+        ];
+
+        doCheck = false;
+        pythonImportsCheck = [ "anydoc" ];
+      };
+
       # The Rust AGFS binding.  openviking.pyagfs prefers an importable
       # `ragfs_python` over the copy setup.py would otherwise vendor into
       # openviking/lib/, so providing it as a normal dependency is enough.
@@ -277,7 +309,13 @@ let
           rustPlatform.maturinBuildHook
           cargo
           rustc
+          pkg-config
         ];
+        buildInputs = [ openssl ];
+
+        # The s3 feature drags in openssl-sys, which would otherwise vendor
+        # OpenSSL from source (and need perl the sandbox lacks).
+        env.OPENSSL_NO_VENDOR = "1";
 
         doCheck = false;
         # The #[pymodule] initialiser imports openviking.storage.errors, so
@@ -342,6 +380,7 @@ python.pkgs.buildPythonApplication {
   dependencies =
     with python.pkgs;
     [
+      firecrawl-anydoc
       openviking-sdk
       volcengine
       apscheduler
