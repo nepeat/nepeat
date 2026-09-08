@@ -16,8 +16,7 @@
     ../../module/iscsi-xfs.nix
     ../../module/glances-tty.nix
     ../../module/erin.nix
-
-    inputs.paseo.nixosModules.paseo
+    ../../module/paseo.nix
 
     ../../module/vault-agent.nix
     ../../module/agent-secrets.nix
@@ -33,41 +32,6 @@
   # lives in /var/lib/tailscale, which is on the persistent XFS root here (no
   # impermanence on this host), so the join survives reboots.
   services.tailscale.enable = true;
-
-  # Paseo -- deliberately NOT on the desktop, this host only.
-  services.paseo = {
-    enable = true;
-
-    # Runs as erin, not the `paseo` system user. The daemon spawns coding
-    # agents, and as a system user its PATH is only coreutils/grep/sed/systemd
-    # -- no codex, claude, opencode, git or ssh -- and it cannot read erin's
-    # credentials. Setting user here also flips `inheritUserEnvironment` on by
-    # itself (it defaults to `user != "paseo"`), which puts
-    # /etc/profiles/per-user/erin/bin on the service PATH.
-    #
-    # Consequence: dataDir moves to /home/erin/.paseo, so the daemon keypair
-    # and server-id are regenerated; the old /var/lib/paseo is orphaned.
-    user = "erin";
-    group = "users";
-
-    # Hosted relay (app.paseo.sh) for remote access.
-    relay.enable = true;
-
-    # The web UI defaults to off, but "default off" is not the same as
-    # "cannot be turned on": the daemon resolves it as
-    #   cli ?? env PASEO_WEB_UI_ENABLED ?? persisted features.webUi.enabled ?? false
-    # so anything writing config.json could flip it. env outranks the persisted
-    # value, so pin both.
-    environment.PASEO_WEB_UI_ENABLED = "false";
-    settings.features.webUi.enabled = false;
-
-    # Still loopback-only. Remote access is via the relay, so there is no
-    # reason to publish the port on the LAN as well.
-  };
-
-  # `paseo` on PATH for interactive use; the daemon gets its own copy via
-  # services.paseo.package.
-  environment.systemPackages = [ inputs.paseo.packages.${pkgs.stdenv.hostPlatform.system}.default ];
 
   hardware.iscsiRoot.enable = true;
 
