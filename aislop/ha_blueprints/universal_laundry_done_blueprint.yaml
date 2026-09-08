@@ -4,15 +4,23 @@
 #   - watch  : short timer refreshed by each vibration. A 2nd vibration while
 #              it's still active => machine confirmed RUNNING (this is the
 #              "sustained motion" guard that rejects one-off bumps).
-#   - quiet  : long timer. Any vibration while RUNNING restarts it. When it
-#              FINISHES => no motion for quiet_minutes => machine is DONE.
+#   - quiet  : per-silence timer. Any vibration while RUNNING restarts it.
+#              When it FINISHES => one silent period elapsed.
+#   - silent_count : counts consecutive quiet completions without vibration.
+#              Needs N silences (default 2) before we call it DONE — so a soak
+#              pause (one quiet window) doesn't false-trigger.
+#   - bailout : hard cap since RUNNING was confirmed. 10 min fallback so a
+#              stalled cycle never hangs forever.
 #
-# AGREED TUNING (2026-08-03):
+# Logic: vibration while running restarts quiet; quiet_done increments
+# silent_count; if count>=required or bailout elapsed => DONE; else restart
+# quiet for another period. Bailout trigger is the backstop.
+#
+# AGREED TUNING (2026-08-03, washer quiet tightened 2026-08-15, bailout added 2026-08-15):
 #   confirm/arm : 5 min          (set as the WATCH timer duration)
-#   washer done : 4 min          (set as the WASHER quiet timer duration)
-#   dryer  done : 3 min          (set as the DRYER quiet timer duration)
-#   (simple binary-sensor version; may tighten to ~2 min later with
-#    axis-magnitude-stability gating once the live capture stabilizes)
+#   washer done : 4 min          (set as the WASHER quiet timer duration) — 2 silent periods required
+#   dryer  done : 3 min          (set as the DRYER quiet timer duration) — 1 silent period required
+#   bailout     : 10 min         (hard cap since confirmed running)
 #
 # On DONE: TTS announce (announce_script) + optional Discord @everyone
 # (discord_notify -> discord_target).
@@ -48,6 +56,28 @@ blueprint:
       selector:
         entity:
           domain: timer
+    silent_count:
+      name: Silent period counter
+      description: input_number counting consecutive quiet windows (create one)
+      selector:
+        entity:
+          domain: input_number
+    bailout_timer:
+      name: Bailout timer
+      description: timer that hard-caps the cycle length since running confirmed (create one, 10 min)
+      selector:
+        entity:
+          domain: timer
+    required_silent_periods:
+      name: Required silent periods
+      description: how many quiet windows to see before calling done (2 for washer soak tolerance, 1 for dryer)
+      default: 2
+      selector:
+        number:
+          min: 1
+          max: 5
+          step: 1
+          mode: slider
     announce_script:
       name: Announce (TTS) script
       default: script.1714900338808
@@ -86,43 +116,42 @@ blueprint:
         boolean: {}
 
 trigger:
-  # any new vibration
   - platform: state
     entity_id: !input vibration_sensor
     to: "on"
     id: vibration
-  # confirm window elapsed with no vibration -> was just a bump, reset watch
   - platform: event
     event_type: timer.finished
     event_data:
       entity_id: !input watch_timer
     id: watch_done
-  # quiet window elapsed -> DONE
   - platform: event
     event_type: timer.finished
     event_data:
       entity_id: !input quiet_timer
     id: quiet_done
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: !input bailout_timer
+    id: bailout_done
 
 condition: []
 
 action:
   - choose:
-      # ---- vibration detected ----
       - conditions:
           - condition: state
             entity_id: !input vibration_sensor
             state: "on"
         sequence:
           - choose:
-              # not currently running: use watch timer to confirm sustained motion
               - conditions:
                   - condition: state
                     entity_id: !input running_helper
                     state: "off"
                 sequence:
                   - choose:
-                      # first trigger in a fresh window -> start confirming
                       - conditions:
                           - condition: state
                             entity_id: !input watch_timer
@@ -131,7 +160,6 @@ action:
                           - service: timer.start
                             target:
                               entity_id: !input watch_timer
-                      # 2nd trigger while watch still active -> CONFIRMED RUNNING
                       - conditions:
                           - condition: state
                             entity_id: !input watch_timer
@@ -143,10 +171,17 @@ action:
                           - service: input_boolean.turn_on
                             target:
                               entity_id: !input running_helper
+                          - service: input_number.set_value
+                            target:
+                              entity_id: !input silent_count
+                            data:
+                              value: 0
                           - service: timer.start
                             target:
                               entity_id: !input quiet_timer
-              # running: any vibration restarts the quiet timer
+                          - service: timer.start
+                            target:
+                              entity_id: !input bailout_timer
               - conditions:
                   - condition: state
                     entity_id: !input running_helper
@@ -155,8 +190,11 @@ action:
                   - service: timer.start
                     target:
                       entity_id: !input quiet_timer
-
-      # ---- watch timer finished: it was a one-off bump, stay disarmed ----
+                  - service: input_number.set_value
+                    target:
+                      entity_id: !input silent_count
+                    data:
+                      value: 0
       - conditions:
           - condition: trigger
             id: watch_done
@@ -164,8 +202,6 @@ action:
           - service: timer.cancel
             target:
               entity_id: !input watch_timer
-
-      # ---- quiet timer finished while running -> DONE, announce ----
       - conditions:
           - condition: trigger
             id: quiet_done
@@ -173,9 +209,64 @@ action:
             entity_id: !input running_helper
             state: "on"
         sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: !input silent_count
+            data:
+              value: '{{ [ (states(!input silent_count) | int(0)) + 1, 10 ] | min }}'
+          - if:
+              - condition: template
+                value_template: '{{ states(!input silent_count) | int(0) >= (!input required_silent_periods | int(2)) }}'
+            then:
+              - service: timer.cancel
+                target:
+                  entity_id: !input quiet_timer
+              - service: timer.cancel
+                target:
+                  entity_id: !input bailout_timer
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: !input running_helper
+              - service: input_number.set_value
+                target:
+                  entity_id: !input silent_count
+                data:
+                  value: 0
+              - service: !input announce_script
+                data:
+                  message: >-
+                    {% if !input is_washing %}{{ !input appliance_name }} is done washing.{% else %}{{ !input appliance_name }} is done drying.{% endif %}
+              - service: !input discord_notify
+                data:
+                  target:
+                    - !input discord_target
+                  message: >-
+                    {% if !input discord_mention %}@everyone {% endif %}{% if !input is_washing %}{{ !input appliance_name }} is done washing.{% else %}{{ !input appliance_name }} is done drying.{% endif %}
+            else:
+              - service: timer.start
+                target:
+                  entity_id: !input quiet_timer
+      - conditions:
+          - condition: trigger
+            id: bailout_done
+          - condition: state
+            entity_id: !input running_helper
+            state: "on"
+        sequence:
+          - service: timer.cancel
+            target:
+              entity_id: !input quiet_timer
+          - service: timer.cancel
+            target:
+              entity_id: !input bailout_timer
           - service: input_boolean.turn_off
             target:
               entity_id: !input running_helper
+          - service: input_number.set_value
+            target:
+              entity_id: !input silent_count
+            data:
+              value: 0
           - service: !input announce_script
             data:
               message: >-
