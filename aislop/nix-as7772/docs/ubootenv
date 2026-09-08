@@ -1,0 +1,67 @@
+docker run -it --rm -p 69:69/udp \
+  -v ./as7772-nixos-netboot.itb:/tftpboot/as7772-nixos-netboot.itb:ro \
+  jumanjiman/tftp-hpa
+
+dhcp; setenv fdtaddr 0x02000000; setenv serverip 10.36.75.208; setenv bootargs 'console=ttyS0,115200 root=/dev/nfs rw earlycon'; tftp 0x1000000 as7772-nixos-netboot.itb; tftp $fdtaddr accton_as7772_32x-r0.dtb; bootm 0x1000000 - $fdtaddr
+
+dhcp; setenv serverip 10.36.75.208; setenv bootargs 'console=ttyS0,115200 root=/dev/nfs rw earlycon'; tftp 0x10000000 as7772-nixos-netboot.itb; bootm 0x10000000
+
+LOADER=> printenv
+autoload=no
+baudrate=115200
+boot_diag=if test -n $onie_boot_reason; then if test $onie_boot_reason = diag; then run diag_bootcmd; fi; fi
+bootargs=root=/dev/ram rw console=ttyS0,115200 quiet
+bootcmd=run boot_diag; run check_boot_reason; run nos_bootcmd; run onie_bootcmd
+bootdelay=3
+bootfile=uImage
+check_boot_reason=if test -n $onie_boot_reason; then setenv onie_bootargs boot_reason=$onie_boot_reason; run onie_bootcmd; fi;
+consoledev=ttyS0
+dhcp_user-class=powerpc-accton_as7772_32x-r0_uboot
+dhcp_vendor-class-identifier=uboot_vendor:powerpc-accton_as7772_32x-r0
+diag_bootcmd=setenv bootargs root=/dev/ram rw console=$consoledev,$baudrate quiet $diagargs; bootm $diag_start
+diag_start=0xea040000
+diag_sz.b=0x02000000
+diagargs=mem=1024M
+eth1addr=1C:EA:0B:38:2B:D6
+eth2addr=1C:EA:0B:38:2B:D7
+ethact=FM1@DTSEC1
+ethaddr=1C:EA:0B:38:2B:D5
+ethprime=FM1@DTSEC1
+fman_ucode=eff00000
+gatewayip=192.168.1.10
+hostname=as7772_32x-unknown
+hwconfig=fsl_ddr:ctlr_intlv=null;usb1:dr_mode=host,phy_type=utmi
+ipaddr=192.168.1.10
+loadaddr=1000000
+loads_echo=1
+mem=1920M
+netdev=eth0
+netmask=255.255.255.0
+nos_bootcmd=true
+onie_args=run onie_initargs onie_platformargs
+onie_bootcmd=echo Loading Open Network Install Environment ...; echo Platform: $onie_platform ; echo Version : $onie_version ; cp.b $onie_start $loadaddr ${onie_sz.b} && run onie_args && bootm ${loadaddr}
+onie_dropbear_dss_host_key=begin-base64@600@d#AAAAB3NzaC1kc3MAAACBAOHcCOESF1IHH2o0lFvK6vQPLdx9l3f6NUj2dQ9h#/1SJxdTYstr1Hp+M0r+QGGIo1Mffow1PXnSDsUI8Hy7m4oaH5KcX7NwsmGMA#G4mrIVhilzPlkSTuBsTBp5/dR6oW1aV0z9r0vQz6stQKn1ZLZYhz1RAOLYZh#F00vQANtAq5VAAAAFQDPX08EO67ir3+vHjzJojfqtCT/4wAAAIA/0XCzgty4#we7FgECsij4mODql2kkAQKmzp/XlQAOfSItWOzGRi8JSTwI63GXHsSO6xiUG#pt8LcF+YZeW/GSPHunXxtk10G1xJ1/rkO0hTWuZmP02mmS/J/B89IPMosDg/#XT8aPXHWDUTfoOjJS0kWTDWEz1K07ysCKOs4c0FR8wAAAIAOsVcQw8RCNh1o#U/SAGXPIWxjNafNCa+JIzoQtOaeKebBe3gycNx0O501/wFprUEGMGa/7PmjV#KFNXNnIDQAJtWr104I3/0XCnFYiiv2KfBdzy4nl7vzr+/z6bGHK5UBz+Rb9N#96YEQFI1NvGJOspsdRhl681Qtoe29Or97hiIFAAAABR2PPsg2Wa6ijgvm4Ji#ysACLXwXHg==#====#
+onie_dropbear_rsa_host_key=begin-base64@600@r#AAAAB3NzaC1yc2EAAAADAQABAAAAgQDASBj8Jn/EW2qxqhEGcTacX69mB370#SMeOpRi4nDf1/xxC3d2yypletItwht4unADaVXWa5F6gWivHOGQO6trOchoX#CqbHa7a/4vhz0Ntiw1t0AKhEX2TWK7Yx8nn10G61ve05PhI3EP4EoNdQJ+N/#RY6hAKnRdHse+ftPH1b53wAAAIBImnCktTzFPed5kke/cPw364FlOytavihr#2jcNbh9LSbq4HOJbYlirA+0q3iIC43EHAAHaLKT2U1X4cXiGkXNwnNZfjVti#tDbpx1HT3Leepz1DJQtOQmZP2yvETJAw+HCDqwt3hpwqzZvQTHnPrByOzT2c#3TQjruCaEdtwhBJDMQAAAEEA45FxlnyQ8sV60uuStiRSQlyz6zX7DezokZcZ#yAo7cdNrarg5Qzx5XoHTXMyguMYcJCSAxZKn/QVW3uQlhhLuDQAAAEEA2E4M#LveVTMCLXZnu1kb4rjmMRbZIGb5qwzIIC2/7Ki7UxI6VJ8xFXYEI8ASEoHVk#2ZLnvPPa9RvaKeOZP4Y4mw==#====#
+onie_initargs=setenv bootargs quiet console=$consoledev,$baudrate mem=$mem
+onie_machine=accton_as7772_32x
+onie_machine_rev=0
+onie_platform=powerpc-accton_as7772_32x-r0
+onie_platformargs=setenv bootargs $bootargs serial_num=${serial#} eth_addr=$ethaddr $onie_bootargs $onie_debugargs
+onie_rescue=setenv onie_boot_reason rescue && boot
+onie_start=0xe8040000
+onie_sz.b=0x01100000
+onie_uninstall=setenv onie_boot_reason uninstall && boot
+onie_update=setenv onie_boot_reason update && boot
+onie_vendor_id=259
+onie_version=2015.02.00.30
+platform=accton_as7772_32x
+rootpath=/opt/nfsroot
+serial#=777232X19300200
+serverip=192.168.1.99
+stderr=serial
+stdin=serial
+stdout=serial
+ver=U-Boot 2014.07-ga37e2e4 (Feb 06 2018 - 18:33:24) - 1.7.0.12
+
+Environment size: 3497/8188 bytes
+LOADER=>

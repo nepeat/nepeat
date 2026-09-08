@@ -1,0 +1,65 @@
+#!/bin/sh
+# AS7772-32X NixOS netboot initramfs
+# Brings up FM1@DTSEC1 management ethernet, gets DHCP, mounts NFS
+
+echo "[init] AS7772-32X initramfs starting..."
+
+mount -t proc  none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev 2>/dev/null || \
+  mknod /dev/null c 1 3
+
+# Load FMan kernel modules (order matters)
+for mod in fsl_fman fsl_fman_muram fsl_fman_port \
+           fsl_fman_mac fsl_dpaa_eth \
+           pca954x at24 broadcom; do
+  modprobe $mod 2>/dev/null && \
+    echo "[init] loaded $mod" || \
+    echo "[init] skipped $mod"
+done
+
+echo "[init] Waiting for FM1@DTSEC1 management port..."
+sleep 2
+
+# Find the management interface
+MGMT_IF=""
+for iface in eth0 fm1-mac0 fm1-dtsec1 management; do
+  if [ -d /sys/class/net/$iface ]; then
+    MGMT_IF=$iface
+    break
+  fi
+done
+
+if [ -z "$MGMT_IF" ]; then
+  # Fallback: use first non-loopback interface
+  MGMT_IF=$(ls /sys/class/net/ | grep -v lo | head -1)
+fi
+
+echo "[init] Using interface: $MGMT_IF"
+ip link set $MGMT_IF up
+ip link set lo up
+
+# DHCP
+echo "[init] Requesting DHCP on $MGMT_IF..."
+udhcpc -i $MGMT_IF -s /etc/udhcpc.script -t 10 -T 3 -n
+
+# Read NFS root from kernel cmdline
+NFSROOT=$(cat /proc/cmdline | tr ' ' '\n' | grep nfsroot | cut -d= -f2-)
+NFSOPT=$(cat /proc/cmdline  | tr ' ' '\n' | grep nfsopts | cut -d= -f2-)
+
+if [ -z "$NFSROOT" ]; then
+  NFSROOT="192.168.1.99:/exports/as7772"
+  echo "[init] No nfsroot in cmdline, using default: $NFSROOT"
+fi
+
+echo "[init] Mounting NFS root: $NFSROOT"
+mount -t nfs -o ${NFSOPT:-vers=3,tcp,nolock} \
+  $NFSROOT /newroot
+
+if [ $? -ne 0 ]; then
+  echo "[init] NFS mount failed! Dropping to emergency shell."
+  exec sh
+fi
+
+echo "[init] NFS mounted. Switching root..."
+exec switch_root /newroot /sbin/init

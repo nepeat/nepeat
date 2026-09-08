@@ -1,0 +1,834 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Accton AS7772-32X Device Tree
+// Extracted from ONIE FIT image (mtd2), patched for kernel 6.1
+// Hardware: Freescale T2080 + BCM56960 (Tomahawk) + 32x QSFP28
+/dts-v1/;
+
+/ {
+  #address-cells = <0x02>;
+  #size-cells = <0x02>;
+  interrupt-parent = <0x01>;
+  model = "accton,as7772_32x";
+  compatible = "accton,as7772_32x";
+
+  // ── Chosen (netboot target) ───────────────────────────────────
+  chosen {
+    bootargs = "console=ttyS0,115200 root=/dev/nfs rw earlycon";
+    stdout-path = "/soc@ffe000000/serial@11c500:115200";
+  };
+
+  // ── CPUs (T2080: 4x e6500 dual-thread = 8 hw threads) ─────────
+  cpus {
+    power-isa-version = "2.06";
+    power-isa-b;
+    power-isa-e;
+    power-isa-atb;
+    power-isa-cs;
+    power-isa-ds;
+    power-isa-e.ed;
+    power-isa-e.pd;
+    power-isa-e.hv;
+    power-isa-e.le;
+    power-isa-e.pm;
+    power-isa-e.pc;
+    power-isa-ecl;
+    power-isa-exp;
+    power-isa-fp;
+    power-isa-fp.r;
+    power-isa-mmc;
+    power-isa-scpm;
+    power-isa-wt;
+    fsl,eref-deo;
+    mmu-type = "power-embedded";
+    #address-cells = <0x01>;
+    #size-cells = <0x00>;
+
+    PowerPC,e6500@0 {
+      device_type = "cpu";
+      reg = <0x00 0x01>;
+      clocks = <0x02>;
+      next-level-cache = <0x03>;
+      phandle = <0x05>;
+    };
+    PowerPC,e6500@2 {
+      device_type = "cpu";
+      reg = <0x02 0x03>;
+      clocks = <0x02>;
+      next-level-cache = <0x03>;
+      phandle = <0x06>;
+    };
+    PowerPC,e6500@4 {
+      device_type = "cpu";
+      reg = <0x04 0x05>;
+      clocks = <0x02>;
+      next-level-cache = <0x03>;
+      phandle = <0x07>;
+    };
+    PowerPC,e6500@6 {
+      device_type = "cpu";
+      reg = <0x06 0x07>;
+      clocks = <0x02>;
+      next-level-cache = <0x03>;
+      phandle = <0x08>;
+    };
+  };
+
+  // ── Memory (populated by bootloader via /chosen or atag) ───────
+  memory@0 {
+    device_type = "memory";
+  };
+
+  // ── Aliases ───────────────────────────────────────────────────
+  aliases {
+    ccsr      = "/soc@ffe000000";
+    dcsr      = "/dcsr@f00000000";
+    serial0   = "/soc@ffe000000/serial@11c500";
+    serial1   = "/soc@ffe000000/serial@11c600";
+    ethernet0 = "/soc@ffe000000/fman@400000/ethernet@e0000";
+    fman0     = "/soc@ffe000000/fman@400000";
+    pci0      = "/pcie@ffe240000";
+    pci1      = "/pcie@ffe250000";
+    pci2      = "/pcie@ffe260000";
+    pci3      = "/pcie@ffe270000";
+    usb0      = "/soc@ffe000000/usb@210000";
+    usb1      = "/soc@ffe000000/usb@211000";
+    sdhc      = "/soc@ffe000000/sdhc@114000";
+  };
+
+  // ── Local Bus / IFC (NOR Flash + CPLD) ────────────────────────
+  localbus@ffe124000 {
+    reg = <0x0f 0xfe124000 0x00 0x2000>;
+    ranges = <0x00 0x00 0x0f 0xe8000000 0x8000000
+              0x02 0x00 0x0f 0xff800000 0x10000
+              0x03 0x00 0x0f 0xffdf0000 0x8000>;
+    #address-cells = <0x02>;
+    #size-cells    = <0x01>;
+    compatible     = "fsl,ifc", "simple-bus";
+    interrupts     = <0x19 0x02 0x00 0x00>;
+
+    // 128MB NOR flash
+    nor@0,0 {
+      #address-cells = <0x01>;
+      #size-cells    = <0x01>;
+      compatible     = "cfi-flash";
+      reg            = <0x00 0x00 0x8000000>;
+      bank-width     = <0x02>;
+      device-width   = <0x02>;
+      byteswap;
+
+      partition@0 {
+        reg   = <0x00000000 0x00020000>;
+        label = "RCW";
+        read-only;
+      };
+      partition@20000 {
+        reg   = <0x00020000 0x00020000>;
+        label = "hw-info";
+        read-only;
+      };
+      partition@40000 {
+        reg   = <0x00040000 0x02000000>;
+        label = "onie";
+      };
+      partition@2040000 {
+        reg   = <0x02040000 0x02000000>;
+        label = "diag";
+      };
+      partition@4040000 {
+        reg   = <0x04040000 0x03ec0000>;
+        label = "open";
+      };
+      partition@7f00000 {
+        reg   = <0x07f00000 0x00020000>;
+        label = "Fman-FW";
+        read-only;
+      };
+      partition@7f20000 {
+        reg      = <0x07f20000 0x00020000>;
+        label    = "uboot-env";
+        env_size = <0x2000>;
+      };
+      partition@7f40000 {
+        reg   = <0x07f40000 0x000c0000>;
+        label = "uboot";
+        read-only;
+      };
+    };
+
+    // CPLD (board management controller via IFC CS3)
+    board-control@2,0 {
+      #address-cells = <0x01>;
+      #size-cells    = <0x01>;
+      compatible     = "accton,as7772-cpld", "simple-mfd";
+      reg            = <0x03 0x00 0x300>;
+      ranges         = <0x00 0x03 0x00 0x300>;
+    };
+  };
+
+  // ── BMan portals (18x) ────────────────────────────────────────
+  bman-portals@ff4000000 {
+    ranges         = <0x00 0x0f 0xf4000000 0x2000000>;
+    #address-cells = <0x01>;
+    #size-cells    = <0x01>;
+    compatible     = "simple-bus";
+    bman-portal@0   { cell-index=<0x00>; compatible="fsl,bman-portal"; reg=<0x000000 0x4000 0x1000000 0x1000>; interrupts=<0x69 0x02 0x00 0x00>; };
+    bman-portal@4000 { cell-index=<0x01>; compatible="fsl,bman-portal"; reg=<0x004000 0x4000 0x1001000 0x1000>; interrupts=<0x6b 0x02 0x00 0x00>; };
+    bman-portal@8000 { cell-index=<0x02>; compatible="fsl,bman-portal"; reg=<0x008000 0x4000 0x1002000 0x1000>; interrupts=<0x6d 0x02 0x00 0x00>; };
+    bman-portal@c000 { cell-index=<0x03>; compatible="fsl,bman-portal"; reg=<0x00c000 0x4000 0x1003000 0x1000>; interrupts=<0x6f 0x02 0x00 0x00>; };
+    bman-portal@10000 { cell-index=<0x04>; compatible="fsl,bman-portal"; reg=<0x010000 0x4000 0x1004000 0x1000>; interrupts=<0x71 0x02 0x00 0x00>; };
+    bman-portal@14000 { cell-index=<0x05>; compatible="fsl,bman-portal"; reg=<0x014000 0x4000 0x1005000 0x1000>; interrupts=<0x73 0x02 0x00 0x00>; };
+    bman-portal@18000 { cell-index=<0x06>; compatible="fsl,bman-portal"; reg=<0x018000 0x4000 0x1006000 0x1000>; interrupts=<0x75 0x02 0x00 0x00>; };
+    bman-portal@1c000 { cell-index=<0x07>; compatible="fsl,bman-portal"; reg=<0x01c000 0x4000 0x1007000 0x1000>; interrupts=<0x77 0x02 0x00 0x00>; };
+    bman-portal@20000 { cell-index=<0x08>; compatible="fsl,bman-portal"; reg=<0x020000 0x4000 0x1008000 0x1000>; interrupts=<0x79 0x02 0x00 0x00>; };
+    bman-portal@24000 { cell-index=<0x09>; compatible="fsl,bman-portal"; reg=<0x024000 0x4000 0x1009000 0x1000>; interrupts=<0x7b 0x02 0x00 0x00>; };
+    bman-portal@28000 { cell-index=<0x0a>; compatible="fsl,bman-portal"; reg=<0x028000 0x4000 0x100a000 0x1000>; interrupts=<0x7d 0x02 0x00 0x00>; };
+    bman-portal@2c000 { cell-index=<0x0b>; compatible="fsl,bman-portal"; reg=<0x02c000 0x4000 0x100b000 0x1000>; interrupts=<0x7f 0x02 0x00 0x00>; };
+    bman-portal@30000 { cell-index=<0x0c>; compatible="fsl,bman-portal"; reg=<0x030000 0x4000 0x100c000 0x1000>; interrupts=<0x81 0x02 0x00 0x00>; };
+    bman-portal@34000 { cell-index=<0x0d>; compatible="fsl,bman-portal"; reg=<0x034000 0x4000 0x100d000 0x1000>; interrupts=<0x83 0x02 0x00 0x00>; };
+    bman-portal@38000 { cell-index=<0x0e>; compatible="fsl,bman-portal"; reg=<0x038000 0x4000 0x100e000 0x1000>; interrupts=<0x85 0x02 0x00 0x00>; };
+    bman-portal@3c000 { cell-index=<0x0f>; compatible="fsl,bman-portal"; reg=<0x03c000 0x4000 0x100f000 0x1000>; interrupts=<0x87 0x02 0x00 0x00>; };
+    bman-portal@40000 { cell-index=<0x10>; compatible="fsl,bman-portal"; reg=<0x040000 0x4000 0x1010000 0x1000>; interrupts=<0x89 0x02 0x00 0x00>; };
+    bman-portal@44000 { cell-index=<0x11>; compatible="fsl,bman-portal"; reg=<0x044000 0x4000 0x1011000 0x1000>; interrupts=<0x8b 0x02 0x00 0x00>; };
+    bman-bpids@0 { compatible="fsl,bpid-range"; fsl,bpid-range=<0x20 0x20>; };
+  };
+
+  // ── QMan portals (18x) ────────────────────────────────────────
+  qman-portals@ff6000000 {
+    ranges         = <0x00 0x0f 0xf6000000 0x2000000>;
+    #address-cells = <0x01>;
+    #size-cells    = <0x01>;
+    compatible     = "simple-bus";
+    qman-portal@0   { cell-index=<0x00>; compatible="fsl,qman-portal"; reg=<0x000000 0x4000 0x1000000 0x1000>; interrupts=<0x68 0x02 0x00 0x00>; fsl,qman-channel-id=<0x00>; };
+    qman-portal@4000 { cell-index=<0x01>; compatible="fsl,qman-portal"; reg=<0x004000 0x4000 0x1001000 0x1000>; interrupts=<0x6a 0x02 0x00 0x00>; fsl,qman-channel-id=<0x01>; };
+    qman-portal@8000 { cell-index=<0x02>; compatible="fsl,qman-portal"; reg=<0x008000 0x4000 0x1002000 0x1000>; interrupts=<0x6c 0x02 0x00 0x00>; fsl,qman-channel-id=<0x02>; };
+    qman-portal@c000 { cell-index=<0x03>; compatible="fsl,qman-portal"; reg=<0x00c000 0x4000 0x1003000 0x1000>; interrupts=<0x6e 0x02 0x00 0x00>; fsl,qman-channel-id=<0x03>; };
+    qman-portal@10000 { cell-index=<0x04>; compatible="fsl,qman-portal"; reg=<0x010000 0x4000 0x1004000 0x1000>; interrupts=<0x70 0x02 0x00 0x00>; fsl,qman-channel-id=<0x04>; };
+    qman-portal@14000 { cell-index=<0x05>; compatible="fsl,qman-portal"; reg=<0x014000 0x4000 0x1005000 0x1000>; interrupts=<0x72 0x02 0x00 0x00>; fsl,qman-channel-id=<0x05>; };
+    qman-portal@18000 { cell-index=<0x06>; compatible="fsl,qman-portal"; reg=<0x018000 0x4000 0x1006000 0x1000>; interrupts=<0x74 0x02 0x00 0x00>; fsl,qman-channel-id=<0x06>; };
+    qman-portal@1c000 { cell-index=<0x07>; compatible="fsl,qman-portal"; reg=<0x01c000 0x4000 0x1007000 0x1000>; interrupts=<0x76 0x02 0x00 0x00>; fsl,qman-channel-id=<0x07>; };
+    qman-portal@20000 { cell-index=<0x08>; compatible="fsl,qman-portal"; reg=<0x020000 0x4000 0x1008000 0x1000>; interrupts=<0x78 0x02 0x00 0x00>; fsl,qman-channel-id=<0x08>; };
+    qman-portal@24000 { cell-index=<0x09>; compatible="fsl,qman-portal"; reg=<0x024000 0x4000 0x1009000 0x1000>; interrupts=<0x7a 0x02 0x00 0x00>; fsl,qman-channel-id=<0x09>; };
+    qman-portal@28000 { cell-index=<0x0a>; compatible="fsl,qman-portal"; reg=<0x028000 0x4000 0x100a000 0x1000>; interrupts=<0x7c 0x02 0x00 0x00>; fsl,qman-channel-id=<0x0a>; };
+    qman-portal@2c000 { cell-index=<0x0b>; compatible="fsl,qman-portal"; reg=<0x02c000 0x4000 0x100b000 0x1000>; interrupts=<0x7e 0x02 0x00 0x00>; fsl,qman-channel-id=<0x0b>; };
+    qman-portal@30000 { cell-index=<0x0c>; compatible="fsl,qman-portal"; reg=<0x030000 0x4000 0x100c000 0x1000>; interrupts=<0x80 0x02 0x00 0x00>; fsl,qman-channel-id=<0x0c>; };
+    qman-portal@34000 { cell-index=<0x0d>; compatible="fsl,qman-portal"; reg=<0x034000 0x4000 0x100d000 0x1000>; interrupts=<0x82 0x02 0x00 0x00>; fsl,qman-channel-id=<0x0d>; };
+    qman-portal@38000 { cell-index=<0x0e>; compatible="fsl,qman-portal"; reg=<0x038000 0x4000 0x100e000 0x1000>; interrupts=<0x84 0x02 0x00 0x00>; fsl,qman-channel-id=<0x0e>; };
+    qman-portal@3c000 { cell-index=<0x0f>; compatible="fsl,qman-portal"; reg=<0x03c000 0x4000 0x100f000 0x1000>; interrupts=<0x86 0x02 0x00 0x00>; fsl,qman-channel-id=<0x0f>; };
+    qman-portal@40000 { cell-index=<0x10>; compatible="fsl,qman-portal"; reg=<0x040000 0x4000 0x1010000 0x1000>; interrupts=<0x88 0x02 0x00 0x00>; fsl,qman-channel-id=<0x10>; };
+    qman-portal@44000 { cell-index=<0x11>; compatible="fsl,qman-portal"; reg=<0x044000 0x4000 0x1011000 0x1000>; interrupts=<0x8a 0x02 0x00 0x00>; fsl,qman-channel-id=<0x11>; };
+    qman-fqids@0  { compatible="fsl,fqid-range";         fsl,fqid-range=<0x100 0x200>;         };
+    qman-fqids@1  { compatible="fsl,fqid-range";         fsl,fqid-range=<0x8000 0x8000>;       };
+    qman-pools@0  { compatible="fsl,pool-channel-range"; fsl,pool-channel-range=<0x401 0x0f>;  };
+    qman-cgrids@0 { compatible="fsl,cgrid-range";        fsl,cgrid-range=<0x00 0x100>;         };
+    qman-ceetm@0 {
+      compatible = "fsl,qman-ceetm";
+      fsl,ceetm-lfqid-range   = <0xf00000 0x1000>;
+      fsl,ceetm-sp-range      = <0x00 0x0c>;
+      fsl,ceetm-lni-range     = <0x00 0x08>;
+      fsl,ceetm-channel-range = <0x00 0x20>;
+    };
+  };
+
+  // ── SoC ───────────────────────────────────────────────────────
+  soc@ffe000000 {
+    ranges         = <0x00 0x0f 0xfe000000 0x1000000>;
+    reg            = <0x0f 0xfe000000 0x00 0x1000>;
+    #address-cells = <0x01>;
+    #size-cells    = <0x01>;
+    device_type    = "soc";
+    compatible     = "simple-bus";
+
+    // ── Interrupt controller (MPIC) ───────────────────────────
+    pic@40000 {
+      interrupt-controller;
+      #address-cells   = <0x00>;
+      #interrupt-cells = <0x04>;
+      reg              = <0x40000 0x40000>;
+      compatible       = "fsl,mpic", "chrp,open-pic";
+      device_type      = "open-pic";
+      clock-frequency  = <0x00>;
+      phandle          = <0x01>;
+    };
+
+    // ── Memory controller ─────────────────────────────────────
+    memory-controller@8000 {
+      compatible = "fsl,qoriq-memory-controller-v4.7",
+                   "fsl,qoriq-memory-controller";
+      reg        = <0x8000 0x1000>;
+      interrupts = <0x10 0x02 0x01 0x17>;
+      phandle    = <0x04>;
+    };
+
+    // ── L2/L3 cache ───────────────────────────────────────────
+    l2-cache-controller@c20000 {
+      compatible    = "fsl,t2080-l2-cache-controller";
+      reg           = <0xc20000 0x40000>;
+      next-level-cache = <0x23>;
+      phandle       = <0x03>;
+    };
+
+    l3-cache-controller@10000 {
+      compatible = "fsl,t2080-l3-cache-controller", "cache";
+      reg        = <0x10000 0x1000 0x11000 0x1000 0x12000 0x1000>;
+      interrupts = <0x10 0x02 0x01 0x1b
+                    0x10 0x02 0x01 0x1a
+                    0x10 0x02 0x01 0x19>;
+      phandle    = <0x23>;
+    };
+
+    // ── Clock gen ─────────────────────────────────────────────
+    global-utilities@e1000 {
+      compatible         = "fsl,t2080-clockgen",
+                           "fsl,qoriq-clockgen-2.0",
+                           "fixed-clock";
+      reg                = <0xe1000 0x1000>;
+      clock-output-names = "sysclk";
+      #clock-cells       = <0x00>;
+      #address-cells     = <0x01>;
+      #size-cells        = <0x00>;
+      phandle            = <0x20>;
+
+      pll0@800 {
+        #clock-cells       = <0x01>;
+        reg                = <0x800>;
+        compatible         = "fsl,core-pll-clock";
+        clocks             = <0x20>;
+        clock-output-names = "pll0", "pll0-div2", "pll0-div4";
+        phandle            = <0x21>;
+      };
+      pll1@820 {
+        #clock-cells       = <0x01>;
+        reg                = <0x820>;
+        compatible         = "fsl,core-pll-clock";
+        clocks             = <0x20>;
+        clock-output-names = "pll1", "pll1-div2", "pll1-div4";
+        phandle            = <0x22>;
+      };
+      mux0@0 {
+        #clock-cells       = <0x00>;
+        reg                = <0x00>;
+        compatible         = "fsl,core-mux-clock";
+        clocks             = <0x21 0x00 0x21 0x01 0x21 0x02
+                              0x22 0x00 0x22 0x01 0x22 0x02>;
+        clock-output-names = "cmux0";
+        phandle            = <0x02>;
+      };
+    };
+
+    global-utilities@e0000 {
+      compatible   = "fsl,t2080-device-config",
+                     "fsl,qoriq-device-config-2.0";
+      reg          = <0xe0000 0xe00>;
+      fsl,has-rstcr;
+      fsl,liodn-bits = <0x0c>;
+    };
+
+    global-utilities@e2000 {
+      compatible = "fsl,t2080-rcpm", "fsl,qoriq-rcpm-2.0";
+      reg        = <0xe2000 0x1000>;
+    };
+
+    // ── Serial console ────────────────────────────────────────
+    // ttyS0 @ 115200 baud (matches U-Boot env: consoledev=ttyS0)
+    serial@11c500 {
+      cell-index    = <0x00>;
+      device_type   = "serial";
+      compatible    = "fsl,ns16550", "ns16550";
+      reg           = <0x11c500 0x100>;
+      clock-frequency = <0x00>;
+      interrupts    = <0x24 0x02 0x00 0x00>;
+    };
+    serial@11c600 {
+      cell-index    = <0x01>;
+      device_type   = "serial";
+      compatible    = "fsl,ns16550", "ns16550";
+      reg           = <0x11c600 0x100>;
+      clock-frequency = <0x00>;
+      interrupts    = <0x24 0x02 0x00 0x00>;
+    };
+    serial@11d500 {
+      cell-index    = <0x02>;
+      device_type   = "serial";
+      compatible    = "fsl,ns16550", "ns16550";
+      reg           = <0x11d500 0x100>;
+      clock-frequency = <0x00>;
+      interrupts    = <0x25 0x02 0x00 0x00>;
+    };
+    serial@11d600 {
+      cell-index    = <0x03>;
+      device_type   = "serial";
+      compatible    = "fsl,ns16550", "ns16550";
+      reg           = <0x11d600 0x100>;
+      clock-frequency = <0x00>;
+      interrupts    = <0x25 0x02 0x00 0x00>;
+    };
+
+    // ── I2C Bus 0: System management ──────────────────────────
+    // adt7461@4c (temp), eeprom@50 (AT24C256), ds1672@68 (RTC)
+    i2c@118000 {
+      #address-cells = <0x01>;
+      #size-cells    = <0x00>;
+      cell-index     = <0x00>;
+      compatible     = "fsl-i2c";
+      reg            = <0x118000 0x100>;
+      interrupts     = <0x26 0x02 0x00 0x00>;
+      dfsrr;
+
+      adt7461@4c {
+        compatible = "adi,adt7461";
+        reg        = <0x4c>;
+      };
+      eeprom@50 {
+        compatible = "at24,24c256";
+        reg        = <0x50>;
+        // TlvInfo EEPROM - contains serial#, MAC, platform name
+      };
+      ds1672@68 {
+        compatible = "dallas,ds1672";
+        reg        = <0x68>;
+      };
+    };
+
+    // ── I2C Bus 1: Management SFP ─────────────────────────────
+    // pca9546@77 -> ch0 -> sfp@50 (management port optics)
+    i2c@118100 {
+      #address-cells = <0x01>;
+      #size-cells    = <0x00>;
+      cell-index     = <0x01>;
+      compatible     = "fsl-i2c";
+      reg            = <0x118100 0x100>;
+      interrupts     = <0x26 0x02 0x00 0x00>;
+      dfsrr;
+
+      pca9546@77 {
+        compatible     = "nxp,pca9546";
+        reg            = <0x77>;
+        #address-cells = <0x01>;
+        #size-cells    = <0x00>;
+
+        i2c@0 {
+          #address-cells = <0x01>;
+          #size-cells    = <0x00>;
+          reg            = <0x00>;
+          sfp@50 {
+            compatible = "optics,sfp";
+            reg        = <0x50>;
+          };
+        };
+      };
+    };
+
+    // ── I2C Bus 2: Reserved/unused ────────────────────────────
+    i2c@119000 {
+      #address-cells = <0x01>;
+      #size-cells    = <0x00>;
+      cell-index     = <0x02>;
+      compatible     = "fsl-i2c";
+      reg            = <0x119000 0x100>;
+      interrupts     = <0x27 0x02 0x00 0x00>;
+      dfsrr;
+    };
+
+    // ── I2C Bus 3: 32x QSFP28 data ports ─────────────────────
+    // 4x PCA9548 8-channel mux giving 32 QSFP28 EEPROM channels
+    // Note: port numbering is NON-LINEAR (see mux channel comments)
+    i2c@119100 {
+      #address-cells = <0x01>;
+      #size-cells    = <0x00>;
+      cell-index     = <0x03>;
+      compatible     = "fsl-i2c";
+      reg            = <0x119100 0x100>;
+      interrupts     = <0x27 0x02 0x00 0x00>;
+      dfsrr;
+
+      // Reserved mux (no active children in original DTS)
+      pca9548@71 {
+        compatible     = "nxp,pca9548";
+        reg            = <0x71>;
+        #address-cells = <0x01>;
+        #size-cells    = <0x00>;
+      };
+
+      // Ports 1-4 (ch4-7) and ports 9-12 (ch0-3)
+      pca9548@72 {
+        compatible     = "nxp,pca9548";
+        reg            = <0x72>;
+        #address-cells = <0x01>;
+        #size-cells    = <0x00>;
+        i2c@0 { #address-cells=<1>; #size-cells=<0>; reg=<0>; sfp9@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@1 { #address-cells=<1>; #size-cells=<0>; reg=<1>; sfp10@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@2 { #address-cells=<1>; #size-cells=<0>; reg=<2>; sfp11@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@3 { #address-cells=<1>; #size-cells=<0>; reg=<3>; sfp12@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@4 { #address-cells=<1>; #size-cells=<0>; reg=<4>; sfp1@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@5 { #address-cells=<1>; #size-cells=<0>; reg=<5>; sfp2@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@6 { #address-cells=<1>; #size-cells=<0>; reg=<6>; sfp3@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@7 { #address-cells=<1>; #size-cells=<0>; reg=<7>; sfp4@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+      };
+
+      // Ports 5-8 (ch1,0,3,2) and ports 13-16 (ch4-7)
+      pca9548@73 {
+        compatible     = "nxp,pca9548";
+        reg            = <0x73>;
+        #address-cells = <0x01>;
+        #size-cells    = <0x00>;
+        i2c@0 { #address-cells=<1>; #size-cells=<0>; reg=<0>; sfp6@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@1 { #address-cells=<1>; #size-cells=<0>; reg=<1>; sfp5@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@2 { #address-cells=<1>; #size-cells=<0>; reg=<2>; sfp8@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@3 { #address-cells=<1>; #size-cells=<0>; reg=<3>; sfp7@50  { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@4 { #address-cells=<1>; #size-cells=<0>; reg=<4>; sfp13@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@5 { #address-cells=<1>; #size-cells=<0>; reg=<5>; sfp14@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@6 { #address-cells=<1>; #size-cells=<0>; reg=<6>; sfp15@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@7 { #address-cells=<1>; #size-cells=<0>; reg=<7>; sfp16@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+      };
+
+      // Ports 17-20 (ch0-3), ports 25-28 (ch4-7)
+      pca9548@74 {
+        compatible     = "nxp,pca9548";
+        reg            = <0x74>;
+        #address-cells = <0x01>;
+        #size-cells    = <0x00>;
+        i2c@0 { #address-cells=<1>; #size-cells=<0>; reg=<0>; sfp17@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@1 { #address-cells=<1>; #size-cells=<0>; reg=<1>; sfp18@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@2 { #address-cells=<1>; #size-cells=<0>; reg=<2>; sfp19@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@3 { #address-cells=<1>; #size-cells=<0>; reg=<3>; sfp20@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@4 { #address-cells=<1>; #size-cells=<0>; reg=<4>; sfp25@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@5 { #address-cells=<1>; #size-cells=<0>; reg=<5>; sfp26@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@6 { #address-cells=<1>; #size-cells=<0>; reg=<6>; sfp27@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@7 { #address-cells=<1>; #size-cells=<0>; reg=<7>; sfp28@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+      };
+
+      // Ports 29-32 (ch0-3), ports 21-24 (ch4-7)
+      pca9548@75 {
+        compatible     = "nxp,pca9548";
+        reg            = <0x75>;
+        #address-cells = <0x01>;
+        #size-cells    = <0x00>;
+        i2c@0 { #address-cells=<1>; #size-cells=<0>; reg=<0>; sfp29@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@1 { #address-cells=<1>; #size-cells=<0>; reg=<1>; sfp30@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@2 { #address-cells=<1>; #size-cells=<0>; reg=<2>; sfp31@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@3 { #address-cells=<1>; #size-cells=<0>; reg=<3>; sfp32@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@4 { #address-cells=<1>; #size-cells=<0>; reg=<4>; sfp21@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@5 { #address-cells=<1>; #size-cells=<0>; reg=<5>; sfp22@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@6 { #address-cells=<1>; #size-cells=<0>; reg=<6>; sfp23@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+        i2c@7 { #address-cells=<1>; #size-cells=<0>; reg=<7>; sfp24@50 { compatible="at24,24c02"; reg=<0x50>; }; };
+      };
+    };
+
+    // ── GPIO controllers (4x) ─────────────────────────────────
+    gpio@130000 {
+      compatible    = "fsl,qoriq-gpio";
+      reg           = <0x130000 0x1000>;
+      interrupts    = <0x37 0x02 0x00 0x00>;
+      #gpio-cells   = <0x02>;
+      gpio-controller;
+    };
+    gpio@131000 {
+      compatible    = "fsl,qoriq-gpio";
+      reg           = <0x131000 0x1000>;
+      interrupts    = <0x36 0x02 0x00 0x00>;
+      #gpio-cells   = <0x02>;
+      gpio-controller;
+    };
+    gpio@132000 {
+      compatible    = "fsl,qoriq-gpio";
+      reg           = <0x132000 0x1000>;
+      interrupts    = <0x56 0x02 0x00 0x00>;
+      #gpio-cells   = <0x02>;
+      gpio-controller;
+    };
+    gpio@133000 {
+      compatible    = "fsl,qoriq-gpio";
+      reg           = <0x133000 0x1000>;
+      interrupts    = <0x57 0x02 0x00 0x00>;
+      #gpio-cells   = <0x02>;
+      gpio-controller;
+    };
+
+    // ── eSDHC (SD card) ───────────────────────────────────────
+    sdhc@114000 {
+      voltage-ranges = <0x708 0x708 0xce4 0xce4>;
+      compatible     = "fsl,t2080-esdhc", "fsl,esdhc";
+      reg            = <0x114000 0x1000>;
+      interrupts     = <0x30 0x02 0x00 0x00>;
+      clock-frequency = <0x00>;
+      sdhci,auto-cmd12;
+    };
+
+    // ── FMan (Freescale Frame Manager) ────────────────────────
+    // Only DTSEC1 is used (management ethernet, 1G SGMII)
+    // U-Boot: ethact=FM1@DTSEC1, BCM5400 PHY at MDIO addr 0x1f
+    fman@400000 {
+      #address-cells  = <0x01>;
+      #size-cells     = <0x01>;
+      cell-index      = <0x00>;
+      compatible      = "fsl,fman", "simple-bus";
+      ranges          = <0x00 0x400000 0x100000>;
+      reg             = <0x400000 0x100000>;
+      clock-frequency = <0x00>;
+      interrupts      = <0x60 0x02 0x00 0x00
+                         0x10 0x02 0x01 0x01>;
+
+      muram@0 {
+        compatible = "fsl,fman-muram";
+        reg        = <0x00 0x60000>;
+      };
+      bmi@80000 {
+        compatible = "fsl,fman-bmi";
+        reg        = <0x80000 0x400>;
+      };
+      qmi@80400 {
+        compatible = "fsl,fman-qmi";
+        reg        = <0x80400 0x400>;
+      };
+
+      // OH ports (offline processing)
+      port@82000 { cell-index=<0>; compatible="fsl,fman-port-oh"; reg=<0x82000 0x1000>; fsl,qman-channel-id=<0x809>; };
+      port@83000 { cell-index=<1>; compatible="fsl,fman-port-oh"; reg=<0x83000 0x1000>; fsl,qman-channel-id=<0x80a>; };
+      port@84000 { cell-index=<2>; compatible="fsl,fman-port-oh"; reg=<0x84000 0x1000>; fsl,qman-channel-id=<0x80b>; };
+      port@85000 { cell-index=<3>; compatible="fsl,fman-port-oh"; reg=<0x85000 0x1000>; fsl,qman-channel-id=<0x80c>; };
+      port@86000 { cell-index=<4>; compatible="fsl,fman-port-oh"; reg=<0x86000 0x1000>; fsl,qman-channel-id=<0x80d>; };
+      port@87000 { cell-index=<5>; compatible="fsl,fman-port-oh"; reg=<0x87000 0x1000>; fsl,qman-channel-id=<0x80e>; };
+
+      // DTSEC1 RX/TX ports (management ethernet)
+      port@88000 { cell-index=<0>; compatible="fsl,fman-port-1g-rx"; reg=<0x88000 0x1000>; phandle=<0x0a>; };
+      port@a8000 { cell-index=<0>; compatible="fsl,fman-port-1g-tx"; reg=<0xa8000 0x1000>; fsl,qman-channel-id=<0x802>; phandle=<0x0b>; };
+
+      // 10G ports (not wired to external ports on this board)
+      port@90000 { cell-index=<0>; compatible="fsl,fman-port-10g-rx"; reg=<0x90000 0x1000>; phandle=<0x1b>; };
+      port@b0000 { cell-index=<0>; compatible="fsl,fman-port-10g-tx"; reg=<0xb0000 0x1000>; fsl,qman-channel-id=<0x800>; phandle=<0x1c>; };
+      port@91000 { cell-index=<1>; compatible="fsl,fman-port-10g-rx"; reg=<0x91000 0x1000>; phandle=<0x1e>; };
+      port@b1000 { cell-index=<1>; compatible="fsl,fman-port-10g-tx"; reg=<0xb1000 0x1000>; fsl,qman-channel-id=<0x801>; phandle=<0x1f>; };
+
+      // FPM, parser, keygen, policer
+      policer@c0000 { compatible="fsl,fman-policer"; reg=<0xc0000 0x1000>; };
+      keygen@c1000  { compatible="fsl,fman-keygen";  reg=<0xc1000 0x1000>; };
+      dma@c2000     { compatible="fsl,fman-dma";     reg=<0xc2000 0x1000>; };
+      fpm@c3000     { compatible="fsl,fman-fpm";     reg=<0xc3000 0x1000>; };
+      parser@c7000  { compatible="fsl,fman-parser";  reg=<0xc7000 0x1000>; };
+      vsps@dc000    { compatible="fsl,fman-vsps";    reg=<0xdc000 0x1000>; };
+      rtc@fe000     { compatible="fsl,fman-rtc";     reg=<0xfe000 0x1000>; phandle=<0x0c>; };
+      cc { compatible="fsl,fman-cc"; };
+
+      // Management ethernet MDIO + PHY
+      // PHY: BCM5400 at address 0x1f (confirmed from BCM shell)
+      mdio@fc000 {
+        #address-cells = <0x01>;
+        #size-cells    = <0x00>;
+        compatible     = "fsl,fman-memac-mdio";
+        reg            = <0xfc000 0x1000>;
+
+        ethernet-phy@1f {
+          reg     = <0x1f>;
+          phandle = <0x10>;
+        };
+      };
+
+      // DTSEC1 ethernet (management port)
+      // sgmii connection to BCM5400 PHY
+      ethernet@e0000 {
+        phy-handle          = <0x10>;
+        phy-connection-type = "sgmii";
+        cell-index          = <0x00>;
+        compatible          = "fsl,fman-memac";
+        reg                 = <0xe0000 0x1000>;
+        fsl,fman-cell-index = <0x00>;
+        fsl,port-handles    = <0x0a 0x0b>;
+        ptimer-handle       = <0x0c>;
+        phandle             = <0x24>;
+      };
+    };
+
+    // ── Crypto engine (SEC 5.2) ───────────────────────────────
+    // 4 job rings + RTIC
+    // Useful for AES-GCM (MACsec), AES-CMAC (MKA), SHA
+    crypto@300000 {
+      compatible     = "fsl,sec-v5.2", "fsl,sec-v5.0", "fsl,sec-v4.0";
+      fsl,sec-era    = <0x05>;
+      #address-cells = <0x01>;
+      #size-cells    = <0x01>;
+      reg            = <0x300000 0x10000>;
+      ranges         = <0x00 0x300000 0x10000>;
+      interrupts     = <0x5c 0x02 0x00 0x00>;
+
+      jr@1000 { compatible="fsl,sec-v5.2-job-ring","fsl,sec-v5.0-job-ring","fsl,sec-v4.0-job-ring"; reg=<0x1000 0x1000>; interrupts=<0x58 0x02 0x00 0x00>; };
+      jr@2000 { compatible="fsl,sec-v5.2-job-ring","fsl,sec-v5.0-job-ring","fsl,sec-v4.0-job-ring"; reg=<0x2000 0x1000>; interrupts=<0x59 0x02 0x00 0x00>; };
+      jr@3000 { compatible="fsl,sec-v5.2-job-ring","fsl,sec-v5.0-job-ring","fsl,sec-v4.0-job-ring"; reg=<0x3000 0x1000>; interrupts=<0x5a 0x02 0x00 0x00>; };
+      jr@4000 { compatible="fsl,sec-v5.2-job-ring","fsl,sec-v5.0-job-ring","fsl,sec-v4.0-job-ring"; reg=<0x4000 0x1000>; interrupts=<0x5b 0x02 0x00 0x00>; };
+
+      rtic@6000 {
+        compatible     = "fsl,sec-v5.2-rtic","fsl,sec-v5.0-rtic","fsl,sec-v4.0-rtic";
+        #address-cells = <0x01>;
+        #size-cells    = <0x01>;
+        reg            = <0x6000 0x100>;
+        ranges         = <0x00 0x6100 0xe00>;
+        rtic-a@0  { compatible="fsl,sec-v5.2-rtic-memory","fsl,sec-v5.0-rtic-memory","fsl,sec-v4.0-rtic-memory"; reg=<0x00 0x20 0x100 0x80>; };
+        rtic-b@20 { compatible="fsl,sec-v5.2-rtic-memory","fsl,sec-v5.0-rtic-memory","fsl,sec-v4.0-rtic-memory"; reg=<0x20 0x20 0x200 0x80>; };
+        rtic-c@40 { compatible="fsl,sec-v5.2-rtic-memory","fsl,sec-v5.0-rtic-memory","fsl,sec-v4.0-rtic-memory"; reg=<0x40 0x20 0x300 0x80>; };
+        rtic-d@60 { compatible="fsl,sec-v5.2-rtic-memory","fsl,sec-v5.0-rtic-memory","fsl,sec-v4.0-rtic-memory"; reg=<0x60 0x20 0x500 0x80>; };
+      };
+    };
+
+    sec_mon@314000 {
+      compatible = "fsl,sec-v5.2-mon","fsl,sec-v5.0-mon","fsl,sec-v4.0-mon";
+      reg        = <0x314000 0x1000>;
+      interrupts = <0x5d 0x02 0x00 0x00>;
+    };
+
+    // ── USB ───────────────────────────────────────────────────
+    usb@210000 {
+      compatible     = "fsl-usb2-mph-v2.5", "fsl-usb2-mph";
+      reg            = <0x210000 0x1000>;
+      #address-cells = <0x01>;
+      #size-cells    = <0x00>;
+      interrupts     = <0x2c 0x02 0x00 0x00>;
+      phy_type       = "utmi";
+      port0;
+    };
+    usb@211000 {
+      compatible     = "fsl-usb2-dr-v2.5", "fsl-usb2-dr";
+      reg            = <0x211000 0x1000>;
+      #address-cells = <0x01>;
+      #size-cells    = <0x00>;
+      interrupts     = <0x2d 0x02 0x00 0x00>;
+      dr_mode        = "host";
+      phy_type       = "utmi";
+    };
+
+    // ── SATA ──────────────────────────────────────────────────
+    sata@220000 { compatible="fsl,pq-sata-v2"; reg=<0x220000 0x1000>; interrupts=<0x44 0x02 0x00 0x00>; };
+    sata@221000 { compatible="fsl,pq-sata-v2"; reg=<0x221000 0x1000>; interrupts=<0x45 0x02 0x00 0x00>; };
+
+    // ── DMA controllers (3x) ──────────────────────────────────
+    dma@100300 {
+      #address-cells = <0x01>; #size-cells = <0x01>;
+      compatible = "fsl,elo3-dma";
+      reg = <0x100300 0x04 0x100600 0x04>;
+      ranges = <0x00 0x100100 0x500>;
+      dma-channel@0   { compatible="fsl,eloplus-dma-channel"; reg=<0x000 0x80>; interrupts=<0x1c 0x02 0x00 0x00>; };
+      dma-channel@80  { compatible="fsl,eloplus-dma-channel"; reg=<0x080 0x80>; interrupts=<0x1d 0x02 0x00 0x00>; };
+      dma-channel@100 { compatible="fsl,eloplus-dma-channel"; reg=<0x100 0x80>; interrupts=<0x1e 0x02 0x00 0x00>; };
+      dma-channel@180 { compatible="fsl,eloplus-dma-channel"; reg=<0x180 0x80>; interrupts=<0x1f 0x02 0x00 0x00>; };
+      dma-channel@300 { compatible="fsl,eloplus-dma-channel"; reg=<0x300 0x80>; interrupts=<0x4c 0x02 0x00 0x00>; };
+      dma-channel@380 { compatible="fsl,eloplus-dma-channel"; reg=<0x380 0x80>; interrupts=<0x4d 0x02 0x00 0x00>; };
+      dma-channel@400 { compatible="fsl,eloplus-dma-channel"; reg=<0x400 0x80>; interrupts=<0x4e 0x02 0x00 0x00>; };
+      dma-channel@480 { compatible="fsl,eloplus-dma-channel"; reg=<0x480 0x80>; interrupts=<0x4f 0x02 0x00 0x00>; };
+    };
+    dma@101300 {
+      #address-cells = <0x01>; #size-cells = <0x01>;
+      compatible = "fsl,elo3-dma";
+      reg = <0x101300 0x04 0x101600 0x04>;
+      ranges = <0x00 0x101100 0x500>;
+      dma-channel@0   { compatible="fsl,eloplus-dma-channel"; reg=<0x000 0x80>; interrupts=<0x20 0x02 0x00 0x00>; };
+      dma-channel@80  { compatible="fsl,eloplus-dma-channel"; reg=<0x080 0x80>; interrupts=<0x21 0x02 0x00 0x00>; };
+      dma-channel@100 { compatible="fsl,eloplus-dma-channel"; reg=<0x100 0x80>; interrupts=<0x22 0x02 0x00 0x00>; };
+      dma-channel@180 { compatible="fsl,eloplus-dma-channel"; reg=<0x180 0x80>; interrupts=<0x23 0x02 0x00 0x00>; };
+      dma-channel@300 { compatible="fsl,eloplus-dma-channel"; reg=<0x300 0x80>; interrupts=<0x50 0x02 0x00 0x00>; };
+      dma-channel@380 { compatible="fsl,eloplus-dma-channel"; reg=<0x380 0x80>; interrupts=<0x51 0x02 0x00 0x00>; };
+      dma-channel@400 { compatible="fsl,eloplus-dma-channel"; reg=<0x400 0x80>; interrupts=<0x52 0x02 0x00 0x00>; };
+      dma-channel@480 { compatible="fsl,eloplus-dma-channel"; reg=<0x480 0x80>; interrupts=<0x53 0x02 0x00 0x00>; };
+    };
+    dma@102300 {
+      #address-cells = <0x01>; #size-cells = <0x01>;
+      compatible = "fsl,elo3-dma";
+      reg = <0x102300 0x04 0x102600 0x04>;
+      ranges = <0x00 0x102100 0x500>;
+      dma-channel@0   { compatible="fsl,eloplus-dma-channel"; reg=<0x000 0x80>; interrupts=<0x1d0 0x02 0x00 0x00>; };
+      dma-channel@80  { compatible="fsl,eloplus-dma-channel"; reg=<0x080 0x80>; interrupts=<0x1d1 0x02 0x00 0x00>; };
+      dma-channel@100 { compatible="fsl,eloplus-dma-channel"; reg=<0x100 0x80>; interrupts=<0x1d2 0x02 0x00 0x00>; };
+      dma-channel@180 { compatible="fsl,eloplus-dma-channel"; reg=<0x180 0x80>; interrupts=<0x1d3 0x02 0x00 0x00>; };
+      dma-channel@300 { compatible="fsl,eloplus-dma-channel"; reg=<0x300 0x80>; interrupts=<0x1d4 0x02 0x00 0x00>; };
+      dma-channel@380 { compatible="fsl,eloplus-dma-channel"; reg=<0x380 0x80>; interrupts=<0x1d5 0x02 0x00 0x00>; };
+      dma-channel@400 { compatible="fsl,eloplus-dma-channel"; reg=<0x400 0x80>; interrupts=<0x1d6 0x02 0x00 0x00>; };
+      dma-channel@480 { compatible="fsl,eloplus-dma-channel"; reg=<0x480 0x80>; interrupts=<0x1d7 0x02 0x00 0x00>; };
+    };
+
+    // ── QMan / BMan controllers ───────────────────────────────
+    qman@318000 { compatible="fsl,qman"; reg=<0x318000 0x2000>; interrupts=<0x10 0x02 0x01 0x03>; };
+    bman@31a000 { compatible="fsl,bman"; reg=<0x31a000 0x1000>; interrupts=<0x10 0x02 0x01 0x02>; };
+
+    // ── MSI ───────────────────────────────────────────────────
+    msi@41600 { compatible="fsl,mpic-msi"; reg=<0x41600 0x200 0x44140 0x04>; msi-available-ranges=<0x00 0x100>; interrupts=<0xe0 0 0 0 0xe1 0 0 0 0xe2 0 0 0 0xe3 0 0 0 0xe4 0 0 0 0xe5 0 0 0 0xe6 0 0 0 0xe7 0 0 0>; };
+    msi@41800 { compatible="fsl,mpic-msi"; reg=<0x41800 0x200 0x45140 0x04>; msi-available-ranges=<0x00 0x100>; interrupts=<0xe8 0 0 0 0xe9 0 0 0 0xea 0 0 0 0xeb 0 0 0 0xec 0 0 0 0xed 0 0 0 0xee 0 0 0 0xef 0 0 0>; };
+    msi@41a00 { compatible="fsl,mpic-msi"; reg=<0x41a00 0x200 0x46140 0x04>; msi-available-ranges=<0x00 0x100>; interrupts=<0xf0 0 0 0 0xf1 0 0 0 0xf2 0 0 0 0xf3 0 0 0 0xf4 0 0 0 0xf5 0 0 0 0xf6 0 0 0 0xf7 0 0 0>; };
+
+    corenet-law@0      { compatible="fsl,corenet-law";  reg=<0x00 0x1000>; fsl,num-laws=<0x20>; };
+    corenet-cf@18000   { compatible="fsl,corenet2-cf";  reg=<0x18000 0x1000>; interrupts=<0x10 0x02 0x01 0x1f>; fsl,ccf-num-csdids=<0x20>; fsl,ccf-num-snoopids=<0x20>; };
+    iommu@20000        { compatible="fsl,pamu-v1.0","fsl,pamu"; reg=<0x20000 0x6000>; interrupts=<0x18 0x02 0x00 0x00 0x10 0x02 0x01 0x1e>; };
+    soc-sram-error     { compatible="fsl,soc-sram-error"; interrupts=<0x10 0x02 0x01 0x1d>; };
+  };
+
+  // ── PCIe controllers ──────────────────────────────────────────
+  // PCIe 0-2: general purpose (256-512MB windows in 36-bit space)
+  // PCIe 3: BCM56960 Tomahawk (128MB in 32-bit space @ 0xd8000000)
+  pcie@ffe240000 {
+    reg            = <0x0f 0xfe240000 0x00 0x10000>;
+    ranges         = <0x2000000 0x00 0xe0000000 0x0c 0x00000000 0x00 0x20000000
+                      0x1000000 0x00 0x00000000 0x0f 0xf8000000 0x00 0x10000>;
+    compatible     = "fsl,t2080-pcie", "fsl,qoriq-pcie-v3.0", "fsl,qoriq-pcie";
+    device_type    = "pci";
+    #size-cells    = <0x02>;
+    #address-cells = <0x03>;
+    bus-range      = <0x00 0xff>;
+    interrupts     = <0x14 0x02 0x00 0x00>;
+    pcie@0 {
+      ranges = <0x2000000 0x00 0xe0000000 0x2000000 0x00 0xe0000000 0x00 0x20000000
+                0x1000000 0x00 0x00000000 0x1000000 0x00 0x00000000 0x00 0x10000>;
+      reg = <0x00 0x00 0x00 0x00 0x00>; #interrupt-cells=<1>; #size-cells=<2>; #address-cells=<3>;
+      device_type="pci"; interrupts=<0x14 0x02 0x00 0x00>;
+      interrupt-map-mask=<0xf800 0 0 7>;
+      interrupt-map=<0 0 0 1 0x01 0x28 1 0 0 0 0 0 2 0x01 1 1 0 0 0 0 0 3 0x01 2 1 0 0 0 0 0 4 0x01 3 1 0 0>;
+    };
+  };
+  pcie@ffe250000 {
+    reg            = <0x0f 0xfe250000 0x00 0x10000>;
+    ranges         = <0x2000000 0x00 0xe0000000 0x0c 0x20000000 0x00 0x10000000
+                      0x1000000 0x00 0x00000000 0x0f 0xf8010000 0x00 0x10000>;
+    compatible     = "fsl,t2080-pcie", "fsl,qoriq-pcie-v3.0", "fsl,qoriq-pcie";
+    device_type    = "pci"; #size-cells=<2>; #address-cells=<3>; bus-range=<0 0xff>; interrupts=<0x15 0x02 0x00 0x00>;
+    pcie@0 {
+      ranges=<0x2000000 0 0xe0000000 0x2000000 0 0xe0000000 0 0x20000000 0x1000000 0 0 0x1000000 0 0 0 0x10000>;
+      reg=<0 0 0 0 0>; #interrupt-cells=<1>; #size-cells=<2>; #address-cells=<3>; device_type="pci"; interrupts=<0x15 0x02 0x00 0x00>;
+      interrupt-map-mask=<0xf800 0 0 7>;
+      interrupt-map=<0 0 0 1 0x01 0x29 1 0 0 0 0 0 2 0x01 5 1 0 0 0 0 0 3 0x01 6 1 0 0 0 0 0 4 0x01 7 1 0 0>;
+    };
+  };
+  pcie@ffe260000 {
+    reg            = <0x0f 0xfe260000 0x00 0x1000>;
+    ranges         = <0x2000000 0x00 0xe0000000 0x0c 0x30000000 0x00 0x10000000
+                      0x1000000 0x00 0x00000000 0x0f 0xf8020000 0x00 0x10000>;
+    compatible     = "fsl,t2080-pcie", "fsl,qoriq-pcie-v3.0", "fsl,qoriq-pcie";
+    device_type    = "pci"; #size-cells=<2>; #address-cells=<3>; bus-range=<0 0xff>; interrupts=<0x16 0x02 0x00 0x00>;
+    pcie@0 {
+      ranges=<0x2000000 0 0xe0000000 0x2000000 0 0xe0000000 0 0x20000000 0x1000000 0 0 0x1000000 0 0 0 0x10000>;
+      reg=<0 0 0 0 0>; #interrupt-cells=<1>; #size-cells=<2>; #address-cells=<3>; device_type="pci"; interrupts=<0x16 0x02 0x00 0x00>;
+      interrupt-map-mask=<0xf800 0 0 7>;
+      interrupt-map=<0 0 0 1 0x01 0x2a 1 0 0 0 0 0 2 0x01 9 1 0 0 0 0 0 3 0x01 0xa 1 0 0 0 0 0 4 0x01 0xb 1 0 0>;
+    };
+  };
+
+  // PCIe 3 -> BCM56960 Tomahawk switch ASIC
+  // Mapped at 0xd8000000 (32-bit space, 128MB window)
+  // This is the connection to the switching silicon
+  pcie@ffe270000 {
+    reg            = <0x0f 0xfe270000 0x00 0x10000>;
+    ranges         = <0x2000000 0x00 0xd8000000 0x00 0xd8000000 0x00 0x8000000
+                      0x1000000 0x00 0x00000000 0x0f 0xf8030000 0x00 0x10000>;
+    compatible     = "fsl,t2080-pcie", "fsl,qoriq-pcie-v3.0", "fsl,qoriq-pcie";
+    device_type    = "pci"; #size-cells=<2>; #address-cells=<3>; bus-range=<0 0xff>; interrupts=<0x17 0x02 0x00 0x00>;
+    pcie@0 {
+      ranges=<0x2000000 0 0xe0000000 0x2000000 0 0xe0000000 0 0x20000000 0x1000000 0 0 0x1000000 0 0 0 0x10000>;
+      reg=<0 0 0 0 0>; #interrupt-cells=<1>; #size-cells=<2>; #address-cells=<3>; device_type="pci"; interrupts=<0x17 0x02 0x00 0x00>;
+      interrupt-map-mask=<0xf800 0 0 7>;
+      interrupt-map=<0 0 0 1 0x01 0x2b 1 0 0 0 0 0 2 0x01 0 1 0 0 0 0 0 3 0x01 4 1 0 0 0 0 0 4 0x01 8 1 0 0>;
+    };
+  };
+
+  // ── DPAA ethernet binding ─────────────────────────────────────
+  fsl,dpaa {
+    compatible = "fsl,t2080-dpaa", "fsl,dpaa";
+    ethernet@0 {
+      compatible   = "fsl,dpa-ethernet";
+      fsl,fman-mac = <0x24>;
+    };
+  };
+};
