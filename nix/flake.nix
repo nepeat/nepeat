@@ -26,8 +26,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     talhelper.url = "github:budimanjojo/talhelper";
-    # claude-code, codex, opencode; binaries come from cache.numtide.com.
+
+    # claude-code, opencode and codex all come from here; the per-agent modules
+    # (module/{claude,opencode,codex}.nix) each pull their package out. NOT
+    # `inputs.nixpkgs.follows = "nixpkgs"`: numtide's cache only has binaries
+    # for the nixpkgs revision THEY built against, so following ours would cost
+    # us the cache and rebuild every agent from source. The price is a second
+    # nixpkgs evaluation.
     llm-agents.url = "github:numtide/llm-agents.nix";
+
+    # Paseo -- self-hosted daemon for AI coding agents. chickennugget only.
+    # Following our nixpkgs here (unlike llm-agents) because paseo ships no
+    # binary cache of its own, so there is nothing to preserve by not following
+    # and sharing our dependency closure is strictly better.
+    paseo = {
+      url = "github:getpaseo/paseo";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Built from source; bump with `nix flake update openviking-src`.  Doing so
     # usually also requires refreshing cargoHash / npmDepsHash in
@@ -39,6 +54,13 @@
 
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+
+    # NixOS hosts (nixos/) only.
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nixos-hardware.url = "github:nixos/nixos-hardware";
 
   };
 
@@ -66,6 +88,35 @@
     };
   in
   {
+    # NixOS ------------------------------------------------------------------
+    #
+    # These share nixos/base.nix; per-host config lives in nixos/machine/<name>.
+    # Deploy with `nixos-rebuild switch --flake .#<name>`.
+    nixosConfigurations =
+      let
+        mkNixos =
+          hostName: modules:
+          nixpkgs.lib.nixosSystem {
+            # isStandalone = false selects the "home-manager module is loaded"
+            # branch in module/{claude,opencode,openviking}.nix, same as darwin.
+            specialArgs = {
+              inherit inputs self;
+              isStandalone = false;
+            };
+            modules = [
+              inputs.disko.nixosModules.disko
+              inputs.nix-index-database.nixosModules.nix-index
+              home-manager.nixosModules.home-manager
+              ./nixos/base.nix
+              { networking.hostName = hostName; }
+            ] ++ modules;
+          };
+      in
+      {
+        sea420-desktop = mkNixos "sea420-desktop" [ ./nixos/machine/sea420-desktop ];
+        chickennugget = mkNixos "chickennugget" [ ./nixos/machine/chickennugget ];
+      };
+
     # home-manager
     homeConfigurations = inputs.nixpkgs.lib.genAttrs [ "erin" "coder" ] (username:
       home-manager.lib.homeManagerConfiguration {
@@ -80,7 +131,9 @@
           ./base/home.nix
           ./base/non_nix_home.nix
           ./machine/nonwork_home.nix
-          ./module/llm-agents.nix
+          ./module/claude.nix
+          ./module/opencode.nix
+          ./module/codex.nix
           ./module/openviking.nix
           {
             programs.home-manager.enable = true;
@@ -102,7 +155,9 @@
           ./base/system-packages.nix
           ./base/darwin.nix
           ./machine/m4mac.nix
-          ./module/llm-agents.nix
+          ./module/claude.nix
+          ./module/opencode.nix
+          ./module/codex.nix
           ./module/openviking.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
@@ -125,7 +180,9 @@
           ./base/system-packages.nix
           ./base/darwin.nix
           ./machine/m1laptop.nix
-          ./module/llm-agents.nix
+          ./module/claude.nix
+          ./module/opencode.nix
+          ./module/codex.nix
           ./module/openviking.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module

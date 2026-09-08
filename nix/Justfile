@@ -111,3 +111,48 @@ switch machine_name="":
 # Clean nix store
 clean:
     nix-store --gc
+
+# --- Vault AppRole enrollment -------------------------------------------------
+# Ported from the generalprogramming megarepo. Both recipes need a Vault/OpenBao
+# token that can read the role_id and mint secret_ids for the AppRole
+# (VAULT_TOKEN or ~/.vault-token).
+
+# Fresh-install a NixOS machine, seeding its Vault AppRole credentials.
+vault-provision machine target role="nixos-core":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    command -v vault >/dev/null && VAULT_CMD=vault || VAULT_CMD=bao
+    tmp=$(mktemp -d)
+    trap 'rm -rf "$tmp"' EXIT
+
+    # Impermanent machines bind-mount /var/lib from /persist, so the credentials
+    # have to be planted there to survive the rollback.
+    creds="$tmp/var/lib/vault-agent"
+    if [ "$(nix eval .#nixosConfigurations.{{machine}}.config.impermanence.enable 2>/dev/null)" = "true" ]; then
+        creds="$tmp/persist/var/lib/vault-agent"
+    fi
+
+    install -d -m 0700 "$creds"
+    umask 077
+    "$VAULT_CMD" read -field=role_id "auth/approle/role/{{role}}/role-id" > "$creds/approle_id"
+    "$VAULT_CMD" write -f -field=secret_id "auth/approle/role/{{role}}/secret-id" > "$creds/approle_secret"
+
+    nix run github:nix-community/nixos-anywhere -- \
+        --flake .#{{machine}} \
+        --extra-files "$tmp" \
+        root@{{target}}
+
+# Mint and push a fresh AppRole secret_id to an already-installed machine.
+vault-rekey machine target="" role="nixos-core":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    command -v vault >/dev/null && VAULT_CMD=vault || VAULT_CMD=bao
+    host="{{target}}"
+    [ -n "$host" ] || host="{{machine}}"
+
+    "$VAULT_CMD" read -field=role_id "auth/approle/role/{{role}}/role-id" \
+        | ssh "root@$host" 'umask 077; install -d -m 0700 /var/lib/vault-agent; cat > /var/lib/vault-agent/approle_id'
+    "$VAULT_CMD" write -f -field=secret_id "auth/approle/role/{{role}}/secret-id" \
+        | ssh "root@$host" 'umask 077; cat > /var/lib/vault-agent/approle_secret; systemctl try-restart vault-agent-node.service'
+
+    echo "rekeyed $host"

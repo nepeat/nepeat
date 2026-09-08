@@ -391,6 +391,7 @@ python.pkgs.buildPythonApplication {
       ebooklib
       fastapi
       feedparser
+      firecrawl-anydoc
       grep-ast
       httpx
       jinja2
