@@ -26,8 +26,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     talhelper.url = "github:budimanjojo/talhelper";
-    claude-code.url = "github:sadjow/claude-code-nix";
-    opencode.url = "github:anomalyco/opencode";
+    # claude-code, codex, opencode; binaries come from cache.numtide.com.
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     # Built from source; bump with `nix flake update openviking-src`.  Doing so
     # usually also requires refreshing cargoHash / npmDepsHash in
@@ -49,8 +49,6 @@
     lix-module,
     home-manager,
     nix-rosetta-builder,
-    claude-code,
-    opencode,
     ...
   } @inputs:
   let
@@ -82,8 +80,7 @@
           ./base/home.nix
           ./base/non_nix_home.nix
           ./machine/nonwork_home.nix
-          ./module/claude.nix
-          ./module/opencode.nix
+          ./module/llm-agents.nix
           ./module/openviking.nix
           {
             programs.home-manager.enable = true;
@@ -105,8 +102,7 @@
           ./base/system-packages.nix
           ./base/darwin.nix
           ./machine/m4mac.nix
-          ./module/claude.nix
-          ./module/opencode.nix
+          ./module/llm-agents.nix
           ./module/openviking.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
@@ -129,8 +125,7 @@
           ./base/system-packages.nix
           ./base/darwin.nix
           ./machine/m1laptop.nix
-          ./module/claude.nix
-          ./module/opencode.nix
+          ./module/llm-agents.nix
           ./module/openviking.nix
           inputs.nix-index-database.darwinModules.nix-index
           # `home-manager` module
