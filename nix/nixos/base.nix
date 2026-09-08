@@ -72,10 +72,10 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVk9i7FG7dc9r4ixwAJT7uPLH3UuqbwIgeZ7Ytmnpvv erin-laptop"
   ];
 
-  services.journald.extraConfig = ''
-    SystemMaxUse=2G
-    MaxRetentionSec=3month
-  '';
+  services.journald.settings.Journal = {
+    SystemMaxUse = "2G";
+    MaxRetentionSec = "3month";
+  };
 
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
