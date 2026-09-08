@@ -37,3 +37,17 @@ fw-partitions/
 
 # TWRP prebuilt kernel (regenerate with extract-prebuilt-kernel.sh)
 twrp/device/amazon/yacht/prebuilt/
+
+# TWRP build and warm-payload outputs (regenerate from the device tree/image)
+twrp/out/
+
+# Kernel module build artifacts -- regenerable from the .c/.S sources + Makefile.
+kernel-modules/**/out/
+kernel-modules/**/*.ko
+kernel-modules/**/*.o
+kernel-modules/**/*.mod
+kernel-modules/**/*.mod.c
+kernel-modules/**/.*.cmd
+kernel-modules/**/.tmp_versions/
+kernel-modules/**/Module.symvers*
+kernel-modules/**/modules.order

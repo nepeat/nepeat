@@ -78,6 +78,17 @@
             # there is no MT8183 machine model). Gives the instruction-level
             # visibility the locked device refuses to provide.
             (python3.withPackages (ps: with ps; [ capstone pyelftools unicorn ]))
+
+            # Amazon's official Fire HD 10 (11th gen) GPL drop contains the
+            # exact MT8183 Linux 4.4.146 tree used by amzn-pinnacles.  These
+            # are needed to prepare it and build small arm64 test modules.
+            pkgsCross.aarch64-multiplatform.stdenv.cc
+            gnumake
+            bc
+            bison
+            flex
+            openssl
+            perl
           ];
 
           shellHook = ''

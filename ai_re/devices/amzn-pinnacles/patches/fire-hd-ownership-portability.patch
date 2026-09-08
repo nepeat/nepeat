@@ -1,0 +1,12 @@
+diff --git a/poc-28663/exploit_trona.c b/poc-28663/exploit_trona.c
+index 61b759c..765b407 100644
+--- a/poc-28663/exploit_trona.c
++++ b/poc-28663/exploit_trona.c
+@@ -20,6 +20,7 @@
+ #include <poll.h>
+ #include <sys/ioctl.h>
+ #include <sys/syscall.h>
++#include <time.h>
+ #include <sys/mman.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>

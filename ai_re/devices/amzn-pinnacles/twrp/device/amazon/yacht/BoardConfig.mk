@@ -10,7 +10,8 @@
 DEVICE_PATH := device/amazon/yacht
 
 # --- Platform ----------------------------------------------------------------
-TARGET_BOARD_PLATFORM := mt8183          # ro.board.platform
+# ro.board.platform
+TARGET_BOARD_PLATFORM := mt8183
 TARGET_NO_BOOTLOADER  := true
 TARGET_BOOTLOADER_BOARD_NAME := mt8183
 
@@ -20,10 +21,13 @@ TARGET_BOOTLOADER_BOARD_NAME := mt8183
 # runs zygote32, and the stock /sbin/recovery is "ELF 32-bit LSB, ARM, EABI5".
 # So build a 32-bit recovery userspace on a 64-bit kernel.
 TARGET_ARCH                  := arm
-TARGET_ARCH_VARIANT          := armv7-a-neon
+# A 32-bit userspace can still target the ARMv8-A ISA. The Pie build system
+# derives this from cortex-a53 and otherwise warns that armv7-a-neon is ignored.
+TARGET_ARCH_VARIANT          := armv8-a
 TARGET_CPU_ABI               := armeabi-v7a
 TARGET_CPU_ABI2              := armeabi
-TARGET_CPU_VARIANT           := cortex-a53   # MT8183 = 4x A73 + 4x A53
+# MT8183 = 4x A73 + 4x A53
+TARGET_CPU_VARIANT           := cortex-a53
 TARGET_CPU_VARIANT_RUNTIME   := cortex-a53
 TARGET_USES_64_BIT_BINDER    := true
 
@@ -36,9 +40,10 @@ BOARD_RAMDISK_OFFSET        := 0x14f88000
 BOARD_KERNEL_TAGS_OFFSET    := 0x13f88000
 BOARD_BOOT_HEADER_VERSION   := 1
 
-# Verbatim from the stock recovery header. veritykeyid must be preserved:
-# LK/dm-verity reference it, and dropping it changes boot behaviour.
-BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2 buildvariant=user
+# Stock recovery command line, except that the Pie build system appends its own
+# buildvariant=eng. veritykeyid must be preserved: LK/dm-verity reference it,
+# and dropping it changes boot behaviour.
+BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2
 BOARD_KERNEL_CMDLINE += veritykeyid=id:4be33f8ba0062faa6f2d75b5f6475b106e02b7aa
 
 BOARD_MKBOOTIMG_ARGS := --base $(BOARD_KERNEL_BASE)
@@ -46,7 +51,10 @@ BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
 BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
 BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --second_offset 0x00e88000
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
+BOARD_MKBOOTIMG_ARGS += --os_version 9.0.0
+BOARD_MKBOOTIMG_ARGS += --os_patch_level 2022-01-01
 
 # The stock kernel blob is gzip(Image) followed by FOUR concatenated DTBs
 # (0xd00dfeed at +0x000000, +0x02d1a3, +0x05a441, +0x087899) — MTK multi-board.
@@ -74,7 +82,6 @@ BOARD_AVB_ENABLE := false
 # --- Recovery ----------------------------------------------------------------
 BOARD_HAS_NO_SELECT_BUTTON := true
 TARGET_NO_RECOVERY := false
-BOARD_INCLUDE_RECOVERY_DTBO := false
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery/root/system/etc/twrp.fstab
 

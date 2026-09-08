@@ -11,6 +11,99 @@ CVE-2022-38181 via `ericpardee/fire-hd-ownership`, unmodified, on the first
 successful run. SELinux is **Permissive**. All key partitions are dumped,
 including `lk`.
 
+### 2026-08-25 reliability retest: vulnerable, but two runs rebooted
+
+Retested the preserved binaries on the connected yacht after a fresh boot.
+The device began enforcing with an ordinary `uid=2000 shell`.
+
+* `jit_trigger` reached `JIT_ALLOC` and confirmed that
+  `FLAGS_CHANGE(DONT_NEED)` is accepted, but its standalone shrinker probe did
+  not reclaim the region.
+* First `exploit_trona` run evicted a JIT region, mapped the freed candidate and
+  completed all 25 PGD probes for one round. It then rebooted the tablet during
+  the following allocation attempt.
+* A second run without `jit_trigger` again evicted and aliased a JIT region,
+  mapped freed candidate 178, completed all 25 probes, and rebooted during the
+  next attempt.
+* Both were recoverable ordinary kernel crashes/reboots. No flash write was
+  attempted. The first post-crash boot returned in enforcing mode as shell,
+  with a new boot ID.
+
+So the vulnerability and the exploit's memory-reuse stages are still present,
+but the current chain is **stochastic and not yet reliable enough to be the
+automatic first stage of a custom-ROM boot**. Do not mistake the preserved old
+`pwned2` file for proof of a new win; verify `getenforce` and execute a fresh
+root payload every run.
+
+### 2026-08-25 third attempt: root reproduced and exact SELinux PA recovered
+
+A third controlled run succeeded without a reboot. It reached the same UAF,
+spill and alias-write stages, then found the live anchors and flipped yacht's
+actual enforcing word:
+
+```text
+[R] init_task @0x417ad400 cred pair -> 0xffffff80097b65d8
+[C] live modprobe_path at 0x417b51c8
+[C] modprobe DRAM after = '/data/local/tmp/x'
+[E3] *** PERMISSIVE via pa 0x419e0668 ***
+[+] QUICK WIN: helper ran as root (pwned2)
+uid=0(root) gid=0(root) groups=0(root) context=u:r:kernel:s0
+Permissive
+```
+
+The yacht-specific `selinux_enforcing` physical address `0x419e0668` is the
+most important new reliability datum. The exploit's compiled
+`KNOWN_SELINUX_PA` is for the retail reference and should be updated for yacht
+before the next run. The run also reconfirmed that `pwned2`, not `pwned`, is
+the fresh success marker.
+
+Apply [patches/fire-hd-ownership-yacht.patch](patches/fire-hd-ownership-yacht.patch)
+to the public exploit checkout before rebuilding. It replaces all three
+runtime-verified retail PAs with yacht's values and fixes the marker filename.
+The content checks and fallback hunts remain in place.
+
+### 2026-08-25 reliability patch: first controlled process succeeded
+
+The yacht constants patch exposed an upstream oversight: it defined
+`KNOWN_MODPROBE_PA` but root mode still tried the retail tablet's shifted guess
+before scanning roughly 38 MiB through the flaky GPU read primitive. The
+additional [reliability patch](patches/fire-hd-ownership-reliability.patch):
+
+* uses yacht's content-checked `KNOWN_MODPROBE_PA` directly;
+* retries all three known yacht pages before any broad fallback hunt;
+* evicts cross-cluster caches between bounded retry groups; and
+* gives the known `init_task` page eight reads instead of abandoning it after
+  one flaky read.
+
+The separate [probe-mode patch](patches/fire-hd-ownership-probe-mode.patch)
+adds a non-exploiting startup check which opens Mali, verifies UAPI 11.11 and
+returns before allocating a vulnerable JIT region. The
+[portability patch](patches/fire-hd-ownership-portability.patch) adds the
+missing direct `<time.h>` dependency, allowing a reproducible static glibc
+AArch64 build.
+
+`root-once.sh` records the boot ID and launches exactly one exploit process; it
+never grinds across a disconnect. The new build (`sha256 27de6300…`) passed the
+probe, then rooted yacht on that first controlled process without a reboot.
+Its second internal UAF attempt still reported the known `4/512` read mismatch,
+but the yacht fast paths succeeded:
+
+```text
+[R] init_task @0x417ad400
+[C] live modprobe_path at 0x417b51c8
+[E3] known PA 0x419e0668 reads 1, writing 0
+[+] QUICK WIN: helper ran as root (pwned2)
+```
+
+`root-cmd.sh` then provided bounded one-command root execution through the
+installed modprobe helper. This is substantially more deterministic, though
+the initial Mali page-reuse race remains stochastic and can still reboot the
+device.
+
+While this root window was alive, all six protected files from
+`/vendor/lib/modules` were copied out and a custom module was successfully
+loaded and unloaded. See [source-kernel.md](source-kernel.md).
+
 ### The exploit reported failure when it had actually won
 
 Worth recording, because it nearly cost us the result. `exploit_trona` printed:

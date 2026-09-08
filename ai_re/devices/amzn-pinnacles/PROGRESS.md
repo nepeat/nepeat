@@ -53,11 +53,23 @@ derived from `atag,devinfo`.
 dumped including **`lk`**. See [root.md](root.md).
 
 **Custom-ROM outlook: root is per-boot; a bootloader unlock is still not
-available.**
+available, but custom kernel code now runs.**
 Amazon's LK contains no unlock commands at all, and the only unlock surface
-needs an RSA-2048 Amazon signature nobody has ever obtained. So the realistic
-ceiling is per-boot root, permissive SELinux and debloat — not LineageOS. See
-[root.md](root.md) and [unlock.md](unlock.md).
+needs an RSA-2048 Amazon signature nobody has ever obtained. Directly flashing
+an unsigned boot/recovery remains blocked, but the verified unsigned-module
+path makes a stock-signed boot followed by module-assisted second-stage or
+warm boot technically credible. See [root.md](root.md),
+[source-kernel.md](source-kernel.md), and [unlock.md](unlock.md).
+
+**⭐ NEW 2026-08-25 — exact 4.4.146 kernel source recovered.** Amazon's
+official Fire HD 10 11th-gen GPL archive contains the exact kernel version,
+MT8183 tree, `trona_defconfig`, and build scripts. The live yacht config passes
+`olddefconfig`/`prepare`/`modules_prepare`, removing the 4.4.302 source mismatch
+that blocked unsigned-module work. Also corrected a false lead:
+`masp_hal_set_dm_verity_error()` is a source-confirmed no-op dummy. The better
+code-signing bypass is now a stock-signed first boot followed by either a
+module-assisted second-stage userspace or, later, a module-carried arm64 warm
+boot. See [source-kernel.md](source-kernel.md).
 
 Detail lives in siblings:
 
@@ -244,6 +256,116 @@ Still unresolved and cheap: the BROM fuse test (read-only USB probe).
 - The "don't factory reset" caution is now retired: it has already been reset.
 
 ## Log (newest first)
+
+- **2026-08-26**: **v27 — DISPLAY RE-ENABLED; THE GUI WAS NEVER PROVEN BROKEN.**
+  Re-reading v21–v24 shows the headless v26 was a diagnostic retreat, not a
+  verdict: v24 got `disp_probe` *and* `disp_probe_1` returning 0 once GCE was
+  up, and hung one step later in `mtkfb_init` → `m4u_do_mva_alloc` purely
+  because `/m4u` was disabled. v25 fixed that and its log was lost, so the
+  display-capable config has simply never been observed. The captured live FDT
+  settles the question — Fire OS carries **no `status` at all** on `/gce`,
+  `/m4u`, `/mtee`, `/devapc` or `/mtkfb@0`. Checked the memory map against
+  `reserved-memory`: our DTB sits below the ram_console ring (which is why
+  ramoops survived) and nothing overlaps `mblock-6-framebuffer`
+  (`0x624e0000..0x64400000`), so the display carveout is intact. Built **v27**:
+  `ramdisk-gui-probe.gz` (15,344,648 B, `sha256 47db4777…`) and
+  `yacht-live-recovery-gui.dtb` (215,383 B, `sha256 84b121ce…`) with `/mtkfb@0`
+  restored to the live default, `androidboot.serialno` added for a stable adb
+  handle, and initrd bounds byte-exact. The probe reports fb0 geometry,
+  `/sys/class/leds`, `/sys/class/backlight` and `/dev/input` to kmsg **and**
+  pmsg **before** its 300 s hold, so a hard reboot still leaves the verdict in
+  ramoops. TWRP is still not autostarted — a manual `/sbin/twrp-start.sh` is
+  included but referenced by no `.rc`. Also filled a real gap: there was no DTB
+  generator checked in, so added `twrp/make-recovery-dtb.sh`, validated by
+  regenerating v26 from the live FDT (identical decompiled output; the shipped
+  blobs preserve the live strings table, proving `fdtput` in-place edits rather
+  than a `dtc` round-trip). `prepare-boot-smoke-ramdisk.sh` gained a
+  `YACHT_PROFILE` knob with the default path regression-checked byte-identical
+  (`sha256 51b21c48…`). Nothing flashed or staged to the device. Flagged:
+  `BoardConfig.mk` sets both `TW_SCREEN_BLANK_ON_BOOT` and `TW_NO_SCREEN_BLANK`
+  (remote builder unreachable to confirm against source). See
+  [warm-boot.md](warm-boot.md).
+
+- **2026-08-26**: **v26 HEADLESS PAYLOAD AUDITED — NO CORRECTION NEEDED.**
+  Re-verified every RAM-only artifact from the files themselves. The v26 DTB
+  (`yacht-live-recovery-adb-headless.dtb`, 215,367 B) has `/gce` and `/m4u`
+  okay, `/mtee`, `/devapc` and `/mtkfb@0` disabled, and
+  `linux,initrd-start/end = 0x55000000..0x55ea231a` — byte-exact against the
+  15,344,410-byte ramdisk, with kernel/DTB/initrd placement collision-free.
+  `maxcpus=1`, recovery mode, `initcall_debug`/`loglevel=8` and permissive
+  bootargs all present; the live `skip_initramfs`/dm-verity tokens correctly
+  absent. `prepare-boot-smoke-ramdisk.sh` rebuilt twice is byte-identical
+  (`sha256 51b21c48…`) and matches the staged artifact; `prepare-warm-payload.py`
+  likewise reproduces bit-for-bit. Ramdisk diff vs stock TWRP is exactly two
+  added files; both fstabs are inert; TWRP does **not** autostart (the recovery
+  service is `sleep 3600`); and diffing the sanitized MT8183 overlay against the
+  real stock overlay confirms the `mmcblk0boot0` preloader symlink and
+  `force_ro 0` block is the only thing removed. No block-device or `force_ro`
+  command survives anywhere in the ramdisk. Nothing was flashed, staged to the
+  device, or rebuilt; `recovery.img` (`sha256 23fd505f…`) and the stock recovery
+  backup (`sha256 6ec64a2d…`) are untouched. Open items: bootargs lack
+  `androidboot.serialno`, and the smoke script still self-reboots after ~20 s.
+  See [warm-boot.md](warm-boot.md).
+
+- **2026-08-25**: **ROOT FAST PATH + LIVE PVT FDT + KERNEL RAM STAGE.** Patched
+  the exploit to actually use yacht's verified `modprobe_path` address and to
+  retry all three known pages before broad flaky-read hunts. A non-exploiting
+  UAPI probe passed, then the first controlled exploit process gained root
+  without rebooting despite the known `4/512` read mismatch. Captured yacht's
+  exact live 216,003-byte PVT FDT (`sha256 ad340594…`) and built a recovery
+  handoff copy with exact initrd bounds. The expanded introspection module
+  resolved shutdown, cache and MTK watchdog functions; null private data
+  symbols are explained by `CONFIG_KALLSYMS_ALL=n`. Finally, a new
+  non-jumping exact-ABI module staged 6,332 Image, 3,760 ramdisk and 53 DTB
+  pages in kernel RAM, validated their formats and zero destination overlap,
+  then unloaded and freed everything cleanly. No watchdog register, final
+  destination, partition or boot flag was written. See [root.md](root.md) and
+  [warm-boot.md](warm-boot.md).
+
+- **2026-08-25**: **TWRP BUILDS; direct userspace launch closed by platform
+  watchdog.** Corrected Claude's manifest/product errors, built TWRP 9 on
+  `erin@10g.warc.zip`, and locally validated the 25,407,488-byte image
+  (`sha256 23fd505f…`). Its boot-header geometry matches stock and its embedded
+  kernel is byte-identical to the stock recovery kernel. Three RAM-only chroot
+  tests used an empty staged fstab (zero block devices exposed) and made no
+  flash writes; all reset with `watchdog/watchdog_sw`, including a final
+  15-second attempt that armed rollback before suspending `system_server` and
+  SurfaceFlinger. The tablet recovered normally each time. Userspace
+  coexistence is closed. A new host-side validator safely split the image into
+  the arm64 Image, ramdisk, and four self-identified PVT/DVT/EVT/proto DTBs,
+  but deliberately leaves the live variant unselected. Booting this valid
+  ramdisk now requires the module-carried arm64 warm transition. See
+  [twrp/device/amazon/yacht/README.md](twrp/device/amazon/yacht/README.md) and
+  [warm-boot.md](warm-boot.md).
+
+- **2026-08-25**: **ROOT REPRODUCED; CUSTOM KERNEL MODULE EXECUTED.** The third
+  controlled CVE-2022-38181 attempt succeeded: `uid=0`, `u:r:kernel:s0`,
+  SELinux permissive. Recovered yacht's exact enforcing PA `0x419e0668`, live
+  `modprobe_path` PA `0x417b51c8`, and all six protected shipping modules.
+  Yacht's authoritative ABI is `4.4.146+`, `module_layout=0x62fa6c4c`,
+  `printk=0x985558a1`, `kallsyms_lookup_name=0xe007de41`. Built a 4,544-byte
+  AArch64 `yacht_hello.ko` on `erin@10g.warc.zip`; live `insmod` returned 0,
+  its init message appeared in dmesg, and `rmmod` returned 0 with the exit
+  message. Also preserved a 52,887-name root-only kallsyms dump. No partition,
+  IDME, or boot flag was written. See [root.md](root.md) and
+  [source-kernel.md](source-kernel.md).
+  A second read-only `yacht_introspect.ko` also loaded and unloaded cleanly,
+  proving private-symbol resolution through `kallsyms_lookup_name()`. It found
+  `machine_shutdown=ffffff8008085d5c`,
+  `secondary_holding_pen=ffffff8008081e60`, and live IDME helpers. Both kexec
+  syscall names resolve to the same unsupported stub, confirming that the
+  warm-boot transition must be carried by the module rather than invoked as a
+  hidden stock syscall.
+
+- **2026-08-25**: **Transient-root reliability retest: vulnerability present,
+  two recoverable kernel reboots, no new root win yet.** `jit_trigger` confirmed
+  the JIT `DONT_NEED` primitive. Two `exploit_trona` runs reached eviction,
+  aliasing, freed-page mapping and full PGD probe rounds, then rebooted during a
+  later allocation attempt. Post-crash state returned normally as enforcing
+  shell. The preserved 2026-08-21 `pwned2` is stale and must not be counted as a
+  new success. Remote Linux builder `erin@10g.warc.zip` is reachable and has
+  Docker; exact-source compilation should move there. See [root.md](root.md)
+  and [source-kernel.md](source-kernel.md).
 
 - **2026-08-21**: 🔑 **Unlock system mapped end to end; two new write primitives;
   portability question closed.** Multi-agent sweep, every load-bearing claim
