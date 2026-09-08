@@ -1,0 +1,49 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ipxe-iscsi-mgr",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2025-09-01",
+
+  // Non-secret configuration. ADMIN_TOKEN and the boot secrets are NOT here --
+  // boot secrets live hashed in D1, ADMIN_TOKEN in `wrangler secret put`.
+  "vars": {
+    // Naming authority for generated initiator IQNs. Frozen at deployment
+    // creation: regenerating it for an existing host breaks its LIO ACL.
+    "INITIATOR_IQN_PREFIX": "iqn.2026-02.local.client",
+    "MGR_URL": "https://ipxe-iscsi-mgr.butt.workers.dev",
+    // How long a general-pool lease is held before another host may claim it.
+    "LEASE_TTL_SECONDS": "3600",
+    // Netboot server. Enables the reload / check-in / memtest entries in the
+    // boot-failure menu, which are served from there rather than by the Worker.
+    "BOOT_SERVER": "http://10.36.75.7"
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ipxe-iscsi-mgr",
+      "database_id": "e202151b-e096-449b-a3a4-83b8bd2b4f36",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Firmware images are served publicly from /fw/* with no auth, which is the
+  // point: iPXE would otherwise need a pre-signed URL baked into every menu.
+  "r2_buckets": [
+    {
+      "binding": "FIRMWARE",
+      "bucket_name": "ipxe-firmware"
+    }
+  ],
+
+  "kv_namespaces": [
+    {
+      "binding": "SECRET_CACHE",
+      "id": "677282f58ef24ea5a372253512a10b0f"
+    }
+  ],
+
+  "observability": {
+    "enabled": true
+  }
+}
