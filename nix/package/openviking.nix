@@ -35,7 +35,7 @@ let
   # openviking-src moves; `just update-openviking` rewrites both lines in
   # place, so keep them on one line each in `name = "sha256-...";` form.
   cargoHash = "sha256-hVugRWUTV+JSgahiSLAaNfyUXSYPGritnPOiV+vccDo=";
-  npmDepsHash = "sha256-nzmEp/jj4B9RPh3aosqpkAlNGsbZikqUV29Qa4Mnh1s=";
+  npmDepsHash = "sha256-xvE34Nw6NW7nUeOumzM1jBAXCVW9ibvO3hv8KW35raQ=";
 
   # One vendored cargo tree covers the whole workspace, so both ov_cli and
   # ragfs-python share it.
@@ -412,6 +412,7 @@ python.pkgs.buildPythonApplication {
       python-multipart
       python-pptx
       pyyaml
+      rapidfuzz
       requests
       scrapy
       tabulate
@@ -456,6 +457,8 @@ python.pkgs.buildPythonApplication {
   # pinning an older litellm.
   pythonRelaxDeps = [
     "litellm"
+    # Allow nixpkgs' newer patch release of the C# grammar.
+    "tree-sitter-c-sharp"
     "tree-sitter-language-pack"
   ];
 
