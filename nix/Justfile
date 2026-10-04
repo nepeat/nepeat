@@ -31,45 +31,68 @@ update-openviking:
     just refresh-openviking-hashes
 
 # Recompute the vendored cargo/npm hashes in package/openviking.nix.
-# Each is deliberately invalidated, then read back from the build failure.
 refresh-openviking-hashes:
     #!/usr/bin/env bash
     set -e
 
     PKG="package/openviking.nix"
-    FAKE="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    HASH_REFRESH_TMP=$(mktemp -d)
+    trap 'rm -rf "$HASH_REFRESH_TMP"' EXIT
 
     # A hash only lands in the flake's view of the tree once git knows about
     # the file, so an untracked package file would silently use a stale copy.
     git add -N "$PKG" 2>/dev/null || true
 
-    refresh() {
+    probe() {
         local name="$1" attr="$2" got
+        local log="$HASH_REFRESH_TMP/$name.log"
 
-        # Skip the rebuild when the pin is already correct.
-        if nix build ".#openviking.$attr" --no-link 2>/dev/null; then
-            echo "$name: already up to date"
+        # Build only the fixed-output dependency derivation.  Any stale hash is
+        # already sufficient to make nix report the new value; fakeHash would
+        # just make it fetch and hash the same dependency tree a second time.
+        if nix build ".#openviking.$attr" --no-link >"$log" 2>&1; then
+            : > "$HASH_REFRESH_TMP/$name.ok"
             return
         fi
 
-        # -i.bak + rm is the only in-place form GNU and BSD sed agree on.
-        sed -i.bak "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$FAKE\";|" "$PKG" && rm -f "$PKG.bak"
-        got=$(nix build ".#openviking.$attr" --no-link 2>&1 \
-                | awk '/got:/ { print $2; exit }')
-
+        got=$(awk '/got:/ { print $2; exit }' "$log")
         if [ -z "$got" ]; then
-            echo "error: could not determine $name; build failed for another reason" >&2
-            nix build ".#openviking.$attr" --no-link 2>&1 | tail -30 >&2
-            exit 1
+            return 1
         fi
-
-        sed -i.bak "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$got\";|" "$PKG" && rm -f "$PKG.bak"
-        echo "$name: $got"
+        printf '%s\n' "$got" > "$HASH_REFRESH_TMP/$name.hash"
     }
 
-    # cargoHash first — ovCli cannot build until the vendor tree resolves.
-    refresh cargoHash ovCli
-    refresh npmDepsHash webStudio
+    # The two dependency trees are independent, so let the nix daemon realise
+    # them concurrently.  Separate logs keep each reported hash unambiguous.
+    probe cargoHash ovCli.cargoDeps &
+    cargo_pid=$!
+    probe npmDepsHash webStudio.npmDeps &
+    npm_pid=$!
+
+    failed=0
+    wait "$cargo_pid" || failed=1
+    wait "$npm_pid" || failed=1
+    if [ "$failed" -ne 0 ]; then
+        for name in cargoHash npmDepsHash; do
+            if [ ! -e "$HASH_REFRESH_TMP/$name.hash" ] && [ ! -e "$HASH_REFRESH_TMP/$name.ok" ]; then
+                echo "error: could not determine $name; build failed for another reason" >&2
+                tail -30 "$HASH_REFRESH_TMP/$name.log" >&2
+            fi
+        done
+        exit 1
+    fi
+
+    for name in cargoHash npmDepsHash; do
+        if [ -e "$HASH_REFRESH_TMP/$name.ok" ]; then
+            echo "$name: already up to date"
+            continue
+        fi
+
+        got=$(<"$HASH_REFRESH_TMP/$name.hash")
+        # -i.bak + rm is the only in-place form GNU and BSD sed agree on.
+        sed -i.bak "s|^  $name = \"sha256-[^\"]*\";|  $name = \"$got\";|" "$PKG" && rm -f "$PKG.bak"
+        echo "$name: $got"
+    done
 
 # Build and switch the system without updating the flake
 switch machine_name="":
