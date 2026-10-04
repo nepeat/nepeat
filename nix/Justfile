@@ -1,22 +1,14 @@
-# Darwin rebuild helper
+# nix-darwin / NixOS rebuild helper
 # Default recipe
 default:
     @just --list
 
 # Update flake and channel, then rebuild system
 update machine_name="":
-    #!/bin/zsh
+    #!/usr/bin/env bash
     set -e
 
-    # Get machine name from argument, /etc/machine_name, or error
-    if [ -n "{{ machine_name }}" ]; then
-        MACHINE="{{ machine_name }}"
-    elif [ -f /etc/machine_name ]; then
-        MACHINE=$(cat /etc/machine_name)
-    else
-        echo "Error: No machine name provided and /etc/machine_name not found" >&2
-        exit 1
-    fi
+    MACHINE=$(just _machine "{{ machine_name }}")
 
     echo "Updating for machine: $MACHINE"
 
@@ -33,7 +25,7 @@ update machine_name="":
 
 # Bump OpenViking to the latest upstream master and refresh its hashes
 update-openviking:
-    #!/bin/zsh
+    #!/usr/bin/env bash
     set -e
     nix flake update openviking-src
     just refresh-openviking-hashes
@@ -41,7 +33,7 @@ update-openviking:
 # Recompute the vendored cargo/npm hashes in package/openviking.nix.
 # Each is deliberately invalidated, then read back from the build failure.
 refresh-openviking-hashes:
-    #!/bin/zsh
+    #!/usr/bin/env bash
     set -e
 
     PKG="package/openviking.nix"
@@ -81,31 +73,50 @@ refresh-openviking-hashes:
 
 # Build and switch the system without updating the flake
 switch machine_name="":
-    #!/bin/zsh
+    #!/usr/bin/env bash
     set -e
 
-    # Get machine name from argument, /etc/machine_name, or error
-    if [ -n "{{ machine_name }}" ]; then
-        MACHINE="{{ machine_name }}"
-    elif [ -f /etc/machine_name ]; then
-        MACHINE=$(cat /etc/machine_name)
-    else
-        echo "Error: No machine name provided and /etc/machine_name not found" >&2
-        exit 1
-    fi
+    MACHINE=$(just _machine "{{ machine_name }}")
 
     echo "Switching for machine: $MACHINE"
 
-    # Build the system
-    nix build -vL --always-allow-substitutes --log-format internal-json ".#darwinConfigurations.$MACHINE.system" |& nix run 'nixpkgs#nix-output-monitor' -- --json
-
-    # Apply the update using darwin-rebuild if available, otherwise use result
-    if command -v darwin-rebuild &> /dev/null; then
-        echo "Using darwin-rebuild from PATH"
-        sudo darwin-rebuild switch --flake ".#$MACHINE" -vL
+    if [ "$(uname -s)" = Darwin ]; then
+        ATTR="darwinConfigurations.$MACHINE.system"
+        REBUILD=darwin-rebuild
     else
-        echo "Using darwin-rebuild from built result"
-        sudo ./result/sw/bin/darwin-rebuild switch --flake ".#$MACHINE" -vL
+        ATTR="nixosConfigurations.$MACHINE.config.system.build.toplevel"
+        REBUILD=nixos-rebuild
+    fi
+
+    # Build the system
+    nix build -vL --always-allow-substitutes --log-format internal-json ".#$ATTR" 2>&1 | nix run 'nixpkgs#nix-output-monitor' -- --json
+
+    # Apply the update using the rebuild tool from PATH, falling back to the
+    # one in the freshly built result (darwin-rebuild lives in the system
+    # closure; nixos-rebuild only does when it's in systemPackages).
+    if command -v "$REBUILD" &> /dev/null; then
+        echo "Using $REBUILD from PATH"
+        sudo "$REBUILD" switch --flake ".#$MACHINE" -vL
+    else
+        echo "Using $REBUILD from built result"
+        sudo "./result/sw/bin/$REBUILD" switch --flake ".#$MACHINE" -vL
+    fi
+
+# Resolve the target machine: explicit arg, /etc/machine_name, or (NixOS) the hostname
+[private]
+_machine machine_name="":
+    #!/usr/bin/env bash
+    set -e
+    if [ -n "{{ machine_name }}" ]; then
+        echo "{{ machine_name }}"
+    elif [ -f /etc/machine_name ]; then
+        cat /etc/machine_name
+    elif [ "$(uname -s)" != Darwin ]; then
+        # mkNixos sets networking.hostName to the config name.
+        hostname
+    else
+        echo "Error: No machine name provided and /etc/machine_name not found" >&2
+        exit 1
     fi
 
 # Clean nix store
