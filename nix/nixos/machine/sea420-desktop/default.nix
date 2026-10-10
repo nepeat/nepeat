@@ -37,7 +37,12 @@
   # than generated. This is the value the host has been running with since the
   # megarepo -- changing it would orphan its journal and any machine-id-scoped
   # state. The kernel param covers stage 1, before /etc exists.
-  environment.etc.machine-id.text = "30b7aad6952aeda770f149286983149d";
+  # A store symlink breaks systemd-machine-id-commit when a transient ID is
+  # mounted over it. Copy the pinned ID into /etc as a regular file instead.
+  environment.etc.machine-id = {
+    text = "30b7aad6952aeda770f149286983149d\n";
+    mode = "0444";
+  };
   boot.kernelParams = [ "systemd.machine_id=30b7aad6952aeda770f149286983149d" ];
 
   # Latest kernel for hardware support; build the zfs_unstable kernel module

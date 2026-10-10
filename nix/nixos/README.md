@@ -32,9 +32,14 @@ nixos/
 Deploy:
 
 ```
-nixos-rebuild switch --flake .#sea420-desktop
+just switch                     # current host, as a user with sudo access
+just switch sea420-desktop      # explicit local configuration
 nixos-rebuild switch --flake .#chickennugget --target-host root@<addr>
 ```
+
+`just switch` builds as the invoking user and uses sudo to activate that
+exact store path. It stops if the build or output monitor fails. Wheel members
+are trusted by the Nix daemon so their builds can use trusted Nix options.
 
 ## home-manager
 
@@ -137,8 +142,8 @@ fails the connection.
   `/etc/shadow` every boot — so for a console password put the hash on
   `/persist` (`mkpasswd -m yescrypt | sudo tee /persist/passwords/erin`) and
   switch `erin.nix` to the `hashedPasswordFile` line.
-- **`sudo` will prompt erin for a password it does not have.** Either give it
-  one as above, or set `security.sudo.wheelNeedsPassword = false;`.
+- **Wheel members have passwordless sudo** (`security.sudo.wheelNeedsPassword =
+  false;` in `erin.nix`), so erin's locked password does not block `just switch`.
 - **gitops is off.** The megarepo's comin-based `gitops` module did not come
   across; it was already `enable = false` on the desktop and it reads machine
   IDs out of the megarepo's `vars/machines.nix`. Deploy by hand for now.

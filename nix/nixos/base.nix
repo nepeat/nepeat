@@ -26,6 +26,9 @@
   ];
 
   nix.settings = {
+    # Wheel members already have root access through sudo. Let their user-side
+    # builds use trusted options such as --always-allow-substitutes too.
+    trusted-users = [ "root" "@wheel" ];
     experimental-features = [
       "nix-command"
       "flakes"

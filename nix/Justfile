@@ -97,7 +97,7 @@ refresh-openviking-hashes:
 # Build and switch the system without updating the flake
 switch machine_name="":
     #!/usr/bin/env bash
-    set -e
+    set -euo pipefail
 
     MACHINE=$(just _machine "{{ machine_name }}")
 
@@ -119,10 +119,20 @@ switch machine_name="":
     # closure; nixos-rebuild only does when it's in systemPackages).
     if command -v "$REBUILD" &> /dev/null; then
         echo "Using $REBUILD from PATH"
-        sudo "$REBUILD" switch --flake ".#$MACHINE" -vL
+        REBUILD=$(command -v "$REBUILD")
     else
         echo "Using $REBUILD from built result"
-        sudo "./result/sw/bin/$REBUILD" switch --flake ".#$MACHINE" -vL
+        REBUILD="$PWD/result/sw/bin/$REBUILD"
+    fi
+
+    if [ "$(uname -s)" = Darwin ]; then
+        sudo "$REBUILD" switch --flake ".#$MACHINE" -vL
+    else
+        # Activate exactly what we built as the invoking user. Root needn't
+        # evaluate the flake again with a different HOME or Git/SSH config.
+        # Skip nixos-rebuild's self-rebuild, which otherwise evaluates the
+        # legacy <nixpkgs/nixos> configuration even with --store-path.
+        sudo "$REBUILD" switch --no-reexec --store-path "$(readlink -f result)" -v
     fi
 
 # Resolve the target machine: explicit arg, /etc/machine_name, or (NixOS) the hostname
