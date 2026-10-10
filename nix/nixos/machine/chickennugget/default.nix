@@ -16,7 +16,7 @@
     ../../module/iscsi-xfs.nix
     ../../module/glances-tty.nix
     ../../module/erin.nix
-    ../../module/paseo.nix
+    ../../module/orca.nix
 
     ../../module/vault-agent.nix
     ../../module/agent-secrets.nix

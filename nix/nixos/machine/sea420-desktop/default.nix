@@ -18,7 +18,7 @@
     ../../module/impermanence.nix
     ../../module/nvidia.nix
     ../../module/erin.nix
-    ../../module/paseo.nix
+    ../../module/orca.nix
 
     ./hardware.nix
     ./boot.nix

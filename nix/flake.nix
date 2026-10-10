@@ -27,22 +27,13 @@
     };
     talhelper.url = "github:budimanjojo/talhelper";
 
-    # claude-code, opencode and codex all come from here; the per-agent modules
+    # claude-code, opencode, codex and orca all come from here; the per-agent modules
     # (module/{claude,opencode,codex}.nix) each pull their package out. NOT
     # `inputs.nixpkgs.follows = "nixpkgs"`: numtide's cache only has binaries
     # for the nixpkgs revision THEY built against, so following ours would cost
     # us the cache and rebuild every agent from source. The price is a second
     # nixpkgs evaluation.
     llm-agents.url = "github:numtide/llm-agents.nix";
-
-    # Paseo -- self-hosted daemon for AI coding agents. chickennugget only.
-    # Following our nixpkgs here (unlike llm-agents) because paseo ships no
-    # binary cache of its own, so there is nothing to preserve by not following
-    # and sharing our dependency closure is strictly better.
-    paseo = {
-      url = "github:getpaseo/paseo";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # Built from source; bump with `nix flake update openviking-src`.  Doing so
     # usually also requires refreshing cargoHash / npmDepsHash in
