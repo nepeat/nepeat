@@ -252,7 +252,11 @@ host (sync before the next ME 62, second read-back round trip 48, next frame 31)
   bit-identical; ~77.7 -> ~72.1 us.
 - No ncu: RmProfilingAdminOnly=1 on this box (needs root).
 - Found while validating: ch904-nvdec A/B fails on the unmodified baseline too
-  (worst frame 34.91 vs 38.67 dB, deterministic); passed on e14023c, so likely
-  from 9173f3e (field_weave). Not fixed yet.
+  (worst frame 34.91 vs 38.67 dB, -0.32 dB overall, deterministic). Bisected
+  with a nix build of patches 0001-0009 (= e14023c): fails identically, so the
+  "14/14 on e14023c" above does not reproduce (the harness changed around
+  then); field_weave is not the cause. Open quality item, not fixed yet.
+  Bisect recipe: copy flake.nix/flake.lock/scripts/ffmpeg_flags + a prefix of
+  patches/ to a scratch dir, `nix build path:<dir>#ffmpeg`, FFMPEG_BIN=... .
 - Workflow notes: ffmpeg reads stdin, so loops feeding it a heredoc need
   -nostdin; zsh does not word-split $var (use bash scripts for option lists).
