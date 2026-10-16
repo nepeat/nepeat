@@ -260,3 +260,20 @@ host (sync before the next ME 62, second read-back round trip 48, next frame 31)
   patches/ to a scratch dir, `nix build path:<dir>#ffmpeg`, FFMPEG_BIN=... .
 - Workflow notes: ffmpeg reads stdin, so loops feeding it a heredoc need
   -nostdin; zsh does not word-split $var (use bash scripts for option lists).
+- Full validation of the pipelined build: conformance 95/95; A/B 12/14.
+  ch904 as above (pre-existing). ch900-nvdec newly fails worst_frame: one B
+  picture (display 71, the last before an I) lands 14% over its VBV cap after
+  slightly different bit counts upstream and is re-coded q 10 -> 16 (44.55 dB;
+  the baseline passed that check by exactly 0.00 dB at 46.16). Cause is the
+  pipeline's ME lambda (last q of the type): it differs from the exact one in
+  57-78% of P and 9-83% of B pictures, so re-running ME with the exact lambda
+  would cost most of the gain. Averages are unchanged (every A/B case within
+  +-0.05 dB of the baseline). Kept; root fix belongs in RC: the last B before
+  an I is starved by the I reservation (rc_cap). A 0.95 re-code target took
+  frame 71 to 45.02 dB but still fails; not applied.
+- Patch 0016: re-code steps always coarser (latent: q 2.55 rounded back to 2
+  re-coded the same picture until AC was dropped). Bit-identical otherwise.
+- Overall, original baseline vs now (single stream, bf 2, 15M, interleaved,
+  live channels on the GPU): park_joy 1080i 2016 -> 2510 fps (496 -> 398
+  us/pic), touchdown 1080p 2683 -> 3515 fps (373 -> 285 us/pic).
+
