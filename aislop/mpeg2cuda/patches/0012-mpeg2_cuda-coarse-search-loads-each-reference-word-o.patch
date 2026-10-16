@@ -1,0 +1,115 @@
+From 6ee3dac888b61f498f894b4e83ea910125705bd4 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 16:25:27 -0700
+Subject: [PATCH] mpeg2_cuda: coarse search loads each reference word once per
+ 4 candidates
+
+One lane now takes one row of a 4-pel aligned column group: the four
+candidates share the two words per row and differ only in the funnel
+shift. Candidate indices and the tie-break are unchanged, so the output is
+bit-identical. k_me_coarse ~30 -> ~23 us per call (1080, range 8).
+---
+ libavcodec/mpeg2_cuda.cu | 78 +++++++++++++++++++++++++++-------------
+ 1 file changed, 54 insertions(+), 24 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 06b60f7..10b6eee 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -298,8 +298,18 @@ static __device__ __forceinline__ int sad_hpel_rows(const uint8_t *rp, int strid
+     return sad;
+ }
+ 
+-/* Exhaustive +-range search on 1/4 resolution planes, one warp per MB,
+- * one candidate per lane. Output is a full-pel vector. */
++/* Exhaustive +-range search on 1/4 resolution planes, one warp per MB.
++ * Each lane takes one row of a 4-pel aligned column group: the 4 candidates
++ * dx..dx+3 read the same two words per row and differ only in the funnel
++ * shift, so the reference is loaded once per group instead of per
++ * candidate. Candidates keep their index k (window row-major, then the 5x5
++ * around zero) so ties break exactly as a per-candidate search. Output is a
++ * full-pel vector. */
++static __device__ __forceinline__ int floor4(int v)
++{
++    return v >> 2;    /* arithmetic shift: floor(v / 4) */
++}
++
+ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+                                        int qpitch, int qw, int qh,
+                                        int mb_w, int mb_h, int range, int lambda,
+@@ -321,30 +331,50 @@ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+     const int side = 2 * range + 1, nwin = side * side;
+     const int cx = temporal ? (prev[warp].mvx + 4) >> 3 : 0;
+     const int cy = temporal ? (prev[warp].mvy + 4) >> 3 : 0;
+-    const int ncand = nwin + ((cx | cy) ? 25 : 0);
+-    int best = 0x7fffffff, bdx = 0, bdy = 0, bidx = ncand;
+-    for (int k = lane; k < ncand; k += 32) {
+-        int dx, dy;
+-        if (k < nwin) {
+-            dx = cx + k % side - range;
+-            dy = cy + k / side - range;
++    const int extra = (cx | cy) != 0;
++    /* column groups: window dx in [cx - range, cx + range], zero window [-2, 2] */
++    const int wg0 = floor4(cx - range), wng = floor4(cx + range) - wg0 + 1;
++    const int nwitems = side * wng, nitems = nwitems + (extra ? 5 * 2 : 0);
++    int best = 0x7fffffff, bdx = 0, bdy = 0, bidx = 0x7fffffff;
++    for (int t = lane; t < nitems; t += 32) {
++        int dy, g, dxlo, dxhi;
++        if (t < nwitems) {
++            dy   = cy - range + t / wng;
++            g    = wg0 + t % wng;
++            dxlo = cx - range;
++            dxhi = cx + range;
+         } else {
+-            dx = (k - nwin) % 5 - 2;
+-            dy = (k - nwin) / 5 - 2;
++            dy   = (t - nwitems) / 2 - 2;
++            g    = (t - nwitems) % 2 - 1;      /* groups -1 and 0 cover dx -2..2 */
++            dxlo = -2;
++            dxhi = 2;
+         }
+-        int rx = x0 + dx, ry = y0 + dy;
+-        if (rx < 0 || ry < 0 || rx + 4 > qw || ry + 4 > qh)
+-            continue;
+-        const uint8_t *r = rq + ry * qpitch + rx;
+-        int s = 0;
+-        for (int i = 0; i < 4; i++)
+-            s += __vsadu4(c[i], ldu32(r + i * qpitch));
+-        s = s * 16 + lambda * (mv_bits(8 * dx) + mv_bits(8 * dy));
+-        if (s < best) {
+-            best = s;
+-            bidx = k;
+-            bdx  = dx;
+-            bdy  = dy;
++        const int ry = y0 + dy, rx = x0 + 4 * g;
++        if (ry < 0 || ry + 4 > qh || rx < 0 || rx + 4 > qw)
++            continue;                          /* rx is 4-aligned: j = 0 is the leftmost */
++        const uint32_t *w = (const uint32_t *)(rq + ry * qpitch + rx);
++        uint32_t w0[4], w1[4];
++        for (int i = 0; i < 4; i++) {
++            w0[i] = w[i * (qpitch >> 2)];
++            w1[i] = w[i * (qpitch >> 2) + 1];
++        }
++        const int ybits = mv_bits(8 * dy);
++        for (int j = 0; j < 4; j++) {
++            const int dx = 4 * g + j;
++            if (dx < dxlo || dx > dxhi || rx + j + 4 > qw)
++                continue;
++            int s = 0;
++            for (int i = 0; i < 4; i++)
++                s += __vsadu4(c[i], __funnelshift_rc(w0[i], w1[i], 8 * j));
++            s = s * 16 + lambda * (mv_bits(8 * dx) + ybits);
++            const int k = t < nwitems ? (dy - cy + range) * side + (dx - cx + range)
++                                      : nwin + (dy + 2) * 5 + (dx + 2);
++            if (s < best || (s == best && k < bidx)) {
++                best = s;
++                bidx = k;
++                bdx  = dx;
++                bdy  = dy;
++            }
+         }
+     }
+     int packed = (bdx + 512) << 10 | (bdy + 512);
+-- 
+2.55.0
+
