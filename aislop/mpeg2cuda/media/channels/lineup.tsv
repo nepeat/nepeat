@@ -1,0 +1,15 @@
+# major	short_name	url	mode
+900	TESTCAT	https://www.youtube.com/watch?v=EhJlA7I1-VA	mezz
+901	TESTSAX	https://www.youtube.com/watch?v=Sagg08DrO5U	mezz
+902	TESTNYA	https://www.youtube.com/watch?v=jIQ6UV2onyI	mezz
+903	TSTCRAB	https://www.youtube.com/watch?v=-50NdPawLVY	mezz
+904	TSTCARA	https://www.youtube.com/watch?v=YqfTRVwh4SM	mezz
+905	TSTFISH	https://www.youtube.com/watch?v=YAgJ9XugGBo	mezz
+906	TESTHD	https://www.youtube.com/watch?v=f1Jj2jpQhIA	raw-mpeg2
+907	TEST264	https://www.youtube.com/watch?v=f1Jj2jpQhIA	raw-h264	907_TEST264	A/B baseline: NVENC High@4.0 1080p29.97 8 Mb/s, IBBP (no B-pyramid), 1 s GOP
+#908	T264B0	test variant of 907	h264-b0	907_TEST264	A/B: NVENC High@4.0 1080p29.97 6 Mb/s, NO B-frames, 1 reference frame
+#909	T264MN	test variant of 907	h264-main	907_TEST264	A/B: NVENC MAIN profile 1080p29.97 6 Mb/s, no B-frames, 1 reference frame
+#910	T264720	test variant of 907	h264-720	907_TEST264	A/B: NVENC High@4.0 720p59.94 6 Mb/s, no B-frames, 1 reference frame
+#911	T264X	test variant of 907	x264	907_TEST264	A/B: libx264 (CPU) High@4.0 1080p29.97 6 Mb/s, IBBP (no B-pyramid), ref 3
+#912	TESTM2	RF55 control: MPEG-2 of the 907 source	raw-mpeg2	907_TEST264	A/B control: MPEG-2 (mpeg2_cuda) 1080i 12 Mb/s on RF55, same source as 907-911
+908	TEST265	HEVC acceptance test, same source as 907	h265	907_TEST264	HEVC test: NVENC H.265 Main@4.1 1080p29.97 6 Mb/s, no B-frames (does it even play?)

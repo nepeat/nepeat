@@ -1,0 +1,537 @@
+From 525ec8ad6c55a876c4c7d23207249483e5b0fe7a Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Thu, 15 Oct 2026 23:43:34 -0700
+Subject: [PATCH 03/10] mpeg2_cuda: temporal ME predictors, adaptive f_code,
+ tuned dead-zone, damped rate control, frame-rate snapping, interlaced
+ mb_height
+
+---
+ libavcodec/mpeg2_cuda.c  | 107 +++++++++++++++++++++++++++++++--------
+ libavcodec/mpeg2_cuda.cu |  92 ++++++++++++++++++++++-----------
+ libavcodec/mpeg2_cuda.h  |   2 +
+ 3 files changed, 150 insertions(+), 51 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 744e584..50dbc4e 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -50,7 +50,6 @@
+ 
+ #define CHECK_CU(x) FF_CUDA_CHECK_DL(avctx, s->cu, x)
+ 
+-#define FCODE 3          /* +-32 pel vectors */
+ #define HDR_MAX 256
+ 
+ enum { F_INIT_TABLES, F_LOAD, F_DOWN4, F_ME_COARSE, F_ME_REFINE, F_ME_FIELD,
+@@ -79,8 +78,11 @@ typedef struct MPEG2CudaContext {
+     CUdeviceptr rec[2][3];
+     CUdeviceptr staging[3];
+     CUdeviceptr srcq, refq;
+-    CUdeviceptr coarse, motion, mbinfo, levels, slots, bitlen;
++    CUdeviceptr coarse, motion, motion_prev, mbinfo, levels, slots, bitlen;
+     CUdeviceptr rows, row_bytes, out;
++    CUdeviceptr mv_need;
++    int         pic_fcode;           /* f_code chosen for the picture just coded */
++    int         host_mv_need;
+ 
+     uint8_t *host_out;
+     int     *host_row_bytes;
+@@ -102,6 +104,7 @@ typedef struct MPEG2CudaContext {
+     double vbv_fullness;
+     double rc_last_i_bits;
+     double rc_cap;               /* hard limit for the picture being coded */
++    double rc_last_q[3];
+ 
+     FILE *recon_fp;
+     FILE *dump_fp;
+@@ -110,6 +113,8 @@ typedef struct MPEG2CudaContext {
+     char *recon_file;
+     char *dump_file;
+     int   me_range;
++    int   me_flags;
++    int   fcode;
+     int   field_dct;
+     int   field_me;
+     int   field_bias;
+@@ -235,7 +240,7 @@ static void put_gop_header(AVCodecContext *avctx, PutBitContext *pb)
+ static void put_picture_header(AVCodecContext *avctx, PutBitContext *pb, int pict_type)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+-    int fcode = pict_type == 2 ? FCODE : 15;
++    int fcode = pict_type == 2 ? s->pic_fcode : 15;
+ 
+     put_bits32(pb, 0x00000100);
+     put_bits(pb, 10, s->gop_pos & 0x3FF);       /* temporal_reference */
+@@ -322,6 +327,8 @@ static double rc_get_qscale(AVCodecContext *avctx, int pict_type)
+         s->rc_left[2] = n - 1;
+     }
+ 
++    double free_target, q_free;
++
+     if (pict_type == 1)
+         target = s->rc_remaining /
+                  (1.0 + s->rc_left[2] * s->rc_x[2] / (s->rc_x[1] * s->ip_ratio));
+@@ -329,6 +336,7 @@ static double rc_get_qscale(AVCodecContext *avctx, int pict_type)
+         target = s->rc_remaining /
+                  (s->rc_left[2] + s->rc_left[1] * s->ip_ratio * s->rc_x[1] / s->rc_x[2]);
+     target = FFMAX(target, br / (8.0 * fps));
++    free_target = target;
+ 
+     /* don't let one picture drain the VBV */
+     target = FFMIN(target, FFMAX(s->vbv_fullness - br / fps, br / fps));
+@@ -345,7 +353,16 @@ static double rc_get_qscale(AVCodecContext *avctx, int pict_type)
+         s->rc_cap = FFMIN(s->rc_cap, spare - (n - 1) * 8192.0);
+     }
+ 
+-    q = s->rc_x[pict_type] / target;
++    /* Constant-ish q is what quality wants; TM5's full-gain feedback makes
++     * q swing between extremes from one P picture to the next. Follow the
++     * budget smoothly (I pictures track the P quantiser by ip_ratio), and let
++     * only the VBV limits force a jump. */
++    q_free = s->rc_x[pict_type] / free_target;
++    if (pict_type == 1 && s->rc_last_q[2] > 0)
++        q_free = s->rc_last_q[2] / s->ip_ratio;
++    else if (s->rc_last_q[pict_type] > 0)
++        q_free = av_clipd(q_free, s->rc_last_q[pict_type] / 1.2, s->rc_last_q[pict_type] * 1.2);
++    q = FFMAX(q_free, s->rc_x[pict_type] / target);
+     return av_clipd(q, 1, 112);
+ }
+ 
+@@ -358,7 +375,13 @@ static void rc_update(AVCodecContext *avctx, int pict_type, int qcode, int bits)
+     if (avctx->flags & AV_CODEC_FLAG_QSCALE)
+         return;
+ 
+-    s->rc_x[pict_type] = (double)bits * qscale_of(s, qcode);
++    {
++        /* smoothed complexity; a single picture is a noisy estimate */
++        double x = (double)bits * qscale_of(s, qcode);
++        s->rc_x[pict_type] = s->rc_last_q[pict_type] > 0 && pict_type == 2 ?
++                             0.7 * s->rc_x[pict_type] + 0.3 * x : x;
++        s->rc_last_q[pict_type] = qscale_of(s, qcode);
++    }
+     if (pict_type == 1)
+         s->rc_last_i_bits = bits;
+     s->rc_remaining   -= bits;
+@@ -431,7 +454,8 @@ static int motion_search(AVCodecContext *avctx, int lambda)
+     int ret;
+ 
+     {
+-        int mv_max = (16 << (FCODE - 1)) - 1;
++        int mv_max = (16 << (s->fcode - 1)) - 1;
++        int temporal = s->me_flags & 1;
+         {
+             void *args[] = { &s->src[0], &s->py, &s->srcq, &s->qpitch, &s->qw, &s->qh };
+             ret = launch(avctx, F_DOWN4, FFALIGN(s->qw, 32) / 32, FFALIGN(s->qh, 8) / 8, 32, 8, args);
+@@ -446,7 +470,8 @@ static int motion_search(AVCodecContext *avctx, int lambda)
+         }
+         {
+             void *args[] = { &s->srcq, &s->refq, &s->qpitch, &s->qw, &s->qh,
+-                             &s->mb_w, &s->mb_h, &s->me_range, &lambda, &s->coarse };
++                             &s->mb_w, &s->mb_h, &s->me_range, &lambda, &s->motion_prev,
++                             &temporal, &s->coarse };
+             ret = launch(avctx, F_ME_COARSE, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+             if (ret < 0)
+                 return ret;
+@@ -454,7 +479,7 @@ static int motion_search(AVCodecContext *avctx, int lambda)
+         {
+             void *args[] = { &s->src[0], &s->rec[s->ref_idx][0], &s->py, &s->pw, &s->ph,
+                              &s->mb_w, &s->mb_h, &s->coarse, &lambda, &mv_max,
+-                             &s->intra_cost_bias, &s->motion };
++                             &s->intra_cost_bias, &s->motion_prev, &s->me_flags, &s->motion };
+             ret = launch(avctx, F_ME_REFINE, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+             if (ret < 0)
+                 return ret;
+@@ -481,6 +506,9 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int qcode, int dro
+     const int cur  = s->ref_idx ^ 1;
+     int ret;
+ 
++    ret = CHECK_CU(s->cu->cuMemsetD8Async(s->mv_need, 0, sizeof(int), s->stream));
++    if (ret < 0)
++        return ret;
+     {
+         M2CEncodeParams p = {
+             .cur_y = s->src[0], .cur_u = s->src[1], .cur_v = s->src[2],
+@@ -490,7 +518,7 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int qcode, int dro
+             .motion = s->motion, .mbinfo = s->mbinfo, .levels = s->levels,
+             .py = s->py, .pc = s->pc, .mb_w = s->mb_w, .mb_h = s->mb_h,
+             .pict_type = pict_type, .qscale = qscale_of(s, qcode), .field_dct = s->field_dct,
+-            .drop_ac = drop_ac,
++            .drop_ac = drop_ac, .mv_need = s->mv_need,
+             .intra_bias = s->intra_bias, .inter_bias = s->inter_bias,
+         };
+         void *args[] = { &p };
+@@ -499,8 +527,8 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int qcode, int dro
+             return ret;
+     }
+     {
+-        int fcode = FCODE, fpfd0 = s->field_dct || s->field_me;
+-        void *args[] = { &s->mbinfo, &s->levels, &s->mb_w, &s->mb_h, &pict_type, &fcode,
++        int fpfd0 = s->field_dct || s->field_me;
++        void *args[] = { &s->mbinfo, &s->levels, &s->mb_w, &s->mb_h, &pict_type, &s->mv_need,
+                          &fpfd0, &s->slots, &s->bitlen };
+         ret = launch(avctx, F_VLC, (n_mb + 63) / 64, 1, 64, 1, args);
+         if (ret < 0)
+@@ -522,12 +550,19 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int qcode, int dro
+ 
+     ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_row_bytes, s->row_bytes,
+                                             s->mb_h * sizeof(int), s->stream));
++    if (ret < 0)
++        return ret;
++    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(&s->host_mv_need, s->mv_need, sizeof(int), s->stream));
+     if (ret < 0)
+         return ret;
+     ret = CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
+     if (ret < 0)
+         return ret;
+ 
++    s->pic_fcode = 1;
++    while ((16 << (s->pic_fcode - 1)) < s->host_mv_need)
++        s->pic_fcode++;
++
+     *out_size = 0;
+     for (int i = 0; i < s->mb_h; i++)
+         *out_size += s->host_row_bytes[i];
+@@ -656,6 +691,8 @@ static int mpeg2_cuda_encode(AVCodecContext *avctx, AVPacket *pkt,
+     av_log(avctx, AV_LOG_DEBUG, "pic %"PRId64" type %c q %d bits %d\n",
+            s->coded, pict_type == 1 ? 'I' : 'P', qcode, (hdr_size + size) * 8);
+ 
++    if (pict_type == 2)
++        FFSWAP(CUdeviceptr, s->motion, s->motion_prev);
+     s->ref_idx ^= 1;
+     s->coded++;
+     s->gop_pos = (s->gop_pos + 1) % avctx->gop_size;
+@@ -681,12 +718,14 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         free_dev(s, &s->refq);
+         free_dev(s, &s->coarse);
+         free_dev(s, &s->motion);
++        free_dev(s, &s->motion_prev);
+         free_dev(s, &s->mbinfo);
+         free_dev(s, &s->levels);
+         free_dev(s, &s->slots);
+         free_dev(s, &s->bitlen);
+         free_dev(s, &s->rows);
+         free_dev(s, &s->row_bytes);
++        free_dev(s, &s->mv_need);
+         free_dev(s, &s->out);
+         if (s->module)
+             s->cu->cuModuleUnload(s->module);
+@@ -740,6 +779,7 @@ static int load_module(AVCodecContext *avctx)
+     }
+ 
+     build_tables(&tab);
++    tab.fcode = s->fcode;
+     ret = alloc_dev(avctx, &tmp, sizeof(tab));
+     if (ret < 0)
+         return ret;
+@@ -767,13 +807,23 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         return AVERROR(EINVAL);
+     }
+ 
+-    for (s->frame_rate_code = 1; s->frame_rate_code <= 8; s->frame_rate_code++)
+-        if (!av_cmp_q(fr, ff_mpeg12_frame_rate_tab[s->frame_rate_code]))
+-            break;
+-    if (s->frame_rate_code > 8) {
+-        av_log(avctx, AV_LOG_ERROR, "frame rate %d/%d is not an MPEG-2 frame rate\n",
+-               fr.num, fr.den);
+-        return AVERROR(EINVAL);
++    /* nearest MPEG-2 frame rate; 2997/100 and friends are close enough */
++    s->frame_rate_code = 1;
++    for (int c = 2; c <= 8; c++)
++        if (fabs(av_q2d(fr) - av_q2d(ff_mpeg12_frame_rate_tab[c])) <
++            fabs(av_q2d(fr) - av_q2d(ff_mpeg12_frame_rate_tab[s->frame_rate_code])))
++            s->frame_rate_code = c;
++    {
++        AVRational m = ff_mpeg12_frame_rate_tab[s->frame_rate_code];
++        double err = fabs(av_q2d(fr) / av_q2d(m) - 1);
++        if (!fr.num || err > 0.001) {
++            av_log(avctx, AV_LOG_ERROR, "frame rate %d/%d is not an MPEG-2 frame rate\n",
++                   fr.num, fr.den);
++            return AVERROR(EINVAL);
++        }
++        if (av_cmp_q(fr, m))
++            av_log(avctx, AV_LOG_WARNING, "coding frame rate %d/%d as %d/%d\n",
++                   fr.num, fr.den, m.num, m.den);
+     }
+ 
+     dar = av_mul_q(avctx->sample_aspect_ratio.num ? avctx->sample_aspect_ratio : (AVRational){ 1, 1 },
+@@ -794,7 +844,8 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+     s->vbv_size = FFMAX(1, FFMIN(avctx->rc_buffer_size / 16384, 0x3FFFF));
+ 
+     s->mb_w   = (avctx->width  + 15) >> 4;
+-    s->mb_h   = (avctx->height + 15) >> 4;
++    /* progressive_sequence is 0: frame pictures are coded in MB pairs */
++    s->mb_h   = 2 * ((avctx->height + 31) >> 5);
+     s->pw     = s->mb_w * 16;
+     s->ph     = s->mb_h * 16;
+     s->py     = FFALIGN(s->pw, 256);
+@@ -858,6 +909,10 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         ret = alloc_dev(avctx, &s->coarse, n_mb * 4);
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->motion, n_mb * sizeof(M2CMotion));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->motion_prev, n_mb * sizeof(M2CMotion));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuMemsetD8Async(s->motion_prev, 0, n_mb * sizeof(M2CMotion), s->stream));
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->mbinfo, n_mb * sizeof(M2CMBInfo));
+     if (ret >= 0)
+@@ -870,6 +925,8 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         ret = alloc_dev(avctx, &s->rows, s->out_max);
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->row_bytes, s->mb_h * sizeof(int));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->mv_need, sizeof(int));
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->out, s->out_max);
+ 
+@@ -900,12 +957,18 @@ static const AVOption options[] = {
+       AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, VE },
+     { "dump_mb",         "write per-MB decisions and bit counts to this file (debug)", OFFSET(dump_file),
+       AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, VE },
++    { "fcode",           "largest f_code (search range +-8 << f_code pels); each picture uses the smallest that fits", OFFSET(fcode),
++      AV_OPT_TYPE_INT, { .i64 = 4 }, 1, 5, VE },
++    { "me_flags",        "motion search tools", OFFSET(me_flags),
++      AV_OPT_TYPE_FLAGS, { .i64 = 1 }, 0, 3, VE, .unit = "me_flags" },
++        { "temporal", "use the previous picture's vectors as predictors", 0, AV_OPT_TYPE_CONST, { .i64 = 1 }, 0, 0, VE, .unit = "me_flags" },
++        { "pmv",      "cost vectors against the left neighbour",           0, AV_OPT_TYPE_CONST, { .i64 = 2 }, 0, 0, VE, .unit = "me_flags" },
+     { "me_range",        "coarse search range, in units of 4 pels", OFFSET(me_range),
+       AV_OPT_TYPE_INT, { .i64 = 8 }, 1, 15, VE },
+     { "nonlinear_q",     "always use the non-linear quantiser scale (otherwise only above q 62)", OFFSET(nonlinear_q),
+       AV_OPT_TYPE_BOOL, { .i64 = 0 }, 0, 1, VE },
+     { "ip_ratio",        "target P/I quantiser ratio (TM5 Kp)", OFFSET(ip_ratio),
+-      AV_OPT_TYPE_FLOAT, { .dbl = 1.6 }, 0.5, 4, VE },
++      AV_OPT_TYPE_FLOAT, { .dbl = 1.35 }, 0.5, 4, VE },
+     { "field_dct",       "choose frame/field DCT per macroblock", OFFSET(field_dct),
+       AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, VE },
+     { "field_me",        "field motion prediction in frame pictures", OFFSET(field_me),
+@@ -915,9 +978,9 @@ static const AVOption options[] = {
+     { "intra_cost_bias", "SAD margin before a P macroblock is coded intra", OFFSET(intra_cost_bias),
+       AV_OPT_TYPE_INT, { .i64 = 512 }, -65536, 65536, VE },
+     { "intra_qbias",     "intra quantiser rounding offset", OFFSET(intra_bias),
+-      AV_OPT_TYPE_FLOAT, { .dbl = 0.375 }, 0, 0.5, VE },
++      AV_OPT_TYPE_FLOAT, { .dbl = 0.25 }, 0, 0.5, VE },
+     { "inter_qbias",     "inter quantiser rounding offset", OFFSET(inter_bias),
+-      AV_OPT_TYPE_FLOAT, { .dbl = 0.0 }, -0.5, 0.5, VE },
++      AV_OPT_TYPE_FLOAT, { .dbl = -0.25 }, -0.5, 0.5, VE },
+     { NULL }
+ };
+ 
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 0090438..94dfb96 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -51,23 +51,16 @@ static __device__ __forceinline__ int warp_sum(int v)
+     return v;
+ }
+ 
+-static __device__ __forceinline__ void warp_argmin(int &cost, int &idx)
+-{
+-    for (int off = 16; off; off >>= 1) {
+-        int oc = __shfl_xor_sync(FULL_MASK, cost, off);
+-        int oi = __shfl_xor_sync(FULL_MASK, idx,  off);
+-        if (oc < cost || (oc == cost && oi < idx)) {
+-            cost = oc;
+-            idx  = oi;
+-        }
+-    }
+-}
+ 
+-/* approximate VLC length of one motion vector component (half-pel units) */
++/* VLC length of one motion vector delta (half-pel units) at the stream f_code */
+ static __device__ __forceinline__ int mv_bits(int v)
+ {
++    const int f = g_tab.fcode;
+     v = abs(v);
+-    return v ? 2 * (32 - __clz(v)) + 1 : 1;
++    if (!v)
++        return 1;
++    int code = min(16, ((v - 1) >> (f - 1)) + 1);
++    return (g_tab.mv[code] >> 24) + f;     /* motion_code + sign + residual */
+ }
+ 
+ /* ------------------------------------------------------------------------ */
+@@ -152,7 +145,7 @@ static __device__ __forceinline__ void warp_argmin3(int &cost, int &idx, int &ex
+ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+                                        int qpitch, int qw, int qh,
+                                        int mb_w, int mb_h, int range, int lambda,
+-                                       short2 *out)
++                                       const M2CMotion *prev, int temporal, short2 *out)
+ {
+     int warp = (blockIdx.x * blockDim.x + threadIdx.x) >> 5;
+     int lane = threadIdx.x & 31;
+@@ -165,10 +158,22 @@ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+     for (int i = 0; i < 4; i++)
+         c[i] = *(const uint32_t *)(cq + (y0 + i) * qpitch + x0);
+ 
+-    int side = 2 * range + 1;
+-    int best = 0x7fffffff, bidx = side * side;
+-    for (int k = lane; k < side * side; k += 32) {
+-        int dx = k % side - range, dy = k / side - range;
++    /* window centred on the co-located vector of the previous P picture,
++     * plus +-2 around zero so motion that stops is found again */
++    const int side = 2 * range + 1, nwin = side * side;
++    const int cx = temporal ? (prev[warp].mvx + 4) >> 3 : 0;
++    const int cy = temporal ? (prev[warp].mvy + 4) >> 3 : 0;
++    const int ncand = nwin + ((cx | cy) ? 25 : 0);
++    int best = 0x7fffffff, bdx = 0, bdy = 0, bidx = ncand;
++    for (int k = lane; k < ncand; k += 32) {
++        int dx, dy;
++        if (k < nwin) {
++            dx = cx + k % side - range;
++            dy = cy + k / side - range;
++        } else {
++            dx = (k - nwin) % 5 - 2;
++            dy = (k - nwin) / 5 - 2;
++        }
+         int rx = x0 + dx, ry = y0 + dy;
+         if (rx < 0 || ry < 0 || rx + 4 > qw || ry + 4 > qh)
+             continue;
+@@ -180,17 +185,21 @@ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+         if (s < best) {
+             best = s;
+             bidx = k;
++            bdx  = dx;
++            bdy  = dy;
+         }
+     }
+-    warp_argmin(best, bidx);
++    int packed = (bdx + 512) << 10 | (bdy + 512);
++    warp_argmin3(best, bidx, packed, 32);
+     if (lane == 0)
+-        out[warp] = make_short2((bidx % side - range) * 4, (bidx / side - range) * 4);
++        out[warp] = make_short2(((packed >> 10) - 512) * 4, ((packed & 1023) - 512) * 4);
+ }
+ 
+-#define ME_NB_CAND 38
++#define ME_NB_CAND 39
+ 
+ /* full-pel candidate k for the refinement: coarse +-2, zero +-1, neighbours */
+-static __device__ __forceinline__ short2 me_candidate(int k, short2 cv, const short2 *coarse,
++static __device__ __forceinline__ short2 me_candidate(int k, short2 cv, short2 tv,
++                                                      const short2 *coarse,
+                                                       int mb, int mx, int my, int mb_w, int mb_h)
+ {
+     if (k < 25)
+@@ -201,7 +210,8 @@ static __device__ __forceinline__ short2 me_candidate(int k, short2 cv, const sh
+     case 34: return mx > 0        ? coarse[mb - 1]    : cv;
+     case 35: return mx < mb_w - 1 ? coarse[mb + 1]    : cv;
+     case 36: return my > 0        ? coarse[mb - mb_w] : cv;
+-    default: return my < mb_h - 1 ? coarse[mb + mb_w] : cv;
++    case 37: return my < mb_h - 1 ? coarse[mb + mb_w] : cv;
++    default: return tv;
+     }
+ }
+ 
+@@ -213,7 +223,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+             int py, int pw, int ph,
+             int mb_w, int mb_h,
+             const short2 *coarse, int lambda, int mv_max,
+-            int intra_bias, M2CMotion *out)
++            int intra_bias, const M2CMotion *prev, int flags, M2CMotion *out)
+ {
+     __shared__ uint32_t s_cur[4][64];
+     const int wib  = threadIdx.x >> 5;
+@@ -244,9 +254,13 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+     const int lo_y = max(-2 * y0, -mv_max - 1), hi_y = min(2 * (ph - 16 - y0), mv_max);
+ 
+     const short2 cv = coarse[warp];
++    const short2 tv = (flags & 1) ? make_short2(prev[warp].mvx >> 1, prev[warp].mvy >> 1) : cv;
++    /* the left neighbour's coarse vector stands in for the real PMV */
++    const int pmx = (flags & 2) && mx > 0 ? 2 * coarse[warp - 1].x : 0;
++    const int pmy = (flags & 2) && mx > 0 ? 2 * coarse[warp - 1].y : 0;
+     int best_cost = 0x7fffffff, best_k = ME_NB_CAND, best_sad = 0;
+     for (int k = lane; k < ME_NB_CAND; k += 32) {
+-        short2 c = me_candidate(k, cv, coarse, warp, mx, my, mb_w, mb_h);
++        short2 c = me_candidate(k, cv, tv, coarse, warp, mx, my, mb_w, mb_h);
+         int dx = c.x, dy = c.y;
+         if (2 * dx < lo_x || 2 * dx > hi_x || 2 * dy < lo_y || 2 * dy > hi_y)
+             continue;
+@@ -262,7 +276,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+             sad += __vsadu4(sc[row * 4 + 2], __funnelshift_rc(w2, w3, sh));
+             sad += __vsadu4(sc[row * 4 + 3], __funnelshift_rc(w3, w4, sh));
+         }
+-        int cost = sad + lambda * (mv_bits(2 * dx) + mv_bits(2 * dy));
++        int cost = sad + lambda * (mv_bits(2 * dx - pmx) + mv_bits(2 * dy - pmy));
+         if (cost < best_cost) {
+             best_cost = cost;
+             best_k    = k;
+@@ -270,7 +284,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         }
+     }
+     warp_argmin3(best_cost, best_k, best_sad, 32);
+-    short2 bc = me_candidate(best_k, cv, coarse, warp, mx, my, mb_w, mb_h);
++    short2 bc = me_candidate(best_k, cv, tv, coarse, warp, mx, my, mb_w, mb_h);
+     int bmx = 2 * bc.x, bmy = 2 * bc.y;
+ 
+     /* half-pel: lanes 4h..4h+3 evaluate neighbour h, four rows each */
+@@ -317,7 +331,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         }
+         sad += __shfl_xor_sync(FULL_MASK, sad, 1);
+         sad += __shfl_xor_sync(FULL_MASK, sad, 2);
+-        int cost = ok ? sad + lambda * (mv_bits(vx) + mv_bits(vy)) : 0x7fffffff;
++        int cost = ok ? sad + lambda * (mv_bits(vx - pmx) + mv_bits(vy - pmy)) : 0x7fffffff;
+         int idx  = h;
+         warp_argmin3(cost, idx, sad, 32);
+         if (cost < best_cost) {
+@@ -820,6 +834,17 @@ k_encode_mb(M2CEncodeParams p)
+     __syncthreads();
+ 
+     if (w < 2 && lane == 0 && valid) {
++        /* range the picture's f_code must cover: a component v needs
++         * -R <= v <= R-1; field vertical vectors count twice (PMV) */
++        if (!intra) {
++            int need;
++            if (field)
++                need = max(max(abs(fmv[0][0]) + 1, abs(fmv[1][0]) + 1),
++                           max(abs(2 * fmv[0][1]) + 1, abs(2 * fmv[1][1]) + 1));
++            else
++                need = max(abs(mvx) + 1, abs(mvy) + 1);
++            atomicMax(p.mv_need, need);
++        }
+         int cbp = 0;
+         for (int b = 0; b < 6; b++)
+             if (s_last[w][b] >= 0)
+@@ -934,10 +959,19 @@ static __device__ void put_block(BitWriter &bw, const short *lev, int start, int
+ }
+ 
+ /* macroblock layer, one thread per MB into a private slot */
++static __device__ __forceinline__ int fcode_for(int need)
++{
++    int f = 1;
++    while ((16 << (f - 1)) < need)
++        f++;
++    return f;
++}
++
+ extern "C" __global__ void k_vlc(const M2CMBInfo *mbi, const short *levels,
+-                                 int mb_w, int mb_h, int pict_type, int fcode,
++                                 int mb_w, int mb_h, int pict_type, const int *mv_need,
+                                  int field_dct, uint32_t *slots, int *bitlen)
+ {
++    const int fcode = fcode_for(*mv_need);
+     int mb = blockIdx.x * blockDim.x + threadIdx.x;
+     if (mb >= mb_w * mb_h)
+         return;
+diff --git a/libavcodec/mpeg2_cuda.h b/libavcodec/mpeg2_cuda.h
+index d9ddc4d..916dac4 100644
+--- a/libavcodec/mpeg2_cuda.h
++++ b/libavcodec/mpeg2_cuda.h
+@@ -44,6 +44,7 @@ typedef struct M2CTables {
+     uint8_t  iscan[64];          /* raster position -> scan position */
+     uint8_t  intra_matrix[64];   /* raster order */
+     uint8_t  inter_matrix[64];
++    int32_t  fcode;              /* f_code for P/B vectors (both components) */
+ } M2CTables;
+ 
+ typedef struct M2CMotion {
+@@ -84,6 +85,7 @@ typedef struct M2CEncodeParams {
+     int32_t qscale;              /* quantiser_scale, not the code */
+     int32_t field_dct;           /* frame_pred_frame_dct == 0: choose dct_type per MB */
+     int32_t drop_ac;             /* VBV emergency: code DC only */
++    M2C_PTR(int32_t)       mv_need;   /* max |vector| range used by coded MBs */
+     float   intra_bias, inter_bias;
+ } M2CEncodeParams;
+ 
+-- 
+2.55.0
+

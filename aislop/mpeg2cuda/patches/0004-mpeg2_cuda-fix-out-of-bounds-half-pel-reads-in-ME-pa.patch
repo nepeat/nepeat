@@ -1,0 +1,183 @@
+From 98197241c7fe7ab022ccc8ffa7b8100af8d32a7e Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Thu, 15 Oct 2026 23:47:29 -0700
+Subject: [PATCH 04/10] mpeg2_cuda: fix out-of-bounds half-pel reads in ME, pad
+ planes, wrap MV deltas in cost (Codex review)
+
+---
+ libavcodec/mpeg2_cuda.c  |   9 ++--
+ libavcodec/mpeg2_cuda.cu | 109 ++++++++++++++++-----------------------
+ 2 files changed, 50 insertions(+), 68 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 50dbc4e..7162bb1 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -893,8 +893,9 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+ 
+     for (int i = 0; i < 3 && ret >= 0; i++) {
+         size_t sz = i ? (size_t)s->pc * (s->ph / 2) : (size_t)s->py * s->ph;
+-        /* one spare row so half-pel reads at the bottom edge stay in bounds */
+-        sz += i ? s->pc : s->py;
++        /* spare rows: unaligned word loads and the row below a half-pel
++         * vector (two rows away for the bottom field) stay in bounds */
++        sz += 4 * (i ? s->pc : s->py);
+         if ((ret = alloc_dev(avctx, &s->src[i], sz)) < 0 ||
+             (ret = alloc_dev(avctx, &s->rec[0][i], sz)) < 0 ||
+             (ret = alloc_dev(avctx, &s->rec[1][i], sz)) < 0 ||
+@@ -902,9 +903,9 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+             break;
+     }
+     if (ret >= 0)
+-        ret = alloc_dev(avctx, &s->srcq, (size_t)s->qpitch * s->qh);
++        ret = alloc_dev(avctx, &s->srcq, (size_t)s->qpitch * (s->qh + 2));
+     if (ret >= 0)
+-        ret = alloc_dev(avctx, &s->refq, (size_t)s->qpitch * s->qh);
++        ret = alloc_dev(avctx, &s->refq, (size_t)s->qpitch * (s->qh + 2));
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->coarse, n_mb * 4);
+     if (ret >= 0)
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 94dfb96..e3a831f 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -56,7 +56,8 @@ static __device__ __forceinline__ int warp_sum(int v)
+ static __device__ __forceinline__ int mv_bits(int v)
+ {
+     const int f = g_tab.fcode;
+-    v = abs(v);
++    const int shift = 32 - (4 + f);   /* same modulo wrap as put_motion */
++    v = abs((v << shift) >> shift);
+     if (!v)
+         return 1;
+     int code = min(16, ((v - 1) >> (f - 1)) + 1);
+@@ -140,6 +141,46 @@ static __device__ __forceinline__ void warp_argmin3(int &cost, int &idx, int &ex
+     }
+ }
+ 
++/* 4 packed pixels at word offset j of an unaligned row, plus the 4 starting
++ * one pixel to the right (for horizontal half-pel) */
++#define ROW_WORDS(wp, sh, a, ah) do {                                            \
++        uint32_t w0_ = (wp)[0], w1_ = (wp)[1], w2_ = (wp)[2], w3_ = (wp)[3], w4_ = (wp)[4]; \
++        a[0] = __funnelshift_rc(w0_, w1_, sh); ah[0] = __funnelshift_rc(w0_, w1_, (sh) + 8); \
++        a[1] = __funnelshift_rc(w1_, w2_, sh); ah[1] = __funnelshift_rc(w1_, w2_, (sh) + 8); \
++        a[2] = __funnelshift_rc(w2_, w3_, sh); ah[2] = __funnelshift_rc(w2_, w3_, (sh) + 8); \
++        a[3] = __funnelshift_rc(w3_, w4_, sh); ah[3] = __funnelshift_rc(w3_, w4_, (sh) + 8); \
++    } while (0)
++
++/* SAD of `rows` rows of 16 half-pel interpolated pixels against the current
++ * MB rows in cur (word stride 4 * cstride). The row below is only read when
++ * the vector is vertically half-pel. */
++static __device__ __forceinline__ int sad_hpel_rows(const uint8_t *rp, int stride, int hx, int hy,
++                                                    const uint32_t *cur, int cstride, int rows)
++{
++    const uint32_t *wp = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
++    const int sh = ((uintptr_t)rp & 3) * 8;
++    int sad = 0;
++    for (int row = 0; row < rows; row++) {
++        uint32_t a[4], ah[4], b[4], bh[4];
++        const uint32_t *w = wp + row * (stride >> 2);
++        ROW_WORDS(w, sh, a, ah);
++        if (hy)
++            ROW_WORDS(w + (stride >> 2), sh, b, bh);
++        const uint32_t *c = cur + row * 4 * cstride;
++        for (int j = 0; j < 4; j++) {
++            uint32_t pv;
++            if (hx && hy)
++                pv = __vavgu4(__vavgu4(a[j], ah[j]), __vavgu4(b[j], bh[j]));
++            else if (hx)
++                pv = __vavgu4(a[j], ah[j]);
++            else
++                pv = __vavgu4(a[j], b[j]);
++            sad += __vsadu4(c[j], pv);
++        }
++    }
++    return sad;
++}
++
+ /* Exhaustive +-range search on 1/4 resolution planes, one warp per MB,
+  * one candidate per lane. Output is a full-pel vector. */
+ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+@@ -297,37 +338,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         if (ok) {
+             const int hx = vx & 1, hy = vy & 1;
+             const uint8_t *rp = ref + (y0 + part * 4 + (vy >> 1)) * py + x0 + (vx >> 1);
+-            const uint32_t *wp = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
+-            const int sh = ((uintptr_t)rp & 3) * 8;
+-            uint32_t a[4], ah[4];
+-            {
+-                uint32_t w0 = wp[0], w1 = wp[1], w2 = wp[2], w3 = wp[3], w4 = wp[4];
+-                a[0] = __funnelshift_rc(w0, w1, sh);     ah[0] = __funnelshift_rc(w0, w1, sh + 8);
+-                a[1] = __funnelshift_rc(w1, w2, sh);     ah[1] = __funnelshift_rc(w1, w2, sh + 8);
+-                a[2] = __funnelshift_rc(w2, w3, sh);     ah[2] = __funnelshift_rc(w2, w3, sh + 8);
+-                a[3] = __funnelshift_rc(w3, w4, sh);     ah[3] = __funnelshift_rc(w3, w4, sh + 8);
+-            }
+-            for (int row = 0; row < 4; row++) {
+-                uint32_t b[4], bh[4];
+-                const uint32_t *w = wp + (row + 1) * (py >> 2);
+-                uint32_t w0 = w[0], w1 = w[1], w2 = w[2], w3 = w[3], w4 = w[4];
+-                b[0] = __funnelshift_rc(w0, w1, sh);     bh[0] = __funnelshift_rc(w0, w1, sh + 8);
+-                b[1] = __funnelshift_rc(w1, w2, sh);     bh[1] = __funnelshift_rc(w1, w2, sh + 8);
+-                b[2] = __funnelshift_rc(w2, w3, sh);     bh[2] = __funnelshift_rc(w2, w3, sh + 8);
+-                b[3] = __funnelshift_rc(w3, w4, sh);     bh[3] = __funnelshift_rc(w3, w4, sh + 8);
+-                for (int j = 0; j < 4; j++) {
+-                    uint32_t p;
+-                    if (hx && hy)
+-                        p = __vavgu4(__vavgu4(a[j], ah[j]), __vavgu4(b[j], bh[j]));
+-                    else if (hx)
+-                        p = __vavgu4(a[j], ah[j]);
+-                    else
+-                        p = __vavgu4(a[j], b[j]);
+-                    sad += __vsadu4(sc[(part * 4 + row) * 4 + j], p);
+-                    a[j]  = b[j];
+-                    ah[j] = bh[j];
+-                }
+-            }
++            sad = sad_hpel_rows(rp, py, hx, hy, sc + part * 16, 1, 4);
+         }
+         sad += __shfl_xor_sync(FULL_MASK, sad, 1);
+         sad += __shfl_xor_sync(FULL_MASK, sad, 2);
+@@ -439,38 +450,8 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+             if (ok) {
+                 const int hx = hvx & 1, hy = hvy & 1;
+                 const uint8_t *rp = ref + (fy0 + (hvy >> 1) + part * 2) * fpy + s * py + x0 + (hvx >> 1);
+-                const uint32_t *wp = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
+-                const int sh = ((uintptr_t)rp & 3) * 8;
+-                uint32_t a[4], ah[4];
+-                {
+-                    uint32_t w0 = wp[0], w1 = wp[1], w2 = wp[2], w3 = wp[3], w4 = wp[4];
+-                    a[0] = __funnelshift_rc(w0, w1, sh); ah[0] = __funnelshift_rc(w0, w1, sh + 8);
+-                    a[1] = __funnelshift_rc(w1, w2, sh); ah[1] = __funnelshift_rc(w1, w2, sh + 8);
+-                    a[2] = __funnelshift_rc(w2, w3, sh); ah[2] = __funnelshift_rc(w2, w3, sh + 8);
+-                    a[3] = __funnelshift_rc(w3, w4, sh); ah[3] = __funnelshift_rc(w3, w4, sh + 8);
+-                }
+-                for (int row = 0; row < 2; row++) {
+-                    uint32_t b[4], bh[4];
+-                    const uint32_t *w = wp + (row + 1) * (fpy >> 2);
+-                    uint32_t w0 = w[0], w1 = w[1], w2 = w[2], w3 = w[3], w4 = w[4];
+-                    b[0] = __funnelshift_rc(w0, w1, sh); bh[0] = __funnelshift_rc(w0, w1, sh + 8);
+-                    b[1] = __funnelshift_rc(w1, w2, sh); bh[1] = __funnelshift_rc(w1, w2, sh + 8);
+-                    b[2] = __funnelshift_rc(w2, w3, sh); bh[2] = __funnelshift_rc(w2, w3, sh + 8);
+-                    b[3] = __funnelshift_rc(w3, w4, sh); bh[3] = __funnelshift_rc(w3, w4, sh + 8);
+-                    const uint32_t *c = sc + (2 * (part * 2 + row) + f) * 4;
+-                    for (int j = 0; j < 4; j++) {
+-                        uint32_t pv;
+-                        if (hx && hy)
+-                            pv = __vavgu4(__vavgu4(a[j], ah[j]), __vavgu4(b[j], bh[j]));
+-                        else if (hx)
+-                            pv = __vavgu4(a[j], ah[j]);
+-                        else
+-                            pv = __vavgu4(a[j], b[j]);
+-                        sad += __vsadu4(c[j], pv);
+-                        a[j]  = b[j];
+-                        ah[j] = bh[j];
+-                    }
+-                }
++                /* current field rows 2*(part*2+row)+f, i.e. every other MB row */
++                sad = sad_hpel_rows(rp, fpy, hx, hy, sc + (2 * part * 2 + f) * 4, 2, 2);
+             }
+             sad += __shfl_xor_sync(FULL_MASK, sad, 1);
+             sad += __shfl_xor_sync(FULL_MASK, sad, 2);
+-- 
+2.55.0
+

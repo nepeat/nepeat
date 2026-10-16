@@ -1,0 +1,1717 @@
+From dea74071dfde42f173d3e9fec61eda75201ad4de Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Thu, 15 Oct 2026 21:44:57 -0700
+Subject: [PATCH 01/10] avcodec: add mpeg2_cuda encoder (phase 1: I/P, frame
+ DCT)
+
+---
+ configure                |   1 +
+ libavcodec/Makefile      |   3 +
+ libavcodec/allcodecs.c   |   1 +
+ libavcodec/mpeg2_cuda.c  | 821 +++++++++++++++++++++++++++++++++++++++
+ libavcodec/mpeg2_cuda.cu | 737 +++++++++++++++++++++++++++++++++++
+ libavcodec/mpeg2_cuda.h  |  82 ++++
+ 6 files changed, 1645 insertions(+)
+ create mode 100644 libavcodec/mpeg2_cuda.c
+ create mode 100644 libavcodec/mpeg2_cuda.cu
+ create mode 100644 libavcodec/mpeg2_cuda.h
+
+diff --git a/configure b/configure
+index 374bd5c..eacb293 100755
+--- a/configure
++++ b/configure
+@@ -3693,6 +3693,7 @@ mpeg2_cuvid_decoder_deps="cuvid"
+ mpeg2_mmal_decoder_deps="mmal"
+ mpeg2_mediacodec_decoder_deps="mediacodec"
+ mpeg2_qsv_decoder_select="qsvdec"
++mpeg2_cuda_encoder_deps="ffnvcodec cuda_nvcc"
+ mpeg2_qsv_encoder_select="qsvenc"
+ mpeg2_vaapi_encoder_select="cbs_mpeg2 vaapi_encode"
+ mpeg2_v4l2m2m_decoder_deps="v4l2_m2m mpeg2_v4l2_m2m"
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index 95ba308..1e66a64 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -573,6 +573,9 @@ OBJS-$(CONFIG_MPEG1_CUVID_DECODER)     += cuviddec.o
+ OBJS-$(CONFIG_MPEG1_V4L2M2M_DECODER)   += v4l2_m2m_dec.o
+ OBJS-$(CONFIG_MPEG2_MMAL_DECODER)      += mmaldec.o
+ OBJS-$(CONFIG_MPEG2_QSV_DECODER)       += qsvdec.o
++OBJS-$(CONFIG_MPEG2_CUDA_ENCODER)      += mpeg2_cuda.o mpeg2_cuda.ptx.o \
++                                          mpeg12data.o mpeg12framerate.o \
++                                          mpegvideodata.o
+ OBJS-$(CONFIG_MPEG2_QSV_ENCODER)       += qsvenc_mpeg2.o
+ OBJS-$(CONFIG_MPEG2VIDEO_DECODER)      += mpeg12dec.o mpeg12.o mpeg12data.o
+ OBJS-$(CONFIG_MPEG2VIDEO_ENCODER)      += mpeg12enc.o
+diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
+index 47eded2..1d0118c 100644
+--- a/libavcodec/allcodecs.c
++++ b/libavcodec/allcodecs.c
+@@ -898,6 +898,7 @@ extern const FFCodec ff_mp3_mediacodec_decoder;
+ extern const FFCodec ff_mp3_mf_encoder;
+ extern const FFCodec ff_mpeg1_cuvid_decoder;
+ extern const FFCodec ff_mpeg2_cuvid_decoder;
++extern const FFCodec ff_mpeg2_cuda_encoder;
+ extern const FFCodec ff_mpeg2_qsv_encoder;
+ extern const FFCodec ff_mpeg2_vaapi_encoder;
+ extern const FFCodec ff_mpeg4_cuvid_decoder;
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+new file mode 100644
+index 0000000..22617c0
+--- /dev/null
++++ b/libavcodec/mpeg2_cuda.c
+@@ -0,0 +1,821 @@
++/*
++ * MPEG-2 video encoder for NVIDIA GPUs (CUDA)
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++/*
++ * Everything from motion estimation to slice packing runs on the GPU; the
++ * host only writes sequence/GOP/picture headers and runs rate control.
++ * Pictures are coded as interlaced frame pictures (I and P), one slice per
++ * macroblock row.
++ */
++
++#include <math.h>
++#include <stdio.h>
++
++#include "libavutil/cuda_check.h"
++#include "libavutil/hwcontext.h"
++#include "libavutil/hwcontext_cuda_internal.h"
++#include "libavutil/mem.h"
++#include "libavutil/opt.h"
++#include "libavutil/pixdesc.h"
++#if CONFIG_SHADER_COMPRESSION
++#include "libavutil/zlib_utils.h"
++#endif
++
++#include "avcodec.h"
++#include "codec_internal.h"
++#include "encode.h"
++#include "hwconfig.h"
++#include "mpeg12data.h"
++#include "mpeg12vlc.h"
++#include "mpegvideodata.h"
++#include "put_bits.h"
++#include "mpeg2_cuda.h"
++
++#define CHECK_CU(x) FF_CUDA_CHECK_DL(avctx, s->cu, x)
++
++#define FCODE 3          /* +-32 pel vectors */
++#define HDR_MAX 256
++
++enum { F_INIT_TABLES, F_LOAD, F_DOWN4, F_ME_COARSE, F_ME_REFINE, F_ENCODE_MB,
++       F_VLC, F_PACK, F_CONCAT, F_NB };
++
++static const char *const kernel_names[F_NB] = {
++    "k_init_tables", "k_load", "k_down4", "k_me_coarse", "k_me_refine",
++    "k_encode_mb", "k_vlc", "k_pack", "k_concat",
++};
++
++typedef struct MPEG2CudaContext {
++    const AVClass *class;
++
++    AVBufferRef         *device_ref;
++    AVCUDADeviceContext *hwctx;
++    CudaFunctions       *cu;
++    CUstream             stream;
++    CUmodule             module;
++    CUfunction           func[F_NB];
++
++    int mb_w, mb_h, pw, ph, py, pc;
++    int qw, qh, qpitch;
++    int row_words;
++
++    CUdeviceptr src[3];
++    CUdeviceptr rec[2][3];
++    CUdeviceptr staging[3];
++    CUdeviceptr srcq, refq;
++    CUdeviceptr coarse, motion, mbinfo, levels, slots, bitlen;
++    CUdeviceptr rows, row_bytes, out;
++
++    uint8_t *host_out;
++    int     *host_row_bytes;
++    size_t   out_max;
++
++    int     ref_idx;
++    int     gop_pos;
++    int64_t coded;
++
++    int frame_rate_code;
++    int aspect_code;
++    int vbv_size;               /* units of 16384 bits */
++
++    /* rate control, TM5 step 1 with X expressed in quantiser_scale_code units */
++    double rc_x[3];
++    double rc_remaining;
++    int    rc_left[3];
++    double vbv_fullness;
++
++    FILE *recon_fp;
++
++    /* options */
++    char *recon_file;
++    int   me_range;
++    int   intra_cost_bias;
++    float intra_bias;
++    float inter_bias;
++} MPEG2CudaContext;
++
++static int alloc_dev(AVCodecContext *avctx, CUdeviceptr *p, size_t size)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    return CHECK_CU(s->cu->cuMemAlloc(p, size));
++}
++
++static void free_dev(MPEG2CudaContext *s, CUdeviceptr *p)
++{
++    if (*p)
++        s->cu->cuMemFree(*p);
++    *p = 0;
++}
++
++static int launch(AVCodecContext *avctx, int f, int gx, int gy, int bx, int by, void **args)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    return CHECK_CU(s->cu->cuLaunchKernel(s->func[f], gx, gy, 1, bx, by, 1,
++                                          0, s->stream, args, NULL));
++}
++
++static void build_tables(M2CTables *t)
++{
++    memset(t, 0, sizeof(*t));
++
++    for (int u = 0; u < 8; u++)
++        for (int x = 0; x < 8; x++)
++            t->dct[u][x] = (u ? 0.5 : 0.5 * M_SQRT1_2) * cos((2 * x + 1) * u * M_PI / 16);
++
++    for (int i = 0; i < MPEG12_RL_NB_ELEMS; i++) {
++        int run = ff_mpeg12_run[i], level = ff_mpeg12_level[i];
++        t->ac[0][run][level] = ff_mpeg1_vlc_table[i][1] << 24 | ff_mpeg1_vlc_table[i][0];
++        t->ac[1][run][level] = ff_mpeg2_vlc_table[i][1] << 24 | ff_mpeg2_vlc_table[i][0];
++    }
++    t->eob[0] = ff_mpeg1_vlc_table[MPEG12_RL_NB_ELEMS + 1][1] << 24 |
++                ff_mpeg1_vlc_table[MPEG12_RL_NB_ELEMS + 1][0];
++    t->eob[1] = ff_mpeg2_vlc_table[MPEG12_RL_NB_ELEMS + 1][1] << 24 |
++                ff_mpeg2_vlc_table[MPEG12_RL_NB_ELEMS + 1][0];
++
++    for (int i = 0; i < 12; i++) {
++        t->dc[0][i] = ff_mpeg12_vlc_dc_lum_bits[i]    << 24 | ff_mpeg12_vlc_dc_lum_code[i];
++        t->dc[1][i] = ff_mpeg12_vlc_dc_chroma_bits[i] << 24 | ff_mpeg12_vlc_dc_chroma_code[i];
++    }
++    for (int i = 0; i < 33; i++)
++        t->addr[i] = ff_mpeg12_mbAddrIncrTable[i][1] << 24 | ff_mpeg12_mbAddrIncrTable[i][0];
++    for (int i = 0; i < 64; i++)
++        t->cbp[i] = ff_mpeg12_mbPatTable[i][1] << 24 | ff_mpeg12_mbPatTable[i][0];
++    for (int i = 0; i < 17; i++)
++        t->mv[i] = ff_mpeg12_mbMotionVectorTable[i][1] << 24 | ff_mpeg12_mbMotionVectorTable[i][0];
++
++    for (int i = 0; i < 64; i++) {
++        t->iscan[ff_alternate_vertical_scan[i]] = i;
++        t->intra_matrix[i] = ff_mpeg1_default_intra_matrix[i];
++        t->inter_matrix[i] = 16;
++    }
++}
++
++/* ------------------------------------------------------------------------ */
++/* headers */
++
++static void put_sequence_header(AVCodecContext *avctx, PutBitContext *pb)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    int64_t br = avctx->bit_rate > 0 ? (avctx->bit_rate + 399) / 400 : 0x3FFFFFFF;
++    int profile_level = (avctx->width <= 720 && avctx->height <= 576) ? 0x48 : 0x44;
++
++    put_bits32(pb, 0x000001B3);
++    put_bits(pb, 12, avctx->width  & 0xFFF);
++    put_bits(pb, 12, avctx->height & 0xFFF);
++    put_bits(pb, 4, s->aspect_code);
++    put_bits(pb, 4, s->frame_rate_code);
++    put_bits(pb, 18, br & 0x3FFFF);
++    put_bits(pb, 1, 1);                         /* marker */
++    put_bits(pb, 10, s->vbv_size & 0x3FF);
++    put_bits(pb, 1, 0);                         /* constrained_parameters_flag */
++    put_bits(pb, 1, 0);                         /* load_intra_quantiser_matrix */
++    put_bits(pb, 1, 0);                         /* load_non_intra_quantiser_matrix */
++
++    put_bits32(pb, 0x000001B5);                 /* sequence_extension */
++    put_bits(pb, 4, 1);
++    put_bits(pb, 8, profile_level);
++    put_bits(pb, 1, 0);                         /* progressive_sequence */
++    put_bits(pb, 2, 1);                         /* chroma_format 4:2:0 */
++    put_bits(pb, 2, avctx->width  >> 12);
++    put_bits(pb, 2, avctx->height >> 12);
++    put_bits(pb, 12, (br >> 18) & 0xFFF);
++    put_bits(pb, 1, 1);                         /* marker */
++    put_bits(pb, 8, (s->vbv_size >> 10) & 0xFF);
++    put_bits(pb, 1, 1);                         /* low_delay: no B-pictures */
++    put_bits(pb, 2, 0);                         /* frame_rate_extension_n */
++    put_bits(pb, 5, 0);                         /* frame_rate_extension_d */
++    align_put_bits(pb);
++}
++
++static void put_gop_header(AVCodecContext *avctx, PutBitContext *pb)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    AVRational fr = ff_mpeg12_frame_rate_tab[s->frame_rate_code];
++    int fps   = (fr.num + fr.den / 2) / fr.den;
++    int64_t t = s->coded;
++
++    put_bits32(pb, 0x000001B8);
++    put_bits(pb, 1, 0);                         /* drop_frame_flag */
++    put_bits(pb, 5, (t / (fps * 3600)) % 24);
++    put_bits(pb, 6, (t / (fps * 60)) % 60);
++    put_bits(pb, 1, 1);
++    put_bits(pb, 6, (t / fps) % 60);
++    put_bits(pb, 6, t % fps);
++    put_bits(pb, 1, 1);                         /* closed_gop */
++    put_bits(pb, 1, 0);                         /* broken_link */
++    align_put_bits(pb);
++}
++
++static void put_picture_header(AVCodecContext *avctx, PutBitContext *pb, int pict_type)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    int fcode = pict_type == 2 ? FCODE : 15;
++
++    put_bits32(pb, 0x00000100);
++    put_bits(pb, 10, s->gop_pos & 0x3FF);       /* temporal_reference */
++    put_bits(pb, 3, pict_type);
++    put_bits(pb, 16, 0xFFFF);                   /* vbv_delay */
++    if (pict_type == 2) {
++        put_bits(pb, 1, 0);                     /* full_pel_forward_vector */
++        put_bits(pb, 3, 7);                     /* forward_f_code */
++    }
++    put_bits(pb, 1, 0);                         /* extra_bit_picture */
++    align_put_bits(pb);
++
++    put_bits32(pb, 0x000001B5);                 /* picture_coding_extension */
++    put_bits(pb, 4, 8);
++    put_bits(pb, 4, fcode);
++    put_bits(pb, 4, fcode);
++    put_bits(pb, 4, 15);
++    put_bits(pb, 4, 15);
++    put_bits(pb, 2, 0);                         /* intra_dc_precision: 8 bits */
++    put_bits(pb, 2, 3);                         /* picture_structure: frame */
++    put_bits(pb, 1, 1);                         /* top_field_first */
++    put_bits(pb, 1, 1);                         /* frame_pred_frame_dct */
++    put_bits(pb, 1, 0);                         /* concealment_motion_vectors */
++    put_bits(pb, 1, 0);                         /* q_scale_type */
++    put_bits(pb, 1, 1);                         /* intra_vlc_format */
++    put_bits(pb, 1, 1);                         /* alternate_scan */
++    put_bits(pb, 1, 0);                         /* repeat_first_field */
++    put_bits(pb, 1, 0);                         /* chroma_420_type */
++    put_bits(pb, 1, 0);                         /* progressive_frame */
++    put_bits(pb, 1, 0);                         /* composite_display_flag */
++    align_put_bits(pb);
++}
++
++/* ------------------------------------------------------------------------ */
++/* rate control */
++
++static void rc_init(AVCodecContext *avctx)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    double br = avctx->bit_rate;
++
++    s->rc_x[1] = 160.0 * br / 115.0 / 2.0;
++    s->rc_x[2] =  60.0 * br / 115.0 / 2.0;
++    s->rc_remaining = 0;
++    s->vbv_fullness = s->vbv_size * 16384.0 * 0.9;
++}
++
++static int rc_get_qcode(AVCodecContext *avctx, int pict_type)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    AVRational fr = ff_mpeg12_frame_rate_tab[s->frame_rate_code];
++    double fps = av_q2d(fr);
++    double br  = avctx->bit_rate;
++    double target, q;
++
++    if (avctx->flags & AV_CODEC_FLAG_QSCALE)
++        return av_clip(avctx->global_quality / FF_QP2LAMBDA, 1, 31);
++
++    if (s->gop_pos == 0) {
++        int n = avctx->gop_size;
++        s->rc_remaining += br * n / fps;
++        s->rc_left[1] = 1;
++        s->rc_left[2] = n - 1;
++    }
++
++    if (pict_type == 1)
++        target = s->rc_remaining /
++                 (1.0 + s->rc_left[2] * s->rc_x[2] / s->rc_x[1]);
++    else
++        target = s->rc_remaining /
++                 (s->rc_left[2] + s->rc_left[1] * s->rc_x[1] / s->rc_x[2]);
++    target = FFMAX(target, br / (8.0 * fps));
++
++    /* don't let one picture drain the VBV */
++    target = FFMIN(target, FFMAX(s->vbv_fullness - br / fps, br / fps));
++
++    q = s->rc_x[pict_type] / target;
++    return av_clip(lrint(q), 1, 31);
++}
++
++static void rc_update(AVCodecContext *avctx, int pict_type, int qcode, int bits)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    double fps = av_q2d(ff_mpeg12_frame_rate_tab[s->frame_rate_code]);
++    double vbv = s->vbv_size * 16384.0;
++
++    if (avctx->flags & AV_CODEC_FLAG_QSCALE)
++        return;
++
++    s->rc_x[pict_type] = (double)bits * qcode;
++    s->rc_remaining   -= bits;
++    s->rc_left[pict_type]--;
++
++    s->vbv_fullness -= bits;
++    if (s->vbv_fullness < 0)
++        av_log(avctx, AV_LOG_WARNING, "VBV underflow by %.0f bits\n", -s->vbv_fullness);
++    s->vbv_fullness = FFMIN(s->vbv_fullness + avctx->bit_rate / fps, vbv);
++}
++
++/* ------------------------------------------------------------------------ */
++
++static int upload_frame(AVCodecContext *avctx, const AVFrame *frame)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    CUdeviceptr y, u, v;
++    int pitch_y, pitch_uv, nv12, ret;
++
++    if (frame->format == AV_PIX_FMT_CUDA) {
++        AVHWFramesContext *fc = (AVHWFramesContext *)frame->hw_frames_ctx->data;
++        nv12     = fc->sw_format == AV_PIX_FMT_NV12;
++        y        = (CUdeviceptr)frame->data[0];
++        u        = (CUdeviceptr)frame->data[1];
++        v        = nv12 ? u : (CUdeviceptr)frame->data[2];
++        pitch_y  = frame->linesize[0];
++        pitch_uv = frame->linesize[1];
++    } else {
++        int planes = frame->format == AV_PIX_FMT_NV12 ? 2 : 3;
++        nv12 = planes == 2;
++        for (int i = 0; i < planes; i++) {
++            int w = i == 0 ? avctx->width  : (nv12 ? (avctx->width + 1) & ~1 : (avctx->width + 1) >> 1);
++            int h = i == 0 ? avctx->height : (avctx->height + 1) >> 1;
++            CUDA_MEMCPY2D cpy = {
++                .srcMemoryType = CU_MEMORYTYPE_HOST,
++                .srcHost       = frame->data[i],
++                .srcPitch      = frame->linesize[i],
++                .dstMemoryType = CU_MEMORYTYPE_DEVICE,
++                .dstDevice     = s->staging[i],
++                .dstPitch      = s->py,
++                .WidthInBytes  = w,
++                .Height        = h,
++            };
++            ret = CHECK_CU(s->cu->cuMemcpy2DAsync(&cpy, s->stream));
++            if (ret < 0)
++                return ret;
++        }
++        y = s->staging[0];
++        u = s->staging[1];
++        v = nv12 ? u : s->staging[2];
++        pitch_y = pitch_uv = s->py;
++    }
++
++    {
++        int w = avctx->width, h = avctx->height;
++        void *args[] = { &y, &pitch_y, &u, &v, &pitch_uv, &nv12, &w, &h,
++                         &s->src[0], &s->src[1], &s->src[2],
++                         &s->py, &s->pc, &s->pw, &s->ph };
++        return launch(avctx, F_LOAD, FFALIGN(s->pw, 32) / 32, FFALIGN(s->ph, 8) / 8,
++                      32, 8, args);
++    }
++}
++
++static int encode_picture(AVCodecContext *avctx, int pict_type, int qcode, int *out_size)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    const int n_mb = s->mb_w * s->mb_h;
++    const int cur  = s->ref_idx ^ 1;
++    int ret;
++
++    if (pict_type == 2) {
++        int lambda = qcode, mv_max = (16 << (FCODE - 1)) - 1;
++        {
++            void *args[] = { &s->src[0], &s->py, &s->srcq, &s->qpitch, &s->qw, &s->qh };
++            ret = launch(avctx, F_DOWN4, FFALIGN(s->qw, 32) / 32, FFALIGN(s->qh, 8) / 8, 32, 8, args);
++            if (ret < 0)
++                return ret;
++        }
++        {
++            void *args[] = { &s->rec[s->ref_idx][0], &s->py, &s->refq, &s->qpitch, &s->qw, &s->qh };
++            ret = launch(avctx, F_DOWN4, FFALIGN(s->qw, 32) / 32, FFALIGN(s->qh, 8) / 8, 32, 8, args);
++            if (ret < 0)
++                return ret;
++        }
++        {
++            void *args[] = { &s->srcq, &s->refq, &s->qpitch, &s->qw, &s->qh,
++                             &s->mb_w, &s->mb_h, &s->me_range, &lambda, &s->coarse };
++            ret = launch(avctx, F_ME_COARSE, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
++            if (ret < 0)
++                return ret;
++        }
++        {
++            void *args[] = { &s->src[0], &s->rec[s->ref_idx][0], &s->py, &s->pw, &s->ph,
++                             &s->mb_w, &s->mb_h, &s->coarse, &lambda, &mv_max,
++                             &s->intra_cost_bias, &s->motion };
++            ret = launch(avctx, F_ME_REFINE, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
++            if (ret < 0)
++                return ret;
++        }
++    }
++
++    {
++        M2CEncodeParams p = {
++            .cur_y = s->src[0], .cur_u = s->src[1], .cur_v = s->src[2],
++            .ref_y = s->rec[s->ref_idx][0], .ref_u = s->rec[s->ref_idx][1],
++            .ref_v = s->rec[s->ref_idx][2],
++            .rec_y = s->rec[cur][0], .rec_u = s->rec[cur][1], .rec_v = s->rec[cur][2],
++            .motion = s->motion, .mbinfo = s->mbinfo, .levels = s->levels,
++            .py = s->py, .pc = s->pc, .mb_w = s->mb_w, .mb_h = s->mb_h,
++            .pict_type = pict_type, .qcode = qcode,
++            .intra_bias = s->intra_bias, .inter_bias = s->inter_bias,
++        };
++        void *args[] = { &p };
++        ret = launch(avctx, F_ENCODE_MB, n_mb, 1, 384, 1, args);
++        if (ret < 0)
++            return ret;
++    }
++    {
++        int fcode = FCODE;
++        void *args[] = { &s->mbinfo, &s->levels, &s->mb_w, &s->mb_h, &pict_type, &fcode,
++                         &s->slots, &s->bitlen };
++        ret = launch(avctx, F_VLC, (n_mb + 63) / 64, 1, 64, 1, args);
++        if (ret < 0)
++            return ret;
++    }
++    {
++        void *args[] = { &s->slots, &s->bitlen, &s->mb_w, &qcode, &s->rows,
++                         &s->row_words, &s->row_bytes };
++        ret = launch(avctx, F_PACK, s->mb_h, 1, M2C_MAX_MB_W, 1, args);
++        if (ret < 0)
++            return ret;
++    }
++    {
++        void *args[] = { &s->rows, &s->row_words, &s->row_bytes, &s->out };
++        ret = launch(avctx, F_CONCAT, s->mb_h, 1, 256, 1, args);
++        if (ret < 0)
++            return ret;
++    }
++
++    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_row_bytes, s->row_bytes,
++                                            s->mb_h * sizeof(int), s->stream));
++    if (ret < 0)
++        return ret;
++    ret = CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
++    if (ret < 0)
++        return ret;
++
++    *out_size = 0;
++    for (int i = 0; i < s->mb_h; i++)
++        *out_size += s->host_row_bytes[i];
++
++    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_out, s->out, *out_size, s->stream));
++    if (ret < 0)
++        return ret;
++    return CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
++}
++
++static int dump_recon(AVCodecContext *avctx, int idx)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    int cw = (avctx->width + 1) >> 1, ch = (avctx->height + 1) >> 1;
++    uint8_t *buf = av_malloc((size_t)s->py * s->ph);
++    int ret = 0;
++
++    if (!buf)
++        return AVERROR(ENOMEM);
++    for (int i = 0; i < 3 && ret >= 0; i++) {
++        int pitch = i ? s->pc : s->py;
++        int w = i ? cw : avctx->width, h = i ? ch : avctx->height;
++        ret = CHECK_CU(s->cu->cuMemcpyDtoH(buf, s->rec[idx][i], (size_t)pitch * h));
++        for (int y = 0; ret >= 0 && y < h; y++)
++            fwrite(buf + y * pitch, 1, w, s->recon_fp);
++    }
++    av_free(buf);
++    return ret;
++}
++
++static int mpeg2_cuda_encode(AVCodecContext *avctx, AVPacket *pkt,
++                             const AVFrame *frame, int *got_packet)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    CUcontext dummy;
++    PutBitContext pb;
++    uint8_t hdr[HDR_MAX];
++    int pict_type = s->gop_pos == 0 ? 1 : 2;
++    int qcode, size, hdr_size, ret;
++
++    qcode = rc_get_qcode(avctx, pict_type);
++
++    ret = CHECK_CU(s->cu->cuCtxPushCurrent(s->hwctx->cuda_ctx));
++    if (ret < 0)
++        return ret;
++    ret = upload_frame(avctx, frame);
++    if (ret >= 0)
++        ret = encode_picture(avctx, pict_type, qcode, &size);
++    if (ret >= 0 && s->recon_fp)
++        ret = dump_recon(avctx, s->ref_idx ^ 1);
++    CHECK_CU(s->cu->cuCtxPopCurrent(&dummy));
++    if (ret < 0)
++        return ret;
++
++    init_put_bits(&pb, hdr, sizeof(hdr));
++    if (pict_type == 1) {
++        put_sequence_header(avctx, &pb);
++        put_gop_header(avctx, &pb);
++    }
++    put_picture_header(avctx, &pb, pict_type);
++    flush_put_bits(&pb);
++    hdr_size = put_bytes_output(&pb);
++
++    ret = ff_get_encode_buffer(avctx, pkt, hdr_size + size, 0);
++    if (ret < 0)
++        return ret;
++    memcpy(pkt->data, hdr, hdr_size);
++    memcpy(pkt->data + hdr_size, s->host_out, size);
++
++    pkt->pts = pkt->dts = frame->pts;
++    if (pict_type == 1)
++        pkt->flags |= AV_PKT_FLAG_KEY;
++    *got_packet = 1;
++
++    rc_update(avctx, pict_type, qcode, (hdr_size + size) * 8);
++    av_log(avctx, AV_LOG_DEBUG, "pic %"PRId64" type %c q %d bits %d\n",
++           s->coded, pict_type == 1 ? 'I' : 'P', qcode, (hdr_size + size) * 8);
++
++    s->ref_idx ^= 1;
++    s->coded++;
++    s->gop_pos = (s->gop_pos + 1) % avctx->gop_size;
++    return 0;
++}
++
++/* ------------------------------------------------------------------------ */
++
++static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    CUcontext dummy;
++
++    if (s->hwctx) {
++        s->cu->cuCtxPushCurrent(s->hwctx->cuda_ctx);
++        for (int i = 0; i < 3; i++) {
++            free_dev(s, &s->src[i]);
++            free_dev(s, &s->rec[0][i]);
++            free_dev(s, &s->rec[1][i]);
++            free_dev(s, &s->staging[i]);
++        }
++        free_dev(s, &s->srcq);
++        free_dev(s, &s->refq);
++        free_dev(s, &s->coarse);
++        free_dev(s, &s->motion);
++        free_dev(s, &s->mbinfo);
++        free_dev(s, &s->levels);
++        free_dev(s, &s->slots);
++        free_dev(s, &s->bitlen);
++        free_dev(s, &s->rows);
++        free_dev(s, &s->row_bytes);
++        free_dev(s, &s->out);
++        if (s->module)
++            s->cu->cuModuleUnload(s->module);
++        s->module = NULL;
++        if (s->stream)
++            s->cu->cuStreamDestroy(s->stream);
++        s->stream = NULL;
++        s->cu->cuCtxPopCurrent(&dummy);
++    }
++    av_freep(&s->host_out);
++    av_freep(&s->host_row_bytes);
++    if (s->recon_fp)
++        fclose(s->recon_fp);
++    s->recon_fp = NULL;
++    av_buffer_unref(&s->device_ref);
++    s->hwctx = NULL;
++    return 0;
++}
++
++static int load_module(AVCodecContext *avctx)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    extern const unsigned char ff_mpeg2_cuda_ptx_data[];
++    M2CTables tab;
++    CUdeviceptr tmp;
++    int words = sizeof(tab) / 4;
++    int ret;
++
++#if CONFIG_SHADER_COMPRESSION
++    extern const unsigned int ff_mpeg2_cuda_ptx_len;
++    uint8_t *ptx;
++    size_t ptx_len;
++    ret = ff_zlib_expand(avctx, &ptx, &ptx_len, ff_mpeg2_cuda_ptx_data, ff_mpeg2_cuda_ptx_len);
++    if (ret < 0)
++        return ret;
++    ret = CHECK_CU(s->cu->cuModuleLoadData(&s->module, ptx));
++    av_free(ptx);
++#else
++    ret = CHECK_CU(s->cu->cuModuleLoadData(&s->module, ff_mpeg2_cuda_ptx_data));
++#endif
++    if (ret < 0)
++        return ret;
++
++    for (int i = 0; i < F_NB; i++) {
++        ret = CHECK_CU(s->cu->cuModuleGetFunction(&s->func[i], s->module, kernel_names[i]));
++        if (ret < 0)
++            return ret;
++    }
++
++    build_tables(&tab);
++    ret = alloc_dev(avctx, &tmp, sizeof(tab));
++    if (ret < 0)
++        return ret;
++    ret = CHECK_CU(s->cu->cuMemcpyHtoD(tmp, &tab, sizeof(tab)));
++    if (ret >= 0) {
++        void *args[] = { &tmp, &words };
++        ret = launch(avctx, F_INIT_TABLES, 32, 1, 256, 1, args);
++    }
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
++    free_dev(s, &tmp);
++    return ret;
++}
++
++static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    AVRational fr = avctx->framerate.num ? avctx->framerate : av_inv_q(avctx->time_base);
++    AVRational dar;
++    CUcontext dummy;
++    int n_mb, ret;
++
++    if (avctx->width > M2C_MAX_MB_W * 16 || avctx->height > 2800) {
++        av_log(avctx, AV_LOG_ERROR, "%dx%d is too large\n", avctx->width, avctx->height);
++        return AVERROR(EINVAL);
++    }
++
++    for (s->frame_rate_code = 1; s->frame_rate_code <= 8; s->frame_rate_code++)
++        if (!av_cmp_q(fr, ff_mpeg12_frame_rate_tab[s->frame_rate_code]))
++            break;
++    if (s->frame_rate_code > 8) {
++        av_log(avctx, AV_LOG_ERROR, "frame rate %d/%d is not an MPEG-2 frame rate\n",
++               fr.num, fr.den);
++        return AVERROR(EINVAL);
++    }
++
++    dar = av_mul_q(avctx->sample_aspect_ratio.num ? avctx->sample_aspect_ratio : (AVRational){ 1, 1 },
++                   (AVRational){ avctx->width, avctx->height });
++    if (fabs(av_q2d(dar) - 4.0 / 3) < 0.02)
++        s->aspect_code = 2;
++    else if (fabs(av_q2d(dar) - 16.0 / 9) < 0.02)
++        s->aspect_code = 3;
++    else if (fabs(av_q2d(dar) - 2.21) < 0.02)
++        s->aspect_code = 4;
++    else
++        s->aspect_code = 1;
++
++    if (avctx->gop_size <= 0)
++        avctx->gop_size = 15;
++    if (!avctx->rc_buffer_size)
++        avctx->rc_buffer_size = FFMIN(avctx->bit_rate / 2, 9781248);
++    s->vbv_size = FFMAX(1, FFMIN(avctx->rc_buffer_size / 16384, 0x3FFFF));
++
++    s->mb_w   = (avctx->width  + 15) >> 4;
++    s->mb_h   = (avctx->height + 15) >> 4;
++    s->pw     = s->mb_w * 16;
++    s->ph     = s->mb_h * 16;
++    s->py     = FFALIGN(s->pw, 256);
++    s->pc     = s->py / 2;
++    s->qw     = s->pw / 4;
++    s->qh     = s->ph / 4;
++    s->qpitch = FFALIGN(s->qw, 128);
++    s->row_words = s->mb_w * M2C_SLOT_WORDS + 4;
++    s->out_max   = (size_t)s->mb_h * s->row_words * 4;
++    n_mb = s->mb_w * s->mb_h;
++
++    if (avctx->hw_frames_ctx) {
++        AVHWFramesContext *fc = (AVHWFramesContext *)avctx->hw_frames_ctx->data;
++        if (fc->format != AV_PIX_FMT_CUDA ||
++            (fc->sw_format != AV_PIX_FMT_NV12 && fc->sw_format != AV_PIX_FMT_YUV420P)) {
++            av_log(avctx, AV_LOG_ERROR, "unsupported hw frames %s/%s\n",
++                   av_get_pix_fmt_name(fc->format), av_get_pix_fmt_name(fc->sw_format));
++            return AVERROR(EINVAL);
++        }
++        s->device_ref = av_buffer_ref(fc->device_ref);
++    } else if (avctx->hw_device_ctx) {
++        s->device_ref = av_buffer_ref(avctx->hw_device_ctx);
++    } else {
++        ret = av_hwdevice_ctx_create(&s->device_ref, AV_HWDEVICE_TYPE_CUDA, NULL, NULL, 0);
++        if (ret < 0)
++            return ret;
++    }
++    if (!s->device_ref)
++        return AVERROR(ENOMEM);
++    s->hwctx = ((AVHWDeviceContext *)s->device_ref->data)->hwctx;
++    s->cu    = s->hwctx->internal->cuda_dl;
++
++    s->host_out       = av_malloc(s->out_max);
++    s->host_row_bytes = av_malloc(s->mb_h * sizeof(int));
++    if (!s->host_out || !s->host_row_bytes)
++        return AVERROR(ENOMEM);
++
++    ret = CHECK_CU(s->cu->cuCtxPushCurrent(s->hwctx->cuda_ctx));
++    if (ret < 0)
++        return ret;
++
++    ret = CHECK_CU(s->cu->cuStreamCreate(&s->stream, CU_STREAM_DEFAULT));
++    if (ret >= 0)
++        ret = load_module(avctx);
++
++    for (int i = 0; i < 3 && ret >= 0; i++) {
++        size_t sz = i ? (size_t)s->pc * (s->ph / 2) : (size_t)s->py * s->ph;
++        /* one spare row so half-pel reads at the bottom edge stay in bounds */
++        sz += i ? s->pc : s->py;
++        if ((ret = alloc_dev(avctx, &s->src[i], sz)) < 0 ||
++            (ret = alloc_dev(avctx, &s->rec[0][i], sz)) < 0 ||
++            (ret = alloc_dev(avctx, &s->rec[1][i], sz)) < 0 ||
++            (ret = alloc_dev(avctx, &s->staging[i], (size_t)s->py * s->ph)) < 0)
++            break;
++    }
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->srcq, (size_t)s->qpitch * s->qh);
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->refq, (size_t)s->qpitch * s->qh);
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->coarse, n_mb * 4);
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->motion, n_mb * sizeof(M2CMotion));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->mbinfo, n_mb * sizeof(M2CMBInfo));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->levels, (size_t)n_mb * 384 * sizeof(int16_t));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->slots, (size_t)n_mb * M2C_SLOT_WORDS * 4);
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->bitlen, n_mb * sizeof(int));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->rows, s->out_max);
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->row_bytes, s->mb_h * sizeof(int));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->out, s->out_max);
++
++    CHECK_CU(s->cu->cuCtxPopCurrent(&dummy));
++    if (ret < 0)
++        return ret;
++
++    if (s->recon_file) {
++        s->recon_fp = fopen(s->recon_file, "wb");
++        if (!s->recon_fp)
++            return AVERROR(errno);
++    }
++
++    rc_init(avctx);
++    s->ref_idx = 0;
++    return 0;
++}
++
++#define OFFSET(x) offsetof(MPEG2CudaContext, x)
++#define VE AV_OPT_FLAG_VIDEO_PARAM | AV_OPT_FLAG_ENCODING_PARAM
++static const AVOption options[] = {
++    { "recon_file",      "write reconstructed pictures (yuv420p) to this file", OFFSET(recon_file),
++      AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, VE },
++    { "me_range",        "coarse search range, in units of 4 pels", OFFSET(me_range),
++      AV_OPT_TYPE_INT, { .i64 = 8 }, 1, 15, VE },
++    { "intra_cost_bias", "SAD margin before a P macroblock is coded intra", OFFSET(intra_cost_bias),
++      AV_OPT_TYPE_INT, { .i64 = 512 }, -65536, 65536, VE },
++    { "intra_qbias",     "intra quantiser rounding offset", OFFSET(intra_bias),
++      AV_OPT_TYPE_FLOAT, { .dbl = 0.375 }, 0, 0.5, VE },
++    { "inter_qbias",     "inter quantiser rounding offset", OFFSET(inter_bias),
++      AV_OPT_TYPE_FLOAT, { .dbl = 0.0 }, -0.5, 0.5, VE },
++    { NULL }
++};
++
++static const AVClass mpeg2_cuda_class = {
++    .class_name = "mpeg2_cuda",
++    .item_name  = av_default_item_name,
++    .option     = options,
++    .version    = LIBAVUTIL_VERSION_INT,
++};
++
++static const FFCodecDefault mpeg2_cuda_defaults[] = {
++    { "b", "15M" },
++    { "g", "15" },
++    { NULL },
++};
++
++static const AVCodecHWConfigInternal *const mpeg2_cuda_hw_configs[] = {
++    HW_CONFIG_ENCODER_FRAMES(CUDA, CUDA),
++    HW_CONFIG_ENCODER_DEVICE(NONE, CUDA),
++    NULL,
++};
++
++const FFCodec ff_mpeg2_cuda_encoder = {
++    .p.name         = "mpeg2_cuda",
++    CODEC_LONG_NAME("MPEG-2 video (CUDA)"),
++    .p.type         = AVMEDIA_TYPE_VIDEO,
++    .p.id           = AV_CODEC_ID_MPEG2VIDEO,
++    .p.capabilities = AV_CODEC_CAP_DR1 | AV_CODEC_CAP_HARDWARE,
++    .priv_data_size = sizeof(MPEG2CudaContext),
++    .p.priv_class   = &mpeg2_cuda_class,
++    .init           = mpeg2_cuda_init,
++    FF_CODEC_ENCODE_CB(mpeg2_cuda_encode),
++    .close          = mpeg2_cuda_close,
++    .defaults       = mpeg2_cuda_defaults,
++    .caps_internal  = FF_CODEC_CAP_NOT_INIT_THREADSAFE | FF_CODEC_CAP_INIT_CLEANUP,
++    CODEC_PIXFMTS(AV_PIX_FMT_CUDA, AV_PIX_FMT_NV12, AV_PIX_FMT_YUV420P),
++    .hw_configs     = mpeg2_cuda_hw_configs,
++};
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+new file mode 100644
+index 0000000..5e0c49e
+--- /dev/null
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -0,0 +1,737 @@
++/*
++ * MPEG-2 video encoder kernels for NVIDIA GPUs
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++/*
++ * Pipeline per picture (one CUDA stream, no host round trips until the
++ * finished bitstream is copied back):
++ *
++ *   k_load        input frame (nv12 / yuv420p, device memory) -> padded planes
++ *   k_down4       4x4 decimation for the coarse motion search        (P only)
++ *   k_me_coarse   full search on the decimated planes, warp per MB   (P only)
++ *   k_me_refine   full-pel + half-pel refinement, intra/inter choice (P only)
++ *   k_encode_mb   prediction, fDCT, quant, dequant, mismatch control,
++ *                 bit-exact simple_idct reconstruction, block per MB
++ *   k_vlc         macroblock layer VLC, thread per MB into private slots
++ *   k_pack        one slice per MB row, bit-shift MB slots into place
++ *   k_concat      byte-aligned slices -> one contiguous buffer
++ */
++
++#include "mpeg2_cuda.h"
++
++#define FULL_MASK 0xffffffffu
++
++__device__ M2CTables g_tab;
++
++static __device__ __forceinline__ int clip_u8(int v)
++{
++    return v < 0 ? 0 : (v > 255 ? 255 : v);
++}
++
++static __device__ __forceinline__ int warp_sum(int v)
++{
++    for (int off = 16; off; off >>= 1)
++        v += __shfl_xor_sync(FULL_MASK, v, off);
++    return v;
++}
++
++static __device__ __forceinline__ void warp_argmin(int &cost, int &idx)
++{
++    for (int off = 16; off; off >>= 1) {
++        int oc = __shfl_xor_sync(FULL_MASK, cost, off);
++        int oi = __shfl_xor_sync(FULL_MASK, idx,  off);
++        if (oc < cost || (oc == cost && oi < idx)) {
++            cost = oc;
++            idx  = oi;
++        }
++    }
++}
++
++/* approximate VLC length of one motion vector component (half-pel units) */
++static __device__ __forceinline__ int mv_bits(int v)
++{
++    v = abs(v);
++    return v ? 2 * (32 - __clz(v)) + 1 : 1;
++}
++
++/* ------------------------------------------------------------------------ */
++
++/* ffnvcodec only exposes the legacy 32-bit cuModuleGetGlobal, so the tables
++ * are copied into place by a kernel instead. */
++extern "C" __global__ void k_init_tables(const uint32_t *src, int words)
++{
++    uint32_t *dst = (uint32_t *)&g_tab;
++    for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < words; i += gridDim.x * blockDim.x)
++        dst[i] = src[i];
++}
++
++extern "C" __global__ void k_load(const uint8_t *sy, int sy_pitch,
++                                  const uint8_t *su, const uint8_t *sv, int suv_pitch,
++                                  int nv12, int w, int h,
++                                  uint8_t *dy, uint8_t *du, uint8_t *dv,
++                                  int py, int pc, int pw, int ph)
++{
++    int x = blockIdx.x * blockDim.x + threadIdx.x;
++    int y = blockIdx.y * blockDim.y + threadIdx.y;
++    if (x >= pw || y >= ph)
++        return;
++
++    dy[y * py + x] = sy[min(y, h - 1) * sy_pitch + min(x, w - 1)];
++
++    if (!(x & 1) && !(y & 1)) {
++        int cx  = x >> 1, cy = y >> 1;
++        int scx = min(cx, ((w + 1) >> 1) - 1);
++        int scy = min(cy, ((h + 1) >> 1) - 1);
++        if (nv12) {
++            du[cy * pc + cx] = su[scy * suv_pitch + 2 * scx];
++            dv[cy * pc + cx] = su[scy * suv_pitch + 2 * scx + 1];
++        } else {
++            du[cy * pc + cx] = su[scy * suv_pitch + scx];
++            dv[cy * pc + cx] = sv[scy * suv_pitch + scx];
++        }
++    }
++}
++
++extern "C" __global__ void k_down4(const uint8_t *src, int pitch,
++                                   uint8_t *dst, int qpitch, int qw, int qh)
++{
++    int x = blockIdx.x * blockDim.x + threadIdx.x;
++    int y = blockIdx.y * blockDim.y + threadIdx.y;
++    if (x >= qw || y >= qh)
++        return;
++
++    const uint8_t *s = src + 4 * y * pitch + 4 * x;
++    int sum = 0;
++    for (int j = 0; j < 4; j++)
++        for (int i = 0; i < 4; i++)
++            sum += s[j * pitch + i];
++    dst[y * qpitch + x] = (sum + 8) >> 4;
++}
++
++/* ------------------------------------------------------------------------ */
++
++/* Exhaustive +-range search on 1/4 resolution planes, one warp per MB.
++ * Output is a full-pel vector. */
++extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
++                                       int qpitch, int qw, int qh,
++                                       int mb_w, int mb_h, int range, int lambda,
++                                       short2 *out)
++{
++    int warp = (blockIdx.x * blockDim.x + threadIdx.x) >> 5;
++    int lane = threadIdx.x & 31;
++    if (warp >= mb_w * mb_h)
++        return;
++
++    int mx = warp % mb_w, my = warp / mb_w;
++    int x0 = mx * 4, y0 = my * 4;
++    int c[16];
++    for (int i = 0; i < 16; i++)
++        c[i] = cq[(y0 + (i >> 2)) * qpitch + x0 + (i & 3)];
++
++    int side = 2 * range + 1;
++    int best = 0x7fffffff, bidx = side * side;
++    for (int k = lane; k < side * side; k += 32) {
++        int dx = k % side - range, dy = k / side - range;
++        int rx = x0 + dx, ry = y0 + dy;
++        if (rx < 0 || ry < 0 || rx + 4 > qw || ry + 4 > qh)
++            continue;
++        const uint8_t *r = rq + ry * qpitch + rx;
++        int s = 0;
++        for (int i = 0; i < 16; i++)
++            s += abs(c[i] - r[(i >> 2) * qpitch + (i & 3)]);
++        s = s * 16 + lambda * (mv_bits(8 * dx) + mv_bits(8 * dy));
++        if (s < best) {
++            best = s;
++            bidx = k;
++        }
++    }
++    warp_argmin(best, bidx);
++    if (lane == 0)
++        out[warp] = make_short2((bidx % side - range) * 4, (bidx / side - range) * 4);
++}
++
++struct MECtx {
++    const uint8_t *ref;
++    int py, x0, y0, r, c0;
++    int cp[8];
++};
++
++static __device__ __forceinline__ int sad_full(const MECtx &m, int dx, int dy)
++{
++    const uint8_t *rp = m.ref + (m.y0 + m.r + dy) * m.py + m.x0 + m.c0 + dx;
++    int s = 0;
++    for (int k = 0; k < 8; k++)
++        s += abs(m.cp[k] - rp[k]);
++    return warp_sum(s);
++}
++
++static __device__ __forceinline__ int sad_half(const MECtx &m, int mvx, int mvy)
++{
++    const uint8_t *rp = m.ref + (m.y0 + m.r + (mvy >> 1)) * m.py + m.x0 + m.c0 + (mvx >> 1);
++    int hx = mvx & 1, hy = mvy & 1;
++    int s = 0;
++    for (int k = 0; k < 8; k++) {
++        int a = rp[k], p;
++        if (hx && hy)
++            p = (a + rp[k + 1] + rp[k + m.py] + rp[k + m.py + 1] + 2) >> 2;
++        else if (hx)
++            p = (a + rp[k + 1] + 1) >> 1;
++        else if (hy)
++            p = (a + rp[k + m.py] + 1) >> 1;
++        else
++            p = a;
++        s += abs(m.cp[k] - p);
++    }
++    return warp_sum(s);
++}
++
++/* Full-pel refinement around a handful of predictors followed by a half-pel
++ * step, one warp per MB. Also makes the intra/inter decision. */
++extern "C" __global__ void k_me_refine(const uint8_t *cur, const uint8_t *ref,
++                                       int py, int pw, int ph,
++                                       int mb_w, int mb_h,
++                                       const short2 *coarse, int lambda, int mv_max,
++                                       int intra_bias, M2CMotion *out)
++{
++    int warp = (blockIdx.x * blockDim.x + threadIdx.x) >> 5;
++    int lane = threadIdx.x & 31;
++    if (warp >= mb_w * mb_h)
++        return;
++
++    int mx = warp % mb_w, my = warp / mb_w;
++    MECtx m;
++    m.ref = ref;
++    m.py  = py;
++    m.x0  = mx * 16;
++    m.y0  = my * 16;
++    m.r   = lane >> 1;
++    m.c0  = (lane & 1) * 8;
++    const uint8_t *cr = cur + (m.y0 + m.r) * py + m.x0 + m.c0;
++    int sum = 0;
++    for (int k = 0; k < 8; k++) {
++        m.cp[k] = cr[k];
++        sum += m.cp[k];
++    }
++    int mean = (warp_sum(sum) + 128) >> 8;
++    int dev  = 0;
++    for (int k = 0; k < 8; k++)
++        dev += abs(m.cp[k] - mean);
++    int intra_cost = warp_sum(dev);
++
++    /* legal vector range in half-pel units: stay inside the picture and
++     * inside the f_code range */
++    int lo_x = max(-2 * m.x0, -mv_max - 1), hi_x = min(2 * (pw - 16 - m.x0), mv_max);
++    int lo_y = max(-2 * m.y0, -mv_max - 1), hi_y = min(2 * (ph - 16 - m.y0), mv_max);
++
++    int best_cost = 0x7fffffff, best_sad = 0, bx = 0, by = 0;
++
++#define TRY_FULL(DX, DY) do {                                                   \
++        int dx_ = (DX), dy_ = (DY);                                             \
++        if (2 * dx_ >= lo_x && 2 * dx_ <= hi_x &&                               \
++            2 * dy_ >= lo_y && 2 * dy_ <= hi_y) {                               \
++            int s_ = sad_full(m, dx_, dy_);                                     \
++            int c_ = s_ + lambda * (mv_bits(2 * dx_) + mv_bits(2 * dy_));       \
++            if (c_ < best_cost) {                                               \
++                best_cost = c_; best_sad = s_; bx = dx_; by = dy_;              \
++            }                                                                   \
++        }                                                                       \
++    } while (0)
++
++    short2 cv = coarse[warp];
++    for (int j = -2; j <= 2; j++)
++        for (int i = -2; i <= 2; i++)
++            TRY_FULL(cv.x + i, cv.y + j);
++    for (int j = -1; j <= 1; j++)
++        for (int i = -1; i <= 1; i++)
++            TRY_FULL(i, j);
++    if (mx > 0)        { short2 n = coarse[warp - 1];    TRY_FULL(n.x, n.y); }
++    if (mx < mb_w - 1) { short2 n = coarse[warp + 1];    TRY_FULL(n.x, n.y); }
++    if (my > 0)        { short2 n = coarse[warp - mb_w]; TRY_FULL(n.x, n.y); }
++    if (my < mb_h - 1) { short2 n = coarse[warp + mb_w]; TRY_FULL(n.x, n.y); }
++#undef TRY_FULL
++
++    int bmx = 2 * bx, bmy = 2 * by;
++    int cx = bmx, cy = bmy;
++    for (int j = -1; j <= 1; j++) {
++        for (int i = -1; i <= 1; i++) {
++            int vx = cx + i, vy = cy + j;
++            if (!(i | j) || vx < lo_x || vx > hi_x || vy < lo_y || vy > hi_y)
++                continue;
++            int s = sad_half(m, vx, vy);
++            int c = s + lambda * (mv_bits(vx) + mv_bits(vy));
++            if (c < best_cost) {
++                best_cost = c;
++                best_sad  = s;
++                bmx = vx;
++                bmy = vy;
++            }
++        }
++    }
++
++    if (lane == 0) {
++        M2CMotion o;
++        o.mvx   = bmx;
++        o.mvy   = bmy;
++        o.intra = intra_cost + intra_bias < best_sad;
++        o.sad   = best_sad;
++        out[warp] = o;
++    }
++}
++
++/* ------------------------------------------------------------------------ */
++
++/* simple_idct (8-bit) constants, see libavcodec/simple_idct_template.c */
++#define W1 22725
++#define W2 21407
++#define W3 19266
++#define W4 16383
++#define W5 12873
++#define W6  8867
++#define W7  4520
++
++static __device__ __forceinline__ void idct_ab(const short *v, int stride, unsigned a0_init,
++                                               unsigned a[4], unsigned b[4])
++{
++    int v1 = v[stride], v2 = v[2 * stride], v3 = v[3 * stride];
++    int v4 = v[4 * stride], v5 = v[5 * stride], v6 = v[6 * stride], v7 = v[7 * stride];
++    unsigned a0 = a0_init;
++    a[0] = a0 + (unsigned)W2 * v2 + (unsigned)W4 * v4 + (unsigned)W6 * v6;
++    a[1] = a0 + (unsigned)W6 * v2 - (unsigned)W4 * v4 - (unsigned)W2 * v6;
++    a[2] = a0 - (unsigned)W6 * v2 - (unsigned)W4 * v4 + (unsigned)W2 * v6;
++    a[3] = a0 - (unsigned)W2 * v2 + (unsigned)W4 * v4 - (unsigned)W6 * v6;
++    b[0] = (unsigned)W1 * v1 + (unsigned)W3 * v3 + (unsigned)W5 * v5 + (unsigned)W7 * v7;
++    b[1] = (unsigned)W3 * v1 - (unsigned)W7 * v3 - (unsigned)W1 * v5 - (unsigned)W5 * v7;
++    b[2] = (unsigned)W5 * v1 - (unsigned)W1 * v3 + (unsigned)W7 * v5 + (unsigned)W3 * v7;
++    b[3] = (unsigned)W7 * v1 - (unsigned)W5 * v3 + (unsigned)W3 * v5 - (unsigned)W1 * v7;
++}
++
++static __device__ __forceinline__ int idct_out(const unsigned a[4], const unsigned b[4],
++                                               int i, int shift)
++{
++    return i < 4 ? (int)(a[i] + b[i]) >> shift : (int)(a[7 - i] - b[7 - i]) >> shift;
++}
++
++/* One thread block (384 threads = 6 blocks x 64 coefficients) per MB. */
++extern "C" __global__ void __launch_bounds__(384)
++k_encode_mb(M2CEncodeParams p)
++{
++    __shared__ float s_a[384], s_b[384];
++    __shared__ short s_c[384], s_r[384];
++    __shared__ int   s_last[6], s_par[12], s_dc[6];
++
++    const int mb  = blockIdx.x;
++    const int mx  = mb % p.mb_w, my = mb / p.mb_w;
++    const int t   = threadIdx.x;
++    const int blk = t >> 6, r = t & 63, y = r >> 3, x = r & 7;
++
++    int intra = 1, mvx = 0, mvy = 0;
++    if (p.pict_type == 2) {
++        M2CMotion mo = p.motion[mb];
++        intra = mo.intra;
++        if (!intra) {
++            mvx = mo.mvx;
++            mvy = mo.mvy;
++        }
++    }
++
++    const uint8_t *cplane, *rplane;
++    uint8_t *oplane;
++    int pitch, X, Y, vx, vy;
++    if (blk < 4) {
++        cplane = p.cur_y; rplane = p.ref_y; oplane = p.rec_y;
++        pitch  = p.py;
++        X  = mx * 16 + (blk & 1) * 8 + x;
++        Y  = my * 16 + (blk >> 1) * 8 + y;
++        vx = mvx;
++        vy = mvy;
++    } else {
++        cplane = blk == 4 ? p.cur_u : p.cur_v;
++        rplane = blk == 4 ? p.ref_u : p.ref_v;
++        oplane = blk == 4 ? p.rec_u : p.rec_v;
++        pitch  = p.pc;
++        X  = mx * 8 + x;
++        Y  = my * 8 + y;
++        vx = mvx / 2;   /* truncation towards zero, as in the spec */
++        vy = mvy / 2;
++    }
++
++    int src  = cplane[Y * pitch + X];
++    int pred = 0;
++    if (!intra) {
++        const uint8_t *rp = rplane + (Y + (vy >> 1)) * pitch + X + (vx >> 1);
++        int hx = vx & 1, hy = vy & 1, a = rp[0];
++        if (hx && hy)
++            pred = (a + rp[1] + rp[pitch] + rp[pitch + 1] + 2) >> 2;
++        else if (hx)
++            pred = (a + rp[1] + 1) >> 1;
++        else if (hy)
++            pred = (a + rp[pitch] + 1) >> 1;
++        else
++            pred = a;
++    }
++
++    s_a[t] = (float)(src - pred);
++    if (t < 6)
++        s_last[t] = -1;
++    __syncthreads();
++
++    /* separable forward DCT, F(u,v) = C(u)C(v)/4 sum f(x,y) cos() cos() */
++    float acc = 0.0f;
++    for (int k = 0; k < 8; k++)
++        acc += s_a[blk * 64 + y * 8 + k] * g_tab.dct[x][k];
++    s_b[t] = acc;
++    __syncthreads();
++    acc = 0.0f;
++    for (int k = 0; k < 8; k++)
++        acc += s_b[blk * 64 + k * 8 + x] * g_tab.dct[y][k];
++
++    /* quantisation; quantiser_scale = 2 * code (q_scale_type 0) */
++    const int qs = 2 * p.qcode;
++    int level, W;
++    if (intra) {
++        W = g_tab.intra_matrix[r];
++        if (r == 0) {
++            level = clip_u8(__float2int_rn(acc * 0.125f));
++        } else {
++            int lmax = min(2047, 32767 / (qs * W));
++            int a    = min(lmax, (int)(fabsf(acc) * 16.0f / (qs * W) + p.intra_bias));
++            level    = acc < 0 ? -a : a;
++        }
++    } else {
++        W = g_tab.inter_matrix[r];
++        int lmax = min(2047, (65535 / (qs * W) - 1) >> 1);
++        int a    = min(lmax, (int)(fabsf(acc) * 16.0f / (qs * W) + p.inter_bias));
++        level    = acc < 0 ? -a : a;
++    }
++
++    const int sp = g_tab.iscan[r];
++    p.levels[mb * 384 + blk * 64 + sp] = level;
++    if (level && !(intra && r == 0))
++        atomicMax(&s_last[blk], sp);
++    if (intra && r == 0)
++        s_dc[blk] = level;
++    __syncthreads();
++
++    int cbp = 0;
++    for (int b = 0; b < 6; b++)
++        if (s_last[b] >= 0)
++            cbp |= 32 >> b;
++    const int coded = intra || s_last[blk] >= 0;
++
++    /* dequantisation exactly as libavcodec/mpeg12dec.c does it */
++    int d = 0;
++    if (intra) {
++        if (r == 0) {
++            d = level * 8;
++        } else if (level) {
++            d = (abs(level) * qs * W) >> 4;
++            d = level < 0 ? -d : d;
++        }
++    } else if (level) {
++        d = ((2 * abs(level) + 1) * qs * W) >> 5;
++        d = level < 0 ? -d : d;
++    }
++
++    /* mismatch control: toggle the LSB of coefficient 63 if the sum is even */
++    unsigned bal = __ballot_sync(FULL_MASK, d & 1);
++    if ((t & 31) == 0)
++        s_par[t >> 5] = __popc(bal);
++    __syncthreads();
++    if (r == 63 && coded && !((s_par[2 * blk] + s_par[2 * blk + 1]) & 1))
++        d ^= 1;
++    s_c[t] = d;
++    __syncthreads();
++
++    /* simple_idct rows, including its DC-only shortcut */
++    {
++        const short *row = s_c + blk * 64 + y * 8;
++        short out;
++        if (!(row[1] | row[2] | row[3] | row[4] | row[5] | row[6] | row[7])) {
++            out = (short)(row[0] * 8);
++        } else {
++            unsigned a[4], b[4];
++            idct_ab(row, 1, (unsigned)W4 * row[0] + (1 << 10), a, b);
++            out = (short)idct_out(a, b, x, 11);
++        }
++        s_r[t] = out;
++    }
++    __syncthreads();
++
++    int rec;
++    {
++        const short *col = s_r + blk * 64 + x;
++        unsigned a[4], b[4];
++        idct_ab(col, 8, (unsigned)W4 * (col[0] + 32), a, b);
++        int res = idct_out(a, b, y, 20);
++        if (intra)
++            rec = clip_u8(res);
++        else if (coded)
++            rec = clip_u8(pred + res);
++        else
++            rec = pred;
++    }
++    oplane[Y * pitch + X] = rec;
++
++    if (t == 0) {
++        M2CMBInfo mi;
++        mi.mvx   = mvx;
++        mi.mvy   = mvy;
++        mi.intra = intra;
++        mi.cbp   = intra ? 63 : cbp;
++        mi.skip  = !intra && p.pict_type == 2 && !(mvx | mvy) && !cbp &&
++                   mx > 0 && mx < p.mb_w - 1;
++        mi.pad   = 0;
++        mi.dc[0] = intra ? s_dc[3] : 0;
++        mi.dc[1] = intra ? s_dc[4] : 0;
++        mi.dc[2] = intra ? s_dc[5] : 0;
++        for (int b = 0; b < 6; b++)
++            mi.last[b] = s_last[b];
++        p.mbinfo[mb] = mi;
++    }
++}
++
++/* ------------------------------------------------------------------------ */
++
++struct BitWriter {
++    uint32_t *out;
++    unsigned long long acc;
++    int n, words;
++};
++
++static __device__ __forceinline__ void bw_put(BitWriter &bw, uint32_t code, int len)
++{
++    bw.acc = (bw.acc << len) | code;
++    bw.n  += len;
++    if (bw.n >= 32) {
++        bw.out[bw.words++] = (uint32_t)(bw.acc >> (bw.n - 32));
++        bw.n -= 32;
++    }
++}
++
++static __device__ __forceinline__ void bw_put_vlc(BitWriter &bw, uint32_t e)
++{
++    bw_put(bw, e & 0xffffff, e >> 24);
++}
++
++static __device__ __forceinline__ int bw_flush(BitWriter &bw)
++{
++    int bits = bw.words * 32 + bw.n;
++    if (bw.n)
++        bw.out[bw.words++] = (uint32_t)(bw.acc << (32 - bw.n));
++    return bits;
++}
++
++static __device__ void put_motion(BitWriter &bw, int val, int fcode)
++{
++    if (!val) {
++        bw_put(bw, 1, 1);
++        return;
++    }
++    int bit_size = fcode - 1;
++    int shift    = 32 - (5 + bit_size);
++    val = (val << shift) >> shift;   /* modulo wrap into the f_code range */
++    int sign = val < 0;
++    val = abs(val) - 1;
++    int code = (val >> bit_size) + 1;
++    bw_put_vlc(bw, g_tab.mv[code]);
++    bw_put(bw, sign, 1);
++    if (bit_size)
++        bw_put(bw, val & ((1 << bit_size) - 1), bit_size);
++}
++
++static __device__ void put_dc(BitWriter &bw, int diff, int chroma)
++{
++    int size = diff ? 32 - __clz(abs(diff)) : 0;
++    bw_put_vlc(bw, g_tab.dc[chroma][size]);
++    if (size)
++        bw_put(bw, (diff > 0 ? diff : diff - 1) & ((1 << size) - 1), size);
++}
++
++static __device__ void put_block(BitWriter &bw, const short *lev, int start, int last,
++                                 int tbl, int first_special)
++{
++    int prev = start - 1;
++    for (int i = start; i <= last; i++) {
++        int level = lev[i];
++        if (!level)
++            continue;
++        int run   = i - prev - 1;
++        int alev  = abs(level);
++        int sign  = level < 0;
++        prev = i;
++        if (first_special && i == 0 && alev == 1) {
++            bw_put(bw, 2 | sign, 2);
++            continue;
++        }
++        uint32_t e = alev <= 40 ? g_tab.ac[tbl][run][alev] : 0;
++        if (e) {
++            bw_put(bw, ((e & 0xffffff) << 1) | sign, (e >> 24) + 1);
++        } else {
++            bw_put(bw, (1 << 6) | run, 12);
++            bw_put(bw, level & 0xfff, 12);
++        }
++    }
++    bw_put_vlc(bw, g_tab.eob[tbl]);
++}
++
++/* macroblock layer, one thread per MB into a private slot */
++extern "C" __global__ void k_vlc(const M2CMBInfo *mbi, const short *levels,
++                                 int mb_w, int mb_h, int pict_type, int fcode,
++                                 uint32_t *slots, int *bitlen)
++{
++    int mb = blockIdx.x * blockDim.x + threadIdx.x;
++    if (mb >= mb_w * mb_h)
++        return;
++
++    M2CMBInfo m = mbi[mb];
++    if (m.skip) {
++        bitlen[mb] = 0;
++        return;
++    }
++
++    const int mx = mb % mb_w;
++    BitWriter bw;
++    bw.out   = slots + (size_t)mb * M2C_SLOT_WORDS;
++    bw.acc   = 0;
++    bw.n     = 0;
++    bw.words = 0;
++
++    /* macroblock_address_increment: 1 + preceding skipped run */
++    int inc = 1;
++    for (int k = mb - 1; k >= mb - mx && mbi[k].skip; k--)
++        inc++;
++    while (inc > 33) {
++        bw_put(bw, 0x008, 11);
++        inc -= 33;
++    }
++    bw_put_vlc(bw, g_tab.addr[inc - 1]);
++
++    /* predictors from the previous MB of the slice */
++    int pmvx = 0, pmvy = 0, dcp[3] = { 128, 128, 128 };
++    if (mx > 0) {
++        M2CMBInfo l = mbi[mb - 1];
++        if (!l.skip && !l.intra) {
++            pmvx = l.mvx;
++            pmvy = l.mvy;
++        }
++        if (l.intra) {
++            dcp[0] = l.dc[0];
++            dcp[1] = l.dc[1];
++            dcp[2] = l.dc[2];
++        }
++    }
++
++    const short *lev = levels + (size_t)mb * 384;
++    if (m.intra) {
++        if (pict_type == 1)
++            bw_put(bw, 1, 1);        /* intra */
++        else
++            bw_put(bw, 3, 5);        /* intra in P: 0001 1 */
++        for (int b = 0; b < 6; b++) {
++            int c  = b < 4 ? 0 : b - 3;
++            int dc = lev[b * 64];
++            put_dc(bw, dc - dcp[c], c > 0);
++            dcp[c] = dc;
++            put_block(bw, lev + b * 64, 1, m.last[b], 1, 0);
++        }
++    } else {
++        int has_mv = (m.mvx | m.mvy) || !m.cbp;
++        if (m.cbp)
++            bw_put(bw, 1, has_mv ? 1 : 2);   /* '1' MC coded, '01' no-MC coded */
++        else
++            bw_put(bw, 1, 3);                /* '001' MC not coded */
++        if (has_mv) {
++            put_motion(bw, m.mvx - pmvx, fcode);
++            put_motion(bw, m.mvy - pmvy, fcode);
++        }
++        if (m.cbp) {
++            bw_put_vlc(bw, g_tab.cbp[m.cbp]);
++            for (int b = 0; b < 6; b++)
++                if (m.cbp & (32 >> b))
++                    put_block(bw, lev + b * 64, 0, m.last[b], 0, 1);
++        }
++    }
++
++    bitlen[mb] = bw_flush(bw);
++}
++
++/* one slice per MB row: slice header + bit-shifted MB slots, byte aligned */
++extern "C" __global__ void k_pack(const uint32_t *slots, const int *bitlen,
++                                  int mb_w, int qcode, uint32_t *rows,
++                                  int row_words, int *row_bytes)
++{
++    __shared__ int s_off[M2C_MAX_MB_W + 1];
++    const int row = blockIdx.x, t = threadIdx.x;
++    uint32_t *out = rows + (size_t)row * row_words;
++
++    int len = t < mb_w ? bitlen[row * mb_w + t] : 0;
++    s_off[t + 1] = len;
++    if (t == 0)
++        s_off[0] = 0;
++    __syncthreads();
++    /* inclusive scan of s_off[1..] */
++    for (int d = 1; d < M2C_MAX_MB_W; d <<= 1) {
++        int v = t >= d ? s_off[t + 1 - d] : 0;
++        __syncthreads();
++        s_off[t + 1] += v;
++        __syncthreads();
++    }
++
++    const int hdr_bits   = 38;
++    const int total_bits = hdr_bits + s_off[mb_w];
++    const int nwords     = (total_bits + 31) >> 5;
++    for (int i = t; i < nwords + 1; i += blockDim.x)
++        out[i] = 0;
++    __syncthreads();
++
++    if (t == 0) {
++        out[0] = 0x00000101u + row;   /* slice_start_code */
++        atomicOr(&out[1], (uint32_t)qcode << 27);   /* quantiser_scale_code, extra_bit_slice=0 */
++    }
++
++    if (t < mb_w && len) {
++        const uint32_t *src = slots + (size_t)(row * mb_w + t) * M2C_SLOT_WORDS;
++        int off   = hdr_bits + s_off[t];
++        int base  = off >> 5, shift = off & 31;
++        int words = (len + 31) >> 5;
++        for (int j = 0; j < words; j++) {
++            uint32_t w = src[j];
++            atomicOr(&out[base + j], w >> shift);
++            if (shift)
++                atomicOr(&out[base + j + 1], w << (32 - shift));
++        }
++    }
++
++    if (t == 0)
++        row_bytes[row] = (total_bits + 7) >> 3;
++}
++
++extern "C" __global__ void k_concat(const uint32_t *rows, int row_words,
++                                    const int *row_bytes, uint8_t *out)
++{
++    const int row = blockIdx.x;
++    int off = 0;
++    for (int i = 0; i < row; i++)
++        off += row_bytes[i];
++
++    const uint32_t *src = rows + (size_t)row * row_words;
++    const int n = row_bytes[row];
++    for (int b = threadIdx.x; b < n; b += blockDim.x)
++        out[off + b] = src[b >> 2] >> (24 - 8 * (b & 3));
++}
+diff --git a/libavcodec/mpeg2_cuda.h b/libavcodec/mpeg2_cuda.h
+new file mode 100644
+index 0000000..5b950a1
+--- /dev/null
++++ b/libavcodec/mpeg2_cuda.h
+@@ -0,0 +1,82 @@
++/*
++ * MPEG-2 video encoder for NVIDIA GPUs, host/device shared definitions
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#ifndef AVCODEC_MPEG2_CUDA_H
++#define AVCODEC_MPEG2_CUDA_H
++
++#include <stdint.h>
++
++#ifdef __CUDACC__
++#define M2C_PTR(type) type *
++#else
++#define M2C_PTR(type) uint64_t
++#endif
++
++/* worst case MB: every coefficient escape coded is ~9300 bits */
++#define M2C_SLOT_WORDS 320
++#define M2C_MAX_MB_W   128
++
++typedef struct M2CTables {
++    float    dct[8][8];          /* C(u)/2 * cos((2x+1)u pi/16) */
++    uint32_t ac[2][64][41];      /* [B.14/B.15][run][level] = len << 24 | code, 0 = escape */
++    uint32_t dc[2][12];          /* [luma/chroma][size] */
++    uint32_t addr[33];           /* macroblock_address_increment 1..33 */
++    uint32_t cbp[64];
++    uint32_t mv[17];
++    uint32_t eob[2];
++    uint8_t  iscan[64];          /* raster position -> scan position */
++    uint8_t  intra_matrix[64];   /* raster order */
++    uint8_t  inter_matrix[64];
++} M2CTables;
++
++typedef struct M2CMotion {
++    int16_t mvx, mvy;            /* half-pel, frame prediction */
++    int32_t intra;
++    int32_t sad;
++} M2CMotion;
++
++typedef struct M2CMBInfo {
++    int16_t mvx, mvy;
++    uint8_t intra, cbp, skip, pad;
++    int16_t dc[3];               /* last DC per component, for the next MB's predictor */
++    int8_t  last[6];             /* last nonzero scan position per block, -1 if none */
++} M2CMBInfo;
++
++typedef struct M2CEncodeParams {
++    M2C_PTR(const uint8_t) cur_y;
++    M2C_PTR(const uint8_t) cur_u;
++    M2C_PTR(const uint8_t) cur_v;
++    M2C_PTR(const uint8_t) ref_y;
++    M2C_PTR(const uint8_t) ref_u;
++    M2C_PTR(const uint8_t) ref_v;
++    M2C_PTR(uint8_t)       rec_y;
++    M2C_PTR(uint8_t)       rec_u;
++    M2C_PTR(uint8_t)       rec_v;
++    M2C_PTR(const M2CMotion) motion;
++    M2C_PTR(M2CMBInfo)     mbinfo;
++    M2C_PTR(int16_t)       levels;
++    int32_t py, pc;
++    int32_t mb_w, mb_h;
++    int32_t pict_type;           /* 1 = I, 2 = P */
++    int32_t qcode;
++    float   intra_bias, inter_bias;
++} M2CEncodeParams;
++
++#endif /* AVCODEC_MPEG2_CUDA_H */
+-- 
+2.55.0
+

@@ -1,0 +1,76 @@
+From 36c2f15fbcb00b8d0e33d4aaf256e6b1cf218165 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 00:26:50 -0700
+Subject: [PATCH 07/10] mpeg2_cuda: drop the field_skip option (measured no
+ effect)
+
+---
+ libavcodec/mpeg2_cuda.c  | 7 ++-----
+ libavcodec/mpeg2_cuda.cu | 5 +----
+ 2 files changed, 3 insertions(+), 9 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 64329a7..bc08812 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -150,7 +150,6 @@ typedef struct MPEG2CudaContext {
+     int   field_dct;
+     int   field_me;
+     int   field_bias;
+-    int   field_skip;
+     int   me_range_b;
+     int   nonlinear_q;
+     float ip_ratio;
+@@ -557,7 +556,7 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int lambda)
+     if (s->field_me) {
+         void *args[] = { &s->src[slot][0], &ref, &s->py, &s->pw, &s->ph,
+                          &s->mb_w, &s->mb_h, &lambda, &mv_max,
+-                         &s->intra_cost_bias, &s->field_bias, &s->field_skip, &s->motion };
++                         &s->intra_cost_bias, &s->field_bias, &s->motion };
+         ret = launch(avctx, F_ME_FIELD, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+     }
+     return ret;
+@@ -593,7 +592,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambd
+             CUdeviceptr ref = k ? fut : past, out = k ? s->motion_bb : s->motion_bf;
+             void *args[] = { &s->src[slot][0], &ref, &s->py, &s->pw, &s->ph,
+                              &s->mb_w, &s->mb_h, &lambda, &mv_max,
+-                             &s->intra_cost_bias, &s->field_bias, &s->field_skip, &out };
++                             &s->intra_cost_bias, &s->field_bias, &out };
+             ret = launch(avctx, F_ME_FIELD, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+         }
+         if (ret < 0)
+@@ -1244,8 +1243,6 @@ static const AVOption options[] = {
+       AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, VE },
+     { "field_me",        "field motion prediction in frame pictures", OFFSET(field_me),
+       AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, VE },
+-    { "field_skip",      "skip the field search when the frame SAD is below this", OFFSET(field_skip),
+-      AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 65536, VE },
+     { "me_range_b",      "coarse search range for B pictures (0 = me_range)", OFFSET(me_range_b),
+       AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 15, VE },
+     { "field_bias",      "SAD margin before field prediction is chosen", OFFSET(field_bias),
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 3584d94..7b9d5e8 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -583,7 +583,7 @@ k_me_bidir(const uint8_t *cur, const uint8_t *ref_f, const uint8_t *ref_b,
+ extern "C" __global__ void __launch_bounds__(128)
+ k_me_field(const uint8_t *cur, const uint8_t *ref,
+            int py, int pw, int ph, int mb_w, int mb_h,
+-           int lambda, int mv_max, int intra_bias, int field_bias, int skip_sad,
++           int lambda, int mv_max, int intra_bias, int field_bias,
+            M2CMotion *motion)
+ {
+     __shared__ uint32_t s_cur[4][64];
+@@ -604,9 +604,6 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+     __syncwarp();
+ 
+     M2CMotion mo = motion[warp];
+-    /* a near-perfect frame match leaves nothing for field prediction to win */
+-    if (mo.sad < skip_sad)
+-        return;
+     const int fh   = ph >> 1;
+     const int fy0  = my * 8;                  /* MB origin in field lines */
+     const int lo_x = max(-2 * x0, -mv_max - 1), hi_x = min(2 * (pw - 16 - x0), mv_max);
+-- 
+2.55.0
+

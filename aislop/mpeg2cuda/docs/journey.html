@@ -1,0 +1,297 @@
+<title>mpeg2_cuda journey</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single reading column (~68ch) with full-bleed chart panels; a
+   field-line band (alternating 1px lines, the interlace motif) under the header. */
+:root {
+  --bg: #f6f6f3;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --rule: #c3c2b7;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #c3c2b7;
+  --good: #006300;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111110; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --rule: #383835;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #5a5955; --good: #0ca30c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111110; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --rule: #383835;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #5a5955; --good: #0ca30c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.col { max-width: 68ch; margin-inline: auto; }
+.wide { max-width: 1080px; margin-inline: auto; }
+header { padding-block: 40px 0; }
+.eyebrow { font-family: var(--font-data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 7vw, 64px); line-height: 1; margin: 8px 0 12px; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 30px; line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+h3 { font-family: var(--font-body); font-weight: 700; font-size: 17px; margin: 0 0 4px; }
+p { margin: 0 0 12px; }
+.lede { font-size: 19px; color: var(--ink-2); }
+code { font-family: var(--font-data); font-size: .88em; }
+.fieldlines { height: 18px; margin-block: 28px 32px;
+  background: repeating-linear-gradient(to bottom, var(--rule) 0 1px, transparent 1px 3px); opacity: .7; }
+section { display: grid; gap: 14px; padding-block: 32px; border-top: 1px solid var(--grid); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--grid); border-radius: 6px; padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.stat .v { font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1.05; }
+.stat .v small { font-size: 20px; color: var(--ink-2); font-weight: 600; }
+.stat .k { font-size: 14px; color: var(--ink-2); }
+.panel { background: var(--surface); border: 1px solid var(--grid); border-radius: 6px; padding: 16px; display: grid; gap: 10px; min-width: 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 14px; color: var(--ink-2); }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 5px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; border: 0; background: transparent; color: var(--ink-2); padding: 5px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg button:focus-visible { outline: 2px solid var(--s1); outline-offset: -2px; }
+.chart { position: relative; height: 340px; min-width: 0; }
+.chart.tall { height: 380px; }
+.note { font-size: 14px; color: var(--muted); }
+ol.ms { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; counter-reset: ms; }
+ol.ms li { counter-increment: ms; display: grid; grid-template-columns: 2.4em 1fr; gap: 0 10px; }
+ol.ms li::before { content: counter(ms); font-family: var(--font-display); font-weight: 700; font-size: 26px; line-height: 1; color: var(--s1); }
+ol.ms .c { font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.tw { overflow-x: auto; border: 1px solid var(--grid); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { font-weight: 600; color: var(--ink-2); font-size: 13px; white-space: nowrap; }
+td { font-variant-numeric: tabular-nums; }
+tbody tr:last-child td { border-bottom: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.grid2 > * { min-width: 0; }
+a { color: var(--s1); }
+@media (max-width: 480px) { .chart, .chart.tall { height: 300px; } .stat .v { font-size: 34px; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<header class="wide">
+  <div class="eyebrow">FFmpeg n9.0.2 · RTX 3090 · 1080i29.97 · MPEG-2 MP@HL · 15 Mbps CBR</div>
+  <h1>mpeg2_cuda journey</h1>
+  <p class="lede col" style="margin-inline:0">An MPEG-2 encoder inside FFmpeg that runs entirely on the GPU, built in two days to feed 1080i transport streams into a Blonder Tongue EQAM for TVs at home. Every number below was measured; every milestone is a commit.</p>
+  <div class="fieldlines" aria-hidden="true"></div>
+  <div class="stats" id="stats"></div>
+</header>
+
+<main class="wide">
+  <section>
+    <div class="col" style="margin-inline:0">
+      <h2>Frames per second, milestone by milestone</h2>
+      <p>Each commit rebuilt from its own worktree and benchmarked back to back on an idle GPU: encoder only, 60 frames preloaded in GPU memory, 6000 frames per instance, best of two. Dashed lines are the CPU's <code>mpeg2video</code> on the same clip with matched settings.</p>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <span>Clip</span>
+        <div class="seg" role="group" aria-label="Clip">
+          <button id="clip-pj" aria-pressed="true" data-clip="parkjoy_1080i">park_joy 1080i</button>
+          <button id="clip-td" aria-pressed="false" data-clip="touchdown_1080p">touchdown progressive</button>
+        </div>
+        <span>Scope</span>
+        <div class="seg" role="group" aria-label="Scope">
+          <button id="inst-1" aria-pressed="true" data-inst="1">one stream</button>
+          <button id="inst-4" aria-pressed="false" data-inst="4">whole GPU vs whole CPU</button>
+        </div>
+      </div>
+      <div class="chart"><canvas id="c-fps" aria-label="Frames per second per milestone"></canvas></div>
+      <p class="note">Whole GPU = 4 encoder instances; whole CPU = 8 processes × 4 threads. On touchdown, milestone 8 jumps because progressive sources are now coded as progressive frames, which skips field motion search; interlaced park_joy stays put, as it should.</p>
+    </div>
+    <ol class="ms" id="ms"></ol>
+  </section>
+
+  <section>
+    <div class="col" style="margin-inline:0">
+      <h2>Where the GPU time goes</h2>
+      <p>Per-kernel time from Nsight Systems, park_joy 1080i, I/P. Phase 1 spent two thirds of every picture in motion refinement doing byte loads; packed-byte SAD and one candidate per lane took it from 433 to 54 µs. Milestone 6 moved the coefficient VLC into the transform kernel and dropped a 6.3 MB per-picture buffer.</p>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Per milestone</h3><div class="chart tall"><canvas id="c-kern" aria-label="Kernel time per milestone"></canvas></div></div>
+      <div class="panel"><h3>During development (recorded in session)</h3><div class="chart tall"><canvas id="c-dev" aria-label="Kernel time per development step"></canvas></div>
+        <p class="note">Blue: I/P. Orange: with B pictures, which run two directional searches per picture. Includes uncommitted intermediate steps.</p></div>
+    </div>
+    <div class="tw"><table><thead><tr><th>kernel (µs per call, park_joy I/P)</th><th><code>dea7407</code></th><th><code>f554c30</code></th><th><code>525ec8a</code></th><th><code>9819724</code></th><th><code>39fe7db</code></th><th><code>6fe6f2c</code></th><th><code>36c2f15</code></th><th><code>0aa2090</code></th><th><code>e14023c</code></th></tr></thead><tbody><tr><td>k_me_refine</td><td>433</td><td>54</td><td>56</td><td>63</td><td>63</td><td>56</td><td>56</td><td>56</td><td>56</td></tr><tr><td>k_encode_mb</td><td>102</td><td>64</td><td>64</td><td>64</td><td>67</td><td>70</td><td>70</td><td>70</td><td>69</td></tr><tr><td>k_me_field</td><td>&ndash;</td><td>51</td><td>52</td><td>56</td><td>56</td><td>56</td><td>56</td><td>56</td><td>56</td></tr><tr><td>k_vlc</td><td>50</td><td>48</td><td>49</td><td>49</td><td>49</td><td>15</td><td>15</td><td>15</td><td>15</td></tr><tr><td>k_me_coarse</td><td>27</td><td>21</td><td>28</td><td>30</td><td>30</td><td>30</td><td>30</td><td>30</td><td>30</td></tr><tr><td>k_load</td><td>23</td><td>23</td><td>23</td><td>23</td><td>23</td><td>9</td><td>9</td><td>9</td><td>9</td></tr><tr><td>k_pack</td><td>4</td><td>4</td><td>5</td><td>5</td><td>4</td><td>5</td><td>5</td><td>5</td><td>5</td></tr><tr><td>k_down4</td><td>4</td><td>4</td><td>4</td><td>4</td><td>4</td><td>3</td><td>3</td><td>3</td><td>3</td></tr><tr><td>k_concat</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td></tr></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="col" style="margin-inline:0">
+      <h2>Quality: bits for the same picture</h2>
+      <p>BD-rate against <code>mpeg2video</code> I/P (negative means fewer bits at equal PSNR). With B pictures the GPU encoder beats the CPU's own B-picture mode on both clips.</p>
+    </div>
+    <div class="grid2">
+      <div class="panel"><div class="chart"><canvas id="c-bd" aria-label="BD-rate versus CPU"></canvas></div></div>
+      <div style="display:grid;gap:12px;align-content:start"><div class="tw"><table><thead><tr><th>encoder</th><th>touchdown</th><th>park_joy 1080i</th></tr></thead><tbody><tr><td>CPU mpeg2video, 2 B pictures</td><td>-3.4%</td><td>+7.7%</td></tr><tr><td>GPU I/P</td><td>-2.6%</td><td>+0.7%</td></tr><tr><td>GPU, 2 B pictures (<code>39fe7db</code>)</td><td>-6.4%</td><td>+2.9%</td></tr><tr><td>GPU, 2 B pictures (current, 32-candidate refinement)</td><td>-5.8%</td><td>+3.2%</td></tr></tbody></table></div><div class="tw"><table><thead><tr><th></th><th>touchdown</th><th>park_joy 1080i</th></tr></thead><tbody><tr><td>CPU mpeg2video I/P</td><td>38.52 / 0.9276</td><td>25.14 / 0.7278</td></tr><tr><td>GPU phase 1</td><td>38.23 / 0.9270</td><td>24.64 / 0.6960</td></tr><tr><td>GPU + field DCT + field motion</td><td>38.07 / 0.9261</td><td>24.98 / 0.7184</td></tr><tr><td>GPU + damped rate control</td><td>38.65 / 0.9274</td><td>25.38 / 0.7290</td></tr><tr><td>GPU, 2 B pictures</td><td>38.83 / 0.9300</td><td>25.32 / 0.7311</td></tr></tbody></table></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="col" style="margin-inline:0">
+      <h2>Baselines</h2>
+      <p>Before any GPU encoder existed: NVDEC decode with the CPU encoder, and an all-CPU pipeline, H.264 1080p in, MPEG-2 1080i + AC-3 out, live.</p>
+    </div>
+    <div class="tw"><table><thead><tr><th>pipeline</th><th>1 stream</th><th>streams at realtime</th><th>bottleneck</th></tr></thead><tbody><tr><td>NVDEC decode + CPU mpeg2video (fast)</td><td>~495-527 fps</td><td>25</td><td>NVDEC (CPU ~42%)</td></tr><tr><td>NVDEC decode + CPU mpeg2video (quality: <code>-mbd rd -trellis 1</code>)</td><td>~104-111 fps</td><td>6</td><td>CPU (~99%)</td></tr><tr><td>CPU decode + CPU mpeg2video (fast)</td><td>~345 fps</td><td>26 (25 with margin)</td><td>CPU (~99%)</td></tr><tr><td>CPU decode + CPU mpeg2video (quality)</td><td>~93 fps</td><td>7</td><td>CPU</td></tr></tbody></table></div>
+    <p class="col note" style="margin-inline:0">CPU encoder only, re-measured on 2026-10-16. An earlier harness fed frames tagged as intra pictures and made the CPU look about three times faster; these numbers supersede it.</p>
+    <div class="tw"><table><thead><tr><th>clip</th><th>rate control</th><th>B pictures</th><th>1 stream (threads=auto)</th><th>8 processes x 4 threads</th></tr></thead><tbody><tr><td>parkjoy_1080i</td><td>CBR</td><td>0</td><td>464</td><td>1164</td></tr><tr><td>parkjoy_1080i</td><td>CBR</td><td>2</td><td>284</td><td>626</td></tr><tr><td>parkjoy_1080i</td><td>ABR</td><td>0</td><td>481</td><td>1176</td></tr><tr><td>parkjoy_1080i</td><td>ABR</td><td>2</td><td>289</td><td>664</td></tr><tr><td>touchdown_1080p</td><td>CBR</td><td>0</td><td>517</td><td>1273</td></tr><tr><td>touchdown_1080p</td><td>CBR</td><td>2</td><td>304</td><td>722</td></tr><tr><td>touchdown_1080p</td><td>ABR</td><td>0</td><td>537</td><td>1341</td></tr><tr><td>touchdown_1080p</td><td>ABR</td><td>2</td><td>324</td><td>770</td></tr></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="col" style="margin-inline:0">
+      <h2>All the numbers</h2>
+      <p>Frames per second per milestone, both clips, one stream / four instances, and GPU kernel time per picture.</p>
+    </div>
+    <div class="tw"><table><thead><tr><th>milestone</th><th>commit</th><th>park_joy 1080i I/P: 1 / 4 inst</th><th>park_joy B2: 1 / 4</th><th>touchdown I/P: 1 / 4</th><th>touchdown B2: 1 / 4</th><th>kernel µs/pic (pj, I/P)</th></tr></thead><tbody><tr><td>1. Phase 1: I/P, frame DCT</td><td><code>dea7407</code></td><td>1492 / 1689</td><td>&ndash; / &ndash;</td><td>1497 / 1676</td><td>&ndash; / &ndash;</td><td>617</td></tr><tr><td>2. Field DCT + field ME, vectorised ME, row transform, VBV RC</td><td><code>f554c30</code></td><td>3140 / 3874</td><td>&ndash; / &ndash;</td><td>3268 / 3969</td><td>&ndash; / &ndash;</td><td>267</td></tr><tr><td>3. Temporal ME, adaptive f_code, damped RC</td><td><code>525ec8a</code></td><td>2975 / 3545</td><td>&ndash; / &ndash;</td><td>3025 / 3603</td><td>&ndash; / &ndash;</td><td>277</td></tr><tr><td>4. Codex review fixes (OOB reads, MV cost wrap)</td><td><code>9819724</code></td><td>2869 / 3452</td><td>&ndash; / &ndash;</td><td>2907 / 3500</td><td>&ndash; / &ndash;</td><td>289</td></tr><tr><td>5. B pictures</td><td><code>39fe7db</code></td><td>2827 / 3357</td><td>1989 / 2399</td><td>2857 / 3408</td><td>1989 / 2470</td><td>293</td></tr><tr><td>6. Fused VLC, bandwidth, constant tables, 32-cand refine</td><td><code>6fe6f2c</code></td><td>3314 / 3889</td><td>2222 / 2619</td><td>3367 / 3989</td><td>2260 / 2721</td><td>241</td></tr><tr><td>7. Drop field_skip</td><td><code>36c2f15</code></td><td>3332 / 3914</td><td>2226 / 2585</td><td>3350 / 3964</td><td>2255 / 2672</td><td>241</td></tr><tr><td>8. Source field order, progressive_frame, first-I calibration</td><td><code>0aa2090</code></td><td>3331 / 3918</td><td>2188 / 2627</td><td>4157 / 5116</td><td>2951 / 3520</td><td>241</td></tr><tr><td>9. CBR carry-over clamp, proportional VBV re-code</td><td><code>e14023c</code></td><td>3323 / 3909</td><td>2218 / 2576</td><td>4108 / 5068</td><td>2957 / 3692</td><td>240</td></tr></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="col" style="margin-inline:0">
+      <h2>Bugs, and what caught them</h2>
+      <p>The encoder's reconstruction is checked bit for bit against FFmpeg's decoder on every test, and an independent syntax checker parses every slice. Several of these were measurement bugs, not encoder bugs.</p>
+    </div>
+    <div class="tw"><table><thead><tr><th>bug</th><th>found by</th></tr></thead><tbody><tr><td>nvcc 13.4 emits PTX the 595 driver rejects</td><td>first CUDA filter smoke test; CUDA pinned to 13.2</td></tr><tr><td>ffnvcodec only exposes the legacy 32-bit <code>cuModuleGetGlobal</code></td><td>first run; tables copied by a kernel instead</td></tr><tr><td><code>put_motion</code> tested for zero before the modulo wrap</td><td><code>scripts/stress.sh</code> (park_joy q8) + <code>tools/m2vparse.py</code></td></tr><tr><td>FFmpeg skips the wrap for a zero MV delta (field PMV out of range)</td><td>same; field vertical vectors limited to keep PMV in range</td></tr><tr><td>interlaced <code>mb_height</code> must be 2*ceil(h/32) (720 lines -> 46 rows)</td><td>designing <code>tools/m2vcheck.py</code></td></tr><tr><td>out-of-bounds half-pel reads in ME; <code>build.sh</code> masking make failures; MV cost without wrap</td><td>Codex review + compute-sanitizer</td></tr><tr><td>rate control oscillating q 3 <-> 28</td><td>per-picture q trace</td></tr><tr><td>first GOP overspend, end-of-stream budget dump</td><td>RC accounting trace</td></tr><tr><td>field order ignored; progressive input coded as interlaced</td><td><code>tests/ab.sh</code> field-order check</td></tr><tr><td>CPU harness all-intra (<code>pict_type=I</code> frames)</td><td>identical bf=0/bf=2 bitrates</td></tr><tr><td><code>psnr</code> filter averaging extra misaligned pairs (B pictures)</td><td>nondeterministic PSNR from a deterministic stream</td></tr><tr><td>VBV checker assuming 29.97 for a 25 fps clip</td><td>false underflow in the test matrix</td></tr><tr><td>benchmarks taken while NVENC jobs / test runs used the GPU</td><td>re-measured idle (this document)</td></tr><tr><td>GPU upload in the bench dropping the interlace flag</td><td>this document's milestone pass</td></tr></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="col" style="margin-inline:0">
+      <h2>On the air</h2>
+      <p>Six looping test channels (900 TESTCAT through 905 TSTFISH) run as NVDEC → <code>mpeg2_cuda</code> + AC-3 → MPEG-TS over UDP into the EQAM. A stress run of 6 channels × 4 copies held 24 live 1080i streams at 1.01× realtime with about 1.3% CPU; NVDEC, not the MPEG-2 encoder, is the ceiling for H.264 sources. The live senders were paused from 01:27 to 01:38 for the milestone benchmarks.</p>
+      <p>Prior art: GPU pieces of MPEG-2 encoders appear in the literature (Montero et al., 2010–2013) and Elemental shipped closed GPU appliances; no open, fully on-GPU, decoder-bit-exact, interlace-aware MPEG-2 encoder was found. Details in <code>docs/prior_art.md</code>.</p>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+const DATA = {"milestones": [{"commit": "dea7407", "name": "Phase 1", "what": "I/P, frame DCT, half-pel ME, GPU VLC and slice packing; bit-exact on the first run"}, {"commit": "f554c30", "name": "Field tools", "what": "field DCT + field motion, packed-byte SAD, lane-per-candidate refine, row-based transform, VBV-safe RC"}, {"commit": "525ec8a", "name": "Temporal ME", "what": "previous-picture predictors, adaptive f_code, tuned dead zone, damped rate control"}, {"commit": "9819724", "name": "Review fixes", "what": "Codex review: out-of-bounds half-pel reads, padding, MV cost wrap"}, {"commit": "39fe7db", "name": "B pictures", "what": "reorder buffer, open GOPs, fwd/bwd/bi with frame and field vectors"}, {"commit": "6fe6f2c", "name": "Bandwidth", "what": "fused coefficient VLC, vectorised load, constant-memory tables, one-round refine"}, {"commit": "36c2f15", "name": "Cleanup", "what": "removed a no-op option"}, {"commit": "0aa2090", "name": "Progressive frames", "what": "source field order, progressive_frame coding, first-I calibration"}, {"commit": "e14023c", "name": "RC carry clamp", "what": "CBR carry-over clamped to the VBV, proportional VBV re-code"}], "series": {"parkjoy_1080i|0|1": [1492, 3140, 2975, 2869, 2827, 3314, 3332, 3331, 3323], "parkjoy_1080i|0|4": [1689, 3874, 3545, 3452, 3357, 3889, 3914, 3918, 3909], "parkjoy_1080i|2|1": [null, null, null, null, 1989, 2222, 2226, 2188, 2218], "parkjoy_1080i|2|4": [null, null, null, null, 2399, 2619, 2585, 2627, 2576], "touchdown_1080p|0|1": [1497, 3268, 3025, 2907, 2857, 3367, 3350, 4157, 4108], "touchdown_1080p|0|4": [1676, 3969, 3603, 3500, 3408, 3989, 3964, 5116, 5068], "touchdown_1080p|2|1": [null, null, null, null, 1989, 2260, 2255, 2951, 2957], "touchdown_1080p|2|4": [null, null, null, null, 2470, 2721, 2672, 3520, 3692]}, "cpu": {"parkjoy_1080i|0|1": 464, "parkjoy_1080i|0|8": 1164, "parkjoy_1080i|2|1": 284, "parkjoy_1080i|2|8": 626, "touchdown_1080p|0|1": 517, "touchdown_1080p|0|8": 1273, "touchdown_1080p|2|1": 304, "touchdown_1080p|2|8": 722}, "kernels": {"me_refine": [404.1, 50.9, 52.5, 58.6, 58.6, 52.4, 52.4, 52.4, 52.4], "encode_mb": [101.8, 63.9, 63.6, 63.9, 67.4, 69.5, 69.5, 69.5, 69.4], "me_field": [0.0, 47.5, 48.8, 52.4, 52.6, 52.7, 52.7, 52.7, 52.7], "vlc": [49.6, 47.9, 48.7, 49.0, 49.4, 15.4, 15.4, 15.4, 15.4], "me_coarse": [25.0, 19.8, 26.6, 28.2, 28.3, 28.3, 28.3, 28.3, 28.3], "load": [22.7, 22.8, 22.7, 22.8, 22.8, 8.6, 8.7, 8.6, 8.6], "other": [13.7, 13.9, 14.0, 14.0, 14.0, 13.7, 13.7, 13.7, 13.7]}, "dev": [{"step": "phase 1 (dea7407): I/P, frame DCT, byte-wise ME", "us": 650, "b": false}, {"step": "ME SAD with __vsadu4/__vavgu4 + funnel-shift loads (uncommitted)", "us": 388, "b": false}, {"step": "lane-per-candidate refine (uncommitted)", "us": 280, "b": false}, {"step": "thread-per-row k_encode_mb + field DCT (uncommitted)", "us": 232, "b": false}, {"step": "field motion search, first version (uncommitted)", "us": 380, "b": false}, {"step": "field ME one round + funnel rows (f554c30)", "us": 300, "b": false}, {"step": "B pictures, first profile (39fe7db, bf=2)", "us": 428.5, "b": true}, {"step": "vectorised k_load (bf=2)", "us": 415.0, "b": true}, {"step": "fused coefficient VLC (bf=2)", "us": 400.2, "b": true}, {"step": "constant-memory tables (bf=2)", "us": 388.3, "b": true}, {"step": "32-candidate one-round refine (bf=2)", "us": 373.1, "b": true}], "bd": {"note": "piecewise-linear BD-rate, td q 2..13, pj q 10..31; negative = fewer bits than mpeg2video I/P", "cpu_bf2": {"td": -3.42, "pj": 7.7}, "gpu_bf0": {"td": -2.57, "pj": 0.73}, "gpu_bf2_39fe7db": {"td": -6.37, "pj": 2.9}, "gpu_bf2_current": {"td": -5.77, "pj": 3.22}}};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const state = { clip: "parkjoy_1080i", inst: 1 };
+const charts = {};
+
+function stats() {
+  const ms = DATA.milestones.length - 1;
+  const s = DATA.series, c = DATA.cpu;
+  const b1 = s["parkjoy_1080i|2|1"][ms], b4 = s["parkjoy_1080i|2|4"][ms];
+  const c1 = c["parkjoy_1080i|2|1"], c8 = c["parkjoy_1080i|2|8"];
+  const tiles = [
+    [`${(b1 / c1).toFixed(1)}<small>×</small>`, `one 1080i stream with B pictures: ${b1.toLocaleString()} fps on the GPU vs ${c1} on the CPU`],
+    [`${(b4 / c8).toFixed(1)}<small>×</small>`, `whole GPU vs all 16 CPU cores: ${b4.toLocaleString()} vs ${c8} fps`],
+    [`${DATA.bd.gpu_bf2_current.td.toFixed(1)}<small>%</small>`, `bits vs mpeg2video I/P at equal PSNR on touchdown (CPU's own B mode: ${DATA.bd.cpu_bf2.td.toFixed(1)}%)`],
+    [`24<small> streams</small>`, `live 1080i channels at realtime with ~1.3% CPU`],
+  ];
+  document.getElementById("stats").innerHTML = tiles.map(([v, k]) => `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+  document.getElementById("ms").innerHTML = DATA.milestones.map(m => `<li><div><h3>${m.name} <span class="c">${m.commit}</span></h3><div>${m.what}</div></div></li>`).join("");
+}
+
+function base() {
+  return {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: "index", intersect: false },
+    plugins: {
+      legend: { labels: { color: css("--ink-2"), boxWidth: 12, boxHeight: 12, font: { family: css("--font-body") } } },
+      tooltip: { backgroundColor: css("--surface"), titleColor: css("--ink"), bodyColor: css("--ink-2"),
+                 borderColor: css("--rule"), borderWidth: 1, padding: 10, titleFont: { family: css("--font-body"), weight: "600" },
+                 bodyFont: { family: css("--font-data") } },
+    },
+    scales: {
+      x: { ticks: { color: css("--muted"), font: { family: css("--font-body") } }, grid: { display: false }, border: { color: css("--rule") } },
+      y: { ticks: { color: css("--muted"), font: { family: css("--font-data") } }, grid: { color: css("--grid") }, border: { display: false }, beginAtZero: true },
+    },
+  };
+}
+
+function fpsChart() {
+  const labels = DATA.milestones.map((m, i) => `${i + 1} ${m.name}`);
+  const k = (bf) => `${state.clip}|${bf}|${state.inst}`;
+  const ci = state.inst === 1 ? 1 : 8;
+  const ref = (bf) => Array(labels.length).fill(DATA.cpu[`${state.clip}|${bf}|${ci}`]);
+  const o = base();
+  o.scales.y.title = { display: true, text: "frames per second", color: css("--ink-2") };
+  const cfg = { type: "bar", data: { labels, datasets: [
+    { label: "GPU, I/P", data: DATA.series[k(0)], backgroundColor: css("--s1"), borderRadius: 4, borderSkipped: "start", order: 2 },
+    { label: "GPU, 2 B pictures", data: DATA.series[k(2)], backgroundColor: css("--s2"), borderRadius: 4, borderSkipped: "start", order: 2 },
+    { type: "line", label: `CPU ${state.inst === 1 ? "1 stream" : "16 cores"}, I/P`, data: ref(0), borderColor: css("--ink-2"), borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, order: 1 },
+    { type: "line", label: `CPU ${state.inst === 1 ? "1 stream" : "16 cores"}, B2`, data: ref(2), borderColor: css("--muted"), borderDash: [2, 3], borderWidth: 1.5, pointRadius: 0, order: 1 },
+  ] }, options: o };
+  charts.fps?.destroy();
+  charts.fps = new Chart(document.getElementById("c-fps"), cfg);
+}
+
+function kernChart() {
+  const labels = DATA.milestones.map((m, i) => `${i + 1}`);
+  const cols = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6", "--s8"];
+  const o = base();
+  o.scales.x.stacked = true; o.scales.y.stacked = true;
+  o.scales.y.title = { display: true, text: "µs per picture", color: css("--ink-2") };
+  o.plugins.tooltip.callbacks = { title: (it) => DATA.milestones[it[0].dataIndex].name, footer: (it) => `total ${it.reduce((a, b) => a + b.parsed.y, 0).toFixed(0)} µs` };
+  const ds = Object.entries(DATA.kernels).map(([name, vals], i) => ({ label: name, data: vals, backgroundColor: css(cols[i]), borderColor: css("--surface"), borderWidth: { top: 2 } }));
+  charts.kern?.destroy();
+  charts.kern = new Chart(document.getElementById("c-kern"), { type: "bar", data: { labels, datasets: ds }, options: o });
+}
+
+function devChart() {
+  const o = base();
+  o.plugins.legend.display = false;
+  o.scales.y.title = { display: true, text: "µs per picture", color: css("--ink-2") };
+  o.plugins.tooltip.callbacks = { title: (it) => DATA.dev[it[0].dataIndex].step };
+  const short = ["phase 1", "vsadu4", "lane/cand", "row xform", "field ME v1", "field ME", "B pics", "vec load", "fused VLC", "const tbl", "32-cand"];
+  charts.dev?.destroy();
+  charts.dev = new Chart(document.getElementById("c-dev"), { type: "bar", data: { labels: DATA.dev.map((_, i) => short[i] || i),
+    datasets: [{ label: "kernel time", data: DATA.dev.map(d => d.us), backgroundColor: DATA.dev.map(d => d.b ? css("--s2") : css("--s1")), borderRadius: 4, borderSkipped: "start" }] }, options: o });
+}
+
+function bdChart() {
+  const rows = [["cpu_bf2", "CPU, 2 B pictures"], ["gpu_bf0", "GPU I/P"], ["gpu_bf2_39fe7db", "GPU B2 (milestone 5)"], ["gpu_bf2_current", "GPU B2 (current)"]];
+  const o = base();
+  o.indexAxis = "y";
+  o.scales.x.grid = { color: css("--grid") }; o.scales.y.grid = { display: false };
+  o.scales.x.title = { display: true, text: "BD-rate vs CPU I/P (%)", color: css("--ink-2") };
+  o.scales.x.beginAtZero = true; o.scales.y.beginAtZero = false;
+  o.plugins.tooltip.callbacks = { label: (it) => `${it.dataset.label}: ${it.parsed.x > 0 ? "+" : ""}${it.parsed.x.toFixed(2)}%` };
+  charts.bd?.destroy();
+  charts.bd = new Chart(document.getElementById("c-bd"), { type: "bar", data: { labels: rows.map(r => r[1]), datasets: [
+    { label: "touchdown", data: rows.map(r => DATA.bd[r[0]].td), backgroundColor: css("--s1"), borderRadius: 4 },
+    { label: "park_joy 1080i", data: rows.map(r => DATA.bd[r[0]].pj), backgroundColor: css("--s2"), borderRadius: 4 },
+  ] }, options: o });
+}
+
+function renderAll() { fpsChart(); kernChart(); devChart(); bdChart(); }
+
+document.querySelectorAll("[data-clip]").forEach(b => b.addEventListener("click", () => {
+  state.clip = b.dataset.clip;
+  document.querySelectorAll("[data-clip]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  fpsChart();
+}));
+document.querySelectorAll("[data-inst]").forEach(b => b.addEventListener("click", () => {
+  state.inst = +b.dataset.inst;
+  document.querySelectorAll("[data-inst]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  fpsChart();
+}));
+stats();
+if (window.Chart) {
+  renderAll();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+  new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+} else {
+  document.querySelectorAll(".chart").forEach(el => el.innerHTML = '<p class="note">Charts could not load; the tables below have every number.</p>');
+}
+</script>

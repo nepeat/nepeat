@@ -1,0 +1,8 @@
+ffmpeg/
+build/
+out/
+# media is local test material (tens of GB); only the channel lineup is config
+media/*
+!media/channels/
+media/channels/*
+!media/channels/lineup.tsv
