@@ -1,7 +1,7 @@
 From e14023c3ec0ea1e85e58f1996b31deefeaf69932 Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Fri, 16 Oct 2026 00:58:48 -0700
-Subject: [PATCH 09/10] mpeg2_cuda: clamp CBR budget carry-over to the VBV,
+Subject: [PATCH] mpeg2_cuda: clamp CBR budget carry-over to the VBV,
  proportional VBV re-code steps
 
 ---

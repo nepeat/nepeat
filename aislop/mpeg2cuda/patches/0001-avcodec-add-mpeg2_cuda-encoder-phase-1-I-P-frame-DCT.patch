@@ -1,8 +1,7 @@
 From dea74071dfde42f173d3e9fec61eda75201ad4de Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Thu, 15 Oct 2026 21:44:57 -0700
-Subject: [PATCH 01/10] avcodec: add mpeg2_cuda encoder (phase 1: I/P, frame
- DCT)
+Subject: [PATCH] avcodec: add mpeg2_cuda encoder (phase 1: I/P, frame DCT)
 
 ---
  configure                |   1 +

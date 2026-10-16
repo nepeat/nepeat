@@ -1,9 +1,8 @@
 From 0aa2090bae4f58359164d840a20ff4059e2bcbad Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Fri, 16 Oct 2026 00:37:35 -0700
-Subject: [PATCH 08/10] mpeg2_cuda: follow source field order, progressive
- frames as progressive_frame; non-linear q below 2; calibrate the first I
- picture
+Subject: [PATCH] mpeg2_cuda: follow source field order, progressive frames as
+ progressive_frame; non-linear q below 2; calibrate the first I picture
 
 ---
  libavcodec/mpeg2_cuda.c | 57 +++++++++++++++++++++++++++++++++--------

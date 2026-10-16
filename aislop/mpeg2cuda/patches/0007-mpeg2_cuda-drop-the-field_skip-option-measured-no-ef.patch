@@ -1,8 +1,7 @@
 From 36c2f15fbcb00b8d0e33d4aaf256e6b1cf218165 Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Fri, 16 Oct 2026 00:26:50 -0700
-Subject: [PATCH 07/10] mpeg2_cuda: drop the field_skip option (measured no
- effect)
+Subject: [PATCH] mpeg2_cuda: drop the field_skip option (measured no effect)
 
 ---
  libavcodec/mpeg2_cuda.c  | 7 ++-----
