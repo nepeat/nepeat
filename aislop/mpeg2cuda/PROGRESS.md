@@ -232,3 +232,27 @@ lineup.tsv has a mode column (mezz / raw-mpeg2 / raw-h264);
 - 908 reused for TEST265 (HEVC acceptance test): NVENC hevc Main@4.1 1080p29.97
   6M CBR, bf0, AUD, mux 8M, labelled; EQAM slot 21 (RF 55, alone). EQAM accepts
   and passes it but lists the video PID (stream_type 0x24) as "Unknown".
+
+## 2026-10-16 — perf pass 2: keep the GPU busy, kernel trims
+Measured with 9 live channels sharing the GPU, so only interleaved A/B runs
+count (base vs new back to back). nsys timeline gap analysis
+(`out/gtrace*.csv`): the GPU sat idle 148 of 428 us per picture waiting on the
+host (sync before the next ME 62, second read-back round trip 48, next frame 31).
+- Patch 0011, pipelining: ME of picture k is queued before picture k-1 is
+  finished; read-backs on a copy stream behind an event (pageable DtoH overlaps
+  kernels on the other stream: microbench, 10 us per read while a kernel runs).
+  Idle 148 -> 64 us/pic; what remains is the I picture bubble (~70 us, no ME to
+  hide behind) and GPU time slices taken by the live channels' processes.
+  touchdown bf2 single stream 2555 -> 2946 fps. ME lambda now comes from the
+  last q of the picture type (exact in fixed-q mode: pj-q2/q31 byte-identical).
+- Patch 0012, coarse ME: one lane per 4-pel column group row, loads shared by
+  4 candidates; bit-identical; ~30 -> ~23 us/call.
+- Patch 0013, k_encode_mb shared strides 72/74 (s_f rows 9): bank conflicts
+  were 8-way (s_f), 4-way (s_s, s_lev), 2-way (s_pred/s_rec); now none;
+  bit-identical; ~77.7 -> ~72.1 us.
+- No ncu: RmProfilingAdminOnly=1 on this box (needs root).
+- Found while validating: ch904-nvdec A/B fails on the unmodified baseline too
+  (worst frame 34.91 vs 38.67 dB, deterministic); passed on e14023c, so likely
+  from 9173f3e (field_weave). Not fixed yet.
+- Workflow notes: ffmpeg reads stdin, so loops feeding it a heredoc need
+  -nostdin; zsh does not word-split $var (use bash scripts for option lists).
