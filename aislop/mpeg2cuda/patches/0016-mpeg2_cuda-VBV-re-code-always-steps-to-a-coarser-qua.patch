@@ -1,0 +1,54 @@
+From 143f7f5aedd76eda1ecdcc2b9d2b05ca6df4b8d4 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 16:42:08 -0700
+Subject: [PATCH] mpeg2_cuda: VBV re-code always steps to a coarser quantiser
+
+The re-code step rounds its target q to a code; at linear q 2 a small
+overshoot gives 2.55, which rounds back to 2, so the same picture was
+re-coded unchanged until the attempts ran out and its AC was dropped. Step
+to the next code whenever rounding does not move. Output is unchanged
+wherever that case does not occur (md5 over 7 configs). Also launches the
+motion search with a lambda computed once (no behaviour change).
+---
+ libavcodec/mpeg2_cuda.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 36c2968..11633bf 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -854,6 +854,11 @@ static int finish_picture(AVCodecContext *avctx)
+                 q = FFMIN(112, FFMAX(cur * 1.25, cur * pow(bits / (0.85 * FFMAX(room, 1)), 1.5)));
+                 choose_scale_type(s, q);
+                 j->qcode = code_of(s, q);
++                /* rounding to a code can land back on cur (linear scale at
++                 * q 2: 2.55 -> 2), which re-coded the same picture until the
++                 * attempts ran out and AC was dropped: always step coarser */
++                while (j->qcode < 31 && qscale_of(s, j->qcode) <= cur)
++                    j->qcode++;
+             }
+             av_log(avctx, AV_LOG_VERBOSE, "pic %"PRId64": %.0f bits > VBV %.0f, re-coding at q %d%s\n",
+                    s->coded, bits, room, qscale_of(s, j->qcode),
+@@ -910,6 +915,7 @@ static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int
+     MPEG2CudaContext *s = avctx->priv_data;
+     struct M2CJob j = { .active = 1, .pict_type = pict_type, .slot = slot, .cur = cur, .n = n };
+     int prog = s->pic_flags[n & 255] & 1;
++    int lambda = pict_type == 1 ? 0 : FFMAX(1, (int)(me_q(avctx, pict_type) / 2));
+     int ret = 0;
+     double q;
+ 
+@@ -926,9 +932,9 @@ static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int
+     j.bdir    = s->bdir;
+ 
+     if (pict_type == 2)
+-        ret = motion_search_p(avctx, slot, prog, FFMAX(1, (int)(me_q(avctx, 2) / 2)));
++        ret = motion_search_p(avctx, slot, prog, lambda);
+     else if (pict_type == 3)
+-        ret = motion_search_b(avctx, slot, n, prog, FFMAX(1, (int)(me_q(avctx, 3) / 2)));
++        ret = motion_search_b(avctx, slot, n, prog, lambda);
+     if (ret >= 0)
+         ret = finish_picture(avctx);
+     if (ret < 0)
+-- 
+2.55.0
+
