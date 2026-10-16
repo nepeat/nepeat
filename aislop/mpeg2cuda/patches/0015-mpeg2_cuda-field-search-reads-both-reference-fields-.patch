@@ -1,0 +1,91 @@
+From efe7e0d987d0d8d7832924edd5a88da3f7e367c4 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 16:32:05 -0700
+Subject: [PATCH] mpeg2_cuda: field search reads both reference fields' window
+ from shared memory
+
+The 30 full-pel field candidates each streamed 8 field lines of five words
+from L1. Both reference fields' 10x7-word windows are now staged per
+current field (second field at a 76-word offset: conflict-free for all
+lanes); the half-pel step still reads global memory. Same SADs:
+bit-identical. k_me_field ~82 -> ~50 us per call; park_joy 1080i, bf 2,
+single stream ~2401 -> ~2531 fps (other kernels lose part of the gain).
+---
+ libavcodec/mpeg2_cuda.cu | 34 +++++++++++++++++++++++++++++-----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 98fc641..8e84339 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -641,10 +641,18 @@ k_me_bidir(const uint8_t *cur, const uint8_t *ref_f, const uint8_t *ref_b,
+     }
+ }
+ 
++/* field search window: per reference field 10 field lines (3 vertical
++ * positions + 8 lines) x 7 words; the second field starts 76 words in so
++ * the 30 lanes' rows fall in distinct banks */
++#define FW_ROWS   10
++#define FW_WORDS  7
++#define FW_PARITY 76
++
+ /* Field motion search in frame pictures: for each current field (8 lines of
+  * the MB) search both reference fields around the frame vector, then a
+  * half-pel step, and switch the MB to field prediction if that is cheaper.
+- * One warp per MB. */
++ * One warp per MB; the full-pel candidates read a window staged in shared
++ * memory. */
+ extern "C" __global__ void __launch_bounds__(128)
+ k_me_field(const uint8_t *cur, const uint8_t *ref,
+            int py, int pw, int ph, int mb_w, int mb_h,
+@@ -652,6 +660,7 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+            M2CMotion *motion)
+ {
+     __shared__ uint32_t s_cur[4][64];
++    __shared__ uint32_t s_fwin[4][2 * FW_PARITY];
+     const int wib  = threadIdx.x >> 5;
+     const int warp = (blockIdx.x * blockDim.x + threadIdx.x) >> 5;
+     const int lane = threadIdx.x & 31;
+@@ -681,7 +690,23 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+ 
+     int fcost = 0, fsad = 0;
+     int vx_[2], vy_[2], sel_[2];
++    uint32_t *win = s_fwin[wib];
++    const int wx0 = (x0 + bx - 2) >> 2;
+     for (int f = 0; f < 2; f++) {
++        /* window for this field: reference field s, field lines from
++         * fy0 + ((f + by - s) >> 1) - 1; out-of-plane rows/words are clamped
++         * and only read by illegal (skipped) candidates */
++        __syncwarp();
++        for (int i = lane; i < 2 * FW_ROWS * FW_WORDS; i += 32) {
++            const int s = i / (FW_ROWS * FW_WORDS), rem = i % (FW_ROWS * FW_WORDS);
++            const int r = rem / FW_WORDS, x = rem % FW_WORDS;
++            const int line = 2 * (fy0 + ((f + by - s) >> 1) - 1 + r) + s;
++            const int yy = min(max(line, 0), ph + 3);
++            const int xx = min(max(wx0 + x, 0), (py >> 2) - 1);
++            win[s * FW_PARITY + r * FW_WORDS + x] = ((const uint32_t *)(ref + (size_t)yy * py))[xx];
++        }
++        __syncwarp();
++
+         /* 2 reference fields x (5 x 3) positions; lane per candidate */
+         int best_cost = 0x7fffffff, best_k = 64, best_sad = 0;
+         if (lane < 30) {
+@@ -690,12 +715,11 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+             const int dx = bx + kk % 5 - 2;
+             const int dy = ((f + by - s) >> 1) + kk / 5 - 1;
+             if (2 * dx >= lo_x && 2 * dx <= hi_x && 2 * dy >= lo_y && 2 * dy <= hi_y) {
+-                const uint8_t *rp = ref + (fy0 + dy) * fpy + s * py + x0 + dx;
+-                const uint32_t *wp = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
+-                const int sh = ((uintptr_t)rp & 3) * 8;
++                const uint32_t *wp = win + s * FW_PARITY + (kk / 5) * FW_WORDS + ((x0 + dx) >> 2) - wx0;
++                const int sh = ((x0 + dx) & 3) * 8;
+                 int sad = 0;
+                 for (int row = 0; row < 8; row++) {
+-                    const uint32_t *w = wp + row * (fpy >> 2);
++                    const uint32_t *w = wp + row * FW_WORDS;
+                     const uint32_t *c = sc + (2 * row + f) * 4;
+                     uint32_t w0 = w[0], w1 = w[1], w2 = w[2], w3 = w[3], w4 = w[4];
+                     sad += __vsadu4(c[0], __funnelshift_rc(w0, w1, sh));
+-- 
+2.55.0
+
