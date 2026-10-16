@@ -1,0 +1,13 @@
+--enable-gpl
+--enable-nonfree
+--enable-cuda-nvcc
+--enable-ffnvcodec
+--enable-nvdec
+--enable-cuvid
+--enable-nvenc
+--nvccflags=-gencode arch=compute_86,code=sm_86 -O3 -lineinfo
+--disable-doc
+--disable-debug
+--disable-ffplay
+--disable-autodetect
+--enable-pthreads
