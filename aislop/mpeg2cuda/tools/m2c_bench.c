@@ -170,6 +170,8 @@ int main(int argc, char **argv)
             AVFrame *g = av_frame_alloc();
             av_hwframe_get_buffer(frames_ref, g, 0);
             av_hwframe_transfer_data(g, frames[i], 0);
+            /* the transfer copies pixels only: keep interlacing, field order */
+            av_frame_copy_props(g, frames[i]);
             av_frame_free(&frames[i]);
             frames[i] = g;
         }
