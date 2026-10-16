@@ -1,0 +1,612 @@
+From 251534cec9339d22cea536fc65cb91818dd5f192 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 16:25:27 -0700
+Subject: [PATCH] mpeg2_cuda: overlap the host's per-picture work with the next
+ motion search
+
+Queue a picture's motion search before finishing the previous picture
+(read-back, VBV re-code, headers, rate control), so the GPU no longer idles
+while the host waits on each picture. Read-backs run on a second stream
+behind an event. A pending picture keeps everything a re-code needs in its
+job: references, motion buffers (B pictures alternate two sets), and its
+source slot (bf + 3 slots). The search lambda comes from the last
+quantiser of the picture type, as the picture's own q is set after the
+previous picture finishes; with a fixed quantiser it is unchanged and
+output is identical.
+
+hw frames produced on a non-default stream are now ordered both ways
+against the load kernel.
+
+GPU idle time per picture 148 -> 64 us (B pictures fully hidden, I pictures
+keep a ~70 us bubble); touchdown 1080, bf 2, single stream 2555 -> 2946 fps.
+---
+ libavcodec/mpeg2_cuda.c | 328 ++++++++++++++++++++++++++++------------
+ 1 file changed, 234 insertions(+), 94 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index ded7323..36c2968 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -25,6 +25,12 @@
+  * per macroblock row. With B pictures the encoder buffers max_b_frames
+  * source pictures on the GPU, codes the next anchor first and then the B
+  * pictures in between (open GOPs).
++ *
++ * The host keeps the GPU busy across pictures: a picture's motion search is
++ * queued before the previous picture is finished (read back, re-coded if the
++ * VBV needs it, packetised), so that work overlaps the search. Read-backs
++ * run on a second stream behind an event; everything a pending picture may
++ * need for a re-code is captured in its job.
+  */
+ 
+ #include <math.h>
+@@ -58,6 +64,9 @@
+ 
+ #define MAX_BF  3
+ #define OUT_Q   (MAX_BF + 3)
++/* source slots: the buffered B candidates, the new anchor, and the slots the
++ * next group's pictures are loaded into while the last picture is pending */
++#define SRC_SLOTS (MAX_BF + 3)
+ 
+ enum { F_INIT_TABLES, F_LOAD, F_DOWN4, F_ME_COARSE, F_ME_REFINE, F_ME_FIELD,
+        F_SCALE_MOTION, F_ME_BIDIR, F_ENCODE_MB, F_VLC, F_PACK, F_CONCAT, F_NB };
+@@ -74,6 +83,9 @@ typedef struct MPEG2CudaContext {
+     AVCUDADeviceContext *hwctx;
+     CudaFunctions       *cu;
+     CUstream             stream;
++    CUstream             copy_stream;    /* read-backs, beside the next search */
++    CUevent              coded_ev;       /* a picture's kernels are done */
++    CUevent              hw_ev;          /* ordering with hwctx->stream */
+     CUmodule             module;
+     CUfunction           func[F_NB];
+ 
+@@ -81,12 +93,15 @@ typedef struct MPEG2CudaContext {
+     int qw, qh, qpitch;
+     int row_words;
+ 
+-    CUdeviceptr src[MAX_BF + 1][3];  /* source pictures waiting to be coded */
++    CUdeviceptr src[SRC_SLOTS][3];   /* source pictures waiting to be coded */
+     CUdeviceptr rec[3][3];           /* two anchors + the B picture */
+     CUdeviceptr staging[3];
+     CUdeviceptr srcq, refq, refq2;
+     CUdeviceptr coarse, motion, motion_prev, mbinfo, blkbits, blklen, slots, bitlen;
+     CUdeviceptr motion_bf, motion_bb, pred_f, pred_b, bdir;
++    /* second set for B pictures: a pending B keeps its vectors while the
++     * next B is searched */
++    CUdeviceptr motion_bf_alt, motion_bb_alt, bdir_alt;
+     CUdeviceptr rows, row_bytes, out;
+     CUdeviceptr mv_need;
+     int         pic_fcode;           /* f_code chosen for the picture just coded */
+@@ -116,6 +131,15 @@ typedef struct MPEG2CudaContext {
+     int     eof;
+     int     weave_half;          /* field weave: top field loaded, waiting for the bottom */
+ 
++    /* the picture launched but not finished yet */
++    struct M2CJob {
++        int         active;
++        int         pict_type, slot, cur, ref, ref2, qcode;
++        int64_t     n;
++        CUdeviceptr motion, motion2, bdir;
++    } job;
++    double  me_q[4];             /* quantiser of the last picture per type, for ME lambda */
++
+     int64_t pts[256];            /* input pts by display number (ring) */
+     int64_t dur;
+     AVFrame *frame;
+@@ -503,13 +527,26 @@ static int upload_frame(AVCodecContext *avctx, const AVFrame *frame, int slot, i
+         pitch_y = pitch_uv = s->py;
+     }
+ 
++    /* hw frames written on a stream of their own: load after the producer,
++     * and let the producer reuse the surface only after the load (the load
++     * may sit behind a whole picture's kernels on our stream). The legacy
++     * default stream (NULL) orders itself against ours already. */
+     {
++        CUstream hs = s->hwctx->stream;
++        int other = frame->format == AV_PIX_FMT_CUDA && hs && hs != s->stream;
+         int w = avctx->width, h = avctx->height;
+         void *args[] = { &y, &pitch_y, &u, &v, &pitch_uv, &nv12, &w, &h,
+                          &s->src[slot][0], &s->src[slot][1], &s->src[slot][2],
+                          &s->py, &s->pc, &s->pw, &s->ph, &bottom_only };
+-        return launch(avctx, F_LOAD, FFALIGN(s->pw / 8, 32) / 32, FFALIGN(s->ph, 8) / 8,
+-                      32, 8, args);
++        if (other && ((ret = CHECK_CU(s->cu->cuEventRecord(s->hw_ev, hs))) < 0 ||
++                      (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->stream, s->hw_ev, 0))) < 0))
++            return ret;
++        ret = launch(avctx, F_LOAD, FFALIGN(s->pw / 8, 32) / 32, FFALIGN(s->ph, 8) / 8,
++                     32, 8, args);
++        if (ret >= 0 && other &&
++            (ret = CHECK_CU(s->cu->cuEventRecord(s->hw_ev, s->stream))) >= 0)
++            ret = CHECK_CU(s->cu->cuStreamWaitEvent(hs, s->hw_ev, 0));
++        return ret;
+     }
+ }
+ 
+@@ -554,7 +591,7 @@ static int scale_motion(AVCodecContext *avctx, CUdeviceptr src, CUdeviceptr dst,
+     return launch(avctx, F_SCALE_MOTION, (n_mb + 127) / 128, 1, 128, 1, args);
+ }
+ 
+-static int motion_search_p(AVCodecContext *avctx, int slot, int lambda)
++static int motion_search_p(AVCodecContext *avctx, int slot, int prog, int lambda)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+@@ -567,7 +604,7 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int lambda)
+         (ret = search_dir(avctx, s->src[slot][0], ref, s->refq, s->motion_prev,
+                           s->motion, lambda, s->me_range)) < 0)
+         return ret;
+-    if (s->field_me && !s->pic_prog) {
++    if (s->field_me && !prog) {
+         void *args[] = { &s->src[slot][0], &ref, &s->py, &s->pw, &s->ph,
+                          &s->mb_w, &s->mb_h, &lambda, &mv_max,
+                          &s->intra_cost_bias, &s->field_bias, &s->motion };
+@@ -577,7 +614,7 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int lambda)
+ }
+ 
+ /* B picture at display number n between the two anchors */
+-static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambda)
++static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int prog, int lambda)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+@@ -600,7 +637,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambd
+         (ret = search_dir(avctx, s->src[slot][0], fut, s->refq2, s->pred_b,
+                           s->motion_bb, lambda, rb)) < 0)
+         return ret;
+-    if (s->field_me && !s->pic_prog) {
++    if (s->field_me && !prog) {
+         int mv_max = (16 << (s->fcode - 1)) - 1;
+         for (int k = 0; k < 2 && ret >= 0; k++) {
+             CUdeviceptr ref = k ? fut : past, out = k ? s->motion_bb : s->motion_bf;
+@@ -620,16 +657,14 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambd
+     }
+ }
+ 
+-/* transform/quantise/reconstruct, VLC and pack one picture; repeatable with
+- * a different quantiser since it only writes the non-reference buffer */
+-static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+-                        int qcode, int drop_ac, int *out_size)
++/* transform/quantise/reconstruct, VLC and pack one picture (queued, no
++ * wait); repeatable with a different quantiser since it only writes the
++ * picture's own reconstruction */
++static int code_picture(AVCodecContext *avctx, const struct M2CJob *j, int drop_ac)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+-    /* P: forward reference is the newest anchor; B: past and future anchors */
+-    const int ref  = pict_type == 3 ? s->anchor_past : FFMAX(s->anchor_fut, 0);
+-    const int ref2 = pict_type == 3 ? s->anchor_fut : ref;
++    int pict_type = j->pict_type, qcode = j->qcode;
+     int ret;
+ 
+     ret = CHECK_CU(s->cu->cuMemsetD8Async(s->mv_need, 0, sizeof(int), s->stream));
+@@ -637,12 +672,11 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+         return ret;
+     {
+         M2CEncodeParams p = {
+-            .cur_y = s->src[slot][0], .cur_u = s->src[slot][1], .cur_v = s->src[slot][2],
+-            .ref_y = s->rec[ref][0], .ref_u = s->rec[ref][1], .ref_v = s->rec[ref][2],
+-            .ref2_y = s->rec[ref2][0], .ref2_u = s->rec[ref2][1], .ref2_v = s->rec[ref2][2],
+-            .rec_y = s->rec[cur][0], .rec_u = s->rec[cur][1], .rec_v = s->rec[cur][2],
+-            .motion  = pict_type == 3 ? s->motion_bf : s->motion,
+-            .motion2 = s->motion_bb, .bdir = s->bdir,
++            .cur_y = s->src[j->slot][0], .cur_u = s->src[j->slot][1], .cur_v = s->src[j->slot][2],
++            .ref_y = s->rec[j->ref][0], .ref_u = s->rec[j->ref][1], .ref_v = s->rec[j->ref][2],
++            .ref2_y = s->rec[j->ref2][0], .ref2_u = s->rec[j->ref2][1], .ref2_v = s->rec[j->ref2][2],
++            .rec_y = s->rec[j->cur][0], .rec_u = s->rec[j->cur][1], .rec_v = s->rec[j->cur][2],
++            .motion  = j->motion, .motion2 = j->motion2, .bdir = j->bdir,
+             .mbinfo = s->mbinfo, .blkbits = s->blkbits, .blklen = s->blklen,
+             .py = s->py, .pc = s->pc, .mb_w = s->mb_w, .mb_h = s->mb_h,
+             .pict_type = pict_type, .qscale = qscale_of(s, qcode),
+@@ -676,17 +710,28 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+         if (ret < 0)
+             return ret;
+     }
++    return CHECK_CU(s->cu->cuEventRecord(s->coded_ev, s->stream));
++}
+ 
+-    /* Two round trips (sizes, then exactly the picture's bytes). Fetching a
+-     * fixed chunk with the sizes measured slower: the copy goes through
+-     * pageable memory (ffnvcodec has no cuMemHostAlloc) and costs more than
+-     * the extra synchronisation. */
+-    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_row_bytes, s->row_bytes,
+-                                            s->mb_h * sizeof(int), s->stream));
++/* wait for the coded picture and fetch it. The copies run on copy_stream
++ * behind coded_ev, so kernels queued after the picture (the next search)
++ * keep running. Two round trips (sizes, then exactly the picture's bytes):
++ * a fixed chunk measured slower, as the copy goes through pageable memory
++ * (ffnvcodec has no cuMemHostAlloc). */
++static int read_back(AVCodecContext *avctx, int *out_size)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    int ret;
++
++    ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->copy_stream, s->coded_ev, 0));
+     if (ret >= 0)
+-        ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(&s->host_mv_need, s->mv_need, sizeof(int), s->stream));
++        ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_row_bytes, s->row_bytes,
++                                                s->mb_h * sizeof(int), s->copy_stream));
+     if (ret >= 0)
+-        ret = CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
++        ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(&s->host_mv_need, s->mv_need, sizeof(int),
++                                                s->copy_stream));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuStreamSynchronize(s->copy_stream));
+     if (ret < 0)
+         return ret;
+ 
+@@ -698,10 +743,10 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+     for (int i = 0; i < s->mb_h; i++)
+         *out_size += s->host_row_bytes[i];
+ 
+-    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_out, s->out, *out_size, s->stream));
++    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_out, s->out, *out_size, s->copy_stream));
+     if (ret < 0)
+         return ret;
+-    return CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
++    return CHECK_CU(s->cu->cuStreamSynchronize(s->copy_stream));
+ }
+ 
+ static int dump_recon(AVCodecContext *avctx, int idx)
+@@ -747,83 +792,89 @@ static int dump_mb(AVCodecContext *avctx, int pict_type)
+     return ret;
+ }
+ 
+-/* code one picture (source in src[slot], display number n) into rec[cur]
+- * and queue its packet */
+-static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int64_t n)
++/* quantiser to derive the motion search lambda from. The picture's own q is
++ * not known when its search is queued (the previous picture is not finished
++ * yet): use the last picture of the same type, or derive it from P/I. */
++static double me_q(AVCodecContext *avctx, int t)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
++    double qp;
++
++    if (avctx->flags & AV_CODEC_FLAG_QSCALE)
++        return rc_get_qscale(avctx, t);      /* fixed q: no rate control state */
++    if (s->me_q[t] > 0)
++        return s->me_q[t];
++    qp = s->me_q[2] > 0 ? s->me_q[2] : s->me_q[1] * s->ip_ratio;
++    return qp > 0 ? qp * rc_k(s, t) : 8;
++}
++
++/* wait for the pending picture, re-code it if the VBV needs that, and queue
++ * its packet */
++static int finish_picture(AVCodecContext *avctx)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    struct M2CJob *j = &s->job;
+     struct OutPkt *op;
+     PutBitContext pb;
+     uint8_t hdr[HDR_MAX];
+-    int qcode, size, hdr_size, ret = 0, drop_ac = 0;
++    int pict_type = j->pict_type, size, hdr_size, ret, drop_ac = 0;
+     double q;
+ 
+-    s->pic_prog = s->pic_flags[n & 255] & 1;
+-    s->pic_tff  = !!(s->pic_flags[n & 255] & 2);
+-    if (pict_type == 1) {
+-        /* B pictures still buffered are displayed before this I: they
+-         * open the new GOP */
+-        s->gop_first  = n - s->npend;
+-        s->gop_closed = s->npend == 0;
+-        s->gop_pos    = 0;
+-    }
+-    q = rc_get_qscale(avctx, pict_type);
+-    choose_scale_type(s, q);
+-    qcode = code_of(s, q);
++    if (!j->active)
++        return 0;
++    j->active = 0;
+ 
+-    if (pict_type == 2)
+-        ret = motion_search_p(avctx, slot, FFMAX(1, (int)(q / 2)));
+-    else if (pict_type == 3)
+-        ret = motion_search_b(avctx, slot, n, FFMAX(1, (int)(q / 2)));
+-    for (int attempt = 0; ret >= 0; attempt++) {
+-        double bits, room;
+-        ret = code_picture(avctx, pict_type, slot, cur, qcode, drop_ac, &size);
+-        if (ret < 0 || (avctx->flags & AV_CODEC_FLAG_QSCALE))
+-            break;
+-        bits = size * 8.0 + HDR_MAX * 8;
++    ret = read_back(avctx, &size);
++    for (int attempt = 0; ret >= 0 && !(avctx->flags & AV_CODEC_FLAG_QSCALE); attempt++) {
++        double bits = size * 8.0 + HDR_MAX * 8, room;
+         /* the very first picture has no history to size it: if it came out
+          * far below an I picture's share (~3 average pictures) re-code it
+          * once at the quantiser that model suggests */
+-        if (!s->coded && !attempt && !drop_ac) {
++        if (!s->coded && !attempt && !drop_ac &&
++            bits < 0.5 * FFMIN(3.0 * avctx->bit_rate / av_q2d(ff_mpeg12_frame_rate_tab[s->frame_rate_code]),
++                               0.5 * s->rc_cap) &&
++            qscale_of(s, j->qcode) > 1) {
+             double share = FFMIN(3.0 * avctx->bit_rate / av_q2d(ff_mpeg12_frame_rate_tab[s->frame_rate_code]),
+                                  0.5 * s->rc_cap);
+-            if (bits < 0.5 * share && qscale_of(s, qcode) > 1) {
+-                q = FFMAX(1, qscale_of(s, qcode) * bits / share);
++            q = FFMAX(1, qscale_of(s, j->qcode) * bits / share);
++            choose_scale_type(s, q);
++            j->qcode = code_of(s, q);
++        } else {
++            /* re-code a picture that would underflow the VBV */
++            room = s->rc_cap;
++            if (bits <= room || drop_ac == 2 || (drop_ac && pict_type == 1))
++                break;
++            if (drop_ac) {
++                drop_ac = 2;
++            } else if (qscale_of(s, j->qcode) >= 112 || attempt >= 6) {
++                drop_ac = 1;
++            } else {
++                /* bits fall slower than 1/q at fine quantisers: step hard */
++                double cur = qscale_of(s, j->qcode);
++                q = FFMIN(112, FFMAX(cur * 1.25, cur * pow(bits / (0.85 * FFMAX(room, 1)), 1.5)));
+                 choose_scale_type(s, q);
+-                qcode = code_of(s, q);
+-                continue;
++                j->qcode = code_of(s, q);
+             }
++            av_log(avctx, AV_LOG_VERBOSE, "pic %"PRId64": %.0f bits > VBV %.0f, re-coding at q %d%s\n",
++                   s->coded, bits, room, qscale_of(s, j->qcode),
++                   drop_ac == 2 ? " as a repeated picture" : drop_ac ? " without AC" : "");
+         }
+-        /* re-code a picture that would underflow the VBV */
+-        room = s->rc_cap;
+-        if (bits <= room || drop_ac == 2 || (drop_ac && pict_type == 1))
+-            break;
+-        if (drop_ac) {
+-            drop_ac = 2;
+-        } else if (qscale_of(s, qcode) >= 112 || attempt >= 6) {
+-            drop_ac = 1;
+-        } else {
+-            /* bits fall slower than 1/q at fine quantisers: step hard */
+-            double cur = qscale_of(s, qcode);
+-            q = FFMIN(112, FFMAX(cur * 1.25, cur * pow(bits / (0.85 * FFMAX(room, 1)), 1.5)));
+-            choose_scale_type(s, q);
+-            qcode = code_of(s, q);
+-        }
+-        av_log(avctx, AV_LOG_VERBOSE, "pic %"PRId64": %.0f bits > VBV %.0f, re-coding at q %d%s\n",
+-               s->coded, bits, room, qscale_of(s, qcode),
+-               drop_ac == 2 ? " as a repeated picture" : drop_ac ? " without AC" : "");
++        ret = code_picture(avctx, j, drop_ac);
++        if (ret >= 0)
++            ret = read_back(avctx, &size);
+     }
+     if (ret >= 0 && s->dump_fp)
+         ret = dump_mb(avctx, pict_type);
+     if (ret < 0)
+         return ret;
++    s->me_q[pict_type] = qscale_of(s, j->qcode);
+ 
+     init_put_bits(&pb, hdr, sizeof(hdr));
+     if (pict_type == 1) {
+         put_sequence_header(avctx, &pb);
+         put_gop_header(avctx, &pb);
+     }
+-    put_picture_header(avctx, &pb, pict_type, n);
++    put_picture_header(avctx, &pb, pict_type, j->n);
+     flush_put_bits(&pb);
+     hdr_size = put_bytes_output(&pb);
+ 
+@@ -835,24 +886,79 @@ static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int
+     memcpy(op->data, hdr, hdr_size);
+     memcpy(op->data + hdr_size, s->host_out, size);
+     op->size = hdr_size + size;
+-    op->pts  = s->pts[n & 255];
++    op->pts  = s->pts[j->n & 255];
+     /* decode order lags display order by one picture when B pictures are used */
+     op->dts  = s->pts[s->coded & 255] - (s->bf ? s->dur : 0);
+     op->key  = pict_type == 1;
+     s->out_count++;
+ 
+-    rc_update(avctx, pict_type, qcode, op->size * 8);
++    rc_update(avctx, pict_type, j->qcode, op->size * 8);
+     av_log(avctx, AV_LOG_DEBUG, "pic %"PRId64" type %c q %d bits %d remaining %.0f left %d/%d/%d spent %.0f\n",
+-           s->coded, " IPB"[pict_type], qcode, op->size * 8, s->rc_remaining,
++           s->coded, " IPB"[pict_type], j->qcode, op->size * 8, s->rc_remaining,
+            s->rc_left[1], s->rc_left[2], s->rc_left[3], s->rc_spent);
+ 
+-    if (pict_type == 2)
+-        FFSWAP(CUdeviceptr, s->motion, s->motion_prev);
+     s->coded++;
+     s->gop_pos++;
+     return 0;
+ }
+ 
++/* code one picture (source in src[slot], display number n) into rec[cur].
++ * Order: queue its motion search, finish the previous picture while that
++ * runs (its rate control result sets this picture's q), queue the coding. */
++static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int64_t n)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    struct M2CJob j = { .active = 1, .pict_type = pict_type, .slot = slot, .cur = cur, .n = n };
++    int prog = s->pic_flags[n & 255] & 1;
++    int ret = 0;
++    double q;
++
++    /* captured now: the anchors move on before the picture is finished */
++    j.ref  = pict_type == 3 ? s->anchor_past : FFMAX(s->anchor_fut, 0);
++    j.ref2 = pict_type == 3 ? s->anchor_fut : j.ref;
++    if (pict_type == 3) {
++        FFSWAP(CUdeviceptr, s->motion_bf, s->motion_bf_alt);
++        FFSWAP(CUdeviceptr, s->motion_bb, s->motion_bb_alt);
++        FFSWAP(CUdeviceptr, s->bdir,      s->bdir_alt);
++    }
++    j.motion  = pict_type == 3 ? s->motion_bf : s->motion;
++    j.motion2 = s->motion_bb;
++    j.bdir    = s->bdir;
++
++    if (pict_type == 2)
++        ret = motion_search_p(avctx, slot, prog, FFMAX(1, (int)(me_q(avctx, 2) / 2)));
++    else if (pict_type == 3)
++        ret = motion_search_b(avctx, slot, n, prog, FFMAX(1, (int)(me_q(avctx, 3) / 2)));
++    if (ret >= 0)
++        ret = finish_picture(avctx);
++    if (ret < 0)
++        return ret;
++
++    s->pic_prog = prog;
++    s->pic_tff  = !!(s->pic_flags[n & 255] & 2);
++    if (pict_type == 1) {
++        /* B pictures still buffered are displayed before this I: they
++         * open the new GOP */
++        s->gop_first  = n - s->npend;
++        s->gop_closed = s->npend == 0;
++        s->gop_pos    = 0;
++    }
++    q = rc_get_qscale(avctx, pict_type);
++    choose_scale_type(s, q);
++    j.qcode = code_of(s, q);
++    ret = code_picture(avctx, &j, 0);
++    if (ret < 0)
++        return ret;
++    s->job = j;
++    /* the next pictures predict from this P's vectors */
++    if (pict_type == 2)
++        FFSWAP(CUdeviceptr, s->motion, s->motion_prev);
++    /* debug output wants each picture final before the next one starts */
++    if (s->recon_fp || s->dump_fp)
++        return finish_picture(avctx);
++    return 0;
++}
++
+ /* code a new anchor (display number n, in src[slot]) and the B pictures
+  * buffered before it */
+ static int code_group(AVCodecContext *avctx, int anchor_type, int slot, int64_t n)
+@@ -871,7 +977,7 @@ static int code_group(AVCodecContext *avctx, int anchor_type, int slot, int64_t
+ 
+     for (int i = 0; i < s->npend; i++) {
+         int64_t bn = s->pend_n[i];
+-        ret = code_one(avctx, 3, bn % (s->bf + 1), 2, bn);
++        ret = code_one(avctx, 3, bn % SRC_SLOTS, 2, bn);
+         if (ret >= 0 && s->recon_fp)
+             ret = dump_recon(avctx, 2);
+         if (ret < 0)
+@@ -900,7 +1006,7 @@ static int submit_frame(AVCodecContext *avctx, const AVFrame *frame)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     int64_t n = s->n_in;
+-    int slot = n % (s->bf + 1);
++    int slot = n % SRC_SLOTS;
+     int ret;
+ 
+     if (s->field_weave) {
+@@ -940,7 +1046,7 @@ static int flush_pending(AVCodecContext *avctx)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     int64_t n = s->pend_n[--s->npend];
+-    return code_group(avctx, 2, n % (s->bf + 1), n);
++    return code_group(avctx, 2, n % SRC_SLOTS, n);
+ }
+ 
+ static int mpeg2_cuda_receive_packet(AVCodecContext *avctx, AVPacket *pkt)
+@@ -958,14 +1064,24 @@ static int mpeg2_cuda_receive_packet(AVCodecContext *avctx, AVPacket *pkt)
+                 ret = CHECK_CU(s->cu->cuCtxPushCurrent(s->hwctx->cuda_ctx));
+                 if (ret < 0)
+                     return ret;
+-                ret = picture_ready(avctx, s->n_in, s->n_in % (s->bf + 1));
++                ret = picture_ready(avctx, s->n_in, s->n_in % SRC_SLOTS);
++                CHECK_CU(s->cu->cuCtxPopCurrent(&dummy));
++                if (ret < 0)
++                    return ret;
++                continue;
++            }
++            if (!s->npend) {
++                if (!s->job.active)
++                    return AVERROR_EOF;
++                ret = CHECK_CU(s->cu->cuCtxPushCurrent(s->hwctx->cuda_ctx));
++                if (ret < 0)
++                    return ret;
++                ret = finish_picture(avctx);
+                 CHECK_CU(s->cu->cuCtxPopCurrent(&dummy));
+                 if (ret < 0)
+                     return ret;
+                 continue;
+             }
+-            if (!s->npend)
+-                return AVERROR_EOF;
+         } else {
+             ret = ff_encode_get_frame(avctx, s->frame);
+             if (ret == AVERROR_EOF) {
+@@ -986,7 +1102,7 @@ static int mpeg2_cuda_receive_packet(AVCodecContext *avctx, AVPacket *pkt)
+     }
+ 
+     op   = &s->outq[s->out_head];
+-    last = s->eof && !s->npend && s->out_count == 1;
++    last = s->eof && !s->npend && !s->job.active && s->out_count == 1;
+     if (last) {
+         AV_WB32(op->data + op->size, 0x000001B7);   /* sequence_end_code */
+         op->size += 4;
+@@ -1015,7 +1131,7 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+     if (s->hwctx) {
+         s->cu->cuCtxPushCurrent(s->hwctx->cuda_ctx);
+         for (int i = 0; i < 3; i++) {
+-            for (int k = 0; k <= MAX_BF; k++)
++            for (int k = 0; k < SRC_SLOTS; k++)
+                 free_dev(s, &s->src[k][i]);
+             for (int k = 0; k < 3; k++)
+                 free_dev(s, &s->rec[k][i]);
+@@ -1029,6 +1145,9 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         free_dev(s, &s->pred_f);
+         free_dev(s, &s->pred_b);
+         free_dev(s, &s->bdir);
++        free_dev(s, &s->motion_bf_alt);
++        free_dev(s, &s->motion_bb_alt);
++        free_dev(s, &s->bdir_alt);
+         free_dev(s, &s->coarse);
+         free_dev(s, &s->motion);
+         free_dev(s, &s->motion_prev);
+@@ -1047,6 +1166,15 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         if (s->stream)
+             s->cu->cuStreamDestroy(s->stream);
+         s->stream = NULL;
++        if (s->copy_stream)
++            s->cu->cuStreamDestroy(s->copy_stream);
++        s->copy_stream = NULL;
++        if (s->coded_ev)
++            s->cu->cuEventDestroy(s->coded_ev);
++        s->coded_ev = NULL;
++        if (s->hw_ev)
++            s->cu->cuEventDestroy(s->hw_ev);
++        s->hw_ev = NULL;
+         s->cu->cuCtxPopCurrent(&dummy);
+     }
+     av_freep(&s->host_out);
+@@ -1220,6 +1348,12 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         return ret;
+ 
+     ret = CHECK_CU(s->cu->cuStreamCreate(&s->stream, CU_STREAM_DEFAULT));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuStreamCreate(&s->copy_stream, CU_STREAM_DEFAULT));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuEventCreate(&s->coded_ev, CU_EVENT_DISABLE_TIMING));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuEventCreate(&s->hw_ev, CU_EVENT_DISABLE_TIMING));
+     if (ret >= 0)
+         ret = load_module(avctx);
+ 
+@@ -1228,7 +1362,7 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         /* spare rows: unaligned word loads and the row below a half-pel
+          * vector (two rows away for the bottom field) stay in bounds */
+         sz += 4 * (i ? s->pc : s->py);
+-        for (int k = 0; k <= s->bf && ret >= 0; k++)
++        for (int k = 0; k < SRC_SLOTS && ret >= 0; k++)
+             ret = alloc_dev(avctx, &s->src[k][i], sz);
+         for (int k = 0; k < 3 && ret >= 0; k++)
+             ret = alloc_dev(avctx, &s->rec[k][i], sz);
+@@ -1251,6 +1385,12 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         ret = alloc_dev(avctx, &s->pred_b, n_mb * sizeof(M2CMotion));
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->bdir, n_mb);
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->motion_bf_alt, n_mb * sizeof(M2CMotion));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->motion_bb_alt, n_mb * sizeof(M2CMotion));
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->bdir_alt, n_mb);
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->coarse, n_mb * 4);
+     if (ret >= 0)
+-- 
+2.55.0
+
