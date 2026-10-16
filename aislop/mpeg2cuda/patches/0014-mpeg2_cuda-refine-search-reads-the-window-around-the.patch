@@ -1,0 +1,92 @@
+From c0b835bef2a3c57e11809d26e3a4d528272c54c8 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 16:28:59 -0700
+Subject: [PATCH] mpeg2_cuda: refine search reads the window around the coarse
+ vector from shared memory
+
+The 32 refinement lanes each streamed 16 rows of five words from L1 at 32
+scattered addresses. The 20x7-word window around the coarse vector is now
+staged with a few coalesced loads; candidates inside it (the 21 window
+candidates and most neighbour/temporal ones) read it conflict-free from
+shared memory, the others still from global. Same SADs: bit-identical.
+k_me_refine ~60 -> ~48.5 us per call (1080, live load on the GPU).
+---
+ libavcodec/mpeg2_cuda.cu | 37 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 4 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 936bcf2..98fc641 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -418,9 +418,17 @@ static __device__ __forceinline__ short2 me_candidate(int k, short2 cv, short2 t
+     }
+ }
+ 
++/* reference window staged for the refinement: 16 + 4 rows, 7 words (any
++ * 16 pixels starting within 5 consecutive positions); stride 7 keeps the
++ * window lanes' rows in different banks */
++#define RW_ROWS  20
++#define RW_WORDS 7
++
+ /* Full-pel refinement (one candidate per lane, 16x16 SAD against the
+  * current MB held in shared memory) followed by a half-pel step (four lanes
+- * per candidate). Also makes the intra/inter decision. One warp per MB. */
++ * per candidate). Also makes the intra/inter decision. One warp per MB.
++ * Candidates within +-2 of the coarse vector read the reference from a
++ * window staged in shared memory, the rest from global memory. */
+ extern "C" __global__ void __launch_bounds__(128)
+ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+             int py, int pw, int ph,
+@@ -429,6 +437,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+             int intra_bias, const M2CMotion *prev, int flags, M2CMotion *out)
+ {
+     __shared__ uint32_t s_cur[4][64];
++    __shared__ uint32_t s_win[4][RW_ROWS * RW_WORDS];
+     const int wib  = threadIdx.x >> 5;
+     const int warp = (blockIdx.x * blockDim.x + threadIdx.x) >> 5;
+     const int lane = threadIdx.x & 31;
+@@ -458,6 +467,18 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+ 
+     const short2 cv = coarse[warp];
+     const short2 tv = (flags & 1) ? make_short2(prev[warp].mvx >> 1, prev[warp].mvy >> 1) : cv;
++
++    /* window: rows y0 + cv.y - 2 .., words from (x0 + cv.x - 2) / 4. Rows and
++     * words outside the plane are clamped; only illegal candidates (skipped
++     * below) would read those. */
++    uint32_t *win = s_win[wib];
++    const int wy0 = y0 + cv.y - 2, wx0 = (x0 + cv.x - 2) >> 2;
++    for (int i = lane; i < RW_ROWS * RW_WORDS; i += 32) {
++        const int r = min(max(wy0 + i / RW_WORDS, 0), ph + 3);
++        const int x = min(max(wx0 + i % RW_WORDS, 0), (py >> 2) - 1);
++        win[i] = ((const uint32_t *)(ref + (size_t)r * py))[x];
++    }
++    __syncwarp();
+     /* the left neighbour's coarse vector stands in for the real PMV */
+     const int pmx = (flags & 2) && mx > 0 ? 2 * coarse[warp - 1].x : 0;
+     const int pmy = (flags & 2) && mx > 0 ? 2 * coarse[warp - 1].y : 0;
+@@ -468,11 +489,19 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         if (2 * dx < lo_x || 2 * dx > hi_x || 2 * dy < lo_y || 2 * dy > hi_y)
+             continue;
+         const uint8_t *rp = ref + (y0 + dy) * py + x0 + dx;
+-        const uint32_t *wp = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
+-        const int sh = ((uintptr_t)rp & 3) * 8;
++        const uint32_t *wp;
++        int wstride;
++        if (dx >= cv.x - 2 && dx <= cv.x + 2 && dy >= cv.y - 2 && dy <= cv.y + 2) {
++            wp      = win + (dy - cv.y + 2) * RW_WORDS + ((x0 + dx) >> 2) - wx0;
++            wstride = RW_WORDS;
++        } else {
++            wp      = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
++            wstride = py >> 2;
++        }
++        const int sh = ((x0 + dx) & 3) * 8;
+         int sad = 0;
+         for (int row = 0; row < 16; row++) {
+-            const uint32_t *w = wp + row * (py >> 2);
++            const uint32_t *w = wp + row * wstride;
+             uint32_t w0 = w[0], w1 = w[1], w2 = w[2], w3 = w[3], w4 = w[4];
+             sad += __vsadu4(sc[row * 4 + 0], __funnelshift_rc(w0, w1, sh));
+             sad += __vsadu4(sc[row * 4 + 1], __funnelshift_rc(w1, w2, sh));
+-- 
+2.55.0
+
