@@ -23,8 +23,45 @@
 
       # nvcc needs a host compiler it supports; backendStdenv pins one.
       mkShell = pkgs.mkShell.override { stdenv = cuda.backendStdenv; };
+
+      lib = pkgs.lib;
+
+      # FFmpeg = upstream release + patches/ (the encoder lives only in the
+      # patch series; ffmpeg/ is a scratch tree made by scripts/ffmpeg_tree.sh)
+      patches = map (f: ./patches + "/${f}")
+        (lib.filter (lib.hasSuffix ".patch") (lib.attrNames (builtins.readDir ./patches)));
+
+      ffmpeg = cuda.backendStdenv.mkDerivation {
+        pname = "ffmpeg-mpeg2cuda";
+        version = "9.0.2";
+        src = pkgs.fetchurl {
+          url = "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz";
+          hash = "sha256-jDhQKD6yX6AmSCB4oEBR4L4XNHsJ74GghJvsFaluAC4=";
+        };
+        inherit patches;
+
+        # autoAddDriverRunpath: find the host libcuda/libnvcuvid at /run/opengl-driver
+        nativeBuildInputs = [ cuda.cuda_nvcc pkgs.autoAddDriverRunpath pkgs.nasm pkgs.pkg-config pkgs.perl ];
+        buildInputs = [ cuda.cuda_cudart cuda.cccl pkgs.nv-codec-headers-12 ];
+
+        # one flag per line, some contain spaces (--nvccflags)
+        __structuredAttrs = true;
+        configureFlags = lib.filter (f: f != "")
+          (lib.splitString "\n" (builtins.readFile ./scripts/ffmpeg_flags));
+        configurePlatforms = [ ];
+        setOutputFlags = false;
+        dontAddDisableDepTrack = true;
+        dontDisableStatic = true;     # FFmpeg builds static libs by default (m2c_bench links them)
+        enableParallelBuilding = true;
+
+        # nonfree (--enable-cuda-nvcc): local use only, not redistributable
+        meta.license = lib.licenses.unfree;
+      };
     in
     {
+      packages.ffmpeg = ffmpeg;
+      packages.default = ffmpeg;
+
       devShells.default = mkShell {
         name = "mpeg2cuda";
 

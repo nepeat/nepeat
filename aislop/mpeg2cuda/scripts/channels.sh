@@ -13,7 +13,7 @@
 # sees a smooth stream instead of one burst per picture.
 set -uo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
-F="$root/build/ffmpeg/ffmpeg"
+F="${FFMPEG:-$root/build/ffmpeg/ffmpeg}"   # or the flake's: FFMPEG=$(nix build .#ffmpeg --print-out-paths)/bin/ffmpeg
 run="$root/out/channels"; mkdir -p "$run"
 export LD_LIBRARY_PATH=/run/opengl-driver/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 PORT_BASE=${PORT_BASE:-5900}; VBITRATE=${VBITRATE:-15M}; MUXRATE=${MUXRATE:-16M}

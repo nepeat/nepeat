@@ -3,8 +3,14 @@
 Start here. Layout:
 - `flake.nix` — dev shell (CUDA 13.2 pinned to match the 595.x driver; nvcc 13.4
   emits PTX 9.4 the driver refuses to JIT). Run everything via `nix develop`.
-- `ffmpeg/` — FFmpeg n9.0.2 clone (gitignored), branch `mpeg2_cuda`. Encoder:
-  `libavcodec/mpeg2_cuda.{c,cu,h}`. `patches/` holds exported patches.
+  `nix build .#ffmpeg` = upstream FFmpeg 9.0.2 release tarball + `patches/*.patch`
+  (flags in `scripts/ffmpeg_flags`, shared with `scripts/configure.sh`); the
+  binary carries the driver runpath, no LD_LIBRARY_PATH needed.
+- `patches/` — the encoder, as a patch series on n9.0.2. This is the source of
+  truth. `ffmpeg/` (gitignored) is a scratch dev tree: `scripts/ffmpeg_tree.sh`
+  makes it (clone tag + `git am patches/*`, branch `mpeg2_cuda`); edit and commit
+  there, then `scripts/export_patches.sh` writes the series back. Encoder:
+  `libavcodec/mpeg2_cuda.{c,cu,h}`.
 - `scripts/configure.sh`, `scripts/build.sh` (forces PTX rebuild; nvcc has no
   dep tracking), `scripts/verify.sh` (bit-exact recon check),
   `scripts/compare.sh` (CPU vs GPU quality at given RC args),
