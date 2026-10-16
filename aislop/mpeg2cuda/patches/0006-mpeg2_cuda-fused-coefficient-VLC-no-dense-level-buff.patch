@@ -1,0 +1,699 @@
+From 6fe6f2c333755841c419a12f1a3242582cdf28c0 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 00:18:42 -0700
+Subject: [PATCH 06/10] mpeg2_cuda: fused coefficient VLC (no dense level
+ buffer), vectorised load, constant-memory tables, one-round refine, B search
+ options
+
+---
+ libavcodec/mpeg2_cuda.c  |  50 +++---
+ libavcodec/mpeg2_cuda.cu | 320 +++++++++++++++++++++++++++++----------
+ libavcodec/mpeg2_cuda.h  |   7 +-
+ 3 files changed, 276 insertions(+), 101 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index b51c197..64329a7 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -85,7 +85,7 @@ typedef struct MPEG2CudaContext {
+     CUdeviceptr rec[3][3];           /* two anchors + the B picture */
+     CUdeviceptr staging[3];
+     CUdeviceptr srcq, refq, refq2;
+-    CUdeviceptr coarse, motion, motion_prev, mbinfo, levels, slots, bitlen;
++    CUdeviceptr coarse, motion, motion_prev, mbinfo, blkbits, blklen, slots, bitlen;
+     CUdeviceptr motion_bf, motion_bb, pred_f, pred_b, bdir;
+     CUdeviceptr rows, row_bytes, out;
+     CUdeviceptr mv_need;
+@@ -150,6 +150,8 @@ typedef struct MPEG2CudaContext {
+     int   field_dct;
+     int   field_me;
+     int   field_bias;
++    int   field_skip;
++    int   me_range_b;
+     int   nonlinear_q;
+     float ip_ratio;
+     float pb_ratio;
+@@ -493,7 +495,7 @@ static int upload_frame(AVCodecContext *avctx, const AVFrame *frame, int slot)
+         void *args[] = { &y, &pitch_y, &u, &v, &pitch_uv, &nv12, &w, &h,
+                          &s->src[slot][0], &s->src[slot][1], &s->src[slot][2],
+                          &s->py, &s->pc, &s->pw, &s->ph };
+-        return launch(avctx, F_LOAD, FFALIGN(s->pw, 32) / 32, FFALIGN(s->ph, 8) / 8,
++        return launch(avctx, F_LOAD, FFALIGN(s->pw / 8, 32) / 32, FFALIGN(s->ph, 8) / 8,
+                       32, 8, args);
+     }
+ }
+@@ -508,7 +510,7 @@ static int down4(AVCodecContext *avctx, CUdeviceptr src, CUdeviceptr dst)
+ /* coarse + refine search of cur against one reference; refq must hold the
+  * decimated reference. pred: temporal predictor field, out: results */
+ static int search_dir(AVCodecContext *avctx, CUdeviceptr cur, CUdeviceptr ref, CUdeviceptr refq,
+-                      CUdeviceptr pred, CUdeviceptr out, int lambda)
++                      CUdeviceptr pred, CUdeviceptr out, int lambda, int range)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+@@ -517,7 +519,7 @@ static int search_dir(AVCodecContext *avctx, CUdeviceptr cur, CUdeviceptr ref, C
+     int ret;
+     {
+         void *args[] = { &s->srcq, &refq, &s->qpitch, &s->qw, &s->qh,
+-                         &s->mb_w, &s->mb_h, &s->me_range, &lambda, &pred,
++                         &s->mb_w, &s->mb_h, &range, &lambda, &pred,
+                          &temporal, &s->coarse };
+         ret = launch(avctx, F_ME_COARSE, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+         if (ret < 0)
+@@ -550,12 +552,12 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int lambda)
+     if ((ret = down4(avctx, s->src[slot][0], s->srcq)) < 0 ||
+         (ret = down4(avctx, ref, s->refq)) < 0 ||
+         (ret = search_dir(avctx, s->src[slot][0], ref, s->refq, s->motion_prev,
+-                          s->motion, lambda)) < 0)
++                          s->motion, lambda, s->me_range)) < 0)
+         return ret;
+     if (s->field_me) {
+         void *args[] = { &s->src[slot][0], &ref, &s->py, &s->pw, &s->ph,
+                          &s->mb_w, &s->mb_h, &lambda, &mv_max,
+-                         &s->intra_cost_bias, &s->field_bias, &s->motion };
++                         &s->intra_cost_bias, &s->field_bias, &s->field_skip, &s->motion };
+         ret = launch(avctx, F_ME_FIELD, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+     }
+     return ret;
+@@ -571,6 +573,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambd
+      * between the two anchors */
+     int d  = s->anchor_fut_n - s->anchor_past_n;
+     int df = n - s->anchor_past_n, db = s->anchor_fut_n - n;
++    int rb = s->me_range_b ? s->me_range_b : s->me_range;
+     int ret;
+ 
+     /* predictors: the newest P's vectors span d pictures backwards */
+@@ -580,9 +583,9 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambd
+         (ret = scale_motion(avctx, s->motion_prev, s->pred_f, df, d)) < 0 ||
+         (ret = scale_motion(avctx, s->motion_prev, s->pred_b, -db, d)) < 0 ||
+         (ret = search_dir(avctx, s->src[slot][0], past, s->refq, s->pred_f,
+-                          s->motion_bf, lambda)) < 0 ||
++                          s->motion_bf, lambda, rb)) < 0 ||
+         (ret = search_dir(avctx, s->src[slot][0], fut, s->refq2, s->pred_b,
+-                          s->motion_bb, lambda)) < 0)
++                          s->motion_bb, lambda, rb)) < 0)
+         return ret;
+     if (s->field_me) {
+         int mv_max = (16 << (s->fcode - 1)) - 1;
+@@ -590,7 +593,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambd
+             CUdeviceptr ref = k ? fut : past, out = k ? s->motion_bb : s->motion_bf;
+             void *args[] = { &s->src[slot][0], &ref, &s->py, &s->pw, &s->ph,
+                              &s->mb_w, &s->mb_h, &lambda, &mv_max,
+-                             &s->intra_cost_bias, &s->field_bias, &out };
++                             &s->intra_cost_bias, &s->field_bias, &s->field_skip, &out };
+             ret = launch(avctx, F_ME_FIELD, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+         }
+         if (ret < 0)
+@@ -627,7 +630,7 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+             .rec_y = s->rec[cur][0], .rec_u = s->rec[cur][1], .rec_v = s->rec[cur][2],
+             .motion  = pict_type == 3 ? s->motion_bf : s->motion,
+             .motion2 = s->motion_bb, .bdir = s->bdir,
+-            .mbinfo = s->mbinfo, .levels = s->levels,
++            .mbinfo = s->mbinfo, .blkbits = s->blkbits, .blklen = s->blklen,
+             .py = s->py, .pc = s->pc, .mb_w = s->mb_w, .mb_h = s->mb_h,
+             .pict_type = pict_type, .qscale = qscale_of(s, qcode), .field_dct = s->field_dct,
+             .drop_ac = drop_ac, .mv_need = s->mv_need,
+@@ -640,7 +643,7 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+     }
+     {
+         int fpfd0 = s->field_dct || s->field_me;
+-        void *args[] = { &s->mbinfo, &s->levels, &s->mb_w, &s->mb_h, &pict_type, &s->mv_need,
++        void *args[] = { &s->mbinfo, &s->blkbits, &s->blklen, &s->mb_w, &s->mb_h, &pict_type, &s->mv_need,
+                          &fpfd0, &s->slots, &s->bitlen };
+         ret = launch(avctx, F_VLC, (n_mb + 63) / 64, 1, 64, 1, args);
+         if (ret < 0)
+@@ -660,14 +663,16 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+             return ret;
+     }
+ 
++    /* Two round trips (sizes, then exactly the picture's bytes). Fetching a
++     * fixed chunk with the sizes measured slower: the copy goes through
++     * pageable memory (ffnvcodec has no cuMemHostAlloc) and costs more than
++     * the extra synchronisation. */
+     ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_row_bytes, s->row_bytes,
+                                             s->mb_h * sizeof(int), s->stream));
+-    if (ret < 0)
+-        return ret;
+-    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(&s->host_mv_need, s->mv_need, sizeof(int), s->stream));
+-    if (ret < 0)
+-        return ret;
+-    ret = CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(&s->host_mv_need, s->mv_need, sizeof(int), s->stream));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuStreamSynchronize(s->stream));
+     if (ret < 0)
+         return ret;
+ 
+@@ -953,7 +958,8 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         free_dev(s, &s->motion);
+         free_dev(s, &s->motion_prev);
+         free_dev(s, &s->mbinfo);
+-        free_dev(s, &s->levels);
++        free_dev(s, &s->blkbits);
++        free_dev(s, &s->blklen);
+         free_dev(s, &s->slots);
+         free_dev(s, &s->bitlen);
+         free_dev(s, &s->rows);
+@@ -1178,7 +1184,9 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->mbinfo, n_mb * sizeof(M2CMBInfo));
+     if (ret >= 0)
+-        ret = alloc_dev(avctx, &s->levels, (size_t)n_mb * 384 * sizeof(int16_t));
++        ret = alloc_dev(avctx, &s->blkbits, (size_t)n_mb * 6 * M2C_BLK_WORDS * 4);
++    if (ret >= 0)
++        ret = alloc_dev(avctx, &s->blklen, (size_t)n_mb * 6 * sizeof(int16_t));
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->slots, (size_t)n_mb * M2C_SLOT_WORDS * 4);
+     if (ret >= 0)
+@@ -1236,6 +1244,10 @@ static const AVOption options[] = {
+       AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, VE },
+     { "field_me",        "field motion prediction in frame pictures", OFFSET(field_me),
+       AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, VE },
++    { "field_skip",      "skip the field search when the frame SAD is below this", OFFSET(field_skip),
++      AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 65536, VE },
++    { "me_range_b",      "coarse search range for B pictures (0 = me_range)", OFFSET(me_range_b),
++      AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 15, VE },
+     { "field_bias",      "SAD margin before field prediction is chosen", OFFSET(field_bias),
+       AV_OPT_TYPE_INT, { .i64 = 0 }, -65536, 65536, VE },
+     { "intra_cost_bias", "SAD margin before a P macroblock is coded intra", OFFSET(intra_cost_bias),
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 0a12e48..3584d94 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -39,6 +39,22 @@
+ 
+ __device__ M2CTables g_tab;
+ 
++/* uniform-access tables: every lane reads the same entry at the same time,
++ * which the constant cache broadcasts (values as in build_tables()) */
++__constant__ float c_dct[8][8] = {
++    { 3.535533906e-01f, 3.535533906e-01f, 3.535533906e-01f, 3.535533906e-01f, 3.535533906e-01f, 3.535533906e-01f, 3.535533906e-01f, 3.535533906e-01f },
++    { 4.903926402e-01f, 4.157348062e-01f, 2.777851165e-01f, 9.754516101e-02f, -9.754516101e-02f, -2.777851165e-01f, -4.157348062e-01f, -4.903926402e-01f },
++    { 4.619397663e-01f, 1.913417162e-01f, -1.913417162e-01f, -4.619397663e-01f, -4.619397663e-01f, -1.913417162e-01f, 1.913417162e-01f, 4.619397663e-01f },
++    { 4.157348062e-01f, -9.754516101e-02f, -4.903926402e-01f, -2.777851165e-01f, 2.777851165e-01f, 4.903926402e-01f, 9.754516101e-02f, -4.157348062e-01f },
++    { 3.535533906e-01f, -3.535533906e-01f, -3.535533906e-01f, 3.535533906e-01f, 3.535533906e-01f, -3.535533906e-01f, -3.535533906e-01f, 3.535533906e-01f },
++    { 2.777851165e-01f, -4.903926402e-01f, 9.754516101e-02f, 4.157348062e-01f, -4.157348062e-01f, -9.754516101e-02f, 4.903926402e-01f, -2.777851165e-01f },
++    { 1.913417162e-01f, -4.619397663e-01f, 4.619397663e-01f, -1.913417162e-01f, -1.913417162e-01f, 4.619397663e-01f, -4.619397663e-01f, 1.913417162e-01f },
++    { 9.754516101e-02f, -2.777851165e-01f, 4.157348062e-01f, -4.903926402e-01f, 4.903926402e-01f, -4.157348062e-01f, 2.777851165e-01f, -9.754516101e-02f }
++};
++__constant__ uint8_t c_iscan[64] = { 0, 4, 6, 20, 22, 36, 38, 52, 1, 5, 7, 21, 23, 37, 39, 53, 2, 8, 19, 24, 34, 40, 50, 54, 3, 9, 18, 25, 35, 41, 51, 55, 10, 17, 26, 30, 42, 46, 56, 60, 11, 16, 27, 31, 43, 47, 57, 61, 12, 15, 28, 32, 44, 48, 58, 62, 13, 14, 29, 33, 45, 49, 59, 63 };
++__constant__ uint8_t c_intra_matrix[64] = { 8, 16, 19, 22, 26, 27, 29, 34, 16, 16, 22, 24, 27, 29, 34, 37, 19, 22, 26, 27, 29, 34, 34, 38, 22, 22, 26, 27, 29, 34, 37, 40, 22, 26, 27, 29, 32, 35, 40, 48, 26, 27, 29, 32, 35, 40, 48, 58, 26, 27, 29, 34, 38, 46, 56, 69, 27, 29, 35, 38, 46, 56, 69, 83 };
++
++
+ static __device__ __forceinline__ int clip_u8(int v)
+ {
+     return v < 0 ? 0 : (v > 255 ? 255 : v);
+@@ -75,29 +91,60 @@ extern "C" __global__ void k_init_tables(const uint32_t *src, int words)
+         dst[i] = src[i];
+ }
+ 
++/* Input picture -> padded planar planes. Each thread moves 8 luma pixels of
++ * one row (and on even rows the 4 chroma pixels below them) with 8- and
++ * 4-byte accesses; only the picture's right/bottom edge takes the per-byte
++ * replicate path. */
+ extern "C" __global__ void k_load(const uint8_t *sy, int sy_pitch,
+                                   const uint8_t *su, const uint8_t *sv, int suv_pitch,
+                                   int nv12, int w, int h,
+                                   uint8_t *dy, uint8_t *du, uint8_t *dv,
+                                   int py, int pc, int pw, int ph)
+ {
+-    int x = blockIdx.x * blockDim.x + threadIdx.x;
+-    int y = blockIdx.y * blockDim.y + threadIdx.y;
++    const int x = (blockIdx.x * blockDim.x + threadIdx.x) * 8;
++    const int y = blockIdx.y * blockDim.y + threadIdx.y;
+     if (x >= pw || y >= ph)
+         return;
+ 
+-    dy[y * py + x] = sy[min(y, h - 1) * sy_pitch + min(x, w - 1)];
++    const int ys = min(y, h - 1);
++    const uint8_t *srow = sy + ys * sy_pitch;
++    if (x + 8 <= w && !((uintptr_t)(srow + x) & 7)) {
++        *(uint2 *)(dy + y * py + x) = *(const uint2 *)(srow + x);
++    } else {
++        for (int k = 0; k < 8; k++)
++            dy[y * py + x + k] = srow[min(x + k, w - 1)];
++    }
+ 
+-    if (!(x & 1) && !(y & 1)) {
+-        int cx  = x >> 1, cy = y >> 1;
+-        int scx = min(cx, ((w + 1) >> 1) - 1);
+-        int scy = min(cy, ((h + 1) >> 1) - 1);
+-        if (nv12) {
+-            du[cy * pc + cx] = su[scy * suv_pitch + 2 * scx];
+-            dv[cy * pc + cx] = su[scy * suv_pitch + 2 * scx + 1];
++    if (y & 1)
++        return;
++    const int cx = x >> 1, cy = y >> 1;
++    const int cw = (w + 1) >> 1;
++    const int scy = min(cy, ((h + 1) >> 1) - 1);
++    uint8_t *du_ = du + cy * pc + cx, *dv_ = dv + cy * pc + cx;
++    if (nv12) {
++        const uint8_t *s = su + scy * suv_pitch;
++        if (cx + 4 <= cw && !((uintptr_t)(s + 2 * cx) & 7)) {
++            uint2 uv = *(const uint2 *)(s + 2 * cx);       /* U0 V0 U1 V1 | U2 V2 U3 V3 */
++            *(uint32_t *)du_ = __byte_perm(uv.x, uv.y, 0x6420);
++            *(uint32_t *)dv_ = __byte_perm(uv.x, uv.y, 0x7531);
+         } else {
+-            du[cy * pc + cx] = su[scy * suv_pitch + scx];
+-            dv[cy * pc + cx] = sv[scy * suv_pitch + scx];
++            for (int k = 0; k < 4; k++) {
++                int c = min(cx + k, cw - 1);
++                du_[k] = s[2 * c];
++                dv_[k] = s[2 * c + 1];
++            }
++        }
++    } else {
++        const uint8_t *u = su + scy * suv_pitch, *v = sv + scy * suv_pitch;
++        if (cx + 4 <= cw && !((uintptr_t)(u + cx) & 3) && !((uintptr_t)(v + cx) & 3)) {
++            *(uint32_t *)du_ = *(const uint32_t *)(u + cx);
++            *(uint32_t *)dv_ = *(const uint32_t *)(v + cx);
++        } else {
++            for (int k = 0; k < 4; k++) {
++                int c = min(cx + k, cw - 1);
++                du_[k] = u[c];
++                dv_[k] = v[c];
++            }
+         }
+     }
+ }
+@@ -300,23 +347,38 @@ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+         out[warp] = make_short2(((packed >> 10) - 512) * 4, ((packed & 1023) - 512) * 4);
+ }
+ 
+-#define ME_NB_CAND 39
++#define ME_NB_CAND 32
++
++/* full-pel candidate k for the refinement, one per lane: the 5x5 window
++ * around the coarse vector without its corners (21), zero and its 4
++ * orthogonal neighbours (5), the neighbours' coarse vectors (4), the
++ * temporal predictor and zero's diagonal (+1,+1) */
++__constant__ int8_t c_win21[21][2] = {
++    { -1, -2 }, { 0, -2 }, { 1, -2 },
++    { -2, -1 }, { -1, -1 }, { 0, -1 }, { 1, -1 }, { 2, -1 },
++    { -2,  0 }, { -1,  0 }, { 0,  0 }, { 1,  0 }, { 2,  0 },
++    { -2,  1 }, { -1,  1 }, { 0,  1 }, { 1,  1 }, { 2,  1 },
++    { -1,  2 }, { 0,  2 }, { 1,  2 },
++};
+ 
+-/* full-pel candidate k for the refinement: coarse +-2, zero +-1, neighbours */
+ static __device__ __forceinline__ short2 me_candidate(int k, short2 cv, short2 tv,
+                                                       const short2 *coarse,
+                                                       int mb, int mx, int my, int mb_w, int mb_h)
+ {
+-    if (k < 25)
+-        return make_short2(cv.x + k % 5 - 2, cv.y + k / 5 - 2);
+-    if (k < 34)
+-        return make_short2((k - 25) % 3 - 1, (k - 25) / 3 - 1);
++    if (k < 21)
++        return make_short2(cv.x + c_win21[k][0], cv.y + c_win21[k][1]);
+     switch (k) {
+-    case 34: return mx > 0        ? coarse[mb - 1]    : cv;
+-    case 35: return mx < mb_w - 1 ? coarse[mb + 1]    : cv;
+-    case 36: return my > 0        ? coarse[mb - mb_w] : cv;
+-    case 37: return my < mb_h - 1 ? coarse[mb + mb_w] : cv;
+-    default: return tv;
++    case 21: return make_short2(0, 0);
++    case 22: return make_short2(-1, 0);
++    case 23: return make_short2(1, 0);
++    case 24: return make_short2(0, -1);
++    case 25: return make_short2(0, 1);
++    case 26: return mx > 0        ? coarse[mb - 1]    : cv;
++    case 27: return mx < mb_w - 1 ? coarse[mb + 1]    : cv;
++    case 28: return my > 0        ? coarse[mb - mb_w] : cv;
++    case 29: return my < mb_h - 1 ? coarse[mb + mb_w] : cv;
++    case 30: return tv;
++    default: return make_short2(1, 1);
+     }
+ }
+ 
+@@ -475,7 +537,10 @@ k_me_bidir(const uint8_t *cur, const uint8_t *ref_f, const uint8_t *ref_b,
+     int sad_bi = warp_sum(__vsadu4(cr[0], __vavgu4(pf[0], pb[0])) +
+                           __vsadu4(cr[1], __vavgu4(pf[1], pb[1])));
+     int sad_bif = 0x7fffffff;
+-    const int have_field = f.fsad != 0x7fffffff && b.fsad != 0x7fffffff;
++    /* averaged field prediction only when a field vector already rivals
++     * the frame vectors in at least one direction (warp-uniform test) */
++    const int have_field = f.fsad != 0x7fffffff && b.fsad != 0x7fffffff &&
++                           min(f.fsad, b.fsad) < min(f.sad, b.sad) + (min(f.sad, b.sad) >> 3);
+     if (have_field) {
+         pred_row(ref_f, py, 0, 1, mvf, fmv_f, f.fsel[0] | f.fsel[1] << 1, row, X, Y, my, pf);
+         pred_row(ref_b, py, 0, 1, mvb, fmv_b, b.fsel[0] | b.fsel[1] << 1, row, X, Y, my, pb);
+@@ -518,7 +583,7 @@ k_me_bidir(const uint8_t *cur, const uint8_t *ref_f, const uint8_t *ref_b,
+ extern "C" __global__ void __launch_bounds__(128)
+ k_me_field(const uint8_t *cur, const uint8_t *ref,
+            int py, int pw, int ph, int mb_w, int mb_h,
+-           int lambda, int mv_max, int intra_bias, int field_bias,
++           int lambda, int mv_max, int intra_bias, int field_bias, int skip_sad,
+            M2CMotion *motion)
+ {
+     __shared__ uint32_t s_cur[4][64];
+@@ -539,6 +604,9 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+     __syncwarp();
+ 
+     M2CMotion mo = motion[warp];
++    /* a near-perfect frame match leaves nothing for field prediction to win */
++    if (mo.sad < skip_sad)
++        return;
+     const int fh   = ph >> 1;
+     const int fy0  = my * 8;                  /* MB origin in field lines */
+     const int lo_x = max(-2 * x0, -mv_max - 1), hi_x = min(2 * (pw - 16 - x0), mv_max);
+@@ -679,6 +747,8 @@ k_encode_mb(M2CEncodeParams p)
+     __shared__ __align__(8) uint8_t s_pred[3][4][64];
+     __shared__ __align__(8) uint8_t s_rec[3][4][64];
+     __shared__ int     s_last[2][6], s_dc[2][6], s_dct[2];
++    __shared__ short   s_lev[3][4][64];
++    __shared__ uint32_t s_bits[3][4][M2C_BLK_WORDS + 2];
+ 
+     const int w    = threadIdx.x >> 5;
+     const int lane = threadIdx.x & 31;
+@@ -812,7 +882,7 @@ k_encode_mb(M2CEncodeParams p)
+     for (int u = 0; u < 8; u++) {
+         float acc = 0.0f;
+         for (int k = 0; k < 8; k++)
+-            acc += r[k] * g_tab.dct[u][k];
++            acc += r[k] * c_dct[u][k];
+         s_f[w][bi][j * 8 + u] = acc;
+     }
+     __syncwarp();
+@@ -824,44 +894,152 @@ k_encode_mb(M2CEncodeParams p)
+     for (int v = 0; v < 8; v++) {
+         float acc = 0.0f;
+         for (int k = 0; k < 8; k++)
+-            acc += s_f[w][bc][k * 8 + u] * g_tab.dct[v][k];
++            acc += s_f[w][bc][k * 8 + u] * c_dct[v][k];
+         F[v] = acc;
+     }
+ 
+     /* quantisation */
+     const int qs = p.qscale;
+     int L[8], lastp = -1;
+-    int16_t *lev = p.levels + (size_t)mbc * 384 + blk * 64;
+     for (int v = 0; v < 8; v++) {
+         const int rr = v * 8 + u;
+         int level;
+         if (intra) {
+-            const int W = g_tab.intra_matrix[rr];
++            const int W = c_intra_matrix[rr];
+             if (rr == 0) {
+                 level = clip_u8(__float2int_rn(F[v] * 0.125f));
+             } else {
+-                int lmax = min(2047, 32767 / (qs * W));
+-                int a    = min(lmax, (int)(fabsf(F[v]) * 16.0f / (qs * W) + p.intra_bias));
+-                level    = F[v] < 0 ? -a : a;
++                /* keep the dequantised value within 12 bits (slow path is rare) */
++                const int qw = qs * W;
++                int a = (int)(fabsf(F[v]) * (16.0f * __frcp_rn((float)qw)) + p.intra_bias);
++                if (a * qw > 32767)
++                    a = 32767 / qw;
++                a     = min(a, 2047);
++                level = F[v] < 0 ? -a : a;
+             }
+         } else {
+-            const int W = g_tab.inter_matrix[rr];
+-            int lmax = min(2047, (65535 / (qs * W) - 1) >> 1);
+-            int a    = min(lmax, (int)(fabsf(F[v]) * 16.0f / (qs * W) + p.inter_bias));
+-            level    = F[v] < 0 ? -a : a;
++            const int W  = 16;
++            const int qw = qs * W;
++            int a = (int)(fabsf(F[v]) * (16.0f * __frcp_rn((float)qw)) + p.inter_bias);
++            if ((2 * a + 1) * qw > 65535)
++                a = (65535 / qw - 1) >> 1;
++            a     = min(a, 2047);
++            level = F[v] < 0 ? -a : a;
+         }
+         if (p.drop_ac && !(intra && rr == 0))
+             level = 0;
+         L[v] = level;
+-        const int sp = g_tab.iscan[rr];
+-        if (valid)
+-            lev[sp] = level;
++        const int sp = c_iscan[rr];
++        s_lev[w][bc][sp] = level;
+         if (level && !(intra && rr == 0))
+             lastp = max(lastp, sp);
+     }
+     const int last  = __reduce_max_sync(gmask, lastp);
+     const int coded = intra || last >= 0;
+ 
++    /* ---- coefficient VLC, 8 lanes per block: lane u codes scan positions
++     * 8u..8u+7 (from 1 for intra blocks, whose DC is coded with its
++     * predictor in k_vlc); runs come from a segmented prefix max of the
++     * last nonzero position, bit offsets from a prefix sum of lengths ---- */
++    {
++        uint32_t *bits = s_bits[w][bc];
++        for (int k = u; k < M2C_BLK_WORDS + 2; k += 8)
++            bits[k] = 0;
++        __syncwarp();
++
++        const short *lv  = s_lev[w][bc];
++        const int start  = intra ? 1 : 0;
++        const int tbl    = intra ? 1 : 0;   /* intra_vlc_format = 1: table B.15 */
++        int lastnz = -1;
++        for (int k = 0; k < 8; k++) {
++            int pos = 8 * u + k;
++            if (pos >= start && lv[pos])
++                lastnz = pos;
++        }
++        int incl = lastnz;
++        for (int d = 1; d < 8; d <<= 1) {
++            int o = __shfl_up_sync(FULL_MASK, incl, d, 8);
++            if (u >= d)
++                incl = max(incl, o);
++        }
++        int prev = __shfl_up_sync(FULL_MASK, incl, 1, 8);
++        prev = max(u ? prev : -1, start - 1);
++
++        /* two passes over the lane's 8 positions (lengths, then bits) so no
++         * per-lane code array spills to local memory */
++        const int prev0 = prev;
++        int nbits = 0;
++        for (int k = 0; k < 8; k++) {
++            int pos = 8 * u + k, level = lv[pos];
++            if (pos < start || !level)
++                continue;
++            int run = pos - prev - 1, alev = abs(level);
++            prev = pos;
++            if (!intra && pos == 0 && alev == 1) {
++                nbits += 2;
++            } else {
++                uint32_t e = alev <= 40 ? g_tab.ac[tbl][run][alev] : 0;
++                nbits += e ? (e >> 24) + 1 : 24;
++            }
++        }
++        if (u == 7 && coded)
++            nbits += g_tab.eob[tbl] >> 24;
++
++        int off = nbits;
++        for (int d = 1; d < 8; d <<= 1) {
++            int o = __shfl_up_sync(FULL_MASK, off, d, 8);
++            if (u >= d)
++                off += o;
++        }
++        const int total = __shfl_sync(FULL_MASK, off, 7, 8);
++        off -= nbits;
++
++        prev = prev0;
++        for (int k = 0; k < 9; k++) {
++            uint32_t code;
++            int len;
++            if (k == 8) {
++                if (!(u == 7 && coded))
++                    break;
++                code = g_tab.eob[tbl] & 0xffffff;
++                len  = g_tab.eob[tbl] >> 24;
++            } else {
++                int pos = 8 * u + k, level = lv[pos];
++                if (pos < start || !level)
++                    continue;
++                int run = pos - prev - 1, alev = abs(level), sign = level < 0;
++                prev = pos;
++                if (!intra && pos == 0 && alev == 1) {
++                    code = 2 | sign;                   /* first coefficient: '1s' */
++                    len  = 2;
++                } else {
++                    uint32_t e = alev <= 40 ? g_tab.ac[tbl][run][alev] : 0;
++                    if (e) {
++                        code = ((e & 0xffffff) << 1) | sign;
++                        len  = (e >> 24) + 1;
++                    } else {                           /* escape: 000001 run level */
++                        code = ((1u << 6 | run) << 12) | (level & 0xfff);
++                        len  = 24;
++                    }
++                }
++            }
++            uint32_t v = code << (32 - len);
++            int word = off >> 5, sh = off & 31;
++            atomicOr(&bits[word], v >> sh);
++            if (sh + len > 32)
++                atomicOr(&bits[word + 1], v << (32 - sh));
++            off += len;
++        }
++        __syncwarp();
++        if (valid) {
++            uint32_t *dst = p.blkbits + ((size_t)mbc * 6 + blk) * M2C_BLK_WORDS;
++            for (int k = u; k < (total + 31) >> 5; k += 8)
++                dst[k] = bits[k];
++            if (u == 0)
++                p.blklen[mbc * 6 + blk] = coded ? total : 0;
++        }
++    }
++
+     /* dequantisation exactly as libavcodec/mpeg12dec.c does it */
+     int d[8], par = 0;
+     for (int v = 0; v < 8; v++) {
+@@ -871,11 +1049,11 @@ k_encode_mb(M2CEncodeParams p)
+             if (rr == 0) {
+                 dv = L[v] * 8;
+             } else if (L[v]) {
+-                dv = (abs(L[v]) * qs * g_tab.intra_matrix[rr]) >> 4;
++                dv = (abs(L[v]) * qs * c_intra_matrix[rr]) >> 4;
+                 dv = L[v] < 0 ? -dv : dv;
+             }
+         } else if (L[v]) {
+-            dv = ((2 * abs(L[v]) + 1) * qs * g_tab.inter_matrix[rr]) >> 5;
++            dv = ((2 * abs(L[v]) + 1) * qs * 16) >> 5;
+             dv = L[v] < 0 ? -dv : dv;
+         }
+         d[v] = dv;
+@@ -990,9 +1168,8 @@ k_encode_mb(M2CEncodeParams p)
+         mi.fsel     = fsel;
+         mi.dir      = dir;
+         mi.pad      = 0;
+-        mi.dc[0]    = intra ? s_dc[w][3] : 0;
+-        mi.dc[1]    = intra ? s_dc[w][4] : 0;
+-        mi.dc[2]    = intra ? s_dc[w][5] : 0;
++        for (int b = 0; b < 6; b++)
++            mi.dc[b] = intra ? s_dc[w][b] : 0;
+         for (int b = 0; b < 6; b++)
+             mi.last[b] = s_last[w][b];
+         p.mbinfo[mb] = mi;
+@@ -1058,34 +1235,6 @@ static __device__ void put_dc(BitWriter &bw, int diff, int chroma)
+         bw_put(bw, (diff > 0 ? diff : diff - 1) & ((1 << size) - 1), size);
+ }
+ 
+-static __device__ void put_block(BitWriter &bw, const short *lev, int start, int last,
+-                                 int tbl, int first_special)
+-{
+-    int prev = start - 1;
+-    for (int i = start; i <= last; i++) {
+-        int level = lev[i];
+-        if (!level)
+-            continue;
+-        int run   = i - prev - 1;
+-        int alev  = abs(level);
+-        int sign  = level < 0;
+-        prev = i;
+-        if (first_special && i == 0 && alev == 1) {
+-            bw_put(bw, 2 | sign, 2);
+-            continue;
+-        }
+-        uint32_t e = alev <= 40 ? g_tab.ac[tbl][run][alev] : 0;
+-        if (e) {
+-            bw_put(bw, ((e & 0xffffff) << 1) | sign, (e >> 24) + 1);
+-        } else {
+-            bw_put(bw, (1 << 6) | run, 12);
+-            bw_put(bw, level & 0xfff, 12);
+-        }
+-    }
+-    bw_put_vlc(bw, g_tab.eob[tbl]);
+-}
+-
+-/* macroblock layer, one thread per MB into a private slot */
+ static __device__ __forceinline__ int fcode_for(int need)
+ {
+     int f = 1;
+@@ -1094,7 +1243,17 @@ static __device__ __forceinline__ int fcode_for(int need)
+     return f;
+ }
+ 
+-extern "C" __global__ void k_vlc(const M2CMBInfo *mbi, const short *levels,
++/* append nbits bits stored MSB first in 32-bit words */
++static __device__ __forceinline__ void bw_copy(BitWriter &bw, const uint32_t *src, int nbits)
++{
++    int k = 0;
++    for (; nbits >= 32; nbits -= 32)
++        bw_put(bw, src[k++], 32);
++    if (nbits)
++        bw_put(bw, src[k] >> (32 - nbits), nbits);
++}
++
++extern "C" __global__ void k_vlc(const M2CMBInfo *mbi, const uint32_t *blkbits, const short *blklen,
+                                  int mb_w, int mb_h, int pict_type, const int *mv_need,
+                                  int field_dct, uint32_t *slots, int *bitlen)
+ {
+@@ -1152,12 +1311,13 @@ extern "C" __global__ void k_vlc(const M2CMBInfo *mbi, const short *levels,
+     }
+     if (mx > 0 && mbi[mb - 1].intra) {
+         M2CMBInfo l = mbi[mb - 1];
+-        dcp[0] = l.dc[0];
+-        dcp[1] = l.dc[1];
+-        dcp[2] = l.dc[2];
++        dcp[0] = l.dc[3];
++        dcp[1] = l.dc[4];
++        dcp[2] = l.dc[5];
+     }
+ 
+-    const short *lev = levels + (size_t)mb * 384;
++    const uint32_t *bb = blkbits + (size_t)mb * 6 * M2C_BLK_WORDS;
++    const short    *bl = blklen + mb * 6;
+     if (m.intra) {
+         if (pict_type == 1)
+             bw_put(bw, 1, 1);        /* intra */
+@@ -1167,10 +1327,10 @@ extern "C" __global__ void k_vlc(const M2CMBInfo *mbi, const short *levels,
+             bw_put(bw, m.dct_type, 1);
+         for (int b = 0; b < 6; b++) {
+             int c  = b < 4 ? 0 : b - 3;
+-            int dc = lev[b * 64];
++            int dc = m.dc[b];
+             put_dc(bw, dc - dcp[c], c > 0);
+             dcp[c] = dc;
+-            put_block(bw, lev + b * 64, 1, m.last[b], 1, 0);
++            bw_copy(bw, bb + b * M2C_BLK_WORDS, bl[b]);
+         }
+     } else {
+         const int coded = m.cbp != 0;
+@@ -1210,7 +1370,7 @@ extern "C" __global__ void k_vlc(const M2CMBInfo *mbi, const short *levels,
+             bw_put_vlc(bw, g_tab.cbp[m.cbp]);
+             for (int b = 0; b < 6; b++)
+                 if (m.cbp & (32 >> b))
+-                    put_block(bw, lev + b * 64, 0, m.last[b], 0, 1);
++                    bw_copy(bw, bb + b * M2C_BLK_WORDS, bl[b]);
+         }
+     }
+ 
+diff --git a/libavcodec/mpeg2_cuda.h b/libavcodec/mpeg2_cuda.h
+index 802caa1..ed383b5 100644
+--- a/libavcodec/mpeg2_cuda.h
++++ b/libavcodec/mpeg2_cuda.h
+@@ -31,6 +31,8 @@
+ 
+ /* worst case MB: every coefficient escape coded is ~9300 bits */
+ #define M2C_SLOT_WORDS 320
++/* worst case block: 64 escapes (24 bits) + EOB */
++#define M2C_BLK_WORDS  50
+ #define M2C_MAX_MB_W   128
+ 
+ typedef struct M2CTables {
+@@ -66,7 +68,7 @@ typedef struct M2CMBInfo {
+     uint8_t fsel;                /* field_select, bit 2 * direction + field */
+     uint8_t dir;                 /* 1 forward, 2 backward, 3 both */
+     uint8_t pad;
+-    int16_t dc[3];               /* last DC per component, for the next MB's predictor */
++    int16_t dc[6];               /* intra DC per block; 3..5 predict the next MB */
+     int8_t  last[6];             /* last nonzero scan position per block, -1 if none */
+ } M2CMBInfo;
+ 
+@@ -87,7 +89,8 @@ typedef struct M2CEncodeParams {
+     M2C_PTR(const M2CMotion) motion2;  /* backward search (B pictures) */
+     M2C_PTR(const uint8_t)   bdir;     /* B: 0 intra, 1 fwd, 2 bwd, 3 bi; | 4 field */
+     M2C_PTR(M2CMBInfo)     mbinfo;
+-    M2C_PTR(int16_t)       levels;
++    M2C_PTR(uint32_t)      blkbits;  /* coded AC bits per block (incl. EOB), MSB first */
++    M2C_PTR(int16_t)       blklen;   /* their length in bits, 0 = not coded */
+     int32_t py, pc;
+     int32_t mb_w, mb_h;
+     int32_t pict_type;           /* 1 = I, 2 = P, 3 = B */
+-- 
+2.55.0
+

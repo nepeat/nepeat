@@ -1,0 +1,263 @@
+{
+ "note": "Numbers recorded during development in the working session (2026-10-15/16). Where a milestone commit exists, docs/data/fps.csv re-measures it on an idle GPU with one harness; these are the in-session readings, including uncommitted intermediate states.",
+ "initial_baselines_sonnet_agents": {
+  "source": "H.264 1080p29.97 ~8.5 Mbps synthetic, -> MPEG-2 1080i 15M CBR + AC-3, mpegts",
+  "gpu_assisted_nvdec_plus_cpu_mpeg2video": {
+   "single_fps_fast": [
+    495,
+    527
+   ],
+   "single_fps_quality": [
+    104,
+    111
+   ],
+   "aggregate_fps_fast": 760,
+   "realtime_streams_fast": 25,
+   "realtime_streams_quality": 6,
+   "cpu_util_fast": "~42%",
+   "bottleneck_fast": "NVDEC"
+  },
+  "cpu_only": {
+   "single_fps_fast": 345,
+   "single_fps_quality": 93,
+   "aggregate_fps_fast": 765,
+   "realtime_streams_fast": 26,
+   "realtime_streams_quality": 7,
+   "cpu_util": "99%"
+  }
+ },
+ "cpu_harness_first_reading_WRONG_all_intra": {
+  "note": "rawvideo frames carried pict_type=I; mpegvideo_enc obeyed it -> all-intra. Superseded.",
+  "ABR_single": 1440,
+  "ABR_aggregate_32x1": 3300,
+  "CBR_single": 285,
+  "CBR_aggregate_8x4": 654
+ },
+ "cpu_harness_corrected": {
+  "CBR_bf0": {
+   "single": 479,
+   "agg_8x4": 1256,
+   "agg_32x1": 1173
+  },
+  "CBR_bf2": {
+   "single": 297,
+   "agg_8x4": 709,
+   "agg_32x1": 648
+  },
+  "ABR_bf0": {
+   "single": 519,
+   "agg_8x4": 1291,
+   "agg_32x1": 1294
+  },
+  "ABR_bf2": {
+   "single": 309,
+   "agg_8x4": 750,
+   "agg_32x1": 656
+  }
+ },
+ "gpu_dev_steps": [
+  {
+   "step": "phase 1 (dea7407): I/P, frame DCT, byte-wise ME",
+   "single": 1328,
+   "agg_m4": 1712,
+   "kernel_us": 650,
+   "top": "k_me_refine 470 us"
+  },
+  {
+   "step": "ME SAD with __vsadu4/__vavgu4 + funnel-shift loads (uncommitted)",
+   "single": 2280,
+   "agg_m4": 3012,
+   "kernel_us": 388,
+   "top": "k_me_refine 170 us"
+  },
+  {
+   "step": "lane-per-candidate refine (uncommitted)",
+   "single": 3117,
+   "agg_m4": 4222,
+   "kernel_us": 280,
+   "top": "k_encode_mb 117 us"
+  },
+  {
+   "step": "thread-per-row k_encode_mb + field DCT (uncommitted)",
+   "single": 3550,
+   "agg_m4": 4908,
+   "kernel_us": 232,
+   "top": "k_encode_mb 67 us"
+  },
+  {
+   "step": "field motion search, first version (uncommitted)",
+   "single": 2464,
+   "agg_m4": 3225,
+   "kernel_us": 380,
+   "top": "k_me_field 153 us"
+  },
+  {
+   "step": "field ME one round + funnel rows (f554c30)",
+   "single": 3033,
+   "agg_m4": 3942,
+   "kernel_us": 300
+  },
+  {
+   "step": "B pictures, first profile (39fe7db, bf=2)",
+   "kernel_us": 428.5
+  },
+  {
+   "step": "vectorised k_load (bf=2)",
+   "kernel_us": 415.0
+  },
+  {
+   "step": "fused coefficient VLC (bf=2)",
+   "kernel_us": 400.2
+  },
+  {
+   "step": "constant-memory tables (bf=2)",
+   "kernel_us": 388.3
+  },
+  {
+   "step": "32-candidate one-round refine (bf=2)",
+   "kernel_us": 373.1
+  },
+  {
+   "step": "idle re-measure (36c2f15): bf=0",
+   "single": 3103,
+   "agg_m4": 4027,
+   "agg_m8": 4172,
+   "kernel_us": 267.4
+  },
+  {
+   "step": "idle re-measure (36c2f15): bf=2",
+   "single": 2274,
+   "agg_m4": 2605,
+   "agg_m8": 2692,
+   "kernel_us": 372.0
+  }
+ ],
+ "quality_15M_cbr": {
+  "note": "PSNR-Y/SSIM-Y. Rows marked old_metric were measured with ffmpeg -lavfi psnr + -frames:v, which can average extra misaligned pairs (bug found later); I/P-only rows were usually unaffected.",
+  "cpu_ip": {
+   "td": [
+    38.52,
+    0.9276
+   ],
+   "pj": [
+    25.14,
+    0.7278
+   ],
+   "old_metric": true
+  },
+  "cpu_b2": {
+   "td": [
+    38.83,
+    0.9315
+   ],
+   "pj": [
+    25.09,
+    0.7264
+   ],
+   "old_metric": true
+  },
+  "gpu_phase1": {
+   "td": [
+    38.23,
+    0.927
+   ],
+   "pj": [
+    24.64,
+    0.696
+   ],
+   "old_metric": true
+  },
+  "gpu_field_dct": {
+   "td": [
+    38.19,
+    0.9256
+   ],
+   "pj": [
+    24.68,
+    0.7035
+   ],
+   "old_metric": true
+  },
+  "gpu_field_me": {
+   "td": [
+    38.07,
+    0.9261
+   ],
+   "pj": [
+    24.98,
+    0.7184
+   ],
+   "old_metric": true
+  },
+  "gpu_damped_rc_bf0": {
+   "td": [
+    38.65,
+    0.9274
+   ],
+   "pj": [
+    25.38,
+    0.729
+   ],
+   "old_metric": true
+  },
+  "gpu_bf0_fixed_metric": {
+   "td": [
+    38.72,
+    0.9283
+   ],
+   "pj": [
+    25.35,
+    0.7281
+   ]
+  },
+  "gpu_bf2_fixed_metric": {
+   "td": [
+    38.83,
+    0.93
+   ],
+   "pj": [
+    25.32,
+    0.7311
+   ],
+   "mbps": [
+    15.15,
+    15.12
+   ]
+  }
+ },
+ "bd_rate_vs_cpu_ip_fixed_metric": {
+  "note": "piecewise-linear BD-rate, td q 2..13, pj q 10..31; negative = fewer bits than mpeg2video I/P",
+  "cpu_bf2": {
+   "td": -3.42,
+   "pj": 7.7
+  },
+  "gpu_bf0": {
+   "td": -2.57,
+   "pj": 0.73
+  },
+  "gpu_bf2_39fe7db": {
+   "td": -6.37,
+   "pj": 2.9
+  },
+  "gpu_bf2_current": {
+   "td": -5.77,
+   "pj": 3.22
+  }
+ },
+ "end_to_end": {
+  "synthetic_h264_nvdec_to_mpeg2_cuda": {
+   "realtime_streams": 24,
+   "cpu": "1-2%",
+   "nvdec": "84-98%",
+   "sm": "~23%",
+   "single_process_fps": 761
+  },
+  "test_channels_6x4": {
+   "streams": 24,
+   "speed": "1.01x",
+   "cpu": "~1.3%",
+   "sm": "~33%",
+   "nvdec": "~86%"
+  }
+ }
+}

@@ -1,0 +1,228 @@
+# mpeg2cuda — progress
+
+Start here. Layout:
+- `flake.nix` — dev shell (CUDA 13.2 pinned to match the 595.x driver; nvcc 13.4
+  emits PTX 9.4 the driver refuses to JIT). Run everything via `nix develop`.
+- `ffmpeg/` — FFmpeg n9.0.2 clone (gitignored), branch `mpeg2_cuda`. Encoder:
+  `libavcodec/mpeg2_cuda.{c,cu,h}`. `patches/` holds exported patches.
+- `scripts/configure.sh`, `scripts/build.sh` (forces PTX rebuild; nvcc has no
+  dep tracking), `scripts/verify.sh` (bit-exact recon check),
+  `scripts/compare.sh` (CPU vs GPU quality at given RC args),
+  `scripts/build_bench.sh` + `tools/m2c_bench.c` (encoder-only fps, frames
+  preloaded on GPU, M instances on M threads).
+- `media/` (gitignored): Xiph park_joy 1080p50 -> `parkjoy_1080i.y4m` (real TFF
+  interlace via tinterlace, 250 frames), `touchdown_1080p.y4m` (300 frames).
+
+## 2026-10-15 — phase 1 (I/P, frame DCT) working
+- Bit-exact vs FFmpeg decoder on first run; `-err_detect explode` clean; NVDEC
+  zero-copy input (nv12 CUDA frames) also bit-exact.
+- Encoder-only, touchdown, 15 Mbps: GPU 1 instance 1300 fps, aggregate ~1700 fps
+  (M=4..8). CPU mpeg2video same harness: 1 instance (threads=auto) ~285-300 fps,
+  32 instances x threads=1 ~617 fps aggregate.
+- End to end NVDEC H.264 -> mpeg2_cuda + AC-3 + mpegts: 756 fps in ONE process
+  (NVDEC-bound, same ceiling as the earlier 25-process CPU result).
+- Quality @15M CBR (PSNR-Y / SSIM-Y):
+  - touchdown: cpu IP 38.52/0.9276, cpu B2 38.83/0.9315, gpu 38.23/0.9270
+  - parkjoy 1080i: cpu IP 25.14/0.7278, cpu B2 25.09/0.7264, gpu 24.64/0.6960
+
+## 2026-10-15 — phase 2: interlace tools, speed, VBV
+- Field DCT (per-MB dct_type, vertical-SAD decision like ildct_cmp) and field
+  motion prediction in frame pictures (k_me_field: 2 ref fields x 15 full-pel +
+  half-pel per field). Bit-exact.
+- Bugs found by `scripts/stress.sh` (30 configs, all BITEXACT now):
+  1. put_motion tested `val == 0` before the modulo wrap; after a field MB the
+     PMV is 2x the field vector, so a -128 delta must code as '1'.
+  2. libavcodec's mpeg_decode_motion skips the wrap for a zero delta, so an
+     out-of-range PMV decodes wrong. Field vertical vectors are limited to
+     +-31 half-pel so 2*PMV always stays in range (safe for any decoder).
+- Speed: ME SAD via __vsadu4/__vavgu4 + funnel-shift loads, lane-per-candidate
+  refine; k_encode_mb rewritten as thread-per-8-pixel-row (warp transposes,
+  one __syncthreads). Kernel time ~270 us/frame.
+- VBV: re-code a picture (ME reused) when it would underflow; auto non-linear
+  q_scale above q 62; DC-only, then repeated-picture fallback; P pictures capped
+  so the next I fits. `tools/vbv.py`: 0 underflows on park_joy at 3/4/8/15 Mbps.
+- Debug tools: `-dump_mb`, `tools/mbdump.py`, `tools/mbcompare.py` (vs decoder
+  `-debug mb_type`), `tools/m2vparse.py` (independent MB-layer parser).
+
+### Scoreboard (touchdown 1080p unless noted, 15 Mbps)
+NOTE: earlier harness CPU rows were all-intra (rawvideo frames arrive tagged
+pict_type=I and mpegvideo_enc obeys it). Fixed in m2c_bench; numbers below are
+the corrected ones.
+
+Encoder-only fps, frames preloaded (`m2c_bench`):
+
+| | 1 stream | whole machine |
+|---|---|---|
+| mpeg2_cuda, RTX 3090 (I/P, field ME/DCT) | ~2900 | ~4100 (M=2..8) |
+| mpeg2video CBR I/P, 7950X | ~480 (threads=auto) | ~1260 (8 x threads=4) |
+| mpeg2video CBR B2 | ~300 | ~710 |
+| (mpeg2video ABR I/P / B2) | ~520 / ~310 | ~1290 / ~750 |
+
+End to end (`scripts/e2e.sh`): NVDEC H.264 1080p -> mpeg2_cuda 15M + AC-3 ->
+MPEG-TS, live (-re): 24 streams hold realtime (25 at 0.991x, 26 at 0.97x),
+whole-box CPU ~1-2%, NVDEC dec% ~84-98, SM ~23%. NVDEC is the ceiling.
+(CPU-encoder pipeline earlier: 25 streams at ~42% CPU with the fast preset,
+6 with the quality preset.)
+
+Quality, PSNR-Y / SSIM-Y at 15M CBR (VBV-clean, tools/vbv.py):
+
+| | touchdown 1080p | park_joy 1080i |
+|---|---|---|
+| mpeg2video I/P (+ilme+ildct) | 38.52 / 0.9276 | 25.14 / 0.7278 |
+| mpeg2video B2 | 38.83 / 0.9315 | 25.09 / 0.7264 |
+| mpeg2_cuda | 38.22 / 0.9260 | 24.93 / 0.7181 |
+
+At fixed q the GPU spends ~7% more bits than mpeg2video. First suspects: ME cost
+assumes PMV = 0 (adjacent MBs pick wildly different vectors, ~20 bits each), and
+no skip threshold.
+
+## 2026-10-16 — phase 3: tests, quality parity+, B pictures, bandwidth
+- Tests (`tests/run.sh quick|full`): every case = strict FFmpeg decode
+  (`-err_detect explode`) + bit-exact recon + `tools/m2vcheck.py` (independent
+  MB-layer syntax/semantics checker: slice coverage / start code emulation,
+  escapes, coefficient index, dequant saturation, MV range and the
+  zero-delta/out-of-range-PMV hazard, MC bounds) + VBV (`tools/vbv.py`) +
+  libmpeg2 cross-decode (`tools/xdec.py`) + compute-sanitizer memcheck cases.
+  `FFMPEG_BIN=` runs it against a snapshot binary while developing.
+- Codex review (CODEX-REVIEW.txt): OOB half-pel reads in ME, build.sh masking
+  make failures, mv_bits missing the modulo wrap — all fixed, response appended.
+- Quality work, measured with BD-rate (`scripts/rd.sh` + `tools/bdrate.py`,
+  piecewise-linear; operating range q 2-13 touchdown, 10-31 park_joy):
+  temporal ME predictors, f_code 4 (adaptive per picture), dead zone
+  inter -0.25 / intra 0.25, damped rate control (q no longer oscillates
+  3<->28), I/P/B complexity calibrated from the first I picture.
+- B pictures (default bf=2): receive_packet API, GPU reorder buffer, open
+  GOPs, temporal_reference, sequence_end_code; B ME = scaled predictors,
+  fwd/bwd search incl. field vectors, k_me_bidir picks among
+  {fwd,bwd,bi} x {frame,field}; B skip rules; per-direction PMVs.
+- MEASUREMENT BUG fixed: ffmpeg `-lavfi psnr` with `-frames:v n` can run ahead
+  and average extra (repeated last frame, later source frame) pairs, flipping
+  results nondeterministically (badly with B pictures). `scripts/psnr.sh`
+  decodes to y4m, trims both inputs to n and uses shortest=1. All numbers
+  below are re-measured with it.
+- Interlaced height bug: progressive_sequence=0 needs mb_height = 2*ceil(h/32)
+  (720 lines -> 46 rows). Frame rates within 0.1% snap to MPEG-2 rates.
+- Bandwidth/placement: k_load vectorised (23 -> 9 us); coefficient VLC fused
+  into k_encode_mb (8 lanes per block, segmented prefix max/sum, shared-memory
+  bit assembly) — the 6.3 MB/picture dense level array is gone, k_vlc 48 -> 19
+  us; uniform tables (DCT basis, scan, intra matrix) in __constant__
+  (k_encode_mb 84 -> 73 us); one-round 32-candidate refine (62 -> 52 us).
+
+### Scoreboard (2026-10-16)
+BD-rate vs CPU mpeg2video I/P (negative = fewer bits at equal PSNR):
+
+| | touchdown | park_joy 1080i |
+|---|---|---|
+| CPU mpeg2video bf=2 | -3.4% | +7.7% |
+| GPU bf=0 | -2.6% | +0.7% |
+| GPU bf=2 (default) | -5.8% | +3.2% |
+
+GPU kernel time ~372 us/picture at bf=2 (ME is ~70% of it), 267 us at bf=0.
+`field_skip` was tried and removed (no measurable effect).
+
+### Test channels (2026-10-16)
+`media/channels/lineup.tsv` (900 TESTCAT, 901 TESTSAX, 902 TESTNYA, 903 TSTCRAB,
+904 TSTCARA [1 h version], 905 TSTFISH) -> `scripts/make_channels.sh` builds
+1-hour 1920x1080 29.97 H.264 + AC-3 TS sources (lanczos upscale, pillarbox).
+`scripts/channels.sh start [eqam-ip|null]` loops every channel with
+`-stream_loop -1` through NVDEC -> mpeg2_cuda (15M, bf=2) + AC-3 -> SPTS
+(program = channel number, service_name = short name), udp port 5000+ch-900.
+Stress: 6 channels x 4 copies = 24 live 1080i streams at 1.01x, whole-box CPU
+~1.3%, GPU SM ~33%, NVDEC ~86% (NVDEC is the ceiling, not the encoder).
+Encoder-only, idle machine (earlier ~3700 bf=0 figure was taken while NVENC
+channel builds ran): bf=2 ~2240 fps single / ~2690 aggregate (M=8);
+bf=0 ~3100 / ~4170. Kernel time 372 us/picture (bf=2), 267 us (bf=0).
+
+### A/B vs software mpeg2video (2026-10-16)
+`tests/ab.sh quick|full`: matched settings (CBR, gop 15, bf 0/2); requires
+equal stream properties (size, rate, aspect, pix_fmt, profile), field order
+matching the *source*, uniform timestamps, no overshoot (+3%), VBV clean, and
+`tools/abcompare.py`: PSNR-Y >= mpeg2video - 0.25 dB, worst frame >= its worst
+- 1.5 dB, mean Y/U/V within 0.75, temporal + field alignment. Quick: 6/6 pass,
+mpeg2_cuda ahead on PSNR in every case (+0.13 .. +2.70 dB).
+Findings it drove: (1) field order now follows the source (interlaced keep
+tff/bff; progressive frames coded as progressive_frame with frame DCT and
+prediction, `-frame_mode interlaced` to force); mpeg2video codes progressive
+input as BFF interlaced. (2) the first I picture is re-coded once when it
+lands far below its share (no RC history yet). (3) non-linear q also below 2
+(quantiser_scale 1) for content that cannot use the rate.
+Prior art survey: docs/prior_art.md. EQAM how-to: docs/eqam_howto.md.
+
+### On air on the dev EQAM (2026-10-16)
+Final validation on e14023c: conformance 95/95, A/B 14/14 (A/B re-encodes
+mpeg2_cuda at mpeg2video's actual rate when mpeg2video overshoots). A/B found
+a real RC bug first: easy content left unspent budget piling up (CBR carry-over
+>20 Mbit) that a scene change spent in a burst -> VBV emergency -> 17 dB
+pictures (ch904). Fixed by clamping the carry-over to +-VBV/2 and stepping
+re-codes proportionally (up to 6) before dropping AC.
+`scripts/eqam_channels.py` (re-posts every form field, changes only PLAN,
+verifies) configured EQAM-420B slots: 5/6 -> RF48 (900 TESTCAT, 901 TESTSAX),
+9/10 -> RF49 (902 TESTNYA, 903 TSTCRAB), 13/14 -> RF50 (904 TSTCARA,
+905 TSTFISH); Stream = UDP://10.60.2.208:59xx (sender + port), program and
+major = channel number, minor 1, CVCT. Config mode already Manual. Senders:
+`PORT_BASE=5900 scripts/channels.sh start 10.60.30.47` (paced UDP at the mux
+rate, no -re startup burst). All IP lights green, PIDs 256/257/258 detected,
+RF 47-50 Locked; per-carrier average 22-26 Mbps of 38.8.
+Fable review (out/fable-review.md): no HIGH; MEDIUM: SD level limits vs VBV,
+dts for VFR input, hw-frame stream ordering with a non-NULL hwctx stream,
+m2vcheck not checking temporal_reference/GOP — to fix next.
+
+### Channels 906/907 (2026-10-16)
+Source: "Seattle In 8K" (youtube f1Jj2jpQhIA), downloaded untranscoded.
+906 TESTHD (slot 17, RF 54): 4K60 SDR VP9 original -> NVDEC -> fps 59.94 ->
+scale_cuda 1080 -> mpeg2_cuda `-field_weave 1` (new: frame pairs woven into
+top/bottom fields on the GPU in k_load -> true 1080i29.97 TFF). Validated:
+bit-exact, m2vcheck OK, VBV clean, decoded bottom fields match a CPU
+`interlace=scan=tff:lowpass=off` reference better than the same-frame
+alternative on moving content (32.3 vs 31.1 dB at t=240 s).
+907 TEST264 (slot 18, RF 54): YouTube's H.264 1080p60 MP4 -> NVDEC -> 29.97 ->
+scale_cuda -> h264_nvenc High@4.0 CBR 8M, 1 s GOP, AUDs, 10M mux (TV
+H.264-over-QAM test). EQAM detects MPEG-2 / AVC video + AC-3, RF 54 Locked.
+UDP pacing brought the EQAM's per-stream Max readings down to 12-17 Mbps.
+lineup.tsv has a mode column (mezz / raw-mpeg2 / raw-h264);
+`ONLY="906 907" scripts/channels.sh start ...` starts a subset.
+
+## Next
+- More fps: ME dominates (each B picture runs two directional searches);
+  host syncs per picture; overlap independent B pictures on two streams.
+- Adaptive B decision (B helps progressive content, costs on fast interlace).
+- Put test channels 900-905 on the EQAM (needs the user's go for slot config).
+
+### H.264 test channels: on-screen labels (2026-10-16)
+- 907-911 now burn in "NNN-1  NAME" + the A/B description (lineup.tsv column 6)
+  via drawtext (system ffmpeg 7.1.5; NVDEC -> scale_cuda -> hwdownload ->
+  drawtext -> hwupload_cuda -> NVENC). Box at 96 px (overscan-safe), 720p scaled.
+  Font vendored at media/fonts/LiberationSans-Bold.ttf.
+- 911 (libx264) now decodes on NVDEC + preset veryfast: ~76% of one core, realtime
+  (was 0.90x with CPU decode + preset fast).
+- channels.sh stop now honors ONLY (it used to stop every sender).
+- Testing gotcha: in zsh, "$F:textfile" applies the :t modifier to $F; use ${F}.
+
+### H.264 TV breakup: transport ruled out on the IP side (2026-10-16)
+- TV report: 908 (bf0, 1 ref) unusable, "breaks up every second"; 909/910/911 bad too.
+  The simplest stream being worst argues against a decoder-feature problem.
+- EQAM: 0 TS sync errors, no oversubscription, input rates nominal (6.4 avg / 8.0 max).
+  Host: 0 UDP SndbufErrors, 0 qdisc drops. Replica of 908 (40 s, tstd.py-style
+  check): no late AUs (min margin 384 ms), EB peak 5.07 Mbit, IDRs 1.3-2.5 Mbit.
+- EQAM QAM module 2 (RF 54-57): 256-QAM Annex B, STD map, output 41 dBmV/carrier.
+  With the user's 15 dB pad that is ~+26 dBmV at the TV (typical target ~0 dBmV):
+  possible tuner overload; bit errors hurt single-slice H.264 far more than
+  MPEG-2 (one slice per MB row, errors stay local).
+- Swap to separate RF channel from codec: 908 moved to slot 19 (RF 54, beside the
+  clean 906); slot 21 (RF 55) now 912 TESTM2 = MPEG-2 1080i 12M of the 907 source
+  (ONLY=912 VBITRATE=12M MUXRATE=13M).
+- BUG found+fixed: the overlay chain (hwdownload -> drawtext -> hwupload_cuda,
+  system ffmpeg 7.1) died with ENOSYS at the -stream_loop wrap (~10 min); 907-910
+  were dead from ~02:18. Labelled modes now decode NVDEC into system memory
+  (-hwaccel cuda only) and scale/draw on the CPU.
+- TV photos (909: clean down to a row, garbage below; 911/910: whole-frame
+  reference corruption) look like bit errors/loss before the decoder, not a
+  feature incompatibility. Not concluded; RF level (41 dBmV - 15 dB pad) still
+  the top suspect. Next probes if resumed: extra attenuation, TV signal stats,
+  H.264 with one slice per MB row.
+- Spun down at the user's request: senders 908-912 stopped, EQAM slots 19 and
+  21-24 emptied (eqam_channels.py CLEAR list), lineup lines commented out.
+  900-907 still on air.
+- 908 reused for TEST265 (HEVC acceptance test): NVENC hevc Main@4.1 1080p29.97
+  6M CBR, bf0, AUD, mux 8M, labelled; EQAM slot 21 (RF 55, alone). EQAM accepts
+  and passes it but lists the video PID (stream_type 0x24) as "Unknown".

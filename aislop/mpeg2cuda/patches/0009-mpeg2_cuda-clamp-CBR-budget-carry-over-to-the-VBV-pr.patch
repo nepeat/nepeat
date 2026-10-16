@@ -1,0 +1,45 @@
+From e14023c3ec0ea1e85e58f1996b31deefeaf69932 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 00:58:48 -0700
+Subject: [PATCH 09/10] mpeg2_cuda: clamp CBR budget carry-over to the VBV,
+ proportional VBV re-code steps
+
+---
+ libavcodec/mpeg2_cuda.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 1d1551d..5d33a77 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -377,6 +377,12 @@ static double rc_get_qscale(AVCodecContext *avctx, int pict_type)
+ 
+     if (s->gop_pos == 0) {
+         int anchors = s->gop / (s->bf + 1);
++        /* CBR: bits not spent are gone (the VBV cannot bank more than its
++         * size), and overspending is already paid for by the buffer. Without
++         * this clamp, easy content piles up budget that a later scene change
++         * spends in a burst the VBV cannot carry. */
++        double vbv = s->vbv_size * 16384.0;
++        s->rc_remaining  = av_clipd(s->rc_remaining, -0.5 * vbv, 0.5 * vbv);
+         s->rc_remaining += br * s->gop / fps;
+         s->rc_left[1] = 1;
+         s->rc_left[2] = anchors - 1;
+@@ -792,10 +798,12 @@ static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int
+             break;
+         if (drop_ac) {
+             drop_ac = 2;
+-        } else if (qscale_of(s, qcode) >= 112 || attempt >= 3) {
++        } else if (qscale_of(s, qcode) >= 112 || attempt >= 6) {
+             drop_ac = 1;
+         } else {
+-            q = FFMIN(112, FFMAX(qscale_of(s, qcode) + 1, qscale_of(s, qcode) * bits / (0.9 * room)));
++            /* bits fall slower than 1/q at fine quantisers: step hard */
++            double cur = qscale_of(s, qcode);
++            q = FFMIN(112, FFMAX(cur * 1.25, cur * pow(bits / (0.85 * FFMAX(room, 1)), 1.5)));
+             choose_scale_type(s, q);
+             qcode = code_of(s, q);
+         }
+-- 
+2.55.0
+

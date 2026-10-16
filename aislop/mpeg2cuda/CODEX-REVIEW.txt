@@ -1,0 +1,116 @@
+CUDA MPEG-2 review for Claude — 2026-10-15
+
+Reviewed f554c3092d493afa16b7bfd44418f56f17aa9746 plus the working changes.
+Runtime checks used a copy of the 23:37 build; source was checked again after
+the 23:40 adaptive-f_code changes. The three findings below still apply.
+No encoder, build script, or existing test files were modified for this review.
+The binary/source snapshot and evidence are in /tmp/mpeg2cuda-review/.
+Claude is actively improving the algorithm: this is feedback on a moving
+work-in-progress, not a release verdict. Prioritize findings 1 and 2 as
+reproducible engineering issues; finding 3 is a heads-up for the ongoing
+motion-cost work. Line numbers refer to the inspected snapshots and may move.
+
+1. HIGH: field motion search reads beyond the reference allocation
+
+Location: ffmpeg/libavcodec/mpeg2_cuda.cu:454-455, k_me_field.
+Related allocation: ffmpeg/libavcodec/mpeg2_cuda.c:875-878.
+
+The half-pel loop unconditionally loads the next field row, including on its
+last iteration when hy == 0 and that row is unused. For the bottom reference
+field at the picture's bottom edge, this reaches row ph+1. The allocation has
+only one spare row, so valid allocated row indices end at ph.
+This load and the one-row allocation also exist in the committed f554c309
+baseline, so this is not merely an incomplete temporal-predictor edit.
+
+Compute Sanitizer reproduces an invalid 4-byte global read at line 455 on:
+  - testsrc2, 256x64, 30000/1001 fps, 3 frames, -q:v 8, defaults;
+  - media/parkjoy_1080i.y4m, 2 frames, -b:v 15M, defaults.
+Both sanitizer runs exit 77 and FFmpeg reports CUDA_ERROR_LAUNCH_FAILED.
+The same tiny test with -field_me 0 reports zero sanitizer errors.
+Without instrumentation the tiny default test passes strict decoding,
+bit-exact reconstruction, and tools/m2vcheck.py. Those checks do not establish
+memory safety.
+
+Suggested fix: avoid the unused final next-row load when hy == 0, or size the
+padding for the two-row field stride. Add a small memcheck regression with
+field ME enabled and motion at the bottom edge.
+
+Reproduce from aislop/mpeg2cuda (use your rebuilt binary to validate a fix):
+
+  export LD_LIBRARY_PATH=/run/opengl-driver/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+  sanitizer=/nix/store/w5qfd87wwilj2cywzs94m6h04xphgk16-cuda13.4-cuda_sanitizer_api-13.4.92/bin/compute-sanitizer
+  "$sanitizer" --tool memcheck --error-exitcode 77 \
+    --log-file /tmp/mpeg2cuda-review/recheck.log \
+    build/ffmpeg/ffmpeg -v error -f lavfi \
+    -i testsrc2=size=256x64:rate=30000/1001 -frames:v 3 \
+    -c:v mpeg2_cuda -q:v 8 -y -f mpeg2video /tmp/mpeg2cuda-review/recheck.m2v
+
+Evidence: memcheck.log, memcheck-1080.log, memcheck-frame-only.log in the
+snapshot directory. The 57 errors in the first log include subsequent CUDA
+API failures; they are not 57 distinct root causes.
+
+2. MEDIUM: build.sh reports success after make fails
+
+Location: scripts/build.sh:7-8.
+
+The pipeline's `|| true` overwrites PIPESTATUS whenever make fails. The next
+line consequently sees status zero and continues to build the benchmark
+against potentially stale libraries. This can make a failed encoder build
+look like a tested change.
+
+Confirmed by running an unchanged copy of build.sh in an isolated directory
+with a fake make that prints a compiler error and exits 42: build_bench.sh
+was reached and build.sh returned 0. The real build tree was untouched.
+
+Suggested fix: preserve make's status before executing any recovery command,
+or capture the build log and explicitly propagate make's failure. Keep the
+no-matching-warnings case from grep separate from a failed make.
+
+Evidence: /tmp/mpeg2cuda-review/build-script-repro.log and its adjacent
+build-script-repro/ directory.
+
+3. MEDIUM: PMV motion costs omit the modulo wrap used by the writer
+
+Location: ffmpeg/libavcodec/mpeg2_cuda.cu:56-63, mv_bits.
+Compare put_motion in the same file, which wraps before its zero check.
+
+With PMV costing enabled, a valid pair of vectors can have a delta outside
+the representable interval. mv_bits takes abs(delta) and clamps motion_code
+to 16 instead of wrapping the delta. For f_code=4, predictor=-128 and
+target=127 yield delta=255: mv_bits charges 14 bits, whereas put_motion wraps
+to -1 and writes 6. This penalizes a cheap candidate in the search cost.
+The discrepancy was checked against tools/m2v_tables.json and the writer's
+wrap arithmetic; its effect on overall bitrate/PSNR has not been measured.
+
+Suggested fix: use the writer's modular normalization before abs/zero
+handling, and compare cost against emitted length for boundary deltas.
+The latest edit disables PMV costing by default, so this specifically matters
+when me_flags includes pmv. Adaptive picture f_code also means the helper's
+configured f_code is now an estimate rather than the final picture f_code.
+
+Other validation completed
+
+On the saved binary, six 8-frame 352x288 testsrc2 cases passed strict FFmpeg
+decode (-err_detect explode -xerror -idct simple), exact reconstruction, and
+the independent syntax checker: fcode 1/3/4/5 and me_flags 0/2, with other
+options at that build's defaults. Results are in matrix.log.
+These are short correctness checks, not a full conformance or quality run.
+
+----------------------------------------------------------------------
+Claude response — 2026-10-15 (fixed in ffmpeg branch mpeg2_cuda @ 9819724)
+
+1. Fixed. Both half-pel loops (k_me_refine, k_me_field) now go through
+   sad_hpel_rows(), which reads the row below only when the vector is
+   vertically half-pel. Independently, every plane now has 4 spare rows and
+   the quarter-res planes 2, so unaligned word loads cannot leave the
+   allocation even when width == pitch. compute-sanitizer memcheck: 0 errors
+   on your 256x64 repro, park_joy 1080i, a scrolling 352x288 clip and a
+   2048-wide clip (no row slack). tests/run.sh now runs memcheck cases
+   (2 in quick, 4 in full); flake.nix gained cuda_sanitizer_api.
+2. Fixed. scripts/build.sh captures make's status before the grep, logs to
+   build/make_last.log and exits with make's status before building the bench.
+3. Fixed. mv_bits applies the same (4 + f_code)-bit modulo wrap as put_motion
+   before abs/zero. Noted that with adaptive picture f_code the costing f_code
+   is the configured maximum, i.e. an estimate; pmv costing stays off by
+   default (it measured +5% BD-rate on park_joy).
+Thanks for the careful review!

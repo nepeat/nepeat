@@ -1,0 +1,17 @@
+clip,mode,bf,instances,threads,aggregate_fps,slowest_fps,mbps
+parkjoy_1080i,CBR,0,1,auto,464.2,465.9,15.04
+parkjoy_1080i,CBR,0,8,4,1164.0,146.2,15.09
+parkjoy_1080i,CBR,2,1,auto,284.1,284.8,15.04
+parkjoy_1080i,CBR,2,8,4,625.8,78.3,15.06
+parkjoy_1080i,ABR,0,1,auto,480.9,482.5,15.00
+parkjoy_1080i,ABR,0,8,4,1176.1,147.2,15.01
+parkjoy_1080i,ABR,2,1,auto,288.9,289.6,15.07
+parkjoy_1080i,ABR,2,8,4,663.9,83.1,16.41
+touchdown_1080p,CBR,0,1,auto,516.8,518.7,15.04
+touchdown_1080p,CBR,0,8,4,1273.2,160.2,15.09
+touchdown_1080p,CBR,2,1,auto,304.2,305.0,15.06
+touchdown_1080p,CBR,2,8,4,722.5,90.5,15.13
+touchdown_1080p,ABR,0,1,auto,536.6,539.1,15.00
+touchdown_1080p,ABR,0,8,4,1340.8,168.1,15.00
+touchdown_1080p,ABR,2,1,auto,324.4,325.4,14.99
+touchdown_1080p,ABR,2,8,4,770.1,96.4,15.04

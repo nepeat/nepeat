@@ -1,0 +1,167 @@
+From 0aa2090bae4f58359164d840a20ff4059e2bcbad Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 00:37:35 -0700
+Subject: [PATCH 08/10] mpeg2_cuda: follow source field order, progressive
+ frames as progressive_frame; non-linear q below 2; calibrate the first I
+ picture
+
+---
+ libavcodec/mpeg2_cuda.c | 57 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 46 insertions(+), 11 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index bc08812..1d1551d 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -109,6 +109,9 @@ typedef struct MPEG2CudaContext {
+     int     gop_closed;
+     int     gop_pos;             /* position in the GOP, coding order */
+     int     pic_nl;              /* q_scale_type of the picture being coded */
++    int     pic_prog;            /* picture coded as progressive_frame */
++    int     pic_tff;             /* top_field_first of the picture */
++    uint8_t pic_flags[256];      /* per display number: 1 progressive, 2 tff */
+     int64_t coded;
+     int     eof;
+ 
+@@ -144,6 +147,7 @@ typedef struct MPEG2CudaContext {
+     /* options */
+     char *recon_file;
+     char *dump_file;
++    int   frame_mode;
+     int   me_range;
+     int   me_flags;
+     int   fcode;
+@@ -301,15 +305,16 @@ static void put_picture_header(AVCodecContext *avctx, PutBitContext *pb, int pic
+     put_bits(pb, 4, bfcode);
+     put_bits(pb, 2, 0);                         /* intra_dc_precision: 8 bits */
+     put_bits(pb, 2, 3);                         /* picture_structure: frame */
+-    put_bits(pb, 1, 1);                         /* top_field_first */
+-    put_bits(pb, 1, !(s->field_dct || s->field_me)); /* frame_pred_frame_dct */
++    put_bits(pb, 1, s->pic_tff);                /* top_field_first */
++    /* progressive frames must use frame prediction and frame DCT */
++    put_bits(pb, 1, s->pic_prog || !(s->field_dct || s->field_me)); /* frame_pred_frame_dct */
+     put_bits(pb, 1, 0);                         /* concealment_motion_vectors */
+     put_bits(pb, 1, s->pic_nl);                 /* q_scale_type */
+     put_bits(pb, 1, 1);                         /* intra_vlc_format */
+     put_bits(pb, 1, 1);                         /* alternate_scan */
+     put_bits(pb, 1, 0);                         /* repeat_first_field */
+-    put_bits(pb, 1, 0);                         /* chroma_420_type */
+-    put_bits(pb, 1, 0);                         /* progressive_frame */
++    put_bits(pb, 1, s->pic_prog);               /* chroma_420_type */
++    put_bits(pb, 1, s->pic_prog);               /* progressive_frame */
+     put_bits(pb, 1, 0);                         /* composite_display_flag */
+     align_put_bits(pb);
+ }
+@@ -322,10 +327,11 @@ static int qscale_of(const MPEG2CudaContext *s, int code)
+     return s->pic_nl ? ff_mpeg2_non_linear_qscale[code] : 2 * code;
+ }
+ 
+-/* pick q_scale_type for a picture: linear unless it cannot reach q */
++/* pick q_scale_type for a picture: linear unless it cannot reach q (the
++ * non-linear scale goes down to 1 and up to 112) */
+ static void choose_scale_type(MPEG2CudaContext *s, double q)
+ {
+-    s->pic_nl = s->nonlinear_q || q > 62;
++    s->pic_nl = s->nonlinear_q || q > 62 || q < 2;
+ }
+ 
+ /* code whose quantiser_scale is closest to q */
+@@ -553,7 +559,7 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int lambda)
+         (ret = search_dir(avctx, s->src[slot][0], ref, s->refq, s->motion_prev,
+                           s->motion, lambda, s->me_range)) < 0)
+         return ret;
+-    if (s->field_me) {
++    if (s->field_me && !s->pic_prog) {
+         void *args[] = { &s->src[slot][0], &ref, &s->py, &s->pw, &s->ph,
+                          &s->mb_w, &s->mb_h, &lambda, &mv_max,
+                          &s->intra_cost_bias, &s->field_bias, &s->motion };
+@@ -586,7 +592,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int lambd
+         (ret = search_dir(avctx, s->src[slot][0], fut, s->refq2, s->pred_b,
+                           s->motion_bb, lambda, rb)) < 0)
+         return ret;
+-    if (s->field_me) {
++    if (s->field_me && !s->pic_prog) {
+         int mv_max = (16 << (s->fcode - 1)) - 1;
+         for (int k = 0; k < 2 && ret >= 0; k++) {
+             CUdeviceptr ref = k ? fut : past, out = k ? s->motion_bb : s->motion_bf;
+@@ -631,7 +637,8 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+             .motion2 = s->motion_bb, .bdir = s->bdir,
+             .mbinfo = s->mbinfo, .blkbits = s->blkbits, .blklen = s->blklen,
+             .py = s->py, .pc = s->pc, .mb_w = s->mb_w, .mb_h = s->mb_h,
+-            .pict_type = pict_type, .qscale = qscale_of(s, qcode), .field_dct = s->field_dct,
++            .pict_type = pict_type, .qscale = qscale_of(s, qcode),
++            .field_dct = s->field_dct && !s->pic_prog,
+             .drop_ac = drop_ac, .mv_need = s->mv_need,
+             .intra_bias = s->intra_bias, .inter_bias = s->inter_bias,
+         };
+@@ -641,7 +648,7 @@ static int code_picture(AVCodecContext *avctx, int pict_type, int slot, int cur,
+             return ret;
+     }
+     {
+-        int fpfd0 = s->field_dct || s->field_me;
++        int fpfd0 = !s->pic_prog && (s->field_dct || s->field_me);
+         void *args[] = { &s->mbinfo, &s->blkbits, &s->blklen, &s->mb_w, &s->mb_h, &pict_type, &s->mv_need,
+                          &fpfd0, &s->slots, &s->bitlen };
+         ret = launch(avctx, F_VLC, (n_mb + 63) / 64, 1, 64, 1, args);
+@@ -743,6 +750,8 @@ static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int
+     int qcode, size, hdr_size, ret = 0, drop_ac = 0;
+     double q;
+ 
++    s->pic_prog = s->pic_flags[n & 255] & 1;
++    s->pic_tff  = !!(s->pic_flags[n & 255] & 2);
+     if (pict_type == 1) {
+         /* B pictures still buffered are displayed before this I: they
+          * open the new GOP */
+@@ -763,8 +772,21 @@ static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int
+         ret = code_picture(avctx, pict_type, slot, cur, qcode, drop_ac, &size);
+         if (ret < 0 || (avctx->flags & AV_CODEC_FLAG_QSCALE))
+             break;
+-        /* re-code a picture that would underflow the VBV */
+         bits = size * 8.0 + HDR_MAX * 8;
++        /* the very first picture has no history to size it: if it came out
++         * far below an I picture's share (~3 average pictures) re-code it
++         * once at the quantiser that model suggests */
++        if (!s->coded && !attempt && !drop_ac) {
++            double share = FFMIN(3.0 * avctx->bit_rate / av_q2d(ff_mpeg12_frame_rate_tab[s->frame_rate_code]),
++                                 0.5 * s->rc_cap);
++            if (bits < 0.5 * share && qscale_of(s, qcode) > 1) {
++                q = FFMAX(1, qscale_of(s, qcode) * bits / share);
++                choose_scale_type(s, q);
++                qcode = code_of(s, q);
++                continue;
++            }
++        }
++        /* re-code a picture that would underflow the VBV */
+         room = s->rc_cap;
+         if (bits <= room || drop_ac == 2 || (drop_ac && pict_type == 1))
+             break;
+@@ -859,6 +881,15 @@ static int submit_frame(AVCodecContext *avctx, const AVFrame *frame)
+     int ret;
+ 
+     s->pts[n & 255] = frame->pts;
++    /* follow the source: interlaced frames keep their field order, progressive
++     * frames are coded as progressive_frame (frame DCT and prediction) unless
++     * frame_mode forces interlaced coding */
++    {
++        int il  = !!(frame->flags & AV_FRAME_FLAG_INTERLACED);
++        int tff = il ? !!(frame->flags & AV_FRAME_FLAG_TOP_FIELD_FIRST) : 1;
++        int prog = !il && s->frame_mode == 0;
++        s->pic_flags[n & 255] = prog | tff << 1;
++    }
+     ret = upload_frame(avctx, frame, slot);
+     if (ret < 0)
+         return ret;
+@@ -1225,6 +1256,10 @@ static const AVOption options[] = {
+       AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, VE },
+     { "dump_mb",         "write per-MB decisions and bit counts to this file (debug)", OFFSET(dump_file),
+       AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, VE },
++    { "frame_mode",      "picture structure", OFFSET(frame_mode),
++      AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 1, VE, .unit = "frame_mode" },
++        { "auto",       "follow the source: progressive frames as progressive_frame, interlaced keep their field order", 0, AV_OPT_TYPE_CONST, { .i64 = 0 }, 0, 0, VE, .unit = "frame_mode" },
++        { "interlaced", "code every picture as an interlaced frame (top field first for progressive input)", 0, AV_OPT_TYPE_CONST, { .i64 = 1 }, 0, 0, VE, .unit = "frame_mode" },
+     { "fcode",           "largest f_code (search range +-8 << f_code pels); each picture uses the smallest that fits", OFFSET(fcode),
+       AV_OPT_TYPE_INT, { .i64 = 4 }, 1, 5, VE },
+     { "me_flags",        "motion search tools", OFFSET(me_flags),
+-- 
+2.55.0
+
