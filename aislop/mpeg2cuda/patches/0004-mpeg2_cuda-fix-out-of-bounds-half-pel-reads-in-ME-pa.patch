@@ -1,7 +1,7 @@
 From 98197241c7fe7ab022ccc8ffa7b8100af8d32a7e Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Thu, 15 Oct 2026 23:47:29 -0700
-Subject: [PATCH 04/10] mpeg2_cuda: fix out-of-bounds half-pel reads in ME, pad
+Subject: [PATCH] mpeg2_cuda: fix out-of-bounds half-pel reads in ME, pad
  planes, wrap MV deltas in cost (Codex review)
 
 ---

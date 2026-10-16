@@ -1,9 +1,8 @@
 From 6fe6f2c333755841c419a12f1a3242582cdf28c0 Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Fri, 16 Oct 2026 00:18:42 -0700
-Subject: [PATCH 06/10] mpeg2_cuda: fused coefficient VLC (no dense level
- buffer), vectorised load, constant-memory tables, one-round refine, B search
- options
+Subject: [PATCH] mpeg2_cuda: fused coefficient VLC (no dense level buffer),
+ vectorised load, constant-memory tables, one-round refine, B search options
 
 ---
  libavcodec/mpeg2_cuda.c  |  50 +++---

@@ -1,8 +1,8 @@
 From 9173f3ecaf33c49b65a679d12cbad69243015d8c Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Fri, 16 Oct 2026 01:43:46 -0700
-Subject: [PATCH 10/10] mpeg2_cuda: field_weave (progressive 2x-rate input
- woven into interlaced pictures on the GPU)
+Subject: [PATCH] mpeg2_cuda: field_weave (progressive 2x-rate input woven into
+ interlaced pictures on the GPU)
 
 ---
  libavcodec/mpeg2_cuda.c  | 63 +++++++++++++++++++++++++++++++++-------

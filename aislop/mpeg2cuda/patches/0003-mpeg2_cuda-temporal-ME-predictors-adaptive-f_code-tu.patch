@@ -1,9 +1,8 @@
 From 525ec8ad6c55a876c4c7d23207249483e5b0fe7a Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Thu, 15 Oct 2026 23:43:34 -0700
-Subject: [PATCH 03/10] mpeg2_cuda: temporal ME predictors, adaptive f_code,
- tuned dead-zone, damped rate control, frame-rate snapping, interlaced
- mb_height
+Subject: [PATCH] mpeg2_cuda: temporal ME predictors, adaptive f_code, tuned
+ dead-zone, damped rate control, frame-rate snapping, interlaced mb_height
 
 ---
  libavcodec/mpeg2_cuda.c  | 107 +++++++++++++++++++++++++++++++--------

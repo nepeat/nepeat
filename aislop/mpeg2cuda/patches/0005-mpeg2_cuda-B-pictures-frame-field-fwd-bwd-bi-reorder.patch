@@ -1,8 +1,8 @@
 From 39fe7db95a12ffdcc16c47336556725ab37bf301 Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Fri, 16 Oct 2026 00:01:58 -0700
-Subject: [PATCH 05/10] mpeg2_cuda: B pictures (frame/field, fwd/bwd/bi),
- reordering, open GOPs, sequence_end_code; RC for three picture types
+Subject: [PATCH] mpeg2_cuda: B pictures (frame/field, fwd/bwd/bi), reordering,
+ open GOPs, sequence_end_code; RC for three picture types
 
 ---
  libavcodec/mpeg2_cuda.c  | 557 ++++++++++++++++++++++++++++-----------

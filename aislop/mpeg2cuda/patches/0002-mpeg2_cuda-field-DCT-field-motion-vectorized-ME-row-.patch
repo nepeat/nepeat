@@ -1,8 +1,8 @@
 From f554c3092d493afa16b7bfd44418f56f17aa9746 Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Thu, 15 Oct 2026 22:15:38 -0700
-Subject: [PATCH 02/10] mpeg2_cuda: field DCT, field motion, vectorized ME,
- row-based transform kernel, VBV-safe rate control
+Subject: [PATCH] mpeg2_cuda: field DCT, field motion, vectorized ME, row-based
+ transform kernel, VBV-safe rate control
 
 ---
  libavcodec/mpeg2_cuda.c  | 191 +++++++--
