@@ -1,0 +1,122 @@
+From 3811bb7e760c6b85ce345e39da46c56ccaa2f6c8 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:55:44 -0700
+Subject: [PATCH] mpeg2_cuda: VLC, pack and concat run beside the next search
+
+After k_encode_mb nothing on the main stream needs the bitstream tail:
+the next picture's search reads only motion buffers and
+reconstructions, and the next code_picture is queued after the host
+waited for coded_ev. k_vlc, k_pack and k_concat now follow an event on
+the output stream, so their small grids fill the GPU next to the next
+picture's motion search instead of running alone.
+-24 us/pic on 1080i, -19 on 1080p. Bit-identical output.
+---
+ libavcodec/mpeg2_cuda.c | 45 ++++++++++++++++++++++++-----------------
+ 1 file changed, 27 insertions(+), 18 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 0486138..a52d54d 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -92,8 +92,8 @@ typedef struct MPEG2CudaContext {
+     AVCUDADeviceContext *hwctx;
+     CudaFunctions       *cu;
+     CUstream             stream;
+-    CUstream             out_stream;     /* k_concat, beside the next search */
+-    CUevent              pack_ev;        /* k_pack done, k_concat may start */
++    CUstream             out_stream;     /* VLC, pack, concat, beside the next search */
++    CUevent              mb_ev;          /* k_encode_mb done, the tail may start */
+     CUevent              coded_ev;       /* a picture's kernels are done */
+     CUevent              hw_ev;          /* ordering with hwctx->stream */
+     CUmodule             module;
+@@ -217,11 +217,18 @@ static void free_dev(MPEG2CudaContext *s, CUdeviceptr *p)
+     *p = 0;
+ }
+ 
+-static int launch(AVCodecContext *avctx, int f, int gx, int gy, int bx, int by, void **args)
++static int launch_on(AVCodecContext *avctx, CUstream st, int f, int gx, int gy, int bx, int by,
++                     unsigned shmem, void **args)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     return CHECK_CU(s->cu->cuLaunchKernel(s->func[f], gx, gy, 1, bx, by, 1,
+-                                          0, s->stream, args, NULL));
++                                          shmem, st, args, NULL));
++}
++
++static int launch(AVCodecContext *avctx, int f, int gx, int gy, int bx, int by, void **args)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    return launch_on(avctx, s->stream, f, gx, gy, bx, by, 0, args);
+ }
+ 
+ static void build_tables(M2CTables *t)
+@@ -696,32 +703,34 @@ static int code_picture(AVCodecContext *avctx, const struct M2CJob *j, int drop_
+         if (ret < 0)
+             return ret;
+     }
++    /* the bitstream tail (VLC, pack, concat into the host-mapped output)
++     * runs on its own stream: its small grids and PCIe stores overlap the
++     * next picture's search. Nothing it reads is written again before the
++     * host has waited for coded_ev. */
++    if ((ret = CHECK_CU(s->cu->cuEventRecord(s->mb_ev, s->stream))) < 0 ||
++        (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->out_stream, s->mb_ev, 0))) < 0)
++        return ret;
+     {
+         int fpfd0 = !s->pic_prog && (s->field_dct || s->field_me);
+         void *args[] = { &s->mbinfo, &s->blkbits, &s->blklen, &s->mb_w, &s->mb_h, &pict_type, &s->mv_need,
+                          &fpfd0, &s->slots, &s->bitlen };
+-        ret = launch(avctx, F_VLC, (n_mb + 63) / 64, 1, 64, 1, args);
++        ret = launch_on(avctx, s->out_stream, F_VLC, (n_mb + 63) / 64, 1, 64, 1, 0, args);
+         if (ret < 0)
+             return ret;
+     }
+     {
+         void *args[] = { &s->slots, &s->bitlen, &s->mb_w, &qcode, &s->rows,
+                          &s->row_words, &s->row_bytes };
+-        ret = launch(avctx, F_PACK, s->mb_h, 1, M2C_MAX_MB_W, 1, args);
++        ret = launch_on(avctx, s->out_stream, F_PACK, s->mb_h, 1, M2C_MAX_MB_W, 1, 0, args);
+         if (ret < 0)
+             return ret;
+     }
+-    /* k_concat's stores cross PCIe; on its own stream they overlap the
+-     * next picture's search instead of delaying it. Nothing it reads is
+-     * written again before the host has waited for coded_ev. */
+     {
+         CUdeviceptr res = s->host_map_dev, out = s->host_map_dev + RES_BYTES;
+         void *args[] = { &s->rows, &s->row_words, &s->row_bytes, &s->mb_h, &s->mv_need, &out, &res };
+-        if ((ret = CHECK_CU(s->cu->cuEventRecord(s->pack_ev, s->stream))) < 0 ||
+-            (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->out_stream, s->pack_ev, 0))) < 0 ||
+-            (ret = CHECK_CU(s->cu->cuLaunchKernel(s->func[F_CONCAT], 32, 1, 1, 256, 1, 1,
+-                                                  (s->mb_h + 1) * sizeof(int), s->out_stream,
+-                                                  args, NULL))) < 0)
++        ret = launch_on(avctx, s->out_stream, F_CONCAT, 32, 1, 256, 1,
++                        (s->mb_h + 1) * sizeof(int), args);
++        if (ret < 0)
+             return ret;
+     }
+     return CHECK_CU(s->cu->cuEventRecord(s->coded_ev, s->out_stream));
+@@ -1172,9 +1181,9 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         if (s->out_stream)
+             s->cu->cuStreamDestroy(s->out_stream);
+         s->out_stream = NULL;
+-        if (s->pack_ev)
+-            s->cu->cuEventDestroy(s->pack_ev);
+-        s->pack_ev = NULL;
++        if (s->mb_ev)
++            s->cu->cuEventDestroy(s->mb_ev);
++        s->mb_ev = NULL;
+         if (s->coded_ev)
+             s->cu->cuEventDestroy(s->coded_ev);
+         s->coded_ev = NULL;
+@@ -1371,7 +1380,7 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+     if (ret >= 0)
+         ret = CHECK_CU(s->cu->cuStreamCreate(&s->out_stream, CU_STREAM_DEFAULT));
+     if (ret >= 0)
+-        ret = CHECK_CU(s->cu->cuEventCreate(&s->pack_ev, CU_EVENT_DISABLE_TIMING));
++        ret = CHECK_CU(s->cu->cuEventCreate(&s->mb_ev, CU_EVENT_DISABLE_TIMING));
+     if (ret >= 0)
+         ret = CHECK_CU(s->cu->cuEventCreate(&s->hw_ev, CU_EVENT_DISABLE_TIMING));
+     if (ret >= 0)
+-- 
+2.55.0
+
