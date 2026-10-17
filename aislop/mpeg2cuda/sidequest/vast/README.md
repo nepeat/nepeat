@@ -1,27 +1,48 @@
 # Side quest: mpeg2_cuda on rented GPUs
 
-`bundle.sh` builds a self-contained bundle (ffmpeg + m2c_bench with their own
-glibc, 60-frame clips, a 30 s H.264 mezz clip); `bench.sh` runs on any
-container with the NVIDIA driver: md5 correctness vs the 3090, encoder-only
-fps, NVDEC decode fps, and end-to-end NVDEC -> mpeg2_cuda fps. Results land in
-`results/`. `run_remote.sh` does upload (rsync) + bench + fetch + destroy in
-one shot, falling back to the vast ssh proxy when the direct port refuses.
+Workflow (vastai CLI with API key, ssh key in the agent):
+
+```
+sidequest/vast/bundle.sh                              # build + md5 self-check on the local GPU
+sidequest/vast/pick.py "RTX 5070" "RTX 4090" > o.tsv  # best hosts per model, with fallbacks
+sidequest/vast/launch.sh o.tsv                        # rent, bench, fetch, destroy, in parallel
+sidequest/vast/summarize.py                           # markdown table of every run
+```
+
+- `bundle.sh`: ffmpeg + m2c_bench with their own glibc (PTX 8.7 for sm_80+,
+  byte-identical to the main build), 60-frame FFV1 clips, a 30 s H.264 mezz
+  clip, `bench.sh`. Reconfigures only when needed (`FORCE=1`).
+- `bench.sh` (on the host): md5 vs the 3090, encoder-only fps, NVDEC fps,
+  end-to-end NVDEC -> mpeg2_cuda fps; failed parallel runs keep their first
+  error line.
+- `pick.py`: single GPU, CUDA >= 12.8 driver, newish desktop CPU, US/Canada
+  first (`--anywhere`, `--any-cpu` to relax), most CPU share, then price.
+- `launch.sh`: per line, rents the first offer, attaches the account ssh key
+  explicitly (some hosts otherwise never accept it), waits for boot, runs
+  `run_remote.sh`; boot or ssh failures destroy the instance and try the next
+  offer.
+- `run_remote.sh`: rsync upload (resumable), direct port and vast proxy
+  alternately, bench, fetch to `results/<run>/`, destroy. Exit 2 = no ssh,
+  3 = upload, 4 = bench unfinished; every failure destroys the instance.
+- All scripts run their body from `main()`, so editing one while a run is in
+  flight can't change what that run executes.
 
 **Pick hosts by CPU, not just GPU.** Per-frame launch work and ffmpeg's
 decode pipeline run on the host; the same RTX 5090 did 1038 fps end to end on
-a shared EPYC 7K62 and 2741 fps on a whole-host Ryzen 9 7900X. Filter offers
-for `cpu_ghz >= 4.5` and `cpu_cores_effective / cpu_cores >= 0.9` (a
+a shared EPYC 7K62 and 2741 fps on a whole-host Ryzen 9 7900X. `pick.py`
+ranks newish desktop CPUs and the largest CPU share (ideally a
 single-GPU machine nobody else is renting).
 
 ## Consumer GPU sweep (vast.ai, 2026-10-17)
 
 `summarize.py` output, best of each run (fps; channels = end-to-end peak /
-29.97). `*` = some parallel e2e runs failed at 24-32 streams (VRAM). Hosts in
+29.97). `*` = some parallel e2e runs failed at 24-32 streams (VRAM: the 5080 16 GB run records `CUDA_ERROR_OUT_OF_MEMORY` at 32). Hosts in
 the run name; the newish-AMD reruns are the comparable ones (our desktop is a
 7950X). Single runs, no repeats.
 
 | GPU | host CPU | W | md5 | enc touchdown I/P | enc park_joy B2 | NVDEC | e2e peak (M) | channels | run |
 |---|---|---|---|---|---|---|---|---|---|
+| GeForce RTX 5080 | Ryzen 9 7945HX with Radeon Graphics | 360.00 | ok | 12631 | 6311 | 2891 | 2882 (24) * | 96 | RTX_5080_7945HX |
 | GeForce RTX 5090 | Ryzen 9 7900X | 575.00 | ok | 21704 | 11089 | 2822 | 2741 (16) | 91 | RTX_5090_7900X |
 | GeForce RTX 5060 Ti | Ryzen 5 7600 | 180.00 | ok | 5380 | 2653 | 2066 | 1986 (16) * | 66 | RTX_5060_Ti_7600 |
 | GeForce RTX 5070 | Ryzen 9 7900X | 250.00 | ok | 7414 | 3602 | 2054 | 1954 (16) * | 65 | RTX_5070_7900X |
@@ -46,9 +67,12 @@ the run name; the newish-AMD reruns are the comparable ones (our desktop is a
 - Host CPU matters as much as the GPU: the same 5090 did 35 channels on a
   shared EPYC 7K62 and 91 on a Ryzen 9 7900X; the 5070 went 21 -> 65 and the
   4070 16 -> 30 on newish desktop CPUs.
-- Not rerun on a newish host: 3070 and 3080 Ti (no such offers), 4080 and
-  5080 (the only such hosts refused our ssh key on two rentals each); their
-  rows are host-limited floors.
+- Not rerun on a newish host: 3070 and 3080 Ti (no such offers) and 4080
+  (its only such host refused our ssh key on two rentals); their rows are
+  host-limited floors. The 5080 got a whole-host Ryzen 9 7945HX via the fixed
+  launcher: 2882 fps end to end (96 channels), level with the 5090 there, so
+  at ~2800 fps the host CPU (not the second decode engine) is likely the
+  limit.
 - RTX 3090 (ours, same bundle, live channels running on it): encode 6312 /
   2982 (touchdown I/P / park_joy B2); NVDEC not measured cleanly; ~24 live
   channels in production.
