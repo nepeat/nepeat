@@ -1,0 +1,117 @@
+From f16ed897d312dddd14ebd5cb34f6862623b07547 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:16:49 -0700
+Subject: [PATCH] mpeg2_cuda: fold SAD accumulation into vabsdiff4
+
+__vsadu4 compiles to VABSDIFF4 with a zero accumulator plus an IADD3 to
+sum; the PTX vabsdiff4 .add form takes the running sum as its third
+operand. Bit-identical output.
+---
+ libavcodec/mpeg2_cuda.cu | 41 ++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 8e84339..aebb63d 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -173,6 +173,15 @@ extern "C" __global__ void k_down4(const uint8_t *src, int pitch,
+ 
+ /* ------------------------------------------------------------------------ */
+ 
++/* acc + sum |a - b| over 4 packed bytes. __vsadu4 compiles to VABSDIFF4 with
++ * a zero accumulator plus an IADD3; the PTX form folds the add in. */
++static __device__ __forceinline__ int sad4(uint32_t a, uint32_t b, int acc)
++{
++    int d;
++    asm("vabsdiff4.u32.u32.u32.add %0, %1, %2, %3;" : "=r"(d) : "r"(a), "r"(b), "r"(acc));
++    return d;
++}
++
+ /* unaligned 32-bit load built from two aligned ones (planes have slack at the end) */
+ static __device__ __forceinline__ uint32_t ldu32(const uint8_t *p)
+ {
+@@ -292,7 +301,7 @@ static __device__ __forceinline__ int sad_hpel_rows(const uint8_t *rp, int strid
+                 pv = __vavgu4(a[j], ah[j]);
+             else
+                 pv = __vavgu4(a[j], b[j]);
+-            sad += __vsadu4(c[j], pv);
++            sad = sad4(c[j], pv, sad);
+         }
+     }
+     return sad;
+@@ -365,7 +374,7 @@ extern "C" __global__ void k_me_coarse(const uint8_t *cq, const uint8_t *rq,
+                 continue;
+             int s = 0;
+             for (int i = 0; i < 4; i++)
+-                s += __vsadu4(c[i], __funnelshift_rc(w0[i], w1[i], 8 * j));
++                s = sad4(c[i], __funnelshift_rc(w0[i], w1[i], 8 * j), s);
+             s = s * 16 + lambda * (mv_bits(8 * dx) + ybits);
+             const int k = t < nwitems ? (dy - cy + range) * side + (dx - cx + range)
+                                       : nwin + (dy + 2) * 5 + (dx + 2);
+@@ -455,9 +464,9 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         uint32_t c0 = cr[0], c1 = cr[1];
+         sc[(lane >> 1) * 4 + (lane & 1) * 2]     = c0;
+         sc[(lane >> 1) * 4 + (lane & 1) * 2 + 1] = c1;
+-        int mean = (warp_sum(__vsadu4(c0, 0) + __vsadu4(c1, 0)) + 128) >> 8;
++        int mean = (warp_sum(sad4(c1, 0, sad4(c0, 0, 0))) + 128) >> 8;
+         uint32_t m4 = mean * 0x01010101u;
+-        intra_cost = warp_sum(__vsadu4(c0, m4) + __vsadu4(c1, m4));
++        intra_cost = warp_sum(sad4(c1, m4, sad4(c0, m4, 0)));
+     }
+     __syncwarp();
+ 
+@@ -503,10 +512,10 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         for (int row = 0; row < 16; row++) {
+             const uint32_t *w = wp + row * wstride;
+             uint32_t w0 = w[0], w1 = w[1], w2 = w[2], w3 = w[3], w4 = w[4];
+-            sad += __vsadu4(sc[row * 4 + 0], __funnelshift_rc(w0, w1, sh));
+-            sad += __vsadu4(sc[row * 4 + 1], __funnelshift_rc(w1, w2, sh));
+-            sad += __vsadu4(sc[row * 4 + 2], __funnelshift_rc(w2, w3, sh));
+-            sad += __vsadu4(sc[row * 4 + 3], __funnelshift_rc(w3, w4, sh));
++            sad = sad4(sc[row * 4 + 0], __funnelshift_rc(w0, w1, sh), sad);
++            sad = sad4(sc[row * 4 + 1], __funnelshift_rc(w1, w2, sh), sad);
++            sad = sad4(sc[row * 4 + 2], __funnelshift_rc(w2, w3, sh), sad);
++            sad = sad4(sc[row * 4 + 3], __funnelshift_rc(w3, w4, sh), sad);
+         }
+         int cost = sad + lambda * (mv_bits(2 * dx - pmx) + mv_bits(2 * dy - pmy));
+         if (cost < best_cost) {
+@@ -599,8 +608,8 @@ k_me_bidir(const uint8_t *cur, const uint8_t *ref_f, const uint8_t *ref_b,
+ 
+     pred_row(ref_f, py, 0, 0, mvf, fmv_f, 0, row, X, Y, my, pf);
+     pred_row(ref_b, py, 0, 0, mvb, fmv_b, 0, row, X, Y, my, pb);
+-    int sad_bi = warp_sum(__vsadu4(cr[0], __vavgu4(pf[0], pb[0])) +
+-                          __vsadu4(cr[1], __vavgu4(pf[1], pb[1])));
++    int sad_bi = warp_sum(sad4(cr[1], __vavgu4(pf[1], pb[1]),
++                               sad4(cr[0], __vavgu4(pf[0], pb[0]), 0)));
+     int sad_bif = 0x7fffffff;
+     /* averaged field prediction only when a field vector already rivals
+      * the frame vectors in at least one direction (warp-uniform test) */
+@@ -609,8 +618,8 @@ k_me_bidir(const uint8_t *cur, const uint8_t *ref_f, const uint8_t *ref_b,
+     if (have_field) {
+         pred_row(ref_f, py, 0, 1, mvf, fmv_f, f.fsel[0] | f.fsel[1] << 1, row, X, Y, my, pf);
+         pred_row(ref_b, py, 0, 1, mvb, fmv_b, b.fsel[0] | b.fsel[1] << 1, row, X, Y, my, pb);
+-        sad_bif = warp_sum(__vsadu4(cr[0], __vavgu4(pf[0], pb[0])) +
+-                           __vsadu4(cr[1], __vavgu4(pf[1], pb[1])));
++        sad_bif = warp_sum(sad4(cr[1], __vavgu4(pf[1], pb[1]),
++                                sad4(cr[0], __vavgu4(pf[0], pb[0]), 0)));
+     }
+ 
+     if (lane == 0) {
+@@ -722,10 +731,10 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+                     const uint32_t *w = wp + row * FW_WORDS;
+                     const uint32_t *c = sc + (2 * row + f) * 4;
+                     uint32_t w0 = w[0], w1 = w[1], w2 = w[2], w3 = w[3], w4 = w[4];
+-                    sad += __vsadu4(c[0], __funnelshift_rc(w0, w1, sh));
+-                    sad += __vsadu4(c[1], __funnelshift_rc(w1, w2, sh));
+-                    sad += __vsadu4(c[2], __funnelshift_rc(w2, w3, sh));
+-                    sad += __vsadu4(c[3], __funnelshift_rc(w3, w4, sh));
++                    sad = sad4(c[0], __funnelshift_rc(w0, w1, sh), sad);
++                    sad = sad4(c[1], __funnelshift_rc(w1, w2, sh), sad);
++                    sad = sad4(c[2], __funnelshift_rc(w2, w3, sh), sad);
++                    sad = sad4(c[3], __funnelshift_rc(w3, w4, sh), sad);
+                 }
+                 best_cost = sad + lambda * (mv_bits(2 * dx) + mv_bits(2 * dy) + 1);
+                 best_k    = k;
+-- 
+2.55.0
+
