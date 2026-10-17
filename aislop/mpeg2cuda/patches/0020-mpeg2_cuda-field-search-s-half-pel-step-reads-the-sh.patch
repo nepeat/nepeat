@@ -1,0 +1,99 @@
+From ac0a6b16c87b3c6e88c3f7f44f124f0300b56780 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:22:01 -0700
+Subject: [PATCH] mpeg2_cuda: field search's half-pel step reads the shared
+ window
+
+The per-field window grows to 12 field lines from (-3, -2) around the
+candidates, which covers every half-pel neighbour of the best full-pel
+vector (always one of the window's candidates), so the step no longer
+reads global memory. Parity stride 84 keeps the 30 lanes conflict-free.
+Bit-identical output.
+---
+ libavcodec/mpeg2_cuda.cu | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 64507a1..f697fcf 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -665,12 +665,13 @@ k_me_bidir(const uint8_t *cur, const uint8_t *ref_f, const uint8_t *ref_b,
+     }
+ }
+ 
+-/* field search window: per reference field 10 field lines (3 vertical
+- * positions + 8 lines) x 7 words; the second field starts 76 words in so
+- * the 30 lanes' rows fall in distinct banks */
+-#define FW_ROWS   10
++/* field search window: per reference field 12 field lines x 7 words from
++ * (-3, -2) around the candidates' centre: the 3 x 5 full-pel positions and
++ * all half-pel neighbours of the best one. The second field starts 84
++ * words in, which keeps the 30 lanes' rows in distinct banks */
++#define FW_ROWS   12
+ #define FW_WORDS  7
+-#define FW_PARITY 76
++#define FW_PARITY 84
+ 
+ /* Field motion search in frame pictures: for each current field (8 lines of
+  * the MB) search both reference fields around the frame vector, then a
+@@ -709,22 +710,21 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+      * MB's PMV holds twice this value and must stay in range, because some
+      * decoders (libavcodec included) skip the modulo wrap for a zero delta */
+     const int lo_y = max(-2 * fy0, -(mv_max + 1) / 2), hi_y = min(2 * (fh - 8 - fy0), mv_max / 2);
+-    const int fpy  = 2 * py;                  /* field line stride */
+     const int bx   = mo.mvx >> 1, by = mo.mvy >> 1;
+ 
+     int fcost = 0, fsad = 0;
+     int vx_[2], vy_[2], sel_[2];
+     uint32_t *win = s_fwin[wib];
+-    const int wx0 = (x0 + bx - 2) >> 2;
++    const int wx0 = (x0 + bx - 3) >> 2;
+     for (int f = 0; f < 2; f++) {
+         /* window for this field: reference field s, field lines from
+-         * fy0 + ((f + by - s) >> 1) - 1; out-of-plane rows/words are clamped
++         * fy0 + ((f + by - s) >> 1) - 2; out-of-plane rows/words are clamped
+          * and only read by illegal (skipped) candidates */
+         __syncwarp();
+         for (int i = lane; i < 2 * FW_ROWS * FW_WORDS; i += 32) {
+             const int s = i / (FW_ROWS * FW_WORDS), rem = i % (FW_ROWS * FW_WORDS);
+             const int r = rem / FW_WORDS, x = rem % FW_WORDS;
+-            const int line = 2 * (fy0 + ((f + by - s) >> 1) - 1 + r) + s;
++            const int line = 2 * (fy0 + ((f + by - s) >> 1) - 2 + r) + s;
+             const int yy = min(max(line, 0), ph + 3);
+             const int xx = min(max(wx0 + x, 0), (py >> 2) - 1);
+             win[s * FW_PARITY + r * FW_WORDS + x] = ((const uint32_t *)(ref + (size_t)yy * py))[xx];
+@@ -739,7 +739,7 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+             const int dx = bx + kk % 5 - 2;
+             const int dy = ((f + by - s) >> 1) + kk / 5 - 1;
+             if (2 * dx >= lo_x && 2 * dx <= hi_x && 2 * dy >= lo_y && 2 * dy <= hi_y) {
+-                const uint32_t *wp = win + s * FW_PARITY + (kk / 5) * FW_WORDS + ((x0 + dx) >> 2) - wx0;
++                const uint32_t *wp = win + s * FW_PARITY + (kk / 5 + 1) * FW_WORDS + ((x0 + dx) >> 2) - wx0;
+                 const int sh = ((x0 + dx) & 3) * 8;
+                 int sad = 0;
+                 for (int row = 0; row < 8; row++) {
+@@ -761,7 +761,7 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+         int vx = 2 * (bx + kk % 5 - 2);
+         int vy = 2 * (((f + by - s) >> 1) + kk / 5 - 1);
+ 
+-        /* half-pel: lanes 4h..4h+3, two field lines each */
++        /* half-pel: lanes 4h..4h+3, two field lines each, from the window */
+         {
+             const int h = lane >> 2, part = lane & 3;
+             const int hi = h < 4 ? h : h + 1;
+@@ -770,9 +770,11 @@ k_me_field(const uint8_t *cur, const uint8_t *ref,
+             int sad = 0;
+             if (ok) {
+                 const int hx = hvx & 1, hy = hvy & 1;
+-                const uint8_t *rp = ref + (fy0 + (hvy >> 1) + part * 2) * fpy + s * py + x0 + (hvx >> 1);
++                const int hx0 = x0 + (hvx >> 1);
++                const int r0  = (hvy >> 1) + part * 2 - ((f + by - s) >> 1) + 2;
+                 /* current field rows 2*(part*2+row)+f, i.e. every other MB row */
+-                sad = sad_hpel_rows(rp, fpy, hx, hy, sc + (2 * part * 2 + f) * 4, 2, 2);
++                sad = sad_hpel_words(win + s * FW_PARITY + r0 * FW_WORDS + (hx0 >> 2) - wx0, FW_WORDS,
++                                     (hx0 & 3) * 8, hx, hy, sc + (2 * part * 2 + f) * 4, 2, 2);
+             }
+             sad += __shfl_xor_sync(FULL_MASK, sad, 1);
+             sad += __shfl_xor_sync(FULL_MASK, sad, 2);
+-- 
+2.55.0
+
