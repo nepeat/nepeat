@@ -1,0 +1,126 @@
+From 364ccd3aef8459fc67189e262e0d08b604a382ac Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:20:58 -0700
+Subject: [PATCH] mpeg2_cuda: refine's half-pel step reads the shared window
+
+The window around the coarse vector grows to 22 rows x 7 words starting
+at (-3, -3), which also covers every half-pel neighbour of a best vector
+within +-2 of it (warp-uniform test); other best vectors still read
+global memory. The half-pel step was a third of the kernel, mostly load
+latency after the argmin. Bit-identical output.
+---
+ libavcodec/mpeg2_cuda.cu | 47 ++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 70bff51..64507a1 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -280,18 +280,17 @@ static __device__ __forceinline__ void warp_argmin3(int &cost, int &idx, int &ex
+ /* SAD of `rows` rows of 16 half-pel interpolated pixels against the current
+  * MB rows in cur (word stride 4 * cstride). The row below is only read when
+  * the vector is vertically half-pel. */
+-static __device__ __forceinline__ int sad_hpel_rows(const uint8_t *rp, int stride, int hx, int hy,
+-                                                    const uint32_t *cur, int cstride, int rows)
++static __device__ __forceinline__ int sad_hpel_words(const uint32_t *wp, int wstride, int sh,
++                                                     int hx, int hy,
++                                                     const uint32_t *cur, int cstride, int rows)
+ {
+-    const uint32_t *wp = (const uint32_t *)(rp - ((uintptr_t)rp & 3));
+-    const int sh = ((uintptr_t)rp & 3) * 8;
+     int sad = 0;
+     for (int row = 0; row < rows; row++) {
+         uint32_t a[4], ah[4], b[4], bh[4];
+-        const uint32_t *w = wp + row * (stride >> 2);
++        const uint32_t *w = wp + row * wstride;
+         ROW_WORDS(w, sh, a, ah);
+         if (hy)
+-            ROW_WORDS(w + (stride >> 2), sh, b, bh);
++            ROW_WORDS(w + wstride, sh, b, bh);
+         const uint32_t *c = cur + row * 4 * cstride;
+         for (int j = 0; j < 4; j++) {
+             uint32_t pv;
+@@ -307,6 +306,13 @@ static __device__ __forceinline__ int sad_hpel_rows(const uint8_t *rp, int strid
+     return sad;
+ }
+ 
++static __device__ __forceinline__ int sad_hpel_rows(const uint8_t *rp, int stride, int hx, int hy,
++                                                    const uint32_t *cur, int cstride, int rows)
++{
++    return sad_hpel_words((const uint32_t *)(rp - ((uintptr_t)rp & 3)), stride >> 2,
++                          ((uintptr_t)rp & 3) * 8, hx, hy, cur, cstride, rows);
++}
++
+ /* Exhaustive +-range search on 1/4 resolution planes, one warp per MB.
+  * Each lane takes one row of a 4-pel aligned column group: the 4 candidates
+  * dx..dx+3 read the same two words per row and differ only in the funnel
+@@ -427,10 +433,12 @@ static __device__ __forceinline__ short2 me_candidate(int k, short2 cv, short2 t
+     }
+ }
+ 
+-/* reference window staged for the refinement: 16 + 4 rows, 7 words (any
+- * 16 pixels starting within 5 consecutive positions); stride 7 keeps the
+- * window lanes' rows in different banks */
+-#define RW_ROWS  20
++/* reference window staged for the refinement: 16 + 6 rows, 7 words, the
++ * reference around the coarse vector cv from (-3, -3): every full-pel
++ * candidate within +-2 of cv and, when the best one is among those, all its
++ * half-pel neighbours (16 pixels plus one starting within 6 consecutive
++ * positions). Stride 7 keeps the window lanes' rows in different banks */
++#define RW_ROWS  22
+ #define RW_WORDS 7
+ 
+ /* Full-pel refinement (one candidate per lane, 16x16 SAD against the
+@@ -477,11 +485,11 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+     const short2 cv = coarse[warp];
+     const short2 tv = (flags & 1) ? make_short2(prev[warp].mvx >> 1, prev[warp].mvy >> 1) : cv;
+ 
+-    /* window: rows y0 + cv.y - 2 .., words from (x0 + cv.x - 2) / 4. Rows and
++    /* window: rows y0 + cv.y - 3 .., words from (x0 + cv.x - 3) / 4. Rows and
+      * words outside the plane are clamped; only illegal candidates (skipped
+      * below) would read those. */
+     uint32_t *win = s_win[wib];
+-    const int wy0 = y0 + cv.y - 2, wx0 = (x0 + cv.x - 2) >> 2;
++    const int wy0 = y0 + cv.y - 3, wx0 = (x0 + cv.x - 3) >> 2;
+     for (int i = lane; i < RW_ROWS * RW_WORDS; i += 32) {
+         const int r = min(max(wy0 + i / RW_WORDS, 0), ph + 3);
+         const int x = min(max(wx0 + i % RW_WORDS, 0), (py >> 2) - 1);
+@@ -501,7 +509,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         const uint32_t *wp;
+         int wstride;
+         if (dx >= cv.x - 2 && dx <= cv.x + 2 && dy >= cv.y - 2 && dy <= cv.y + 2) {
+-            wp      = win + (dy - cv.y + 2) * RW_WORDS + ((x0 + dx) >> 2) - wx0;
++            wp      = win + (dy - cv.y + 3) * RW_WORDS + ((x0 + dx) >> 2) - wx0;
+             wstride = RW_WORDS;
+         } else {
+             wp      = (const uint32_t *)(rp - ((uintptr_t)rp & 3));
+@@ -528,7 +536,9 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+     short2 bc = me_candidate(best_k, cv, tv, coarse, warp, mx, my, mb_w, mb_h);
+     int bmx = 2 * bc.x, bmy = 2 * bc.y;
+ 
+-    /* half-pel: lanes 4h..4h+3 evaluate neighbour h, four rows each */
++    /* half-pel: lanes 4h..4h+3 evaluate neighbour h, four rows each, from
++     * the window when the best full-pel vector lies within +-2 of cv */
++    const int hwin = abs(bc.x - cv.x) <= 2 && abs(bc.y - cv.y) <= 2;
+     {
+         const int h = lane >> 2, part = lane & 3;
+         const int hi = h < 4 ? h : h + 1;           /* skip the centre */
+@@ -537,8 +547,13 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+         int sad = 0;
+         if (ok) {
+             const int hx = vx & 1, hy = vy & 1;
+-            const uint8_t *rp = ref + (y0 + part * 4 + (vy >> 1)) * py + x0 + (vx >> 1);
+-            sad = sad_hpel_rows(rp, py, hx, hy, sc + part * 16, 1, 4);
++            const int hx0 = x0 + (vx >> 1);
++            if (hwin)
++                sad = sad_hpel_words(win + (part * 4 + (vy >> 1) - cv.y + 3) * RW_WORDS + (hx0 >> 2) - wx0,
++                                     RW_WORDS, (hx0 & 3) * 8, hx, hy, sc + part * 16, 1, 4);
++            else
++                sad = sad_hpel_rows(ref + (y0 + part * 4 + (vy >> 1)) * py + hx0, py, hx, hy,
++                                    sc + part * 16, 1, 4);
+         }
+         sad += __shfl_xor_sync(FULL_MASK, sad, 1);
+         sad += __shfl_xor_sync(FULL_MASK, sad, 2);
+-- 
+2.55.0
+
