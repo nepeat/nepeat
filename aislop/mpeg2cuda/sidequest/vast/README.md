@@ -6,7 +6,7 @@ Workflow (vastai CLI with API key, ssh key in the agent):
 sidequest/vast/bundle.sh                              # build + md5 self-check on the local GPU
 sidequest/vast/pick.py "RTX 5070" "RTX 4090" > o.tsv  # best hosts per model, with fallbacks
 sidequest/vast/launch.sh o.tsv                        # rent, bench, fetch, destroy, in parallel
-sidequest/vast/summarize.py                           # markdown table of every run
+sidequest/vast/summarize.py --collect                 # fold results/*/bench.log into results.csv, print table
 ```
 
 - `bundle.sh`: ffmpeg + m2c_bench with their own glibc (PTX 8.7 for sm_80+,
@@ -35,28 +35,30 @@ single-GPU machine nobody else is renting).
 
 ## Consumer GPU sweep (vast.ai, 2026-10-17)
 
-`summarize.py` output, best of each run (fps; channels = end-to-end peak /
+`summarize.py` output from `results.csv` (raw logs stay in the gitignored
+`results/`), best of each run (fps; channels = end-to-end peak /
 29.97). `*` = some parallel e2e runs failed at 24-32 streams (VRAM: the 5080 16 GB run records `CUDA_ERROR_OUT_OF_MEMORY` at 32). Hosts in
 the run name; the newish-AMD reruns are the comparable ones (our desktop is a
 7950X). Single runs, no repeats.
 
 | GPU | host CPU | W | md5 | enc touchdown I/P | enc park_joy B2 | NVDEC | e2e peak (M) | channels | run |
 |---|---|---|---|---|---|---|---|---|---|
-| GeForce RTX 5080 | Ryzen 9 7945HX with Radeon Graphics | 360.00 | ok | 12631 | 6311 | 2891 | 2882 (24) * | 96 | RTX_5080_7945HX |
+| GeForce RTX 5080 | Ryzen 9 7945HX | 360.00 | ok | 12631 | 6311 | 2891 | 2882 (24) * | 96 | RTX_5080_7945HX |
 | GeForce RTX 5090 | Ryzen 9 7900X | 575.00 | ok | 21704 | 11089 | 2822 | 2741 (16) | 91 | RTX_5090_7900X |
 | GeForce RTX 5060 Ti | Ryzen 5 7600 | 180.00 | ok | 5380 | 2653 | 2066 | 1986 (16) * | 66 | RTX_5060_Ti_7600 |
 | GeForce RTX 5070 | Ryzen 9 7900X | 250.00 | ok | 7414 | 3602 | 2054 | 1954 (16) * | 65 | RTX_5070_7900X |
 | GeForce RTX 4090 | Ryzen 9 7950X | 375.00 | ok | 14320 | 8001 | 1451 | 1042 (1) | 35 | RTX_4090_7950X |
-| GeForce RTX 5090 | EPYC 7K62 | 480.00 | ok | 6851 | 5284 | 1178 | 1038 (16) | 35 | RTX_5090 |
-| GeForce RTX 4080 | Intel Core i7-8700K | 320.00 | ok | 10960 | 5410 | 937 | 926 (8) | 31 | RTX_4080_bench |
+| GeForce RTX 5090 | EPYC 7K62 | 480.00 | ok | 6851 | 5284 | 1178 | 1038 (16) | 35 | RTX_5090_EPYC7K62 |
+| GeForce RTX 4080 | Intel Core i7-8700K | 320.00 | ok | 10960 | 5410 | 937 | 926 (8) | 31 | RTX_4080_8700K |
 | GeForce RTX 4070 | Ryzen 9 5900X | 200.00 | ok | 6530 | 3265 | 920 | 911 (24) * | 30 | RTX_4070_5900X |
-| GeForce RTX 5080 | EPYC 7K62 | 260.00 | ok | 5387 | 5130 | 1070 | 862 (4) | 29 | RTX_5080_bench |
-| GeForce RTX 4090 | Ryzen Threadripper PRO 5955WX s | 450.00 | ok | 14551 | 7935 | 853 | 831 (16) | 28 | RTX_4090_bench |
+| GeForce RTX 5080 | EPYC 7K62 | 260.00 | ok | 5387 | 5130 | 1070 | 862 (4) | 29 | RTX_5080_EPYC7K62 |
+| GeForce RTX 4090 | Ryzen Threadripper PRO 5955WX s | 450.00 | ok | 14551 | 7935 | 853 | 831 (16) | 28 | RTX_4090_5955WX |
 | GeForce RTX 3080 | 12th Gen Intel Core i7-12700KF | 370.00 | ok | 7149 | 3400 | 756 | 756 (8) * | 25 | RTX_3080_12700KF |
-| GeForce RTX 3070 | Intel Xeon  E5-2680 v4 | 160.00 | ok | 4208 | 1963 | 660 | 649 (16) * | 22 | RTX_3070 |
-| GeForce RTX 5070 | Ryzen Threadripper PRO 3955WX s | 220.00 | ok | 6694 | 3613 | 698 | 642 (8) | 21 | RTX_5070_bench |
-| GeForce RTX 3080 Ti | Intel Xeon  E5-2680 v4 | 250.00 | ok | 5393 | 2758 | 636 | 512 (4) | 17 | RTX_3080_Ti_bench |
-| GeForce RTX 4070 | Intel Xeon  E5-2690 v4 | 200.00 | ok | 6039 | 3215 | 577 | 467 (1) | 16 | RTX_4070_bench |
+| GeForce RTX 3070 | Intel Xeon  E5-2680 v4 | 160.00 | ok | 4208 | 1963 | 660 | 649 (16) * | 22 | RTX_3070_E5-2680v4 |
+| GeForce RTX 5070 | Ryzen Threadripper PRO 3955WX s | 220.00 | ok | 6694 | 3613 | 698 | 642 (8) | 21 | RTX_5070_3955WX |
+| GeForce RTX 3080 Ti | Intel Xeon  E5-2680 v4 | 250.00 | ok | 5393 | 2758 | 636 | 512 (4) | 17 | RTX_3080_Ti_E5-2680v4 |
+| GeForce RTX 4070 | Intel Xeon  E5-2690 v4 | 200.00 | ok | 6039 | 3215 | 577 | 467 (1) | 16 | RTX_4070_E5-2690v4 |
+| GeForce RTX 5060 Ti | Ryzen Threadripper 2950X | 150.00 | ok | 4784 | 2454 | 492 | 452 (8) | 15 | RTX_5060_Ti_2950X |
 
 - The live-channel limit is the hardware decoder (NVDEC) plus the host CPU,
   not our encoder: even the 5060 Ti encodes ~5400 fps (~180 channels).

@@ -41,7 +41,7 @@ LABELS = {
 
 
 def save(fig, name):
-    for ext in ("png", "svg"):
+    for ext in ("png",):
         fig.savefig(os.path.join(O, f"{name}.{ext}"), dpi=160, bbox_inches="tight")
     plt.close(fig)
 
