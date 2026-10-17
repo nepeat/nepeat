@@ -312,3 +312,44 @@ kernels are load-latency bound, not ALU bound. Refine's full-pel SAD loop is
   global prediction reads, k_vlc's local-memory spills (160 B stack).
 - Not used, and why: tensor cores (no SAD op; the IDCT must stay bit-exact with
   simple_idct), packed fp16 fDCT (would change output and needs the full A/B).
+
+## 2026-10-16 — perf pass 4: memory traffic, copies, streams
+Per-stage profile first (nsys, bf2, 15M): input 20 us/pic (k_load 9.4, k_down4
+11.1 = 2.53 calls/pic), ME 225 (1080i) / 127 (1080p), encode_mb 79/74,
+VLC+pack+concat 33/30, host idle 21/23 (mostly the I/P bubble before
+code_picture). Read-back copies were 3 per picture, ~63 KB, already overlapped.
+Each step bit-identical (md5, 7 configs); deltas are interleaved medians
+vs the previous step, park_joy 1080i / touchdown 1080p:
+- 0021 cached reference quarter planes (an anchor was decimated up to 5x
+  with two B-frames): -7.0 / -6.5 us.
+- 0022 k_load writes the source quarter plane (8x4 px per thread, field
+  weave reads the top field back): -2.4 / -3.1.
+- 0023 k_encode_mb writes the reconstruction's quarter plane (2 shuffles),
+  k_down4 deleted: neutral, kept as a simplification.
+- 0024 zero-copy output: ffnvcodec lacks cuMemHostAlloc, so it is looked up
+  in the same libcuda handle (FFNV_SYM_FUNC); k_concat writes the picture,
+  size and mv_need into device-mapped pinned memory, one event wait instead
+  of two pageable round trips. Host idle 22 -> 9 us/pic, but SM byte stores
+  over PCIe made k_concat 3.4 -> 11 us and, on the main stream, a net loss
+  (+5/+10). Fixed by a side stream, 16 B stores per thread, a parallel
+  row-size load (thread 0 had 68 dependent global loads) and all 16 gather
+  loads issued at once: -3.7 / -0.3.
+- 0025 VLC + pack + concat on the output stream after k_encode_mb (the next
+  search touches none of their buffers; the next code_picture waits for
+  coded_ev): -24.2 / -19.3. The small grids now fill the GPU beside the next
+  picture's motion search.
+- 0026 uploads + k_load on a load stream, per-slot events (load_ev: loaded;
+  use_ev: last queued reader, recorded after each k_encode_mb incl. re-codes):
+  -5.7 / -4.7. Checked: field weave, NVDEC frames, system-memory NV12.
+- Not done: reading decoder surfaces directly instead of k_load (1080->1088
+  padding in every kernel, NV12 chroma in encode_mb, and holding NVDEC
+  surfaces through the B delay could starve the live channels' pools);
+  hiding the copy got most of its ~10 us anyway.
+- Validation: tests/run.sh full 95/95 after 0025 and 0026 (memcheck incl.);
+  repeat encodes identical (6x3 configs, 5x bf3).
+- Pass total (interleaved medians, pass start vs 0026): park_joy 1080i
+  338.0 -> 294.5 us/pic (2959 -> 3396 fps), touchdown 1080p 242.7 -> 207.2
+  (4120 -> 4827 fps). Profiled now: wall 300/231, GPU idle 17/15 us/pic
+  (was 21/23); per-kernel sums exceed the wall since the tail and k_load
+  overlap the searches. The bench's HtoD (~14 us/pic) is its one-off upload
+  of the 30 looped frames, not per picture.
