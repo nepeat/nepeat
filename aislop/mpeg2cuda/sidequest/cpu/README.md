@@ -130,6 +130,28 @@ So one Puma core holds SD 480i I/P realtime with the gate either way, and
 progressive SD B2 goes from 34 to 57 fps. 1080i is out of reach for the CPU
 (the whole chip would give ~20 fps).
 
+### Its GPU (Radeon R3, Mullins/GCN 2): not usable for offload
+
+Tried on 2026-10-17 by switching the kernel driver to amdgpu
+(`radeon.cik_support=0 amdgpu.cik_support=1`; reverted afterwards):
+
+- ROCm/HIP: impossible. `kfd: MULLINS not supported in kfd`, and ROCm never
+  targeted gfx7 APUs.
+- On `radeon`, Vulkan only sees llvmpipe and rusticl can't allocate GPU VA.
+- On amdgpu: RADV (Vulkan 1.3), Clover and rusticl (OpenCL) all enumerate
+  the GPU (2 CUs, 351 MHz), but compute is broken. A trivial OpenCL kernel
+  (`o[i] = i * 3`) completes with all-zero output on both CL stacks; the
+  motion-search kernel (`clme.c`) hangs the compute ring until the 60 s
+  timeout (soft recovery); a 64-thread Vulkan compute dispatch hung the GPU
+  and the reset failed (`GPU Recovery Failed: -110`), wedging the GPU until
+  reboot.
+- Fixed function (VA-API): MPEG-2 and H.264 decode, H.264 encode (VCE); no
+  MPEG-2 encode.
+
+So on this box MPEG-2 stays on the CPU, where `field_me_thresh` is the win.
+The only GPU offload that exists is MPEG-2/H.264 *decode*, through the
+fixed-function decoder, not compute.
+
 ## Not done
 
 - the RD macroblock decision path (`mbd>0`) is not gated
