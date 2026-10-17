@@ -90,7 +90,7 @@ no skip threshold.
   zero-delta/out-of-range-PMV hazard, MC bounds) + VBV (`tools/vbv.py`) +
   libmpeg2 cross-decode (`tools/xdec.py`) + compute-sanitizer memcheck cases.
   `FFMPEG_BIN=` runs it against a snapshot binary while developing.
-- Codex review (CODEX-REVIEW.txt): OOB half-pel reads in ME, build.sh masking
+- Codex review (docs/reviews/codex-2026-10-15.txt): OOB half-pel reads in ME, build.sh masking
   make failures, mv_bits missing the modulo wrap — all fixed, response appended.
 - Quality work, measured with BD-rate (`scripts/rd.sh` + `tools/bdrate.py`,
   piecewise-linear; operating range q 2-13 touchdown, 10-31 park_joy):
