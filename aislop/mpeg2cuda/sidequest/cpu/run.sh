@@ -4,6 +4,8 @@
 #
 #   run.sh setup               worktree of upstream n9.0.2 + the patches here,
 #                              minimal static build in build/cpu, bench binary
+#                              (first time only; rm -rf build/cpu and
+#                              git worktree prune to redo)
 #   run.sh bench N M [opts]    encoder-only fps, live-channel settings, M instances
 #                              (IN=clip.y4m to change the clip)
 #   run.sh sweep label "opts"  1-thread fps + PSNR/SSIM (150 frames) on

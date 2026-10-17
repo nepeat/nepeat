@@ -373,3 +373,9 @@ service whose cgroup they lived in; the senders now run in a user systemd
 scope (`systemd-run --user --scope --unit=m2c-channels`). Separate, smaller:
 the mezz channels log `Invalid DTS ... replacing by guess` once per loop wrap
 (DTS 2.002 s past PTS at the discontinuity); ffmpeg repairs it, not fatal.
+
+## Side quest: CPU mpeg2video (not part of the journey)
+See `sidequest/cpu/README.md`: where software mpeg2video stands on the 7950X,
+what limits it (motion estimation, field ME ~40%), and `field_me_thresh`
+(+13-60% whole box at equal quality). Its patch lives in `sidequest/cpu/`,
+not `patches/`.
