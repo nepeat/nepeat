@@ -4,7 +4,14 @@
 glibc, 60-frame clips, a 30 s H.264 mezz clip); `bench.sh` runs on any
 container with the NVIDIA driver: md5 correctness vs the 3090, encoder-only
 fps, NVDEC decode fps, and end-to-end NVDEC -> mpeg2_cuda fps. Results land in
-`results/`.
+`results/`. `run_remote.sh` does upload (rsync) + bench + fetch + destroy in
+one shot, falling back to the vast ssh proxy when the direct port refuses.
+
+**Pick hosts by CPU, not just GPU.** Per-frame launch work and ffmpeg's
+decode pipeline run on the host; the same RTX 5090 did 1038 fps end to end on
+a shared EPYC 7K62 and 2741 fps on a whole-host Ryzen 9 7900X. Filter offers
+for `cpu_ghz >= 4.5` and `cpu_cores_effective / cpu_cores >= 0.9` (a
+single-GPU machine nobody else is renting).
 
 ## RTX 5060 Ti 16 GB (vast.ai, 2026-10-17)
 
