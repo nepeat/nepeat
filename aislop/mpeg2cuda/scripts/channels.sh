@@ -9,8 +9,8 @@
 # program number NNN. lineup.tsv's mode column picks the pipeline (mezz,
 # raw-mpeg2, raw-h264); ONLY="906 907" limits start/stop to those channels. Env: PORT_BASE (5900), VBITRATE (15M), MUXRATE (16M),
 # COPIES (1; >1 duplicates each channel for stress tests, null dest only).
-# UDP output is paced at MUXRATE (ffmpeg udp bitrate/burst_bits) so the EQAM
-# sees a smooth stream instead of one burst per picture.
+# UDP output is paced just above MUXRATE (ffmpeg udp bitrate/burst_bits) so
+# the EQAM sees a smooth stream instead of one burst per picture.
 set -uo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 F="${FFMPEG:-$root/build/ffmpeg/ffmpeg}"   # or the flake's: FFMPEG=$(nix build .#ffmpeg --print-out-paths)/bin/ffmpeg
@@ -105,7 +105,14 @@ start() {
     for c in $(seq 1 "$COPIES"); do
       local out port=$((PORT_BASE + ch - 900)) tag="${ch}_${name}_$c"
       if [[ $dest == null ]]; then out=/dev/null
-      else out="udp://$dest:$port?pkt_size=1316&bitrate=$(numfmt --from=si "$mrate")&burst_bits=$((7 * 188 * 8))"; fi
+      else
+        # pace 3% above the mux rate with a 20 s FIFO: after any stall -re
+        # catches up at 1.05x, and a pacer at exactly the mux rate never
+        # drains that backlog; once it passes the FIFO (default 2.7 s at
+        # 16M) udp_write fails with a misleading ENOMEM and the sender exits
+        local rate; rate=$(numfmt --from=si "$mrate")
+        out="udp://$dest:$port?pkt_size=1316&bitrate=$((rate * 103 / 100))&burst_bits=$((7 * 188 * 8))&fifo_size=$((rate * 20 / 8 / 188))"
+      fi
       nohup "$ff" -hide_banner -nostdin -y -loglevel warning -stats \
         -re -readrate_initial_burst 0 -stream_loop -1 "${vin[@]}" -i "$src" \
         -map 0:v:0 -map 0:a:0 "${vopts[@]}" \
