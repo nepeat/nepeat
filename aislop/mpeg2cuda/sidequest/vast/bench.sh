@@ -7,7 +7,7 @@
 #
 # 1. correctness: md5 of 4 encodes vs the RTX 3090 reference (the encoder is
 #    deterministic integer code, so every GPU must produce the same bytes)
-# 2. encoder only (m2c_bench, 60 preloaded frames, 15M): touchdown 1080p and
+# 2. encoder only (m2c_bench, 60 preloaded frames, lossless FFV1 clips, 15M): touchdown 1080p and
 #    park_joy 1080i, bf 0/2, M parallel instances
 # 3. NVDEC only: M parallel decodes of a 1080p H.264 mezz clip
 # 4. end to end: M parallel NVDEC -> mpeg2_cuda (the live channel pipeline,
@@ -32,7 +32,7 @@ echo "== correctness (md5 vs RTX 3090 reference)"
 ref=(4afa05c6b32d 2321f9d24fc4 4142c752f697 a48b911b8a1d); i=0; bad=0
 for c in touchdown_1080p parkjoy_1080i; do
   for bf in 0 2; do
-    m=$(run ffmpeg -v error -i "$D/media/$c.y4m" -c:v mpeg2_cuda -b:v 15M -g 15 -bf $bf -f mpeg2video - | md5sum | cut -c1-12)
+    m=$(run ffmpeg -v error -i "$D/media/$c.mkv" -c:v mpeg2_cuda -b:v 15M -g 15 -bf $bf -f mpeg2video - | md5sum | cut -c1-12)
     [[ $m == "${ref[$i]}" ]] && s=match || { s="MISMATCH($m)"; bad=1; }
     row "md5,$c,$bf,1,,$s"; i=$((i + 1))
   done
@@ -45,7 +45,7 @@ for c in touchdown_1080p parkjoy_1080i; do
   for bf in 0 2; do
     for m in $ms; do
       n=$((3600 / m)); ((n < 900)) && n=900
-      f=$(run m2c_bench "$D/media/$c.y4m" mpeg2_cuda 60 $n $m b=15M bf=$bf 2>&1 |
+      f=$(run m2c_bench "$D/media/$c.mkv" mpeg2_cuda 60 $n $m b=15M bf=$bf 2>&1 |
           sed -nE 's/.*aggregate ([0-9.]+) fps.*/\1/p')
       row "encode,$c,$bf,$m,${f:-FAIL},"
     done
