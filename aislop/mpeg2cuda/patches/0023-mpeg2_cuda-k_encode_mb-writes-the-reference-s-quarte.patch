@@ -1,0 +1,215 @@
+From ecbf52c42b07bafa5e2341c469df7c2da3d44be2 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:48:14 -0700
+Subject: [PATCH] mpeg2_cuda: k_encode_mb writes the reference's quarter-size
+ plane
+
+The luma warps already hold each reconstructed row for the write-out;
+two shuffles sum the 4 x 4 blocks into rec[]'s quarter plane, so
+k_down4 and the cached-plane bookkeeping go away. Speed is neutral
+(the remaining decimations were one per anchor), output bit-identical.
+---
+ libavcodec/mpeg2_cuda.c  | 39 ++++++++----------------------------
+ libavcodec/mpeg2_cuda.cu | 43 ++++++++++++++++++++--------------------
+ libavcodec/mpeg2_cuda.h  |  2 ++
+ 3 files changed, 32 insertions(+), 52 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index f6dc4dd..ff764f9 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -68,11 +68,11 @@
+  * next group's pictures are loaded into while the last picture is pending */
+ #define SRC_SLOTS (MAX_BF + 3)
+ 
+-enum { F_INIT_TABLES, F_LOAD, F_DOWN4, F_ME_COARSE, F_ME_REFINE, F_ME_FIELD,
++enum { F_INIT_TABLES, F_LOAD, F_ME_COARSE, F_ME_REFINE, F_ME_FIELD,
+        F_SCALE_MOTION, F_ME_BIDIR, F_ENCODE_MB, F_VLC, F_PACK, F_CONCAT, F_NB };
+ 
+ static const char *const kernel_names[F_NB] = {
+-    "k_init_tables", "k_load", "k_down4", "k_me_coarse", "k_me_refine", "k_me_field",
++    "k_init_tables", "k_load", "k_me_coarse", "k_me_refine", "k_me_field",
+     "k_scale_motion", "k_me_bidir", "k_encode_mb", "k_vlc", "k_pack", "k_concat",
+ };
+ 
+@@ -97,8 +97,7 @@ typedef struct MPEG2CudaContext {
+     CUdeviceptr rec[3][3];           /* two anchors + the B picture */
+     CUdeviceptr staging[3];
+     CUdeviceptr srcq[SRC_SLOTS];     /* src[k] luma at 1/4 size, written by k_load */
+-    CUdeviceptr recq[3];             /* rec[k] luma at 1/4 size, for the coarse search */
+-    int recq_ok[3];                  /* recq[k] matches rec[k] */
++    CUdeviceptr recq[3];             /* rec[k] luma at 1/4 size, written by k_encode_mb */
+     CUdeviceptr coarse, motion, motion_prev, mbinfo, blkbits, blklen, slots, bitlen;
+     CUdeviceptr motion_bf, motion_bb, pred_f, pred_b, bdir;
+     /* second set for B pictures: a pending B keeps its vectors while the
+@@ -553,25 +552,6 @@ static int upload_frame(AVCodecContext *avctx, const AVFrame *frame, int slot, i
+     }
+ }
+ 
+-static int down4(AVCodecContext *avctx, CUdeviceptr src, CUdeviceptr dst)
+-{
+-    MPEG2CudaContext *s = avctx->priv_data;
+-    void *args[] = { &src, &s->py, &dst, &s->qpitch, &s->qw, &s->qh };
+-    return launch(avctx, F_DOWN4, FFALIGN(s->qw, 32) / 32, FFALIGN(s->qh, 8) / 8, 32, 8, args);
+-}
+-
+-/* quarter-size luma of rec[idx] for the coarse search: made once per coded
+- * picture (code_picture invalidates it) instead of once per use */
+-static int rec_quarter(AVCodecContext *avctx, int idx, CUdeviceptr *q)
+-{
+-    MPEG2CudaContext *s = avctx->priv_data;
+-    int ret = 0;
+-    if (!s->recq_ok[idx] && (ret = down4(avctx, s->rec[idx][0], s->recq[idx])) >= 0)
+-        s->recq_ok[idx] = 1;
+-    *q = s->recq[idx];
+-    return ret;
+-}
+-
+ /* coarse + refine search of cur against one reference; refq must hold the
+  * decimated reference. pred: temporal predictor field, out: results */
+ static int search_dir(AVCodecContext *avctx, CUdeviceptr cur, CUdeviceptr curq,
+@@ -611,12 +591,11 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int prog, int lambda
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+-    CUdeviceptr ref = s->rec[s->anchor_fut][0], refq;
++    CUdeviceptr ref = s->rec[s->anchor_fut][0], refq = s->recq[s->anchor_fut];
+     int mv_max = (16 << (s->fcode - 1)) - 1;
+     int ret;
+ 
+-    if ((ret = rec_quarter(avctx, s->anchor_fut, &refq)) < 0 ||
+-        (ret = search_dir(avctx, s->src[slot][0], s->srcq[slot], ref, refq, s->motion_prev,
++    if ((ret = search_dir(avctx, s->src[slot][0], s->srcq[slot], ref, refq, s->motion_prev,
+                           s->motion, lambda, s->me_range)) < 0)
+         return ret;
+     if (s->field_me && !prog) {
+@@ -634,7 +613,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int prog,
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+     CUdeviceptr past = s->rec[s->anchor_past][0], fut = s->rec[s->anchor_fut][0];
+-    CUdeviceptr pastq, futq;
++    CUdeviceptr pastq = s->recq[s->anchor_past], futq = s->recq[s->anchor_fut];
+     /* the predictor field belongs to the newest P and spans the distance
+      * between the two anchors */
+     int d  = s->anchor_fut_n - s->anchor_past_n;
+@@ -643,9 +622,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int prog,
+     int ret;
+ 
+     /* predictors: the newest P's vectors span d pictures backwards */
+-    if ((ret = rec_quarter(avctx, s->anchor_past, &pastq)) < 0 ||
+-        (ret = rec_quarter(avctx, s->anchor_fut, &futq)) < 0 ||
+-        (ret = scale_motion(avctx, s->motion_prev, s->pred_f, df, d)) < 0 ||
++    if ((ret = scale_motion(avctx, s->motion_prev, s->pred_f, df, d)) < 0 ||
+         (ret = scale_motion(avctx, s->motion_prev, s->pred_b, -db, d)) < 0 ||
+         (ret = search_dir(avctx, s->src[slot][0], s->srcq[slot], past, pastq, s->pred_f,
+                           s->motion_bf, lambda, rb)) < 0 ||
+@@ -682,7 +659,6 @@ static int code_picture(AVCodecContext *avctx, const struct M2CJob *j, int drop_
+     int pict_type = j->pict_type, qcode = j->qcode;
+     int ret;
+ 
+-    s->recq_ok[j->cur] = 0;
+     ret = CHECK_CU(s->cu->cuMemsetD8Async(s->mv_need, 0, sizeof(int), s->stream));
+     if (ret < 0)
+         return ret;
+@@ -692,6 +668,7 @@ static int code_picture(AVCodecContext *avctx, const struct M2CJob *j, int drop_
+             .ref_y = s->rec[j->ref][0], .ref_u = s->rec[j->ref][1], .ref_v = s->rec[j->ref][2],
+             .ref2_y = s->rec[j->ref2][0], .ref2_u = s->rec[j->ref2][1], .ref2_v = s->rec[j->ref2][2],
+             .rec_y = s->rec[j->cur][0], .rec_u = s->rec[j->cur][1], .rec_v = s->rec[j->cur][2],
++            .rec_q = s->recq[j->cur], .qpitch = s->qpitch,
+             .motion  = j->motion, .motion2 = j->motion2, .bdir = j->bdir,
+             .mbinfo = s->mbinfo, .blkbits = s->blkbits, .blklen = s->blklen,
+             .py = s->py, .pc = s->pc, .mb_w = s->mb_w, .mb_h = s->mb_h,
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 240f6a0..6e60fc5 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -23,11 +23,12 @@
+  * finished bitstream is copied back):
+  *
+  *   k_load        input frame (nv12 / yuv420p, device memory) -> padded planes
+- *   k_down4       4x4 decimation for the coarse motion search        (P only)
++ *                 and the 4x4 decimated luma for the coarse search
+  *   k_me_coarse   full search on the decimated planes, warp per MB   (P only)
+  *   k_me_refine   full-pel + half-pel refinement, intra/inter choice (P only)
+  *   k_encode_mb   prediction, fDCT, quant, dequant, mismatch control,
+- *                 bit-exact simple_idct reconstruction, block per MB
++ *                 bit-exact simple_idct reconstruction (+ its decimated
++ *                 luma), block per MB
+  *   k_vlc         macroblock layer VLC, thread per MB into private slots
+  *   k_pack        one slice per MB row, bit-shift MB slots into place
+  *   k_concat      byte-aligned slices -> one contiguous buffer
+@@ -106,7 +107,7 @@ static __device__ __forceinline__ int sad4(uint32_t a, uint32_t b, int acc)
+ 
+ /* Copy a source picture into the padded planes (edges replicated, NV12
+  * chroma split) and write its 1/4 size luma for the coarse search, as
+- * k_down4 would from the copied plane. One thread: 8 luma pixels x 4 rows
++ * (each 4x4 block's sum + 8) >> 4, from the copied plane. One thread: 8 luma pixels x 4 rows
+  * (two decimated pixels) and their 4 x 2 chroma pixels. */
+ extern "C" __global__ void k_load(const uint8_t *sy, int sy_pitch,
+                                   const uint8_t *su, const uint8_t *sv, int suv_pitch,
+@@ -184,22 +185,6 @@ extern "C" __global__ void k_load(const uint8_t *sy, int sy_pitch,
+     *(uchar2 *)(dq + (y0 >> 2) * qpitch + (x >> 2)) = make_uchar2((q0 + 8) >> 4, (q1 + 8) >> 4);
+ }
+ 
+-extern "C" __global__ void k_down4(const uint8_t *src, int pitch,
+-                                   uint8_t *dst, int qpitch, int qw, int qh)
+-{
+-    int x = blockIdx.x * blockDim.x + threadIdx.x;
+-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+-    if (x >= qw || y >= qh)
+-        return;
+-
+-    const uint8_t *s = src + 4 * y * pitch + 4 * x;
+-    int sum = 0;
+-    for (int j = 0; j < 4; j++)
+-        for (int i = 0; i < 4; i++)
+-            sum += s[j * pitch + i];
+-    dst[y * qpitch + x] = (sum + 8) >> 4;
+-}
+-
+ /* ------------------------------------------------------------------------ */
+ 
+ /* unaligned 32-bit load built from two aligned ones (planes have slack at the end) */
+@@ -1235,8 +1220,24 @@ k_encode_mb(M2CEncodeParams p)
+     }
+     __syncwarp();
+ 
+-    if (valid)
+-        *(uint2 *)(oplane + Y * pitch + X) = *(const uint2 *)&s_rec[w][bi][j * 8];
++    {
++        const uint2 r8 = *(const uint2 *)&s_rec[w][bi][j * 8];
++        if (valid)
++            *(uint2 *)(oplane + Y * pitch + X) = r8;
++        /* the reconstruction's 1/4 size luma for the coarse search, (4x4
++         * sum + 8) >> 4 like k_load's: lane = 2 * row + half, so lanes 2 and 4
++         * apart hold the 4 rows of a decimated pixel pair */
++        if (w < 2) {
++            int q0 = sad4(r8.x, 0, 0), q1 = sad4(r8.y, 0, 0);
++            q0 += __shfl_xor_sync(FULL_MASK, q0, 2);
++            q1 += __shfl_xor_sync(FULL_MASK, q1, 2);
++            q0 += __shfl_xor_sync(FULL_MASK, q0, 4);
++            q1 += __shfl_xor_sync(FULL_MASK, q1, 4);
++            if (valid && !(lane & 6))
++                *(uchar2 *)(p.rec_q + (my * 4 + (lane >> 3)) * p.qpitch + mx * 4 + (lane & 1) * 2) =
++                    make_uchar2((q0 + 8) >> 4, (q1 + 8) >> 4);
++        }
++    }
+ 
+     /* ---- per-MB bookkeeping ---- */
+     if (u == 0) {
+diff --git a/libavcodec/mpeg2_cuda.h b/libavcodec/mpeg2_cuda.h
+index ed383b5..9d0c014 100644
+--- a/libavcodec/mpeg2_cuda.h
++++ b/libavcodec/mpeg2_cuda.h
+@@ -99,6 +99,8 @@ typedef struct M2CEncodeParams {
+     int32_t drop_ac;             /* VBV emergency: code DC only */
+     M2C_PTR(int32_t)       mv_need;   /* max |vector| range used by coded MBs */
+     float   intra_bias, inter_bias;
++    M2C_PTR(uint8_t)       rec_q;    /* rec_y at 1/4 size (coarse search reference) */
++    int32_t qpitch;
+ } M2CEncodeParams;
+ 
+ #endif /* AVCODEC_MPEG2_CUDA_H */
+-- 
+2.55.0
+
