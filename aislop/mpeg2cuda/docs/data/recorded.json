@@ -259,5 +259,32 @@
    "sm": "~33%",
    "nvdec": "~86%"
   }
+ },
+ "live_channel_anchor_2026-10-16": {
+  "note": "milestones 10-16 were measured 2026-10-16 ~17:00 with the live test channels (900-908) running; e14023c re-measured before and after them under the same conditions (data/fps_anchor_live.csv) came out 2-4% below its idle-GPU numbers, so 10-16 are understated by about that much",
+  "e14023c_idle": {
+   "pj_bf0_1": 3322.8,
+   "pj_bf2_1": 2217.5,
+   "td_bf0_1": 4108.4,
+   "pj_bf0_4": 3909.1
+  },
+  "e14023c_live_before_after": {
+   "pj_bf0_1": [
+    3216.7,
+    3214.5
+   ],
+   "pj_bf2_1": [
+    2186.1,
+    2154.9
+   ],
+   "td_bf0_1": [
+    4046.1,
+    4016.6
+   ],
+   "pj_bf0_4": [
+    3836.3,
+    3775.9
+   ]
+  }
  }
 }

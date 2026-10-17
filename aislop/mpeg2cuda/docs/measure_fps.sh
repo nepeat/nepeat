@@ -6,20 +6,27 @@
 # M=1: the instance's own rate; M=4: total frames / wall time. Best of two.
 # Writes docs/data/fps.csv and docs/data/kernels_pj.csv (nsys, park_joy, bf=0).
 # Run inside `nix develop` from aislop/mpeg2cuda.
+# usage: docs/measure_fps.sh [commit...]   (with commits: append those rows;
+#        FPS_CSV / KERN_CSV override the output files)
 set -uo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 d="$root/docs/data"
-commits=$(git -C "$root/ffmpeg" rev-list --reverse n9.0.2..HEAD | cut -c1-7)
+all=$(git -C "$root/ffmpeg" rev-list --reverse n9.0.2..HEAD | cut -c1-7)
+commits=${*:-$all}
+FPS_CSV=${FPS_CSV:-$d/fps.csv}; KERN_CSV=${KERN_CSV:-$d/kernels_pj.csv}
 parse() { sed -nE 's/.*aggregate ([0-9.]+) fps, slowest instance ([0-9.]+) fps, avg ([0-9.]+) Mbps.*/\1 \2 \3/p'; }
-echo "commit,idx,clip,bf,instances,fps,mbps" > "$d/fps.csv"
-echo "commit,bf,kernel,us_per_call,calls" > "$d/kernels_pj.csv"
-i=0; seen_b=0
+if [[ $# -eq 0 || ! -s $FPS_CSV ]]; then
+  echo "commit,idx,clip,bf,instances,fps,mbps" > "$FPS_CSV"
+  echo "commit,bf,kernel,us_per_call,calls" > "$KERN_CSV"
+fi
+idx_of() { echo "$all" | grep -n "^$1" | cut -d: -f1 | awk '{print $1 - 1}'; }
+bidx=$(idx_of 39fe7db)
 for c in $commits; do
+  i=$(idx_of "$c"); seen_b=0; (( i >= bidx )) && seen_b=1
   b="$root/build/hist/b-$c"; wt="$root/build/hist/wt-$c"
   gcc -O2 -o "$b/m2c_bench_hist" "$root/build/hist/m2c_bench_hist.c" -I"$wt" -I"$b" \
     "$b/libavformat/libavformat.a" "$b/libavcodec/libavcodec.a" "$b/libavutil/libavutil.a" -lpthread -lm -ldl
   B="$b/m2c_bench_hist"
-  [[ $c == 39fe7db ]] && seen_b=1
   bfs="0"; ((seen_b)) && bfs="0 2"
   for clip in touchdown_1080p parkjoy_1080i; do
     for bf in $bfs; do
@@ -30,7 +37,7 @@ for c in $commits; do
           f=$agg; [[ $m == 1 ]] && f=$slow
           awk -v a="$f" -v b="$best" 'BEGIN{exit !(a > b)}' && { best=$f; mb=$r; }
         done
-        echo "$c,$i,$clip,$bf,$m,$best,$mb" | tee -a "$d/fps.csv"
+        echo "$c,$i,$clip,$bf,$m,$best,$mb" | tee -a "$FPS_CSV"
       done
     done
   done
@@ -40,6 +47,5 @@ for c in $commits; do
 import csv, sys
 rows = list(csv.reader(l for l in sys.stdin if l.count(",") > 3))
 for r in rows[1:]:
-    print(f"'"$c"',0,{r[-1]},{float(r[3])/1000:.1f},{r[2]}")' >> "$d/kernels_pj.csv"
-  i=$((i + 1))
+    print(f"'"$c"',0,{r[-1]},{float(r[3])/1000:.1f},{r[2]}")' >> "$KERN_CSV"
 done

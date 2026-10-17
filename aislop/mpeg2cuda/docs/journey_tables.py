@@ -18,6 +18,13 @@ MS = {
     "36c2f15": "7. Drop field_skip",
     "0aa2090": "8. Source field order, progressive_frame, first-I calibration",
     "e14023c": "9. CBR carry-over clamp, proportional VBV re-code",
+    "9173f3e": '10. Field weave: 60p woven into 1080i on the GPU',
+    "251534c": '11. Pipelining: next search queued before the last picture is finished',
+    "143f7f5": '12. Coarse load sharing, bank-conflict padding, shared-memory ME windows',
+    "ac0a6b1": '13. Fused vabsdiff4, global loads, half-pel from shared windows',
+    "ecbf52c": '14. Each reference decimated once, decimation fused into load/encode',
+    "3811bb7": '15. Zero-copy output, VLC/pack/concat beside the next search',
+    "e8612c6": '16. Uploads and k_load on their own stream',
 }
 
 
@@ -35,14 +42,20 @@ def kernel_total(c):
     return f"{sum(float(r['us_per_call']) * int(r['calls']) for r in rs) / n:.0f}"
 
 
+def wall(c):
+    v = [float(r["fps"]) for r in rows if r["commit"] == c and r["clip"] == "parkjoy_1080i"
+         and r["bf"] == "0" and r["instances"] == "1"]
+    return f"{1e6 / v[0]:.0f}" if v and v[0] > 0 else "–"
+
+
 commits = list(dict.fromkeys(r["commit"] for r in rows))
-t = ["| milestone | commit | park_joy 1080i I/P: 1 / 4 inst | park_joy B2: 1 / 4 | touchdown I/P: 1 / 4 | touchdown B2: 1 / 4 | kernel µs/pic (pj, I/P) |",
+t = ["| milestone | commit | park_joy 1080i I/P: 1 / 4 inst | park_joy B2: 1 / 4 | touchdown I/P: 1 / 4 | touchdown B2: 1 / 4 | kernel sum / wall µs/pic (pj, I/P, 1 inst) |",
      "|---|---|---|---|---|---|---|"]
 for c in commits:
     t.append(f"| {MS.get(c, c)} | `{c}` | {g(c,'parkjoy_1080i',0,1)} / {g(c,'parkjoy_1080i',0,4)} | "
              f"{g(c,'parkjoy_1080i',2,1)} / {g(c,'parkjoy_1080i',2,4)} | "
              f"{g(c,'touchdown_1080p',0,1)} / {g(c,'touchdown_1080p',0,4)} | "
-             f"{g(c,'touchdown_1080p',2,1)} / {g(c,'touchdown_1080p',2,4)} | {kernel_total(c)} |")
+             f"{g(c,'touchdown_1080p',2,1)} / {g(c,'touchdown_1080p',2,4)} | {kernel_total(c)} / {wall(c)} |")
 fps_table = "\n".join(t)
 
 t = ["| clip | rate control | B pictures | 1 stream (threads=auto) | 8 processes x 4 threads |", "|---|---|---|---|---|"]

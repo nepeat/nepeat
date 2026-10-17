@@ -77,17 +77,24 @@ both.
 ![fps per milestone, whole GPU](img/fps_aggregate.png)
 
 <!--BEGIN FPS-->
-| milestone | commit | park_joy 1080i I/P: 1 / 4 inst | park_joy B2: 1 / 4 | touchdown I/P: 1 / 4 | touchdown B2: 1 / 4 | kernel µs/pic (pj, I/P) |
+| milestone | commit | park_joy 1080i I/P: 1 / 4 inst | park_joy B2: 1 / 4 | touchdown I/P: 1 / 4 | touchdown B2: 1 / 4 | kernel sum / wall µs/pic (pj, I/P, 1 inst) |
 |---|---|---|---|---|---|---|
-| 1. Phase 1: I/P, frame DCT | `dea7407` | 1492 / 1689 | – / – | 1497 / 1676 | – / – | 617 |
-| 2. Field DCT + field ME, vectorised ME, row transform, VBV RC | `f554c30` | 3140 / 3874 | – / – | 3268 / 3969 | – / – | 267 |
-| 3. Temporal ME, adaptive f_code, damped RC | `525ec8a` | 2975 / 3545 | – / – | 3025 / 3603 | – / – | 277 |
-| 4. Codex review fixes (OOB reads, MV cost wrap) | `9819724` | 2869 / 3452 | – / – | 2907 / 3500 | – / – | 289 |
-| 5. B pictures | `39fe7db` | 2827 / 3357 | 1989 / 2399 | 2857 / 3408 | 1989 / 2470 | 293 |
-| 6. Fused VLC, bandwidth, constant tables, 32-cand refine | `6fe6f2c` | 3314 / 3889 | 2222 / 2619 | 3367 / 3989 | 2260 / 2721 | 241 |
-| 7. Drop field_skip | `36c2f15` | 3332 / 3914 | 2226 / 2585 | 3350 / 3964 | 2255 / 2672 | 241 |
-| 8. Source field order, progressive_frame, first-I calibration | `0aa2090` | 3331 / 3918 | 2188 / 2627 | 4157 / 5116 | 2951 / 3520 | 241 |
-| 9. CBR carry-over clamp, proportional VBV re-code | `e14023c` | 3323 / 3909 | 2218 / 2576 | 4108 / 5068 | 2957 / 3692 | 240 |
+| 1. Phase 1: I/P, frame DCT | `dea7407` | 1492 / 1689 | – / – | 1497 / 1676 | – / – | 617 / 670 |
+| 2. Field DCT + field ME, vectorised ME, row transform, VBV RC | `f554c30` | 3140 / 3874 | – / – | 3268 / 3969 | – / – | 267 / 319 |
+| 3. Temporal ME, adaptive f_code, damped RC | `525ec8a` | 2975 / 3545 | – / – | 3025 / 3603 | – / – | 277 / 336 |
+| 4. Codex review fixes (OOB reads, MV cost wrap) | `9819724` | 2869 / 3452 | – / – | 2907 / 3500 | – / – | 289 / 349 |
+| 5. B pictures | `39fe7db` | 2827 / 3357 | 1989 / 2399 | 2857 / 3408 | 1989 / 2470 | 293 / 354 |
+| 6. Fused VLC, bandwidth, constant tables, 32-cand refine | `6fe6f2c` | 3314 / 3889 | 2222 / 2619 | 3367 / 3989 | 2260 / 2721 | 241 / 302 |
+| 7. Drop field_skip | `36c2f15` | 3332 / 3914 | 2226 / 2585 | 3350 / 3964 | 2255 / 2672 | 241 / 300 |
+| 8. Source field order, progressive_frame, first-I calibration | `0aa2090` | 3331 / 3918 | 2188 / 2627 | 4157 / 5116 | 2951 / 3520 | 241 / 300 |
+| 9. CBR carry-over clamp, proportional VBV re-code | `e14023c` | 3323 / 3909 | 2218 / 2576 | 4108 / 5068 | 2957 / 3692 | 240 / 301 |
+| 10. Field weave: 60p woven into 1080i on the GPU | `9173f3e` | 3223 / 3794 | 2161 / 2471 | 4042 / 4968 | 2889 / 3471 | 241 / 310 |
+| 11. Pipelining: next search queued before the last picture is finished | `251534c` | 3747 / 4116 | 2381 / 2606 | 4988 / 5549 | 3292 / 3698 | 252 / 267 |
+| 12. Coarse load sharing, bank-conflict padding, shared-memory ME windows | `143f7f5` | 4202 / 4675 | 2680 / 2974 | 5612 / 6262 | 3766 / 4254 | 217 / 238 |
+| 13. Fused vabsdiff4, global loads, half-pel from shared windows | `ac0a6b1` | 4485 / 5032 | 2900 / 3360 | 5886 / 6633 | 4011 / 4564 | 200 / 223 |
+| 14. Each reference decimated once, decimation fused into load/encode | `ecbf52c` | 4607 / 5176 | 2960 / 3314 | 6052 / 6818 | 4187 / 4740 | 197 / 217 |
+| 15. Zero-copy output, VLC/pack/concat beside the next search | `3811bb7` | 5058 / 5294 | 3220 / 3462 | 6698 / 7329 | 4571 / 4996 | 223 / 198 |
+| 16. Uploads and k_load on their own stream | `e8612c6` | 5229 / 5325 | 3279 / 3460 | 7066 / 7329 | 4663 / 4986 | 222 / 191 |
 <!--END FPS-->
 
 Milestone 8 is the big jump on touchdown only: progressive sources are now
@@ -130,21 +137,61 @@ field DCT decision. Interlaced park_joy is unchanged by it, as it should be.
 9. **`e14023c`** clamps the CBR budget carry-over to the VBV and makes VBV
    re-coding proportional. Speed unchanged.
 
+Milestones 10-16 were measured later the same day with the same protocol, but
+with the live test channels running: `e14023c` re-measured before and after
+them came out 2-4% below its idle numbers (`data/fps_anchor_live.csv`), so
+10-16 are understated by about that much. From 15 on, kernels overlap on
+three streams, so the kernel sum per picture exceeds the wall time per
+picture; the table shows both.
+
+10. **`9173f3e` Field weave** - 60p input woven into 1080i on the GPU
+    (`-field_weave 1`). A feature; speed unchanged.
+11. **`251534c` Pipelining** - the next picture's motion search is queued
+    before the previous picture is finished, and the read-back runs on a
+    second stream. GPU idle time 148 -> 64 µs per picture; +16% for one
+    stream (park_joy I/P 3223 -> 3747 fps), +23% on touchdown.
+12. **`143f7f5` Kernel trims** - the coarse search shares each reference load
+    across 4 candidates, `k_encode_mb`'s shared arrays are padded against
+    8-way bank conflicts, and the refine and field searches read their
+    candidate windows from shared memory. +12%.
+13. **`ac0a6b1` SIMD and latency** - inline-PTX `vabsdiff4` with the
+    accumulate folded in, reference reads kept as `LDG` instead of generic
+    loads, and the half-pel steps served from the shared windows. Ablation
+    showed the search kernels were waiting on memory, not arithmetic: the
+    SIMD part gave ~1%, the half-pel staging ~6%.
+14. **`ecbf52c` Decimation** - each reference is decimated once instead of up
+    to five times (two B pictures), the source's decimation happens inside
+    `k_load`, and the reference's inside `k_encode_mb`; `k_down4` is gone.
+15. **`3811bb7` Zero-copy and a second stream** - coded pictures land in
+    mapped pinned host memory (no read-back copies, one event wait), and VLC,
+    pack and concat run on a second stream beside the next picture's search.
+    The tail's small grids now fill the GPU instead of running alone: +10%
+    for one stream.
+16. **`e8612c6` Load stream** - uploads and `k_load` on a third stream with
+    per-slot events, overlapping the coding of earlier pictures.
+
+From 9 to 16, one stream: park_joy I/P 3323 -> 5229 fps (+57%), with two B
+pictures 2218 -> 3279 (+48%); touchdown I/P 4108 -> 7066 (+72%). Four
+instances gain less (park_joy I/P 3909 -> 5325, +36%): several instances
+already filled each other's idle gaps, so pipelining mostly helps the single
+stream. Every step from 12 on is bit-identical to the one before; 11 changes
+the motion-search lambda (see PROGRESS.md, perf pass 2).
+
 ![GPU time per kernel, per milestone](img/kernels.png)
 ![Kernel time per picture during development](img/dev_steps.png)
 
 <!--BEGIN KERNELS-->
-| kernel (µs per call, park_joy I/P) | `dea7407` | `f554c30` | `525ec8a` | `9819724` | `39fe7db` | `6fe6f2c` | `36c2f15` | `0aa2090` | `e14023c` |
-|---|---|---|---|---|---|---|---|---|---|
-| k_me_refine | 433 | 54 | 56 | 63 | 63 | 56 | 56 | 56 | 56 |
-| k_encode_mb | 102 | 64 | 64 | 64 | 67 | 70 | 70 | 70 | 69 |
-| k_me_field | – | 51 | 52 | 56 | 56 | 56 | 56 | 56 | 56 |
-| k_vlc | 50 | 48 | 49 | 49 | 49 | 15 | 15 | 15 | 15 |
-| k_me_coarse | 27 | 21 | 28 | 30 | 30 | 30 | 30 | 30 | 30 |
-| k_load | 23 | 23 | 23 | 23 | 23 | 9 | 9 | 9 | 9 |
-| k_pack | 4 | 4 | 5 | 5 | 4 | 5 | 5 | 5 | 5 |
-| k_down4 | 4 | 4 | 4 | 4 | 4 | 3 | 3 | 3 | 3 |
-| k_concat | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 |
+| kernel (µs per call, park_joy I/P) | `dea7407` | `f554c30` | `525ec8a` | `9819724` | `39fe7db` | `6fe6f2c` | `36c2f15` | `0aa2090` | `e14023c` | `9173f3e` | `251534c` | `143f7f5` | `ac0a6b1` | `ecbf52c` | `3811bb7` | `e8612c6` |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| k_me_refine | 433 | 54 | 56 | 63 | 63 | 56 | 56 | 56 | 56 | 56 | 56 | 51 | 41 | 42 | 44 | 43 |
+| k_encode_mb | 102 | 64 | 64 | 64 | 67 | 70 | 70 | 70 | 69 | 70 | 76 | 69 | 66 | 69 | 67 | 69 |
+| k_me_field | – | 51 | 52 | 56 | 56 | 56 | 56 | 56 | 56 | 56 | 61 | 45 | 40 | 38 | 39 | 40 |
+| k_vlc | 50 | 48 | 49 | 49 | 49 | 15 | 15 | 15 | 15 | 15 | 15 | 15 | 15 | 16 | 24 | 18 |
+| k_me_coarse | 27 | 21 | 28 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 30 | 22 | 21 | 22 | 23 | 24 |
+| k_load | 23 | 23 | 23 | 23 | 23 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 11 | 12 |
+| k_pack | 4 | 4 | 5 | 5 | 4 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 12 | 12 |
+| k_concat | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 10 | 11 |
+| k_down4 | 4 | 4 | 4 | 4 | 4 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 3 | – | – | – |
 <!--END KERNELS-->
 
 ## Quality
