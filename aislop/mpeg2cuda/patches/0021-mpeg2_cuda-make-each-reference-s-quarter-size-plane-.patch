@@ -1,0 +1,126 @@
+From 726c9a1faeba15a05e87bfbf4d5533f4f12d698d Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:45:08 -0700
+Subject: [PATCH] mpeg2_cuda: make each reference's quarter-size plane once
+
+The coarse search's 1/4 luma of a reference was rebuilt for every
+picture that used it (P: 1, B: 2 down4 passes per picture, so an anchor
+was decimated up to 5 times with two B-frames). Each rec[] buffer now
+has its own quarter plane, invalidated whenever code_picture writes the
+buffer (re-codes included). Bit-identical output.
+---
+ libavcodec/mpeg2_cuda.c | 42 +++++++++++++++++++++++++++--------------
+ 1 file changed, 28 insertions(+), 14 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 11633bf..73828b2 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -96,7 +96,9 @@ typedef struct MPEG2CudaContext {
+     CUdeviceptr src[SRC_SLOTS][3];   /* source pictures waiting to be coded */
+     CUdeviceptr rec[3][3];           /* two anchors + the B picture */
+     CUdeviceptr staging[3];
+-    CUdeviceptr srcq, refq, refq2;
++    CUdeviceptr srcq;
++    CUdeviceptr recq[3];             /* rec[k] luma at 1/4 size, for the coarse search */
++    int recq_ok[3];                  /* recq[k] matches rec[k] */
+     CUdeviceptr coarse, motion, motion_prev, mbinfo, blkbits, blklen, slots, bitlen;
+     CUdeviceptr motion_bf, motion_bb, pred_f, pred_b, bdir;
+     /* second set for B pictures: a pending B keeps its vectors while the
+@@ -557,6 +559,18 @@ static int down4(AVCodecContext *avctx, CUdeviceptr src, CUdeviceptr dst)
+     return launch(avctx, F_DOWN4, FFALIGN(s->qw, 32) / 32, FFALIGN(s->qh, 8) / 8, 32, 8, args);
+ }
+ 
++/* quarter-size luma of rec[idx] for the coarse search: made once per coded
++ * picture (code_picture invalidates it) instead of once per use */
++static int rec_quarter(AVCodecContext *avctx, int idx, CUdeviceptr *q)
++{
++    MPEG2CudaContext *s = avctx->priv_data;
++    int ret = 0;
++    if (!s->recq_ok[idx] && (ret = down4(avctx, s->rec[idx][0], s->recq[idx])) >= 0)
++        s->recq_ok[idx] = 1;
++    *q = s->recq[idx];
++    return ret;
++}
++
+ /* coarse + refine search of cur against one reference; refq must hold the
+  * decimated reference. pred: temporal predictor field, out: results */
+ static int search_dir(AVCodecContext *avctx, CUdeviceptr cur, CUdeviceptr ref, CUdeviceptr refq,
+@@ -595,13 +609,13 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int prog, int lambda
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+-    CUdeviceptr ref = s->rec[s->anchor_fut][0];
++    CUdeviceptr ref = s->rec[s->anchor_fut][0], refq;
+     int mv_max = (16 << (s->fcode - 1)) - 1;
+     int ret;
+ 
+     if ((ret = down4(avctx, s->src[slot][0], s->srcq)) < 0 ||
+-        (ret = down4(avctx, ref, s->refq)) < 0 ||
+-        (ret = search_dir(avctx, s->src[slot][0], ref, s->refq, s->motion_prev,
++        (ret = rec_quarter(avctx, s->anchor_fut, &refq)) < 0 ||
++        (ret = search_dir(avctx, s->src[slot][0], ref, refq, s->motion_prev,
+                           s->motion, lambda, s->me_range)) < 0)
+         return ret;
+     if (s->field_me && !prog) {
+@@ -619,6 +633,7 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int prog,
+     MPEG2CudaContext *s = avctx->priv_data;
+     const int n_mb = s->mb_w * s->mb_h;
+     CUdeviceptr past = s->rec[s->anchor_past][0], fut = s->rec[s->anchor_fut][0];
++    CUdeviceptr pastq, futq;
+     /* the predictor field belongs to the newest P and spans the distance
+      * between the two anchors */
+     int d  = s->anchor_fut_n - s->anchor_past_n;
+@@ -628,13 +643,13 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int prog,
+ 
+     /* predictors: the newest P's vectors span d pictures backwards */
+     if ((ret = down4(avctx, s->src[slot][0], s->srcq)) < 0 ||
+-        (ret = down4(avctx, past, s->refq)) < 0 ||
+-        (ret = down4(avctx, fut, s->refq2)) < 0 ||
++        (ret = rec_quarter(avctx, s->anchor_past, &pastq)) < 0 ||
++        (ret = rec_quarter(avctx, s->anchor_fut, &futq)) < 0 ||
+         (ret = scale_motion(avctx, s->motion_prev, s->pred_f, df, d)) < 0 ||
+         (ret = scale_motion(avctx, s->motion_prev, s->pred_b, -db, d)) < 0 ||
+-        (ret = search_dir(avctx, s->src[slot][0], past, s->refq, s->pred_f,
++        (ret = search_dir(avctx, s->src[slot][0], past, pastq, s->pred_f,
+                           s->motion_bf, lambda, rb)) < 0 ||
+-        (ret = search_dir(avctx, s->src[slot][0], fut, s->refq2, s->pred_b,
++        (ret = search_dir(avctx, s->src[slot][0], fut, futq, s->pred_b,
+                           s->motion_bb, lambda, rb)) < 0)
+         return ret;
+     if (s->field_me && !prog) {
+@@ -667,6 +682,7 @@ static int code_picture(AVCodecContext *avctx, const struct M2CJob *j, int drop_
+     int pict_type = j->pict_type, qcode = j->qcode;
+     int ret;
+ 
++    s->recq_ok[j->cur] = 0;
+     ret = CHECK_CU(s->cu->cuMemsetD8Async(s->mv_need, 0, sizeof(int), s->stream));
+     if (ret < 0)
+         return ret;
+@@ -1144,8 +1160,8 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+             free_dev(s, &s->staging[i]);
+         }
+         free_dev(s, &s->srcq);
+-        free_dev(s, &s->refq);
+-        free_dev(s, &s->refq2);
++        for (int k = 0; k < 3; k++)
++            free_dev(s, &s->recq[k]);
+         free_dev(s, &s->motion_bf);
+         free_dev(s, &s->motion_bb);
+         free_dev(s, &s->pred_f);
+@@ -1377,10 +1393,8 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+     }
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->srcq, (size_t)s->qpitch * (s->qh + 2));
+-    if (ret >= 0)
+-        ret = alloc_dev(avctx, &s->refq, (size_t)s->qpitch * (s->qh + 2));
+-    if (ret >= 0)
+-        ret = alloc_dev(avctx, &s->refq2, (size_t)s->qpitch * (s->qh + 2));
++    for (int k = 0; k < 3 && ret >= 0; k++)
++        ret = alloc_dev(avctx, &s->recq[k], (size_t)s->qpitch * (s->qh + 2));
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->motion_bf, n_mb * sizeof(M2CMotion));
+     if (ret >= 0)
+-- 
+2.55.0
+
