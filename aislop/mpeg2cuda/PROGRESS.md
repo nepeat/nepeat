@@ -353,3 +353,23 @@ vs the previous step, park_joy 1080i / touchdown 1080p:
   (was 21/23); per-kernel sums exceed the wall since the tail and k_load
   overlap the searches. The bench's HtoD (~14 us/pic) is its one-off upload
   of the 30 looped frames, not per picture.
+
+## 2026-10-16 — why the live senders died ("Cannot allocate memory")
+900-906 exited 16:09-16:34 after ~14 h with `Error submitting a packet to the
+muxer: Cannot allocate memory`. Not memory: ffmpeg's UDP output returns
+AVERROR(ENOMEM) when its pacing FIFO is full (`udp.c`, udp_write). Cause, in
+`scripts/channels.sh`: the UDP pacer ran at exactly the mux rate. After any
+stall, `-re` catches up at 1.05x (readrate_catchup default), or instantly for
+stalls under 0.3 s, so each stall left about its own length of backlog that a
+pacer at 1.00x never drains. The default FIFO is 7*4096 TS packets, 2.7 s at
+16 Mb/s; stalls added up over 14 h, and the last ones came from this session's
+heavy jobs (each death lines up with a `nix build .#ffmpeg` at 32 jobs or the
+full test + A/B suites running together). Reproduced: SIGSTOP a sender for 4 s
+-> the same error ~55 s later. Fix: pace 3% above the mux rate, FIFO 20 s;
+survives 4 s and 8 s stalls (watched past the catch-up). No leak: the channel
+pipeline at full speed over 156 loops of a 10 s cut stayed at 286 MB RSS.
+907/908 (system ffmpeg) were stopped at 19:54:47 by a restart of the IDE
+service whose cgroup they lived in; the senders now run in a user systemd
+scope (`systemd-run --user --scope --unit=m2c-channels`). Separate, smaller:
+the mezz channels log `Invalid DTS ... replacing by guess` once per loop wrap
+(DTS 2.002 s past PTS at the discontinuity); ffmpeg repairs it, not fatal.
