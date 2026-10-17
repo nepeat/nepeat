@@ -1,0 +1,311 @@
+From 7f1bcecd29231598b92334218ad5ff88bb7b6e47 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:54:09 -0700
+Subject: [PATCH] mpeg2_cuda: coded pictures land in mapped host memory, no
+ read-back copies
+
+ffnvcodec has no cuMemHostAlloc, so the bitstream came back in two
+pageable round trips (sizes + mv_need, sync, then the bytes, sync). The
+pinned-memory calls are now looked up in the same libcuda handle;
+k_concat writes the picture, its size and mv_need straight into a
+device-mapped host buffer, and the host waits on one event.
+
+k_concat runs on its own stream (its stores cross PCIe and would delay
+the next search), gathers 16 bytes per thread for full-line stores,
+loads the row sizes in parallel and issues its 16 loads at once; byte
+stores and a serial prefix made it 3x slower than the copy it replaced.
+
+Host idle per picture 22 -> 9 us; overall -4 us/pic on 1080i, neutral
+on 1080p (k_concat now overlaps the next search). Bit-identical output.
+---
+ libavcodec/mpeg2_cuda.c  | 118 ++++++++++++++++++++++-----------------
+ libavcodec/mpeg2_cuda.cu |  66 ++++++++++++++++++----
+ 2 files changed, 124 insertions(+), 60 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index ff764f9..0486138 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -60,6 +60,15 @@
+ 
+ #define CHECK_CU(x) FF_CUDA_CHECK_DL(avctx, s->cu, x)
+ 
++/* pinned, device-mapped host memory; not in ffnvcodec's function table, so
++ * looked up in the same libcuda handle */
++typedef CUresult CUDAAPI tcuMemHostAlloc(void **pp, size_t bytesize, unsigned int flags);
++typedef CUresult CUDAAPI tcuMemHostGetDevicePointer(CUdeviceptr *pdptr, void *p, unsigned int flags);
++typedef CUresult CUDAAPI tcuMemFreeHost(void *p);
++#define M2C_MEMHOSTALLOC_DEVICEMAP 0x02
++/* the mapped result area: picture size and mv_need, then the bitstream */
++#define RES_BYTES 64
++
+ #define HDR_MAX 256
+ 
+ #define MAX_BF  3
+@@ -83,7 +92,8 @@ typedef struct MPEG2CudaContext {
+     AVCUDADeviceContext *hwctx;
+     CudaFunctions       *cu;
+     CUstream             stream;
+-    CUstream             copy_stream;    /* read-backs, beside the next search */
++    CUstream             out_stream;     /* k_concat, beside the next search */
++    CUevent              pack_ev;        /* k_pack done, k_concat may start */
+     CUevent              coded_ev;       /* a picture's kernels are done */
+     CUevent              hw_ev;          /* ordering with hwctx->stream */
+     CUmodule             module;
+@@ -103,13 +113,17 @@ typedef struct MPEG2CudaContext {
+     /* second set for B pictures: a pending B keeps its vectors while the
+      * next B is searched */
+     CUdeviceptr motion_bf_alt, motion_bb_alt, bdir_alt;
+-    CUdeviceptr rows, row_bytes, out;
++    CUdeviceptr rows, row_bytes;
+     CUdeviceptr mv_need;
+     int         pic_fcode;           /* f_code chosen for the picture just coded */
+-    int         host_mv_need;
+ 
+-    uint8_t *host_out;
+-    int     *host_row_bytes;
++    /* k_concat writes the coded picture (and host_res[0] = its size,
++     * host_res[1] = mv_need) straight into pinned host memory */
++    void        *host_map;
++    CUdeviceptr  host_map_dev;
++    int         *host_res;
++    uint8_t     *host_out;
++    tcuMemFreeHost *mem_free_host;
+     size_t   out_max;
+ 
+     /* picture structure */
+@@ -697,49 +711,36 @@ static int code_picture(AVCodecContext *avctx, const struct M2CJob *j, int drop_
+         if (ret < 0)
+             return ret;
+     }
++    /* k_concat's stores cross PCIe; on its own stream they overlap the
++     * next picture's search instead of delaying it. Nothing it reads is
++     * written again before the host has waited for coded_ev. */
+     {
+-        void *args[] = { &s->rows, &s->row_words, &s->row_bytes, &s->out };
+-        ret = launch(avctx, F_CONCAT, s->mb_h, 1, 256, 1, args);
+-        if (ret < 0)
++        CUdeviceptr res = s->host_map_dev, out = s->host_map_dev + RES_BYTES;
++        void *args[] = { &s->rows, &s->row_words, &s->row_bytes, &s->mb_h, &s->mv_need, &out, &res };
++        if ((ret = CHECK_CU(s->cu->cuEventRecord(s->pack_ev, s->stream))) < 0 ||
++            (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->out_stream, s->pack_ev, 0))) < 0 ||
++            (ret = CHECK_CU(s->cu->cuLaunchKernel(s->func[F_CONCAT], 32, 1, 1, 256, 1, 1,
++                                                  (s->mb_h + 1) * sizeof(int), s->out_stream,
++                                                  args, NULL))) < 0)
+             return ret;
+     }
+-    return CHECK_CU(s->cu->cuEventRecord(s->coded_ev, s->stream));
++    return CHECK_CU(s->cu->cuEventRecord(s->coded_ev, s->out_stream));
+ }
+ 
+-/* wait for the coded picture and fetch it. The copies run on copy_stream
+- * behind coded_ev, so kernels queued after the picture (the next search)
+- * keep running. Two round trips (sizes, then exactly the picture's bytes):
+- * a fixed chunk measured slower, as the copy goes through pageable memory
+- * (ffnvcodec has no cuMemHostAlloc). */
++/* wait for the coded picture; k_concat wrote it, its size and mv_need into
++ * the mapped host area, so there is nothing to copy */
+ static int read_back(AVCodecContext *avctx, int *out_size)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+-    int ret;
+-
+-    ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->copy_stream, s->coded_ev, 0));
+-    if (ret >= 0)
+-        ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_row_bytes, s->row_bytes,
+-                                                s->mb_h * sizeof(int), s->copy_stream));
+-    if (ret >= 0)
+-        ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(&s->host_mv_need, s->mv_need, sizeof(int),
+-                                                s->copy_stream));
+-    if (ret >= 0)
+-        ret = CHECK_CU(s->cu->cuStreamSynchronize(s->copy_stream));
++    int ret = CHECK_CU(s->cu->cuEventSynchronize(s->coded_ev));
+     if (ret < 0)
+         return ret;
+ 
+     s->pic_fcode = 1;
+-    while ((16 << (s->pic_fcode - 1)) < s->host_mv_need)
++    while ((16 << (s->pic_fcode - 1)) < s->host_res[1])
+         s->pic_fcode++;
+-
+-    *out_size = 0;
+-    for (int i = 0; i < s->mb_h; i++)
+-        *out_size += s->host_row_bytes[i];
+-
+-    ret = CHECK_CU(s->cu->cuMemcpyDtoHAsync(s->host_out, s->out, *out_size, s->copy_stream));
+-    if (ret < 0)
+-        return ret;
+-    return CHECK_CU(s->cu->cuStreamSynchronize(s->copy_stream));
++    *out_size = s->host_res[0];
++    return 0;
+ }
+ 
+ static int dump_recon(AVCodecContext *avctx, int idx)
+@@ -1159,16 +1160,21 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         free_dev(s, &s->rows);
+         free_dev(s, &s->row_bytes);
+         free_dev(s, &s->mv_need);
+-        free_dev(s, &s->out);
++        if (s->host_map)
++            s->mem_free_host(s->host_map);
++        s->host_map = NULL;
+         if (s->module)
+             s->cu->cuModuleUnload(s->module);
+         s->module = NULL;
+         if (s->stream)
+             s->cu->cuStreamDestroy(s->stream);
+         s->stream = NULL;
+-        if (s->copy_stream)
+-            s->cu->cuStreamDestroy(s->copy_stream);
+-        s->copy_stream = NULL;
++        if (s->out_stream)
++            s->cu->cuStreamDestroy(s->out_stream);
++        s->out_stream = NULL;
++        if (s->pack_ev)
++            s->cu->cuEventDestroy(s->pack_ev);
++        s->pack_ev = NULL;
+         if (s->coded_ev)
+             s->cu->cuEventDestroy(s->coded_ev);
+         s->coded_ev = NULL;
+@@ -1177,8 +1183,6 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         s->hw_ev = NULL;
+         s->cu->cuCtxPopCurrent(&dummy);
+     }
+-    av_freep(&s->host_out);
+-    av_freep(&s->host_row_bytes);
+     for (int i = 0; i < OUT_Q; i++)
+         av_freep(&s->outq[i].data);
+     av_frame_free(&s->frame);
+@@ -1338,20 +1342,36 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+     s->hwctx = ((AVHWDeviceContext *)s->device_ref->data)->hwctx;
+     s->cu    = s->hwctx->internal->cuda_dl;
+ 
+-    s->host_out       = av_malloc(s->out_max);
+-    s->host_row_bytes = av_malloc(s->mb_h * sizeof(int));
+-    if (!s->host_out || !s->host_row_bytes)
+-        return AVERROR(ENOMEM);
+-
+     ret = CHECK_CU(s->cu->cuCtxPushCurrent(s->hwctx->cuda_ctx));
+     if (ret < 0)
+         return ret;
+ 
+     ret = CHECK_CU(s->cu->cuStreamCreate(&s->stream, CU_STREAM_DEFAULT));
+-    if (ret >= 0)
+-        ret = CHECK_CU(s->cu->cuStreamCreate(&s->copy_stream, CU_STREAM_DEFAULT));
++    if (ret >= 0) {
++        tcuMemHostAlloc *host_alloc = (tcuMemHostAlloc *)FFNV_SYM_FUNC(s->cu->lib, "cuMemHostAlloc");
++        tcuMemHostGetDevicePointer *host_dev =
++            (tcuMemHostGetDevicePointer *)FFNV_SYM_FUNC(s->cu->lib, "cuMemHostGetDevicePointer_v2");
++        s->mem_free_host = (tcuMemFreeHost *)FFNV_SYM_FUNC(s->cu->lib, "cuMemFreeHost");
++        if (!host_alloc || !host_dev || !s->mem_free_host) {
++            av_log(avctx, AV_LOG_ERROR, "libcuda lacks cuMemHostAlloc\n");
++            ret = AVERROR(ENOSYS);
++        }
++        if (ret >= 0)
++            ret = CHECK_CU(host_alloc(&s->host_map, RES_BYTES + s->out_max + 16,
++                                      M2C_MEMHOSTALLOC_DEVICEMAP));
++        if (ret >= 0)
++            ret = CHECK_CU(host_dev(&s->host_map_dev, s->host_map, 0));
++        if (ret >= 0) {
++            s->host_res = s->host_map;
++            s->host_out = (uint8_t *)s->host_map + RES_BYTES;
++        }
++    }
+     if (ret >= 0)
+         ret = CHECK_CU(s->cu->cuEventCreate(&s->coded_ev, CU_EVENT_DISABLE_TIMING));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuStreamCreate(&s->out_stream, CU_STREAM_DEFAULT));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuEventCreate(&s->pack_ev, CU_EVENT_DISABLE_TIMING));
+     if (ret >= 0)
+         ret = CHECK_CU(s->cu->cuEventCreate(&s->hw_ev, CU_EVENT_DISABLE_TIMING));
+     if (ret >= 0)
+@@ -1413,8 +1433,6 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         ret = alloc_dev(avctx, &s->row_bytes, s->mb_h * sizeof(int));
+     if (ret >= 0)
+         ret = alloc_dev(avctx, &s->mv_need, sizeof(int));
+-    if (ret >= 0)
+-        ret = alloc_dev(avctx, &s->out, s->out_max);
+ 
+     CHECK_CU(s->cu->cuCtxPopCurrent(&dummy));
+     if (ret < 0)
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index 6e60fc5..41b8a98 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -1564,16 +1564,62 @@ extern "C" __global__ void k_pack(const uint32_t *slots, const int *bitlen,
+         row_bytes[row] = (total_bits + 7) >> 3;
+ }
+ 
++/* rows -> one bitstream in the host-mapped output, 16 bytes per thread so
++ * the stores cross PCIe as full lines (byte stores took 3x as long). The
++ * first block also stores the picture size and mv_need there for the
++ * host. Dynamic shared memory: (rows + 1) ints. */
+ extern "C" __global__ void k_concat(const uint32_t *rows, int row_words,
+-                                    const int *row_bytes, uint8_t *out)
++                                    const int *row_bytes, int n_rows, const int *mv_need,
++                                    uint4 *out, int *res)
+ {
+-    const int row = blockIdx.x;
+-    int off = 0;
+-    for (int i = 0; i < row; i++)
+-        off += row_bytes[i];
+-
+-    const uint32_t *src = rows + (size_t)row * row_words;
+-    const int n = row_bytes[row];
+-    for (int b = threadIdx.x; b < n; b += blockDim.x)
+-        out[off + b] = src[b >> 2] >> (24 - 8 * (b & 3));
++    extern __shared__ int s_off[];
++    /* n_rows <= blockDim.x: load the row sizes in parallel, then scan */
++    if (threadIdx.x < n_rows)
++        s_off[threadIdx.x + 1] = row_bytes[threadIdx.x];
++    __syncthreads();
++    if (threadIdx.x == 0) {
++        int off = 0;
++        for (int i = 0; i < n_rows; i++) {
++            const int nb = s_off[i + 1];
++            s_off[i] = off;
++            off += nb;
++        }
++        s_off[n_rows] = off;
++        if (blockIdx.x == 0) {
++            res[0] = off;
++            res[1] = *mv_need;
++        }
++    }
++    __syncthreads();
++    const int total = s_off[n_rows];
++
++    for (int c = blockIdx.x * blockDim.x + threadIdx.x; 16 * c < total; c += gridDim.x * blockDim.x) {
++        /* row of the chunk's first byte: last r with s_off[r] <= 16c */
++        int lo = 0, hi = n_rows - 1;
++        while (lo < hi) {
++            const int mid = (lo + hi + 1) >> 1;
++            if (s_off[mid] <= 16 * c)
++                lo = mid;
++            else
++                hi = mid - 1;
++        }
++        /* source word of each byte first, then all 16 loads at once */
++        int r = lo, src[16];
++#pragma unroll
++        for (int k = 0; k < 16; k++) {
++            const int b = min(16 * c + k, total - 1);
++            while (b >= s_off[r + 1])
++                r++;
++            const int rb = b - s_off[r];
++            src[k] = (r * row_words + (rb >> 2)) << 2 | (rb & 3);
++        }
++        uint32_t w[4] = { 0, 0, 0, 0 };
++#pragma unroll
++        for (int k = 0; k < 16; k++) {
++            const uint32_t v = (rows[src[k] >> 2] >> (24 - 8 * (src[k] & 3))) & 0xff;
++            if (16 * c + k < total)
++                w[k >> 2] |= v << (8 * (k & 3));
++        }
++        out[c] = make_uint4(w[0], w[1], w[2], w[3]);
++    }
+ }
+-- 
+2.55.0
+
