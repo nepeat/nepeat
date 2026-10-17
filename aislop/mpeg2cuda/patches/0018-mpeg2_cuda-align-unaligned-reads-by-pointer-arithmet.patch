@@ -1,0 +1,46 @@
+From 19561a90defa519d02957a04d4ea5c78d54dd98b Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:17:58 -0700
+Subject: [PATCH] mpeg2_cuda: align unaligned reads by pointer arithmetic
+
+Masking the address through uintptr_t dropped the pointer's address
+space, so reference reads in bidir, encode_mb and the half-pel steps were
+generic LD instead of LDG. Bit-identical output.
+---
+ libavcodec/mpeg2_cuda.cu | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index aebb63d..70bff51 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -185,7 +185,7 @@ static __device__ __forceinline__ int sad4(uint32_t a, uint32_t b, int acc)
+ /* unaligned 32-bit load built from two aligned ones (planes have slack at the end) */
+ static __device__ __forceinline__ uint32_t ldu32(const uint8_t *p)
+ {
+-    const uint32_t *w = (const uint32_t *)((uintptr_t)p & ~(uintptr_t)3);
++    const uint32_t *w = (const uint32_t *)(p - ((uintptr_t)p & 3));
+     return __funnelshift_rc(w[0], w[1], ((uintptr_t)p & 3) * 8);
+ }
+ 
+@@ -283,7 +283,7 @@ static __device__ __forceinline__ void warp_argmin3(int &cost, int &idx, int &ex
+ static __device__ __forceinline__ int sad_hpel_rows(const uint8_t *rp, int stride, int hx, int hy,
+                                                     const uint32_t *cur, int cstride, int rows)
+ {
+-    const uint32_t *wp = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
++    const uint32_t *wp = (const uint32_t *)(rp - ((uintptr_t)rp & 3));
+     const int sh = ((uintptr_t)rp & 3) * 8;
+     int sad = 0;
+     for (int row = 0; row < rows; row++) {
+@@ -504,7 +504,7 @@ k_me_refine(const uint8_t *cur, const uint8_t *ref,
+             wp      = win + (dy - cv.y + 2) * RW_WORDS + ((x0 + dx) >> 2) - wx0;
+             wstride = RW_WORDS;
+         } else {
+-            wp      = (const uint32_t *)((uintptr_t)rp & ~(uintptr_t)3);
++            wp      = (const uint32_t *)(rp - ((uintptr_t)rp & 3));
+             wstride = py >> 2;
+         }
+         const int sh = ((x0 + dx) & 3) * 8;
+-- 
+2.55.0
+
