@@ -101,6 +101,35 @@ Also tried: skipping field ME when the source MB shows no combing (frame vs
 field vertical SAD, like the ildct decision). Worse trade-off at every point
 than the score threshold (e.g. -0.155 dB on park_joy for +10%), dropped.
 
+## On a tiny box: AMD A4 Micro-6400T (weatherstar)
+
+4 Puma cores at 1.0 GHz (AVX, no AVX2), Radeon R3 (Mullins, GCN 2). Static
+build from here (`--extra-ldflags=-static` with nix `glibc.static`), one
+instance, threads=1, nice 19 next to the live WeatherStar encode. 30
+preloaded frames; SD clips are the same sources scaled to 720x480 (park_joy
+field-aware, still 480i), SD at 4M CBR (bufsize 2M).
+
+| one core | field_me_thresh=0 | 2048 |
+|---|---|---|
+| touchdown 1080 I/P | 5.4 fps | 9.0 (+67%) |
+| park_joy 1080i I/P | 4.7 | 5.8 (+23%) |
+| touchdown 1080 B2 | 3.0 | 5.3 (+77%) |
+| park_joy 1080i B2 | 2.4 | 2.9 (+21%) |
+| touchdown SD I/P | 48.6 | 73.4 (+51%) |
+| park_joy SD 480i I/P | 44.4 | 54.5 (+23%) |
+| touchdown SD B2 | 34.3 | 57.3 (+67%) |
+| park_joy SD 480i B2 | 28.0 | 37.3 (+33%) |
+
+SD quality at 4M (60 frames, PSNR-Y / SSIM-Y, 0 -> 2048): touchdown I/P
+37.675/0.9258 -> 37.668/0.9255, B2 38.147 -> 38.140; park_joy 480i I/P
+29.059/0.8501 -> 29.012/0.8482, B2 29.329/0.8618 -> 29.328/0.8609. The
+interlaced SD I/P case pays a little more than at 1080 (-0.05 dB); a lower
+threshold may suit SD.
+
+So one Puma core holds SD 480i I/P realtime with the gate either way, and
+progressive SD B2 goes from 34 to 57 fps. 1080i is out of reach for the CPU
+(the whole chip would give ~20 fps).
+
 ## Not done
 
 - the RD macroblock decision path (`mbd>0`) is not gated
