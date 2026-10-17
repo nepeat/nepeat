@@ -20,6 +20,13 @@ MS = [
     ("36c2f15", "Cleanup", "removed a no-op option"),
     ("0aa2090", "Progressive frames", "source field order, progressive_frame coding, first-I calibration"),
     ("e14023c", "RC carry clamp", "CBR carry-over clamped to the VBV, proportional VBV re-code"),
+    ("9173f3e", 'Field weave', 'progressive 2x-rate input woven into interlaced pictures on the GPU (feature; speed unaffected)'),
+    ("251534c", 'Pipelining', "the next picture's search is queued before the previous one is finished; read-backs on a second stream; GPU idle 148 -> 64 µs/pic"),
+    ("143f7f5", 'Kernel trims', 'coarse search shares loads across 4 candidates, encode_mb shared arrays padded against bank conflicts, refine and field search read shared-memory windows'),
+    ("ac0a6b1", 'SIMD + latency', 'inline-PTX vabsdiff4 accumulate, reference reads kept as LDG, refine and field half-pel steps from the shared windows'),
+    ("ecbf52c", 'Decimation', 'references decimated once instead of up to 5x, source decimation in k_load, reference decimation in k_encode_mb; k_down4 gone'),
+    ("3811bb7", 'Zero-copy + tail stream', 'coded pictures land in mapped pinned host memory (no read-back copies); VLC, pack and concat run on a second stream beside the next search'),
+    ("e8612c6", 'Load stream', 'uploads and k_load on a third stream with per-slot events, overlapping the coding of earlier pictures'),
 ]
 
 
@@ -59,6 +66,7 @@ bd = rec["bd_rate_vs_cpu_ip_fixed_metric"]
 data = {
     "milestones": [{"commit": c, "name": n, "what": w} for c, n, w in MS],
     "series": series, "cpu": cpuref, "kernels": kstack,
+    "wall": [round(1e6 / v, 1) if v else None for v in series["parkjoy_1080i|0|1"]],
     "dev": [{"step": s["step"], "us": s["kernel_us"], "b": ("bf=2" in s["step"] or "B pictures" in s["step"] or i > 5)} for i, s in enumerate(dev)],
     "bd": bd,
 }

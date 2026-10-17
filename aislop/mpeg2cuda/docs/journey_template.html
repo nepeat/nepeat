@@ -100,7 +100,8 @@ a { color: var(--s1); }
   <section>
     <div class="col" style="margin-inline:0">
       <h2>Frames per second, milestone by milestone</h2>
-      <p>Each commit rebuilt from its own worktree and benchmarked back to back on an idle GPU: encoder only, 60 frames preloaded in GPU memory, 6000 frames per instance, best of two. Dashed lines are the CPU's <code>mpeg2video</code> on the same clip with matched settings.</p>
+      <p>Each commit rebuilt from its own worktree and benchmarked back to back: encoder only, 60 frames preloaded in GPU memory, 6000 frames per instance, best of two. Dashed lines are the CPU's <code>mpeg2video</code> on the same clip with matched settings.</p>
+      <p>Milestones 1–9 ran on an idle GPU. Milestones 10–16 ran later the same day with the live test channels on air; milestone 9 re-measured alongside them came out 2–4% lower than before, so 10–16 read slightly low. From milestone 9 to 16, one park_joy stream went from 3323 to 5229 fps without B pictures and from 2218 to 3279 with them.</p>
     </div>
     <div class="panel">
       <div class="controls">
@@ -116,7 +117,7 @@ a { color: var(--s1); }
         </div>
       </div>
       <div class="chart"><canvas id="c-fps" aria-label="Frames per second per milestone"></canvas></div>
-      <p class="note">Whole GPU = 4 encoder instances; whole CPU = 8 processes × 4 threads. On touchdown, milestone 8 jumps because progressive sources are now coded as progressive frames, which skips field motion search; interlaced park_joy stays put, as it should.</p>
+      <p class="note">Whole GPU = 4 encoder instances; whole CPU = 8 processes × 4 threads. On touchdown, milestone 8 jumps because progressive sources are now coded as progressive frames, which skips field motion search; interlaced park_joy stays put, as it should. Four instances gain less from milestones 11–16 than one stream does: several instances already kept the GPU busy in each other's gaps.</p>
     </div>
     <ol class="ms" id="ms"></ol>
   </section>
@@ -125,6 +126,7 @@ a { color: var(--s1); }
     <div class="col" style="margin-inline:0">
       <h2>Where the GPU time goes</h2>
       <p>Per-kernel time from Nsight Systems, park_joy 1080i, I/P. Phase 1 spent two thirds of every picture in motion refinement doing byte loads; packed-byte SAD and one candidate per lane took it from 433 to 54 µs. Milestone 6 moved the coefficient VLC into the transform kernel and dropped a 6.3 MB per-picture buffer.</p>
+      <p>The black line is the wall time per picture for one stream. Up to milestone 10 it sits above the bars: the GPU waited on the host between pictures. Milestone 11 queues the next search before the last picture is finished, and from milestone 15 the bitstream kernels and the frame copy run on their own streams beside the search. They then share the GPU, so each kernel takes longer, and the line drops below the bars.</p>
     </div>
     <div class="grid2">
       <div class="panel"><h3>Per milestone</h3><div class="chart tall"><canvas id="c-kern" aria-label="Kernel time per milestone"></canvas></div></div>
@@ -242,8 +244,12 @@ function kernChart() {
   const o = base();
   o.scales.x.stacked = true; o.scales.y.stacked = true;
   o.scales.y.title = { display: true, text: "µs per picture", color: css("--ink-2") };
-  o.plugins.tooltip.callbacks = { title: (it) => DATA.milestones[it[0].dataIndex].name, footer: (it) => `total ${it.reduce((a, b) => a + b.parsed.y, 0).toFixed(0)} µs` };
+  o.plugins.tooltip.callbacks = { title: (it) => DATA.milestones[it[0].dataIndex].name, footer: (it) => `kernels ${it.filter(x => x.dataset.type !== "line").reduce((a, b) => a + b.parsed.y, 0).toFixed(0)} µs` };
   const ds = Object.entries(DATA.kernels).map(([name, vals], i) => ({ label: name, data: vals, backgroundColor: css(cols[i]), borderColor: css("--surface"), borderWidth: { top: 2 } }));
+  /* from milestone 15 on, kernels overlap on three streams, so their sum
+     exceeds the time a picture actually takes */
+  ds.push({ type: "line", label: "wall time per picture", data: DATA.wall, borderColor: css("--ink"), borderWidth: 2,
+            pointRadius: 3, pointBackgroundColor: css("--ink"), stack: "wall", order: -1 });
   charts.kern?.destroy();
   charts.kern = new Chart(document.getElementById("c-kern"), { type: "bar", data: { labels, datasets: ds }, options: o });
 }

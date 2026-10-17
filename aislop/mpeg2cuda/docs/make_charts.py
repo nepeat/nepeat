@@ -55,6 +55,13 @@ fps = read_csv("fps.csv")
 cpu = read_csv("cpu.csv")
 commits = list(dict.fromkeys(r["commit"] for r in fps))
 LABELS.setdefault("e14023c", "9 RC carry\nclamp")
+LABELS.setdefault("9173f3e", '10 field weave')
+LABELS.setdefault("251534c", '11 pipelining')
+LABELS.setdefault("143f7f5", '12 kernel trims')
+LABELS.setdefault("ac0a6b1", '13 SIMD +\nlatency')
+LABELS.setdefault("ecbf52c", '14 decimation')
+LABELS.setdefault("3811bb7", '15 zero-copy\n+ tail stream')
+LABELS.setdefault("e8612c6", '16 load stream')
 CLIP = "parkjoy_1080i"      # interlaced: the 1080i target
 
 
@@ -71,7 +78,7 @@ def gpu_val(c, clip, bf, inst):
 
 
 def bars(inst, title, name, cpu_inst, cpu_label):
-    fig, ax = plt.subplots(figsize=(10.5, 4.4))
+    fig, ax = plt.subplots(figsize=(15, 4.6))
     x = list(range(len(commits)))
     w = 0.38
     top = 0
@@ -85,15 +92,14 @@ def bars(inst, title, name, cpu_inst, cpu_label):
             ax.text(a, b + top * 0.01, f"{b:.0f}", ha="center", va="bottom", fontsize=7.5, color=INK2)
     for bf, style in ((0, "--"), (2, ":")):
         val = cpu_val(CLIP, bf, cpu_inst)
-        ax.axhline(val, color=INK2, lw=1, ls=style, zorder=2)
-        ax.text(len(commits) - 0.55, val + top * (0.012 if bf == 0 else -0.012),
-                f"{cpu_label} {'I/P' if bf == 0 else 'B2'}: {val:.0f}",
-                va="bottom" if bf == 0 else "top", ha="right", fontsize=8, color=INK2)
-    ax.set_xticks(x, [LABELS.get(c, c) for c in commits], fontsize=8)
+        ax.axhline(val, color=INK2, lw=1, ls=style, zorder=2,
+                   label=f"{cpu_label} {'I/P' if bf == 0 else 'B2'}: {val:.0f}")
+    ax.set_xticks(x, [LABELS.get(c, c).replace("\n", " ") for c in commits], fontsize=8,
+                  rotation=35, ha="right", rotation_mode="anchor")
     ax.set_ylabel("frames per second")
     ax.set_title(title, loc="left")
-    ax.legend(loc="upper left", ncols=2)
-    ax.set_ylim(0, top * 1.15)
+    ax.legend(loc="upper left", ncols=2, fontsize=8.5)
+    ax.set_ylim(0, top * 1.22)
     save(fig, name)
 
 
@@ -125,7 +131,7 @@ for r in kern:
     if r["bf"] == "0" and r["kernel"] != "k_init_tables":
         names[r["kernel"]] = names.get(r["kernel"], 0) + float(r["us_per_call"]) * int(r["calls"])
 top = [k for k, _ in sorted(names.items(), key=lambda kv: -kv[1])][:7]
-fig, ax = plt.subplots(figsize=(10, 4.6))
+fig, ax = plt.subplots(figsize=(15, 4.8))
 bottom = [0.0] * len(commits)
 for si, k in enumerate(top + ["other"]):
     vals = []
@@ -140,11 +146,17 @@ for si, k in enumerate(top + ["other"]):
     ax.bar(range(len(commits)), vals, bottom=bottom, color=(SERIES + ["#c3c2b7"])[si], width=0.62,
            label=k.replace("k_", ""), edgecolor=SURF, linewidth=1.2, zorder=3)
     bottom = [a + b for a, b in zip(bottom, vals)]
+# wall time per picture (one stream, I/P): from milestone 15 on the kernels
+# overlap on three streams, so they each run longer while a picture gets faster
+wall = [1e6 / v if v else None for v in (gpu_val(c, CLIP, 0, 1) for c in commits)]
 for i, t in enumerate(bottom):
-    ax.text(i, t + 8, f"{t:.0f}", ha="center", fontsize=8, color=INK2)
-ax.set_xticks(range(len(commits)), [LABELS.get(c, c) for c in commits], fontsize=8)
+    ax.text(i, max(t, wall[i] or 0) + 12, f"{t:.0f}", ha="center", fontsize=8, color=INK2)
+ax.plot(range(len(commits)), wall, color=INK, lw=1.8, marker="o", ms=4, zorder=4,
+        label="wall time per picture")
+ax.set_xticks(range(len(commits)), [LABELS.get(c, c).replace("\n", " ") for c in commits], fontsize=8,
+              rotation=35, ha="right", rotation_mode="anchor")
 ax.set_ylabel("µs per picture (park_joy 1080i, I/P)")
-ax.set_title("Where the GPU time goes, per milestone", loc="left")
+ax.set_title("Where the GPU time goes, per milestone (bars: kernel time, line: wall time)", loc="left")
 ax.legend(ncols=4, fontsize=8, loc="upper right")
 save(fig, "kernels")
 
