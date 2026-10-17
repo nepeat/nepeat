@@ -1,0 +1,272 @@
+From 8d0f7c427705d5aa2d6d0a9fb86c9f8a29293fa7 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 18:46:54 -0700
+Subject: [PATCH] mpeg2_cuda: k_load writes the source's quarter-size plane
+
+k_down4 re-read every source picture right after k_load had copied it.
+k_load now takes 8 x 4 luma pixels per thread and writes the two
+decimated pixels as well (field weave: the top field's rows are read back
+from the plane), into a quarter plane per source slot. Bit-identical
+output, field weave included.
+---
+ libavcodec/mpeg2_cuda.c  |  31 +++++-----
+ libavcodec/mpeg2_cuda.cu | 122 +++++++++++++++++++++++----------------
+ 2 files changed, 87 insertions(+), 66 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index 73828b2..f6dc4dd 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -96,7 +96,7 @@ typedef struct MPEG2CudaContext {
+     CUdeviceptr src[SRC_SLOTS][3];   /* source pictures waiting to be coded */
+     CUdeviceptr rec[3][3];           /* two anchors + the B picture */
+     CUdeviceptr staging[3];
+-    CUdeviceptr srcq;
++    CUdeviceptr srcq[SRC_SLOTS];     /* src[k] luma at 1/4 size, written by k_load */
+     CUdeviceptr recq[3];             /* rec[k] luma at 1/4 size, for the coarse search */
+     int recq_ok[3];                  /* recq[k] matches rec[k] */
+     CUdeviceptr coarse, motion, motion_prev, mbinfo, blkbits, blklen, slots, bitlen;
+@@ -539,11 +539,12 @@ static int upload_frame(AVCodecContext *avctx, const AVFrame *frame, int slot, i
+         int w = avctx->width, h = avctx->height;
+         void *args[] = { &y, &pitch_y, &u, &v, &pitch_uv, &nv12, &w, &h,
+                          &s->src[slot][0], &s->src[slot][1], &s->src[slot][2],
+-                         &s->py, &s->pc, &s->pw, &s->ph, &bottom_only };
++                         &s->py, &s->pc, &s->pw, &s->ph, &bottom_only,
++                         &s->srcq[slot], &s->qpitch };
+         if (other && ((ret = CHECK_CU(s->cu->cuEventRecord(s->hw_ev, hs))) < 0 ||
+                       (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->stream, s->hw_ev, 0))) < 0))
+             return ret;
+-        ret = launch(avctx, F_LOAD, FFALIGN(s->pw / 8, 32) / 32, FFALIGN(s->ph, 8) / 8,
++        ret = launch(avctx, F_LOAD, FFALIGN(s->pw / 8, 32) / 32, FFALIGN(s->ph / 4, 8) / 8,
+                      32, 8, args);
+         if (ret >= 0 && other &&
+             (ret = CHECK_CU(s->cu->cuEventRecord(s->hw_ev, s->stream))) >= 0)
+@@ -573,7 +574,8 @@ static int rec_quarter(AVCodecContext *avctx, int idx, CUdeviceptr *q)
+ 
+ /* coarse + refine search of cur against one reference; refq must hold the
+  * decimated reference. pred: temporal predictor field, out: results */
+-static int search_dir(AVCodecContext *avctx, CUdeviceptr cur, CUdeviceptr ref, CUdeviceptr refq,
++static int search_dir(AVCodecContext *avctx, CUdeviceptr cur, CUdeviceptr curq,
++                      CUdeviceptr ref, CUdeviceptr refq,
+                       CUdeviceptr pred, CUdeviceptr out, int lambda, int range)
+ {
+     MPEG2CudaContext *s = avctx->priv_data;
+@@ -582,7 +584,7 @@ static int search_dir(AVCodecContext *avctx, CUdeviceptr cur, CUdeviceptr ref, C
+     int temporal = s->me_flags & 1;
+     int ret;
+     {
+-        void *args[] = { &s->srcq, &refq, &s->qpitch, &s->qw, &s->qh,
++        void *args[] = { &curq, &refq, &s->qpitch, &s->qw, &s->qh,
+                          &s->mb_w, &s->mb_h, &range, &lambda, &pred,
+                          &temporal, &s->coarse };
+         ret = launch(avctx, F_ME_COARSE, (n_mb * 32 + 127) / 128, 1, 128, 1, args);
+@@ -613,9 +615,8 @@ static int motion_search_p(AVCodecContext *avctx, int slot, int prog, int lambda
+     int mv_max = (16 << (s->fcode - 1)) - 1;
+     int ret;
+ 
+-    if ((ret = down4(avctx, s->src[slot][0], s->srcq)) < 0 ||
+-        (ret = rec_quarter(avctx, s->anchor_fut, &refq)) < 0 ||
+-        (ret = search_dir(avctx, s->src[slot][0], ref, refq, s->motion_prev,
++    if ((ret = rec_quarter(avctx, s->anchor_fut, &refq)) < 0 ||
++        (ret = search_dir(avctx, s->src[slot][0], s->srcq[slot], ref, refq, s->motion_prev,
+                           s->motion, lambda, s->me_range)) < 0)
+         return ret;
+     if (s->field_me && !prog) {
+@@ -642,14 +643,13 @@ static int motion_search_b(AVCodecContext *avctx, int slot, int64_t n, int prog,
+     int ret;
+ 
+     /* predictors: the newest P's vectors span d pictures backwards */
+-    if ((ret = down4(avctx, s->src[slot][0], s->srcq)) < 0 ||
+-        (ret = rec_quarter(avctx, s->anchor_past, &pastq)) < 0 ||
++    if ((ret = rec_quarter(avctx, s->anchor_past, &pastq)) < 0 ||
+         (ret = rec_quarter(avctx, s->anchor_fut, &futq)) < 0 ||
+         (ret = scale_motion(avctx, s->motion_prev, s->pred_f, df, d)) < 0 ||
+         (ret = scale_motion(avctx, s->motion_prev, s->pred_b, -db, d)) < 0 ||
+-        (ret = search_dir(avctx, s->src[slot][0], past, pastq, s->pred_f,
++        (ret = search_dir(avctx, s->src[slot][0], s->srcq[slot], past, pastq, s->pred_f,
+                           s->motion_bf, lambda, rb)) < 0 ||
+-        (ret = search_dir(avctx, s->src[slot][0], fut, futq, s->pred_b,
++        (ret = search_dir(avctx, s->src[slot][0], s->srcq[slot], fut, futq, s->pred_b,
+                           s->motion_bb, lambda, rb)) < 0)
+         return ret;
+     if (s->field_me && !prog) {
+@@ -1159,7 +1159,8 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+                 free_dev(s, &s->rec[k][i]);
+             free_dev(s, &s->staging[i]);
+         }
+-        free_dev(s, &s->srcq);
++        for (int k = 0; k < SRC_SLOTS; k++)
++            free_dev(s, &s->srcq[k]);
+         for (int k = 0; k < 3; k++)
+             free_dev(s, &s->recq[k]);
+         free_dev(s, &s->motion_bf);
+@@ -1391,8 +1392,8 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         if (ret >= 0)
+             ret = alloc_dev(avctx, &s->staging[i], (size_t)s->py * s->ph);
+     }
+-    if (ret >= 0)
+-        ret = alloc_dev(avctx, &s->srcq, (size_t)s->qpitch * (s->qh + 2));
++    for (int k = 0; k < SRC_SLOTS && ret >= 0; k++)
++        ret = alloc_dev(avctx, &s->srcq[k], (size_t)s->qpitch * (s->qh + 2));
+     for (int k = 0; k < 3 && ret >= 0; k++)
+         ret = alloc_dev(avctx, &s->recq[k], (size_t)s->qpitch * (s->qh + 2));
+     if (ret >= 0)
+diff --git a/libavcodec/mpeg2_cuda.cu b/libavcodec/mpeg2_cuda.cu
+index f697fcf..240f6a0 100644
+--- a/libavcodec/mpeg2_cuda.cu
++++ b/libavcodec/mpeg2_cuda.cu
+@@ -95,64 +95,93 @@ extern "C" __global__ void k_init_tables(const uint32_t *src, int words)
+  * one row (and on even rows the 4 chroma pixels below them) with 8- and
+  * 4-byte accesses; only the picture's right/bottom edge takes the per-byte
+  * replicate path. */
++/* acc + sum |a - b| over 4 packed bytes. __vsadu4 compiles to VABSDIFF4 with
++ * a zero accumulator plus an IADD3; the PTX form folds the add in. */
++static __device__ __forceinline__ int sad4(uint32_t a, uint32_t b, int acc)
++{
++    int d;
++    asm("vabsdiff4.u32.u32.u32.add %0, %1, %2, %3;" : "=r"(d) : "r"(a), "r"(b), "r"(acc));
++    return d;
++}
++
++/* Copy a source picture into the padded planes (edges replicated, NV12
++ * chroma split) and write its 1/4 size luma for the coarse search, as
++ * k_down4 would from the copied plane. One thread: 8 luma pixels x 4 rows
++ * (two decimated pixels) and their 4 x 2 chroma pixels. */
+ extern "C" __global__ void k_load(const uint8_t *sy, int sy_pitch,
+                                   const uint8_t *su, const uint8_t *sv, int suv_pitch,
+                                   int nv12, int w, int h,
+                                   uint8_t *dy, uint8_t *du, uint8_t *dv,
+-                                  int py, int pc, int pw, int ph, int bottom_only)
++                                  int py, int pc, int pw, int ph, int bottom_only,
++                                  uint8_t *dq, int qpitch)
+ {
+     /* bottom_only (field weave): write only the bottom field's rows, i.e.
+-     * odd luma rows and odd chroma rows, from the same rows of the source */
+-    const int x = (blockIdx.x * blockDim.x + threadIdx.x) * 8;
+-    const int y = blockIdx.y * blockDim.y + threadIdx.y;
+-    if (x >= pw || y >= ph)
++     * odd luma rows and odd chroma rows, from the same rows of the source;
++     * the top field's rows are already in the plane */
++    const int x  = (blockIdx.x * blockDim.x + threadIdx.x) * 8;
++    const int y0 = (blockIdx.y * blockDim.y + threadIdx.y) * 4;
++    if (x >= pw || y0 >= ph)
+         return;
+ 
+-    const int ys = min(y, h - 1);
+-    const uint8_t *srow = sy + ys * sy_pitch;
+-    if (!bottom_only || (y & 1)) {
+-        if (x + 8 <= w && !((uintptr_t)(srow + x) & 7)) {
+-            *(uint2 *)(dy + y * py + x) = *(const uint2 *)(srow + x);
++    int q0 = 0, q1 = 0;
++    for (int y = y0; y < y0 + 4; y++) {
++        uint2 v;
++        uint8_t *drow = dy + y * py + x;
++        if (!bottom_only || (y & 1)) {
++            const uint8_t *srow = sy + min(y, h - 1) * sy_pitch;
++            if (x + 8 <= w && !((uintptr_t)(srow + x) & 7)) {
++                v = *(const uint2 *)(srow + x);
++            } else {
++                uint8_t b[8];
++                for (int k = 0; k < 8; k++)
++                    b[k] = srow[min(x + k, w - 1)];
++                v = make_uint2(b[0] | b[1] << 8 | b[2] << 16 | (uint32_t)b[3] << 24,
++                               b[4] | b[5] << 8 | b[6] << 16 | (uint32_t)b[7] << 24);
++            }
++            *(uint2 *)drow = v;
+         } else {
+-            for (int k = 0; k < 8; k++)
+-                dy[y * py + x + k] = srow[min(x + k, w - 1)];
++            v = *(const uint2 *)drow;
+         }
+-    }
++        q0 = sad4(v.x, 0, q0);
++        q1 = sad4(v.y, 0, q1);
+ 
+-    if (y & 1)
+-        return;
+-    const int cx = x >> 1, cy = y >> 1;
+-    if (bottom_only && !(cy & 1))
+-        return;
+-    const int cw = (w + 1) >> 1;
+-    const int scy = min(cy, ((h + 1) >> 1) - 1);
+-    uint8_t *du_ = du + cy * pc + cx, *dv_ = dv + cy * pc + cx;
+-    if (nv12) {
+-        const uint8_t *s = su + scy * suv_pitch;
+-        if (cx + 4 <= cw && !((uintptr_t)(s + 2 * cx) & 7)) {
+-            uint2 uv = *(const uint2 *)(s + 2 * cx);       /* U0 V0 U1 V1 | U2 V2 U3 V3 */
+-            *(uint32_t *)du_ = __byte_perm(uv.x, uv.y, 0x6420);
+-            *(uint32_t *)dv_ = __byte_perm(uv.x, uv.y, 0x7531);
+-        } else {
+-            for (int k = 0; k < 4; k++) {
+-                int c = min(cx + k, cw - 1);
+-                du_[k] = s[2 * c];
+-                dv_[k] = s[2 * c + 1];
++        if (y & 1)
++            continue;
++        const int cx = x >> 1, cy = y >> 1;
++        if (bottom_only && !(cy & 1))
++            continue;
++        const int cw = (w + 1) >> 1;
++        const int scy = min(cy, ((h + 1) >> 1) - 1);
++        uint8_t *du_ = du + cy * pc + cx, *dv_ = dv + cy * pc + cx;
++        if (nv12) {
++            const uint8_t *s = su + scy * suv_pitch;
++            if (cx + 4 <= cw && !((uintptr_t)(s + 2 * cx) & 7)) {
++                uint2 uv = *(const uint2 *)(s + 2 * cx);       /* U0 V0 U1 V1 | U2 V2 U3 V3 */
++                *(uint32_t *)du_ = __byte_perm(uv.x, uv.y, 0x6420);
++                *(uint32_t *)dv_ = __byte_perm(uv.x, uv.y, 0x7531);
++            } else {
++                for (int k = 0; k < 4; k++) {
++                    int c = min(cx + k, cw - 1);
++                    du_[k] = s[2 * c];
++                    dv_[k] = s[2 * c + 1];
++                }
+             }
+-        }
+-    } else {
+-        const uint8_t *u = su + scy * suv_pitch, *v = sv + scy * suv_pitch;
+-        if (cx + 4 <= cw && !((uintptr_t)(u + cx) & 3) && !((uintptr_t)(v + cx) & 3)) {
+-            *(uint32_t *)du_ = *(const uint32_t *)(u + cx);
+-            *(uint32_t *)dv_ = *(const uint32_t *)(v + cx);
+         } else {
+-            for (int k = 0; k < 4; k++) {
+-                int c = min(cx + k, cw - 1);
+-                du_[k] = u[c];
+-                dv_[k] = v[c];
++            const uint8_t *u = su + scy * suv_pitch, *v_ = sv + scy * suv_pitch;
++            if (cx + 4 <= cw && !((uintptr_t)(u + cx) & 3) && !((uintptr_t)(v_ + cx) & 3)) {
++                *(uint32_t *)du_ = *(const uint32_t *)(u + cx);
++                *(uint32_t *)dv_ = *(const uint32_t *)(v_ + cx);
++            } else {
++                for (int k = 0; k < 4; k++) {
++                    int c = min(cx + k, cw - 1);
++                    du_[k] = u[c];
++                    dv_[k] = v_[c];
++                }
+             }
+         }
+     }
++    /* pw and ph are multiples of 16, so both decimated pixels exist */
++    *(uchar2 *)(dq + (y0 >> 2) * qpitch + (x >> 2)) = make_uchar2((q0 + 8) >> 4, (q1 + 8) >> 4);
+ }
+ 
+ extern "C" __global__ void k_down4(const uint8_t *src, int pitch,
+@@ -173,15 +202,6 @@ extern "C" __global__ void k_down4(const uint8_t *src, int pitch,
+ 
+ /* ------------------------------------------------------------------------ */
+ 
+-/* acc + sum |a - b| over 4 packed bytes. __vsadu4 compiles to VABSDIFF4 with
+- * a zero accumulator plus an IADD3; the PTX form folds the add in. */
+-static __device__ __forceinline__ int sad4(uint32_t a, uint32_t b, int acc)
+-{
+-    int d;
+-    asm("vabsdiff4.u32.u32.u32.add %0, %1, %2, %3;" : "=r"(d) : "r"(a), "r"(b), "r"(acc));
+-    return d;
+-}
+-
+ /* unaligned 32-bit load built from two aligned ones (planes have slack at the end) */
+ static __device__ __forceinline__ uint32_t ldu32(const uint8_t *p)
+ {
+-- 
+2.55.0
+
