@@ -1,0 +1,141 @@
+From e8612c62bcd1850d35aa74c89efc517fa3056991 Mon Sep 17 00:00:00 2001
+From: nepeat <nepeat@gmail.com>
+Date: Fri, 16 Oct 2026 19:09:57 -0700
+Subject: [PATCH] mpeg2_cuda: uploads and k_load run on their own stream
+
+k_load (a bandwidth-bound copy) sat on the coding stream. It now runs
+on a load stream, ordered by two events per source slot: k_load waits
+for the slot's last queued reader (recorded after each k_encode_mb of
+that picture, re-codes included), and code_one waits for the slot's
+load. The copy overlaps the coding of earlier pictures.
+-5.7 us/pic on 1080i, -4.7 on 1080p. Bit-identical output (field
+weave, NVDEC frames and system-memory uploads checked).
+---
+ libavcodec/mpeg2_cuda.c | 52 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 42 insertions(+), 10 deletions(-)
+
+diff --git a/libavcodec/mpeg2_cuda.c b/libavcodec/mpeg2_cuda.c
+index a52d54d..a5794d7 100644
+--- a/libavcodec/mpeg2_cuda.c
++++ b/libavcodec/mpeg2_cuda.c
+@@ -93,6 +93,9 @@ typedef struct MPEG2CudaContext {
+     CudaFunctions       *cu;
+     CUstream             stream;
+     CUstream             out_stream;     /* VLC, pack, concat, beside the next search */
++    CUstream             load_stream;    /* uploads and k_load, beside the coding */
++    CUevent              load_ev[SRC_SLOTS]; /* src[k] loaded */
++    CUevent              use_ev[SRC_SLOTS];  /* last queued reader of src[k] done */
+     CUevent              mb_ev;          /* k_encode_mb done, the tail may start */
+     CUevent              coded_ev;       /* a picture's kernels are done */
+     CUevent              hw_ev;          /* ordering with hwctx->stream */
+@@ -515,6 +518,13 @@ static int upload_frame(AVCodecContext *avctx, const AVFrame *frame, int slot, i
+     CUdeviceptr y, u, v;
+     int pitch_y, pitch_uv, nv12, ret;
+ 
++    /* uploads run on their own stream, overlapping the coding of earlier
++     * pictures; the slot's previous picture must be done with it (an event
++     * never recorded counts as done) */
++    ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->load_stream, s->use_ev[slot], 0));
++    if (ret < 0)
++        return ret;
++
+     if (frame->format == AV_PIX_FMT_CUDA) {
+         AVHWFramesContext *fc = (AVHWFramesContext *)frame->hw_frames_ctx->data;
+         nv12     = fc->sw_format == AV_PIX_FMT_NV12;
+@@ -539,7 +549,7 @@ static int upload_frame(AVCodecContext *avctx, const AVFrame *frame, int slot, i
+                 .WidthInBytes  = w,
+                 .Height        = h,
+             };
+-            ret = CHECK_CU(s->cu->cuMemcpy2DAsync(&cpy, s->stream));
++            ret = CHECK_CU(s->cu->cuMemcpy2DAsync(&cpy, s->load_stream));
+             if (ret < 0)
+                 return ret;
+         }
+@@ -550,24 +560,25 @@ static int upload_frame(AVCodecContext *avctx, const AVFrame *frame, int slot, i
+     }
+ 
+     /* hw frames written on a stream of their own: load after the producer,
+-     * and let the producer reuse the surface only after the load (the load
+-     * may sit behind a whole picture's kernels on our stream). The legacy
+-     * default stream (NULL) orders itself against ours already. */
++     * and let the producer reuse the surface only after the load. The
++     * legacy default stream (NULL) orders itself against ours already. */
+     {
+         CUstream hs = s->hwctx->stream;
+-        int other = frame->format == AV_PIX_FMT_CUDA && hs && hs != s->stream;
++        int other = frame->format == AV_PIX_FMT_CUDA && hs && hs != s->load_stream;
+         int w = avctx->width, h = avctx->height;
+         void *args[] = { &y, &pitch_y, &u, &v, &pitch_uv, &nv12, &w, &h,
+                          &s->src[slot][0], &s->src[slot][1], &s->src[slot][2],
+                          &s->py, &s->pc, &s->pw, &s->ph, &bottom_only,
+                          &s->srcq[slot], &s->qpitch };
+         if (other && ((ret = CHECK_CU(s->cu->cuEventRecord(s->hw_ev, hs))) < 0 ||
+-                      (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->stream, s->hw_ev, 0))) < 0))
++                      (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->load_stream, s->hw_ev, 0))) < 0))
+             return ret;
+-        ret = launch(avctx, F_LOAD, FFALIGN(s->pw / 8, 32) / 32, FFALIGN(s->ph / 4, 8) / 8,
+-                     32, 8, args);
++        ret = launch_on(avctx, s->load_stream, F_LOAD, FFALIGN(s->pw / 8, 32) / 32,
++                        FFALIGN(s->ph / 4, 8) / 8, 32, 8, 0, args);
++        if (ret >= 0)
++            ret = CHECK_CU(s->cu->cuEventRecord(s->load_ev[slot], s->load_stream));
+         if (ret >= 0 && other &&
+-            (ret = CHECK_CU(s->cu->cuEventRecord(s->hw_ev, s->stream))) >= 0)
++            (ret = CHECK_CU(s->cu->cuEventRecord(s->hw_ev, s->load_stream))) >= 0)
+             ret = CHECK_CU(s->cu->cuStreamWaitEvent(hs, s->hw_ev, 0));
+         return ret;
+     }
+@@ -707,7 +718,8 @@ static int code_picture(AVCodecContext *avctx, const struct M2CJob *j, int drop_
+      * runs on its own stream: its small grids and PCIe stores overlap the
+      * next picture's search. Nothing it reads is written again before the
+      * host has waited for coded_ev. */
+-    if ((ret = CHECK_CU(s->cu->cuEventRecord(s->mb_ev, s->stream))) < 0 ||
++    if ((ret = CHECK_CU(s->cu->cuEventRecord(s->use_ev[j->slot], s->stream))) < 0 ||
++        (ret = CHECK_CU(s->cu->cuEventRecord(s->mb_ev, s->stream))) < 0 ||
+         (ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->out_stream, s->mb_ev, 0))) < 0)
+         return ret;
+     {
+@@ -934,6 +946,9 @@ static int code_one(AVCodecContext *avctx, int pict_type, int slot, int cur, int
+     j.motion2 = s->motion_bb;
+     j.bdir    = s->bdir;
+ 
++    ret = CHECK_CU(s->cu->cuStreamWaitEvent(s->stream, s->load_ev[slot], 0));
++    if (ret < 0)
++        return ret;
+     if (pict_type == 2)
+         ret = motion_search_p(avctx, slot, prog, lambda);
+     else if (pict_type == 3)
+@@ -1184,6 +1199,16 @@ static av_cold int mpeg2_cuda_close(AVCodecContext *avctx)
+         if (s->mb_ev)
+             s->cu->cuEventDestroy(s->mb_ev);
+         s->mb_ev = NULL;
++        if (s->load_stream)
++            s->cu->cuStreamDestroy(s->load_stream);
++        s->load_stream = NULL;
++        for (int k = 0; k < SRC_SLOTS; k++) {
++            if (s->load_ev[k])
++                s->cu->cuEventDestroy(s->load_ev[k]);
++            if (s->use_ev[k])
++                s->cu->cuEventDestroy(s->use_ev[k]);
++            s->load_ev[k] = s->use_ev[k] = NULL;
++        }
+         if (s->coded_ev)
+             s->cu->cuEventDestroy(s->coded_ev);
+         s->coded_ev = NULL;
+@@ -1381,6 +1406,13 @@ static av_cold int mpeg2_cuda_init(AVCodecContext *avctx)
+         ret = CHECK_CU(s->cu->cuStreamCreate(&s->out_stream, CU_STREAM_DEFAULT));
+     if (ret >= 0)
+         ret = CHECK_CU(s->cu->cuEventCreate(&s->mb_ev, CU_EVENT_DISABLE_TIMING));
++    if (ret >= 0)
++        ret = CHECK_CU(s->cu->cuStreamCreate(&s->load_stream, CU_STREAM_DEFAULT));
++    for (int k = 0; k < SRC_SLOTS && ret >= 0; k++) {
++        ret = CHECK_CU(s->cu->cuEventCreate(&s->load_ev[k], CU_EVENT_DISABLE_TIMING));
++        if (ret >= 0)
++            ret = CHECK_CU(s->cu->cuEventCreate(&s->use_ev[k], CU_EVENT_DISABLE_TIMING));
++    }
+     if (ret >= 0)
+         ret = CHECK_CU(s->cu->cuEventCreate(&s->hw_ev, CU_EVENT_DISABLE_TIMING));
+     if (ret >= 0)
+-- 
+2.55.0
+
