@@ -37,8 +37,9 @@ ok() { ssh "${ssh_opts[@]}" "root@$host" true >/dev/null 2>&1; }
 # instance so it stops billing) if neither works
 log "connect"
 conn=0
-for i in $(seq 1 18); do
+for i in $(seq 1 48); do
   ok && { conn=1; break; }
+  ((i % 6 == 0)) && log "still no ssh: $(ssh "${ssh_opts[@]}" "root@$host" true 2>&1 | grep -vE 'Welcome|Have fun' | tail -1)"
   if [[ -n $phost ]] && ((i % 3 == 0)); then
     ssh_opts[-1]=$pport; h0=$host; host=$phost
     ok && { conn=1; log "using proxy $phost:$pport"; break; }
@@ -46,7 +47,7 @@ for i in $(seq 1 18); do
   fi
   sleep 10
 done
-((conn)) || { log "FAIL: no ssh after 3 min"; destroy; exit 1; }
+((conn)) || { log "FAIL: no ssh after 8 min"; destroy; exit 1; }
 r 'command -v rsync >/dev/null || { apt-get -qq update && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y rsync >/dev/null; }; command -v rsync'
 
 log "upload"
