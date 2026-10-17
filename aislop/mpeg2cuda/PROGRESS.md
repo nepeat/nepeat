@@ -277,3 +277,38 @@ host (sync before the next ME 62, second read-back round trip 48, next frame 31)
   live channels on the GPU): park_joy 1080i 2016 -> 2510 fps (496 -> 398
   us/pic), touchdown 1080p 2683 -> 3515 fps (373 -> 285 us/pic).
 
+
+## 2026-10-16 — perf pass 3: SIMD/asm, then latency
+Question asked: can SIMD/asm tricks squeeze more? Answer: barely; the ME
+kernels are load-latency bound, not ALU bound. Refine's full-pel SAD loop is
+~2M warp-instructions per call (~4 us of issue on the 3090) in a ~58 us kernel.
+- SASS check (ptxas the embedded PTX for sm_86, cuobjdump -sass): `__vsadu4`
+  is already native VABSDIFF4 on Ampere, but with a zero accumulator + IADD3.
+  Microbench: PTX `vabsdiff4.u32.u32.u32.add` (fused accumulate) 1.33x the
+  SAD op rate; vabsdiffu4 + dp4a ties it. Patch 0017: -2.4 us/pic park_joy, 0
+  touchdown.
+- Patch 0018: `(uintptr_t)p & ~3` in ldu32/sad_hpel_rows dropped the pointer's
+  address space -> generic LD for every reference read in bidir/encode_mb/
+  half-pel; pointer arithmetic keeps LDG. -1..2 us/pic.
+- Refine ablation (runtime flag bits, scratch build; us per call, median):
+  all 58.3, no half-pel 37.4, no out-of-window candidates 43.3, no full-pel
+  SAD loop 36.0, no window staging 56.4, all off 15.5. The half-pel step (8
+  neighbours x 4 rows from global after the argmin) was the biggest piece.
+- Patch 0019: refine window 22 rows x 7 words from (-3,-3) also covers the
+  half-pel neighbours of any best vector within +-2 of cv (warp-uniform test,
+  else global). -17.0 us/pic park_joy, -14.4 touchdown.
+- Patch 0020: field window 12 lines from (-3,-2) covers every half-pel read
+  (best is always a window candidate); parity stride 84 (brute-forced: no
+  bank conflicts, 88-90/95-97 would be 2-way). -8.2 us/pic park_joy.
+- Tried, no effect, reverted: hoisting refine's coarse/cur/window global loads
+  above the intra warp sums (the compiler already overlapped them).
+- All of 0017-0020 bit-identical (md5, 7 configs). Pass total, interleaved
+  medians: park_joy 1080i 365 -> 337 us/pic (2737 -> 2965 fps), touchdown
+  258 -> 243 us/pic (3875 -> 4109 fps). (Absolute numbers are higher than pass
+  2's because fewer GPU time slices were taken by the live channels today.)
+- Kernel time per picture (park_joy bf2) now: refine 84, encode_mb 81,
+  field 68, coarse 40, bidir 31, vlc 24. Remaining ideas: refine's 11
+  out-of-window predictor candidates (~15 us/call, global latency), bidir's
+  global prediction reads, k_vlc's local-memory spills (160 B stack).
+- Not used, and why: tensor cores (no SAD op; the IDCT must stay bit-exact with
+  simple_idct), packed fp16 fDCT (would change output and needs the full A/B).
