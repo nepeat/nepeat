@@ -1,4 +1,4 @@
-From 18bdf02538d8a0fc6c244ed98f3165d8411cce0e Mon Sep 17 00:00:00 2001
+From 46b409f056fe8416a5080b4475673bae321d04b7 Mon Sep 17 00:00:00 2001
 From: nepeat <nepeat@gmail.com>
 Date: Fri, 16 Oct 2026 23:43:43 -0700
 Subject: [PATCH] avcodec/motion_est: add field_me_thresh to skip needless
@@ -22,7 +22,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  3 files changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/libavcodec/motion_est.c b/libavcodec/motion_est.c
-index 894fa85..1c3b1e4 100644
+index 894fa85..d34ba2e 100644
 --- a/libavcodec/motion_est.c
 +++ b/libavcodec/motion_est.c
 @@ -1016,7 +1016,7 @@ void ff_estimate_p_frame_motion(MPVEncContext *const s,
@@ -30,7 +30,7 @@ index 894fa85..1c3b1e4 100644
          }
          if ((c->avctx->flags & AV_CODEC_FLAG_INTERLACED_ME)
 -           && !c->skip){ //FIXME varc/d checks
-+           && !c->skip && dmin >= c->field_me_thresh){
++           && !c->skip && dmin >= c->field_me_thresh){ //FIXME varc/d checks
              int dmin_i= interlaced_search(s, 0, s->c.p_field_mv_table, s->p_field_select_table, mx, my, 0);
              if(dmin_i < dmin){
                  mb_type = CANDIDATE_MB_TYPE_INTER_I;

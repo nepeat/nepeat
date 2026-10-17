@@ -81,7 +81,12 @@ One thread:
 | 4096 | 133, 37.212 | 100.5, 25.057 / 0.7179 | 70, 37.577 | 54, 25.058 / 0.7211 |
 
 At 8M CBR, 2048 gives touchdown 82 -> 144 fps and park_joy 53 -> 62 fps,
-both within 0.01 dB.
+both within 0.01 dB (park_joy can't hold 8M at all and overshoots to ~12M in
+every run, gated or not).
+
+The threshold was tuned on two clips: progressive, and high-motion
+interlaced. Moderate-motion true 1080i (a slow pan) is untested and is where
+a fixed threshold could skip field ME that still pays.
 
 Whole box (32 x threads=1), threshold 2048:
 
