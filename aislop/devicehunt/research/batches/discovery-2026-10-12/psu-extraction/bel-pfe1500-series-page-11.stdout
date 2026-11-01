@@ -1,0 +1,53 @@
+PFE1500 Series                                                                                                                             11
+
+
+
+
+      8.1 ELECTRICAL CHARACTERISTICS
+PARAMETER              DESCRIPTION / CONDITION                                                 MIN           NOM           MAX       UNIT
+PSKILL_H / PSON_L / VSB_SEL / HOTSTANDBYEN_H Inputs
+VIL                    Input Low Level Voltage                                                 -0.2                        0.8         V
+VIH                    Input High Level Voltage                                                2.4                         3.5         V
+IIL, H                 Maximum Input Sink or Source Current                                     0                           1         mA
+RpuPSKILL_H            Internal Pull Up Resistor on PSKILL_H                                                 100                      kΩ
+RpuPSON_L              Internal Pull Up Resistor on PSON_L                                                    10                      kΩ
+RpuVSB_SEL             Internal Pull Up Resistor on VSB_SEL                                                   10                      kΩ
+RpuHOTSTANDBYEN_H      Internal Pull Up Resistor on HOTSTANDBYEN_H                                            10                      kΩ
+RLOW                   Resistance Pin to SGND for Low Level                                     0                           1         kΩ
+RHIGH                  Resistance Pin to SGND for High Level                                   50                                     kΩ
+PWOK_H Output
+VOL                    Output Low Level Voltage                   Isink < 4 mA                  0                          0.4         V
+VOH                    Output High Level Voltage                  Isource < 0.5 mA             2.6                         3.5         V
+RpuPWOK_H              Internal Pull Up Resistor on PWOK_H                                                     1                      kΩ
+ACOK_H Output
+VOL                    Output Low Level Voltage                   Isink < 2 mA                  0                          0.4         V
+VOH                    Output High Level Voltage                  Isource < 50 µA              2.6                         3.5         V
+RpuACOK_H              Internal Pull Up Resistor on ACOK_H                                                    10                      kΩ
+SMB_ALERT_L Output
+Vext                   Maximum External Pull Up Voltage                                                                    12          V
+VOL                    Output Low Level Voltage                   Isource < 4 mA                0                          0.4         V
+IOH                    Maximum High Level Leakage Current                                                                  10         µA
+                       Internal Pull Up Resistor on
+RpuSMB_ALERT_L                                                                                               None                     kΩ
+                       SMB_ALERT_L
+
+
+         8.2 INTERFACING WITH SIGNALS
+
+            All signal pins have protection diodes implemented to protect internal circuits. When the power supply is not powered, the
+            protection devices start clamping at signal pin voltages exceeding ±0.5 V. Therefore, all input signals should be driven only by
+            an open collector/drain to prevent back feeding inputs when the power supply is switched off. If interconnecting of signal pins
+            of several power supplies is required, then this should be done by decoupling with small signal schottky diodes as shown in
+            examples in (Figure) except for SMB_ALERT_L, ISHARE and I2C pins. SMB_ALERT_L pins can be interconnected without
+            decoupling diodes, since these pins have no internal pull up resistor and use a 15 V zener diode as protection device against
+            positive voltage on pins. ISHARE pins must be interconnected without any additional components. This in-/output is
+            disconnected from internal circuits when the power supply is switched off.
+
+
+
+
+                                                                            Asia-Pacific        Europe, Middle East           North America
+                                                                      +86 755 298 85888             +353 61 49 8941          +1 866 513 2839
+
+                                                                                                    © 2024 Bel Fuse Inc.         BCD.00733_J
+

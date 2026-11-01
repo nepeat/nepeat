@@ -1,0 +1,303 @@
+{
+  "owner": "/root/vendor_bulk_full",
+  "scope": "new edgecore-bulk-documents directory only; previous corpus and live state immutable",
+  "source_graph": {
+    "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/discovery-ready.json",
+    "sha256": "678a3598a2cd3677d8bf883ade34f41da8661bb89a2a94fa7d0c25ee9299e85e"
+  },
+  "selection_count": 9,
+  "maximum_resources": 12,
+  "maximum_attempts": 28,
+  "maximum_actual_http_exchanges": 28,
+  "expected_worst_case_exchanges": "one fresh robots policy + nine times (landing + fresh published download + one same-origin redirect) = 28",
+  "selection_strategy": "Nine distinct printed family buckets, one datasheet per bucket; mix newer and surplus-useful families without per-device fact curation. Nine fits the strict28-exchange cap even if all download routes redirect.",
+  "transport": "One explicit GET at a time, no auto redirect/retry; stop Edge-Core source on 402/403/404/timeout/transport failure, unexpected redirect or robots denial; stop entire run on429. HTML-only download outcomes retained, never counted as PDFs.",
+  "deduplication": "Reject prior landing/download/PDF URLs before requests; reject any published redirect target previously captured; compare successful PDF SHA256 against all165 audited preexisting local PDFs and catalog document hashes.",
+  "extraction": "Complete scripts/extract_pdf_pages.py Poppler sidecars only; candidate reference entries are additions, never a replacement complete collection; no model/spec/role inference or import.",
+  "selections": [
+    {
+      "selection_number": 1,
+      "selection_bucket": "AGR400",
+      "slug": "agr400-as7946-30xb-ds-r05",
+      "printed_document_heading": "AGR400 (AS7946-30XB) DS R05",
+      "printed_document_metadata": "Datasheet 4 MB",
+      "landing_url": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/agr400/",
+          "capture_path": "data/raw/edgecore/product-agr400.html",
+          "capture_sha256": "67c0c406234df5c88807c9ef0c91c797332173748406035655e62a89a9236c2b",
+          "source_line": 538,
+          "row_number": 195,
+          "url": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/?wpdmdl=1268&refresh=6ab82f6f60b571790455663",
+          "href_raw": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/?wpdmdl=1268&refresh=6ab82f6f60b571790455663",
+          "wpdmdl_values": [
+            "1268"
+          ],
+          "document_heading_raw": "AGR400 (AS7946-30XB) DS R05",
+          "document_metadata_raw": " Datasheet   4 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 2,
+      "selection_bucket": "AGS8200",
+      "slug": "ags8200-datasheet-r01",
+      "printed_document_heading": "AGS8200 Datasheet R01",
+      "printed_document_metadata": "Datasheet 7 MB",
+      "landing_url": "https://www.edge-core.com/download/ags8200-datasheet-r01/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/ags8200/",
+          "capture_path": "data/raw/edgecore/product-ags8200.html",
+          "capture_sha256": "7e823cfff5038c4588c5bd4932f7746b429199db7716bc25b32c79d3965e3ea9",
+          "source_line": 633,
+          "row_number": 203,
+          "url": "https://www.edge-core.com/download/ags8200-datasheet-r01/?wpdmdl=5123&refresh=6ab82f719626e1790455665",
+          "href_raw": "https://www.edge-core.com/download/ags8200-datasheet-r01/?wpdmdl=5123&refresh=6ab82f719626e1790455665",
+          "wpdmdl_values": [
+            "5123"
+          ],
+          "document_heading_raw": "AGS8200 Datasheet R01",
+          "document_metadata_raw": " Datasheet   7 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 3,
+      "selection_bucket": "AIS800-32D/32O",
+      "slug": "ais800-32d-32o-datasheet-r03",
+      "printed_document_heading": "AIS800-32D/32O Datasheet R03",
+      "printed_document_metadata": "Datasheet 5 MB",
+      "landing_url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/ais800-32d/",
+          "capture_path": "data/raw/edgecore/product-ais800-32d.html",
+          "capture_sha256": "733990e4e7678694e45a9a57aa7a7f5a62a8b83209ade84ee1dcd602c21d71bd",
+          "source_line": 625,
+          "row_number": 200,
+          "url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ab82f72c88761790455666",
+          "href_raw": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ab82f72c88761790455666",
+          "wpdmdl_values": [
+            "6244"
+          ],
+          "document_heading_raw": "AIS800-32D/32O Datasheet R03",
+          "document_metadata_raw": " Datasheet   5 MB"
+        },
+        {
+          "source_url": "https://www.edge-core.com/product/ais800-32o/",
+          "capture_path": "data/raw/edgecore/product-ais800-32o.html",
+          "capture_sha256": "ccd5c9fa954e6b519322e3f6f0eaf5a9ed0db7e661476b806b4dcacc3cea0664",
+          "source_line": 627,
+          "row_number": 200,
+          "url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ab82f72d5fd11790455666",
+          "href_raw": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ab82f72d5fd11790455666",
+          "wpdmdl_values": [
+            "6244"
+          ],
+          "document_heading_raw": "AIS800-32D/32O Datasheet R03",
+          "document_metadata_raw": " Datasheet   5 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 4,
+      "selection_bucket": "COR550",
+      "slug": "cor550-as7926-40xkfb-ds-r07",
+      "printed_document_heading": "COR550 (AS7926-40XKFB) DS R07",
+      "printed_document_metadata": "Datasheet 2 MB",
+      "landing_url": "https://www.edge-core.com/download/cor550-as7926-40xkfb-ds-r07/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/cor550/",
+          "capture_path": "data/raw/edgecore/product-cor550.html",
+          "capture_sha256": "cc57c6d55c1e7240fc42b218d9e6264202593627b2066a5f1b8c1c21803986f3",
+          "source_line": 536,
+          "row_number": 195,
+          "url": "https://www.edge-core.com/download/cor550-as7926-40xkfb-ds-r07/?wpdmdl=1294&refresh=6ab82f7d8b9491790455677",
+          "href_raw": "https://www.edge-core.com/download/cor550-as7926-40xkfb-ds-r07/?wpdmdl=1294&refresh=6ab82f7d8b9491790455677",
+          "wpdmdl_values": [
+            "1294"
+          ],
+          "document_heading_raw": "COR550 (AS7926-40XKFB) DS R07",
+          "document_metadata_raw": " Datasheet   2 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 5,
+      "selection_bucket": "CSR440",
+      "slug": "csr440-as7535-28xb-ds-r05",
+      "printed_document_heading": "CSR440 (AS7535-28XB) DS R05",
+      "printed_document_metadata": "Datasheet 4 MB",
+      "landing_url": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/csr440/",
+          "capture_path": "data/raw/edgecore/product-csr440.html",
+          "capture_sha256": "3cf1607fa0ff1d40426c25d3c11bc2de292b1e81fdfa95034b09ac0de3442008",
+          "source_line": 546,
+          "row_number": 195,
+          "url": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/?wpdmdl=1380&refresh=6ab82f812639b1790455681",
+          "href_raw": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/?wpdmdl=1380&refresh=6ab82f812639b1790455681",
+          "wpdmdl_values": [
+            "1380"
+          ],
+          "document_heading_raw": "CSR440 (AS7535-28XB) DS R05",
+          "document_metadata_raw": " Datasheet   4 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 6,
+      "selection_bucket": "DCS511",
+      "slug": "dcs511-as9737-32db-datasheet-r02",
+      "printed_document_heading": "DCS511 (AS9737-32DB) Datasheet R02",
+      "printed_document_metadata": "Datasheet 4 MB",
+      "landing_url": "https://www.edge-core.com/download/dcs511-as9737-32db-datasheet-r02/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/dcs511/",
+          "capture_path": "data/raw/edgecore/product-dcs511.html",
+          "capture_sha256": "d2dd2588be6f4529637e274415b26949b4115c19438cfa92d7b4c7865766e794",
+          "source_line": 652,
+          "row_number": 202,
+          "url": "https://www.edge-core.com/download/dcs511-as9737-32db-datasheet-r02/?wpdmdl=4485&refresh=6ab82f859a09f1790455685",
+          "href_raw": "https://www.edge-core.com/download/dcs511-as9737-32db-datasheet-r02/?wpdmdl=4485&refresh=6ab82f859a09f1790455685",
+          "wpdmdl_values": [
+            "4485"
+          ],
+          "document_heading_raw": "DCS511 (AS9737-32DB) Datasheet R02",
+          "document_metadata_raw": " Datasheet   4 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 7,
+      "selection_bucket": "ECIS4500",
+      "slug": "ecis4500-poe-series-ds-r04",
+      "printed_document_heading": "ECIS4500 PoE Series DS R04",
+      "printed_document_metadata": "Datasheet 5 MB",
+      "landing_url": "https://www.edge-core.com/download/ecis4500-poe-series-ds-r04/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/ecis4500-8p4f/",
+          "capture_path": "data/raw/edgecore/product-ecis4500-8p4f.html",
+          "capture_sha256": "915f9f88bb47a5ca844a5f4e49393dd5df74e7326eea043c716cc68a31ab3356",
+          "source_line": 522,
+          "row_number": 194,
+          "url": "https://www.edge-core.com/download/ecis4500-poe-series-ds-r04/?wpdmdl=1930&refresh=6ab82f87908ca1790455687",
+          "href_raw": "https://www.edge-core.com/download/ecis4500-poe-series-ds-r04/?wpdmdl=1930&refresh=6ab82f87908ca1790455687",
+          "wpdmdl_values": [
+            "1930"
+          ],
+          "document_heading_raw": "ECIS4500 PoE Series DS R04",
+          "document_metadata_raw": " Datasheet   5 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 8,
+      "selection_bucket": "EXP400-32X",
+      "slug": "exp400-32x-datasheet-r01",
+      "printed_document_heading": "EXP400-32X Datasheet R01",
+      "printed_document_metadata": "Datasheet 1.85 MB",
+      "landing_url": "https://www.edge-core.com/download/exp400-32x-datasheet-r01/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/exp400-32x/",
+          "capture_path": "data/raw/edgecore/product-exp400-32x.html",
+          "capture_sha256": "0ac69ed5cf0f25e2e0e1fd67738679a8ba8734300a2a15f39062eec643e5ac72",
+          "source_line": 595,
+          "row_number": 199,
+          "url": "https://www.edge-core.com/download/exp400-32x-datasheet-r01/?wpdmdl=6563&refresh=6ab8300d0c56a1790455821",
+          "href_raw": "https://www.edge-core.com/download/exp400-32x-datasheet-r01/?wpdmdl=6563&refresh=6ab8300d0c56a1790455821",
+          "wpdmdl_values": [
+            "6563"
+          ],
+          "document_heading_raw": "EXP400-32X Datasheet R01",
+          "document_metadata_raw": " Datasheet   1.85 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    },
+    {
+      "selection_number": 9,
+      "selection_bucket": "SAF4100I",
+      "slug": "saf4100i-ds-r03",
+      "printed_document_heading": "SAF4100I DS R03",
+      "printed_document_metadata": "Datasheet 1 MB",
+      "landing_url": "https://www.edge-core.com/download/saf4100i-ds-r03/",
+      "source_rows": [
+        {
+          "source_url": "https://www.edge-core.com/product/saf4100i/",
+          "capture_path": "data/raw/edgecore/product-saf4100i.html",
+          "capture_sha256": "bc07372dd04025a2128e053f19e3d08f4374ccadc7bceb0ce568fde661eea804",
+          "source_line": 574,
+          "row_number": 196,
+          "url": "https://www.edge-core.com/download/saf4100i-ds-r03/?wpdmdl=3456&refresh=6ab8300f28eb51790455823",
+          "href_raw": "https://www.edge-core.com/download/saf4100i-ds-r03/?wpdmdl=3456&refresh=6ab8300f28eb51790455823",
+          "wpdmdl_values": [
+            "3456"
+          ],
+          "document_heading_raw": "SAF4100I DS R03",
+          "document_metadata_raw": " Datasheet   1 MB"
+        }
+      ],
+      "novelty": {
+        "landing_endpoint_in_catalog": false,
+        "landing_endpoint_in_audited_ledgers": false,
+        "complete_heading_in_existing_reference_titles": false
+      },
+      "claims": "Document discovery only; printed family strings are selection buckets, not inferred aliases, manufacture or specifications."
+    }
+  ]
+}

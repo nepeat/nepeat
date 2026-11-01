@@ -1,0 +1,11 @@
+{
+  "selection_number": 5,
+  "landing_path": "05-landing.html",
+  "landing_sha256": "8d6d36f2165968f4b9cb98f02fdd1d42354eb1612e0e8ba76cd21a8be707a65e",
+  "fresh_heading": "CSR440 (AS7535-28XB) DS R05",
+  "published_download_url": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/?wpdmdl=1380&refresh=6ad06cef7b2791792044271",
+  "expected_wpdmdl_values": [
+    "1380"
+  ],
+  "stale_graph_tokens_used": false
+}

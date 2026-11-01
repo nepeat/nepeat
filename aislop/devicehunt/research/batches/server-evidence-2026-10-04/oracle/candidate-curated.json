@@ -1,0 +1,94 @@
+{
+  "sources": [
+    {
+      "id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "license": "Extracted factual hardware identifiers and source references; source rights retained",
+      "snapshot": "raw/nist-4506.html",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer."
+    }
+  ],
+  "devices": [
+    {
+      "source": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "key": "Oracle Server E4-2C tested software-module detail",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "title": "Oracle Server E4-2C",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Oracle",
+          "tested_platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "cmvp_tested_configuration",
+          "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA"
+        ],
+        [
+          "cmvp_tested_configuration",
+          "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)"
+        ],
+        [
+          "cmvp_module_name",
+          "Oracle OpenSSL FIPS Provider"
+        ],
+        [
+          "cmvp_module_type",
+          "Software"
+        ],
+        [
+          "cmvp_module_standard",
+          "FIPS 140-2"
+        ],
+        [
+          "cmvp_module_software_versions",
+          "3.0.15"
+        ],
+        [
+          "cmvp_module_status_at_capture",
+          "Historical"
+        ],
+        [
+          "cmvp_module_historical_reason",
+          "Moved to historical list due to sunsetting"
+        ],
+        [
+          "cmvp_module_caveat",
+          "When operated in FIPS mode. No assurance of the minimum strength of generated keys."
+        ],
+        [
+          "cmvp_module_vendor_literal",
+          "Oracle Corporation"
+        ],
+        [
+          "cmvp_module_validation_history_row",
+          "[\"5/3/2023\", \"Initial\", \"Acumen Security\"]"
+        ],
+        [
+          "cmvp_module_validation_history_row",
+          "[\"3/26/2025\", \"Update\", \"Lightship Security, Inc.\"]"
+        ],
+        [
+          "source_sha256",
+          "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064"
+        ],
+        [
+          "source_location",
+          "Details panel: #module-name; #module-standard; Tested Configuration(s) list items 14-15, HTML lines 583-584; Software Versions lines 685-689; #validation-history-table rows 1-2"
+        ],
+        [
+          "source_scope",
+          "Saved NIST CMVP certificate 4506 software-module tested-platform detail; two exact E4-2C rows, preserving PAA and single-user-mode modifiers. Status/date are snapshot/module statements."
+        ],
+        [
+          "configuration_limit",
+          "No assertion of general/current OS support, installed CPU or OS, hardware certification, manufacturing, deployment, bootability, firmware access or secondhand software entitlement. Validation history dates are module events and are not separately assigned to either platform row."
+        ]
+      ]
+    }
+  ]
+}

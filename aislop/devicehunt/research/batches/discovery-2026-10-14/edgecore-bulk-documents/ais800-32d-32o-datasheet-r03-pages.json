@@ -1,0 +1,194 @@
+{
+  "pdf_sha256": "30a674d4af1d7e39d57d3b06500fe10f9af45c0dda7abd2fa6695c547a60c76b",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 5,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "AIS800                   Data Center Switch\n\nDATA CENTER SWITCH\nAIS800-32O/AIS800-32D\n\n\n\n\nThe Edgecore AIS800-32O and AIS800-32D are high-performance, low latency switches for high-performance data centers.\nApplication Scenarios:\n● ToR Switch\n    A next-generation, highest-capacity switch for data center spine use case. Breakout options include 2 x 400G, 4 x 200G, and 8 x\n    100G per port, with a maximum of 160 logical ports. Offers reduced cost and power per bit. Scalable and enables migration from\n    400G ToR connectivity to 800G ToR connectivity in Cloud data centers\n● AI/ML Clusters\n    Standards-based (Ethernet) networking for AI/ML training, leveraging low latency and high-throughput RoCEv2. Reduces Job\n    Completion Time (JCT) using the cognitive routing and congestion management capabilities of the switch. Fully programmable\n    telemetry enables sophisticated on-chip applications for heightened network insight and efficient network management.\n● High-Performance Computing\n    The large number of high-capacity Ethernet ports enables server interfaces to transition to higher speeds and denser networks.\n    Enables the virtualization of compute and storage with VxLAN switching and routing.\n● Cloud Data Center Interconnect (DCI)\n    Support for 400G QSFP-DD ZR/OpenZR+/+6dBm ZR+ and future-proof 800G OSFP ZR/ZR+/+6dBm for cloud DCI scenarios.\n\n\nKey Features and Beneﬁts\n● OSFP800 or QSFP-DD800 switch ports, each supporting 1 x 800 GbE (106-Gb/s PAM4), or via breakout cables 2 x 400G GbE,\n  4 x 200 GbE, or 8 x 100 GbE.\n● OSFP800 or QSFP-DD800 switch ports also support 1 x 400 GbE (106-Gb/s PAM4), 1 x 100 GbE (NRZ), and via breakout cables\n  2 x 200 GbE, 4 x 100 GbE, or 8 x 50 GbE.\n● Up to 30 W power budget per QSFP800 and QSFP-DD800 port.\n● Incorporates Broadcom Tomahawk 5 switch series silicon.\n  ▪ Highest Radix: Up to 160 logical ports on a single chip, low latency\n  ▪ Cognitive/Adaptive routing and Dynamic Load Balancing (DLB) and Global Load Balancing (GLB)\n  ▪ Advanced shared buffering\n  ▪ Programmable in-band telemetry\n  ▪ Supports end-to-end congestion control\n  ▪ Power efficient due to a monolithic 5nm die\n  ▪ Hardware-based link failover for network resiliency and reduced job completion time\n  ▪ Support for SRv6\n  ▪ Support for VxLAN RIOT\n● BMC module with serial-over-LAN support\n● Contains e-fuses to protect transceivers and internal components\n● 1 RU form factor\n● Supports hot/cold aisles with front-to-back/AFO/port intake airﬂow SKU and back-to-front/AFI/port exhaust airﬂow SKU\n● All ports on front; PSUs and fans accessible from rear\n● Hot-swappable, load-sharing, redundant 2400 W AC/DC PSUs\n● 7 Hot-swappable fan modules with 6+1 redundant fans\n● Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and\n  commercial NOS offerings\n"
+    },
+    {
+      "page": 2,
+      "text": "Free Software Included\n\n\nInterfaces\n                   1                                                                                3\n\n\n\n                                                                                                             6\n\n7\n\n\n                                                                                                4       5\n                                       2\n\n\n\n\n                                                                                                             8\n\n                    7\n\n\nAirﬂow: Front-to-back\n\n\n    9\n                                                                                                            10\n\n\n\n                                           11\n\nAirﬂow: Back-to-front\n\n\n    9\n                                                                                                            10\n\n\n\n                                           11\n\n\nDescription\n        1.   32 x 800G OSFP800 ports            7.    Port indicators\n        2.   32 x 800G QSFP-DD800 ports         8.    System LEDs\n        3.   2 x 25G SFP28 ports                9.    PSU1\n        4.   RJ-45 management port              10.   PSU2\n        5.   RJ-45 console port                 11.   7 Hot-swappable fan modules with 6+1 redundant fans\n        6.   USB 3.0 storage port\n"
+    },
+    {
+      "page": 3,
+      "text": "Speciﬁcations\nPorts                                                                    Software\n▪ Switch Ports: 32 x OSFP800 or QSFP-DD800 800GbE                        ▪ Switch is loaded with Open Network Install Environment (ONIE)\n▪ Logical Ports: Max. 160                                                  software installer\n▪ Port Modes:                                                            ▪ Compatible with the following NOS options:\n  1 x 800G (8 lanes 100G PAM4)                                             Open source options, plus commercial NOS offerings.\n  2 x 400G (4 lanes 100G PAM4) breakout\n  4 x 200G (2 lanes 100G PAM4) breakout                                  System and Port LEDs\n  8 x 100G (1 lane 100G PAM4) breakout                                   ▪ Port LEDs: Link Status, Activity, Rate\n  1 x 400G (8 lanes 50G PAM4)                                            ▪ Management Port LEDs: Link Status, Activity\n  2 x 200G (4 lanes 50G PAM4) breakout                                     RJ-45 Port: Link Status, Activity\n  4 x 100G (2 lanes 50G PAM4) breakout                                   ▪ System LEDs: Locator, Diagnostic, PSU, Fan Status, Alarm\n  8 x 50G (1 lane 50G PAM4) breakout                                     ▪ Reset Button\n  1 x 100G (4 lanes 25G NRZ)\n▪ Management Ports on Port Side:                                         Power\n  1 x RJ-45 serial console                                               ▪ PSUs: 2 redundant, load-sharing, hot-swappable 2400 W AC/DC\n  1 x RJ-45 1000BASE-T management                                        ▪ AC PSU:\n  2 x SFP28 25G In-band management                                         AC input rating:\n  1 x USB 3.0 storage port                                                 200-240 VAC at 50-60Hz (2400 W max.)\n▪ Supported Transceivers and Cables:                                       AC PSU Inlet: Anderson Saf D Grid\n  Note: 800G optics and detailed cabling information can be found at       Power efficiency: 91% ~ 96% (without fan)\n  https://www.edge-core.com/products/transceivers-switch/                ▪ Power Draw: Full loading\n  https://www.edge-core.com/products/cables-switch/                        1600 W (100% traffic, 32 x 24 W optics)\n                                                                           1254 W (100% traffic, 32 x 12 W optics)\nKey Components                                                           ▪ Power Budget:\n▪ Switch Silicon: BCM78902 Tomahawk 5                                      For all 32 ports all with per-port maximum 30 W capability on both\n▪ CPU Module:                                                              OSFP version and QSFP-DD800 version and actual deployment\n  Processor: Intel® Xeon® Processor D-1713NTE 4-Core 2.2 GHz               population subject to total power distribution boundary and thermal\n  SPI Flash: 64MB x 2                                                      considerations.\n  Memory: 32GB DDR4 SO-DIMM with ECC\n  Storage: 240G m.2 2280 NVMe SSD                                        Regulatory\n  TPM: TPM2.0 SPI                                                        ▪ Emissions:\n▪ BMC: AST2620 with OpenBMC secured by AST1060 Root of Trust               EN 55032 Class A\n                                                                           AS/NZS CISPR32\nPerformance                                                                EN 61000-3-2\n▪ Switching Capacity: 25.6 Tbps (51.2 Tbps full duplex)                    EN 61000-3-3\n▪ Jumbo Frames: Up to 9416 Bytes                                           FCC Class A\n▪ Subject to NOS:                                                          ICES-003\n  VxLAN RIOT support                                                     ▪ Immunity:\n  SRv6 support                                                             EN 300 386\n  GLB support                                                              EN 55035\n                                                                           IEC 61000-4-2/3/4/5/6/8/11\nPhysical and Environmental                                               ▪ Safety:\n▪ Dimensions (WxDxH): 43.84 x 58.9 x 4.3 cm (17.26 x 23.19 x 1.69 in.)     UL (CSA 22.2 No 62368-1 & UL 62368-1)\n▪ Weight:                                                                  CB (IEC/EN 62368-1)\n  AIS800-32O: 14.53 kg, with 2 PSUs and 7 fan modules installed          ▪ Environmental:\n  AIS800-32D: 14.69 kg, with 2 PSUs and 7 fan modules installed            GR63-CORE (Pre-test)\n▪ Fans: 7 Hot-swappable fan modules with 6+1 redundant fans              ▪ RoHS-2.0 Compliant\n▪ Storage Temperature: -40°C – 70°C (-40°F – 158°F)                      ▪ Electrical and Electronic Equipment (WEEE Directive 2002/96/EC)\n▪ Operating Temperature (front-to-back): 0°C – 40°C (32°F – 104°F) at    ▪ Country of Origin: Taiwan (TAA Compliant)\n  6000 ft\n▪ Operating Temperature (back-to-front): 0°C – 35°C (32°F – 95°F),\n  *subject to used optics\n▪ Operating Humidity: 5% – 95% non-condensing\n"
+    },
+    {
+      "page": 4,
+      "text": "Ordering Information\nBase Model: AIS800-32O; Intel® Xeon® Processor D-1713NTE 4-Core; 32-Port 800G OSFP800; ONIE Software\nInstaller.\nModel Number          Part Number          PSU                       Airﬂow           Power Cord\nAIS800-32O-AF-US      FP6EC9632010Z        Dual AC PSUs              Front-to-back    US\nAIS800-32O-AF-EU      FP6EC9632204Z        Dual AC PSUs              Front-to-back    EU\nAIS800-32O-AF-UK      FP6EC9632304Z        Dual AC PSUs              Front-to-back    UK\nAIS800-32O-AF-JP      FP6EC9632504Z        Dual AC PSUs              Front-to-back    JP\nAIS800-32O-AF-UN      FP6EC9632014Z        Dual AC PSUs              Front-to-back    UN\nAIS800-32O-AB-US      FP6EC9632402Z        Dual AC PSUs              Back-to-front    US\nAIS800-32O-AB-EU      FP6EC9632203Z        Dual AC PSUs              Back-to-front    EU\nAIS800-32O-AB-UK      FP6EC9632303Z        Dual AC PSUs              Back-to-front    UK\nAIS800-32O-AB-JP      FP6EC9632503Z        Dual AC PSUs              Back-to-front    JP\nAIS800-32O-AB-UN      FP6EC9632013Z        Dual AC PSUs              Back-to-front    UN\nAIS800-32O-DF         FP6EC9632004Z        Dual DC PSUs              Front-to-back    N/A\nAIS800-32O-DB         FP6EC9632005Z        Dual DC PSUs              Back-to-front    N/A\nBase Model: AIS800-32D; Intel® Xeon® Processor D-1713NTE 4-Core; 32-Port 800G QSFP-DD800; ONIE Software\nInstaller.\nModel Number          Part Number          PSU                       Airﬂow           Power Cord\nAIS800-32D-AF-US      FP6EC9632009Z        Dual AC PSUs              Front-to-back    US\nAIS800-32D-AF-EU      FP6EC9632201Z        Dual AC PSUs              Front-to-back    EU\nAIS800-32D-AF-UK      FP6EC9632301Z        Dual AC PSUs              Front-to-back    UK\nAIS800-32D-AF-JP      FP6EC9632501Z        Dual AC PSUs              Front-to-back    JP\nAIS800-32D-AF-UN      FP6EC9632011Z        Dual AC PSUs              Front-to-back    UN\nAIS800-32D-AB-US      FP6EC9632401Z        Dual AC PSUs              Back-to-front    US\nAIS800-32D-AB-EU      FP6EC9632202Z        Dual AC PSUs              Back-to-front    EU\nAIS800-32D-AB-UK      FP6EC9632302Z        Dual AC PSUs              Back-to-front    UK\nAIS800-32D-AB-JP      FP6EC9632502Z        Dual AC PSUs              Back-to-front    JP\nAIS800-32D-AB-UN      FP6EC9632012Z        Dual AC PSUs              Back-to-front    UN\nAIS800-32D-DF         FP6EC9632008Z        Dual DC PSUs              Front-to-back    N/A\nAIS800-32D-DB         FP6EC9632001Z        Dual DC PSUs              Back-to-front    N/A\nPSU FRUs (Power Cord Not Included)\nModel Number          Part Number          PSU                       Airﬂow           Region\nPSU-AC-2400W-F        F0TEC9632001A        AC                        Front-to-back    Worldwide\nPSU-AC-2400W-B        F0TEC9632004A        AC                        Back-to-front    Worldwide\nPSU-DC-2400W-F        F0TEC9632005A        DC                        Front-to-back    Worldwide\nPSU-DC-2400W-B        F0TEC9632006A        DC                        Back-to-front    Worldwide\nFan FRUs\nModel Number          Part Number          Airﬂow\nFAN-1U-1X1P-B         F0TEC9632007A        Back-to-front\nFAN-1U-1x1P-F         F0TEC9632002A        Front-to-back\nSlide-Rail\nModel Number          Part Number          Description\nRKIT-AI-1R-8-SLIDE    F0TEC9632003Z        Slide-rail mounting kit\n"
+    },
+    {
+      "page": 5,
+      "text": "Warranty\nPlease check https://www.edge-core.com/supWP.php for the warranty terms in your country.\n\nFor More Information\nTo ﬁnd out more about Edgecore Networks Corporation products and solutions, visit www.edge-core.com.\n\nAbout Edgecore Networks Corporation\nEdgecore Networks Corporation is in the business of providing innovative network solutions. In the service provider network, in the data\ncenter or in the cloud, Edgecore Networks Corporation delivers the software and systems that transform the way the world connects.\nEdgecore Networks Corporation serves customers and partners worldwide. Additional information can be found at www.edge-core.com.\n\nEdgecore Networks Corporation is a subsidiary of Accton Technology Corporation, the leading network ODM company. The Edgecore\ndata center switches are developed and manufactured by Accton.\n\nTo purchase Edgecore Networks solutions, please contact your Edgecore Networks Corporation representatives at +886 3 563 8888\n(HQ) or +1 (949)-336-6801 or authorized resellers.\n\n© Copyright 2026 Edgecore Networks Corporation. The information contained herein is subject to change without notice. This document is for informational purposes only\nand does not set forth any warranty, expressed or implied, concerning any equipment, equipment feature, or service offered by Edgecore Networks Corporation. Edgecore\nNetworks Corporation shall not be liable for technical or editorial errors or omissions contained herein.\n\n\n\n\n                                                                                                                                                           EC-DS-0726-R03\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "ais800-32d-32o-datasheet-r03.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.483905+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2026-043-AIS800-32O_AIS800-32D DS R03 20260709\nCreator:         Adobe Illustrator 29.7 (Windows)\nProducer:        Adobe PDF library 17.00\nCreationDate:    Wed Jul  8 21:37:27 2026 PDT\nModDate:         Wed Jul  8 22:38:14 2026 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           5\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       5098865 bytes\nOptimized:       no\nPDF version:     1.6\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ais800-32d-32o-datasheet-r03.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "bb830e9641f8b3e5264cfaa1f79ce8881a705d691c5961b9dcc33ca0e33b36e3"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ais800-32d-32o-datasheet-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "c2e09d347c8f2a8f0f0b8632b8ed15761281bbcf068a3cb30da1c61dafafca69"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ais800-32d-32o-datasheet-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "c06e2edd1c6c8b4465e8e6dc238809b7f0003bbd1d0aca663ed419ab78d30431"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ais800-32d-32o-datasheet-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "51cd138ec12a96d8fe4926d9cfaca062bbba9b333fd83da3308be5225ed1dd3c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ais800-32d-32o-datasheet-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "dcf6b8fec720ca13ad0d8bfbf32dcd3427d855dd4e3b85de2586524b27a7f1fb"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "5",
+          "-l",
+          "5",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ais800-32d-32o-datasheet-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "b850e40b2b36c289a8c6117d78554a260884e06919b161f42fcc894ccc443fdc"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

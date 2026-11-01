@@ -1,0 +1,35 @@
+--- before/devicehunt/archive.py
++++ devicehunt/archive.py
+@@ -25,13 +25,17 @@
+                         file_digest(path) == pin['sha256'], 'Pinned inventory changed')
+     bundle = archive.workspace / inventory['pins']['complete_bundle']['path']
+     _, ready = prepare(bundle)
+-    lineage.require([e for e, _ in ready] == [d['entry'] for d in inventory['documents']],
++    # Inventory pins describe the raw bundle, not the validated metadata that
++    # prepare attaches to its entry copies. Keep legacy receipt identities.
++    raw_entries = json.loads(bundle.read_bytes())['documents']
++    lineage.require(len(raw_entries) == len(ready)
++                    and raw_entries == [d['entry'] for d in inventory['documents']],
+                     'Inventory is not the complete selected bundle')
+     for pin in pins:
+         archive.register_file(archive.workspace / pin['path'], pin['sha256'])
+     derivations = Derivations(archive)
+     document_ids = []
+-    for ordinal, (entry, _) in enumerate(ready):
++    for ordinal, ((entry, _), raw_entry) in enumerate(zip(ready, raw_entries)):
+         capture = dict(source_url=entry['url'], bundle_sha256=inventory['pins']['complete_bundle']['sha256'],
+                        locator='/documents/' + str(ordinal), started_at=None, ended_at=None,
+                        collector_version=None, http_status=None, requested_url=None, final_url=None,
+@@ -58,10 +62,10 @@
+             capture_id = stable_receipt(archive, 'legacy-capture', capture)
+             ancestor_id = capture_id
+         saved_id = derivations.register_saved([{'role': 'pdf', 'sha256': entry['pdf']['sha256']}],
+-                    entry['text']['sha256'], 'pypdf embedded text; no OCR',
++                    entry['text']['sha256'], entry['extraction_method'],
+                     locator={'bundle_sha256': capture['bundle_sha256'], 'pointer': capture['locator']})
+         document_ids.append(stable_receipt(archive, 'reference-document', {
+-            'entry': entry, 'capture_id': ancestor_id, 'derivation_id': saved_id,
++            'entry': raw_entry, 'capture_id': ancestor_id, 'derivation_id': saved_id,
+             'artifact_sha256': entry['pdf']['sha256'], 'text_sha256': entry['text']['sha256']}))
+     return {'documents': len(document_ids), 'document_receipts': document_ids, 'audit': archive.audit()}
+ 

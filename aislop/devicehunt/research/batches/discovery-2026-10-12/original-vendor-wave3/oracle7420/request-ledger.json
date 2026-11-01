@@ -1,0 +1,70 @@
+[
+  {
+    "request_number": 1,
+    "method": "GET",
+    "url": "https://docs.oracle.com/robots.txt",
+    "headers": {
+      "User-Agent": "devicehunt/1.0 (bounded public documentation research)"
+    },
+    "timeout_seconds": 30,
+    "redirect_policy": "disabled; no automatic additional HTTP requests",
+    "requested_at": "2026-10-13T03:37:42.346548+00:00",
+    "status": 200,
+    "final_url": "https://docs.oracle.com/robots.txt",
+    "content_type": "text/plain",
+    "location": null,
+    "retry_after": null,
+    "bytes": 158708,
+    "sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0",
+    "file": "robots.txt",
+    "outcome": "captured",
+    "completed_at": "2026-10-13T03:37:42.589682+00:00",
+    "page_policy": {
+      "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html": true,
+      "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html": true
+    },
+    "crawl_delay_seconds": null
+  },
+  {
+    "request_number": 2,
+    "method": "GET",
+    "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+    "headers": {
+      "User-Agent": "devicehunt/1.0 (bounded public documentation research)"
+    },
+    "timeout_seconds": 30,
+    "redirect_policy": "disabled; no automatic additional HTTP requests",
+    "requested_at": "2026-10-13T03:37:42.607148+00:00",
+    "status": 200,
+    "final_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+    "content_type": "text/html",
+    "location": null,
+    "retry_after": null,
+    "bytes": 20339,
+    "sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+    "file": "internal-components.html",
+    "outcome": "captured",
+    "completed_at": "2026-10-13T03:37:42.852117+00:00"
+  },
+  {
+    "request_number": 3,
+    "method": "GET",
+    "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+    "headers": {
+      "User-Agent": "devicehunt/1.0 (bounded public documentation research)"
+    },
+    "timeout_seconds": 30,
+    "redirect_policy": "disabled; no automatic additional HTTP requests",
+    "requested_at": "2026-10-13T03:37:42.852283+00:00",
+    "status": 200,
+    "final_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+    "content_type": "text/html",
+    "location": null,
+    "retry_after": null,
+    "bytes": 5682,
+    "sha256": "f3772553049f0e1a6671cb0579043be928550976129b2ea8e104f1ca3c4e6642",
+    "file": "attached-storage.html",
+    "outcome": "captured",
+    "completed_at": "2026-10-13T03:37:43.090468+00:00"
+  }
+]

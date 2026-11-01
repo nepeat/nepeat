@@ -1,0 +1,793 @@
+{
+  "schema_version": 1,
+  "kind": "devicehunt-brand-families",
+  "created_on": "2026-10-11",
+  "purpose": "Display-only grouping of brand strings in lookup, match-listing and model-collisions output (user decision 2026-10-11: option B display-only + D rule).",
+  "not_used_for": [
+    "device ids / identity",
+    "vendor-inventory",
+    "TARGETS and target counts",
+    "ranking, filtering or adding/removing result rows",
+    "manufacturer or product-equivalence claims"
+  ],
+  "matching": "catalog.normalize(brand) (lowercase alphanumerics) equality: ORACLE resolves like Oracle; `Sun Fire`, `Quanta Microsystems`, `Quanta Computer Inc.` (not a catalog brand), Inspur/IEIT strings are deliberately not members.",
+  "evidence_paths_note": "local_path values live under the gitignored data/raw/; sha256 is the portable anchor. The loader re-hashes when the file exists.",
+  "review_note": "All 7 rows were signed accepted on 2026-10-11 by the independent reviewer (research/batches/discovery-2026-10-11/review/brand-family-table-review.md); accepted rows are displayed, and every output reports rows_pending_review. Post-review edits (2026-10-11, after the signature) touched only the QxVDI evidence item (url, as_of, date_note) and the alias rule audit_note; reviewer, review_status and reviewed_on were not changed.",
+  "families": [
+    {
+      "id": "quanta",
+      "name": "Quanta / QCT",
+      "group_entity": "Quanta Computer Inc.",
+      "scope_note": "Group-level brand relation only: asserts nothing about which legal entity a catalog row means, and no manufacturer claim in either direction (Quanta-branded Red Hat/Ubuntu rows vs QCT-branded rows stay an inference from shared model strings). Dating anchor is Quanta Computer's own list as of 2025-12-31; QCT pages are undated (family-evidence review S1/S2). Evidence: research/batches/discovery-2026-10-11/family-evidence/handoff.md, review/family-evidence-review.md (ACCEPT with notes; that is an evidence review, not row sign-off).",
+      "members": [
+        {
+          "brand": "Quanta",
+          "relations": [
+            "own_brand"
+          ],
+          "evidence": [
+            {
+              "url": "https://www.quantatw.com/quanta/english/about/organize26en.pdf",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/quanta-affiliates-2026-organize26en.pdf",
+              "sha256": "068ff9f95c68bf07f562942cbb525cd4bc97a546d5ea5361dfedbbfb2ad4aa04",
+              "source_kind": "first_party_quanta_computer",
+              "statement": "Quanta Computer Inc. \"Summaries of Affiliated Companies\", December 31, 2025: lists Quanta Cloud Technology Inc. (QCTTW), est. 02/08/2007, with Quanta Computer Inc. holding 48,200 thousand shares = 100.00% (PDF p.5 and p.12). The 100% holding is of QCTTW only; other QCT-named entities in the list are held through other holders.",
+              "as_of": "2025-12-31",
+              "captured_on": "2026-10-11"
+            },
+            {
+              "url": "https://www.qct.io/Company-AboutQCT",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/qct-company-aboutqct.html",
+              "sha256": "5e53264cdd8d3274c6291ecbda76bb33f57988910b987f7663bc8718835efcab",
+              "source_kind": "first_party_qct",
+              "statement": "QCT About page: \"The parent company of QCT is Quanta Computer, Inc.\" and \"... QCT was launched under the name Quanta Cloud Technology as a subsidiary of Quanta Computer Inc.\"; footer \"QCT, the QCT logo, Rackgo, Quanta, and the Quanta logo are trademarks or registered trademarks of Quanta Computer Inc.\"",
+              "as_of": null,
+              "date_note": "undated first-party page of unknown age (footers 2022/2025 across served versions; body says \"more than 14-years\"); not called current; captured 2026-10-11",
+              "captured_on": "2026-10-11"
+            }
+          ],
+          "date": "2025-12-31",
+          "reviewer": "Claude Sonnet 5.5 independent reviewer (devicehunt discovery batch, 2026-10-11)",
+          "review_status": "accepted",
+          "reviewed_on": "2026-10-11",
+          "note": "The Quanta mark is registered to Quanta Computer Inc. (Q1 footer); anchor brand of the group.",
+          "catalog_observed": {
+            "catalog_strings": [
+              "Quanta"
+            ],
+            "identities": 162,
+            "checked_on": "2026-10-11"
+          }
+        },
+        {
+          "brand": "QCT",
+          "relations": [
+            "abbreviation",
+            "subsidiary_brand"
+          ],
+          "evidence": [
+            {
+              "url": "https://www.quantatw.com/quanta/english/about/organize26en.pdf",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/quanta-affiliates-2026-organize26en.pdf",
+              "sha256": "068ff9f95c68bf07f562942cbb525cd4bc97a546d5ea5361dfedbbfb2ad4aa04",
+              "source_kind": "first_party_quanta_computer",
+              "statement": "Quanta Computer Inc. \"Summaries of Affiliated Companies\", December 31, 2025: lists Quanta Cloud Technology Inc. (QCTTW), est. 02/08/2007, with Quanta Computer Inc. holding 48,200 thousand shares = 100.00% (PDF p.5 and p.12). The 100% holding is of QCTTW only; other QCT-named entities in the list are held through other holders.",
+              "as_of": "2025-12-31",
+              "captured_on": "2026-10-11"
+            },
+            {
+              "url": "https://www.qct.io/Company-AboutQCT",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/qct-company-aboutqct.html",
+              "sha256": "5e53264cdd8d3274c6291ecbda76bb33f57988910b987f7663bc8718835efcab",
+              "source_kind": "first_party_qct",
+              "statement": "QCT About page: \"The parent company of QCT is Quanta Computer, Inc.\" and \"... QCT was launched under the name Quanta Cloud Technology as a subsidiary of Quanta Computer Inc.\"; footer \"QCT, the QCT logo, Rackgo, Quanta, and the Quanta logo are trademarks or registered trademarks of Quanta Computer Inc.\"",
+              "as_of": null,
+              "date_note": "undated first-party page of unknown age (footers 2022/2025 across served versions; body says \"more than 14-years\"); not called current; captured 2026-10-11",
+              "captured_on": "2026-10-11"
+            },
+            {
+              "url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+              "local_path": "data/raw/inventec-qct-2026-10-04/qct-qxvdi-2020.pdf",
+              "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+              "source_kind": "first_party_qct",
+              "statement": "QCT QxVDI reference architecture, p.40 (see research/inventec-qct-2026-10-04.md): \"The parent of QCT is Quanta Computer Inc.\"; copyright 2020-2021 Quanta Cloud Technology Inc.",
+              "as_of": null,
+              "date_note": "document copyright 2020-2021; no exact day stated",
+              "captured_on": "2026-10-04"
+            }
+          ],
+          "date": "2025-12-31",
+          "reviewer": "Claude Sonnet 5.5 independent reviewer (devicehunt discovery batch, 2026-10-11)",
+          "review_status": "accepted",
+          "reviewed_on": "2026-10-11",
+          "note": "QCT = Quanta Cloud Technology (QCT page title and History sentence); QCT is a subsidiary brand of Quanta Computer Inc.",
+          "abbreviation_of": "Quanta Cloud Technology",
+          "catalog_observed": {
+            "catalog_strings": [
+              "QCT"
+            ],
+            "identities": 9,
+            "checked_on": "2026-10-11"
+          }
+        },
+        {
+          "brand": "Quanta Cloud Technology",
+          "relations": [
+            "subsidiary_brand"
+          ],
+          "evidence": [
+            {
+              "url": "https://www.quantatw.com/quanta/english/about/organize26en.pdf",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/quanta-affiliates-2026-organize26en.pdf",
+              "sha256": "068ff9f95c68bf07f562942cbb525cd4bc97a546d5ea5361dfedbbfb2ad4aa04",
+              "source_kind": "first_party_quanta_computer",
+              "statement": "Quanta Computer Inc. \"Summaries of Affiliated Companies\", December 31, 2025: lists Quanta Cloud Technology Inc. (QCTTW), est. 02/08/2007, with Quanta Computer Inc. holding 48,200 thousand shares = 100.00% (PDF p.5 and p.12). The 100% holding is of QCTTW only; other QCT-named entities in the list are held through other holders.",
+              "as_of": "2025-12-31",
+              "captured_on": "2026-10-11"
+            },
+            {
+              "url": "https://www.qct.io/Company-AboutQCT",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/qct-company-aboutqct.html",
+              "sha256": "5e53264cdd8d3274c6291ecbda76bb33f57988910b987f7663bc8718835efcab",
+              "source_kind": "first_party_qct",
+              "statement": "QCT About page: \"The parent company of QCT is Quanta Computer, Inc.\" and \"... QCT was launched under the name Quanta Cloud Technology as a subsidiary of Quanta Computer Inc.\"; footer \"QCT, the QCT logo, Rackgo, Quanta, and the Quanta logo are trademarks or registered trademarks of Quanta Computer Inc.\"",
+              "as_of": null,
+              "date_note": "undated first-party page of unknown age (footers 2022/2025 across served versions; body says \"more than 14-years\"); not called current; captured 2026-10-11",
+              "captured_on": "2026-10-11"
+            },
+            {
+              "url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+              "local_path": "data/raw/inventec-qct-2026-10-04/qct-qxvdi-2020.pdf",
+              "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+              "source_kind": "first_party_qct",
+              "statement": "QCT QxVDI reference architecture, p.40 (see research/inventec-qct-2026-10-04.md): \"The parent of QCT is Quanta Computer Inc.\"; copyright 2020-2021 Quanta Cloud Technology Inc.",
+              "as_of": null,
+              "date_note": "document copyright 2020-2021; no exact day stated",
+              "captured_on": "2026-10-04"
+            }
+          ],
+          "date": "2025-12-31",
+          "reviewer": "Claude Sonnet 5.5 independent reviewer (devicehunt discovery batch, 2026-10-11)",
+          "review_status": "accepted",
+          "reviewed_on": "2026-10-11",
+          "note": "Subsidiary brand of Quanta Computer Inc.; the name is shared by several legal entities in Q2.",
+          "catalog_observed": {
+            "catalog_strings": [
+              "Quanta Cloud Technology"
+            ],
+            "identities": 11,
+            "checked_on": "2026-10-11"
+          }
+        },
+        {
+          "brand": "Quanta Cloud Technology Inc.",
+          "relations": [
+            "subsidiary_brand"
+          ],
+          "evidence": [
+            {
+              "url": "https://www.quantatw.com/quanta/english/about/organize26en.pdf",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/quanta-affiliates-2026-organize26en.pdf",
+              "sha256": "068ff9f95c68bf07f562942cbb525cd4bc97a546d5ea5361dfedbbfb2ad4aa04",
+              "source_kind": "first_party_quanta_computer",
+              "statement": "Quanta Computer Inc. \"Summaries of Affiliated Companies\", December 31, 2025: lists Quanta Cloud Technology Inc. (QCTTW), est. 02/08/2007, with Quanta Computer Inc. holding 48,200 thousand shares = 100.00% (PDF p.5 and p.12). The 100% holding is of QCTTW only; other QCT-named entities in the list are held through other holders.",
+              "as_of": "2025-12-31",
+              "captured_on": "2026-10-11"
+            },
+            {
+              "url": "https://www.qct.io/Company-AboutQCT",
+              "local_path": "data/raw/discovery-2026-10-11-family-evidence/qct-company-aboutqct.html",
+              "sha256": "5e53264cdd8d3274c6291ecbda76bb33f57988910b987f7663bc8718835efcab",
+              "source_kind": "first_party_qct",
+              "statement": "QCT About page: \"The parent company of QCT is Quanta Computer, Inc.\" and \"... QCT was launched under the name Quanta Cloud Technology as a subsidiary of Quanta Computer Inc.\"; footer \"QCT, the QCT logo, Rackgo, Quanta, and the Quanta logo are trademarks or registered trademarks of Quanta Computer Inc.\"",
+              "as_of": null,
+              "date_note": "undated first-party page of unknown age (footers 2022/2025 across served versions; body says \"more than 14-years\"); not called current; captured 2026-10-11",
+              "captured_on": "2026-10-11"
+            },
+            {
+              "url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+              "local_path": "data/raw/inventec-qct-2026-10-04/qct-qxvdi-2020.pdf",
+              "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+              "source_kind": "first_party_qct",
+              "statement": "QCT QxVDI reference architecture, p.40 (see research/inventec-qct-2026-10-04.md): \"The parent of QCT is Quanta Computer Inc.\"; copyright 2020-2021 Quanta Cloud Technology Inc.",
+              "as_of": null,
+              "date_note": "document copyright 2020-2021; no exact day stated",
+              "captured_on": "2026-10-04"
+            }
+          ],
+          "date": "2025-12-31",
+          "reviewer": "Claude Sonnet 5.5 independent reviewer (devicehunt discovery batch, 2026-10-11)",
+          "review_status": "accepted",
+          "reviewed_on": "2026-10-11",
+          "note": "Legal-name rendering matching the Q2 row for QCTTW; still a brand-string grouping only, no claim that a given catalog row means that entity.",
+          "catalog_observed": {
+            "catalog_strings": [
+              "Quanta Cloud Technology Inc."
+            ],
+            "identities": 3,
+            "checked_on": "2026-10-11"
+          }
+        }
+      ]
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle / Sun Microsystems",
+      "group_entity": "Oracle Corporation",
+      "scope_note": "Lineage, not same brand string: Sun-era products were not made by Oracle. Display grouping only; no cross-brand model alias, factory or manufacturer claim.",
+      "members": [
+        {
+          "brand": "Oracle",
+          "relations": [
+            "own_brand"
+          ],
+          "evidence": [
+            {
+              "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312510015241/d8k.htm",
+              "local_path": "data/raw/rra-sun-official/oracle-sun-acquisition.json",
+              "sha256": "37ae069c1ff105d45db47a668a66ba45f27e1c7f690b3e0514f453b35370cf49",
+              "source_kind": "sec_filing_extract",
+              "capture_method": "reviewed factual web-tool filing extract; not original HTML (sha256 is of the extract, original HTML was HTTP 403 and is not cached)",
+              "statement": "Oracle Corporation Form 8-K item 2.01: Sun Microsystems, Inc. became a wholly owned subsidiary on 2010-01-26 (announcement 2010-01-27, item 8.01). Corporate acquisition only: not Oracle manufacture of Sun-era units, product equivalence or deployment.",
+              "as_of": "2010-01-26",
+              "captured_on": "2026-09-27",
+              "reviewed_on": "2026-09-27"
+            }
+          ],
+          "date": "2010-01-26",
+          "reviewer": "Claude Sonnet 5.5 independent reviewer (devicehunt discovery batch, 2026-10-11)",
+          "review_status": "accepted",
+          "reviewed_on": "2026-10-11",
+          "note": "Acquirer (Form 8-K registrant Oracle Corporation); anchor brand of the group.",
+          "catalog_observed": {
+            "catalog_strings": [
+              "ORACLE",
+              "Oracle"
+            ],
+            "identities": 1219,
+            "checked_on": "2026-10-11"
+          }
+        },
+        {
+          "brand": "Sun Microsystems",
+          "relations": [
+            "acquired_company"
+          ],
+          "evidence": [
+            {
+              "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312510015241/d8k.htm",
+              "local_path": "data/raw/rra-sun-official/oracle-sun-acquisition.json",
+              "sha256": "37ae069c1ff105d45db47a668a66ba45f27e1c7f690b3e0514f453b35370cf49",
+              "source_kind": "sec_filing_extract",
+              "capture_method": "reviewed factual web-tool filing extract; not original HTML (sha256 is of the extract, original HTML was HTTP 403 and is not cached)",
+              "statement": "Oracle Corporation Form 8-K item 2.01: Sun Microsystems, Inc. became a wholly owned subsidiary on 2010-01-26 (announcement 2010-01-27, item 8.01). Corporate acquisition only: not Oracle manufacture of Sun-era units, product equivalence or deployment.",
+              "as_of": "2010-01-26",
+              "captured_on": "2026-09-27",
+              "reviewed_on": "2026-09-27"
+            }
+          ],
+          "date": "2010-01-26",
+          "reviewer": "Claude Sonnet 5.5 independent reviewer (devicehunt discovery batch, 2026-10-11)",
+          "review_status": "accepted",
+          "reviewed_on": "2026-10-11",
+          "note": "Reviewed short form without Inc. suffix (importer rra_sun accepts it as the acquired company name).",
+          "catalog_observed": {
+            "catalog_strings": [
+              "SUN MICROSYSTEMS",
+              "Sun Microsystems"
+            ],
+            "identities": 34,
+            "checked_on": "2026-10-11"
+          }
+        },
+        {
+          "brand": "Sun Microsystems, Inc.",
+          "relations": [
+            "acquired_company"
+          ],
+          "evidence": [
+            {
+              "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312510015241/d8k.htm",
+              "local_path": "data/raw/rra-sun-official/oracle-sun-acquisition.json",
+              "sha256": "37ae069c1ff105d45db47a668a66ba45f27e1c7f690b3e0514f453b35370cf49",
+              "source_kind": "sec_filing_extract",
+              "capture_method": "reviewed factual web-tool filing extract; not original HTML (sha256 is of the extract, original HTML was HTTP 403 and is not cached)",
+              "statement": "Oracle Corporation Form 8-K item 2.01: Sun Microsystems, Inc. became a wholly owned subsidiary on 2010-01-26 (announcement 2010-01-27, item 8.01). Corporate acquisition only: not Oracle manufacture of Sun-era units, product equivalence or deployment.",
+              "as_of": "2010-01-26",
+              "captured_on": "2026-09-27",
+              "reviewed_on": "2026-09-27"
+            }
+          ],
+          "date": "2010-01-26",
+          "reviewer": "Claude Sonnet 5.5 independent reviewer (devicehunt discovery batch, 2026-10-11)",
+          "review_status": "accepted",
+          "reviewed_on": "2026-10-11",
+          "note": "Exact legal name of the acquired company in the 8-K.",
+          "catalog_observed": {
+            "catalog_strings": [
+              "Sun Microsystems, Inc."
+            ],
+            "identities": 1,
+            "checked_on": "2026-10-11"
+          }
+        }
+      ]
+    }
+  ],
+  "model_prefix_aliases": {
+    "rule": {
+      "name": "own_brand_leading_token",
+      "source": "devicehunt.model_collisions.stripped_key",
+      "description": "Casefold and collapse whitespace; strip ONE leading token equal to the member's own brand (the whole brand string or the first word of a multi-word brand) followed by whitespace; the remainder must be non-empty. Suffixes, hyphens, punctuation and revisions are never touched.",
+      "scope": "same normalised brand only (catalog.normalize); never across brands",
+      "skipped_kind_words": [
+        "software",
+        "firmware",
+        "bmc",
+        "device tree",
+        "config"
+      ],
+      "audit_note": "The generated list is a same-brand audit list only. It includes pairs for brand strings the family table deliberately does not map (Inspur Corporation, Inspur ... (IEI)); those imply no IEIT/Inspur relation. No output consumes the aliases: there is no \"also known as\" display or alias lookup."
+    },
+    "generated_on": "2026-10-11",
+    "generated_from": {
+      "devices_digest_sha256": "11d25c1f24ba89c304b240d7c1403618f60bc07f99edc94777502973d1f26f5f",
+      "devices": 5107,
+      "note": "sha256 of the ordered (id,brand,model,kind) rows; audit only. The stored list may go stale as the catalog grows; the code rule is authoritative."
+    },
+    "generated_by": "python3 -m devicehunt.brand_families regenerate-aliases --write",
+    "groups": 25,
+    "pairs": [
+      {
+        "brand_normalised": "inspurcorporation",
+        "alias_key": "nf3180a6",
+        "members": [
+          {
+            "id": "f70d69cb2b5a9a2c2241",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF3180A6",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "62b3cc60d178eb7961b8",
+            "brand": "Inspur Corporation",
+            "model": "NF3180A6",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "inspurcorporation",
+        "alias_key": "nf5280a6",
+        "members": [
+          {
+            "id": "38045a95ef11e98cad82",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280A6",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "c8ec3a0c1de82748f532",
+            "brand": "Inspur Corporation",
+            "model": "NF5280A6",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "inspurcorporation",
+        "alias_key": "nf5280m4",
+        "members": [
+          {
+            "id": "9e6ff32d891fb085be76",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280M4",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "e2fb0c128f27eef0f1a2",
+            "brand": "Inspur Corporation",
+            "model": "NF5280M4",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "inspurcorporation",
+        "alias_key": "nf5468a5",
+        "members": [
+          {
+            "id": "1d29245c8e68c90f0c5b",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5468A5",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "6b317a7d92748983d4f8",
+            "brand": "Inspur Corporation",
+            "model": "NF5468A5",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "inspurcorporation",
+        "alias_key": "np3020m7",
+        "members": [
+          {
+            "id": "1256870f32831087a645",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NP3020M7",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "addccb16fd5df8a36163",
+            "brand": "Inspur Corporation",
+            "model": "NP3020M7",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "inspurelectronicinformationindustrycoltdiei",
+        "alias_key": "nf5180a7",
+        "members": [
+          {
+            "id": "3c02694d9c99d6416c51",
+            "brand": "Inspur Electronic Information Industry Co., Ltd. (IEI)",
+            "model": "Inspur NF5180A7",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "2198046ee25123a13e62",
+            "brand": "Inspur Electronic Information Industry Co., Ltd. (IEI)",
+            "model": "NF5180A7",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "inspurelectronicinformationindustrycoltdiei",
+        "alias_key": "nf5280a7",
+        "members": [
+          {
+            "id": "32598b15a60784f4cfd2",
+            "brand": "Inspur Electronic Information Industry Co., Ltd. (IEI)",
+            "model": "Inspur NF5280A7",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "cbcf7991428df365f870",
+            "brand": "Inspur Electronic Information Industry Co., Ltd. (IEI)",
+            "model": "NF5280A7",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "database appliance",
+        "members": [
+          {
+            "id": "23d02e9c0199093eac39",
+            "brand": "Oracle",
+            "model": "Database Appliance",
+            "brand_token_stripped": false
+          },
+          {
+            "id": "6e620783794e12857743",
+            "brand": "Oracle",
+            "model": "Oracle Database Appliance",
+            "brand_token_stripped": true
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "netra blade x3-2b",
+        "members": [
+          {
+            "id": "cbaa7389f6a4625bbe17",
+            "brand": "Oracle",
+            "model": "Netra Blade X3-2B",
+            "brand_token_stripped": false
+          },
+          {
+            "id": "767ec3e07ff00d5bc596",
+            "brand": "Oracle",
+            "model": "Oracle Netra Blade X3-2B",
+            "brand_token_stripped": true
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "private cloud appliance x5-2",
+        "members": [
+          {
+            "id": "0c66b798675205856ac5",
+            "brand": "Oracle",
+            "model": "Oracle Private Cloud Appliance X5-2",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "4d4e9cef083424d32287",
+            "brand": "Oracle",
+            "model": "Private Cloud Appliance X5-2",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sparc m7-16",
+        "members": [
+          {
+            "id": "95fd0e72f2769d523386",
+            "brand": "Oracle",
+            "model": "Oracle SPARC M7-16",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "a5d85711ec5078211099",
+            "brand": "Oracle",
+            "model": "SPARC M7-16",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sparc s7-2",
+        "members": [
+          {
+            "id": "496977745451d558b3d6",
+            "brand": "Oracle",
+            "model": "Oracle SPARC S7-2",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "49fd1abf60aff89f2491",
+            "brand": "Oracle",
+            "model": "SPARC S7-2",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sparc s7-2l",
+        "members": [
+          {
+            "id": "bb7486b64c437f8a0817",
+            "brand": "Oracle",
+            "model": "Oracle SPARC S7-2L",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "0e2214d09a6bfbfc6156",
+            "brand": "Oracle",
+            "model": "SPARC S7-2L",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sparc t8-2 server",
+        "members": [
+          {
+            "id": "4fe381103b4a5fd14956",
+            "brand": "Oracle",
+            "model": "Oracle SPARC T8-2 Server",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "2c136b8b427abd390826",
+            "brand": "Oracle",
+            "model": "SPARC T8-2 Server",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun blade x3-2b",
+        "members": [
+          {
+            "id": "bea51b71b28e155079b0",
+            "brand": "Oracle",
+            "model": "Oracle Sun Blade X3-2B",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "bb2f3205ea994501d772",
+            "brand": "Oracle",
+            "model": "Sun Blade X3-2B",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun blade x4-2b server module",
+        "members": [
+          {
+            "id": "5e781e4eefc5a349c4f1",
+            "brand": "Oracle",
+            "model": "Oracle Sun Blade X4-2B Server Module",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "96dabf99e9425ac413ab",
+            "brand": "Oracle",
+            "model": "SUN Blade X4-2B Server Module",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun blade x6275 m2 server module",
+        "members": [
+          {
+            "id": "dd212b3d6432c12d66d8",
+            "brand": "Oracle",
+            "model": "Oracle Sun Blade X6275 M2 Server Module",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "887e21c53536dca9bb06",
+            "brand": "Oracle",
+            "model": "Sun Blade X6275 M2 Server Module",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun fire x4270 m2",
+        "members": [
+          {
+            "id": "ea9b835bad56a82ff4a2",
+            "brand": "Oracle",
+            "model": "Oracle Sun Fire X4270 M2",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "cb03b176f2a7ca2dd457",
+            "brand": "Oracle",
+            "model": "Sun Fire X4270 M2",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun fire x4270 m2 server",
+        "members": [
+          {
+            "id": "2a596e8e1de8c194b665",
+            "brand": "Oracle",
+            "model": "Oracle Sun Fire X4270 M2 Server",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "f5c82c45406c3e73b951",
+            "brand": "Oracle",
+            "model": "Sun Fire X4270 M2 Server",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun fire x4800 server",
+        "members": [
+          {
+            "id": "eefefe2872e7d8d124c5",
+            "brand": "Oracle",
+            "model": "Oracle Sun Fire X4800 Server",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "cd5b05a1a1cb37956022",
+            "brand": "Oracle",
+            "model": "Sun Fire X4800 Server",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun server x4-4",
+        "members": [
+          {
+            "id": "098c0df90e20f18453fe",
+            "brand": "Oracle",
+            "model": "Oracle Sun Server X4-4",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "c9156d038dc13363158b",
+            "brand": "Oracle",
+            "model": "Sun Server X4-4",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "sun server x4-8",
+        "members": [
+          {
+            "id": "2d66871a71545e56628f",
+            "brand": "Oracle",
+            "model": "Oracle Sun Server X4-8",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "75535c0cb94629ee0f21",
+            "brand": "Oracle",
+            "model": "Sun Server X4-8",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "zero data loss recovery appliance",
+        "members": [
+          {
+            "id": "ebde22d7790408104a2f",
+            "brand": "Oracle",
+            "model": "Oracle Zero Data Loss Recovery Appliance",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "ad96901212eb38a0ba73",
+            "brand": "Oracle",
+            "model": "ZERO DATA LOSS RECOVERY APPLIANCE",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "zero data loss recovery appliance ra21",
+        "members": [
+          {
+            "id": "ae3da143343683eb8d4c",
+            "brand": "Oracle",
+            "model": "Oracle Zero Data Loss Recovery Appliance RA21",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "6f7dc4e7c1ee2df2142d",
+            "brand": "Oracle",
+            "model": "Zero Data Loss Recovery Appliance RA21",
+            "brand_token_stripped": false
+          }
+        ]
+      },
+      {
+        "brand_normalised": "oracle",
+        "alias_key": "zfs storage zs9-2",
+        "members": [
+          {
+            "id": "7276c451abd2a7d7af46",
+            "brand": "Oracle",
+            "model": "Oracle ZFS Storage ZS9-2",
+            "brand_token_stripped": true
+          },
+          {
+            "id": "688c3d696425c836f04c",
+            "brand": "Oracle",
+            "model": "ZFS Storage ZS9-2",
+            "brand_token_stripped": false
+          }
+        ]
+      }
+    ]
+  }
+}

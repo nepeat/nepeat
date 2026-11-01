@@ -1,0 +1,24 @@
+{
+  "method": "reconstructed by inverting exactly the additive mapping and three-test edits; no retained original copies",
+  "files": [
+    {
+      "file": "devicehunt/buying.py",
+      "preimage_sha256": "82d5c1f70847979b5b7d6a18bdf9587f469045af547e560e6b1bf695dc4a67e5",
+      "preimage_verified": true,
+      "post_sha256": "16197bf80ea24183a75f43ab9fea4cdbedee03f2a5a6f1ea039c2e1ba24c5c53",
+      "post_unchanged": true,
+      "added_lines_checked": 10
+    },
+    {
+      "file": "tests/test_buying.py",
+      "preimage_sha256": "0ae4a94f9d05a61bccaf3f5ee2cee3e7120e15ccdc66c40968bbfc3d537ef97b",
+      "preimage_verified": true,
+      "post_sha256": "800c6610f612e529fe7efceec47b8e588c7319a2bc181b6e21fd98161a8376fb",
+      "post_unchanged": true,
+      "added_lines_checked": 76
+    }
+  ],
+  "added_line_whitespace_errors": [],
+  "diff_bytes": 7779,
+  "diff_sha256": "14325a0be365ae2ae677a792c0e3fbfc02f282e33270a1654faa07c6653c222a"
+}

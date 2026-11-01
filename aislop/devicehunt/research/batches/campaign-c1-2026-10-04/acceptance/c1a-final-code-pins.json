@@ -1,0 +1,6 @@
+{
+  "devicehunt/campaign_state.py": "c9b28ec278cf170c17380165ccdee56ab74163569a39a247ae9a287ca85c0b41",
+  "devicehunt/capture.py": "400313e89d2bcdeac84aed4b414c2502aa52dbc8486997d730b6e1aa5f39568c",
+  "tests/test_campaign_state.py": "c276da95578ee06461b01f3be3c2f5be594fd2564e38671671d3f0be61eda75a",
+  "tests/test_capture.py": "27b56207391a8688f8b8af767a8956a385574dc772f4a66bf4b5773d0633c864"
+}

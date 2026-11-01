@@ -1,0 +1,64 @@
+PFE1500 Series                                                                                                                        15
+
+
+
+     Figure 8 shows the achievable power loss savings when using the hot-standby mode operation. A total power loss reduction
+     of 5 W is achievable.
+
+
+
+
+         Figure 7. Hot-standby enable/disable current thresholds     Figure 8. PSU power losses with/without hot-standby mode
+
+
+                                                   PSU 1                           PSU 2
+
+                                                                   3 x 3k3
+                                                VSB                                     VSB
+
+
+                                                 CS                                     CS
+
+
+                                     HOTSTANDBYEN                                       HOTSTANDBYEN
+
+                                         PRESENT_L                                      PRESENT_L
+
+
+
+                                           Figure 9. Recommended hot-standby configuration
+
+
+     In order to prevent voltage dips when the active power supply is unplugged while the other is in hot-standby mode, it is strongly
+     recommended to add the external circuit as shown in Figure 9. If the PRESENT_L pin status needs also to be read by the
+     system controller, it is recommended to exchange the bipolar transistors with small signal MOS transistors or with digital
+     transistors.
+
+
+  8.12       I2C / SMBUS COMMUNICATION
+
+     The interface driver in the PFE supply is referenced to the V1 Return. The PFE supply is a communication Slave device only; it
+     never initiates messages on the I2C/SMBus by itself. The communication bus voltage and timing is defined in Table 7 further
+     characterized through:
+
+
+     •      There are no internal pull-up resistors                                                         3.3/5V
+     •      The SDA/SCL IOs are 3.3/5 V tolerant                             RX
+     •      Full SMBus clock speed of 100 kbps
+     •      Clock stretching limited to 1 ms                                 TX                                  Rpull-up
+     •      SCL low time-out of >25 ms with recovery                                                                        SDA/SCL
+            within 10 ms
+     •      Recognizes any time Start/Stop bus conditions
+
+
+
+                                                                              Figure 10. Physical layer of communication interface
+
+
+
+
+                                                                     Asia-Pacific            Europe, Middle East         North America
+                                                               +86 755 298 85888                 +353 61 49 8941        +1 866 513 2839
+
+                                                                                              © 2024 Bel Fuse Inc.          BCD.00733_J
+

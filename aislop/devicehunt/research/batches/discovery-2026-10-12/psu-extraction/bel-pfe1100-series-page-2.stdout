@@ -1,0 +1,78 @@
+2
+                                                                                              PFE1100-12-054xA
+
+     PFE                1100              -                   12                    -            054                   x                A
+Product Family   Power Level             Dash              V1 Output               Dash         Width             Airflow              Input
+                                                                                                                N: Normal
+PFE Front-Ends      1100 W                                   12 V                              54 mm                                   A: AC
+                                                                                                                R: Reverse
+
+
+
+
+    The PFE1100-12-054xA AC/DC power supply is a fully DSP controlled, highly efficient front-end power supply. It incorporates
+    resonance-soft-switching technology and interleaved power trains to reduce component stresses, providing increased system
+    reliability and very high efficiency. With a wide input operational voltage range and minimal linear derating of output power with input
+    voltage and temperature, the PFE1100-12-054xA maximizes power availability in demanding server, network, and other high
+    availability applications. The supply is fan cooled and ideally suited for integration with a matching airflow paths.
+    The PFC stage is digitally controlled using a state-of-the-art digital signal processing algorithm to guarantee best efficiency and unity
+    power factor over a wide operating range. The DC/DC stage uses soft switching resonant techniques in conjunction with synchronous
+    rectification. An active OR-ing device on the output ensures no reverse load current and renders the supply ideally suited for operation
+    in redundant power systems. The always-on standby output, with selectable voltage level (3.3/5.0 Volts), provides power to external
+    power distribution and management controllers. It is protected with an active OR-ing device for maximum reliability.
+    Status information is provided with front-panel LEDs. In addition, the power supply can be controlled and the fan speed set via the
+    I2C bus. The I2C bus allows full monitoring of the supply, including input and output voltage, current, power, and inside temperatures.
+    Cooling is managed by a fan controlled by the DSP controller. The fan speed is adjusted automatically depending on the actual power
+    demand and supply temperature and can be overridden through the I2C bus.
+
+
+
+                    L                                                                                            V1
+
+                                                                        DC
+                                                                                                                 Vsb
+                                                                                                                 VsbSense+
+                                Filter        PFC                                               Buck
+                                                                                                                 VsbSense-
+
+
+
+                                                                                   DC
+                    N                                                                                            GND
+
+
+                   PE
+                                              PWM
+                                                              Aux
+                                                                                                       EEPROM
+                                                            Converter
+                                                                                    FAN
+
+
+                                                                             PWM                                 V1Sense+
+
+                                            Digital                                        Digital               V1Sense-
+                                             Prim                                           Sec                  I2C
+                                                                Communication Bus
+                                           Controls                                       Controls               APS
+                                                                                                                 Logic Signals
+
+
+
+
+                                                    Figure 1. PFE1100-12-054xA Block Diagram
+
+
+
+
+     Stresses in excess of the absolute maximum ratings may cause performance degradation, adversely affect long-term reliability and
+     cause permanent damage to the supply.
+
+PARAMETER                                CONDITIONS / DESCRIPTION                                               MIN          MAX        UNITS
+Vi maxc     Maximum Input                Continuous                                                                              264      VAC
+
+
+
+
+                                                                                                                tech.support@psbel.com
+

@@ -1,0 +1,251 @@
+{
+  "manufacturer_unchanged": true,
+  "manufacturer": {
+    "scope_description": "Collected catalog evidence only, not a complete historical inventory or an independent factory audit. Manufacturer scope includes named manufacturer, regulatory manufacturer and declared OEM claims on imported external snapshots. Legal manufacturer need not be the physical factory. Factory listings are separate. Other roles, seller claims and unhashed evidence are available with scope all. Each target and role must occur on the same evidence record; brand labels alone never qualify. No unit provenance, current certification, availability or software entitlement is inferred.",
+    "scope": "manufacturer",
+    "vendor": null,
+    "manufacturer_roles": [
+      "declared_manufacturer",
+      "declared_oem",
+      "manufacturer",
+      "registry_manufacturer"
+    ],
+    "factory_roles": [
+      "listed_factory"
+    ],
+    "identity_target_pairs": 2147,
+    "unique_identities": 2146,
+    "shown": 0,
+    "truncated": true,
+    "counts_by_target": [
+      {
+        "target": "Accton",
+        "identities": 425,
+        "source_records": 491,
+        "sources": 12,
+        "role_assertions": 491
+      },
+      {
+        "target": "Edge-Core",
+        "identities": 219,
+        "source_records": 291,
+        "sources": 7,
+        "role_assertions": 291
+      },
+      {
+        "target": "Celestica",
+        "identities": 198,
+        "source_records": 244,
+        "sources": 11,
+        "role_assertions": 246
+      },
+      {
+        "target": "Oracle",
+        "identities": 859,
+        "source_records": 928,
+        "sources": 11,
+        "role_assertions": 928
+      },
+      {
+        "target": "Amazon Data Services",
+        "identities": 176,
+        "source_records": 212,
+        "sources": 11,
+        "role_assertions": 212
+      },
+      {
+        "target": "Inventec",
+        "identities": 44,
+        "source_records": 75,
+        "sources": 3,
+        "role_assertions": 75
+      },
+      {
+        "target": "Hyve",
+        "identities": 11,
+        "source_records": 11,
+        "sources": 3,
+        "role_assertions": 11
+      },
+      {
+        "target": "Foxconn",
+        "identities": 169,
+        "source_records": 170,
+        "sources": 1,
+        "role_assertions": 170
+      },
+      {
+        "target": "Wiwynn",
+        "identities": 2,
+        "source_records": 2,
+        "sources": 1,
+        "role_assertions": 2
+      },
+      {
+        "target": "TD SYNNEX",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Quanta",
+        "identities": 41,
+        "source_records": 58,
+        "sources": 4,
+        "role_assertions": 58
+      },
+      {
+        "target": "ByteDance",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Inspur",
+        "identities": 3,
+        "source_records": 3,
+        "sources": 1,
+        "role_assertions": 3
+      }
+    ],
+    "rows": []
+  },
+  "all_target_associations": {
+    "scope_description": "Collected catalog evidence only, not a complete historical inventory or an independent factory audit. Manufacturer scope includes named manufacturer, regulatory manufacturer and declared OEM claims on imported external snapshots. Legal manufacturer need not be the physical factory. Factory listings are separate. Other roles, seller claims and unhashed evidence are available with scope all. Each target and role must occur on the same evidence record; brand labels alone never qualify. No unit provenance, current certification, availability or software entitlement is inferred.",
+    "scope": "all",
+    "vendor": null,
+    "manufacturer_roles": [
+      "declared_manufacturer",
+      "declared_oem",
+      "manufacturer",
+      "registry_manufacturer"
+    ],
+    "factory_roles": [
+      "listed_factory"
+    ],
+    "identity_target_pairs": 4594,
+    "unique_identities": 4451,
+    "shown": 0,
+    "truncated": true,
+    "counts_by_target": [
+      {
+        "target": "Accton",
+        "identities": 1143,
+        "source_records": 1446,
+        "sources": 23,
+        "role_assertions": 1665
+      },
+      {
+        "target": "Edge-Core",
+        "identities": 808,
+        "source_records": 1131,
+        "sources": 110,
+        "role_assertions": 1300
+      },
+      {
+        "target": "Celestica",
+        "identities": 379,
+        "source_records": 541,
+        "sources": 34,
+        "role_assertions": 599
+      },
+      {
+        "target": "Oracle",
+        "identities": 1288,
+        "source_records": 1625,
+        "sources": 108,
+        "role_assertions": 2468
+      },
+      {
+        "target": "Amazon Data Services",
+        "identities": 213,
+        "source_records": 281,
+        "sources": 19,
+        "role_assertions": 446
+      },
+      {
+        "target": "Inventec",
+        "identities": 85,
+        "source_records": 127,
+        "sources": 23,
+        "role_assertions": 170
+      },
+      {
+        "target": "Hyve",
+        "identities": 35,
+        "source_records": 35,
+        "sources": 10,
+        "role_assertions": 43
+      },
+      {
+        "target": "Foxconn",
+        "identities": 204,
+        "source_records": 205,
+        "sources": 4,
+        "role_assertions": 206
+      },
+      {
+        "target": "Wiwynn",
+        "identities": 35,
+        "source_records": 44,
+        "sources": 26,
+        "role_assertions": 70
+      },
+      {
+        "target": "TD SYNNEX",
+        "identities": 6,
+        "source_records": 6,
+        "sources": 5,
+        "role_assertions": 6
+      },
+      {
+        "target": "Quanta",
+        "identities": 175,
+        "source_records": 291,
+        "sources": 204,
+        "role_assertions": 297
+      },
+      {
+        "target": "ByteDance",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Inspur",
+        "identities": 223,
+        "source_records": 384,
+        "sources": 242,
+        "role_assertions": 514
+      }
+    ],
+    "rows": []
+  },
+  "vendor_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "hyperscaler": {
+    "rows": 22,
+    "identities": 18
+  },
+  "lineage_table_counts": {
+    "archive_releases": 1,
+    "archive_artifacts": 146,
+    "archive_release_artifacts": 148,
+    "archive_receipts": 374,
+    "archive_release_receipts": 374,
+    "evidence_statements": 4,
+    "evidence_reviews": 4,
+    "evidence_links": 4,
+    "archive_release_statements": 4
+  },
+  "database_hashes_unchanged": {
+    "data/devices-candidate-wave4-2026-10-12.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/devices.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "module_paths": {
+    "devicehunt": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review/overlay/devicehunt/__init__.py",
+    "devicehunt.specifications": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review/overlay/devicehunt/specifications.py",
+    "devicehunt.__main__": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review/overlay/devicehunt/__main__.py"
+  },
+  "cases": [
+    {
+      "name": "discovery",
+      "include_source_facts": false,
+      "groups": 3,
+      "evidence_rows": 5,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "discovery",
+      "include_source_facts": true,
+      "groups": 12,
+      "evidence_rows": 20,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "literal-model",
+      "include_source_facts": false,
+      "groups": 3,
+      "evidence_rows": 5,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "literal-model",
+      "include_source_facts": true,
+      "groups": 12,
+      "evidence_rows": 20,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "alias",
+      "include_source_facts": false,
+      "groups": 1,
+      "evidence_rows": 1,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "alias",
+      "include_source_facts": true,
+      "groups": 4,
+      "evidence_rows": 4,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "part",
+      "include_source_facts": false,
+      "groups": 1,
+      "evidence_rows": 1,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "part",
+      "include_source_facts": true,
+      "groups": 4,
+      "evidence_rows": 4,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "vendor",
+      "include_source_facts": false,
+      "groups": 2,
+      "evidence_rows": 3,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "vendor",
+      "include_source_facts": true,
+      "groups": 8,
+      "evidence_rows": 12,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "alias-wrong-vendor",
+      "include_source_facts": false,
+      "groups": 0,
+      "evidence_rows": 0,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "alias-wrong-vendor",
+      "include_source_facts": true,
+      "groups": 0,
+      "evidence_rows": 0,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "part-vendor",
+      "include_source_facts": false,
+      "groups": 1,
+      "evidence_rows": 1,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "part-vendor",
+      "include_source_facts": true,
+      "groups": 4,
+      "evidence_rows": 4,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "no-suffix-match",
+      "include_source_facts": false,
+      "groups": 0,
+      "evidence_rows": 0,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    },
+    {
+      "name": "no-suffix-match",
+      "include_source_facts": true,
+      "groups": 0,
+      "evidence_rows": 0,
+      "raw_multiset_default_parity_counts_limit_formats": true
+    }
+  ],
+  "fixture_sha256_before": "577c61bfb9230d70d927435b5a38e0180f37b87676df505aea437b33a01e005e",
+  "fixture_sha256_after": "577c61bfb9230d70d927435b5a38e0180f37b87676df505aea437b33a01e005e",
+  "table_raw_value_loss_reproduced": true,
+  "two_distinct_raw_groups_render_identically": true,
+  "help_widths": [
+    {
+      "columns": 40,
+      "contiguous_phrase": false,
+      "whitespace_normalized_phrase": true
+    },
+    {
+      "columns": 80,
+      "contiguous_phrase": false,
+      "whitespace_normalized_phrase": true
+    },
+    {
+      "columns": 120,
+      "contiguous_phrase": false,
+      "whitespace_normalized_phrase": true
+    }
+  ]
+}

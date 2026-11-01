@@ -1,0 +1,14 @@
+{
+  "sequence": 6,
+  "url": "https://platforms.cumulusnetworks.com/robots.txt",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:49:56.150480+00:00",
+  "automatic_redirects": false,
+  "retries": 0,
+  "policy": null,
+  "status": null,
+  "error_type": "URLError",
+  "error": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+  "finished_utc": "2026-10-15T05:49:56.167314+00:00"
+}

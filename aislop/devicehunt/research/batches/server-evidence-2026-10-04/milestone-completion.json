@@ -1,0 +1,34 @@
+{
+  "batch": "server-evidence-2026-10-04",
+  "status": "complete",
+  "overall_goal": "active",
+  "checked_at": "2026-10-05T00:01:00.726824+00:00",
+  "worker_model": "gpt-6.1-sol",
+  "future_claude_workers": "latest available Sonnet; user 2026-10-04 baseline 5.5",
+  "docs_editor": "root",
+  "independent_reviewer": "server_evidence_review",
+  "post_review_changes": "Only documentation-gate completion wording and review links in PROGRESS.md and milestone note.",
+  "current_document_sha256": {
+    "AGENTS.md": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7",
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "PROGRESS.md": "8e028a57e008ec0c83976b2dd93372a5715cd66ccd7d5de04506d0b505dc7930",
+    "docs/agent-workflow.md": "ca55fb9e99e84a0be0712f2eaa9889448b0f3220cc7c694c273ec94ba2a2bb6c",
+    "docs/buying-reports.md": "2d1db1ab9011955160d52b0e57d9efb2ff885dc6503a78b3c3e473fdabb0479d",
+    "docs/history/README.md": "ea32e7d369d7402bbd2969c4994de8028d5e5c9b3b012d842cc9799c5496ab26",
+    "research/server-evidence-batch-2026-10-04.md": "ec167dde842bc5cb54f700605d18211539e76f099543085632c1f6ec3243ec5d",
+    "research/ingrasys-servers-2026-10-04.md": "297027ca89e2e6e59d5115a211006a5d59714e3238a89902af801556a42af07d",
+    "research/owned-oracle-buying-2026-10-04.md": "805fbe3c544d50ff14b8e6d4980173cd02ea218f8f829714b22de06c4b2bcdda",
+    "research/odm-models-2026-10-04.md": "0374f83105138245afb66830cd8a14c019b9649cfcfe9dc8988abb49b239ea91"
+  },
+  "local_doc_links": 77,
+  "live_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "proof_sha256": {
+    "research/batches/server-evidence-2026-10-04/docs-review.md": "23731d271e7fd8cf2e1c4a94980345762598b0f246633ded29f12d017da1ba0b",
+    "research/batches/server-evidence-2026-10-04/review/final-docs-proof.json": "0447b02d831c99a9a1d14ccf6621586888713bd4cf8537ab65a500998eec4ceb",
+    "research/batches/server-evidence-2026-10-04/integration/final-verification.json": "b73273a35aa91088642a6c85a1713c2c378b9af76e2db84ac2c83697cb41676c",
+    "research/batches/server-evidence-2026-10-04/integration/final-freeze.json": "8ee50c33c4a1fddf3bcf58136aa4af5f5983c89d7498f31e75df0ab2af81d242"
+  },
+  "frozen_source_and_code_check": "Root independently verified 59 source/proof +162 code +13 final-proof hashes before documentation completion.",
+  "validation": "428 full/11 focused tests; candidate/rebuild43 tables; 98 lookup exports;9 buying reports;57 PDFs;9 document+1label owned;0/2 ByteDance. No repeat suite or rebuild.",
+  "next_task": "Bounded primary-spec search for Inventec Entei/Golduck per PROGRESS.md."
+}

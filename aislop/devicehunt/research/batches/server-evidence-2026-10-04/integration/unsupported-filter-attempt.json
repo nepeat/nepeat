@@ -1,0 +1,6 @@
+{
+  "command": ["/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3", "-B", "-m", "devicehunt", "--db", "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite", "buying-report", "SV1120A", "--vendor", "Ingrasys", "--format", "json"],
+  "returncode": 1,
+  "stderr": "error: Unknown target: Ingrasys\n",
+  "resolution": "Use unfiltered exact-model query and inspect source-local roles; Ingrasys stays a separate brand, not a Foxconn alias or target filter. Production code unchanged."
+}

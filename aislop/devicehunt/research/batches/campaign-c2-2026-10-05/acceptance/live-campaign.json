@@ -1,0 +1,284 @@
+{
+  "audit": {
+    "errors": 0,
+    "ok": true,
+    "orphan_objects": 0,
+    "receipts": 1555
+  },
+  "checked_at": "2026-10-05T10:03:59.163692+00:00",
+  "first_run": {
+    "actions": {
+      "executed": 36
+    },
+    "new_bytes": 4782388,
+    "physical_growth": {
+      "index": 2891776,
+      "receipts_and_objects": 1890612,
+      "total": 4782388
+    },
+    "run_id": "c2-live-run-1",
+    "state": "complete",
+    "units": [
+      {
+        "candidate_sha256": "8ff86d23fd679da899446351b02ef9a26e3e1fa606dc71e420f9fd91353c8d9b",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 8,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 4,
+        "unit_id": "ised-rel-25869"
+      },
+      {
+        "candidate_sha256": "0d98c0035ca437aa40b7b63f49c32297d34c18079851e66fac043e98168511b0",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 746,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 167,
+        "unit_id": "ised-rel-query-accton"
+      },
+      {
+        "candidate_sha256": "748779c7d53fb4b2260266588a64bb957109c4957671395e2ac9451435568caf",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 0,
+        "outcome": "explicit_zero",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 0,
+        "unit_id": "ised-rel-query-celestica"
+      },
+      {
+        "candidate_sha256": "bf7a0bcb4ec1e01c3c32065906ed0f8860f0da2c8b8e4841344fdf6772bfa731",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 33,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 4,
+        "unit_id": "ised-rel-query-edgecore"
+      },
+      {
+        "candidate_sha256": "ffa34ad43dbba5f8199b2b5f62d4b43931bb7e3a3c1483d4028766249d9f699d",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 28,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 12,
+        "unit_id": "ised-rel-query-oracle"
+      },
+      {
+        "candidate_sha256": "fa7def085827f0a9ee22daae0414d0e9c6e3998902d19f157797499841b8352b",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 57,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 57,
+        "unit_id": "rra-official-query-33f7d154085d"
+      },
+      {
+        "candidate_sha256": "7af3a0544d7eb789dd7439ca1a77d998af04cd1dd3c1fdf6173e08cbc6dbca57",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 151,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 151,
+        "unit_id": "rra-official-query-41e4ca912b33"
+      },
+      {
+        "candidate_sha256": "009cda6d36e4ecdbd3fe75b0770a3f89df5d6c070b4ce9e0f4ffbe65e46b08dd",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 7,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 7,
+        "unit_id": "rra-official-query-5827f2fe7092"
+      },
+      {
+        "candidate_sha256": "ddcd2adb0b82afdee4c25c813c62130aae8feb6e248135bad007bd4138154446",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 110,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 110,
+        "unit_id": "rra-official-query-63cb0b9098c7"
+      },
+      {
+        "candidate_sha256": "cfe23fa2c510a8c09477e789b422ae1ecec97fef00a205b1d7c49f17e5430454",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 516,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 516,
+        "unit_id": "rra-official-query-73009f906e4e"
+      },
+      {
+        "candidate_sha256": "cdafd924ef2931e71639b788295564254a5e708be97636c5c8cc81609f39efd5",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 0,
+        "outcome": "explicit_zero",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 0,
+        "unit_id": "rra-official-query-78fc6b2e95f6"
+      },
+      {
+        "candidate_sha256": "78dc066b302f67a260e4d079484f744dde31e775fd582bddd662b6a0215edd90",
+        "change_from_previous_run": "no prior run",
+        "occurrences": 200,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 200,
+        "unit_id": "rra-official-query-e5984834207f"
+      }
+    ],
+    "units_accounted_for": {
+      "blocked": 0,
+      "budget_exhausted": 0,
+      "declared": 12,
+      "explicit_zero": 2,
+      "failed": 0,
+      "inputs_registered": 12,
+      "observed": 12,
+      "pending": 0,
+      "unknown": 0,
+      "validated_complete": 12
+    }
+  },
+  "network_requests": 0,
+  "ok": true,
+  "operational_backup": "data/archive/capture-leases.before-c2.sqlite",
+  "prior_receipts_and_objects_unchanged": true,
+  "second_run": {
+    "actions": {
+      "reused": 36
+    },
+    "new_bytes": 0,
+    "physical_growth": {
+      "index": 0,
+      "receipts_and_objects": 0,
+      "total": 0
+    },
+    "run_id": "c2-live-run-2",
+    "state": "complete",
+    "units": [
+      {
+        "candidate_sha256": "8ff86d23fd679da899446351b02ef9a26e3e1fa606dc71e420f9fd91353c8d9b",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 8,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 4,
+        "unit_id": "ised-rel-25869"
+      },
+      {
+        "candidate_sha256": "0d98c0035ca437aa40b7b63f49c32297d34c18079851e66fac043e98168511b0",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 746,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 167,
+        "unit_id": "ised-rel-query-accton"
+      },
+      {
+        "candidate_sha256": "748779c7d53fb4b2260266588a64bb957109c4957671395e2ac9451435568caf",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 0,
+        "outcome": "explicit_zero",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 0,
+        "unit_id": "ised-rel-query-celestica"
+      },
+      {
+        "candidate_sha256": "bf7a0bcb4ec1e01c3c32065906ed0f8860f0da2c8b8e4841344fdf6772bfa731",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 33,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 4,
+        "unit_id": "ised-rel-query-edgecore"
+      },
+      {
+        "candidate_sha256": "ffa34ad43dbba5f8199b2b5f62d4b43931bb7e3a3c1483d4028766249d9f699d",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 28,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 12,
+        "unit_id": "ised-rel-query-oracle"
+      },
+      {
+        "candidate_sha256": "fa7def085827f0a9ee22daae0414d0e9c6e3998902d19f157797499841b8352b",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 57,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 57,
+        "unit_id": "rra-official-query-33f7d154085d"
+      },
+      {
+        "candidate_sha256": "7af3a0544d7eb789dd7439ca1a77d998af04cd1dd3c1fdf6173e08cbc6dbca57",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 151,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 151,
+        "unit_id": "rra-official-query-41e4ca912b33"
+      },
+      {
+        "candidate_sha256": "009cda6d36e4ecdbd3fe75b0770a3f89df5d6c070b4ce9e0f4ffbe65e46b08dd",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 7,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 7,
+        "unit_id": "rra-official-query-5827f2fe7092"
+      },
+      {
+        "candidate_sha256": "ddcd2adb0b82afdee4c25c813c62130aae8feb6e248135bad007bd4138154446",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 110,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 110,
+        "unit_id": "rra-official-query-63cb0b9098c7"
+      },
+      {
+        "candidate_sha256": "cfe23fa2c510a8c09477e789b422ae1ecec97fef00a205b1d7c49f17e5430454",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 516,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 516,
+        "unit_id": "rra-official-query-73009f906e4e"
+      },
+      {
+        "candidate_sha256": "cdafd924ef2931e71639b788295564254a5e708be97636c5c8cc81609f39efd5",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 0,
+        "outcome": "explicit_zero",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 0,
+        "unit_id": "rra-official-query-78fc6b2e95f6"
+      },
+      {
+        "candidate_sha256": "78dc066b302f67a260e4d079484f744dde31e775fd582bddd662b6a0215edd90",
+        "change_from_previous_run": "unchanged",
+        "occurrences": 200,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "query_records": 200,
+        "unit_id": "rra-official-query-e5984834207f"
+      }
+    ],
+    "units_accounted_for": {
+      "blocked": 0,
+      "budget_exhausted": 0,
+      "declared": 12,
+      "explicit_zero": 2,
+      "failed": 0,
+      "inputs_registered": 12,
+      "observed": 12,
+      "pending": 0,
+      "unknown": 0,
+      "validated_complete": 12
+    }
+  },
+  "second_run_new_archive_sequences": 0
+}

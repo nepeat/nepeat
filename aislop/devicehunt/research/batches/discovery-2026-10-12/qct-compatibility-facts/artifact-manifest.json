@@ -1,0 +1,55 @@
+{
+  "scope": "final candidate artifacts except this self manifest",
+  "files": [
+    {
+      "path": "build_candidate.py",
+      "bytes": 11259,
+      "sha256": "ecc09c5fd5ee91d4cb4ae46cbc0d107b3598c69731f0d1e2b8da8f32db9b9565"
+    },
+    {
+      "path": "builder-check.log",
+      "bytes": 166,
+      "sha256": "39a7b8445ff57df8837813c3ea30f01cbe96c178a7b6ceb31482559e7fbcd776"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 141975,
+      "sha256": "9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd"
+    },
+    {
+      "path": "catalog-context.json",
+      "bytes": 1241,
+      "sha256": "9c7f34271cec55d37a924ea02a2f74a608ae7156baa31453f0c0beb370567da4"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 1873,
+      "sha256": "1c2b73b1cc6a6e4e83f7fad6777474a33a041b22f089f953690287433761d9e9"
+    },
+    {
+      "path": "handoff.md",
+      "bytes": 5933,
+      "sha256": "bbd5348ef71dfd13f5dbc6b4e0ebcca9eeca3f259a0f7bf68b016d6e11872824"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 2778,
+      "sha256": "8b225ba5d489cfad085ed0b9a3b5bf2e3adc252e313820d6dfcee0312226bec4"
+    },
+    {
+      "path": "row-mapping.json",
+      "bytes": 3665,
+      "sha256": "7e63ba0420607e897d997d418337e98421a1364ebff4859cd2dcbd93477f2d12"
+    },
+    {
+      "path": "snapshots/parent-product.html",
+      "bytes": 111372,
+      "sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455"
+    },
+    {
+      "path": "snapshots/qct-d52bq-ccl.html",
+      "bytes": 303591,
+      "sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8"
+    }
+  ]
+}

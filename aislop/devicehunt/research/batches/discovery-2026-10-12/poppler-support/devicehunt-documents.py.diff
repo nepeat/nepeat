@@ -1,0 +1,79 @@
+--- before/devicehunt/documents.py
++++ devicehunt/documents.py
+@@ -53,16 +53,50 @@
+     return body
+ 
+ 
+-def read_pages(body, pdf_sha256):
++PYPDF_METHOD = 'pypdf embedded text; no OCR'
++POPPLER_METHOD = 'Poppler pdftotext -layout embedded text; no OCR'
++POPPLER_OPTIONS = {
++    'layout': True, 'encoding': 'UTF-8', 'eol': 'unix',
++    'remove_hyphens': 'none', 'page_selection': 'individual', 'page_breaks': False,
++}
++
++
++def read_capture(body, pdf_sha256):
++    """Validate offline capture provenance; never invoke an extractor."""
+     data = json.loads(body)
++    if not isinstance(data, dict):
++        raise ValueError('Invalid PDF text capture or source association')
+     pages = data.get('pages')
+-    if (data.get('pdf_sha256') != pdf_sha256 or data.get('extraction_method') != 'pypdf embedded text; no OCR'
++    method = data.get('extraction_method')
++    if (not isinstance(pdf_sha256, str) or not re.fullmatch(r'[0-9a-f]{64}', pdf_sha256)
++            or data.get('pdf_sha256') != pdf_sha256
++            or method not in (PYPDF_METHOD, POPPLER_METHOD)
+             or not isinstance(pages, list) or not pages):
+         raise ValueError('Invalid PDF text capture or source association')
+     for n, p in enumerate(pages, 1):
+-        if p.get('page') != n or not isinstance(p.get('text'), str):
++        if (not isinstance(p, dict) or type(p.get('page')) is not int
++                or p['page'] != n or not isinstance(p.get('text'), str)):
+             raise ValueError('Missing, reordered or malformed PDF text page')
+-    return pages
++    metadata = {'extraction_method': method}
++    if method == POPPLER_METHOD:
++        version = data.get('extractor_version')
++        options = data.get('extraction_options')
++        if (not isinstance(version, str) or not re.fullmatch(r'\d+\.\d+(?:\.\d+)?', version)
++                or data.get('pdfinfo_version') != version
++                or type(data.get('pdf_page_count')) is not int
++                or data['pdf_page_count'] != len(pages)
++                or not isinstance(options, dict) or options != POPPLER_OPTIONS
++                or any(type(options.get(key)) is not type(value)
++                       for key, value in POPPLER_OPTIONS.items())):
++            raise ValueError('Invalid Poppler PDF extraction metadata')
++        metadata.update(extractor_version=version, pdfinfo_version=version,
++                        pdf_page_count=len(pages), extraction_options=dict(options))
++    return pages, metadata
++
++
++def read_pages(body, pdf_sha256):
++    """Preserve the historical page-list API for source parsers and lineage."""
++    return read_capture(body, pdf_sha256)[0]
+ 
+ 
+ def reindex(db):
+@@ -91,10 +125,10 @@
+         pdf = dependency(path.parent, entry['pdf'])
+         if not pdf.startswith(b'%PDF-'):
+             raise ValueError('Cached exhibit is not a PDF')
+-        pages = read_pages(dependency(path.parent, entry['text']), digest(pdf))
++        pages, metadata = read_capture(dependency(path.parent, entry['text']), digest(pdf))
+         if type(entry['page_count']) is not int or len(pages) != entry['page_count']:
+             raise ValueError('PDF page count differs from extraction capture')
+-        ready.append((item, entry, pages))
++        ready.append((item, dict(entry, extraction_method=metadata['extraction_method']), pages))
+     sid = 'fcc-documents-' + fid.lower()
+     c.source(sid, data['index_url'], 'primary_document_mirror',
+              'Public exhibit copies; original document rights retained',
+@@ -109,7 +143,7 @@
+         with_text = sum(bool(p['text'].strip()) for p in pages)
+         c.db.execute('INSERT INTO documents VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                      (key, sid, fid, item['document_id'], item['title'], item['category'], item['source_url'],
+-                      item['pdf_file'], entry['pdf']['sha256'], len(pages), with_text, 'pypdf embedded text; no OCR'))
++                      item['pdf_file'], entry['pdf']['sha256'], len(pages), with_text, entry['extraction_method']))
+         for p in pages:
+             status = 'embedded_text' if p['text'].strip() else 'no_embedded_text'
+             c.db.execute('INSERT INTO document_pages VALUES (?,?,?,?)', (key, p['page'], p['text'], status))

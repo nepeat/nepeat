@@ -1,0 +1,32 @@
+[
+  {
+    "model": "QuantaGrid D51B-2U",
+    "source_id": "qct-quanta-portfolio-2020",
+    "facts": 10
+  },
+  {
+    "model": "QuantaGrid D51B-2U",
+    "source_id": "qct-wssd-models",
+    "facts": 7
+  },
+  {
+    "model": "QuantaGrid D52BQ-2U",
+    "source_id": "qct-quanta-portfolio-2020",
+    "facts": 10
+  },
+  {
+    "model": "QuantaGrid D52BQ-2U",
+    "source_id": "qct-wssd-models",
+    "facts": 7
+  },
+  {
+    "model": "QuantaPlex T41S-2U",
+    "source_id": "qct-quanta-portfolio-2020",
+    "facts": 10
+  },
+  {
+    "model": "QuantaPlex T41S-2U",
+    "source_id": "qct-wssd-models",
+    "facts": 7
+  }
+]

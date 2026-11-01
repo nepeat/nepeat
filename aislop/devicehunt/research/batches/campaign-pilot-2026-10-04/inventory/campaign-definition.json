@@ -1,0 +1,1284 @@
+{
+  "budgets": {
+    "free_space_floor_bytes": 2147483648,
+    "max_referenced_source_paths": 1121,
+    "max_source_jobs": 12,
+    "network_bytes": 0,
+    "network_requests": 0,
+    "new_metadata_and_candidates_bytes_cap": 67108864,
+    "new_source_bytes": 0
+  },
+  "campaign_id": "rra-ised-saved-2026-10-04",
+  "coverage_rules": [
+    "explicit zero needs validated source proof; unavailable/error/unknown never means zero",
+    "accounted-for terminal work is separate from successful observed coverage",
+    "duplicates, ordinal occurrences and conflict statements remain separate",
+    "snapshot positions are not durable reviewed-claim identities"
+  ],
+  "exclusions": [
+    "network collection",
+    "source import",
+    "accepted catalog changes",
+    "releasing/publishing data",
+    "extra spellings/date windows",
+    "scheduler",
+    "seller/provider contact"
+  ],
+  "input_inventory_sha256": "85ac532ab1ae457440c4ae9760ff76ef8d919737955b632694ca41534e1a8e2e",
+  "inventory_file_sha256": "0b891f166c67093515fd7dc6ebe4c41281a2db5501aeb20aa5e4b6ee2083629a",
+  "job_scope": [
+    {
+      "import_ordinal_zero_based": 30,
+      "scope": {
+        "coverage": "complete returned company-name query HTML; not full REL coverage",
+        "date_range": null,
+        "date_range_status": "not declared; do not infer from returned approval dates",
+        "endpoint": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA",
+        "exact_company_query": "Amazon Data Services",
+        "legacy_session_id": null,
+        "live_cross_session_reuse": false,
+        "reported_query_total": 4,
+        "saved_response_context": [
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s1&lang=en_CA",
+            "method": "GET",
+            "path": "form.html",
+            "sha256": "753b901b73c16f3b95a27edef476ba19193c773a8093792d7c0e95d654d2ae31",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s2",
+            "method": "POST",
+            "path": "response-00.html",
+            "sha256": "26e88f32ab2c5f1e1e73d5f050d7600829c247177e9c12bcfaa2d945813a6b58",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s3",
+            "method": "POST",
+            "path": "response-01.html",
+            "sha256": "2646be10dd5911b463f964550004e08b21ea34449d726eebd07793d85bf57b69",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4",
+            "method": "POST",
+            "path": "response-02.html",
+            "sha256": "026b80741140373131c8c82644390178a648fc743f2acc27d46968198f653ac3",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s5",
+            "method": "GET",
+            "path": "export-00.response",
+            "sha256": "9d9f136b1b6962e7c8d3bbd5904ab11f0ec62a9369df216cb82cef52b5386e6d",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4&_eventId=download"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6",
+            "method": "POST",
+            "path": "export-01.response",
+            "sha256": "e0ae2a8406c43d8040c0c311b4357e18683e1fa0bd9e32b4bc89fa0f0520112d",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/csv;charset=ISO-8859-1",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6&_eventId=downloadCSV",
+            "method": "GET",
+            "path": "results.csv",
+            "sha256": "848557a0339d634092ac09fb50f05d6557fafd335fb7160f43aa82e3e791066e",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6&_eventId=downloadCSV"
+          }
+        ],
+        "session_scope": "data/raw/ised-amazon-export/capture.json",
+        "upstream_total": null
+      },
+      "source": "ised",
+      "source_manifest": "data/raw/ised-amazon-export/capture.json",
+      "unit_id": "ised-rel-25869"
+    },
+    {
+      "import_ordinal_zero_based": 31,
+      "scope": {
+        "coverage": "complete returned company-name query HTML; not full REL coverage",
+        "date_range": null,
+        "date_range_status": "not declared; do not infer from returned approval dates",
+        "endpoint": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA",
+        "exact_company_query": "Accton",
+        "legacy_session_id": null,
+        "live_cross_session_reuse": false,
+        "reported_query_total": 167,
+        "saved_response_context": [
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s1&lang=en_CA",
+            "method": "GET",
+            "path": "form.html",
+            "sha256": "753b901b73c16f3b95a27edef476ba19193c773a8093792d7c0e95d654d2ae31",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s2",
+            "method": "POST",
+            "path": "response-00.html",
+            "sha256": "26e88f32ab2c5f1e1e73d5f050d7600829c247177e9c12bcfaa2d945813a6b58",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s3",
+            "method": "POST",
+            "path": "response-01.html",
+            "sha256": "2646be10dd5911b463f964550004e08b21ea34449d726eebd07793d85bf57b69",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4",
+            "method": "POST",
+            "path": "response-02.html",
+            "sha256": "c7c9c2ba01bc1a4f0bc30e1e4cf2960f365a0f847bd629ae7d1296da9eaa5696",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s5&offset=20&max=20",
+            "method": "GET",
+            "path": "page-001.html",
+            "sha256": "49c7db493d56762b73c7972c0abb53619817c0f0954e9a80d984a28e241502eb",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=20&max=20&execution=e1s4"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6&offset=40&max=20",
+            "method": "GET",
+            "path": "page-002.html",
+            "sha256": "c569781d6ccab59c45660bd1d1033554c426ece2b62e9b2bdcc0ed68944cc290",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=40&max=20&execution=e1s5"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s7&offset=60&max=20",
+            "method": "GET",
+            "path": "page-003.html",
+            "sha256": "88c430591ef9bb17353a306a4ce07eb133eca94084031e12ef2a4c549bdf43c2",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=60&max=20&execution=e1s6"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s8&offset=80&max=20",
+            "method": "GET",
+            "path": "page-004.html",
+            "sha256": "10b949720fc71afb654940ced27781a65f1470afb588693e60bd5c0c372c056d",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=80&max=20&execution=e1s7"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s9&offset=100&max=20",
+            "method": "GET",
+            "path": "page-005.html",
+            "sha256": "f0387de44228dc998fad4eb9d03840caa7c3f2693e26719010cc560bd1f4c9fd",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=100&max=20&execution=e1s8"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s10&offset=120&max=20",
+            "method": "GET",
+            "path": "page-006.html",
+            "sha256": "1201f99d797318b60c3ce5438c736443f9c53648ba46e91457e59a4cc9275bb7",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=120&max=20&execution=e1s9"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s11&offset=140&max=20",
+            "method": "GET",
+            "path": "page-007.html",
+            "sha256": "1c8cecf7c59b53fd4c5a9fb1d685219a6732c3d423e23970bca3c195371cea04",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=140&max=20&execution=e1s10"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s12&offset=160&max=20",
+            "method": "GET",
+            "path": "page-008.html",
+            "sha256": "d7fa4fbfc85575af12a1aab905840a3421d6d789a92a6e1c7b5a40a7146d04fb",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?_eventId=paginate&offset=160&max=20&execution=e1s11"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s13",
+            "method": "GET",
+            "path": "export-00.response",
+            "sha256": "8e51709c923f70c81582782e65d4cabec7ccce2f76068730a95a86ee141d9014",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s12&_eventId=download"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s14",
+            "method": "POST",
+            "path": "export-01.response",
+            "sha256": "5446501de4a58ac6dc46ab20c2c58f2f786942f219472dff129aa748e7edd3ad",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/csv;charset=ISO-8859-1",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s14&_eventId=downloadCSV",
+            "method": "GET",
+            "path": "results.csv",
+            "sha256": "b61c567ec99763ece8a4a846e5d1c34b39888f8b24fdf8261cde0fe9d55a1963",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s14&_eventId=downloadCSV"
+          }
+        ],
+        "session_scope": "data/raw/ised-accton-paged/capture.json",
+        "upstream_total": null
+      },
+      "source": "ised",
+      "source_manifest": "data/raw/ised-accton-paged/capture.json",
+      "unit_id": "ised-rel-query-accton"
+    },
+    {
+      "import_ordinal_zero_based": 32,
+      "scope": {
+        "coverage": "complete returned company-name query HTML; not full REL coverage",
+        "date_range": null,
+        "date_range_status": "not declared; do not infer from returned approval dates",
+        "endpoint": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA",
+        "exact_company_query": "Edgecore",
+        "legacy_session_id": null,
+        "live_cross_session_reuse": false,
+        "reported_query_total": 4,
+        "saved_response_context": [
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s1&lang=en_CA",
+            "method": "GET",
+            "path": "form.html",
+            "sha256": "753b901b73c16f3b95a27edef476ba19193c773a8093792d7c0e95d654d2ae31",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s2",
+            "method": "POST",
+            "path": "response-00.html",
+            "sha256": "26e88f32ab2c5f1e1e73d5f050d7600829c247177e9c12bcfaa2d945813a6b58",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s3",
+            "method": "POST",
+            "path": "response-01.html",
+            "sha256": "2646be10dd5911b463f964550004e08b21ea34449d726eebd07793d85bf57b69",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4",
+            "method": "POST",
+            "path": "response-02.html",
+            "sha256": "647a093c286fc573876b8e04b9ea5bb3b9cd9f5fc034c9de57d205b41becf36f",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s5",
+            "method": "GET",
+            "path": "export-00.response",
+            "sha256": "9d9f136b1b6962e7c8d3bbd5904ab11f0ec62a9369df216cb82cef52b5386e6d",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4&_eventId=download"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6",
+            "method": "POST",
+            "path": "export-01.response",
+            "sha256": "5811e3a248394395f71fc8ab7e694e223ca15214d2d3b5d2a3aab2d3d8504f2e",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/csv;charset=ISO-8859-1",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6&_eventId=downloadCSV",
+            "method": "GET",
+            "path": "results.csv",
+            "sha256": "45b8a2806cc6a308ef3494184420c7a5f77c4890045f6af618b37621f0700f1f",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6&_eventId=downloadCSV"
+          }
+        ],
+        "session_scope": "data/raw/ised-edgecore-paged/capture.json",
+        "upstream_total": null
+      },
+      "source": "ised",
+      "source_manifest": "data/raw/ised-edgecore-paged/capture.json",
+      "unit_id": "ised-rel-query-edgecore"
+    },
+    {
+      "import_ordinal_zero_based": 33,
+      "scope": {
+        "coverage": "complete returned company-name query HTML; not full REL coverage",
+        "date_range": null,
+        "date_range_status": "not declared; do not infer from returned approval dates",
+        "endpoint": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA",
+        "exact_company_query": "Oracle",
+        "legacy_session_id": null,
+        "live_cross_session_reuse": false,
+        "reported_query_total": 12,
+        "saved_response_context": [
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s1&lang=en_CA",
+            "method": "GET",
+            "path": "form.html",
+            "sha256": "753b901b73c16f3b95a27edef476ba19193c773a8093792d7c0e95d654d2ae31",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s2",
+            "method": "POST",
+            "path": "response-00.html",
+            "sha256": "26e88f32ab2c5f1e1e73d5f050d7600829c247177e9c12bcfaa2d945813a6b58",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s3",
+            "method": "POST",
+            "path": "response-01.html",
+            "sha256": "2646be10dd5911b463f964550004e08b21ea34449d726eebd07793d85bf57b69",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4",
+            "method": "POST",
+            "path": "response-02.html",
+            "sha256": "cfae35a90f434194e51b32036555c8be95431b93d7b86142144a45a7d2edb715",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s5",
+            "method": "GET",
+            "path": "export-00.response",
+            "sha256": "9d9f136b1b6962e7c8d3bbd5904ab11f0ec62a9369df216cb82cef52b5386e6d",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4&_eventId=download"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6",
+            "method": "POST",
+            "path": "export-01.response",
+            "sha256": "01be533005c105ce8654d654873689ae78320df1fc77314e0fb7ad47822ba2be",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/csv;charset=ISO-8859-1",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6&_eventId=downloadCSV",
+            "method": "GET",
+            "path": "results.csv",
+            "sha256": "666c097eeb6d2fc037fc393ada00fb60e572d6e970c9cdb169cf16b731849286",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s6&_eventId=downloadCSV"
+          }
+        ],
+        "session_scope": "data/raw/ised-oracle/capture-paged.json",
+        "upstream_total": null
+      },
+      "source": "ised",
+      "source_manifest": "data/raw/ised-oracle/capture-paged.json",
+      "unit_id": "ised-rel-query-oracle"
+    },
+    {
+      "import_ordinal_zero_based": 34,
+      "scope": {
+        "coverage": "complete returned company-name query HTML; not full REL coverage",
+        "date_range": null,
+        "date_range_status": "not declared; do not infer from returned approval dates",
+        "endpoint": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA",
+        "exact_company_query": "Celestica",
+        "legacy_session_id": null,
+        "live_cross_session_reuse": false,
+        "reported_query_total": 0,
+        "saved_response_context": [
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s1&lang=en_CA",
+            "method": "GET",
+            "path": "form.html",
+            "sha256": "753b901b73c16f3b95a27edef476ba19193c773a8093792d7c0e95d654d2ae31",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?lang=en_CA"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s2",
+            "method": "POST",
+            "path": "response-00.html",
+            "sha256": "26e88f32ab2c5f1e1e73d5f050d7600829c247177e9c12bcfaa2d945813a6b58",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s3",
+            "method": "POST",
+            "path": "response-01.html",
+            "sha256": "2646be10dd5911b463f964550004e08b21ea34449d726eebd07793d85bf57b69",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          },
+          {
+            "content_type": "text/html;charset=UTF-8",
+            "final_url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments?execution=e1s4",
+            "method": "POST",
+            "path": "response-02.html",
+            "sha256": "259b2fe13429a2b8abac2420a97451e9048ba59d67d2bfd7b8adf5344c222afe",
+            "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments"
+          }
+        ],
+        "session_scope": "data/raw/ised-celestica/capture-paged.json",
+        "upstream_total": null
+      },
+      "source": "ised",
+      "source_manifest": "data/raw/ised-celestica/capture-paged.json",
+      "unit_id": "ised-rel-query-celestica"
+    },
+    {
+      "import_ordinal_zero_based": 66,
+      "scope": {
+        "coverage": "complete returned query CSV with every detail; not full regulator coverage",
+        "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+        "date_semantics": "approval-date window; not a change feed",
+        "exact_query": {
+          "app_no": "",
+          "category": "",
+          "equip": "",
+          "firm": "",
+          "fromdate": "19900101",
+          "maker": "Celestica",
+          "model_no": "",
+          "nation": "",
+          "todate": "20260926"
+        },
+        "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+        "upstream_total": null
+      },
+      "source": "rra",
+      "source_manifest": "data/raw/rra-celestica-official/bundle.json",
+      "unit_id": "rra-official-query-41e4ca912b33"
+    },
+    {
+      "import_ordinal_zero_based": 67,
+      "scope": {
+        "coverage": "complete returned query CSV with every detail; not full regulator coverage",
+        "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+        "date_semantics": "approval-date window; not a change feed",
+        "exact_query": {
+          "app_no": "",
+          "category": "",
+          "equip": "",
+          "firm": "",
+          "fromdate": "19900101",
+          "maker": "Amazon Data Services",
+          "model_no": "",
+          "nation": "",
+          "todate": "20260926"
+        },
+        "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+        "upstream_total": null
+      },
+      "source": "rra",
+      "source_manifest": "data/raw/rra-amazon-data-services-official/bundle.json",
+      "unit_id": "rra-official-query-33f7d154085d"
+    },
+    {
+      "import_ordinal_zero_based": 68,
+      "scope": {
+        "coverage": "complete returned query CSV with every detail; not full regulator coverage",
+        "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+        "date_semantics": "approval-date window; not a change feed",
+        "exact_query": {
+          "app_no": "",
+          "category": "",
+          "equip": "",
+          "firm": "",
+          "fromdate": "19900101",
+          "maker": "Edgecore",
+          "model_no": "",
+          "nation": "",
+          "todate": "20260926"
+        },
+        "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+        "upstream_total": null
+      },
+      "source": "rra",
+      "source_manifest": "data/raw/rra-edgecore-official/bundle.json",
+      "unit_id": "rra-official-query-63cb0b9098c7"
+    },
+    {
+      "import_ordinal_zero_based": 69,
+      "scope": {
+        "coverage": "complete returned query CSV with every detail; not full regulator coverage",
+        "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+        "date_semantics": "approval-date window; not a change feed",
+        "exact_query": {
+          "app_no": "",
+          "category": "",
+          "equip": "",
+          "firm": "",
+          "fromdate": "19900101",
+          "maker": "Accton",
+          "model_no": "",
+          "nation": "",
+          "todate": "20260926"
+        },
+        "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+        "upstream_total": null
+      },
+      "source": "rra",
+      "source_manifest": "data/raw/rra-accton-official/bundle.json",
+      "unit_id": "rra-official-query-e5984834207f"
+    },
+    {
+      "import_ordinal_zero_based": 70,
+      "scope": {
+        "coverage": "complete returned query CSV with every detail; not full regulator coverage",
+        "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+        "date_semantics": "approval-date window; not a change feed",
+        "exact_query": {
+          "app_no": "",
+          "category": "",
+          "equip": "",
+          "firm": "",
+          "fromdate": "19900101",
+          "maker": "Oracle",
+          "model_no": "",
+          "nation": "",
+          "todate": "20260926"
+        },
+        "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+        "upstream_total": null
+      },
+      "source": "rra",
+      "source_manifest": "data/raw/rra-oracle-official/bundle.json",
+      "unit_id": "rra-official-query-73009f906e4e"
+    },
+    {
+      "import_ordinal_zero_based": 71,
+      "scope": {
+        "coverage": "complete returned query CSV with every detail; not full regulator coverage",
+        "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+        "date_semantics": "approval-date window; not a change feed",
+        "exact_query": {
+          "app_no": "",
+          "category": "",
+          "equip": "",
+          "firm": "",
+          "fromdate": "19900101",
+          "maker": "Edge-Core",
+          "model_no": "",
+          "nation": "",
+          "todate": "20260926"
+        },
+        "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+        "upstream_total": null
+      },
+      "source": "rra",
+      "source_manifest": "data/raw/rra-edge-core-hyphen-official/bundle.json",
+      "unit_id": "rra-official-query-5827f2fe7092"
+    },
+    {
+      "import_ordinal_zero_based": 72,
+      "scope": {
+        "coverage": "complete returned query CSV with every detail; not full regulator coverage",
+        "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+        "date_semantics": "approval-date window; not a change feed",
+        "exact_query": {
+          "app_no": "",
+          "category": "",
+          "equip": "",
+          "firm": "",
+          "fromdate": "19900101",
+          "maker": "Edge Core",
+          "model_no": "",
+          "nation": "",
+          "todate": "20260926"
+        },
+        "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+        "upstream_total": null
+      },
+      "source": "rra",
+      "source_manifest": "data/raw/rra-edge-core-space-official/bundle.json",
+      "unit_id": "rra-official-query-78fc6b2e95f6"
+    }
+  ],
+  "mode": "offline_saved_inputs_only",
+  "outcome_vocabulary": [
+    "planned",
+    "observed",
+    "validated_nonempty",
+    "explicit_zero",
+    "unknown",
+    "failed",
+    "blocked",
+    "throttled",
+    "budget_exhausted"
+  ],
+  "pinned_adapter_recipe_policy": [
+    {
+      "byte_count": 5277,
+      "path": "AGENTS.md",
+      "sha256": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7"
+    },
+    {
+      "byte_count": 2820,
+      "path": "GOAL.md",
+      "sha256": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323"
+    },
+    {
+      "byte_count": 4677,
+      "path": "docs/evidence-policy.md",
+      "sha256": "688c4e932a6dc6e8951f10699e35dc62625e42466133b831c9c146b95a00357f"
+    },
+    {
+      "byte_count": 10265,
+      "path": "docs/agent-workflow.md",
+      "sha256": "1c73615cab2c82dadfebaca41c2c3d40d5f5e24a5504b78312ad97f7bfd5db1b"
+    },
+    {
+      "byte_count": 22587,
+      "path": "docs/campaign-plan.md",
+      "sha256": "b00472f621e62787683661730cdbb8474e72b83ec2d8a5b2778818e004731969"
+    },
+    {
+      "byte_count": 13008,
+      "path": "devicehunt/rra.py",
+      "sha256": "0c7eb1db9038331fea1d7c1487d4c6e38ca679c3b84c4bccf5ae143cd77222e9"
+    },
+    {
+      "byte_count": 6342,
+      "path": "devicehunt/rra_company_names.py",
+      "sha256": "1339154e98c8c265907b3e5360672cee87f56bce54e58b8bbbdda5e072b72438"
+    },
+    {
+      "byte_count": 4141,
+      "path": "devicehunt/rra_celestica_historical.py",
+      "sha256": "b6b12b86d8b55f1c4605eb267c179c8d18c4157330d8c07af87da06a9834e0d3"
+    },
+    {
+      "byte_count": 15348,
+      "path": "devicehunt/ised.py",
+      "sha256": "ca02de1d0b25f46ff080aab19d30d9e67d17962015517deb37812ee911c9a31c"
+    },
+    {
+      "byte_count": 32201,
+      "path": "devicehunt/catalog.py",
+      "sha256": "2c5731c8a1fbac7f7c6f3d57284cb0ae3448cd26277c5e1446e83f054192c8ef"
+    },
+    {
+      "byte_count": 8733,
+      "path": "devicehunt/documents.py",
+      "sha256": "bf53dda105b2e98fcc46c851c9fa24483c32fa5308a82a7b5024c629750b53d5"
+    },
+    {
+      "byte_count": 10875,
+      "path": "devicehunt/fcc_index.py",
+      "sha256": "8cafe01cbbfa22e6013f3c7f18e4062b79d392ea2ffa0f8869e66c650622bc79"
+    },
+    {
+      "byte_count": 17287,
+      "path": "devicehunt/importers.py",
+      "sha256": "99e5051a5c09c0abee1606e2127bea88e7539ca65b704f503b44ccb7d3ba7d51"
+    },
+    {
+      "byte_count": 5747,
+      "path": "devicehunt/oracle_evidence.py",
+      "sha256": "2c4b940321232839eb0e1fdbb121698dfa134083efbc04e43a5864a3bb656171"
+    },
+    {
+      "byte_count": 4448,
+      "path": "research/capture_rra_query.py",
+      "sha256": "f00b0580f4213c21fc1408195974e765f22e8d3a08f1c006c7fe662beb4893f6"
+    },
+    {
+      "byte_count": 2460,
+      "path": "research/capture_rra_details.py",
+      "sha256": "d548f70d6a53ef95bda9fba7e017e33d1c4b6b8b8a88efb49eb66f4ea18d772d"
+    },
+    {
+      "byte_count": 6729,
+      "path": "research/capture_ised.py",
+      "sha256": "f5b337f0aba776d0fa64fdcdd40d87715051368da7f724cb30ab57094729f008"
+    },
+    {
+      "byte_count": 10501,
+      "path": "tests/test_rra.py",
+      "sha256": "bcd0c1debd5d5865e27d5fd5d498cf54c227a19aae2878e42a84d284c2784be0"
+    },
+    {
+      "byte_count": 6892,
+      "path": "tests/test_rra_empty.py",
+      "sha256": "2ae013e3da689c7683c3bbe5b4c3fd42a93ad2050b49ff9e18c951022c1158bf"
+    },
+    {
+      "byte_count": 3025,
+      "path": "tests/test_rra_capture.py",
+      "sha256": "844df43b449941fc290746eaf92b1eeb8f81eeae01ac4d9c95dc2c0136522802"
+    },
+    {
+      "byte_count": 5282,
+      "path": "tests/test_rra_company_names.py",
+      "sha256": "b2ec2345a52e2ab91f8872a3e32175263e074ae414081d4d8746cb608371a71e"
+    },
+    {
+      "byte_count": 4211,
+      "path": "tests/test_rra_accton_company.py",
+      "sha256": "dacc02088c38cb6e68d1b6a72798abfa0295278132629ffc7835182666881fba"
+    },
+    {
+      "byte_count": 4739,
+      "path": "tests/test_rra_celestica_historical.py",
+      "sha256": "31015182538d6d4f83e4682903967ef9a34c83fb117f3bb2ab7e5c08422dbc3a"
+    },
+    {
+      "byte_count": 4644,
+      "path": "tests/test_ised.py",
+      "sha256": "97b1c187656c310b6171cb38ebc51df031220de52aa1f5819d6686bae099482f"
+    },
+    {
+      "byte_count": 8852,
+      "path": "tests/test_ised_paged.py",
+      "sha256": "40c01049a74f557df07c9fe217cce16617c130ebf1d7b1b4a6f964294625f038"
+    },
+    {
+      "byte_count": 1736,
+      "path": "tests/test_ised_capture.py",
+      "sha256": "6c66d12361b4c0873fbacbbb03ac715f750b7b2d7fe820003a15debb08968170"
+    },
+    {
+      "byte_count": 41413,
+      "path": "research/batches/campaign-pilot-2026-10-04/inventory/pin_inventory.py",
+      "sha256": "5e1252eb736f9c39b12c292985d5802759ced5e263cfb57ad164ccf3202d871f"
+    }
+  ],
+  "refresh_policy": {
+    "enabled": false,
+    "ised": "saved replay only; live session/form/cache contract unimplemented; no cross-session live reuse",
+    "next_eligibility": null,
+    "rra": "future reviewed complete refresh must retain exact query/date scope; before/after are distinct HTTP attempts; comparison mode retained"
+  },
+  "review_sample_selectors": [
+    {
+      "case": "repeated_html_certificate",
+      "selector": {
+        "ordinals": [
+          2,
+          3,
+          4
+        ],
+        "value": "25869-TE1A001"
+      },
+      "unit_id": "ised-rel-25869"
+    },
+    {
+      "case": "html_without_exact_csv_ordinals",
+      "raw_ordinals": [
+        1,
+        9,
+        10,
+        11,
+        23,
+        24,
+        25,
+        49,
+        52,
+        53,
+        65,
+        132,
+        145,
+        151,
+        159
+      ],
+      "unit_id": "ised-rel-query-accton"
+    },
+    {
+      "case": "unmatched_csv_ordinals",
+      "raw_ordinals": [
+        307,
+        308,
+        309,
+        324,
+        325,
+        368
+      ],
+      "unit_id": "ised-rel-query-accton"
+    },
+    {
+      "case": "blank_html_certificate_ordinals",
+      "raw_ordinals": [
+        1
+      ],
+      "unit_id": "ised-rel-query-accton"
+    },
+    {
+      "case": "non_target_html_ordinals",
+      "raw_ordinals": [
+        163,
+        164,
+        165,
+        166,
+        167
+      ],
+      "unit_id": "ised-rel-query-accton"
+    },
+    {
+      "case": "repeated_html_certificate",
+      "selector": {
+        "ordinals": [
+          7,
+          8
+        ],
+        "value": "3857104676A"
+      },
+      "unit_id": "ised-rel-query-accton"
+    },
+    {
+      "case": "repeated_html_certificate",
+      "selector": {
+        "ordinals": [
+          1,
+          2
+        ],
+        "value": "27052-EAP101N"
+      },
+      "unit_id": "ised-rel-query-edgecore"
+    },
+    {
+      "case": "company_heading_number_disagreement_ordinals",
+      "raw_ordinals": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "unit_id": "ised-rel-query-oracle"
+    },
+    {
+      "case": "repeated_html_certificate",
+      "selector": {
+        "ordinals": [
+          3,
+          4
+        ],
+        "value": "9870A-BBK3"
+      },
+      "unit_id": "ised-rel-query-oracle"
+    },
+    {
+      "case": "explicit_zero",
+      "selector": [
+        "response-02.html"
+      ],
+      "unit_id": "ised-rel-query-celestica"
+    },
+    {
+      "case": "saved_rra_query_stability",
+      "comparison_mode": "byte_identical",
+      "limit": "saved comparison only; distinct legacy HTTP attempts/times unverified",
+      "manifest_selectors": [
+        "/csv_before",
+        "/csv_after"
+      ],
+      "source_manifest": "data/raw/rra-celestica-official/bundle.json",
+      "unit_id": "rra-official-query-41e4ca912b33"
+    },
+    {
+      "case": "shared_literal_model_separate_manufacturer_claims",
+      "detail_path": "data/raw/rra-celestica-official/detail-007.html",
+      "limit": "preserve both source manufacturer associations; no winning role, supplier contract or deployment inference",
+      "literal_model": "AZ9074-64X-DC-42",
+      "raw_ordinal": 7,
+      "unit_id": "rra-official-query-41e4ca912b33"
+    },
+    {
+      "case": "reviewed_company_evidence_dependency",
+      "selector": {
+        "path": "celestica-historical-companies.json",
+        "sha256": "ab28b04a02c7d49adad9c3f681c4179e034d213585d6e27c8c6d8c1950305c5d"
+      },
+      "unit_id": "rra-official-query-41e4ca912b33"
+    },
+    {
+      "case": "separate_applicant_manufacturer",
+      "raw_ordinals": [
+        2
+      ],
+      "unit_id": "rra-official-query-41e4ca912b33"
+    },
+    {
+      "case": "shared_literal_model_separate_manufacturer_claims",
+      "detail_path": "data/raw/rra-amazon-data-services-official/detail-014.html",
+      "limit": "preserve both source manufacturer associations; no winning role, supplier contract or deployment inference",
+      "literal_model": "AZ9074-64X-DC-42",
+      "raw_ordinal": 14,
+      "unit_id": "rra-official-query-33f7d154085d"
+    },
+    {
+      "case": "separate_applicant_manufacturer",
+      "raw_ordinals": [
+        7
+      ],
+      "unit_id": "rra-official-query-63cb0b9098c7"
+    },
+    {
+      "case": "reviewed_company_evidence_dependency",
+      "selector": {
+        "path": "accton-singapore-2013.json",
+        "sha256": "099d73e802586b1ab61a3779b45bcbfcb280a6412d1cd9db58f2b03c6ca3ab27"
+      },
+      "unit_id": "rra-official-query-e5984834207f"
+    },
+    {
+      "case": "separate_applicant_manufacturer",
+      "raw_ordinals": [
+        7
+      ],
+      "unit_id": "rra-official-query-e5984834207f"
+    },
+    {
+      "case": "separate_applicant_manufacturer",
+      "raw_ordinals": [
+        19
+      ],
+      "unit_id": "rra-official-query-73009f906e4e"
+    },
+    {
+      "case": "separate_applicant_manufacturer",
+      "raw_ordinals": [
+        3
+      ],
+      "unit_id": "rra-official-query-5827f2fe7092"
+    },
+    {
+      "case": "explicit_zero",
+      "selector": {
+        "path": "empty-result.html",
+        "sha256": "898bbd42af415cd1629bea504b8218791196b89f2dc9eee906c539e5321eb6e8",
+        "url": "https://www.rra.go.kr/ko/license/A_c_search_view_en.do"
+      },
+      "unit_id": "rra-official-query-78fc6b2e95f6"
+    },
+    {
+      "case": "cross_query_certificate_overlap",
+      "certificate": "SUN-6000",
+      "independent_corroboration": false,
+      "occurrences": [
+        {
+          "detail_path": "data/raw/rra-celestica-official/detail-090.html",
+          "ordinal": 90,
+          "unit_id": "rra-official-query-41e4ca912b33"
+        },
+        {
+          "detail_path": "data/raw/rra-oracle-official/detail-215.html",
+          "ordinal": 215,
+          "unit_id": "rra-official-query-73009f906e4e"
+        }
+      ]
+    },
+    {
+      "artifact_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "case": "existing_accepted_pdf_lineage",
+      "locator": {
+        "kind": "pdf_page",
+        "page": 2,
+        "page_convention": "one-based PDF index",
+        "table_row": "Form Factor",
+        "text_sha256": "6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c"
+      },
+      "receipt_id": "reference-document-8687091cad49b0fc15ab1c559420d47930ed0e162571c6d6c9c178d323164ce7",
+      "release_id": "c468ef0721b90f5935615f37dd9619dad6fc1bc2159a107cbf054ede6aad5b79",
+      "scope": "existing release regression only; outside pilot source bytes",
+      "statement_id": "598700b5838f16dc89b52d6ed04ce72932f052195732f97f1a22375eea0b0caf"
+    },
+    {
+      "artifact_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "case": "existing_accepted_pdf_lineage",
+      "locator": {
+        "kind": "pdf_page",
+        "page": 2,
+        "page_convention": "one-based PDF index",
+        "table_row": "Power Supply",
+        "text_sha256": "6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c"
+      },
+      "receipt_id": "reference-document-8687091cad49b0fc15ab1c559420d47930ed0e162571c6d6c9c178d323164ce7",
+      "release_id": "c468ef0721b90f5935615f37dd9619dad6fc1bc2159a107cbf054ede6aad5b79",
+      "scope": "existing release regression only; outside pilot source bytes",
+      "statement_id": "b6e57e2299318c86b4bbde5ec0f1f73fc98cce7001235e4ae1ce87c5da94ec56"
+    },
+    {
+      "artifact_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "case": "existing_accepted_pdf_lineage",
+      "locator": {
+        "kind": "pdf_page",
+        "page": 2,
+        "page_convention": "one-based PDF index",
+        "table_row": "Fan",
+        "text_sha256": "6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c"
+      },
+      "receipt_id": "reference-document-8687091cad49b0fc15ab1c559420d47930ed0e162571c6d6c9c178d323164ce7",
+      "release_id": "c468ef0721b90f5935615f37dd9619dad6fc1bc2159a107cbf054ede6aad5b79",
+      "scope": "existing release regression only; outside pilot source bytes",
+      "statement_id": "3cfb26a6c9e314a88894808f26d07d696dd95e0f672de4f2f302883d7a607b18"
+    },
+    {
+      "artifact_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "case": "existing_accepted_pdf_lineage",
+      "locator": {
+        "kind": "pdf_page",
+        "page": 2,
+        "page_convention": "one-based PDF index",
+        "table_row": "left introductory paragraph",
+        "text_sha256": "6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c"
+      },
+      "receipt_id": "reference-document-8687091cad49b0fc15ab1c559420d47930ed0e162571c6d6c9c178d323164ce7",
+      "release_id": "c468ef0721b90f5935615f37dd9619dad6fc1bc2159a107cbf054ede6aad5b79",
+      "scope": "existing release regression only; outside pilot source bytes",
+      "statement_id": "fb60aa5747451b45d9d8a80cef88aaeb934c553ae7c79c6d3b37dbfa990a5e98"
+    },
+    {
+      "case": "failed_query_not_zero",
+      "input": "research/ised-radio-equipment.md",
+      "restriction_id": "ised-edge-core-form-error",
+      "scope": "context only; no extra import job"
+    }
+  ],
+  "schema_version": 1,
+  "source_content_set_sha256": "e5f68061d1a043bb49d5648341485c1071a4c992923df9c331a09be901737622",
+  "source_restrictions": {
+    "current_upstream_access": "unknown; not probed",
+    "global_policy_input": "docs/evidence-policy.md",
+    "inputs_read": [
+      "research/korean-rra-official.md",
+      "research/korean-rra-targets.md",
+      "research/rra-edge-core-spellings.md",
+      "research/rra-accton-company-name.md",
+      "research/rra-celestica-company-names.md",
+      "research/rra-main-model-lists.md",
+      "research/ised-radio-equipment.md",
+      "data/raw/rra-celestica-official/capture-progress.json",
+      "data/raw/rra-amazon-data-services-official/capture-progress.json",
+      "data/raw/rra-edgecore-official/capture-progress.json",
+      "data/raw/rra-accton-official/capture-progress.json",
+      "data/raw/rra-oracle-official/capture-progress.json",
+      "data/raw/rra-edge-core-hyphen-official/capture-progress.json",
+      "data/raw/rra-edge-core-space-official/capture-progress.json",
+      "data/raw/ised-amazon-export/capture.json",
+      "data/raw/ised-accton-paged/capture.json",
+      "data/raw/ised-edgecore-paged/capture.json",
+      "data/raw/ised-oracle/capture-paged.json",
+      "data/raw/ised-celestica/capture-paged.json",
+      "data/raw/rra-celestica-official/bundle.json",
+      "data/raw/rra-amazon-data-services-official/bundle.json",
+      "data/raw/rra-edgecore-official/bundle.json",
+      "data/raw/rra-accton-official/bundle.json",
+      "data/raw/rra-oracle-official/bundle.json",
+      "data/raw/rra-edge-core-hyphen-official/bundle.json",
+      "data/raw/rra-edge-core-space-official/bundle.json",
+      "data/raw/rra-accton-official/accton-singapore-2013.json",
+      "data/raw/rra-celestica-official/celestica-archived-21.1-reviewed.json",
+      "data/raw/rra-celestica-official/celestica-subsidiaries-2025.json"
+    ],
+    "known_outcomes": [
+      {
+        "action": "no requests; preserve prior outcome; no automatic retry or alternate route",
+        "input": "data/raw/rra-accton-official/accton-singapore-2013.json",
+        "input_sha256": "099d73e802586b1ab61a3779b45bcbfcb280a6412d1cd9db58f2b03c6ca3ab27",
+        "kind": "access_denied",
+        "resource_url": "https://www.accton.com/wp-content/uploads/2017/09/2013-Consolidated-Report.pdf",
+        "restriction_id": "accton-2013-original-pdf",
+        "restriction_time": null,
+        "restriction_time_status": "unknown exact attempt time",
+        "selector": "/scope",
+        "status_code": 402
+      },
+      {
+        "action": "no requests; preserve prior outcome; no automatic retry or alternate route",
+        "input": "data/raw/rra-celestica-official/celestica-subsidiaries-2025.json",
+        "input_sha256": "76ea1f6a82a27ac9f93a6d0521c507f61a0d804b1fea4eeba0640098f126376e",
+        "kind": "access_denied",
+        "resource_url": "https://celestica.gcs-web.com/node/17171/html",
+        "restriction_id": "celestica-2025-original-filing",
+        "restriction_time": null,
+        "restriction_time_status": "unknown exact attempt time",
+        "selector": "/scope",
+        "status_code": 403
+      },
+      {
+        "action": "no requests; preserve prior outcome; no automatic retry or alternate route",
+        "input": "data/raw/rra-celestica-official/celestica-archived-21.1-reviewed.json",
+        "input_sha256": "94ae2a80ac4fc89536afd748f01af1536f1a0b43ab76eaf23cdcc3376f9a45c5",
+        "kind": "access_denied",
+        "resource_url": "https://corporate.celestica.com/static-files/aae92c39-4634-4e66-805e-6fb4adca1376",
+        "restriction_id": "celestica-archived-original-exhibit",
+        "restriction_time": null,
+        "restriction_time_status": "unknown exact attempt time",
+        "selector": "/retrieval_limit",
+        "status_code": 403
+      },
+      {
+        "action": "no requests; preserve prior outcome; no automatic retry or alternate route",
+        "input": "research/ised-radio-equipment.md",
+        "input_sha256": "35fe69a9ddea9049c0d64ae63b6776ec7d8b859fd01dbf4855e8c89f1aaa3a2b",
+        "kind": "failed_query_not_zero",
+        "resource_url": null,
+        "restriction_id": "ised-edge-core-form-error",
+        "restriction_time": null,
+        "restriction_time_status": "unknown exact attempt time",
+        "selector": "Expanded queries and source discrepancies",
+        "source_query": "Edge-Core",
+        "status_code": null
+      },
+      {
+        "action": "no requests; preserve prior outcome; no automatic retry or alternate route",
+        "input": "research/korean-rra-official.md",
+        "input_sha256": "512f95293901c5c63804c12d76d235eee358819f578ea0f2f2a31901b5e79242",
+        "kind": "failed_endpoint",
+        "resource_url": null,
+        "restriction_id": "rra-emsit-api-failure",
+        "restriction_time": null,
+        "restriction_time_status": "unknown exact attempt time",
+        "selector": "Relationship to the previous mirror capture",
+        "status_code": 400
+      }
+    ],
+    "scope_rule": "denied resource identity persists across URL changes; broader saved restrictions remain authoritative",
+    "throttle_state": "unknown; no current attempt",
+    "unit_inspections": [
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/ised-amazon-export",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [],
+        "unit_id": "ised-rel-25869"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/ised-accton-paged",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [],
+        "unit_id": "ised-rel-query-accton"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/ised-edgecore-paged",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [],
+        "unit_id": "ised-rel-query-edgecore"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/ised-oracle",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [],
+        "unit_id": "ised-rel-query-oracle"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/ised-celestica",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [],
+        "unit_id": "ised-rel-query-celestica"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/rra-celestica-official",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [
+          "data/raw/rra-celestica-official/capture-progress.json"
+        ],
+        "unit_id": "rra-official-query-41e4ca912b33"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/rra-amazon-data-services-official",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [
+          "data/raw/rra-amazon-data-services-official/capture-progress.json"
+        ],
+        "unit_id": "rra-official-query-33f7d154085d"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/rra-edgecore-official",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [
+          "data/raw/rra-edgecore-official/capture-progress.json"
+        ],
+        "unit_id": "rra-official-query-63cb0b9098c7"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/rra-accton-official",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [
+          "data/raw/rra-accton-official/capture-progress.json"
+        ],
+        "unit_id": "rra-official-query-e5984834207f"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/rra-oracle-official",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [
+          "data/raw/rra-oracle-official/capture-progress.json"
+        ],
+        "unit_id": "rra-official-query-73009f906e4e"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/rra-edge-core-hyphen-official",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [
+          "data/raw/rra-edge-core-hyphen-official/capture-progress.json"
+        ],
+        "unit_id": "rra-official-query-5827f2fe7092"
+      },
+      {
+        "absence_semantics": "no dedicated report found is unknown; not unrestricted",
+        "dedicated_transport_failure_report": null,
+        "directory": "data/raw/rra-edge-core-space-official",
+        "restriction_state": "unknown beyond named saved restrictions",
+        "saved_reports_read": [
+          "data/raw/rra-edge-core-space-official/capture-progress.json"
+        ],
+        "unit_id": "rra-official-query-78fc6b2e95f6"
+      }
+    ]
+  },
+  "stage": "c0",
+  "stop_condition": "12 accepted source jobs and recursively declared dependencies pinned and validated; no collection/import",
+  "storage_policy": "register existing files in place; no catalog/source copies; overflow stops/checkpoints without dropping mandatory dependencies; never delete evidence/history to make room; integration DB space is outside this metadata-only cap and requires a separate assignment",
+  "version": 1
+}

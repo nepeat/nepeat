@@ -1,0 +1,13 @@
+{
+  "completed_at": "2026-10-13T03:18:40.522255+00:00",
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.test_archive_release"
+  ],
+  "exit_code": 0,
+  "reason": "final complete-collection length guard added during preceding suite",
+  "stdout": "archive-final-tests.stdout",
+  "stderr": "archive-final-tests.stderr"
+}

@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-04",
+  "queries": [
+    "site.qct.io D51B-2U datasheet pdf",
+    "site.qct.io D52BQ-2U datasheet pdf",
+    "site.qct.io T41S-2U datasheet pdf",
+    "\"D51B-2U\" \"pdf\" \"qct.io\" datasheet",
+    "\"D52BQ-2U\" \"Datasheet\" pdf",
+    "\"T41S-2U\" \"Datasheet\" pdf",
+    "\"QuantaGrid D52BQ-2U\" site:qct.io/Product",
+    "\"QuantaPlex T41S-2U\" site:qct.io/Product"
+  ],
+  "limit": 8,
+  "no_more_searches": true,
+  "lead_boundary": "Search results are discovery only. Known Broadwell403 index appeared among search results but was not opened or fetched.",
+  "provenance": "Exact queries copied from retained search-log.json and this worker tool-call history. Full web tool results were not saved as local raw captures. Reference IDs are ephemeral tool references, not source snapshots.",
+  "calls": [
+    {
+      "query_indexes_1_based": [
+        1,
+        2,
+        3
+      ],
+      "retained_result_reference_examples": [
+        "turn417search1",
+        "turn417search9",
+        "turn417search12"
+      ]
+    },
+    {
+      "query_indexes_1_based": [
+        4,
+        5,
+        6
+      ],
+      "retained_result_reference_examples": [
+        "turn418search0",
+        "turn418search2",
+        "turn418search7"
+      ]
+    },
+    {
+      "query_indexes_1_based": [
+        7,
+        8
+      ],
+      "retained_result_reference_examples": [
+        "turn419search3",
+        "turn419search4",
+        "turn419search0"
+      ]
+    }
+  ],
+  "captured_source_ledger": "data/raw/vendor-discovery-qct-2026-10-04/fetch-report.json",
+  "no_new_search_or_fetch": true
+}

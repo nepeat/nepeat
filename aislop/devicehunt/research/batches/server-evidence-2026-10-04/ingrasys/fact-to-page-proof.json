@@ -1,0 +1,870 @@
+[
+  {
+    "model": "SV1120A",
+    "fact": "physical_description",
+    "raw_value": "1 RU",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "power_description",
+    "raw_value": "2 x 2400W Platinum Redundant (1+1) PSU",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "expansion_slots",
+    "raw_value": "2 x PCIe 5.0 x16 FHHL Slots; 1 x PCIe 5.0 x16 OCP NIC 3.0",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 1.71” x 17.32” x 32.4” / 43.4mm x 440.0mm x 823.4mm",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "cooling_description",
+    "raw_value": "8 x 4056 Dual Rotor System Fans (N+1 Redundant)",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "processor",
+    "raw_value": "2 x 4th Gen AMD EPYC™ Processors",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "memory",
+    "raw_value": "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "hpm_motherboard",
+    "raw_value": "AMD Platform",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "document_page",
+    "raw_value": "3",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "document_footer_year",
+    "raw_value": "2023",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 3,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "identity_limit",
+    "raw_value": "Exact SV1120A only; no equivalence to unsuffixed SV1120 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 3,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 3,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1120A",
+    "fact": "storage_description",
+    "raw_value": "SKU 1: 24 x E1.S SSDs, 2 x 22110 M.2 Boot Drives; SKU 2: 12 x U.2 NVMe SSDs, 2 x 22110 M.2 Boot Drives",
+    "page": 3,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "physical_description",
+    "raw_value": "1 RU",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "power_description",
+    "raw_value": "2 x 2400W Platinum Redundant (1+1) PSU",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "expansion_slots",
+    "raw_value": "2 x PCIe 5.0 x16 FHHL Slots; 1 x PCIe 5.0 x16 OCP NIC 3.0",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 1.71” x 17.32” x 32.4” / 43.4mm x 440.0mm x 823.4mm",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "cooling_description",
+    "raw_value": "8 x 4056 Dual Rotor System Fans (N+1 Redundant), CPU Remote Heatsink",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "processor",
+    "raw_value": "2 x 4th Gen Intel® Xeon® Scalable Processors",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "memory",
+    "raw_value": "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "hpm_motherboard",
+    "raw_value": "Intel Platform",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "document_page",
+    "raw_value": "4",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "document_footer_year",
+    "raw_value": "2023",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 4,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "identity_limit",
+    "raw_value": "Exact SV1120I only; no equivalence to unsuffixed SV1120 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 4,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 4,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1120I",
+    "fact": "storage_description",
+    "raw_value": "SKU 1: 24 x E1.S SSDs, 2 x 22110 M.2 Boot Drives; SKU 2: 12 x U.2 NVMe SSDs, 2 x 22110 M.2 Boot Drives",
+    "page": 4,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "physical_description",
+    "raw_value": "1 OU",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "power_description",
+    "raw_value": "Centralized 48V Bus Bar with PDB",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "expansion_slots",
+    "raw_value": "SKU 1 & 3: 2 x PCIe 5.0 x16 FHHL Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0; SKU 2: 2 x PCIe 5.0 x16 FHAHL Slots, 2 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 1.75” x 21.14” x 31.76” / 44.7mm x 537.0mm x 806.7mm",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "cooling_description",
+    "raw_value": "Air: CPU Remote Heatsink, 11 x 4056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 7 x 4056 Dual Rotor System Fans (N+1 Redundant)",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "processor",
+    "raw_value": "2 x 4th Gen AMD EPYC™ Processors",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "memory",
+    "raw_value": "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC; 2 x E3.S CXL Memory Modules (SKU 3)",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "hpm_motherboard",
+    "raw_value": "AMD Platform",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "document_page",
+    "raw_value": "5",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "document_footer_year",
+    "raw_value": "2023",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 5,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "identity_limit",
+    "raw_value": "Exact SV1121A only; no equivalence to unsuffixed SV1121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 5,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 5,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1121A",
+    "fact": "storage_description",
+    "raw_value": "SKU 1: 12 x E1.S SSDs; SKU 2: 6 x E1.S SSDs; SKU 3: 6 x E1.S SSDs; All SKUs with 2 x 22110 M.2 Boot Drives",
+    "page": 5,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "physical_description",
+    "raw_value": "1 OU",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "power_description",
+    "raw_value": "Centralized 48V Bus Bar with PDB",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "expansion_slots",
+    "raw_value": "SKU 1 & 3: 2 x PCIe 5.0 x16 FHHL Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0; SKU 2: 2 x PCIe 5.0 x16 FHAHL Slots, 2 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 1.75” x 21.14” x 31.76” / 44.7mm x 537.0mm x 806.7mm",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "cooling_description",
+    "raw_value": "Air: CPU Remote Heatsink, 11 x 4056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 7 x 4056 Dual Rotor System Fans (N+1 Redundant)",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "processor",
+    "raw_value": "2 x 4th Gen Intel® Xeon® Scalable Processors",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "memory",
+    "raw_value": "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC; 2 x E3.S CXL Memory Modules (SKU 3)",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "hpm_motherboard",
+    "raw_value": "Intel Platform",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "document_page",
+    "raw_value": "6",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "document_footer_year",
+    "raw_value": "2023",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 6,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "identity_limit",
+    "raw_value": "Exact SV1121I only; no equivalence to unsuffixed SV1121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 6,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 6,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV1121I",
+    "fact": "storage_description",
+    "raw_value": "SKU 1: 12 x E1.S SSDs; SKU 2: 6 x E1.S SSDs; SKU 3: 6 x E1.S SSDs; All SKUs with 2 x 22110 M.2 Boot Drives",
+    "page": 6,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "physical_description",
+    "raw_value": "2 OU",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "power_description",
+    "raw_value": "Centralized 48V Bus Bar with PDB",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "expansion_slots",
+    "raw_value": "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "cooling_description",
+    "raw_value": "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "processor",
+    "raw_value": "2 x 4th Gen AMD EPYC™ Processors",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "memory",
+    "raw_value": "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "hpm_motherboard",
+    "raw_value": "AMD Platform",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "document_page",
+    "raw_value": "7",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "document_footer_year",
+    "raw_value": "2023",
+    "page": 7,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 7,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "identity_limit",
+    "raw_value": "Exact SV2121A only; no equivalence to unsuffixed SV2121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 7,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2121A",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 7,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "physical_description",
+    "raw_value": "2 OU",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "power_description",
+    "raw_value": "Centralized 48V Bus Bar with PDB",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "expansion_slots",
+    "raw_value": "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "cooling_description",
+    "raw_value": "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "processor",
+    "raw_value": "2 x 5th/4th Gen Intel® Xeon® Scalable Processors",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "memory",
+    "raw_value": "5th Gen: 32x DDR5 RDIMMs, 8-Channel, up to 5600 MT/s at 1DPC, 4800 MT/s at 2DPC; 4th Gen: 32x DDR5 RDIMMs, 8-Channel, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "hpm_motherboard",
+    "raw_value": "Intel Platform",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "document_page",
+    "raw_value": "8",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "document_footer_year",
+    "raw_value": "2025",
+    "page": 8,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 8,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "identity_limit",
+    "raw_value": "Exact SV2121I only; no equivalence to unsuffixed SV2121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 8,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2121I",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 8,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "physical_description",
+    "raw_value": "2 OU",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "power_description",
+    "raw_value": "Centralized 48V Bus Bar with PDB",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "expansion_slots",
+    "raw_value": "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "cooling_description",
+    "raw_value": "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "processor",
+    "raw_value": "2 x 5th Gen AMD EPYC™ Processors",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "memory",
+    "raw_value": "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 6000 MT/s at 1DPC",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "hpm_motherboard",
+    "raw_value": "AMD Platform",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "document_page",
+    "raw_value": "9",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "document_footer_year",
+    "raw_value": "2025",
+    "page": 9,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 9,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "identity_limit",
+    "raw_value": "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 9,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2221A",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 9,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "physical_description",
+    "raw_value": "2 OU",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "power_description",
+    "raw_value": "Centralized 48V Bus Bar with PDB",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "expansion_slots",
+    "raw_value": "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "chassis_dimensions",
+    "raw_value": "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "io_ports",
+    "raw_value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "security_management",
+    "raw_value": "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "cooling_description",
+    "raw_value": "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "processor",
+    "raw_value": "2 x Intel® Xeon® 6 Processors",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "memory",
+    "raw_value": "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 6400 MT/s at 1DPC, 5200 MT/s at 2DPC",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "hpm_motherboard",
+    "raw_value": "Intel Platform",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "document_page",
+    "raw_value": "10",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "document_footer_year",
+    "raw_value": "2025",
+    "page": 10,
+    "method": "manual visual transcription"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "source_scope",
+    "raw_value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+    "page": 10,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "identity_limit",
+    "raw_value": "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+    "page": 10,
+    "method": "provenance/boundary annotation"
+  },
+  {
+    "model": "SV2221I",
+    "fact": "source_derivative_sha256",
+    "raw_value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "page": 10,
+    "method": "provenance/boundary annotation"
+  }
+]

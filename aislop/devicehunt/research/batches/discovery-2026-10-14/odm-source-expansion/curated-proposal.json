@@ -1,0 +1,3932 @@
+{
+  "schema_version": 1,
+  "status": "private proposal, unimported and independently unreviewed",
+  "scope": "exact selected-partner NVIDIA rows and exact MiTAC product card headings only",
+  "excluded_claims": [
+    "physical manufacture",
+    "deployment",
+    "alias relationships",
+    "auction-unit fitment",
+    "current qualification/support guarantee"
+  ],
+  "amd_exclusion": "all PDF fragments stay raw; no merged-partner or multiline-identity inference",
+  "candidates": [
+    {
+      "printed_company": "PEGATRON",
+      "printed_model": "AS205-2T1",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 11,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-4-3-200",
+            "row_ordinal": 12
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 353,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 260
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-221GE-NR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 12,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-4-3-200",
+            "row_ordinal": 13
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 384,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 291
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-421GE-TNRT3",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 13,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-4-3-200",
+            "row_ordinal": 14
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Wistron",
+      "printed_model": "E-Wing-Ahsoka",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 14,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-4-3-200",
+            "row_ordinal": 15
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 409,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 316
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inventec",
+      "printed_model": "P90G6",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 24,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 11
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 271,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 178
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "PEGATRON",
+      "printed_model": "AS400-2A1",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 33,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 20
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 354,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 261
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "PEGATRON",
+      "printed_model": "AS400-2A1-CX8",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 34,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 21
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 355,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 262
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D75E-4U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 35,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 22
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 362,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 269
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-5126GS-TNRT2",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 36,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 23
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 371,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 278
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-421GE-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 37,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 24
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-422GA-NRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 38,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 25
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 395,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 302
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-422GL-NR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 39,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 26
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 397,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 304
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-521GE-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 40,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 27
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 41,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 28
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 42,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 29
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 400,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 307
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-522GA-NRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 43,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 30
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 401,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 308
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Wistron",
+      "printed_model": "X-wing-Flyboy (Tacoma)",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 44,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-pcie-ref-2-8-5-200",
+            "row_ordinal": 31
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 411,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 318
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inventec",
+      "printed_model": "P8000G6",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 58,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 15
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 273,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 180
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inventec",
+      "printed_model": "P9000IG6(AC)",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 59,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 16
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 274,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 181
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "PEGATRON",
+      "printed_model": "AS800-2T0-8H1",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 65,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 22
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 356,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 263
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D74H-7U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 66,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 23
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 361,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 268
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-A126GS-TNBR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 67,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 24
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 365,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 272
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-4125GS-TNHR2-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 68,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 25
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 366,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 273
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-4126GS-NBR-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 69,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 26
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 369,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 276
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-8125GS-TNHR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 70,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 27
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 372,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 279
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-421GE-TNHR2-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 71,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 28
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 392,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 299
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-821GE-TNHR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 72,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 29
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 405,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 312
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-822GS-NBRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 73,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 30
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 407,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 314
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Wistron",
+      "printed_model": "Miramar - ICEMan",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 74,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-400",
+            "row_ordinal": 31
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-222GS-NB3OT-ALC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 76,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-800",
+            "row_ordinal": 3
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 388,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 295
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-422GS-NB3RT-ALC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 77,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-800",
+            "row_ordinal": 4
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 398,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 305
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-422GS-NB3RT-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 78,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-800",
+            "row_ordinal": 5
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 399,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 306
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-822GS-NB3RT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 79,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-9-800",
+            "row_ordinal": 6
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 406,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 313
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-4126GS-NB3RT-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 89,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-10-800",
+            "row_ordinal": 11
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 368,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 275
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "Gold Series AS-8126GS-NB3RT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 90,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-hgx-ref-2-8-10-800",
+            "row_ordinal": 12
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 373,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 280
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-4125GS-TNRT2",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 92,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-ref-config-inference-only-2-8-1",
+            "row_ordinal": 3
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 722,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 156
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-222C-TN",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 94,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-ref-config-inference-only-2-4-1",
+            "row_ordinal": 3
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 387,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 294
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inventec",
+      "printed_model": "P5000AG7",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 272,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 179
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D43N-3U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 357,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 264
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 563,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-vdi-servers",
+            "row_ordinal": 42
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D53XQ-2U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 358,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 265
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 564,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-vdi-servers",
+            "row_ordinal": 43
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 712,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 146
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D54U-3U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 359,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 266
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 713,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 147
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D54X-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 360,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 267
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid S44NL-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 363,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 270
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 714,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 148
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaPlex T43Z-2U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 364,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 271
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-4125GS-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 367,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 274
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-5126GS-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 370,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 277
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "GPU Blade SBA-4119SG",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 374,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 281
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-A21GE-NBRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 375,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 282
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-A22GA-NBRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 376,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 283
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-120GQ-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 377,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 284
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-120U-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 378,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 285
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-121H-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 379,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 286
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 507,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-workstations",
+            "row_ordinal": 82
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-122H-TN",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 380,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 287
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-212GB-FNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 381,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 288
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-220GP-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 382,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 289
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-220U-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 383,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 290
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-221GE-TNHT-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 385,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 292
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-221H-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 386,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 293
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-222H-TN",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 389,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 296
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-420GP-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 390,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 297
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-421GE-NBRT-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 391,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 298
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-421GU-TNXR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 393,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 300
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-422GA-NBRT-LCC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 394,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 301
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-422GL-FNR2",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 396,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 303
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-621H-TN12R",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 402,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 309
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 566,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-vdi-servers",
+            "row_ordinal": 45
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 729,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 163
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-740GP-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 403,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 310
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 511,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-workstations",
+            "row_ordinal": 86
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 567,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-vdi-servers",
+            "row_ordinal": 46
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-741GE-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 404,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 311
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "2114GT-DNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 408,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 315
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Wistron",
+      "printed_model": "Miramar -ICEMan",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 410,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-data-center-servers",
+            "row_ordinal": 317
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "PEGATRON",
+      "printed_model": "AS201-1N0",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 423,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-arm-cpu-systems",
+            "row_ordinal": 5
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid S74G-2U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 424,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-arm-cpu-systems",
+            "row_ordinal": 6
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "ARS-111GL-NHR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 425,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-arm-cpu-systems",
+            "row_ordinal": 7
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "ARS-221GL-NHIR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 426,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-arm-cpu-systems",
+            "row_ordinal": 8
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-531A-IL",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 508,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-workstations",
+            "row_ordinal": 83
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-540A-TR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 509,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-workstations",
+            "row_ordinal": 84
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-551A-T",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 510,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-workstations",
+            "row_ordinal": 85
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "5014A-TT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 512,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-workstations",
+            "row_ordinal": 87
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "5039A-i",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 513,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-workstations",
+            "row_ordinal": 88
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-2015HS-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 565,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-vdi-servers",
+            "row_ordinal": 44
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 719,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 153
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaEdge EGX77B-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 708,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 142
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaEdge EGX88D-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 709,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 143
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D44N-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 710,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 144
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D53X-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 711,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 145
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-2015CS-TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 718,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 152
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "AS-2115HV-TNRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 720,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 154
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 721,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 155
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-E403-12P-FN2T",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 723,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 157
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-120C-TN10R",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 724,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 158
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-220HE-FTNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 725,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 159
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-221HE-FTNRD",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 726,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 160
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-511E-WR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 727,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 161
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-512B-WR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 728,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 162
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-741P-TR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 730,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-edge-systems",
+            "row_ordinal": 164
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inventec",
+      "printed_model": "Atlas-700-R",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 739,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+          "source_path": "nvidia-certified.html",
+          "source_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+          "locator": {
+            "table_id": "table-igx-systems",
+            "row_ordinal": 7
+          },
+          "role_label_as_printed": "Partner",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inspur",
+      "printed_model": "NE5260M5",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 798,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 58
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 919,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 32
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inspur",
+      "printed_model": "NF5280M5",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 799,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 59
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 920,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 33
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inspur",
+      "printed_model": "NF5468M5",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 800,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 60
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inspur",
+      "printed_model": "NF5488M5",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 801,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 61
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Inventec",
+      "printed_model": "E850G4",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 802,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 62
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 921,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 34
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D43K-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 814,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 74
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 926,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 39
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D52BV-2U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": true,
+      "references": [
+        {
+          "discovery_row_index": 815,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 75
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 927,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 40
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D52G-4U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 816,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 76
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid D52Y-2U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 817,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 77
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 928,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 41
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid SD2H-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 818,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 78
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 929,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 42
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "QCT",
+      "printed_model": "QuantaGrid S43KL-1U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 819,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 79
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 930,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 43
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-1019D-FHN13TP",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 822,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 82
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 932,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 45
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-1019P-FHN2T",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 823,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 83
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 933,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 46
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-1019P-WTR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 824,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 84
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 934,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 47
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-1029U-TRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 825,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 85
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-2029GP-TR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 826,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 86
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 935,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 48
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-4029GP-TRT2",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 827,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 87
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-4029GP-TVRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 828,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 88
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-5019D-FN8TP",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 829,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 89
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 936,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 49
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-5039MD8-H8TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 830,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 90
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-5039MD18-H8TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 831,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 91
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-5039MP-H8TNR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 832,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 92
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Supermicro",
+      "printed_model": "SYS-7049GP-TRT",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 833,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 93
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Wiwynn",
+      "printed_model": "EP100",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 838,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 98
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        },
+        {
+          "discovery_row_index": 939,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-4",
+            "row_ordinal": 52
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "Wiwynn",
+      "printed_model": "SV310G3",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 839,
+          "source_url": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html",
+          "source_path": "redirect-nvidia-ngc-ready.pdf",
+          "source_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+          "locator": {
+            "table_id": "ordinal-1",
+            "row_ordinal": 99
+          },
+          "role_label_as_printed": "Manufacturer",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8056G68AE12HR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1082,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 1
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8056G68AE12HR-2T",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1083,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 2
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8056G68AE12HR-2T-TU-HE",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1084,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 3
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8056G68CE12HR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1085,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 4
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8056G68CE12HR-2T",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1086,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 5
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8056G68CE12HR-2T-TU",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1087,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 6
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8056G68CE12HR-2T-TU-HE",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1088,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 7
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8046G73AE12HR",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1089,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 8
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M50FCP1UR204",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1090,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 9
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M50FCP2UR208",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1091,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 10
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "R2520G6U2BC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1092,
+          "source_url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+          "source_path": "mitac-general.html",
+          "source_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+          "locator": {
+            "card_ordinal": 11
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "D50DNP2MFALAC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1093,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 1
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G4520G6E3BC-N",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1094,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 2
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G4520G6U2BC-N",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1095,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 3
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G4826Z5U2BC-355X-575",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1096,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 4
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G4826Z5U2BC-355X-755",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1097,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 5
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G8825Z5U2BC-325X-575",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1098,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 6
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G8825Z5U2BC-325X-755",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1099,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 7
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G8825Z5U2BC-350X-575",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1100,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 8
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "G8825Z5U2BC-350X-755",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1101,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 9
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8261T85E8HR-2T-N",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1102,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 10
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8261T85E8HR-2T-N-HE",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1103,
+          "source_url": "https://www.mitaccomputing.com/products/ai-servers",
+          "source_path": "mitac-ai.html",
+          "source_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+          "locator": {
+            "card_ordinal": 11
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "C2810Z5D2E3XD",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1104,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 1
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "C2810Z5D2HYBD",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1105,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 2
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "C2811Z5X4E1XDR-555",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1106,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 3
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "CP3S11-S",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1107,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 4
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "CP3S11-U",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1108,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 5
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "D50DNP1MHCPAC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1109,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 6
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "D50DNP1MHCPLC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1110,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 7
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "D50DNP1MHEVAC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1111,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 8
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "D50DNP2MHSVAC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1112,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 9
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "B8016H68D5",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1113,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 10
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M2510G6X4E1BC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1114,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 11
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M2810Z5D2E1XD",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1115,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 12
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M2810Z5X4E1BC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1116,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 13
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M2810Z6D2U2BC",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1117,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 14
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M2810Z6D2E1XD",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1118,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 15
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    },
+    {
+      "printed_company": "MiTAC",
+      "printed_model": "M2810Z6D2E3XD",
+      "identity_rule": "whole printed cell or heading; no alias splitting or corporate mapping",
+      "review_status": "proposal requiring independent source review; not importer input",
+      "live_exact_pair_exists": false,
+      "references": [
+        {
+          "discovery_row_index": 1119,
+          "source_url": "https://www.mitaccomputing.com/products/multi-node-servers",
+          "source_path": "mitac-multi.html",
+          "source_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+          "locator": {
+            "card_ordinal": 16
+          },
+          "role_label_as_printed": "product listed on MiTAC Computing index",
+          "source_scoped_claim": "publisher lists this complete model with this company in this row/card"
+        }
+      ]
+    }
+  ],
+  "held_rows": []
+}

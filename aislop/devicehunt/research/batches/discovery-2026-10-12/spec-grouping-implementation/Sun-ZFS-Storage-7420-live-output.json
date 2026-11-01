@@ -1,0 +1,501 @@
+{
+  "flat": [
+    {
+      "record_id": "b2199eb0d251cc78207f88cc",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Attached storage: one to six chains; each chain contains up to six HDD-only or SSD-capable disk shelves, combined in any order. No shelf/cable model or wiring topology is stated here. [HTML #ZFSRE-GUID-6D3F47EA-7D39-46CC-B484-3CC3BF6671DB; article paragraphs 1]",
+      "source_id": "oracle7420-attached-storage-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Fan-module fault indications: front/rear Service Action Required LEDs, front Fan Module Service Action Required (TOP) LED, and Fan Fault LED on/adjacent to faulty module. System Overtemp LED might also light if temperature rises. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 37,39,40,41,42]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Two fan power boards are FRUs; power fan modules, carry status LEDs and transfer I2C fan-module data. Two refers to boards, not fan-module quantity. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 19]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Documented configuration/cluster rule in dated OS8.8.x manual, not installed-unit inventory: Two system boot drives in slots 0 and 1 form a mirrored pair; up to four read-optimized cache SSDs can populate slots 2–5 in order. In a Sun ZFS Storage 7420 clustered configuration, both controllers SSD counts must match. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 22]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Six-drive backplane is a FRU with drive connectors, I/O-board interconnect, Power/Locator buttons and status LEDs; this is not an installed-drive count. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 20]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Vertical PDB Card, also called vertical power distribution board or Paddle Card, is a FRU interconnecting PDB with fan power boards, hard-drive backplane and I/O board. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 17]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Power Distribution Board is a FRU: distributes main 12V from supplies; connects to Vertical PDB, motherboard bus bar/ribbon cable and top-cover interlock kill switch. power supplies → power supply backplane → power distribution board topology is explicitly described. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 16]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Power Supply Backplane Card connects the PDB to power supplies 0 and 1. These are named connection positions; no PSU model, rating or redundancy inference is supplied. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 18]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "ec2bfe4fe34f247951bd3eff",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "power_description",
+      "statement": "SP subsystem controls host power and monitors host events. SP controller uses host 3.3V standby rail whenever AC input is present, even when system is off. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 15]",
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    }
+  ],
+  "grouped": [
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Attached storage: one to six chains; each chain contains up to six HDD-only or SSD-capable disk shelves, combined in any order. No shelf/cable model or wiring topology is stated here. [HTML #ZFSRE-GUID-6D3F47EA-7D39-46CC-B484-3CC3BF6671DB; article paragraphs 1]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "b2199eb0d251cc78207f88cc",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "Attached storage: one to six chains; each chain contains up to six HDD-only or SSD-capable disk shelves, combined in any order. No shelf/cable model or wiring topology is stated here. [HTML #ZFSRE-GUID-6D3F47EA-7D39-46CC-B484-3CC3BF6671DB; article paragraphs 1]",
+          "source_id": "oracle7420-attached-storage-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "physical_description",
+            "value": "Attached storage: one to six chains; each chain contains up to six HDD-only or SSD-capable disk shelves, combined in any order. No shelf/cable model or wiring topology is stated here. [HTML #ZFSRE-GUID-6D3F47EA-7D39-46CC-B484-3CC3BF6671DB; article paragraphs 1]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Fan-module fault indications: front/rear Service Action Required LEDs, front Fan Module Service Action Required (TOP) LED, and Fan Fault LED on/adjacent to faulty module. System Overtemp LED might also light if temperature rises. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 37,39,40,41,42]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "cooling_description",
+          "statement": "Fan-module fault indications: front/rear Service Action Required LEDs, front Fan Module Service Action Required (TOP) LED, and Fan Fault LED on/adjacent to faulty module. System Overtemp LED might also light if temperature rises. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 37,39,40,41,42]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "cooling_description",
+            "value": "Fan-module fault indications: front/rear Service Action Required LEDs, front Fan Module Service Action Required (TOP) LED, and Fan Fault LED on/adjacent to faulty module. System Overtemp LED might also light if temperature rises. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 37,39,40,41,42]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Two fan power boards are FRUs; power fan modules, carry status LEDs and transfer I2C fan-module data. Two refers to boards, not fan-module quantity. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 19]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "cooling_description",
+          "statement": "Two fan power boards are FRUs; power fan modules, carry status LEDs and transfer I2C fan-module data. Two refers to boards, not fan-module quantity. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 19]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "cooling_description",
+            "value": "Two fan power boards are FRUs; power fan modules, carry status LEDs and transfer I2C fan-module data. Two refers to boards, not fan-module quantity. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 19]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Documented configuration/cluster rule in dated OS8.8.x manual, not installed-unit inventory: Two system boot drives in slots 0 and 1 form a mirrored pair; up to four read-optimized cache SSDs can populate slots 2–5 in order. In a Sun ZFS Storage 7420 clustered configuration, both controllers SSD counts must match. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 22]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "Documented configuration/cluster rule in dated OS8.8.x manual, not installed-unit inventory: Two system boot drives in slots 0 and 1 form a mirrored pair; up to four read-optimized cache SSDs can populate slots 2–5 in order. In a Sun ZFS Storage 7420 clustered configuration, both controllers SSD counts must match. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 22]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "physical_description",
+            "value": "Documented configuration/cluster rule in dated OS8.8.x manual, not installed-unit inventory: Two system boot drives in slots 0 and 1 form a mirrored pair; up to four read-optimized cache SSDs can populate slots 2–5 in order. In a Sun ZFS Storage 7420 clustered configuration, both controllers SSD counts must match. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 22]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Six-drive backplane is a FRU with drive connectors, I/O-board interconnect, Power/Locator buttons and status LEDs; this is not an installed-drive count. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 20]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "Six-drive backplane is a FRU with drive connectors, I/O-board interconnect, Power/Locator buttons and status LEDs; this is not an installed-drive count. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 20]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "physical_description",
+            "value": "Six-drive backplane is a FRU with drive connectors, I/O-board interconnect, Power/Locator buttons and status LEDs; this is not an installed-drive count. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 20]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "Vertical PDB Card, also called vertical power distribution board or Paddle Card, is a FRU interconnecting PDB with fan power boards, hard-drive backplane and I/O board. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 17]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "Vertical PDB Card, also called vertical power distribution board or Paddle Card, is a FRU interconnecting PDB with fan power boards, hard-drive backplane and I/O board. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 17]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "physical_description",
+            "value": "Vertical PDB Card, also called vertical power distribution board or Paddle Card, is a FRU interconnecting PDB with fan power boards, hard-drive backplane and I/O board. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 17]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Power Distribution Board is a FRU: distributes main 12V from supplies; connects to Vertical PDB, motherboard bus bar/ribbon cable and top-cover interlock kill switch. power supplies → power supply backplane → power distribution board topology is explicitly described. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 16]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "power_description",
+          "statement": "Power Distribution Board is a FRU: distributes main 12V from supplies; connects to Vertical PDB, motherboard bus bar/ribbon cable and top-cover interlock kill switch. power supplies → power supply backplane → power distribution board topology is explicitly described. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 16]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "Power Distribution Board is a FRU: distributes main 12V from supplies; connects to Vertical PDB, motherboard bus bar/ribbon cable and top-cover interlock kill switch. power supplies → power supply backplane → power distribution board topology is explicitly described. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 16]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Power Supply Backplane Card connects the PDB to power supplies 0 and 1. These are named connection positions; no PSU model, rating or redundancy inference is supplied. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 18]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "power_description",
+          "statement": "Power Supply Backplane Card connects the PDB to power supplies 0 and 1. These are named connection positions; no PSU model, rating or redundancy inference is supplied. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 18]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "Power Supply Backplane Card connects the PDB to power supplies 0 and 1. These are named connection positions; no PSU model, rating or redundancy inference is supplied. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 18]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device_id": "c15cbf498b7bd8b8da21",
+      "brand": "Oracle",
+      "model": "Sun ZFS Storage 7420",
+      "revision": "",
+      "category": "power_description",
+      "statement": "SP subsystem controls host power and monitors host events. SP controller uses host 3.3V standby rail whenever AC input is present, even when system is off. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 15]",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1,
+      "evidence": [
+        {
+          "record_id": "ec2bfe4fe34f247951bd3eff",
+          "device_id": "c15cbf498b7bd8b8da21",
+          "brand": "Oracle",
+          "model": "Sun ZFS Storage 7420",
+          "revision": "",
+          "category": "power_description",
+          "statement": "SP subsystem controls host power and monitors host events. SP controller uses host 3.3V standby rail whenever AC input is present, even when system is off. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 15]",
+          "source_id": "oracle7420-internal-components-2026-10-12",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "Sun ZFS Storage 7420",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "SP subsystem controls host power and monitors host events. SP controller uses host 3.3V standby rail whenever AC input is present, even when system is off. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 15]"
+          },
+          "affiliations": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

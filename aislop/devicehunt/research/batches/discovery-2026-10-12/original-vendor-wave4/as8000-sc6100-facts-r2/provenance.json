@@ -1,0 +1,51 @@
+{
+  "r1_candidate_path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/candidate.json",
+  "r1_candidate_sha256": "66fbabc7252652a5748d71e53a45cfd29ecf26d434a77ccedd45e18c2d3aae00",
+  "r2_candidate_sha256": "7c73ce18d7a5812f776b3bde2dbec704a45bed68c7922b3e1e4dad0db2dcaa3e",
+  "changes": [
+    {
+      "source": "edgecore-as8000-r02-practical-facts-2026-10-12",
+      "key": "Minipack-AS8000",
+      "old_title": "Edge-Core Minipack-AS8000 source-scoped document statements",
+      "new_title": "Edge-Core Minipack-AS8000"
+    },
+    {
+      "source": "celestica-sc6100-datasheet-practical-facts-2026-10-12",
+      "key": "SC6100",
+      "old_title": "Celestica SC6100 source-scoped document statements",
+      "new_title": "Celestica SC6100"
+    }
+  ],
+  "all_other_fields_equal": true,
+  "artifacts": [
+    {
+      "snapshot": "snapshots/as8000-r02-qsg.pdf",
+      "r1_path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/snapshots/as8000-r02-qsg.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838
+    },
+    {
+      "snapshot": "snapshots/as8000-pages.json",
+      "r1_path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/snapshots/as8000-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-pages.json",
+      "sha256": "d826784d7e402dc7f9e74df449d26231cd4373a5ceae11421d2f24d79a936d4b",
+      "bytes": 71160
+    },
+    {
+      "snapshot": "snapshots/sc6100-datasheet.pdf",
+      "r1_path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/snapshots/sc6100-datasheet.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920
+    },
+    {
+      "snapshot": "snapshots/sc6100-pages.json",
+      "r1_path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/snapshots/sc6100-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-pages.json",
+      "sha256": "973cb631b49945513bca216f0de25aa48e65728023078a03fa6410acff1c2271",
+      "bytes": 11324
+    }
+  ],
+  "scope": "Exactly two user-facing title strings; all source/evidence/facts/roles/routing unchanged; raw sources untouched."
+}

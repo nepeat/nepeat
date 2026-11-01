@@ -1,0 +1,148 @@
+{
+  "reviewed_on": "2026-09-27",
+  "sources": [
+    {
+      "id": "meta-wedge100-2016",
+      "url": "https://engineering.fb.com/2016/10/18/data-center-engineering/wedge-100-more-open-and-versatile-than-ever/",
+      "tier": "vendor",
+      "license": "Factual statements paraphrased; original article rights retained",
+      "snapshot": "raw/meta-wedge100/article.html",
+      "coverage": "Historical first-party article dated 2016-10-18. Explicit Accton manufacturer claims for the two printed model names. Facebook production deployment applies to Wedge 100; the commercial Wedge 100-32X has documented design lineage only. No individual-unit provenance, present stock, support, firmware availability or current ownership is established. Namespace and whitespace variants remain separate; no cross-brand or suffix aliases are inferred."
+    }
+  ],
+  "devices": [
+    {
+      "source": "meta-wedge100-2016",
+      "key": "wedge100-facebook",
+      "url": "https://engineering.fb.com/2016/10/18/data-center-engineering/wedge-100-more-open-and-versatile-than-ever/",
+      "brand": "Accton",
+      "model": "Wedge 100",
+      "title": "Accton-manufactured Facebook Wedge 100",
+      "kind": "network switch",
+      "affiliations": [
+        [
+          "Accton Technology",
+          "manufacturer"
+        ],
+        [
+          "Facebook",
+          "platform_designer"
+        ]
+      ],
+      "facts": [
+        [
+          "published_date",
+          "2016-10-18"
+        ],
+        [
+          "source_html_sha256",
+          "82adf3c7b371f19bb91e9a3e74a257256854d7316b7a8029a4fe85eb4bcd3bbd"
+        ],
+        [
+          "evidence_scope",
+          "Historical first-party article dated 2016-10-18. Explicit Accton manufacturer claims for the two printed model names. Facebook production deployment applies to Wedge 100; the commercial Wedge 100-32X has documented design lineage only. No individual-unit provenance, present stock, support, firmware availability or current ownership is established. Namespace and whitespace variants remain separate; no cross-brand or suffix aliases are inferred."
+        ],
+        [
+          "catalog_namespace",
+          "Accton is the named manufacturer, not an asserted retail brand."
+        ],
+        [
+          "manufacturer_statement",
+          "Facebook names Accton Technology as manufacturer of Wedge 100 for its network."
+        ],
+        [
+          "physical_description",
+          "2016 design: 19-inch chassis; Facebook describes a separate 21-inch Open Rack adapter."
+        ],
+        [
+          "power_description",
+          "Facebook describes an optional pass-through module connecting the Open Rack 12V bus to the switch board; installed auction hardware must be checked."
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "Facebook / Meta",
+          "documented_platform_deployment",
+          "Facebook reported production use of Wedge 100 in its data centers on 2016-10-18; no surplus-unit provenance."
+        ]
+      ],
+      "evidence_blocks": [
+        {
+          "block_index": 21,
+          "tag": "p",
+          "text_sha256": "3672054de6f0839fb3bd7c5e88fc2efcbaba35be3ea67c8c59788cde5fda10dc"
+        },
+        {
+          "block_index": 5,
+          "tag": "p",
+          "text_sha256": "cff65a34b854892286e54f9eee782bef01c13c4537b97465eb1b66d4b5d55055"
+        },
+        {
+          "block_index": 11,
+          "tag": "p",
+          "text_sha256": "b4d8972c0ece518f3a1d431a35a013a3baa9a2b6d97a2d71e38e693dbce5eeaa"
+        }
+      ]
+    },
+    {
+      "source": "meta-wedge100-2016",
+      "key": "wedge100-32x-edgecore",
+      "url": "https://engineering.fb.com/2016/10/18/data-center-engineering/wedge-100-more-open-and-versatile-than-ever/",
+      "brand": "Edge-Core",
+      "model": "Wedge 100-32X",
+      "title": "Edgecore Wedge 100-32X manufactured by Accton",
+      "kind": "network switch",
+      "affiliations": [
+        [
+          "Edgecore Networks",
+          "brand"
+        ],
+        [
+          "Accton Technology",
+          "manufacturer"
+        ]
+      ],
+      "facts": [
+        [
+          "published_date",
+          "2016-10-18"
+        ],
+        [
+          "source_html_sha256",
+          "82adf3c7b371f19bb91e9a3e74a257256854d7316b7a8029a4fe85eb4bcd3bbd"
+        ],
+        [
+          "evidence_scope",
+          "Historical first-party article dated 2016-10-18. Explicit Accton manufacturer claims for the two printed model names. Facebook production deployment applies to Wedge 100; the commercial Wedge 100-32X has documented design lineage only. No individual-unit provenance, present stock, support, firmware availability or current ownership is established. Namespace and whitespace variants remain separate; no cross-brand or suffix aliases are inferred."
+        ],
+        [
+          "manufacturer_statement",
+          "Facebook identifies Accton Technology as the manufacturer of Edgecore Wedge 100-32X."
+        ],
+        [
+          "software_installation_description",
+          "2016 shipping description: diagnostics, OpenBMC and ONIE. This is not a current firmware-download or installed-software guarantee."
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "Facebook / Meta",
+          "documented_design_lineage",
+          "The commercial model complies with the Wedge 100 OCP specification. This article does not explicitly establish commercial Wedge 100-32X deployment at Facebook."
+        ]
+      ],
+      "evidence_blocks": [
+        {
+          "block_index": 21,
+          "tag": "p",
+          "text_sha256": "3672054de6f0839fb3bd7c5e88fc2efcbaba35be3ea67c8c59788cde5fda10dc"
+        },
+        {
+          "block_index": 21,
+          "tag": "p",
+          "text_sha256": "3672054de6f0839fb3bd7c5e88fc2efcbaba35be3ea67c8c59788cde5fda10dc"
+        }
+      ]
+    }
+  ]
+}

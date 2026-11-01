@@ -1,0 +1,1808 @@
+{
+  "decision": "accept bound candidate for existing curated importer",
+  "candidate_sha256": "c286acae001d79fcad0efadd9400e625a929eae88e16ed6f56a223fcfb0a2a17",
+  "input_hashes": {
+    "candidate.json": "c286acae001d79fcad0efadd9400e625a929eae88e16ed6f56a223fcfb0a2a17",
+    "collect.py": "187845c2546de84c883d79a1e60557146c9525bc73fb730405d17e4824bef1bc",
+    "collection.log": "e3ea3f09526181b5638a0044ea990d11b874cf473854ebbc01556b0fcad35d55",
+    "coverage.json": "17c2494780b39b07191f112bef130dd327c3ed902c437442724f4abe4d58f105",
+    "novelty.json": "c658aaf43f82b4adb822ca25bb6c7242f414df3854cdf13b6efee2835f0ebae3",
+    "parse.py": "90e4aec6aad8105c5bffaf23f98080ee58e7cacaa7539b755ffde5c2e0afc112",
+    "partner-01.json": "33970aff4d85f0cd1389b924cde355672a5afdf1aa9a9391392d371958d3ecd1",
+    "partner-01.json.headers": "c8c45adfac1b3a4c4a721d1aa56019099e7f6ba9420aae6f2cca341699fb7ec6",
+    "partner-02.json": "de36f1a5c2e55a50bf1e752a717dbdb074b9821f0d5a7fe601b048a8117aeb8f",
+    "partner-02.json.headers": "99224975504fdd64d9a38bd3d9fac525afa77758ded0a40850a2584e062663ee",
+    "partner-03.json": "077106a535d09018baec704573090730020929b2e348a02429e3979f13a30eba",
+    "partner-03.json.headers": "a94e01a092b2e196d836fa4477e72556487837fd34f4d5b1e7bbe150a51dfd77",
+    "partner-04.json": "a9674ded7c0bef7b9aa63962c514e44dfac40b9b3b63646fb6a8b79a49cd4c22",
+    "partner-04.json.headers": "d82538373fca82988f5163dba08117ed9b7e4140958bc4e2a9adcf5efd56716e",
+    "partner-05.json": "8fda98d187dc3f4d8022d8f91a617bafc99513ce7dcdb29cdd2235f306f99184",
+    "partner-05.json.headers": "abac27db11e57a2c229cbe62f34832b4fb84a7a84cba223700052508cfb55c5e",
+    "partner-06.json": "f3f6cbc3c9bb785bb3b5b6bd8cce69c7aa687e55680d85c00fe234b6dca4d941",
+    "partner-06.json.headers": "e0d30185d80a034341e7b251d04e460627fa08d76656362e75318edb4cbe3ee0",
+    "partner-07.json": "9960eb0bb268f658a588d062e181efe8606a3bf581700a3ebb5f4386f3dad384",
+    "partner-07.json.headers": "01bbad5c4a9edc7bfe81231ae4775b334ee69d86cd9bb1f244971bc9fe43e23c",
+    "partner-08.json": "46ab70b1c80a3e3d20dd5df225b5613bf6f3201f854d7403eba3415ce900f86a",
+    "partner-08.json.headers": "e7927ae6d4aeec532000af2a4d18c5aa71d6e786d89460fe8d6b6097fb41db77",
+    "partner-09.json": "b76c81fbc4fd61d666c54030066a1f807bb2d896f820eb0354616ee417eefcdc",
+    "partner-09.json.headers": "97a14678cd0a54f1a3ccc5a3aba90d9ae78bfe129da4c42ebb70b61449b873d6",
+    "plan.json": "d5eb9e2f35caf3ebba9f331cee479b684b0817b2ad38214d86d55ea2fa2315a3",
+    "requests.jsonl": "2e97e016b039af153f4405c8a5d04f0658850841b3fd2eb5bc0fe6d5a9e3d56b",
+    "robots.txt": "261945e5c956e53bb0551a4588f41a04acdbd3f0da3076733fbd604bf68c5b60",
+    "robots.txt.headers": "c2ebe11bead4fa9d988866cbf0df33b31095622838fbad80a0f820412e6b7aa4",
+    "test-results.txt": "3cd02e884955c8b49b809ce57755ae46aacba4d9ef1382b84e081568bb3f04a5",
+    "test_parse.py": "95c17ff634af48e2b6e901e4c5816834e19cdb52ac763bd1d5cd8b5ad92fa4d6",
+    "validation.json": "9851746c13202405760702f0194cb5a8742b95b7d697257ff230d860ee1cb10e"
+  },
+  "capture_inputs": [
+    {
+      "path": "robots.txt",
+      "sha256": "261945e5c956e53bb0551a4588f41a04acdbd3f0da3076733fbd604bf68c5b60",
+      "bytes": 71,
+      "header_sha256": "c2ebe11bead4fa9d988866cbf0df33b31095622838fbad80a0f820412e6b7aa4"
+    },
+    {
+      "path": "partner-01.json",
+      "sha256": "33970aff4d85f0cd1389b924cde355672a5afdf1aa9a9391392d371958d3ecd1",
+      "bytes": 17290,
+      "header_sha256": "c8c45adfac1b3a4c4a721d1aa56019099e7f6ba9420aae6f2cca341699fb7ec6"
+    },
+    {
+      "path": "partner-02.json",
+      "sha256": "de36f1a5c2e55a50bf1e752a717dbdb074b9821f0d5a7fe601b048a8117aeb8f",
+      "bytes": 72626,
+      "header_sha256": "99224975504fdd64d9a38bd3d9fac525afa77758ded0a40850a2584e062663ee"
+    },
+    {
+      "path": "partner-03.json",
+      "sha256": "077106a535d09018baec704573090730020929b2e348a02429e3979f13a30eba",
+      "bytes": 157322,
+      "header_sha256": "a94e01a092b2e196d836fa4477e72556487837fd34f4d5b1e7bbe150a51dfd77"
+    },
+    {
+      "path": "partner-04.json",
+      "sha256": "a9674ded7c0bef7b9aa63962c514e44dfac40b9b3b63646fb6a8b79a49cd4c22",
+      "bytes": 224451,
+      "header_sha256": "d82538373fca82988f5163dba08117ed9b7e4140958bc4e2a9adcf5efd56716e"
+    },
+    {
+      "path": "partner-05.json",
+      "sha256": "8fda98d187dc3f4d8022d8f91a617bafc99513ce7dcdb29cdd2235f306f99184",
+      "bytes": 39545,
+      "header_sha256": "abac27db11e57a2c229cbe62f34832b4fb84a7a84cba223700052508cfb55c5e"
+    },
+    {
+      "path": "partner-06.json",
+      "sha256": "f3f6cbc3c9bb785bb3b5b6bd8cce69c7aa687e55680d85c00fe234b6dca4d941",
+      "bytes": 23742,
+      "header_sha256": "e0d30185d80a034341e7b251d04e460627fa08d76656362e75318edb4cbe3ee0"
+    },
+    {
+      "path": "partner-07.json",
+      "sha256": "9960eb0bb268f658a588d062e181efe8606a3bf581700a3ebb5f4386f3dad384",
+      "bytes": 22872,
+      "header_sha256": "01bbad5c4a9edc7bfe81231ae4775b334ee69d86cd9bb1f244971bc9fe43e23c"
+    },
+    {
+      "path": "partner-08.json",
+      "sha256": "46ab70b1c80a3e3d20dd5df225b5613bf6f3201f854d7403eba3415ce900f86a",
+      "bytes": 12825,
+      "header_sha256": "e7927ae6d4aeec532000af2a4d18c5aa71d6e786d89460fe8d6b6097fb41db77"
+    },
+    {
+      "path": "partner-09.json",
+      "sha256": "b76c81fbc4fd61d666c54030066a1f807bb2d896f820eb0354616ee417eefcdc",
+      "bytes": 144579,
+      "header_sha256": "97a14678cd0a54f1a3ccc5a3aba90d9ae78bfe129da4c42ebb70b61449b873d6"
+    }
+  ],
+  "minimum_finished_receipt_gap_seconds": 2.295123,
+  "raw_rows": 245,
+  "accepted_records": 242,
+  "excluded": [
+    {
+      "path": "partner-02.json",
+      "row": 0,
+      "id": "318717",
+      "types": [
+        "Desktop/Workstation"
+      ],
+      "title": "ASRock Rack W880M WS"
+    },
+    {
+      "path": "partner-04.json",
+      "row": 29,
+      "id": "3445",
+      "types": [
+        "Desktop/Workstation"
+      ],
+      "title": "GIGABYTE GA-6PXSV3"
+    },
+    {
+      "path": "partner-06.json",
+      "row": 0,
+      "id": "280857",
+      "types": [
+        "Desktop/Workstation"
+      ],
+      "title": "NUC series ASUS ROG NUC (2025)"
+    }
+  ],
+  "facts": 3388,
+  "sources": 9,
+  "make_different_from_holder_count": 223,
+  "make_different_from_holder_examples": [
+    {
+      "id": "258817",
+      "holder": "ASRock Industrial Computer Corp.",
+      "make": "ASRockInd",
+      "model": "iEP-5000G",
+      "title": "ASRockInd iEP-5000G"
+    },
+    {
+      "id": "250817",
+      "holder": "ASRock Industrial Computer Corp.",
+      "make": "ASRockInd",
+      "model": "iEP-7020E",
+      "title": "ASRockInd iEP-7020E"
+    },
+    {
+      "id": "252017",
+      "holder": "ASRock Industrial Computer Corp.",
+      "make": "ASRockInd",
+      "model": "NUC BOX-1360P/D5",
+      "title": "ASRockInd NUC BOX-1360P/D5"
+    },
+    {
+      "id": "238817",
+      "holder": "ASRock Industrial Computer Corp.",
+      "make": "iEP",
+      "model": "5010G",
+      "title": "iEP 5010G"
+    },
+    {
+      "id": "13915",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "C3758D4I-4L",
+      "title": "Motherboard C3758D4I-4L"
+    },
+    {
+      "id": "6790",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "E3C232D2I",
+      "title": "Motherboard E3C232D2I"
+    },
+    {
+      "id": "6772",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "EP2C612D24-4L",
+      "title": "Motherboard EP2C612D24-4L"
+    },
+    {
+      "id": "6693",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "EP2C612D8-8R",
+      "title": "Motherboard EP2C612D8-8R"
+    },
+    {
+      "id": "6720",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "EP2C612D8C",
+      "title": "Motherboard EP2C612D8C"
+    },
+    {
+      "id": "6888",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "EP2C622D16FM",
+      "title": "Motherboard EP2C622D16FM"
+    },
+    {
+      "id": "6855",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "EP2C622D16NM",
+      "title": "Motherboard EP2C622D16NM"
+    },
+    {
+      "id": "6798",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "EPC621D8A",
+      "title": "Motherboard EPC621D8A"
+    },
+    {
+      "id": "29415",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "EPYCD8-2T",
+      "title": "Motherboard EPYCD8-2T"
+    },
+    {
+      "id": "48275",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "ROMED8-2T",
+      "title": "Motherboard ROMED8-2T"
+    },
+    {
+      "id": "42805",
+      "holder": "ASRockRack",
+      "make": "Motherboard",
+      "model": "WC422D8A-2T",
+      "title": "Motherboard WC422D8A-2T"
+    },
+    {
+      "id": "284337",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KM1160-E2-A0-R0-00",
+      "title": "AIVRES KM1160-E2-A0-R0-00"
+    },
+    {
+      "id": "288397",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KM1160-E3-A0-R0-00",
+      "title": "AIVRES KM1160-E3-A0-R0-00"
+    },
+    {
+      "id": "309327",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KM1270-X2-A0-R0-00",
+      "title": "AIVRES KM1270-X2-A0-R0-00"
+    },
+    {
+      "id": "314217",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KM1280-E2-A0-R0-00",
+      "title": "AIVRES KM1280-E2-A0-R0-00"
+    },
+    {
+      "id": "285237",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KM2160-E2-A0-R0-00",
+      "title": "AIVRES KM2160-E2-A0-R0-00"
+    },
+    {
+      "id": "283757",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KM2160-E3-A0-R0-00",
+      "title": "AIVRES KM2160-E3-A0-R0-00"
+    },
+    {
+      "id": "282037",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1180-E2-A0-R0-00",
+      "title": "AIVRES KR1180-E2-A0-R0-00"
+    },
+    {
+      "id": "284727",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1180-E3-A0-R0-00",
+      "title": "AIVRES KR1180-E3-A0-R0-00"
+    },
+    {
+      "id": "280677",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1180-X3-A0-R0-00",
+      "title": "AIVRES KR1180-X3-A0-R0-00"
+    },
+    {
+      "id": "290237",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1270-X2-A0-R0-00",
+      "title": "AIVRES KR1270-X2-A0-R0-00"
+    },
+    {
+      "id": "288507",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1280-E2-A0-R0-00",
+      "title": "AIVRES KR1280-E2-A0-R0-00"
+    },
+    {
+      "id": "289427",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1280-E3-A0-R0-00",
+      "title": "AIVRES KR1280-E3-A0-R0-00"
+    },
+    {
+      "id": "307927",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1280-E3-C0-R0-00",
+      "title": "AIVRES KR1280-E3-C0-R0-00"
+    },
+    {
+      "id": "292127",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1280-X2-A0-R0-00",
+      "title": "AIVRES KR1280-X2-A0-R0-00"
+    },
+    {
+      "id": "290477",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1280-X3-A0-R0-00",
+      "title": "AIVRES KR1280-X3-A0-R0-00"
+    },
+    {
+      "id": "308417",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR1280-X3-C0-R0-00",
+      "title": "AIVRES KR1280-X3-C0-R0-00"
+    },
+    {
+      "id": "293177",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2166-E2-A0-R0-00",
+      "title": "AIVRES KR2166-E2-A0-R0-00"
+    },
+    {
+      "id": "282777",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2180-E2-A0-R0-00",
+      "title": "AIVRES KR2180-E2-A0-R0-00"
+    },
+    {
+      "id": "286327",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2180-E3-A0-R0-00",
+      "title": "AIVRES KR2180-E3-A0-R0-00"
+    },
+    {
+      "id": "291247",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2266-X2-A0-R0-00",
+      "title": "AIVRES KR2266-X2-A0-R0-00"
+    },
+    {
+      "id": "281077",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2280-E2-A0-R0-00",
+      "title": "AIVRES KR2280-E2-A0-R0-00"
+    },
+    {
+      "id": "282167",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2280-E3-A0-R0-00",
+      "title": "AIVRES KR2280-E3-A0-R0-00"
+    },
+    {
+      "id": "298217",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2280-E3-C0-R0-00",
+      "title": "AIVRES KR2280-E3-C0-R0-00"
+    },
+    {
+      "id": "280867",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2280-X2-A0-R0-00",
+      "title": "AIVRES KR2280-X2-A0-R0-00"
+    },
+    {
+      "id": "286837",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2280-X3-A0-R0-00",
+      "title": "AIVRES KR2280-X3-A0-R0-00"
+    },
+    {
+      "id": "294847",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2280-X3-A0-R0-H0",
+      "title": "AIVRES KR2280-X3-A0-R0-H0"
+    },
+    {
+      "id": "295417",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2280-X3-C0-R0-00",
+      "title": "AIVRES KR2280-X3-C0-R0-00"
+    },
+    {
+      "id": "291657",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR2460-X2-A0-R0-00",
+      "title": "AIVRES KR2460-X2-A0-R0-00"
+    },
+    {
+      "id": "292617",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR4266-X3-A0-R0-00",
+      "title": "AIVRES KR4266-X3-A0-R0-00"
+    },
+    {
+      "id": "294147",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR4268-E2-A0-R0-00",
+      "title": "AIVRES KR4268-E2-A0-R0-00"
+    },
+    {
+      "id": "291997",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR4268-E3-A0-R0-00",
+      "title": "AIVRES KR4268-E3-A0-R0-00"
+    },
+    {
+      "id": "295827",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR4268-X2-A0-R0-00",
+      "title": "AIVRES KR4268-X2-A0-R0-00"
+    },
+    {
+      "id": "291297",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR4276-X2-A0-R0-00",
+      "title": "AIVRES KR4276-X2-A0-R0-00"
+    },
+    {
+      "id": "293317",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR4480-X2-A0-R0-00",
+      "title": "AIVRES KR4480-X2-A0-R0-00"
+    },
+    {
+      "id": "320947",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR4480-X3-A0-R0-00",
+      "title": "AIVRES KR4480-X3-A0-R0-00"
+    },
+    {
+      "id": "320957",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR6268-X3-A0-R0-00",
+      "title": "AIVRES KR6268-X3-A0-R0-00"
+    },
+    {
+      "id": "295907",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR6288-E2-A0-R0-00",
+      "title": "AIVRES KR6288-E2-A0-R0-00"
+    },
+    {
+      "id": "294677",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR6288-E3-A0-R0-00",
+      "title": "AIVRES KR6288-E3-A0-R0-00"
+    },
+    {
+      "id": "292647",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR6880-X2-A0-R0-00",
+      "title": "AIVRES KR6880-X2-A0-R0-00"
+    },
+    {
+      "id": "311837",
+      "holder": "Aivres Systems Inc.",
+      "make": "AIVRES",
+      "model": "KR9288-X3-A0-F0-00",
+      "title": "AIVRES KR9288-X3-A0-F0-00"
+    },
+    {
+      "id": "21805",
+      "holder": "Gigabyte",
+      "make": "Format sp. z o.o.",
+      "model": "FormatServer THOR E12",
+      "title": "Format sp. z o.o. FormatServer THOR E12"
+    },
+    {
+      "id": "13666",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "C621-SD8",
+      "title": "GIGABYTE C621-SD8"
+    },
+    {
+      "id": "15685",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "C621-SU8",
+      "title": "GIGABYTE C621-SU8"
+    },
+    {
+      "id": "20405",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "C621-WD12",
+      "title": "GIGABYTE C621-WD12"
+    },
+    {
+      "id": "19495",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "C621-WD12-IPMI",
+      "title": "GIGABYTE C621-WD12-IPMI"
+    },
+    {
+      "id": "6459",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "D120-C21",
+      "title": "GIGABYTE D120-C21"
+    },
+    {
+      "id": "5536",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G190-H44",
+      "title": "GIGABYTE G190-H44"
+    },
+    {
+      "id": "137997",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G242-Z11",
+      "title": "GIGABYTE G242-Z11"
+    },
+    {
+      "id": "5186",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G250-G50",
+      "title": "GIGABYTE G250-G50"
+    },
+    {
+      "id": "5108",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G250-G51",
+      "title": "GIGABYTE G250-G51"
+    },
+    {
+      "id": "5141",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G250-G52",
+      "title": "GIGABYTE G250-G52"
+    },
+    {
+      "id": "5083",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G250-S88",
+      "title": "GIGABYTE G250-S88"
+    },
+    {
+      "id": "33995",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G291-280",
+      "title": "GIGABYTE G291-280"
+    },
+    {
+      "id": "35065",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G291-Z20",
+      "title": "GIGABYTE G291-Z20"
+    },
+    {
+      "id": "139267",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G292-280",
+      "title": "GIGABYTE G292-280"
+    },
+    {
+      "id": "138217",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G292-Z24",
+      "title": "GIGABYTE G292-Z24"
+    },
+    {
+      "id": "137377",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G292-Z40",
+      "title": "GIGABYTE G292-Z40"
+    },
+    {
+      "id": "137737",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G292-Z44",
+      "title": "GIGABYTE G292-Z44"
+    },
+    {
+      "id": "50655",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G481-S80",
+      "title": "GIGABYTE G481-S80"
+    },
+    {
+      "id": "134535",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "G492-ZD2",
+      "title": "GIGABYTE G492-ZD2"
+    },
+    {
+      "id": "3879",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LASH",
+      "title": "GIGABYTE GA-6LASH"
+    },
+    {
+      "id": "3882",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LASL",
+      "title": "GIGABYTE GA-6LASL"
+    },
+    {
+      "id": "3937",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LISL",
+      "title": "GIGABYTE GA-6LISL"
+    },
+    {
+      "id": "3883",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LXGH",
+      "title": "GIGABYTE GA-6LXGH"
+    },
+    {
+      "id": "3955",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LXGL",
+      "title": "GIGABYTE GA-6LXGL"
+    },
+    {
+      "id": "3891",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LXSG",
+      "title": "GIGABYTE GA-6LXSG"
+    },
+    {
+      "id": "3869",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LXSL",
+      "title": "GIGABYTE GA-6LXSL"
+    },
+    {
+      "id": "3703",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6LXSV",
+      "title": "GIGABYTE GA-6LXSV"
+    },
+    {
+      "id": "3569",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6PXSV1",
+      "title": "GIGABYTE GA-6PXSV1"
+    },
+    {
+      "id": "3672",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6PXSV4",
+      "title": "GIGABYTE GA-6PXSV4"
+    },
+    {
+      "id": "4765",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6PXSVL",
+      "title": "GIGABYTE GA-6PXSVL"
+    },
+    {
+      "id": "3946",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-6PXSVT",
+      "title": "GIGABYTE GA-6PXSVT"
+    },
+    {
+      "id": "3530",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-7PESH1",
+      "title": "GIGABYTE GA-7PESH1"
+    },
+    {
+      "id": "3460",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-7PESH2",
+      "title": "GIGABYTE GA-7PESH2"
+    },
+    {
+      "id": "3655",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-7PESH3",
+      "title": "GIGABYTE GA-7PESH3"
+    },
+    {
+      "id": "3630",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-7PESH4",
+      "title": "GIGABYTE GA-7PESH4"
+    },
+    {
+      "id": "3497",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-7PESL",
+      "title": "GIGABYTE GA-7PESL"
+    },
+    {
+      "id": "3490",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-7PESLN",
+      "title": "GIGABYTE GA-7PESLN"
+    },
+    {
+      "id": "3795",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GA-7PXSL",
+      "title": "GIGABYTE GA-7PXSL"
+    },
+    {
+      "id": "3554",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R11U4S",
+      "title": "GIGABYTE GS-R11U4S"
+    },
+    {
+      "id": "3556",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R12P4S",
+      "title": "GIGABYTE GS-R12P4S"
+    },
+    {
+      "id": "3578",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R12PE1",
+      "title": "GIGABYTE GS-R12PE1"
+    },
+    {
+      "id": "3549",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R22PD",
+      "title": "GIGABYTE GS-R22PD"
+    },
+    {
+      "id": "3584",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R22PD1",
+      "title": "GIGABYTE GS-R22PD1"
+    },
+    {
+      "id": "3714",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R22PDP",
+      "title": "GIGABYTE GS-R22PDP"
+    },
+    {
+      "id": "3577",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R22PE",
+      "title": "GIGABYTE GS-R22PE"
+    },
+    {
+      "id": "3721",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R22PHL",
+      "title": "GIGABYTE GS-R22PHL"
+    },
+    {
+      "id": "3541",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "GS-R22PXL",
+      "title": "GIGABYTE GS-R22PXL"
+    },
+    {
+      "id": "6099",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "H230-R4G",
+      "title": "GIGABYTE H230-R4G"
+    },
+    {
+      "id": "5003",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "H270-H70",
+      "title": "GIGABYTE H270-H70"
+    },
+    {
+      "id": "24625",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "H281-PE0",
+      "title": "GIGABYTE H281-PE0"
+    },
+    {
+      "id": "8395",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MB51-PS0",
+      "title": "GIGABYTE MB51-PS0"
+    },
+    {
+      "id": "5337",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MD30-RS0",
+      "title": "GIGABYTE MD30-RS0"
+    },
+    {
+      "id": "5243",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MD50-LS0",
+      "title": "GIGABYTE MD50-LS0"
+    },
+    {
+      "id": "4701",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MD60-SC0",
+      "title": "GIGABYTE MD60-SC0"
+    },
+    {
+      "id": "4789",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MD70-HB0",
+      "title": "GIGABYTE MD70-HB0"
+    },
+    {
+      "id": "5389",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MD70-HB1",
+      "title": "GIGABYTE MD70-HB1"
+    },
+    {
+      "id": "5285",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MD80-TM0",
+      "title": "GIGABYTE MD80-TM0"
+    },
+    {
+      "id": "142987",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MP72-HB0",
+      "title": "GIGABYTE MP72-HB0"
+    },
+    {
+      "id": "5302",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MU70-SU0",
+      "title": "GIGABYTE MU70-SU0"
+    },
+    {
+      "id": "6048",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MW21-SE0",
+      "title": "GIGABYTE MW21-SE0"
+    },
+    {
+      "id": "4891",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MW50-SV0",
+      "title": "GIGABYTE MW50-SV0"
+    },
+    {
+      "id": "6070",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MX11-PC0",
+      "title": "GIGABYTE MX11-PC0"
+    },
+    {
+      "id": "6019",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "MX31-BS0",
+      "title": "GIGABYTE MX31-BS0"
+    },
+    {
+      "id": "5995",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R121-X30",
+      "title": "GIGABYTE R121-X30"
+    },
+    {
+      "id": "5508",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R130-134",
+      "title": "GIGABYTE R130-134"
+    },
+    {
+      "id": "144007",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R152-P31",
+      "title": "GIGABYTE R152-P31"
+    },
+    {
+      "id": "5026",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R160-S34",
+      "title": "GIGABYTE R160-S34"
+    },
+    {
+      "id": "143607",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R162-ZA2",
+      "title": "GIGABYTE R162-ZA2"
+    },
+    {
+      "id": "5025",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R180-F28",
+      "title": "GIGABYTE R180-F28"
+    },
+    {
+      "id": "4905",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R180-F34",
+      "title": "GIGABYTE R180-F34"
+    },
+    {
+      "id": "20225",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R181-340",
+      "title": "GIGABYTE R181-340"
+    },
+    {
+      "id": "15475",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R181-Z90",
+      "title": "GIGABYTE R181-Z90"
+    },
+    {
+      "id": "14155",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R181-Z91",
+      "title": "GIGABYTE R181-Z91"
+    },
+    {
+      "id": "14045",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R181-Z92",
+      "title": "GIGABYTE R181-Z92"
+    },
+    {
+      "id": "69275",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R182-Z90",
+      "title": "GIGABYTE R182-Z90"
+    },
+    {
+      "id": "115865",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R182-Z91",
+      "title": "GIGABYTE R182-Z91"
+    },
+    {
+      "id": "142577",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R182-Z93",
+      "title": "GIGABYTE R182-Z93"
+    },
+    {
+      "id": "5336",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R260-R3C",
+      "title": "GIGABYTE R260-R3C"
+    },
+    {
+      "id": "138737",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R262-ZA2",
+      "title": "GIGABYTE R262-ZA2"
+    },
+    {
+      "id": "5200",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R270-R3C",
+      "title": "GIGABYTE R270-R3C"
+    },
+    {
+      "id": "6827",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R271-Z31",
+      "title": "GIGABYTE R271-Z31"
+    },
+    {
+      "id": "36615",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R272-Z30",
+      "title": "GIGABYTE R272-Z30"
+    },
+    {
+      "id": "78725",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R272-Z31",
+      "title": "GIGABYTE R272-Z31"
+    },
+    {
+      "id": "5335",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R280-A3C",
+      "title": "GIGABYTE R280-A3C"
+    },
+    {
+      "id": "4906",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R280-F2O",
+      "title": "GIGABYTE R280-F2O"
+    },
+    {
+      "id": "5447",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R280-F3C",
+      "title": "GIGABYTE R280-F3C"
+    },
+    {
+      "id": "5063",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R280-G2O",
+      "title": "GIGABYTE R280-G2O"
+    },
+    {
+      "id": "7395",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R281-3C0",
+      "title": "GIGABYTE R281-3C0"
+    },
+    {
+      "id": "20065",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R281-3C1",
+      "title": "GIGABYTE R281-3C1"
+    },
+    {
+      "id": "14465",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R281-Z91",
+      "title": "GIGABYTE R281-Z91"
+    },
+    {
+      "id": "13655",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R281-Z92",
+      "title": "GIGABYTE R281-Z92"
+    },
+    {
+      "id": "118325",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R282-3C0",
+      "title": "GIGABYTE R282-3C0"
+    },
+    {
+      "id": "137907",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R282-G30",
+      "title": "GIGABYTE R282-G30"
+    },
+    {
+      "id": "140227",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R282-NO0",
+      "title": "GIGABYTE R282-NO0"
+    },
+    {
+      "id": "54655",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R282-Z90",
+      "title": "GIGABYTE R282-Z90"
+    },
+    {
+      "id": "57745",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R282-Z91",
+      "title": "GIGABYTE R282-Z91"
+    },
+    {
+      "id": "70505",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R282-Z93",
+      "title": "GIGABYTE R282-Z93"
+    },
+    {
+      "id": "112175",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R292-4S0",
+      "title": "GIGABYTE R292-4S0"
+    },
+    {
+      "id": "142997",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "R292-4S1",
+      "title": "GIGABYTE R292-4S1"
+    },
+    {
+      "id": "72165",
+      "holder": "Gigabyte",
+      "make": "GIGABYTE",
+      "model": "WRX80-SU8-IPMI",
+      "title": "GIGABYTE WRX80-SU8-IPMI"
+    },
+    {
+      "id": "19795",
+      "holder": "Gigabyte",
+      "make": "Penguin Computing, Inc.",
+      "model": "Altus XE1112",
+      "title": "Penguin Computing, Inc. Altus XE1112"
+    },
+    {
+      "id": "21125",
+      "holder": "Gigabyte",
+      "make": "Penguin Computing, Inc.",
+      "model": "Relion XE1112",
+      "title": "Penguin Computing, Inc. Relion XE1112"
+    },
+    {
+      "id": "19835",
+      "holder": "Gigabyte",
+      "make": "Penguin Computing, Inc.",
+      "model": "Relion XE2112",
+      "title": "Penguin Computing, Inc. Relion XE2112"
+    },
+    {
+      "id": "3344",
+      "holder": "Gigabyte",
+      "make": "Server Motherboard",
+      "model": "GA-6UASL3",
+      "title": "Server Motherboard GA-6UASL3"
+    },
+    {
+      "id": "149177",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "Aowanda AD1S01 (AD211)",
+      "title": "MiTAC Aowanda AD1S01 (AD211)"
+    },
+    {
+      "id": "149807",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "Aowanda AD1S02 (AD211)",
+      "title": "MiTAC Aowanda AD1S02 (AD211)"
+    },
+    {
+      "id": "251107",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "Capri V2",
+      "title": "MiTAC Capri V2"
+    },
+    {
+      "id": "264767",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "GC68A-B8056",
+      "title": "MiTAC GC68A-B8056"
+    },
+    {
+      "id": "264757",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "GC68C-B8056",
+      "title": "MiTAC GC68C-B8056"
+    },
+    {
+      "id": "317857",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "R1520G6",
+      "title": "MiTAC R1520G6"
+    },
+    {
+      "id": "281207",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "R2520G6",
+      "title": "MiTAC R2520G6"
+    },
+    {
+      "id": "264017",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "TD76-B8058",
+      "title": "MiTAC TD76-B8058"
+    },
+    {
+      "id": "261847",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "TN85-B8261",
+      "title": "MiTAC TN85-B8261"
+    },
+    {
+      "id": "263987",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "TS70A-B8056",
+      "title": "MiTAC TS70A-B8056"
+    },
+    {
+      "id": "148327",
+      "holder": "MiTAC Computing Technology Corp",
+      "make": "MiTAC",
+      "model": "Whitestone-A WS1S01",
+      "title": "MiTAC Whitestone-A WS1S01"
+    },
+    {
+      "id": "255657",
+      "holder": "Pegatron Corporation",
+      "make": "Pegatron SVR",
+      "model": "AS201-1N0",
+      "title": "Pegatron SVR AS201-1N0"
+    },
+    {
+      "id": "319447",
+      "holder": "Pegatron Corporation",
+      "make": "Pegatron SVR",
+      "model": "MS303-2A1T",
+      "title": "Pegatron SVR MS303-2A1T"
+    },
+    {
+      "id": "312487",
+      "holder": "Pegatron Corporation",
+      "make": "Pegatron SVR",
+      "model": "MS303-4A1C",
+      "title": "Pegatron SVR MS303-4A1C"
+    },
+    {
+      "id": "319387",
+      "holder": "Pegatron Corporation",
+      "make": "Pegatron SVR",
+      "model": "MS303-4A1F",
+      "title": "Pegatron SVR MS303-4A1F"
+    },
+    {
+      "id": "317967",
+      "holder": "Pegatron Corporation",
+      "make": "Pegatron SVR",
+      "model": "RA4802-72N2",
+      "title": "Pegatron SVR RA4802-72N2"
+    },
+    {
+      "id": "5969",
+      "holder": "TYAN Computer Corporation",
+      "make": "Barebones",
+      "model": "TN71-BP012",
+      "title": "Barebones TN71-BP012"
+    },
+    {
+      "id": "31805",
+      "holder": "TYAN Computer Corporation",
+      "make": "MiTAC",
+      "model": "Tiogapass",
+      "title": "MiTAC Tiogapass"
+    },
+    {
+      "id": "131355",
+      "holder": "TYAN Computer Corporation",
+      "make": "TYAN",
+      "model": "Thunder SX TS65-B7126",
+      "title": "TYAN Thunder SX TS65-B7126"
+    },
+    {
+      "id": "112615",
+      "holder": "TYAN Computer Corporation",
+      "make": "TYAN",
+      "model": "Transport CX GC68A-B8036",
+      "title": "TYAN Transport CX GC68A-B8036"
+    },
+    {
+      "id": "121695",
+      "holder": "TYAN Computer Corporation",
+      "make": "TYAN",
+      "model": "TRANSPORT CX GC79-B8252",
+      "title": "TYAN TRANSPORT CX GC79-B8252"
+    },
+    {
+      "id": "114275",
+      "holder": "TYAN Computer Corporation",
+      "make": "TYAN",
+      "model": "Transport HX TN83-B8251",
+      "title": "TYAN Transport HX TN83-B8251"
+    },
+    {
+      "id": "144017",
+      "holder": "TYAN Computer Corporation",
+      "make": "TYAN",
+      "model": "TRANSPORT HX TN83B8251",
+      "title": "TYAN TRANSPORT HX TN83B8251"
+    },
+    {
+      "id": "6845",
+      "holder": "TYAN Computer Corporation",
+      "make": "Xeon-D POC",
+      "model": "ZZ5000",
+      "title": "Xeon-D POC ZZ5000"
+    },
+    {
+      "id": "289097",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionPoD",
+      "model": "DH120E V8",
+      "title": "FusionPoD DH120E V8"
+    },
+    {
+      "id": "140957",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionPoD",
+      "model": "DH121C V6",
+      "title": "FusionPoD DH121C V6"
+    },
+    {
+      "id": "226407",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionPoD",
+      "model": "DH122E V6",
+      "title": "FusionPoD DH122E V6"
+    },
+    {
+      "id": "252127",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "1158H V7",
+      "title": "FusionServer 1158H V7"
+    },
+    {
+      "id": "242087",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "1258H V7",
+      "title": "FusionServer 1258H V7"
+    },
+    {
+      "id": "301787",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "1288 V8",
+      "title": "FusionServer 1288 V8"
+    },
+    {
+      "id": "135457",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "1288H V5",
+      "title": "FusionServer 1288H V5"
+    },
+    {
+      "id": "135197",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "1288H V6",
+      "title": "FusionServer 1288H V6"
+    },
+    {
+      "id": "217557",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "1288H V7",
+      "title": "FusionServer 1288H V7"
+    },
+    {
+      "id": "294767",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2158H V8",
+      "title": "FusionServer 2158H V8"
+    },
+    {
+      "id": "243947",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2258 V7",
+      "title": "FusionServer 2258 V7"
+    },
+    {
+      "id": "294867",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2258H V8",
+      "title": "FusionServer 2258H V8"
+    },
+    {
+      "id": "217567",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2288 V7",
+      "title": "FusionServer 2288 V7"
+    },
+    {
+      "id": "295557",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2288 V8",
+      "title": "FusionServer 2288 V8"
+    },
+    {
+      "id": "134375",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2288H V5",
+      "title": "FusionServer 2288H V5"
+    },
+    {
+      "id": "134455",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2288H V6",
+      "title": "FusionServer 2288H V6"
+    },
+    {
+      "id": "217547",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2288H V7",
+      "title": "FusionServer 2288H V7"
+    },
+    {
+      "id": "293357",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2288H V8",
+      "title": "FusionServer 2288H V8"
+    },
+    {
+      "id": "134495",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2488 V5",
+      "title": "FusionServer 2488 V5"
+    },
+    {
+      "id": "134435",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2488H V5",
+      "title": "FusionServer 2488H V5"
+    },
+    {
+      "id": "135637",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2488H V6",
+      "title": "FusionServer 2488H V6"
+    },
+    {
+      "id": "232417",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "2488H V7",
+      "title": "FusionServer 2488H V7"
+    },
+    {
+      "id": "135487",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "5288 V5",
+      "title": "FusionServer 5288 V5"
+    },
+    {
+      "id": "135607",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "5288 V6",
+      "title": "FusionServer 5288 V6"
+    },
+    {
+      "id": "235607",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "5288 V7",
+      "title": "FusionServer 5288 V7"
+    },
+    {
+      "id": "253457",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "5298 V7",
+      "title": "FusionServer 5298 V7"
+    },
+    {
+      "id": "136527",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "5885H V5",
+      "title": "FusionServer 5885H V5"
+    },
+    {
+      "id": "148667",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "5885H V6",
+      "title": "FusionServer 5885H V6"
+    },
+    {
+      "id": "224437",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "5885H V7",
+      "title": "FusionServer 5885H V7"
+    },
+    {
+      "id": "237257",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "G5200 V7",
+      "title": "FusionServer G5200 V7"
+    },
+    {
+      "id": "223807",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "G5500 V6",
+      "title": "FusionServer G5500 V6"
+    },
+    {
+      "id": "230857",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "G5500 V7",
+      "title": "FusionServer G5500 V7"
+    },
+    {
+      "id": "137467",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "G560 V5",
+      "title": "FusionServer G560 V5"
+    },
+    {
+      "id": "317917",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "G6550 V8",
+      "title": "FusionServer G6550 V8"
+    },
+    {
+      "id": "317667",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "G8550 V8",
+      "title": "FusionServer G8550 V8"
+    },
+    {
+      "id": "229417",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "G8600 V7",
+      "title": "FusionServer G8600 V7"
+    },
+    {
+      "id": "220517",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "KunLun 9008 V5",
+      "title": "FusionServer KunLun 9008 V5"
+    },
+    {
+      "id": "135527",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "XH321 V5",
+      "title": "FusionServer XH321 V5"
+    },
+    {
+      "id": "134515",
+      "holder": "xFusion Digital Technologies Co. Ltd",
+      "make": "FusionServer",
+      "model": "XH321L V5",
+      "title": "FusionServer XH321L V5"
+    }
+  ],
+  "live_database_sha256_before": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "live_database_sha256_after": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "scratch_import_before": {
+    "devices": 5157,
+    "records": 7302,
+    "sources": 2121,
+    "facts": 74837,
+    "identifiers": 6891,
+    "affiliations": 10640,
+    "hyperscaler_evidence": 22
+  },
+  "scratch_import_after": {
+    "devices": 5399,
+    "records": 7544,
+    "sources": 2130,
+    "facts": 78225,
+    "identifiers": 7375,
+    "affiliations": 10882,
+    "hyperscaler_evidence": 22
+  },
+  "old_rows_missing_by_table": {
+    "affiliations": 0,
+    "anatel_equipment": 0,
+    "archive_artifacts": 0,
+    "archive_receipts": 0,
+    "archive_release_artifacts": 0,
+    "archive_release_receipts": 0,
+    "archive_release_statements": 0,
+    "archive_releases": 0,
+    "bahrain_equipment": 0,
+    "bsmi_certificates": 0,
+    "bsmi_declarations": 0,
+    "bsmi_product_certificates": 0,
+    "bsmi_voluntary_certificates": 0,
+    "devices": 0,
+    "document_pages": 0,
+    "documents": 0,
+    "energystar_datacenter": 0,
+    "energystar_server_archives": 0,
+    "energystar_servers": 0,
+    "equipment_register": 0,
+    "evidence_links": 0,
+    "evidence_reviews": 0,
+    "evidence_statements": 0,
+    "facts": 0,
+    "fcc_applications": 0,
+    "fcc_company_rows": 0,
+    "fcc_detail_links": 0,
+    "fcc_detail_pages": 0,
+    "fcc_exhibits": 0,
+    "fcc_grantees": 0,
+    "fcc_id_index": 0,
+    "fcc_sitemap_pages": 0,
+    "fcc_sitemap_urls": 0,
+    "fcc_text_excerpts": 0,
+    "ghana_equipment": 0,
+    "hyperscaler_evidence": 0,
+    "identifiers": 0,
+    "ieee_assignments": 0,
+    "inspur_support_entries": 0,
+    "ised_equipment": 0,
+    "japan_equipment": 0,
+    "ncc_equipment": 0,
+    "nigeria_equipment": 0,
+    "ntra_equipment": 0,
+    "pci_entries": 0,
+    "public_equipment_rows": 0,
+    "records": 0,
+    "rra_equipment": 0,
+    "sources": 0,
+    "tec_equipment": 0
+  },
+  "roles_in_new_records": [
+    [
+      "listing_holder",
+      null
+    ]
+  ],
+  "idempotent_reimport_counts_unchanged": true,
+  "integrity": "ok",
+  "foreign_key_violations": 0,
+  "tests": [
+    {
+      "argv": [
+        "/home/erin/nepeat/.direnv/python-3.14/bin/python3",
+        "-B",
+        "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/redhat-vendor-expansion/test_parse.py"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.011s\n\nOK\n"
+    },
+    {
+      "argv": [
+        "/home/erin/nepeat/.direnv/python-3.14/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_curated_import.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "test_all_consumed_shapes_fail_before_mutation (test_curated_import.CuratedImportTests.test_all_consumed_shapes_fail_before_mutation) ... ok\ntest_catalog_source_and_finish_defaults_are_unchanged (test_curated_import.CuratedImportTests.test_catalog_source_and_finish_defaults_are_unchanged) ... ok\ntest_empty_sources_is_noop_even_without_devices_in_caller_transaction (test_curated_import.CuratedImportTests.test_empty_sources_is_noop_even_without_devices_in_caller_transaction) ... ok\ntest_failed_rollback_never_releases_or_masks_original (test_curated_import.CuratedImportTests.test_failed_rollback_never_releases_or_masks_original) ... ok\ntest_final_reindex_failure_restores_sources_and_search (test_curated_import.CuratedImportTests.test_final_reindex_failure_restores_sources_and_search) ... ok\ntest_late_missing_model_is_rejected_before_source_mutation (test_curated_import.CuratedImportTests.test_late_missing_model_is_rejected_before_source_mutation) ... ok\ntest_late_missing_snapshot_is_rejected_before_source_mutation (test_curated_import.CuratedImportTests.test_late_missing_snapshot_is_rejected_before_source_mutation) ... ok\ntest_nested_failure_preserves_prior_pending_caller_work (test_curated_import.CuratedImportTests.test_nested_failure_preserves_prior_pending_caller_work) ... ok\ntest_nested_success_remains_caller_owned_and_invisible_until_commit (test_curated_import.CuratedImportTests.test_nested_success_remains_caller_owned_and_invisible_until_commit) ... ok\ntest_per_source_orphan_cleanup_preserves_metadata_move (test_curated_import.CuratedImportTests.test_per_source_orphan_cleanup_preserves_metadata_move) ... ok\ntest_prepared_snapshots_are_read_once_and_payload_hash_is_ignored (test_curated_import.CuratedImportTests.test_prepared_snapshots_are_read_once_and_payload_hash_is_ignored) ... ok\ntest_release_failure_rolls_back_without_masking_original (test_curated_import.CuratedImportTests.test_release_failure_rolls_back_without_masking_original) ... ok\ntest_sql_programming_and_interrupt_failures_restore_bundle (test_curated_import.CuratedImportTests.test_sql_programming_and_interrupt_failures_restore_bundle) ... ok\ntest_sql_scalar_coercions_and_json_iterable_entries_equal_legacy (test_curated_import.CuratedImportTests.test_sql_scalar_coercions_and_json_iterable_entries_equal_legacy) ... ok\ntest_standalone_success_commits_and_reindexes_once (test_curated_import.CuratedImportTests.test_standalone_success_commits_and_reindexes_once) ... ok\ntest_successful_duplicate_order_raw_and_literals_equal_legacy (test_curated_import.CuratedImportTests.test_successful_duplicate_order_raw_and_literals_equal_legacy) ... ok\n\n----------------------------------------------------------------------\nRan 16 tests in 12.961s\n\nOK\n"
+    }
+  ],
+  "network_requests": 0
+}

@@ -1,0 +1,8 @@
+OK   composite bundle (control) {'csv_rows_before': 151, 'csv_rows_after': 151, 'detail_pages': 151, 'eligible_manufacturer_rows': 106, 'model_assertions': 154}
+oracle compare: {'status': 'matches_pinned', 'mismatches': []}
+celestica old bundle compare: {'status': 'matches_pinned', 'mismatches': []}
+celestica composite compare: {'status': 'differs_from_pinned', 'mismatches': ['eligible_manufacturer_rows', 'model_assertions', 'occurrences']}
+REFUSED wrapper under the Oracle query -> ValueError Composite manufacturer cell evidence does not match its detail page
+REFUSED wrapper part text edited (no longer reproduces the cell) -> ValueError Composite cell parts do not reproduce the exact cell
+REFUSED entry keyed to a certificate whose cell differs (matches no row) -> ValueError Composite manufacturer cell evidence matched no row of this capture
+manufacturer-lists summary: {'approval_target_pairs': 22, 'model_assertions': 45, 'assertions_by_target': {'Accton': 6, 'Celestica': 37, 'Oracle': 2}}

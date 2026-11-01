@@ -1,0 +1,16 @@
+[
+  {
+    "parent_sequence": 4,
+    "path": "as6700-landing.html",
+    "sha256": "464eadbff90fa8349115c28ea4a9134b1865fed5140a4edf4954daf7c5ef74f7",
+    "title": "AS6700-32X Quick Start Guide - Edgecore Networks",
+    "published_download_href": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6acdb799d770c1791866777"
+  },
+  {
+    "parent_sequence": 5,
+    "path": "as5712-landing.html",
+    "sha256": "99a523b443a664299ff836dcf8f53782e65fb2e9ed46bd911a79e83ad6854f7c",
+    "title": "AS5710_AS5712-54X DS R09 - Edgecore Networks",
+    "published_download_href": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6acdb79f3e9e61791866783"
+  }
+]

@@ -1,0 +1,465 @@
+{
+  "observed_utc": "2026-10-13T04:59:04.751107+00:00",
+  "catalog_path": "data/devices.sqlite",
+  "catalog_sha256_before": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "catalog_sha256_after": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "read_only_code_checks": 38,
+  "findings_sha256": "95838a2586022a9b1e3dab7b00a3d82f4102a0a41fef0e444d8fb0208ae3a1f0",
+  "method": "One bound exact model/identifier equality lookup per literal embedded row code; identifiers are leads only, no bridge/merge decision. Contested AN spellings were not additionally queried.",
+  "results": [
+    {
+      "code_as_embedded": "5710-54X-O-AC-F-US",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-AC-B-US",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-AC-F-EU",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-AC-B-EU",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-AC-F-UK",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-AC-B-UK",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-AC-F-JP",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-AC-B-JP",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-48V-F",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-48V-B",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-12V-F",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5710-54X-O-12V-B",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-F-US",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-B-US",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-F-EU",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-B-EU",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-F-UK",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-B-UK",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-F-JP",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-AC-B-JP",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-48V-F",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-48V-B",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-12V-F",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "5712-54X-O-12V-B",
+      "pdf_page": 3,
+      "row_scope": "family_configuration_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "PSU-AC-400-F",
+      "pdf_page": 4,
+      "row_scope": "PSU_fan_FRU_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "identifier",
+          "id": "ef278540efd13b859b1a",
+          "brand": "Unattributed accessory",
+          "model": "PSU-AC-400-F",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "netbox_module_type"
+        },
+        {
+          "match_type": "identifier",
+          "id": "ef278540efd13b859b1a",
+          "brand": "Unattributed accessory",
+          "model": "PSU-AC-400-F",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "part_number"
+        },
+        {
+          "match_type": "model",
+          "id": "ef278540efd13b859b1a",
+          "brand": "Unattributed accessory",
+          "model": "PSU-AC-400-F",
+          "kind": "Power Supply FRU",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "PSU-AC-400-B",
+      "pdf_page": 4,
+      "row_scope": "PSU_fan_FRU_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "identifier",
+          "id": "330321a30f5684f86e71",
+          "brand": "Unattributed accessory",
+          "model": "PSU-AC-400-B",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "netbox_module_type"
+        },
+        {
+          "match_type": "identifier",
+          "id": "330321a30f5684f86e71",
+          "brand": "Unattributed accessory",
+          "model": "PSU-AC-400-B",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "part_number"
+        },
+        {
+          "match_type": "model",
+          "id": "330321a30f5684f86e71",
+          "brand": "Unattributed accessory",
+          "model": "PSU-AC-400-B",
+          "kind": "Power Supply FRU",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "PSU-48V-400-F",
+      "pdf_page": 4,
+      "row_scope": "PSU_fan_FRU_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "identifier",
+          "id": "43649de56b608fc8a686",
+          "brand": "Unattributed accessory",
+          "model": "PSU-48V-400-F",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "netbox_module_type"
+        },
+        {
+          "match_type": "identifier",
+          "id": "43649de56b608fc8a686",
+          "brand": "Unattributed accessory",
+          "model": "PSU-48V-400-F",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "part_number"
+        },
+        {
+          "match_type": "model",
+          "id": "43649de56b608fc8a686",
+          "brand": "Unattributed accessory",
+          "model": "PSU-48V-400-F",
+          "kind": "Power Supply FRU",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "PSU-48V-400-B",
+      "pdf_page": 4,
+      "row_scope": "PSU_fan_FRU_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "identifier",
+          "id": "5d444ceec48c728829bf",
+          "brand": "Unattributed accessory",
+          "model": "PSU-48V-400-B",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "netbox_module_type"
+        },
+        {
+          "match_type": "identifier",
+          "id": "5d444ceec48c728829bf",
+          "brand": "Unattributed accessory",
+          "model": "PSU-48V-400-B",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "part_number"
+        },
+        {
+          "match_type": "model",
+          "id": "5d444ceec48c728829bf",
+          "brand": "Unattributed accessory",
+          "model": "PSU-48V-400-B",
+          "kind": "Power Supply FRU",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "PSU-12V-400-1",
+      "pdf_page": 4,
+      "row_scope": "PSU_fan_FRU_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "identifier",
+          "id": "2e34a84da67d711b3199",
+          "brand": "Unattributed accessory",
+          "model": "PSU-12V-400-1",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "netbox_module_type"
+        },
+        {
+          "match_type": "identifier",
+          "id": "2e34a84da67d711b3199",
+          "brand": "Unattributed accessory",
+          "model": "PSU-12V-400-1",
+          "kind": "Power Supply FRU",
+          "identifier_kind": "part_number"
+        },
+        {
+          "match_type": "model",
+          "id": "2e34a84da67d711b3199",
+          "brand": "Unattributed accessory",
+          "model": "PSU-12V-400-1",
+          "kind": "Power Supply FRU",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "FAN-1U-1x1D-F",
+      "pdf_page": 4,
+      "row_scope": "PSU_fan_FRU_order_row",
+      "disputed": true,
+      "hits": [
+        {
+          "match_type": "model",
+          "id": "f5d3904d566ba77ba3a8",
+          "brand": "Unattributed accessory",
+          "model": "FAN-1U-1x1D-F",
+          "kind": "Fan Tray FRU",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "FAN-1U-1x1D-B",
+      "pdf_page": 4,
+      "row_scope": "PSU_fan_FRU_order_row",
+      "disputed": true,
+      "hits": [
+        {
+          "match_type": "model",
+          "id": "bc51f96aa4dc6ed227f4",
+          "brand": "Unattributed accessory",
+          "model": "FAN-1U-1x1D-B",
+          "kind": "Fan Tray FRU",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "57xx-54X-SVC-RTF",
+      "pdf_page": 4,
+      "row_scope": "service_mounting_cable_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "RKIT-85-6712",
+      "pdf_page": 4,
+      "row_scope": "service_mounting_cable_order_row",
+      "disputed": false,
+      "hits": []
+    },
+    {
+      "code_as_embedded": "ORSA-1U",
+      "pdf_page": 4,
+      "row_scope": "service_mounting_cable_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "model",
+          "id": "4cf17ecb7ae42b2db8b0",
+          "brand": "Unattributed accessory",
+          "model": "ORSA-1U",
+          "kind": "ordering item (type not printed)",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "CBL-PWR-US",
+      "pdf_page": 4,
+      "row_scope": "service_mounting_cable_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "model",
+          "id": "99d5d2fc1704e0926551",
+          "brand": "Unattributed accessory",
+          "model": "CBL-PWR-US",
+          "kind": "ordering item (type not printed)",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "CBL-PWR-EU",
+      "pdf_page": 4,
+      "row_scope": "service_mounting_cable_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "model",
+          "id": "861fa73aed477d502901",
+          "brand": "Unattributed accessory",
+          "model": "CBL-PWR-EU",
+          "kind": "ordering item (type not printed)",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "CBL-PWR-UK",
+      "pdf_page": 4,
+      "row_scope": "service_mounting_cable_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "model",
+          "id": "e62408736a7a514fbb33",
+          "brand": "Unattributed accessory",
+          "model": "CBL-PWR-UK",
+          "kind": "ordering item (type not printed)",
+          "identifier_kind": null
+        }
+      ]
+    },
+    {
+      "code_as_embedded": "CBL-PWR-JP",
+      "pdf_page": 4,
+      "row_scope": "service_mounting_cable_order_row",
+      "disputed": false,
+      "hits": [
+        {
+          "match_type": "model",
+          "id": "096442ae4447f0acbbda",
+          "brand": "Unattributed accessory",
+          "model": "CBL-PWR-JP",
+          "kind": "ordering item (type not printed)",
+          "identifier_kind": null
+        }
+      ]
+    }
+  ]
+}

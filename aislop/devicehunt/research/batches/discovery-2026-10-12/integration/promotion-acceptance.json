@@ -1,0 +1,18 @@
+{
+  "accepted": true,
+  "review_path": "research/batches/discovery-2026-10-12/review/psu-integration-review.md",
+  "review_sha256": "c9571f8455af8dd6b8d45880466422a58bdc8d3484784867026970360dedeb95",
+  "candidate_database_sha256": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+  "candidate_manifest_sha256": "6ab359e22929bdb6a55e47c2a816c2c78fc3e5d0f90c8b252129f8fafea3aac5",
+  "proof_hashes": {
+    "research/batches/campaign-c2-2026-10-05/acceptance/discovery-2026-10-12-poppler-psu-suite-result.json": "c8f96195efa30bb46d1bdda822a6412968b636d6b920916256b5b44bc921095b",
+    "data/exports/psu-2026-10-12-comparison.json": "0b10d8f97023d9d63eea75938d83b7c27e20f868beb0f260ca0f21d09720a391",
+    "data/exports/psu-2026-10-12-validation.json": "e6ae319c48189666dc883bfba40feafc5b5cbd364bbaccf31ee14c5af4022d50",
+    "research/batches/discovery-2026-10-12/integration/code-under-test.json": "b4eca3e430b3a485b456cc1e58bb5c07ae0c7974a41f301cae2114d7884e288f",
+    "research/batches/discovery-2026-10-12/integration/stage-report.json": "0eb4cdf09fbe1bef681a383616ca777fec9a8175cc3b465344f810d035c30f7c",
+    "data/rebuilt-psu-2026-10-12.sqlite": "ff5832c60de0d4fbc94a3c1de10157bcad1935c0f5c6b7874e3e1f16cb773fd4",
+    "research/batches/discovery-2026-10-12/integration/promote.py": "3284ad73e8ab081bbf65a5078d55cb539b618424c8d156222d00f2905b149bbb",
+    "research/batches/discovery-2026-10-12/integration/refresh_exports.py": "a7009c64d370189a2bfddce00f5cf02b0c3d23419771616d6b387705b3522f84",
+    "research/batches/discovery-2026-10-12/integration/compare.log": "9b5b95e2f30668f3cb165ff522c7241b584c6f9fbcb872af36baa661c64548fd"
+  }
+}

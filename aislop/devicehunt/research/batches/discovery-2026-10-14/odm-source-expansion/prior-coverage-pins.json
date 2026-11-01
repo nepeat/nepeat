@@ -1,0 +1,18 @@
+{
+  "manifest_sha256": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b",
+  "read_notes": {
+    "research/ocp-product-evidence.md": "96100fa94fe07a3335a4a225e000923488ee49b876a4e10b6bae18dd433a05cd",
+    "research/batches/discovery-2026-10-11/onie/handoff.md": "2e857f8bedb990c8aadf1f91dad2686bd351831f2f582d58f33645872718d7dd",
+    "research/batches/discovery-2026-10-11/nos2/handoff.md": "99e578df159e67b177e111c5b9a1ab376ac8b35517646eda63f494ea39ffad49",
+    "research/batches/discovery-2026-10-11/bmc/handoff.md": "8108a114fb03acf5ad4d7b06cb7996a5f75be7d7f530d81194cdd7536a0ec282",
+    "research/batches/discovery-2026-10-11/netbox/handoff.md": "90a3630e927a2652b082626cae890b667dc702cd13edf425670d7b1eca3ce70f",
+    "research/batches/discovery-2026-10-11/firmware-boards/handoff.md": "676ad17e7a7ae110cff5a6caf8aea6b2c078f30903b637b08826a1806fc40ffc",
+    "research/batches/discovery-2026-10-11/ubuntu-cert/handoff.md": "169e20c5aa60c6efadce3a721e6311bdc0975edc28fa61dcc9c1edf94929f6af",
+    "research/batches/discovery-2026-10-11/redhat-cert/handoff.md": "da16dd2b46f644cacd6dbe101b753e84788c83abbbe89c9aa2eef17277f67e75",
+    "research/batches/discovery-2026-10-11/spec/handoff.md": "489528b8df9e6a5fe14f7f11fc17ed6105fc649a3622f91383048a71397b3209",
+    "research/batches/discovery-2026-10-11/linuxhw-dmi/handoff.md": "b14726dc527b1cc79535bcdf40b933eba7e97be8d3c778ce4b1dd347a93c8a5d",
+    "research/batches/discovery-2026-10-11/sonic-pddf/handoff.md": "184ab4e6dd6928cbbd24ee6ba6d76d2afbc435775fadf04160a17b85a6181e19",
+    "research/batches/discovery-2026-10-11/entity-manager/handoff.md": "9175f3711deffc83b38b2dcf1a917bccd9986ca2f4e04acb8df9bd662ce9c3e8",
+    "research/batches/discovery-2026-10-11/fb-openbmc/handoff.md": "42b03c8e5fec59b07c5c358540fc0ce51845021f5f7127dcc99d70511bfb23c5"
+  }
+}

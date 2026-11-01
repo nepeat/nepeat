@@ -1,0 +1,12 @@
+job {'path': 'raw/rra-celestica-official/bundle-composite-cells.json', 'source': 'rra'} baseline job {'path': 'raw/rra-celestica-official/bundle.json', 'source': 'rra'} baseline inputs 160 candidate inputs 161
+baseline a313914da2427d983de6b7060b6ffe3022613479dbc9244e43889c013df40cc9 149 candidate {'projection_sha256': '064a32b552b8b8fed58ca06e026ca1e80eaf525645a42f88dd71eeed96a7a1f8', 'records': 154}
+{'raw_row_numbers_changed': False, 'raw_rows_added': 0, 'raw_rows_removed': 0, 'raw_rows_reordered': False, 'records_added': 5, 'records_changed': 0, 'records_moved': 0, 'records_removed': 0, 'records_unchanged': 149}
+source fields changed: ['coverage', 'sha256']
+SUN-6000:Netra 6000 Chassis [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']]
+SUN-6000:Netra 6000 AC [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']]
+SUN-6000:6000 [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']]
+SUN-6000:Sun Blade 6000 Chassis [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']]
+SUN-6000:Oracle Sun Blade 6000 Chassis M2 [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']]
+Counter({'repeated_certificate_distinct_devices': 38, 'cross_query_certificate_overlap': 1})
+[{'also_in': ['rra-official-query-73009f906e4e'], 'certificate': 'SUN-6000', 'independent_corroboration': False, 'kind': 'cross_query_certificate_overlap'}]
+oracle overlap [{'also_in': ['rra-official-query-41e4ca912b33'], 'certificate': 'SUN-6000', 'independent_corroboration': False, 'kind': 'cross_query_certificate_overlap'}] True

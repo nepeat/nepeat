@@ -1,0 +1,142 @@
+{
+  "pdf_sha256": "b6964128742c402672a11cd5b1c14499f76df089a4db587c4b1ae4b523751833",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 3,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "Datasheet                AI Server\n\n AI Server\n AGS8200\n\n\n\n\n The Edgecore AGS8200 is a high-performance, scalable, GPU-based server suitable for AI (Artiﬁcial Intelligence)/\n ML (Machine Learning) applications. The server is ideal for training large language models, automation, object\n classiﬁcation and recognition use cases. The system is designed with eight Intel® Habana® Gaudi® 2 processors\n and dual Xeon® Sapphire-Rapids processors. The Gaudi® 2 processor integrates 96GB HBM2E memory and 24 NICs\n of 100GbE RoCEv2 RDMA. The 24 100G NICs oﬀer all-to-all connectivity and scale-out internally and externally for\n training, ﬁne-tuning, and other deep learning processing.\n\n Each Gaudi® 2 processor has 21 x 100GbE non-blocking, all-to-all connectivity to other Gaudi® 2 processors within\n the server, allowing training across all eight Intel Gaudi® 2 processors without requiring an external Ethernet\n switch.\n\n Each AGS8200 supports 6 QSFP-DD ports for scale-out. The 400G ports can be connected to 400G switches, or\n 100G switches via breakout cables, in racks and clusters of Intel® Gaudi® 2-based nodes.\n\n The server is able to include 16 x HDD/SSD + 8 x NVMe or 8 x HDD/SSD + 16 x NVMe for storage that supports RAID\n HBA with 0/1/10/5/6/50/60.\n\n Key Features and Beneﬁts\n ■ Featuring eight Intel® Gaudi® 2 AI accelerators that deliver leading training and inferencing performance\n ■ Various cluster architectures can be built using the same servers to scale the AI training and inference cluster\n   utilizing thousands of Intel Gaudi®2s\n ■ Dual 4th Gen Intel® Xeon® scalable processors\n ■ Expanded networking capacity with 24 x 100GE RoCE ports integrated into every Gaudi® 2\n ■ 21 RoCEv2 100GbE connectivity allows training across all 8 Intel Gaudi® 2 processors no external Ethernet\n   switch required\n ■ Maximum 24 x 100GbE, 3 ports per Intel Gaudi® 2 accelerator, 6 400GbE QSFP-DD per server scale out\n   bandwidth\n ■ Ease of system build or migration with Habana® SynapseAI® soﬅware stack\n ■ Standardized architecture and Ethernet instead of proprietary Inﬁniband and NVLINK\n"
+    },
+    {
+      "page": 2,
+      "text": "Datasheet                   AI Server\n\n Interfaces\n\n\n\n                                                        1                                                                              5\n                                                        2\n\n\n                                                                                                                                       6\n                                                        3\n                                                            9                                                                          7\n                                                                                    11       12        13 14 15\n                                                            8                                                                          8\n\n                                                            10\n                                                        4\n\n\n\n\n Description\n  1.   VGA port                                                  9.    8 x PCIe slots (Half Height (leﬅ 2), Full Height (Central 6))\n\n  2.   2 x USB 2.0/3.0                                           10.   3+3 redundant/hot-swappable AC PSUs for GPU\n\n  3.   14+1 Hot-swappable fans                                   11.   VGA port\n\n  4.   16 HDD/SSD+8 NVMe                                         12    OCP 3.0\n\n  5.   GPU module                                                13.   Serial console port (UART 115200)\n\n  6.   6 x QSFP-DD 400GbE ports                                  14.   Management port 1GbE\n\n  7.   Server module                                             15.   2 x USB 2.0/3.0\n\n  8.   1+1 redundant/hot-swappable AC PSUs for system\n"
+    },
+    {
+      "page": 3,
+      "text": "Datasheet                     AI Server\n Form Factor                                                 Soﬅware\n ■ 8U                                                        ■ SynapseAl: 1.13.0\n                                                             ■ Kernel: 5.4.0 and above\n Compute Node                                                ■ Python: 3.10\n ■ CPU: Sapphire Rapids, 2 Sockets                           ■ PyTorch: 2.1.0\n   Intel® Xeon Gold 6448H, 32c, 64 threads, 60MB, 250 W      ■ TensorFlow: 2.13.1\n ■ PCH: Emmitsburg                                           ■ Open MPI: 4.1.5\n ■ Memory: Up to 2TB 16x DDR5 memory slots per CPU           ■ Libfabric: 1.16.1 and above\n   32 x 32GB DDR5 (1TB)                                      ■ Transformers: >= 4.33.0, <4.35.0\n ■ Operating System: Ubuntu 20.04\n ■ BIOS: 32MB Flash                                          Warranty\n                                                             Please check www.edge-core.com for the warranty terms in your\n GPU                                                         country.\n ■ 8 x OAM (Intel Habana HL-225H/C)\n                                                             For More Information\n Input/Output                                                To ﬁnd out more about Edgecore Networks Corporation products\n ■ Front: 2 x USB 2.0/3.0, 1 x VGA, 1 x UID, 1 x PWR         and solutions, visit www.edge-core.com.\n ■ Rear: 2 x USB 2.0/3.0, 1 x VGA, 1 x RJ-45, 1 x UID\n                                                             About Edgecore Networks Corporation\n Scale-Out Interface                                         Edgecore Networks Corporation is in the business of providing\n ■ RDMA (ROCE v2)                                            innovative network solutions. In the service provider network, in the\n ■ RDMA                                                      data center or in the cloud, Edgecore Networks Corporation delivers\n ■ 6 x QSFP-DD                                               the soﬅware and systems that transform the way the world\n                                                             connects. Edgecore Networks Corporation serves customers and\n Storage                                                     partners worldwide. Additional information can be found at\n ■ Internal: 2 x M.2 SATA SSD (480 GB)                       www.edge-core.com.\n ■ Front: 16 x HDD/SSD+ 8 x NVMe or 8 x HDD/SSD+ 16 x NVMe\n   16 x 2.5\" SATA SSD (1TB) + 8x 2.5\" NVMe (2TB)             Edgecore Networks Corporation is a subsidiary of Accton\n ■ 1 RAID card                                               Technology Corporation, the leading network ODM company. The\n                                                             Edgecore data center switches are developed and manufactured by\n BMC                                                         Accton.\n ■ AST2600\n                                                             To purchase Edgecore Networks solutions, please contact your\n TPM 2.0                                                     Edgecore Networks Corporation representatives at +886 3 563 8888\n                                                             (HQ) or +1 (949)-336-6801 or authorized resellers.\n CD-ROM\n ■ Support for external USB CD-ROM                           © Copyright 2025 Edgecore Networks Corporation. The information\n                                                             contained herein is subject to change without notice. This document\n PSU                                                         is for informational purposes only and does not set forth any\n ■ System: 1+1 CRPS 2700 W redundant/hot-swappable AC/DC     warranty, expressed or implied, concerning any equipment,\n ■ GPU: 3+3 CRPS 3000 W redundant/hot-swappable AC/DC        equipment feature, or service oﬀered by Edgecore Networks\n                                                             Corporation. Edgecore Networks Corporation shall not be liable for\n Fans                                                        technical or editorial errors or omissions contained herein.\n ■ 14+1 hot-swappable fans\n\n Dimensions\n ■ 900 mm x 447 mm x 352mm\n\n Operating Temperature\n ■ 5°C-35°C\n\n Expansion Slots\n ■ 1 x OCP 3.0\n ■ 8 x PCle slots\n\n\n\n\n                                                                                                                         EC-DS-0325-R01\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "ags8200-datasheet-r01.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.400712+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2024-002-AGS8200 DS R01 20250313\nCreator:         Adobe Illustrator 29.3 (Windows)\nProducer:        Adobe PDF library 17.00\nCreationDate:    Wed Mar 12 17:22:12 2025 PDT\nModDate:         Wed Mar 12 18:22:50 2025 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           3\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       7801229 bytes\nOptimized:       no\nPDF version:     1.6\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ags8200-datasheet-r01.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "2778b3419eef89c1f46b39e065a1156cad79ae7630a32150a7a07c59b799d64e"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ags8200-datasheet-r01.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "43963c410711670790744200ba1af4ef72d76143a0ad281baecc79e8994581b9"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ags8200-datasheet-r01.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "4494ca9166f4f8ace4a9eb407d4f9775b808a00ed9ae464a8bcbedc21dbff8eb"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ags8200-datasheet-r01.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "ee8d96e94c3b7b0a05a573e2f15b728737f24c514a54c2256e4249635d62c922"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

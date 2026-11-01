@@ -1,0 +1,168 @@
+{
+  "pdf_sha256": "e7a8daad0460fa5fc07d66a2d73f67861ace2fb1e82241bcf08683742d29410b",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 4,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "COR550               Core Router\n\nCore Router\nAS7926-40XKFB\n\n\n\n\nInterconnected with the Edgecore COR580 (Ramon Spine), COR550 forms a distributed chassis or a spine and leaf\narchitecture to build a scalable and ﬂexible network infrastructure that provides high throughout bandwidth for\nrouting, packet processing, and eﬃcient traﬃc management.\n\nThe COR550 open network switch is loaded with the Open Network Install Environment (ONIE), which supports the\ninstallation of compatible Network Operating System (NOS) soﬅware, including the open source option Open\nNetwork Linux, plus commercial NOS oﬀerings.\n\n\nKey Features and Beneﬁts\n■ High-performance 100GbE core router for telecom and data center applications\n■ Incorporates Broadcom StrataDNX™ Jericho2 silicon for non-blocking line-rate performance\n■ High capacity external TCAM (BCM16K) for expandable table sizes and statistics\n■ Consists of 40 x 100G QSFP28 and 13 x 400G QSFP-DD fabric interfaces\n■ Front-to-back airﬂow SKU, carrier grade fan ﬁlter\n■ Hot-swappable, load-sharing, and 1+1 redundant DC-DC/AC-DC PSUs\n■ 4+1 redundant, hot-swappable fan modules\n■ Synchronous Ethernet, IEEE 1588v2 PTP, Timing synchronization stack interfaces\n■ Compact design, 635 mm depth\n■ High operating temperature, up to 55° C\n■ Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of\n  compatible open source and commerical NOS oﬀerings.\n\nApplications\n■ Disaggregated core and edge router\n■ Standalone 100GbE aggregation core router\n"
+    },
+    {
+      "page": 2,
+      "text": "COR550                       Core Router\n\nFree Soﬅware Included\n\n\n\n\nInterfaces\n\n                               1           2                              1          3   4    5\n\n\n\n\n                                                                                                       6\n\n\n                                                                                                       7\n\n\n                                                                                                       8\n\n\n\n\n                                                                                     9   10       11\n\n                        12                           13\n\n\n\n\nDescription\n 1.   40 x 100G QSFP28 ports                   8.    1 x RJ-45 console port\n\n 2.   13 x 400G QSFP-DD fabric ports           9.    2 x RJ-45 stacking-sync ports\n\n 3.   2 x 10G SFP+ OOB ports                   10.   2 x RJ-45 PPS/ToD ports\n\n 4.   1 x PPS                                  11.   1 x RJ-45 management port\n\n 5.   2 x Digital LCD                          12.   2 x PSUs\n\n 6.   1 x USB Type-A                           13.   4+1 redundant fans\n\n 7.   1 x Micro USB console port\n"
+    },
+    {
+      "page": 3,
+      "text": "COR550                     Core Router\nPorts                                                              Regulatory Compliance\n■ Switch Ports:                                                    ■ Safety Compatibility\n  40 x 100 GbE QSFP28 + 13 x 400 GbE QSFP-DD                         UL (CAN/CSA 22.2 No 60950-1 & UL60950-1)\n  Support 40GE, 50GE and 100GE modes                                 IEC 62368-1:2014\n  Support standard 10GE, 25GE, 50GE conﬁgurations by using           CB (IEC/EN60950-1)\n    DAC breakout cables into 2 x 50GE, 4 x 25GE, or 4 x 10GE.        CCC (GB4943.1-2011)\n■ Management ports on port side:                                     BSMI (CNS14336-1)\n  1 x RJ-45 serial console port                                    ■ Electromagnetic Compatibility\n  1 x RJ-45 10/100/1000BASE-T management port                        CE Mark\n  2 x RJ-45 PPS/ToD ports                                            FCC Title 47, Part 15, Subpart B Class A\n  2 x RJ-45 stacking synchronization ports                           VCCI Class A\n  2 x OOB SFP+ 10G management ports                                ■ Environmental\n  1x USB 2.0 port Type A                                             RoHS-2.0 Compliant\n  1 x Micro USB console port                                         Electrical and Electronic Equipment (WEEE Directive 2002/96/EC)\n                                                                   ■ NEBS\nKey Componets                                                        GR-63-CORE GR-1089-CORE (NEBS Level 3)*\n■ Switch Silicon: BCM88690 (Jericho 2)\n■ TCAM: BCM16K (OP2)                                               Warranty\n■ CPU Modules:                                                     Please check www.edge-core.com for the warranty terms in your\n  Intel® Xeon® D-1548 processor 8C 2.0 GHz                         country.\n  SDRAM DDR4 SO-DIMM 64 GB (32 GB x 2)\n  SSD: M.2 128 GB                                                  For More Information\n■ BMC: ASPEED AST2600                                              To ﬁnd out more about Edgecore Networks Corporation products\n                                                                   and solutions, visit www.edge-core.com.\nPerformance\n■ Throughput: 4.0 Tbps (non-blocking)                              About Edgecore Networks Corporation\n■ High capacity external TCAM (BCM16K) for expanded table          Edgecore Networks Corporation is in the business of providing\n  sizes and statistics                                             innovative network solutions. In the service provider network, in the\n                                                                   data center or in the cloud, Edgecore Networks Corporation delivers\nPhysical and Environmental                                         the soﬅware and systems that transform the way the world\n■ Dimensions (WxDxH): 440 x 635 x 87 mm (17.32 x 25.0 x 3.43 in)   connects. Edgecore Networks Corporation serves customers and\n■ Weight: 39 kg (GW), 19 kg (NW)                                   partners worldwide. Additional information can be found at\n■ Fans: Hot-Swappable 4+1 redundant fans                           www.edge-core.com.\n■ Operating Temperature: 0°C to 55°C (6000 ﬅ in altitude)\n■ Operating Humidity: 0% to 90%                                    Edgecore Networks Corporation is a subsidiary of Accton\n                                                                   Technology Corporation, the leading network ODM company. The\nPower                                                              Edgecore data center switches are developed and manufactured by\n■ 1+1 Redundant, Load-Sharing, and Hot-Swappable PSUs              Accton.\n■ 48 VDC Power Supply: Input Voltage: 40 to 72 VDC\n■ AC Power Supply: Input Voltage: 90 to 264 VAC at 50~60 Hz        To purchase Edgecore Networks solutions, please contact your\n■ Power Consumption: 1400 W(Max), 1100 W (Typical)                 Edgecore Networks Corporation representatives at +886 3 563 8888\n                                                                   (HQ) or +1 (949)-336-6801 or authorized resellers.\nSoﬅware\n                                                                   © Copyright 2022 Edgecore Networks Corporation. The information contained herein\n■ Switch is loaded with Open Network Install Environment (ONIE)    is subject to change without notice. This document is for informational purposes only\n  soﬅware installer                                                and does not set forth any warranty, expressed or implied, concerning any\n■ Compatible with the following NOS options: open source           equipment, equipment feature, or service oﬀered by Edgecore Networks Corporation.\n                                                                   Edgecore Networks Corporation shall not be liable for technical or editorial errors or\n  options, plus commercial NOS oﬀerings.                           omissions contained herein.\n\n\n\n\n* Pre-test. Certiﬁcate is by request with fees.\n"
+    },
+    {
+      "page": 4,
+      "text": "COR550                    Core Router\n\nOrdering Information\nBase model: AS7926-40XKFB; Intel® Xeon® D-1548 8C, 64GB RAM, 40 x 100 GbE QSFP28 + 13 x 400 GbE QSFP-\nDD ﬁxed ports. ONIE soﬅware installer.\nLite model: AS7926-40XKFB; Intel® Xeon® D-1548 8C, 32GB RAM, 40 x 100 GbE QSFP28 + 13 x 400 GbE QSFP-\nDD ﬁxed ports. ONIE soﬅware installer.\nModel Number                 Part Number     PSU                    Airﬂow                 Region (power cord)\n7926-40XKFB-O-AC-F           FNPZZ7640009A   Modular Dual AC PSUs   Front-to-Back airﬂow   N/A\n\n7926-40XKFB-O-AC-F-US        FNPZZ7640401A   Modular Dual AC PSUs   Front-to-Back airﬂow   N. America\n\n7926-40XKFB-O-AC-F-EU        FNPZZ7640201A   Modular Dual AC PSUs   Front-to-Back airﬂow   EU\n\n7926-40XKFB-O-AC-F-UK        FNPZZ7640301A   Modular Dual AC PSUs   Front-to-Back airﬂow   UK\n\n7926-40XKFB-O-AC-F-JP        FNPZZ7640501A   Modular Dual AC PSUs   Front-to-Back airﬂow   JP\n\n7926-40XKFB-O-AC-F-TW        FNPZZ7640T01A   Modular Dual AC PSUs   Front-to-Back airﬂow   TW\n\n7926-40XKFB-O-AC-F-CN        FNPZZ7640701A   Modular Dual AC PSUs   Front-to-Back airﬂow   CN\n\n7926-40XKFB-O-48V-F          FNPZZ7640003A   Modular Dual DC PSUs   Front-to-Back airﬂow   N/A\n\n7926-40XKFB-O-AC-F Lite      FNPZZ7640001A   Modular Dual AC PSUs   Front-to-Back airﬂow   N/A\n\n\n\n\n                                                                                                         EC-DS-0422-R07\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "cor550-as7926-40xkfb-ds-r07.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.549117+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2022-042-COR550_AS7926-40XKFB DS R07 20220412\nCreator:         Adobe Illustrator CS6 (Windows)\nProducer:        Adobe PDF library 10.01\nCreationDate:    Mon Apr 11 17:16:01 2022 PDT\nModDate:         Mon Apr 11 18:16:01 2022 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           4\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       2040763 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/cor550-as7926-40xkfb-ds-r07.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "0939df1458b64459a9b81fb7ad5bd112917eda48af5764e81a0621aea3e0ac5c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/cor550-as7926-40xkfb-ds-r07.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "35c4c8bc40ea8e5bcd9be84bec643ff89e60d424660413cff6330c3cdb95773e"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/cor550-as7926-40xkfb-ds-r07.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "1b3e7420fee994e12062d117bbf7c3e0c7b545f4b72a10de51ff8225b6bdb223"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/cor550-as7926-40xkfb-ds-r07.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "b03efb11dfef33ba3e614b73719a90baacdea26af948e02a97a5c3f0f368934c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/cor550-as7926-40xkfb-ds-r07.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "30b8587d0dc19156303af0e6a373765bd617d7df512d3fbaa96a34e989c8d6e7"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

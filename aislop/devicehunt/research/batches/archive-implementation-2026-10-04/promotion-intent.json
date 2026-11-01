@@ -1,0 +1,8 @@
+{
+  "before_database_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "before_manifest_sha256": "3eefe9fcb79e17e1c0f0e724c53472e523decef37fbe603d1e0ff69fb3906277",
+  "after_database_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "after_manifest_sha256": "27ff5fc4a6a0d170dfb1128e17c1a452aa6bdc725c3d3c7060584ca165bd3540",
+  "recovery_database": "data/devices-before-archive-2026-10-04.sqlite",
+  "recovery_manifest": "data/import-manifest-before-archive-2026-10-04.json"
+}

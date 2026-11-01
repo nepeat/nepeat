@@ -1,0 +1,321 @@
+{
+  "provenance": {
+    "description": "unchanged production defaults before optional grouping",
+    "modules_sha256": {
+      "specifications.py": "2d6de287745b8d6d3a60483fbdc53baf900215170aa8fabdb3875c6994104391",
+      "__main__.py": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83"
+    }
+  },
+  "cases": [
+    {
+      "query": "DS4000",
+      "kwargs": {},
+      "args": [
+        "DS4000",
+        "--limit",
+        "-1"
+      ],
+      "api_rows": [
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a/one",
+          "tier": "vendor"
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b/one",
+          "tier": "community"
+        }
+      ],
+      "cli": {
+        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\"\n  }\n]\n",
+        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community\r\n",
+        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\n"
+      }
+    },
+    {
+      "query": "DS4000",
+      "kwargs": {
+        "include_source_facts": true
+      },
+      "args": [
+        "DS4000",
+        "--limit",
+        "-1",
+        "--include-source-facts"
+      ],
+      "api_rows": [
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a/one",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": ""
+        },
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a/one",
+          "tier": "vendor",
+          "origin": "source fact",
+          "source_fact_name": "spec_power_supply"
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b/one",
+          "tier": "community",
+          "origin": "curated statement",
+          "source_fact_name": ""
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b/one",
+          "tier": "community",
+          "origin": "source fact",
+          "source_fact_name": "spec_power_supply"
+        }
+      ],
+      "cli": {
+        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  }\n]\n",
+        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier,origin,source_fact_name\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor,curated statement,\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,a,https://example.invalid/a/one,vendor,source fact,spec_power_supply\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community,curated statement,\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,b,https://example.invalid/b/one,community,source fact,spec_power_supply\r\n",
+        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\torigin\tsource_fact_name\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\tcurated statement\t\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\ta\thttps://example.invalid/a/one\tvendor\tsource fact\tspec_power_supply\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\tcurated statement\t\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\tb\thttps://example.invalid/b/one\tcommunity\tsource fact\tspec_power_supply\n"
+      }
+    },
+    {
+      "query": "alias",
+      "kwargs": {
+        "exact_model": true,
+        "include_source_facts": true
+      },
+      "args": [
+        "alias",
+        "--limit",
+        "-1",
+        "--exact-model",
+        "--include-source-facts"
+      ],
+      "api_rows": [
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a/one",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": ""
+        },
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a/one",
+          "tier": "vendor",
+          "origin": "source fact",
+          "source_fact_name": "spec_power_supply"
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b/one",
+          "tier": "community",
+          "origin": "curated statement",
+          "source_fact_name": ""
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b/one",
+          "tier": "community",
+          "origin": "source fact",
+          "source_fact_name": "spec_power_supply"
+        }
+      ],
+      "cli": {
+        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  }\n]\n",
+        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier,origin,source_fact_name\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor,curated statement,\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,a,https://example.invalid/a/one,vendor,source fact,spec_power_supply\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community,curated statement,\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,b,https://example.invalid/b/one,community,source fact,spec_power_supply\r\n",
+        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\torigin\tsource_fact_name\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\tcurated statement\t\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\ta\thttps://example.invalid/a/one\tvendor\tsource fact\tspec_power_supply\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\tcurated statement\t\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\tb\thttps://example.invalid/b/one\tcommunity\tsource fact\tspec_power_supply\n"
+      }
+    },
+    {
+      "query": "P-1",
+      "kwargs": {
+        "exact_part_number": true,
+        "target": "Celestica",
+        "include_source_facts": true
+      },
+      "args": [
+        "P-1",
+        "--limit",
+        "-1",
+        "--exact-part-number",
+        "--vendor",
+        "Celestica",
+        "--include-source-facts"
+      ],
+      "api_rows": [
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a/one",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "matched_part_numbers": [
+            "P-1"
+          ]
+        },
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a/one",
+          "tier": "vendor",
+          "origin": "source fact",
+          "source_fact_name": "spec_power_supply",
+          "matched_part_numbers": [
+            "P-1"
+          ]
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b/one",
+          "tier": "community",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "matched_part_numbers": [
+            "P-1"
+          ]
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b/one",
+          "tier": "community",
+          "origin": "source fact",
+          "source_fact_name": "spec_power_supply",
+          "matched_part_numbers": [
+            "P-1"
+          ]
+        }
+      ],
+      "cli": {
+        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  },\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  }\n]\n",
+        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier,origin,source_fact_name,matched_part_numbers\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor,curated statement,,['P-1']\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,a,https://example.invalid/a/one,vendor,source fact,spec_power_supply,['P-1']\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community,curated statement,,['P-1']\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,b,https://example.invalid/b/one,community,source fact,spec_power_supply,['P-1']\r\n",
+        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\torigin\tsource_fact_name\tmatched_part_numbers\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\tcurated statement\t\t['P-1']\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\ta\thttps://example.invalid/a/one\tvendor\tsource fact\tspec_power_supply\t['P-1']\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\tcurated statement\t\t['P-1']\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\tb\thttps://example.invalid/b/one\tcommunity\tsource fact\tspec_power_supply\t['P-1']\n"
+      }
+    }
+  ],
+  "default_api_rows": [
+    {
+      "record_id": "b4ee94ced054a259fd0d0cf2",
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "power_description",
+      "statement": "2 PSUs",
+      "source_id": "a",
+      "source_url": "https://example.invalid/a/one",
+      "tier": "vendor"
+    },
+    {
+      "record_id": "366598cfb67600d97f690f0f",
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "power_description",
+      "statement": "2 PSUs",
+      "source_id": "b",
+      "source_url": "https://example.invalid/b/one",
+      "tier": "community"
+    }
+  ]
+}

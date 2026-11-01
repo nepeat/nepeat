@@ -1,0 +1,12 @@
+{
+  "reviewed_helper_sha256": "04c9449ebcaf3da1b3852f57d083c018dc4fbdad5ebad15561d250c5a1f36fb5",
+  "stage_main_invoked": false,
+  "shared_paths_written": [],
+  "network_requests": 0,
+  "checked_path_rejects_parent_escape": true,
+  "clone_copied_changed_source_without_accepted_hash_check": true,
+  "old_row_changed_only_in_excluded_columns": {
+    "helper_missing_rows": 0,
+    "full_missing_rows": 1
+  }
+}

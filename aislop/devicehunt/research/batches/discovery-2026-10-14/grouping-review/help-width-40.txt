@@ -1,0 +1,53 @@
+usage: python3 -m devicehunt specs
+       [-h] [--vendor VENDOR]
+       [--exact-model |
+       --exact-part-number]
+       [--include-source-facts]
+       [--group-identical]
+       [--limit LIMIT]
+       [--format {table,json,csv}]
+       [query]
+
+positional arguments:
+  query
+
+options:
+  -h, --help      show this help
+                  message and exit
+  --vendor VENDOR
+                  Require this
+                  company's
+                  association on each
+                  specification's
+                  source record
+  --exact-model   Match complete model
+                  strings or aliases;
+                  an alias selects
+                  only its own source
+                  records
+  --exact-part-number
+                  Show specifications
+                  from source records
+                  that explicitly
+                  identify this
+                  complete part number
+  --include-source-facts
+                  Also show reviewed
+                  practical source
+                  facts (PSU, airflow,
+                  U height, weight,
+                  form factor, nodes),
+                  labelled
+                  origin=source fact
+  --group-identical
+                  Group strictly
+                  identical statements
+                  within each device;
+                  keep every evidence
+                  member. Limits count
+                  complete groups;
+                  grouping does not
+                  merge configurations
+                  or certify agreement
+  --limit LIMIT
+  --format {table,json,csv}

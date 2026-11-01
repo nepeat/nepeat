@@ -1,0 +1,52 @@
+{
+  "archived_originals_removed": 121,
+  "manifest_sha256": "83b5283c94cefc242c0e57decacdd27cbc6a4a633408bafe4b668c843fce83dc",
+  "kept_hashes": {
+    "data/devices.sqlite": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+    "data/devices-before-inventec-practical-2026-10-04.sqlite": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+    "data/rebuilt-with-inventec-practical-2026-10-04.sqlite": "463cc53ccaff1fab68c10ffbca72cb57885884f16bd63b957ab11a6f99e8bccd"
+  },
+  "remaining_sqlite": {
+    "version": 1,
+    "files": [
+      {
+        "path": "data/archive/capture-leases.sqlite",
+        "size": 12288,
+        "allocated": 4608
+      },
+      {
+        "path": "data/archive/index.sqlite",
+        "size": 405504,
+        "allocated": 102912
+      },
+      {
+        "path": "data/catalog-archive-candidate-2026-10-04.sqlite",
+        "size": 371552256,
+        "allocated": 90673664
+      },
+      {
+        "path": "data/catalog-archive-rebuilt-2026-10-04.sqlite",
+        "size": 366092288,
+        "allocated": 83173888
+      },
+      {
+        "path": "data/devices-before-inventec-practical-2026-10-04.sqlite",
+        "size": 371552256,
+        "allocated": 90706432
+      },
+      {
+        "path": "data/devices.sqlite",
+        "size": 371552256,
+        "allocated": 90989056
+      },
+      {
+        "path": "data/rebuilt-with-inventec-practical-2026-10-04.sqlite",
+        "size": 366006272,
+        "allocated": 86188544
+      }
+    ],
+    "logical_bytes": 1847173120,
+    "allocated_bytes": 441839104
+  },
+  "all_archived_bytes_restorable": true
+}

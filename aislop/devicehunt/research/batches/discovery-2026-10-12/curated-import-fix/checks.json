@@ -1,0 +1,53 @@
+{
+  "at_utc": "2026-10-13T04:30:59.487870+00:00",
+  "status": "AUTHOR CHECKS PASS; independent code review and root full-suite/rebuild/promotion pending",
+  "files": {
+    "devicehunt/importers.py": "56dd6d4c6d97d7b1764321c5ce075a5fe42a4f0c91ad6f024ed55a0d1f5c88ab",
+    "devicehunt/catalog.py": "1e162a142420e16806850baec3b024199d62db8e61bd3cef6d0aee849871e6e6",
+    "tests/test_curated_import.py": "98a019a8279d68fd38c193088ebd498d2274b0c006462874336b1f9a054f7b78"
+  },
+  "pipeline_sha256": "85e91e3f78375ac2b749e0588279b59406a20b83d17c21c1219a40d3dc62ef28",
+  "schema_unchanged": true,
+  "focused_tests": {
+    "command": "python3 -B -m unittest tests.test_curated_import tests.test_catalog tests.test_rebuild tests.test_listing_specifications tests.test_specifications_source_facts tests.test_review_queue.AcceptedManifestGateTests",
+    "tests": 71,
+    "seconds": 45.236,
+    "exit_code": 0,
+    "log": "focused-tests.log",
+    "log_sha256": "14acd415ab095782c2e8b4319161409ed602b8bb35f7d382df24d6d846c6c051",
+    "note": "before final test-only metadata-move fixture refinement; existing test modules emit ResourceWarnings"
+  },
+  "final_curated_tests": {
+    "command": "python3 -B -m unittest tests.test_curated_import",
+    "tests": 16,
+    "seconds": 12.994,
+    "exit_code": 0,
+    "log": "curated-tests.log",
+    "log_sha256": "0176b031b96c77b9fb1892b61a1af35d3a9dc08ee8be73d51120566901343274"
+  },
+  "preflight": {
+    "command": "python3 -B research/batches/discovery-2026-10-12/curated-import-fix/check_inputs.py",
+    "exit_code": 0,
+    "report": "input-preflight.json",
+    "sha256": "e16705fc47529fe17bc091ce099278c35e2d9e5afdb831fbcfc24aec07fc5849",
+    "manifests": {
+      "data/import-manifest.json": {
+        "sha256": "6ab359e22929bdb6a55e47c2a816c2c78fc3e5d0f90c8b252129f8fafea3aac5",
+        "unchanged_after_read": true,
+        "curated_jobs": 48,
+        "source_occurrences": 1853,
+        "row_occurrences": 2201
+      },
+      "data/import-manifest-candidate-wave3-2026-10-12.json": {
+        "sha256": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec",
+        "unchanged_after_read": true,
+        "curated_jobs": 50,
+        "source_occurrences": 1857,
+        "row_occurrences": 2206
+      }
+    },
+    "snapshot_read_bytes_calls": 1853,
+    "additional_snapshot_reads_during_execution": 0
+  },
+  "scope": "two production files and one new test module only; no schema/pipeline/manifest/shared catalog/archive/export writes, no network/install/delegation"
+}

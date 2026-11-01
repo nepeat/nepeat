@@ -1,0 +1,69 @@
+{
+  "checks": {
+    "43_table_counters": "old preserved and candidate/rebuild duplicate-sensitive equal",
+    "snapshot_rebase_only": true,
+    "complete_bundle": 47,
+    "new_affiliations": [
+      [
+        "446f0a874bebb2609fa4d758",
+        "Inventec",
+        "Inventec",
+        "brand"
+      ],
+      [
+        "446f0a874bebb2609fa4d758",
+        "Inventec",
+        "Inventec",
+        "platform_vendor"
+      ],
+      [
+        "4715ba6e603634694296bbc0",
+        "Inventec",
+        "Inventec",
+        "brand"
+      ],
+      [
+        "4715ba6e603634694296bbc0",
+        "Inventec",
+        "Inventec",
+        "platform_vendor"
+      ]
+    ],
+    "inventories": "distinct target/id pairs unchanged",
+    "fts": "independent reconstruction pass",
+    "integrity_foreign_keys": "pass",
+    "manifest": "120 jobs 2205 files 2191 old hashes preserved",
+    "old_pdf_originals": 57,
+    "frozen_hashes": 54,
+    "code_hashes": 165,
+    "all2205_actual_input_hashes": true,
+    "all119_prior_jobs": true,
+    "same_original_snapshot_targets": true,
+    "968_standard_exports_unchanged": true,
+    "162_prior_test_application_hashes": true,
+    "affected47tests_saved_log": "OK",
+    "prior428suite": {
+      "name": "full-suite",
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "returncode": 0
+    },
+    "13_saved_real_cli_reports": "context roles and no fallback checked",
+    "owned": "10/10",
+    "bytedance": "0/2"
+  },
+  "sha256": {
+    "data/devices.sqlite": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+    "data/candidate-with-inventec-practical-2026-10-04.sqlite": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+    "data/rebuilt-with-inventec-practical-2026-10-04.sqlite": "463cc53ccaff1fab68c10ffbca72cb57885884f16bd63b957ab11a6f99e8bccd",
+    "data/import-manifest.json": "3eefe9fcb79e17e1c0f0e724c53472e523decef37fbe603d1e0ff69fb3906277"
+  }
+}

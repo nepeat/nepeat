@@ -1,0 +1,639 @@
+                                            SPEC CPU(R)2017 Floating Point Rate Result
+                                    Inspur Corporation Inspur NF8480M6 (Intel Xeon Gold 6330H)
+
+                           CPU2017 License: 3358                                    Test date: Nov-2021
+                           Test sponsor: Inspur Corporation             Hardware availability: Sep-2020
+                           Tested by:    Inspur Corporation             Software availability: Dec-2020
+
+                 Base     Base        Base        Peak     Peak        Peak
+Benchmarks       Copies  Run Time     Rate        Copies  Run Time     Rate 
+--------------- -------  ---------  ---------    -------  ---------  ---------
+503.bwaves_r        192       1809       1060  S      96        889       1080  S
+503.bwaves_r        192       1807       1070  S      96        890       1080  *
+503.bwaves_r        192       1808       1070  *      96        890       1080  S
+507.cactuBSSN_r     192        335        726  S     192        335        726  S
+507.cactuBSSN_r     192        335        727  *     192        335        727  *
+507.cactuBSSN_r     192        334        727  S     192        334        727  S
+508.namd_r          192        429        425  S     192        429        425  S
+508.namd_r          192        428        426  S     192        428        426  S
+508.namd_r          192        429        426  *     192        429        426  *
+510.parest_r        192       1971        255  *      96        747        336  S
+510.parest_r        192       1967        255  S      96        749        335  S
+510.parest_r        192       1974        254  S      96        749        335  *
+511.povray_r        192        723        620  S     192        624        718  S
+511.povray_r        192        721        621  *     192        624        718  S
+511.povray_r        192        721        622  S     192        624        718  *
+519.lbm_r           192        650        312  S     192        650        312  S
+519.lbm_r           192        647        313  *     192        647        313  *
+519.lbm_r           192        646        313  S     192        646        313  S
+521.wrf_r           192        941        457  S      96        435        494  S
+521.wrf_r           192        944        455  S      96        435        495  *
+521.wrf_r           192        944        456  *      96        434        496  S
+526.blender_r       192        521        561  *     192        521        561  *
+526.blender_r       192        521        561  S     192        521        561  S
+526.blender_r       192        521        561  S     192        521        561  S
+527.cam4_r          192        590        569  *     192        590        569  *
+527.cam4_r          192        595        565  S     192        595        565  S
+527.cam4_r          192        583        576  S     192        583        576  S
+538.imagick_r       192        292       1630  *     192        292       1630  *
+538.imagick_r       192        294       1630  S     192        294       1630  S
+538.imagick_r       192        292       1640  S     192        292       1640  S
+544.nab_r           192        323        999  S     192        321       1010  S
+544.nab_r           192        323       1000  *     192        319       1010  S
+544.nab_r           192        322       1000  S     192        319       1010  *
+549.fotonik3d_r     192       2256        332  S     192       2256        332  S
+549.fotonik3d_r     192       2262        331  S     192       2262        331  S
+549.fotonik3d_r     192       2256        332  *     192       2256        332  *
+554.roms_r          192       1478        206  S      96        603        253  S
+554.roms_r          192       1472        207  *      96        610        250  *
+554.roms_r          192       1471        207  S      96        623        245  S
+=================================================================================
+503.bwaves_r        192       1808       1070  *      96        890       1080  *
+507.cactuBSSN_r     192        335        727  *     192        335        727  *
+508.namd_r          192        429        426  *     192        429        426  *
+510.parest_r        192       1971        255  *      96        749        335  *
+511.povray_r        192        721        621  *     192        624        718  *
+519.lbm_r           192        647        313  *     192        647        313  *
+521.wrf_r           192        944        456  *      96        435        495  *
+526.blender_r       192        521        561  *     192        521        561  *
+527.cam4_r          192        590        569  *     192        590        569  *
+538.imagick_r       192        292       1630  *     192        292       1630  *
+544.nab_r           192        323       1000  *     192        319       1010  *
+549.fotonik3d_r     192       2256        332  *     192       2256        332  *
+554.roms_r          192       1472        207  *      96        610        250  *
+ SPECrate(R)2017_fp_base                  531
+ SPECrate(R)2017_fp_peak                                                   561
+
+
+                                                             HARDWARE
+                                                             --------
+            CPU Name: Intel Xeon Gold 6330H
+             Max MHz: 3700
+             Nominal: 2000
+             Enabled: 96 cores, 4 chips, 2 threads/core
+           Orderable: 2,4 chips
+            Cache L1: 32 KB I + 32 KB D on chip per core
+                  L2: 1 MB I+D on chip per core
+                  L3: 33 MB I+D on chip per chip
+               Other: None
+              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R, running at
+                      2933)
+             Storage: 1 x 1.9 TB NVME SSD
+               Other: None
+
+
+                                                             SOFTWARE
+                                                             --------
+                  OS: Red Hat Enterprise Linux release 8.2 (Ootpa)
+                      4.18.0-193.el8.x86_64
+            Compiler: C/C++: Version 2021.1 of Intel oneAPI DPC++/C++
+                      Compiler Build 20201113 for Linux;
+                      C/C++: Version 2021.1 of Intel C/C++
+                      Compiler Classic Build 20201112 for Linux;
+                      Fortran: Version 2021.1 of Intel Fortran
+                      Compiler Classic Build 20201112 for Linux
+            Parallel: No
+            Firmware: Version 05.00.00 released Jun-2021
+         File System: xfs
+        System State: Run level 3 (multi-user)
+       Base Pointers: 64-bit
+       Peak Pointers: 64-bit
+               Other: jemalloc memory allocator V5.0.1
+    Power Management: BIOS and OS set to prefer performance at the cost
+                      of additional power usage.
+
+
+                                                           Submit Notes
+                                                           ------------
+     The numactl mechanism was used to bind copies to processors. The config file option 'submit'
+     was used to generate numactl commands to bind each copy to a specific processor.
+     For details, please see the config file.
+
+                                                      Operating System Notes
+                                                      ----------------------
+     Stack size set to unlimited using "ulimit -s unlimited"
+
+                                                   Environment Variables Notes
+                                                   ---------------------------
+    Environment variables set by runcpu before the start of the run:
+    LD_LIBRARY_PATH = "/home/CPU2017/lib/intel64:/home/CPU2017/je5.0.1-64"
+    MALLOC_CONF = "retain:true"
+    
+
+                                                          General Notes
+                                                          -------------
+     Binaries compiled on a system with 1x Intel Core i9-7980XE CPU + 64GB RAM
+     memory using Red Hat Enterprise Linux 8.1
+     Transparent Huge Pages enabled by default
+     Prior to runcpu invocation
+     Filesystem page cache synced and cleared with:
+     sync; echo 3>       /proc/sys/vm/drop_caches
+     runcpu command invoked through numactl i.e.:
+     numactl --interleave=all runcpu <etc>
+    
+     NA: The test sponsor attests, as of date of publication, that CVE-2017-5754 (Meltdown)
+     is mitigated in the system as tested and documented.
+     Yes: The test sponsor attests, as of date of publication, that CVE-2017-5753 (Spectre variant 1)
+     is mitigated in the system as tested and documented.
+     Yes: The test sponsor attests, as of date of publication, that CVE-2017-5715 (Spectre variant 2)
+     is mitigated in the system as tested and documented.
+    
+     jemalloc, a general purpose malloc implementation
+     built with the RedHat Enterprise 7.5,
+     and the system compiler gcc 4.8.5;
+     sources available from jemalloc.net or
+     https://github.com/jemalloc/jemalloc/releases
+
+                                                          Platform Notes
+                                                          --------------
+     BIOS configuration:
+     ENERGY_PERF_BIAS_CFG mode set to Performance
+     Hardware Prefetch set to Disable
+     VT Support set to Disable
+     C1E Support set to Disable
+    
+     Sysinfo program /home/CPU2017/bin/sysinfo
+     Rev: r6622 of 2021-04-07 982a61ec0915b55891ef0e16acafc64d
+     running on localhost.localdomain Thu Nov 18 18:22:39 2021
+    
+     SUT (System Under Test) info as seen by some common utilities.
+     For more information on this section, see
+        https://www.spec.org/cpu2017/Docs/config.html#sysinfo
+    
+     From /proc/cpuinfo
+        model name : Intel(R) Xeon(R) Gold 6330H CPU @ 2.00GHz
+           4  "physical id"s (chips)
+           192 "processors"
+        cores, siblings (Caution: counting these is hw and system dependent. The following
+        excerpts from /proc/cpuinfo might not be reliable.  Use with caution.)
+           cpu cores : 24
+           siblings  : 48
+           physical 0: cores 0 1 2 3 4 5 8 9 10 11 12 13 16 17 18 19 20 21 24 25 26 27 28 29
+           physical 1: cores 0 1 2 3 4 5 8 9 10 11 12 13 16 17 18 19 20 21 24 25 26 27 28 29
+           physical 2: cores 0 1 2 3 4 5 8 9 10 11 12 13 16 17 18 19 20 21 24 25 26 27 28 29
+           physical 3: cores 0 1 2 3 4 5 8 9 10 11 12 13 16 17 18 19 20 21 24 25 26 27 28 29
+    
+     From lscpu from util-linux 2.32.1:
+          Architecture:        x86_64
+          CPU op-mode(s):      32-bit, 64-bit
+          Byte Order:          Little Endian
+          CPU(s):              192
+          On-line CPU(s) list: 0-191
+          Thread(s) per core:  2
+          Core(s) per socket:  24
+          Socket(s):           4
+          NUMA node(s):        8
+          Vendor ID:           GenuineIntel
+          CPU family:          6
+          Model:               85
+          Model name:          Intel(R) Xeon(R) Gold 6330H CPU @ 2.00GHz
+          Stepping:            11
+          CPU MHz:             2799.989
+          CPU max MHz:         3700.0000
+          CPU min MHz:         1000.0000
+          BogoMIPS:            4000.00
+          Virtualization:      VT-x
+          L1d cache:           32K
+          L1i cache:           32K
+          L2 cache:            1024K
+          L3 cache:            33792K
+          NUMA node0 CPU(s):   0-2,6-8,12-14,18-20,96-98,102-104,108-110,114-116
+          NUMA node1 CPU(s):   3-5,9-11,15-17,21-23,99-101,105-107,111-113,117-119
+          NUMA node2 CPU(s):   24-26,30-32,36-38,42-44,120-122,126-128,132-134,138-140
+          NUMA node3 CPU(s):   27-29,33-35,39-41,45-47,123-125,129-131,135-137,141-143
+          NUMA node4 CPU(s):   48-50,54-56,60-62,66-68,144-146,150-152,156-158,162-164
+          NUMA node5 CPU(s):   51-53,57-59,63-65,69-71,147-149,153-155,159-161,165-167
+          NUMA node6 CPU(s):   72-74,78-80,84-86,90-92,168-170,174-176,180-182,186-188
+          NUMA node7 CPU(s):   75-77,81-83,87-89,93-95,171-173,177-179,183-185,189-191
+          Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+          pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp
+          lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid
+          aperfmperf pni pclmulqdq dtes64 ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm
+          pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c
+          rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 invpcid_single
+          intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept
+          vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm mpx rdt_a
+          avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl
+          xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local
+          avx512_bf16 dtherm ida arat pln pts pku ospke avx512_vnni md_clear flush_l1d
+          arch_capabilities
+    
+     /proc/cpuinfo cache data
+        cache size : 33792 KB
+    
+     From numactl --hardware
+     WARNING: a numactl 'node' might or might not correspond to a physical chip.
+       available: 8 nodes (0-7)
+       node 0 cpus: 0 1 2 6 7 8 12 13 14 18 19 20 96 97 98 102 103 104 108 109 110 114 115 116
+       node 0 size: 192070 MB
+       node 0 free: 180319 MB
+       node 1 cpus: 3 4 5 9 10 11 15 16 17 21 22 23 99 100 101 105 106 107 111 112 113 117 118
+       119
+       node 1 size: 193530 MB
+       node 1 free: 184207 MB
+       node 2 cpus: 24 25 26 30 31 32 36 37 38 42 43 44 120 121 122 126 127 128 132 133 134
+       138 139 140
+       node 2 size: 193530 MB
+       node 2 free: 184192 MB
+       node 3 cpus: 27 28 29 33 34 35 39 40 41 45 46 47 123 124 125 129 130 131 135 136 137
+       141 142 143
+       node 3 size: 193530 MB
+       node 3 free: 184213 MB
+       node 4 cpus: 48 49 50 54 55 56 60 61 62 66 67 68 144 145 146 150 151 152 156 157 158
+       162 163 164
+       node 4 size: 193503 MB
+       node 4 free: 183919 MB
+       node 5 cpus: 51 52 53 57 58 59 63 64 65 69 70 71 147 148 149 153 154 155 159 160 161
+       165 166 167
+       node 5 size: 193530 MB
+       node 5 free: 184193 MB
+       node 6 cpus: 72 73 74 78 79 80 84 85 86 90 91 92 168 169 170 174 175 176 180 181 182
+       186 187 188
+       node 6 size: 193530 MB
+       node 6 free: 184194 MB
+       node 7 cpus: 75 76 77 81 82 83 87 88 89 93 94 95 171 172 173 177 178 179 183 184 185
+       189 190 191
+       node 7 size: 193528 MB
+       node 7 free: 184204 MB
+       node distances:
+       node   0   1   2   3   4   5   6   7
+         0:  10  11  20  20  20  20  20  20
+         1:  11  10  20  20  20  20  20  20
+         2:  20  20  10  11  20  20  20  20
+         3:  20  20  11  10  20  20  20  20
+         4:  20  20  20  20  10  11  20  20
+         5:  20  20  20  20  11  10  20  20
+         6:  20  20  20  20  20  20  10  11
+         7:  20  20  20  20  20  20  11  10
+    
+     From /proc/meminfo
+        MemTotal:       1583876160 kB
+        HugePages_Total:       0
+        Hugepagesize:       2048 kB
+    
+     /sbin/tuned-adm active
+         Current active profile: throughput-performance
+    
+     /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor has
+        performance
+    
+     From /etc/*release* /etc/*version*
+        os-release:
+           NAME="Red Hat Enterprise Linux"
+           VERSION="8.2 (Ootpa)"
+           ID="rhel"
+           ID_LIKE="fedora"
+           VERSION_ID="8.2"
+           PLATFORM_ID="platform:el8"
+           PRETTY_NAME="Red Hat Enterprise Linux 8.2 (Ootpa)"
+           ANSI_COLOR="0;31"
+        redhat-release: Red Hat Enterprise Linux release 8.2 (Ootpa)
+        system-release: Red Hat Enterprise Linux release 8.2 (Ootpa)
+        system-release-cpe: cpe:/o:redhat:enterprise_linux:8.2:ga
+    
+     uname -a:
+        Linux localhost.localdomain 4.18.0-193.el8.x86_64 #1 SMP Fri Mar 27 14:35:58 UTC 2020
+        x86_64 x86_64 x86_64 GNU/Linux
+    
+     Kernel self-reported vulnerability status:
+    
+     CVE-2018-12207 (iTLB Multihit):                        Not affected
+     CVE-2018-3620 (L1 Terminal Fault):                     Not affected
+     Microarchitectural Data Sampling:                      Not affected
+     CVE-2017-5754 (Meltdown):                              Not affected
+     CVE-2018-3639 (Speculative Store Bypass):              Mitigation: Speculative Store
+                                                            Bypass disabled via prctl and
+                                                            seccomp
+     CVE-2017-5753 (Spectre variant 1):                     Mitigation: usercopy/swapgs
+                                                            barriers and __user pointer
+                                                            sanitization
+     CVE-2017-5715 (Spectre variant 2):                     Mitigation: Enhanced IBRS, IBPB:
+                                                            conditional, RSB filling
+     CVE-2020-0543 (Special Register Buffer Data Sampling): No status reported
+     CVE-2019-11135 (TSX Asynchronous Abort):               Not affected
+    
+     run-level 3 Nov 18 03:54
+    
+     SPEC is set to: /home/CPU2017
+        Filesystem            Type  Size  Used Avail Use% Mounted on
+        /dev/mapper/rhel-home xfs   1.7T  121G  1.6T   7% /home
+    
+     From /sys/devices/virtual/dmi/id
+         Vendor:         Inspur
+         Product:        NF8480M6
+         Product Family: Family
+         Serial:         379953176
+    
+     Additional information from dmidecode 3.2 follows.  WARNING: Use caution when you
+     interpret this section. The 'dmidecode' program reads system data which is "intended to
+     allow hardware to be accurately determined", but the intent may not be met, as there are
+     frequent changes to hardware, firmware, and the "DMTF SMBIOS" standard.
+       Memory:
+         48x Samsung M393A4K40DB3-CWE 32 GB 2 rank 3200, configured at 2933
+    
+     BIOS:
+        BIOS Vendor:       American Megatrends Inc.
+        BIOS Version:      05.00.00
+        BIOS Date:         06/23/2021
+        BIOS Revision:     5.19
+    
+     (End of data from sysinfo program)
+
+                                                      Compiler Version Notes
+                                                      ----------------------
+    ==============================================================================
+    C               | 519.lbm_r(base, peak) 538.imagick_r(base, peak)
+                    | 544.nab_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    C++             | 508.namd_r(base, peak) 510.parest_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    C++, C          | 511.povray_r(peak)
+    ------------------------------------------------------------------------------
+    Intel(R) C++ Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    Intel(R) C Intel(R) 64 Compiler Classic for applications running on Intel(R)
+      64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    C++, C          | 511.povray_r(base) 526.blender_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    C++, C          | 511.povray_r(peak)
+    ------------------------------------------------------------------------------
+    Intel(R) C++ Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    Intel(R) C Intel(R) 64 Compiler Classic for applications running on Intel(R)
+      64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    C++, C          | 511.povray_r(base) 526.blender_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    C++, C, Fortran | 507.cactuBSSN_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    Intel(R) Fortran Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    Fortran         | 503.bwaves_r(base, peak) 549.fotonik3d_r(base, peak)
+                    | 554.roms_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) Fortran Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    Fortran, C      | 521.wrf_r(peak)
+    ------------------------------------------------------------------------------
+    Intel(R) Fortran Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    Intel(R) C Intel(R) 64 Compiler Classic for applications running on Intel(R)
+      64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    Fortran, C      | 521.wrf_r(base) 527.cam4_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) Fortran Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    Fortran, C      | 521.wrf_r(peak)
+    ------------------------------------------------------------------------------
+    Intel(R) Fortran Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    Intel(R) C Intel(R) 64 Compiler Classic for applications running on Intel(R)
+      64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    ------------------------------------------------------------------------------
+    
+    ==============================================================================
+    Fortran, C      | 521.wrf_r(base) 527.cam4_r(base, peak)
+    ------------------------------------------------------------------------------
+    Intel(R) Fortran Intel(R) 64 Compiler Classic for applications running on
+      Intel(R) 64, Version 2021.1 Build 20201112_000000
+    Copyright (C) 1985-2020 Intel Corporation.  All rights reserved.
+    Intel(R) oneAPI DPC++/C++ Compiler for applications running on Intel(R) 64,
+      Version 2021.1 Build 20201113
+    Copyright (C) 1985-2020 Intel Corporation. All rights reserved.
+    ------------------------------------------------------------------------------
+
+                                                     Base Compiler Invocation
+                                                     ------------------------
+C benchmarks: 
+     icx
+
+C++ benchmarks: 
+     icpx
+
+Fortran benchmarks: 
+     ifort
+
+Benchmarks using both Fortran and C: 
+     ifort icx
+
+Benchmarks using both C and C++: 
+     icpx icx
+
+Benchmarks using Fortran, C, and C++: 
+     icpx icx ifort
+
+
+                                                      Base Portability Flags
+                                                      ----------------------
+    503.bwaves_r: -DSPEC_LP64
+ 507.cactuBSSN_r: -DSPEC_LP64
+      508.namd_r: -DSPEC_LP64
+    510.parest_r: -DSPEC_LP64
+    511.povray_r: -DSPEC_LP64
+       519.lbm_r: -DSPEC_LP64
+       521.wrf_r: -DSPEC_LP64 -DSPEC_CASE_FLAG -convert big_endian
+   526.blender_r: -DSPEC_LP64 -DSPEC_LINUX -funsigned-char
+      527.cam4_r: -DSPEC_LP64 -DSPEC_CASE_FLAG
+   538.imagick_r: -DSPEC_LP64
+       544.nab_r: -DSPEC_LP64
+ 549.fotonik3d_r: -DSPEC_LP64
+      554.roms_r: -DSPEC_LP64
+
+
+                                                     Base Optimization Flags
+                                                     -----------------------
+C benchmarks: 
+     -w -std=c11 -m64 -Wl,-z,muldefs -xCORE-AVX512 -Ofast -ffast-math -flto -mfpmath=sse -funroll-loops -qopt-mem-layout-trans=4
+     -mbranches-within-32B-boundaries -ljemalloc -L/usr/local/jemalloc64-5.0.1/lib
+
+C++ benchmarks: 
+     -w -m64 -Wl,-z,muldefs -xCORE-AVX512 -Ofast -ffast-math -flto -mfpmath=sse -funroll-loops -qopt-mem-layout-trans=4
+     -mbranches-within-32B-boundaries -ljemalloc -L/usr/local/jemalloc64-5.0.1/lib
+
+Fortran benchmarks: 
+     -w -m64 -Wl,-z,muldefs -xCORE-AVX512 -O3 -ipo -no-prec-div -qopt-prefetch -ffinite-math-only
+     -qopt-multiple-gather-scatter-by-shuffles -qopt-mem-layout-trans=4 -nostandard-realloc-lhs -align array32byte -auto
+     -mbranches-within-32B-boundaries -ljemalloc -L/usr/local/jemalloc64-5.0.1/lib
+
+Benchmarks using both Fortran and C: 
+     -w -m64 -std=c11 -Wl,-z,muldefs -xCORE-AVX512 -Ofast -ffast-math -flto -mfpmath=sse -funroll-loops -qopt-mem-layout-trans=4
+     -O3 -ipo -no-prec-div -qopt-prefetch -ffinite-math-only -qopt-multiple-gather-scatter-by-shuffles
+     -mbranches-within-32B-boundaries -nostandard-realloc-lhs -align array32byte -auto -ljemalloc
+     -L/usr/local/jemalloc64-5.0.1/lib
+
+Benchmarks using both C and C++: 
+     -w -m64 -std=c11 -Wl,-z,muldefs -xCORE-AVX512 -Ofast -ffast-math -flto -mfpmath=sse -funroll-loops -qopt-mem-layout-trans=4
+     -mbranches-within-32B-boundaries -ljemalloc -L/usr/local/jemalloc64-5.0.1/lib
+
+Benchmarks using Fortran, C, and C++: 
+     -w -m64 -std=c11 -Wl,-z,muldefs -xCORE-AVX512 -Ofast -ffast-math -flto -mfpmath=sse -funroll-loops -qopt-mem-layout-trans=4
+     -O3 -no-prec-div -qopt-prefetch -ffinite-math-only -qopt-multiple-gather-scatter-by-shuffles
+     -mbranches-within-32B-boundaries -nostandard-realloc-lhs -align array32byte -auto -ljemalloc
+     -L/usr/local/jemalloc64-5.0.1/lib
+
+
+                                                     Peak Compiler Invocation
+                                                     ------------------------
+C benchmarks: 
+     icx
+
+C++ benchmarks: 
+     icpx
+
+Fortran benchmarks: 
+     ifort
+
+Benchmarks using both Fortran and C:
+
+       521.wrf_r: ifort icc
+
+      527.cam4_r: ifort icx
+
+Benchmarks using both C and C++:
+
+    511.povray_r: icpc icc
+
+   526.blender_r: icpx icx
+
+Benchmarks using Fortran, C, and C++: 
+     icpx icx ifort
+
+
+                                                      Peak Portability Flags
+                                                      ----------------------
+Same as Base Portability Flags
+
+
+                                                     Peak Optimization Flags
+                                                     -----------------------
+C benchmarks:
+
+       519.lbm_r: basepeak = yes
+
+   538.imagick_r: basepeak = yes
+
+       544.nab_r: -w -std=c11 -m64 -Wl,-z,muldefs -xCORE-AVX512 -flto -Ofast -qopt-mem-layout-trans=4 -fimf-accuracy-bits=14:sqrt
+                  -mbranches-within-32B-boundaries -ljemalloc -L/usr/local/jemalloc64-5.0.1/lib
+
+C++ benchmarks:
+
+      508.namd_r: basepeak = yes
+
+    510.parest_r: -w -m64 -Wl,-z,muldefs -xCORE-AVX512 -Ofast -ffast-math -flto -mfpmath=sse -funroll-loops
+                  -qopt-mem-layout-trans=4 -mbranches-within-32B-boundaries -ljemalloc -L/usr/local/jemalloc64-5.0.1/lib
+
+Fortran benchmarks:
+
+    503.bwaves_r: -w -m64 -Wl,-z,muldefs -xCORE-AVX512 -O3 -ipo -no-prec-div -qopt-prefetch -ffinite-math-only
+                  -qopt-multiple-gather-scatter-by-shuffles -qopt-mem-layout-trans=4 -nostandard-realloc-lhs -align array32byte
+                  -auto -mbranches-within-32B-boundaries -ljemalloc -L/usr/local/jemalloc64-5.0.1/lib
+
+ 549.fotonik3d_r: basepeak = yes
+
+      554.roms_r: Same as 503.bwaves_r
+
+Benchmarks using both Fortran and C:
+
+       521.wrf_r: -prof-gen(pass 1) -prof-use(pass 2) -xCORE-AVX512 -O3 -ipo -no-prec-div -qopt-prefetch -ffinite-math-only
+                  -qopt-multiple-gather-scatter-by-shuffles -qopt-mem-layout-trans=4 -mbranches-within-32B-boundaries
+                  -nostandard-realloc-lhs -align array32byte -auto -L/usr/local/jemalloc64-5.0.1/lib -ljemalloc
+
+      527.cam4_r: basepeak = yes
+
+Benchmarks using both C and C++:
+
+    511.povray_r: -prof-gen(pass 1) -prof-use(pass 2) -xCORE-AVX512 -O3 -ipo -no-prec-div -qopt-prefetch -ffinite-math-only
+                  -qopt-multiple-gather-scatter-by-shuffles -qopt-mem-layout-trans=4 -mbranches-within-32B-boundaries
+                  -L/usr/local/jemalloc64-5.0.1/lib -ljemalloc
+
+   526.blender_r: basepeak = yes
+
+Benchmarks using Fortran, C, and C++:
+
+ 507.cactuBSSN_r: basepeak = yes
+
+
+The flags files that were used to format this result can be browsed at
+http://www.spec.org/cpu2017/flags/Intel-ic2021-official-linux64_revA.html
+http://www.spec.org/cpu2017/flags/Inspur-Platform-Settings-V2.3.html
+
+You can also download the XML flags sources by saving the following links:
+http://www.spec.org/cpu2017/flags/Intel-ic2021-official-linux64_revA.xml
+http://www.spec.org/cpu2017/flags/Inspur-Platform-Settings-V2.3.xml
+
+  SPEC CPU and SPECrate are registered trademarks of the Standard Performance Evaluation Corporation.  All other brand and
+    product names appearing in this result are trademarks or registered trademarks of their respective holders.
+----------------------------------------------------------------------------------------------------------------------------------
+For questions about this result, please contact the tester.
+For other inquiries, please contact info@spec.org.
+Copyright 2017-2021 Standard Performance Evaluation Corporation
+Tested with SPEC CPU(R)2017 v1.1.8 on 2021-11-18 18:22:38-0500.
+Report generated on 2021-12-22 12:25:35 by CPU2017 text formatter v6255.
+Originally published on 2021-12-21.

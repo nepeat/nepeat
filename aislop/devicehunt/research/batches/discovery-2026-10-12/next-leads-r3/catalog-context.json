@@ -1,0 +1,206 @@
+{
+  "observed_at_utc": "2026-10-13T05:20:45.874655+00:00",
+  "scope": "Dated read-only accepted catalog and explicit staged candidate metadata only",
+  "staged_candidates": {
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/candidate.json": {
+      "sha256": "687da4d58027a507cce2f2f4d31225548d3a57fd73ec6a12be5605c4fe5de86b",
+      "source_urls": [
+        "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-specifications.html",
+        "https://www.edge-core.com/wp-content/uploads/2024/01/AS6700-32X-Quick-Start-Guide.pdf",
+        "https://www.edge-core.com/wp-content/uploads/2024/01/AS5710_AS5712-54X-DS-R09-1.pdf"
+      ]
+    },
+    "research/batches/discovery-2026-10-12/qct-compatibility-facts/candidate.json": {
+      "sha256": "9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd",
+      "source_urls": [
+        "https://www.qct.io/microsite/ccl/D52BQ-2U.html"
+      ]
+    }
+  },
+  "models": {
+    "SD4100": [
+      {
+        "id": "ee80b5d2a43c5934eb98",
+        "brand": "Celestica",
+        "model": "SD4100",
+        "revision": "",
+        "title": "Celestica SD4100",
+        "kind": "storage enclosure",
+        "records": [
+          {
+            "source_id": "celestica-2025-catalog",
+            "source_key": "SD4100",
+            "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+          },
+          {
+            "source_id": "celestica-storage",
+            "source_key": "SD4100|https://cls.celestica.com/hardware-platforms/sd4100/",
+            "source_url": "https://cls.celestica.com/hardware-platforms/sd4100/"
+          },
+          {
+            "source_id": "celestica-storage-manufacturer-sd4100",
+            "source_key": "SD4100",
+            "source_url": "https://cls.celestica.com/hardware-platforms/sd4100/"
+          },
+          {
+            "source_id": "ul-celestica-platforms",
+            "source_key": "SD4100",
+            "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+          }
+        ],
+        "facts": [
+          {
+            "name": "capture_format",
+            "value": "web_search_models_section"
+          },
+          {
+            "name": "capture_method",
+            "value": "Original HTML; model h1, product subtitle h1 and manufacturer paragraph reviewed"
+          },
+          {
+            "name": "evidence_scope",
+            "value": "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred."
+          },
+          {
+            "name": "form_factor",
+            "value": "2U"
+          },
+          {
+            "name": "identity_namespace",
+            "value": "Celestica listing holder; product brand not established by this record"
+          },
+          {
+            "name": "index_url",
+            "value": "https://www.celestica.com/our-expertise/platform-solutions/storage"
+          },
+          {
+            "name": "listing_holder_name",
+            "value": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD"
+          },
+          {
+            "name": "manufacturer_statement",
+            "value": "Designed and manufactured by Celestica with 30+ years of experience in storage"
+          },
+          {
+            "name": "pdf_sha256",
+            "value": "01766330de9b4b344e14dd401e5ae343f10c3e31d41f535ac87de5d3697a2e82"
+          },
+          {
+            "name": "physical_description",
+            "value": "2U 12 HDD SAS-4 Storage Expansion System"
+          },
+          {
+            "name": "physical_description",
+            "value": "2U form factor stated in 2025 catalog"
+          },
+          {
+            "name": "product_description",
+            "value": "2U 12 HDD SAS-4 Storage Expansion System"
+          },
+          {
+            "name": "retrieved_at",
+            "value": "2026-09-27 02:10:48 UTC"
+          },
+          {
+            "name": "source_html_sha256",
+            "value": "e73d53544761cb2ccae989a35065609fdceeaf45eb332af13fd3f2eea2b2255e"
+          },
+          {
+            "name": "source_model_heading",
+            "value": "SD4100"
+          },
+          {
+            "name": "source_page",
+            "value": "5"
+          },
+          {
+            "name": "source_year",
+            "value": "2025"
+          }
+        ]
+      }
+    ],
+    "Oracle ZFS Storage ZS3-2": [
+      {
+        "id": "63baaea45dc3eaeb7de6",
+        "brand": "Oracle",
+        "model": "Oracle ZFS Storage ZS3-2",
+        "revision": "",
+        "title": "Oracle Oracle ZFS Storage ZS3-2",
+        "kind": "Server",
+        "records": [
+          {
+            "source_id": "rra-official-query-73009f906e4e",
+            "source_key": "KCC-REM-SUN-9200A:Oracle ZFS Storage ZS3-2",
+            "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=KCC-REM-SUN-9200A"
+          }
+        ],
+        "facts": [
+          {
+            "name": "approval_date_raw",
+            "value": "2011-12-30"
+          },
+          {
+            "name": "country_raw",
+            "value": "\ubbf8\uad6d"
+          },
+          {
+            "name": "detail_sha256",
+            "value": "2a5511c9196dff14b7ddef11181b23e68f853e2cc69ff7499a63396f2a2e1510"
+          },
+          {
+            "name": "rra_main_model",
+            "value": "9200A"
+          },
+          {
+            "name": "rra_model_role",
+            "value": "derived"
+          }
+        ]
+      }
+    ],
+    "ZS3-4": [
+      {
+        "id": "17d7fce98d619f3bfff7",
+        "brand": "Oracle",
+        "model": "ZS3-4",
+        "revision": "",
+        "title": "Oracle ZS3-4",
+        "kind": "Server/Storage",
+        "records": [
+          {
+            "source_id": "rra-official-query-73009f906e4e",
+            "source_key": "SUN-CALI3:ZS3-4",
+            "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+          }
+        ],
+        "facts": [
+          {
+            "name": "approval_date_raw",
+            "value": "2010-04-12"
+          },
+          {
+            "name": "country_raw",
+            "value": "\ubbf8\uad6d"
+          },
+          {
+            "name": "detail_sha256",
+            "value": "e9fe2cfc7e4a2a6166abebc08f31acf586d43fdf72db2bd14160a269d054c64c"
+          },
+          {
+            "name": "rra_main_model",
+            "value": "CALI3"
+          },
+          {
+            "name": "rra_model_role",
+            "value": "derived"
+          }
+        ]
+      }
+    ]
+  },
+  "database": "data/devices.sqlite",
+  "sha256_before": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "sha256_after": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "unchanged_during_read": true
+}

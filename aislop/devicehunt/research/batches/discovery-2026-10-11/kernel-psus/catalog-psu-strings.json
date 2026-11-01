@@ -1,0 +1,1087 @@
+{
+ "note": "Step 1 read-only scan of data/devices.sqlite sha ab8ed2e3... : regex over device_facts values (PSU-named facts + other_raw/part_number + PSU-prefix tokens anywhere), devices.model, identifiers. Includes noise rows flagged. Not exhaustive of every free-text PSU mention (e.g. rating-only strings, A271/SUN-S-1400ADU00, 300-xxxx Oracle PNs, are not regex-covered).",
+ "strings": [
+  {
+   "string": "AA23650",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Oracle AA23650",
+    "device.model(psu kind) @ Oracle AA23650"
+   ]
+  },
+  {
+   "string": "AA25420L",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "energystar_archive_Power Supply Model Number Typical or Single Configuration @ Oracle X5-4"
+   ]
+  },
+  {
+   "string": "AA27020L",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 10,
+   "seen_examples": [
+    "energystar_archive_Power Supply Model Name High-end Performance Configuration @ Oracle Oracle Server X6-2",
+    "energystar_archive_Power Supply Model Name Low-end Performance Configuration @ Oracle Oracle Server X6-2",
+    "energystar_archive_Power Supply Model Name Maximum Power Configuration @ Oracle Oracle Server X6-2",
+    "energystar_archive_Power Supply Model Name Minimum Power Configuration @ Oracle Oracle Server X6-2",
+    "energystar_archive_Power Supply Model Name Typical or Single Configuration @ Oracle Oracle Server X6-2"
+   ]
+  },
+  {
+   "string": "BluTek BPA-490-5S Power Supply",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Oracle BluTek BPA-490-5S Power Supply"
+   ]
+  },
+  {
+   "string": "BPA-490-5S",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Oracle BPA-490-5S"
+   ]
+  },
+  {
+   "string": "BPA-490-5SY",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Oracle BPA-490-5SY"
+   ]
+  },
+  {
+   "string": "CPR-4011-4M11",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory CPR-4011-4M11"
+   ]
+  },
+  {
+   "string": "CPR-4011-4M21",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory CPR-4011-4M21"
+   ]
+  },
+  {
+   "string": "CRPS",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 7,
+   "seen_examples": [
+    "power_description @ Hyve Hercules",
+    "power_description @ Inventec E850G4",
+    "power_description @ Inspur \u5929\u68ad TS860M5",
+    "power_description @ Inventec Seadra",
+    "power_description @ Inspur NF5280M5"
+   ]
+  },
+  {
+   "string": "CRPS1600C2",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 5,
+   "seen_examples": [
+    "spec_power_supply_details @ Quanta Cloud Technology QuantaGrid D55Q-2U x3",
+    "spec_power_supply_details @ Quanta Cloud Technology QuantaGrid D44N-1U",
+    "spec_power_supply_details @ Quanta D44N-1U"
+   ]
+  },
+  {
+   "string": "D1U54P-W-1500-12-HC4TC-AF",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform minipack"
+   ]
+  },
+  {
+   "string": "D1U74T-W-2600-12-HB4C-QNT",
+   "flag": "",
+   "kernel_match": "family",
+   "seen_count": 3,
+   "seen_examples": [
+    "spec_power_supply_details @ Quanta Cloud Technology QuantaGrid D54Q-2U x3"
+   ]
+  },
+  {
+   "string": "DD-2152-2L",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "fbobmc_observation_hex_ascii_decode @ Meta OpenBMC platform wedge400",
+    "fbobmc_observation_hex_ascii_decode @ Meta OpenBMC platform fuji"
+   ]
+  },
+  {
+   "string": "DD-2302-2L",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 5,
+   "seen_examples": [
+    "other_raw @ Edge-Core AIS800-64D-DB",
+    "other_raw @ Edge-Core AIS800-64D-AB",
+    "other_raw @ Edge-Core AIS800-64D",
+    "other_raw @ Edge-Core AIS800-64D-DF",
+    "other_raw @ Edge-Core AIS800-64D-AF"
+   ]
+  },
+  {
+   "string": "DD-2302-2R",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 5,
+   "seen_examples": [
+    "other_raw @ Edge-Core AIS800-64D-DB",
+    "other_raw @ Edge-Core AIS800-64D-AB",
+    "other_raw @ Edge-Core AIS800-64D",
+    "other_raw @ Edge-Core AIS800-64D-DF",
+    "other_raw @ Edge-Core AIS800-64D-AF"
+   ]
+  },
+  {
+   "string": "DPS-1300AB-21A",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "other_raw @ Celestica DS3001",
+    "other_raw @ Celestica D6040"
+   ]
+  },
+  {
+   "string": "DPS-1300AB-36",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "other_raw @ Celestica DS3001",
+    "other_raw @ Celestica D6040",
+    "psu_configuration_1 @ Amazon Data Services CUBSCOUT",
+    "tested_configurations @ Amazon Data Services CUBSCOUT"
+   ]
+  },
+  {
+   "string": "DPS-1300AB-6",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "other_raw @ Celestica DS3001",
+    "other_raw @ Celestica D6040"
+   ]
+  },
+  {
+   "string": "DPS-1300AB-6A",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "other_raw @ Celestica DS3001",
+    "other_raw @ Celestica D6040"
+   ]
+  },
+  {
+   "string": "DPS-550AB-11",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 3,
+   "seen_examples": [
+    "spec_power_supply_details @ Inspur Corporation Inspur NF5280M5 x3"
+   ]
+  },
+  {
+   "string": "DPS-550AB-19",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 3,
+   "seen_examples": [
+    "spec_power_supply_details @ Inspur Corporation Inspur NF5280M5 x2",
+    "spec_power_supply_details @ Inspur Corporation Inspur NF5180M5"
+   ]
+  },
+  {
+   "string": "DPS-800AB-47A",
+   "flag": "",
+   "kernel_match": "family",
+   "seen_count": 1,
+   "seen_examples": [
+    "spec_power_supply_details @ Inspur Corporation Inspur Yingxin NF8480M5"
+   ]
+  },
+  {
+   "string": "DPS-800AB-9X",
+   "flag": "",
+   "kernel_match": "family",
+   "seen_count": 6,
+   "seen_examples": [
+    "spec_power_supply_details @ Inspur Corporation NF5280 M4",
+    "spec_power_supply_details @ Inspur Corporation Inspur NF5280M5 x3",
+    "spec_power_supply_details @ Inspur Corporation Inspur NF5180M5",
+    "spec_power_supply_details @ Inspur Corporation NF5280M4"
+   ]
+  },
+  {
+   "string": "DPS-850AB-5",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory DPS-850AB-5 A",
+    "ordering_description_as_printed @ Unattributed accessory DPS-850AB-5 A"
+   ]
+  },
+  {
+   "string": "DPS-850AB-6",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory DPS-850AB-6 A",
+    "ordering_description_as_printed @ Unattributed accessory DPS-850AB-6 A"
+   ]
+  },
+  {
+   "string": "dps800",
+   "flag": "",
+   "kernel_match": "exact(binding name)",
+   "seen_count": 1,
+   "seen_examples": [
+    "dts_psu_compatibles @ Linux BMC device tree nuvoton-npcm750-runbmc-olympus"
+   ]
+  },
+  {
+   "string": "ECD15020056",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "fbobmc_psu_maker_word_as_printed @ Meta OpenBMC platform elbert",
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform elbert"
+   ]
+  },
+  {
+   "string": "ECD25010015",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "fbobmc_observation_hex_ascii_decode @ Meta OpenBMC platform wedge400",
+    "fbobmc_observation_hex_ascii_decode @ Meta OpenBMC platform fuji"
+   ]
+  },
+  {
+   "string": "ECD55020006",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform minipack"
+   ]
+  },
+  {
+   "string": "FSJ021",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 6,
+   "seen_examples": [
+    "other_raw @ Celestica CS8001-32X-UN-00",
+    "other_raw @ Celestica CS8321-16X-UN-00",
+    "other_raw @ Celestica CS8200-32X-UN-00",
+    "other_raw @ Celestica CS8201-32X-UN-00",
+    "other_raw @ Celestica CS8320-16X-UN-00"
+   ]
+  },
+  {
+   "string": "FSP550-20FM",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "nos_psu_model_literals_in_fan_direction_code @ SONiC platform x86_64-cel_ds3000-r0",
+    "pddf_plugin_psu_model_keys_in_fan_dir_map @ SONiC platform x86_64-cel_ds2000-r0"
+   ]
+  },
+  {
+   "string": "FSP550-29FM",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "nos_psu_model_literals_in_fan_direction_code @ SONiC platform x86_64-cel_ds3000-r0",
+    "pddf_plugin_psu_model_keys_in_fan_dir_map @ SONiC platform x86_64-cel_ds2000-r0"
+   ]
+  },
+  {
+   "string": "GW-CRPS1200",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "spec_power_supply_details @ Inspur Corporation Inspur Yingxin NF8480M5"
+   ]
+  },
+  {
+   "string": "GW-CRPS800",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 20,
+   "seen_examples": [
+    "energystar_archive_Power Supply Model Name High-end Performance Configuration @ Inspur NF5270M4",
+    "energystar_archive_Power Supply Model Name High-end Performance Configuration @ Inspur NF5280M4",
+    "energystar_archive_Power Supply Model Name Low-end Performance Configuration @ Inspur NF5270M4",
+    "energystar_archive_Power Supply Model Name Low-end Performance Configuration @ Inspur NF5280M4",
+    "energystar_archive_Power Supply Model Name Maximum Power Configuration @ Inspur NF5270M4"
+   ]
+  },
+  {
+   "string": "MC2200B4-3-4R-02",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "spec_shared_power_supply_details @ Quanta QuantaGrid T42S-2U"
+   ]
+  },
+  {
+   "string": "pfe1100",
+   "flag": "",
+   "kernel_match": "exact",
+   "seen_count": 3,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform wedge100",
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform wedge",
+    "sonic_thermal_names @ SONiC platform x86_64-accton_wedge100bf_32qs-r0"
+   ]
+  },
+  {
+   "string": "PFE1100",
+   "flag": "",
+   "kernel_match": "exact",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform wedge100"
+   ]
+  },
+  {
+   "string": "PFE1100-12-054NA",
+   "flag": "",
+   "kernel_match": "family",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform minipack"
+   ]
+  },
+  {
+   "string": "PFE1500",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform minipack"
+   ]
+  },
+  {
+   "string": "PFE1500-12-054NAC",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform minipack"
+   ]
+  },
+  {
+   "string": "pfe3000",
+   "flag": "",
+   "kernel_match": "exact",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform cmm"
+   ]
+  },
+  {
+   "string": "PS-2122-6Q",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "spec_power_supply_details @ Quanta Cloud Technology QuantaGrid D53XQ-2U"
+   ]
+  },
+  {
+   "string": "PS-2152-5L",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform minipack"
+   ]
+  },
+  {
+   "string": "PS-2242-3A",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform elbert"
+   ]
+  },
+  {
+   "string": "PS-2242-9A",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "fbobmc_psu_maker_word_as_printed @ Meta OpenBMC platform elbert",
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform elbert"
+   ]
+  },
+  {
+   "string": "PS-2302-6L",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 5,
+   "seen_examples": [
+    "other_raw @ Edge-Core AIS800-64D-DB",
+    "other_raw @ Edge-Core AIS800-64D-AB",
+    "other_raw @ Edge-Core AIS800-64D",
+    "other_raw @ Edge-Core AIS800-64D-DF",
+    "other_raw @ Edge-Core AIS800-64D-AF"
+   ]
+  },
+  {
+   "string": "PS-2302-6LR",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 5,
+   "seen_examples": [
+    "other_raw @ Edge-Core AIS800-64D-DB",
+    "other_raw @ Edge-Core AIS800-64D-AB",
+    "other_raw @ Edge-Core AIS800-64D",
+    "other_raw @ Edge-Core AIS800-64D-DF",
+    "other_raw @ Edge-Core AIS800-64D-AF"
+   ]
+  },
+  {
+   "string": "PS-2801-6LS",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 10,
+   "seen_examples": [
+    "energystar_archive_Power Supply Model Name High-end Performance Configuration @ Inspur NF8460M4",
+    "energystar_archive_Power Supply Model Name Low-end Performance Configuration @ Inspur NF8460M4",
+    "energystar_archive_Power Supply Model Name Maximum Power Configuration @ Inspur NF8460M4",
+    "energystar_archive_Power Supply Model Name Minimum Power Configuration @ Inspur NF8460M4",
+    "energystar_archive_Power Supply Model Name Typical or Single Configuration @ Inspur NF8460M4"
+   ]
+  },
+  {
+   "string": "PS-2801-8Q",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "spec_power_supply_details @ Quanta Cloud Technology QuantaGrid D43K-1U"
+   ]
+  },
+  {
+   "string": "PSU-1",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "sonic_psu_names @ SONiC platform x86_64-wistron_6512_32r-r0",
+    "sonic_psu_names @ SONiC platform x86_64-wistron_sw_to3200k-r0",
+    "sonic_psu_names @ SONiC platform x86_64-cel_seastone-r0",
+    "sonic_psu_names @ SONiC platform x86_64-accton_as7816_64x-r0"
+   ]
+  },
+  {
+   "string": "psu-1",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "sonic_psu_names @ SONiC platform x86_64-accton_wedge100bf_32qs-r0"
+   ]
+  },
+  {
+   "string": "PSU-12V-400-1",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-12V-400-1",
+    "device.model(psu kind) @ Unattributed accessory PSU-12V-400-1",
+    "identifier:netbox_module_type @ 1d658b3420b99b477262281e",
+    "identifier:part_number @ 1d658b3420b99b477262281e"
+   ]
+  },
+  {
+   "string": "PSU-2",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "sonic_psu_names @ SONiC platform x86_64-wistron_6512_32r-r0",
+    "sonic_psu_names @ SONiC platform x86_64-wistron_sw_to3200k-r0",
+    "sonic_psu_names @ SONiC platform x86_64-cel_seastone-r0",
+    "sonic_psu_names @ SONiC platform x86_64-accton_as7816_64x-r0"
+   ]
+  },
+  {
+   "string": "psu-2",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "sonic_psu_names @ SONiC platform x86_64-accton_wedge100bf_32qs-r0"
+   ]
+  },
+  {
+   "string": "PSU-48V-400-B",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-48V-400-B",
+    "device.model(psu kind) @ Unattributed accessory PSU-48V-400-B",
+    "identifier:netbox_module_type @ aac59da19b9e42a8f1b402c2",
+    "identifier:part_number @ aac59da19b9e42a8f1b402c2"
+   ]
+  },
+  {
+   "string": "PSU-48V-400-F",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-48V-400-F",
+    "device.model(psu kind) @ Unattributed accessory PSU-48V-400-F",
+    "identifier:netbox_module_type @ 4adbf0c4ad71d84167a75ae9",
+    "identifier:part_number @ 4adbf0c4ad71d84167a75ae9"
+   ]
+  },
+  {
+   "string": "PSU-48V-650-B",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-48V-650-B",
+    "device.model(psu kind) @ Unattributed accessory PSU-48V-650-B"
+   ]
+  },
+  {
+   "string": "PSU-48V-650-F",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-48V-650-F",
+    "device.model(psu kind) @ Unattributed accessory PSU-48V-650-F"
+   ]
+  },
+  {
+   "string": "PSU-AC-400-B",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-400-B",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-400-B",
+    "identifier:netbox_module_type @ 942164e93b933aed041b6622",
+    "identifier:part_number @ 942164e93b933aed041b6622"
+   ]
+  },
+  {
+   "string": "PSU-AC-400-F",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-400-F",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-400-F",
+    "identifier:netbox_module_type @ fea257da9a2b3902e20d3511",
+    "identifier:part_number @ fea257da9a2b3902e20d3511"
+   ]
+  },
+  {
+   "string": "PSU-AC-650A-B",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-650A-B",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-650A-B"
+   ]
+  },
+  {
+   "string": "PSU-AC-650A-F",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-650A-F",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-650A-F"
+   ]
+  },
+  {
+   "string": "PSU-AC-650B-B",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-650B-B",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-650B-B"
+   ]
+  },
+  {
+   "string": "PSU-AC-650B-F",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-650B-F",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-650B-F"
+   ]
+  },
+  {
+   "string": "PSU-AC-650C-B",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-650C-B",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-650C-B"
+   ]
+  },
+  {
+   "string": "PSU-AC-650C-F",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Unattributed accessory PSU-AC-650C-F",
+    "device.model(psu kind) @ Unattributed accessory PSU-AC-650C-F"
+   ]
+  },
+  {
+   "string": "PSU-L",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "sonic_psu_names @ SONiC platform x86_64-cel_e1031-r0"
+   ]
+  },
+  {
+   "string": "psu-platform",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "fbobmc_psu_maker_word_as_printed @ Meta OpenBMC platform wedge400",
+    "fbobmc_psu_maker_word_as_printed @ Meta OpenBMC platform fuji"
+   ]
+  },
+  {
+   "string": "PSU-R",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "sonic_psu_names @ SONiC platform x86_64-cel_e1031-r0"
+   ]
+  },
+  {
+   "string": "PWR-2411-AC-RED",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform elbert"
+   ]
+  },
+  {
+   "string": "PWR-2421-HV-RED",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform elbert"
+   ]
+  },
+  {
+   "string": "PWR-2422-HV-RED",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "fbobmc_psu_part_string_as_printed @ Meta OpenBMC platform elbert"
+   ]
+  },
+  {
+   "string": "R7300",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Netgear R7300"
+   ]
+  },
+  {
+   "string": "S10-1",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model @ Celestica S1122-S10-1"
+   ]
+  },
+  {
+   "string": "S10-4",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model @ Celestica S1122-S10-4"
+   ]
+  },
+  {
+   "string": "S24-1",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "device.model @ Celestica S2122-S24-1",
+    "device.model @ Celestica S2123-S24-1"
+   ]
+  },
+  {
+   "string": "S59-4891",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "identifier:fcc_id @ 89077b6c171e8cb02697e055"
+   ]
+  },
+  {
+   "string": "SAC1500D12AA",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "pddf_plugin_psu_model_keys_in_fan_dir_map @ SONiC platform x86_64-cel_silverstone_v2-r0"
+   ]
+  },
+  {
+   "string": "SAC1500D12RA",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "pddf_plugin_psu_model_keys_in_fan_dir_map @ SONiC platform x86_64-cel_silverstone_v2-r0"
+   ]
+  },
+  {
+   "string": "TDPS-1500AB-25",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "other_raw @ Celestica DS4000-R 02",
+    "other_raw @ Celestica DS4000-F 02"
+   ]
+  },
+  {
+   "string": "TDPS-1500AB-6",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 7,
+   "seen_examples": [
+    "other_raw @ Celestica CS8321-16X-UN-00",
+    "other_raw @ Celestica DS4000-R 02",
+    "other_raw @ Celestica DS4000-F 02",
+    "other_raw @ Celestica DX450",
+    "other_raw @ Celestica CS8320-16X-UN-00"
+   ]
+  },
+  {
+   "string": "TDPS-1500AB-6X",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 6,
+   "seen_examples": [
+    "other_raw @ Celestica CS8321-16X-UN-00",
+    "other_raw @ Celestica DS4000-R 02",
+    "other_raw @ Celestica DS4000-F 02",
+    "other_raw @ Celestica DX450",
+    "other_raw @ Celestica CS8320-16X-UN-00"
+   ]
+  },
+  {
+   "string": "TDPS-1500AB-7",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 5,
+   "seen_examples": [
+    "other_raw @ Celestica DS4000-R 02",
+    "other_raw @ Celestica DS4000-F 02",
+    "other_raw @ Celestica DX450",
+    "other_raw @ Celestica DS4001",
+    "pddf_plugin_psu_model_keys_in_fan_dir_map @ SONiC platform x86_64-cel_silverstone_v2-r0"
+   ]
+  },
+  {
+   "string": "TDPS-1500AB-A",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "pddf_plugin_psu_model_keys_in_fan_dir_map @ SONiC platform x86_64-cel_silverstone_v2-r0"
+   ]
+  },
+  {
+   "string": "TDPS1500AB6E",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "nos_psu_model_literals_in_fan_direction_code @ SONiC platform x86_64-cel_silverstone-r0"
+   ]
+  },
+  {
+   "string": "TDPS1500AB7C",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "nos_psu_model_literals_in_fan_direction_code @ SONiC platform x86_64-cel_silverstone-r0"
+   ]
+  },
+  {
+   "string": "UM400D01",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory UM400D01"
+   ]
+  },
+  {
+   "string": "UM400D01-01",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory UM400D01-01"
+   ]
+  },
+  {
+   "string": "UPD1501SA-1179G",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 9,
+   "seen_examples": [
+    "device.model @ Unattributed accessory UPD1501SA-1179G",
+    "device.model(psu kind) @ Unattributed accessory UPD1501SA-1179G",
+    "identifier:netbox_module_type @ 1880f16a651a6906f7f9568b",
+    "netbox_comments @ Unattributed accessory UPD1501SA-1179G",
+    "netbox_manufacturer_as_printed @ Unattributed accessory UPD1501SA-1179G"
+   ]
+  },
+  {
+   "string": "UPD1501SA-1279G",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 9,
+   "seen_examples": [
+    "device.model @ Unattributed accessory UPD1501SA-1279G",
+    "device.model(psu kind) @ Unattributed accessory UPD1501SA-1279G",
+    "identifier:netbox_module_type @ d6d39c317d5c0d46b825d688",
+    "netbox_comments @ Unattributed accessory UPD1501SA-1279G",
+    "netbox_manufacturer_as_printed @ Unattributed accessory UPD1501SA-1279G"
+   ]
+  },
+  {
+   "string": "uPD720201",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 8,
+   "seen_examples": [
+    "ubuntu_cert_hw_testbench_usb @ Inspur NF3180A6 x2",
+    "ubuntu_cert_hw_testbench_usb @ IEIT SYSTEMS Co.,Ltd. NF3280A6 x2",
+    "ubuntu_cert_hw_testbench_usb @ Inspur NF3280A6 x2",
+    "ubuntu_cert_hw_testbench_usb @ IEIT SYSTEMS Co.,Ltd. NF3180A6 x2"
+   ]
+  },
+  {
+   "string": "WA3001-PoE",
+   "flag": "noise/non-PSU-or-generic",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Accton WA3001-PoE"
+   ]
+  },
+  {
+   "string": "YM-1401A",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "nos_model_part_literals @ ONL platform x86-64-accton-as7315-27xb-r0"
+   ]
+  },
+  {
+   "string": "YM-2401J",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "nos_model_part_literals @ ONL platform x86-64-accton-as7315-27xb-r0"
+   ]
+  },
+  {
+   "string": "YM-2401U",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "nos_model_part_literals @ ONL platform x86-64-accton-as7316-26xb-r0",
+    "nos_model_part_literals @ ONL platform x86-64-accton-as5916-26xb-r0"
+   ]
+  },
+  {
+   "string": "YM-2651Y",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 20,
+   "seen_examples": [
+    "device.model @ Unattributed accessory YM-2651Y B01R",
+    "device.model @ Unattributed accessory YM-2651Y, C01R",
+    "device.model @ Unattributed accessory YM-2651Y, B01R",
+    "device.model @ Unattributed accessory YM-2651Y C01R",
+    "identifier:netbox_module_type @ 0958231ca8a267421ab34647"
+   ]
+  },
+  {
+   "string": "YM-2651Y B01R",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory YM-2651Y B01R"
+   ]
+  },
+  {
+   "string": "YM-2651Y C01R",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory YM-2651Y C01R"
+   ]
+  },
+  {
+   "string": "YM-2651Y, B01R",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory YM-2651Y, B01R"
+   ]
+  },
+  {
+   "string": "YM-2651Y, C01R",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory YM-2651Y, C01R"
+   ]
+  },
+  {
+   "string": "YM-2651YA10R",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "spec_power_supply_details @ FOXCONN (FII) Mt. Collins x2"
+   ]
+  },
+  {
+   "string": "YM-2701Q",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 2,
+   "seen_examples": [
+    "energystar_archive_Power Supply Model Name Typical or Single Configuration @ Inspur NF5166M4",
+    "energystar_archive_Power Supply Model Number Typical or Single Configuration @ Inspur NF5166M4"
+   ]
+  },
+  {
+   "string": "YM-2851F",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 4,
+   "seen_examples": [
+    "device.model @ Unattributed accessory YM-2851F, C01R",
+    "device.model @ Unattributed accessory YM-2851F, D01R",
+    "ordering_description_as_printed @ Unattributed accessory YM-2851F, C01R",
+    "ordering_description_as_printed @ Unattributed accessory YM-2851F, D01R"
+   ]
+  },
+  {
+   "string": "YM-2851J",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 6,
+   "seen_examples": [
+    "device.model @ Unattributed accessory YM-2851J FR",
+    "device.model @ Unattributed accessory YM-2851J ER",
+    "nos_model_part_literals @ ONL platform x86-64-accton-as7816-64x-r0",
+    "nos_model_part_literals @ ONL platform x86-64-accton-asgvolt64-r0",
+    "ordering_description_as_printed @ Unattributed accessory YM-2851J FR"
+   ]
+  },
+  {
+   "string": "YPEB1200AM-1A03P10",
+   "flag": "",
+   "kernel_match": "",
+   "seen_count": 1,
+   "seen_examples": [
+    "device.model(psu kind) @ Unattributed accessory YPEB1200AM-1A03P10"
+   ]
+  },
+  {
+   "string": "inspur,ipsps1",
+   "flag": "binding string (dts_psu_compatibles)",
+   "kernel_match": "exact(binding name)",
+   "seen_count": 2,
+   "seen_examples": [
+    "dts_psu_compatibles @ Linux BMC device tree aspeed-bmc-inspur-fp5280g2",
+    "... nf5280m6"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "accepted bounded t1 documentation assessment",
+  "reviewer": "/root",
+  "checked_artifact_hashes": 7,
+  "checked_relative_links": [
+    "request-budget.json",
+    "qualification.json",
+    "artifact-hashes.json",
+    "../../../bytedance-inspur-2026-10-04.md"
+  ],
+  "saved_response_file_bytes": 109127,
+  "conclusion": "No qualifying sustainable free row-level feed established in the three-source check. No t2 adapter authorized by this finding.",
+  "evidence_checks": [
+    "Census saved trade documentation supports aggregate dimensions, January 2010 onward monthly series, and current API-key requirement; no payment inference.",
+    "Comtrade saved 2019 methodology supports aggregate classification/partner statistics; dated 2012 agreement current applicability explicitly unknown.",
+    "ImportYeti origin story is provider-described; API search excerpts remain unvalidated documentation leads.",
+    "Saved web-tool representations are distinguished from original HTTP bytes; metered returns and saved trailing-newline bytes distinguished."
+  ],
+  "review_network_requests": 0,
+  "code_or_data_imports": 0
+}

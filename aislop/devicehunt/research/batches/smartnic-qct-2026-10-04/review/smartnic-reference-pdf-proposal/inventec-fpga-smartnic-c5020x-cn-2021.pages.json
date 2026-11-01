@@ -1,0 +1,14 @@
+{
+  "pdf_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+  "extraction_method": "pypdf embedded text; no OCR",
+  "pages": [
+    {
+      "page": 1,
+      "text": "性能亮点\n在虚拟化环境中，常规的网络接口控制器 (NIC) 卡无\n法满足各类应用不断提升的需求 。 I n v e n t e c  F P G A  \nSmartNIC C5020X 解决方案采用全高度、半长度和单\n宽度 PCIe 的外形，并结合基于 Intel FPGA Stratix 10 \nDX 以及 Intel\n®\n Xeon-D 的控制器，提供双端口 25G 高\n速连接功能。可专门定制为添加特定的加速应用，甚至\n可满足当前架构中尚未实现的独特功能的需求。最为重\n要的是，C5020X 可提供不受现有硬件基础架构限制的\n灵活性。C5020X 具有编程功能，可随着业务的增长进\n行调整，从而能够应用网络加速、智能安全、软件定义\n存储、网络功能虚拟化 (NFV) 等多种功能。\n灵活性、可编程性和高性能\n在 C5020X 中，FPGA 具有自有 PCIe 通道，可同时连接\nIntel\n®\n Xeon D 和主机 x86 CPU。如果将 NIC 和 FPGA\n当作两个独立器件，性能可得到提升。FPGA 提供可编程\n性和高性能，同时，Intel\n®\n Xeon-D 运行嵌入式 Linux - \n新功能可添加到任一器件，也可同时添加到两个器件，从\n而可提供极大的灵活性。Inventec C5020X 系列通常可\n进行自定义，以加速云端中工作负载，如虚拟交换机和存\n储功能，以及加速 5G RAN、边缘计算以及其他软件定义\n网络中的工作负载。\n • 基于 FPGA 的 SmartNIC\n   与 Xeon-D SoC 相结合\n • 双 25G (SFP28) 以太网端口\n • PCIe Gen3 x16 主机接口\n  （具有 x8 数据宽度）\n面向下一代工作负载的 \n智能网卡 (SmartNIC)\nInventec FPGA \nSmartNIC C5020X\nIntel® Stratix® 10 DX FPGAs\n[1]https://www.intel.com.tw/content/www/tw/zh/\nproducts/programmable/fpga/stratix-10.html\nSDN\n 5G RAN\n 边缘计算\n"
+    },
+    {
+      "page": 2,
+      "text": "© 2021 Inventec Corp.\n英业达桃园科技园区 (Inventec TAO)英业达数据中心解决方案 (Inventec EBG)\n英业达企业电脑事业群 (Inventec Enterprise Business \nGroup) 成立于 1998 年，专注于服务器研发制造，“英业\n达数据中心解决方案”(Inventec Data Center Solutions) \n传承英业达企业电脑事业群，专注于提供超大型数据中\n心、运算密集行业包括互联网以及电信运营商优秀解决\n方案，自成立以来，领先硬件研发制造能力深获全球领\n导服务器品牌、超大型数据中心及服务器硬件集成商等\n客户信任。\n本文档中有关产品、机型、配置、功能描述等内容请以英文版本为准，中文仅做参考。本文档所含信\n息如有更改，恕不另行通知。实际产品可能与照片存在偏差。英业达对本文档所含的技术或编辑错误\n或遗漏概不负责。英业达保留不时修改本文件规格的权利。本文档最终解释权在英业达股份有限公\n司。\n英业达的标志是英业达集团的注册商标。\n英特尔、英特尔标志、英特尔傲腾、至强是英特尔公司或其子公司的商标。\n文中涉及的其它名称、商标及徽标属于各自所有者资产。\n更多产品信息请查询 https://ebg.inventec.com/cn\n台湾桃园市桃园区大智路 88 号 \nTel: 886-3-390-0000    Fax: 886-3-376-2370     \nEmail:  TAOproductsupport@inventec.com\n型号名称 Inventec FPGA SmartNIC C5020X\n外形 全高度 / 半长度 / 单宽度标准 PCIe 卡\nCPU\nIntel\n®\n Xeon D\n单 DDR4 通道\nx8 PCIe Gen3 连接至 FPGA\nFPGA\nIntel FPGA Stratix 10 DX 双 DDR4 通道\nx16 PCIe Gen3（SoC 为 x8，golden finger 为\nx8）\n内存\nSoC 板载 16GB DDR4-2133：\n单通道\n支持 72 位（64 位 +8 位 ECC）DDR4，速率最高\n可达到 2133 MT/s\nFPGA 板载 4GB DDR4-2133：双通道，每条通\n道 2GB，支持的 DDR4 速率为 2133 MT/s\n存储设备 32GB eMMC 闪存\n网络  双端口 25G SFP28\n主机接口 PCIe Gen3 x16（仅限 x8 数据宽度）\nTDP 75W\nInventec FPGA SmartNIC C5020X"
+    }
+  ]
+}

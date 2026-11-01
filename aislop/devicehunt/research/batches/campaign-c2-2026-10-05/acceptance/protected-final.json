@@ -1,0 +1,16 @@
+{
+  "immutable_archive_entries": 422,
+  "immutable_archive_failures": [],
+  "ok": false,
+  "protected_entries": 1125,
+  "protected_failures": [
+    {
+      "error": "changed",
+      "path": "data/import-manifest.json"
+    },
+    {
+      "error": "changed",
+      "path": "data/devices.sqlite"
+    }
+  ]
+}

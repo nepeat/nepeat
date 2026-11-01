@@ -1,0 +1,65 @@
+[
+ [
+  "configurations/meta/minerva/minerva_cmm_misc_boards.json",
+  0,
+  "$Name",
+  [
+   6,
+   "xyz.openbmc_project.Inventory.Source.DevicePresence({'Name': 'CableCartridgeTop'})"
+  ]
+ ],
+ [
+  "configurations/meta/minerva/minerva_cmm_misc_boards.json",
+  1,
+  "$Name",
+  [
+   21,
+   "xyz.openbmc_project.Inventory.Source.DevicePresence({'Name': 'CableCartridgeBottom'})"
+  ]
+ ],
+ [
+  "configurations/meta/minerva/minerva_cmm_misc_boards.json",
+  2,
+  "$Name",
+  [
+   36,
+   "xyz.openbmc_project.Inventory.Source.DevicePresence({'Name': 'BCBCableTop'})"
+  ]
+ ],
+ [
+  "configurations/meta/minerva/minerva_cmm_misc_boards.json",
+  3,
+  "$Name",
+  [
+   51,
+   "xyz.openbmc_project.Inventory.Source.DevicePresence({'Name': 'BCBCableBottom'})"
+  ]
+ ],
+ [
+  "configurations/meta/minerva/minerva_cmm_misc_boards.json",
+  4,
+  "$Name",
+  [
+   66,
+   "xyz.openbmc_project.Inventory.Source.DevicePresence({'Name': 'RpuLink'})"
+  ]
+ ],
+ [
+  "configurations/meta/sanmiguel/sanmiguel_smm_carrier.json",
+  1,
+  "SanMiguel $Name",
+  [
+   70,
+   "xyz.openbmc_project.Inventory.Source.DevicePresence({'Name': 'HostTpm', 'Compatible': 'com.meta.Hardware.SanMiguel.Boards.SMM_Carrier'})"
+  ]
+ ],
+ [
+  "configurations/meta/sanmiguel/sanmiguel_smm_extender.json",
+  1,
+  "SanMiguel $Name",
+  [
+   72,
+   "xyz.openbmc_project.Inventory.Source.DevicePresence({'Name': 'BootDrive', 'Compatible': 'com.meta.Hardware.SanMiguel.Boards.SMM_Extender'})"
+  ]
+ ]
+]

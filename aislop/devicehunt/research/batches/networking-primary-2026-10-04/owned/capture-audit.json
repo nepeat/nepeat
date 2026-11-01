@@ -1,0 +1,27 @@
+[
+  {
+    "path": "data/raw/networking-primary-owned-2026-10-04/as7772-owner-dtb-gist.html",
+    "bytes": 658413,
+    "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b"
+  },
+  {
+    "path": "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json",
+    "bytes": 479,
+    "sha256": "aeaec7ed3655c199bd00f961a325d676864b3a14c6253047ff26326a690ae68c"
+  },
+  {
+    "path": "data/raw/networking-primary-owned-2026-10-04/search-response-2.json",
+    "bytes": 22398,
+    "sha256": "f383124e0b645c711b4881bb99bbcec64ff3a0978373b8e3e32ddbae5cd41ca0"
+  },
+  {
+    "path": "data/raw/networking-primary-owned-2026-10-04/search-response-3.json",
+    "bytes": 70,
+    "sha256": "c09321a1474f0b739c326ce4b18d681d9680ea0739bedfe4b91c45d316c30555"
+  },
+  {
+    "path": "data/raw/networking-primary-owned-2026-10-04/search-response-4.json",
+    "bytes": 19823,
+    "sha256": "7993c273e2ae6bf2e2420f7000b73f518dd69a5fefbc74632203bd7545c618fc"
+  }
+]

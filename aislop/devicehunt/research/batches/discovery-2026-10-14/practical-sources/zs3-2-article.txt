@@ -1,0 +1,63 @@
+html lines 65-65: Oracle ZFS Storage ZS3-2 Internal Components
+html lines 68-68: The Oracle ZFS Storage ZS3-2 chassis has the following field-replaceable units (FRUs). FRUs are not customer-serviceable and must be replaced by trained Oracle service technicians.
+html lines 72-73: PCIe Risers - There are three risers per system, each attached to the rear of the motherboard. Each riser supports two PCIe cards (which are customer-replaceable units (CRUs)).
+html lines 78-85: Motherboard - The motherboard includes CPU modules, slots for 16 DIMMs, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off.
+html lines 90-96: Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the controller. It is directly connected to the connector break out board and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock kill switch. The power supplies connect directly to the power distribution board.
+html lines 101-107: Storage Drive Backplane - The storage drive backplane includes the connectors for the storage drives, as well as the interconnect for the I/O board, power and locator buttons, and system/component status LEDs. The system has an 8-disk backplane. Each drive has an LED indicator for Power/Activity, Fault, and Locate.
+html lines 111-112: Oracle ZFS Storage ZS3-2 Motherboard, Memory, and PCIe Cards - The Oracle ZFS Storage ZS3-2 controller motherboard, memory, and PCIe components are described in the following figure and legend.
+html lines 114-114: Note:
+html lines 113-115: Note: Field-replaceable components (FRUs) are not customer-serviceable, and must be replaced by trained Oracle service technicians.
+html lines 124-125: 1 Drive cage (FRU)
+html lines 130-131: 5 Airduct
+html lines 136-137: 9 Battery
+html lines 144-145: 2 Drive backplane (FRU)
+html lines 150-151: 6 PCIe Risers (FRU)
+html lines 156-157: 10 PDB duct
+html lines 164-165: 3 Motherboard (FRU)
+html lines 170-171: 7 PCIe cards
+html lines 176-177: 11 Power distribution board (FRU)
+html lines 184-185: 4 DIMMs
+html lines 190-191: 8 USB flash drive
+html lines 198-199: Oracle ZFS Storage ZS3-2 CPU and Memory - The Oracle ZFS Storage ZS3-2 controller motherboard has 16 slots in two groups that hold industry-standard DDR3 low voltage (LV) DIMMS.
+html lines 202-202: Note:
+html lines 201-205: Note: All sockets must be occupied by identical DDR3 DIMMs.
+html lines 207-207: Table 11-4 Oracle ZFS Storage ZS3-2 Controller CPU Descriptions
+html lines 226-226: 256GB
+html lines 231-231: D0, D2, D5, D7 (blue)
+html lines 236-236: D0, D2, D5, D7 (blue)
+html lines 242-242: .
+html lines 246-246: D1, D3, D4, D6 (white)
+html lines 251-251: D1, D3, D4, D6 (white)
+html lines 258-258: The Oracle ZFS Storage ZS3-2 controller replaceable memory components and part numbers are listed next.
+html lines 260-260: Table 11-5 Oracle ZFS Storage ZS3-2 Controller Replaceable Memory Components
+html lines 282-282: CPU
+html lines 287-287: Intel E5-2658, 2.1G, 8-core
+html lines 292-292: FRU
+html lines 297-297: 7019701
+html lines 304-304: Memory
+html lines 309-309: DIMM, 16GB,DDR3,1600,2Rx4,1.35V
+html lines 314-314: CRU
+html lines 319-319: 7041603
+html lines 326-326: Memory
+html lines 331-331: DIMM, 32GB,DDR3,1066,4Rx4,1.35V
+html lines 336-336: CRU
+html lines 341-341: 7055964
+html lines 348-349: Oracle ZFS Storage ZS3-2 Storage, Power, and Fan Components - The Oracle ZFS Storage ZS3-2 controller's internal storage, power, and cooling components are described in the following figure and legend. A component identified as a field-replaceable unit (FRU) must be replaced by trained Oracle service technicians.
+html lines 357-358: 1 Air Filter
+html lines 363-364: 5 Drive power cable (FRU)
+html lines 369-370: 9 Fan modules
+html lines 377-378: 2 Drives
+html lines 383-384: 6 Drive signal cable (FRU)
+html lines 389-390: 10 Fan tray
+html lines 397-398: 3 Chassis (FRU)
+html lines 403-404: 7 Top cover
+html lines 409-410: 11 USB board (FRU)
+html lines 417-418: 4 LED board (FRU)
+html lines 423-424: 8 PDB signal cable (FRU)
+html lines 429-430: 12 Power supplies
+html lines 437-438: Oracle ZFS Storage ZS3-2 Internal Cables - The Oracle ZFS Storage ZS3-2 controller contains the following field-replaceable unit (FRU) internal cables. FRUs are not customer-serviceable, and must be replaced by trained Oracle service technicians.
+html lines 447-448: 1 PDB signal cable
+html lines 453-454: 3 Drive signal cable
+html lines 459-460: 5 Drive power cable
+html lines 467-468: 2 USB board cable
+html lines 473-474: 4 LED board cable

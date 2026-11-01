@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "companies": {
+    "Accton": {
+      "path": "raw/taiwan-companies/accton-tw-announcement.html",
+      "url": "https://www.accton.com/tw/accton-jun-2026-sales-revenue-report/",
+      "sha256": "978702c41174e9dc2ddccf8f5b6aff2fefd699f27fa232cb94c94f6692c8cbc5"
+    },
+    "Oracle": {
+      "path": "raw/taiwan-companies/oracle-tw-offices.html",
+      "url": "https://www.oracle.com/tw/corporate/contact/field-offices/",
+      "sha256": "d437a3fb7e0276153a02eebf27bd1eafb49a3c4175b8e253e84278a0662de741"
+    },
+    "Edge-Core": {
+      "path": "raw/taiwan-companies/edgecore-sipa.html",
+      "url": "https://www.sipa.gov.tw/home.jsp?contlink=ap%2Fmanufacturers_1_3_view.jsp&dataserno=A0902&level2=Y&menudata=ChineseMenu&mserno=201002010011&qsipa=01&serno=201002010011&stype=C",
+      "sha256": "df1725d8f8148c14b589cb00802833562324228a7d4a327b5cd17ecd94158a79"
+    }
+  },
+  "bsmi": {
+    "path": "raw/bsmi/certificates.xml",
+    "url": "https://data.bsmi.gov.tw/opendata/download/313000000G-000130-001.action",
+    "sha256": "5990722b7eb447f174f3f0702c5b419e15bd68fa635ed2721dcae18ad4f6f4c5"
+  },
+  "ncc": {
+    "path": "raw/ncc/vv_IPCCDB.csv",
+    "url": "https://api.ncc.gov.tw/uploaddowndoc?file=datagov%2Fvv_IPCCDB.csv&filedisplay=vv_IPCCDB.csv&flag=doc",
+    "sha256": "2bba76b2caae5518f86512938708f1c7add9d9288417eeb1174111b1308e49be"
+  },
+  "bsmi_summary": {
+    "rows": 105732,
+    "unique_nonempty_certificates": 105732,
+    "duplicate_certificate_rows": 0,
+    "blank_certificates": 0,
+    "blank_applicants": 0,
+    "blank_models": 22,
+    "status_values": {
+      "廢止": 6302,
+      "撤銷": 7,
+      "期限到期失效": 30088,
+      "註銷": 12524,
+      "認可": 56405,
+      "轉換後註銷": 406
+    }
+  },
+  "ncc_summary": {
+    "rows": 110957,
+    "unique_nonempty_certificates": 110446,
+    "duplicate_certificate_rows": 511,
+    "blank_certificates": 0,
+    "blank_models": 0,
+    "blank_manufacturers": 65056,
+    "confidential_identity_rows": 339,
+    "validity_values": {
+      "N": 709,
+      "Y": 110248
+    }
+  },
+  "expected": {
+    "assertions": 295,
+    "registries": {
+      "bsmi": 42,
+      "bsmi_product": 1,
+      "ncc": 252
+    },
+    "mapped_roles": {
+      "bsmi:Accton:regulatory_applicant": 1,
+      "bsmi:Oracle:regulatory_applicant": 41,
+      "bsmi_product:Edge-Core:regulatory_applicant": 1,
+      "ncc:Accton:registry_manufacturer": 89,
+      "ncc:Accton:regulatory_applicant": 184,
+      "ncc:Edge-Core:registry_manufacturer": 1,
+      "ncc:Edge-Core:regulatory_applicant": 38,
+      "ncc:Oracle:regulatory_applicant": 6
+    }
+  },
+  "bsmi_product": {
+    "path": "raw/bsmi-additional/162936/register.xml",
+    "url": "https://data.bsmi.gov.tw/opendata/download/313000000G-000101-001.action",
+    "sha256": "e2a792d60b5a5bedafbd73ad2a75b203a3bb52ea89cd4b50e176e042eb78832b"
+  },
+  "bsmi_product_summary": {
+    "rows": 17797,
+    "unique_nonempty_numbers": 17797,
+    "duplicate_number_rows": 0,
+    "blank_numbers": 0,
+    "blank_companies": 0,
+    "blank_models": 0,
+    "status_values": {
+      "廢止": 2147,
+      "撤銷": 17,
+      "期限到期失效": 7051,
+      "註銷": 5030,
+      "認可": 2797,
+      "證書過期未繳年費": 13,
+      "轉換後註銷": 742
+    }
+  }
+}

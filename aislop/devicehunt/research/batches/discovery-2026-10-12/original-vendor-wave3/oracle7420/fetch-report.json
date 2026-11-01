@@ -1,0 +1,24 @@
+{
+  "scope": "robots plus two fixed Oracle7420 pages only; no redirects/retries/searches/screenshots",
+  "actual_http_requests": 3,
+  "cap": 3,
+  "throttled": false,
+  "stop_reason": "two named pages completed; stop condition met",
+  "outcomes": [
+    {
+      "url": "https://docs.oracle.com/robots.txt",
+      "status": 200,
+      "outcome": "captured"
+    },
+    {
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "status": 200,
+      "outcome": "captured"
+    },
+    {
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+      "status": 200,
+      "outcome": "captured"
+    }
+  ]
+}

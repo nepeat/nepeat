@@ -1,0 +1,197 @@
+{
+  "status": "design-only synthetic cases; no additional live identity inspections",
+  "cases": [
+    {
+      "case": "blank_fields",
+      "input": {
+        "brand": "X",
+        "kind": "switch",
+        "title": "  ",
+        "model": "\t",
+        "identifiers": [
+          {
+            "kind": "alias",
+            "value": "\n"
+          }
+        ]
+      },
+      "proposed_rows": []
+    },
+    {
+      "case": "exact_duplicates",
+      "input": {
+        "brand": "X",
+        "kind": "switch",
+        "title": "MODEL-1",
+        "model": "MODEL-1",
+        "identifiers": [
+          {
+            "kind": "alias",
+            "value": "MODEL-1"
+          },
+          {
+            "kind": "model_search",
+            "value": "MODEL-1"
+          }
+        ]
+      },
+      "proposed_rows": [
+        {
+          "query": "MODEL-1",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=MODEL-1",
+          "web": "https://www.google.com/search?q=%22MODEL-1%22+used+surplus"
+        }
+      ]
+    },
+    {
+      "case": "generic_hardware_model",
+      "input": {
+        "brand": "X",
+        "kind": "switch",
+        "title": "Vendor Switch",
+        "model": "Switch",
+        "identifiers": []
+      },
+      "proposed_rows": [
+        {
+          "query": "Switch",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Switch",
+          "web": "https://www.google.com/search?q=%22Switch%22+used+surplus"
+        },
+        {
+          "query": "Vendor Switch",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Vendor+Switch",
+          "web": "https://www.google.com/search?q=%22Vendor+Switch%22+used+surplus"
+        }
+      ]
+    },
+    {
+      "case": "short_hardware_model",
+      "input": {
+        "brand": "X",
+        "kind": "switch",
+        "title": "Vendor S1",
+        "model": "S1",
+        "identifiers": []
+      },
+      "proposed_rows": [
+        {
+          "query": "S1",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=S1",
+          "web": "https://www.google.com/search?q=%22S1%22+used+surplus"
+        },
+        {
+          "query": "Vendor S1",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Vendor+S1",
+          "web": "https://www.google.com/search?q=%22Vendor+S1%22+used+surplus"
+        }
+      ]
+    },
+    {
+      "case": "hardware_bare_wedge",
+      "input": {
+        "brand": "Accton",
+        "kind": "network switch",
+        "title": "Accton wedge",
+        "model": "wedge",
+        "identifiers": []
+      },
+      "proposed_rows": [
+        {
+          "query": "Accton wedge",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Accton+wedge",
+          "web": "https://www.google.com/search?q=%22Accton+wedge%22+used+surplus"
+        },
+        {
+          "query": "wedge",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=wedge",
+          "web": "https://www.google.com/search?q=%22wedge%22+used+surplus"
+        }
+      ]
+    },
+    {
+      "case": "software_by_kind",
+      "input": {
+        "brand": "Unknown Project",
+        "kind": "host firmware definition",
+        "title": "Project XYZ",
+        "model": "XYZ",
+        "identifiers": [
+          {
+            "kind": "part_number",
+            "value": "PSU-123"
+          }
+        ]
+      },
+      "proposed_rows": []
+    },
+    {
+      "case": "case_preservation",
+      "input": {
+        "brand": "X",
+        "kind": "switch",
+        "title": "MODEL-1",
+        "model": "model-1",
+        "identifiers": []
+      },
+      "proposed_rows": [
+        {
+          "query": "MODEL-1",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=MODEL-1",
+          "web": "https://www.google.com/search?q=%22MODEL-1%22+used+surplus"
+        },
+        {
+          "query": "model-1",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=model-1",
+          "web": "https://www.google.com/search?q=%22model-1%22+used+surplus"
+        }
+      ]
+    },
+    {
+      "case": "suffix_encoding",
+      "input": {
+        "brand": "X",
+        "kind": "switch",
+        "title": "Vendor SV7220G3-V+",
+        "model": "SV7220G3-V+",
+        "identifiers": [
+          {
+            "kind": "alias",
+            "value": "A/B, R2"
+          }
+        ]
+      },
+      "proposed_rows": [
+        {
+          "query": "A/B, R2",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=A%2FB%2C+R2",
+          "web": "https://www.google.com/search?q=%22A%2FB%2C+R2%22+used+surplus"
+        },
+        {
+          "query": "SV7220G3-V+",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=SV7220G3-V%2B",
+          "web": "https://www.google.com/search?q=%22SV7220G3-V%2B%22+used+surplus"
+        },
+        {
+          "query": "Vendor SV7220G3-V+",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Vendor+SV7220G3-V%2B",
+          "web": "https://www.google.com/search?q=%22Vendor+SV7220G3-V%2B%22+used+surplus"
+        }
+      ]
+    },
+    {
+      "case": "missing_optional_fields",
+      "input": {
+        "title": "Legacy title",
+        "identifiers": []
+      },
+      "proposed_rows": [
+        {
+          "query": "Legacy title",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Legacy+title",
+          "web": "https://www.google.com/search?q=%22Legacy+title%22+used+surplus"
+        }
+      ]
+    }
+  ]
+}

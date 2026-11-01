@@ -1,0 +1,28 @@
+{
+  "candidate": "data/candidate-hunt-2026-10-10-b.sqlite",
+  "candidate_manifest": "data/import-manifest-candidate-hunt-2026-10-10-b.json",
+  "counts": {
+    "devices": 4361,
+    "records": 5625,
+    "sources": 490
+  },
+  "foreign_key_violations": 0,
+  "growth": {
+    "affiliations": 131,
+    "devices": 270,
+    "facts": 1831,
+    "identifiers": 174,
+    "records": 302,
+    "sources": 193
+  },
+  "imported": {
+    "raw/hunt-2026-10-10-edgecore/edgecore-ordering-facts-2026-10-10.json": 117,
+    "raw/hunt-2026-10-10-nos/nos-platform-code-facts-2026-10-10.json": 111,
+    "raw/hunt-2026-10-10-oracle/oracle-practical-facts-2026-10-10.json": 3,
+    "raw/hunt-2026-10-10-sonic/sonic-platform-facts-2026-10-10.json": 63,
+    "raw/hunt-2026-10-10-sun6000/sun6000-facts-2026-10-10.json": 8
+  },
+  "integrity": "ok",
+  "live_sha256": "4d525902cba575a73106d3660088a89e80266fdac3caee15d64958953d06592d",
+  "tables_with_lost_live_rows": {}
+}

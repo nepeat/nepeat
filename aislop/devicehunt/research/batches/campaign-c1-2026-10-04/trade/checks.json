@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "offline": true,
+  "network_test_calls": 0,
+  "source_count": 3,
+  "search_queries": 3,
+  "page_open_attempts": 12,
+  "distinct_page_urls": 11,
+  "serialized_return_bytes": 109123,
+  "saved_response_file_bytes": 109127,
+  "json_and_budget_checks": "pass",
+  "relative_links": [
+    "request-budget.json",
+    "qualification.json",
+    "artifact-hashes.json",
+    "../../../bytedance-inspur-2026-10-04.md"
+  ],
+  "relative_link_check": "pass",
+  "hash_count": 7,
+  "scope": "only worker-owned trade artifacts written; code/data/manifest untouched by this worker"
+}

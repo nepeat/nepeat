@@ -1,0 +1,90 @@
+{
+  "recorded_at": "2026-10-04T22:59:49.230900+00:00",
+  "queries": [
+    "\"B4020\" \"Core-pod\"",
+    "ByteDance \"B4020\" presentation pdf",
+    "字节 跳动 \"B4010\" 交换机 数据中心",
+    "ByteDance \"Spine-block\" network",
+    "ByteDance AI network OCP \"B4020\"",
+    "字节 \"B4020\" \"B5020\"",
+    "ByteDance \"Core-pod\" \"ToR\"",
+    "ByteDance 400G 64 networking OCP presentation"
+  ],
+  "queries_used": 8,
+  "query_limit": 8,
+  "source_fetches_used": 2,
+  "fetch_limit": 6,
+  "original_presentation_sources_fetched": 0,
+  "original_presentation_source_limit": 3,
+  "fetches": [
+    {
+      "url": "https://i-blog.csdnimg.cn/img_convert/1d3b6a6689421c416eae5663e693a66e.jpeg",
+      "captured_at": "2026-10-04T22:58:41.330259+00:00",
+      "artifact": "diagram.jpeg",
+      "status": 200,
+      "final_url": "https://i-blog.csdnimg.cn/img_convert/1d3b6a6689421c416eae5663e693a66e.jpeg",
+      "headers": {
+        "Date": "Sun, 04 Oct 2026 22:58:42 GMT",
+        "Content-Type": "image/jpeg",
+        "Content-Length": "65838",
+        "Connection": "close",
+        "Server": "OBS",
+        "x-obs-request-id": "0000019F6E9BBC49EBA771EBE43555CF",
+        "Accept-Ranges": "bytes",
+        "ETag": "\"a810d3d152d26d693b27e2bcc974cb7b\"",
+        "Last-Modified": "Thu, 22 Jan 2026 07:07:12 GMT",
+        "x-obs-tagging-count": "0",
+        "x-obs-id-2": "36AAAQAAEAABAAAQAAEAABAAAQAAEAABAAAaI=AAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "X-Ser": "i63554_c29736, i2103121_c28197, i2315471_c28195, i1932517_c23621",
+        "Content-Disposition": "inline",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "max-age=2592000"
+      },
+      "bytes": 65838,
+      "sha256": "b5768ae97c3aab1d108e79ec532b81f2102113a98d5596fcdc1d4955b20873cc"
+    },
+    {
+      "url": "https://www.opencompute.org/events/past-events/2024-ocp-global-summit",
+      "captured_at": "2026-10-04T22:58:42.078289+00:00",
+      "artifact": "ocp-2024.html",
+      "status": "failed",
+      "error": "HTTP Error 403: Forbidden"
+    }
+  ],
+  "existing_captures_read_only": [
+    "data/raw/vendor-discovery-bytedance-2026-10-04/csdn-network-architecture.html",
+    "data/raw/vendor-discovery-bytedance-2026-10-04/capture-report.json"
+  ],
+  "primary_exact_affiliation_hits": 0,
+  "curated_input_created": false,
+  "known_denied_not_requested": [
+    "https://www.eximpedia.app/companies/accton-technology-co-limited/10894156"
+  ],
+  "stop_reason": "targeted query cap reached; diagram has no primary attribution; OCP agenda denied 403 and not retried or fetched through staging hostname",
+  "limitations": [
+    "search-1 original response file save failed; retained observation only",
+    "403 response body not retained; status and error retained, unavailable not empty"
+  ],
+  "artifacts": [
+    {
+      "path": "data/raw/networking-primary-bytedance-2026-10-04/captures.json",
+      "bytes": 1373,
+      "sha256": "fe59847b1463904615657a26eb5fdba1a9d5eee097ea24655482689717f66c9d"
+    },
+    {
+      "path": "data/raw/networking-primary-bytedance-2026-10-04/diagram.jpeg",
+      "bytes": 65838,
+      "sha256": "b5768ae97c3aab1d108e79ec532b81f2102113a98d5596fcdc1d4955b20873cc"
+    },
+    {
+      "path": "data/raw/networking-primary-bytedance-2026-10-04/search-1-observation.json",
+      "bytes": 724,
+      "sha256": "ab7f6ca8d72c6cb88369dc14b091a9a2616ff9cf44ba5e6bc65973fd45ccfaf6"
+    },
+    {
+      "path": "data/raw/networking-primary-bytedance-2026-10-04/search-2.json",
+      "bytes": 26459,
+      "sha256": "9c102da7dcc76a13ff36ec730678d6826e0936381597071ee270f5fb39c1bc4e"
+    }
+  ]
+}

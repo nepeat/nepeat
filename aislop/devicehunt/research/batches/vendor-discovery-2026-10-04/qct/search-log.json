@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-04",
+  "queries": [
+    "site.qct.io D51B-2U datasheet pdf",
+    "site.qct.io D52BQ-2U datasheet pdf",
+    "site.qct.io T41S-2U datasheet pdf",
+    "\"D51B-2U\" \"pdf\" \"qct.io\" datasheet",
+    "\"D52BQ-2U\" \"Datasheet\" pdf",
+    "\"T41S-2U\" \"Datasheet\" pdf",
+    "\"QuantaGrid D52BQ-2U\" site:qct.io/Product",
+    "\"QuantaPlex T41S-2U\" site:qct.io/Product"
+  ],
+  "limit": 8,
+  "no_more_searches": true,
+  "lead_boundary": "Search results are discovery only. Known Broadwell403 index appeared among search results but was not opened or fetched."
+}

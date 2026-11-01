@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "scripts/compare_rebuild.py",
+    "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/rebuilt-with-inventec-practical-2026-10-04.sqlite",
+    "--database",
+    "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/devices.sqlite",
+    "--output-prefix",
+    "rebuild"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 7.751221917002113,
+  "log": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/inventec-practical-2026-10-04/integration/compare-rebuild-final.log"
+}

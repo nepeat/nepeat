@@ -1,0 +1,170 @@
+{
+  "verdict": "ACCEPT discovery only",
+  "checked_utc": "2026-10-13T04:34:32.139520+00:00",
+  "hashes": {
+    "handoff.md": "6f27811d112a418c3c6d2b834f9bab27d728c280ae1dfbc39be8571232396390",
+    "checks.json": "30dc27757bfa3ba9c4e695c877d885ac3b5e425916191c38628d7e19e08f944b",
+    "inputs.json": "5d87d5d93c9ae66d586fe40a3c168d8a2bc7aa2f9fab4ee5234da8838d4b6a79",
+    "plan.json": "7bbdfdad99cf3c09caa7ead4625f70330603f46f561a1e9d2ff9bf6e1d1e10f2",
+    "observations.json": "17f9894fbb70530a521599d7a0d0a91afb74daafe3762a5b2e9a8c6047b79645",
+    "requests.jsonl": "13f86f17d4c6d814a8ddf31a1c2dd326021f841719f3adb653d783250cca6570",
+    "SHA256SUMS": "2b69f2304f43b63f1638717d6dc52ff8df0211e5047e9a8e19d5f47771ae69e9"
+  },
+  "HTTP": 19,
+  "result_bodies": 18,
+  "statuses": {
+    "200": 19
+  },
+  "minimum_UTC_gap": 10.000157,
+  "minimum_recorded_monotonic_gap": 10.000170751009136,
+  "historical_requests": 604,
+  "historical_failures": 3,
+  "dependency_hashes_verified": 10,
+  "local_manifest_hashes_verified": 47,
+  "raw_field_or_CPU_header_locators": 354,
+  "additional_jbb_header_rows": 18,
+  "total_verified_field_or_header_records": 372,
+  "remaining_distinct_CPU_names_before_batch": 244,
+  "remaining_after_batch": 232,
+  "pages": [
+    {
+      "path": "jbb2015/jbb2015-20151123-00036.html",
+      "vendor": "Inspur Corporation",
+      "name": "Inspur NF5280M4",
+      "form_factor": "2U",
+      "power_quantity_rating": "1 x 550W",
+      "power_details": null,
+      "hardware_blocks": [
+        "Hardware hw_1"
+      ]
+    },
+    {
+      "path": "jbb2015/jbb2015-20160118-00041.html",
+      "vendor": "Inspur Corporation",
+      "name": "Inspur NF5280M4",
+      "form_factor": "2U",
+      "power_quantity_rating": "1 x 550W",
+      "power_details": null,
+      "hardware_blocks": [
+        "Hardware hw_1"
+      ]
+    },
+    {
+      "path": "jbb2015/jbb2015-20160321-00065.html",
+      "vendor": "Inspur Corporation",
+      "name": "Inspur NF5180M4",
+      "form_factor": "1U",
+      "power_quantity_rating": "1 x 550W",
+      "power_details": null,
+      "hardware_blocks": [
+        "Hardware hw_1"
+      ]
+    },
+    {
+      "path": "jbb2015/jbb2015-20160321-00066.html",
+      "vendor": "Inspur Corporation",
+      "name": "Inspur NF5270M4",
+      "form_factor": "2U",
+      "power_quantity_rating": "1 x 550W",
+      "power_details": null,
+      "hardware_blocks": [
+        "Hardware hw_1"
+      ]
+    },
+    {
+      "path": "jbb2015/jbb2015-20160321-00067.html",
+      "vendor": "Inspur Corporation",
+      "name": "Inspur NF5170M4",
+      "form_factor": "1U",
+      "power_quantity_rating": "1 x 550W",
+      "power_details": null,
+      "hardware_blocks": [
+        "Hardware hw_1"
+      ]
+    },
+    {
+      "path": "jbb2015/jbb2015-20160516-00095.html",
+      "vendor": "Inspur Corporation",
+      "name": "Inspur TS860G3",
+      "form_factor": "8U",
+      "power_quantity_rating": "4 x 2000W",
+      "power_details": null,
+      "hardware_blocks": [
+        "Hardware hw_1"
+      ]
+    },
+    {
+      "path": "cpu2017/cpu2017-20220325-31246.txt",
+      "full_system_header": "                                  Inspur Corporation Inspur NF8480M6 (Intel Xeon Platinum 8376H)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220325-31244.txt",
+      "full_system_header": "                                  Inspur Corporation Inspur NF8260M6 (Intel Xeon Platinum 8376H)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220325-31242.txt",
+      "full_system_header": "                                  Inspur Corporation Inspur NF8260M6 (Intel Xeon Platinum 8360H)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220311-31155.txt",
+      "full_system_header": "                                     Inspur Corporation Inspur I24M6 (Intel Xeon Gold 6330N)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220301-31137.txt",
+      "full_system_header": "                                   Inspur Corporation Inspur I24LM6 (Intel Xeon Platinum 8360Y)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220301-31136.txt",
+      "full_system_header": "                                   Inspur Corporation Inspur I24LM6 (Intel Xeon Platinum 8368Q)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220220-30983.txt",
+      "full_system_header": "                                  Inspur Corporation Inspur NF5488M5 (Intel Xeon Platinum 8260)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220220-30979.txt",
+      "full_system_header": "                                    Inspur Corporation Inspur NF8260M5 (Intel Xeon Gold 6246)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220125-30794.txt",
+      "full_system_header": "                                    Inspur Corporation Inspur NF5280M5 (Intel Xeon Gold 5218R)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20220125-30791.txt",
+      "full_system_header": "                                    Inspur Corporation Inspur NF8260M5 (Intel Xeon Gold 6234)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20211206-30304.txt",
+      "full_system_header": "                                 Inspur Corporation Inspur NF8480M6 (Intel Xeon Platinum 8380HL)",
+      "hardware_fields": 12,
+      "power_section": false
+    },
+    {
+      "path": "cpu2017/cpu2017-20211206-30303.txt",
+      "full_system_header": "                                    Inspur Corporation Inspur NF8480M6 (Intel Xeon Gold 6330H)",
+      "hardware_fields": 12,
+      "power_section": false
+    }
+  ],
+  "scope": "Saved-byte discovery review only; no candidate/identity/role/routing acceptance, requests, imports or production changes"
+}

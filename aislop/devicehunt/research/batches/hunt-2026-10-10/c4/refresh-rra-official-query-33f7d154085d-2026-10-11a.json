@@ -1,0 +1,476 @@
+{
+  "account": "c4-rra-official-query-33f7d154085d-2026-10-11a",
+  "account_state": {
+    "boot": "e4c6fa43-e8b6-4d8e-bca0-8e86027154cb",
+    "byte_limit": 84000084,
+    "deadline": null,
+    "definition_hash": "0f095a42de8acbdac6a58480cdf3e9552fb404c1b969a29cc5d85ea3b05e02d4",
+    "id": "c4-rra-official-query-33f7d154085d-2026-10-11a",
+    "policy_hash": "rra-refresh/c4-2026-10-10",
+    "request_limit": 84,
+    "spent_bytes": 60000060,
+    "spent_requests": 60,
+    "start_mono": 577229.386515567,
+    "start_wall": 1791738172.7713032,
+    "stopped": null,
+    "window": 1800.0
+  },
+  "archive_after": {
+    "head_sequence": 4548,
+    "index_bytes": 15925248,
+    "object_bytes": 43788863,
+    "receipt_bytes": 5377036,
+    "receipts": 4922
+  },
+  "archive_before": {
+    "head_sequence": 4428,
+    "index_bytes": 15360000,
+    "object_bytes": 43788863,
+    "receipt_bytes": 5203749,
+    "receipts": 4802
+  },
+  "bundle": {
+    "bundle": "/home/erin/nepeat/aislop/devicehunt/data/raw/rra-amazon-data-services-official-live-2026-10-11a/bundle.json",
+    "outcome": "validated_nonempty"
+  },
+  "comparison_with_pinned": {
+    "mismatches": [
+      "occurrences"
+    ],
+    "status": "differs_from_pinned"
+  },
+  "cycle": "2026-10-11a",
+  "detail_cap": 80,
+  "interval_seconds": 1.0,
+  "live_query_records": 57,
+  "new_observations": 60,
+  "outcome": "captured",
+  "phase": "refresh",
+  "pinned_rows": 57,
+  "reason": null,
+  "request_cap": 84,
+  "seconds": 180.115,
+  "steps": [
+    {
+      "artifact_sha256": "210348ab1eb4b284f92b590de30ca375e2c5fa0607aedab0d521c80e28babc1e",
+      "error": null,
+      "outcome": "success",
+      "slot": "form",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "bab5a6449aa40bb88345c0c38bb23a3732b98e88da2e4862d6ef099d1e7a975a",
+      "error": null,
+      "outcome": "success",
+      "slot": "csv-before",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "fdc32cd377653bd4a0446290dcbf624a9b70c7b99078e1d38c791f88f70853ec",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-001",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "4115cc6cfabac93ed31feeb194902a4bb3534951fe7095842c206335f2493f2f",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-002",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "1e5879bacd1a86b2cc9ba0677f4b73a3f4bc5b1fdc11d6b1de24646558302b90",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-003",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "8b5ca6d5c2c559bb6089d957dc79f7e499b5aabe37c402bdfe74948a3ef07da6",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-004",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "e9707230be7c1bb8052f758d5147c18f0dfe180886bfcb7c563200bafb3cd1db",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-005",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "773f7fea1ed2a61cdd2d426df422e876ba4149e0260943e4b91817c199df193c",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-006",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "44ec534db2ab1eaa1801881b7f28664a8e860d12b369a2cb4e8463614da84d33",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-007",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "60d319ea68208c9299cc41b0a3c165563f9fab4b13cf6f2c091ecc6e9537bf63",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-008",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "b891620953c41b9430df8b46925123cf55ac2e160ecd1211b7f6db86cb48d876",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-009",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "ce635ee65e03177ea7e0f25384c4973ee7b45ab8c5b50e6a89ae874e172c9f14",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-010",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "c7b546bf42225c7165b85550e6a6288c16bd88171bf72b531e46ca434a5725fa",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-011",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "372fb70adac697e438d1e2154a1597666b0737115b0adc1c89bf57d0c12df566",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-012",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "7af5cc8fe2e6c6409c196477585b92c8b242070f6283537de5d56f4378a522b5",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-013",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "23c0f6d8d0620f3ab82b3f31c2334f9e93fbafc3427265545475fa1bd8422d67",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-014",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "e70311706386b9f94b02ad889574a0e3423dd87e193b6f5875f6b15434e75521",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-015",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "f9c0c9672f31aa660f7e0f304ca08a821474c7dba99063370753d981c26b541d",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-016",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "a3c1f1a82e9666f64dc6b4d7476fb009490909bbdf808e7d0d1f8c114acf3e64",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-017",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "3be071c80f5bd45ef92aa0da350436fe457b50c659b6554ea0b7cb1486724ffb",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-018",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "2d73c7f20676b8aa62c4b278c3eadc1fb5864f8b7c390527a88cb6f026d59273",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-019",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "f32e31135685a2135dc98d0582d5221a7d6df8411a182304c9a8be6e6527211a",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-020",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "bd3ab5b4ed6c1611427e514d1c287f884a2c5d5836b05834930db6501e48f414",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-021",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "01d5f0c3d724507565c3702689b7baf233a4cd15b1a8f9f92123a2dfe54d86d4",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-022",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "cd220a07300b449a1741906ddeb7b0fe413925e460941eef771a60792039b6e6",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-023",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "91239099ca597af5a5fc5a30c5878c75cb5a6ee766468189234dc76c2244d241",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-024",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "e27b7113c7fb81ba4621d1e282a5ca09ee8982743bb409e6a451c6b169668317",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-025",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "774ade4218dc5a886b45704c37ad309f49414e9c16bd5c0edf843c5564967ea8",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-026",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "5019464caf82a08355cccfeefa8c1db59eed5f6811f24bcd522a62dc55cee46f",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-027",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "8190e56227c23bf4f616612fe55e2bfda4493fa0bb65c6558758540e870f9a83",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-028",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "0a4b44218a3ff194473b0156706f27a6ff161d4ed971a7c3e8cc89689e36192b",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-029",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "9971bbd4638edee5fcf8f1238b86666ead79a89293f70f3ebdece3895b8ea41c",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-030",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "daae16f44b6f7dee09fb025536c78a398bb19a692a700ab9c63b2156cee6239f",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-031",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "b1aa033c8a0ee399b95d39cbfa7de241ca32f4c5063236f2431ecee296f9521c",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-032",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "d6c5735484eb31576fc954ff6b6ac2b94858c1e9513c96e82278db897796d436",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-033",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "58e10ee13422f9634260c53c1942a8182eb9a2e62549955767975fc270971a00",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-034",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "653ee1f0e575e78321312a3c7bc43a09f835e6ca10c21d518842079f15d74508",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-035",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "c28b4d7dda0cd6fdf0f32d5466f4c3d161c9bc68fa91b5882598830b054ffa3e",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-036",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "da598d658652900d751a4fbe8878170fa65ab5bd0db87b722625b4f9d0a4de31",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-037",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "914b74cf00cca4b0919963df7e33c5689b8fbdd4303d55052f353af1f939c8a9",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-038",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "4001077c00af84eaf8e3772682514e50f4fde8e482cfe63695b2b752ac5e5317",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-039",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "28926750f6b0188e3a6b541c210aa919d5a3372e46ae02dc62a6d60a82d47094",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-040",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "5475e0f324f873a2c75b0f0c0be1dce1dd1228262f85bcc051c472afdc28c03b",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-041",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "a2f255a12744393a25f3039e648801d1cbf12def46d6a41294d0cce016774fcf",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-042",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "3c339d2fe016737ec5826d7ddfda7877c623459a998222a742253b1c9d4ea5ca",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-043",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "b48c8cc9b5d47de84b24eb14fbff784e9fbcca2b32f121087086ab8f2a1cde6e",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-044",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "4aaa677c13a826c56d519067af102c41efa1c6f14f48e8e0287d5b00c84b3f66",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-045",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "efaa7230bcaec4d7212b474da38a5f047345b8269bee02148f7691245e0fd43b",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-046",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "87d6ac513a07ed9d35ff375d34ca7f6909079e1f71ce48d735c418d37dbf6a32",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-047",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "12d1ae3fd527d7d2d422929bed64b107b300294f7f0d3bfc1e4b73a62491bed8",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-048",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "ebf365f4b6416b418a946eddf6c000bd20dc9640880b7f09d2af48b8a37bdb77",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-049",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "0a0305bc54db8c4ba5511fcc382c07209e395061ca5f181328094e4224ca4938",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-050",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "7ae54dd3a2339b4f7599bf582099a8adc555b20a993ec8028225649f3399b1fa",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-051",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "039941f9ce63d07aff857332f28b450fc7febc3cf9cee5ea908d82bafb9a9dad",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-052",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "d5e95e75baa5ce8fe5ca43dee7ff7e3f96998d3a410d544ea1f98e29fbc4cc6f",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-053",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "c8fe3bacd679dce327cf6dfedb2b77c9573d16cadd781eb17ba2c6424d9344b6",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-054",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "9f5ccef7ec809a6bd46e5f2070ad5ae6844d1d72c07aa96a7cd8a69e55bb1c73",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-055",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "6b3736c30cf35bd26541e4f55b75e6676a343e9ffa6e63d35604249005714f89",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-056",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "9cf72e544f7a3a38c0d59aac1c0d06e51fb82e35b6a23ca0025bd6b5cc8c2c89",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-057",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "bab5a6449aa40bb88345c0c38bb23a3732b98e88da2e4862d6ef099d1e7a975a",
+      "error": null,
+      "outcome": "success",
+      "slot": "csv-after",
+      "status": 200
+    }
+  ],
+  "unit_id": "rra-official-query-33f7d154085d"
+}

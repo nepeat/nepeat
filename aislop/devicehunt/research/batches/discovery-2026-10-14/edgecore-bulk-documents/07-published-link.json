@@ -1,0 +1,11 @@
+{
+  "selection_number": 7,
+  "landing_path": "07-landing.html",
+  "landing_sha256": "3a3e3fbcd9f2749cefb59b1e9a7e4f8539643185298917bc36c50d03f3473c2a",
+  "fresh_heading": "ECIS4500 PoE Series DS R04",
+  "published_download_url": "https://www.edge-core.com/download/ecis4500-poe-series-ds-r04/?wpdmdl=1930&refresh=6ad06cf25815b1792044274",
+  "expected_wpdmdl_values": [
+    "1930"
+  ],
+  "stale_graph_tokens_used": false
+}

@@ -1,0 +1,1150 @@
+{
+  "sources": [
+    {
+      "id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "license": "Extracted factual hardware identifiers and source references; source rights retained",
+      "snapshot": "raw/nist-4506.html",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer."
+    },
+    {
+      "id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "license": "Ingrasys factual product information; upstream rights retained",
+      "snapshot": "raw/server-evidence-ingrasys-2026-10-04/server-catalog.response",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases."
+    },
+    {
+      "id": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "license": "Ingrasys factual product/corporate information; upstream rights retained",
+      "snapshot": "raw/ingrasys-servers-2026-10-04/about.html",
+      "coverage": "Explicit cross-source parent portfolio inference for six newly evidenced A/I variants only; not manufacturer. Existing immutable 2026-10-04 Ingrasys company capture plus exact recovered catalog variant pages. Corporate page does not name these models; derivative provenance required."
+    }
+  ],
+  "devices": [
+    {
+      "source": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "key": "Oracle Server E4-2C tested software-module detail",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "title": "Oracle Server E4-2C",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Oracle",
+          "tested_platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "cmvp_tested_configuration",
+          "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA"
+        ],
+        [
+          "cmvp_tested_configuration",
+          "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)"
+        ],
+        [
+          "cmvp_module_name",
+          "Oracle OpenSSL FIPS Provider"
+        ],
+        [
+          "cmvp_module_type",
+          "Software"
+        ],
+        [
+          "cmvp_module_standard",
+          "FIPS 140-2"
+        ],
+        [
+          "cmvp_module_software_versions",
+          "3.0.15"
+        ],
+        [
+          "cmvp_module_status_at_capture",
+          "Historical"
+        ],
+        [
+          "cmvp_module_historical_reason",
+          "Moved to historical list due to sunsetting"
+        ],
+        [
+          "cmvp_module_caveat",
+          "When operated in FIPS mode. No assurance of the minimum strength of generated keys."
+        ],
+        [
+          "cmvp_module_vendor_literal",
+          "Oracle Corporation"
+        ],
+        [
+          "cmvp_module_validation_history_row",
+          "[\"5/3/2023\", \"Initial\", \"Acumen Security\"]"
+        ],
+        [
+          "cmvp_module_validation_history_row",
+          "[\"3/26/2025\", \"Update\", \"Lightship Security, Inc.\"]"
+        ],
+        [
+          "source_sha256",
+          "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064"
+        ],
+        [
+          "source_location",
+          "Details panel: #module-name; #module-standard; Tested Configuration(s) list items 14-15, HTML lines 583-584; Software Versions lines 685-689; #validation-history-table rows 1-2"
+        ],
+        [
+          "source_scope",
+          "Saved NIST CMVP certificate 4506 software-module tested-platform detail; two exact E4-2C rows, preserving PAA and single-user-mode modifiers. Status/date are snapshot/module statements."
+        ],
+        [
+          "configuration_limit",
+          "No assertion of general/current OS support, installed CPU or OS, hardware certification, manufacturing, deployment, bootability, firmware access or secondhand software entitlement. Validation history dates are module events and are not separately assigned to either platform row."
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1120A",
+      "brand": "Ingrasys",
+      "model": "SV1120A",
+      "title": "Ingrasys SV1120A recovered catalog page 3",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 RU"
+        ],
+        [
+          "power_description",
+          "2 x 2400W Platinum Redundant (1+1) PSU"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.71” x 17.32” x 32.4” / 43.4mm x 440.0mm x 823.4mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "8 x 4056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "3"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1120A only; no equivalence to unsuffixed SV1120 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 24 x E1.S SSDs, 2 x 22110 M.2 Boot Drives; SKU 2: 12 x U.2 NVMe SSDs, 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1120I",
+      "brand": "Ingrasys",
+      "model": "SV1120I",
+      "title": "Ingrasys SV1120I recovered catalog page 4",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 RU"
+        ],
+        [
+          "power_description",
+          "2 x 2400W Platinum Redundant (1+1) PSU"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.71” x 17.32” x 32.4” / 43.4mm x 440.0mm x 823.4mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "8 x 4056 Dual Rotor System Fans (N+1 Redundant), CPU Remote Heatsink"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen Intel® Xeon® Scalable Processors"
+        ],
+        [
+          "memory",
+          "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "4"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1120I only; no equivalence to unsuffixed SV1120 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 24 x E1.S SSDs, 2 x 22110 M.2 Boot Drives; SKU 2: 12 x U.2 NVMe SSDs, 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1121A",
+      "brand": "Ingrasys",
+      "model": "SV1121A",
+      "title": "Ingrasys SV1121A recovered catalog page 5",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "SKU 1 & 3: 2 x PCIe 5.0 x16 FHHL Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0; SKU 2: 2 x PCIe 5.0 x16 FHAHL Slots, 2 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.75” x 21.14” x 31.76” / 44.7mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 11 x 4056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 7 x 4056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC; 2 x E3.S CXL Memory Modules (SKU 3)"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "5"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1121A only; no equivalence to unsuffixed SV1121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 12 x E1.S SSDs; SKU 2: 6 x E1.S SSDs; SKU 3: 6 x E1.S SSDs; All SKUs with 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1121I",
+      "brand": "Ingrasys",
+      "model": "SV1121I",
+      "title": "Ingrasys SV1121I recovered catalog page 6",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "SKU 1 & 3: 2 x PCIe 5.0 x16 FHHL Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0; SKU 2: 2 x PCIe 5.0 x16 FHAHL Slots, 2 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.75” x 21.14” x 31.76” / 44.7mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 11 x 4056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 7 x 4056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen Intel® Xeon® Scalable Processors"
+        ],
+        [
+          "memory",
+          "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC; 2 x E3.S CXL Memory Modules (SKU 3)"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "6"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1121I only; no equivalence to unsuffixed SV1121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 12 x E1.S SSDs; SKU 2: 6 x E1.S SSDs; SKU 3: 6 x E1.S SSDs; All SKUs with 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2121A",
+      "brand": "Ingrasys",
+      "model": "SV2121A",
+      "title": "Ingrasys SV2121A recovered catalog page 7",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "7"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV2121A only; no equivalence to unsuffixed SV2121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2121I",
+      "brand": "Ingrasys",
+      "model": "SV2121I",
+      "title": "Ingrasys SV2121I recovered catalog page 8",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 5th/4th Gen Intel® Xeon® Scalable Processors"
+        ],
+        [
+          "memory",
+          "5th Gen: 32x DDR5 RDIMMs, 8-Channel, up to 5600 MT/s at 1DPC, 4800 MT/s at 2DPC; 4th Gen: 32x DDR5 RDIMMs, 8-Channel, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "8"
+        ],
+        [
+          "document_footer_year",
+          "2025"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV2121I only; no equivalence to unsuffixed SV2121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2221A",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "title": "Ingrasys SV2221A recovered catalog page 9",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 5th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 6000 MT/s at 1DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "9"
+        ],
+        [
+          "document_footer_year",
+          "2025"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2221I",
+      "brand": "Ingrasys",
+      "model": "SV2221I",
+      "title": "Ingrasys SV2221I recovered catalog page 10",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x Intel® Xeon® 6 Processors"
+        ],
+        [
+          "memory",
+          "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 6400 MT/s at 1DPC, 5200 MT/s at 2DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "10"
+        ],
+        [
+          "document_footer_year",
+          "2025"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1120A",
+      "brand": "Ingrasys",
+      "model": "SV1120A",
+      "title": "Ingrasys SV1120A",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "3"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1120I",
+      "brand": "Ingrasys",
+      "model": "SV1120I",
+      "title": "Ingrasys SV1120I",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "4"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1121A",
+      "brand": "Ingrasys",
+      "model": "SV1121A",
+      "title": "Ingrasys SV1121A",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "5"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1121I",
+      "brand": "Ingrasys",
+      "model": "SV1121I",
+      "title": "Ingrasys SV1121I",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "6"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV2121A",
+      "brand": "Ingrasys",
+      "model": "SV2121A",
+      "title": "Ingrasys SV2121A",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "7"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV2121I",
+      "brand": "Ingrasys",
+      "model": "SV2121I",
+      "title": "Ingrasys SV2121I",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "8"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "recorded_at": "2026-10-13T03:20:03.412685+00:00",
+  "files": [
+    {
+      "file": "archive-final-tests.json",
+      "bytes": 333,
+      "sha256": "6fc70550a8c7456b95f8fa3370d3500bef49decbcf4fdc40c7e1039b5d973c4b"
+    },
+    {
+      "file": "archive-final-tests.stderr",
+      "bytes": 102,
+      "sha256": "b52585c2387667737864c2f50df20e6c307effa9d31baceb1c898feebc14d630"
+    },
+    {
+      "file": "archive-final-tests.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "before/devicehunt/archive.py",
+      "bytes": 11043,
+      "sha256": "9ce8507e2f028e0849284f976fbdb8226aa443483f52f251aa64ff6d86ff3410"
+    },
+    {
+      "file": "before/devicehunt/documents.py",
+      "bytes": 8733,
+      "sha256": "bf53dda105b2e98fcc46c851c9fa24483c32fa5308a82a7b5024c629750b53d5"
+    },
+    {
+      "file": "before/devicehunt/reference_documents.py",
+      "bytes": 4362,
+      "sha256": "f6b3e70676bff56a89e50b508aa112e6739ec4b184bab9c689b490ffc1022430"
+    },
+    {
+      "file": "before/tests/test_archive_release.py",
+      "bytes": 3532,
+      "sha256": "1a8a7498496dcc4e5343b8cbc52b24d2dba3131e75c22bb20a382e6bbe6bb55a"
+    },
+    {
+      "file": "before/tests/test_documents.py",
+      "bytes": 6606,
+      "sha256": "0d8dbe2e1e3cb90128f837c609d9f5986164a14ab49044491e1a40d88373dc28"
+    },
+    {
+      "file": "before/tests/test_reference_documents.py",
+      "bytes": 6904,
+      "sha256": "df6c2de996043d854f8138f78db6cc45ea2a5e2b16c5fce6b8a094115b3a4811"
+    },
+    {
+      "file": "code-manifest.json",
+      "bytes": 1993,
+      "sha256": "bb6ceb0625266b14b5e0f3b3af69734dcab6318072243af8ec6e93098a3dbc05"
+    },
+    {
+      "file": "devicehunt-archive.py.diff",
+      "bytes": 2345,
+      "sha256": "0a356b883eba89b5f47442f6ddb0e134b73e29d5eef39f223bdda60b4ff527c0"
+    },
+    {
+      "file": "devicehunt-documents.py.diff",
+      "bytes": 4247,
+      "sha256": "b9f6bda0fffde3bb31017dae0306c4eacfaebfaf5ab627bb2fe862e76a5ed5da"
+    },
+    {
+      "file": "devicehunt-reference_documents.py.diff",
+      "bytes": 1972,
+      "sha256": "047e666e62fe9eda4eba8750bf8db687c9a03e841d69003735309c406c3f7a86"
+    },
+    {
+      "file": "focused-tests.json",
+      "bytes": 631,
+      "sha256": "938fab8eb4c55dcb7db611ec3ab20f9b74bacd9c5a431d17b9c04199523f3aa0"
+    },
+    {
+      "file": "focused-tests.stderr",
+      "bytes": 883,
+      "sha256": "9f57a75967b61211ef01e070da068b5092c00846796525126e348e725a1b9d51"
+    },
+    {
+      "file": "focused-tests.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "handoff.md",
+      "bytes": 4742,
+      "sha256": "dd8884cc908218e9684ef8847451faa141511a126334329004d1eb8fe19bda21"
+    },
+    {
+      "file": "original-files.json",
+      "bytes": 1878,
+      "sha256": "bf6b2816ec492b050721e35002c2159f62c482505471aadda541e8d39f3f3dcb"
+    },
+    {
+      "file": "tests-test_archive_release.py.diff",
+      "bytes": 4566,
+      "sha256": "d8abdf685fea0a2eb027d10b99c2ef395526063ffe90fffc14e9506dcb86d0cb"
+    },
+    {
+      "file": "tests-test_documents.py.diff",
+      "bytes": 1979,
+      "sha256": "0c2e575ead6803dce604a7f6cf75efea65bc1b33bcd882f06a206b181398e17e"
+    },
+    {
+      "file": "tests-test_reference_documents.py.diff",
+      "bytes": 2398,
+      "sha256": "02dcab4a90183dd2f46f4a7a1fd0500b012f36bd7a03cbf5d883929a4f514440"
+    }
+  ]
+}

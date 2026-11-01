@@ -1,0 +1,100 @@
+--- before/lookup.py
++++ devicehunt/lookup.py
+@@ -257,7 +257,7 @@
+             db.rollback()
+ 
+ 
+-def _run(db, query, limit):
++def _run(db, query, limit, registry_sections=None):
+     sections = []
+     clause = ('dh_contains(d.title || char(10) || d.brand || char(10) || d.model || char(10) || d.revision, ?) '
+               # FTS device_id is unindexed. Collect matching IDs once instead
+@@ -285,7 +285,9 @@
+                             'Literal match against catalog text, including facts and exhibit titles. '
+                             'Identity text matches are string equality, not corroboration. '
+                             'Evidence lists all sources for the identity; use show for per-source details.'))
+-    for key, table, default_source, unit, fields, order, columns, scope in REGISTRIES:
++    if registry_sections is not None:
++        sections.extend(registry_sections)
++    for key, table, default_source, unit, fields, order, columns, scope in (REGISTRIES if registry_sections is None else []):
+         if not db.execute("SELECT 1 FROM sqlite_master WHERE type IN ('table','view') AND name=?", (table,)).fetchone():
+             sections.append(section(key, unit, 0, 0, [], [], scope + ' No table in this database; import this source to add it.'))
+             continue
+@@ -323,3 +325,77 @@
+             'scope': 'Search of this local snapshot only. Counts use different units and must not be summed as unique devices. '
+                      'A match is a discovery lead, not an inventory-validation pass. ISED labelled target records and UL assertions are in catalog.',
+             'datasets': sections}
++
++
++def run_many(db, requests):
++    """Evaluate (query, limit) pairs in one snapshot, scanning each registry once.
++
++    All requests are validated before SQL runs. Only matching, limited result
++    rows are retained; registry input rows stream through Python. No cache survives
++    this call, and an existing caller transaction remains owned by the caller.
++    """
++    requests = list(requests)
++    normalized = []
++    for query, limit in requests:
++        if not isinstance(query, str) or not query.strip():
++            raise ValueError('Lookup requires a nonempty query')
++        if type(limit) is not int or limit < -1:
++            raise ValueError('Limit must be -1 or nonnegative')
++        normalized.append((query.strip(), limit))
++    if not normalized:
++        return []
++    db.create_function('dh_contains', 2, contains, deterministic=True)
++    db.create_function('dh_cells', 1, cells_text, deterministic=True)
++    own_transaction = not db.in_transaction
++    if own_transaction:
++        db.execute('BEGIN')
++    try:
++        # Catalog SQL remains unchanged, including FTS membership and evidence.
++        # Supply the registry matches through the existing formatter below.
++        batches = [[] for _ in normalized]
++        needles = [query.casefold() for query, _ in normalized]
++        for key, table, default_source, unit, fields, order, columns, scope in REGISTRIES:
++            if not db.execute("SELECT 1 FROM sqlite_master WHERE type IN ('table','view') AND name=?", (table,)).fetchone():
++                for sections in batches:
++                    sections.append(section(key, unit, 0, 0, [], [], scope + ' No table in this database; import this source to add it.'))
++                continue
++            expressions = ['dh_cells(cells_json)' if f == 'cells_json' else "coalesce(" + f + ",'')" for f in fields]
++            totals = list(db.execute('SELECT source_id,count(*) FROM ' + table + ' GROUP BY source_id'))
++            stored = sum(r[1] for r in totals)
++            ids = sorted({r[0] for r in totals} | (set(default_source) if isinstance(default_source, list) else {default_source}))
++            prefixes = {'rra': 'rra-official-query-%', 'ised': 'ised-rel-query-%', 'japan': 'japan-mic-mirror-%'}
++            if key in prefixes:
++                ids = sorted(set(ids) | {r[0] for r in db.execute('SELECT id FROM sources WHERE id LIKE ?', (prefixes[key],))})
++            sources = source_metadata(db, ids)
++            urls = {source['id']: source['url'] for source in sources}
++            counts = [0] * len(normalized)
++            selected = [[] for _ in normalized]
++            sql = ('SELECT ' + columns + ', ' + ' || char(10) || '.join(expressions) +
++                   ' AS _lookup_search_text FROM ' + table + ' ORDER BY ' + order)
++            for raw in db.execute(sql):
++                text = (raw['_lookup_search_text'] or '').casefold()
++                for index, needle in enumerate(needles):
++                    if needle not in text:
++                        continue
++                    counts[index] += 1
++                    limit = normalized[index][1]
++                    if limit != -1 and len(selected[index]) >= limit:
++                        continue
++                    row = dict(raw)
++                    del row['_lookup_search_text']
++                    row.setdefault('source_url', urls.get(row['source_id']))
++                    if key == 'fcc_excerpts':
++                        row['excerpt'] = text_excerpt(row.pop('text'), normalized[index][0])
++                    if key == 'fcc_details':
++                        row['fields'] = json.loads(row.pop('fields_json'))
++                    if 'cells_json' in row:
++                        row['raw_cells'] = json.loads(row.pop('cells_json'))
++                    selected[index].append(row)
++            for index, sections in enumerate(batches):
++                sections.append(section(key, unit, stored, counts[index], selected[index],
++                                        [dict(source) for source in sources], scope))
++        return [_run(db, query, limit, sections)
++                for (query, limit), sections in zip(normalized, batches)]
++    finally:
++        if own_transaction:
++            db.rollback()

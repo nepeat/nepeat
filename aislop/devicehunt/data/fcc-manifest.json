@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "source_url": "https://fccid.io/2AVPL",
+  "reviewed_at": "2026-09-26",
+  "scope": "Two selected Amazon Data Services FCC IDs; one application and 16 exhibit index entries per ID reviewed on FCCID.io. No grantee-wide or historical completeness assertion.",
+  "complete_for_declared_scope": true,
+  "expected_applications": 2,
+  "fcc_ids": [
+    "2AVPL-CUBSCOUT",
+    "2AVPL-TE1A001"
+  ],
+  "applications": [
+    {
+      "fcc_id": "2AVPL-CUBSCOUT",
+      "application_id": "oaLSKGa9an/UwzeojNZCsg==",
+      "grantee": "Amazon Data Services, Inc.",
+      "frn": "0029198181",
+      "model": "CUBSCOUT",
+      "equipment": "server (FCC description)",
+      "purpose": "Original Equipment",
+      "grant_date": "2022-01-27",
+      "frequency_mhz": "13.553-13.567",
+      "source_url": "https://fccid.io/2AVPL-CUBSCOUT",
+      "expected_exhibits": 16,
+      "exhibit_scope": "All 16 exhibit rows shown on the reviewed index. Metadata availability does not verify PDF access.",
+      "exhibits": [
+        {
+          "key": "5657031",
+          "document_id": "5657031",
+          "title": "External Photos",
+          "type": "External Photos",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/External-Photos/External-Photos-5657031"
+        },
+        {
+          "key": "5657033",
+          "document_id": "5657033",
+          "title": "Label",
+          "type": "ID Label/Location Info",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Label/Label-5657033"
+        },
+        {
+          "key": "5657038",
+          "document_id": "5657038",
+          "title": "Test Setup Photos",
+          "type": "Test Setup Photos",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Test-Setup-Photos/Test-Setup-Photos-5657038"
+        },
+        {
+          "key": "5661528",
+          "document_id": "5661528",
+          "title": "Test Report NFC",
+          "type": "Test Report",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Test-Report/Test-Report-NFC-5661528"
+        },
+        {
+          "key": "5856645",
+          "document_id": "5856645",
+          "title": "Agent Authorization Letter",
+          "type": "Cover Letter(s)",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Letter/Agent-Authorization-Letter-5856645"
+        },
+        {
+          "key": "5856644",
+          "document_id": "5856644",
+          "title": "Confidential Request Letter",
+          "type": "Cover Letter(s)",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Letter/Confidential-Request-Letter-5856644"
+        },
+        {
+          "key": "5657034",
+          "document_id": "5657034",
+          "title": "Confidentiality Request",
+          "type": "Cover Letter(s)",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Letter/Confidentiality-Request-5657034"
+        },
+        {
+          "key": "5657035",
+          "document_id": "5657035",
+          "title": "POA Letter",
+          "type": "Cover Letter(s)",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Letter/POA-Letter-5657035"
+        },
+        {
+          "key": "5657036",
+          "document_id": "5657036",
+          "title": "SDoC",
+          "type": "Cover Letter(s)",
+          "availability": "listed_public",
+          "available_date": "2022-01-27",
+          "url": "https://fccid.io/2AVPL-CUBSCOUT/Letter/SDoC-5657036"
+        },
+        {
+          "key": "metadata:User Manual",
+          "title": "User Manual",
+          "type": "Users Manual",
+          "availability": "restricted"
+        },
+        {
+          "key": "metadata:Internal Photos",
+          "title": "Internal Photos",
+          "type": "Internal Photos",
+          "availability": "restricted"
+        },
+        {
+          "key": "metadata:Mutual NDA Agreement",
+          "title": "Mutual NDA Agreement",
+          "type": "Users Manual",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:Block Diagram",
+          "title": "Block Diagram",
+          "type": "Block Diagram",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:Schematics 1",
+          "title": "Schematics 1",
+          "type": "Schematics",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:Schematics 2",
+          "title": "Schematics 2",
+          "type": "Schematics",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:Operational Description",
+          "title": "Operational Description",
+          "type": "Operational Description",
+          "availability": "metadata_only"
+        }
+      ]
+    },
+    {
+      "fcc_id": "2AVPL-TE1A001",
+      "application_id": "QEZFyRORQOYQ8LTAu3c8kg==",
+      "grantee": "Amazon Data Services, Inc.",
+      "frn": "0029198181",
+      "model": "TE1A001",
+      "equipment": "IoT device (FCC description)",
+      "purpose": "Original Equipment",
+      "grant_date": "2020-08-11",
+      "frequency_mhz": "2402-2480",
+      "source_url": "https://fccid.io/2AVPL-TE1A001",
+      "expected_exhibits": 16,
+      "exhibit_scope": "All 16 exhibit rows shown on the reviewed index. Metadata availability does not verify PDF access.",
+      "exhibits": [
+        {
+          "key": "4843975",
+          "document_id": "4843975",
+          "title": "Int 1",
+          "type": "Internal Photos",
+          "availability": "listed_public",
+          "available_date": "2021-01-02",
+          "url": "https://fccid.io/2AVPL-TE1A001/Internal-Photos/Int-1-4843975"
+        },
+        {
+          "key": "4843976",
+          "document_id": "4843976",
+          "title": "Int 2",
+          "type": "Internal Photos",
+          "availability": "listed_public",
+          "available_date": "2021-01-02",
+          "url": "https://fccid.io/2AVPL-TE1A001/Internal-Photos/Int-2-4843976"
+        },
+        {
+          "key": "4843973",
+          "document_id": "4843973",
+          "title": "Ext 1",
+          "type": "External Photos",
+          "availability": "listed_public",
+          "available_date": "2021-01-02",
+          "url": "https://fccid.io/2AVPL-TE1A001/External-Photos/Ext-1-4843973"
+        },
+        {
+          "key": "4843974",
+          "document_id": "4843974",
+          "title": "Ext 2",
+          "type": "External Photos",
+          "availability": "listed_public",
+          "available_date": "2021-01-02",
+          "url": "https://fccid.io/2AVPL-TE1A001/External-Photos/Ext-2-4843974"
+        },
+        {
+          "key": "4843977",
+          "document_id": "4843977",
+          "title": "Label",
+          "type": "ID Label/Location Info",
+          "availability": "listed_public",
+          "available_date": "2020-08-11",
+          "url": "https://fccid.io/2AVPL-TE1A001/Label/Label-4843977"
+        },
+        {
+          "key": "4843963",
+          "document_id": "4843963",
+          "title": "Test Setup 1",
+          "type": "Test Setup Photos",
+          "availability": "listed_public",
+          "available_date": "2021-01-02",
+          "url": "https://fccid.io/2AVPL-TE1A001/Test-Setup-Photos/Test-Setup-1-4843963"
+        },
+        {
+          "key": "4843965",
+          "document_id": "4843965",
+          "title": "Test Setup 2",
+          "type": "Test Setup Photos",
+          "availability": "listed_public",
+          "available_date": "2021-01-02",
+          "url": "https://fccid.io/2AVPL-TE1A001/Test-Setup-Photos/Test-Setup-2-4843965"
+        },
+        {
+          "key": "4843966",
+          "document_id": "4843966",
+          "title": "15B Report",
+          "type": "Test Report",
+          "availability": "listed_public",
+          "available_date": "2020-08-11",
+          "url": "https://fccid.io/2AVPL-TE1A001/Test-Report/15B-Report-4843966"
+        },
+        {
+          "key": "4843964",
+          "document_id": "4843964",
+          "title": "DTS Report",
+          "type": "Test Report",
+          "availability": "listed_public",
+          "available_date": "2020-08-11",
+          "url": "https://fccid.io/2AVPL-TE1A001/Test-Report/DTS-Report-4843964"
+        },
+        {
+          "key": "4843968",
+          "document_id": "4843968",
+          "title": "Confid Request",
+          "type": "Cover Letter(s)",
+          "availability": "listed_public",
+          "available_date": "2020-08-11",
+          "url": "https://fccid.io/2AVPL-TE1A001/Letter/Confid-Request-4843968"
+        },
+        {
+          "key": "4843967",
+          "document_id": "4843967",
+          "title": "RFx",
+          "type": "RF Exposure Info",
+          "availability": "listed_public",
+          "available_date": "2020-08-11",
+          "url": "https://fccid.io/2AVPL-TE1A001/RF-Exposure-Info/RFx-4843967"
+        },
+        {
+          "key": "metadata:Manual",
+          "title": "Manual",
+          "type": "Users Manual",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:Block",
+          "title": "Block",
+          "type": "Block Diagram",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:BOM",
+          "title": "BOM",
+          "type": "Schematics",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:Schema",
+          "title": "Schema",
+          "type": "Schematics",
+          "availability": "metadata_only"
+        },
+        {
+          "key": "metadata:Ops",
+          "title": "Ops",
+          "type": "Operational Description",
+          "availability": "metadata_only"
+        }
+      ]
+    }
+  ]
+}

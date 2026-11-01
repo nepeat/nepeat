@@ -1,0 +1,26 @@
+{
+  "candidate": "data/devices-candidate-discovery-2026-10-11-c.sqlite",
+  "candidate_manifest": "data/import-manifest-candidate-discovery-2026-10-11-c.json",
+  "counts": {
+    "devices": 5042,
+    "records": 6821,
+    "sources": 1672
+  },
+  "foreign_key_violations": 0,
+  "growth": {
+    "affiliations": 187,
+    "devices": 27,
+    "facts": 2227,
+    "identifiers": 254,
+    "records": 195,
+    "sources": 195
+  },
+  "imported": {
+    "raw/discovery-2026-10-11-firmware-boards/firmware-boards-facts-2026-10-11.json": 8,
+    "raw/discovery-2026-10-11-linuxhw-dmi/linuxhw-dmi-facts-2026-10-11.json": 29,
+    "raw/discovery-2026-10-11-redhat-cert/redhat-cert-detail-supplement-2026-10-11.json": 158
+  },
+  "integrity": "ok",
+  "live_sha256": "ab8ed2e386d802e7434576932c4586492b0f901cf7b42771747940c74bbb1a78",
+  "tables_with_lost_live_rows": {}
+}

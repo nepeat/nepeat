@@ -1,0 +1,65 @@
+{
+  "sources": [
+    {
+      "id": "community-as7772-dtb-gist-2026-10-04",
+      "url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "license": "Publicly readable software text; no explicit reuse license established; upstream rights retained",
+      "snapshot": "raw/networking-primary-owned-2026-10-04/as7772-owner-dtb-gist.html",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation."
+    }
+  ],
+  "devices": [
+    {
+      "source": "community-as7772-dtb-gist-2026-10-04",
+      "key": "AS7772-32X DTB",
+      "brand": "",
+      "model": "AS7772-32X",
+      "title": "AS7772-32X published DTB-source artifact",
+      "kind": "networking software artifact reference",
+      "affiliations": [],
+      "facts": [
+        [
+          "source_scope",
+          "Published DTB-source declarations associated by exact gist title AS7772-32X DTB; not physical configuration or supported installation instructions."
+        ],
+        [
+          "source_sha256",
+          "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b"
+        ],
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "artifact_title",
+          "AS7772-32X DTB"
+        ],
+        [
+          "artifact_model_declaration",
+          "accton,as7772_32x"
+        ],
+        [
+          "artifact_compatible_declaration",
+          "accton,as7772_32x"
+        ],
+        [
+          "artifact_serial0_alias",
+          "/soc@ffe000000/serial@11c500"
+        ],
+        [
+          "artifact_partition_labels",
+          "RCW; hw-info; onie; diag; open; Fman-FW; uboot-env; uboot"
+        ],
+        [
+          "source_location",
+          "gistfile1.txt lines 7-8, 75, 118, 123, 128, 133, 138, 143, 148, 154"
+        ],
+        [
+          "configuration_limit",
+          "No assertion of installed firmware, physical flash layout, current owned-unit behavior, supported NOS, entitlement, safe flashing or vendor support; account authorship does not bind artifact to owned unit."
+        ]
+      ]
+    }
+  ]
+}

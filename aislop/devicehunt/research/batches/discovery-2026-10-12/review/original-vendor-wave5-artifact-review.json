@@ -1,0 +1,17 @@
+{
+  "PASS": true,
+  "artifact_manifest_sha256": "e53356f448970f8d706115dbe09371695fae988d3e4a9b324b660c8b13ceeafe",
+  "all_manifest_entries_verified": 50,
+  "exact_directory_inventory_match": true,
+  "standalone_policy_inclusive_counts": {
+    "oracle": 2,
+    "as6700": 4,
+    "as5712": 4
+  },
+  "frozen_author_hashes": {
+    "handoff.md": "91a32cc775d0caad30fc43c0cc5c1c297b3d80e0ba2c9f43677ebc5293b250a5",
+    "findings.json": "95838a2586022a9b1e3dab7b00a3d82f4102a0a41fef0e444d8fb0208ae3a1f0",
+    "checks.json": "1fd1d17996c3814b1650859a679b5d685eb09dd4c14ebf2e04f3d94c624c4c67"
+  },
+  "source_files_unchanged": true
+}

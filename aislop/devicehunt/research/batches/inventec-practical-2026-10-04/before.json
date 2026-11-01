@@ -1,0 +1,94 @@
+{
+  "previous_turn_classification": "progress",
+  "previous_completion_path": "research/batches/server-evidence-2026-10-04/milestone-completion.json",
+  "previous_completion_sha256": "3033042195ce4e13ce82ff5232d2a0ae101d486df2288745878075ed6a2f1f73",
+  "database_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "manifest_sha256": "eb70b70552dbba72e57212cd79aa9baa470bf883a59ec48c440f6dc88d8c2ce2",
+  "checked_at": "2026-10-05T00:02:25.699638+00:00",
+  "counts": {
+    "devices": 4090,
+    "records": 5317,
+    "sources": 287,
+    "facts": 44975
+  },
+  "exact_saved_fact_rows": [
+    {
+      "model": "Entei",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "identity_limit",
+      "value": "Printed product name retained; no inferred commercial-order-code alias."
+    },
+    {
+      "model": "Entei",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_scope",
+      "value": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned."
+    },
+    {
+      "model": "Entei",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_statement_as_printed",
+      "value": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造"
+    },
+    {
+      "model": "Entei",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_statement_translation",
+      "value": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG)."
+    },
+    {
+      "model": "Entei",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_unit_as_printed",
+      "value": "英业达企业电脑事业群(EBG)"
+    },
+    {
+      "model": "Entei",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "statement_date",
+      "value": "2020-11-04"
+    },
+    {
+      "model": "Golduck",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "identity_limit",
+      "value": "Printed product name retained; no inferred commercial-order-code alias."
+    },
+    {
+      "model": "Golduck",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_scope",
+      "value": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned."
+    },
+    {
+      "model": "Golduck",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_statement_as_printed",
+      "value": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造"
+    },
+    {
+      "model": "Golduck",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_statement_translation",
+      "value": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG)."
+    },
+    {
+      "model": "Golduck",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "manufacturer_unit_as_printed",
+      "value": "英业达企业电脑事业群(EBG)"
+    },
+    {
+      "model": "Golduck",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "name": "statement_date",
+      "value": "2020-11-04"
+    }
+  ],
+  "budget": {
+    "queries": 6,
+    "new_captures": 3
+  },
+  "workers": "gpt-6.1-sol",
+  "shared_state": "read-only until assigned integration"
+}

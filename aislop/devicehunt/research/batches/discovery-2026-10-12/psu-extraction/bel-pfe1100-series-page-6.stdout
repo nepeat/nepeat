@@ -1,0 +1,62 @@
+6
+                                                                                             PFE1100-12-054xA
+
+    Internal capacitance at the 12 V output (behind the OR-ing circuitry) is minimized to prevent disturbances during hot plug. In
+    order to provide low output ripple voltage in the application, external capacitors should be added close to the power supply
+    output.
+    The setup of Figure 6 has been used to evaluate suitable capacitor types. The capacitor combinations of Table 1 and Table 2
+    should be used to reduce the output ripple voltage. The ripple voltage is measured with 20 MHz BWL, close to the external
+    capacitors.
+
+
+
+                                                                                     V1
+
+
+
+
+                                                   PFExxxx-12-054NA
+                                                                                   PGND
+
+
+
+                                                                                    VSB
+
+                                                                             Connection board
+
+
+                                              Figure 6. Output ripple test setup
+
+    NOTE:
+    Care must be taken when using ceramic capacitors with a total capacitance of 1 µF to 50 µF on output V1, due to their high
+    quality factor the output ripple voltage may be increased in certain frequency ranges due to resonance effects.
+
+     External capacitor V1                dV1max                      Unit
+     2Pcs 47 µF/16 V/X5R/1210                150                      mVpp
+                                                                             External capacitor VSB                  dV1max      Unit
+     1Pcs 1000 µF/16 V/Low ESR
+                                             120                      mVpp   1Pcs 10 µF/16 V/X5R/1206                   80       mVpp
+     Aluminum/ø10x20
+     1Pcs 270 µF/16 V/Conductive                                             2Pcs 10 µ/F16 V/X5R/1206                   50       mVpp
+                                             120                      mVpp
+     Polymer/ø8x12                                                           1Pcs 47 µF/16 V/X5R/1210                   40       mVpp
+     2Pcs 47 µF/16 V/X5R/1210 plus
+                                                                             2Pcs 100 µF/6.3 V/X5R/1206                 30       mVpp
+     1Pcs 270 µF Conductive Polymer          60                       mVpp
+     OR 1Pcs 1000 µF Low ESR AlCap                                                        Table 2. Suitable capacitors for VSB
+               Table 1. Suitable capacitors for V1
+
+    The output ripple voltage on VSB is influenced by the main output V1. Evaluating VSB output ripple must be done when
+    maximum load is applied to V1.
+
+
+
+
+         Figure 7. Turn-On AC Line 230VAC, full load (200ms/div)                 Figure 8. Turn-On AC Line 230VAC, full load (5ms/div)
+           CH1: V1 (2V/div) CH2: VSB (2V/div) CH3: Vin (200V/div)                CH1: V1 (2V/div) CH2: VSB (2V/div) CH3: Vin (200V/div)
+
+
+
+
+                                                                                                              tech.support@psbel.com
+

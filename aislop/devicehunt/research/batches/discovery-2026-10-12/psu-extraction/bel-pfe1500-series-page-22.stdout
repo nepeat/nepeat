@@ -1,0 +1,69 @@
+22                                                                                                               PFE1500 Series
+
+          10.2          EMISSION
+
+
+                                             EN55032 / CISPR 22: 0.15 … 30 MHz, QP and AVG,
+                                                                                                                                              Class A
+                                             single unit
+           Conducted Emission
+                                             EN55032 / CISPR 22: 0.15 … 30 MHz, QP and AVG,
+                                                                                                                                              Class A
+                                             2 units in rack system
+                                             EN55022 / CISPR 22: 30 MHz … 1 GHz, QP,
+                                                                                                                                              Class A
+                                             single unit
+           Radiated Emission
+                                             EN55022 / CISPR 22: 30 MHz … 1 GHz, QP,
+                                                                                                                                              Class A
+                                             2 units in rack system
+           Harmonic Emissions                IEC61000-3-2, Vin = 115 VAC / 60 Hz, & Vin = 230VAC/ 50 Hz, 100% Load                            Class A
+           AC Flicker                        IEC61000-3-3, Vin = 230 VAC / 60 Hz, 100% Load                                                       Pass
+
+
+
+
+        Maximum electric strength testing is performed in the factory according to IEC/EN 62368-1, and UL 62368-1. Input-to-output electric
+        strength tests should not be repeated in the field. Bel Power Solutions will not honor any warranty claims resulting from electric
+        strength field tests.
+
+PARAMETER                                   DESCRIPTION / CONDITION                                            MIN           NOM         MAX             UNIT
+                                                                                                                         Approved by
+                                            Approved to latest edition of the following
+             Agency Approvals                                                                                         independent body
+                                            standards: UL/CSA 62368-1 and EN/IEC 62368-1
+                                                                                                                     (see CE Declaration)
+                                            Input (L/N) to case (PE)                                                        Basic
+             Isolation Strength             Input (L/N) to output                                                        Reinforced
+                                            Output to case (PE)                                                          Functional
+                                            Primary (L/N) to protective earth (PE)                                      According to
+     dC      Creepage / Clearance                                                                                                                        mm
+                                            Primary to secondary                                                       safety standard
+                                            Input to case                                                    2500                                        VDC
+             Electrical Strength Test       Input to output                                                  4000 (Vin ≤ 250 VAC)                        VDC
+                                                                                                             5000 (250 VAC < Vin ≤ 300 VAC)              VDC
+
+
+
+
+PARAMETER                                     DESCRIPTION / CONDITION                                          MIN          NOM          MAX             UNIT
+TA            Ambient Temperature             Vi min to Vi max, I1 nom, ISB nom below 5000 feet Altitude         0                          +45           °C
+                                              Vi min to Vi max, I1 nom, ISB nom below 10,000 feet Altitude       0                          +40           °C
+TAext         Extended Temp. Range            Derating output                                                   +46                         +60           °C
+TS            Storage Temperature             Non-operational                                                   -20                         +70           °C
+              Altitude                        Operational, above Sea Level, refer derating to Ta                 -                       10,000           Feet
+Na            Audible Noise                   Vi nom, 50% Io nom, TA = 25°C                                                   60                          dBA
+
+
+
+
+                                             Width                                                                        54.5
+                 Dimensions                  Height                                                                       40.0                           mm
+                                             Depth                                                                       321.5
+M                Weight                                                                                                   1.13                           kg
+
+
+
+
+                                                                                                                          tech.support@psbel.com
+

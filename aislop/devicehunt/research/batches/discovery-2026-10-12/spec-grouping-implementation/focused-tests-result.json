@@ -1,0 +1,16 @@
+{
+  "module_paths": {
+    "devicehunt": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation/overlay/devicehunt/__init__.py",
+    "devicehunt.specifications": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation/overlay/devicehunt/specifications.py",
+    "devicehunt.__main__": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation/overlay/devicehunt/__main__.py"
+  },
+  "cwd": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation",
+  "pythonpath": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation/overlay",
+  "tests": 48,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "blocked_calls": [],
+  "elapsed_seconds": 30.888197505963035,
+  "all_209_production_files_unchanged": true
+}

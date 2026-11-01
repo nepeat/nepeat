@@ -1,0 +1,248 @@
+{
+  "verdict": "ACCEPT STAGE ONLY; clean rebuild/final integration pending",
+  "checked_utc": "2026-10-13T05:00:23.823833+00:00",
+  "input_hashes": {
+    "research/batches/discovery-2026-10-12/integration-wave4/stage.py": "988a75c526d66018c086713fe761b604c57653d9dc31e05158ab0c401f866cda",
+    "research/batches/discovery-2026-10-12/integration-wave4/stage-report.json": "e9a3f5aa1eef5313b4d32f66c156c2870603e1fe09dbcabba9bc140cf8ce24ab",
+    "research/batches/discovery-2026-10-12/integration-wave4/code-under-test.json": "77da1729417e4e94ad9c5f856228f76e24e4ce284dffbee274d397d3637b8bb1",
+    "data/devices-candidate-wave4-2026-10-12.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/import-manifest-candidate-wave4-2026-10-12.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562"
+  },
+  "all3970pins_verified": true,
+  "manifest_jobs": 150,
+  "new_pins_verified": 29,
+  "complete_bundle_entries": 59,
+  "complete_bundle_pages": 3724,
+  "old_entries_unchanged": 57,
+  "allowed_reference_hash_changes": 57,
+  "counts": {
+    "devices": 5122,
+    "records": 7261,
+    "facts": 74602,
+    "sources": 2115,
+    "documents": 70,
+    "document_pages": 3798
+  },
+  "records": [
+    {
+      "source": "edgecore-as8000-r02-practical-facts-2026-10-12",
+      "printed_key": "Minipack-AS8000",
+      "stored_model": "Minipack-AS8000",
+      "device_id": "7def8cc8592b77d60107",
+      "facts": 14
+    },
+    {
+      "source": "celestica-sc6100-datasheet-practical-facts-2026-10-12",
+      "printed_key": "SC6100",
+      "stored_model": "SC6100",
+      "device_id": "28d8c44c9c82eff65231",
+      "facts": 12
+    },
+    {
+      "source": "spec-jbb2015-20151123-00036",
+      "printed_key": "Inspur NF5280M4",
+      "stored_model": "Inspur NF5280M4",
+      "device_id": "9e6ff32d891fb085be76",
+      "facts": 27
+    },
+    {
+      "source": "spec-jbb2015-20160118-00041",
+      "printed_key": "Inspur NF5280M4",
+      "stored_model": "Inspur NF5280M4",
+      "device_id": "9e6ff32d891fb085be76",
+      "facts": 27
+    },
+    {
+      "source": "spec-jbb2015-20160321-00065",
+      "printed_key": "Inspur NF5180M4",
+      "stored_model": "Inspur NF5180M4",
+      "device_id": "a6d17cb838346ee56f8f",
+      "facts": 27
+    },
+    {
+      "source": "spec-jbb2015-20160321-00066",
+      "printed_key": "Inspur NF5270M4",
+      "stored_model": "Inspur NF5270M4",
+      "device_id": "85a144b68839f17b3901",
+      "facts": 27
+    },
+    {
+      "source": "spec-jbb2015-20160321-00067",
+      "printed_key": "Inspur NF5170M4",
+      "stored_model": "Inspur NF5170M4",
+      "device_id": "0bad71144fd3f941299a",
+      "facts": 27
+    },
+    {
+      "source": "spec-jbb2015-20160516-00095",
+      "printed_key": "Inspur TS860G3",
+      "stored_model": "Inspur TS860G3",
+      "device_id": "bf057d2343118456e21b",
+      "facts": 27
+    },
+    {
+      "source": "spec-cpu2017-20220325-31246",
+      "printed_key": "Inspur NF8480M6 (Intel Xeon Platinum 8376H)",
+      "stored_model": "Inspur NF8480M6",
+      "device_id": "291ef0b1ebfda1c953d7",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220325-31244",
+      "printed_key": "Inspur NF8260M6 (Intel Xeon Platinum 8376H)",
+      "stored_model": "Inspur NF8260M6",
+      "device_id": "d3f48f11da28bc2c2661",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220325-31242",
+      "printed_key": "Inspur NF8260M6 (Intel Xeon Platinum 8360H)",
+      "stored_model": "Inspur NF8260M6",
+      "device_id": "d3f48f11da28bc2c2661",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220311-31155",
+      "printed_key": "Inspur I24M6 (Intel Xeon Gold 6330N)",
+      "stored_model": "Inspur i24M6",
+      "device_id": "710919c49765e744012c",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220301-31137",
+      "printed_key": "Inspur I24LM6 (Intel Xeon Platinum 8360Y)",
+      "stored_model": "Inspur i24LM6",
+      "device_id": "2efcb0bdbfed7895e91c",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220301-31136",
+      "printed_key": "Inspur I24LM6 (Intel Xeon Platinum 8368Q)",
+      "stored_model": "Inspur i24LM6",
+      "device_id": "2efcb0bdbfed7895e91c",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220220-30983",
+      "printed_key": "Inspur NF5488M5 (Intel Xeon Platinum 8260)",
+      "stored_model": "Inspur NF5488M5",
+      "device_id": "eebe272934886ec0b12b",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220220-30979",
+      "printed_key": "Inspur NF8260M5 (Intel Xeon Gold 6246)",
+      "stored_model": "Inspur NF8260M5",
+      "device_id": "09fd28196820640d4c48",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220125-30794",
+      "printed_key": "Inspur NF5280M5 (Intel Xeon Gold 5218R)",
+      "stored_model": "Inspur NF5280M5",
+      "device_id": "896c2531d53210a1ef86",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20220125-30791",
+      "printed_key": "Inspur NF8260M5 (Intel Xeon Gold 6234)",
+      "stored_model": "Inspur NF8260M5",
+      "device_id": "09fd28196820640d4c48",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20211206-30304",
+      "printed_key": "Inspur NF8480M6 (Intel Xeon Platinum 8380HL)",
+      "stored_model": "Inspur NF8480M6",
+      "device_id": "291ef0b1ebfda1c953d7",
+      "facts": 17
+    },
+    {
+      "source": "spec-cpu2017-20211206-30303",
+      "printed_key": "Inspur NF8480M6 (Intel Xeon Gold 6330H)",
+      "stored_model": "Inspur NF8480M6",
+      "device_id": "291ef0b1ebfda1c953d7",
+      "facts": 17
+    }
+  ],
+  "role_counts": {
+    "('Edgecore Networks Corporation', 'documentation_vendor')": 1,
+    "('Celestica Inc.', 'documentation_vendor')": 1,
+    "('Inspur Corporation', 'brand')": 18
+  },
+  "preservation": {
+    "sources": 0,
+    "devices": 0,
+    "records": 0,
+    "affiliations": 0,
+    "identifiers": 0,
+    "facts": 0,
+    "hyperscaler_evidence": 0,
+    "fcc_applications": 0,
+    "fcc_exhibits": 0,
+    "fcc_grantees": 0,
+    "equipment_register": 0,
+    "ntra_equipment": 0,
+    "bsmi_certificates": 0,
+    "bsmi_product_certificates": 0,
+    "bsmi_voluntary_certificates": 0,
+    "bsmi_declarations": 0,
+    "ncc_equipment": 0,
+    "tec_equipment": 0,
+    "ieee_assignments": 0,
+    "pci_entries": 0,
+    "fcc_id_index": 0,
+    "fcc_detail_pages": 0,
+    "fcc_detail_links": 0,
+    "fcc_text_excerpts": 0,
+    "documents": 0,
+    "document_pages": 0,
+    "bahrain_equipment": 0,
+    "anatel_equipment": 0,
+    "rra_equipment": 0,
+    "energystar_servers": 0,
+    "energystar_server_archives": 0,
+    "energystar_datacenter": 0,
+    "ised_equipment": 0,
+    "nigeria_equipment": 0,
+    "ghana_equipment": 0,
+    "public_equipment_rows": 0,
+    "japan_equipment": 0,
+    "fcc_company_rows": 0,
+    "fcc_sitemap_pages": 0,
+    "fcc_sitemap_urls": 0,
+    "inspur_support_entries": 0,
+    "archive_releases": 0,
+    "archive_artifacts": 0,
+    "archive_release_artifacts": 0,
+    "archive_receipts": 0,
+    "archive_release_receipts": 0,
+    "evidence_statements": 0,
+    "evidence_reviews": 0,
+    "evidence_links": 0,
+    "archive_release_statements": 0
+  },
+  "integrity": [
+    "ok"
+  ],
+  "foreign_key_violations": 0,
+  "baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "vendor_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "campaign_gate": "input/projection pass",
+  "frozen_files": 209,
+  "all_pair_hashes_unchanged": {
+    "data/devices-candidate-wave4-2026-10-12.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/import-manifest-candidate-wave4-2026-10-12.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562",
+    "data/devices.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+    "data/import-manifest.json": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec"
+  },
+  "limits": "Read-only actual-stage audit only; no imports, DB/bundle writes, rebuild or suite execution."
+}

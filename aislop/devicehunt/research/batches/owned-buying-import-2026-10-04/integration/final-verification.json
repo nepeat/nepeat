@@ -1,0 +1,416 @@
+{
+  "database_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "previous_sha256": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "rebuild_sha256": "15f4d7aa04ff5fea619c2ea1bbac0f136e2c0122eddd1b9f01c113a58f0aadf3",
+  "schema": 28,
+  "counts": {
+    "devices": 4083,
+    "records": 5298,
+    "sources": 278,
+    "facts": 44690,
+    "documents": 55,
+    "document_pages": 3649
+  },
+  "checks": {
+    "owned": {
+      "total": 10,
+      "hits": 10,
+      "gaps": 0
+    },
+    "owned_evidence": {
+      "document_snapshot_hits": 9,
+      "label_photo_only_hits": 1,
+      "unresolved_identity_gaps": 0
+    },
+    "bytedance": {
+      "total": 2,
+      "hits": 0,
+      "gaps": 2
+    }
+  },
+  "manufacturer_inventory": {
+    "identity_target_pairs": 2142,
+    "unique_identities": 2141,
+    "counts_by_target": [
+      {
+        "target": "Accton",
+        "identities": 425,
+        "source_records": 491,
+        "sources": 12,
+        "role_assertions": 491
+      },
+      {
+        "target": "Edge-Core",
+        "identities": 219,
+        "source_records": 291,
+        "sources": 7,
+        "role_assertions": 291
+      },
+      {
+        "target": "Celestica",
+        "identities": 193,
+        "source_records": 239,
+        "sources": 11,
+        "role_assertions": 241
+      },
+      {
+        "target": "Oracle",
+        "identities": 859,
+        "source_records": 928,
+        "sources": 11,
+        "role_assertions": 928
+      },
+      {
+        "target": "Amazon Data Services",
+        "identities": 176,
+        "source_records": 212,
+        "sources": 11,
+        "role_assertions": 212
+      },
+      {
+        "target": "Inventec",
+        "identities": 44,
+        "source_records": 75,
+        "sources": 3,
+        "role_assertions": 75
+      },
+      {
+        "target": "Hyve",
+        "identities": 11,
+        "source_records": 11,
+        "sources": 3,
+        "role_assertions": 11
+      },
+      {
+        "target": "Foxconn",
+        "identities": 169,
+        "source_records": 170,
+        "sources": 1,
+        "role_assertions": 170
+      },
+      {
+        "target": "Wiwynn",
+        "identities": 2,
+        "source_records": 2,
+        "sources": 1,
+        "role_assertions": 2
+      },
+      {
+        "target": "TD SYNNEX",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Quanta",
+        "identities": 41,
+        "source_records": 58,
+        "sources": 4,
+        "role_assertions": 58
+      },
+      {
+        "target": "ByteDance",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Inspur",
+        "identities": 3,
+        "source_records": 3,
+        "sources": 1,
+        "role_assertions": 3
+      }
+    ]
+  },
+  "manufacturer_factory_unchanged_before_promotion": true,
+  "hyperscaler_records": 22,
+  "manifest_jobs": 116,
+  "hashed_inputs": 2172,
+  "verified_pdfs": [
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_coverletters_4843968_e0467458a9.pdf",
+      "sha256": "040d6304509633a9358bf8eac449c195144640dbdbc6edd58a402293c51937bb"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_externalphotos_4843973_c6f718269f.pdf",
+      "sha256": "7eefb4ea5ab5290edb6af96b22c7a885a84e894b66495c3f24fea687d5210d6c"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_externalphotos_4843974_f42d107bdd.pdf",
+      "sha256": "daf33d656f08417deda6ea97cc91c532a31237fec9aa1f575ed61c068705ffbb"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_idlabellocationinfo_4843977_d45d86db8c.pdf",
+      "sha256": "866511bc53240e36c09ef297a6f3bb8273389fd0425901132d58f74b884b7957"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_internalphotos_4843975_7ae9da4c9e.pdf",
+      "sha256": "3cd0857568f19110e9f52701fafc3c1a6411282991f6fec51270925768410602"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_internalphotos_4843976_5b2f7a5576.pdf",
+      "sha256": "b8b87c4d5f0f38243780c6f736fe532ad0aebbad1cec4e1694242ffd2dd94f53"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_rfexposureinfo_4843967_9c7ae7d462.pdf",
+      "sha256": "917956f195f4207417669c568020a4524ed50ce138f9eda452f4b3bfa1a8aa5a"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_testreport_4843964_7839e8b400.pdf",
+      "sha256": "29a99eea257155148f31b6668f797a55e0244e5336362d5e97bdb8479575aed8"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_testreport_4843966_90fb396dec.pdf",
+      "sha256": "6cf9e600e56fe2956350b0637b84bf1f3f4906913533959a4dd7bf2046176dd8"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_testsetupphotos_4843963_323741fcce.pdf",
+      "sha256": "07e38611fa136adaf81ed3936b0fc2c25e445f3ea9bc98adc9e5114fee5cc0e1"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/fcc-documents/2avpl_te1a001_testsetupphotos_4843965_79b9b9ecd4.pdf",
+      "sha256": "af489c477bf9ebd98977fdc3a8881aa00f848a4f500f7b1c6763a43367e96626"
+    },
+    {
+      "source": "reference-pdf-aws-cubscout",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-cubscout-declaration.pdf",
+      "sha256": "e258c61b4536296561ae26fdbd070726f8b88522a6b3179365a0abea9a2651fe"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-ethernet-eu",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-monitron-ethernet-eu-guide.pdf",
+      "sha256": "a88209624a7147c5c9f2ed33cb57bc255e5c2f03b008090d2514baf97361dfe9"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-ethernet-us",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-monitron-ethernet-guide.pdf",
+      "sha256": "4eb1eceacafece63f4960018df9965ca3e8eb627fe2748b63f207be01dd250dc"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-ex-sensor",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-monitron-ex-sensor-guide.pdf",
+      "sha256": "92f3e9c5e330a801392df706ab4454c8a81d7cdfb6b127fb92935fa356b466dc"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-sensor",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-monitron-sensor-guide.pdf",
+      "sha256": "9b82344bafed90505a8ebd0ba1c490e2f0bd75b7c0e6d34444e7bd1e8dec1294"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-wifi-eu",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-monitron-wifi-eu-guide.pdf",
+      "sha256": "e3bebd6f7414965b5ab98df924d9f9840acef3b29b6f85463620c71d6b602925"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-wifi-us",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-monitron-wifi-guide.pdf",
+      "sha256": "c661317b2e078d0f3462b9b3eb186fb72a1c4d55df945ea2c7b7d7d93a907f5b"
+    },
+    {
+      "source": "reference-pdf-aws-panorama",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-panorama-safety.pdf",
+      "sha256": "d8c04a0bd82a912c925c9e1a66c5404e1529a286115bf62dac6de52830559293"
+    },
+    {
+      "source": "reference-pdf-aws-scout",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-scout-declaration.pdf",
+      "sha256": "6e5407e727678a793a5a471692d755bb8614325d8a5863aec6148827c6e3aa6b"
+    },
+    {
+      "source": "reference-pdf-aws-snow-family-2022",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-snow-eu-2022-safety.pdf",
+      "sha256": "c9145c31a888847d9dfb5f2cedd943c5c29d96c5d62efcd5516fa908fdb2b15f"
+    },
+    {
+      "source": "reference-pdf-aws-snowcone-it",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-snowcone-it-safety.pdf",
+      "sha256": "6485ca4ed7482eaf7d2c7005f769be9bd908294885e9a8d4b2b6a348d47b30ca"
+    },
+    {
+      "source": "reference-pdf-celestica-2025",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/celestica-2025-catalog.pdf",
+      "sha256": "01766330de9b4b344e14dd401e5ae343f10c3e31d41f535ac87de5d3697a2e82"
+    },
+    {
+      "source": "reference-pdf-cisco-ncs-certificates",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/cisco-ncs-cb-certificates.pdf",
+      "sha256": "ff989cee3acd7cdd3a7d048ca11fa23be6d8225f9424c214d6620d276e3d0d50"
+    },
+    {
+      "source": "reference-pdf-icasa-2025",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/icasa-2025.pdf",
+      "sha256": "c9b0585f1a3d7c61c6238bcb91748401db352c69555a8e2d35cb9e2fa0099be0"
+    },
+    {
+      "source": "reference-pdf-ntra-2026-01",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ntra-2026-01.pdf",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a"
+    },
+    {
+      "source": "reference-pdf-aws-thin-client-eu",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-thin-client-eu.pdf",
+      "sha256": "423c1ccac53b7504f72d98324ab6aba8781d427eb31f519f2db7e0f83b9082bb"
+    },
+    {
+      "source": "reference-pdf-aws-thin-client-safety",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/aws-thin-client-safety.pdf",
+      "sha256": "798d2cedfe05102d0c1d2681a133e6f082d32b7e3943dfee11c60bff64a302cd"
+    },
+    {
+      "source": "reference-pdf-ntra-2022-12",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ntra-2022-12.pdf",
+      "sha256": "da373d0fdd2f804f10e14570771896e4fbd4aa6ef582aa740cb06b7cc276dc3c"
+    },
+    {
+      "source": "reference-pdf-oracle-x9-2-ecodesign",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/oracle-x9-2-ecodesign.pdf",
+      "sha256": "535f09d0de89b74fd44618ea1bee9ef86c72a8ba781595ff722602cf1f0a2533"
+    },
+    {
+      "source": "reference-pdf-oracle-x9-2l-ecodesign",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/oracle-x9-2l-ecodesign.pdf",
+      "sha256": "d720fe5eec5a5250ff32736258c996e87b91eda263bc6f53baf1d089885cb80b"
+    },
+    {
+      "source": "reference-pdf-oracle-x10m-ecodesign",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/oracle-x10m-ecodesign.pdf",
+      "sha256": "50e3873d18341dd742e730843c4b6f2ac5756cf2687dd9a1376a57088ad2c31a"
+    },
+    {
+      "source": "reference-pdf-oracle-x11m-ecodesign",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/oracle-x11m-ecodesign.pdf",
+      "sha256": "5839b8a7f1f6d1dcda3660e7674aed13a194c48397172070b982550d0e183f40"
+    },
+    {
+      "source": "reference-pdf-kenya-2026-08",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/kenya-approved-2026-08.pdf",
+      "sha256": "874900238c0cdde2ca3beeac372fd29928b38dfba31f84831678b8d8cf574e19"
+    },
+    {
+      "source": "reference-pdf-celestica-ds4000-guide",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/celestica-ds4000-installation-guide.pdf",
+      "sha256": "f15763a8a33018bbe8fb27e4f6303c891c0b17d0ac1a22462c026ba60c3ccfb2"
+    },
+    {
+      "source": "reference-pdf-meta-minipack2-spec",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/meta-minipack2-spec.pdf",
+      "sha256": "7f71b13da4039fee1f4f24c2dc63f91301a9c83d37f89e4e470fed9109b96842"
+    },
+    {
+      "source": "reference-pdf-odm-wiwynn-sv7100g4",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/odm-wiwynn-sv7100g4-2026-10-04.pdf",
+      "sha256": "6a6f0ef15a7f4552bcf08f589c8b98bcf8801ccb870f4cf1c11582d8c6413ded"
+    },
+    {
+      "source": "reference-pdf-odm-hyve-jade-2026",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/odm-hyve-jade-2026-2026-10-04.pdf",
+      "sha256": "265022432d27e3ca5efadf4306bb2148df1b303df9916c515fcc2aaf64745b9e"
+    },
+    {
+      "source": "reference-pdf-accton-b4010-compliance",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/accton-b4010-compliance-2026-10-04.pdf",
+      "sha256": "1f0a0588426b88d6d691bc42686ea86ecaea6338f01ec975f0024b199359e5ce"
+    },
+    {
+      "source": "reference-pdf-inspur-i24-whitepaper",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inspur-i24-whitepaper-2026-10-04.pdf",
+      "sha256": "75849e77d63a0ee89d600049e2b861d768f47768930ba2ad55eee3b3c3e042ec"
+    },
+    {
+      "source": "reference-pdf-ingrasys-es2000-es2100",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ingrasys-es2000-es2100-bom-removed-2026-10-04.pdf",
+      "sha256": "4973720e3dac6ff31d6a24fcc87b5edbf491e7a7fdfab561ea11fcf0e3c926f1"
+    },
+    {
+      "source": "reference-pdf-quanta-affiliates-2025",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/quanta-affiliates-2025-2026-10-04.pdf",
+      "sha256": "903230cfc536a79701083360fa116698a9ce2096efee45c7ce6d20184e746ea6"
+    },
+    {
+      "source": "reference-pdf-qct-wssd",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/qct-wssd-2026-10-04.pdf",
+      "sha256": "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+    },
+    {
+      "source": "reference-pdf-qct-qxvdi-2020",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/qct-qxvdi-2020-2026-10-04.pdf",
+      "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+    },
+    {
+      "source": "reference-pdf-inspur-nf5280m5-whitepaper",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inspur-nf5280m5-whitepaper-2026-10-04.pdf",
+      "sha256": "b5924c6b10133ba06fa1e02eb12813f0737c1b6fb1807ec7dd246d35908f5bf5"
+    },
+    {
+      "source": "reference-pdf-inventec-e850g4-brief",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inventec-e850g4-brief-2026-10-04.pdf",
+      "sha256": "57f37f88885c8c465f67ee044e5847a209765ea9417a2a9fff2b2c441b917fe6"
+    },
+    {
+      "source": "reference-pdf-inspur-incloud-rail-compatibility",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inspur-incloud-rail-compatibility-2026-10-04.pdf",
+      "sha256": "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+    },
+    {
+      "source": "reference-pdf-inspur-products-2018",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inspur-products-2018-2026-10-04.pdf",
+      "sha256": "ed6030f0b1d2381e1cfdbe7aa906cbb515ad11eec45119ca554618e798d69e35"
+    },
+    {
+      "source": "reference-pdf-inventec-artemis-ii-rack",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inventec-artemis-ii-rack-2026-10-04.pdf",
+      "sha256": "49c13762f3c508a5cef5748a4da5b3359ba14b1838a5e05a30eb988d5dece115"
+    },
+    {
+      "source": "reference-pdf-inventec-x680m",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inventec-x680m-2026-10-04.pdf",
+      "sha256": "26be2d61d7322935652f95caa2313ec950245d2f5a537d21cc42827174fcc662"
+    },
+    {
+      "source": "reference-pdf-wiwynn-sv7100g2",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/wiwynn-sv7100g2-2026-10-04.pdf",
+      "sha256": "079a515d8a1d6b86021912f2d9eabe4427bde46a680bb50962438b8c3377899e"
+    },
+    {
+      "source": "reference-pdf-wiwynn-sv7220g3",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/wiwynn-sv7220g3-2026-10-04.pdf",
+      "sha256": "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783"
+    },
+    {
+      "source": "reference-pdf-wiwynn-st7000g2",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/wiwynn-st7000g2-2026-10-04.pdf",
+      "sha256": "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1"
+    },
+    {
+      "source": "reference-pdf-hyve-hercules-2026",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/hyve-hercules-2026-2026-10-04.pdf",
+      "sha256": "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03"
+    },
+    {
+      "source": "reference-pdf-hyve-jbof-2026",
+      "path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/hyve-jbof-2026-2026-10-04.pdf",
+      "sha256": "77b9c9b5bfc75dbf90749bbf9dccbb8a910356676fea938077efb35297eade02"
+    }
+  ],
+  "lookup_reports_refreshed": 98,
+  "buying_reports": 10,
+  "logical_tables": 43,
+  "tests": {
+    "research/batches/owned-buying-import-2026-10-04/engineering/affected-tests.log": "b771ea90400f8ed1127ef134f5e3da5043f22dac07dc20c2264a04553391f609",
+    "research/batches/owned-buying-import-2026-10-04/engineering/full-tests.log": "3f9ec64c18703f54bbb452af4213d9e0b3594b07ec7f20c25c4cd302468c05c1"
+  }
+}

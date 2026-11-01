@@ -1,0 +1,39 @@
+{
+  "outcome": "pass",
+  "selected_resources": 9,
+  "new_unique_pdfs": 9,
+  "pdf_bytes": 34104605,
+  "complete_sidecars": 9,
+  "pages": 40,
+  "pages_with_text": 40,
+  "actual_http_exchanges": 28,
+  "conservative_attempts": 28,
+  "http_status_counts": {
+    "200": 19,
+    "302": 9
+  },
+  "fresh_policy_requests": 1,
+  "fresh_landings": 9,
+  "fresh_published_downloads": 9,
+  "explicit_same_origin_redirects": 9,
+  "stale_graph_tokens_used": 0,
+  "known_route_overlaps": 0,
+  "prior_local_pdfs_audited": 165,
+  "duplicate_prior_or_batch_pdf_hashes": 0,
+  "receipt_body_hashes_verified": 28,
+  "all_reference_candidate_entries_prepare": "pass in temporary sibling-file bundle; no import",
+  "fixture_tests": 4,
+  "successful_extraction_warning_rows": [],
+  "previous_discovery_artifact_hashes_unchanged": 39,
+  "catalog_sha256_unchanged": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "manifest_sha256_unchanged": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b",
+  "catalog_counts_unchanged": {
+    "devices": 5157,
+    "records": 7302,
+    "sources": 2121,
+    "facts": 74837,
+    "documents": 72
+  },
+  "visual_page_review": false,
+  "manual_device_facts": 0
+}

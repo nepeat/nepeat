@@ -1,0 +1,155 @@
+{
+  "decision": "user 2026-10-11: \"Delete reducible (Recommended)\" \u2014 remove the ~8.8 GB listed in PROGRESS; keep the live pair, the newest before-backup pair and the latest verified rebuild",
+  "kept": [
+    "data/devices.sqlite",
+    "data/import-manifest.json",
+    "data/devices-before-discovery-2026-10-11-f.sqlite",
+    "data/import-manifest-before-discovery-2026-10-11-f.json",
+    "data/rebuilt-discovery-2026-10-11-f.sqlite",
+    "all import-manifest-*.json files (recovery recipes)"
+  ],
+  "recorded_at": "2026-10-11T17:00:13.760228+00:00",
+  "files": [
+    {
+      "path": "data/devices-candidate-discovery-2026-10-11.sqlite",
+      "bytes": 381550592,
+      "sha256": "1cfd84cac2f3d23d3d59b4277665a0179932641cd8f06b1d6f4108fd0380ba0c",
+      "reason": "discovery candidate a: byte copy of the catalog promoted at that round; reproducible by rebuild from import-manifest-candidate-discovery-2026-10-11.json (kept), proven equal by compare.log"
+    },
+    {
+      "path": "data/devices-candidate-discovery-2026-10-11-b.sqlite",
+      "bytes": 391053312,
+      "sha256": "ab8ed2e386d802e7434576932c4586492b0f901cf7b42771747940c74bbb1a78",
+      "reason": "discovery candidate -b: byte copy of the catalog promoted at that round; reproducible by rebuild from import-manifest-candidate-discovery-2026-10-11-b.json (kept), proven equal by compare-b.log"
+    },
+    {
+      "path": "data/devices-candidate-discovery-2026-10-11-c.sqlite",
+      "bytes": 391053312,
+      "sha256": "baa016d295cd10dd0214b3069d0a5f1c1e730eacdb5e3e28feb3738fdf6b2184",
+      "reason": "discovery candidate -c: byte copy of the catalog promoted at that round; reproducible by rebuild from import-manifest-candidate-discovery-2026-10-11-c.json (kept), proven equal by compare-c.log"
+    },
+    {
+      "path": "data/devices-candidate-discovery-2026-10-11-d.sqlite",
+      "bytes": 393850880,
+      "sha256": "09891954c24498ba1faba91297d7ca43eb301fc187101f0785f35acfdacc79a4",
+      "reason": "discovery candidate -d: byte copy of the catalog promoted at that round; reproducible by rebuild from import-manifest-candidate-discovery-2026-10-11-d.json (kept), proven equal by compare-d.log"
+    },
+    {
+      "path": "data/devices-candidate-discovery-2026-10-11-e.sqlite",
+      "bytes": 394113024,
+      "sha256": "d78b0b7ea0edfe53e352de7781a4764d41b942d717960c06e517504c1f749438",
+      "reason": "discovery candidate -e: byte copy of the catalog promoted at that round; reproducible by rebuild from import-manifest-candidate-discovery-2026-10-11-e.json (kept), proven equal by compare-e.log",
+      "byte_identical_to_kept": "data/devices-before-discovery-2026-10-11-f.sqlite"
+    },
+    {
+      "path": "data/devices-candidate-discovery-2026-10-11-f.sqlite",
+      "bytes": 396283904,
+      "sha256": "e7cc01a1e39f9140d8e8209699c65707ae62b62d45f504aa06f57126015e75da",
+      "reason": "discovery candidate -f: byte copy of the catalog promoted at that round; reproducible by rebuild from import-manifest-candidate-discovery-2026-10-11-f.json (kept), proven equal by compare-f.log",
+      "byte_identical_to_kept": "data/devices.sqlite"
+    },
+    {
+      "path": "data/rebuilt-discovery-2026-10-11.sqlite",
+      "bytes": 381259776,
+      "sha256": "3f69c7b0f7556ddb2ca9cd673234d8cb0c0d2ebfb6a27185045878ce5357d902",
+      "reason": "proof rebuild a (reproducible; compare log kept)"
+    },
+    {
+      "path": "data/devices-before-discovery-2026-10-11.sqlite",
+      "bytes": 376782848,
+      "sha256": "0646f4f575e37f9c937ed6aa46e29d15ff4fba2c4331e5142cee08ac3e47c8f0",
+      "reason": "before-promotion backup a; reproducible by rebuild from import-manifest-before-discovery-2026-10-11.json (kept)"
+    },
+    {
+      "path": "data/rebuilt-discovery-2026-10-11-b.sqlite",
+      "bytes": 389947392,
+      "sha256": "2d38799e11dd14c95abeaef9e33a6de5b191683a846f647d88fa98c9f72f788d",
+      "reason": "proof rebuild -b (reproducible; compare log kept)"
+    },
+    {
+      "path": "data/devices-before-discovery-2026-10-11-b.sqlite",
+      "bytes": 381550592,
+      "sha256": "1cfd84cac2f3d23d3d59b4277665a0179932641cd8f06b1d6f4108fd0380ba0c",
+      "reason": "before-promotion backup -b; reproducible by rebuild from import-manifest-before-discovery-2026-10-11-b.json (kept)"
+    },
+    {
+      "path": "data/rebuilt-discovery-2026-10-11-c.sqlite",
+      "bytes": 392003584,
+      "sha256": "12874da196f9e5d7b14ec2a7bd628fd207eb91a5d8d660f0189f48fa6ac8da4b",
+      "reason": "proof rebuild -c (reproducible; compare log kept)"
+    },
+    {
+      "path": "data/devices-before-discovery-2026-10-11-c.sqlite",
+      "bytes": 391053312,
+      "sha256": "ab8ed2e386d802e7434576932c4586492b0f901cf7b42771747940c74bbb1a78",
+      "reason": "before-promotion backup -c; reproducible by rebuild from import-manifest-before-discovery-2026-10-11-c.json (kept)"
+    },
+    {
+      "path": "data/rebuilt-discovery-2026-10-11-d.sqlite",
+      "bytes": 392003584,
+      "sha256": "1c34831fd08af69e584d8e94599c613f811f0f3564fab12016523b569deb2d02",
+      "reason": "proof rebuild -d (reproducible; compare log kept)"
+    },
+    {
+      "path": "data/devices-before-discovery-2026-10-11-d.sqlite",
+      "bytes": 391053312,
+      "sha256": "baa016d295cd10dd0214b3069d0a5f1c1e730eacdb5e3e28feb3738fdf6b2184",
+      "reason": "before-promotion backup -d; reproducible by rebuild from import-manifest-before-discovery-2026-10-11-d.json (kept)"
+    },
+    {
+      "path": "data/rebuilt-discovery-2026-10-11-e.sqlite",
+      "bytes": 395628544,
+      "sha256": "16c1862163e24b5c56dd5f3c46223e7291516e5b4dfe270cb42fca1ab05a5e1c",
+      "reason": "proof rebuild -e (reproducible; compare log kept)"
+    },
+    {
+      "path": "data/devices-before-discovery-2026-10-11-e.sqlite",
+      "bytes": 393850880,
+      "sha256": "09891954c24498ba1faba91297d7ca43eb301fc187101f0785f35acfdacc79a4",
+      "reason": "before-promotion backup -e; reproducible by rebuild from import-manifest-before-discovery-2026-10-11-e.json (kept)"
+    },
+    {
+      "path": "data/candidate-hunt-2026-10-10.sqlite",
+      "bytes": 375197696,
+      "sha256": "06ffbf9b0c07fd3b6faeb16a02b3e1a02e6f8269e051b619af85382743c39f37",
+      "reason": "hunt candidate a (replaced by b)"
+    },
+    {
+      "path": "data/candidate-hunt-2026-10-10-b.sqlite",
+      "bytes": 376782848,
+      "sha256": "0646f4f575e37f9c937ed6aa46e29d15ff4fba2c4331e5142cee08ac3e47c8f0",
+      "reason": "hunt candidate b (byte copy of the 2026-10-10 promoted catalog)"
+    },
+    {
+      "path": "data/rebuilt-hunt-2026-10-10.sqlite",
+      "bytes": 369442816,
+      "sha256": "b3674da38e638ac22bb49a552bebc36fd9f90eb971363035ffaf06321bd19215",
+      "reason": "hunt proof rebuild a"
+    },
+    {
+      "path": "data/rebuilt-hunt-2026-10-10-b.sqlite",
+      "bytes": 371249152,
+      "sha256": "18bb3d9dfb5bbc4dbc5df3937c06fa06f79aa89d3c7f1ddf1f69e3e7affbe3b2",
+      "reason": "hunt proof rebuild b"
+    },
+    {
+      "path": "data/rebuilt-c3b-gate-2026-10-10.sqlite",
+      "bytes": 367312896,
+      "sha256": "31f34d9eb008702024f5f6f0d43012002ff06b14479f8444a89e0e3b575d1807",
+      "reason": "c3b gate proof rebuild"
+    },
+    {
+      "path": "data/rebuilt-after-rename-2026-10-10.sqlite",
+      "bytes": 367308800,
+      "sha256": "82945ef4bae882f26842a59b1be66c71f2c9f2a88a8be0f33c2a74c0146b0026",
+      "reason": "post-rename proof rebuild"
+    },
+    {
+      "path": "data/rebuilt-with-smartnic-qct-2026-10-05.sqlite",
+      "bytes": 367312896,
+      "sha256": "ffd70b67e14964c1e0fb6b2cf12670587ce10e5823734f90326514c49d327420",
+      "reason": "smartnic/qct proof rebuild (old cache paths)"
+    }
+  ],
+  "total_bytes": 8827645952
+}

@@ -1,0 +1,104 @@
+--- before/devicehunt/buying.py
++++ after/devicehunt/buying.py
+@@ -21,6 +21,16 @@
+ CATEGORY_FIELDS['firmware_boot_software'].add('compatibility_bios_certification_rows')
+ CATEGORY_FIELDS['power'].add('label_observed_input_voltage_range')
+ CATEGORY_FIELDS['compute_network_storage'].update({'energystar_maximum_memory_capacity_(gb)', 'energystar_product_processor_socket_count'})
++# Oracle's named SM variants stay separately labeled; processor wattage is a
++# processor description, never a PSU/input/consumption statement.
++for variant in ('sm_1u', 'sm_2u'):
++    CATEGORY_FIELDS['chassis_physical'].add(variant + '_chassis_description')
++    CATEGORY_FIELDS['compute_network_storage'].update(variant + '_' + field for field in
++                                                     ('memory_description', 'pcie_description', 'drive_bays_description', 'processor_power_raw'))
++# Published device-tree declarations retain their community source and full
++# record context; these field names do not assert installed firmware or safety.
++CATEGORY_FIELDS['firmware_boot_software'].update({'artifact_model_declaration', 'artifact_compatible_declaration',
++                                                 'artifact_serial0_alias', 'artifact_partition_labels'})
+ LIMITS = [
+     'Statements describe their own source record, not the configuration or condition of an auction unit.',
+     'Seller statements remain seller claims; photographed firmware is an observation of that unit.',
+--- before/tests/test_buying.py
++++ after/tests/test_buying.py
+@@ -95,6 +95,82 @@
+         self.assertEqual(report['categories']['licensing']['status'], 'not_collected')
+         self.assertNotIn('compatibility_bios_certification_rows', [s['fact_name'] for s in report['unclassified_facts']])
+ 
++    def test_oracle_variants_preserve_labels_and_processor_wattage_scope(self):
++        facts = [('configuration_limit', 'variant descriptions; installed configuration unknown'),
++                 ('processor_power_limit', 'processor maxima, not PSU/input/wall draw'),
++                 ('sm_1u_product_description_literal', '1U: memory, PCIe and processor 150W'),
++                 ('sm_2u_product_description_literal', '2U: memory, bays and processor 205W')]
++        for variant, slots, watts in [('sm_1u', 'one PCIe slot', '150W Max'),
++                                      ('sm_2u', 'five PCIe slots', '205W Max / 165W Max for GPU')]:
++            facts.extend([(variant + '_chassis_description', variant),
++                          (variant + '_memory_description', '24 DDR4 DIMM slots'),
++                          (variant + '_pcie_description', slots),
++                          (variant + '_drive_bays_description', variant + ' drive bays'),
++                          (variant + '_processor_power_raw', watts)])
++        self.add('oracle', model='Oracle Server X7-2c', vendor='Oracle', facts=facts)
++        self.add('other', model='Oracle Server X7-2', vendor='Oracle', facts=[('power', 'other PSU')])
++        report = self.report('Oracle Server X7-2c')
++        self.assertEqual(report['categories']['power']['status'], 'not_collected')
++        chassis = report['categories']['chassis_physical']['statements']
++        self.assertEqual({s['fact_name'] for s in chassis},
++                         {'sm_1u_chassis_description', 'sm_2u_chassis_description'})
++        compute = report['categories']['compute_network_storage']['statements']
++        self.assertEqual(len(compute), 8)
++        self.assertEqual({s['statement'] for s in compute if s['fact_name'].endswith('processor_power_raw')},
++                         {'150W Max', '205W Max / 165W Max for GPU'})
++        self.assertEqual(len({s['context_record_id'] for s in chassis + compute}), 1)
++        unclassified = {s['fact_name'] for s in report['unclassified_facts']}
++        self.assertTrue({'sm_1u_product_description_literal', 'sm_2u_product_description_literal',
++                         'processor_power_limit', 'configuration_limit'} <= unclassified)
++        table = buying.render_table(report)
++        self.assertIn('installed configuration unknown', table)
++        self.assertIn('sm_2u_processor_power_raw: 205W Max / 165W Max for GPU', table)
++        self.assertNotIn('other PSU', table)
++
++    def test_oracle_variant_fields_do_not_cross_record_identifier_scope(self):
++        self.add('one', model='Oracle Server X7-2c', vendor='Oracle',
++                 ids=[('part_number', 'SM-1U-ONLY')],
++                 facts=[('sm_1u_pcie_description', 'one PCIe slot'), ('source_scope', '1U record')])
++        self.add('two', model='Oracle Server X7-2c', vendor='Oracle',
++                 ids=[('part_number', 'SM-2U-ONLY')],
++                 facts=[('sm_2u_pcie_description', 'five PCIe slots'), ('source_scope', '2U record')])
++        report = self.report('SM-1U-ONLY')
++        self.assertEqual([s['fact_name'] for s in report['categories']['compute_network_storage']['statements']],
++                         ['sm_1u_pcie_description'])
++        self.assertEqual(len(report['matched_records']), 1)
++        self.assertNotIn('2U record', buying.render_table(report))
++
++    def test_community_artifact_declarations_keep_record_tier_and_no_related_alias(self):
++        declarations = [('artifact_model_declaration', 'accton,as7772_32x'),
++                        ('artifact_compatible_declaration', 'accton,as7772_32x'),
++                        ('artifact_serial0_alias', '/soc@ffe000000/serial@11c500'),
++                        ('artifact_partition_labels', 'RCW; onie; uboot')]
++        limit = 'no installed firmware, safe flashing, vendor endorsement or owned-unit inference'
++        self.add('artifact', model='AS7772-32X', vendor='', tier='community',
++                 facts=declarations + [('source_scope', 'published DTB-source declarations only'),
++                                       ('source_location', 'gistfile1.txt lines 7-8, 75'),
++                                       ('configuration_limit', limit)])
++        self.add('vendor', model='AS7772-32X', vendor='Accton', tier='vendor',
++                 ids=[('regulatory_model', 'RELATED-REG')], facts=[('power', 'vendor PSU claim')])
++        report = self.report('AS7772-32X')
++        firmware = report['categories']['firmware_boot_software']['statements']
++        self.assertEqual({s['fact_name']: s['statement'] for s in firmware}, dict(declarations))
++        for statement in firmware:
++            self.assertEqual(statement['tier'], 'community')
++            self.assertEqual(statement['company_roles'], [])
++            self.assertEqual(statement['source_id'], 'artifact')
++            self.assertEqual(statement['claim_status'], 'source_statement')
++            self.assertEqual(statement['source_url'], 'https://example.org/artifact')
++            self.assertEqual(len(statement['sha256']), 64)
++        artifact = next(r for r in report['matched_records'] if r['source_id'] == 'artifact')
++        self.assertEqual({s['context_record_id'] for s in firmware}, {artifact['record_id']})
++        self.assertIn({'name': 'configuration_limit', 'value': limit}, artifact['context_facts'])
++        self.assertIn(limit, buying.render_table(report))
++        self.assertIn('gistfile1.txt lines 7-8, 75', buying.render_table(report))
++        self.assertEqual(self.report('AS7772-32X', 'Accton')['categories']['firmware_boot_software']['status'], 'not_collected')
++        for query in ('accton,as7772_32x', 'RELATED-REG', '/soc@ffe000000/serial@11c500'):
++            self.assertEqual(self.report(query)['match_status'], 'no_exact_records')
++
+     def test_matched_identity_with_no_practical_facts_still_reports_gaps(self):
+         self.add('index', facts=[('source_scope', 'identity only')])
+         r = self.report('MODEL-V')

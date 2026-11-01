@@ -1,0 +1,22 @@
+{
+  "phase": "promotion_and_exports",
+  "candidate_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "old_live_sha256": "5b1317f554968fae6c20a4dc0cd2d4d8524ee1c5e60a662675e36a763203a904",
+  "manifest_sha256": "67f8359024342fb2204bdcfdb6cf5d6fd404c0ce27f2422d30f094cf80f962fb",
+  "rebuilt_sha256": "1a291d34a5947f0dc5ac1f61f77d92ff1cc1b2463e0afc5fc1865249fa01c1f0",
+  "merged_input_sha256": "fd2ece9f8f3105e8f1e6adfcd7202ad5a6c38df9741616c543dad1a038005998",
+  "accepted_proof_hashes": {
+    "acceptance.json": "cbd9e97cce6aa5f48e234580e4da21c356ad8fc0ba208e1d88eee584cb9782ad",
+    "candidate-review.md": "ea156f3dbac1e49e6f87089a5159c4af7340a9ce547748fb1b776bbc96b9ee1c",
+    "review.md": "00e869d49f4cc0a3354941bf25baed3ad9fde1ed7e38b319f4b09b99bbaa38e5",
+    "code-review.md": "f50b8cc32baf8d90167330dc0083dabf51fd95b03fa3d204ff9e2169092dfc27",
+    "integration/review-ready.json": "558054301cbb67ea5253b92c76f8a428d069255c64fb2baa05d689c267939213",
+    "integration/stage-verification.json": "9f61ea0be7491d52fb9f361603e3e013f72525576a8ec85f82af8487b99add88",
+    "integration/candidate-audit.json": "e08c69b54f7b4fdb32f372b9045e80e8c4dafc02131a9c01290f06a847c8ee1f",
+    "integration/candidate-practical-proof.json": "252e22a1b149c6e26fc71efbb6b5c87638a99096267fcde42dfba1a4fbfaa110",
+    "engineering/full-tests.log": "33bc5f74ec982f94596caa907e9ade43d96eb64b93406ea56b3f1baad5d044fa",
+    "engineering/focused-tests.log": "674dd7d77f918239ef12051ed1f46fce1ffd1b3e93fb04448c26f5e2ffb1e68c"
+  },
+  "integrator": "/root/networking_primary_integrator",
+  "required": "Promote exact reviewed candidate; retain backups; refresh current exports and new full-query Oracle/AS7772 buying snapshot. Root updates current docs and independent QA reviews final exports/docs before milestone closure."
+}

@@ -1,0 +1,5 @@
+{
+  "source": "PROGRESS.md",
+  "sha256": "46df1454007f1f2a0fdc915bdc8cdf872462a84d9db8fe0392d8ed58c67dc1c1",
+  "reason": "Accepted QCT vendor-discovery handoff before networking-primary milestone"
+}

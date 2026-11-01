@@ -1,0 +1,10 @@
+{
+  "old_path": "data/raw/oracle-x7-2c-vpat.html",
+  "old_sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+  "new_path": "data/raw/networking-primary-oracle-2026-10-04/oracle-x7-2c-vpat-t2-6972.html",
+  "new_sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+  "byte_equal": true,
+  "normalized_visible_text_equal": true,
+  "old_bytes": 36063,
+  "new_bytes": 36063
+}

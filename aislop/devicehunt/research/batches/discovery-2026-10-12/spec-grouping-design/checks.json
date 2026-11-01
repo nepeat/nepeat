@@ -1,0 +1,50 @@
+{
+  "at_utc": "2026-10-13T05:03:42.194911+00:00",
+  "status": "DESIGN COMPLETE; no production implementation authorized by this report",
+  "recorded_baseline_cases": 8,
+  "distinct_cases_including_exploratory_selection_check": 9,
+  "scope_deviation": {
+    "case": "NF5280M5 --exact-model --include-source-facts",
+    "kind": "exploratory count/brand check only",
+    "rows": 4,
+    "brands": [
+      "Inspur"
+    ],
+    "requested_distinct_case_cap": 8,
+    "extra_distinct_case_count": 1
+  },
+  "database_sha256": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "database_unchanged": true,
+  "production_files_unchanged": true,
+  "code_hashes": {
+    "devicehunt/specifications.py": "2d6de287745b8d6d3a60483fbdc53baf900215170aa8fabdb3875c6994104391",
+    "devicehunt/__main__.py": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83",
+    "devicehunt/catalog.py": "1e162a142420e16806850baec3b024199d62db8e61bd3cef6d0aee849871e6e6",
+    "tests/test_specifications.py": "b597364dd9403fa2575be88aca7c68fac915ff4554e55f57c2e394e713e4fc27",
+    "tests/test_specifications_source_facts.py": "2720ff2d7dee7bbdcfe2a875fb4f183807c1a58f0c5fac5f9354d745c0b26a5f",
+    "docs/specification-search.md": "6075a1b3b405477402b878279d9cb0c61a7b8449bbcd050d13972e84586a45b7"
+  },
+  "artifacts": {
+    "ais800-accton-baseline-cli.json": "1d8ddd502a637a55d0ce39e0dd10d8bf13457073bfe23324d0c3e19b750d7bb7",
+    "ais800-accton-probe.json": "7e7bb4bb3c763d1b53e5793eb8e501a885c825679fd6aec847ec4ab899b4f90f",
+    "as6700-baseline-cli.json": "804c6526133c8496c3c5c001c4f3f8021283f81b5fc93a8eca1f02451ff73e09",
+    "as6700-probe.json": "a3cc27dea7b5705de90ef66e791db78e1df1b41f91592951408830b688c52ff3",
+    "as7326-baseline-cli.json": "1b03c4a3acb898a42a8a5c3ef2779b03d64d82ef8ca3c8956fd465c76c7037c2",
+    "as7326-probe.json": "69476f695acc0f6db6f4b2285235c2a40a94a380e05715fd315c356cc14d3326",
+    "design.md": "d65c72c95f8655faf7e40b6cff3bf3fcff5bcdfdc41843d99a1dfe661c242097",
+    "ds4000-part-number-baseline-cli.json": "f747889f0da23b0f81c9644e0786b04f600c3e333061d36772a49408ad091943",
+    "ds4000-part-number-probe.json": "14a98eaa5e46a62ff90752eaa3f8129f3baa05451638af94c3eb0a252e42bf97",
+    "global-presentation-duplicate-scope-baseline-cli.json": "52644966c94eecf5fcb1064ffb1301f733de7a8e244de199ad91efabdfd477e3",
+    "global-presentation-duplicate-scope-probe.json": "3122245dd0aeea3256b46ddc96844e2ab62993e0d56ca770d580a751f0f28826",
+    "handoff.md": "640c421a9e73e588a4b9fbe83316cf7d921137fb435dffebb86efe9585eed230",
+    "nf5280-discovery-baseline-cli.json": "51e064fc53eec4668bfb12e2926d577d622a3b6264aa4411bba12b6a2dcd7851",
+    "nf5280-discovery-probe.json": "6aa353b418db203b01e47a6e89ca5ec4e2badf85ecd07dad39f6cab20452c916",
+    "nf5280m7-baseline-cli.json": "1ee674d912cbe7c33d91174145741df7724aed8ebd7aee2234e4dff05c3a35f7",
+    "nf5280m7-probe.json": "1999f31312a06194c1c38052d15720e7ad5d55e5d3e4006286539101709e54ac",
+    "oracle7420-baseline-cli.json": "6d2db690895cdff8c849e2f748864153163a2d4f708bed854c4337264e92df56",
+    "oracle7420-probe.json": "afe1ee6282a3cd89096eb99abb88892be78c3ff7881087ab9586c5e91c2af1b9",
+    "probe-results.json": "c22cab2cfb2901e98a7fd1cee1e44868a5735c5eb91775c135b3daaaca478ee0",
+    "probe.log": "e570800d08c24681dbf0d322b24c12375271b0ab4ee16932406e957c1e841396",
+    "probe.py": "c9a3ca2ed0c8afc32f23d815549f3a63349e45d2a33c927f8b0d53f0b2aa0ac4"
+  }
+}

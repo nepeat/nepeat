@@ -1,0 +1,39 @@
+PFE1500 Series                                                                                                                       5
+
+
+
+ 4.3 INPUT UNDER-VOLTAGE
+    If the sinusoidal input voltage stays below the input under voltage lockout threshold Vi on, the supply will be inhibited. Once the
+    input voltage returns within the normal operating range, the supply will return to normal operation again.
+
+
+ 4.4 POWER FACTOR CORRECTION
+    Power factor correction (PFC) is achieved by controlling the input current waveform synchronously with the input voltage. An
+    analog controller is implemented giving outstanding PFC results over a wide input voltage and load ranges. The input current
+    will follow the shape of the input voltage.
+
+
+ 4.5 EFFICIENCY
+    High efficiency (see Figure 2) is achieved by using state-of-the-art silicon power devices in conjunction with soft-transition
+    topologies minimizing switching losses and a full digital control scheme. Synchronous rectifiers on the output reduce the losses
+    in the high current output path. The speed of the fan is digitally controlled to keep all components at an optimal operating
+    temperature regardless of the ambient temperature and load conditions.
+
+
+
+
+   Figure 2. Efficiency vs. Load current (ratio metric loading)                   Figure 3. Power factor vs. Load current
+
+
+
+
+                        Figure 4. Inrush current, Vin = 264 VAC, 90°, CH1: Vin (200V/div), CH2: Iin (10A/div)
+
+
+
+
+                                                                        Asia-Pacific      Europe, Middle East         North America
+                                                                  +86 755 298 85888           +353 61 49 8941        +1 866 513 2839
+
+                                                                                            © 2024 Bel Fuse Inc.         BCD.00733_J
+

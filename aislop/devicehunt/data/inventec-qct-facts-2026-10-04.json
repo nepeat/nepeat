@@ -1,0 +1,1094 @@
+{
+  "sources": [
+    {
+      "id": "inventec-horsea-page",
+      "url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "tier": "vendor",
+      "license": "Public vendor product/corporate facts; original document rights retained",
+      "snapshot": "raw/inventec-qct-2026-10-04/inventec-horsea.html",
+      "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim."
+    },
+    {
+      "id": "inventec-seadra-page",
+      "url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Seadra",
+      "tier": "vendor",
+      "license": "Public vendor product/corporate facts; original document rights retained",
+      "snapshot": "raw/inventec-qct-2026-10-04/inventec-seadra.html",
+      "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim."
+    },
+    {
+      "id": "qct-wssd-models",
+      "url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+      "tier": "vendor",
+      "license": "Public vendor product/corporate facts; original document rights retained",
+      "snapshot": "raw/inventec-qct-2026-10-04/qct-wssd.pdf",
+      "coverage": "Nine exact model names from original QCT-hosted WSSD datasheet, table headers on pages 2-3. QuantaGrid/QuantaPlex prefixes retained in the model field, QCT is the source brand. Footer copyright 2018, PDF metadata 2018-11-21, URL path 2020/11 and filename 2019 are recorded without choosing a product release date. Selected CPU/form-factor facts from visually reviewed columns describe WSSD configurations, not maximum platform capabilities or auction-unit contents. No manufacturer or Microsoft deployment inferred."
+    },
+    {
+      "id": "qct-quanta-portfolio-2020",
+      "url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+      "tier": "vendor",
+      "license": "Public vendor product/corporate facts; original document rights retained",
+      "snapshot": "raw/inventec-qct-2026-10-04/qct-qxvdi-2020.pdf",
+      "coverage": "Page 40 of the original QCT QxVDI reference architecture explicitly expands QCT as Quanta Cloud Technology and names Quanta Computer Inc. as parent; footer copyright 2020-2021. Nine separately evidenced WSSD product models are joined as historical subsidiary portfolio associations only. This is an explicit cross-source inference, not a manufacturing assertion, current ownership guarantee, QCT global legal-name alias or named hyperscaler deployment. Both source URLs/hashes retained per record."
+    }
+  ],
+  "devices": [
+    {
+      "source": "inventec-horsea-page",
+      "key": "Horsea",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "title": "Inventec Horsea",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_language",
+          "Chinese; selected facts translated to English"
+        ],
+        [
+          "processor",
+          "Two AMD EPYC 7003/7002 sockets; up to 280 W TDP per CPU"
+        ],
+        [
+          "physical_description",
+          "2U2P; W x H x D: 447.6 x 87 x 780 mm"
+        ],
+        [
+          "power_description",
+          "1+1 redundant Platinum PSUs; alternatives 800/1300/1600/2000 W; printed input 100-220 VAC."
+        ],
+        [
+          "power_statement_as_printed",
+          "1+1 冗余，800W/1300W/1600W/2000W (100-220VAC)白金"
+        ],
+        [
+          "cooling_description",
+          "Six 6056 hot-swappable fans; N+1 redundancy."
+        ],
+        [
+          "management",
+          "IPMI 2.0 + KVM with dedicated LAN"
+        ],
+        [
+          "memory",
+          "32 DDR4 DIMM slots; two DIMMs per channel"
+        ],
+        [
+          "configuration_limit",
+          "PSU capacities and chassis configurations are alternatives, not all installed together. No exact SKU A/B/C ordering-code mapping supplied."
+        ]
+      ]
+    },
+    {
+      "source": "inventec-seadra-page",
+      "key": "Seadra",
+      "brand": "Inventec",
+      "model": "Seadra",
+      "title": "Inventec Seadra",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_language",
+          "Chinese; selected facts translated to English"
+        ],
+        [
+          "processor",
+          "Two third-generation Intel Xeon Scalable sockets; up to 270 W TDP"
+        ],
+        [
+          "physical_description",
+          "2U1N2P rackmount; W x H x D: 438 x 87.9 x 780 mm"
+        ],
+        [
+          "power_description",
+          "1+1 CRPS Platinum PSUs; alternatives 800/1300/1600/2000 W; printed input 110-220 VAC."
+        ],
+        [
+          "power_statement_as_printed",
+          "1+1 CRPS 电源 800W/1300W/1600W/ 2000W (110-220VAC), 白金"
+        ],
+        [
+          "cooling_description",
+          "Six 6056 hot-swappable fans; N+1 redundancy."
+        ],
+        [
+          "management",
+          "Dedicated 100M/1GbE Base-T management; ASPEED AST2500"
+        ],
+        [
+          "memory",
+          "32 DDR4 DIMM slots; two DIMMs per channel"
+        ],
+        [
+          "configuration_limit",
+          "PSU capacities and chassis configurations are alternatives, not all installed together. No exact SKU A/B/C ordering-code mapping supplied."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaPlex T21P-4U",
+      "brand": "QCT",
+      "model": "QuantaPlex T21P-4U",
+      "title": "QCT QuantaPlex T21P-4U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "2"
+        ],
+        [
+          "physical_description",
+          "4U 1-node rackmount server"
+        ],
+        [
+          "processor",
+          "Intel Xeon E5-2600 v4 family"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaGrid D51B-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D51B-2U",
+      "title": "QCT QuantaGrid D51B-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "2U 1-node rackmount server"
+        ],
+        [
+          "processor",
+          "Intel Xeon E5-2600 v4 family"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaGrid D52BQ-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "title": "QCT QuantaGrid D52BQ-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "2U 1-node rackmount server"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable; Silver, Gold and Platinum options"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaPlex T41S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T41S-2U",
+      "title": "QCT QuantaPlex T41S-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "2U 4-node rackmount server"
+        ],
+        [
+          "processor",
+          "Intel Xeon E5-2600 v4 family"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaPlex T42S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T42S-2U",
+      "title": "QCT QuantaPlex T42S-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "2U 4-node rackmount server"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable; Silver, Gold and Platinum options"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaGrid D52BV-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BV-2U",
+      "title": "QCT QuantaGrid D52BV-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "2U 1-node rackmount server"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable; Silver, Gold and Platinum options"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaGrid D51PH-1ULH",
+      "brand": "QCT",
+      "model": "QuantaGrid D51PH-1ULH",
+      "title": "QCT QuantaGrid D51PH-1ULH",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "1U 1-node storage server"
+        ],
+        [
+          "processor",
+          "Intel Xeon E5-2600 v4 family"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaGrid D52T-1ULH",
+      "brand": "QCT",
+      "model": "QuantaGrid D52T-1ULH",
+      "title": "QCT QuantaGrid D52T-1ULH",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "1U 1-node storage server"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable; Silver, Gold and Platinum options"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-wssd-models",
+      "key": "QuantaGrid S31A-1U",
+      "brand": "QCT",
+      "model": "QuantaGrid S31A-1U",
+      "title": "QCT QuantaGrid S31A-1U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "3"
+        ],
+        [
+          "physical_description",
+          "1U 1-node rackmount server"
+        ],
+        [
+          "processor",
+          "Intel Xeon E3-1200 v6 family"
+        ],
+        [
+          "solution_context",
+          "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        ],
+        [
+          "source_date_limit",
+          "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        ],
+        [
+          "configuration_limit",
+          "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaPlex T21P-4U",
+      "brand": "QCT",
+      "model": "QuantaPlex T21P-4U",
+      "title": "QCT QuantaPlex T21P-4U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaGrid D51B-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D51B-2U",
+      "title": "QCT QuantaGrid D51B-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaGrid D52BQ-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "title": "QCT QuantaGrid D52BQ-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaPlex T41S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T41S-2U",
+      "title": "QCT QuantaPlex T41S-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaPlex T42S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T42S-2U",
+      "title": "QCT QuantaPlex T42S-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaGrid D52BV-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BV-2U",
+      "title": "QCT QuantaGrid D52BV-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaGrid D51PH-1ULH",
+      "brand": "QCT",
+      "model": "QuantaGrid D51PH-1ULH",
+      "title": "QCT QuantaGrid D51PH-1ULH",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaGrid D52T-1ULH",
+      "brand": "QCT",
+      "model": "QuantaGrid D52T-1ULH",
+      "title": "QCT QuantaGrid D52T-1ULH",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    },
+    {
+      "source": "qct-quanta-portfolio-2020",
+      "key": "QuantaGrid S31A-1U",
+      "brand": "QCT",
+      "model": "QuantaGrid S31A-1U",
+      "title": "QCT QuantaGrid S31A-1U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Computer Inc.",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        ],
+        [
+          "parent_name_as_printed",
+          "Quanta Computer Inc."
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "QCT (Quanta Cloud Technology)"
+        ],
+        [
+          "relationship_source_pages",
+          "40"
+        ],
+        [
+          "relationship_date_context",
+          "Footer copyright 2020-2021; not a verified ownership-start date"
+        ],
+        [
+          "corporate_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        ],
+        [
+          "corporate_source_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "model_source_url",
+          "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        ],
+        [
+          "model_source_sha256",
+          "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        ],
+        [
+          "association_limit",
+          "Historical portfolio association; no manufacturer or operator inferred."
+        ]
+      ]
+    }
+  ]
+}

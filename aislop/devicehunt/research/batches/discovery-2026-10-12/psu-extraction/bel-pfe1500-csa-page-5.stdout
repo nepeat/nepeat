@@ -1,0 +1,46 @@
+      Certificate: 80005631                                                                  Master Contract: 170351
+      Project: 80111077                                                                       Date Issued: 2022-01-10
+
+
+
+              For SPABRCD-16 operating at Canada and United States of America, and SPABRCD-17 operating at
+              worldwide, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and as
+              table below:
+                          Vin\ambient                          45°C                    60°C
+                          200-380Vdc                           125A                    104A
+
+
+              For SPABRCD-16 operating at countries other than Canada and United States of America, the main
+              output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C as table below:
+                          Vin\ambient                          45°C                    60°C
+                          200-380Vdc                           91A                     19A
+
+
+              For PFE1500-12-054RA, SPABRCD-15G operating at countries other than Canada and United States of
+              America, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and input
+              voltage decrease from 200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                    60°C
+                          100-200Vac                           66.5-125A               36-77A
+                          200-240Vac                           125A                    77A
+
+
+              For PPC33 A022 operating at Canada and United States of America, the main output V1: 12.0V derate
+              linearly when ambient increase from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as
+              table below:
+                          Vin\ambient                          45°C                    60°C
+                          100-240Vac,200-380Vdc                70A                     69A
+
+
+              For PPC33 A022 operating at countries other than Canada and United States of America, the main output
+              V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and input voltage decrease from
+              200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                    60°C
+                          100-200Vac                           70A                     14-19A
+                          200-240Vac,200V-                     70A                     19A
+                          380Vdc
+
+
+
+
+DQD 507 Rev. 2019-04-30                       © 2018 CSA Group. All rights reserved.                             Page 5
+

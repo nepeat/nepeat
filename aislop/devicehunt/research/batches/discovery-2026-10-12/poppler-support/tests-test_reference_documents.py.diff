@@ -1,0 +1,44 @@
+--- before/tests/test_reference_documents.py
++++ tests/test_reference_documents.py
+@@ -8,6 +8,7 @@
+ from devicehunt import documents, lookup, reference_documents as refs
+ from devicehunt.__main__ import main
+ from devicehunt.catalog import Catalog, digest
++from tests.test_pdf_extraction import poppler_capture
+ 
+ 
+ class ReferenceDocumentTests(unittest.TestCase):
+@@ -107,3 +108,33 @@
+             broken = dict(capture, **{key: value}); text.write_text(json.dumps(broken))
+             entry['text']['sha256'] = digest(text.read_bytes()); path.write_text(json.dumps(data))
+             with self.assertRaises(ValueError): refs.prepare(path)
++
++    def test_mixed_methods_prepared_entry_copy_and_corrupt_final_sidecar(self):
++        path = self.bundle()
++        data = json.loads(path.read_text())
++        entry = data['documents'][-1]
++        side = self.root / entry['text']['path']
++        capture = poppler_capture(entry['pdf']['sha256'])
++        side.write_text(json.dumps(capture))
++        entry['text']['sha256'] = digest(side.read_bytes())
++        for item in data['documents']:
++            item['extraction_method'] = 'untrusted manifest method'
++        path.write_text(json.dumps(data))
++        _, prepared = refs.prepare(path)
++        self.assertEqual([item['extraction_method'] for item, _ in prepared],
++                         [documents.PYPDF_METHOD, documents.POPPLER_METHOD])
++        self.assertTrue(all(item['extraction_method'] == 'untrusted manifest method'
++                            for item in json.loads(path.read_text())['documents']))
++        refs.import_bundle(self.c, path)
++        self.assertEqual([row[0] for row in self.c.db.execute(
++            'SELECT extraction_method FROM documents ORDER BY document_id')],
++            [documents.PYPDF_METHOD, documents.POPPLER_METHOD])
++        before = [tuple(row) for row in self.c.db.execute('SELECT * FROM documents ORDER BY document_id')]
++        capture['extraction_options']['remove_hyphens'] = 'all'
++        side.write_text(json.dumps(capture))
++        entry['text']['sha256'] = digest(side.read_bytes())
++        path.write_text(json.dumps(data))
++        with self.assertRaisesRegex(ValueError, 'metadata'):
++            refs.import_bundle(self.c, path)
++        self.assertEqual(before, [tuple(row) for row in self.c.db.execute(
++            'SELECT * FROM documents ORDER BY document_id')])

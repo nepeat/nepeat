@@ -1,0 +1,593 @@
+{
+  "sources": [
+    {
+      "id": "celestica-catalog",
+      "url": "https://documentationportal.celestica.com/en/networking",
+      "tier": "vendor",
+      "license": "Celestica documentation; extracted factual model identifiers",
+      "coverage": "Manually reviewed via web retrieval, 2026-09-26. Model names only; no claim of exhaustive coverage. Direct HTML download returned an unsupported-browser page, so no usable raw snapshot is claimed."
+    },
+    {
+      "id": "edgecore-wedge",
+      "url": "https://www.edge-core.com/product/wedge-16x/",
+      "tier": "vendor",
+      "license": "Edgecore product documentation; extracted factual hardware information",
+      "coverage": "Wedge commercial platform and documented Facebook design/manufacturing relationship. Does not establish provenance of any surplus unit.",
+      "snapshot": "raw/edgecore-wedge.html"
+    },
+    {
+      "id": "amazon-fcc",
+      "url": "https://fccid.io/2AVPL",
+      "tier": "regulatory_mirror",
+      "license": "Extracted filing facts; mirror terms apply to its presentation",
+      "coverage": "Two public FCC IDs visible for grantee 2AVPL on 2026-09-26. Not all Amazon Data Services hardware; OEM and marketplace availability unverified. Reviewed via web retrieval."
+    },
+    {
+      "id": "cubscout-report",
+      "url": "https://fcc.report/FCC-ID/2AVPL-CUBSCOUT/5661528.pdf",
+      "tier": "primary_document_mirror",
+      "license": "Extracted factual test configuration identifiers; Sporton report rights retained",
+      "coverage": "Saved selected factual web-tool text extract of Sporton FR181018AR, issued 2022-01-19, cover page 1 and configuration tables on pages 6-7. Original PDF retrieval returned HTTP 403; no original PDF or rendered-page verification. Three tested configurations and 30 component rows are preserved independently. Model / Description cells are literal extracted text, not validated ordering codes. ADS is the applicant; Foxconn is the named manufacturer. Not all CubScout units, current certification, physical factory, component interchangeability, firmware access or marketplace-unit provenance.",
+      "snapshot": "raw/cubscout-fcc/factual-extract.json"
+    },
+    {
+      "id": "monitron-model",
+      "url": "https://aws.amazon.com/monitron/terms/safety-and-compliance-information/",
+      "tier": "vendor",
+      "license": "Extracted factual identifiers; source rights retained",
+      "coverage": "AWS safety index explicitly identifies TE1A001 as an Amazon Monitron sensor. The original saved HTML is now attached after verifying its hash and model-specific sensor-guide link against the separately validated Monitron bundle. This backs the product identity only; no data-center deployment, physical factory, current service eligibility or unit provenance is inferred.",
+      "snapshot": "raw/aws-monitron-safety.html"
+    },
+    {
+      "id": "monitron-recertification",
+      "url": "https://fcc.report/FCC-ID/ARJ-CMWA-6400/5874294.pdf",
+      "tier": "primary_document_mirror",
+      "license": "Extracted factual identifiers; source rights retained",
+      "coverage": "Amazon authorization letter dated 2022-03-31 connects 2AVPL-TE1A001 to requested SKF recertification ARJ-CMWA-6400. Permission letter, not proof of interchangeability or successful recertification. Web retrieval only; PDF not cached."
+    },
+    {
+      "id": "oracle-e5-geekbench",
+      "url": "https://browser.geekbench.com/v5/cpu/21469175",
+      "tier": "benchmark_submission",
+      "license": "Extracted factual system identifiers; source rights retained",
+      "coverage": "One user-submitted Geekbench result, uploaded 2023-07-18, reviewed through public web retrieval 2026-09-26. Original HTML not cached (direct retrieval returned 403). Reported system strings are discovery leads, not vendor certification or independently verified chassis specifications."
+    }
+  ],
+  "devices": [
+    {
+      "source": "celestica-catalog",
+      "key": "DS1000",
+      "brand": "Celestica",
+      "model": "DS1000",
+      "title": "Celestica DS1000",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS2000",
+      "brand": "Celestica",
+      "model": "DS2000",
+      "title": "Celestica DS2000",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS3000",
+      "brand": "Celestica",
+      "model": "DS3000",
+      "title": "Celestica DS3000",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS3001",
+      "brand": "Celestica",
+      "model": "DS3001",
+      "title": "Celestica DS3001",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS4000",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "title": "Celestica DS4000",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS4001",
+      "brand": "Celestica",
+      "model": "DS4001",
+      "title": "Celestica DS4001",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS4100",
+      "brand": "Celestica",
+      "model": "DS4100",
+      "title": "Celestica DS4100",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS4101",
+      "brand": "Celestica",
+      "model": "DS4101",
+      "title": "Celestica DS4101",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "DS5000",
+      "brand": "Celestica",
+      "model": "DS5000",
+      "title": "Celestica DS5000",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "ES1000",
+      "brand": "Celestica",
+      "model": "ES1000",
+      "title": "Celestica ES1000",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "ES1010",
+      "brand": "Celestica",
+      "model": "ES1010",
+      "title": "Celestica ES1010",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "ES1050",
+      "brand": "Celestica",
+      "model": "ES1050",
+      "title": "Celestica ES1050",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "EG1050",
+      "brand": "Celestica",
+      "model": "EG1050",
+      "title": "Celestica EG1050",
+      "kind": "gateway",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "celestica-catalog",
+      "key": "ES1500",
+      "brand": "Celestica",
+      "model": "ES1500",
+      "title": "Celestica ES1500",
+      "kind": "switch family",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ]
+      ]
+    },
+    {
+      "source": "edgecore-wedge",
+      "key": "WEDGE-16X",
+      "brand": "Accton",
+      "model": "Wedge-16X",
+      "title": "Edge-Core / Accton Wedge-16X",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Edge-Core",
+          "brand"
+        ],
+        [
+          "Accton",
+          "design_manufacturer"
+        ]
+      ],
+      "identifiers": [
+        [
+          "alias",
+          "Edgecore Wedge-16X"
+        ],
+        [
+          "alias",
+          "Accton Wedge"
+        ],
+        [
+          "alias",
+          "Wedge 40"
+        ]
+      ],
+      "facts": [
+        [
+          "ports",
+          "16 x 40GbE QSFP; 4 x 10GbE breakout per port"
+        ],
+        [
+          "asic",
+          "Broadcom BCM56850 Trident II (vendor page; compare conflicting ONL table)"
+        ],
+        [
+          "cpu",
+          "Intel Atom C2550"
+        ],
+        [
+          "firmware",
+          "OpenBMC; FBOSS-compatible design; verify available software before purchase"
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "Facebook / Meta",
+          "documented_design_lineage",
+          "Edgecore identifies Wedge-16X as a commercial derivative of Facebook Wedge and states Accton manufactured Wedge for Facebook deployment. This does not prove a given Wedge-16X unit was used by Facebook."
+        ]
+      ]
+    },
+    {
+      "source": "amazon-fcc",
+      "key": "2AVPL-CUBSCOUT",
+      "url": "https://fccid.io/2AVPL-CUBSCOUT",
+      "brand": "Amazon Data Services",
+      "model": "CUBSCOUT",
+      "title": "Amazon Data Services CUBSCOUT",
+      "kind": "server (FCC description)",
+      "affiliations": [
+        [
+          "Amazon Data Services, Inc.",
+          "fcc_grantee"
+        ]
+      ],
+      "identifiers": [
+        [
+          "fcc_id",
+          "2AVPL-CUBSCOUT"
+        ]
+      ],
+      "facts": [
+        [
+          "grant_date",
+          "2022-01-27"
+        ],
+        [
+          "frequency_mhz",
+          "13.553-13.567"
+        ],
+        [
+          "identity_note",
+          "This index identifies the applicant and FCC model; see the separate test-report record for manufacturer evidence."
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "Amazon Data Services",
+          "regulatory_applicant",
+          "FCC applicant association; this filing does not establish marketplace-unit ownership."
+        ]
+      ]
+    },
+    {
+      "source": "amazon-fcc",
+      "key": "2AVPL-TE1A001",
+      "url": "https://fccid.io/2AVPL-TE1A001",
+      "brand": "Amazon Data Services",
+      "model": "TE1A001",
+      "title": "Amazon Data Services TE1A001",
+      "kind": "IoT device (FCC description)",
+      "affiliations": [
+        [
+          "Amazon Data Services, Inc.",
+          "fcc_grantee"
+        ]
+      ],
+      "identifiers": [
+        [
+          "fcc_id",
+          "2AVPL-TE1A001"
+        ]
+      ],
+      "facts": [
+        [
+          "grant_date",
+          "2020-08-11"
+        ],
+        [
+          "frequency_mhz",
+          "2402-2480"
+        ],
+        [
+          "identity_note",
+          "See separate AWS documentation for the Monitron product name; physical OEM remains unverified."
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "Amazon Data Services",
+          "regulatory_applicant",
+          "FCC filing identifies Amazon Data Services as applicant; this is not evidence of a server or data-center deployment."
+        ]
+      ]
+    },
+    {
+      "source": "cubscout-report",
+      "key": "FR181018AR",
+      "brand": "Amazon Data Services",
+      "model": "CUBSCOUT",
+      "title": "Amazon Data Services CUBSCOUT",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Amazon Data Services, Inc.",
+          "regulatory_applicant"
+        ],
+        [
+          "AWS",
+          "brand"
+        ],
+        [
+          "Foxconn Interconnect Technology Limited Taiwan Branch",
+          "manufacturer"
+        ]
+      ],
+      "identifiers": [
+        [
+          "fcc_id",
+          "2AVPL-CUBSCOUT"
+        ],
+        [
+          "model_search",
+          "AWS CubScout"
+        ],
+        [
+          "component_model",
+          "Foxconn SPARROW"
+        ],
+        [
+          "component_model",
+          "Annapurna K2V4-N"
+        ],
+        [
+          "component_model",
+          "Annapurna K2C-AB"
+        ]
+      ],
+      "facts": [
+        [
+          "rack_format",
+          "1U (tested configurations, p.6-7)"
+        ],
+        [
+          "motherboard",
+          "Foxconn SPARROW, single socket"
+        ],
+        [
+          "cpu",
+          "Annapurna Carmel-SoC: 64 cores, 2.5GHz, 225W"
+        ],
+        [
+          "memory_tested",
+          "8 x 16GB DDR4-3200 RDIMM"
+        ],
+        [
+          "psu_configuration_1",
+          "2 x Delta DPS-1300AB-36 B, 1300W"
+        ],
+        [
+          "psu_configuration_2",
+          "2 x Liteon PS-2162-6H2R, 1600W"
+        ],
+        [
+          "psu_configuration_3",
+          "2 x Liteon DD-2162-18LR, DC1600W"
+        ],
+        [
+          "configuration_scope",
+          "Report configurations differ; confirm the actual chassis and PSU labels before purchase. Boot access, firmware availability and marketplace-unit provenance remain unverified."
+        ],
+        [
+          "tested_configurations",
+          "{\"capture_method\": \"reviewed factual web-tool PDF-text extract; selected cover and configuration fields; original PDF not cached or visually reviewed\", \"configurations\": [{\"components\": [{\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Chassis\", \"manufacturer\": \"Foxconn\", \"model\": \"1U Chassis\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Mother Board\", \"manufacturer\": \"Foxconn\", \"model\": \"SPARROW, 1 Socket\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"CPU\", \"manufacturer\": \"Annapurna\", \"model\": \"Carmel-SoC, 2.5GHz, 64C, 225W\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Memory\", \"manufacturer\": \"Hynix\", \"model\": \"RDIMM, 16G, 3200, DDR4\", \"quantity\": 8}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"HDD Drive\", \"manufacturer\": \"Intel\", \"model\": \"S4510 SSD,1.0TB\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Annapurna\", \"model\": \"K2V4-N NIC Card\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Annapurna\", \"model\": \"K2C-AB, Storage Card\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Marvell\", \"model\": \"VDU-CNF9535O-PCIE / Marvell Olympus Accelerator, CNF95O card\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"NFC Module\", \"manufacturer\": \"SMART\", \"model\": \"Atlanta NFC Reader\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PSU\", \"manufacturer\": \"Delta\", \"model\": \"DPS-1300AB-36 B (1300W)\", \"quantity\": 2}], \"configuration_id\": \"1\", \"source_page\": 6}, {\"components\": [{\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Chassis\", \"manufacturer\": \"Foxconn\", \"model\": \"1U Chassis\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Mother Board\", \"manufacturer\": \"Foxconn\", \"model\": \"SPARROW, 1 Socket\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"CPU\", \"manufacturer\": \"Annapurna\", \"model\": \"Carmel-SoC, 2.5GHz, 64C, 225W\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Memory\", \"manufacturer\": \"Hynix\", \"model\": \"RDIMM, 16G, 3200, DDR4\", \"quantity\": 8}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"HDD Drive\", \"manufacturer\": \"Samsung\", \"model\": \"PM883 SSD,1.92TB\", \"quantity\": 2}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Annapurna\", \"model\": \"K2V4-N NIC Card\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Annapurna\", \"model\": \"K2C-AB, Storage Card\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Hyve\", \"model\": \"Scout LAN SWITCH / 1GbE LAN Switch board\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"NFC Module\", \"manufacturer\": \"SMART\", \"model\": \"Atlanta NFC Reader\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PSU\", \"manufacturer\": \"Liteon\", \"model\": \"PS-2162-6H2R (1600W)\", \"quantity\": 2}], \"configuration_id\": \"2\", \"source_page\": 7}, {\"components\": [{\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Chassis\", \"manufacturer\": \"Foxconn\", \"model\": \"1U Chassis\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Mother Board\", \"manufacturer\": \"Foxconn\", \"model\": \"SPARROW, 1 Socket\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"CPU\", \"manufacturer\": \"Annapurna\", \"model\": \"Carmel-SoC, 2.5GHz, 64C, 225W\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"Memory\", \"manufacturer\": \"Hynix\", \"model\": \"RDIMM, 16G, 3200, DDR4\", \"quantity\": 8}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"HDD Drive\", \"manufacturer\": \"Samsung\", \"model\": \"PM883 SSD,1.92TB\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Annapurna\", \"model\": \"K2V4-N NIC Card\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Annapurna\", \"model\": \"K2C-AB, Storage Card\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PCIE card\", \"manufacturer\": \"Hyve\", \"model\": \"Scout LAN SWITCH / 1GbE LAN Switch board\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"NFC Module\", \"manufacturer\": \"SMART\", \"model\": \"Atlanta NFC Reader\", \"quantity\": 1}, {\"description\": \"Printed Model / Description cell from a tested configuration; not a verified ordering code\", \"kind\": \"PSU\", \"manufacturer\": \"Liteon\", \"model\": \"DD-2162-18LR (DC1600W)\", \"quantity\": 2}], \"configuration_id\": \"3\", \"source_page\": 7}], \"cover\": {\"applicant\": \"Amazon Data Services, Inc.\", \"brand\": \"AWS\", \"equipment\": \"Server\", \"fcc_id\": \"2AVPL-CUBSCOUT\", \"manufacturer\": \"Foxconn Interconnect Technology Limited Taiwan Branch\", \"model\": \"CubScout\", \"source_page\": 1}, \"issued_on\": \"2022-01-19\", \"limits\": \"Selected factual fields only, not full report text or original PDF. Component Model / Description cells may combine model and specifications; no part-number equivalence, compatibility, firmware access or auction-unit configuration is established. Text typography has not been visually verified.\", \"original_document_status\": \"unavailable_http_403\", \"report_number\": \"FR181018AR\", \"reviewed_on\": \"2026-09-27\", \"schema_version\": 1, \"source_url\": \"https://fcc.report/FCC-ID/2AVPL-CUBSCOUT/5661528.pdf\"}"
+        ],
+        [
+          "published_date",
+          "2022-01-19"
+        ],
+        [
+          "capture_method",
+          "reviewed factual web-tool PDF-text extract; selected cover and configuration fields; original PDF not cached or visually reviewed"
+        ],
+        [
+          "original_document_status",
+          "unavailable_http_403"
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "AWS",
+          "documented_brand",
+          "Test report identifies AWS branding and Amazon Data Services applicant; no claim about prior ownership of a specific surplus unit."
+        ]
+      ]
+    },
+    {
+      "source": "monitron-model",
+      "key": "TE1A001",
+      "brand": "Amazon Data Services",
+      "model": "TE1A001",
+      "title": "Amazon Data Services TE1A001",
+      "kind": "industrial sensor",
+      "affiliations": [
+        [
+          "AWS",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [
+        [
+          "model_search",
+          "Amazon Monitron TE1A001"
+        ]
+      ],
+      "facts": [
+        [
+          "marketed_name",
+          "Amazon Monitron sensor (TE1A001)"
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "AWS",
+          "documented_product",
+          "AWS documentation identifies TE1A001 as a Monitron sensor, a commercial industrial monitoring product; no data-center deployment inference."
+        ]
+      ]
+    },
+    {
+      "source": "monitron-recertification",
+      "key": "TE1A001-to-ARJ-CMWA-6400",
+      "brand": "Amazon Data Services",
+      "model": "TE1A001",
+      "title": "Amazon Data Services TE1A001",
+      "kind": "industrial sensor",
+      "affiliations": [
+        [
+          "Amazon Data Services, Inc.",
+          "original_fcc_grantee"
+        ],
+        [
+          "SKF USA Inc.",
+          "authorized_recertification_applicant"
+        ]
+      ],
+      "identifiers": [
+        [
+          "related_fcc_id",
+          "ARJ-CMWA-6400"
+        ]
+      ],
+      "facts": [
+        [
+          "recertification_authorization",
+          "2022-03-31 letter authorizes SKF to apply using existing 2AVPL-TE1A001 exhibits. This is a relationship lead, not a claim of firmware compatibility or interchangeable products."
+        ]
+      ]
+    },
+    {
+      "source": "oracle-e5-geekbench",
+      "key": "21469175",
+      "brand": "Oracle",
+      "model": "Oracle Server E5-2c",
+      "title": "Oracle Server E5-2c (benchmark-reported system)",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Oracle",
+          "reported_system_vendor"
+        ]
+      ],
+      "identifiers": [
+        [
+          "model_search",
+          "E5-2c"
+        ]
+      ],
+      "facts": [
+        [
+          "reported_system_model",
+          "Oracle Corporation ORACLE SERVER E5-2c"
+        ],
+        [
+          "reported_motherboard",
+          "Oracle Corporation Asm,MB+Tray,E5-2c"
+        ],
+        [
+          "evidence_scope",
+          "User-submitted benchmark identification only; needs independent corroboration"
+        ]
+      ]
+    }
+  ]
+}

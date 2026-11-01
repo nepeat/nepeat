@@ -1,0 +1,10 @@
+{
+  "tests": 562,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 363.187,
+  "blocked_network_or_external_process_calls": 0,
+  "passed": true,
+  "scope": "full suite with network/external subprocess entrypoints guarded"
+}

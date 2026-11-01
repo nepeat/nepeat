@@ -1,0 +1,116 @@
+{
+  "pdf_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 2,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "SD4100\n2U 12 HDD SAS-4 Storage Expansion System\n\n\n                                                             FEATURES\n                                                               2U enclosure for fitment in standard 19” wide racks\n                                                               Cable management assembly (CMA) not required\n                                                               Up to 12 3.5” form factor drives\n                                                               SAS-4 system uplink\n                                                               SAS-3 or SATA-3 connectivity to drives\n                                                               13W max. power per drive bay @ 35°C\n                                                               Two hot-swappable expansion SAS modules (ESM)\n                                                                  • Four 24G SAS-4 mini-SAS HD ports per ESM\n                                                                  • One UART via USB-C\nSD4100 is an economical 2U 12 drive                          POWER AND COOLING\nbay enterprise-class SAS-4storage                              Two power efficient 800W CRPS PSUs\nexpansion platform with redundant                              (Lot-9 Compliant)\narchitecture for greater data availability.                    100-127,200-240V AC input\n\nIt offers flexible, easy deployment, ideal                     Three 40mm dual-rotor fans per ESM\n\nfor both small businesses and large                          PHYSICAL DIMENSIONS\n\nenterprises that require a high level of                       Height: 87 mm (2U)\n\nefficiency and performance.                                    Width: 446 mm\n                                                               Depth: 545 mm\n\nThe SD4100 is ideal for:                                     ENVIRONMENTAL\n\n• Backup and Recovery                                          Operating Temperature: 5°C to 35°C\n\n• Data Replication                                             Non-operating Temperature: -40°C to 60°C\n\n• Scalable Software-Defined-Storage                            Humidity: 8% to 80% RH\n\n• Archive Storage                                              Altitude: 0 to 950 m (De-rate temperature 1°C per\n                                                               300 m above 950 m)\n                                                               Sound Power: (23+/-2°C) <7.6Bel\n\n\n\n\n                                      Enterprise-Class Quality. Cloud Economics.\n\nNorth America: (Toll Free) +1 888 899 9998   |   Global: +1 416 448 5800   |   contactus@celestica.com   |   celestica.com\n"
+    },
+    {
+      "page": 2,
+      "text": "SD4100 2U 12 HDD SAS-4 Storage Expansion System\n\n\n\n\nAPPROVALS\n  EMC: EN 55032 Class A, EN55024, EN 61000-3-2,                                             ORDER INFORMATION\n  EN 61000-3-3, FCC part 15 Class A, VCCI Class A,\n  ICES-003 Class A, GB/T9254 Class A\n  Safety: IEC/EN/UL/CSA 62368-1, GB4943                                                     R4086-F9001-01:\n  Environment: RoHS, REACH, WEEE, ERP Lot 9                                                 JBOD system (chassis, PSUs,\n                                                                                            SAS-4 I/O modules, fan modules)\n                                                                                            12x drive carriers\n                                                                                            6x dummy drive carriers\n                                                                                            Rail kit set\n\n\n\n\n                                                                                        Note: All specifications and figures are subject to change\n                                                                                        without prior notice.\n\n\n\n\n                  © Copyright Celestica Inc. 2024. All rights reserved. ™CELESTICA & Design and SD4100 are existing, pending or registered trademarks                121224\n                  of Celestica Inc. or its subsidiaries, used under license. All trademarks and registered trademarks are the property of their respective owners.\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "sd4100-known_captured_target_checked.pdf",
+    "extracted_at_utc": "2026-10-15T05:39:43.457631+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           cls_branded_datasheet_SD4100_121224.indd\nCreator:         Adobe InDesign 20.0 (Macintosh)\nProducer:        Adobe PDF Library 17.0\nCreationDate:    Thu Dec 12 05:14:04 2024 PST\nModDate:         Thu Dec 12 05:14:05 2024 PST\nCustom Metadata: yes\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       630229 bytes\nOptimized:       no\nPDF version:     1.6\nPDF subtype:    PDF/X-4\n    Title:         ISO 15930 - Electronic document file format for prepress digital data exchange (PDF/X)\n    Abbreviation:  PDF/X-4\n    Subtitle:      Part 7: Complete exchange of printing data (PDF/X-4) and partial exchange of printing data with external profile reference (PDF/X-4p) using PDF 1.6\n    Standard:      ISO 15930-7\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/practical-sources/sd4100-known_captured_target_checked.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "66ce68f281002aba27550107de6cdd46c9fbb741decf433bd4af06686132ef9e"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/practical-sources/sd4100-known_captured_target_checked.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "c3e480a1bf88bbdeb9c2de15b8a3c2671e8ab9f1686d723161e5019ff49fa146"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/practical-sources/sd4100-known_captured_target_checked.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "6d8c7c70237f13f3292d4b3d0160b91989b5bf0800699233efd1099af4a1fe85"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

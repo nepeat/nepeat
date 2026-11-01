@@ -1,0 +1,30 @@
+{
+  "new_rows": [
+    [
+      "446f0a874bebb2609fa4d758",
+      "Inventec",
+      "Inventec",
+      "brand"
+    ],
+    [
+      "446f0a874bebb2609fa4d758",
+      "Inventec",
+      "Inventec",
+      "platform_vendor"
+    ],
+    [
+      "4715ba6e603634694296bbc0",
+      "Inventec",
+      "Inventec",
+      "brand"
+    ],
+    [
+      "4715ba6e603634694296bbc0",
+      "Inventec",
+      "Inventec",
+      "platform_vendor"
+    ]
+  ],
+  "count": 4,
+  "exact_accepted_roles": true
+}

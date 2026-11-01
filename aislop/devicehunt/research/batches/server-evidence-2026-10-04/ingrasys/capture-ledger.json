@@ -1,0 +1,30 @@
+{
+  "queries_used": 1,
+  "query_limit": 8,
+  "captures_used": 1,
+  "capture_limit": 4,
+  "queries": [
+    {
+      "query": "site:ingrasys.com \"SV1120\" \"SV1121\"",
+      "method": "web search",
+      "results": [
+        "https://www.ingrasys.com/docs/servers/",
+        "https://www.ingrasys.com/docs/"
+      ],
+      "outcome": "Unsuffixed DOCS index heading only; no specifications"
+    }
+  ],
+  "captures": [
+    {
+      "url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "method": "system curl --location --max-time 60, default TLS validation; no explicit retries",
+      "status": 200,
+      "body": "data/raw/server-evidence-ingrasys-2026-10-04/server-catalog.response",
+      "headers": "data/raw/server-evidence-ingrasys-2026-10-04/server-catalog.headers",
+      "body_bytes": 8355366,
+      "body_sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "outcome": "Byte-identical malformed response; two response header blocks, body repeated truncated PDF. Headers report Content-Length 4226715; saved bytes 8355366. No complete original acquired."
+    }
+  ],
+  "stop_reason": "Useful declared pages recovered with explicit terminal repair; no unsuffixed specs exist on any page. Further search not justified in this milestone. Denied Foxconn URL never requested."
+}

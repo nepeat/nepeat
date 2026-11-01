@@ -1,0 +1,95 @@
+{
+  "copies": [
+    {
+      "snapshot": "snapshots/oracle7420-specifications.html",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave5/oracle7420-specifications.html",
+      "sha256": "9e4c532efbb0a19ecf67d35a925b8c65ddfa7de857c26c16ec66e497b0a4b37b",
+      "bytes": 10720,
+      "type": "raw HTML capture",
+      "original_mtime_ns": 1791866772997188647
+    },
+    {
+      "snapshot": "snapshots/as6700-quick-start.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-quick-start.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "bytes": 886779,
+      "type": "raw PDF capture",
+      "original_mtime_ns": 1791866811021256607
+    },
+    {
+      "snapshot": "snapshots/as6700-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-pages.json",
+      "sha256": "fd8c4ba80be27ceb94de924a7ba75bf0ade90613743078cd9107a15c6da67ef6",
+      "bytes": 14459,
+      "type": "complete Poppler text sidecar",
+      "original_mtime_ns": 1791866841654310908
+    },
+    {
+      "snapshot": "snapshots/as5710-as5712-ds-r09.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "bytes": 201945,
+      "type": "raw PDF capture",
+      "original_mtime_ns": 1791866820931274216
+    },
+    {
+      "snapshot": "snapshots/as5712-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave5/as5712-pages.json",
+      "sha256": "77850b847d33b76c07251cc55fa542d71164018382011eb30c11b0f63f6f9e87",
+      "bytes": 25319,
+      "type": "complete Poppler text sidecar",
+      "original_mtime_ns": 1791866841690310971
+    }
+  ],
+  "findings_sha256": "95838a2586022a9b1e3dab7b00a3d82f4102a0a41fef0e444d8fb0208ae3a1f0",
+  "accepted_review_and_boundary": {
+    "original-vendor-wave5-review.md": "8a86e01a701509845ec8b60cefd5576b100eb3e9c5494668506afef5c9d96383",
+    "wave5-candidate-boundary-note.md": "bdb63a61400bd84137b4e793a121aa42426fc629a3cad072fea67a06693cedeb"
+  },
+  "requests_sha256": "6bdfb0ddb561a6a975b5197113e5fa66a5a55b40251740829c70fc8006056bd8",
+  "render_provenance_sha256": "3c8c83dfd8a11ffc405e1ede00e83c61b0ccc1307d59d55c5646b09dddf8bb0a",
+  "original_root": "research/batches/discovery-2026-10-12/original-vendor-wave5",
+  "source_conflicts": [
+    {
+      "source": "oracle7420-specifications.html",
+      "issue": "Weight is printed 16.36 kg/96 lbs; units disagree. Preserve literal pair, no correction/conversion."
+    },
+    {
+      "source": "oracle7420-specifications.html",
+      "issue": "1800W label says Max power consumption but note qualifies dissipation as maximum PSU rating, not actual appliance consumption."
+    },
+    {
+      "source": "data/raw/edgecore/product-as6700-32x.html",
+      "issue": "Previously saved AS6700 product page vendor_description names AS6701. Joint new guide does not prove equivalence or repair old field."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "issue": "Saved pdfinfo Title metadata reads AS5710_AS5712-54X ONIE DS R06, whereas visible footer EC-DS-0619-09 and published landing call R09. Document designation follows visible footer; metadata remains unresolved historical context, no guessed alternate revision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "issue": "Two fan model rows read FAN-1U-1x1D-F/B in embedded text but AN-1U-1x1D-F/B visually. Both unresolved; no row identity accepted."
+    }
+  ],
+  "source_absences": [
+    {
+      "source": "oracle7420-specifications.html",
+      "scope": "entire captured specifications article",
+      "absent": "No M2-named specifications, environmental limits, PSU model/order code, PSU count/redundancy or service part table on this page."
+    },
+    {
+      "source": "as6700-quick-start.pdf",
+      "scope": "complete 2-page guide",
+      "absent": "No full instantiated chassis/PSU/fan order-code table, exact PSU model/output rating, DC-input installation/rating, service replacement timing or current NOS entitlement."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "scope": "complete 4-page datasheet",
+      "absent": "No general cross-family suffix decoder, physical factory identity, current firmware/image entitlement or unit-specific configuration. PSU-12V-400-1 description does not state 400W output despite its code."
+    }
+  ],
+  "original_limits": "Historical/source-scoped only; complete sidecars, six distinct PDF pages visually reviewed with seven renders; HTML reviewed from raw markup. No model aliases, roles/manufacture, inferred fitment, current certification/support/stock or candidate decisions.",
+  "new_network_requests": 0,
+  "new_extraction_or_rendering": false
+}

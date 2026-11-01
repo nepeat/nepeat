@@ -1,0 +1,2 @@
+82d5c1f70847979b5b7d6a18bdf9587f469045af547e560e6b1bf695dc4a67e5  devicehunt/buying.py
+0ae4a94f9d05a61bccaf3f5ee2cee3e7120e15ccdc66c40968bbfc3d537ef97b  tests/test_buying.py

@@ -1,0 +1,22 @@
+{
+  "queries": [
+    {
+      "query": "site:oracle.com \"Oracle Server X7-2c\" \"23-Aug-2017\"",
+      "method": "web search",
+      "searched_at": "2026-10-04T23:00:28.889695+00:00",
+      "outcome": "Exact official report t2-6972 found, including docs.oracle.com official documentation URL. Regional oracle.com results were discovery only, not fetched.",
+      "selected_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html"
+    }
+  ],
+  "query_count": 1,
+  "source_fetch_count": 1,
+  "limits": {
+    "queries": 4,
+    "source_fetches": 4
+  },
+  "local_checks": [
+    "Saved HTML metadata/hrefs: no canonical or self URL; Oracle branding/dependency relative links retained.",
+    "Narrow capture registry/manifest/research searches: no saved original-request URL recovered.",
+    "Existing saved reports reviewed before fetch; no denial recorded for selected exact public URL."
+  ]
+}

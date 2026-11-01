@@ -1,0 +1,86 @@
+[
+  {
+    "conflicts": 1,
+    "item_id": "review-item-41422dfd0950240549786e50893048408a60984603341e77061d624b19ce4b3c",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "ised-rel-25869"
+  },
+  {
+    "conflicts": 51,
+    "item_id": "review-item-53e4afc316bcebedd177838e01397b85425345862e03ff6807c5e20904e1b0bf",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "ised-rel-query-accton"
+  },
+  {
+    "conflicts": 0,
+    "item_id": "review-item-92132006a080500cd73e1c501a3f57799fa6d20f072a0d08b3733e05afbdf7f8",
+    "no_changes": true,
+    "outcome": "explicit_zero",
+    "unit_id": "ised-rel-query-celestica"
+  },
+  {
+    "conflicts": 0,
+    "item_id": "review-item-52355d618ae0a76ddd4a740f521462503652eed7a371330a5706282192a5e387",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "ised-rel-query-edgecore"
+  },
+  {
+    "conflicts": 1,
+    "item_id": "review-item-60fd3ea02a6f9276d95801b5e79e2cd824fa560e295c3d05a30c56694fb9f8bc",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "ised-rel-query-oracle"
+  },
+  {
+    "conflicts": 17,
+    "item_id": "review-item-d260dd4021582a9b978369481df7e46fa7485159696c4eeaa3d6a457833b5efa",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "rra-official-query-33f7d154085d"
+  },
+  {
+    "conflicts": 38,
+    "item_id": "review-item-aacf9cd3f18b49c8832b5b8cdd64b676df7c3e8c5e87f4bf2501649073e505c9",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "rra-official-query-41e4ca912b33"
+  },
+  {
+    "conflicts": 4,
+    "item_id": "review-item-8a5664c1e9b31e7bb5aee25538f9de6518e859c06906e567f21fa27343961707",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "rra-official-query-5827f2fe7092"
+  },
+  {
+    "conflicts": 26,
+    "item_id": "review-item-460aabe93ec4a5ba84243ea21a231de8104afdffc5a6dacf431eb1c30ec10ef8",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "rra-official-query-63cb0b9098c7"
+  },
+  {
+    "conflicts": 177,
+    "item_id": "review-item-aa54210187bb3c93c903db02eacb1efda7767e48b918d0b79ec91f0d3a3fb19f",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "rra-official-query-73009f906e4e"
+  },
+  {
+    "conflicts": 0,
+    "item_id": "review-item-3e0c3070bf47951bd944c1ebff90a9eaae380f9362d9c5d39369af014ed2767a",
+    "no_changes": true,
+    "outcome": "explicit_zero",
+    "unit_id": "rra-official-query-78fc6b2e95f6"
+  },
+  {
+    "conflicts": 15,
+    "item_id": "review-item-08792861e14d1ce8702fa45a0c3794b7e5e90f60f550a746c81d57c3baa8b46e",
+    "no_changes": true,
+    "outcome": "validated_nonempty",
+    "unit_id": "rra-official-query-e5984834207f"
+  }
+]

@@ -1,0 +1,519 @@
+{
+  "source_path": "zs3-4-internal-components.html",
+  "source_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+  "method": "stdlib HTMLParser saved article text and literal table-cell rows; no remote images/assets",
+  "normalized_article_text": "Oracle ZFS Storage ZS3-4 Internal Components The components of the Oracle ZFS Storage ZS3-4 controller are shown in the following figure and identified in the legend. 1 Motherboard 7 CPUs and heatsinks 2 Low-profile PCIe cards 8 Memory risers 3 Power supplies 9 Fan board 4 Power supply backplane 10 Fan modules 5 Drive backplane 11 Boot drives and SSDs 6 System lithium battery Oracle ZFS Storage ZS3-4 Internal Boards - The Oracle ZFS Storage ZS3-4 controller chassis contains the following field-replaceable units (FRUs). FRUs are not customer-serviceable, and should only be replaced by trained Oracle service technicians. Motherboard - The motherboard includes CPU modules, slots for eight DIMM risers, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host's 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off. Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the system. It is directly connected to the Vertical PDB card, and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock (\"kill\") switch. In the controller, the power supplies connect to the power supply backplane which connects to the power distribution board. Vertical PDB Card - The vertical power distribution board, or Paddle Card serves as the interconnect between the power distribution board and the fan power boards, hard drive backplane, and I/O board. Power Supply Backplane Card - This board connects the power distribution board to power supplies 0 and 1. Fan Power Boards - The two fan power boards are FRUs and carry power to the controller fan modules. In addition, they contain fan module status LEDs and transfer I2C data for the fan modules. Drive Backplane - The six-drive backplane includes the connectors for the drives, as well as the interconnect for the I/O board, Power and Locator buttons, and system/component status LEDs. Each drive has an LED indicator for Power/Activity, Fault, and Locate. Oracle ZFS Storage ZS3-4 System Drives - The Oracle ZFS Storage ZS3-4 controller has two system boot drives in slots 0 and 1, configured as a mirrored pair. Read-optimized cache devices can be installed in controller slots 2 through 5, or installed in Oracle Storage Drive Enclosure DE2-24 disk shelf slots. Note: Read cache devices must be installed in either the controller or an Oracle Storage Drive Enclosure DE2-24 disk shelf. Read cache devices cannot be installed in both controller and disk shelf slots at the same time. For software requirements and slot configuration rules, see Disk Shelf Configurations . 1 Ready to remove (blue) 2 Service action required (amber) 3 OK/Activity (green) Oracle ZFS Storage ZS3-4 4x4 SAS-2 HBA - The 4x4 SAS-2 HBA, installed in the Oracle ZFS Storage ZS3-4 controller, provides connectivity to external Oracle Storage Drive Enclosure DE2 and Sun Disk Shelves. The HBA logical ports are numbered 3-0, top to bottom: See Oracle ZFS Storage ZS3-4 PCIe I/O Cards for slot placement. Oracle ZFS Storage ZS3-4 CPU and Memory - The Oracle ZFS Storage ZS3-4 controller supports 16GB DDR3 DIMMs installed on all eight risers, accommodating 1TB of memory. Refer to the service label on the cover for DIMM placement information. On every memory riser, slots D0, D2, D4, and D6 must be populated; optionally, slots D1, D3, D5, and D7 may be populated as a group on all installed memory risers. All DIMMs in the system must be identical. DIMM names in appliance logs and the Maintenance: Hardware view are displayed with the full name, such as /SYS/MB/P0/D7 . Oracle ZFS Storage ZS3-4 Fan Modules - The Fan Modules and Fan Module LEDs of the Oracle ZFS Storage ZS3-4 controller are shown in the following figure. The following LEDs are lit when a fan module fault is detected: Front and rear Service Action Required LEDs Fan Module Service Action Required (TOP) LED on the front of the controller Fan Fault LED on or adjacent to the faulty fan module The system Overtemp LED might light if a fan fault causes an increase in system operating temperature.",
+  "blocks": [
+    {
+      "tag": "h2",
+      "attrs": {
+        "id": "ZFSRE-GUID-2778D875-E494-446D-91C4-50A02B17391C",
+        "class": "sect2"
+      },
+      "start_line": 65,
+      "end_line": 65,
+      "text": "Oracle ZFS Storage ZS3-4 Internal Components"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 68,
+      "end_line": 68,
+      "text": "The components of the Oracle ZFS Storage ZS3-4 controller are shown in the following figure and identified in the legend."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 76,
+      "end_line": 77,
+      "text": "1 Motherboard"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 82,
+      "end_line": 83,
+      "text": "7 CPUs and heatsinks"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 90,
+      "end_line": 91,
+      "text": "2 Low-profile PCIe cards"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 96,
+      "end_line": 97,
+      "text": "8 Memory risers"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 104,
+      "end_line": 105,
+      "text": "3 Power supplies"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 110,
+      "end_line": 111,
+      "text": "9 Fan board"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 118,
+      "end_line": 119,
+      "text": "4 Power supply backplane"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 124,
+      "end_line": 125,
+      "text": "10 Fan modules"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 132,
+      "end_line": 133,
+      "text": "5 Drive backplane"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 138,
+      "end_line": 139,
+      "text": "11 Boot drives and SSDs"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 146,
+      "end_line": 147,
+      "text": "6 System lithium battery"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 154,
+      "end_line": 155,
+      "text": "Oracle ZFS Storage ZS3-4 Internal Boards - The Oracle ZFS Storage ZS3-4 controller chassis contains the following field-replaceable units (FRUs). FRUs are not customer-serviceable, and should only be replaced by trained Oracle service technicians."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 159,
+      "end_line": 166,
+      "text": "Motherboard - The motherboard includes CPU modules, slots for eight DIMM risers, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host's 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 171,
+      "end_line": 178,
+      "text": "Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the system. It is directly connected to the Vertical PDB card, and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock (\"kill\") switch. In the controller, the power supplies connect to the power supply backplane which connects to the power distribution board."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 183,
+      "end_line": 188,
+      "text": "Vertical PDB Card - The vertical power distribution board, or Paddle Card serves as the interconnect between the power distribution board and the fan power boards, hard drive backplane, and I/O board."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 193,
+      "end_line": 196,
+      "text": "Power Supply Backplane Card - This board connects the power distribution board to power supplies 0 and 1."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 201,
+      "end_line": 205,
+      "text": "Fan Power Boards - The two fan power boards are FRUs and carry power to the controller fan modules. In addition, they contain fan module status LEDs and transfer I2C data for the fan modules."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 210,
+      "end_line": 215,
+      "text": "Drive Backplane - The six-drive backplane includes the connectors for the drives, as well as the interconnect for the I/O board, Power and Locator buttons, and system/component status LEDs. Each drive has an LED indicator for Power/Activity, Fault, and Locate."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 219,
+      "end_line": 220,
+      "text": "Oracle ZFS Storage ZS3-4 System Drives - The Oracle ZFS Storage ZS3-4 controller has two system boot drives in slots 0 and 1, configured as a mirrored pair. Read-optimized cache devices can be installed in controller slots 2 through 5, or installed in Oracle Storage Drive Enclosure DE2-24 disk shelf slots."
+    },
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "notep1"
+      },
+      "start_line": 222,
+      "end_line": 222,
+      "text": "Note:"
+    },
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "infoboxnote",
+        "id": "GUID-2778D875-E494-446D-91C4-50A02B17391C__GUID-80FDBB5C-1F20-40D9-A022-F3EEDA88B623"
+      },
+      "start_line": 221,
+      "end_line": 223,
+      "text": "Note: Read cache devices must be installed in either the controller or an Oracle Storage Drive Enclosure DE2-24 disk shelf. Read cache devices cannot be installed in both controller and disk shelf slots at the same time. For software requirements and slot configuration rules, see Disk Shelf Configurations."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 232,
+      "end_line": 233,
+      "text": "1 Ready to remove (blue)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 238,
+      "end_line": 239,
+      "text": "2 Service action required (amber)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 244,
+      "end_line": 245,
+      "text": "3 OK/Activity (green)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 252,
+      "end_line": 253,
+      "text": "Oracle ZFS Storage ZS3-4 4x4 SAS-2 HBA - The 4x4 SAS-2 HBA, installed in the Oracle ZFS Storage ZS3-4 controller, provides connectivity to external Oracle Storage Drive Enclosure DE2 and Sun Disk Shelves. The HBA logical ports are numbered 3-0, top to bottom:"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 255,
+      "end_line": 256,
+      "text": "See Oracle ZFS Storage ZS3-4 PCIe I/O Cards for slot placement."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 257,
+      "end_line": 258,
+      "text": "Oracle ZFS Storage ZS3-4 CPU and Memory - The Oracle ZFS Storage ZS3-4 controller supports 16GB DDR3 DIMMs installed on all eight risers, accommodating 1TB of memory."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 260,
+      "end_line": 266,
+      "text": "Refer to the service label on the cover for DIMM placement information. On every memory riser, slots D0, D2, D4, and D6 must be populated; optionally, slots D1, D3, D5, and D7 may be populated as a group on all installed memory risers. All DIMMs in the system must be identical."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 268,
+      "end_line": 269,
+      "text": "DIMM names in appliance logs and the Maintenance: Hardware view are displayed with the full name, such as /SYS/MB/P0/D7."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 270,
+      "end_line": 271,
+      "text": "Oracle ZFS Storage ZS3-4 Fan Modules - The Fan Modules and Fan Module LEDs of the Oracle ZFS Storage ZS3-4 controller are shown in the following figure."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 273,
+      "end_line": 273,
+      "text": "The following LEDs are lit when a fan module fault is detected:"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 277,
+      "end_line": 277,
+      "text": "Front and rear Service Action Required LEDs"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 282,
+      "end_line": 283,
+      "text": "Fan Module Service Action Required (TOP) LED on the front of the controller"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 288,
+      "end_line": 288,
+      "text": "Fan Fault LED on or adjacent to the faulty fan module"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 292,
+      "end_line": 293,
+      "text": "The system Overtemp LED might light if a fan fault causes an increase in system operating temperature."
+    }
+  ],
+  "tables": [
+    {
+      "start_line": 71,
+      "attrs": {
+        "cellpadding": "4",
+        "cellspacing": "0",
+        "class": "Formal",
+        "title": null,
+        "summary": " Table showing information regarding the Oracle ZFS Storage ZS3-4 controller internal components ",
+        "frame": "hsides",
+        "border": "1",
+        "rules": "rows"
+      },
+      "rows": [
+        {
+          "start_line": 73,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d63271e31"
+              },
+              "start_line": 74,
+              "end_line": 79,
+              "text": "1 Motherboard"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d63271e31 "
+              },
+              "start_line": 80,
+              "end_line": 85,
+              "text": "7 CPUs and heatsinks"
+            }
+          ],
+          "end_line": 86
+        },
+        {
+          "start_line": 87,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d63271e48"
+              },
+              "start_line": 88,
+              "end_line": 93,
+              "text": "2 Low-profile PCIe cards"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d63271e48 "
+              },
+              "start_line": 94,
+              "end_line": 99,
+              "text": "8 Memory risers"
+            }
+          ],
+          "end_line": 100
+        },
+        {
+          "start_line": 101,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d63271e65"
+              },
+              "start_line": 102,
+              "end_line": 107,
+              "text": "3 Power supplies"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d63271e65 "
+              },
+              "start_line": 108,
+              "end_line": 113,
+              "text": "9 Fan board"
+            }
+          ],
+          "end_line": 114
+        },
+        {
+          "start_line": 115,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d63271e82"
+              },
+              "start_line": 116,
+              "end_line": 121,
+              "text": "4 Power supply backplane"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d63271e82 "
+              },
+              "start_line": 122,
+              "end_line": 127,
+              "text": "10 Fan modules"
+            }
+          ],
+          "end_line": 128
+        },
+        {
+          "start_line": 129,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d63271e99"
+              },
+              "start_line": 130,
+              "end_line": 135,
+              "text": "5 Drive backplane"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d63271e99 "
+              },
+              "start_line": 136,
+              "end_line": 141,
+              "text": "11 Boot drives and SSDs"
+            }
+          ],
+          "end_line": 142
+        },
+        {
+          "start_line": 143,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d63271e116"
+              },
+              "start_line": 144,
+              "end_line": 149,
+              "text": "6 System lithium battery"
+            }
+          ],
+          "end_line": 150
+        }
+      ],
+      "end_line": 152
+    },
+    {
+      "start_line": 227,
+      "attrs": {
+        "cellpadding": "4",
+        "cellspacing": "0",
+        "class": "Formal",
+        "title": null,
+        "summary": " Table showing information regarding the Oracle ZFS Storage ZS3-4 controller system drive ",
+        "frame": "hsides",
+        "border": "1",
+        "rules": "rows"
+      },
+      "rows": [
+        {
+          "start_line": 229,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d63271e203"
+              },
+              "start_line": 230,
+              "end_line": 235,
+              "text": "1 Ready to remove (blue)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d63271e203 "
+              },
+              "start_line": 236,
+              "end_line": 241,
+              "text": "2 Service action required (amber)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d63271e203 "
+              },
+              "start_line": 242,
+              "end_line": 247,
+              "text": "3 OK/Activity (green)"
+            }
+          ],
+          "end_line": 248
+        }
+      ],
+      "end_line": 250
+    }
+  ]
+}

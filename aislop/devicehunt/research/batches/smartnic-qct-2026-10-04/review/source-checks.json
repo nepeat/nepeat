@@ -1,0 +1,71 @@
+{
+  "proposals": [
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/reference-pdf-proposal.json",
+      "documents": 1,
+      "pages": 2,
+      "isolated_prepare": true
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/english-reference-pdf-proposal.json",
+      "documents": 1,
+      "pages": 2,
+      "isolated_prepare": true
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/reference-pdf-proposal.json",
+      "documents": 1,
+      "pages": 49,
+      "isolated_prepare": true
+    }
+  ],
+  "candidates": [
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/candidate-curated.json",
+      "records": 1,
+      "facts": 17,
+      "models": [
+        "FPGA SmartNIC C5020X"
+      ]
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/english-candidate-curated.json",
+      "records": 1,
+      "facts": 17,
+      "models": [
+        "FPGA IPU C5020X"
+      ]
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/candidate-curated.json",
+      "records": 2,
+      "facts": 22,
+      "models": [
+        "QuantaPlex T42S-2U",
+        "QuantaPlex T42S-2U"
+      ]
+    }
+  ],
+  "hashes": {
+    "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-smartnic-c5020x-cn-2021.pdf": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+    "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-smartnic-c5020x-cn-2021.pages.json": "c590aa1f78ff4b03590d455156d833b512adc66a3e3d2beac5299a99701ac420",
+    "data/raw/smartnic-qct-2026-10-04/smartnic/reference-pdf-proposal.json": "b20f68f00d30c73c6eb19251c0f333ce5ee5f9b93b5dfbf46e84bc8b434901d0",
+    "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-ipu-c5020x-en-2021.pdf": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+    "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-ipu-c5020x-en-2021.pages.json": "a1c1134e07f858143d1ce4215109a76e9c391a9a98dad92e193ec1c9a09895ba",
+    "data/raw/smartnic-qct-2026-10-04/smartnic/english-reference-pdf-proposal.json": "dbf25602cab7862ef4fb15c32868eb7288eca7117de658728f9f75996be5a902",
+    "data/raw/smartnic-qct-2026-10-04/t42s/qct-product-portfolio-v14-2023.pdf": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+    "data/raw/smartnic-qct-2026-10-04/t42s/qct-product-portfolio-v14-2023.pages.json": "f9a7bc46e384ee84776dc02a441029fdc8395d5db0f5bfc58bf825510c1cb7ef",
+    "data/raw/smartnic-qct-2026-10-04/t42s/reference-pdf-proposal.json": "df355b0d0b7d95f14f6d5a56e49dc1e0ee571b443d0e2a8908094f686044b5f9",
+    "data/raw/smartnic-qct-2026-10-04/smartnic/candidate-curated.json": "7b78f01ab9745ccc5106a9eced89b12bb5c80657924108f0612def6230d0e61b",
+    "data/raw/smartnic-qct-2026-10-04/smartnic/english-candidate-curated.json": "e8eba0504bc33884d0ccb4c044dffff1b2b26e386f856ee4b3bcca1a6a977f2a",
+    "data/raw/smartnic-qct-2026-10-04/t42s/candidate-curated.json": "463aed0f82a40bfca6962ac98d6f41c9e59a8f220aa64475a560ec07ff760954",
+    "data/raw/qct-qxvdi-2020-2026-10-04.pdf": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+  },
+  "totals": {
+    "records": 4,
+    "facts": 56,
+    "pdfs": 3,
+    "pages": 53
+  },
+  "live_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16"
+}

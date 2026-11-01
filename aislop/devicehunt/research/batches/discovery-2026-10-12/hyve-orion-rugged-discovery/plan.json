@@ -1,0 +1,12 @@
+{
+  "owner": "/root",
+  "basis": "data/raw/odm-models-2026-10-04/hyve-datasheets.html",
+  "basis_sha256": "075c670f05e3866f45ada55fe802e77b9ff9e196afcfd804362fe2478954ddb3",
+  "urls": [
+    "https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8f074d8ad1e07fec910de_Hyve%20Orion%20-%20Rubin_RGB_Rev1_050126.pdf",
+    "https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ebecde71d60cc847501b_MIL-SPEC%20Rugged_RGB_Rev1_050126.pdf"
+  ],
+  "max_http_requests": 3,
+  "rules": "Fresh CDN robots then exact2 saved PDF hrefs only. No redirect/retry/alternative/query/search. Robots404 means absent policy;200 parsed exactpaths; any other policy failure stops. Contentdenial/failure stops thatsource,429stopswholebatch. No source expansion. Complete local sidecars; max6selectedpage renders; noOCR/install. Source-only names/configurations, no future-release/current-stock/deployment/manufacture assertion.",
+  "novelty": "URLs absent in current sources and exact filtered prior notes/fetch/request/plan/outcome ledgers; no Orion/Rugged named captured file. Other3datasheets alreadycaptured excluded."
+}

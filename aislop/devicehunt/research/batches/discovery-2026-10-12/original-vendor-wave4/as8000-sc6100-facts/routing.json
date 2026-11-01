@@ -1,0 +1,122 @@
+{
+  "observed_utc": "2026-10-13T04:21:33.032178+00:00",
+  "catalog_path": "data/devices.sqlite",
+  "catalog_sha256_before": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+  "catalog_sha256_after": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+  "read_only": true,
+  "anchors": [
+    {
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000",
+      "device_id": "7def8cc8592b77d60107",
+      "routing": "proposed new exact system identity",
+      "existing_device": null,
+      "existing_source_ids": [],
+      "proposed_source_id_absent": true
+    },
+    {
+      "brand": "Celestica",
+      "model": "SC6100",
+      "device_id": "28d8c44c9c82eff65231",
+      "routing": "existing exact identity",
+      "existing_device": {
+        "id": "28d8c44c9c82eff65231",
+        "brand": "Celestica",
+        "model": "SC6100",
+        "revision": "",
+        "title": "Celestica SC6100",
+        "kind": "storage controller"
+      },
+      "existing_source_ids": [
+        "celestica-2025-catalog",
+        "celestica-storage",
+        "celestica-storage-manufacturer-sc6100",
+        "ul-celestica-platforms"
+      ],
+      "proposed_source_id_absent": true
+    }
+  ],
+  "nearby_identities_kept_separate": [
+    {
+      "id": "738b99f4930c1dd25df4",
+      "brand": "Accton",
+      "model": "Minipack-AS8000",
+      "revision": "",
+      "title": "Minipack-AS8000",
+      "kind": "listed ICT equipment"
+    },
+    {
+      "id": "28d8c44c9c82eff65231",
+      "brand": "Celestica",
+      "model": "SC6100",
+      "revision": "",
+      "title": "Celestica SC6100",
+      "kind": "storage controller"
+    },
+    {
+      "id": "52a1f6a1dc249c9fb231",
+      "brand": "Edge-Core",
+      "model": "MINIPACK AS8000 OPEN MODULAR PLATFORM",
+      "revision": "",
+      "title": "Edge-Core MINIPACK AS8000 OPEN MODULAR PLATFORM",
+      "kind": "vendor product"
+    },
+    {
+      "id": "cd52888d1b6930ff6393",
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000-16Q",
+      "revision": "",
+      "title": "Edge-Core Minipack-AS8000-16Q",
+      "kind": "vendor product"
+    },
+    {
+      "id": "2601aa781e07371d7578",
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000-Chassis",
+      "revision": "",
+      "title": "Edge-Core Minipack-AS8000-Chassis",
+      "kind": "vendor product"
+    },
+    {
+      "id": "5068f278efcd83ca23e8",
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000-Cover",
+      "revision": "",
+      "title": "Edge-Core Minipack-AS8000-Cover",
+      "kind": "vendor product"
+    },
+    {
+      "id": "6f5cdb4e488ca271b349",
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000-FAN",
+      "revision": "",
+      "title": "Edge-Core Minipack-AS8000-FAN",
+      "kind": "vendor product"
+    },
+    {
+      "id": "2dc78ba790d66f71be7c",
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000-O-AC-F",
+      "revision": "",
+      "title": "Edge-Core Minipack-AS8000-O-AC-F",
+      "kind": "vendor product"
+    },
+    {
+      "id": "8e088faeb338b2a081e0",
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000-RAIL KIT",
+      "revision": "",
+      "title": "Edge-Core Minipack-AS8000-RAIL KIT",
+      "kind": "vendor product"
+    },
+    {
+      "id": "344491d4165219d46d43",
+      "brand": "Edge-Core",
+      "model": "Minipack-AS8000-SCM",
+      "revision": "",
+      "title": "Edge-Core Minipack-AS8000-SCM",
+      "kind": "vendor product"
+    }
+  ],
+  "no_bridge_policy": "Exact brand/model routing only; no Accton, longname, suffix, chassis/module or rail alias."
+}

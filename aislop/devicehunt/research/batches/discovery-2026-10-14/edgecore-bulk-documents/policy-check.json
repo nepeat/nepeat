@@ -1,0 +1,44 @@
+{
+  "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "agent": "devicehunt-public-research/1.0",
+  "crawl_delay_seconds": null,
+  "effective_spacing_seconds": 0,
+  "planned_landings": [
+    {
+      "url": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/ags8200-datasheet-r01/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/cor550-as7926-40xkfb-ds-r07/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs511-as9737-32db-datasheet-r02/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/ecis4500-poe-series-ds-r04/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/exp400-32x-datasheet-r01/",
+      "allowed": true
+    },
+    {
+      "url": "https://www.edge-core.com/download/saf4100i-ds-r03/",
+      "allowed": true
+    }
+  ]
+}

@@ -1,0 +1,351 @@
+{
+  "status": "PASS final read-only 52-table rebuild comparison",
+  "checked_at_utc": "2026-10-13T05:03:34.398082+00:00",
+  "file_hashes": {
+    "data/devices-candidate-wave4-2026-10-12.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/rebuilt-wave4-2026-10-12.sqlite": "adc2b91772b4df3cc844c7fe7b5525b2aafcb9e455d9f374e8410b912bedba36",
+    "data/import-manifest-candidate-wave4-2026-10-12.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562",
+    "research/batches/discovery-2026-10-12/integration-wave4/stage-report.json": "e9a3f5aa1eef5313b4d32f66c156c2870603e1fe09dbcabba9bc140cf8ce24ab",
+    "research/batches/discovery-2026-10-12/integration-wave4/code-under-test.json": "77da1729417e4e94ad9c5f856228f76e24e4ce284dffbee274d397d3637b8bb1",
+    "research/batches/discovery-2026-10-12/integration-wave4/rebuild.log": "3dad6ad65b187410061a4820d4085ba4e542db634bf3d1739be66801ffcd355c",
+    "research/batches/discovery-2026-10-12/integration-wave4/compare.log": "9b5b95e2f30668f3cb165ff522c7241b584c6f9fbcb872af36baa661c64548fd",
+    "data/exports/wave4-2026-10-12-comparison.json": "d74530e5fbc3a6451fb09fd20ba655ac19830172348ff2a9768ed75b40374ce1",
+    "data/exports/wave4-2026-10-12-validation.json": "7be5d84063c4829f6ab7162ad5099af7c77833741de44c1f1f1a22431a64b327"
+  },
+  "frozen_code_hashes_verified": 209,
+  "all52_comparison": {
+    "affiliations": {
+      "original": 10599,
+      "rebuilt": 10599,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "anatel_equipment": {
+      "original": 190852,
+      "rebuilt": 190852,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "archive_artifacts": {
+      "original": 146,
+      "rebuilt": 146,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "archive_receipts": {
+      "original": 374,
+      "rebuilt": 374,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "archive_release_artifacts": {
+      "original": 148,
+      "rebuilt": 148,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "archive_release_receipts": {
+      "original": 374,
+      "rebuilt": 374,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "archive_release_statements": {
+      "original": 4,
+      "rebuilt": 4,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "archive_releases": {
+      "original": 1,
+      "rebuilt": 1,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "bahrain_equipment": {
+      "original": 10169,
+      "rebuilt": 10169,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "bsmi_certificates": {
+      "original": 105732,
+      "rebuilt": 105732,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "bsmi_declarations": {
+      "original": 564,
+      "rebuilt": 564,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "bsmi_product_certificates": {
+      "original": 17797,
+      "rebuilt": 17797,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "bsmi_voluntary_certificates": {
+      "original": 1818,
+      "rebuilt": 1818,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "devices": {
+      "original": 5122,
+      "rebuilt": 5122,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "document_pages": {
+      "original": 3798,
+      "rebuilt": 3798,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "document_search": {
+      "original": 3798,
+      "rebuilt": 3798,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "documents": {
+      "original": 70,
+      "rebuilt": 70,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "energystar_datacenter": {
+      "original": 452,
+      "rebuilt": 452,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "energystar_server_archives": {
+      "original": 873,
+      "rebuilt": 873,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "energystar_servers": {
+      "original": 495,
+      "rebuilt": 495,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "equipment_register": {
+      "original": 26258,
+      "rebuilt": 26258,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "evidence_links": {
+      "original": 4,
+      "rebuilt": 4,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "evidence_reviews": {
+      "original": 4,
+      "rebuilt": 4,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "evidence_statements": {
+      "original": 4,
+      "rebuilt": 4,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "facts": {
+      "original": 74602,
+      "rebuilt": 74602,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_applications": {
+      "original": 2,
+      "rebuilt": 2,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_company_rows": {
+      "original": 237,
+      "rebuilt": 237,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_detail_links": {
+      "original": 1493,
+      "rebuilt": 1493,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_detail_pages": {
+      "original": 174,
+      "rebuilt": 174,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_exhibits": {
+      "original": 32,
+      "rebuilt": 32,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_grantees": {
+      "original": 50153,
+      "rebuilt": 50153,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_id_index": {
+      "original": 344,
+      "rebuilt": 344,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_sitemap_pages": {
+      "original": 48,
+      "rebuilt": 48,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_sitemap_urls": {
+      "original": 231962,
+      "rebuilt": 231962,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "fcc_text_excerpts": {
+      "original": 1092,
+      "rebuilt": 1092,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "ghana_equipment": {
+      "original": 1153,
+      "rebuilt": 1153,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "hyperscaler_evidence": {
+      "original": 22,
+      "rebuilt": 22,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "identifiers": {
+      "original": 6856,
+      "rebuilt": 6856,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "ieee_assignments": {
+      "original": 58639,
+      "rebuilt": 58639,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "inspur_support_entries": {
+      "original": 1064,
+      "rebuilt": 1064,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "ised_equipment": {
+      "original": 628,
+      "rebuilt": 628,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "japan_equipment": {
+      "original": 346,
+      "rebuilt": 346,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "ncc_equipment": {
+      "original": 110957,
+      "rebuilt": 110957,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "nigeria_equipment": {
+      "original": 8517,
+      "rebuilt": 8517,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "ntra_equipment": {
+      "original": 76510,
+      "rebuilt": 76510,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "pci_entries": {
+      "original": 42438,
+      "rebuilt": 42438,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "public_equipment_rows": {
+      "original": 4985,
+      "rebuilt": 4985,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "records": {
+      "original": 7261,
+      "rebuilt": 7261,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "rra_equipment": {
+      "original": 1081,
+      "rebuilt": 1081,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "search_index": {
+      "original": 5122,
+      "rebuilt": 5122,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "sources": {
+      "original": 2115,
+      "rebuilt": 2115,
+      "only_original": 0,
+      "only_rebuilt": 0
+    },
+    "tec_equipment": {
+      "original": 2331,
+      "rebuilt": 2331,
+      "only_original": 0,
+      "only_rebuilt": 0
+    }
+  },
+  "baseline_equality_keys": [
+    "summary",
+    "results",
+    "search_summary"
+  ],
+  "baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "integrity": [
+    "ok"
+  ],
+  "foreign_key_violations": 0,
+  "all_read_files_byte_hashes_unchanged": {
+    "devices-candidate-wave4-2026-10-12.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "rebuilt-wave4-2026-10-12.sqlite": "adc2b91772b4df3cc844c7fe7b5525b2aafcb9e455d9f374e8410b912bedba36",
+    "devices.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+    "import-manifest.json": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec"
+  },
+  "limits": "Only completed proofs reviewed, no suite execution or incomplete suite-result judgement; no rebuild/import/promotion/network/shared writes."
+}

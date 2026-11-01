@@ -1,0 +1,67 @@
+{
+  "artifacts": [
+    {
+      "snapshot": "snapshots/as8000-r02-qsg.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838,
+      "type": "raw PDF capture"
+    },
+    {
+      "snapshot": "snapshots/as8000-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-pages.json",
+      "sha256": "d826784d7e402dc7f9e74df449d26231cd4373a5ceae11421d2f24d79a936d4b",
+      "bytes": 71160,
+      "type": "complete Poppler text sidecar; no OCR"
+    },
+    {
+      "snapshot": "snapshots/sc6100-datasheet.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920,
+      "type": "raw PDF capture"
+    },
+    {
+      "snapshot": "snapshots/sc6100-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-pages.json",
+      "sha256": "973cb631b49945513bca216f0de25aa48e65728023078a03fa6410acff1c2271",
+      "bytes": 11324,
+      "type": "complete Poppler text sidecar; no OCR"
+    }
+  ],
+  "reviewed_findings_sha256": "397420189911c5991318be6c04cc9698bd65970cb14800112f0301300fc9e06e",
+  "original_request_ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json",
+  "original_request_ledger_sha256": "1f8b82c7c790e607c75ca070f194a9c56b1aa137291cc68a2d911451b31b383b",
+  "original_render_provenance": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/render-provenance.json",
+  "original_render_provenance_sha256": "e5c3ab8297e6e9186f1e14aca9986bdd16527bbfff73afdc1881193654e4455d",
+  "visual_originals": [
+    {
+      "path": "as8000-01.png",
+      "sha256": "98bc9fe6f652ff04871ef2954a9b2d3f27342b468d993960e38c004f121b7837"
+    },
+    {
+      "path": "as8000-02.png",
+      "sha256": "343db14d4657d17dcc62b03b42853d4db05a14b8f335fae172866f07d6cad338"
+    },
+    {
+      "path": "as8000-03.png",
+      "sha256": "3258e6c2d899a753e1f2d498b9e3dbd564a6b79ba076f48545a3b460c7f6d11b"
+    },
+    {
+      "path": "as8000-04.png",
+      "sha256": "a04f90a09885864c29270d9fdd73b1d366e064b8dfcdb7b7c92bb6a6f4ea93eb"
+    },
+    {
+      "path": "sc6100-1.png",
+      "sha256": "42f751a8621ddad35b9bf5c8b03601451013c4d9bc0d99c2c9e4b460c6c302b5"
+    },
+    {
+      "path": "sc6100-2.png",
+      "sha256": "cbf4a23ea6fcd8ac1cfc59e1b574582272d4f818baeafab869b2d91d4466baae"
+    }
+  ],
+  "complete_pages": 14,
+  "visual_pages": 6,
+  "new_network_requests": 0,
+  "new_extraction_or_rendering": false
+}

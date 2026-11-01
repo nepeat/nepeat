@@ -1,0 +1,175 @@
+{
+  "status": "OFFLINE plan only; no capture, candidate, role/routing decision or import",
+  "owner": "/root/handoff_audit",
+  "created_utc": "2026-10-13T04:43:40.455113+00:00",
+  "leads": [
+    {
+      "priority": 1,
+      "vendor": "Oracle",
+      "model_scope": "Sun ZFS Storage 7420; document may distinguish 7420 M2 explicitly",
+      "basis": "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/internal-components.html",
+      "basis_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "href": "sun-zfs-storage-7420-specifications.html",
+      "gap": "Staged service-platform records retain power supplies 0/1, 12V distribution and standby/context, but no explicit PSU wattage/input range/current, chassis dimensions/weight or environmental operating limits. Specifications sibling may supply some of these; absence is a valid outcome.",
+      "scope": "Only explicit printed platform scope; no bridge to registry ZFS STORAGE 7420/S7420, no transfer of general 7420 fields to M2, no exact PSU identity or manufacturer role without literal evidence.",
+      "basis_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "exact_published_href": "sun-zfs-storage-7420-specifications.html",
+      "resolved_published_URL": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-specifications.html",
+      "source_locator": [
+        {
+          "href": "sun-zfs-storage-7420-specifications.html",
+          "anchor_text": "Previous"
+        }
+      ],
+      "first_fetch": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-specifications.html",
+      "first_fetch_basis": "Oracle relative href resolved against captured source URL",
+      "policy_checkpoint": {
+        "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/robots.txt",
+        "sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0",
+        "declared_agent": "devicehunt-public-research/1.0",
+        "saved_policy_allows_exact_published_URL": true,
+        "saved_policy_allows_canonical_landing": true,
+        "crawl_delay_seconds": null,
+        "availability": "unrequested target; saved policy is historical, refresh applicable host policy before later capture"
+      },
+      "standalone_HTTP_cap": 3,
+      "HTTP_budget_breakdown": {
+        "policy": 1,
+        "source": 1,
+        "permitted_current_published_download": 0,
+        "redirect_allowance": 1
+      },
+      "novelty_check": "bounded check of eleven named capture ledgers, exact source/record/document URL rows in accepted and staged databases, named raw-directory filenames and reviewed failure notes; not exhaustive historical absence proof",
+      "access_constraints": "No selected exact path appears in the checked capture ledgers/failure notes; current status/content unknown. All known denied or missing unrelated routes remain excluded.",
+      "stop_rule": "Stop affected source on 402/403/login/robots prohibition, one 404/timeout, unexpected cross-origin or unrelated document, changed model/revision scope, or request cap; no retry, alternative host/copy/route or guessed variants. Stop whole run on 429. Do not spend unused requests on more sources."
+    },
+    {
+      "priority": 2,
+      "vendor": "Edge-Core",
+      "model_scope": "AS6700-32X quick-start; retain every other printed family/model scope",
+      "basis": "data/raw/edgecore/product-as6700-32x.html",
+      "basis_url": "https://www.edge-core.com/product/as6700-32x/",
+      "href": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6ab82f7a6292c1790455674",
+      "gap": "Edge-Core family currently has broad AC/-48V redundant PSU, 4+1 fan, airflow and 267W typical statements, but no exact PSU input range/current/FRU table, service/rack constraints or reviewed full order-code definition. Product vendor_description says AS6701-32X under AS6700 page: keep that conflict, do not resolve by convention. Older manual suffix-definition snippet remains uncaptured lead only.",
+      "scope": "Read exact cover/model/revision and table boundaries first; any -O/-D definition applies only where explicitly printed in this document. Never transfer to owned 7760/AZ4444/AS7772 or add AS prefixes/suffixes. Accton and Edge-Core namespaces remain separate pending review.",
+      "basis_sha256": "5ac0b18e67eb51c982b5aad820520dd77f00c2463487e0eee3eede87bac33748",
+      "exact_published_href": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6ab82f7a6292c1790455674",
+      "resolved_published_URL": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6ab82f7a6292c1790455674",
+      "source_locator": [
+        {
+          "href": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6ab82f7a6292c1790455674",
+          "anchor_text": "Download"
+        }
+      ],
+      "first_fetch": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/",
+      "first_fetch_basis": "Prior accepted Edge-Core acquisition workflow: same published download path with only ephemeral wpdmdl/refresh query removed for canonical landing; exact stale query remains provenance, no guessed file/version",
+      "policy_checkpoint": {
+        "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/robots-edgecore.txt",
+        "sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+        "declared_agent": "devicehunt-public-research/1.0",
+        "saved_policy_allows_exact_published_URL": true,
+        "saved_policy_allows_canonical_landing": true,
+        "crawl_delay_seconds": null,
+        "availability": "unrequested target; saved policy is historical, refresh applicable host policy before later capture"
+      },
+      "standalone_HTTP_cap": 5,
+      "HTTP_budget_breakdown": {
+        "policy": 1,
+        "source": 1,
+        "permitted_current_published_download": 1,
+        "redirect_allowance": 2
+      },
+      "novelty_check": "bounded check of eleven named capture ledgers, exact source/record/document URL rows in accepted and staged databases, named raw-directory filenames and reviewed failure notes; not exhaustive historical absence proof",
+      "access_constraints": "No selected exact path appears in the checked capture ledgers/failure notes; current status/content unknown. All known denied or missing unrelated routes remain excluded.",
+      "stop_rule": "Stop affected source on 402/403/login/robots prohibition, one 404/timeout, unexpected cross-origin or unrelated document, changed model/revision scope, or request cap; no retry, alternative host/copy/route or guessed variants. Stop whole run on 429. Do not spend unused requests on more sources."
+    },
+    {
+      "priority": 3,
+      "vendor": "Edge-Core",
+      "model_scope": "AS5710 / AS5712-54X DS R09 as linked; actual printed model/revision to verify",
+      "basis": "data/raw/edgecore/product-as5712-54x.html",
+      "basis_url": "https://www.edge-core.com/product/as5712-54x/",
+      "href": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6ab82f79313cd1790455673",
+      "gap": "Current family has broad AC/-48V/12V options, 4+1 fans/airflow, historical software and secondary NetBox dimensions/bay information, but no captured first-party electrical rating/input-current and ordering/PSU/fan-FRU table for this exact datasheet. A NetBox comment links older R09 PDF; that secondary link is not a saved vendor PDF and is not proposed as alternate route.",
+      "scope": "AS5710 and AS5712, AC/DC variants, complete switches, PSU/fan/accessory rows and printed full codes stay separate; no family-wide suffix decoder, physical factory role or current NOS entitlement.",
+      "basis_sha256": "008735960fcbd2370fe13f35fe6e32b84ed2c5e781397e014190a24e85b3f6b1",
+      "exact_published_href": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6ab82f79313cd1790455673",
+      "resolved_published_URL": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6ab82f79313cd1790455673",
+      "source_locator": [
+        {
+          "href": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6ab82f79313cd1790455673",
+          "anchor_text": "Download"
+        }
+      ],
+      "first_fetch": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/",
+      "first_fetch_basis": "Prior accepted Edge-Core acquisition workflow: same published download path with only ephemeral wpdmdl/refresh query removed for canonical landing; exact stale query remains provenance, no guessed file/version",
+      "policy_checkpoint": {
+        "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/robots-edgecore.txt",
+        "sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+        "declared_agent": "devicehunt-public-research/1.0",
+        "saved_policy_allows_exact_published_URL": true,
+        "saved_policy_allows_canonical_landing": true,
+        "crawl_delay_seconds": null,
+        "availability": "unrequested target; saved policy is historical, refresh applicable host policy before later capture"
+      },
+      "standalone_HTTP_cap": 5,
+      "HTTP_budget_breakdown": {
+        "policy": 1,
+        "source": 1,
+        "permitted_current_published_download": 1,
+        "redirect_allowance": 2
+      },
+      "novelty_check": "bounded check of eleven named capture ledgers, exact source/record/document URL rows in accepted and staged databases, named raw-directory filenames and reviewed failure notes; not exhaustive historical absence proof",
+      "access_constraints": "No selected exact path appears in the checked capture ledgers/failure notes; current status/content unknown. All known denied or missing unrelated routes remain excluded.",
+      "stop_rule": "Stop affected source on 402/403/login/robots prohibition, one 404/timeout, unexpected cross-origin or unrelated document, changed model/revision scope, or request cap; no retry, alternative host/copy/route or guessed variants. Stop whole run on 429. Do not spend unused requests on more sources."
+    }
+  ],
+  "budget": {
+    "maximum_sources": 3,
+    "HTTP_all_sources_total_cap": 12,
+    "policy_requests": 2,
+    "direct_Oracle_page": 1,
+    "Edge_Core_landings": 2,
+    "current_published_downloads": 2,
+    "redirect_allowance": 5,
+    "searches": 0,
+    "screenshots": 0,
+    "retries": 0
+  },
+  "constraints": [
+    "Capture authorization remains separate; plan alone does not authorize requests.",
+    "Disable uncounted automatic redirects/crawling; count each response and policy request.",
+    "Edge-Core permits at most one current same-origin published PDF/download link per assigned landing, count every redirect and stop at its cap; stale refresh token is provenance only.",
+    "No extraction/import/shared-state change in this planning task. Later extraction/visual selection needs its own bounded brief.",
+    "Current and staged catalog observations are dated checkpoints; exact namespace/identity/role decisions remain separate."
+  ],
+  "novelty_scope": "Only explicitly named sources, ledgers, source/record/document URLs and raw directory filenames checked; no claim of global uncaptured status.",
+  "prior_input_hashes": {
+    "research/batches/discovery-2026-10-12/next-leads/handoff.md": "c5d9f1b468289eb1438597f500c6ded4411038f2546ffa564441e3137c6a453c",
+    "research/batches/discovery-2026-10-12/next-leads/plan.json": "4e37b4a342a3e7ecc1cd7eb608227647cbf9d955577eb15e7d634d2785424db7",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/handoff.md": "851e9a17c6fa7db2e61d9d4fc4e89cdd74f526df1013c9676394d37d1be3a264",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/handoff.md": "7f56ea228ba0dac73744aaa5a4b039160208ba80ef88a5bd6be175f789c8db65",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/handoff.md": "b0e2a851c02aba8cb195bf8999a3665b4a2420fb38b21b1613fdf18c2ddd7617",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/handoff.md": "2a31614bdf0a1285c9b436f08ad9cd17de96fca430d5c3c3d94580234a0480b0",
+    "research/batches/discovery-2026-10-12/spec-continuation/handoff.md": "6f27811d112a418c3c6d2b834f9bab27d728c280ae1dfbc39be8571232396390",
+    "research/owned-hardware-gaps.md": "21914bea61834a08de626ccb72e414d76c2804ea4134b67ef4dab165bf4ca973",
+    "research/owned-networking-buying-2026-10-04.md": "bd60fada725e70d9f9a65c0f41ab573801f9696aa2e919e43311ae2a3330b87e",
+    "research/owned-oracle-buying-2026-10-04.md": "805fbe3c544d50ff14b8e6d4980173cd02ea218f8f829714b22de06c4b2bcdda",
+    "research/accton-manufacturer-leads.md": "63a9d1d27b79e33fec4874b8441502daf72cbb2474a68ea5429d4799ec9de873",
+    "research/as7760-certificate-lead.md": "18d7f2b4ee6d9720dceab543526b4e30d84f3735868fc3a456d175edc74b9aad",
+    "research/batches/hunt-2026-10-10/edgecore/handoff.md": "17dc8bf2b65d91e85b0c02c77915ffd1f93e839d3661440c9b06ea444dfecab4",
+    "research/batches/hunt-2026-10-10/oracle/handoff.md": "0dc6463b0e0c045521caa8f5a129387dcaa689c59fa6964cce09eae88236852d",
+    "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": "2bba17ac10baaeb6085fb118595820305163bd0faf3b45e7c3175e047638a85f",
+    "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": "6be23f49ad98046737fce0fcec1a22b3ac6a57f3f70361975d6af0d0b7c4ba71",
+    "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": "2ecaf6a440fcfd5ea04a2e7700014afebf42bdddb2ba7c54da206bd964faa064",
+    "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json": "aeaec7ed3655c199bd00f961a325d676864b3a14c6253047ff26326a690ae68c",
+    "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": "624d1cf183229903712e6cc89777efb8dd82b98f27632fe435d7aa2a800ec2f6",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": "1ea0b9c90d16cecd0c7e06501cba6563e5ad11f846a73d1b1ea787544d2029d6",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": "8b2680da5a015c64976b42407a14bf0f1f6155a1ffc1ab4e1ae98fb3c7412a97",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": "1f8b82c7c790e607c75ca070f194a9c56b1aa137291cc68a2d911451b31b383b",
+    "data/raw/odm-primary-2026-10-04/fetch-report.json": "8bd5804db21df1ed74c16e011dd72b7f064f1fdda13f85e3b48505e5e203da52",
+    "data/raw/odm-models-2026-10-04/fetch-report.json": "021a001a82b2fbaf3056e607548319ffcae1ca5f443ae0fd6fd05f25a50dd0a5",
+    "data/raw/celestica-storage-manufacturer/fetch-report.json": "3f0b3afe439305d02f48ec46306745ab52268638a8e2d701bed9918834c9f938",
+    "data/raw/edgecore/products.json": "3cda132e73717e48729b4fc8022fc605a031ece95fef839223a6edbeffbd1d31"
+  }
+}

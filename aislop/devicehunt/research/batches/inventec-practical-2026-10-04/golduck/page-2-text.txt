@@ -1,0 +1,82 @@
+1: © 2020 Inventec Corp.
+2: Positioning General Purpose
+3: Form Factor
+4: 1U1N rack mount with slide rail 
+5: W x H x D: 435 x 43.2 x 800 mm
+6: (17.3 x 1.7x 31.5 inch)
+7: Processor
+8: Dual Socket; AMD EPYC™ 7002 Series 
+9: Processors (2nd Gen AMD EPYC™ 
+10: Processors) 
+11: TDP : Up to 165W   
+12: Memory Slot 32x DDR4 DIMM slots
+13: Disk Drive Bay
+14: Front HDD Tray: Up to 12x 2.5” U.2  NVMe/
+15: SATA SSD
+16: Internal: 2x M.2 SATA socket
+17: Expansion Slot
+18: (Rear side)  
+19: 2x PCIe Gen 4 x16 slot (FHHL)
+20: 1x PCIe Gen4 x16 OCP 3.0
+21: Network Controller Support 10GbE/25GbE/100GbE/200GbE 
+22: OCP 3.0 card
+23: Storage Controller
+24: Direct control from CPU
+25: 12x NVMe/SATA SSD
+26: 2x M.2 SATA
+27: System Management IPMI 2.0 compliant+ KVM with Dedicated 
+28: LAN
+29: TPM TPM2.0 (optional)
+30: Power Supply
+31: 1+1 redundancy
+32: 800W/1300W (100-220VAC & 240V HVDC) 
+33: Platinum
+34: Fan N+1 redundancy, 8x 4056 dual rotor fan
+35: With dual AMD EPYC™ 7002 series processors 
+36: supporting total 162 available PCIe lanes, 
+37: Golduck directly supports up to 12x 2.5” U.2 
+38: NVMe/SATA SSDs, enabling streamlined 
+39: software-defined and direct-attached storage 
+40: solutions. Multiple storage options are 
+41: available, including the on-board M.2 storages, 
+42: to offer greater flexibility and capacities. 
+43: SoC Level Security
+44: With industry’s first embedded x86 silicon-
+45: level data security, Golduck minimizes 
+46: potential attack surfaces and protects 
+47: software and data with AMD Secure Root-of-
+48: Trust, AMD Secure Run, and AMD Secure Move 
+49: Technologies.
+50: Flexible Network Configuration
+51: With AMD EPYC™ SoC design that bridges 
+52: the  gaps  between  existing  and  future  
+53: datacenter requirements, Golduck can  meet 
+54: the emerging needs of modern software-
+55: defined datacenters, offering a hyper-
+56: converged infrastructure with high scalability 
+57: and flexibility, which is perfectly  applicable for  
+58: database management and analytics, private/
+59: hybrid cloud environments, and virtualized 
+60: infrastructure.
+61: Golduck AMD EPYC™   Server 
+62: Inventec Corporation  
+63: (TAO)
+64: About  Inventec Data Center Solutions 
+65: (Inventec EBG)
+66: Inventec Data Center Solutions (Inventec EBG) was 
+67: established in 1998 and has been focusing on the 
+68: design and manufacturing of server systems in Inventec 
+69: Corporation. Over decades, Inventec EBG has been the key 
+70: server system supplier of the global branding clients.
+71: All title and intellectual property rights in and to this document, the Specifications and 
+72: photos contained therein, remain the exclusive property of Inventec or its suppliers. 
+73: AMD, the AMD Arrow logo, EPYC and combinations thereof are trademarks of Advanced 
+74: Micro Devices, Inc. 
+75: Inventec logos are trademarks or registered trademarks of Inventec Corporation.
+76: Inventec reserves the right to modify this document, the Specifications and photos 
+77: from time to time without notifying the Party. The entire materials provided herein 
+78: are for reference only.
+79: Learn more at https://ebg.inventec.com/
+80: No.88, Dazhi Rd., Taoyuan Dist., Taoyuan City 33068, Taiwan 
+81: Tel: 886-3-390-0000    Fax: 886-3-376-2370     
+82: Email:  TAOproductsupport@inventec.com

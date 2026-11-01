@@ -1,0 +1,87 @@
+{
+  "phase": "staged; no promotion",
+  "accepted_freeze_sha256": "4b72b77b7c17e77e61b62a9b8e277512e65d634b214694f62f49fedf4b4bc7d4",
+  "inputs_provenance": {
+    "data/server-evidence-facts-2026-10-04.json": "b79d23b5c48c8394aac8e7a933ce88291826782fde84a02f9aabbd901c913ff2",
+    "data/raw/reference-documents-with-server-evidence-2026-10-04.json": "9738b58198e1e8e4ef0d9fdd99be5f683d6442598aef098ced1943dfea3adb79",
+    "data/raw/ingrasys-servers-reconstructed-2026-10-04-provenance.json": "b5aa666fcc0f8be4ba4aefb2d05c395e5c467061e760907e588fa7f73a0f215d",
+    "data/raw/ingrasys-servers-reconstructed-2026-10-04.pdf": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "data/raw/ingrasys-servers-reconstructed-2026-10-04-text.json": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345",
+    "data/raw/ingrasys-servers-reconstructed-2026-10-04-text-envelope.json": "ccdc6ba6172b5f4264dd15355ecae983340147f2f346e60926358a8d2c8b1905",
+    "data/raw/nist-4506.html": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+    "data/raw/ingrasys-servers-2026-10-04/about.html": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+    "data/raw/ingrasys-servers-2026-10-04/sv1120-sv1121-sv2121-sv2221.html": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+    "data/raw/server-evidence-ingrasys-2026-10-04/server-catalog.response": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+    "data/raw/server-evidence-ingrasys-2026-10-04/server-second-span-eof-derivative.pdf": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "data/raw/server-evidence-ingrasys-2026-10-04/server-catalog.headers": "5795b2599a2dd0ab1afee0e405c3ffa943ba1a2b9613b5d1d2fe112c4a0a804c",
+    "data/raw/server-evidence-ingrasys-2026-10-04/server-catalog-pages-text.json": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345"
+  },
+  "candidate": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+  "candidate_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "live_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "manifest_sha256": "eb70b70552dbba72e57212cd79aa9baa470bf883a59ec48c440f6dc88d8c2ce2",
+  "counts": {
+    "devices": 4090,
+    "records": 5317,
+    "sources": 287,
+    "facts": 44975,
+    "documents": 57,
+    "document_pages": 3661
+  },
+  "import_results": {
+    "reference": {
+      "documents": 46,
+      "pages": 3587,
+      "pages_with_text": 3573
+    },
+    "curated": 15
+  },
+  "manifest_jobs": 119,
+  "manifest_inputs": 2191,
+  "old_manifest_inputs_preserved": 2181,
+  "complete_bundle_old_entries_preserved": 45,
+  "complete_bundle_entries": 46,
+  "reused_test_result": [
+    {
+      "name": "focused",
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.test_buying",
+        "-v"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "full-suite",
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "returncode": 0
+    }
+  ],
+  "formatting_transformation": {
+    "authorization": "root explicit scoped formatting correction after staging failure",
+    "original_text_sha256": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345",
+    "new_envelope_sha256": "ccdc6ba6172b5f4264dd15355ecae983340147f2f346e60926358a8d2c8b1905",
+    "exact_added_metadata": {
+      "pdf_sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+      "extraction_method": "pypdf embedded text; no OCR"
+    },
+    "original_pages_identical": true,
+    "strict_pypdf_pages_equal": true,
+    "complete_bundle_original45entries_identical": true,
+    "added_entry_diff_only_text_path_and_sha256": true,
+    "original_source_proposal_sha256": "34caba1972f0bf2fea1ae64485dec0f42c652c63b9e35122e0023813eb33148a",
+    "failure_proof": "staging-failure.json"
+  }
+}

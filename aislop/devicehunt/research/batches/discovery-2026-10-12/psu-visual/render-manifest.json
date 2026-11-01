@@ -1,0 +1,62 @@
+{
+  "tool": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+  "version": "26.06.0 verified by previous runtime task -v invocation",
+  "method": "Poppler local render of immutable saved originals; no network or OCR; no pypdf envelope",
+  "render_invocations": 2,
+  "render_invocation_limit": 3,
+  "visual_review": "pending coordinator review",
+  "renders": [
+    {
+      "source": "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+      "source_sha256_before": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "source_sha256_after": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "source_page": 9,
+      "rendered_at": "2026-10-13T03:07:35.295057+00:00",
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "9",
+        "-l",
+        "9",
+        "-singlefile",
+        "-scale-to",
+        "2200",
+        "-png",
+        "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+        "research/batches/discovery-2026-10-12/psu-visual/bel-pfe1100-page9"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "research/batches/discovery-2026-10-12/psu-visual/bel-pfe1100-page9.png",
+      "output_bytes": 362490,
+      "output_sha256": "2c462ae8ca14b7f2e3ea57fa8d676c54d7424237c33c9a181b12fa739df0241e"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+      "source_sha256_before": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "source_sha256_after": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "source_page": 2,
+      "rendered_at": "2026-10-13T03:07:35.616610+00:00",
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "2",
+        "-l",
+        "2",
+        "-singlefile",
+        "-scale-to",
+        "2200",
+        "-png",
+        "research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+        "research/batches/discovery-2026-10-12/psu-visual/fsp550-29fm-page2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "research/batches/discovery-2026-10-12/psu-visual/fsp550-29fm-page2.png",
+      "output_bytes": 354663,
+      "output_sha256": "fb5ad95044c453959d824b31cac7a0bd7347c8e4f87cf771c0a819af99049b7c"
+    }
+  ]
+}

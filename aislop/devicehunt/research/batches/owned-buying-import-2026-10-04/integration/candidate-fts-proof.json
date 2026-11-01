@@ -1,0 +1,22 @@
+{
+  "database_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "checks": {
+    "owned": {
+      "total": 10,
+      "hits": 10,
+      "gaps": 0
+    },
+    "owned_evidence": {
+      "document_snapshot_hits": 9,
+      "label_photo_only_hits": 1,
+      "unresolved_identity_gaps": 0
+    },
+    "bytedance": {
+      "total": 2,
+      "hits": 0,
+      "gaps": 2
+    }
+  },
+  "fts_content_complete": true,
+  "document_fts_unchanged": true
+}

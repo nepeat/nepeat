@@ -1,0 +1,31 @@
+{
+  "at_utc": "2026-10-13T04:47:21.505750+00:00",
+  "actual_HTTP": 9,
+  "total_cap": 12,
+  "standalone_counts_including_relevant_policy": {
+    "oracle": 2,
+    "as6700": 4,
+    "as5712": 4
+  },
+  "standalone_caps": {
+    "oracle": 3,
+    "as6700": 5,
+    "as5712": 5
+  },
+  "shared_edge_policy_counted_once_overall": true,
+  "statuses": {
+    "200": 7,
+    "302": 2
+  },
+  "planned_sources_captured": 3,
+  "automatic_redirects": false,
+  "retries": 0,
+  "searches": 0,
+  "remote_screenshots": 0,
+  "acquisition_finished": true,
+  "scope": "discovery only; no additional source/request authorized by unused allowance",
+  "script_sha256": "66115da44955596da1ee790fdde5b1b1b12a73dd1eceadac74db9fd616dd39e7",
+  "extractor_sha256": "b657512ff584715df4d8f2d90cc8ba489d896df7196a6bb2ca11c88c080feb38",
+  "document_reader_sha256": "88f9af6b44e7d0f435365c5c4f9cf88500551ee97d266557dc77337d49f77b81",
+  "plan_sha256": "c7ff2b1bd6b21bfc8204742174539566fa90172a4fc58e09b381d68d63ce3931"
+}

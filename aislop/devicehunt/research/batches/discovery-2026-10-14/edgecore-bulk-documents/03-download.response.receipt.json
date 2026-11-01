@@ -1,0 +1,52 @@
+{
+  "sequence": 9,
+  "url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ad06cec72be11792044268",
+  "method": "GET",
+  "purpose": "published_download",
+  "basis": {
+    "selection_number": 3,
+    "landing_path": "03-landing.html",
+    "landing_sha256": "82a8903ce378eec6b7ee52d28a41d73d34f574a583e20d26dbc4b8d98593c6b6",
+    "fresh_heading": "AIS800-32D/32O Datasheet R03",
+    "published_download_url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ad06cec72be11792044268",
+    "expected_wpdmdl_values": [
+      "6244"
+    ],
+    "stale_graph_tokens_used": false
+  },
+  "body_path": "03-download.response",
+  "started_utc": "2026-10-15T06:04:28.725704+00:00",
+  "request_headers": {
+    "User-Agent": "devicehunt-public-research/1.0",
+    "Accept": "*/*"
+  },
+  "automatic_redirects": false,
+  "timeout_seconds": 30,
+  "maximum_body_bytes": 20000000,
+  "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "exact_path_allowed": true,
+  "status": 302,
+  "response_url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ad06cec72be11792044268",
+  "headers": {
+    "Date": "Thu, 15 Oct 2026 06:04:29 GMT",
+    "Content-Type": "text/html; charset=UTF-8",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-frame-options": "SAMEORIGIN",
+    "x-content-type-options": "nosniff",
+    "location": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-043-AIS800-32O_AIS800-32D-DS-R03-20260709.pdf",
+    "vary": "Accept-Encoding",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "microphone=(),fullscreen=()",
+    "x-xss-protection": "1;mode=block",
+    "Server": "cloudflare",
+    "cf-cache-status": "DYNAMIC",
+    "CF-RAY": "a4aca0683ddb6c9a-SEA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "state": "completed",
+  "bytes": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "finished_utc": "2026-10-15T06:04:29.044043+00:00"
+}

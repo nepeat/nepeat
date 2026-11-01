@@ -1,0 +1,153 @@
+{
+  "status": "PASS completed local wave4 state/docs",
+  "checked_utc": "2026-10-13T05:09:40.605976+00:00",
+  "doc_hashes": {
+    "PROGRESS.md": "9099b7ccf1a40cd0f3c32aad2edaa92610edfa83b9369a3e8dd55e008e474792",
+    "docs/specification-search.md": "5849ed62dc5ecc8086bb869f93637dbba4def905a708387bd1fd4699216e9ada",
+    "research/batches/discovery-2026-10-12/integration-wave4/handoff.md": "fec85868ecfefe9f3975aaea1c57816974b5c810c007d3d9cae3e97dad4009fc"
+  },
+  "local_links_verified": [
+    {
+      "document": "PROGRESS.md",
+      "link": "GOAL.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "AGENTS.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "docs/evidence-policy.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/discovery-2026-10-12.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/wave4-integration-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave4/promotion-result.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave4/exports-report.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave4/promoted-gate-check.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/campaign-c2-2026-10-05/acceptance/discovery-2026-10-12-curated-wave3-suite-result.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "data/exports/wave4-2026-10-12-comparison.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave4/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave3/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/curated-import-fix-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/shopping-query-fix-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "docs/history/2026-10-12-before-wave3-promotion/PROGRESS.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/original-vendor-wave5-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/wave5-candidate-boundary-note.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/qct-compatibility-discovery/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/spec-grouping-design/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/spec-grouping-design-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/rename-devicehunt-2026-10-10.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "README.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "data/history/README.md"
+    },
+    {
+      "document": "docs/specification-search.md",
+      "link": "../PROGRESS.md"
+    }
+  ],
+  "accepted_proof_hashes_verified": 35,
+  "live_pair": {
+    "devices.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "import-manifest.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562"
+  },
+  "counts": {
+    "devices": 5122,
+    "records": 7261,
+    "facts": 74602,
+    "sources": 2115,
+    "documents": 70,
+    "document_pages": 3798
+  },
+  "schema": 29,
+  "manifest_jobs": 150,
+  "manifest_inputs": 3970,
+  "export_hashes_verified": 8,
+  "prior_exports_preserved": 7,
+  "specification_rows": 1304,
+  "dated_six_model_counts": {
+    "Minipack-AS8000": 11,
+    "SC6100": 11,
+    "Inspur NF5170M4": 3,
+    "Inspur NF5180M4": 3,
+    "Inspur NF5270M4": 3,
+    "Inspur NF5488M5": 0
+  },
+  "prior_wave3_dated_export_unchanged": true,
+  "shopping_examples_verified": 8,
+  "code_hashes_verified": 209,
+  "campaign_gate": "inputs/projections pass",
+  "lineage": {
+    "archive_artifacts": 146,
+    "archive_receipts": 374,
+    "evidence_statements": 4
+  },
+  "history_originals_verified": 3,
+  "limitations": "No suite/rebuild/import/export/promotion execution or shared writes."
+}

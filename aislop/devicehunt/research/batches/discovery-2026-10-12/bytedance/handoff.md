@@ -1,0 +1,17 @@
+# bytedance exact-model search — 2026-10-12
+
+outcome: bounded pass complete at the **12/12 query limit**. no new qualifying primary B4020/B4010 affiliation or practical hardware facts. no curated input or import proposed; ByteDance examples remain **0/2**.
+
+files: [capture-report.json](capture-report.json) records exact queries, limits, outcomes and hashes; [facts-and-exclusions.json](facts-and-exclusions.json) separates existing primary evidence, secondary discovery leads and exclusions. three `search-batch-*.json` files serialize the complete **web tool responses**, explicitly labelled as tool extracts rather than original upstream bytes. all retrievals occurred 2026-10-13 UTC / 2026-10-12 America/Los_Angeles; individual request times were not instrumented. [SHA256SUMS](SHA256SUMS) hashes each final artifact except itself.
+
+used **0/15 primary-page fetches**, zero secondary-page fetches: no newly discovered primary candidate warranted opening. the original Accton B4010 certificate resurfaced in a search preview; its existing local PDF was hashed read-only (`1f0a0588426b88d6d691bc42686ea86ecaea6338f01ec975f0024b199359e5ce`). the earlier review remains authoritative: B4010 Ethernet Switch, brand N/A, Accton Technology Corporation applicant, report BTL-FICE-1-2302C014. no new visual/document review or affiliation claim is implied. source: [Accton certificate](https://www.accton.com.cn/wp-content/uploads/B4010-2302C014-CER_FCCISED.pdf).
+
+new exact-code **discovery leads only**: the [Volza Malaysia preview](https://www.volza.com/p/models/hsn-code-85176249/import-data/imports-in-malaysia/) juxtaposes `COREB-TH4-B4020` with `BD3300004502`, and `8Q-TOR-T4-B4010` with `BD3300004501`. the preview row date is 11-Mar-2025. these are secondary trade descriptions: do not turn them into accepted aliases, affiliation, shipment origin or chip-generation claims. the [Indonesia preview](https://www.volza.com/p/ethernet-switch-module/import-data/imports-in-indonesia/) also describes PSU/fan quantities, but those quantities remain unverified shipment-description content, not practical catalog facts or an auction-unit configuration.
+
+the distinct watermark trail found a [community repost](https://2048ai.net/692c5dc1791c233193d14822.html) attributing a multi-plane network article to 西贝吹风. searches did not return an original WeChat URL or primary citation that connects either exact model to ByteDance. no repost, brokerage-report mirror, secondary trade page or collision product was opened. no source-host-wide absence is claimed.
+
+known Eximpedia 402 and original OCP agenda 403 were respected: neither URL was requested, retried, or recovered through an alternate route. no contact, paid access, installation, publishing, delegation or catalog/shared-file writes.
+
+checks: all five JSON files parse; all 12 queries are unique and within the cap; every recorded artifact size and SHA-256 matches disk. no application tests needed for research-only artifacts. coordinator acceptance is still pending.
+
+next bounded step: if another pass is worthwhile, use the newly surfaced `BD3300004501`, `BD3300004502` and `8Q-TOR-T4-B4010` strings to seek independently public primary documentation, at most four exact-code queries and three new primary sources. the unrestricted `COREB-TH4-B4020` search is exhausted here. preserve gaps if the new codes only lead back to secondary trade previews; do not expand this into paid bills-of-lading collection or bypass the denied agenda.

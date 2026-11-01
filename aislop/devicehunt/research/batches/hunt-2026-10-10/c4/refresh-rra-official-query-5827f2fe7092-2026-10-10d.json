@@ -1,0 +1,125 @@
+{
+  "account": "c4-rra-official-query-5827f2fe7092-2026-10-10d",
+  "account_state": {
+    "boot": "e4c6fa43-e8b6-4d8e-bca0-8e86027154cb",
+    "byte_limit": 11000011,
+    "deadline": null,
+    "definition_hash": "0f095a42de8acbdac6a58480cdf3e9552fb404c1b969a29cc5d85ea3b05e02d4",
+    "id": "c4-rra-official-query-5827f2fe7092-2026-10-10d",
+    "policy_hash": "rra-refresh/c4-2026-10-10",
+    "request_limit": 11,
+    "spent_bytes": 10000010,
+    "spent_requests": 10,
+    "start_mono": 468699.680816789,
+    "start_wall": 1791629643.0656044,
+    "stopped": null,
+    "window": 1800.0
+  },
+  "archive_after": {
+    "head_sequence": 1262,
+    "index_bytes": 4947968,
+    "object_bytes": 39165715,
+    "receipt_bytes": 1678883,
+    "receipts": 1636
+  },
+  "archive_before": {
+    "head_sequence": 1234,
+    "index_bytes": 4845568,
+    "object_bytes": 39134267,
+    "receipt_bytes": 1646510,
+    "receipts": 1608
+  },
+  "bundle": {
+    "bundle": "/home/erin/nepeat/aislop/devicehunt/data/raw/rra-edge-core-hyphen-official-live-2026-10-10d/bundle.json",
+    "outcome": "validated_nonempty"
+  },
+  "comparison_with_pinned": {
+    "mismatches": [
+      "occurrences"
+    ],
+    "status": "differs_from_pinned"
+  },
+  "cycle": "2026-10-10d",
+  "detail_cap": 7,
+  "live_query_records": 7,
+  "new_observations": 10,
+  "outcome": "captured",
+  "phase": "refresh",
+  "pinned_rows": 7,
+  "reason": null,
+  "request_cap": 11,
+  "seconds": 81.592,
+  "steps": [
+    {
+      "artifact_sha256": "210348ab1eb4b284f92b590de30ca375e2c5fa0607aedab0d521c80e28babc1e",
+      "error": null,
+      "outcome": "success",
+      "slot": "form",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "a47943882d13204b5f5d61a9636ca8609af2c8dec4180ab5a8b049f919e3ec34",
+      "error": null,
+      "outcome": "success",
+      "slot": "csv-before",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "c899df69b09ffa90abd79e58e909b701b27665be6f0e7ca4798be9bc49c0c3d8",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-001",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "ad77434039566e50cc2cf08ea79a4c3c19a72618235c1645e73233778f1b5e90",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-002",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "56d81f35cf7b6ea0ac8f731402ae367fd31266399f80aff731978d89d308759d",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-003",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "a2a4e30398a11d8e1303680ec0be6fdeb9f2020485e51869aa529f1b7a7c7aea",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-004",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "0bd338b268574148978f98c9ba8ed3114a5c0836993423b4665081d8ab227ba7",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-005",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "ed10d4bf733b7546c3a0e3a519044c534a6dc09ba9fdb4a07a4b853f262d2600",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-006",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "755ed0183faf105a6efd1e57805d84eb8d1cf386602b733cf0337bc3281a08f8",
+      "error": null,
+      "outcome": "success",
+      "slot": "detail-007",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "a47943882d13204b5f5d61a9636ca8609af2c8dec4180ab5a8b049f919e3ec34",
+      "error": null,
+      "outcome": "success",
+      "slot": "csv-after",
+      "status": 200
+    }
+  ],
+  "unit_id": "rra-official-query-5827f2fe7092"
+}

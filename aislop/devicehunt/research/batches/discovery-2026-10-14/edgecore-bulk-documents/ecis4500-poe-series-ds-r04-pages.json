@@ -1,0 +1,246 @@
+{
+  "pdf_sha256": "ff825d61c5d0dec969a7bc89f4ec612a4bbfc348775b1584c8bb2c253f54bf2f",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 7,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "Datasheet Industrial Gigabit Ethernet Switches\n\nIndustrial PoE+ Gigabit Ethernet Switches\nECIS4500 PoE Series\n\n\n\n\n                                                                                       EN 50121-4   NEMA TS2\n                                                                                                      Certiﬁed\n\n\n\n\nProduct Overview\nThe Edgecore ECIS4500 PoE series are managed industrial PoE+ Gigabit Ethernet switches. The switches comply\nto the IEEE 802.3 af/at standard and are able to deliver up to 30 watts of power per port along with data over\nstandard Ethernet cabling. The switches can be used to power any IEEE 802.3af/at-compliant PoE PD devices, and\ninclude PoE power management features that ease the deployment eﬀort and PoE power budget planning, as well\nas eliminating the need for additional wiring to reach a power source.\n\n\nProduct Highlights\n■ 8/4 10/100/1000BASE-TX PoE ports plus 4/2 100FX/1000BASE-F SFP slots\n■ IEEE 802.3af /IEEE 802.3at Power Over Ethernet Compliant\n■ Ultra PoE Supported (Only ECIS4500-8P2T4F for Port 1and 2)\n■ Soﬅware-based IEEE 1588 PTPv2 (Precision Time Protocol)*\n■ L2 Wire-speed Switching Engine\n■ Network redundant LACP, Spanning tree STP, RSTP and MSTP\n■ E-Ring Technology: fast ring fail-over protection (< 20 ms)\n■ CLI/Web/SNMP management interfaces\n■ Dual power input and reverse power protection\n■ DIN-Rail and Wall mounting option\n\n\n\n\n   * Future release\n"
+    },
+    {
+      "page": 2,
+      "text": "Datasheet Industrial Gigabit Ethernet Switches\n\nNetwork Applications\n\n                                                                                        MANAGEMENT\n                                                                                        CENTER\n    Full Gigabit\n\n                                                                                     Aggregation / Access Switch\n\n\n\n\n    -40°C ~75°C                            RAILWAY\n\n     Operating\n    Temperature\n\n\n   IEEE 802.3at/af\n                                            FACTORY                         Redundant Ethernet Ring Fast Recover Time < 20ms                 TRANSPORTATION\n     Compliant\n\n\n\n        Rich\n       Layer 2\n      Features\n                                                                PTZ Speed      PLC        IP Camera   VoIP Phone   Wireless AP   IP Camera\n                                                                  Done\n\n\n\n     Superior                                     Gigabit Fiber Ethernet\n\n    Management                                  IEEE 802.3af/at PoE/PoE+\n\n\n\n\nPerformance and Scalability                                                                Enhanced Security\nThe ECIS4500 PoE series are high-performance Gigabit Ethernet                              Port security limits the total number of devices from using a\nLayer 2+ managed switches with 24/20 Gbps switching capacity.                              switch port and protects against MAC ﬂooding attacks.\nThe switches deliver wire-speed switching performance on all\nGigabit ports, allowing users to take full advantage of existing                           IEEE 802.1X IP-based or MAC-based access control ensures all\nhigh-performance Gigabit integrated servers and PCs by                                     users are authorized before being granted access to the network.\nsigniﬁcantly improving the responsiveness of applications and                              When a user is authenticated, the VLAN, QoS and security policy\nﬁle transfer times.                                                                        are automatically applied the port where the user is connected,\n                                                                                           otherwise the port is grouped in a guest VLAN with limited\nThe two/four SFP ports provides uplink ﬂexibility, and allows the                          access.\ninsertion of ﬁber or copper Gigabit transceivers, creating up to 2/4\nGbps high-speed uplinks to service provider, corporate, or                                 DHCP snooping allows a switch to protect a network from rogue\ncampus networks, reducing bottlenecks and increasing the                                   DHCP servers that oﬀer invalid IP addresses.\nperformance of the access network. The switches also support\ndigital diagnostic monitoring (DDM) for SFP transceivers.                                  Secure Shell (SSH) and Secure Sockets Layer (SSL/HTTPS)\n                                                                                           encrypt Telnet and web access to the switch, providing secure\nContinuous Availability                                                                    network management.\nThe IEEE 802.1w Rapid Spanning Tree Protocol provides a\nloop-free network and redundant links to the core network with                             Dynamic VLAN assignment for user authentication and\nrapid convergence, to ensure faster recovery from failed links,                            location-independent access to the network.\nenhancing overall network stability and reliability. The IEEE\n802.1s Multiple Spanning Tree Protocol runs STP per VLAN base,                             The ECIS4500 PoE series also support local database, RADIUS\nproviding Layer 2 load sharing on redundant links.                                         and TACACS+ authentication methods to secure your network.\n\nThe ECIS4500 PoE series support IEEE 802.3ad Link Aggregation\nControl Protocol (LACP). It increases bandwidth by automatically\naggregating several physical links together as a logical trunk and\noﬀers load balancing and fault tolerance for uplink connections.\n\nThe ECIS4500 PoE series support fast failover ring protection\n(E-Ring) with the ability for the network to detect and recover\nfrom incidents without impacting users, meeting the most\ndemanding quality and availability requirements. Rapid recovery\ntime when problems do occur is as low as 20 ms.\n"
+    },
+    {
+      "page": 3,
+      "text": "Datasheet Industrial Gigabit Ethernet Switches\n\nService Monitoring and Management                                   PoE PSE Support\nThe ECIS4500 PoE series support per VLAN mirroring, allowing        The ECIS4500 PoE series support PoE as a Power Sourcing\nadministrators to monitor all incoming traﬃc in one or more         Equipment (PSE) device to any attached devices, such as VoIP\nVLANs by sending a mirror image of that traﬃc to a conﬁgured        phones, wireless access points, and surveillance cameras, all\nmirror port.                                                        over existing Ethernet cables.\n\nThe switches also provide the capability to manage service          The switches are compliant with IEEE 802.3at. Copper ports 1 to\navailability, identify connectivity and performance issues, and     8 can provide up to 30 Watts or 15.4 Watts power per port. The\nisolate problems from a remote location without dispatching an      total PoE power budget is 120 W/240 W. In particular,\nengineer onsite.                                                    ECIS4500-8P2T4F supports 2 ports Ultra PoE (60W) to power\n                                                                    devices with greater power, such as 802.11ac APs, PTZ\nComprehensive QoS                                                   surveillance cameras, or network routers.\nThe ECIS4500 PoE series oﬀer advanced QoS for shaping,\nclassiﬁcation, and scheduling to deliver best-in-class              Armed with these powerful features, the ECIS4500 PoE series\nperformance for data, voice, and video traﬃc at wire speed. Eight   switches are easy to prioritize, partition and organize the\negress queues per port enable diﬀerentiated management of up        network for higher reliability and quality services.\nto eight traﬃc types through the switch.\n\nTraﬃc is prioritized according to 802.1p to provide optimal\nperformance for real-time applications. Weighted Round Robin\n(WRR) and Strict Priority Queuing (SPQ) ensure diﬀerential\nprioritization of packet ﬂows and avoid congestion of ingress and\negress queues.\n\nRobust Multicast Control\nIGMP snooping prevents the ﬂooding of multicast traﬃc by\ndynamically conﬁguring switch ports so that multicast traﬃc is\nforwarded to only those ports associated with an IP multicast\nreceiver. IGMP increases the performance of networks by\nreducing multicast traﬃc ﬂooding.\n\nIGMP groups allow you to create customer packages for IP-TV\nchannels, making switch conﬁguration easy. IGMP Filtering\nprevents subscribers seeing unsubscribed IP-TV channels. And,\nIGMP Throttling allows you to set how many IP-TV channels a\nsubscriber can receive simultaneously.\n\nSuperior Management\nAn industry-standard command-line interface (CLI) accessed\nthrough the console port or Telnet, provides a familiar user\ninterface and command set for users to manage the switch.\n\nAn embedded user-friendly web interface helps users to quickly\nand simply conﬁgure switches.\n\nThe ECIS4500 PoE series support SNMPv1,2c,3 and four-group\nRMON. The switches provide a complete private MIB for the\nconﬁguration of most functions via the SNMP protocol.\n\nAdministrators can upgrade and restore ﬁrmware and\nconﬁguration ﬁles via TFTP.\n\nThe switches also provide the AAA (Authentication,\nAuthorization and Accounting) via RADIUS or TACACS+ enables\ncentralized control of the switches. Access rights can be\nauthorized per user and account for all actions performed by\nadministrators.\n"
+    },
+    {
+      "page": 4,
+      "text": "Datasheet Industrial Gigabit Ethernet Switches\n\n                    Product Model                          ECIS4500-8P2T4F     ECIS4500-8P4F       ECIS4500-4P2T2F     ECIS4500-4P4T\n\n\n\n\n                    Product Image\n\n\n\n\nPort           RJ-45 10/100/1000BASE-T Ports                      10                  8                    6                  8\n\n               100/1000BASE-X SFP Ports                            4                  4                    2                  0\n\n               10/100/1000 Combo Ports                             0                  0                    0                  0\n\n               SFP+ 10 Gigabit Uplink Ports                        0                  0                    0                  0\n\n               RJ-45 Console Port                                  1                  1                    1                  1\nPerformance    Switching Capacity                              28 Gbps             24 Gbps             16 Gbps             16 Gbps\n\n               Forwarding Rate                                17.9 Mpps           17.9 Mpps           17.9 Mpps           17.9 Mpps\n\n               Flash Memory                                     16 MB               16 MB               16 MB               16 MB\n\n               DRAM                                             128 MB              128 MB              128 MB              128 MB\n\n               Throughput ( packet per second)                14.8 Mpps           14.8 Mpps           14.8 Mpps           14.8 Mpps\n\n               MAC Address Table Size                             8K                  8K                  8K                  8K\n\n               Jumbo Frames                                      9 KB                9 KB                9 KB                9 KB\n\n               Auto-negotiation, Auto-MDI/MDIX                    Yes                Yes                  Yes                Yes\nMechanical                                                    DIN-rail and       DIN-rail and         DIN-rail and       DIN-rail and\n               Installation Option\n                                                              wall mount         wall mount           wall mount         wall mount\n               Dimension (W x D x H)                       77 x 128 x 154 mm   77 x 128 x 154 mm   77 x 128 x 154 mm   77 x 128 x 154 mm\n\n               Weight                                            1.4 kg             1.4 kg               1.4 kg             1.4 kg\nPoE            IEEE 802.3af/802.3at                               Yes                Yes                  Yes                Yes\n\n               Ultra PoE                                          Yes                 No                  No                  No\n\n               PoE Power Budget                                 240 W               240 W               120 W               120 W\n\n               PoE Scheduling                                     Yes                Yes                  Yes                Yes\nPower Supply   DC Power Input (46-58 V)                           Yes                Yes                  Yes                Yes\n\n               Max System Power Consumption (Watts)             265 W               265 W               145 W               145 W\nEnvironmental Operating Temperature                          -40ºC to 75ºC       -40ºC to 75ºC       -40ºC to 75ºC       -40ºC to 75ºC\n\n               Storage Temperature                           -40ºC to 85ºC       -40ºC to 85ºC       -40ºC to 85ºC       -40ºC to 85ºC\n\n               Humidity (non-condensing)                      5% to 95%           5% to 95%           5% to 95%           5% to 95%\n\n               Environmental Regulation Compliance: WEEE          Yes                Yes                  Yes                Yes\n\n               Environmental Regulation Compliance: RoHS          Yes                Yes                  Yes                Yes\nCertiﬁcation   FCC Class                                          Yes                Yes                  Yes                Yes\n\n               CE                                                 Yes                Yes                  Yes                Yes\n\n               Safety Compliance: CB                              Yes                Yes                  Yes                Yes\n\n               Safety Compliance: UL                              Yes                Yes                  Yes                Yes\n"
+    },
+    {
+      "page": 5,
+      "text": "Datasheet Industrial Gigabit Ethernet Switches\n\nPorts                                                  QoS Features\n■ Switch Ports:                                        ■ 8 Priority queues per port\n  8 or 6 or 4 x 10/100/1000BASE-TX PoE ports           ■ Traﬃc Scheduling:\n  4 or 2 x SFP each supporting 1G or 100M                SPQ (Strict Priority Queuing)\n■ SFP with Digital Diagnostic Monitoring (DDM)           WRR (Weighted Round Robin)\n■ Management Port and Power Support Connector on Top   ■ Traﬃc Classiﬁcation (CoS): 802.1p based CoS/port\nPanel:                                                 ■ Traﬃc Shaper: Port-based shaping\n  1 x RJ-45 serial console                             ■ Dynamic QoS assignment\n  2 x DC PWR                                           ■ Diﬀserv/ToS\n  1 x Alarm port\n                                                       Layer 3 Function\nPerformance                                            ■ IP Interfaces: Max. 8 VLAN interfaces\n■ L2 wire-speed/non-blocking switching engine          ■ Routing Table: Max. 32 routing entries\n■ Switching Capacity: 28/24/16 Gbps                    ■ Routing Protocols:\n■ MAC Addresses: 8 K                                     IPv4 soﬅware static routing\n■ VLAN IDs: 4096                                         IPv6 soﬅware static routing\n■ Jumbo Frames: 9 K Bytes\n                                                       Security Features\nL2 Features                                            ■ Port Security\n■ Flow Control:                                          IEEE 802.1X IP-based authentication network access control\n  IEEE 802.3x for full-duplex mode                       IEEE 802.1X MAC-based authentication network access control\n  Back-Pressure for half-duplex mode                   ■ Username/password authentication\n■ Storm Control:                                         Local database authentication\n  Broadcast                                              Remote authentication via RADIUS\n  Multicast                                              Remote authentication via TACACS+\n  Flooding                                             ■ AAA (RADIUS/TACACS+)\n■ Spanning Tree Protocol:                              ■ RADIUS client for management\n  IEEE 802.1D STP                                      ■ HTTPS and SSL (secured web)\n  IEEE 802.1w RSTP                                     ■ SSH (secured Telnet session)\n  IEEE 802.1s MSTP                                     ■ ACL (Access Control List)\n■ VLAN:\n  Supports 4096 VLANs                                  Management Features\n  Port-based VLANs                                     ■ Switch Management:\n  MAC-based VLANs                                        Cisco-like CLI via console port\n  IP Subnet-based VLANs                                  Web-based management\n  Protocol-based VLANs                                   SNMP v1, v2c, v3\n  IEEE 802.1Q tag-based VLANs                          ■ Terminal setting (5 sessions)\n  RADIUS-assigned VLANs                                ■ Soﬅware upgrade/restore by TFTP\n  GVRP VLAN                                            ■ Conﬁguration upgrade/restore by TFTP\n■ Supports IEEE 802.1ad Double Tagging (Q-in-Q)        ■ RMON: RMON1 (1,2,3,9 group)\n■ Link Aggregation:                                    ■ DHCP:\n  Static Trunk                                           Client\n  802.3ad Dynamic LACP                                   Relay\n  Up to 8 ports per trunk group                          Server\n  Support 6 trunk groups (2 ports one group)             Snooping\n■ Multicast Protocols:                                   Option 82\n  Supports 255 multicast groups                        ■ Per VLAN mirroring\n  IGMP v1/v2/v3 Snooping                               ■ Port mirroring\n  IGMP querying support                                ■ Ethernet Copper connection diagnostic tool\n  IGMP immediate leave and leave proxy                 ■ Event/Error Logging: Syslog (local Flash)\n  IGMP Filtering/Throttling                            ■ Remote Ping\n                                                       ■ NTP\n                                                       ■ LLDP (IEEE 802.1ab): Link Layer Discovery Protocol\n                                                       ■ LLDP-MED\n                                                       ■ System Status:\n                                                         Device info/status\n                                                         Ethernet port status\n                                                         PoE status\n"
+    },
+    {
+      "page": 6,
+      "text": "Datasheet Industrial Gigabit Ethernet Switches\n\nPhysical and Environmental                                     Regulatory and Compliances\n■ Dimensions (W x D x H):                                      ■ EMC\n  77 x 128 x 154 mm (3.03 x 5.04 x 6.06”)                        CE/FCC Part 15 Class A\n■ Weight: 1.4 kg (3.11 lb)                                       CISPR 22 Class A\n■ Operating Temperature: -40°C to 75°C (-40°F to 167°F)          EN 61000-6-2:2005+ AC:2005\n  cold startup at -40°C                                          EN 61000-6-4:2007+A1: 2011\n■ Storage Temperature: -40°C to 85°C (-40°F to 185°F)            IEC 61000-4-2 ESD: Contact: 6 kV; Air: 8 kV\n■ Operating Humidity: 5% to 95% non-condensing                   IEC 61000-4-3 RS: 80 MHz to 2700 MHz: 20 V/m\n■ Installation Option: DIN-Rail mounting, wall mounting,         IEC 61000-4-4 EFT: Power: 4 kV; Signal: 4 kV\n  fanless design                                                 IEC 61000-4-5 Surge: Power: 2 kV; Signal: 2 kV\n                                                                 IEC 61000-4-6 CS: Signal: 10 V\nAlarm                                                            IEC 61000-4-8:2009\n■ Alarm Relay Output Carrying Capacity: Max 0.5 A @ 24 VDC       IEC 61000-4-9:1993+A1:2000\n■ System Alarm Notiﬁcation: conﬁgurable alarm proﬁle to          IEC 61000-4-8:2009\n  enable Alarm LED, Alarm relay, SNMP Traps                      IEC 61000-4-9:1993+A1:2000\n                                                               ■ Safety: UL-60950\nAccessory                                                      ■ Railway Traﬃc: EN 50121-4 compliance\n■ Wall-mount plates                                            ■ NEMA TS2 Certiﬁed\n■ DIN-rail clip                                                ■ Shock: IEC 60068-2-27\n■ M3 Screws x 4 (for the wall mount plates and DIN clip)       ■ Freefall: IEC 60068-2-32\n■ DC power terminal block                                      ■ Vibration: IEC 60068-2-6\n■ RJ-45 Ethernet port dust cover                               ■ RoHS (Pb free) and WEEE compliant\n■ SFP Ethernet port dust cover                                 ■ Ingress Protection: IP30 Metal Case\n                                                               ■ MTBF: > 25 years\nPower\n■ Power Input: Redundant Input Terminals                       Ethernet Standards\n■ Input Voltage Range:                                           IEEE 802.3 10BASE-T Ethernet\n  46 to 58 VDC (with PoE)                                        IEEE 802.3u 100BASE-TX Ethernet\n  12-58 VDC (non-PoE)                                            IEEE 802.3ab 1000BASE-T Ethernet\n■ Total PoE output power budget: 120 W/240 W                     IEEE 802.3z 1000BASE-X (BASE-SX,BASE-LX,BASE-ZX)\n■ PSE output power management:                                   IEEE 802.3x Flow Control\n  Scheduling                                                     IEEE 802.3az EEE support\n  Power control                                                  IEEE 802.1ab Link Layer Discovery Protocol (LLDP)\n  PD power consumption monitoring                                IEEE 802.1p Class of Service\n■ Reverse power protection: Yes                                  IEEE 802.1q VLAN support\n  Transient Protection: > 15,000 watts peak                      IEEE 802.1D Spanning Tree Protocol\n  Power Consumption:                                             IEEE 802.1w Rapid Spanning Tree Protocol\n  ● Max 14 W without PD connected                                IEEE 802.1s Multiple Spanning Trees\n  ● Max 265 W with 240 W PSE                                     IEEE 802.1ad Double Tagging (QinQ)\nNote: The switch does not include a PSU (power supply unit).     IEEE 802.1x Authentication\nNeed to purchase PSU separately. See Ordering Information.       IEEE 802.3ad LACP\n                                                                 IEEE 802.3af PoE (PoE models only)\n                                                                 IEEE 802.3at PoE+ (PoE models only)\n                                                                 RFC 2863 Interfaces MIB\n                                                                 RFC 2233 IF MIB\n                                                                 RFC1213 MIB II\n                                                                 RFC 2819 RMON Statistics Group\n                                                                 RFC 1215 Generic Traps\n                                                                 RFC 2674 Q-Bridge MIB\n                                                                 RFC 3635 Ethernet-like MIB\n                                                                 RFC 2236 Internet Group Management Protocol, Version 2 (IGMPv2)\n                                                                 RFC 3376 Internet Group Management Protocol, Version 3 (IGMPv3)\n                                                                 RFC 2710 Multicast Listener Discovery for IPv6 (MLD)\n                                                                 RFC 2464 Transmission of IPv6 Packets over Ethernet Networks\n                                                                 RFC 4291 IPv6 Addressing Architecture\n                                                                 RFC 4884 ICMPv6\n"
+    },
+    {
+      "page": 7,
+      "text": "Datasheet Industrial Gigabit Ethernet Switches\n\nOrdering Information\nOptional Accessories           Product Description\n\nET4205-SX                      1Gbps, Small Form Factor Pluggable (Distance: 550 m; Wavelength: 850 nm, DDM), wide operating temperature -40 ~85 °C\n\nET4205-LX                      1Gbps, Small Form Factor Pluggable (Distance: 10 km; Wavelength: 1310 nm, DDM), wide operating temperature -40 ~85 °C\n\nET4205-LX20                    1Gbps, Small Form Factor Pluggable (Distance: 20 km; Wavelength: 1310 nm, DDM), wide operating temperature -40 ~85 °C\n\nET4205-LHX                     1Gbps, Small Form Factor Pluggable (Distance: 40 km; Wavelength: 1310 nm, DDM), wide operating temperature -40 ~85 °C\n\nET4205-TL50                    1Gbps, Small Form Factor Pluggable (Distance: 50 km; Wavelength: 1310 nm, DDM), wide operating temperature -40 ~85 °C\n\nET4205-TL70                    1Gbps, Small Form Factor Pluggable (Distance: 70 km; Wavelength: 1310 nm, DDM), wide operating temperature -40 ~85 °C\n\nHDR-15-24                      15.2 W 24 VDC Single Output Industrial Power Supply Output DIN Rail -30~+70°C\n\nSDR-120-48                     120 W 48 VDC Single Output Industrial Power Supply Output DIN Rail -25~+75°C\n\nSDR-240-48                     240 W 48 VDC Single Output Industrial Power Supply Output DIN Rail -25~+75°C\n\nSDR-480-48                     480 W 48 VDC Single Output Industrial Power Supply Output DIN Rail -25~+75°C\n\n\n\n\nWarranty\nPlease check www.edge-core.com for the warranty terms in your country.\n\nFor More Information\nTo ﬁnd out more about Edgecore Networks Corporation products and solutions, visit www.edge-core.com.\n\nAbout Edgecore Networks Corporation\nEdgecore Networks Corporation is in the business of providing innovative network solutions. In the service provider network, in the data\ncenter or in the cloud, Edgecore Networks Corporation delivers the soﬅware and systems that transform the way the world connects.\nEdgecore Networks Corporation serves customers and partners worldwide. Additional information can be found at www.edge-core.com.\n\nEdgecore Networks Corporation is a subsidiary of Accton Technology Corporation, the leading network ODM company. The Edgecore\ndata center switches are developed and manufactured by Accton.\n\nTo purchase Edgecore Networks solutions, please contact your Edgecore Networks Corporation representatives at +886 3 563 8888\n(HQ) or +1 (949)-336-6801 or authorized resellers.\n\n© Copyright 2021 Edgecore Networks Corporation. The information contained herein is subject to change without notice. This document is for informational purposes only\nand does not set forth any warranty, expressed or implied, concerning any equipment, equipment feature, or service oﬀered by Edgecore Networks Corporation. Edgecore\nNetworks Corporation shall not be liable for technical or editorial errors or omissions contained herein.\n\n\n\n\n                                                                                                                                                             EC-DS-0721-R04\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "ecis4500-poe-series-ds-r04.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.774636+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           062-ECIS4500 PoE DS R04 20210707\nCreator:         Adobe Illustrator CS6 (Windows)\nProducer:        Adobe PDF library 10.01\nCreationDate:    Tue Jul  6 18:59:48 2021 PDT\nModDate:         Tue Jul  6 20:00:07 2021 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           7\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       4782697 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "35b5a9b500a7388a5099079f42cf5a293c92d05eaedea46e6ffbdf826732b10c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "5086dead2dba8eaa40f2738d12f39f4034a69d962f27f5a3b32cc4ac1e5ec723"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "a9ce425fb327836972553efc111bf569b1b2fe9bc681662b7696cdb48bd490a8"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "852c5a6cc2c9da5342af3a2a1057b5c58dd989aa1f3c35822e990c75a6faf04f"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "10d018d97b19e11ad14ba5b212a57e1fc895286ea7770dd90aa59bb37eefbc26"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "5",
+          "-l",
+          "5",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "4c206619504c34746483d868070956b229738700a78f18fce822060502ae7bf1"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "6",
+          "-l",
+          "6",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "40dbc1e5cb7be94eefa43bded0f4f847ab53e8d1f27626a50108cdb87a89ffdb"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "7",
+          "-l",
+          "7",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/ecis4500-poe-series-ds-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "da575ff1aba2ee489009dc7755cdd3d4357114b1d49368a66b98160050976f2d"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

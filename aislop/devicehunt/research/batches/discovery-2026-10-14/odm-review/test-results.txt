@@ -1,0 +1,15 @@
+test_blank_partner_is_not_forward_filled (test_review.IndependentReviewTests.test_blank_partner_is_not_forward_filled) ... ok
+test_candidate_roles_whole_cells_and_no_manufacturer_or_aliases (test_review.IndependentReviewTests.test_candidate_roles_whole_cells_and_no_manufacturer_or_aliases) ... ok
+test_card_per_node_units_and_absent_fields_preserved (test_review.IndependentReviewTests.test_card_per_node_units_and_absent_fields_preserved) ... ok
+test_complete_accepted_data_is_reproducible_from_copied_captures (test_review.IndependentReviewTests.test_complete_accepted_data_is_reproducible_from_copied_captures) ... ok
+test_copied_capture_hash_mismatch_fails_before_build (test_review.IndependentReviewTests.test_copied_capture_hash_mismatch_fails_before_build) ... ok
+test_duplicates_suffixes_and_blank_cells_remain_distinct_rows (test_review.IndependentReviewTests.test_duplicates_suffixes_and_blank_cells_remain_distinct_rows) ... ok
+test_nonidentity_marker_retained_without_becoming_an_identifier (test_review.IndependentReviewTests.test_nonidentity_marker_retained_without_becoming_an_identifier) ... ok
+test_reference_model_or_source_row_omission_fails (test_review.IndependentReviewTests.test_reference_model_or_source_row_omission_fails) ... ok
+test_spans_identity_footnotes_and_missing_cells_rejected (test_review.IndependentReviewTests.test_spans_identity_footnotes_and_missing_cells_rejected) ... ok
+test_truncated_and_nested_tables_rejected (test_review.IndependentReviewTests.test_truncated_and_nested_tables_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.425s
+
+OK

@@ -1,0 +1,25 @@
+HTTP/2 200 
+date: Thu, 15 Oct 2026 05:49:13 GMT
+content-type: text/plain; charset=utf-8
+content-length: 26
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-content-type-options: nosniff
+x-download-options: noopen
+x-frame-options: SAMEORIGIN
+x-frame-options: SAMEORIGIN
+x-permitted-cross-domain-policies: none
+x-xss-protection: 0
+etag: "1a-a1cIDLljyn/zLf+iveG+HSGws5Y"
+last-modified: Fri, 24 Apr 2026 03:11:25 GMT
+content-security-policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://crm.zohopublic.com https://cdn.pagesense.io https://static.zohocdn.com https://*.mitaccomputing.com; script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://crm.zohopublic.com https://cdn.pagesense.io https://static.zohocdn.com https://*.mitaccomputing.com; img-src 'self' https: data: https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://*.g.doubleclick.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://*.mitaccomputing.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://*.zoho.com https://*.mitaccomputing.com; font-src 'self' https: data:; form-action 'self' https://*.zoho.com; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com https://*.zoho.com https://*.zohopublic.com https://directline.botframework.com wss://directline.botframework.com https://*.mitaccomputing.com;
+cache-control: public, max-age=300
+accept-ranges: bytes
+expires: Thu, 15 Oct 2026 05:54:13 GMT
+cf-cache-status: HIT
+set-cookie: __cf_bm=YzELi3OQlRQqsscZmL.T4pd9RZ8Ml4RwvCNhCodxL10-1792043353.242456-1.0.1.1-Sku856DYAF.ZgBe.aYBxIcoBQXOR77pfJdCNek46LnLDQaD1KHouf.Dp3190TjyhFywj40NRV3Xol5yAjdI8y9QVk73sln0jIszyknC2oZBHYM_GHF9dsuZ6qJrTQRAt; HttpOnly; SameSite=None; Secure; Path=/; Domain=mitaccomputing.com; Expires=Thu, 15 Oct 2026 06:19:13 GMT
+server: cloudflare
+cf-ray: a4ac8a0dcbb993ab-SEA
+alt-svc: h3=":443"; ma=86400
+

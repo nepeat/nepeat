@@ -1,0 +1,492 @@
+{
+  "lookup-7760.json": {
+    "sha256": "51939a983dc4d0a3968a1b5689884464edd89d5518ac7edd84ded0ad7b4042ce",
+    "query": "7760-32X-A-AC-F",
+    "limit": 20
+  },
+  "lookup-atlanta.json": {
+    "sha256": "db0d2c4bc3ceef466cf6d3db5341d1303ee7896e1a5d8959490e35befdb39197",
+    "query": "Atlanta",
+    "limit": 20
+  },
+  "lookup-aws-cubscout.json": {
+    "sha256": "cde469d9cdf36ad1e40dd92ded10a6dde08de8ba556b18f45e5b1b265d6ed89f",
+    "query": "CUBSCOUT",
+    "limit": 20
+  },
+  "lookup-az4444.json": {
+    "sha256": "9a160ce18826195610250d8ac46c94d74a5314673ca127e943950ba286526ac7",
+    "query": "AZ4444-52X",
+    "limit": 20
+  },
+  "lookup-b4010.json": {
+    "sha256": "567be3914bba17c69574a6c40b5373bcfc2539c86b5738bf9375e6cc49df518a",
+    "query": "B4010",
+    "limit": 5
+  },
+  "lookup-b4020.json": {
+    "sha256": "ddf15641d409d5cb442617658b6aab8df57eac9e3026b8922c6908259935525a",
+    "query": "B4020",
+    "limit": 5
+  },
+  "lookup-bsmi-accton-lead.json": {
+    "sha256": "f2d03e3cb50182e37d62b2f54a71c4ad25a843a2bbe0e49c06513edc84fa498f",
+    "query": "SAF6101I",
+    "limit": 50
+  },
+  "lookup-bsmi-additional-oracle.json": {
+    "sha256": "68fe74c41773beb2a3d4e0ab5de1a293f508c3a52a0953c346664612c39f6332",
+    "query": "Oracle",
+    "limit": 20
+  },
+  "lookup-bsmi-declaration-example.json": {
+    "sha256": "774ed75cfb724ea1f1d704c5dc0500f81ba5c390de59e51239c5ff3c1101a0a1",
+    "query": "PVC",
+    "limit": 20
+  },
+  "lookup-bsmi-oracle-applicant.json": {
+    "sha256": "d5315caacd19a46e6e9eef99b1b1f316f035693f2aa461db8dd802ebda90dc8a",
+    "query": "\u7f8e\u5546\u7532\u9aa8\u6587\u6709\u9650\u516c\u53f8\u53f0\u7063\u5206\u516c\u53f8",
+    "limit": 50
+  },
+  "lookup-bsmi-product-example.json": {
+    "sha256": "bfda28142c2110f8c3bd5eca8939aa69664ebd913b8e8b7105d73d3ea0ff06f6",
+    "query": "DP-DS620",
+    "limit": 20
+  },
+  "lookup-bytedance.json": {
+    "sha256": "8dd939efff6981c42ee7d23829f7933174d90638af3f0798d05705776f6da620",
+    "query": "ByteDance",
+    "limit": 5
+  },
+  "lookup-celestica-communicator.json": {
+    "sha256": "c91fd98d4066fca78e2b0f35d39b123b5859fd69549e0895ddc7f10f2ba72e86",
+    "query": "Communicator C100S",
+    "limit": 20
+  },
+  "lookup-celestica-coverage.json": {
+    "sha256": "e1c056be01a5c87b903266a0648fa1bcdd63df128d5065fbb6c830769c2651a0",
+    "query": "Celestica",
+    "limit": 0
+  },
+  "lookup-celestica-ds4000-sku.json": {
+    "sha256": "9fe226611846cf993b7e88d1e0759ca9b04aff48a141cf76d5b592e4a352d066",
+    "query": "R4023-F9102-A0",
+    "limit": 20
+  },
+  "lookup-celestica-ds4001-sku.json": {
+    "sha256": "4010bd9c1c0f14ddc1b5de9e451cd1f0e341ebd8a84e4b770f07d5c903af696a",
+    "query": "R3240-F9103-A0",
+    "limit": 20
+  },
+  "lookup-celestica-max-v2.json": {
+    "sha256": "869103d38086e44e068029eb43aa1a87c509a3305eae44e37a9aa6e51ef4c323",
+    "query": "MAX V2",
+    "limit": 20
+  },
+  "lookup-ds6000.json": {
+    "sha256": "60a9ebac43bd1fe02abc5b7e8ad359dd3c6c7fe1063b8142e0f3edf057a21555",
+    "query": "DS6000",
+    "limit": 20
+  },
+  "lookup-ds6001.json": {
+    "sha256": "51a22e345f2b7bdad3cad364bcbfbca1efa3575c1fd0f06684791e93e09ed8de",
+    "query": "DS6001",
+    "limit": 20
+  },
+  "lookup-ds6010.json": {
+    "sha256": "b4cde0b4f3cf1731d416c2fda78162c40f053f05329b7fc75080663f755e3a4a",
+    "query": "DS6010",
+    "limit": 20
+  },
+  "lookup-ecodesign-wh2cl.json": {
+    "sha256": "fd2637121f9a471b27d85934f16b93564aebe91485cf4905d799d49f22f5a86c",
+    "query": "WH2CL",
+    "limit": 20
+  },
+  "lookup-ecodesign-zu2xl.json": {
+    "sha256": "7c7005564c9623380c39e629e281e372ac2dfa7c2fa16eaf258b7f2dc32c7135",
+    "query": "ZU2XL",
+    "limit": 20
+  },
+  "lookup-edgecore-bsmi-product-example.json": {
+    "sha256": "9b1cf9574f7be0742d4e30d7824ad740453274ba0ca5b6223678149dd870830e",
+    "query": "RD1201000-C47-2MG",
+    "limit": 20
+  },
+  "lookup-edgecore-chinese-name.json": {
+    "sha256": "12c6780bb1b33d9327e219cb344d459ca0010afa7863a17fb4be0cf593a2d65d",
+    "query": "\u923a\u767b\u79d1\u6280\u80a1\u4efd\u6709\u9650\u516c\u53f8",
+    "limit": 20
+  },
+  "lookup-edgecore-manufacturer-example.json": {
+    "sha256": "6c5a7e264ee300fbfb7f8ba78c6178db8e1c54c65a60456b127501a84d354fa0",
+    "query": "ECW3142-N",
+    "limit": 20
+  },
+  "lookup-energystar-e21w.json": {
+    "sha256": "d0431f12cf5a288563c8f62109a32fcad8e88b6dfa32ad6d2e4a79d1447b2b12",
+    "query": "E21W",
+    "limit": 20
+  },
+  "lookup-energystar-epyc9j25.json": {
+    "sha256": "0c32dcdc438d1c8ff481a092268fb1851ec7fae183956625bbdd73724e3806fe",
+    "query": "EPYC 9J25",
+    "limit": 20
+  },
+  "lookup-energystar-sunfire.json": {
+    "sha256": "2048cbaffcbd44a5537f17173360242a8603a59a4fa52cb4832b468d6630f2a1",
+    "query": "Sun Fire X4170 M2",
+    "limit": 20
+  },
+  "lookup-energystar-vds2249r.json": {
+    "sha256": "594b875898e78174946fa63a6a1f636d5682717fd1c902729667ce42ae64021c",
+    "query": "VDS2249R",
+    "limit": 20
+  },
+  "lookup-energystar-x10m.json": {
+    "sha256": "03d818f73e581af990c83cc95a05d7c0cabbaaf1fe8545cdc0f108fbeb6484d8",
+    "query": "X10M",
+    "limit": 20
+  },
+  "lookup-energystar-x6.json": {
+    "sha256": "eaf09690f40dbcec9aeb5ac254d6f0e2289a9fe2cc7406ef734b777f91fb8a89",
+    "query": "Oracle Server X6-2",
+    "limit": 20
+  },
+  "lookup-fcc-celestica-example.json": {
+    "sha256": "a2d3c7371534fd4d58c1b8fdc30c35f53e73e6653d5e657c0b7e66741991502a",
+    "query": "MRF13316C",
+    "limit": 20
+  },
+  "lookup-fcc-detail-example.json": {
+    "sha256": "3ad262345b232548ac03dec15bc2deef4ed6d9b37b43d5117ea6a90796edebed",
+    "query": "EAP115",
+    "limit": 3
+  },
+  "lookup-fcc-example.json": {
+    "sha256": "3b03c7a1142267df464079551b0d33c0a7c3ee11554da5dc297e374d27df2b13",
+    "query": "HEDEAP115",
+    "limit": 20
+  },
+  "lookup-fcc-gap-ml2560.json": {
+    "sha256": "ae5b34fbae40099549c693dbb4e411af6e6c91cf93c389ddaa92fa9b7cb9348a",
+    "query": "HEDML2560",
+    "limit": 20
+  },
+  "lookup-fcc-gap-ml60lw.json": {
+    "sha256": "f58b2b0400e013a133d008c8c398d6344fdee10aa1d08686d360616b93a091dd",
+    "query": "HEDML60LW",
+    "limit": 20
+  },
+  "lookup-fcc-gap-mr3202a.json": {
+    "sha256": "82ac5ea1d88e244f21bd66aa7e46e34e9dfdd108d5753ee2c8fedbc54f4cd2fa",
+    "query": "HEDMR3202A",
+    "limit": 20
+  },
+  "lookup-fcc-sporton-edimax.json": {
+    "sha256": "e9cf123c835446dfdfd7702a8b1359a2b87c17405e9e9854876339a63207c631",
+    "query": "EW-7822GMn",
+    "limit": 20
+  },
+  "lookup-fcc-sporton-oem.json": {
+    "sha256": "ec78de5187e23830f40fd5469a15b4739b87dbcc66a660c5d6f796c4b76a151f",
+    "query": "ECW7210-L",
+    "limit": 20
+  },
+  "lookup-ghana-oracle.json": {
+    "sha256": "b58860d7d346c4a71a8a187fb47ee2404feeb5bfc920cfb8958d5ee025a06e6b",
+    "query": "5N4-3H-7DF-22F",
+    "limit": 20
+  },
+  "lookup-ghana-qfx5100.json": {
+    "sha256": "933c8d926b7a47b6c23c972062c536e954662eecccebfde593e3ebb158d6694e",
+    "query": "QFX5100-96S",
+    "limit": 20
+  },
+  "lookup-icta-raw-example.json": {
+    "sha256": "189ed51b590d849b50ea74c5dbaa09b511a3f0aefc126f4df49d4704041f5967",
+    "query": "TA/2014/0074",
+    "limit": 20
+  },
+  "lookup-inspur.json": {
+    "sha256": "47fc78d3233250af9e308ae11088751c43592c9d1687691cadc44921a820f401",
+    "query": "Inspur",
+    "limit": 5
+  },
+  "lookup-ised-mn500.json": {
+    "sha256": "50ebfa22cbf5f8e084aff0a18ac5a3da3a1a84cb5b49633e55f36dd3ac64ce4a",
+    "query": "MN-500",
+    "limit": 20
+  },
+  "lookup-ised-smc2662w.json": {
+    "sha256": "cb2b04d41a1e0649c8b0b57fe15ea3318217027fdb1bf1e6432906b1957f2714",
+    "query": "SMC2662W V.2",
+    "limit": 20
+  },
+  "lookup-japan-ad11a.json": {
+    "sha256": "70b8fbaa436c2a9fc24af7e9ab98134779dbbc31f0d8645cc7e8a5036303b883",
+    "query": "AD11A-1",
+    "limit": 20
+  },
+  "lookup-japan-ad11c.json": {
+    "sha256": "ef2d22086c19e9bdeae6c88d2d1f76a77e3ade4717b21f853f06ddb265e198d0",
+    "query": "AD11C-1",
+    "limit": 20
+  },
+  "lookup-japan-amazon-data-services.json": {
+    "sha256": "d0be691311b08bba7b7e218528a4d56168a8a06f1f77aeb3c01e6b99342cf3f0",
+    "query": "Amazon Data Services",
+    "limit": 20
+  },
+  "lookup-japan-eap112.json": {
+    "sha256": "c96634a4ed063722feee5dfdd85a5ac11b2f2605a5857824efd202018cb79b46",
+    "query": "EAP112",
+    "limit": 20
+  },
+  "lookup-japan-metrolinq.json": {
+    "sha256": "b5499e0247b730dee10c88ec62318d2ea939d6d019e4a832e925623db08e35c6",
+    "query": "201-171180",
+    "limit": 20
+  },
+  "lookup-japan-oracle-bumpbar.json": {
+    "sha256": "7c056d66be99a8061b730f9d493e5e8e59bf448b3b9d29e785125275b9b50ba8",
+    "query": "Bump Bar K3",
+    "limit": 20
+  },
+  "lookup-joy-omniswitch-6855-24.json": {
+    "sha256": "50e2416cf832d17bebfc24f6c352e943f077b269c6ceca14386138b247c4b4c9",
+    "query": "OmniSwitch 6855-24",
+    "limit": 20
+  },
+  "lookup-kenya-edgecore.json": {
+    "sha256": "d3a73a68b8de1732a1cec60d80e1442843f2268205e107c7697c60ed24fd8b39",
+    "query": "ACCTON-AS8060",
+    "limit": 20
+  },
+  "lookup-kenya-tablet.json": {
+    "sha256": "9650806655a5f175baf382ff5f3b24ece2e323b430d97d75eba99fc3888a9628",
+    "query": "TR10RS1",
+    "limit": 20
+  },
+  "lookup-kenya-timberwolf.json": {
+    "sha256": "daaa0f0f3c861f816676040f565f787a08659030c49bcdc2c121891fe24f0fb2",
+    "query": "TIMBERWLFL10",
+    "limit": 20
+  },
+  "lookup-meta-minipack2.json": {
+    "sha256": "10f476c5ca187b80561a1c4cabfdf664595d7ab09cc6a2d5e335e2e0cc8e7c0e",
+    "query": "Minipack2",
+    "limit": 20
+  },
+  "lookup-meta-minipack3.json": {
+    "sha256": "c561cce2d2f387cf9eecbefabe59bd53bfd18684f4f4186dad30d0524f7550af",
+    "query": "Minipack3",
+    "limit": 20
+  },
+  "lookup-meta-wedge-100-32x.json": {
+    "sha256": "295eab4997c82dd4192f28333b7a03f42d18376a18a9b0f2fc3f4abcf79b44ef",
+    "query": "Wedge 100-32X",
+    "limit": 20
+  },
+  "lookup-meta-wedge-100.json": {
+    "sha256": "417095fd2c36ce441a41ed6d30ff908fdf8ae80ae7d5ec4ae093e0c33b1db5cd",
+    "query": "Wedge 100",
+    "limit": 20
+  },
+  "lookup-metrolinq-10g.json": {
+    "sha256": "01745efbb0d456d125a9eb2b85b89172b63ad9f8dd2b42201054d257efc54b38",
+    "query": "ML-60-10G-360",
+    "limit": 20
+  },
+  "lookup-metrolinq-ml1-19.json": {
+    "sha256": "35dc39525ecbba1eaea4fffae0ecf352127b5f77571a7b4e52c137be1499ca43",
+    "query": "ML1-60-19",
+    "limit": 20
+  },
+  "lookup-metrolinq-ml1-35.json": {
+    "sha256": "a63eba880b7f9390935c385b4e17188e3ebc9df5c6395631922e13cc4cbc129b",
+    "query": "ML1-60-35",
+    "limit": 20
+  },
+  "lookup-ncc-celestica.json": {
+    "sha256": "601aaf370114821ae2520003e59404c91056cc0f1949ea58edb77dc6f841fe74",
+    "query": "Celestica",
+    "limit": 20
+  },
+  "lookup-ncc-chinese-accton-lead.json": {
+    "sha256": "ae7b1a81d42afe77148f1b76b85f9ddb51c32010e751baa31a2b6512649ece96",
+    "query": "\u667a\u90a6",
+    "limit": 20
+  },
+  "lookup-ncc-oracle.json": {
+    "sha256": "68fe74c41773beb2a3d4e0ab5de1a293f508c3a52a0953c346664612c39f6332",
+    "query": "Oracle",
+    "limit": 20
+  },
+  "lookup-nigeria-atlanta.json": {
+    "sha256": "3f99d2da9452bfaa588e9354203621d1df3e00855d3201c6ac606c7f41346baa",
+    "query": "ATLANTA23SFX",
+    "limit": 20
+  },
+  "lookup-nigeria-metrolinq.json": {
+    "sha256": "a63eba880b7f9390935c385b4e17188e3ebc9df5c6395631922e13cc4cbc129b",
+    "query": "ML1-60-35",
+    "limit": 20
+  },
+  "lookup-ntra-historical-example.json": {
+    "sha256": "c882943abace0d8e428752872d732be710294d72a45ac1d9f9e5b6a62995852d",
+    "query": "SG-XPCIE2FC-QF8-Z",
+    "limit": 20
+  },
+  "lookup-ntrc-raw-example.json": {
+    "sha256": "ddadb4c8daf5f9ed34cfaa8d66d573c6db6a547d431e08c0a7f79d95d37eb804",
+    "query": "F100 Ghost",
+    "limit": 20
+  },
+  "lookup-oracle-component-example.json": {
+    "sha256": "c882943abace0d8e428752872d732be710294d72a45ac1d9f9e5b6a62995852d",
+    "query": "SG-XPCIE2FC-QF8-Z",
+    "limit": 20
+  },
+  "lookup-pci-example.json": {
+    "sha256": "75f288c82cb86db6b1f8a3c89f0714f4bbcee54754098cf28e80f91c7d19b2d2",
+    "query": "1d0f:ec20",
+    "limit": 20
+  },
+  "lookup-picos-ais800.json": {
+    "sha256": "4276b8eb078d0d31a634b5bb999457b5ee69745dba9faacc3c58c8a3bbca8f09",
+    "query": "AIS800-32O",
+    "limit": 20
+  },
+  "lookup-picos-as9737.json": {
+    "sha256": "ac77f18b0cae3dd1cf08f75169d534a0f4f628c3a322c382fed1b71c51377082",
+    "query": "AS9737-32DB",
+    "limit": 20
+  },
+  "lookup-rra-accton-singapore.json": {
+    "sha256": "802def4f6b7df34223bbc3912953996d0a40c50c8d94f3cdf36760ba5fd40fbb",
+    "query": "AC-IG2004W",
+    "limit": 20
+  },
+  "lookup-rra-accton-slash.json": {
+    "sha256": "cac6ec2b88cea8b060ed20bef167445296a1ea442767e1fde23a7c8b36983f60",
+    "query": "EN1207F-TX/WOL",
+    "limit": 20
+  },
+  "lookup-rra-az9074.json": {
+    "sha256": "fb4c8bdeb0bd0c4822a0b02fb2d01b868781c754c24eb57a9f25fd97f95985f7",
+    "query": "AZ9074-64X-DC-42",
+    "limit": 20
+  },
+  "lookup-rra-barreleye.json": {
+    "sha256": "502edb80700aec23c5434cf7084403ff86032a8296398e3df394874e0f0ee344",
+    "query": "BARRELEYE",
+    "limit": 20
+  },
+  "lookup-rra-celestica-company.json": {
+    "sha256": "601aaf370114821ae2520003e59404c91056cc0f1949ea58edb77dc6f841fe74",
+    "query": "Celestica",
+    "limit": 20
+  },
+  "lookup-rra-celestica-example.json": {
+    "sha256": "29184860a28b8e19c54fd35981425bf4f86a5e0f4a735d0e759a5490f86bd5fe",
+    "query": "RR-ZZR-CS8000-32X-DC",
+    "limit": 20
+  },
+  "lookup-rra-cross-brand-example.json": {
+    "sha256": "36e572508914e5fca0f208cf8ae25cf5a2f6aa5c7ee8ec7610ab7e0cd7a9a1e5",
+    "query": "VSX 3000",
+    "limit": 20
+  },
+  "lookup-rra-list-accton.json": {
+    "sha256": "2aead905f32cb579b202d5503d0dc561394dfd99711e268a95e8051df6d6c15d",
+    "query": "WS-AP3640-ROW",
+    "limit": 20
+  },
+  "lookup-rra-list-celestica.json": {
+    "sha256": "dfeba5c4e7b4d13e90db527ccc15e7030e501f329bf1d8f1104ba918bca19b29",
+    "query": "XFrame-II-LP",
+    "limit": 20
+  },
+  "lookup-rra-list-oracle.json": {
+    "sha256": "c948cd92d3fd13401c7cf585549da8a19d8e3355dd279e0baf65c283e06f55f6",
+    "query": "DC2ST-3ST",
+    "limit": 20
+  },
+  "lookup-rra-main-accton.json": {
+    "sha256": "7e57a9ee1e43adf226ec035830f376843cfbdc07b9f423e965a32fbfbb432f5e",
+    "query": "BayStack 325-24G",
+    "limit": 20
+  },
+  "lookup-rra-main-celestica.json": {
+    "sha256": "3421221d7a50097ac49ba4268302ec02e3211a05778dc05788722a92a4ad259f",
+    "query": "CP3060-RTM",
+    "limit": 20
+  },
+  "lookup-rra-main-oracle.json": {
+    "sha256": "eef075ecb76458fdfe290d5259b0d903e34d67100a94935e9da0ca70d4f21e3d",
+    "query": "SFE-CAB",
+    "limit": 20
+  },
+  "lookup-rra-sat1a.json": {
+    "sha256": "111672fc015c10c4bf209c2920bb28c1085ca6608da45c5ab31ece7355cdfadd",
+    "query": "SAT1A_C2",
+    "limit": 20
+  },
+  "lookup-storage-sc6100.json": {
+    "sha256": "2afc51fc946da9d0bf352fe95c8fc1334bfbf80d26d79bf61f5d40e6c5cc7f6e",
+    "query": "SC6100",
+    "limit": 20
+  },
+  "lookup-storage-sd4100.json": {
+    "sha256": "a9f1b9f48f90eed5aabd517baf915af51e810d2808f7dab5ce27ccd5c292c805",
+    "query": "SD4100",
+    "limit": 20
+  },
+  "lookup-storage-sd6200.json": {
+    "sha256": "80d2528cd86c41d614c53e30eaa257e7b92c477bc8b8ac62ad81d6613b0bb611",
+    "query": "SD6200",
+    "limit": 20
+  },
+  "lookup-sun-blade.json": {
+    "sha256": "33bb50aa46466602b5628a18c4c81d18eb0795179d12c1544882b9692cf53482",
+    "query": "SUN Blade 2500",
+    "limit": 20
+  },
+  "lookup-sun-netra.json": {
+    "sha256": "b28268cc67e8a8aa4a04592e68684f97c7b1a91923e54a9a52863a3cc5a7dbe8",
+    "query": "Netra ct 1600",
+    "limit": 20
+  },
+  "lookup-taiwan-9260ngw.json": {
+    "sha256": "e348ff621e980639d99cee08a7aa5efb32af4bfc46323328783b2717c0e02a13",
+    "query": "9260NGW",
+    "limit": 20
+  },
+  "lookup-taiwan-ap-52-w.json": {
+    "sha256": "e0c5ca83ce192e09ccd62c4f3805c1e225ff9f8e0a1b715893289451b27cff2a",
+    "query": "AP-52-W",
+    "limit": 20
+  },
+  "lookup-taiwan-wh1cl.json": {
+    "sha256": "83764305cd78912d76e90d139e800146d12a18feefecb784c0ab623ca9cd9dc9",
+    "query": "WH1CL",
+    "limit": 20
+  },
+  "lookup-tec-example.json": {
+    "sha256": "9a160ce18826195610250d8ac46c94d74a5314673ca127e943950ba286526ac7",
+    "query": "AZ4444-52X",
+    "limit": 20
+  },
+  "lookup-ul-amazon-az9075.json": {
+    "sha256": "922d5514b1a99758a846e7188c0bb44f8f23984e7bcf9291e9b5b6d5fb6487ce",
+    "query": "AZ9075-64X-DC-42",
+    "limit": 20
+  },
+  "lookup-ul-amazon-cs42.json": {
+    "sha256": "8410397371a23c85233fda16ccc5f1df652966695eaa2849c1e2ecf7cb734b25",
+    "query": "CS42_1RP_G2",
+    "limit": 20
+  }
+}

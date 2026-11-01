@@ -1,0 +1,37 @@
+{
+  "phase": "staging ready; not promoted; standard exports unchanged",
+  "counts": {
+    "devices": 4090,
+    "records": 5319,
+    "sources": 290,
+    "facts": 45017,
+    "documents": 58,
+    "document_pages": 3663
+  },
+  "jobs": 120,
+  "hashed_inputs": 2205,
+  "old_inputs_preserved": 2191,
+  "old_jobs_preserved": 119,
+  "old_bundle_entries_preserved": 46,
+  "complete_entries": 47,
+  "accepted_sources_and_code_unchanged": true,
+  "curated_transform_only_snapshot_rebase": true,
+  "tests": {
+    "affected": 47,
+    "full428_reused_on_equal162application_test_hashes_plus3current_script_hashes": true
+  },
+  "proof": "candidate-verification.json",
+  "cli": "cli-verification.json",
+  "hashes": "final-hashes.json",
+  "live_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "candidate_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "manifest_sha256": "3eefe9fcb79e17e1c0f0e724c53472e523decef37fbe603d1e0ff69fb3906277",
+  "standard_exports_preserved": 968,
+  "next_steps": [
+    "independent staging review and root acceptance",
+    "separately authorized live promotion",
+    "standard exports refresh and read-only live verification",
+    "root documentation update and independent documentation review"
+  ],
+  "final_hashes_sha256": "5c58414734ea6046ce04418d3303df0f9d44f8f4b1a822b8d44dda4b77e1a93f"
+}

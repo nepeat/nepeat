@@ -1,0 +1,709 @@
+{
+  "catalog_observations": [
+    {
+      "catalog_path": "data/devices.sqlite",
+      "observed_utc": "2026-10-13T04:39:31.096078+00:00",
+      "catalog_sha256_before": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+      "catalog_sha256_after": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+      "read_only": true,
+      "anchors": [
+        {
+          "source_id": "spec-jbb2015-20151123-00036",
+          "device_id": "9e6ff32d891fb085be76",
+          "existing_device": {
+            "id": "9e6ff32d891fb085be76",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280M4",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF5280M4",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-jbb2015-20161220-00139",
+            "spec-jbb2015-20170524-00158"
+          ]
+        },
+        {
+          "source_id": "spec-jbb2015-20160118-00041",
+          "device_id": "9e6ff32d891fb085be76",
+          "existing_device": {
+            "id": "9e6ff32d891fb085be76",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280M4",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF5280M4",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-jbb2015-20161220-00139",
+            "spec-jbb2015-20170524-00158"
+          ]
+        },
+        {
+          "source_id": "spec-jbb2015-20160321-00065",
+          "device_id": "a6d17cb838346ee56f8f",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-jbb2015-20160321-00066",
+          "device_id": "85a144b68839f17b3901",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-jbb2015-20160321-00067",
+          "device_id": "0bad71144fd3f941299a",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-jbb2015-20160516-00095",
+          "device_id": "bf057d2343118456e21b",
+          "existing_device": {
+            "id": "bf057d2343118456e21b",
+            "brand": "Inspur Corporation",
+            "model": "Inspur TS860G3",
+            "revision": "",
+            "title": "Inspur Corporation Inspur TS860G3",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-jbb2015-20170425-00157"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220325-31246",
+          "device_id": "291ef0b1ebfda1c953d7",
+          "existing_device": {
+            "id": "291ef0b1ebfda1c953d7",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8480M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8480M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31443",
+            "spec-cpu2017-20220620-32069",
+            "spec-cpu2017-20220718-32224",
+            "spec-cpu2017-20220829-32363",
+            "spec-cpu2017-20221010-32548",
+            "spec-jbb2015-20210127-00589",
+            "spec-jbb2015-20210127-00590",
+            "spec-power_ssj2008-20210113-01061"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220325-31244",
+          "device_id": "d3f48f11da28bc2c2661",
+          "existing_device": {
+            "id": "d3f48f11da28bc2c2661",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220606-31955",
+            "spec-cpu2017-20220718-32223",
+            "spec-cpu2017-20220829-32367",
+            "spec-cpu2017-20221010-32547",
+            "spec-jbb2015-20201104-00581",
+            "spec-jbb2015-20210113-00588",
+            "spec-jbb2015-20221130-00937",
+            "spec-jbb2015-20221130-00938"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220325-31242",
+          "device_id": "d3f48f11da28bc2c2661",
+          "existing_device": {
+            "id": "d3f48f11da28bc2c2661",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220606-31955",
+            "spec-cpu2017-20220718-32223",
+            "spec-cpu2017-20220829-32367",
+            "spec-cpu2017-20221010-32547",
+            "spec-jbb2015-20201104-00581",
+            "spec-jbb2015-20210113-00588",
+            "spec-jbb2015-20221130-00937",
+            "spec-jbb2015-20221130-00938"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220311-31155",
+          "device_id": "710919c49765e744012c",
+          "existing_device": {
+            "id": "710919c49765e744012c",
+            "brand": "Inspur Corporation",
+            "model": "Inspur i24M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur i24M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": true,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-power_ssj2008-20220330-01170"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220301-31137",
+          "device_id": "2efcb0bdbfed7895e91c",
+          "existing_device": {
+            "id": "2efcb0bdbfed7895e91c",
+            "brand": "Inspur Corporation",
+            "model": "Inspur i24LM6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur i24LM6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": true,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-power_ssj2008-20220330-01171"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220301-31136",
+          "device_id": "2efcb0bdbfed7895e91c",
+          "existing_device": {
+            "id": "2efcb0bdbfed7895e91c",
+            "brand": "Inspur Corporation",
+            "model": "Inspur i24LM6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur i24LM6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": true,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-power_ssj2008-20220330-01171"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220220-30983",
+          "device_id": "eebe272934886ec0b12b",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-cpu2017-20220220-30979",
+          "device_id": "09fd28196820640d4c48",
+          "existing_device": {
+            "id": "09fd28196820640d4c48",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M5",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M5",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220505-31643",
+            "spec-jbb2015-20180620-00299",
+            "spec-jbb2015-20191106-00506"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220125-30794",
+          "device_id": "896c2531d53210a1ef86",
+          "existing_device": {
+            "id": "896c2531d53210a1ef86",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280M5",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF5280M5",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31445",
+            "spec-jbb2015-20180411-00293",
+            "spec-jbb2015-20180620-00300",
+            "spec-jbb2015-20190731-00488",
+            "spec-jbb2015-20190911-00491",
+            "spec-jbb2015-20200617-00556",
+            "spec-jbb2015-20200812-00559",
+            "spec-power_ssj2008-20180416-00812",
+            "spec-power_ssj2008-20190721-00991",
+            "spec-power_ssj2008-20190916-01006",
+            "spec-power_ssj2008-20200519-01037",
+            "spec-power_ssj2008-20210707-01115",
+            "spec-power_ssj2008-20210707-01116",
+            "spec-power_ssj2008-20210707-01117",
+            "spec-power_ssj2008-20210728-01121"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220125-30791",
+          "device_id": "09fd28196820640d4c48",
+          "existing_device": {
+            "id": "09fd28196820640d4c48",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M5",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M5",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220505-31643",
+            "spec-jbb2015-20180620-00299",
+            "spec-jbb2015-20191106-00506"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20211206-30304",
+          "device_id": "291ef0b1ebfda1c953d7",
+          "existing_device": {
+            "id": "291ef0b1ebfda1c953d7",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8480M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8480M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31443",
+            "spec-cpu2017-20220620-32069",
+            "spec-cpu2017-20220718-32224",
+            "spec-cpu2017-20220829-32363",
+            "spec-cpu2017-20221010-32548",
+            "spec-jbb2015-20210127-00589",
+            "spec-jbb2015-20210127-00590",
+            "spec-power_ssj2008-20210113-01061"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20211206-30303",
+          "device_id": "291ef0b1ebfda1c953d7",
+          "existing_device": {
+            "id": "291ef0b1ebfda1c953d7",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8480M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8480M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31443",
+            "spec-cpu2017-20220620-32069",
+            "spec-cpu2017-20220718-32224",
+            "spec-cpu2017-20220829-32363",
+            "spec-cpu2017-20221010-32548",
+            "spec-jbb2015-20210127-00589",
+            "spec-jbb2015-20210127-00590",
+            "spec-power_ssj2008-20210113-01061"
+          ]
+        }
+      ]
+    },
+    {
+      "catalog_path": "data/devices-candidate-wave3-2026-10-12.sqlite",
+      "observed_utc": "2026-10-13T04:39:32.302529+00:00",
+      "catalog_sha256_before": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+      "catalog_sha256_after": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+      "read_only": true,
+      "anchors": [
+        {
+          "source_id": "spec-jbb2015-20151123-00036",
+          "device_id": "9e6ff32d891fb085be76",
+          "existing_device": {
+            "id": "9e6ff32d891fb085be76",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280M4",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF5280M4",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-jbb2015-20161220-00139",
+            "spec-jbb2015-20170524-00158"
+          ]
+        },
+        {
+          "source_id": "spec-jbb2015-20160118-00041",
+          "device_id": "9e6ff32d891fb085be76",
+          "existing_device": {
+            "id": "9e6ff32d891fb085be76",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280M4",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF5280M4",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-jbb2015-20161220-00139",
+            "spec-jbb2015-20170524-00158"
+          ]
+        },
+        {
+          "source_id": "spec-jbb2015-20160321-00065",
+          "device_id": "a6d17cb838346ee56f8f",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-jbb2015-20160321-00066",
+          "device_id": "85a144b68839f17b3901",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-jbb2015-20160321-00067",
+          "device_id": "0bad71144fd3f941299a",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-jbb2015-20160516-00095",
+          "device_id": "bf057d2343118456e21b",
+          "existing_device": {
+            "id": "bf057d2343118456e21b",
+            "brand": "Inspur Corporation",
+            "model": "Inspur TS860G3",
+            "revision": "",
+            "title": "Inspur Corporation Inspur TS860G3",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-jbb2015-20170425-00157"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220325-31246",
+          "device_id": "291ef0b1ebfda1c953d7",
+          "existing_device": {
+            "id": "291ef0b1ebfda1c953d7",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8480M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8480M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31443",
+            "spec-cpu2017-20220620-32069",
+            "spec-cpu2017-20220718-32224",
+            "spec-cpu2017-20220829-32363",
+            "spec-cpu2017-20221010-32548",
+            "spec-jbb2015-20210127-00589",
+            "spec-jbb2015-20210127-00590",
+            "spec-power_ssj2008-20210113-01061"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220325-31244",
+          "device_id": "d3f48f11da28bc2c2661",
+          "existing_device": {
+            "id": "d3f48f11da28bc2c2661",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220606-31955",
+            "spec-cpu2017-20220718-32223",
+            "spec-cpu2017-20220829-32367",
+            "spec-cpu2017-20221010-32547",
+            "spec-jbb2015-20201104-00581",
+            "spec-jbb2015-20210113-00588",
+            "spec-jbb2015-20221130-00937",
+            "spec-jbb2015-20221130-00938"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220325-31242",
+          "device_id": "d3f48f11da28bc2c2661",
+          "existing_device": {
+            "id": "d3f48f11da28bc2c2661",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220606-31955",
+            "spec-cpu2017-20220718-32223",
+            "spec-cpu2017-20220829-32367",
+            "spec-cpu2017-20221010-32547",
+            "spec-jbb2015-20201104-00581",
+            "spec-jbb2015-20210113-00588",
+            "spec-jbb2015-20221130-00937",
+            "spec-jbb2015-20221130-00938"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220311-31155",
+          "device_id": "710919c49765e744012c",
+          "existing_device": {
+            "id": "710919c49765e744012c",
+            "brand": "Inspur Corporation",
+            "model": "Inspur i24M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur i24M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": true,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-power_ssj2008-20220330-01170"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220301-31137",
+          "device_id": "2efcb0bdbfed7895e91c",
+          "existing_device": {
+            "id": "2efcb0bdbfed7895e91c",
+            "brand": "Inspur Corporation",
+            "model": "Inspur i24LM6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur i24LM6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": true,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-power_ssj2008-20220330-01171"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220301-31136",
+          "device_id": "2efcb0bdbfed7895e91c",
+          "existing_device": {
+            "id": "2efcb0bdbfed7895e91c",
+            "brand": "Inspur Corporation",
+            "model": "Inspur i24LM6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur i24LM6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": true,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-power_ssj2008-20220330-01171"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220220-30983",
+          "device_id": "eebe272934886ec0b12b",
+          "existing_device": null,
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": []
+        },
+        {
+          "source_id": "spec-cpu2017-20220220-30979",
+          "device_id": "09fd28196820640d4c48",
+          "existing_device": {
+            "id": "09fd28196820640d4c48",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M5",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M5",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220505-31643",
+            "spec-jbb2015-20180620-00299",
+            "spec-jbb2015-20191106-00506"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220125-30794",
+          "device_id": "896c2531d53210a1ef86",
+          "existing_device": {
+            "id": "896c2531d53210a1ef86",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF5280M5",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF5280M5",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31445",
+            "spec-jbb2015-20180411-00293",
+            "spec-jbb2015-20180620-00300",
+            "spec-jbb2015-20190731-00488",
+            "spec-jbb2015-20190911-00491",
+            "spec-jbb2015-20200617-00556",
+            "spec-jbb2015-20200812-00559",
+            "spec-power_ssj2008-20180416-00812",
+            "spec-power_ssj2008-20190721-00991",
+            "spec-power_ssj2008-20190916-01006",
+            "spec-power_ssj2008-20200519-01037",
+            "spec-power_ssj2008-20210707-01115",
+            "spec-power_ssj2008-20210707-01116",
+            "spec-power_ssj2008-20210707-01117",
+            "spec-power_ssj2008-20210728-01121"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20220125-30791",
+          "device_id": "09fd28196820640d4c48",
+          "existing_device": {
+            "id": "09fd28196820640d4c48",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8260M5",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8260M5",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220505-31643",
+            "spec-jbb2015-20180620-00299",
+            "spec-jbb2015-20191106-00506"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20211206-30304",
+          "device_id": "291ef0b1ebfda1c953d7",
+          "existing_device": {
+            "id": "291ef0b1ebfda1c953d7",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8480M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8480M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31443",
+            "spec-cpu2017-20220620-32069",
+            "spec-cpu2017-20220718-32224",
+            "spec-cpu2017-20220829-32363",
+            "spec-cpu2017-20221010-32548",
+            "spec-jbb2015-20210127-00589",
+            "spec-jbb2015-20210127-00590",
+            "spec-power_ssj2008-20210113-01061"
+          ]
+        },
+        {
+          "source_id": "spec-cpu2017-20211206-30303",
+          "device_id": "291ef0b1ebfda1c953d7",
+          "existing_device": {
+            "id": "291ef0b1ebfda1c953d7",
+            "brand": "Inspur Corporation",
+            "model": "Inspur NF8480M6",
+            "revision": "",
+            "title": "Inspur Corporation Inspur NF8480M6",
+            "kind": "server"
+          },
+          "source_id_absent": true,
+          "existing_model_case_only_difference": false,
+          "identity_rule": "Existing Catalog brand namespace and model casefold/strip; printed case retained in each record, full-name identifier/fact/raw evidence; no new alias.",
+          "existing_source_ids": [
+            "spec-cpu2017-20220411-31443",
+            "spec-cpu2017-20220620-32069",
+            "spec-cpu2017-20220718-32224",
+            "spec-cpu2017-20220829-32363",
+            "spec-cpu2017-20221010-32548",
+            "spec-jbb2015-20210127-00589",
+            "spec-jbb2015-20210127-00590",
+            "spec-power_ssj2008-20210113-01061"
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Timestamped read-only observations, not a permanent baseline; root alone integrates."
+}

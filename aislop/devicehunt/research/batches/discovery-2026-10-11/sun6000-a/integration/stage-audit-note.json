@@ -1,0 +1,1 @@
+{"note": "EXCEPT audit flags only records.observed_at (149 Celestica records, excluded from the reviewed projection) and the Celestica source row coverage/fetched_at/sha256/cache_path (the intended change); gate_projections ok"}

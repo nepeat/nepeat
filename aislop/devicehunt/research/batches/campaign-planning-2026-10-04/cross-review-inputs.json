@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "path": "docs/campaign-plan.md",
+      "sha256": "2789cb5c7f99f6da089dcdd81c47ec995a19d4576c5d52fc44c881bd53535b7b"
+    },
+    {
+      "path": "research/batches/campaign-planning-2026-10-04/astra-review.md",
+      "sha256": "34aae844755214f6e0d26e7c446b9cf8a2916cf59641dd0edbf101da511b92ef"
+    },
+    {
+      "path": "research/batches/campaign-planning-2026-10-04/fable-proposal.md",
+      "sha256": "b9bcf7c38db34cc11c3489513c21dc66abc7de5ae8bb3c440cc54da8907a8195"
+    }
+  ],
+  "plan_snapshot": "research/batches/campaign-planning-2026-10-04/plan-submitted-to-fable.md",
+  "note": "synthesized draft before final Fable review; any later edits receive coordinator disposition",
+  "astra_review_snapshot": "research/batches/campaign-planning-2026-10-04/astra-review-submitted-to-fable.md"
+}

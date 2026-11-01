@@ -1,0 +1,84 @@
+[
+  {
+    "device_id": "b92d2caa09aea5fa568f",
+    "brand": "Celestica",
+    "model": "REVIEW-1",
+    "revision": "",
+    "category": "physical_description",
+    "statement": "chassis type reported by firmware in submitted dmidecode dumps: Rack Mount Chassis",
+    "origin": "source fact",
+    "source_fact_name": "dmi_chassis_type",
+    "evidence_count": 1,
+    "record_count": 1,
+    "source_count": 1,
+    "evidence": [
+      {
+        "record_id": "b4ee94ced054a259fd0d0cf2",
+        "device_id": "b92d2caa09aea5fa568f",
+        "brand": "Celestica",
+        "model": "REVIEW-1",
+        "revision": "",
+        "category": "physical_description",
+        "statement": "chassis type reported by firmware in submitted dmidecode dumps: Rack Mount Chassis",
+        "source_id": "a",
+        "source_url": "https://example.invalid/a/one",
+        "tier": "vendor",
+        "origin": "source fact",
+        "source_fact_name": "dmi_chassis_type",
+        "source_key": "one",
+        "raw_fact": {
+          "name": "dmi_chassis_type",
+          "value": "Rack Mount Chassis (a/0123456789ab:1)"
+        },
+        "affiliations": [
+          {
+            "company": "Celestica",
+            "target": "Celestica",
+            "role": "documentation_vendor"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "device_id": "b92d2caa09aea5fa568f",
+    "brand": "Celestica",
+    "model": "REVIEW-1",
+    "revision": "",
+    "category": "physical_description",
+    "statement": "chassis type reported by firmware in submitted dmidecode dumps: Rack Mount Chassis",
+    "origin": "source fact",
+    "source_fact_name": "dmi_chassis_type",
+    "evidence_count": 1,
+    "record_count": 1,
+    "source_count": 1,
+    "evidence": [
+      {
+        "record_id": "b4ee94ced054a259fd0d0cf2",
+        "device_id": "b92d2caa09aea5fa568f",
+        "brand": "Celestica",
+        "model": "REVIEW-1",
+        "revision": "",
+        "category": "physical_description",
+        "statement": "chassis type reported by firmware in submitted dmidecode dumps: Rack Mount Chassis",
+        "source_id": "a",
+        "source_url": "https://example.invalid/a/one",
+        "tier": "vendor",
+        "origin": "source fact",
+        "source_fact_name": "dmi_chassis_type",
+        "source_key": "one",
+        "raw_fact": {
+          "name": "dmi_chassis_type",
+          "value": "Rack Mount Chassis (b/0123456789ab:2)"
+        },
+        "affiliations": [
+          {
+            "company": "Celestica",
+            "target": "Celestica",
+            "role": "documentation_vendor"
+          }
+        ]
+      }
+    ]
+  }
+]

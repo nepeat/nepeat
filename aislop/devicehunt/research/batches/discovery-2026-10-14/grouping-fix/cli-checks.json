@@ -1,0 +1,109 @@
+{
+  "utc": "2026-10-15T05:44:29.658577+00:00",
+  "module_paths": {
+    "devicehunt": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/overlay/devicehunt/__init__.py",
+    "devicehunt.specifications": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/overlay/devicehunt/specifications.py",
+    "devicehunt.__main__": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/overlay/devicehunt/__main__.py"
+  },
+  "child_module_paths": {
+    "devicehunt": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/overlay/devicehunt/__init__.py",
+    "devicehunt.specifications": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/overlay/devicehunt/specifications.py",
+    "devicehunt.__main__": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/overlay/devicehunt/__main__.py"
+  },
+  "cwd": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix",
+  "pythonpath": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/overlay",
+  "fixture_sha256_before": "3004d59a6837736745b1ed0284caaae2251b3c558dd55ee4f92d968bdab8ca59",
+  "fixture_sha256_after": "3004d59a6837736745b1ed0284caaae2251b3c558dd55ee4f92d968bdab8ca59",
+  "grouped_output": [
+    {
+      "device_id": "3ff67d1e09d215dd6742",
+      "brand": "Celestica",
+      "model": "CLI-1",
+      "revision": "",
+      "category": "power_description",
+      "statement": "2 PSUs",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence_count": 2,
+      "record_count": 2,
+      "source_count": 2,
+      "evidence": [
+        {
+          "record_id": "b4ee94ced054a259fd0d0cf2",
+          "device_id": "3ff67d1e09d215dd6742",
+          "brand": "Celestica",
+          "model": "CLI-1",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "a",
+          "source_url": "https://example.invalid/a",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "one",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "2 PSUs"
+          },
+          "affiliations": [
+            {
+              "company": "Celestica",
+              "target": "Celestica",
+              "role": "documentation_vendor"
+            }
+          ]
+        },
+        {
+          "record_id": "366598cfb67600d97f690f0f",
+          "device_id": "3ff67d1e09d215dd6742",
+          "brand": "Celestica",
+          "model": "CLI-1",
+          "revision": "",
+          "category": "power_description",
+          "statement": "2 PSUs",
+          "source_id": "b",
+          "source_url": "https://example.invalid/b",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "source_key": "one",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "2 PSUs"
+          },
+          "affiliations": [
+            {
+              "company": "Celestica",
+              "target": "Celestica",
+              "role": "documentation_vendor"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "missing_db_returncode": 1,
+  "missing_db_not_created": true,
+  "overlay_default_data_absent": true,
+  "help": "usage: python3 -m devicehunt specs [-h] [--vendor VENDOR] [--exact-model |\n                                   --exact-part-number]\n                                   [--include-source-facts]\n                                   [--group-identical] [--limit LIMIT]\n                                   [--format {table,json,csv}]\n                                   [query]\n\npositional arguments:\n  query\n\noptions:\n  -h, --help            show this help message and exit\n  --vendor VENDOR       Require this company's association on each\n                        specification's source record\n  --exact-model         Match complete model strings or aliases; an alias\n                        selects only its own source records\n  --exact-part-number   Show specifications from source records that\n                        explicitly identify this complete part number\n  --include-source-facts\n                        Also show reviewed practical source facts (PSU,\n                        airflow, U height, weight, form factor, nodes),\n                        labelled origin=source fact\n  --group-identical     Group strictly identical statements within each\n                        device; keep every evidence member. Limits count\n                        complete groups; grouping does not merge\n                        configurations or certify agreement\n  --limit LIMIT\n  --format {table,json,csv}\n",
+  "raw_fixture_sha256_before": "385443068a0d516664798d6e1a7e3d941114d4c8cd2089cdaf8f06a618c61715",
+  "raw_fixture_sha256_after": "385443068a0d516664798d6e1a7e3d941114d4c8cd2089cdaf8f06a618c61715",
+  "raw_table_groups_distinguishable": true,
+  "raw_json_csv_evidence_equal": true,
+  "raw_table": "{\"device_id\": \"3ff67d1e09d215dd6742\", \"brand\": \"Celestica\", \"model\": \"CLI-1\", \"revision\": \"\", \"category\": \"physical_description\", \"statement\": \"chassis type reported by firmware in submitted dmidecode dumps: Rack Mount Chassis\", \"origin\": \"source fact\", \"source_fact_name\": \"dmi_chassis_type\", \"evidence_count\": 1, \"record_count\": 1, \"source_count\": 1, \"raw_fact\": {\"name\": \"dmi_chassis_type\", \"value\": \"Rack Mount Chassis (a/0123456789ab:1)\"}}\n  evidence {\"record_id\": \"b4ee94ced054a259fd0d0cf2\", \"source_id\": \"a\", \"source_key\": \"one\", \"source_url\": \"https://example.invalid/a\", \"tier\": \"vendor\", \"origin\": \"source fact\", \"source_fact_name\": \"dmi_chassis_type\", \"affiliations\": [{\"company\": \"Celestica\", \"target\": \"Celestica\", \"role\": \"documentation_vendor\"}]}\n{\"device_id\": \"3ff67d1e09d215dd6742\", \"brand\": \"Celestica\", \"model\": \"CLI-1\", \"revision\": \"\", \"category\": \"physical_description\", \"statement\": \"chassis type reported by firmware in submitted dmidecode dumps: Rack Mount Chassis\", \"origin\": \"source fact\", \"source_fact_name\": \"dmi_chassis_type\", \"evidence_count\": 1, \"record_count\": 1, \"source_count\": 1, \"raw_fact\": {\"name\": \"dmi_chassis_type\", \"value\": \"Rack Mount Chassis (b/0123456789ab:2)\"}}\n  evidence {\"record_id\": \"b4ee94ced054a259fd0d0cf2\", \"source_id\": \"a\", \"source_key\": \"one\", \"source_url\": \"https://example.invalid/a\", \"tier\": \"vendor\", \"origin\": \"source fact\", \"source_fact_name\": \"dmi_chassis_type\", \"affiliations\": [{\"company\": \"Celestica\", \"target\": \"Celestica\", \"role\": \"documentation_vendor\"}]}\n{\"device_id\": \"3ff67d1e09d215dd6742\", \"brand\": \"Celestica\", \"model\": \"CLI-1\", \"revision\": \"\", \"category\": \"power_description\", \"statement\": \"2 PSUs\", \"origin\": \"curated statement\", \"source_fact_name\": \"\", \"evidence_count\": 2, \"record_count\": 2, \"source_count\": 2}\n  evidence {\"record_id\": \"b4ee94ced054a259fd0d0cf2\", \"source_id\": \"a\", \"source_key\": \"one\", \"source_url\": \"https://example.invalid/a\", \"tier\": \"vendor\", \"origin\": \"curated statement\", \"source_fact_name\": \"\", \"affiliations\": [{\"company\": \"Celestica\", \"target\": \"Celestica\", \"role\": \"documentation_vendor\"}]}\n  evidence {\"record_id\": \"366598cfb67600d97f690f0f\", \"source_id\": \"b\", \"source_key\": \"one\", \"source_url\": \"https://example.invalid/b\", \"tier\": \"vendor\", \"origin\": \"curated statement\", \"source_fact_name\": \"\", \"affiliations\": [{\"company\": \"Celestica\", \"target\": \"Celestica\", \"role\": \"documentation_vendor\"}]}\n",
+  "help_widths": [
+    {
+      "columns": 40,
+      "normalized_phrase_present": true
+    },
+    {
+      "columns": 80,
+      "normalized_phrase_present": true
+    },
+    {
+      "columns": 120,
+      "normalized_phrase_present": true
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "before_database_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "before_manifest_sha256": "27ff5fc4a6a0d170dfb1128e17c1a452aa6bdc725c3d3c7060584ca165bd3540",
+  "after_database_sha256": "b66dc555ef7a38e2d942a4ba3534a71f442bc073c431c55308c413eb59bbf88e",
+  "after_manifest_sha256": "984624e6e9d77927326b0000d75dc22a5eec13c90a81c2ce4cbd587cc86c17fc",
+  "recovery_database": "data/devices-before-smartnic-qct-2026-10-05.sqlite",
+  "recovery_manifest": "data/import-manifest-before-smartnic-qct-2026-10-05.json"
+}

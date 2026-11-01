@@ -1,0 +1,5 @@
+{
+  "source": "PROGRESS.md",
+  "sha256": "a8f1a20b66e0722b1af3f9b31ba173e65ca3370523970428cc5913cd7d5f60e5",
+  "reason": "Preserve completed networking-primary checkpoint before server-evidence continuation."
+}

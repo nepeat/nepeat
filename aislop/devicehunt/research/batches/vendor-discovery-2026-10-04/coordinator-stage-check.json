@@ -1,0 +1,27 @@
+{
+  "outcome": "pass",
+  "live_unchanged": true,
+  "candidate_sha256": "5b1317f554968fae6c20a4dc0cd2d4d8524ee1c5e60a662675e36a763203a904",
+  "rebuilt_sha256": "37b3a85cb76086583f1e27c2a209ff01e9f60c6f7d5d6b28a21772a65cb37ee5",
+  "frozen_inputs_code_unchanged": true,
+  "only_one_old_job_changed": "complete reference bundle path",
+  "appended_job": {
+    "source": "curated",
+    "path": "vendor-discovery-facts-2026-10-04.json"
+  },
+  "new_hashed_inputs": [
+    "raw/qct-d51b-datasheet-mirror-2017-text.json",
+    "raw/qct-d51b-datasheet-mirror-2017.pdf",
+    "raw/reference-documents-with-vendor-discovery-2026-10-04.json",
+    "raw/vendor-discovery-qct-2026-10-04/d51b-datasheet.pdf",
+    "raw/vendor-discovery-qct-2026-10-04/d52bq-product.html",
+    "vendor-discovery-facts-2026-10-04.json"
+  ],
+  "changed_expected_keys": [
+    "document_pages",
+    "documents",
+    "records",
+    "sources"
+  ],
+  "old_live_backup_unchanged": true
+}

@@ -1,0 +1,116 @@
+{
+  "pdf_sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 2,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "SD6200\n4U 90 HDD Dense Storage SAS-4 Expansion System\n\n\n\n\nSD6200 is a next-generation 4U rackmount                     FEATURES\nSAS-4 storage expansion system for the                          4U enclosure designed to fit in standard 19” wide rack\nenterprise. SD6200 can be configured with up                    Cable management assembly (CMA)\nto 90 SAS HDDs or SSDs to maximize storage                      Supports up to 90 12G SAS or 6G SATA 3.5” or\ndensity and OPEX savings.                                       2.5” drives\n                                                                SCSI Enclosure Services\nThe SD6200 is ideal for:                                        13W max drive power at 35C\n                                                                Power control for 12G SAS drive via pin3\n•   Back-up/Restore & Disaster Recovery (DR)\n                                                                Dual redundant ESMs, hot-swappable\n•   HPC & AI\n                                                                Single ESM configuration supported\n•   Hyperscale / Hyperconverged infrastructure\n    applications                                                ESM (Expansion SAS Module)\n•   Enterprise Data Center                                       Four 24G SAS4 capable mini-SAS HD ports per ESM\n•   Software-Defined Storage                                     One RJ45 for management\n                                                                 One UART via 3.5mm jack\n                                                                 LED: Power LED (green), ESM Fault LED (amber),\n                                                                 UID LED (blue)\n                                                                 Button: Power button\n\n\n\n\n                                      Enterprise-Class Quality. Cloud Economics.\n\nNorth America: (Toll Free) +1 888 899 9998   |   Global: +1 416 448 5800   |   contactus@celestica.com   |   celestica.com\n"
+    },
+    {
+      "page": 2,
+      "text": "SD6200 4U 90 HDD Dense Storage SAS-4 Expansion System\n\n\n\n\nPOWER AND COOLING                                                                        APPROVALS\n\n  1300W 80 plus Platinum PSU, 2+2 (200-240V) or                                               EMC: EN 55032 Class A, EN55024, EN 61000-3-2,\n  3+1 (100-240V) redundant, hot swap                                                          EN 61000-3-3, FCC part 15 Class A, VCCI Class A,\n                                                                                              ICES-003 Class A, GB/T9254 Class A\n  100-127,200-240V AC input, auto ranging, 47~63Hz\n                                                                                              Safety: IEC/EN/UL/CSA 62368-1, GB4943\n  5 x 80 mm dual rotor fans, hot-pluggable\n  from the top                                                                                Environment: RoHS, REACH, WEEE, ERP Lot9\nPHYSICAL DIMENSIONS\n                                                                                         Note: All specifications and figures are subject to change\n  Height: 175.3 mm (6.9”)                                                                without prior notice.\n\n  Width: 448 mm (17.64”)\n  Depth: 1070 mm (42.12”) w/CMA\nENVIRONMENTAL\n  Operating Temperature: 5°C to 35°C\n  Non-operating Temperature: -40°C to 60°C\n  Humidity: 8% to 80% RH\n  Altitude: 0 to 950 m (De-rate temperature 1°C per\n  300 m above 950 m)\n  Sound Power: (23+/-2°C) <7.6Bel\n\n\n\n\n                   © Copyright Celestica Inc. 2024. All rights reserved. ™CELESTICA & Design and DS6200 are existing, pending or registered trademarks                091024\n                   of Celestica Inc. or its subsidiaries, used under license. All trademarks and registered trademarks are the property of their respective owners.\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "sd6200-datasheet.pdf",
+    "extracted_at_utc": "2026-10-13T03:37:09.287401+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           cls_branded_datasheet_SD6200_091024.indd\nCreator:         Adobe InDesign 19.5 (Macintosh)\nProducer:        Adobe PDF Library 17.0\nCreationDate:    Tue Sep 10 10:21:16 2024 PDT\nModDate:         Tue Sep 10 10:21:17 2024 PDT\nCustom Metadata: yes\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       642770 bytes\nOptimized:       no\nPDF version:     1.6\nPDF subtype:    PDF/X-4\n    Title:         ISO 15930 - Electronic document file format for prepress digital data exchange (PDF/X)\n    Abbreviation:  PDF/X-4\n    Subtitle:      Part 7: Complete exchange of printing data (PDF/X-4) and partial exchange of printing data with external profile reference (PDF/X-4p) using PDF 1.6\n    Standard:      ISO 15930-7\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-datasheet.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "16dbc1182fa6b0f5fce54aaedd6cb372edf8f5325560e6e951d921525dd288a6"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-datasheet.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "7090e040d325096e4e1d43b6b02dc1d185904f3b45bcf44141824e4eef064ffc"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-datasheet.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "a16dfaba1f8c1b7fcd65ea1948d6c167676ed52f2c7174b9afeda546c7825d14"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "database": "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+  "database_sha256_before": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "database_sha256_after": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "comparison": "literal exact strings; lowercase-only leads separate; no substring/alias expansion or merge",
+  "rows_compared": 11,
+  "rows_absent_as_exact_model_or_identifier": 6,
+  "rows": [
+    {
+      "row_number": 1,
+      "platform_as_printed": "Questone 2 D3030 (Questone 2A)",
+      "exact_model_matches": [],
+      "exact_identifier_matches": [],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": true
+    },
+    {
+      "row_number": 2,
+      "platform_as_printed": "AG5648",
+      "exact_model_matches": [],
+      "exact_identifier_matches": [],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": true
+    },
+    {
+      "row_number": 3,
+      "platform_as_printed": "AG7648",
+      "exact_model_matches": [],
+      "exact_identifier_matches": [],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": true
+    },
+    {
+      "row_number": 4,
+      "platform_as_printed": "AS4610-30T",
+      "exact_model_matches": [
+        [
+          "80d08b34e0623158cd7a",
+          "Edge-Core",
+          "AS4610-30T"
+        ],
+        [
+          "bdb217a8da95439a53e5",
+          "Accton",
+          "AS4610-30T"
+        ]
+      ],
+      "exact_identifier_matches": [
+        [
+          "80d08b34e0623158cd7a",
+          "Edge-Core",
+          "AS4610-30T",
+          "model_search",
+          "AS4610-30T"
+        ]
+      ],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": false
+    },
+    {
+      "row_number": 5,
+      "platform_as_printed": "AS4610-30P",
+      "exact_model_matches": [
+        [
+          "1bf338dac6abc1574c72",
+          "Edge-Core",
+          "AS4610-30P"
+        ],
+        [
+          "af81bc655285fdd85d85",
+          "Accton",
+          "AS4610-30P"
+        ]
+      ],
+      "exact_identifier_matches": [
+        [
+          "1bf338dac6abc1574c72",
+          "Edge-Core",
+          "AS4610-30P",
+          "model_search",
+          "AS4610-30P"
+        ]
+      ],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": false
+    },
+    {
+      "row_number": 6,
+      "platform_as_printed": "AS4610-54T",
+      "exact_model_matches": [
+        [
+          "8ceb8aaaf6c9bcbb990d",
+          "Edge-Core",
+          "AS4610-54T"
+        ],
+        [
+          "fba1b4fcf9b7291483f6",
+          "Accton",
+          "AS4610-54T"
+        ]
+      ],
+      "exact_identifier_matches": [
+        [
+          "8ceb8aaaf6c9bcbb990d",
+          "Edge-Core",
+          "AS4610-54T",
+          "model_search",
+          "AS4610-54T"
+        ]
+      ],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": false
+    },
+    {
+      "row_number": 7,
+      "platform_as_printed": "AS4610-54P",
+      "exact_model_matches": [
+        [
+          "859ab9a2997c2d31b155",
+          "Edge-Core",
+          "AS4610-54P"
+        ],
+        [
+          "a2ed2e047034990df5ea",
+          "Accton",
+          "AS4610-54P"
+        ]
+      ],
+      "exact_identifier_matches": [
+        [
+          "859ab9a2997c2d31b155",
+          "Edge-Core",
+          "AS4610-54P",
+          "model_search",
+          "AS4610-54P"
+        ]
+      ],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": false
+    },
+    {
+      "row_number": 8,
+      "platform_as_printed": "EPS201 (AS4630-54TE)",
+      "exact_model_matches": [],
+      "exact_identifier_matches": [],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": true
+    },
+    {
+      "row_number": 9,
+      "platform_as_printed": "EPS202 (AS4630-54PE)",
+      "exact_model_matches": [],
+      "exact_identifier_matches": [],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": true
+    },
+    {
+      "row_number": 10,
+      "platform_as_printed": "DCS201 (AS5835-54X)",
+      "exact_model_matches": [],
+      "exact_identifier_matches": [],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": true
+    },
+    {
+      "row_number": 11,
+      "platform_as_printed": "AS7726-32X",
+      "exact_model_matches": [
+        [
+          "38314f58f2939a2979d5",
+          "Accton",
+          "AS7726-32X"
+        ],
+        [
+          "b16d4ccf5170f2da20ef",
+          "Edge-Core",
+          "AS7726-32X"
+        ]
+      ],
+      "exact_identifier_matches": [
+        [
+          "3e197f5bf6357958f40f",
+          "Edge-Core",
+          "DCS204",
+          "alias",
+          "AS7726-32X"
+        ]
+      ],
+      "case_insensitive_only_model_leads": [],
+      "case_insensitive_only_identifier_leads": [],
+      "absent_as_exact_model_or_identifier": false
+    }
+  ]
+}

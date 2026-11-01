@@ -1,0 +1,23 @@
+{
+  "release_id": "c468ef0721b90f5935615f37dd9619dad6fc1bc2159a107cbf054ede6aad5b79",
+  "path": "data/archive-release-2026-10-04.json",
+  "sha256": "2eadea0c31d9ffdfc1b763b26b8500ebddcb78c94d2706900ed382549fb33736",
+  "artifacts": 146,
+  "receipts": 374,
+  "statements": 4,
+  "reuse": {
+    "pdf_consumers": 2,
+    "shared_pdf_run": "run-1238cd87-294f-4c90-a97b-93d5e64eb16d",
+    "changed_recipe_run": "run-430ddc9e-9fb5-48d2-8585-4eff7c909a4b",
+    "xml_consumers": 2,
+    "shared_xml_run": "run-f504ed8c-c0c5-46c8-a985-4c3968e836d0",
+    "network_requests": 0
+  },
+  "audit": {
+    "ok": true,
+    "errors": [],
+    "orphan_objects": [],
+    "staging": [],
+    "receipts": 374
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "path": "data/catalog-archive-candidate-2026-10-04.sqlite",
+    "sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+    "fts_integrity": [
+      "search_index",
+      "document_search"
+    ],
+    "unchanged": true
+  },
+  {
+    "path": "data/catalog-archive-rebuilt-2026-10-04.sqlite",
+    "sha256": "c4eccb0c03ffac2c3810788098191866b2bce2ff9d0268f001d0837121be4281",
+    "fts_integrity": [
+      "search_index",
+      "document_search"
+    ],
+    "unchanged": true
+  }
+]

@@ -1,0 +1,195 @@
+{
+  "reviewed_on": "2026-09-27",
+  "sources": [
+    {
+      "id": "metrolinq-ml1-report-fields",
+      "url": "https://fcc.report/FCC-ID/HEDML16035/3913123.pdf",
+      "tier": "primary_document_mirror",
+      "license": "Factual model/company fields; original document rights retained",
+      "snapshot": "raw/metrolinq-ml1-report-fields.json",
+      "coverage": "Reviewed factual fields from web-indexed text of an original document hosted by FCC.report, not a direct FCC retrieval or locally archived PDF. Both PDF download attempts returned HTTP 403; no retry or alternative download was made. Page layout and full document bytes were not verified. Manufacturer denotes the explicit document claim, not a factory audit, current approval, hyperscaler use or an auction unit identity. No mapping of Nigeria NCC company abbreviations is implied. Two complete slash-separated models are distinct labels, not aliases. Both named manufacturers are retained for both report-listed models; the report does not assign a particular unit to one factory. Test findings concern the tested sample."
+    },
+    {
+      "id": "metrolinq-ml10g-guide-fields",
+      "url": "https://fcc.report/FCC-ID/HEDML10G360/3786294.pdf",
+      "tier": "primary_document_mirror",
+      "license": "Factual model/company fields; original document rights retained",
+      "snapshot": "raw/metrolinq-ml10g-guide-fields.json",
+      "coverage": "Reviewed factual fields from web-indexed text of an original document hosted by FCC.report, not a direct FCC retrieval or locally archived PDF. Both PDF download attempts returned HTTP 403; no retry or alternative download was made. Page layout and full document bytes were not verified. Manufacturer denotes the explicit document claim, not a factory audit, current approval, hyperscaler use or an auction unit identity. No mapping of Nigeria NCC company abbreviations is implied. Model/HVIN on page 1 and explicitly labeled manufacturer on page 5 of the same guide. FCC identifier in hosting URL is retained only as URL context, not a printed-ID assertion."
+    }
+  ],
+  "devices": [
+    {
+      "source": "metrolinq-ml1-report-fields",
+      "key": "ML1-60-35",
+      "url": "https://fcc.report/FCC-ID/HEDML16035/3913123.pdf",
+      "brand": "IgniteNet",
+      "model": "ML1-60-35",
+      "title": "IgniteNet ML1-60-35",
+      "kind": "outdoor wireless radio",
+      "affiliations": [
+        [
+          "Joy Technology (Shen Zhen) Co. Ltd",
+          "manufacturer"
+        ],
+        [
+          "Accton Technology Corp",
+          "manufacturer"
+        ],
+        [
+          "IgniteNet",
+          "brand"
+        ],
+        [
+          "Accton Technology Corp",
+          "regulatory_applicant"
+        ]
+      ],
+      "identifiers": [
+        [
+          "fcc_id",
+          "HEDML16035"
+        ]
+      ],
+      "facts": [
+        [
+          "printed_brand",
+          "Ignitenet"
+        ],
+        [
+          "printed_model_field",
+          "ML1-60-35/ML1-60-19"
+        ],
+        [
+          "document_page",
+          "1"
+        ],
+        [
+          "capture_method",
+          "reviewed factual search-result extract; not original PDF"
+        ],
+        [
+          "evidence_scope",
+          "Reviewed factual fields from web-indexed text of an original document hosted by FCC.report, not a direct FCC retrieval or locally archived PDF. Both PDF download attempts returned HTTP 403; no retry or alternative download was made. Page layout and full document bytes were not verified. Manufacturer denotes the explicit document claim, not a factory audit, current approval, hyperscaler use or an auction unit identity. No mapping of Nigeria NCC company abbreviations is implied. Two complete slash-separated models are distinct labels, not aliases. Both named manufacturers are retained for both report-listed models; the report does not assign a particular unit to one factory. Test findings concern the tested sample."
+        ],
+        [
+          "report_number",
+          "FR7D2234-05AA"
+        ],
+        [
+          "issue_date",
+          "2018-07-02"
+        ]
+      ]
+    },
+    {
+      "source": "metrolinq-ml1-report-fields",
+      "key": "ML1-60-19",
+      "url": "https://fcc.report/FCC-ID/HEDML16035/3913123.pdf",
+      "brand": "IgniteNet",
+      "model": "ML1-60-19",
+      "title": "IgniteNet ML1-60-19",
+      "kind": "outdoor wireless radio",
+      "affiliations": [
+        [
+          "Joy Technology (Shen Zhen) Co. Ltd",
+          "manufacturer"
+        ],
+        [
+          "Accton Technology Corp",
+          "manufacturer"
+        ],
+        [
+          "IgniteNet",
+          "brand"
+        ],
+        [
+          "Accton Technology Corp",
+          "regulatory_applicant"
+        ]
+      ],
+      "identifiers": [
+        [
+          "fcc_id",
+          "HEDML16035"
+        ]
+      ],
+      "facts": [
+        [
+          "printed_brand",
+          "Ignitenet"
+        ],
+        [
+          "printed_model_field",
+          "ML1-60-35/ML1-60-19"
+        ],
+        [
+          "document_page",
+          "1"
+        ],
+        [
+          "capture_method",
+          "reviewed factual search-result extract; not original PDF"
+        ],
+        [
+          "evidence_scope",
+          "Reviewed factual fields from web-indexed text of an original document hosted by FCC.report, not a direct FCC retrieval or locally archived PDF. Both PDF download attempts returned HTTP 403; no retry or alternative download was made. Page layout and full document bytes were not verified. Manufacturer denotes the explicit document claim, not a factory audit, current approval, hyperscaler use or an auction unit identity. No mapping of Nigeria NCC company abbreviations is implied. Two complete slash-separated models are distinct labels, not aliases. Both named manufacturers are retained for both report-listed models; the report does not assign a particular unit to one factory. Test findings concern the tested sample."
+        ],
+        [
+          "report_number",
+          "FR7D2234-05AA"
+        ],
+        [
+          "issue_date",
+          "2018-07-02"
+        ]
+      ]
+    },
+    {
+      "source": "metrolinq-ml10g-guide-fields",
+      "key": "ML-60-10G-360",
+      "url": "https://fcc.report/FCC-ID/HEDML10G360/3786294.pdf",
+      "brand": "IgniteNet",
+      "model": "ML-60-10G-360",
+      "title": "IgniteNet ML-60-10G-360",
+      "kind": "outdoor wireless radio",
+      "affiliations": [
+        [
+          "Accton Technology Corporation",
+          "manufacturer"
+        ],
+        [
+          "IgniteNet",
+          "brand"
+        ]
+      ],
+      "identifiers": [],
+      "facts": [
+        [
+          "printed_brand",
+          "IgniteNet"
+        ],
+        [
+          "printed_model_field",
+          "ML-60-10G-360"
+        ],
+        [
+          "document_page",
+          "1, 5"
+        ],
+        [
+          "capture_method",
+          "reviewed factual web-tool PDF-text extract; not original PDF"
+        ],
+        [
+          "evidence_scope",
+          "Reviewed factual fields from web-indexed text of an original document hosted by FCC.report, not a direct FCC retrieval or locally archived PDF. Both PDF download attempts returned HTTP 403; no retry or alternative download was made. Page layout and full document bytes were not verified. Manufacturer denotes the explicit document claim, not a factory audit, current approval, hyperscaler use or an auction unit identity. No mapping of Nigeria NCC company abbreviations is implied. Model/HVIN on page 1 and explicitly labeled manufacturer on page 5 of the same guide. FCC identifier in hosting URL is retained only as URL context, not a printed-ID assertion."
+        ],
+        [
+          "document_version",
+          "E122017-CS-R01"
+        ]
+      ]
+    }
+  ]
+}

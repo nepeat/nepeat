@@ -1,0 +1,5 @@
+Python: Ran 15 tests in 7.474s; OK.
+Node: tests7/pass7/fail0/cancelled0/skipped0/todo0; duration_ms56.68884.
+Combined shell exit0.
+Existing paths emitted non-failing unclosed-SQLite ResourceWarnings.
+Tool transcript session85157 supplies full stdout/stderr; this file is an accurate summary, not raw subprocess bytes.

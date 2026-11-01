@@ -1,0 +1,47 @@
+{
+  "phase": "staged awaiting independent QA; no promotion",
+  "counts": {
+    "devices": 4084,
+    "records": 5302,
+    "sources": 283,
+    "facts": 44763,
+    "documents": 56,
+    "document_pages": 3651,
+    "hyperscaler_evidence": 22
+  },
+  "live_sha256_unchanged": "5b1317f554968fae6c20a4dc0cd2d4d8524ee1c5e60a662675e36a763203a904",
+  "candidate_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "rebuilt_sha256": "1a291d34a5947f0dc5ac1f61f77d92ff1cc1b2463e0afc5fc1865249fa01c1f0",
+  "merged_input_sha256": "fd2ece9f8f3105e8f1e6adfcd7202ad5a6c38df9741616c543dad1a038005998",
+  "manifest_sha256": "67f8359024342fb2204bdcfdb6cf5d6fd404c0ce27f2422d30f094cf80f962fb",
+  "jobs": 118,
+  "inputs": 2181,
+  "accepted_full_suite": "33bc5f74ec982f94596caa907e9ade43d96eb64b93406ea56b3f1baad5d044fa",
+  "frozen_files": 11,
+  "frozen_code_files": 162,
+  "source_snapshot_only_normalization": true,
+  "exact_old_row_preservation": true,
+  "duplicate_sensitive_logical_tables": 43,
+  "fts_reconstructed": true,
+  "owned_baseline": "10/10, 9 documents + 1 photo",
+  "bytedance_baseline": "0/2",
+  "verified_unchanged_pdfs": 56,
+  "all_previous_manifest_hashes_verified": 2178,
+  "normal_export_audit_hashes_unchanged": {
+    "latest-export-audit": "6d5ec0df9903420a40731ad0ffac4edf78958881e01cbe1394a149a5a23c76be",
+    "collection-reports-audit": "af1d25e4130a1e8f57d82b41456b7fc948231586f0ccd4389bb805775dd6a2cb",
+    "hyperscaler-inventory-audit": "34843d8dbe8522ccc235dbbc7c039d2af6186aef331f5cb7260b7a4542a0519d",
+    "rebuild-comparison": "ba7b2b93b2039a1794d4713dd55bfb32ab57356c078a6f2552f7e90a3a9d0af5",
+    "rebuild-validation": "973c3f01d186d3e89bb6b4c465bdf044d26c2f44dbddd671dd8ff0f11c6475c7"
+  },
+  "html_sha256_unchanged": "a5a521ee8acce115957c85ae702c9774b5aee73ac14bb66cb19c264a3d0edfae",
+  "processes_completed": true,
+  "audit_hashes": {
+    "candidate-audit.json": "e08c69b54f7b4fdb32f372b9045e80e8c4dafc02131a9c01290f06a847c8ee1f",
+    "candidate-practical-proof.json": "252e22a1b149c6e26fc71efbb6b5c87638a99096267fcde42dfba1a4fbfaa110",
+    "oracle-cli-report.json": "ad72359b03a42fc1f2d8601d5cff578b4b2945d2603aa50af74a0aa571895d1d",
+    "as7772-cli-report.json": "bbadcf68ba3d98793aab42bad74b907263266e3de1b79e62320e139c99d3de55",
+    "audit.log": "e4787ce5fc40bd2628f2d75e3c78dc73d5311cd0cda6edf01e34321ac932dbbe",
+    "rebuild.log": "263f04da92c6e8e8e854bf74d72617d0073f824bee93d88f37db183b7cbebcf4"
+  }
+}

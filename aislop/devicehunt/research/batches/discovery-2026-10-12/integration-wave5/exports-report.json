@@ -1,0 +1,37 @@
+{
+  "database_sha256_unchanged": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "files": {
+    "data/exports/targets.csv": {
+      "sha256": "dc9d4d6575445fe4c19fc1309fcfb0089f6606585774c224f61625360e67dd64",
+      "bytes": 762903
+    },
+    "data/exports/targets.json": {
+      "sha256": "cf6852a10b76fe6914d5528d3a16c31a9785c0d3f322140789b174041f9d3306",
+      "bytes": 1687032
+    },
+    "data/exports/catalog.html": {
+      "sha256": "dd5cdb6c18ba6d2f2f4853c0178c5f043bfe3c9d8041bd9fb5e5b93dd198e336",
+      "bytes": 28681838
+    },
+    "data/exports/specifications.csv": {
+      "sha256": "a3b4b8d2267e18a028d38b184b6f1278ddfe437c4491cf6052fe0812b2b72a13",
+      "bytes": 420766
+    },
+    "data/exports/specifications.json": {
+      "sha256": "3eff5b1295341b37717ea9208db20e17098ffcea957a69a1c0281db8a3186656",
+      "bytes": 693910
+    },
+    "data/exports/reference-documents.csv": {
+      "sha256": "84b0b101d7b8670321a310c72d07d1e2f80ad8370c75f801b3975189892199d9",
+      "bytes": 11724
+    },
+    "data/exports/inventory-validation.json": {
+      "sha256": "88ed7e8ecf4c1d2edcf5d502ac464af7a5b676e0f98b80b9a63c643db8392fdb",
+      "bytes": 3094671
+    },
+    "data/exports/wave5-specifications-2026-10-12.json": {
+      "sha256": "cedc747d51dd0ff93e35650a66d89e737a28c763c6ef20f27a172334dea039aa",
+      "bytes": 129130
+    }
+  }
+}

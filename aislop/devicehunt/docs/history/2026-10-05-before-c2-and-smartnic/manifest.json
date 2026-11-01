@@ -1,0 +1,6 @@
+{
+  "original_path": "PROGRESS.md",
+  "snapshot": "PROGRESS.md",
+  "sha256": "386a202a7e0f3e7d4ea2f5368ad7074f625c1ec7501bdcd8a32100850030b7a8",
+  "reason": "Preserve Astra macOS handoff before the Linux host move, c2 runner and SmartNIC/QCT promotion."
+}

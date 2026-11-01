@@ -1,0 +1,5 @@
+{
+  "original_path": "PROGRESS.md",
+  "sha256": "51696b5803adfc1be88be8e2f5969b3fc0ccc3d0bf68ef751482499c393e8460",
+  "reason": "User requested graceful spin-down; prior active task status is historical."
+}

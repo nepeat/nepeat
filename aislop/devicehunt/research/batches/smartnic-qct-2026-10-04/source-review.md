@@ -1,0 +1,11 @@
+# independent source gate
+
+pass for the frozen proposals, 2026-10-04. coordinator confirmed all authors stopped before final checks. no blocking findings. this accepts inputs for staging, not a partial-bundle import or live promotion.
+
+reviewed the three candidate JSON inputs and handoffs; independently checked snapshot resolution, PDF/envelope hashes, full sequential page envelopes, actual pypdf PDF page counts, and isolated sibling-copy `reference_documents.prepare` for every proposed entry. proof: [review/source-checks.json](review/source-checks.json); executable check: [review/check_sources.py](review/check_sources.py). literal SmartNIC/IPU line spans match exactly. QCT quotes match whitespace/trademark-normalized embedded text and were separately confirmed visually because extraction splits registered marks and `4 -node` spacing.
+
+visually inspected both complete Chinese and English pages, QCT portfolio PDF43/printed42 and QxVDI PDF9–10/printed5–6. four records / 56 facts; three new PDFs / 53 complete pages. FPGA IPU C5020X is a separate printed identity, with no SmartNIC/IPU/C5000X alias. Chinese reference-only/English-governs limitation stays explicit; differently titled/dated English does not prove the governing edition. Chinese `TDP | 75W` stays a rating statement; English `TPM | 75W` stays unresolved and unclassified, establishing neither power rating nor security capability.
+
+T42S table CPU/memory/network/expansion scopes remain per-node; storage alternatives have no per-node label. QxVDI is additional extraction of the saved capture, not independent corroboration; literal consumption wording is neither inferred PSU rating nor measured draw. both new records have QCT brand/platform_vendor only; do not add a global Quanta alias or physical-manufacturer assertion. source dates are provenance, not release dates. cooling/input/software entitlement/unit provenance gaps remain.
+
+integration must preserve all 47 current collection entries and append only these three new entries, with byte-identical sibling dependencies. existing QxVDI requires no new archive entry. candidate paths need rebasing if copied to data/. hashes in source-checks.json bind accepted input bytes; live SHA was still a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16.

@@ -1,0 +1,1344 @@
+{
+  "before_sha256": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "after_sha256": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "results": [
+    {
+      "title": "YM-2651Y power supply",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [
+        "power supply"
+      ],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 4,
+      "shown": 4,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 0,
+        "identifier_mention": 0,
+        "variant_lead": 4
+      },
+      "status": "variant_leads_only",
+      "candidates": [
+        {
+          "device_id": "4b3dfa0f18c335565892",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "4b3dfa0f18c335565892",
+              "source_id": "netbox-mt-edgecore-ym-2651y-b01r",
+              "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/module-types/Edgecore/YM-2651Y-B01R.yaml",
+              "tier": "community",
+              "source_sha256": "ce3320a33d91cefe5154399125633649420fc97a096a70eca759fed75cfd86ec",
+              "source_fetched_at": "2026-10-11T09:56:57.369739+00:00",
+              "record_id": "acd4b7ce05886b94c20824cf",
+              "affiliations": [
+                {
+                  "record_id": "acd4b7ce05886b94c20824cf",
+                  "company": "Edgecore",
+                  "target": "Edge-Core",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y B01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": [
+                "F0TZZ5654019A"
+              ]
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "cab8d71866418d3ecc6c",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y C01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "cab8d71866418d3ecc6c",
+              "source_id": "netbox-mt-edgecore-ym-2651y-c01r",
+              "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/module-types/Edgecore/YM-2651Y-C01R.yaml",
+              "tier": "community",
+              "source_sha256": "e304e59bbc7a4fdaa83439757d391e658d3f221800652e9a132e748d26150005",
+              "source_fetched_at": "2026-10-11T09:56:57.365739+00:00",
+              "record_id": "0958231ca8a267421ab34647",
+              "affiliations": [
+                {
+                  "record_id": "0958231ca8a267421ab34647",
+                  "company": "Edgecore",
+                  "target": "Edge-Core",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y C01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": [
+                "F0TZZ5654020A"
+              ]
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "9d2955ba66182f18aab2",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y, B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "9d2955ba66182f18aab2",
+              "source_id": "edgecore-ordering-dcs203-as7326-56x-ds-r10",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+              "tier": "vendor",
+              "source_sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+              "source_fetched_at": "2026-10-10T11:02:46.736817+00:00",
+              "record_id": "e188f715148d2ef86e1c7094",
+              "affiliations": [
+                {
+                  "record_id": "e188f715148d2ef86e1c7094",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y, B01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "6b0b5f5e2607986c18a4",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y, C01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "6b0b5f5e2607986c18a4",
+              "source_id": "edgecore-ordering-dcs203-as7326-56x-ds-r10",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+              "tier": "vendor",
+              "source_sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+              "source_fetched_at": "2026-10-10T11:02:46.736817+00:00",
+              "record_id": "a1bb138a44859daa5a18ab56",
+              "affiliations": [
+                {
+                  "record_id": "a1bb138a44859daa5a18ab56",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y, C01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "YM-2651Y-B01R 650W AC PSU",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [
+        "psu"
+      ],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 2,
+      "shown": 2,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 0,
+        "identifier_mention": 0,
+        "variant_lead": 2
+      },
+      "status": "variant_leads_only",
+      "candidates": [
+        {
+          "device_id": "4b3dfa0f18c335565892",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "4b3dfa0f18c335565892",
+              "source_id": "netbox-mt-edgecore-ym-2651y-b01r",
+              "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/module-types/Edgecore/YM-2651Y-B01R.yaml",
+              "tier": "community",
+              "source_sha256": "ce3320a33d91cefe5154399125633649420fc97a096a70eca759fed75cfd86ec",
+              "source_fetched_at": "2026-10-11T09:56:57.369739+00:00",
+              "record_id": "acd4b7ce05886b94c20824cf",
+              "affiliations": [
+                {
+                  "record_id": "acd4b7ce05886b94c20824cf",
+                  "company": "Edgecore",
+                  "target": "Edge-Core",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y B01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y-b01r"
+              ],
+              "specifications": [],
+              "record_part_numbers": [
+                "F0TZZ5654019A"
+              ]
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "9d2955ba66182f18aab2",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y, B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "9d2955ba66182f18aab2",
+              "source_id": "edgecore-ordering-dcs203-as7326-56x-ds-r10",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+              "tier": "vendor",
+              "source_sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+              "source_fetched_at": "2026-10-10T11:02:46.736817+00:00",
+              "record_id": "e188f715148d2ef86e1c7094",
+              "affiliations": [
+                {
+                  "record_id": "e188f715148d2ef86e1c7094",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y, B01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y-b01r"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "YM-2651Y B01R",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 4,
+      "shown": 4,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 1,
+        "identifier_mention": 0,
+        "variant_lead": 3
+      },
+      "status": "mentions_found",
+      "candidates": [
+        {
+          "device_id": "4b3dfa0f18c335565892",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "4b3dfa0f18c335565892",
+              "source_id": "netbox-mt-edgecore-ym-2651y-b01r",
+              "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/module-types/Edgecore/YM-2651Y-B01R.yaml",
+              "tier": "community",
+              "source_sha256": "ce3320a33d91cefe5154399125633649420fc97a096a70eca759fed75cfd86ec",
+              "source_fetched_at": "2026-10-11T09:56:57.369739+00:00",
+              "record_id": "acd4b7ce05886b94c20824cf",
+              "affiliations": [
+                {
+                  "record_id": "acd4b7ce05886b94c20824cf",
+                  "company": "Edgecore",
+                  "target": "Edge-Core",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y B01R",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": [
+                "F0TZZ5654019A"
+              ]
+            }
+          ],
+          "best_match": "model_mention"
+        },
+        {
+          "device_id": "cab8d71866418d3ecc6c",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y C01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "cab8d71866418d3ecc6c",
+              "source_id": "netbox-mt-edgecore-ym-2651y-c01r",
+              "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/module-types/Edgecore/YM-2651Y-C01R.yaml",
+              "tier": "community",
+              "source_sha256": "e304e59bbc7a4fdaa83439757d391e658d3f221800652e9a132e748d26150005",
+              "source_fetched_at": "2026-10-11T09:56:57.365739+00:00",
+              "record_id": "0958231ca8a267421ab34647",
+              "affiliations": [
+                {
+                  "record_id": "0958231ca8a267421ab34647",
+                  "company": "Edgecore",
+                  "target": "Edge-Core",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y C01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": [
+                "F0TZZ5654020A"
+              ]
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "9d2955ba66182f18aab2",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y, B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "9d2955ba66182f18aab2",
+              "source_id": "edgecore-ordering-dcs203-as7326-56x-ds-r10",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+              "tier": "vendor",
+              "source_sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+              "source_fetched_at": "2026-10-10T11:02:46.736817+00:00",
+              "record_id": "e188f715148d2ef86e1c7094",
+              "affiliations": [
+                {
+                  "record_id": "e188f715148d2ef86e1c7094",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y, B01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y",
+                "ym-2651y b01r"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "6b0b5f5e2607986c18a4",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y, C01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "6b0b5f5e2607986c18a4",
+              "source_id": "edgecore-ordering-dcs203-as7326-56x-ds-r10",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+              "tier": "vendor",
+              "source_sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+              "source_fetched_at": "2026-10-10T11:02:46.736817+00:00",
+              "record_id": "a1bb138a44859daa5a18ab56",
+              "affiliations": [
+                {
+                  "record_id": "a1bb138a44859daa5a18ab56",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y, C01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "YM-2651Y, B01R",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 4,
+      "shown": 4,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 1,
+        "identifier_mention": 0,
+        "variant_lead": 3
+      },
+      "status": "mentions_found",
+      "candidates": [
+        {
+          "device_id": "9d2955ba66182f18aab2",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y, B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "9d2955ba66182f18aab2",
+              "source_id": "edgecore-ordering-dcs203-as7326-56x-ds-r10",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+              "tier": "vendor",
+              "source_sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+              "source_fetched_at": "2026-10-10T11:02:46.736817+00:00",
+              "record_id": "e188f715148d2ef86e1c7094",
+              "affiliations": [
+                {
+                  "record_id": "e188f715148d2ef86e1c7094",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y, B01R",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "model_mention"
+        },
+        {
+          "device_id": "4b3dfa0f18c335565892",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y B01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "4b3dfa0f18c335565892",
+              "source_id": "netbox-mt-edgecore-ym-2651y-b01r",
+              "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/module-types/Edgecore/YM-2651Y-B01R.yaml",
+              "tier": "community",
+              "source_sha256": "ce3320a33d91cefe5154399125633649420fc97a096a70eca759fed75cfd86ec",
+              "source_fetched_at": "2026-10-11T09:56:57.369739+00:00",
+              "record_id": "acd4b7ce05886b94c20824cf",
+              "affiliations": [
+                {
+                  "record_id": "acd4b7ce05886b94c20824cf",
+                  "company": "Edgecore",
+                  "target": "Edge-Core",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y B01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y",
+                "ym-2651y, b01r"
+              ],
+              "specifications": [],
+              "record_part_numbers": [
+                "F0TZZ5654019A"
+              ]
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "cab8d71866418d3ecc6c",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y C01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "cab8d71866418d3ecc6c",
+              "source_id": "netbox-mt-edgecore-ym-2651y-c01r",
+              "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/module-types/Edgecore/YM-2651Y-C01R.yaml",
+              "tier": "community",
+              "source_sha256": "e304e59bbc7a4fdaa83439757d391e658d3f221800652e9a132e748d26150005",
+              "source_fetched_at": "2026-10-11T09:56:57.365739+00:00",
+              "record_id": "0958231ca8a267421ab34647",
+              "affiliations": [
+                {
+                  "record_id": "0958231ca8a267421ab34647",
+                  "company": "Edgecore",
+                  "target": "Edge-Core",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y C01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": [
+                "F0TZZ5654020A"
+              ]
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "6b0b5f5e2607986c18a4",
+          "brand": "Unattributed accessory",
+          "model": "YM-2651Y, C01R",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "6b0b5f5e2607986c18a4",
+              "source_id": "edgecore-ordering-dcs203-as7326-56x-ds-r10",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+              "tier": "vendor",
+              "source_sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+              "source_fetched_at": "2026-10-10T11:02:46.736817+00:00",
+              "record_id": "a1bb138a44859daa5a18ab56",
+              "affiliations": [
+                {
+                  "record_id": "a1bb138a44859daa5a18ab56",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "YM-2651Y, C01R",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "ym-2651y"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "YM-2651Y-C99R",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 0,
+      "shown": 0,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 0,
+        "identifier_mention": 0,
+        "variant_lead": 0
+      },
+      "status": "no_catalog_mention",
+      "candidates": [],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "DPS-850AB-5-A",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 1,
+      "shown": 1,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 0,
+        "identifier_mention": 0,
+        "variant_lead": 1
+      },
+      "status": "variant_leads_only",
+      "candidates": [
+        {
+          "device_id": "c0e1cdf779c8aee53786",
+          "brand": "Unattributed accessory",
+          "model": "DPS-850AB-5 A",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "c0e1cdf779c8aee53786",
+              "source_id": "edgecore-ordering-dcs500-as7816-64x-ds-r15",
+              "source_url": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-036-DCS500_AS7816-64X-DS-R15-20260703.pdf",
+              "tier": "vendor",
+              "source_sha256": "0f768fc126651d01ea6821a55abe8ee61a26040d40704952ddbfe710d1f57c43",
+              "source_fetched_at": "2026-10-10T11:02:38.151838+00:00",
+              "record_id": "fcd22b0fcd1a5520d387d7cb",
+              "affiliations": [
+                {
+                  "record_id": "fcd22b0fcd1a5520d387d7cb",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "documentation_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "DPS-850AB-5 A",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "dps-850ab-5-a"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "7760-32X-A-AC-F",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 1,
+      "shown": 1,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 1,
+        "identifier_mention": 0,
+        "variant_lead": 0
+      },
+      "status": "mentions_found",
+      "candidates": [
+        {
+          "device_id": "fa989f63133b3fb248d8",
+          "brand": "Edge-Core",
+          "model": "7760-32X-A-AC-F",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "fa989f63133b3fb248d8",
+              "source_id": "ecrunch-I610661",
+              "source_url": "https://www.ecrunch.com/edge-core-7760-32x-a-ac-f-as7760-32-100g-ethernet-data-center-spine-switch-red-i610661.html",
+              "tier": "marketplace",
+              "source_sha256": "735fc03a670fa9d1c44782cba68d459dc32cb3e3bff3e2b876f04bacd301547f",
+              "source_fetched_at": "2026-09-26T21:20:18.863958+00:00",
+              "record_id": "b6dab80755ae5603580a01a1",
+              "affiliations": [
+                {
+                  "record_id": "b6dab80755ae5603580a01a1",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "seller_reported_brand"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "7760-32X-A-AC-F",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "fa989f63133b3fb248d8",
+              "source_id": "edgecore-7760-label",
+              "source_url": "https://www.ebay.com/itm/389108536363",
+              "tier": "physical_label_photo",
+              "source_sha256": "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5",
+              "source_fetched_at": "2026-09-27T11:46:50.232858+00:00",
+              "record_id": "6a11f24a97497e97e9a9587e",
+              "affiliations": [
+                {
+                  "record_id": "6a11f24a97497e97e9a9587e",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "brand"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "7760-32X-A-AC-F",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": [
+                "AS7760-32X"
+              ]
+            }
+          ],
+          "best_match": "model_mention"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "AZ4444-52X-DC-10",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 2,
+      "shown": 2,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 2,
+        "identifier_mention": 0,
+        "variant_lead": 0
+      },
+      "status": "mentions_found",
+      "candidates": [
+        {
+          "device_id": "6ebe569ff1954dd2e2f4",
+          "brand": "Accton",
+          "model": "AZ4444-52X-DC-10",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "6ebe569ff1954dd2e2f4",
+              "source_id": "bahrain-tra",
+              "source_url": "https://etra.tra.org.bh/approved-equipment?search=DLM/1921/15259",
+              "tier": "regulatory",
+              "source_sha256": "6c07c2771d9da1166fef625fd803478b2edafb04c15cbb333a4923b3a003d94a",
+              "source_fetched_at": "2026-09-26T22:04:50.386454+00:00",
+              "record_id": "fda544d7ddad610f13c06f55",
+              "affiliations": [
+                {
+                  "record_id": "fda544d7ddad610f13c06f55",
+                  "company": "ACCTON TECHNOLOGY CORP",
+                  "target": "Accton",
+                  "role": "registry_manufacturer"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AZ4444-52X-DC-10",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "6ebe569ff1954dd2e2f4",
+              "source_id": "rra-official-query-e5984834207f",
+              "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-PBJ-AZ4444-52X-10",
+              "tier": "regulatory",
+              "source_sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+              "source_fetched_at": "2026-09-27T05:53:13.549217+00:00",
+              "record_id": "e30bf9aaf87b8875f39b77c8",
+              "affiliations": [
+                {
+                  "record_id": "e30bf9aaf87b8875f39b77c8",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "record_id": "e30bf9aaf87b8875f39b77c8",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AZ4444-52X-DC-10",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "6ebe569ff1954dd2e2f4",
+              "source_id": "tec-mtcte",
+              "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+              "tier": "regulatory",
+              "source_sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+              "source_fetched_at": "2026-09-26T21:20:17.524717+00:00",
+              "record_id": "b90c6855452d973383831212",
+              "affiliations": [
+                {
+                  "record_id": "b90c6855452d973383831212",
+                  "company": "Accton Technology Corporation",
+                  "target": "Accton",
+                  "role": "declared_oem"
+                },
+                {
+                  "record_id": "b90c6855452d973383831212",
+                  "company": "Omega QMS Private Limited",
+                  "target": null,
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AZ4444-52X-DC-10",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "6ebe569ff1954dd2e2f4",
+              "source_id": "ul-accton-platforms",
+              "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+              "tier": "certification_body",
+              "source_sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+              "source_fetched_at": "2026-09-26T22:59:32.056835+00:00",
+              "record_id": "122d725910137f78bb655144",
+              "affiliations": [
+                {
+                  "record_id": "122d725910137f78bb655144",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AZ4444-52X-DC-10",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "model_mention"
+        },
+        {
+          "device_id": "e98b788f599e6f918e82",
+          "brand": "Edge-Core",
+          "model": "AZ4444-52X-DC-10",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "e98b788f599e6f918e82",
+              "source_id": "anatel-products",
+              "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+              "tier": "regulatory",
+              "source_sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+              "source_fetched_at": "2026-09-26T22:27:46.555883+00:00",
+              "record_id": "7c05d28ac8cc8bbc3ec05c38",
+              "affiliations": [
+                {
+                  "record_id": "7c05d28ac8cc8bbc3ec05c38",
+                  "company": "EdgeCore Networks Corporation",
+                  "target": "Edge-Core",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "record_id": "7c05d28ac8cc8bbc3ec05c38",
+                  "company": "OPENGLOBE TECNOLOGIA LTDA",
+                  "target": null,
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AZ4444-52X-DC-10",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "model_mention"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "AS7772-32X",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 4,
+      "shown": 4,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 2,
+        "identifier_mention": 0,
+        "variant_lead": 2
+      },
+      "status": "mentions_found",
+      "candidates": [
+        {
+          "device_id": "3f0edec15c7dec98a1d4",
+          "brand": "Accton",
+          "model": "AS7772-32X",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "3f0edec15c7dec98a1d4",
+              "source_id": "rra-official-query-e5984834207f",
+              "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+              "tier": "regulatory",
+              "source_sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+              "source_fetched_at": "2026-09-27T05:53:13.549217+00:00",
+              "record_id": "af279284a305947ac341c1f3",
+              "affiliations": [
+                {
+                  "record_id": "af279284a305947ac341c1f3",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "record_id": "af279284a305947ac341c1f3",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "3f0edec15c7dec98a1d4",
+              "source_id": "tec-mtcte",
+              "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+              "tier": "regulatory",
+              "source_sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+              "source_fetched_at": "2026-09-26T21:20:17.524717+00:00",
+              "record_id": "bb98186553826e233079dd44",
+              "affiliations": [
+                {
+                  "record_id": "bb98186553826e233079dd44",
+                  "company": "Accton Technology Corporation",
+                  "target": "Accton",
+                  "role": "declared_oem"
+                },
+                {
+                  "record_id": "bb98186553826e233079dd44",
+                  "company": "Omega QMS Private Limited",
+                  "target": null,
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "3f0edec15c7dec98a1d4",
+              "source_id": "ul-accton-platforms",
+              "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+              "tier": "certification_body",
+              "source_sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+              "source_fetched_at": "2026-09-26T22:59:32.056835+00:00",
+              "record_id": "e18ea3940f4e0b1312ba8adf",
+              "affiliations": [
+                {
+                  "record_id": "e18ea3940f4e0b1312ba8adf",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "model_mention"
+        },
+        {
+          "device_id": "2a47ae32d8a5f3fb5ef9",
+          "brand": "Edge-Core",
+          "model": "AS7772-32X",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "2a47ae32d8a5f3fb5ef9",
+              "source_id": "anatel-products",
+              "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+              "tier": "regulatory",
+              "source_sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+              "source_fetched_at": "2026-09-26T22:27:46.555883+00:00",
+              "record_id": "8a2b11935bb85c28c245f825",
+              "affiliations": [
+                {
+                  "record_id": "8a2b11935bb85c28c245f825",
+                  "company": "EdgeCore Networks Corporation",
+                  "target": "Edge-Core",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "record_id": "8a2b11935bb85c28c245f825",
+                  "company": "OPENGLOBE TECNOLOGIA LTDA",
+                  "target": null,
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "2a47ae32d8a5f3fb5ef9",
+              "source_id": "ntra-2026-01",
+              "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+              "tier": "regulatory",
+              "source_sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+              "source_fetched_at": "2026-09-26T21:10:43.339349+00:00",
+              "record_id": "3cd458914e3561b284315aa1",
+              "affiliations": [
+                {
+                  "record_id": "3cd458914e3561b284315aa1",
+                  "company": "Edge-Core",
+                  "target": "Edge-Core",
+                  "role": "registry_brand"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "2a47ae32d8a5f3fb5ef9",
+              "source_id": "rra-official-query-63cb0b9098c7",
+              "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+              "tier": "regulatory",
+              "source_sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2",
+              "source_fetched_at": "2026-09-27T04:58:18.125132+00:00",
+              "record_id": "aeeefd7d8e4c6d5943d32e1e",
+              "affiliations": [
+                {
+                  "record_id": "aeeefd7d8e4c6d5943d32e1e",
+                  "company": "(\uc8fc) \uc778\ud3ec\uc5d0\uc774",
+                  "target": null,
+                  "role": "regulatory_applicant"
+                },
+                {
+                  "record_id": "aeeefd7d8e4c6d5943d32e1e",
+                  "company": "Edgecore Networks Corporation",
+                  "target": "Edge-Core",
+                  "role": "registry_manufacturer"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X",
+              "match_type": "model_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "model_mention"
+        },
+        {
+          "device_id": "238605f9ca44007e06bc",
+          "brand": "Accton",
+          "model": "AS7772-32X-12V",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "238605f9ca44007e06bc",
+              "source_id": "rra-official-query-e5984834207f",
+              "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-PBJ-AS7772-32X-12V",
+              "tier": "regulatory",
+              "source_sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+              "source_fetched_at": "2026-09-27T05:53:13.549217+00:00",
+              "record_id": "da9540338078c06c46b5303f",
+              "affiliations": [
+                {
+                  "record_id": "da9540338078c06c46b5303f",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "record_id": "da9540338078c06c46b5303f",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X-12V",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "as7772-32x"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "238605f9ca44007e06bc",
+              "source_id": "tec-mtcte",
+              "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+              "tier": "regulatory",
+              "source_sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+              "source_fetched_at": "2026-09-26T21:20:17.524717+00:00",
+              "record_id": "5ea6c7fe048e66e9207e763b",
+              "affiliations": [
+                {
+                  "record_id": "5ea6c7fe048e66e9207e763b",
+                  "company": "Accton Technology Corporation",
+                  "target": "Accton",
+                  "role": "declared_oem"
+                },
+                {
+                  "record_id": "5ea6c7fe048e66e9207e763b",
+                  "company": "Omega QMS Private Limited",
+                  "target": null,
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X-12V",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "as7772-32x"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "238605f9ca44007e06bc",
+              "source_id": "ul-accton-platforms",
+              "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+              "tier": "certification_body",
+              "source_sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+              "source_fetched_at": "2026-09-26T22:59:32.056835+00:00",
+              "record_id": "3a0427af927884c81e429344",
+              "affiliations": [
+                {
+                  "record_id": "3a0427af927884c81e429344",
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "target": "Accton",
+                  "role": "listing_holder"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X-12V",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "as7772-32x"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        },
+        {
+          "device_id": "1c8f5dd0b97aae10fd84",
+          "brand": "Edge-Core",
+          "model": "AS7772-32X-12V",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "1c8f5dd0b97aae10fd84",
+              "source_id": "anatel-products",
+              "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+              "tier": "regulatory",
+              "source_sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+              "source_fetched_at": "2026-09-26T22:27:46.555883+00:00",
+              "record_id": "406aa09854f1653860548318",
+              "affiliations": [
+                {
+                  "record_id": "406aa09854f1653860548318",
+                  "company": "EdgeCore Networks Corporation",
+                  "target": "Edge-Core",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "record_id": "406aa09854f1653860548318",
+                  "company": "OPENGLOBE TECNOLOGIA LTDA",
+                  "target": null,
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model",
+              "identifier": "AS7772-32X-12V",
+              "match_type": "variant_lead",
+              "related_title_tokens": [
+                "as7772-32x"
+              ],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "variant_lead"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    },
+    {
+      "title": "E5-2C",
+      "scope": "Matches are mentions in supplied listing text, not identification of the item being sold. Model/alias evidence comes only from the existing catalog. Suffix variants remain leads, and seller-only evidence remains seller-only. No availability, condition, software entitlement, OEM or previous ownership is inferred. No network access or catalog writes.",
+      "context_terms": [],
+      "short_identifiers_included": false,
+      "numeric_identifiers_included": false,
+      "matches": 1,
+      "shown": 1,
+      "truncated": false,
+      "candidate_counts": {
+        "model_mention": 0,
+        "identifier_mention": 1,
+        "variant_lead": 0
+      },
+      "status": "mentions_found",
+      "candidates": [
+        {
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "matches": [
+            {
+              "device_id": "ec74840c347894d9933e",
+              "source_id": "broadcom-servers",
+              "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+              "tier": "vendor",
+              "source_sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+              "source_fetched_at": "2026-09-26T22:19:12.220146+00:00",
+              "record_id": "dab003a1abaa70756570c82a",
+              "affiliations": [
+                {
+                  "record_id": "dab003a1abaa70756570c82a",
+                  "company": "Oracle",
+                  "target": "Oracle",
+                  "role": "compatibility_partner"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model_search",
+              "identifier": "E5-2c",
+              "match_type": "identifier_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            },
+            {
+              "device_id": "ec74840c347894d9933e",
+              "source_id": "oracle-e5-geekbench",
+              "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+              "tier": "benchmark_submission",
+              "source_sha256": null,
+              "source_fetched_at": null,
+              "record_id": "697fb643a659a66c15695445",
+              "affiliations": [
+                {
+                  "record_id": "697fb643a659a66c15695445",
+                  "company": "Oracle",
+                  "target": "Oracle",
+                  "role": "reported_system_vendor"
+                }
+              ],
+              "software_reference": false,
+              "identifier_kind": "model_search",
+              "identifier": "E5-2c",
+              "match_type": "identifier_mention",
+              "related_title_tokens": [],
+              "specifications": [],
+              "record_part_numbers": []
+            }
+          ],
+          "best_match": "identifier_mention"
+        }
+      ],
+      "specifications_included": true,
+      "specification_scope": "Specifications are original statements from the same record as each exact model or identifier mention. Record part numbers retain configuration scope, including when only the family name was mentioned. Conflicting records and seller claims stay separate. Variant leads receive no specifications. An empty list means no categorized statements on that matching record; it is not proof of compatibility or of the configuration, installed parts or power requirements of the auction item."
+    }
+  ]
+}

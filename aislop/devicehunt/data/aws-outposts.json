@@ -1,0 +1,244 @@
+{
+  "reviewed_on": "2026-09-26",
+  "sources": [
+    {
+      "id": "aws-scout-declaration",
+      "url": "https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_Scout_Final-English.pdf",
+      "tier": "vendor",
+      "license": "Extracted factual model and manufacturer assertions; AWS source rights retained",
+      "snapshot": "raw/aws-scout-declaration.pdf",
+      "coverage": "Reviewed two-page PDF linked by AWS Outposts compliance index. Page 1 names models, AWS brand and Amazon Data Services, Inc. as manufacturer. Page 2 has a blank signature and placeholder date: this supports published identity assertions, not a completed signed declaration, current certification validity, factory/OEM attribution or unit provenance."
+    },
+    {
+      "id": "aws-cubscout-declaration",
+      "url": "https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_CubScout_Final-en_us.pdf",
+      "tier": "vendor",
+      "license": "Extracted factual model and manufacturer assertions; AWS source rights retained",
+      "snapshot": "raw/aws-cubscout-declaration.pdf",
+      "coverage": "Reviewed two-page PDF linked by AWS Outposts compliance index. Page 1 names models, AWS brand and Amazon Data Services, Inc. as manufacturer. Page 2 has a blank signature and placeholder date: this supports published identity assertions, not a completed signed declaration, current certification validity, factory/OEM attribution or unit provenance."
+    },
+    {
+      "id": "aws-outposts-compliance",
+      "url": "https://aws.amazon.com/outposts/safety-and-compliance-guide/",
+      "tier": "vendor",
+      "license": "Extracted factual product-family links; AWS source rights retained",
+      "snapshot": "raw/aws-outposts-compliance.html",
+      "coverage": "Reviewed English PDF links under explicit 2U and 1U server section headings, combined with model lists on page 1 of those cached PDFs. Both SCOUT01 and SCOUT02 share the 2U link; CubScout is the 1U link. Product-family relationship only, not deployment or provenance of a surplus unit. No inferred CPU, firmware usability, current service eligibility or equivalence to suffixed registry strings."
+    }
+  ],
+  "devices": [
+    {
+      "source": "aws-scout-declaration",
+      "key": "SCOUT01",
+      "brand": "AWS",
+      "model": "SCOUT01",
+      "title": "AWS SCOUT01",
+      "kind": "rack mounted server",
+      "affiliations": [
+        [
+          "AWS",
+          "brand"
+        ],
+        [
+          "Amazon Data Services, Inc.",
+          "declared_manufacturer"
+        ]
+      ],
+      "facts": [
+        [
+          "document_page",
+          "1"
+        ],
+        [
+          "declaration_status",
+          "Published PDF has blank signature and placeholder date on page 2; no signed date or current certification validity asserted"
+        ],
+        [
+          "evidence_scope",
+          "Manufacturer identification in AWS document; physical factory/OEM and individual unit history unverified"
+        ]
+      ]
+    },
+    {
+      "source": "aws-outposts-compliance",
+      "key": "SCOUT01",
+      "brand": "AWS",
+      "model": "SCOUT01",
+      "title": "AWS SCOUT01",
+      "kind": "rack mounted server",
+      "affiliations": [
+        [
+          "AWS",
+          "documentation_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "product_family",
+          "AWS Outposts 2U Server"
+        ],
+        [
+          "physical",
+          "Linked under AWS Outposts 2U Server safety and compliance heading"
+        ],
+        [
+          "declaration_url",
+          "https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_Scout_Final-English.pdf"
+        ],
+        [
+          "evidence_scope",
+          "Section-to-document mapping reviewed against the model list in the linked cached PDF; not a guarantee of service or firmware access for a used unit"
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "AWS",
+          "documented_product_family",
+          "AWS Outposts 2U server compliance section links the declaration naming SCOUT01. No individual-unit deployment or ownership claim."
+        ]
+      ]
+    },
+    {
+      "source": "aws-scout-declaration",
+      "key": "SCOUT02",
+      "brand": "AWS",
+      "model": "SCOUT02",
+      "title": "AWS SCOUT02",
+      "kind": "rack mounted server",
+      "affiliations": [
+        [
+          "AWS",
+          "brand"
+        ],
+        [
+          "Amazon Data Services, Inc.",
+          "declared_manufacturer"
+        ]
+      ],
+      "facts": [
+        [
+          "document_page",
+          "1"
+        ],
+        [
+          "declaration_status",
+          "Published PDF has blank signature and placeholder date on page 2; no signed date or current certification validity asserted"
+        ],
+        [
+          "evidence_scope",
+          "Manufacturer identification in AWS document; physical factory/OEM and individual unit history unverified"
+        ]
+      ]
+    },
+    {
+      "source": "aws-outposts-compliance",
+      "key": "SCOUT02",
+      "brand": "AWS",
+      "model": "SCOUT02",
+      "title": "AWS SCOUT02",
+      "kind": "rack mounted server",
+      "affiliations": [
+        [
+          "AWS",
+          "documentation_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "product_family",
+          "AWS Outposts 2U Server"
+        ],
+        [
+          "physical",
+          "Linked under AWS Outposts 2U Server safety and compliance heading"
+        ],
+        [
+          "declaration_url",
+          "https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_Scout_Final-English.pdf"
+        ],
+        [
+          "evidence_scope",
+          "Section-to-document mapping reviewed against the model list in the linked cached PDF; not a guarantee of service or firmware access for a used unit"
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "AWS",
+          "documented_product_family",
+          "AWS Outposts 2U server compliance section links the declaration naming SCOUT02. No individual-unit deployment or ownership claim."
+        ]
+      ]
+    },
+    {
+      "source": "aws-cubscout-declaration",
+      "key": "CubScout",
+      "brand": "AWS",
+      "model": "CubScout",
+      "title": "AWS CubScout",
+      "kind": "rack mounted server",
+      "affiliations": [
+        [
+          "AWS",
+          "brand"
+        ],
+        [
+          "Amazon Data Services, Inc.",
+          "declared_manufacturer"
+        ]
+      ],
+      "facts": [
+        [
+          "document_page",
+          "1"
+        ],
+        [
+          "declaration_status",
+          "Published PDF has blank signature and placeholder date on page 2; no signed date or current certification validity asserted"
+        ],
+        [
+          "evidence_scope",
+          "Manufacturer identification in AWS document; physical factory/OEM and individual unit history unverified"
+        ]
+      ]
+    },
+    {
+      "source": "aws-outposts-compliance",
+      "key": "CubScout",
+      "brand": "AWS",
+      "model": "CubScout",
+      "title": "AWS CubScout",
+      "kind": "rack mounted server",
+      "affiliations": [
+        [
+          "AWS",
+          "documentation_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "product_family",
+          "AWS Outposts 1U Server"
+        ],
+        [
+          "physical",
+          "Linked under AWS Outposts 1U Server safety and compliance heading"
+        ],
+        [
+          "declaration_url",
+          "https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_CubScout_Final-en_us.pdf"
+        ],
+        [
+          "evidence_scope",
+          "Section-to-document mapping reviewed against the model list in the linked cached PDF; not a guarantee of service or firmware access for a used unit"
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "AWS",
+          "documented_product_family",
+          "AWS Outposts 1U server compliance section links the declaration naming CubScout. No individual-unit deployment or ownership claim."
+        ]
+      ]
+    }
+  ]
+}

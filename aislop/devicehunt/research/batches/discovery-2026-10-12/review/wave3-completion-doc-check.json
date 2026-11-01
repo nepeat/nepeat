@@ -1,0 +1,140 @@
+{
+  "status": "PASS completed local wave3 state/docs",
+  "checked_utc": "2026-10-13T04:56:03.844168+00:00",
+  "doc_hashes": {
+    "PROGRESS.md": "7d5b33b5ede1d5cd1fd7ccd60bd2518db900058e029c141fee4c6545c00323fc",
+    "docs/specification-search.md": "6075a1b3b405477402b878279d9cb0c61a7b8449bbcd050d13972e84586a45b7",
+    "research/batches/discovery-2026-10-12/integration-wave3/handoff.md": "a1334da2699a0918829ad32ba0978f490c82c34f9445940d0b4aff697485ea0c"
+  },
+  "local_links_verified": [
+    {
+      "document": "PROGRESS.md",
+      "link": "GOAL.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "AGENTS.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "docs/evidence-policy.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/discovery-2026-10-12.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/wave3-integration-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave3/promotion-result.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave3/exports-report.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave3/promoted-gate-check.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/campaign-c2-2026-10-05/acceptance/discovery-2026-10-12-curated-wave3-suite-result.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "data/exports/wave3-2026-10-12-comparison.json"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration-wave3/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/curated-import-fix-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/shopping-query-fix-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/integration/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "docs/history/2026-10-12-before-wave3-promotion/PROGRESS.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/as8000-sc6100-facts-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/as8000-sc6100-facts-r2-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/spec-continuation-facts/handoff.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/batches/discovery-2026-10-12/review/spec-continuation-facts-review.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "research/rename-devicehunt-2026-10-10.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "README.md"
+    },
+    {
+      "document": "PROGRESS.md",
+      "link": "data/history/README.md"
+    },
+    {
+      "document": "docs/specification-search.md",
+      "link": "../PROGRESS.md"
+    }
+  ],
+  "accepted_proof_hashes_verified": 32,
+  "live_pair": {
+    "devices.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+    "import-manifest.json": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec"
+  },
+  "counts": {
+    "devices": 5117,
+    "records": 7241,
+    "facts": 74210,
+    "sources": 2093,
+    "documents": 68,
+    "document_pages": 3784
+  },
+  "schema": 29,
+  "manifest_jobs": 148,
+  "manifest_inputs": 3941,
+  "export_hashes_verified": 8,
+  "prior_exports_preserved": 7,
+  "specification_rows": 1285,
+  "shopping_examples_verified": 8,
+  "code_hashes_verified": 209,
+  "campaign_gate": "inputs/projections pass",
+  "lineage": {
+    "archive_artifacts": 146,
+    "archive_receipts": 374,
+    "evidence_statements": 4
+  },
+  "history_originals_verified": 3,
+  "limitations": "No suite/rebuild/import/export/promotion execution or shared writes."
+}

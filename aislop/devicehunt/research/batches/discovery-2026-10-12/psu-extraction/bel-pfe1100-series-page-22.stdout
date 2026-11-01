@@ -1,0 +1,48 @@
+22
+                                                                                           PFE1100-12-054xA
+
+     PARAMETER                          DESCRIPTION / CONDITION                                              MIN     NOM     MAX      UNIT
+                  Ambient
+      TA                                  Vi min to Vi max, I1 nom, ISB nom                                      0            +45      °C
+                  Temperature
+                  Extended Temp.          Derated output (see Figure 20 and Figure 41)
+      TAext                                                                                                  +45              +65      °C
+                  Range
+                  Storage
+      TS                                  Non-operational                                                    -20              +70      °C
+                  Temperature
+                  Altitude                Operational, above Sea Level                                                       10,000   Feet
+      Na          Audible Noise           Vi nom, 50% Io nom, TA = 25°C                                               42              dBA
+
+
+
+
+     PARAMETER                          DESCRIPTION / CONDITION                                              MIN     NOM     MAX      UNIT
+                                        Width                                                                        54.5
+                  Dimensions            Height                                                                       40.0             mm
+                                        Depth                                                                        321.5
+      M           Weight                                                                                             1050              g
+
+           NOTE: A 3D step file of the power supply casing is available on request.
+
+
+
+
+                                          Reverse Air Flow Direction                 Normal Air Flow Direction
+                                                                                     Direction
+
+
+
+
+                                                                  Figure 42. Side View 1
+
+
+
+
+                                                                    Figure 43. Top View
+
+
+
+
+                                                                                                           tech.support@psbel.com
+

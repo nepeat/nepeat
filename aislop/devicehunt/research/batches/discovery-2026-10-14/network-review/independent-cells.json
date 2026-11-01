@@ -1,0 +1,8 @@
+{
+  "reviewer": "/root",
+  "independent_source_table_rows": 11,
+  "all_cells_and_candidate_facts": "match",
+  "candidate_sha256": "684c27f2cc565efe6ba1c026eee57fc1702b0b37536f4d126b93327f1b3cbb32",
+  "source_sha256": "281d4717ae1003e3843ab4bd0eb1ccc0564f5bc729d1ab9d4b1095a6fda1635f",
+  "claims": "software reference namespace; no affiliations or deployment; no grouped-alias splitting"
+}

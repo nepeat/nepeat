@@ -1,0 +1,51 @@
+{
+  "batch": "inventec-practical-2026-10-04",
+  "status": "complete",
+  "overall_goal": "active",
+  "checked_at": "2026-10-05T00:32:35.963564+00:00",
+  "previous_goal_turn": "progress",
+  "worker_model": "gpt-6.1-sol",
+  "documentation_editor": "inventec_docs",
+  "independent_reviewer": "inventec_review",
+  "post_review_changes": "Only milestone/documentation completion wording and review links in PROGRESS and milestone note. Earlier alias wording correction independently re-reviewed.",
+  "current_doc_sha256": {
+    "AGENTS.md": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7",
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "PROGRESS.md": "d019452a97d36223dd1fc944fbfba003348ebc9ee8a2e6986887f3d175f30dae",
+    "docs/agent-workflow.md": "ca55fb9e99e84a0be0712f2eaa9889448b0f3220cc7c694c273ec94ba2a2bb6c",
+    "docs/history/README.md": "025a7910c7fc64f85c67151be7ae720cbca8693a486e0f91ff0b2597b1dfd9ac",
+    "research/inventec-practical-batch-2026-10-04.md": "f8f1ff502d1556c9c1ff32cec921303ea02b0295a2b83f26a8973d4999f2085a",
+    "research/inventec-qct-2026-10-04.md": "b7f606cb7a31a0820cb97cea26b7aa2e12fce726c3bb7a2f62f2830367492dfe"
+  },
+  "proof_sha256": {
+    "research/batches/inventec-practical-2026-10-04/acceptance.json": "519caef3ae2e07e851f7a66151132690389b8b4c4a25614145aed93e6528f3c5",
+    "research/batches/inventec-practical-2026-10-04/promotion-acceptance.json": "89dc90f4e06b5db4fe98295ae47fde61f782556daddc7727431e0823edf19ad8",
+    "research/batches/inventec-practical-2026-10-04/candidate-review.md": "7ac16a483499a131f2bd32b246b722cb01097d416bcb6a47f475d45ed0039292",
+    "research/batches/inventec-practical-2026-10-04/docs-review.md": "083b91067d897e82ceaeeb6163cd87068797b92b482303c60dfd5316853012c4",
+    "research/batches/inventec-practical-2026-10-04/review/final-review-freeze.json": "34697038ea8e73c4f5a6326b04ba2ff95519edc42b2571d541024bfc4cfbdf58",
+    "research/batches/inventec-practical-2026-10-04/integration/final-verification.json": "e4ba95fec7d1be352828e395b420864fbec89149dc28573c49adae698e5c9940",
+    "research/batches/inventec-practical-2026-10-04/integration/final-freeze.json": "824006fa3d8e4a0addc4a88c0922e3079bcd2c153764b1239dc45e100710f772",
+    "research/batches/inventec-practical-2026-10-04/next-work-verification.json": "7ff84183d72c373ecf3f769ed1a322a68d476953f721277696b62ae33adc8f30"
+  },
+  "verified_frozen_hash_bindings": 1235,
+  "local_doc_links": 75,
+  "live_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "counts": {
+    "devices": 4090,
+    "records": 5319,
+    "sources": 290,
+    "facts": 45017,
+    "documents": 58,
+    "document_pages": 3663
+  },
+  "new_evidence": {
+    "identities": 0,
+    "records": 2,
+    "facts": 42,
+    "pdfs": 1,
+    "pages": 2
+  },
+  "tests": "47 affected tests passed; previous428fullsuite reused against unchanged162application/test hashes.",
+  "data_checks": "43logicalCounter comparisons,oldrows/source-scopedroles/PDFpreservation,FTS,integrity/FKs,120jobs2205inputs,58PDFhashes,98lookups,2buyingreports;owned9+1/Byte0/2.",
+  "next": "Bounded source research for FPGA SmartNIC C5020X and QCT QuantaPlex T42S-2U; no inferred aliases."
+}

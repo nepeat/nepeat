@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-04",
+  "queries": [
+    {
+      "number": 1,
+      "query": "\"CS8200-32X-UN-00\" manual installation",
+      "result_summary": "third-party itechguides article, Douyin video, regulatory mirror; no vendor manual",
+      "response_capture": null,
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 2,
+      "query": "\"CS8210-32X\" hardware installation guide",
+      "result_summary": "no exact installation guide among pooled results",
+      "response_capture": null,
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 3,
+      "query": "\"DMC-12-48R-AS0\" manual",
+      "result_summary": "regulators and marketplace; no vendor manual",
+      "response_capture": null,
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 4,
+      "query": "\"AZ4444-52X-DC-10\" installation manual",
+      "result_summary": "regulatory and trade-data snippets only",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-2.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 5,
+      "query": "\"AS7772-32X\" installation manual",
+      "result_summary": "exact-titled DTB gist; no installation manual",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-2.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 6,
+      "query": "\"AS7760-32X\" hardware installation manual -site:manuals.plus",
+      "result_summary": "known-denied quick-start surfaced; skipped",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-2.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 7,
+      "query": "\"CS8200\" site:celestica.com",
+      "result_summary": "empty",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-3.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 8,
+      "query": "\"CS8210\" site:celestica.com",
+      "result_summary": "empty",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-3.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 9,
+      "query": "\"DMC-12-48R\" site:edge-core.com",
+      "result_summary": "empty",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-3.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 10,
+      "query": "\"AZ4444-52X\" manual power",
+      "result_summary": "regulators and variants, no manual",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-4.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 11,
+      "query": "\"AS7772-32X\" site:github.com -site:gist.github.com",
+      "result_summary": "no qualifying project result",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-4.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    },
+    {
+      "number": 12,
+      "query": "\"CS8200\" \"CS8210\" documentation",
+      "result_summary": "unrelated automotive/compiler code collisions, separate DC-11 trade snippet",
+      "response_capture": "data/raw/networking-primary-owned-2026-10-04/search-response-4.json",
+      "limit": "pooled multiquery search results; absent individual result is not proof of absence"
+    }
+  ],
+  "search_count": 12,
+  "new_source_fetch_count": 1,
+  "stop_reason": "query budget exhausted; no qualifying vendor manual"
+}

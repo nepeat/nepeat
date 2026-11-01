@@ -1,0 +1,12 @@
+{
+  "html_sha256": "cbe363cff77bd3ea4f2c985716254f1ca071baf512e5819cf60620cd48532d78",
+  "database_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "command": [
+    "node",
+    "-e",
+    "recorded finish.py node program"
+  ],
+  "returncode": 0,
+  "output": "generated HTML4090 identities, sixnew exact models, separate Foxconnparent roles, ByteDance0 and reconstructedPDFscope pass; no screenshot\nTAP version 13\n# Subtest: company and role must belong to the same affiliation\nok 1 - company and role must belong to the same affiliation\n  ---\n  duration_ms: 1.306917\n  type: 'test'\n  ...\n# Subtest: roles come from the snapshot and compose with text and hyperscaler filters\nok 2 - roles come from the snapshot and compose with text and hyperscaler filters\n  ---\n  duration_ms: 0.527792\n  type: 'test'\n  ...\n# Subtest: changing role resets pagination and an empty snapshot remains usable\nok 3 - changing role resets pagination and an empty snapshot remains usable\n  ---\n  duration_ms: 3.780875\n  type: 'test'\n  ...\n# Subtest: manufacturer default excludes seller, unhashed, brand and non-target claims\nok 4 - manufacturer default excludes seller, unhashed, brand and non-target claims\n  ---\n  duration_ms: 0.994792\n  type: 'test'\n  ...\n# Subtest: scope, target, role and source eligibility cannot borrow another affiliation\nok 5 - scope, target, role and source eligibility cannot borrow another affiliation\n  ---\n  duration_ms: 0.692416\n  type: 'test'\n  ...\n# Subtest: scope switches reset pagination while all associations keeps every identity\nok 6 - scope switches reset pagination while all associations keeps every identity\n  ---\n  duration_ms: 3.573625\n  type: 'test'\n  ...\n1..6\n# tests 6\n# suites 0\n# pass 6\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1046.897834\n",
+  "screenshot": false
+}

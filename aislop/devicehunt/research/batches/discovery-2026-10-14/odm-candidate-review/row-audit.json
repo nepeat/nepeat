@@ -1,0 +1,1717 @@
+{
+  "candidate_sha256": "f4bb69c73b809f5d35da8e4de58b6b933d3024136f4ed18228f473db1befcc71",
+  "source_row_keys": [
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-4-3-200:row-12",
+      "company": "PEGATRON",
+      "model": "AS205-2T1",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-260",
+      "company": "PEGATRON",
+      "model": "AS205-2T1",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-4-3-200:row-13",
+      "company": "Supermicro",
+      "model": "SYS-221GE-NR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-291",
+      "company": "Supermicro",
+      "model": "SYS-221GE-NR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-4-3-200:row-14",
+      "company": "Supermicro",
+      "model": "SYS-421GE-TNRT3",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-4-3-200:row-15",
+      "company": "Wistron",
+      "model": "E-Wing-Ahsoka",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-316",
+      "company": "Wistron",
+      "model": "E-Wing-Ahsoka",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-11",
+      "company": "Inventec",
+      "model": "P90G6",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-178",
+      "company": "Inventec",
+      "model": "P90G6",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-20",
+      "company": "PEGATRON",
+      "model": "AS400-2A1",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-261",
+      "company": "PEGATRON",
+      "model": "AS400-2A1",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-21",
+      "company": "PEGATRON",
+      "model": "AS400-2A1-CX8",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-262",
+      "company": "PEGATRON",
+      "model": "AS400-2A1-CX8",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-22",
+      "company": "QCT",
+      "model": "QuantaGrid D75E-4U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-269",
+      "company": "QCT",
+      "model": "QuantaGrid D75E-4U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-23",
+      "company": "Supermicro",
+      "model": "AS-5126GS-TNRT2",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-278",
+      "company": "Supermicro",
+      "model": "AS-5126GS-TNRT2",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-24",
+      "company": "Supermicro",
+      "model": "SYS-421GE-TNRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-25",
+      "company": "Supermicro",
+      "model": "SYS-422GA-NRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-302",
+      "company": "Supermicro",
+      "model": "SYS-422GA-NRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-26",
+      "company": "Supermicro",
+      "model": "SYS-422GL-NR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-304",
+      "company": "Supermicro",
+      "model": "SYS-422GL-NR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-27",
+      "company": "Supermicro",
+      "model": "SYS-521GE-TNRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-28",
+      "company": "Supermicro",
+      "model": "SYS-521GE-TNRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-29",
+      "company": "Supermicro",
+      "model": "SYS-521GE-TNRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-307",
+      "company": "Supermicro",
+      "model": "SYS-521GE-TNRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-30",
+      "company": "Supermicro",
+      "model": "SYS-522GA-NRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-308",
+      "company": "Supermicro",
+      "model": "SYS-522GA-NRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-pcie-ref-2-8-5-200:row-31",
+      "company": "Wistron",
+      "model": "X-wing-Flyboy (Tacoma)",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-318",
+      "company": "Wistron",
+      "model": "X-wing-Flyboy (Tacoma)",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-15",
+      "company": "Inventec",
+      "model": "P8000G6",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-180",
+      "company": "Inventec",
+      "model": "P8000G6",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-16",
+      "company": "Inventec",
+      "model": "P9000IG6(AC)",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-181",
+      "company": "Inventec",
+      "model": "P9000IG6(AC)",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-22",
+      "company": "PEGATRON",
+      "model": "AS800-2T0-8H1",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-263",
+      "company": "PEGATRON",
+      "model": "AS800-2T0-8H1",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-23",
+      "company": "QCT",
+      "model": "QuantaGrid D74H-7U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-268",
+      "company": "QCT",
+      "model": "QuantaGrid D74H-7U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-24",
+      "company": "Supermicro",
+      "model": "AS-A126GS-TNBR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-272",
+      "company": "Supermicro",
+      "model": "AS-A126GS-TNBR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-25",
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNHR2-LCC",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-273",
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNHR2-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-26",
+      "company": "Supermicro",
+      "model": "AS-4126GS-NBR-LCC",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-276",
+      "company": "Supermicro",
+      "model": "AS-4126GS-NBR-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-27",
+      "company": "Supermicro",
+      "model": "AS-8125GS-TNHR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-279",
+      "company": "Supermicro",
+      "model": "AS-8125GS-TNHR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-28",
+      "company": "Supermicro",
+      "model": "SYS-421GE-TNHR2-LCC",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-299",
+      "company": "Supermicro",
+      "model": "SYS-421GE-TNHR2-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-29",
+      "company": "Supermicro",
+      "model": "SYS-821GE-TNHR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-312",
+      "company": "Supermicro",
+      "model": "SYS-821GE-TNHR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-30",
+      "company": "Supermicro",
+      "model": "SYS-822GS-NBRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-314",
+      "company": "Supermicro",
+      "model": "SYS-822GS-NBRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-400:row-31",
+      "company": "Wistron",
+      "model": "Miramar - ICEMan",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-800:row-3",
+      "company": "Supermicro",
+      "model": "SYS-222GS-NB3OT-ALC",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-295",
+      "company": "Supermicro",
+      "model": "SYS-222GS-NB3OT-ALC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-800:row-4",
+      "company": "Supermicro",
+      "model": "SYS-422GS-NB3RT-ALC",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-305",
+      "company": "Supermicro",
+      "model": "SYS-422GS-NB3RT-ALC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-800:row-5",
+      "company": "Supermicro",
+      "model": "SYS-422GS-NB3RT-LCC",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-306",
+      "company": "Supermicro",
+      "model": "SYS-422GS-NB3RT-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-9-800:row-6",
+      "company": "Supermicro",
+      "model": "SYS-822GS-NB3RT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-313",
+      "company": "Supermicro",
+      "model": "SYS-822GS-NB3RT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-10-800:row-11",
+      "company": "Supermicro",
+      "model": "AS-4126GS-NB3RT-LCC",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-275",
+      "company": "Supermicro",
+      "model": "AS-4126GS-NB3RT-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-hgx-ref-2-8-10-800:row-12",
+      "company": "Supermicro",
+      "model": "Gold Series AS-8126GS-NB3RT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-280",
+      "company": "Supermicro",
+      "model": "Gold Series AS-8126GS-NB3RT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-ref-config-inference-only-2-8-1:row-3",
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNRT2",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-156",
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNRT2",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-ref-config-inference-only-2-4-1:row-3",
+      "company": "Supermicro",
+      "model": "SYS-222C-TN",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-294",
+      "company": "Supermicro",
+      "model": "SYS-222C-TN",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-179",
+      "company": "Inventec",
+      "model": "P5000AG7",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-264",
+      "company": "QCT",
+      "model": "QuantaGrid D43N-3U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-vdi-servers:row-42",
+      "company": "QCT",
+      "model": "QuantaGrid D43N-3U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-265",
+      "company": "QCT",
+      "model": "QuantaGrid D53XQ-2U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-vdi-servers:row-43",
+      "company": "QCT",
+      "model": "QuantaGrid D53XQ-2U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-146",
+      "company": "QCT",
+      "model": "QuantaGrid D53XQ-2U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-266",
+      "company": "QCT",
+      "model": "QuantaGrid D54U-3U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-147",
+      "company": "QCT",
+      "model": "QuantaGrid D54U-3U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-267",
+      "company": "QCT",
+      "model": "QuantaGrid D54X-1U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-270",
+      "company": "QCT",
+      "model": "QuantaGrid S44NL-1U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-148",
+      "company": "QCT",
+      "model": "QuantaGrid S44NL-1U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-271",
+      "company": "QCT",
+      "model": "QuantaPlex T43Z-2U",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-274",
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-277",
+      "company": "Supermicro",
+      "model": "AS-5126GS-TNRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-281",
+      "company": "Supermicro",
+      "model": "GPU Blade SBA-4119SG",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-282",
+      "company": "Supermicro",
+      "model": "SYS-A21GE-NBRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-283",
+      "company": "Supermicro",
+      "model": "SYS-A22GA-NBRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-284",
+      "company": "Supermicro",
+      "model": "SYS-120GQ-TNRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-285",
+      "company": "Supermicro",
+      "model": "SYS-120U-TNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-286",
+      "company": "Supermicro",
+      "model": "SYS-121H-TNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-workstations:row-82",
+      "company": "Supermicro",
+      "model": "SYS-121H-TNR",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-287",
+      "company": "Supermicro",
+      "model": "SYS-122H-TN",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-288",
+      "company": "Supermicro",
+      "model": "SYS-212GB-FNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-289",
+      "company": "Supermicro",
+      "model": "SYS-220GP-TNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-290",
+      "company": "Supermicro",
+      "model": "SYS-220U-TNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-292",
+      "company": "Supermicro",
+      "model": "SYS-221GE-TNHT-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-293",
+      "company": "Supermicro",
+      "model": "SYS-221H-TNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-296",
+      "company": "Supermicro",
+      "model": "SYS-222H-TN",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-297",
+      "company": "Supermicro",
+      "model": "SYS-420GP-TNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-298",
+      "company": "Supermicro",
+      "model": "SYS-421GE-NBRT-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-300",
+      "company": "Supermicro",
+      "model": "SYS-421GU-TNXR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-301",
+      "company": "Supermicro",
+      "model": "SYS-422GA-NBRT-LCC",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-303",
+      "company": "Supermicro",
+      "model": "SYS-422GL-FNR2",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-309",
+      "company": "Supermicro",
+      "model": "SYS-621H-TN12R",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-vdi-servers:row-45",
+      "company": "Supermicro",
+      "model": "SYS-621H-TN12R",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-163",
+      "company": "Supermicro",
+      "model": "SYS-621H-TN12R",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-310",
+      "company": "Supermicro",
+      "model": "SYS-740GP-TNRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-workstations:row-86",
+      "company": "Supermicro",
+      "model": "SYS-740GP-TNRT",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-vdi-servers:row-46",
+      "company": "Supermicro",
+      "model": "SYS-740GP-TNRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-311",
+      "company": "Supermicro",
+      "model": "SYS-741GE-TNRT",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-315",
+      "company": "Supermicro",
+      "model": "2114GT-DNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-data-center-servers:row-317",
+      "company": "Wistron",
+      "model": "Miramar -ICEMan",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-arm-cpu-systems:row-5",
+      "company": "PEGATRON",
+      "model": "AS201-1N0",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-arm-cpu-systems:row-6",
+      "company": "QCT",
+      "model": "QuantaGrid S74G-2U",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-arm-cpu-systems:row-7",
+      "company": "Supermicro",
+      "model": "ARS-111GL-NHR",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-arm-cpu-systems:row-8",
+      "company": "Supermicro",
+      "model": "ARS-221GL-NHIR",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-workstations:row-83",
+      "company": "Supermicro",
+      "model": "SYS-531A-IL",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-workstations:row-84",
+      "company": "Supermicro",
+      "model": "SYS-540A-TR",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-workstations:row-85",
+      "company": "Supermicro",
+      "model": "SYS-551A-T",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-workstations:row-87",
+      "company": "Supermicro",
+      "model": "5014A-TT",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-workstations:row-88",
+      "company": "Supermicro",
+      "model": "5039A-i",
+      "facts": 11,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-vdi-servers:row-44",
+      "company": "Supermicro",
+      "model": "AS-2015HS-TNR",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-153",
+      "company": "Supermicro",
+      "model": "AS-2015HS-TNR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-142",
+      "company": "QCT",
+      "model": "QuantaEdge EGX77B-1U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-143",
+      "company": "QCT",
+      "model": "QuantaEdge EGX88D-1U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-144",
+      "company": "QCT",
+      "model": "QuantaGrid D44N-1U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-145",
+      "company": "QCT",
+      "model": "QuantaGrid D53X-1U",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-152",
+      "company": "Supermicro",
+      "model": "AS-2015CS-TNR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-154",
+      "company": "Supermicro",
+      "model": "AS-2115HV-TNRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-155",
+      "company": "Supermicro",
+      "model": "AS-2115HV-TNRT",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-157",
+      "company": "Supermicro",
+      "model": "SYS-E403-12P-FN2T",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-158",
+      "company": "Supermicro",
+      "model": "SYS-120C-TN10R",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-159",
+      "company": "Supermicro",
+      "model": "SYS-220HE-FTNR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-160",
+      "company": "Supermicro",
+      "model": "SYS-221HE-FTNRD",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-161",
+      "company": "Supermicro",
+      "model": "SYS-511E-WR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-162",
+      "company": "Supermicro",
+      "model": "SYS-512B-WR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-edge-systems:row-164",
+      "company": "Supermicro",
+      "model": "SYS-741P-TR",
+      "facts": 12,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "key": "table-igx-systems:row-7",
+      "company": "Inventec",
+      "model": "Atlas-700-R",
+      "facts": 10,
+      "role": "program_partner"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-58",
+      "company": "Inspur",
+      "model": "NE5260M5",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-32",
+      "company": "Inspur",
+      "model": "NE5260M5",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-59",
+      "company": "Inspur",
+      "model": "NF5280M5",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-33",
+      "company": "Inspur",
+      "model": "NF5280M5",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-60",
+      "company": "Inspur",
+      "model": "NF5468M5",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-61",
+      "company": "Inspur",
+      "model": "NF5488M5",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-62",
+      "company": "Inventec",
+      "model": "E850G4",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-34",
+      "company": "Inventec",
+      "model": "E850G4",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-74",
+      "company": "QCT",
+      "model": "QuantaGrid D43K-1U",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-39",
+      "company": "QCT",
+      "model": "QuantaGrid D43K-1U",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-75",
+      "company": "QCT",
+      "model": "QuantaGrid D52BV-2U",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-40",
+      "company": "QCT",
+      "model": "QuantaGrid D52BV-2U",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-76",
+      "company": "QCT",
+      "model": "QuantaGrid D52G-4U",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-77",
+      "company": "QCT",
+      "model": "QuantaGrid D52Y-2U",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-41",
+      "company": "QCT",
+      "model": "QuantaGrid D52Y-2U",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-78",
+      "company": "QCT",
+      "model": "QuantaGrid SD2H-1U",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-42",
+      "company": "QCT",
+      "model": "QuantaGrid SD2H-1U",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-79",
+      "company": "QCT",
+      "model": "QuantaGrid S43KL-1U",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-43",
+      "company": "QCT",
+      "model": "QuantaGrid S43KL-1U",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-82",
+      "company": "Supermicro",
+      "model": "SYS-1019D-FHN13TP",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-45",
+      "company": "Supermicro",
+      "model": "SYS-1019D-FHN13TP",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-83",
+      "company": "Supermicro",
+      "model": "SYS-1019P-FHN2T",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-46",
+      "company": "Supermicro",
+      "model": "SYS-1019P-FHN2T",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-84",
+      "company": "Supermicro",
+      "model": "SYS-1019P-WTR",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-47",
+      "company": "Supermicro",
+      "model": "SYS-1019P-WTR",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-85",
+      "company": "Supermicro",
+      "model": "SYS-1029U-TRT",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-86",
+      "company": "Supermicro",
+      "model": "SYS-2029GP-TR",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-48",
+      "company": "Supermicro",
+      "model": "SYS-2029GP-TR",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-87",
+      "company": "Supermicro",
+      "model": "SYS-4029GP-TRT2",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-88",
+      "company": "Supermicro",
+      "model": "SYS-4029GP-TVRT",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-89",
+      "company": "Supermicro",
+      "model": "SYS-5019D-FN8TP",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-49",
+      "company": "Supermicro",
+      "model": "SYS-5019D-FN8TP",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-90",
+      "company": "Supermicro",
+      "model": "SYS-5039MD8-H8TNR",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-91",
+      "company": "Supermicro",
+      "model": "SYS-5039MD18-H8TNR",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-92",
+      "company": "Supermicro",
+      "model": "SYS-5039MP-H8TNR",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-93",
+      "company": "Supermicro",
+      "model": "SYS-7049GP-TRT",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-98",
+      "company": "Wiwynn",
+      "model": "EP100",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-4:row-52",
+      "company": "Wiwynn",
+      "model": "EP100",
+      "facts": 10,
+      "role": "listing_holder"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "key": "ordinal-1:row-99",
+      "company": "Wiwynn",
+      "model": "SV310G3",
+      "facts": 11,
+      "role": "listing_holder"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-1",
+      "company": "MiTAC",
+      "model": "B8056G68AE12HR",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-2",
+      "company": "MiTAC",
+      "model": "B8056G68AE12HR-2T",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-3",
+      "company": "MiTAC",
+      "model": "B8056G68AE12HR-2T-TU-HE",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-4",
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-5",
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR-2T",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-6",
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR-2T-TU",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-7",
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR-2T-TU-HE",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-8",
+      "company": "MiTAC",
+      "model": "B8046G73AE12HR",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-9",
+      "company": "MiTAC",
+      "model": "M50FCP1UR204",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-10",
+      "company": "MiTAC",
+      "model": "M50FCP2UR208",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "key": "card-11",
+      "company": "MiTAC",
+      "model": "R2520G6U2BC",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-1",
+      "company": "MiTAC",
+      "model": "D50DNP2MFALAC",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-2",
+      "company": "MiTAC",
+      "model": "G4520G6E3BC-N",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-3",
+      "company": "MiTAC",
+      "model": "G4520G6U2BC-N",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-4",
+      "company": "MiTAC",
+      "model": "G4826Z5U2BC-355X-575",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-5",
+      "company": "MiTAC",
+      "model": "G4826Z5U2BC-355X-755",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-6",
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-325X-575",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-7",
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-325X-755",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-8",
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-350X-575",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-9",
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-350X-755",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-10",
+      "company": "MiTAC",
+      "model": "B8261T85E8HR-2T-N",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "key": "card-11",
+      "company": "MiTAC",
+      "model": "B8261T85E8HR-2T-N-HE",
+      "facts": 10,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-1",
+      "company": "MiTAC",
+      "model": "C2810Z5D2E3XD",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-2",
+      "company": "MiTAC",
+      "model": "C2810Z5D2HYBD",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-3",
+      "company": "MiTAC",
+      "model": "C2811Z5X4E1XDR-555",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-4",
+      "company": "MiTAC",
+      "model": "CP3S11-S",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-5",
+      "company": "MiTAC",
+      "model": "CP3S11-U",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-6",
+      "company": "MiTAC",
+      "model": "D50DNP1MHCPAC",
+      "facts": 8,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-7",
+      "company": "MiTAC",
+      "model": "D50DNP1MHCPLC",
+      "facts": 8,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-8",
+      "company": "MiTAC",
+      "model": "D50DNP1MHEVAC",
+      "facts": 8,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-9",
+      "company": "MiTAC",
+      "model": "D50DNP2MHSVAC",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-10",
+      "company": "MiTAC",
+      "model": "B8016H68D5",
+      "facts": 8,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-11",
+      "company": "MiTAC",
+      "model": "M2510G6X4E1BC",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-12",
+      "company": "MiTAC",
+      "model": "M2810Z5D2E1XD",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-13",
+      "company": "MiTAC",
+      "model": "M2810Z5X4E1BC",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-14",
+      "company": "MiTAC",
+      "model": "M2810Z6D2U2BC",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-15",
+      "company": "MiTAC",
+      "model": "M2810Z6D2E1XD",
+      "facts": 9,
+      "role": "documentation_vendor"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "key": "card-16",
+      "company": "MiTAC",
+      "model": "M2810Z6D2E3XD",
+      "facts": 9,
+      "role": "documentation_vendor"
+    }
+  ]
+}

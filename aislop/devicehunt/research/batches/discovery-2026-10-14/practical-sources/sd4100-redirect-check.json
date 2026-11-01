@@ -1,0 +1,15 @@
+{
+  "redirect_parent_sequence": 3,
+  "literal_location": "/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+  "resolved_URL": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+  "same_origin": true,
+  "source_scope": "literal SD4100 PDF filename only, not guessed",
+  "raw_prior_batch_rg_exact_filename_matches": 0,
+  "catalog_checks": {
+    "sources": [],
+    "records": [],
+    "documents": []
+  },
+  "catalog_access": "mode=ro",
+  "decision": "permitted one literal same-origin redirect after bounded exact URL/filename review"
+}

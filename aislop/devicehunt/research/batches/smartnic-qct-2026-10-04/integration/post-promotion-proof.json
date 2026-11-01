@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-10-05T10:04:35.401507+00:00",
+  "integrator": "/root-claude",
+  "live_sha256": "b66dc555ef7a38e2d942a4ba3534a71f442bc073c431c55308c413eb59bbf88e",
+  "live_manifest_sha256": "984624e6e9d77927326b0000d75dc22a5eec13c90a81c2ce4cbd587cc86c17fc",
+  "counts": {
+    "devices": 4091,
+    "records": 5323,
+    "sources": 297,
+    "facts": 45073,
+    "documents": 61,
+    "document_pages": 3716
+  },
+  "user_version": 29,
+  "manifest_jobs": 122,
+  "manifest_hashed_inputs": 2280,
+  "recovery": {
+    "database": "data/devices-before-smartnic-qct-2026-10-05.sqlite",
+    "manifest": "data/import-manifest-before-smartnic-qct-2026-10-05.json"
+  },
+  "exports_refreshed": {
+    "standard_and_98_lookup_reports": "refresh-exports.log (rc=0)",
+    "collection_reports": "refresh-collection-reports.log (rc=0)"
+  },
+  "owned_baseline": "post-promotion-owned.log: 10/10 exact identities, 0 gaps",
+  "full_suite_after_promotion": 562,
+  "rebuild": "data/rebuilt-with-smartnic-qct-2026-10-05.sqlite equal to candidate in 52 tables",
+  "review": "candidate-review.md (ACCEPT with notes)"
+}

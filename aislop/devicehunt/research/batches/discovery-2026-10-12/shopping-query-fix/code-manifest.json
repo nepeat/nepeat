@@ -1,0 +1,25 @@
+{
+  "frozen_at_utc": "2026-10-13T04:30:45.305519+00:00",
+  "files": [
+    {
+      "path": "devicehunt/__main__.py",
+      "sha256": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83",
+      "bytes": 40996
+    },
+    {
+      "path": "devicehunt/report.html",
+      "sha256": "14491e46545fed986edf1920deb87de769e94a824f61fd7d1e28fde448744e3e",
+      "bytes": 9460
+    },
+    {
+      "path": "tests/test_shopping.py",
+      "sha256": "19b0d4c4f2f32f559d4d5bccb546a0732da1136a85d2835bec047e8eb756606e",
+      "bytes": 6446
+    },
+    {
+      "path": "tests/report.test.cjs",
+      "sha256": "2f74690b5e05da33525839b0d2191b5c6d24f49377e6df0b0225d05f4c3da883",
+      "bytes": 7154
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "candidate_sha256": "a82e27385459ddafbe54d510d73959c237bad98b743a7cbd4c97f32032c5b25c",
+  "source_count": 2,
+  "records": 3,
+  "distinct_models": 2,
+  "facts": 12,
+  "plain7420_facts": 11,
+  "m2_facts": 1,
+  "snapshot_bytes_equal": true,
+  "selectors_checked_against_originals": 12,
+  "identifiers": 0,
+  "hyperscaler_claims": 0,
+  "only_role": "documentation_vendor",
+  "catalog_baseline_at_utc": "2026-10-13T03:50:07.665209+00:00",
+  "catalog_sha256_before_read": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "catalog_sha256_after_read": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "concurrent_baseline_changed": false,
+  "existing_identity_query": {
+    "Sun ZFS Storage 7420": [],
+    "Sun ZFS Storage 7420 M2": [],
+    "ZFS STORAGE 7420": [
+      [
+        "737b374150e34090ee08",
+        "Oracle",
+        "ZFS STORAGE 7420"
+      ]
+    ],
+    "S7420": [
+      [
+        "b67822022258cb9d46f5",
+        "Oracle",
+        "S7420"
+      ]
+    ]
+  },
+  "baseline_note": "Read-only point-in-time observation; coordinator may promote another batch concurrently. Not integration/preservation acceptance.",
+  "imports": 0,
+  "network_requests": 0
+}

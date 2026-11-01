@@ -1,0 +1,2018 @@
+{
+  "schema_version": 2,
+  "catalog_path": "data/devices.sqlite",
+  "dependencies": [
+    {
+      "path": "data/raw/edgecore/products.json",
+      "sha256": "3cda132e73717e48729b4fc8022fc605a031ece95fef839223a6edbeffbd1d31"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/celestica-sitemap.xml.receipt.json",
+      "sha256": "f5b525fc38941833b65dfd20263085cd2ed849b300ed8a3af971c0b3b010cb5b"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-legacy-x86.html.receipt.json",
+      "sha256": "5e6817d523f20e236e65e90dcb7c4f8585dd8c65c4d856ad5d2c996fe8f4cb78"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-older-m-series-full-access.html.receipt.json",
+      "sha256": "107e3c8a9185456ccaca09543ad5bc1a4f866175614f80af742147d130f4e762"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-older-t-series-full-access.html.receipt.json",
+      "sha256": "64ce9ca38ec2c06875352eac42b2961f118b58cf5f04745cc7db924ea380f0da"
+    }
+  ],
+  "sources": [
+    {
+      "id": "edgecore_product_downloads",
+      "source_role": "product_page_link_publisher",
+      "same_host": true,
+      "path_pattern": "^/download/[^/]+/?$",
+      "inputs": [
+        {
+          "path": "data/raw/edgecore/product-agr100.html",
+          "sha256": "7d0e44f1f1b6f3da583f9a7f20020be613023b8e028977d7e5e30f8ffd8565cc",
+          "url": "https://www.edge-core.com/product/agr100/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr110.html",
+          "sha256": "2c00ec1cf576092006c081663206827e37508f0886a982cb433010d3a9c55899",
+          "url": "https://www.edge-core.com/product/agr110/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr120.html",
+          "sha256": "96e5f0e2dc6e630aaa8cc1bf88cacc938e85187096a4a1e0e098f1a85fb709f5",
+          "url": "https://www.edge-core.com/product/agr120/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr130.html",
+          "sha256": "1557d078e7cbd18b434115db8edd204dfadd1c225676a388b9721dac33c83938",
+          "url": "https://www.edge-core.com/product/agr130/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr200.html",
+          "sha256": "f1b3336b9d6ca1e8e547772b85fcc3ca4afe9e2dd54da70b6976a9490ffdea29",
+          "url": "https://www.edge-core.com/product/agr200/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr400.html",
+          "sha256": "67c0c406234df5c88807c9ef0c91c797332173748406035655e62a89a9236c2b",
+          "url": "https://www.edge-core.com/product/agr400/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr420.html",
+          "sha256": "ad0ead395675914290af15002f4cbe45562f62a4ca80d1f11884ea266b5e5a0d",
+          "url": "https://www.edge-core.com/product/agr420/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr560.html",
+          "sha256": "bc69e4f60a23c794d525119bc4ccbb103e794650daa779b63e209bb0fd892d6c",
+          "url": "https://www.edge-core.com/product/agr560/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-agr600.html",
+          "sha256": "935060678d8ca8fbc9faaee691849207d6ec6a4c17cb9c78a4940442dbbda701",
+          "url": "https://www.edge-core.com/product/agr600/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ags8200.html",
+          "sha256": "7e823cfff5038c4588c5bd4932f7746b429199db7716bc25b32c79d3965e3ea9",
+          "url": "https://www.edge-core.com/product/ags8200/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ags8600.html",
+          "sha256": "34368853863106658d67790b43aa433493b2188cff60baf5f9f373e3bb1593e4",
+          "url": "https://www.edge-core.com/product/ags8600/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ais1600-64o.html",
+          "sha256": "b7e103490d2bcd0803ba8a61cad4160641b53dd67bc3d4295202d2706658438d",
+          "url": "https://www.edge-core.com/product/ais1600-64o/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ais800-128o.html",
+          "sha256": "d6f2653ade444b8ae6110ba32945bd9dfb135c9b0afba78112e6c7ce354508e5",
+          "url": "https://www.edge-core.com/product/ais800-128o/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ais800-32d.html",
+          "sha256": "733990e4e7678694e45a9a57aa7a7f5a62a8b83209ade84ee1dcd602c21d71bd",
+          "url": "https://www.edge-core.com/product/ais800-32d/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ais800-32o.html",
+          "sha256": "ccd5c9fa954e6b519322e3f6f0eaf5a9ed0db7e661476b806b4dcacc3cea0664",
+          "url": "https://www.edge-core.com/product/ais800-32o/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ais800-64d.html",
+          "sha256": "333231a3b8435e675ecad1c229a861a134115f9b9fb8e2288731027ceb77e035",
+          "url": "https://www.edge-core.com/product/ais800-64d/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ais800-64o.html",
+          "sha256": "c1d3f7176254e0d6459ca3eadf490033c75d6189884082f9d08cca336cc89cfa",
+          "url": "https://www.edge-core.com/product/ais800-64o/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-amx3200.html",
+          "sha256": "96d5580ff5d16e56efaab3244ef8915f2bddfd049b56a5f59a517bc9e5b09331",
+          "url": "https://www.edge-core.com/product/amx3200/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as4600-54t-c.html",
+          "sha256": "387eeada2a5fee5dbd768adbf67a49b0afa3cda7be519e087a67954036ca7ecf",
+          "url": "https://www.edge-core.com/product/as4600-54t-c/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as4600-54t-dcss.html",
+          "sha256": "ded0b27aaeab9bcffc6c00e36884cde8a977e22a0c894154774dc8aa2960a00d",
+          "url": "https://www.edge-core.com/product/as4600-54t-dcss/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as4600-54t.html",
+          "sha256": "0daeca24e8ebec754b9bc0271f02e44802aa21bf25b59dddf426884d359c26db",
+          "url": "https://www.edge-core.com/product/as4600-54t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as4610-30p.html",
+          "sha256": "e10281723795bcf84351c3ad3c272d62b7ec3bbcb65d7dc4c282ab9bd3ff377a",
+          "url": "https://www.edge-core.com/product/as4610-30p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as4610-30t.html",
+          "sha256": "df2073bdd9ee5f0a42e3594b2c25727988c236307a7a26984d98aca4b3e0b463",
+          "url": "https://www.edge-core.com/product/as4610-30t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as4610-54p.html",
+          "sha256": "d81b4ed6dba799302b0406d7efc360c54e45f2e53ad891c3bf7f716ceb2fbbd7",
+          "url": "https://www.edge-core.com/product/as4610-54p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as4610-54t.html",
+          "sha256": "f09084299a9e87bc60d22380c031535b99670b7b7f9e23dc3b97a3727122c2bd",
+          "url": "https://www.edge-core.com/product/as4610-54t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5512-54x.html",
+          "sha256": "4b352426d912d2b924b593e1b70559af556ca6aa4f56709560dcd47ee89cac40",
+          "url": "https://www.edge-core.com/product/as5512-54x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5600-52x-c.html",
+          "sha256": "8de68f984d8c96a780b9a29f89cd60e08a2d8d6128e3155c89ace82416a5fd1a",
+          "url": "https://www.edge-core.com/product/as5600-52x-c/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5600-52x-dcss.html",
+          "sha256": "f5ccf470483b5adb682201be3c60c5cb20db559e6eb1eb9afc532c39c0628ea1",
+          "url": "https://www.edge-core.com/product/as5600-52x-dcss/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5600-52x.html",
+          "sha256": "5bd8d8fadbba4eea43f52f87c0ec8b32ee8c95499231eb94ca367d1ff6de524c",
+          "url": "https://www.edge-core.com/product/as5600-52x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5710-54x-ec.html",
+          "sha256": "0c7ca0d28f741c419c63280cf9c898ef2016aaff8b0087a01180282045b5734b",
+          "url": "https://www.edge-core.com/product/as5710-54x-ec/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5710-54x.html",
+          "sha256": "76bfbcc6a775ada1be61049adc415d836161294ef3d922b70df87e10b4468b49",
+          "url": "https://www.edge-core.com/product/as5710-54x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5712-54x.html",
+          "sha256": "008735960fcbd2370fe13f35fe6e32b84ed2c5e781397e014190a24e85b3f6b1",
+          "url": "https://www.edge-core.com/product/as5712-54x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5812-54t-ec.html",
+          "sha256": "1ff90dbd7b2733d57a2105b34c4af4a34226dd9afc7057f81be7023af0c4d6d0",
+          "url": "https://www.edge-core.com/product/as5812-54t-ec/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as5812-54x-ec.html",
+          "sha256": "0db56cedb717dd931b60bd68d9a6f4b81f5c3a212c9c69f9e882a3603da83794",
+          "url": "https://www.edge-core.com/product/as5812-54x-ec/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as6700-32x-dcss.html",
+          "sha256": "37b0fe507ecf95d74830ec5cce429671710fb2ca5b217674ce8a21513ccca922",
+          "url": "https://www.edge-core.com/product/as6700-32x-dcss/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as6700-32x.html",
+          "sha256": "5ac0b18e67eb51c982b5aad820520dd77f00c2463487e0eee3eede87bac33748",
+          "url": "https://www.edge-core.com/product/as6700-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as6701-32x-c.html",
+          "sha256": "a7c3bbc9ff09d4076a5e01ff8826ed5ff996f344fa0d0b54f1cca4b56c0daed7",
+          "url": "https://www.edge-core.com/product/as6701-32x-c/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as6701-32x.html",
+          "sha256": "4578ea3396425bb7c58ebb4500427ed16f3297671349ab95c98482cf7d427adf",
+          "url": "https://www.edge-core.com/product/as6701-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as6712-32x.html",
+          "sha256": "e63307ef3fe1d28d6431c2411ed8bcbabf4cc632fc49c60264e0383aeeef9b1e",
+          "url": "https://www.edge-core.com/product/as6712-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as6812-32x.html",
+          "sha256": "12195af775cd21ae4314b2292cbac2400e2bc42be6685ee7eb09fbc2a2055acd",
+          "url": "https://www.edge-core.com/product/as6812-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as7512-32x.html",
+          "sha256": "fb0d7249434c997bd4856f0ce9b96787cc1e19c886c4b9f27c2289313211af09",
+          "url": "https://www.edge-core.com/product/as7512-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as7712-32x-ec.html",
+          "sha256": "99702cfb49bc24c35336ddec0dda23c8b09c8a22d9a218912255a7382755c054",
+          "url": "https://www.edge-core.com/product/as7712-32x-ec/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-as7716-24sc.html",
+          "sha256": "3dae9b082524666e5156259ba0bb99fecb2e06ca6e3819f929ef5c84785c76f6",
+          "url": "https://www.edge-core.com/product/as7716-24sc/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-asgvolt64.html",
+          "sha256": "ae43d9ddb163c9848d0d14f78f5ed746de644f088b27319e315116ab19ecea69",
+          "url": "https://www.edge-core.com/product/asgvolt64/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-asxvolt16.html",
+          "sha256": "8869270a020cd7736dafaffd9c6602ab411205c1b5c8fa89348120c907ecbe16",
+          "url": "https://www.edge-core.com/product/asxvolt16/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-cor550.html",
+          "sha256": "cc57c6d55c1e7240fc42b218d9e6264202593627b2066a5f1b8c1c21803986f3",
+          "url": "https://www.edge-core.com/product/cor550/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-cor580.html",
+          "sha256": "ba9e2597235cbbb8fa80a398e81fff672fcc2a8906a4cbc5dcb519c81219a923",
+          "url": "https://www.edge-core.com/product/cor580/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csp-7550.html",
+          "sha256": "5f0b539d743bff3702dbb897aebe352d91971df9e8f61de72742161edd5fe411",
+          "url": "https://www.edge-core.com/product/csp-7550/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csr180.html",
+          "sha256": "16a1b5ecf15f7072776d994e4dc1462ba224652f9108f8e2f2c878df1ab40cf7",
+          "url": "https://www.edge-core.com/product/csr180/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csr200.html",
+          "sha256": "feda243e9bd7edd1cab09832534c9df9e266b699f0ff99335ac01ebfa923803b",
+          "url": "https://www.edge-core.com/product/csr200/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csr300.html",
+          "sha256": "c8b25547a7fb739a5b53fa10cf660a895e62f714f31e5603d95c4b1921c7fc82",
+          "url": "https://www.edge-core.com/product/csr300/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csr310.html",
+          "sha256": "b9529916ac38facce57bf8ffc590d6db430aef8d292667bd277485095d7f6daa",
+          "url": "https://www.edge-core.com/product/csr310/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csr320.html",
+          "sha256": "79d7634b7cdd4e7af7051326a3226213796550bc0866bc1badc5d8843bb4da64",
+          "url": "https://www.edge-core.com/product/csr320/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csr430.html",
+          "sha256": "022ea576628763460d7abdc1a4676584f72573d8aa6a0a7756c1b7ebff0b689f",
+          "url": "https://www.edge-core.com/product/csr430/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-csr440.html",
+          "sha256": "3cf1607fa0ff1d40426c25d3c11bc2de292b1e81fdfa95034b09ac0de3442008",
+          "url": "https://www.edge-core.com/product/csr440/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs201.html",
+          "sha256": "f386b20762fd262b22dc27932d0a35a7532f8dfeaddd4810541c1c5b6c202710",
+          "url": "https://www.edge-core.com/product/dcs201/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs202.html",
+          "sha256": "5f9e9f70b45e295a615d69f2fa7459db452851c956abf26a6c4ddfc8623ea360",
+          "url": "https://www.edge-core.com/product/dcs202/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs203.html",
+          "sha256": "1701cf2c40071e8c34cfea1c2abed11ee89eec6672892f87a9556235f36d53e7",
+          "url": "https://www.edge-core.com/product/dcs203/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs204.html",
+          "sha256": "2d74f83a53cca3a725bbf2011a5e4d2497933c270a05941edbd70bc99b0ee47c",
+          "url": "https://www.edge-core.com/product/dcs204/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs208.html",
+          "sha256": "5da2f48d49dd01fb2b719f0cd693e5faa5dc28606628c3df9b9d51f44dfd72a7",
+          "url": "https://www.edge-core.com/product/dcs208/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs209.html",
+          "sha256": "bc23dab64e5548e3a2b7024fcaf0cc5b7e4ac9e1ee737b830f6a43c78b4365b1",
+          "url": "https://www.edge-core.com/product/dcs209/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs240.html",
+          "sha256": "cc0f7401f4432dcdd1b1f34ee6b01795ec6a06754e365e4124f66aef65687a9e",
+          "url": "https://www.edge-core.com/product/dcs240/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs500.html",
+          "sha256": "dfc34019262b5d45edf31fba213da39e8f3cb264642638781e49bcd4a82688a5",
+          "url": "https://www.edge-core.com/product/dcs500/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs501.html",
+          "sha256": "803c63680ed153055926f146546469bf261beb21dab283143a025823eb4e871e",
+          "url": "https://www.edge-core.com/product/dcs501/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs510.html",
+          "sha256": "8cece43d1d12231651434826edd45d6e1a23eb306be55d2e02207b6ca060c6ab",
+          "url": "https://www.edge-core.com/product/dcs510/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs511.html",
+          "sha256": "d2dd2588be6f4529637e274415b26949b4115c19438cfa92d7b4c7865766e794",
+          "url": "https://www.edge-core.com/product/dcs511/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs520.html",
+          "sha256": "c616e60c37df357261737de57f451bae1481e761d04135b2275b5a42114a5414",
+          "url": "https://www.edge-core.com/product/dcs520/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs800.html",
+          "sha256": "1f59208a0040e2f06c7d596e11c37de9d8a53d2489109c75998e771b278e881d",
+          "url": "https://www.edge-core.com/product/dcs800/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs801.html",
+          "sha256": "8a0b4c2cafedf2bc48331ed832194fdb4b0e7aed00794d96d1ba0cacd0530599",
+          "url": "https://www.edge-core.com/product/dcs801/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs802.html",
+          "sha256": "81bf7a0385ee608d87cee8e7bc2850138b2d584c4ca8c5780073326ed10a5c20",
+          "url": "https://www.edge-core.com/product/dcs802/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-dcs810.html",
+          "sha256": "0cdfb05100f0c5d8070b24391f16724a2bd2c6efc0fe6e821f842f591c2959bb",
+          "url": "https://www.edge-core.com/product/dcs810/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecis4500-8p4f.html",
+          "sha256": "915f9f88bb47a5ca844a5f4e49393dd5df74e7326eea043c716cc68a31ab3356",
+          "url": "https://www.edge-core.com/product/ecis4500-8p4f/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecpo-ba-a1-1717.html",
+          "sha256": "01c84b8a9a3190f49784c968b82f6bddcc5f19531620aa4a316408e2c0ecaa19",
+          "url": "https://www.edge-core.com/product/ecpo-ba-a1-1717/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecpo-mdm4-a1-05.html",
+          "sha256": "bdbb14eb4fcba011177c30c7c20f589bd384031385294a0d55a77c62b0d271b2",
+          "url": "https://www.edge-core.com/product/ecpo-mdm4-a1-05/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecpo-pa-a1-1707.html",
+          "sha256": "73117518ede1b4425f2883dea49df15704c542af9014e683971c7f07bdea17f5",
+          "url": "https://www.edge-core.com/product/ecpo-pa-a1-1707/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecpo-qddzr400g.html",
+          "sha256": "f7268b0ebd30c70ad66516b62824c01a4146241b6839f40543b5f12c1d3da2d3",
+          "url": "https://www.edge-core.com/product/ecpo-qddzr400g/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecpo-qddzrp400g.html",
+          "sha256": "f964d8c3b8febaa99d95566e1c8250783ad3ee5b856f9d85db09e85692d7ff3f",
+          "url": "https://www.edge-core.com/product/ecpo-qddzrp400g/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2020-10p.html",
+          "sha256": "be2056bd2fd74307fe91958ca35d9a710bd3d4af831ebc65db41d8efaefb6dd1",
+          "url": "https://www.edge-core.com/product/ecs2020-10p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2020-10t.html",
+          "sha256": "fc2bd3412d39727e0be5b42d90ef2823a72b4de84eb06aff1859c2516a06e00d",
+          "url": "https://www.edge-core.com/product/ecs2020-10t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2020-28p.html",
+          "sha256": "ef466a250adbdef466557913edc660ef72196f1bb37eb0bc13dcd2a6e0e07a80",
+          "url": "https://www.edge-core.com/product/ecs2020-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2020-28t.html",
+          "sha256": "739adecbcc27b0653ab08070ee642b1d64e47961c83cfcddeb4f9eaaa6c65c1a",
+          "url": "https://www.edge-core.com/product/ecs2020-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2100-10p.html",
+          "sha256": "c786bfa2fa1fa6c9fbaf3e4d2755c722a2ace7209e620e286e0e0e149272cb18",
+          "url": "https://www.edge-core.com/product/ecs2100-10p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2100-10pe.html",
+          "sha256": "95caf176e2268ff8e7376956651bcd99361f6c3a471a4806098af48c65664370",
+          "url": "https://www.edge-core.com/product/ecs2100-10pe/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2100-10t.html",
+          "sha256": "cc72d4bca66ef905b1a13cea7e222ba659affdc87f8495fe762578c2e36f8adf",
+          "url": "https://www.edge-core.com/product/ecs2100-10t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2100-28p.html",
+          "sha256": "cb7728308a2e4e269a2e8b2aa28208806fff3e183e1f9e6537288706a63eb38a",
+          "url": "https://www.edge-core.com/product/ecs2100-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2100-28pp.html",
+          "sha256": "a03028ee29355b6f83aa757c88733d6fd05da760727aa9b3875e16e835157b2a",
+          "url": "https://www.edge-core.com/product/ecs2100-28pp/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2100-28t.html",
+          "sha256": "d0b7cfb9039f3893906b1940aa2ec125ed866473350ca5dd5adc16eaf648a625",
+          "url": "https://www.edge-core.com/product/ecs2100-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2100-52t.html",
+          "sha256": "4eb45d52b8aa65ccdf919231fbe44f07e74f86d1078a1a5160af77da29f2ab34",
+          "url": "https://www.edge-core.com/product/ecs2100-52t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs2110-26t.html",
+          "sha256": "fc7a83399f27e6098832cd34f5988034a877b5476e85787092e1f77fbecc2822",
+          "url": "https://www.edge-core.com/product/ecs2110-26t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs3510-10pd.html",
+          "sha256": "690524976903a7a946c8dce801dd1468e419f81f004577863543ef4844daab0b",
+          "url": "https://www.edge-core.com/product/ecs3510-10pd/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs3510-26p.html",
+          "sha256": "d808e1304025ad2257b19308ee2a40e15b5036242b4d77ab87f84f2cdc45dde3",
+          "url": "https://www.edge-core.com/product/ecs3510-26p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs3510-28t.html",
+          "sha256": "3e33557d52c054191b164f34dbd8bf3500d7850863c2b9445d013a3e9d12ac7b",
+          "url": "https://www.edge-core.com/product/ecs3510-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-12ph.html",
+          "sha256": "87f4ae1d3e7863e225129b6ea75c0fdd9520bd31f950a7c785f7c38927874c96",
+          "url": "https://www.edge-core.com/product/ecs4100-12ph/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-12t.html",
+          "sha256": "206c790cb53a17eb4fb50035d2bb6e7509a6c1748534b97cae88f21a5cd3a12f",
+          "url": "https://www.edge-core.com/product/ecs4100-12t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-26tx-me.html",
+          "sha256": "9f48e1acac1225351f7180a6261386dea84028b96c9ab2c68433817dc413d752",
+          "url": "https://www.edge-core.com/product/ecs4100-26tx-me/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-26tx.html",
+          "sha256": "eb1cf986c2b7c373422629bd080c53b0d5d32033864512287d9114f825986f2d",
+          "url": "https://www.edge-core.com/product/ecs4100-26tx/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-28p.html",
+          "sha256": "7c94a8f2d1a6a9c78cf8a1cd74a55fbc9a52dc711d2b92b875421d88042bd8b9",
+          "url": "https://www.edge-core.com/product/ecs4100-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-28t.html",
+          "sha256": "4bbdb5c5a7b9fc2c78d743f6be34d6ef92059113f4a8aeeea1a88a8e5c62bc8d",
+          "url": "https://www.edge-core.com/product/ecs4100-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-28tc.html",
+          "sha256": "a68dca77b3f6acfcfe583ba894632d83d424c4464fea3078805bea22aee60484",
+          "url": "https://www.edge-core.com/product/ecs4100-28tc/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-52p.html",
+          "sha256": "d20e4e1e3d80cff04bd9052761b14f8e6e9401a6f01751cdc1f705ca8cbb3cf5",
+          "url": "https://www.edge-core.com/product/ecs4100-52p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4100-52t.html",
+          "sha256": "46d1242062b0f405440397eea2fb14ac805f05bcf731de302f3dcf9c77e0ea80",
+          "url": "https://www.edge-core.com/product/ecs4100-52t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4110-28p.html",
+          "sha256": "fdfec375abefe149ba4ec573438a13b6dfa6b53a0b922a754c08f997abee5a52",
+          "url": "https://www.edge-core.com/product/ecs4110-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4110-28t.html",
+          "sha256": "5dba63f2a9c9740fa38dac253dbe8ddca6f7e2fc875f88af0a4da07ed09254e5",
+          "url": "https://www.edge-core.com/product/ecs4110-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4110-52p.html",
+          "sha256": "ddec045730b5ff35aa224815dc533370e07bb7099bea6bddb519758e0ac619ec",
+          "url": "https://www.edge-core.com/product/ecs4110-52p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4110-52t.html",
+          "sha256": "87caaa3c01584fccfe27d24f3530c9726926d05bd123c90cf7acc693b056caf3",
+          "url": "https://www.edge-core.com/product/ecs4110-52t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4120-28f-i.html",
+          "sha256": "56747bc789c5aabdb14faffa9872a6da5abf56f4e8c95313c65802a1a13820cc",
+          "url": "https://www.edge-core.com/product/ecs4120-28f-i/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4120-28f.html",
+          "sha256": "f9ee526ff1ac97db3162833e2182d83de145e1def185932ca367540fc440db9c",
+          "url": "https://www.edge-core.com/product/ecs4120-28f/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4120-28fv2-i.html",
+          "sha256": "2fa4a7574f9f6ec42ddc65977e0394fa495a8812075e3a94be4a2a14712b3bf9",
+          "url": "https://www.edge-core.com/product/ecs4120-28fv2-i/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4120-28fv2.html",
+          "sha256": "9c8913273d3927e67d0ef7d9706995f9441b47afa158ab480dfb91a318616b73",
+          "url": "https://www.edge-core.com/product/ecs4120-28fv2/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4120-28p.html",
+          "sha256": "ba96ca21c9f4701dbf4bb7d5bcd4cb7fa9c1c8275b8582bb8841212a2f086d63",
+          "url": "https://www.edge-core.com/product/ecs4120-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4120-28t.html",
+          "sha256": "96ad71c940373819c8afd8cd932d74fd1096f010097bf9426aee4792af19974d",
+          "url": "https://www.edge-core.com/product/ecs4120-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4125-10p.html",
+          "sha256": "ce432f678bfc4a8dd5798f18b5f1d859941556f7814ed323cdd491486a392b6c",
+          "url": "https://www.edge-core.com/product/ecs4125-10p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4125-10t.html",
+          "sha256": "d75ecba2401407112694c35fa480f1978f60ad34900c595e62167494b35e7585",
+          "url": "https://www.edge-core.com/product/ecs4125-10t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4130-28t-dc.html",
+          "sha256": "6c7f4c9b13c5f64c8b44fd3f771fbe6112fd9bf9e89451612d1cde2847637d53",
+          "url": "https://www.edge-core.com/product/ecs4130-28t-dc/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4130-28t.html",
+          "sha256": "2a31371b2774e505587f40ba76560e28ed1ab0ad30f094e6ff3364f116459bcf",
+          "url": "https://www.edge-core.com/product/ecs4130-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4150-28f.html",
+          "sha256": "eb8df327103521dcd3dc448b11d69637239af6b8124940ac3882e0a32e4cb93f",
+          "url": "https://www.edge-core.com/product/ecs4150-28f/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4150-28p.html",
+          "sha256": "1fd0d7beae4f27ebe670a9196e7a52eb989a6725b9c2948f6240ffc5dd7fc8c8",
+          "url": "https://www.edge-core.com/product/ecs4150-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4150-28t.html",
+          "sha256": "21b343ed06743655884531dcb6a8d0c8118fd12dee26ba78a642f3b3ea34aafc",
+          "url": "https://www.edge-core.com/product/ecs4150-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4150-54p.html",
+          "sha256": "a3a59340053c98f267a6b0532c9a4716644b44202accf591542f3354b12cdaa3",
+          "url": "https://www.edge-core.com/product/ecs4150-54p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4150-54t.html",
+          "sha256": "a12d68ad83b62e2ef9023df1ab5d5311ece2b38a0fe87277925600043087ef83",
+          "url": "https://www.edge-core.com/product/ecs4150-54t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4155-30p.html",
+          "sha256": "ff73ac2ee2cf744933c17ad0fdcfa046395a250e20d0cdf0c0af3c1b773c7d93",
+          "url": "https://www.edge-core.com/product/ecs4155-30p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4155-30t.html",
+          "sha256": "2840b9d4a9983d819edbfd7c087c782facc60035915cadf5a35640a066b8376a",
+          "url": "https://www.edge-core.com/product/ecs4155-30t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4210-12p.html",
+          "sha256": "103c9316e32fd5f6381605d745d6a1c07a7049a2aff7c88a5fd111f8df690f28",
+          "url": "https://www.edge-core.com/product/ecs4210-12p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4210-12t.html",
+          "sha256": "61ff9dfc1005957089547cafe7dc8f7062b54ceb13618e5ccb190e840504b69d",
+          "url": "https://www.edge-core.com/product/ecs4210-12t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4210-28p.html",
+          "sha256": "00f2385e5d9afe536b7cfa6680475c4106ed590a293399882a55fee3bef5db7b",
+          "url": "https://www.edge-core.com/product/ecs4210-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4210-28t.html",
+          "sha256": "e515a94ca666a3619900a04e3cc4f7a023bf3b45a3b045f8ffcec5867493e994",
+          "url": "https://www.edge-core.com/product/ecs4210-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4510-12pd.html",
+          "sha256": "ff41b3919f40bf681b2ab77f720f2a575fc5cac8be80eca2cafc4cef68f4f4cd",
+          "url": "https://www.edge-core.com/product/ecs4510-12pd/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4510-28f.html",
+          "sha256": "6784875f4b079289d6480652a7cf673933917d759056546ccd0db30ac1a9cf87",
+          "url": "https://www.edge-core.com/product/ecs4510-28f/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4510-28p.html",
+          "sha256": "490fb138e58f1abcb4963ac08a44275e61787e2bde1fd9bb8353c41473e09487",
+          "url": "https://www.edge-core.com/product/ecs4510-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4510-28t.html",
+          "sha256": "2651b214678aa6ab85e3bc5c2e0c485a2a1d4f06e00d6cda65695bf86d4acf00",
+          "url": "https://www.edge-core.com/product/ecs4510-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4510-52p.html",
+          "sha256": "feea9c8e3544afc93416fe4af665d291195ab97ae15269259501f38c30fa41d9",
+          "url": "https://www.edge-core.com/product/ecs4510-52p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4510-52t.html",
+          "sha256": "f34543c2f94be1f5667b87d76fd0fdead0b01e341101621a4ef09aec5b40814b",
+          "url": "https://www.edge-core.com/product/ecs4510-52t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4530-54csfp-i.html",
+          "sha256": "07b3fe8bfd843ff84329cd2d4535567f7ef66fec2b89272c73b34fb5545b972e",
+          "url": "https://www.edge-core.com/product/ecs4530-54csfp-i/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4530-54csfp.html",
+          "sha256": "0269ebc5ee6bc894c6987a5a15438f2d81d04b09a79cb1bf4c6103d1d5b31fbe",
+          "url": "https://www.edge-core.com/product/ecs4530-54csfp/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4620-28f.html",
+          "sha256": "065a8b5e98f748d9d6b3a4c765d893adb34f965a037984874017a341748475fa",
+          "url": "https://www.edge-core.com/product/ecs4620-28f/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4620-28p.html",
+          "sha256": "e3ef396fa778956a91b03a32cfde767dd12475685a36d617e912c40f08fc34f2",
+          "url": "https://www.edge-core.com/product/ecs4620-28p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4620-28t.html",
+          "sha256": "5886dcdc6a6e40af23694f9a9d3f03c38d353f0b188cd3650380bf790e9d3cd4",
+          "url": "https://www.edge-core.com/product/ecs4620-28t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4620-52p.html",
+          "sha256": "671c4655415278472a61c3270a257eddb736a0a16688326bca89229951da2eb8",
+          "url": "https://www.edge-core.com/product/ecs4620-52p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4620-52t.html",
+          "sha256": "d1f780364e2ae2b8fa2b31368a9a6cd6ffc70f2cf117987980db1dae2b212653",
+          "url": "https://www.edge-core.com/product/ecs4620-52t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4650-54p.html",
+          "sha256": "2ce5eb9b5e9e8c0269a15930ef217b98b10a06b63e2b267bc1decd338181a5f7",
+          "url": "https://www.edge-core.com/product/ecs4650-54p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4650-54t.html",
+          "sha256": "c2f058dd44bdd8f4035f1abc0e5b1f61303f8abe0aedbe0b6bf54bcc0db2c3a1",
+          "url": "https://www.edge-core.com/product/ecs4650-54t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4660-28f.html",
+          "sha256": "03ca6051cf45ea03f16291a1bbf2c6e766e87f8e8fe0d6f11b10af23eed587a2",
+          "url": "https://www.edge-core.com/product/ecs4660-28f/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs4810-12m.html",
+          "sha256": "42899419b0fb38999b3f787110285bcb7cacc0e7cefce7c97a5afd226a28541c",
+          "url": "https://www.edge-core.com/product/ecs4810-12m/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs5500-12p.html",
+          "sha256": "c8290685a5d350358e065d132cb2d5789dd9e523427cacef24325fd482a4a42c",
+          "url": "https://www.edge-core.com/product/ecs5500-12p/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs5500-12t.html",
+          "sha256": "d747e81e2147536208ed8ed6f748184aba0dff7ccd96e476ea9369464a75c286",
+          "url": "https://www.edge-core.com/product/ecs5500-12t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs5520-18t.html",
+          "sha256": "e66fa5ad2ad12e7a50023bd451a4e1e72ecd1bb7ba3a1eec65c11f76aaf5f8e0",
+          "url": "https://www.edge-core.com/product/ecs5520-18t/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs5520-18x.html",
+          "sha256": "7fb4147ec6d781002efe8fbd715ea1e34252beec5ef5bb52928c0dd379197d0d",
+          "url": "https://www.edge-core.com/product/ecs5520-18x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs5550-30x.html",
+          "sha256": "f2dec07e514c64b04ee2868bb295883633cbd82673823002d623de59a1feb3cd",
+          "url": "https://www.edge-core.com/product/ecs5550-30x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecs5550-54x.html",
+          "sha256": "d8596d631d606991ed51840ad36b67669f3c311c800a0e4b70dc25cc87349896",
+          "url": "https://www.edge-core.com/product/ecs5550-54x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ecview-pro.html",
+          "sha256": "1fbfbea65a833ad1a201de6172ada84c4346fa177c3860761a8616c7895811ee",
+          "url": "https://www.edge-core.com/product/ecview-pro/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-em4625-xg-xenpak.html",
+          "sha256": "4ecce6e54df52b9605a69efcb318c95fa0ee6777c5812a7c63fd659d3e786e6e",
+          "url": "https://www.edge-core.com/product/em4625-xg-xenpak/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-em4626h-xg-xfp.html",
+          "sha256": "9bb239e7f8458dcbb12ca158ab070141cc53adc15e4168e9c62d39d5acc4f1a3",
+          "url": "https://www.edge-core.com/product/em4626h-xg-xfp/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-em4626h-xg10gsfp.html",
+          "sha256": "2d235166030e710e491e775ba5f2415e0cf5934841c59235898a1af7d277f8c3",
+          "url": "https://www.edge-core.com/product/em4626h-xg10gsfp/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-em4660-10g-sfp.html",
+          "sha256": "21c509b6785d4ddca9cb70076187315875a72a61a4ad81cf26dec37bddf53a82",
+          "url": "https://www.edge-core.com/product/em4660-10g-sfp/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-eps112.html",
+          "sha256": "d996e063d3184870a3dd696ce9bf3189fd67fbd700a56a45326551ba04ea4987",
+          "url": "https://www.edge-core.com/product/eps112/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-eps121.html",
+          "sha256": "be499b204c6c7b88e62955ded9d650d0e0c6b3eb6e3f4fa93ab2bb2dc5a08872",
+          "url": "https://www.edge-core.com/product/eps121/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-eps122.html",
+          "sha256": "8418ac9c35f2a6c3abe53ca47d0d6f972aa40830f9f3405b8b6380c83027dc13",
+          "url": "https://www.edge-core.com/product/eps122/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-eps201.html",
+          "sha256": "6b690106f8627f4348133811f755f2db72a7b2cb41c9532add9eb60dbe1a9e31",
+          "url": "https://www.edge-core.com/product/eps201/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-eps202.html",
+          "sha256": "913ec0f1701672c230eccf66c5b56d220ade60ab0ecb441de310e9ba7c0dd2fb",
+          "url": "https://www.edge-core.com/product/eps202/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-eps203.html",
+          "sha256": "c2f7e3bb6e62341fec9e7d834c1c80e51d6baeceffbac8c18ddcd7a18f95e83a",
+          "url": "https://www.edge-core.com/product/eps203/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-eps460w.html",
+          "sha256": "d61233a7d110493c9a3143b16e8896fc960647d62f5fbf11c528512daf96bd25",
+          "url": "https://www.edge-core.com/product/eps460w/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-es3510ma-dc.html",
+          "sha256": "b9d33c8266c0e1cdcc472f434565afc36eba6e6c3003974ce5a022b5613dcdd5",
+          "url": "https://www.edge-core.com/product/es3510ma-dc/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-es3510ma.html",
+          "sha256": "0ed5cfd6badab7c553c72e0f6fd101a1b6ad1e99947b398def070da6bc718a24",
+          "url": "https://www.edge-core.com/product/es3510ma/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-es3528mv2-dc.html",
+          "sha256": "80ea1f4b4631aebbf54384a18d14807ab77152b5087f6728dbbb7e05b5571cde",
+          "url": "https://www.edge-core.com/product/es3528mv2-dc/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-es3528mv2.html",
+          "sha256": "d75d990490a5eec7e073476955d68f5eb7a52495a1c92859c2af3d431b5e4d91",
+          "url": "https://www.edge-core.com/product/es3528mv2/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et4202-ex.html",
+          "sha256": "ba34b2e3cb8e54aed45bc03f031b36db12d987636aa9505a8e0b1bae6ca94887",
+          "url": "https://www.edge-core.com/product/et4202-ex/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et4202-lx.html",
+          "sha256": "9d59dbb70608d7ec478bdd4d556a11456a990dde37b2c8d8055cf7dfbcd3e98b",
+          "url": "https://www.edge-core.com/product/et4202-lx/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et4202-rj45.html",
+          "sha256": "aad6f234781ba602729fa11ed2265002628f33f81397da4c8bd9783dc79ad641",
+          "url": "https://www.edge-core.com/product/et4202-rj45/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et4202-sx.html",
+          "sha256": "068578b8f9f2d8c2c1ebd25ed4b710fd10c013e00342c78088762eaad124772e",
+          "url": "https://www.edge-core.com/product/et4202-sx/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et4202-zx.html",
+          "sha256": "cd3c5895d289a044b49126dfec4372d5f14403271a1e9e04fa88562e8702ddc5",
+          "url": "https://www.edge-core.com/product/et4202-zx/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-aoc-xm.html",
+          "sha256": "7118ee3476d78df174685cb9b27b135cb5bc25ac493a7ec239b52aca3fe3519a",
+          "url": "https://www.edge-core.com/product/et5402-aoc-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-dac-xm.html",
+          "sha256": "a20d38d6d907ab1943fcf4c9959a4e75db5459aba35b6ce2c1a82c29b2c0ce0e",
+          "url": "https://www.edge-core.com/product/et5402-dac-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-er-dw-cxy.html",
+          "sha256": "3cf5e0ebf4709b626e5f4565a74d2a7d989aeb98a0f31940aa149a6ed434d503",
+          "url": "https://www.edge-core.com/product/et5402-er-dw-cxy/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-er.html",
+          "sha256": "6424b7752c27201a0115c75af9f9bd8f219f5f2df2f5a4bc8ab7c9ee2d6cd5a0",
+          "url": "https://www.edge-core.com/product/et5402-er/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-lr.html",
+          "sha256": "c0549ec768fa11de0e4fc843ba4200d131c924cfbfc015e2f3e3db9a8e775188",
+          "url": "https://www.edge-core.com/product/et5402-lr/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-rj45.html",
+          "sha256": "3cd3ba72f5f6de5e6c729596e330d628bf58b063005c234c53e2b86009ec0fea",
+          "url": "https://www.edge-core.com/product/et5402-rj45/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-sr.html",
+          "sha256": "049c716053932f4cfeabb9a9322929f314f704db2cb5d04bf0b2ff691a197550",
+          "url": "https://www.edge-core.com/product/et5402-sr/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-zr-dw-cxy.html",
+          "sha256": "2d32da45dddfdc1a4698d16a084741531f948bf539075e4b7135e7cee1ba5f42",
+          "url": "https://www.edge-core.com/product/et5402-zr-dw-cxy/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et5402-zr.html",
+          "sha256": "a15745a81cdd981e95df08267a73c0abe1399d0be1ac977065a71babcc23de25",
+          "url": "https://www.edge-core.com/product/et5402-zr/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et6401-lr4.html",
+          "sha256": "3904450a367076bcb735cfffc317cd4ba6a78a1ab88dfa25259443e68200d92e",
+          "url": "https://www.edge-core.com/product/et6401-lr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et6401-psm4.html",
+          "sha256": "5377c716a355cef07820dc689d2b8cb7a137e74bac804f7225bc39c67bbc9e5b",
+          "url": "https://www.edge-core.com/product/et6401-psm4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et6401-sr4.html",
+          "sha256": "8404d99ff72852ddc283514a66b7a15b2cc121b012c2d052002eb5f0d57b7ce3",
+          "url": "https://www.edge-core.com/product/et6401-sr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et6402-10dac-xm.html",
+          "sha256": "8025fe0471cba2662e1de3e34e6bdc288bcf51149fe9953730686e09a23f7a3e",
+          "url": "https://www.edge-core.com/product/et6402-10dac-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et6402-aoc-xm.html",
+          "sha256": "ef71bc13b72dd62e9419e6d9fea6509f2d7ca2a9e5c7256b50091153f819f465",
+          "url": "https://www.edge-core.com/product/et6402-aoc-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et6402-dac-xm.html",
+          "sha256": "da9ff9ef031ef1a6fbea3fe453214292edf089c9e5dae5f14a91e999bceb3698",
+          "url": "https://www.edge-core.com/product/et6402-dac-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7302-aoc-xm.html",
+          "sha256": "179726960b87ebb5a52c5881aea138f576dfbde9b4db9f6a4db2a8de6e07e73c",
+          "url": "https://www.edge-core.com/product/et7302-aoc-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7302-dac-xm.html",
+          "sha256": "b1a64a66920c7ed47444b66b5e7b65bcb9fceda0e587933fe48117ebf1d97b6a",
+          "url": "https://www.edge-core.com/product/et7302-dac-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7302-lr.html",
+          "sha256": "67d05cfe7d1eda95963b85eb1249a808c2de1f938fcf6d60513f7bfec91fa206",
+          "url": "https://www.edge-core.com/product/et7302-lr/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7302-sr.html",
+          "sha256": "1906fd88f96eda46de53c93c6e2b63cd76303c1a8ddeea9390e20628f1ad22f5",
+          "url": "https://www.edge-core.com/product/et7302-sr/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-25aoc-xm.html",
+          "sha256": "ed42d4929c855042a24f926c9ec80e08de6628266863ac28c59cd9774d4df412",
+          "url": "https://www.edge-core.com/product/et7402-25aoc-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-25dac-xm.html",
+          "sha256": "2472d6b9e05130b7075d847d428b2dacdf11fbe8d94381bf809ab9533e237daf",
+          "url": "https://www.edge-core.com/product/et7402-25dac-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-aoc-xm.html",
+          "sha256": "146ff5d161e694f3132c4ffb8361a84e3735614998d51de3dac48b6a7f33deb0",
+          "url": "https://www.edge-core.com/product/et7402-aoc-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-cwdm4.html",
+          "sha256": "55047d08e42bdcda8daf6a860d828ceed22a322c6b115c44899148382bcfaa7e",
+          "url": "https://www.edge-core.com/product/et7402-cwdm4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-dac-xm.html",
+          "sha256": "750b4c3582248ba38eab8378bee8d744c6c8f62485e2df5dd4e907cfbf0c7039",
+          "url": "https://www.edge-core.com/product/et7402-dac-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-dr1.html",
+          "sha256": "010b9bc7302230d0b7d53c159e1817e6523ba760c0587bd8a4e47449f04c79be",
+          "url": "https://www.edge-core.com/product/et7402-dr1/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-er4.html",
+          "sha256": "eda7c5dfceef8aab7a57b4c0cefad335c16121b85b7e0e4c3c066ac80c1d5259",
+          "url": "https://www.edge-core.com/product/et7402-er4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-fr1.html",
+          "sha256": "aed709181c186be40c8a71341891d6c0958c3b23b47094048c08754d8f103a19",
+          "url": "https://www.edge-core.com/product/et7402-fr1/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-lr1.html",
+          "sha256": "7d321f1a78145f151e45515ea9bba2badbe08505191038255eecb04aca2bbeb0",
+          "url": "https://www.edge-core.com/product/et7402-lr1/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-lr4.html",
+          "sha256": "e640f1bd5d3b304ba517cac71977f0cad671973a9330c7fc9f2dc219bfec633b",
+          "url": "https://www.edge-core.com/product/et7402-lr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-psm4-2.html",
+          "sha256": "1ff6e49efd7b0c51156c5109ecdd262982ac4767bc31db9c7ad3bf8a803756b2",
+          "url": "https://www.edge-core.com/product/et7402-psm4-2/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-sr4.html",
+          "sha256": "ef01b146a88adfc4d6f2f6b7b551683b6fafac614da32836ead36b5951a62ecc",
+          "url": "https://www.edge-core.com/product/et7402-sr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7402-zr4.html",
+          "sha256": "1c76365ec8bce20214c14c23f0c93abb2dbdaf8a448e10c6a808d66b2a8679e7",
+          "url": "https://www.edge-core.com/product/et7402-zr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7452-sr4.html",
+          "sha256": "0ec8bfe9143312172052f076ffce24358daa6e28c5831b4bfafeee810c084435",
+          "url": "https://www.edge-core.com/product/et7452-sr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-aoc-xm.html",
+          "sha256": "1e1c2fdd71568f7137aafb80e2118223d978859390eefea609d396248a1612f2",
+          "url": "https://www.edge-core.com/product/et7502-aoc-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-b2a-xxm.html",
+          "sha256": "3890e99b9af90fd9a9bf547a16138a000d71007c5b64068b1b582385c2ed6089",
+          "url": "https://www.edge-core.com/product/et7502-b2a-xxm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-b2d-xm.html",
+          "sha256": "3b13de8b8f115382d99b1cd44973fa15d197e02a6b97037f8e91938990ff607c",
+          "url": "https://www.edge-core.com/product/et7502-b2d-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-b4d-xm.html",
+          "sha256": "98a924f140033706f752affde9f2d14da4c865bad6d1e9999b80b2d331adbd85",
+          "url": "https://www.edge-core.com/product/et7502-b4d-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-dac-xm.html",
+          "sha256": "e62770efd1498b983c9ce15b0f2fe64c0a97b7089b67412f2a9e0ebe491165c4",
+          "url": "https://www.edge-core.com/product/et7502-dac-xm/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-dr4.html",
+          "sha256": "8ee3077b1b20bef3837970075c92fc42b39b16139c463e56c59e5a599cce3b4b",
+          "url": "https://www.edge-core.com/product/et7502-dr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-fr4.html",
+          "sha256": "29d1adf5ffdf5d2c632e1b94af45af6543ac04e237f5bbaa75159e456ba61f10",
+          "url": "https://www.edge-core.com/product/et7502-fr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-plr4.html",
+          "sha256": "5c18db44f11e0a3895da3f47d4d9b3f02ef2ff00eb7fc338642ff64d5008fec0",
+          "url": "https://www.edge-core.com/product/et7502-plr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7502-sr8.html",
+          "sha256": "da1e0d4cc00c8870aabbe0db8a45cf94f32a386987840c45355898bc4c01c161",
+          "url": "https://www.edge-core.com/product/et7502-sr8/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7512-dr4.html",
+          "sha256": "c1d61130f64f8ec7d63eb80bcbf3cc639c83a059737913d28f1d7f5d0a64cb84",
+          "url": "https://www.edge-core.com/product/et7512-dr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et7512-sr4.html",
+          "sha256": "1326c8f81a8b282fc8245f1eb4a36453071ef897b83372e3d0ea22554ae2c55e",
+          "url": "https://www.edge-core.com/product/et7512-sr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8001-2dr4.html",
+          "sha256": "72775218b2186fff3833942ceaf8ff0984885002f93943d06000ecac3f717b0b",
+          "url": "https://www.edge-core.com/product/et8001-2dr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8001-2fr4.html",
+          "sha256": "a611f8e5c21d086bc08bf1eb09ced2a06de7fbf809137c9b0b16dbbff602c656",
+          "url": "https://www.edge-core.com/product/et8001-2fr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8001-2sr4.html",
+          "sha256": "4967e8de81ec074af5d4f6f014f1a68cff679f1ed763957c8a855d92758be14b",
+          "url": "https://www.edge-core.com/product/et8001-2sr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8001-sr8.html",
+          "sha256": "ba054c52773fdeb0a531ed4b05acf929ad718e9f4c8458ff935903a73397fafa",
+          "url": "https://www.edge-core.com/product/et8001-sr8/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8001b2d-xm-q.html",
+          "sha256": "1d4f15c0dd0b0c0c7a4c92e5e775b680d781ca2cd6c602fbd6ed1172e3bd4911",
+          "url": "https://www.edge-core.com/product/et8001b2d-xm-q/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8002-2dr4.html",
+          "sha256": "c7a84f028b887ede72ef5d3ce3628c9be776603e72101371de2c792119bb8bbb",
+          "url": "https://www.edge-core.com/product/et8002-2dr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8002-2fr4.html",
+          "sha256": "32b8bc3d76ec22eaa0c68357d0979a431a43ce5ff19f1413dbeccac7b1dd9d5a",
+          "url": "https://www.edge-core.com/product/et8002-2fr4/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-et8002-sr8.html",
+          "sha256": "8cffeb57532adc91c4e763a4b999c7cd07eee236048b10b89b5e96725c99c687",
+          "url": "https://www.edge-core.com/product/et8002-sr8/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-exp100-32x.html",
+          "sha256": "525574407f97d42476a4cfd13a076a76bf39c7c8de7a13e9d756422cc81a4915",
+          "url": "https://www.edge-core.com/product/exp100-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-exp400-32x.html",
+          "sha256": "0ac69ed5cf0f25e2e0e1fd67738679a8ba8734300a2a15f39062eec643e5ac72",
+          "url": "https://www.edge-core.com/product/exp400-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-exp800-16o.html",
+          "sha256": "bb4cc384e06640153b2bc8142a0b0d3624ab40f394e9dbbcc37a8915630a136a",
+          "url": "https://www.edge-core.com/product/exp800-16o/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-irx3032.html",
+          "sha256": "d4bac460ec905af17701aeb18280c733f0be7438b227b6cfe85a6894bcf5435f",
+          "url": "https://www.edge-core.com/product/irx3032/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-minipack-as8000-open-modular-platform.html",
+          "sha256": "804afbdb3da9fdb9330b7a0dfdc1f0da01c8869d5307f3dabe726a2ffe26461e",
+          "url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-omp800.html",
+          "sha256": "82fe193a315d5d09537ca8c07e881c97ead0f13cd2135e1f1cc9699efa83c676",
+          "url": "https://www.edge-core.com/product/omp800/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-ps3000.html",
+          "sha256": "c4986e43370ba4f47804b697ae53d885dfc55e8a5c1be43366078c168c606e4b",
+          "url": "https://www.edge-core.com/product/ps3000/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-rps600wa.html",
+          "sha256": "eb19e384557269c79817ebc9f66217b858a0998bc19c09c744b3cdc741a8417b",
+          "url": "https://www.edge-core.com/product/rps600wa/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-rps900w.html",
+          "sha256": "fa2478c7efe74b12d5dc83521b16d15db213490ae35d28f44aa31635fac2c7e7",
+          "url": "https://www.edge-core.com/product/rps900w/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-saf4100i.html",
+          "sha256": "bc07372dd04025a2128e053f19e3d08f4374ccadc7bceb0ce568fde661eea804",
+          "url": "https://www.edge-core.com/product/saf4100i/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-saf51003i.html",
+          "sha256": "e896371f93d3171bd9ecef5ed2d818353e317d9ed7481cc03d33ef9ab852ff55",
+          "url": "https://www.edge-core.com/product/saf51003i/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-saf51015i.html",
+          "sha256": "e9012511ee9ef04ade5cf5f0565721260a19f6fb0262ac19ae48ce0e5e77f0da",
+          "url": "https://www.edge-core.com/product/saf51015i/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-sau5041i.html",
+          "sha256": "aa99d4bac4cdab36140ec815409dc19e5b0c055563fa9a93a744f1fe94fc2bbf",
+          "url": "https://www.edge-core.com/product/sau5041i/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-sau5081i-4x.html",
+          "sha256": "b33d84301edbeb3912c853d74fe37d338ff0b5bdc63581915cf7a801a13478a8",
+          "url": "https://www.edge-core.com/product/sau5081i-4x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-wedge-16x.html",
+          "sha256": "bc8d9bf6bd7bff72e65f44f9076f7c6afb809c9743f5ebc9daaec24ed1b0e07f",
+          "url": "https://www.edge-core.com/product/wedge-16x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-wedge100-32x.html",
+          "sha256": "28b58ce6cf776ed84ace6a10240008195d177e5172886a30acb9c81294ed8f14",
+          "url": "https://www.edge-core.com/product/wedge100-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        },
+        {
+          "path": "data/raw/edgecore/product-wedge100s-32x.html",
+          "sha256": "959012df0dcab1b6b650b354fe3a2188b112ca3418751637c3c3002326c45da7",
+          "url": "https://www.edge-core.com/product/wedge100s-32x/",
+          "status": 200,
+          "status_basis": "successful page listed in immutable existing products.json",
+          "format": "html"
+        }
+      ]
+    },
+    {
+      "id": "celestica_sitemap",
+      "source_role": "site_sitemap_publisher",
+      "same_host": true,
+      "path_pattern": null,
+      "inputs": [
+        {
+          "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/celestica-sitemap.xml",
+          "sha256": "7a3d0ba5d1199011abec9402c01a8e037b7a85d8142ff516fce9e870295fe2af",
+          "url": "https://www.celestica.com/sitemap.xml",
+          "format": "xml",
+          "status": 200,
+          "status_basis": "immutable capture receipt"
+        }
+      ]
+    },
+    {
+      "id": "oracle_legacy_x86",
+      "source_role": "documentation_index_publisher",
+      "same_host": true,
+      "path_pattern": "^/cd/E19121-01/sf\\.[^/]+/index\\.html$",
+      "inputs": [
+        {
+          "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-legacy-x86.html",
+          "sha256": "997a9c2b09a9bd9faf5075a76fd60ef5da0bef39e999e96aaed8a142881b6709",
+          "url": "https://docs.oracle.com/cd/E19121-01/index.html",
+          "format": "html",
+          "status": 200,
+          "status_basis": "immutable capture receipt"
+        }
+      ]
+    },
+    {
+      "id": "oracle_older_sparc_indexes",
+      "source_role": "documentation_index_publisher",
+      "same_host": true,
+      "required_ancestor_class": "linktitlecell",
+      "required_anchor_class": "tooltip",
+      "path_pattern": "^/cd/[^/]+/index(?:-es)?\\.html$",
+      "inputs": [
+        {
+          "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-older-m-series-full-access.html",
+          "sha256": "918a37ccd45b0d441a930da97609dcd4f7adc157a649546e2d2764235215260f",
+          "url": "https://docs.oracle.com/cd/F24632_01/index.html",
+          "format": "html",
+          "status": 200,
+          "status_basis": "immutable full-access response receipt"
+        },
+        {
+          "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-older-t-series-full-access.html",
+          "sha256": "8226d79a1d89a337993078b5872087dd9d19ffa6ec6d8c6cc7a0be38792ac2cb",
+          "url": "https://docs.oracle.com/cd/F24630_01/index.html",
+          "format": "html",
+          "status": 200,
+          "status_basis": "immutable full-access response receipt"
+        }
+      ]
+    }
+  ],
+  "restrictions": [
+    {
+      "pattern": "(?:AS7710|AS7760|AS7761)",
+      "reason": "Conservative model-family quarantine: prior quick-start/certificate retrieval denied; no retry or alternate copy.",
+      "evidence": "research/owned-hardware-gaps.md; research/batches/networking-primary-2026-10-04/owned/handoff.md; research/as7760-certificate-lead.md"
+    },
+    {
+      "pattern": "(?:dcs203.*r0?9|(?:dcs510|as9716).*r0?9|as7312.*r0?2|as4630-54npe.*r0?4)",
+      "reason": "Conservative revision quarantine: known legacy _upload PDF returned 404; no guessed version/alternate route.",
+      "evidence": "research/batches/discovery-2026-10-12/next-leads/handoff.md"
+    }
+  ]
+}

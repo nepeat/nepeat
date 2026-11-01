@@ -1,0 +1,43 @@
+{
+  "accepted": true,
+  "scope": "Finite reviewed new-source-only breadth batch. No PDF bundle replacement or production code changes. AMD fragments excluded; source roles do not assert physical manufacture/deployment.",
+  "live_hashes": {
+    "devices.sqlite": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+    "import-manifest.json": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b"
+  },
+  "groups": [
+    {
+      "name": "redhat",
+      "candidate": "research/batches/discovery-2026-10-14/redhat-vendor-expansion/candidate.json",
+      "sha256": "c286acae001d79fcad0efadd9400e625a929eae88e16ed6f56a223fcfb0a2a17",
+      "accepted_candidate_sha256": "c286acae001d79fcad0efadd9400e625a929eae88e16ed6f56a223fcfb0a2a17",
+      "review": "research/batches/discovery-2026-10-14/redhat-review/review.md",
+      "review_sha256": "4a0d6817a06964db32634fe650a65e173a6466a3e96076be25af539ff872feba",
+      "sources": 9,
+      "records": 242,
+      "facts": 3388
+    },
+    {
+      "name": "bisdn",
+      "candidate": "research/batches/discovery-2026-10-14/network-platform-datasource/candidate.json",
+      "sha256": "684c27f2cc565efe6ba1c026eee57fc1702b0b37536f4d126b93327f1b3cbb32",
+      "accepted_candidate_sha256": "684c27f2cc565efe6ba1c026eee57fc1702b0b37536f4d126b93327f1b3cbb32",
+      "review": "research/batches/discovery-2026-10-14/network-review/review.md",
+      "review_sha256": "c44d535c67fb68323cd95b722d9c2c6535a64ab83674c34c911310863617b4d8",
+      "sources": 1,
+      "records": 11,
+      "facts": 77
+    },
+    {
+      "name": "odm",
+      "candidate": "research/batches/discovery-2026-10-14/odm-review/candidate.json",
+      "sha256": "f4bb69c73b809f5d35da8e4de58b6b933d3024136f4ed18228f473db1befcc71",
+      "accepted_candidate_sha256": "f4bb69c73b809f5d35da8e4de58b6b933d3024136f4ed18228f473db1befcc71",
+      "review": "research/batches/discovery-2026-10-14/odm-candidate-review/review.md",
+      "review_sha256": "a12766ff213d6ec15bc780ba80aa552c36beac9edd5fc7d975b967b327a67b50",
+      "sources": 5,
+      "records": 214,
+      "facts": 2255
+    }
+  ]
+}

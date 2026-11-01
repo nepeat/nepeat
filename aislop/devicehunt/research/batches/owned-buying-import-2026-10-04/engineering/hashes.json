@@ -1,0 +1,8 @@
+{
+  "devicehunt/broadcom.py": "29d34ab28c3035f53475454af854dc03cc27559b901964dd9f4caa54d64341d0",
+  "devicehunt/buying.py": "82d5c1f70847979b5b7d6a18bdf9587f469045af547e560e6b1bf695dc4a67e5",
+  "tests/test_broadcom.py": "d2fd840d6818d23e474f72d84b516dc35b9f37110868f5c6cdf556a4926d14ca",
+  "tests/test_buying.py": "0ae4a94f9d05a61bccaf3f5ee2cee3e7120e15ccdc66c40968bbfc3d537ef97b",
+  "research/batches/owned-buying-import-2026-10-04/engineering/affected-tests.log": "b771ea90400f8ed1127ef134f5e3da5043f22dac07dc20c2264a04553391f609",
+  "research/batches/owned-buying-import-2026-10-04/engineering/full-tests.log": "3f9ec64c18703f54bbb452af4213d9e0b3594b07ec7f20c25c4cd302468c05c1"
+}

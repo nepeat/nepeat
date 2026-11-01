@@ -1,0 +1,27 @@
+{
+  "snapshots": [
+    {
+      "source_id": "oracle7420-internal-components-2026-10-12",
+      "original_path": "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/internal-components.html",
+      "snapshot": "snapshots/internal-components.html",
+      "sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "bytes": 20339,
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "final_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "captured_at": "2026-10-13T03:37:42.852117+00:00"
+    },
+    {
+      "source_id": "oracle7420-attached-storage-2026-10-12",
+      "original_path": "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/attached-storage.html",
+      "snapshot": "snapshots/attached-storage.html",
+      "sha256": "f3772553049f0e1a6671cb0579043be928550976129b2ea8e104f1ca3c4e6642",
+      "bytes": 5682,
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+      "final_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+      "captured_at": "2026-10-13T03:37:43.090468+00:00"
+    }
+  ],
+  "reviewed_findings_sha256": "fda5b86d5e017b2b71fd520f9a16b9e17942819b4e6e6b3e1659c886efa62a13",
+  "routing_sha256": "0299c705c5d3ee18019fca8ee1e9833d4ff9f61c386ae358e4bfd16a0721e241",
+  "candidate_sha256": "a82e27385459ddafbe54d510d73959c237bad98b743a7cbd4c97f32032c5b25c"
+}

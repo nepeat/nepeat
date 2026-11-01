@@ -1,0 +1,19 @@
+{
+  "phase": "promotion_and_exports",
+  "candidate_sha256": "5b1317f554968fae6c20a4dc0cd2d4d8524ee1c5e60a662675e36a763203a904",
+  "old_live_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "manifest_sha256": "e9d921abac21693c185d8f33eb74333a93bbecf2d88f045e8eb5b479892a1662",
+  "accepted_proof_hashes": {
+    "candidate-review.md": "8df37e7cab7f4da375a1667f0fe1d7215d539a9576df0295aab3cafa528dc7a3",
+    "review.md": "cfc670b0f6e8b2fb4a84d22001313af15b8cea5eebffc89312be82856531186b",
+    "integration/stage-verification.json": "8cf57d7c0f8b2893e3a64ae91673ce4431e100fc8c45e65182436a937017b8e0",
+    "integration/candidate-preservation.json": "ca1c08aa645b067123bb79e02bd062fbce2230f417e50443df3197774b97b6c2",
+    "integration/candidate-rebuild-counter-equality.json": "cabbccec4ccc6b99682f63848c500beae508f531ee8710d19b144aa7d990995c",
+    "integration/candidate-practical-proof.json": "4ba603964f0e74b43736bc076d5f68734f35e42156cb7396a7e1ce6541c05710",
+    "integration/tests-reference_documents.log": "2f4ace015f05341794ee5d82e9ecc479f4b5aacb88497505f46b8ce252c3ff0c",
+    "integration/tests-rebuild.log": "83de4c80f1b9ebc1fbea8683bfe15d9bb2493660b62f8be07053af43c98ed203",
+    "integration/tests-buying.log": "b21cee3a10e155e150e31b238b11c91cf87013bef9120828e2a1da48f75589d4"
+  },
+  "integrator": "/root/vendor_discovery_integrator",
+  "required": "Retain backups; promote exact accepted candidate; refresh current exports and new QCT buying snapshot; final docs review before milestone closure."
+}

@@ -1,0 +1,376 @@
+{
+  "pdf_sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 12,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "Quick Start Guide\n128-Port 100G Chassis Switch\nMinipack-AS8000\n\n                                                               Package Contents\n                                                                                                  1. Minipack-AS8000\n                                                                                                  2. AC power cord retention clip (x4)\n                                                                                                  3. Power cord (x4)\n                                                     2            3            4         5        4. Console Cable—RJ-45 to DB-9\n                                                                                                  5. Documentation—Quick Start Guide (this\n                                     1                                                               document)\n\n\n\n                                                                               a. Using Screw-Type Rack-Rails\n       Warning: For a safe and reliable installation, use only\n       the accessories and screws provided with the Minipack-                                Front Post                          Rear Post\n       AS8000. Use of other accessories and screws could result\n       in damage to the unit. Any damages incurred by using\n       unapproved accessories are not covered by the warranty.\n       Avertissement: Pour une installation sûre et fiable,\n       utilisez uniquement les accessoires et les vis fournies avec\n       le Minipack-AS8000. L’utilisation d’autres accessoires et\n       vis pourrait endommager l’appareil. Les dommages\n       causés par l’utilisation d’accessoires non approuvés ne\n       sont pas couverts par la garantie.                                               1                                                    2\n       Warning: The top of the enclosure is a hot surface. Do not              1. Use two #12-24-16L rack screws to secure each rack-rail to the\n       touch!\n                                                                                  front post of the rack.\n       Avertissement: La surface du dessus du boîtier est\n       brûlante. Ne pas la toucher!                                            2. Adjust the length of the rack-rails to reach the rear post of the\n       Caution: Install in a restricted access location.                          rack and secure them with two #12-24-16L rack screws on each\n       Attention: Installer dans un endroit d’accès restreint.                    side.\n\n                                                                               b. Using Tool-Less Rack-Rails\n 1 Install Rack-Rails in a 19-inch Rack                                                      Front Post                          Rear Post\nThe chassis requires L-shaped rack-rails (ordered separately) to first\nbe installed in an 19-inch rack. Use the rack alignment templates to\ninstall rack-rails at the correct locations in the rack allowing for the\nheight of the chassis (4RU). Three templates per rack post are\nrequired for the full rack height. It is recommended to use a total of\n12 templates, three on each rack post. Note that the magnetic\ntemplates can be reused.\n                                                                                                          1                  2\n\n                     Bottom           Middle             Top\n                                                                               1. Push the latch button to lock each rack-rail to the front post of\n                                                                                  the rack. (Optionally use rack screws for added security.)\n                                                                               2. Adjust the length of the rack-rails to reach the rear post of the\n                                                                                  rack and push the latch button to lock them to the post.\n                     1\n                                                                                  (Optionally use #12-24-16L rack screws for added security.)\n\n                                                                               c. Using Adapters for 29-inch-Deep Racks\n\n\n                                                                                                                                    2\n\n\n\n1. Align the cable-management T-pin on the rails with the Minipack                                          1\n   numbers on the templates. The Minipack numbers are color\n   coded for each template position on a rack post; green\n   (bottom), orange (middle), and blue (top).\n\n                                                                               1. Use two #12-24-16L rack screws to secure each adapter to the\n                                                                                  rear post of the rack.\n                                                                               2. Attach the rack rails to the rack adapters.\n\n\n\n\nwww.edge-core.com                                                          – 1 –                                                        E082019-CS-R02\n                                                                                                                                        150200002142A\n"
+    },
+    {
+      "page": 2,
+      "text": "                                                                                                                                  Quick Start Guide\n\n\n 2 Mount the Chassis in the Rack\n\n\n\n\n                                                               1\n                                                                                  3\n\n        1\n                                                                             4. Use the power cord retention clips to secure the power cord\n                                                                                connections to the PSUs.\n1. Use the four lifting handles to place the chassis onto the installed\n   L-shaped rack-rails in the rack.\n2. Slide the chassis fully into the rack until its front brackets are            5 Verify System Power\n   flush with the front rack posts.\n3. Use four #12-24-16L screws to secure the switch in the rack.\n\n\n 3 Install Rack Air Baffles                                                                   1\n\n\n\n\n        1                                                                    1. Verify system power by checking the LEDs on the chassis.\n                                                                                      When operating normally, the LEDs should all be on blue.\n            2\n\n1. Install rack air baffles between chassis units in the rack.                   6 Connect Network Cables\n2. Use two M4 screws (included with the baffle) to secure the air\n   baffle to the front of the rack-rails.\n                                                                                                                                             2\n\n 4 Connect Power\n                                                                                  1\n     2\n\n\n\n                                         3\n                                                                             1. Connect a 100-ohm Category 5e (or better) twisted-pair cable\n                                                                                to the 1000BASE-T RJ-45 Management port on the System\n    1                                                                           Controller Module (SCM).\n                                                                             2. Connect network cables to QSFP28 interfaces:\n                                                                                      ■   If you are connecting fiber optic cables, install QSFP28 fiber\n                                                                                          transceivers and then connect fiber optic cabling to the\n1. Install up to four universal AC power supply units (PSUs) in the\n                                                                                          transceiver ports.\n   chassis. (The whole chassis is capable of operating with only two\n   installed PSUs; 3 or 4 PSUs provide redundancy.)                                   The following transceivers are supported:\n2. PSUs can only be installed in one correct orientation. If a PSU                        ◆       CLR4 100G\n                                                                                          ◆       LR4/LR4-lite 100G\n   does not install flush with the chassis, remove it and reinstall in\n                                                                                          ◆       CWDM4 100G\n   the 180-degree opposite orientation.                                                   ◆       OpenOptic 100G\n3. Connect an external AC power source to the PSUs.                                   ■   If you are using twinax copper cables (DAC cables) for port\n    Connect the AC sockets on the PSUs to at least two separate AC                        connections, connect the QSFP28 transceivers on the end\n    power circuits for redundancy.                                                        of the DAC cables directly into the QSFP28 slots.\n                                                                                      The QSFP28 ports can be configured as single-lane 100G\n                                                                                      mode, dual-lane 50G mode, single-lane 40G mode, four-lane\n\n\n                                                                         – 2 –\n"
+    },
+    {
+      "page": 3,
+      "text": "                                                                                                                           Quick Start Guide\n\n    25G mode, or four-lane 10G mode. The following cable types\n    are supported:                                                              Caution: If an SCM or PIM module does not power on or\n                                                                                its release lever not correctly latch into its closed position,\n    ■    100 GbE to QSFP28 100 GbE cable: 1 m, 2 m, and 3 m                     remove the module and install again.\n    ■    100 GbE to 2xQSFP28 50 GbE split cable (Y-cable): 1 m, 2               Attention: Si un module SCM ou MIP ne s’allume pas ou\n                                                                                si le levier de dégagement ne s’enclenche pas correctement\n         m, and 3 m                                                             en position fermée, retirer le module et le réinstaller.\n    ■    100 GbE to 4xSFP28 25 GbE fanout cable: 1 m, 2 m,\n         and 3 m                                                        1. With the module release lever fully open, slide the module into a\n3. As connections are made, check the port status LEDs to be sure          chassis slot until it stops and can go no further.\n   the links are valid.                                                 2. Slowly push the release lever up to engage the module with the\n    Each QSFP28 port has one LED for all port configuration                chassis backplane. The module should immediately power on.\n    modes. When a port has a valid link, the LED turns on blue.         3. Latch the release lever handle into its closed position.\n\n 7 Removing/Installing SCM and PIM Modules                                  8 Replacing Fan Trays\n                                                                        The switch system is shipped with eight fan trays installed. If a fan\n                                                                        failure is detected, the defective fan tray should be replaced as soon\n                                                                        as possible.\n\n                                                                                Note: Fan trays are hot-swappable, you do not need to\n                                                                                power off the switch to replace a fan tray.\n\n\n\n                                                3\n\n\n                                                         2\n    1                 4\n\n\n\n\nRemoving a Module\n\n        Caution: Disconnect all network connections before\n        removing a Port Interface Module (PIM) from the chassis.\n        Attention: Débrancher tous les raccords réseau avant de                    1                 2\n        retirer le module d’interface des ports (MIP) du châssis.\n                                                                                Caution: Do not leave a fan tray slot without an installed\n1. Use an ESD wrist strap and connect it to the ESD point on the                fan tray. Failed fan trays should be replaced as soon as\n   chassis.                                                                     possible.\n2. Grasp the release lever handle and pull it down to release the               Attention: Ne pas laisser la cavité où loge le tiroir du\n   lever latch from the module.                                                 ventilateur sans y avoir installé un tiroir de ventilateur. Les\n                                                                                tiroirs de ventilateur défectueux doivent être remplacés le\n3. Pull the release lever down to disengage the module from the                 plus tôt possible.\n   chassis backplane.\n                                                                        1. Press the release button on the handle of the fan tray.\n4. Slide the module out of the chassis.\n                                                                        2. Pull firmly on the fan tray handle until the fan tray is free and\nInstalling a Module                                                        then slide it out of the switch.\n\n                                                     3                  3. Insert the replacement fan tray into the slot and slide it slowly\n                                                                           into the chassis until it clicks into place. The LED should turn on\n                                                                           and the fans immediately start to operate.\n\n\n                                                                            9 Replacing PSUs\n                                                                        The switch system supports up to four PSUs in the chassis. If a PSU\n                                                                        fails and needs to be replaced, the system will to continue to operate\n                                                                        with three PSUs installed. However, the PSU should be replaced\n                                                                        within 10 minutes.\n\n\n                          2\n\n\n\n\n                  1\n\n                                                                    – 3 –\n"
+    },
+    {
+      "page": 4,
+      "text": "                                                                                Quick Start Guide\n\nHardware Specifications\nSwitch Chassis\n\nSize (WxDxH)     440.4 x 755.5 x 176.2 mm (17.34 x 29.74 x 6.94 in.),\n                 4RU\n\nWeight           55 kg (121.25 lb), with 1 SCM, 8 PIMs, 8 fan trays,\n                 and 4 PSUs\n\nTemperature      Operating: 0° C to 45° C (32° F to 113° F)\n                 Storage: -40° C to 70° C (-40° F to 158° F)\n\nHumidity         Operating: 5% to 85% (non-condensing)\n\nAltitude         Operating: Up to 1829 m (6000 ft) at 0° C to 35° C\n                 (32° F to 95° F)\n\nPower            3000 Watts maximum\nConsumption\n\nSystem\n\nPower Rating     100–120 VAC, 50/60Hz, 10A per PSx4\n                 200–240 VAC, 50/60Hz, 7A per PS x4\n                 200–277 VAC, 50/60Hz, 9A per PS x4 (except Bel\n                 Fuse and Murata power supply)\n\nRegulatory Compliances\n\nEmissions        EN 55032 Class A\n                 EN 61000-3-2\n                 EN 61000-3-3\n                 FCC Class A\n                 CE Mark\n                 VCCI Class A\n                 BSMI Class A, CNS 13438\n\nImmunity         EN 55024\n                 IEC 61000-4-2/3/4/5/6/8/11\n\nSafety           UL/EN 60950-1\n                 UL/EN 62368-1\n                 CB Report\n                 BSMI, CNS 14336-1\n\nLaser Safety     Fiber needs to use a Class 1 Laser Product and meet\n                 the following standards:\n                 ◆ IEC/EN 60825-1 (3rd. edition)\n                 ◆ U.S. Code of Federal Regulations 21 CFR 1040\n                 ◆ Canadian Radiation Emitting Devices Act, REDR\n                    C1370\n\nTaiwan RoHS      CNS 15663\n\n\n\n\n                                                                        – 4 –\n"
+    },
+    {
+      "page": 5,
+      "text": "快速入門指南\n128 埠 100G 機殼交換器\nMinipack-AS8000\n\n                                          包裝內容物\n                                                                1. Minipack-AS8000\n                                                                2. 交流電源線固定夾 (x4)\n                                                                3. 電源線 (x4)\n                             2        3            4       5    4. 控制電纜－ RJ45 轉 DB-9\n                                                                5. 文件－快速入門指南 （本文件）\n                       1\n\n\n\n\n                                               2. 調整機架滑軌的長度以觸及機架的後柱，並用兩個＃ 12-24-\n      警告：為了可以更安全的使用與安裝機台，請務必使用\n                                                  16L 機架螺絲在兩邊固定它們。\n      Minipack-AS80000 隨貨附贈的配件，避免導致設備損壞\n      或其他風險產生。 使用未經批准的配件造成的任何損壞，\n                                               b. 使用免工具機架滑軌\n      均不在保修範圍內。\n                                                           前柱                        後柱\n      警告：外殼頂端表面為高溫狀態。請勿觸摸！\n\n      注意：安裝在管制進出的位置。\n\n\n\n1 在 19 英吋機架中安裝機架滑軌                                                 1             2\n機箱的要求為：首先將 L 形機架滑軌安裝在 19 英吋機架中 （另\n外購買）。使用機架對齊模板，將機架滑軌安裝在機架中的正確\n位置，並具足夠機箱高度 （4RU）。整個機架高度要求每個機架                 1. 按下閂鎖按鈕，將每個機架滑軌鎖定到機架前柱。（可選擇使\n柱具備三個模板。建議總共使用 12 個模板，每個機架柱上有三                    用機架螺絲以增加安全性。）\n個模板。請注意，磁性模板可重複使用。                             2. 調整機架滑軌的長度以觸及機架的後柱，並按下閂鎖按鈕將\n                                                  其鎖定到機架柱。（可選擇使用＃ 12-24-16L 機架螺絲，以\n                                                  增強安全性。）\n                  底部   中間        頂端\n                                               c.29 英吋深機架應使用變壓器\n\n\n                                                                                      2\n                  1\n\n\n                                                                    1\n\n\n\n\n                                               1. 使用兩個＃ 12-24-16L 機架螺絲，將每個變壓器固定於機架的\n1. 將滑軌上整理電線的 T-pin 與模板上的 Minipack 編號對齊。           後柱。\n   Minipack 編號按顏色區分，針對機架柱上的每個模板位置；綠            2. 將機架滑軌連接至機架變壓器。\n   色 （底部）、橙色 （中間）、藍色 （頂端）。\n\na. 使用螺絲型機架滑軌\n                                                   2 將機箱安裝在機架中\n           前柱               後柱\n\n\n\n\n                                                                                          1\n\n       1                          2\n                                                       1\n1. 使用兩個＃ 12-24-16L 機架螺絲，將每個機架滑軌固定於機架\n   前柱。                                         1. 使用四個吊裝把手，將機箱放置在已安裝於機架中的 L 形機架\n                                                  滑軌上。\n\n\nwww.edge-core.com                          – 1 –\n"
+    },
+    {
+      "page": 6,
+      "text": "                                                                                        快速入門指南\n\n2. 將機箱完全滑入機架，直至其前支架與前機架支柱齊平。\n                                                 5 確認系統電源\n3. 使用四個＃ 12-24-16L 螺絲，將交換器固定在機架中。\n\n\n3 安裝機架導風板\n                                                           1\n\n\n\n\n         1\n\n             2                               1. 透過檢查機箱上的 LED 來驗證系統電源。\n                                                     運作正常時，LED 應全部亮藍燈。\n1. 在機架中的機箱單位之間安裝機架導風板。\n2. 使用兩個 M4 螺絲 （附帶於導風板）將導風板固定於機架滑\n   軌的前端。\n                                                 6 連接網路線\n\n4 連接電源                                                                                      2\n\n\n     2\n                                                 1\n\n\n                       3\n\n\n\n  1                                          1. 將 100 歐姆 5e 等級 （或以上）雙絞線，連接到系統控制器模\n                                                組 （SCM）上的 1000BASE-T RJ-45 管理埠。\n                                             2. 將網路線連接到 QSFP28 介面：\n                                                     ■   若要連接光纖電纜，請先安裝 QSFP28 光纖收發器，然後\n1. 在機箱中最多安裝四個通用交流電源供應器 （PSU）。（機箱                         將光纖纜線連接至收發器連接埠。\n   僅需兩個 PSU 運作；第 3 或 4 的 PSU 則用於備援。）\n                                                     支援以下收發器：\n2. PSU 只能以正確的方向進行安裝。如果 PSU 未與機箱齊平安                     ◆ CLR4 100G\n   裝，請將其卸下並以 180 度反向重新安裝。                              ◆ LR4/LR4-lite 100G\n                                                       ◆ CWDM4 100G\n3. 將外部 AC 電源連接至 PSU。                                   ◆ OpenOptic 100G\n     將 PSU 上的 AC 插座連接至少兩個獨立的 AC 電源電路，做               ■   如果使用雙芯銅心電纜 （DAC 電纜）進行埠連接，請將\n     為備用。\n                                                         DAC 電纜末端的 QSFP28 收發器直接連接到 QSFP28 插\n                                                         槽。\n                                                     QSFP28 端口可以配置為單通道 100G 模式、雙通道 50G 模\n                                                     式、單通道 40G 模式、四通道 25G 模式或四通道 10G 模\n                                                     式。支援以下電纜類型：\n                                                     ■   100 GbE 到 QSFP28 100 GbE 電纜：1 m、2 m 和 3 m\n                                                     ■   100 GbE 至 2xQSFP28 50 GbE 分離式電纜（Y 型電纜）：\n                                                         1 m、2 m 和 3 m\n 3                                                   ■   100 GbE 至 4xSFP28 25 GbE 扇出電纜：1 m、2 m\n                                                         和3m\n4. 使用電源線固定夾將電源線連接固定到 PSU。\n                                             3. 連接完成後，請檢查連接埠狀態 LED，確保連結有效。\n                                                     每個 QSFP28 埠都有一個 LED 用於所有埠組態模式。當埠有\n                                                     效連接時，LED 將亮起藍色。\n\n\n\n\n                                         – 2 –\n"
+    },
+    {
+      "page": 7,
+      "text": "                                                                    快速入門指南\n\n\n7 移除 / 安裝 SCM 和 PIM 模組                        8 更換風扇托盤\n                                          交換器系統出廠時，已安裝了八個風扇托盤。若檢測到風扇故\n                                          障，應盡速更換有問題的風扇托盤。\n\n                                                說明：風扇托盤是可熱插拔的，無需關閉交換器即可進\n                                                行更換。\n\n\n\n\n                          3\n\n\n                                  2\n  1            4\n\n\n\n\n移除模組\n\n      注意：從機箱中移除埠介面模組 （PIM）之前，請中斷\n                                                 1\n      所有網路連接。                                            2\n\n1. 使用 ESD 靜電消除腕帶，並將其連接到機箱上的 ESD 點。              注意：每一風扇托盤插槽都須安裝風扇托盤。風扇托盤\n2. 抓住釋放桿把手，並向下拉以釋放模組上的桿鎖。                       故障時應盡速更換。\n\n3. 向下拉釋放桿，使模組從機箱背板鬆開。                     1. 按下風扇托盤把手上的釋放按鈕。\n4. 將模組滑出機箱。                               2. 用力拉動風扇托盤把手，直至風扇托盤鬆開，再將其滑出交\n                                             換器。\n安裝模組\n                                          3. 將替換風扇托盤插入插槽，然後將其緩慢滑入機箱，直至其\n                              3              就定位。LED 應該打開，且風扇立即開始運轉。\n\n\n                                              9 更換 PSU （電源供應器）\n                                          交換器系統在機箱中最多可支援四個 PSU。如果一個 PSU 故障並\n                                          須更換，系統可靠著其它三個 PSU 繼續運作。然而，該 PSU 須在\n                                          10 分鐘內完成更換。\n\n\n\n\n                   2\n\n\n\n\n           1\n\n\n      注意：如果 SCM 或 PIM 模組未接通電源，或其釋放桿\n      未正確鎖定至關閉位置，請移除模組並重新安裝。\n\n1. 在模組釋放桿完全打開時，將模組滑入機箱插槽，直至其無法\n   繼續前進。\n2. 將釋放桿緩慢向上推，使模組與機箱背板嚙合。該模組應立\n   即開啟電源。\n3. 將釋放桿把手鎖定在關閉位置。\n\n\n\n\n                                      – 3 –\n"
+    },
+    {
+      "page": 8,
+      "text": "                                                                          快速入門指南\n\n硬體規格\n交換器機箱\n\n尺寸（寬 x 深 440.4 x 755.5 x 176.2 mm\nx 高）     (17.34 x 29.74 x 6.94 吋 )，4RU\n\n重量          55 公斤 （121.25 磅），附 1 個 SCM，8 個 PIM，8\n            個風扇托盤和 4 個 PSU\n\n溫度          操作：0° C 至 45° C （32° F 至 113° F）\n            儲存：-40° C 至 70° C （-40° F 至 158° F）\n\n濕度          操作：5％至 85％ （非冷凝）\n\n海拔          操作：在 0°C 至 35°C （32°F 至 95°F）的溫度下，\n            最高可達 1829 公尺 （6000 英呎）\n\n耗電量         最大 3000 瓦\n\n系統\n額定功率        每 PSx4: 100-120 VAC，50 / 60Hz，10 A\n            每 PSx4: 200–240 VAC，50/60Hz，7A\n            每 PSx4: 200–277 VAC，50/60Hz，9A （Bel Fuse\n            和 Murata 電源除外）\n\n符合法規\n\n排放          EN 55032 Class A\n            EN 61000-3-2\n            EN 61000-3-3\n            FCC Class A\n            CE Mark\n            VCCI Class A\n            BSMI Class A, CNS 13438\n\n電磁耐受性       EN 55024\n            IEC 61000-4-2/3/4/5/6/8/11\n\n安全性         UL/EN 60950-1\n            UL/EN 62368-1\n            CB Report\n            BSMI, CNS 14336-1\n\n雷射安全        Fiber needs to use a Class 1 Laser Product and meet\n            the following standards:\n            ◆ IEC/EN 60825-1 (3rd. edition)\n            ◆ U.S. Code of Federal Regulations 21 CFR 1040\n            ◆ Canadian Radiation Emitting Devices Act, REDR\n               C1370\n\n臺灣限用有害      CNS 15663\n物質指令\n（RoHS）\n\n\n\n\n                                                                  – 4 –\n"
+    },
+    {
+      "page": 9,
+      "text": "                                                                                                                              Quick Start Guide\n\nWarnings and Cautionary Messages                                                     注意：請配戴防靜電腕帶或採取其他適當措施，避免處\n                                                                                     理設備時的靜電放電。\n    Warning: Installation and removal of the unit must be                            注意：請勿將電話插孔接頭插入 RJ-45 連接埠。這可能\n    performed by qualified personnel only.\n    Warning: When connecting this device to a power outlet,                          損壞此裝置。\n    connect the field ground lead on the tri-pole power plug to                      注意：僅限使用具備 RJ-45 接頭且符合 FCC 標準的雙\n    a valid earth ground line to prevent electrical hazards.                         絞線電纜。\n    Warning: This switch uses lasers to transmit signals over                        注意：可插拔設備應接近插座，以方便操作。\n    fiber optic cable. The lasers are compliant with the\n    requirements of a Class 1 Laser Product and are inherently               FCC Class A\n    eye safe in normal operation. However, you should never\n    look directly at a transmit port when it is powered on.                  This equipment has been tested and found to comply with the limits\n    Warning: When selecting a fiber QSFP28 device,                           for a Class A digital device, pursuant to part 15 of the FCC Rules.\n    considering safety, please make sure that it can function at             These limits are designed to provide reasonable protection against\n    a temperature that is not less than the recommended                      harmful interference when the equipment is operated in a\n    maximum operational temperature of the product. You must                 commercial environment. This equipment generates, uses, and can\n    also use an approved Laser Class 1 QSFP28 transceiver.\n                                                                             radiate radio frequency energy and, if not installed and used in\n    Avertissement: L’installation et la dépose de l’unité ne                 accordance with the instruction manual, may cause harmful\n    doivent être réalisées que par du personnel qualifié.                    interference to radio communications. Operation of this equipment\n    Avertissement: Lorsque vous branchez cet appareil sur                    in a residential area is likely to cause harmful interference in which\n    une prise électrique, la terre de la fiche à trois pôles doit être\n    branchée sur une ligne mise à la terre pour écarter tout                 case the user will be required to correct the interference at his own\n    danger électrique.                                                       expense.\n    Avertissement: Ce commutateur utilise des lasers pour                    For fiber optic connections, you may use 50/125 or 62.5/125\n    transmettre des signaux via un câble de fibre optique. Ces               micron multimode fiber or 9/125 micron single-mode fiber.\n    lasers répondent aux exigences des produits laser de classe\n    1 et sont sans danger intrinsèque pour les yeux, sous réserve\n    de leur utilisation normale. Vous ne devrez cependant                    CE Mark\n    jamais regarder directement un port de transmission lorsque              CE Mark Declaration of Conformance for EMI, Safety, and RoHS.\n    ce dernier est sous tension.\n    Mise en garde : Lorsque vous utilisez un dispositif fibre de             This information technology equipment complies with the\n    type QSFP28, en ce qui concerne la sécurité, assurez-vous                requirements of the RoHS Directive 2011/65/EU, Council Directive\n    qu’il puisse fonctionner à une température inférieure à la               2014/30/EU on the Approximation of the laws of the Member States\n    température maximale de fonctionnement recommandée du                    relating to Electromagnetic Compatibility, and 2014/35/EU for\n    produit. Utilisez également un émetteur-récepteur laser\n    QSFP28 de classe 1 agrée.                                                electrical equipment used within certain voltage limits. For the\n                                                                             evaluation of the compliance with these Directives, the following\n    警告：設備安裝和移除須由合格人員進行。                                                      standards were applied:\n    警告：將此設備連接到電源插座時，請將三極插頭上的\n    接地導線連接到有效的接地線，以免發生電氣危險。                                                  RFI Emission:\n    警告：該交換器使用雷射透過光纖傳輸信號。雷射符合                                                      ■   Limit according to EN 55032:2015+AC:2016, Class A\n    第 1 類雷射產品的要求，基本上於正常操作時，不會對                                                    ■   Limit for harmonic current emission according to EN\n    眼睛造成傷害。然而，在電源開啟時，切勿直視傳輸                                                           61000-3-2:2014, Class A\n    埠。                                                                            ■   Limitation of voltage fluctuation and flicker in low-voltage\n    警告：選擇光纖 QSFP28 設備時，請考慮安全性，並確                                                      supply systems according to EN 61000-3-3:2013\n    認其在產品建議的最高工作溫度時，仍能運作。您還必\n    須使用經認可的第 1 類雷射 QSFP28 收發器。                                               Immunity:\n                                                                                ■    Product family standard according to EN 55024:2010+\n    Caution: Wear an anti-static wrist strap or take other\n    suitable measures to prevent electrostatic discharge when                        A1:2015\n                                                                                ■    Electrostatic Discharge according to IEC 61000-4-2:2008\n    handling this equipment.\n    Caution: Do not plug a phone jack connector in the RJ-45                         ED. 2.0\n    port. This may damage this device.                                          ■    Radio-frequency electromagnetic field according to\n    Caution: Use only twisted-pair cables with RJ-45                                 IEC 61000-4-3:2010 ED. 3.2\n    connectors that conform to FCC standards.                                   ■    Electrical fast transient/burst according to IEC 61000-4-\n    Caution: For pluggable equipment, the socket outlet shall\n    be installed near the equipment and shall be easily                              4:2012 ED. 3.0\n                                                                                ■    Surge immunity test according to IEC 61000-4-5:2017 ED.\n    accessible.\n                                                                                     3.1\n    Attention: La manipulation de cet équipement requiert le                    ■\n    port d’un bracelet antistatique ou l’utilisation d’autres                        Immunity to conducted disturbances, Induced by radio-\n    mesures pour éviter toute décharge électrostatique.                              frequency fields: IEC 61000-4-6:2013 ED. 4.0\n                                                                                ■    Power frequency magnetic field immunity test according to\n    Attention: Ne branchez pas un connecteur téléphonique\n    dans le port RJ-45. Vous risqueriez d’endommager                                 IEC 61000-4-8:2009 ED. 2.0\n    l’appareil.                                                                 ■    Voltage dips, short interruptions and voltage variations\n    Attention: Ne branchez que des fils torsadés par paires                          immunity test according to IEC 61000-4-11:2017 ED. 2.1\n    conformes aux normes FCC sur les connecteurs RJ-45.\n    Attention:Dans le cas d’un appareil à brancher, la prise                 LVD:\n    d’alimentation doit être installée à proximité de                            ■    EN 60950-1:2006+A11:2009+A1:2010+A12:2011\n    l’équipement et doit rester facilement accessible.\n                                                                                      +A2:2013\n\n\n\n\n                                                                         – 1 –\n"
+    },
+    {
+      "page": 10,
+      "text": "                                                                                                Quick Start Guide\n\nJapan - VCCI Class A                       ■     電源供應器如果發生損壞，切勿自行修理，請交由授權經銷商處\n                                                 理。\n                                           ■     產品的機殼、鐵片大部份都經過防割傷處理，但是您仍必須注意\n                                                 避免被某些細部鐵片尖端及邊緣割傷，拆裝機殼時最好能夠戴上\n                                                 手套。\n                                           ■     當你有一陣子不使用產品時，休假或是颱風天，請關閉電源之後\nBSMI (Taiwan)\n                                                 將電源線拔掉。\n     警告使用者 :\n     此為甲類資訊技術設備，於居住環境中使用時，可能會造成            Laser Safety\n     射頻擾動，在此種情況下，使用者會被要求採取某些適當的            Warning: Fiber Optic Port Safety:\n     對策。\n                                                               When using a fiber optic port, never look at the transmit\n                                                  CLASS 1\n                                               LASER PRODUCT   laser while it is powered on. Also, never look directly at\nBSMI Taiwan                                                    the fiber TX port and fiber cable ends when they are\n警告使用者 : 此為甲類資訊技術設備 , 於居住環境中使用 , 可能會造                           powered on.\n成射頻擾動 , 在此種情況下 , 使用者會被要求採取某些適當的對策。         Avertissment: Ports pour fibres optiques - sécurité sur le plan\n電氣方面的安全性                                   optique:\n■   為避免可能的電擊造成嚴重損害，再搬動產品之前，請先將產品                               Ne regardez jamais le laser tant qu'il est sous tension.\n                                               PRODUIT LASER\n    電源線暫時從電源插座中拔掉。                              DE CLASSE 1    Ne regardez jamais directement le port TX\n                                                               (Transmission) à fibres optiques et les embouts de\n■   當您要加入硬體裝置到系統中或者要移除系統中的硬體裝置時，                               câbles à fibres optiques tant qu'ils sont sous tension.\n    請務必先連接該裝置的訊號線，然後再連接電源線。可能的話，\n    在安裝硬體裝置之前先拔掉產品的電源供應器電源線。               Warnhinweis: Faseroptikanschlüsse - Optische Sicherheit:\n■   當您要從主機板連接或拔除任何的訊號線之前，請確定所有電源               LASERPRODUKT\n                                                               Niemals ein Übertragungslaser betrachten, während\n                                                               dieses eingeschaltet ist. Niemals direkt auf den Faser-\n    線已事先拔掉。                                     DER KLASSE 1\n                                                               TX-Anschluß und auf die Faserkabelenden schauen,\n■   請確定電源供應器的電壓設定已調到本國 / 本區域所使用的電壓                             während diese eingeschaltet sind.\n    標準值。若您不確定您所屬區域的供應電壓值為何，那麼請就近\n    詢問當地的電力公司人員。                           Power Cord Safety\n■   如果電源供應器已損壞，請不要嘗試自行修復。請將之交給專業           Please read the following safety information carefully before installing\n    技術服務人員或經銷商來處理。                         the switch:\n                                           Warning: Installation and removal of the unit must be carried out by\n操作方面的安全性                                   qualified personnel only.\n■ 在使用產品之前，請確定所有的排線、電源線都已正確地連接\n                                                 ■    The unit must be connected to an earthed (grounded) outlet\n  好。若您發現有重大的瑕疵，請盡速連絡您的經銷商。\n                                                      to comply with international safety standards.\n■   為避免發生電氣短路情形，請務必將所有沒用到的螺絲、迴紋針                 ■    Do not connect the unit to an A.C. outlet (power supply)\n    及其他零件收好，不要遺留在主機板上或產品主機中。\n                                                      without an earth (ground) connection.\n■   灰塵、溼氣以及劇烈的溫度變化都會影響主機板的使用壽命，因                 ■    The appliance coupler (the connector to the unit and not the\n    此請盡量避免放置在這些地方。                                    wall plug) must have a configuration for mating with an\n■   請勿將產品主機放置在容易搖晃的地方。                                EN 60320/IEC 320 appliance inlet.\n                                                 ■    The socket outlet must be near to the unit and easily\n■   若在本產品的使用上有任何的技術性問題，請和經過檢定或有經\n                                                      accessible. You can only remove power from the unit by\n    驗的技術人員聯絡。\n                                                      disconnecting the power cord from the outlet.\n                                                 ■    This unit operates under SELV (Safety Extra Low Voltage)\n使用注意事項\n■ 在您開始操作本系統之前，請務必詳閱以下注意事項，以避免因\n                                                      conditions according to IEC 60950. The conditions are only\n                                                      maintained if the equipment to which it is connected also\n  為人為的疏失造成系統損傷甚至人體本身的安全。\n                                                      operates under SELV conditions.\n■   使用前，請檢查產品各部份組件是否正常，以及電源線是否有任\n    破損，或是連接不正確的情形發生。                       France and Peru only\n■   如果有任何破損情形，請盡速與您的授權經銷商連絡，更換良好           This unit cannot be powered from IT† supplies. If your supplies are of\n    的線路。                                   IT type, this unit must be powered by 230 V (2P+T) via an isolation\n■   產品放置的位置請遠離灰塵過多，溫度過高，太陽直射的地方。           transformer ratio 1:1, with the secondary connection point labelled\n                                           Neutral, connected directly to earth (ground).\n■   保持機器在乾燥的環境下使用，雨水、溼氣、液體等含有礦物質\n    將會腐蝕電子線路。                              † Impédance à la terre\n■   使用時，請務必保持周遭散熱空間，以利散熱。                  Important! Before making connections, make sure you have the\n■   使用前，請檢查各項周邊設備是否都已經連接妥當再開機。             correct cord set. Check it (read the label on the cable) against the\n■   避免邊吃東西邊使用，以免污染機件造成故障。                  following:\n\n■   請避免讓紙張碎片、螺絲及線頭等小東西靠近產品之連接器、插\n    槽、孔位等處，避免短路及接觸不良等情況發生。\n■   請勿將任何物品塞入產品內，以避免引起機件短路或電路損毀。\n■   產品開機一段時間之後，散熱片及部份 IC 表面可能會發熱、發\n    燙，請勿用手觸摸，並請檢查系統是否散熱不良。\n■   在安裝或移除周邊產品時請先關閉電源。\n\n                                       – 2 –\n"
+    },
+    {
+      "page": 11,
+      "text": "                                                                                                                                   Quick Start Guide\n\n\nPower Cord Set                                                                   Cordon électrique - Il doit être agréé dans le pays d’utilisation\nU.S.A. and     The cord set must be UL-approved and CSA certified.               Etats-Unis et Le cordon doit avoir reçu l’homologation des UL et un\nCanada         The minimum specifications for the flexible cord are:             Canada:       certificat de la CSA.\n               - No. 18 AWG - not longer than 2 meters, or 16 AWG.                             Les spécifications minimales pour un cable flexible sont\n               - Type SV or SJ                                                                 AWG No. 18, ou AWG No. 16 pour un cable de\n               - 3-conductor                                                                   longueur inférieure à 2 mètres.\n               The cord set must have a rated current capacity of at least                     - type SV ou SJ\n               10 A                                                                            - 3 conducteurs\n               The attachment plug must be an earth-grounding type                             Le cordon doit être en mesure d’acheminer un courant\n               with NEMA 5-15P (15 A, 125 V) configuration.                                    nominal d’au moins 10 A.\n                                                                                               La prise femelle de branchement doit être du type à mise\nDenmark        The supply plug must comply with Section 107-2-D1,                              à la terre (mise à la masse) et respecter la configuration\n               Standard DK2-1a or DK2-5a.                                                      NEMA 5-15P (15 A, 125 V).\nSwitzerland    The supply plug must comply with SEV/ASE 1011.                    Danemark:     La prise mâle d’alimentation doit respecter la section\n                                                                                               107-2 D1 de la norme DK2 1a ou DK2 5a.\nU.K.           The supply plug must comply with BS1363 (3-pin 13 A)\n               and be fitted with a 5 A fuse which complies with BS1362.         Suisse:       La prise mâle d’alimentation doit respecter la norme SEV/\n               The mains cord must comply with IEC 60227 (designation                          ASE 1011.\n               60227 IEC 52).\n                                                                                 Europe        La prise secteur doit être conforme aux normes CEE 7/7\nEurope         The supply plug must comply with CEE7/7 (“SCHUKO”).                             (“SCHUKO”)\n               The mains cord must comply with IEC 60227 (designation                           Le cordon d'alimentation doit être conforme à la norme\n               60227 IEC 52).                                                                  IEC 60227 (IEC 60227 désignation 52)\n               IEC-320 receptacle.\n\n                                                                                 Bitte unbedingt vor dem Einbauen des Switches die folgenden\nVeuillez lire à fond l'information de la sécurité suivante avant                 Sicherheitsanweisungen durchlesen:\nd'installer le Switch:\n                                                                                 Warnung: Die Installation und der Ausbau des Geräts darf nur durch\nAvertissement: L’installation et la dépose de ce groupe doivent être             Fachpersonal erfolgen.\nconfiés à un personnel qualifié.                                                     ■     Das Gerät sollte nicht an eine ungeerdete\n       ■   Ne branchez pas votre appareil sur une prise secteur                            Wechselstromsteckdose angeschlossen werden.\n           (alimentation électrique) lorsqu'il n'y a pas de connexion de             ■     Das Gerät muß an eine geerdete Steckdose angeschlossen\n           mise à la terre (mise à la masse).                                              werden, welche die internationalen Sicherheitsnormen\n       ■   Vous devez raccorder ce groupe à une sortie mise à la terre                     erfüllt.\n           (mise à la masse) afin de respecter les normes                            ■     Der Gerätestecker (der Anschluß an das Gerät, nicht der\n           internationales de sécurité.                                                    Wandsteckdosenstecker) muß einen gemäß EN 60320/IEC\n       ■   Le coupleur d’appareil (le connecteur du groupe et non pas                      320 konfigurierten Geräteeingang haben.\n           la prise murale) doit respecter une configuration qui permet              ■     Die Netzsteckdose muß in der Nähe des Geräts und leicht\n           un branchement sur une entrée d’appareil EN 60320/IEC                           zugänglich sein. Die Stromversorgung des Geräts kann nur\n           320.                                                                            durch Herausziehen des Gerätenetzkabels aus der\n       ■   La prise secteur doit se trouver à proximité de l’appareil et                   Netzsteckdose unterbrochen werden.\n           son accès doit être facile. Vous ne pouvez mettre l’appareil              ■     Der Betrieb dieses Geräts erfolgt unter den SELV-\n           hors circuit qu’en débranchant son cordon électrique au                         Bedingungen (Sicherheitskleinstspannung) gemäß IEC\n           niveau de cette prise.                                                          60950. Diese Bedingungen sind nur gegeben, wenn auch\n       ■   L’appareil fonctionne à une tension extrêmement basse de                        die an das Gerät angeschlossenen Geräte unter SELV-\n           sécurité qui est conforme à la norme IEC 60950. Ces                             Bedingungen betrieben werden.\n           conditions ne sont maintenues que si l’équipement auquel il\n           est raccordé fonctionne dans les mêmes conditions.                    Stromkabel. Dies muss von dem Land, in dem es benutzt wird geprüft\n                                                                                 werden:\nFrance et Pérou uniquement:\n                                                                                 Schweiz       Dieser Stromstecker muß die SEV/ASE 1011\nCe groupe ne peut pas être alimenté par un dispositif à impédance à                            Bestimmungen einhalten.\nla terre. Si vos alimentations sont du type impédance à la terre, ce\n                                                                                 Europe        Das Netzkabel muss mit IEC 60227 (IEC 60227\ngroupe doit être alimenté par une tension de 230 V (2 P+T) par le                              entsprechen Bezeichnung 52)\nbiais d’un transformateur d’isolement à rapport 1:1, avec un point                             Der Netzstecker muß die Norm CEE 7/7 erfüllen\nsecondaire de connexion portant l’appellation Neutre et avec                                   (”SCHUKO”).\nraccordement direct à la terre (masse).\n\n\n\n\n                                                                             – 3 –\n"
+    },
+    {
+      "page": 12,
+      "text": "                                                                                                      Quick Start Guide\n\nPower and Battery Safety\n           Warning: If your switch uses a lithium battery, do not attempt\n           to replace the battery yourself. Return the switch to the\n           manufacturer for battery replacement.\n           Avertissement: Si votre commutateur utilise une batterie au\n           lithium, n’essayez pas de la remplacer vous-même. Renvoyez le\n           commutateur au fabricant pour le remplacement de la batterie.\n           警告：如果您的交換器使用鋰電池，請勿嘗試自行更換電\n           池。將交換器送回製造商進行電池更換。\n\n           If the switch contains lithium batteries that are encased in a\n           sealed chassis, do not attempt to open the sealed chassis under\n           any circumstances.\n           Si le commutateur contient des batteries au lithium enfermées\n           dans un châssis scellé, n’essayez en aucun cas d’ouvrir le\n           châssis scellé.\n           如果交換器包含置於密封機箱中的鋰電池，在任何情況下\n           切勿嘗試打開密封機箱。\n\n           Risk of explosion if the battery is replaced by an incorrect type.\n           Dispose of used batteries according to the instructions.\n           Risque d’explosion si la batterie est remplacée par un type\n           incorrect. Éliminez les piles usagées conformément aux\n           instructions.\n           若更換為不正確形式之電池時，可能會發生爆炸。應根據\n           指示棄置用過之電池。\n\n           Caution - Risk of Electrical Shock: To disconnect\n           power, remove all power cords from the unit.\n           Attention - Risque de Choc Électrique: Pour\n           débrancher, l’alimentation électrique, veuillez assurer tous les\n           cables d’alimentation sont retires de l’unite.\n           注意 - 感電の危 : 電源を切る場合は 、電源コ - トを本装置から抜いて\n           くたさい 。\n           注意 - 有觸電的危險：如要切斷電源 , 請將全部電源線都從機器上拔掉\n           注意 - 有触电的危险：如要切断电源 , 请将全部电源线都从机器上拔掉\n\n\nThis product complies with the following EU\nDirectives:\n■   EMC Directive 2014/30/EU\n■   Low Voltage (LVD) Directive 2014/35/EU\n■   RoHS Directive 2011/65/EU\n\n                           攎䏦䄧宨⋩㗇⾃㭿㣗䟸估㓌㖶\n          'HFODUDWLRQ\u0003RI\u0003WKH\u00033UHVHQFH\u0003&RQGLWLRQ\u0003RI\u0003WKH\u00035HVWULFWHG\u00036XEVWDQFHV\u00030DUNLQJ\n          娔₀⏴䨘ƝṀ⤑䶙巖ẋ㏂♏                                ❲噆 ❲⻶ Ɲ0LQLSDFN\u0010$6\u001b\u0013\u0013\u0013\n            (TXLSPHQW\u00031DPH                              7\\SH\u0003'HVLJQDWLRQ\u0003 7\\SH\n▕K\u00038QLW                        昷䔏䉐峑⎱⅝⋽⭟䬍噆\u00035HVWULFWHG\u0003VXEVWDQFHV\u0003DQG\u0003LWV\u0003FKHPLFDO\u0003V\\PEROV\n                                   扂          㱅          捿        ⅔⃠扢        ⤁㺛偖勖 ⤁㺛ṳ勖憁\n                                  3E          +J         &G         &U\u000e\u0019       3%%        3%'(\n曢巖㝦䴫ờ 3&%$                         £          ĉ          ĉ           ĉ          ĉ          ĉ\n梏㈮\u0003)DQ\u0003                            £          ĉ          ĉ           ĉ          ĉ          ĉ\n㕊䆘♏\u0003+HDWVLQN                       ĉ          ĉ          ĉ           ĉ          ĉ          ĉ\n㩆㮣 &KDVVLV                         £          ĉ          ĉ           ĉ          ĉ          ĉ\n䴫⏯䷁\u0003&DEOH\u0003DVV \\                    ĉ          ĉ          ĉ           ĉ          ĉ          ĉ\n曢㹷ᾂㆰ♏\u00033RZHU\u00036XSSO\\                 £          ĉ          ĉ           ĉ          ĉ          ĉ\n₀ 俪 \u0014\u0011 \u0005 嵬⇡ \u0013\u0011\u0014\u0003ZW\u0003\b\u0005 ⎱ \u0005 嵬⇡ \u0013\u0011\u0013\u0014\u0003ZW\u0003\b\u0005 ᾩ㋮昷䔏䉐峑Ḳ䙥⇭㮻␒憶嵬⇡䙥⇭㮻␒憶⟡㹽‣˛\n1 R W H \u0003 \u0014 \u001d \u0005([FHHGLQJ\u0003\u0013\u0011\u0014\u0003ZW\u0003\b\u0005\u0003DQG\u0003\u0005H[FHHGLQJ\u0003\u0013\u0011\u0013\u0014\u0003ZW\u0003\b\u0005\u0003LQGLFDWH\u0003WKDW\u0003WKH\u0003SHUFHQWDJH\u0003\n              FRQWHQW\u0003RI\u0003WKH\u0003UHVWULFWHG\u0003VXEVWDQFH\u0003H[FHHGV\u0003WKH\u0003UHIHUHQFH\u0003SHUFHQWDJH\u0003YDOXH\u0003RI\u0003\n              SUHVHQFH\u0003FRQGLWLRQ\u0011\n₀ 俪 \u0015\u0011 \u0005 ĉ \u0005 ᾩ㋮婙柬昷䔏䉐峑Ḳ䙥⇭㮻␒憶㜑嵬⇡䙥⇭㮻␒憶⟡㹽‣˛\n1 R W H \u0003 \u0015 \u001d \u0005 ĉ \u0005\u0003LQGLFDWHV\u0003WKDW\u0003WKH\u0003SHUFHQWDJH\u0003FRQWHQW\u0003RI\u0003WKH\u0003UHVWULFWHG\u0003VXEVWDQFH\u0003GRHV\u0003QRW\u0003\n              H[FHHG\u0003WKH\u0003SHUFHQWDJH\u0003RI\u0003UHIHUHQFH\u0003YDOXH\u0003RI\u0003SUHVHQFH\u0011\n₀ 俪 \u0016\u0011 \u0005 £ \u0005 ᾩ㋮婙柬昷䔏䉐峑䂡㍹晋柬䛕˛\n1 R W H \u0003 \u0016 \u001d 7KH\u0003\u0005 £ \u0005\u0003LQGLFDWHV\u0003WKDW\u0003WKH\u0003UHVWULFWHG\u0003VXEVWDQFH\u0003FRUUHVSRQGV\u0003WR\u0003WKH\u0003H[HPSWLRQ\u0011\n\n\n\n\n                                                                                              – 4 –\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "as8000-r02-qsg.pdf",
+    "extracted_at_utc": "2026-10-13T04:09:40.203485+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           Minipack-AS8000 Quick Start Guide\nAuthor:          Edgecore Networks Corporation\nCreator:         FrameMaker 11.0\nProducer:        Acrobat Distiller 11.0 (Windows)\nCreationDate:    Tue Apr 28 10:46:20 2009 PDT\nModDate:         Mon Oct 28 23:07:52 2019 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            AcroForm\nJavaScript:      yes\nPages:           12\nEncrypted:       no\nPage size:       595.22 x 841.89 pts (A4)\nPage rot:        0\nFile size:       2637838 bytes\nOptimized:       yes\nPDF version:     1.6\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "85beb08d18967e610ccefaaead5634b1d474d227326c8babb83944f139516345"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "452007aa5826b1ec1c031a1df90b03e4cf816b2cd64e9d2d18675320f5562a55"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "07ad227fd0334d08832d5c249544dd1a136b36d9d33399f29074aacea4c150ff"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "0cee8bce419a6eba88c7acd00f4649bb50f4770d6d7809e5fd9a3e54e2fbdeea"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "85ee64e8f0bdf956624b9a4f8e2715ca565dd784a9a6afb0d887441883c0840f"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "5",
+          "-l",
+          "5",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "99353c75fe863e180e27cede4c2d91c813d3d0ba0770855f9e2e5f3f70b4d218"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "6",
+          "-l",
+          "6",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "fa32e970ca8739e3993f66c37ae48a043fb6be355feecb7a45e1dbce2d3e2afb"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "7",
+          "-l",
+          "7",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "4a47da7f64b0a19b5f191cd5998f05a0395eb02e114281bb10acbbd7797e19e1"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "8",
+          "-l",
+          "8",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "a5b82370f7a4392ca4cf888c8d3ec646ee60e8f9482843165cb9e20a28196ee3"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "9",
+          "-l",
+          "9",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "e121fc1fc5d3df53e6ddb39dd66aa4a1c0fc9e4528214bd7e942b9b71e0103f1"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "10",
+          "-l",
+          "10",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "827370a9a986ece1c254e8b109d7eff3bff3148e956116dc6aa110bdcdea4aee"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "11",
+          "-l",
+          "11",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "f41aa3cc29ca0cc84d817b42a8d3879cd88e2d827b7fc818a5445db78ab2bd8c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "12",
+          "-l",
+          "12",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "947f1c28924e352b34fdb7dc180db288e9b1d51a5edd42905862600622dfcc56"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

@@ -1,0 +1,47 @@
+      Certificate: 80005631                                                                           Master Contract: 170351
+      Project: 80111077                                                                                Date Issued: 2022-01-10
+
+
+
+               Vin\ambient                          45°C                               60°C
+               100-200Vac                           90-125A                            69-104A
+               200-240Vac, 200-380Vdc               125A                               104A
+
+
+              For PFE1500-12-054NAH, PFE1500-12NAHS412 operating at countries other than Canada and United
+              States of America, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C
+              and input voltage decrease from 200Vac to 100Vac as table below:
+               Vin\ambient                          45°C                     60°C
+               100-200Vac                           70-91A                             14-19A
+               200-240Vac, 200-380Vdc               91A                                19A
+
+
+              For PFE1500-12-054NAC, PFE1500-12-054RAC, PFE1500-12-054NA, PFE1500-12-054RA, PFE1500-
+              12NAS412, PFE1500-12NACS412, SPABRCD-14G, SPABRCD-15G operating at Canada and United
+              States of America, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C
+              and input voltage decrease from 200Vac to 100Vac as table below:
+               Vin\ambient                          45°C                     60°C
+               100-200Vac                           83.4-125A                          69-104A
+               200-240Vac, 200-350Vdc               125A                               104A
+
+
+              For PFE1500-12-054NAC, PFE1500-12NACS412, PFE1500-12-054RAC operating at countries other
+              than Canada and United States of America, the main output V1: 12.0V derate linearly when ambient
+              increase from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                             60°C
+                          100-200Vac                           66.5-125A                        66.5-104A
+                          200-240Vac, 200-350Vdc               125A                             104A
+
+
+              For PFE1500-12-054NA, PFE1500-12NAS412, SPABRCD-14G operating at countries other than
+              Canada and United States of America, the main output V1: 12.0V derate linearly when ambient increase
+              from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                             60°C
+                          100-200Vac                           42-75A                           13-19A
+                          200-240Vac, 200-350Vdc               75A                              19A
+
+
+
+
+DQD 507 Rev. 2019-04-30                       © 2018 CSA Group. All rights reserved.                                      Page 4
+

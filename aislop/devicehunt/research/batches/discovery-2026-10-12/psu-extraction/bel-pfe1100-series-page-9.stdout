@@ -1,0 +1,109 @@
+PFE1100-12-054xA                                                                                                                                                                                                                                                                                           9
+
+
+
+                                                                                                                               12
+
+
+
+
+                                                                                                     Main Output Voltage [V]
+                                                                                                                               10
+
+                                                                                                                               8
+
+                                                                                                                               6
+
+                                                                                                                               4
+
+                                                                                                                               2
+
+                                                                                                                               0
+                                                                                                                                    0         20           40        60          80                                                             100
+                                                                                                                                                         Main Output Current [A]
+
+                                                                                                     Figure 19. Current Limitation on V1 (Vi = 230 VAC)
+
+    A second current limitation circuit on V1 will immediately switch off the main output if the output current increases beyond the
+    peak current trip point. The supply will re-start 4 ms later with a soft start, if the short circuit persists (V1 < 10.0V for >200 ms)
+    the output will latch off; otherwise it continuous to operate (hardware current limit triggers).
+    The latch can be unlocked by disconnecting the supply from the AC mains or by toggling the PSON_L input.
+    The main output current limitation will decrease if the ambient (inlet) temperature increases beyond 45°C or if the AC input
+    voltage is too low (see Figure 20 and Figure 21). Note that the actual current limitation on V1 will begin at a current level
+    approximately 4 A higher than what is shown in Figure 20. (See also Temperature and Fan Control for additional information.)
+
+    STANDBY OUTPUT
+    The standby output exhibits a substantially rectangular output characteristic down to 0V (no hiccup mode / latch off). If it runs
+    in current limitation and its output voltage drops below the UV threshold, then the main output will be inhibited (standby remains
+    on). The current limitation of the standby output is independent of the AC input voltage, but is derated with the ambient
+    temperature (only for reverse airflow).
+
+                                                      100                                                                                                                                                                  100
+
+
+
+
+                    Main Output Nominal Current [A]                                                                                                                                      Main Output Nominal Current [A]
+                                                      80                                                                                                                                                                       80
+
+
+                                                      60                                                                                                                                                                       60
+
+                                                                                                                                                                                                                                                                 Ta < 35°C
+                                                      40                                 Ta < 35°C                                                                                                                             40
+                                                                                                                                                                                                                                                                 Ta < 45°C
+                                                                                         Ta < 45°C
+                                                                                                                                                                                                                                                                 Ta < 55°C
+                                                                                         Ta < 55°C                                                                                                                             20
+                                                      20                                                                                                                                                                                                         Ta < 65°C
+                                                                                         Ta < 65°C
+
+                                                          0                                                                                                                                                                    0
+                                                              90    115        140     165     190    215                               240        265                                                                              90    115         140      165    190       215     240     265
+                                                                                 Input AC Voltage [VAC]                                                                                                                                                 Input AC Voltage [VAC]
+
+                                                              Figure 20. Derating on V1 vs. Vi and Ta for                                                                                                                            Figure 21. Derating on V1 vs. Vi and Ta for
+                                                                         PFE1100-12-054NA                                                                                                                                                       PFE1100-12-054RA
+                                                                                                                                                                                                                           6
+
+
+
+
+                                                                                                                                                                   Standby Output Nominal Current
+                                                      5
+
+
+
+
+     Standby Output Voltage [V]
+                                                                                                                                                                                                                           5
+                                                      4
+                                                                                                                                                                                                                           4
+
+                                                      3
+                                                                                                                                                                                                                           3
+
+
+
+
+                                                                                                                                                                                [A]
+                                                      2                                                                                                                                                                                                     Vsb = 3.3V, RA
+                                                                                                                                                                                                                           2
+                                                                          VSB=3.3V                                                                                                                                                                          Vsb = 3.3V, NA
+                                                      1                   VSB=5V                                                                                                                                           1                                Vsb = 5V, NA & RA
+
+
+                                                      0                                                                                                                                                                    0
+                                                          0                2               4              6                                              8                                                                     0         10           20     30     40        50           60         70
+                                                                               Standby Output Current [A]                                                                                                                                              Ambient Temperature [°C]
+
+                                                                   Figure 22. Current limitation on VSB                                                                                                                              Figure 23. Temperature derating on VSB
+
+
+
+
+                                                                                                                                                                Asia-Pacific                                                                  Europe, Middle East                      North America
+                                                                                                                                                     +86 755 298 85888                                                                            +353 61 49 8941                     +1 866 513 2839
+
+                                                                                                                                                                                                                                               © 2023 Bel Fuse Inc.                     BCD.00012_AP
+

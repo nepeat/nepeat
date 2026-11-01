@@ -1,0 +1,59 @@
+12
+                                                                                       PFE1100-12-054xA
+     8.4 PRESENT_L
+        This signaling pin is recessed within the connector and will contact only once all other connector contacts are closed. This
+        active-low pin is used to indicate to a power distribution unit controller that a supply is plugged in. The maximum current on
+        PRESENT_L pin should not exceed 10 mA.
+                                                                    PFE            PDU
+
+                                                         V1
+                                                       VSB
+                                                              0V
+
+                                                     PRESENT_L
+
+
+
+
+                                                     Figure 25. PRESENT_L signal pin
+
+
+     8.5 PSKILL_H INPUT
+        The PSKILL_H input is active-high and is located on a recessed pin on the connector and is used to disconnect the main output
+        as soon as the power supply is being plugged out. This pin should be connected to SGND in the power distribution unit. The
+        standby output will remain on regardless of the PSKILL_H input state.
+
+
+     8.6 AC TURN-ON / DROP-OUTS / ACOK_H
+        The power supply will automatically turn-on when connected to the AC line under the condition that the PSON_L signal is
+        pulled low and the AC line is within range. The ACOK_H signal is active-high. The timing diagram is shown in Figure 26 and
+        referenced in Table 4.
+
+     OPERATING CONDITION                           MIN MAX UNIT
+     tAC VSB     AC Line to 90% VVSB                      2  sec
+                                                                                 AC
+     tAC V1      AC Line to 90% V1                        2  sec               Input
+     tACOK_H on1 ACOK_H signal on delay (start-up)      2000 ms
+     tACOK_H on2 ACOK_H signal on delay (dips)           100 ms
+                                                                                VSB                                                 tV1 rise
+     tACOK_H off ACOK_H signal off delay                  5  ms
+     tVSB V1 del VSB to V1 delay                    10   500 ms                                tAC VSB         tVSB rise
+     tV1 holdup  Effective V1 holdup time           12       ms                  V1                            tVSB V1 del
+
+     tVSB holdup Effective VSB holdup time          20       ms                                            tAC V1
+                                                                            PSON_L
+     tACOK_H V1  ACOK_H to V1 holdup                7        ms
+                                                                                           tACOK_H on1
+     tACOK_H VSB ACOK_H to VSB holdup               15       ms            ACOK_H
+
+     tV1 off     Minimum V1 off time               1000 1200 ms            PWOK_H
+                                                                                                                      tPWOK_H del
+
+     tVSB off    Minimum VSB off time              1000 1200 ms
+                    Table 2. AC Turn-on / Dip Timing                                     Figure 26. AC turn-on timing
+
+
+
+
+                                                                                                         tech.support@psbel.com
+

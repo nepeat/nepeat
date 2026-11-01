@@ -1,0 +1,18 @@
+{
+  "code_sha256": {
+    "devicehunt/listings.py": "1717e4ca63cdc7096e0b411a81d1aab0bb7d2db10075d31f4f9f3d42185c34d5",
+    "tests/test_listings.py": "6b22266f0336946d5aed04eeb86f594fcf6c25187dcf7722b716d318ea47a9b4",
+    "docs/listing-matching.md": "1782c033b32aef97a725065573db200efd27150a9586a67f121897db56038972"
+  },
+  "logs_sha256": {
+    "focused-tests.log": "48b9ce21b70d88090c9a25895945368a6e4570862242d11c8f2140aeeb89e393",
+    "full-python-tests.log": "1357ee41b54b73aa2c777a141ba5d97940ab8e0d4247e1861adcdd5037422f25",
+    "report-tests.log": "ba83673c3807093b18d7e67f4aa3b0d7cdd2ff5d26f6951d86842b664ac9fbf9"
+  },
+  "tests": {
+    "focused": 23,
+    "python_full": 411,
+    "report": 6
+  },
+  "scope": "Post-engineering stable-file snapshot; verify unchanged before using these test results for promotion."
+}

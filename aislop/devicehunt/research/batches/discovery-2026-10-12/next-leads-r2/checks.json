@@ -1,0 +1,31 @@
+{
+  "at_utc": "2026-10-13T04:43:40.455826+00:00",
+  "status": "PASS offline planning only",
+  "leads": 3,
+  "actual_HTTP": 0,
+  "production_changes": 0,
+  "imports": 0,
+  "source_hashes_verified": true,
+  "exact_saved_hrefs_verified": true,
+  "artifact_sha256": {
+    "plan.json": "c7ff2b1bd6b21bfc8204742174539566fa90172a4fc58e09b381d68d63ce3931",
+    "catalog-gap.json": "35e95f57342d80b8ce9ed313b2a032fc652d0defcb58194440802d88b0f45b3e",
+    "novelty-checks.json": "2eb608f37710bb10ffd75b31ca7f407a5b29dd87c31b27ce86d3a983978ba0e3"
+  },
+  "catalog_checkpoints": {
+    "data/devices.sqlite": {
+      "sha256_before": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+      "sha256_after": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+      "unchanged_during_check": true
+    },
+    "data/devices-candidate-wave3-2026-10-12.sqlite": {
+      "sha256_before": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+      "sha256_after": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+      "unchanged_during_check": true
+    }
+  },
+  "source_URL_match_count": 0,
+  "ledger_count": 11,
+  "existing_five_lead_set_already_captured": true,
+  "scope": "Only next-leads-r2 artifacts written; no production/shared-data modification, network/search/import/extraction/install/delegation"
+}

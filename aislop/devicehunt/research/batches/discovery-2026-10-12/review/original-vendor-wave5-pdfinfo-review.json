@@ -1,0 +1,31 @@
+{
+  "tool": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+  "tool_sha256": "8a459ddbbe41d31ec6c42917af3f76601d07f4bad8668f1a10dd81d7911858c5",
+  "scope": "local PDF metadata/page count only; no extraction/render/OCR/network/import",
+  "outputs": [
+    {
+      "pdf": "as6700-quick-start.pdf",
+      "pdf_sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-quick-start.pdf"
+      ],
+      "returncode": 0,
+      "stdout": "Title:           2P-QSG.fm\nAuthor:          chris\nCreator:         FrameMaker 9.0\nProducer:        Acrobat Distiller 11.0 (Windows)\nCreationDate:    Tue Apr 28 10:46:20 2009 PDT\nModDate:         Tue Jun 28 19:40:11 2016 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       886779 bytes\nOptimized:       yes\nPDF version:     1.4\n",
+      "stderr": "",
+      "page_count": 2
+    },
+    {
+      "pdf": "as5710-as5712-ds-r09.pdf",
+      "pdf_sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf"
+      ],
+      "returncode": 0,
+      "stdout": "Title:           AS5710_AS5712-54X ONIE DS R06\nCreator:         Adobe Illustrator CS6 (Windows)\nProducer:        www.ilovepdf.com\nCreationDate:    Wed Jun 19 23:46:44 2019 PDT\nModDate:         Thu Jun 20 00:29:28 2019 PDT\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           4\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       201945 bytes\nOptimized:       no\nPDF version:     1.5\n",
+      "stderr": "",
+      "page_count": 4
+    }
+  ]
+}

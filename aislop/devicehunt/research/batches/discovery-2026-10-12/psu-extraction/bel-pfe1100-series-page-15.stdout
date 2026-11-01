@@ -1,0 +1,65 @@
+PFE1100-12-054xA                                                                                                                                  15
+
+
+         In order to prevent voltage dips when the active power supply is unplugged while the other is in hot-standby mode, it is strongly
+         recommended to add the external circuit as shown in Figure 32. If the PRESENT_L pin status needs also to be read by the
+         system controller, it is recommended to exchange the bipolar transistors with small signal MOS transistors or with digital
+         transistors.
+
+
+   8.12          I2C / SMBUS COMMUNICATION
+         The interface driver in the PFE supply is referenced to the V1 Return. The PFE supply is a communication Slave device only;
+         it never initiates messages on the I2C/SMBus by itself. The communication bus voltage and timing is defined in Table 7 further
+         characterized through:
+
+             •    There are no internal pull-up resistors                                                               3.3/5V
+             •    The SDA/SCL IOs are 3.3/5 V tolerant                                            RX
+             •    Full SMBus clock speed of 100 kbps                                              TX                         Rpull-up
+             •    Clock stretching limited to 1 ms                                                                                      SDA/SCL
+             •    SCL low time-out of >25 ms with recovery within 10 ms
+             •    Recognizes any time Start/Stop bus conditions
+
+                                                                                            Figure 33. Physical layer of communication interface
+
+
+         The SMB_ALERT_L signal indicates that the power supply is experiencing a problem that the system agent should investigate.
+         This is a logical OR of the Shutdown and Warning events. The power supply responds to a read command on the general
+         SMB_ALERT_L call address 25(0x19) by sending its status register.
+         Communication to the DSP or the EEPROM will be possible as long as the input AC voltage is provided. If no AC is present,
+         communication to the unit is possible as long as it is connected to a life V1 output (provided e.g. by the redundant unit). If
+         only VSB is provided, communication is not possible.
+
+    PARAMETER            DESCRIPTION                                 CONDITION                         MIN           MAX                   UNIT
+    ViL                  Input low voltage                                                             -0.5          1.0                     V
+    ViH                  Input high voltage                                                            2.3           5.5                     V
+    Vhys                 Input hysteresis                                                              0.15                                  V
+    VoL                  Output low voltage                          3 mA sink current                  0            0.4                     V
+    tr                   Rise time for SDA and SCL                                                20+0.1Cb1          300                     Ns
+    tof                  Output fall time ViHmin → ViLmax            10 pF < Cb1 < 400 pF         20+0.1Cb1          250                     Ns
+    Ii                   Input current SCL/SDA                       0.1 VDD < Vi < 0.9 VDD            -10           10                      μA
+    Ci                   Internal Capacitance for each SCL/SDA                                                       50                      pF
+    fSCL                 SCL clock frequency                                                            0            100                    kHz
+    Rpu                  External pull-up resistor                   fSCL ≤ 100 kHz                            1000 ns / Cb1                 Ω
+    tHDSTA               Hold time (repeated) START                  fSCL ≤ 100 kHz                    4.0                                   μs
+    tLOW                 Low period of the SCL clock                 fSCL ≤ 100 kHz                    4.7                                   μs
+    tHIGH                High period of the SCL clock                fSCL ≤ 100 kHz                    4.0                                   μs
+    tSUSTA               Setup time for a repeated START             fSCL ≤ 100 kHz                    4.7                                   μs
+    tHDDAT               Data hold time                              fSCL ≤ 100 kHz                     0            3.45                    μs
+    tSUDAT               Data setup time                             fSCL ≤ 100 kHz                    250                                   ns
+    tSUSTO               Setup time for STOP condition               fSCL ≤ 100 kHz                    4.0                                   μs
+    tBUF                 Bus free time between STOP and START        fSCL ≤ 100 kHz                     5                                    ms
+
+   1 Cb = Capacitance of bus line in pF, typically in the range of 10…400 pF
+
+
+
+                                                       Table 5. I2C / SMBus Specification
+
+
+
+
+                                                                         Asia-Pacific        Europe, Middle East             North America
+                                                                  +86 755 298 85888              +353 61 49 8941            +1 866 513 2839
+
+                                                                                              © 2023 Bel Fuse Inc.               BCD.00012_AP
+

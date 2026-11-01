@@ -1,0 +1,11 @@
+{
+  "selection_number": 3,
+  "landing_path": "03-landing.html",
+  "landing_sha256": "82a8903ce378eec6b7ee52d28a41d73d34f574a583e20d26dbc4b8d98593c6b6",
+  "fresh_heading": "AIS800-32D/32O Datasheet R03",
+  "published_download_url": "https://www.edge-core.com/download/ais800-32d-32o-datasheet-r03/?wpdmdl=6244&refresh=6ad06cec72be11792044268",
+  "expected_wpdmdl_values": [
+    "6244"
+  ],
+  "stale_graph_tokens_used": false
+}

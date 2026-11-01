@@ -1,0 +1,34 @@
+{
+  "database_sha256": "5b1317f554968fae6c20a4dc0cd2d4d8524ee1c5e60a662675e36a763203a904",
+  "manifest_sha256": "e9d921abac21693c185d8f33eb74333a93bbecf2d88f045e8eb5b479892a1662",
+  "jobs_before": 117,
+  "inputs_before": 2178,
+  "inputs": [
+    {
+      "path": "research/batches/networking-primary-2026-10-04/owned/artifact-candidate.json",
+      "sha256": "dd80dfe340159cf3077982e80422cf89c9b5fec69393f599eb437179be438148",
+      "snapshot": "data/raw/networking-primary-owned-2026-10-04/as7772-owner-dtb-gist.html",
+      "snapshot_sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "facts": 10,
+      "source_id": "community-as7772-dtb-gist-2026-10-04"
+    },
+    {
+      "path": "research/batches/networking-primary-2026-10-04/oracle/candidate-curated.json",
+      "sha256": "91d8085f935340e329c1f325514628fc16c7d3018568ccbb38f39603bf9f1a33",
+      "snapshot": "data/raw/networking-primary-oracle-2026-10-04/oracle-x7-2c-vpat-t2-6972.html",
+      "snapshot_sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "facts": 25,
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017"
+    }
+  ],
+  "mode": "read-only prep; pending independent acceptance",
+  "counts_before": {
+    "devices": 4083,
+    "records": 5300,
+    "sources": 281,
+    "facts": 44728,
+    "documents": 56,
+    "document_pages": 3651,
+    "hyperscaler_evidence": 22
+  }
+}

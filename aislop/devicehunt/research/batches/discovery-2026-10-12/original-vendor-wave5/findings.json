@@ -1,0 +1,1627 @@
+{
+  "status": "finite discovery only; no curated candidate or import",
+  "observed_at_utc": "2026-10-13T04:54:21.086630+00:00",
+  "sources": {
+    "oracle7420-specifications.html": {
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-specifications.html",
+      "captured_at_utc": "2026-10-13T04:46:12.999650+00:00",
+      "sha256": "9e4c532efbb0a19ecf67d35a925b8c65ddfa7de857c26c16ec66e497b0a4b37b"
+    },
+    "as6700-quick-start.pdf": {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/AS6700-32X-Quick-Start-Guide.pdf",
+      "captured_at_utc": "2026-10-13T04:46:51.024332+00:00",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b"
+    },
+    "as5710-as5712-ds-r09.pdf": {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/AS5710_AS5712-54X-DS-R09-1.pdf",
+      "captured_at_utc": "2026-10-13T04:47:00.933282+00:00",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f"
+    }
+  },
+  "observations": [
+    {
+      "id": "as6700-1",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        3
+      ],
+      "raw_lines": [
+        "AS6700-32X / AS6701-32X"
+      ],
+      "summary": "Joint model heading retained.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "identity_literal",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-2",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        11,
+        12
+      ],
+      "raw_lines": [
+        "           Rack Mounting Kit—contains two brackets and eight",
+        "           screws for attaching the brackets to the switch"
+      ],
+      "summary": "Kit contains two brackets and eight screws.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "physical",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-3",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        28,
+        29,
+        30
+      ],
+      "raw_lines": [
+        "      Switches with part numbers 6700/6701-32X-D*-********",
+        "      have switch software pre-loaded on the switch. Software",
+        "      user documentation can be found at www.edge-core.com.               4. Connect Power"
+      ],
+      "summary": "Literal 6700/6701-32X-D*-******** pattern has switch software pre-loaded; wildcard pattern is not expanded into SKUs.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units. Historical loaded-software statement, no current image/access/entitlement claim.",
+      "category": "software",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-4",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "raw_lines": [
+        "      Switches with part numbers 6700/6701-32X-O-********",
+        "      have the Open Network Installer Environment (ONIE)",
+        "      software installer pre-loaded on the switch, but no switch",
+        "      software image. Information about compatible switch",
+        "      software can be found at www.edge-core.com."
+      ],
+      "summary": "Literal 6700/6701-32X-O-******** pattern has ONIE installer pre-loaded but no switch software image.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units. Pattern meaning is source-local, not a general suffix decoder.",
+      "category": "software",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-5",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        38,
+        39,
+        40,
+        41,
+        42,
+        43
+      ],
+      "raw_lines": [
+        "      fan tray modules that are installed into its chassis. All",
+        "      installed modules must have a matching airflow direction.                               2",
+        "      That is, all modules must have a front-to-back (F2B) airflow",
+        "      direction, or all modules must have a back-to-front (B2F)",
+        "      airflow direction. The airflow direction of PSU and fan tray",
+        "      modules is indicated by labels on the modules."
+      ],
+      "summary": "All installed PSU/fan tray modules must match F2B or B2F airflow; labels indicate direction.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "cooling",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-6",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        44,
+        45,
+        46
+      ],
+      "raw_lines": [
+        "                                                                              1       Install one or two universal AC power modules in the switch.",
+        "                                                                                      The switch supports up to two PSUs that must have the",
+        "2. Mount the Switch                                                                   same matching airflow direction as the installed fan trays."
+      ],
+      "summary": "Install one or two universal AC modules; up to two PSUs matching installed fan-tray airflow.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units. No DC configuration facts from the AC installation passage.",
+      "category": "power",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-7",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        62,
+        63,
+        64
+      ],
+      "raw_lines": [
+        "      Caution: Installing the switch in a rack requires two",
+        "      people. One person should position the switch in the rack,",
+        "      while the other secures it using the rack screws."
+      ],
+      "summary": "Two-person rack installation requirement.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "physical",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-8",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        26,
+        27
+      ],
+      "raw_lines": [
+        "      Note: For information on switch software, refer to                              Caution: The earth connection must not be removed",
+        "      www.edge-core.com.                                                              unless all supply connections have been disconnected."
+      ],
+      "summary": "Earth connection removal restriction retains all-supply disconnection condition.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "service_constraint",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-9",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        66,
+        67
+      ],
+      "raw_lines": [
+        "                                                                                                                                     E012014-CS-R01",
+        "www.edge-core.com                                                     – 1 –                                                          150200000827A"
+      ],
+      "summary": "Literal footer E012014-CS-R01 / 150200000827A, no upload-date inference.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "revision_literal",
+      "visually_reviewed": true,
+      "visual_page": "as6700-1.png"
+    },
+    {
+      "id": "as6700-10",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        35
+      ],
+      "raw_lines": [
+        "                                                                                               438.4 x 473 x 43.4 mm (17.26 x 18.62 x 1.71 in.)"
+      ],
+      "summary": "W x D x H: 438.4 x 473 x 43.4 mm (17.26 x 18.62 x 1.71 in.).",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "physical",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-11",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        36,
+        37
+      ],
+      "raw_lines": [
+        "                                                                           Weight              8.382 kg (18.52 lb), with two installed PSUs,",
+        "                                                                                               five fan trays, and two 40G modules"
+      ],
+      "summary": "8.382 kg (18.52 lb), with two installed PSUs, five fan trays and two 40G modules; not empty weight.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "physical",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-12",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        39,
+        40
+      ],
+      "raw_lines": [
+        "                                                                           Temperature         Operating: 0° C to 40° C (32° F to 104° F)",
+        "                                                                                               Storage: -40° C to 70° C (-40° F to 158° F)"
+      ],
+      "summary": "Operating 0–40°C; separate storage -40–70°C.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "environment",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-13",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        42
+      ],
+      "raw_lines": [
+        "                                                                           Humidity            Operating: 5% to 95% (non-condensing)"
+      ],
+      "summary": "Operating humidity 5–95%, non-condensing.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "environment",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-14",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        46
+      ],
+      "raw_lines": [
+        "       (Mgmt) port to the network using Category 5, 5e or better           PSU AC Input        100-240 VAC, 50-60 Hz, 6.0-3.0 A"
+      ],
+      "summary": "PSU AC Input Rating: 100-240 VAC, 50-60 Hz, 6.0-3.0 A.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "power",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-15",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        49
+      ],
+      "raw_lines": [
+        "                                                                           Switch Power        375 Watts maximum, 267 Watts typical"
+      ],
+      "summary": "Switch Power Consumption: 375 Watts maximum, 267 Watts typical; not PSU output.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units.",
+      "category": "power",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-16",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        26,
+        27
+      ],
+      "raw_lines": [
+        " 2     Configure the PC’s serial port: 115200 bps, 8 characters, no",
+        "       parity, one stop bit, 8 data bits, and no flow control."
+      ],
+      "summary": "DCSS serial setup: 115200 bps, 8 characters, no parity, one stop bit, 8 data bits, no flow control; preserve the printed repeated 8-character/8-bit wording.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units. Historical documented configuration; no current software entitlement.",
+      "category": "software",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-17",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "raw_lines": [
+        " 1     If the network operating system (NOS) installer is located on       Power Specifications",
+        "       a network server, first connect the RJ-45 Management",
+        "       (Mgmt) port to the network using Category 5, 5e or better           PSU AC Input        100-240 VAC, 50-60 Hz, 6.0-3.0 A",
+        "       twisted-pair cable. (Not required if the NOS installer is           Rating",
+        "       located on attached storage.)"
+      ],
+      "summary": "ONIE: network-server installer uses Mgmt RJ-45 with Cat5/5e or better; connection not required for installer on attached storage.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units. Installer-location condition remains explicit.",
+      "category": "software",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as6700-18",
+      "source": "as6700-quick-start.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        53,
+        54
+      ],
+      "raw_lines": [
+        "       Subsequent switch boots will bypass ONIE and directly run           Emissions           EN 55022:2010, Class A",
+        "       the NOS software."
+      ],
+      "summary": "Subsequent boots bypass ONIE and run loaded NOS, per historical guide.",
+      "scope": "Printed AS6700-32X / AS6701-32X quick-start document scope; no equivalence between models, variants or auction units. Not a unit-specific boot/access promise.",
+      "category": "software",
+      "visually_reviewed": true,
+      "visual_page": "as6700-2.png"
+    },
+    {
+      "id": "as5712-19",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        5
+      ],
+      "raw_lines": [
+        "                     AS5710-54X, AS5712-54X                                                       First Switch Design Accepted by Open Compute Project"
+      ],
+      "summary": "Both full printed family names retained.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows.",
+      "category": "identity_literal",
+      "visually_reviewed": true,
+      "visual_page": "as5712-1.png"
+    },
+    {
+      "id": "as5712-20",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        40
+      ],
+      "raw_lines": [
+        "                     ■ Rack mountable in standard 19\" racks. Mountable in 21\" Open Rack with the Open Rack Switch Adapter."
+      ],
+      "summary": "Standard 19-inch rack; 21-inch Open Rack with Open Rack Switch Adapter.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows. Source-listed mounting option, not inferred universal fitment.",
+      "category": "physical",
+      "visually_reviewed": true,
+      "visual_page": "as5712-1.png"
+    },
+    {
+      "id": "as5712-21",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 1,
+      "lines_1based": [
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65
+      ],
+      "raw_lines": [
+        "                     ■ AS5712 SKU compatible with Cumulus® Linux® r2.5.1 and later version from Cumulus Networks®.",
+        "",
+        "                     ■ AS5712 SKU compatible with PicOS™ r2.6 and later version from Pica8 Inc.",
+        "",
+        "                     ■ AS5712 SKU compatible with SnapRoute FlexSwitch software.",
+        "",
+        "                     ■ AS5712 SKU Compatible with Pluribus Netvisor® OS (ONVL) version 2.5 and later from Pluribus Networks."
+      ],
+      "summary": "AS5712 historical compatibility retains Cumulus r2.5.1+, PicOS r2.6+, SnapRoute FlexSwitch and Pluribus ONVL 2.5+ statements as printed.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows. No current release/license/image/support claim; AS5710 does not inherit AS5712 list.",
+      "category": "software",
+      "visually_reviewed": true,
+      "visual_page": "as5712-1.png"
+    },
+    {
+      "id": "as5712-22",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "raw_lines": [
+        "  AS5710-54X: Freescale P2041 quad-core 1.5GHz CPU                      Compatible with the following NOS options:",
+        "   2 GB DDR3 SDRAM with ECC                                             AS5712-54X:",
+        "   128 MB NOR Flash                                                      Cumulus® Linux® r2.5.1 and later version from Cumulus Networks®",
+        "   8 GB NAND Flash                                                       Open Network Linux, the open-source, OCP reference NOS",
+        "   8GB SD Card                                                           PicOS™ r2.6 and later version from Pica8 Inc.",
+        "  AS5712-54X: Intel Atom C2538 quad-core 2.4GHz x86 processor            Big Monitoring Fabric™ and Big Cloud Fabric™ SDN applications",
+        "   8 GB SO-DIMM DDR3 RAM with ECC                                         from Big Switch.",
+        "   16 MB SPI Flash                                                       Pluribus Networks – Netvisor® OS (ONVL)",
+        "   8 GB NAND Flash                                                       FlexSwitch software from SnapRoute",
+        "   Reserve mSATA connector                                              AS5710-54X:"
+      ],
+      "summary": "AS5710 P2041/1.5GHz and memory/storage differ from AS5712 Atom C2538/2.4GHz and memory/storage; raw per-model rows retained.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows.",
+      "category": "model_configuration",
+      "visually_reviewed": true,
+      "visual_page": "as5712-2.png"
+    },
+    {
+      "id": "as5712-23",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "raw_lines": [
+        " Jumbo frames support up to 9216 Bytes                                  PSUs: 2 redundant, load-sharing, hot-swappable AC or -48 VDC",
+        " Packet Buffer Size: 12 MB integrated packet buffer                     Input Voltage: 90 to 264 VAC at 50-60 Hz. -48 to -72 VDC.",
+        " Subject to NOS:                                                        Input Current: 6 A@100/120 VAC, 3 A@200/240 VAC,",
+        "  MAC Address: 32 K min./288 K max.                                       10 A@-72 VDC",
+        "  VLAN IDs: 4 K                                                         PSU Efﬁciency: Up to 93% for AC PSUs",
+        "  IPv4: 16 K min./112 K max. host entries; 16 K LPM entries with        Power input option: 12 VDC",
+        "    TCAM-only mode                                                      Max Power: 282 W, without pluggable optics"
+      ],
+      "summary": "Power block: two redundant/load-sharing/hot-swappable AC or -48VDC; 90–264VAC 50–60Hz, -48 to -72VDC; 6A@100/120VAC, 3A@200/240VAC, 10A@-72VDC; up to 93% AC efficiency; separate 12VDC input option; max 282W without optics.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows. Polarity/conditions and AC efficiency scope retained; no summed output inference.",
+      "category": "power",
+      "visually_reviewed": true,
+      "visual_page": "as5712-2.png"
+    },
+    {
+      "id": "as5712-24",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 2,
+      "lines_1based": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65
+      ],
+      "raw_lines": [
+        " Dimensions (WxDxH): 44.3 x 47.3 x 4.34 cm (17.4 x 18.6 x 1.71 in)    Warranty",
+        " Weight: 8.5 kg (18.74 lb), with two installed PSU modules              Please check www.edge-core.com for the warranty terms in your",
+        " Fans: hot-swappable 4+1 redundant fans                                  country.",
+        " Operating Temperature: 0°C to 40°C (32°F to 104°F)",
+        " Storage Temperature: -40°C to 70°C (-40°F to 158°F)",
+        " Operating Humidity: 5% to 95% non-condensing"
+      ],
+      "summary": "Dimensions 44.3 x 47.3 x 4.34 cm; 8.5kg with two PSU modules; 4+1 hot-swappable fans; operating 0–40°C, storage -40–70°C, humidity 5–95% non-condensing.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows.",
+      "category": "physical_cooling_environment",
+      "visually_reviewed": true,
+      "visual_page": "as5712-2.png"
+    },
+    {
+      "id": "as5712-25",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "lines_1based": [
+        49,
+        50
+      ],
+      "raw_lines": [
+        "   Edgecore Networks Corporation is a subsidiary of Accton Technology Corporation, the leading network ODM company. The Edgecore",
+        "   data center switches are developed and manufactured by Accton."
+      ],
+      "summary": "Generic about-company parent/development/manufacture prose retained as context only, no per-model role/physical factory assertion.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows.",
+      "category": "literal_company_context",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png"
+    },
+    {
+      "id": "as5712-26",
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "lines_1based": [
+        55
+      ],
+      "raw_lines": [
+        "© Copyright 2019 Edgecore Networks Corporation. The information contained herein is subject to change without notice. This document is for informational purposes only and does not set forth any warranty, expressed or implied, concerning any equipment,"
+      ],
+      "summary": "Literal copyright 2019; footer EC-DS-0619-09 verified visually; path 2024/01 is not publication date.",
+      "scope": "Printed AS5710-54X / AS5712-54X family scope; preserve separately named CPU/software and ordering rows.",
+      "category": "revision_literal",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png"
+    },
+    {
+      "id": "oracle-27",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 1,
+        "tag": "p",
+        "text_phrase": "The 3U chassis"
+      },
+      "raw_block": "Sun ZFS Storage 7420 Physical Specifications - The 3U chassis form factor dimensions are as follows:",
+      "summary": "3U chassis form factor.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "physical",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-28",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 8,
+        "tag": "tr",
+        "text_phrase": "Height 13.3 cm/5.25 in"
+      },
+      "raw_block": "Height 13.3 cm/5.25 in Depth 70.6 cm/27.8 in",
+      "summary": "Table 12-2 height 13.3cm/5.25in and depth 70.6cm/27.8in.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "physical",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-29",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 13,
+        "tag": "tr",
+        "text_phrase": "Width 43.7 cm/17.19 in"
+      },
+      "raw_block": "Width 43.7 cm/17.19 in Weight 16.36 kg/96 lbs",
+      "summary": "Table 12-2 width 43.7cm/17.19in; weight literal 16.36kg/96lbs is inconsistent and must remain uncorrected.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "physical",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-30",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 17,
+        "tag": "p",
+        "text_phrase": "Nominal frequencies: 50/60Hz"
+      },
+      "raw_block": "Nominal frequencies: 50/60Hz",
+      "summary": "Nominal frequency 50/60Hz.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "power",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-31",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 19,
+        "tag": "p",
+        "text_phrase": "AC operating range:"
+      },
+      "raw_block": "AC operating range: 100-127 VAC for 2 CPUs and 200-240 VAC for 2 or 4 CPUs",
+      "summary": "100–127VAC for 2 CPUs; 200–240VAC for 2 or 4 CPUs, exact CPU condition retained.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "power",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-32",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 21,
+        "tag": "p",
+        "text_phrase": "Maximum current AC RMS:"
+      },
+      "raw_block": "Maximum current AC RMS: 12A @ 100 VAC / 12A @ 200 VAC",
+      "summary": "Maximum AC RMS 12A@100VAC / 12A@200VAC.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "power",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-33",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 24,
+        "tag": "p",
+        "text_phrase": "Max power consumption:"
+      },
+      "raw_block": "Max power consumption: 1800 W",
+      "summary": "Power Dissipation list says Max power consumption: 1800W, qualified by note that listed dissipation numbers are maximum PSU rating, not actual appliance consumption.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "power",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-34",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 26,
+        "tag": "p",
+        "text_phrase": "Max heat output:"
+      },
+      "raw_block": "Max heat output: 6143 BTU/hr",
+      "summary": "Max heat output: 6143BTU/hr, same power-dissipation/PSU-rating note applies.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "power",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-35",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_block_ordinal_zero_based": 28,
+        "tag": "p",
+        "text_phrase": "Volt-Ampere rating:"
+      },
+      "raw_block": "Volt-Ampere rating: 1837 VA @ 240 VAC, 0.98 P.F.",
+      "summary": "1837VA@240VAC, 0.98P.F., retain source scope/units.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "power",
+      "visually_reviewed": false,
+      "method": "original HTML paragraph/table markup review"
+    },
+    {
+      "id": "oracle-rating-note",
+      "source": "oracle7420-specifications.html",
+      "locator": {
+        "article_text_exact_phrase": "The power dissipation numbers listed are the maximum rated for the power supply and are not a rating of the actual power consumption of the appliance."
+      },
+      "raw_text": "The power dissipation numbers listed are the maximum rated for the power supply and are not a rating of the actual power consumption of the appliance.",
+      "summary": "This note qualifies the whole Power Dissipation list; do not rename 1800W as actual consumption.",
+      "scope": "Printed Sun ZFS Storage 7420 controller specifications only; no M2/registry-code transfer, PSU identity, manufacturer role or physical-unit configuration inference.",
+      "category": "rating_scope_note",
+      "visually_reviewed": false
+    }
+  ],
+  "ordering_rows": [
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 9,
+      "raw_line": "5710-54X-O-AC-F-US           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    N. America",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-F-US",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "N. America"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 11,
+      "raw_line": "5710-54X-O-AC-B-US           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    N. America",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-B-US",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "N. America"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 13,
+      "raw_line": "5710-54X-O-AC-F-EU           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    Europe",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-F-EU",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "Europe"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 15,
+      "raw_line": "5710-54X-O-AC-B-EU           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    Europe",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-B-EU",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "Europe"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 17,
+      "raw_line": "5710-54X-O-AC-F-UK           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    UK",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-F-UK",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "UK"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 19,
+      "raw_line": "5710-54X-O-AC-B-UK           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    UK",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-B-UK",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "UK"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 21,
+      "raw_line": "5710-54X-O-AC-F-JP           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    Japan",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-F-JP",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "Japan"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 23,
+      "raw_line": "5710-54X-O-AC-B-JP           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    Japan",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-AC-B-JP",
+        "Freescale P2041 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "Japan"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 25,
+      "raw_line": "5710-54X-O-48V-F             Freescale P2041 processor         dual 48 VDC PSUs                 port-to-power airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-48V-F",
+        "Freescale P2041 processor",
+        "dual 48 VDC PSUs",
+        "port-to-power airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 27,
+      "raw_line": "5710-54X-O-48V-B             Freescale P2041 processor         dual 48 VDC PSUs                 power-to-port airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-48V-B",
+        "Freescale P2041 processor",
+        "dual 48 VDC PSUs",
+        "power-to-port airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 29,
+      "raw_line": "5710-54X-O-12V-F             Freescale P2041 processor         one 12 VDC power input           port-to-power airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-12V-F",
+        "Freescale P2041 processor",
+        "one 12 VDC power input",
+        "port-to-power airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 31,
+      "raw_line": "5710-54X-O-12V-B             Freescale P2041 processor         one 12 VDC power input           power-to-port airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5710-54X-O-12V-B",
+        "Freescale P2041 processor",
+        "one 12 VDC power input",
+        "power-to-port airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 36,
+      "raw_line": "5712-54X-O-AC-F-US           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    N. America",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-F-US",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "N. America"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 38,
+      "raw_line": "5712-54X-O-AC-B-US           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    N. America",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-B-US",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "N. America"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 40,
+      "raw_line": "5712-54X-O-AC-F-EU           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    Europe",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-F-EU",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "Europe"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 42,
+      "raw_line": "5712-54X-O-AC-B-EU           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    Europe",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-B-EU",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "Europe"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 44,
+      "raw_line": "5712-54X-O-AC-F-UK           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    UK",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-F-UK",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "UK"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 46,
+      "raw_line": "5712-54X-O-AC-B-UK           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    UK",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-B-UK",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "UK"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 48,
+      "raw_line": "5712-54X-O-AC-F-JP           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    Japan",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-F-JP",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "port-to-power airﬂow",
+        "Japan"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 50,
+      "raw_line": "5712-54X-O-AC-B-JP           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    Japan",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-AC-B-JP",
+        "Intel Atom C2538 processor",
+        "dual AC PSUs",
+        "power-to-port airﬂow",
+        "Japan"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 52,
+      "raw_line": "5712-54X-O-48V-F             Intel Atom C2538 processor        dual 48 VDC PSUs                 port-to-power airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-48V-F",
+        "Intel Atom C2538 processor",
+        "dual 48 VDC PSUs",
+        "port-to-power airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 54,
+      "raw_line": "5712-54X-O-48V-B             Intel Atom C2538 processor        dual 48 VDC PSUs                 power-to-port airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-48V-B",
+        "Intel Atom C2538 processor",
+        "dual 48 VDC PSUs",
+        "power-to-port airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 56,
+      "raw_line": "5712-54X-O-12V-F             Intel Atom C2538 processor        one 12 VDC power input           port-to-power airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-12V-F",
+        "Intel Atom C2538 processor",
+        "one 12 VDC power input",
+        "port-to-power airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 3,
+      "line_1based": 58,
+      "raw_line": "5712-54X-O-12V-B             Intel Atom C2538 processor        one 12 VDC power input           power-to-port airﬂow",
+      "raw_cells_from_embedded_text": [
+        "5712-54X-O-12V-B",
+        "Intel Atom C2538 processor",
+        "one 12 VDC power input",
+        "power-to-port airﬂow"
+      ],
+      "base_model_line_as_printed": "Base Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer",
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "CPU Module",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "family_configuration_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-3.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 8,
+      "raw_line": " PSU-AC-400-F                                    400W AC Power Supply FRU                                                                                               port-to-power airﬂow                                 no power cord",
+      "raw_cells_from_embedded_text": [
+        "PSU-AC-400-F",
+        "400W AC Power Supply FRU",
+        "port-to-power airﬂow",
+        "no power cord"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 10,
+      "raw_line": " PSU-AC-400-B                                    400W AC Power Supply FRU                                                                                               power-to-port airﬂow                                 no power cord",
+      "raw_cells_from_embedded_text": [
+        "PSU-AC-400-B",
+        "400W AC Power Supply FRU",
+        "power-to-port airﬂow",
+        "no power cord"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 12,
+      "raw_line": " PSU-48V-400-F                                   400W -48V DC Power Supply FRU                                                                                          port-to-power airﬂow                                 no power cord",
+      "raw_cells_from_embedded_text": [
+        "PSU-48V-400-F",
+        "400W -48V DC Power Supply FRU",
+        "port-to-power airﬂow",
+        "no power cord"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 14,
+      "raw_line": " PSU-48V-400-B                                   400W -48V DC Power Supply FRU                                                                                          power-to-port airﬂow                                 no power cord",
+      "raw_cells_from_embedded_text": [
+        "PSU-48V-400-B",
+        "400W -48V DC Power Supply FRU",
+        "power-to-port airﬂow",
+        "no power cord"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 16,
+      "raw_line": " PSU-12V-400-1                                   12 VDC power input unit FRU",
+      "raw_cells_from_embedded_text": [
+        "PSU-12V-400-1",
+        "12 VDC power input unit FRU"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 18,
+      "raw_line": " FAN-1U-1x1D-F                                   Fan Tray FRU                                                                                                           port-to-power airﬂow",
+      "raw_cells_from_embedded_text": [
+        "FAN-1U-1x1D-F",
+        "Fan Tray FRU",
+        "port-to-power airﬂow"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision.",
+      "model_text_render_conflict": true,
+      "model_as_embedded_text": "FAN-1U-1x1D-F",
+      "model_visible_in_render": "AN-1U-1x1D-F",
+      "conflict_note": "Initial F exists in embedded text but is not visible in both 150/240dpi original-page renders. Retain both observations unresolved; do not canonicalize either into a hardware identity.",
+      "additional_visual_page": "as5712-reread4-4.png"
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 20,
+      "raw_line": " FAN-1U-1x1D-B                                   Fan Tray FRU                                                                                                           power-to-port airﬂow",
+      "raw_cells_from_embedded_text": [
+        "FAN-1U-1x1D-B",
+        "Fan Tray FRU",
+        "power-to-port airﬂow"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision.",
+      "model_text_render_conflict": true,
+      "model_as_embedded_text": "FAN-1U-1x1D-B",
+      "model_visible_in_render": "AN-1U-1x1D-B",
+      "conflict_note": "Initial F exists in embedded text but is not visible in both 150/240dpi original-page renders. Retain both observations unresolved; do not canonicalize either into a hardware identity.",
+      "additional_visual_page": "as5712-reread4-4.png"
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 24,
+      "raw_line": " 57xx-54X-SVC-RTF                                AS5710-54X Annual Hardware Service, post warranty, Return-to-Factory",
+      "raw_cells_from_embedded_text": [
+        "57xx-54X-SVC-RTF",
+        "AS5710-54X Annual Hardware Service, post warranty, Return-to-Factory"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 26,
+      "raw_line": " RKIT-85-6712                                    Rack mount kit (for AS5710-54X / AS5712-54X / AS6712-32X)",
+      "raw_cells_from_embedded_text": [
+        "RKIT-85-6712",
+        "Rack mount kit (for AS5710-54X / AS5712-54X / AS6712-32X)"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 28,
+      "raw_line": " ORSA-1U                                         Open Rack Switch Adapter, for mounting standard 19 inch form factor 1U switches into 21 inch Open Rack",
+      "raw_cells_from_embedded_text": [
+        "ORSA-1U",
+        "Open Rack Switch Adapter, for mounting standard 19 inch form factor 1U switches into 21 inch Open Rack"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 30,
+      "raw_line": " CBL-PWR-US                                      AC Power Cable - US (125 V/13 A, 1830 mm) – only required with spare power supplies",
+      "raw_cells_from_embedded_text": [
+        "CBL-PWR-US",
+        "AC Power Cable - US (125 V/13 A, 1830 mm) – only required with spare power supplies"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 32,
+      "raw_line": " CBL-PWR-EU                                      AC Power Cable - Europe (250 V/10 A, 1830 mm) – only required with spare power supplies",
+      "raw_cells_from_embedded_text": [
+        "CBL-PWR-EU",
+        "AC Power Cable - Europe (250 V/10 A, 1830 mm) – only required with spare power supplies"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 34,
+      "raw_line": " CBL-PWR-UK                                      AC Power Cable - UK (250 V/10 A, 1830 mm) – only required with spare power supplies",
+      "raw_cells_from_embedded_text": [
+        "CBL-PWR-UK",
+        "AC Power Cable - UK (250 V/10 A, 1830 mm) – only required with spare power supplies"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 36,
+      "raw_line": " CBL-PWR-JP                                      AC Power Cable - Japan – only required with spare power supplies",
+      "raw_cells_from_embedded_text": [
+        "CBL-PWR-JP",
+        "AC Power Cable - Japan – only required with spare power supplies"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    }
+  ],
+  "conflicts": [
+    {
+      "source": "oracle7420-specifications.html",
+      "issue": "Weight is printed 16.36 kg/96 lbs; units disagree. Preserve literal pair, no correction/conversion."
+    },
+    {
+      "source": "oracle7420-specifications.html",
+      "issue": "1800W label says Max power consumption but note qualifies dissipation as maximum PSU rating, not actual appliance consumption."
+    },
+    {
+      "source": "data/raw/edgecore/product-as6700-32x.html",
+      "issue": "Previously saved AS6700 product page vendor_description names AS6701. Joint new guide does not prove equivalence or repair old field."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "issue": "Saved pdfinfo Title metadata reads AS5710_AS5712-54X ONIE DS R06, whereas visible footer EC-DS-0619-09 and published landing call R09. Document designation follows visible footer; metadata remains unresolved historical context, no guessed alternate revision."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "issue": "Two fan model rows read FAN-1U-1x1D-F/B in embedded text but AN-1U-1x1D-F/B visually. Both unresolved; no row identity accepted."
+    }
+  ],
+  "negative_findings": [
+    {
+      "source": "oracle7420-specifications.html",
+      "scope": "entire captured specifications article",
+      "absent": "No M2-named specifications, environmental limits, PSU model/order code, PSU count/redundancy or service part table on this page."
+    },
+    {
+      "source": "as6700-quick-start.pdf",
+      "scope": "complete 2-page guide",
+      "absent": "No full instantiated chassis/PSU/fan order-code table, exact PSU model/output rating, DC-input installation/rating, service replacement timing or current NOS entitlement."
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "scope": "complete 4-page datasheet",
+      "absent": "No general cross-family suffix decoder, physical factory identity, current firmware/image entitlement or unit-specific configuration. PSU-12V-400-1 description does not state 400W output despite its code."
+    }
+  ],
+  "limits": "Historical/source-scoped only; complete sidecars, six distinct PDF pages visually reviewed with seven renders; HTML reviewed from raw markup. No model aliases, roles/manufacture, inferred fitment, current certification/support/stock or candidate decisions."
+}

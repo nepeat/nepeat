@@ -1,0 +1,66 @@
+4
+                                                                                                                                          PFE1100-12-054xA
+
+    EFFICIENCY
+    High efficiency (see Figure 2) is achieved by using state-of-the-art silicon power devices in conjunction with soft-transition
+    topologies minimizing switching losses and a full digital control scheme. Synchronous rectifiers on the output reduce the losses
+    in the high current output path. The speed of the fan is digitally controlled to keep all components at an optimal operating
+    temperature regardless of the ambient temperature and load conditions.
+
+                                 95                                                                                           1
+                                                                                                                            0.98
+                                 94
+                                                                                                                            0.96
+                                 93                                                                                         0.94
+
+
+
+       Efficiency [%]                                                                                        Power factor
+                                                                                                                            0.92
+                                 92
+                                                                                                                             0.9
+                                 91                                                                                         0.88
+                                 90                                                                                         0.86
+                                                                        Vi = 230Vac, fan internal                                                                       Vi = 230Vac
+                                                                                                                            0.84
+                                 89                                     Vi = 230Vac, fan external
+                                                                        Platinum                                            0.82                                        Vi = 115Vac
+
+                                 88                                                                                          0.8
+                                      0         200      400             600          800         1000                             0         200     400       600    800        1000
+                                                                     Po [W]                                                                                Po [W]
+
+     Figure 2. Efficiency vs. Load current (ratio metric loading)                                                                      Figure 3. Power factor vs. Load current
+
+
+                                 16
+
+                                 14                                            Unstable
+
+
+
+
+          Input Current [Arms]
+                                 12
+
+                                 10
+
+                                  8
+
+                                  6
+
+                                  4                              Stable
+                                  2
+
+                                  0
+                                      0   100    200   300     400    500      600   700    800   900 1000
+                                                             Line Inductance [uH]
+
+                                                Figure 4. PFC Stability Region                                                     Figure 5. Inrush current, Vin = 230Vac, 90°
+                                                                                                                                      CH4: Vin (200V/div), CH3: Iin (20A/div)
+
+
+
+
+                                                                                                                                                           tech.support@psbel.com
+

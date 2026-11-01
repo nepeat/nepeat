@@ -1,0 +1,1821 @@
+{
+  "database_sha256_unchanged": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "sources": 9,
+  "records": 242,
+  "facts": 3388,
+  "distinct_identities": 242,
+  "matching_identity_records": 0,
+  "matching_catalog_ids": 0,
+  "coverage": [
+    {
+      "partner": "ASRock Industrial Computer Corp.",
+      "source": "redhat-certified-vendor-expansion-01-2026-10-14",
+      "numFound": 4,
+      "captured": 4,
+      "complete_query": true,
+      "accepted_records": 4,
+      "excluded": []
+    },
+    {
+      "partner": "ASRockRack",
+      "source": "redhat-certified-vendor-expansion-02-2026-10-14",
+      "numFound": 26,
+      "captured": 26,
+      "complete_query": true,
+      "accepted_records": 25,
+      "excluded": [
+        {
+          "row": 0,
+          "id": "318717",
+          "title": "ASRock Rack W880M WS",
+          "category": "System",
+          "system_types": [
+            "Desktop/Workstation"
+          ],
+          "reason": "Not an explicitly listed server or edge system"
+        }
+      ]
+    },
+    {
+      "partner": "Aivres Systems Inc.",
+      "source": "redhat-certified-vendor-expansion-03-2026-10-14",
+      "numFound": 40,
+      "captured": 40,
+      "complete_query": true,
+      "accepted_records": 40,
+      "excluded": []
+    },
+    {
+      "partner": "Gigabyte",
+      "source": "redhat-certified-vendor-expansion-04-2026-10-14",
+      "numFound": 106,
+      "captured": 106,
+      "complete_query": true,
+      "accepted_records": 105,
+      "excluded": [
+        {
+          "row": 29,
+          "id": "3445",
+          "title": "GIGABYTE GA-6PXSV3",
+          "category": "System",
+          "system_types": [
+            "Desktop/Workstation"
+          ],
+          "reason": "Not an explicitly listed server or edge system"
+        }
+      ]
+    },
+    {
+      "partner": "MiTAC Computing Technology Corp",
+      "source": "redhat-certified-vendor-expansion-05-2026-10-14",
+      "numFound": 11,
+      "captured": 11,
+      "complete_query": true,
+      "accepted_records": 11,
+      "excluded": []
+    },
+    {
+      "partner": "Pegatron Corporation",
+      "source": "redhat-certified-vendor-expansion-06-2026-10-14",
+      "numFound": 6,
+      "captured": 6,
+      "complete_query": true,
+      "accepted_records": 5,
+      "excluded": [
+        {
+          "row": 0,
+          "id": "280857",
+          "title": "NUC series ASUS ROG NUC (2025)",
+          "category": "System",
+          "system_types": [
+            "Desktop/Workstation"
+          ],
+          "reason": "Not an explicitly listed server or edge system"
+        }
+      ]
+    },
+    {
+      "partner": "TYAN Computer Corporation",
+      "source": "redhat-certified-vendor-expansion-07-2026-10-14",
+      "numFound": 8,
+      "captured": 8,
+      "complete_query": true,
+      "accepted_records": 8,
+      "excluded": []
+    },
+    {
+      "partner": "Wistron",
+      "source": "redhat-certified-vendor-expansion-08-2026-10-14",
+      "numFound": 5,
+      "captured": 5,
+      "complete_query": true,
+      "accepted_records": 5,
+      "excluded": []
+    },
+    {
+      "partner": "xFusion Digital Technologies Co. Ltd",
+      "source": "redhat-certified-vendor-expansion-09-2026-10-14",
+      "numFound": 39,
+      "captured": 39,
+      "complete_query": true,
+      "accepted_records": 39,
+      "excluded": []
+    }
+  ],
+  "rows": [
+    {
+      "brand": "ASRock Industrial Computer Corp.",
+      "model": "iEP-5000G",
+      "catalog_id": "258817",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRock Industrial Computer Corp.",
+      "model": "iEP-7020E",
+      "catalog_id": "250817",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRock Industrial Computer Corp.",
+      "model": "NUC BOX-1360P/D5",
+      "catalog_id": "252017",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRock Industrial Computer Corp.",
+      "model": "5010G",
+      "catalog_id": "238817",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "1U12LW-C2750",
+      "catalog_id": "4387",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "2U4G-ROME/2T",
+      "catalog_id": "143777",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "4U60L",
+      "catalog_id": "4982",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "AM5D4ID2",
+      "catalog_id": "319407",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "E3C224D4HM",
+      "catalog_id": "4916",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "E3C242D4U",
+      "catalog_id": "121395",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C612D16C-4L",
+      "catalog_id": "5105",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C612D16HM",
+      "catalog_id": "5203",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C612D16NM-2T8R",
+      "catalog_id": "5027",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EPC612D4I ",
+      "catalog_id": "5277",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EPC612D4U-2T8R",
+      "catalog_id": "5212",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "W880D4ID-2Q",
+      "catalog_id": "315977",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "W880D4U",
+      "catalog_id": "319207",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "X570D4U-2L2T",
+      "catalog_id": "221897",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "C3758D4I-4L",
+      "catalog_id": "13915",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "E3C232D2I",
+      "catalog_id": "6790",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C612D24-4L",
+      "catalog_id": "6772",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C612D8-8R",
+      "catalog_id": "6693",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C612D8C",
+      "catalog_id": "6720",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C622D16FM",
+      "catalog_id": "6888",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EP2C622D16NM",
+      "catalog_id": "6855",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EPC621D8A",
+      "catalog_id": "6798",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "EPYCD8-2T",
+      "catalog_id": "29415",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "ROMED8-2T",
+      "catalog_id": "48275",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "ASRockRack",
+      "model": "WC422D8A-2T",
+      "catalog_id": "42805",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KM1160-E2-A0-R0-00",
+      "catalog_id": "284337",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KM1160-E3-A0-R0-00",
+      "catalog_id": "288397",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KM1270-X2-A0-R0-00",
+      "catalog_id": "309327",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KM1280-E2-A0-R0-00",
+      "catalog_id": "314217",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KM2160-E2-A0-R0-00",
+      "catalog_id": "285237",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KM2160-E3-A0-R0-00",
+      "catalog_id": "283757",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1180-E2-A0-R0-00",
+      "catalog_id": "282037",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1180-E3-A0-R0-00",
+      "catalog_id": "284727",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1180-X3-A0-R0-00",
+      "catalog_id": "280677",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1270-X2-A0-R0-00",
+      "catalog_id": "290237",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1280-E2-A0-R0-00",
+      "catalog_id": "288507",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1280-E3-A0-R0-00",
+      "catalog_id": "289427",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1280-E3-C0-R0-00",
+      "catalog_id": "307927",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1280-X2-A0-R0-00",
+      "catalog_id": "292127",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1280-X3-A0-R0-00",
+      "catalog_id": "290477",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR1280-X3-C0-R0-00",
+      "catalog_id": "308417",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2166-E2-A0-R0-00",
+      "catalog_id": "293177",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2180-E2-A0-R0-00",
+      "catalog_id": "282777",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2180-E3-A0-R0-00",
+      "catalog_id": "286327",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2266-X2-A0-R0-00",
+      "catalog_id": "291247",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2280-E2-A0-R0-00",
+      "catalog_id": "281077",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2280-E3-A0-R0-00",
+      "catalog_id": "282167",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2280-E3-C0-R0-00",
+      "catalog_id": "298217",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2280-X2-A0-R0-00",
+      "catalog_id": "280867",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2280-X3-A0-R0-00",
+      "catalog_id": "286837",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2280-X3-A0-R0-H0",
+      "catalog_id": "294847",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2280-X3-C0-R0-00",
+      "catalog_id": "295417",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR2460-X2-A0-R0-00",
+      "catalog_id": "291657",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR4266-X3-A0-R0-00",
+      "catalog_id": "292617",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR4268-E2-A0-R0-00",
+      "catalog_id": "294147",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR4268-E3-A0-R0-00",
+      "catalog_id": "291997",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR4268-X2-A0-R0-00",
+      "catalog_id": "295827",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR4276-X2-A0-R0-00",
+      "catalog_id": "291297",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR4480-X2-A0-R0-00",
+      "catalog_id": "293317",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR4480-X3-A0-R0-00",
+      "catalog_id": "320947",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR6268-X3-A0-R0-00",
+      "catalog_id": "320957",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR6288-E2-A0-R0-00",
+      "catalog_id": "295907",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR6288-E3-A0-R0-00",
+      "catalog_id": "294677",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR6880-X2-A0-R0-00",
+      "catalog_id": "292647",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Aivres Systems Inc.",
+      "model": "KR9288-X3-A0-F0-00",
+      "catalog_id": "311837",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "FormatServer THOR E12",
+      "catalog_id": "21805",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "C621-SD8",
+      "catalog_id": "13666",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "C621-SU8",
+      "catalog_id": "15685",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "C621-WD12",
+      "catalog_id": "20405",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "C621-WD12-IPMI",
+      "catalog_id": "19495",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "D120-C21",
+      "catalog_id": "6459",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G190-H44",
+      "catalog_id": "5536",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G242-Z11",
+      "catalog_id": "137997",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G250-G50",
+      "catalog_id": "5186",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G250-G51",
+      "catalog_id": "5108",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G250-G52",
+      "catalog_id": "5141",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G250-S88",
+      "catalog_id": "5083",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G291-280",
+      "catalog_id": "33995",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G291-Z20",
+      "catalog_id": "35065",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G292-280",
+      "catalog_id": "139267",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G292-Z24",
+      "catalog_id": "138217",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G292-Z40",
+      "catalog_id": "137377",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G292-Z44",
+      "catalog_id": "137737",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G481-S80",
+      "catalog_id": "50655",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "G492-ZD2",
+      "catalog_id": "134535",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LASH",
+      "catalog_id": "3879",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LASL",
+      "catalog_id": "3882",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LISL",
+      "catalog_id": "3937",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LXGH",
+      "catalog_id": "3883",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LXGL",
+      "catalog_id": "3955",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LXSG",
+      "catalog_id": "3891",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LXSL",
+      "catalog_id": "3869",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6LXSV",
+      "catalog_id": "3703",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6PXSV1",
+      "catalog_id": "3569",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6PXSV4",
+      "catalog_id": "3672",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6PXSVL",
+      "catalog_id": "4765",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6PXSVT",
+      "catalog_id": "3946",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-7PESH1",
+      "catalog_id": "3530",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-7PESH2",
+      "catalog_id": "3460",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-7PESH3",
+      "catalog_id": "3655",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-7PESH4",
+      "catalog_id": "3630",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-7PESL",
+      "catalog_id": "3497",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-7PESLN",
+      "catalog_id": "3490",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-7PXSL",
+      "catalog_id": "3795",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R11U4S",
+      "catalog_id": "3554",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R12P4S",
+      "catalog_id": "3556",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R12PE1",
+      "catalog_id": "3578",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R22PD",
+      "catalog_id": "3549",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R22PD1",
+      "catalog_id": "3584",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R22PDP",
+      "catalog_id": "3714",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R22PE",
+      "catalog_id": "3577",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R22PHL",
+      "catalog_id": "3721",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GS-R22PXL",
+      "catalog_id": "3541",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "H230-R4G",
+      "catalog_id": "6099",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "H270-H70",
+      "catalog_id": "5003",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "H281-PE0",
+      "catalog_id": "24625",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MB51-PS0",
+      "catalog_id": "8395",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MD30-RS0",
+      "catalog_id": "5337",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MD50-LS0",
+      "catalog_id": "5243",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MD60-SC0",
+      "catalog_id": "4701",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MD70-HB0",
+      "catalog_id": "4789",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MD70-HB1",
+      "catalog_id": "5389",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MD80-TM0",
+      "catalog_id": "5285",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MP72-HB0",
+      "catalog_id": "142987",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MU70-SU0",
+      "catalog_id": "5302",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MW21-SE0",
+      "catalog_id": "6048",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MW50-SV0",
+      "catalog_id": "4891",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MX11-PC0",
+      "catalog_id": "6070",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "MX31-BS0",
+      "catalog_id": "6019",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R121-X30",
+      "catalog_id": "5995",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R130-134",
+      "catalog_id": "5508",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R152-P31",
+      "catalog_id": "144007",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R160-S34",
+      "catalog_id": "5026",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R162-ZA2",
+      "catalog_id": "143607",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R180-F28",
+      "catalog_id": "5025",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R180-F34",
+      "catalog_id": "4905",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R181-340",
+      "catalog_id": "20225",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R181-Z90",
+      "catalog_id": "15475",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R181-Z91",
+      "catalog_id": "14155",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R181-Z92",
+      "catalog_id": "14045",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R182-Z90",
+      "catalog_id": "69275",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R182-Z91",
+      "catalog_id": "115865",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R182-Z93",
+      "catalog_id": "142577",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R260-R3C",
+      "catalog_id": "5336",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R262-ZA2",
+      "catalog_id": "138737",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R270-R3C",
+      "catalog_id": "5200",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R271-Z31",
+      "catalog_id": "6827",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R272-Z30",
+      "catalog_id": "36615",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R272-Z31",
+      "catalog_id": "78725",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R280-A3C",
+      "catalog_id": "5335",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R280-F2O",
+      "catalog_id": "4906",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R280-F3C",
+      "catalog_id": "5447",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R280-G2O",
+      "catalog_id": "5063",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R281-3C0",
+      "catalog_id": "7395",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R281-3C1",
+      "catalog_id": "20065",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R281-Z91",
+      "catalog_id": "14465",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R281-Z92",
+      "catalog_id": "13655",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R282-3C0",
+      "catalog_id": "118325",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R282-G30",
+      "catalog_id": "137907",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R282-NO0",
+      "catalog_id": "140227",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R282-Z90",
+      "catalog_id": "54655",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R282-Z91",
+      "catalog_id": "57745",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R282-Z93",
+      "catalog_id": "70505",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R292-4S0",
+      "catalog_id": "112175",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "R292-4S1",
+      "catalog_id": "142997",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "WRX80-SU8-IPMI",
+      "catalog_id": "72165",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "Altus XE1112",
+      "catalog_id": "19795",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "Relion XE1112",
+      "catalog_id": "21125",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "Relion XE2112",
+      "catalog_id": "19835",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Gigabyte",
+      "model": "GA-6UASL3",
+      "catalog_id": "3344",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "Aowanda AD1S01 (AD211)",
+      "catalog_id": "149177",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "Aowanda AD1S02 (AD211)",
+      "catalog_id": "149807",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "Capri V2",
+      "catalog_id": "251107",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "GC68A-B8056",
+      "catalog_id": "264767",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "GC68C-B8056",
+      "catalog_id": "264757",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "R1520G6",
+      "catalog_id": "317857",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "R2520G6",
+      "catalog_id": "281207",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "TD76-B8058",
+      "catalog_id": "264017",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "TN85-B8261",
+      "catalog_id": "261847",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "TS70A-B8056",
+      "catalog_id": "263987",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "MiTAC Computing Technology Corp",
+      "model": "Whitestone-A WS1S01",
+      "catalog_id": "148327",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Pegatron Corporation",
+      "model": "AS201-1N0",
+      "catalog_id": "255657",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Pegatron Corporation",
+      "model": "MS303-2A1T",
+      "catalog_id": "319447",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Pegatron Corporation",
+      "model": "MS303-4A1C",
+      "catalog_id": "312487",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Pegatron Corporation",
+      "model": "MS303-4A1F",
+      "catalog_id": "319387",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Pegatron Corporation",
+      "model": "RA4802-72N2",
+      "catalog_id": "317967",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "TN71-BP012",
+      "catalog_id": "5969",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "Tiogapass",
+      "catalog_id": "31805",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "Thunder SX TS65-B7126",
+      "catalog_id": "131355",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "Transport CX GC68A-B8036",
+      "catalog_id": "112615",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "TRANSPORT CX GC79-B8252",
+      "catalog_id": "121695",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "Transport HX TN83-B8251",
+      "catalog_id": "114275",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "TRANSPORT HX TN83B8251",
+      "catalog_id": "144017",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "TYAN Computer Corporation",
+      "model": "ZZ5000",
+      "catalog_id": "6845",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Wistron",
+      "model": "Blackburn_S112G13-210",
+      "catalog_id": "17015",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Wistron",
+      "model": "Blackburn_S112G13-U10",
+      "catalog_id": "15645",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Wistron",
+      "model": "Lyskamm_S212G13-224",
+      "catalog_id": "17095",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Wistron",
+      "model": "Lyskamm_S212G13-312",
+      "catalog_id": "17075",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "Wistron",
+      "model": "Lyskamm_S212G13-U24",
+      "catalog_id": "17055",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "DH120E V8",
+      "catalog_id": "289097",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "DH121C V6",
+      "catalog_id": "140957",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "DH122E V6",
+      "catalog_id": "226407",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "1158H V7",
+      "catalog_id": "252127",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "1258H V7",
+      "catalog_id": "242087",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "1288 V8",
+      "catalog_id": "301787",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "1288H V5",
+      "catalog_id": "135457",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "1288H V6",
+      "catalog_id": "135197",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "1288H V7",
+      "catalog_id": "217557",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2158H V8",
+      "catalog_id": "294767",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2258 V7",
+      "catalog_id": "243947",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2258H V8",
+      "catalog_id": "294867",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2288 V7",
+      "catalog_id": "217567",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2288 V8",
+      "catalog_id": "295557",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2288H V5",
+      "catalog_id": "134375",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2288H V6",
+      "catalog_id": "134455",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2288H V7",
+      "catalog_id": "217547",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2288H V8",
+      "catalog_id": "293357",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2488 V5",
+      "catalog_id": "134495",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2488H V5",
+      "catalog_id": "134435",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2488H V6",
+      "catalog_id": "135637",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "2488H V7",
+      "catalog_id": "232417",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "5288 V5",
+      "catalog_id": "135487",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "5288 V6",
+      "catalog_id": "135607",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "5288 V7",
+      "catalog_id": "235607",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "5298 V7",
+      "catalog_id": "253457",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "5885H V5",
+      "catalog_id": "136527",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "5885H V6",
+      "catalog_id": "148667",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "5885H V7",
+      "catalog_id": "224437",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "G5200 V7",
+      "catalog_id": "237257",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "G5500 V6",
+      "catalog_id": "223807",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "G5500 V7",
+      "catalog_id": "230857",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "G560 V5",
+      "catalog_id": "137467",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "G6550 V8",
+      "catalog_id": "317917",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "G8550 V8",
+      "catalog_id": "317667",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "G8600 V7",
+      "catalog_id": "229417",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "KunLun 9008 V5",
+      "catalog_id": "220517",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "XH321 V5",
+      "catalog_id": "135527",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    },
+    {
+      "brand": "xFusion Digital Technologies Co. Ltd",
+      "model": "XH321L V5",
+      "catalog_id": "134515",
+      "exact_identity_hits": [],
+      "catalog_id_hits": []
+    }
+  ]
+}

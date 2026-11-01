@@ -1,0 +1,256 @@
+{
+  "status": "PASS static helper and finite input review only; unexecuted",
+  "checked_utc": "2026-10-13T04:57:14.571268+00:00",
+  "helper_sha256": "988a75c526d66018c086713fe761b604c57653d9dc31e05158ab0c401f866cda",
+  "input_hashes": {
+    "research/batches/discovery-2026-10-12/integration-wave4/stage.py": "988a75c526d66018c086713fe761b604c57653d9dc31e05158ab0c401f866cda",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/candidate.json": "7c73ce18d7a5812f776b3bde2dbec704a45bed68c7922b3e1e4dad0db2dcaa3e",
+    "research/batches/discovery-2026-10-12/review/as8000-sc6100-facts-r2-review.md": "ce0183f1895d60b788d0194c9294652281b9523a6c6b57c6780402c36587f782",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/as8000-r02-qsg.pdf": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/as8000-pages.json": "d826784d7e402dc7f9e74df449d26231cd4373a5ceae11421d2f24d79a936d4b",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/sc6100-datasheet.pdf": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/sc6100-pages.json": "973cb631b49945513bca216f0de25aa48e65728023078a03fa6410acff1c2271",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/candidate.json": "580ff0e2aa3f46b996fc28612fe8d0489de9a8ca8fdd649948dd202ffc8b8608",
+    "research/batches/discovery-2026-10-12/review/spec-continuation-facts-review.md": "7a0dafea3c68f25e7442d040dcb64128c505d99cd4c33e4ea450901118b765a0",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20151123-00036.html": "1fdf11211162954d70d64056dba4d8d8808c0e9250e65d5fbd2e4b66472f6286",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160118-00041.html": "05d789cc4565f35e4bcb498924eee2780604c8ca5b4493fd834d4763dd220548",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160321-00065.html": "5d1f3b2c7c131511f7b88681f17da4cd2c313cee637db43dff5f08ecd94785f5",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160321-00066.html": "4db0fbc588f18529a6af95460f0a40d5855cc42114d9b3ce2f3262d5b6a5be5c",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160321-00067.html": "a15d9689775057ffce652aa029d41a1992106487ed357d7a98d4cbd8b3fe3ebc",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160516-00095.html": "6055a6bf577154a73ca1cb80bc3d4cdd051001232ef4f2fe7776300b8ab7b8b8",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220325-31246.txt": "00b367fd47cd240412e94eb6cdeb297b50b54c889e072f08ff89b8ab09a05e2e",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220325-31244.txt": "032cf03841493c88ca33a345aa7b4140e0a226cdb856b816cc765503f9409b83",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220325-31242.txt": "ddfcfc75d57921197bc93266a025a51c3854a06bb570a3b49982580e0baff941",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220311-31155.txt": "6dfc129904136f1350f1bb8f2142073a497bbe9ae10450ad126b844cfb659e86",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220301-31137.txt": "d0459eb694c5950ee6bee0135ce9a158036e4393760e01023225668c80ef173f",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220301-31136.txt": "b28ba6665cfe5d227d0752a948156ec52ee05cc269b92fd31340734b09688c9d",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220220-30983.txt": "22f694f186541869c321778e3eab34d4ff80d0ec97b9cac3340cc3ac2e86d5f0",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220220-30979.txt": "82276d7e65e543dd411a200ec6d27ef74b00244eb4a36b9d668d110380688110",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220125-30794.txt": "307bd0ae2e2ae949840ac8c10dfe0fba81899646b2b7e203987bacea287e0d89",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220125-30791.txt": "5518b9efeaa35453632b9ed111b7306852d59b1d83817f7e3f837e0ff1b299a8",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20211206-30304.txt": "d986fe2c0debc18278fe23e7f13cd4608f2e804b9aa0245543fe31cadac01584",
+    "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20211206-30303.txt": "a9d0f6fbee4a747833cbb6948db7706b80a01037f58d6e73de6e53b3644ac679"
+  },
+  "copy_plan": [
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/candidate.json",
+      "dest": "data/raw/as8000-sc6100-facts-r2-wave4-2026-10-12/candidate.json",
+      "sha256": "7c73ce18d7a5812f776b3bde2dbec704a45bed68c7922b3e1e4dad0db2dcaa3e"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/as8000-r02-qsg.pdf",
+      "dest": "data/raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/as8000-pages.json",
+      "dest": "data/raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/as8000-pages.json",
+      "sha256": "d826784d7e402dc7f9e74df449d26231cd4373a5ceae11421d2f24d79a936d4b"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/as8000-r02-qsg.pdf",
+      "dest": "data/raw/wave4-2026-10-12-as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/as8000-pages.json",
+      "dest": "data/raw/wave4-2026-10-12-as8000-pages.json",
+      "sha256": "d826784d7e402dc7f9e74df449d26231cd4373a5ceae11421d2f24d79a936d4b"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/sc6100-datasheet.pdf",
+      "dest": "data/raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/sc6100-pages.json",
+      "dest": "data/raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/sc6100-pages.json",
+      "sha256": "973cb631b49945513bca216f0de25aa48e65728023078a03fa6410acff1c2271"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/sc6100-datasheet.pdf",
+      "dest": "data/raw/wave4-2026-10-12-sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/sc6100-pages.json",
+      "dest": "data/raw/wave4-2026-10-12-sc6100-pages.json",
+      "sha256": "973cb631b49945513bca216f0de25aa48e65728023078a03fa6410acff1c2271"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/candidate.json",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/candidate.json",
+      "sha256": "580ff0e2aa3f46b996fc28612fe8d0489de9a8ca8fdd649948dd202ffc8b8608"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20151123-00036.html",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20151123-00036.html",
+      "sha256": "1fdf11211162954d70d64056dba4d8d8808c0e9250e65d5fbd2e4b66472f6286"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160118-00041.html",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160118-00041.html",
+      "sha256": "05d789cc4565f35e4bcb498924eee2780604c8ca5b4493fd834d4763dd220548"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160321-00065.html",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160321-00065.html",
+      "sha256": "5d1f3b2c7c131511f7b88681f17da4cd2c313cee637db43dff5f08ecd94785f5"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160321-00066.html",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160321-00066.html",
+      "sha256": "4db0fbc588f18529a6af95460f0a40d5855cc42114d9b3ce2f3262d5b6a5be5c"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160321-00067.html",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160321-00067.html",
+      "sha256": "a15d9689775057ffce652aa029d41a1992106487ed357d7a98d4cbd8b3fe3ebc"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/jbb2015/jbb2015-20160516-00095.html",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160516-00095.html",
+      "sha256": "6055a6bf577154a73ca1cb80bc3d4cdd051001232ef4f2fe7776300b8ab7b8b8"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220325-31246.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220325-31246.txt",
+      "sha256": "00b367fd47cd240412e94eb6cdeb297b50b54c889e072f08ff89b8ab09a05e2e"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220325-31244.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220325-31244.txt",
+      "sha256": "032cf03841493c88ca33a345aa7b4140e0a226cdb856b816cc765503f9409b83"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220325-31242.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220325-31242.txt",
+      "sha256": "ddfcfc75d57921197bc93266a025a51c3854a06bb570a3b49982580e0baff941"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220311-31155.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220311-31155.txt",
+      "sha256": "6dfc129904136f1350f1bb8f2142073a497bbe9ae10450ad126b844cfb659e86"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220301-31137.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220301-31137.txt",
+      "sha256": "d0459eb694c5950ee6bee0135ce9a158036e4393760e01023225668c80ef173f"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220301-31136.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220301-31136.txt",
+      "sha256": "b28ba6665cfe5d227d0752a948156ec52ee05cc269b92fd31340734b09688c9d"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220220-30983.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220220-30983.txt",
+      "sha256": "22f694f186541869c321778e3eab34d4ff80d0ec97b9cac3340cc3ac2e86d5f0"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220220-30979.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220220-30979.txt",
+      "sha256": "82276d7e65e543dd411a200ec6d27ef74b00244eb4a36b9d668d110380688110"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220125-30794.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220125-30794.txt",
+      "sha256": "307bd0ae2e2ae949840ac8c10dfe0fba81899646b2b7e203987bacea287e0d89"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20220125-30791.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220125-30791.txt",
+      "sha256": "5518b9efeaa35453632b9ed111b7306852d59b1d83817f7e3f837e0ff1b299a8"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20211206-30304.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20211206-30304.txt",
+      "sha256": "d986fe2c0debc18278fe23e7f13cd4608f2e804b9aa0245543fe31cadac01584"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/spec-continuation-facts/snapshots/cpu2017/cpu2017-20211206-30303.txt",
+      "dest": "data/raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20211206-30303.txt",
+      "sha256": "a9d0f6fbee4a747833cbb6948db7706b80a01037f58d6e73de6e53b3644ac679"
+    }
+  ],
+  "accepted_live_pair_unchanged": {
+    "devices.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+    "import-manifest.json": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec"
+  },
+  "frozen_code_files_verified": 209,
+  "pure_prepare_groups": 2,
+  "sources": 20,
+  "records": 20,
+  "facts": 392,
+  "new_identities": [
+    "0bad71144fd3f941299a",
+    "7def8cc8592b77d60107",
+    "85a144b68839f17b3901",
+    "a6d17cb838346ee56f8f",
+    "eebe272934886ec0b12b"
+  ],
+  "existing_identities": [
+    "09fd28196820640d4c48",
+    "28d8c44c9c82eff65231",
+    "291ef0b1ebfda1c953d7",
+    "2efcb0bdbfed7895e91c",
+    "710919c49765e744012c",
+    "896c2531d53210a1ef86",
+    "9e6ff32d891fb085be76",
+    "bf057d2343118456e21b",
+    "d3f48f11da28bc2c2661"
+  ],
+  "role_counts": {
+    "('Edgecore Networks Corporation', 'documentation_vendor')": 1,
+    "('Celestica Inc.', 'documentation_vendor')": 1,
+    "('Inspur Corporation', 'brand')": 18
+  },
+  "reference_bundle": {
+    "old_entries": 57,
+    "new_entries": 59,
+    "old_pages": 3710,
+    "new_pages": 3724
+  },
+  "expected_counts": {
+    "devices": 5122,
+    "records": 7261,
+    "facts": 74602,
+    "sources": 2115,
+    "documents": 70,
+    "document_pages": 3798
+  },
+  "manifest_expected_jobs": 150,
+  "manifest_expected_inputs": 3970,
+  "new_pins": [
+    "raw/as8000-sc6100-facts-r2-wave4-2026-10-12/candidate.json",
+    "raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/as8000-pages.json",
+    "raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/as8000-r02-qsg.pdf",
+    "raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/sc6100-datasheet.pdf",
+    "raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/sc6100-pages.json",
+    "raw/reference-documents-with-wave4-2026-10-12.json",
+    "raw/spec-continuation-facts-wave4-2026-10-12/candidate.json",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20211206-30303.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20211206-30304.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220125-30791.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220125-30794.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220220-30979.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220220-30983.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220301-31136.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220301-31137.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220311-31155.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220325-31242.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220325-31244.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/cpu2017/cpu2017-20220325-31246.txt",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20151123-00036.html",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160118-00041.html",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160321-00065.html",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160321-00066.html",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160321-00067.html",
+    "raw/spec-continuation-facts-wave4-2026-10-12/snapshots/jbb2015/jbb2015-20160516-00095.html",
+    "raw/wave4-2026-10-12-as8000-pages.json",
+    "raw/wave4-2026-10-12-as8000-r02-qsg.pdf",
+    "raw/wave4-2026-10-12-sc6100-datasheet.pdf",
+    "raw/wave4-2026-10-12-sc6100-pages.json"
+  ],
+  "limitations": "No stage/helper/import execution, no candidate DB/bundle/manifest creation, no network or shared writes; stage results, clean rebuild and final promotion review remain required."
+}

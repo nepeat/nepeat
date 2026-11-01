@@ -1,0 +1,19 @@
+{
+  "at_utc": "2026-10-13T05:20:46.593787+00:00",
+  "status": "PASS bounded offline plan",
+  "leads": 3,
+  "HTML_index_sources_read": 6,
+  "HTML_source_cap": 10,
+  "actual_HTTP": 0,
+  "network": 0,
+  "imports": 0,
+  "production_edits": 0,
+  "live_catalog_unchanged": true,
+  "artifact_sha256": {
+    "plan.json": "dbbb1fbcc67631d2b312b30b8825a10e4b791e99b943c4b5b39854d2f7ea74f4",
+    "catalog-context.json": "dd68af5c23e974e502db88a6e5c2008632d1e6af15395d3c25ce7cf5d613af4b",
+    "source-link-checks.json": "9b74dcb416ad42ae3b996646ffb795d90e13f5fdb499fb912c07b1f351e531b3"
+  },
+  "scope": "Only next-leads-r3 artifacts written; current/staged URLs and prior failure boundaries checked read-only",
+  "filename_only_check_complete": true
+}

@@ -1,0 +1,28 @@
+{
+  "manifest": "data/history/superseded-recovery-2026-10-04/manifest.json",
+  "manifest_sha256": "5e0568e04447faaae06a991bd37dde93f01e321d3335241ca7f09dd525e6b45d",
+  "files": 2,
+  "logical_bytes": 737558528,
+  "archive_bytes": 164183668,
+  "restored": [
+    {
+      "path": "data/devices-before-inventec-practical-2026-10-04.sqlite",
+      "sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+      "integrity": "ok",
+      "foreign_keys": []
+    },
+    {
+      "path": "data/rebuilt-with-inventec-practical-2026-10-04.sqlite",
+      "sha256": "463cc53ccaff1fab68c10ffbca72cb57885884f16bd63b957ab11a6f99e8bccd",
+      "integrity": "ok",
+      "foreign_keys": []
+    }
+  ],
+  "temporary_copies_cleaned": true,
+  "originals_removed": true,
+  "keep_hashes": {
+    "data/devices.sqlite": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+    "data/devices-before-archive-2026-10-04.sqlite": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+    "data/catalog-archive-rebuilt-2026-10-04.sqlite": "c4eccb0c03ffac2c3810788098191866b2bce2ff9d0268f001d0837121be4281"
+  }
+}

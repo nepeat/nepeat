@@ -1,0 +1,424 @@
+{
+  "status": "offline plan only; no requests or candidate",
+  "selection": "six known remaining oldest Inspur jbb HTML pages plus newest12 of244 remaining distinct sponsor/full-system CPU2017 names; raw index names are discovery only",
+  "sources": [
+    {
+      "benchmark": "jbb2015",
+      "url": "https://www.spec.org/jbb2015/results/res2015q4/jbb2015-20151123-00036.html",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5280M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2015q4/jbb2015-20151123-00036.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u60",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_60",
+        "result.metric.max-jOPS": "92616",
+        "result.metric.critical-jOPS": "27134"
+      }
+    },
+    {
+      "benchmark": "jbb2015",
+      "url": "https://www.spec.org/jbb2015/results/res2016q1/jbb2015-20160118-00041.html",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5280M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q1/jbb2015-20160118-00041.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u60",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_60",
+        "result.metric.max-jOPS": "98333",
+        "result.metric.critical-jOPS": "29009"
+      }
+    },
+    {
+      "benchmark": "jbb2015",
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00065.html",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5180M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160321-00065.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u74",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_74",
+        "result.metric.max-jOPS": "98145",
+        "result.metric.critical-jOPS": "28591"
+      }
+    },
+    {
+      "benchmark": "jbb2015",
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00066.html",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5270M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160321-00066.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u74",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_74",
+        "result.metric.max-jOPS": "97551",
+        "result.metric.critical-jOPS": "28206"
+      }
+    },
+    {
+      "benchmark": "jbb2015",
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00067.html",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5170M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160321-00067.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u74",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_74",
+        "result.metric.max-jOPS": "97543",
+        "result.metric.critical-jOPS": "28535"
+      }
+    },
+    {
+      "benchmark": "jbb2015",
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160516-00095.html",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur TS860G3",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160516-00095.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u91",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_91",
+        "result.metric.max-jOPS": "397601",
+        "result.metric.critical-jOPS": "124466"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31246.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8480M6 (Intel Xeon Platinum 8376H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.html",
+          "CSV": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.csv",
+          "Text": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.txt",
+          "PDF": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.pdf",
+          "PS": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.ps",
+          "Config": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.cfg"
+        },
+        "_date": "",
+        "base_copies": "224",
+        "hw_ncores": "112",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "784",
+        "peakmean": "813",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31244.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M6 (Intel Xeon Platinum 8376H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.html",
+          "CSV": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.csv",
+          "Text": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.txt",
+          "PDF": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.pdf",
+          "PS": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.ps",
+          "Config": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.cfg"
+        },
+        "_date": "",
+        "base_copies": "224",
+        "hw_ncores": "112",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "659",
+        "peakmean": "699",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31242.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M6 (Intel Xeon Platinum 8360H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.html",
+          "CSV": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.csv",
+          "Text": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.txt",
+          "PDF": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.pdf",
+          "PS": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.ps",
+          "Config": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.cfg"
+        },
+        "_date": "",
+        "base_copies": "192",
+        "hw_ncores": "96",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "708",
+        "peakmean": "734",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220311-31155.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur I24M6 (Intel Xeon Gold 6330N)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.cfg"
+        },
+        "_date": "",
+        "base_copies": "112",
+        "hw_ncores": "56",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "2",
+        "basemean": "322",
+        "peakmean": "336",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220301-31137.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur I24LM6 (Intel Xeon Platinum 8360Y)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.cfg"
+        },
+        "_date": "",
+        "base_copies": "144",
+        "hw_ncores": "72",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "2",
+        "basemean": "422",
+        "peakmean": "448",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220301-31136.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur I24LM6 (Intel Xeon Platinum 8368Q)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.cfg"
+        },
+        "_date": "",
+        "base_copies": "152",
+        "hw_ncores": "76",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "2",
+        "basemean": "445",
+        "peakmean": "472",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220220-30983.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF5488M5 (Intel Xeon Platinum 8260)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.cfg"
+        },
+        "_date": "",
+        "sw_parallel": "Yes",
+        "base_threads": "48",
+        "hw_ncores": "48",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "1",
+        "basemean": "10.9",
+        "peakmean": "11.2",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220220-30979.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M5 (Intel Xeon Gold 6246)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.cfg"
+        },
+        "_date": "",
+        "base_copies": "96",
+        "hw_ncores": "48",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "382",
+        "peakmean": "395",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220125-30794.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF5280M5 (Intel Xeon Gold 5218R)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.cfg"
+        },
+        "_date": "",
+        "sw_parallel": "Yes",
+        "base_threads": "40",
+        "hw_ncores": "40",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "1",
+        "basemean": "124",
+        "peakmean": "126",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220125-30791.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M5 (Intel Xeon Gold 6234)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.cfg"
+        },
+        "_date": "",
+        "base_copies": "64",
+        "hw_ncores": "32",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "263",
+        "peakmean": "272",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2021q4/cpu2017-20211206-30304.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8480M6 (Intel Xeon Platinum 8380HL)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.html",
+          "CSV": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.csv",
+          "Text": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.txt",
+          "PDF": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.pdf",
+          "PS": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.ps",
+          "Config": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.cfg"
+        },
+        "_date": "",
+        "base_copies": "224",
+        "hw_ncores": "112",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "662",
+        "peakmean": "703",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    },
+    {
+      "benchmark": "cpu2017",
+      "url": "https://www.spec.org/cpu2017/results/res2021q4/cpu2017-20211206-30303.txt",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8480M6 (Intel Xeon Gold 6330H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.html",
+          "CSV": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.csv",
+          "Text": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.txt",
+          "PDF": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.pdf",
+          "PS": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.ps",
+          "Config": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.cfg"
+        },
+        "_date": "",
+        "base_copies": "192",
+        "hw_ncores": "96",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "531",
+        "peakmean": "561",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      }
+    }
+  ],
+  "dependencies": {
+    "data/raw/discovery-2026-10-11-spec/index/cpu2017_results_cpu2017_.html": "e44d1c260f0a9b9cd64f99033afc9c9d9d5509bf764839d9d383a04e0f373e98",
+    "data/raw/discovery-2026-10-11-spec/index/jbb2015_results_jbb2015_.html": "fd37017faa0f6dc0a0354693b864c3ae38251de22aaf5a35c0a0c054c4d4e403",
+    "research/batches/discovery-2026-10-11/spec/scripts/parse_idx.py": "6008266414d8a745171a1662b028b94a80ba008f40263d1c87157a5749b837bc",
+    "data/raw/discovery-2026-10-11-spec/wave10/robots/robots.txt": "cf5af82736d8ff7fe0ae89bda583603c005d6be47afa739ba93b2cc01795d4c8"
+  },
+  "limits": {
+    "http_cap_including_robots_redirects": 20,
+    "searches": 0,
+    "screenshots": 0,
+    "minimum_delay_seconds": 10
+  },
+  "rules": [
+    "Refresh robots first and enforce current exact-path policy; no CGI endpoints.",
+    "Count every exchange including redirects within cap; no automatic redirects or retries.",
+    "Stop source on402/403/login/robots denial or404/timeout; no alternate route to denied or missing item. Stop run on429.",
+    "Published index link only; jbb HTML, never retry known missing jbb txt.",
+    "Read all saved request ledgers for prior failure overlap before acquisition.",
+    "No cloud instance rows, import, manufacturer/deployment inference or normalization of raw index identities."
+  ]
+}

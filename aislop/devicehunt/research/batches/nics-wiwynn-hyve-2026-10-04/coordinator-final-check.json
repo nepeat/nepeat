@@ -1,0 +1,336 @@
+{
+  "date": "2026-10-04",
+  "database_sha256": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "matching_current_export_audits": 5,
+  "matching_rebuild_tables": 43,
+  "accepted_inputs_and_code_unchanged": true,
+  "checked_local_links": [
+    {
+      "from": "GOAL.md",
+      "link": "docs/evidence-policy.md"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "validation/owned-hardware.json"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "validation/vendor-examples.json"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "PROGRESS.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "GOAL.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "AGENTS.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/nics-wiwynn-hyve-batch-2026-10-04.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/inspur-nics-2026-10-04.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/wiwynn-hyve-2026-10-04.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/fcc-source-coverage.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "README.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "docs/history/README.md"
+    },
+    {
+      "from": "README.md",
+      "link": "GOAL.md"
+    },
+    {
+      "from": "README.md",
+      "link": "PROGRESS.md"
+    },
+    {
+      "from": "README.md",
+      "link": "AGENTS.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "README.md",
+      "link": "data/exports/catalog.html"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/model-fragment-search.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/listing-matching.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/vendor-inventory.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/specification-search.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/tested-components.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/pci-inventory.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/hyperscaler-inventory.md"
+    },
+    {
+      "from": "README.md",
+      "link": "research/fcc-collection-coverage.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/history/2026-10-04-before-workflow-simplification/README.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "GOAL.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "PROGRESS.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "README.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "docs/evidence-policy.md"
+    },
+    {
+      "from": "docs/agent-workflow.md",
+      "link": "../AGENTS.md"
+    },
+    {
+      "from": "docs/agent-workflow.md",
+      "link": "../PROGRESS.md"
+    },
+    {
+      "from": "docs/agent-workflow.md",
+      "link": "../GOAL.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../AGENTS.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/odm-target-registry.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../validation/owned-hardware.json"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../validation/vendor-examples.json"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/bytedance-inspur-2026-10-04.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/inspur-rail-2026-10-04.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/inspur-2018-inventec-2026-10-04.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/wiwynn-hyve-2026-10-04.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/inspur-nics-2026-10-04.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../GOAL.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../PROGRESS.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../README.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../AGENTS.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-nics-wiwynn-hyve/PROGRESS.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-nics-wiwynn-hyve/manifest.json"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/manifest.json"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/GOAL.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/PROGRESS.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/README.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/AGENTS.snapshot.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../research/"
+    },
+    {
+      "from": "research/nics-wiwynn-hyve-batch-2026-10-04.md",
+      "link": "workflow-review-2026-10-04.md#pending-batch-nics-wiwynn-and-hyve"
+    },
+    {
+      "from": "research/nics-wiwynn-hyve-batch-2026-10-04.md",
+      "link": "../data/exports/nics-wiwynn-hyve-2026-10-04-final-verification.json"
+    },
+    {
+      "from": "research/nics-wiwynn-hyve-batch-2026-10-04.md",
+      "link": "batches/nics-wiwynn-hyve-2026-10-04/"
+    },
+    {
+      "from": "research/nics-wiwynn-hyve-batch-2026-10-04.md",
+      "link": "../PROGRESS.md"
+    },
+    {
+      "from": "research/inspur-nics-2026-10-04.md",
+      "link": "../PROGRESS.md"
+    },
+    {
+      "from": "research/inspur-nics-2026-10-04.md",
+      "link": "nics-wiwynn-hyve-batch-2026-10-04.md"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../PROGRESS.md"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/exports/nics-wiwynn-hyve-visual-review/"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/fetch-report.json"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/curated-wiwynn-hyve-2026-10-04.json"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7100g2.html"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7220g3.html"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-st7000g2.html"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7000g2.html"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7100g2.pdf"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7220g3.pdf"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-st7000g2.pdf"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/hyve-hercules-2026.pdf"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "../data/raw/nics-wiwynn-hyve-2026-10-04/hyve-jbof-2026.pdf"
+    },
+    {
+      "from": "research/wiwynn-hyve-2026-10-04.md",
+      "link": "nics-wiwynn-hyve-batch-2026-10-04.md"
+    }
+  ],
+  "documentation_lines": {
+    "GOAL.md": 49,
+    "PROGRESS.md": 91,
+    "README.md": 135,
+    "AGENTS.md": 85,
+    "docs/agent-workflow.md": 173,
+    "docs/evidence-policy.md": 76,
+    "docs/listing-matching.md": 162,
+    "docs/history/README.md": 33,
+    "research/nics-wiwynn-hyve-batch-2026-10-04.md": 80,
+    "research/inspur-nics-2026-10-04.md": 85,
+    "research/wiwynn-hyve-2026-10-04.md": 66
+  },
+  "model_policy": "ChatGPT workers GPT-6.1 Sol; Claude workers latest available Sonnet, user baseline5.5; availability checked on host",
+  "scope": "Coordinator read-only verification plus documentation link/format checks; source imports and exports owned by integrator."
+}

@@ -1,0 +1,116 @@
+{
+  "pdf_sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 2,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "                                                  CERTIFICATE\n                                                          No. P22225905\nOrder No. 456320                                                                                                                      Page 1 of 2\n\n\n\nProduct                                         AC/DC-DC, AC-DC, DC-DC Converter\n\nApplicant                                       Bel Fuse Inc.\n                                                206 Van Vorst St. Jersey City, NJ 07302\n                                                USA\nManufacturer                                    Bel Fuse Inc.\n                                                206 Van Vorst St. Jersey City, NJ 07302\n                                                USA\nFactory                                         BPS Asia Pacific Electronics (Shenzhen) Co., Ltd.\n                                                Building# 6, Nanming Road, Gongming Town Huahong\n                                                Xintong Industrial Park, Guangming District, Shenzhen\n                                                518108\n                                                China\nRatings                                         AC input: 100-240V ~, 12-7A, 50/60Hz\n                                                Output: V1: 12.0Vdc, 125A; Vsb: 5 Vdc, 3.3 A / 3.3 Vdc, 5A.\nTrade mark\n\n\n\n\nModel / Type Ref.                               PFE1500-12-054NA, SPABRCD-14G, SPABRCD-15G, PFE1500-12-054NAC,\n                                                PFE1500-12-054NAH, PFE1500-12-054RA, PFE1500-12-054RAC,\n                                                PFE1500-12-054RAH\nPrincipal characteristics                       V1 maximum output power de-rated at different input voltages and operating\n                                                ambient temperatures. See Condition of Acceptability for details.\n                                                (The model name maybe followed by alpha numeric characters indicating non-\n                                                safety critical options)\nA sample of the product was tested              ITAV                EN IEC 62368-1:2020;A11\nand found to be in conformity with\nValidity                                        This certificate documents conformity with the standards shown, and also applies as license for\n                                                use of Nemkos name and certification mark. The certificate and license is valid as long as the\n                                                applicable conditions are complied with, and provided that any changes to the product are notified\n                                                to Nemko for acceptance prior to implementation.\n                                                New standards or amendments to the standards may imply that the product design must be\n                                                updated and/or that re-testing and re-certification is necessary.\n\nAdditional information\n\n\n                                                Compliance with requirements regarding building-in, protection against electric shock and\n                                                Electromagnetic Compatibility (EMC) must be checked when the equipment is built-in a completed\n                                                product or forms a part of a complete system.\n\nAdditional model(s)                             (3) See page 2\n\n\n\n\nDate of issue 07-01-2022\n\n\n\n\nJiyea Gim\nCertification Department\nNemko Group\nPhilip Pedersens vei 11, 1366 Lysaker, Norway\nTEL +47 22 96 03 30 EMAIL info@nemko.com\nENTERPRISE NUMBER NO974404532                                                                                                           nemko.com\n"
+    },
+    {
+      "page": 2,
+      "text": "                                                  CERTIFICATE\n                                                        No. P22225905\nOrder No. 456320                                                                                                   Page 2 of 2\n\n\n\nAdditional model(s)\nProduct                                         AC/DC-DC, AC-DC, DC-DC Converter\nPos. No                                         1\nModel / Type Ref.                               PPC33 A022, PFE1500-12NAHS412\nTrade mark (if different from page 1)\nRating                                          PC33 A022:\n                                                AC input: 100-240V ~, 12-5A, 50/60Hz; DC input: 200-380VDC, 7-4A\n                                                PFE1500-12NAHS412:\n                                                AC input: 100-240V ~, 12-7A, 50/60Hz; DC Input: 200-380VDC, 10-5A\n                                                PPC33 A022: Output: V1: 12.0Vdc, 70A; Vsb: 5 Vdc, 3.3 A / 3.3 Vdc,\n                                                PFE1500-12NAHS412: Output: V1: 12.0 Vdc, 125 A; Vsb: 12.0 Vdc, 3 A\nPrincipal characteristics                       V1 maximum output power de-rated at different input voltages and operating\n                                                ambient temperatures. See Condition of Acceptability for details.\n                                                (The model name maybe followed by alpha numeric characters indicating\n                                                non-safety critical options)\nProduct                                         AC/DC-DC, AC-DC, DC-DC Converter\nPos. No                                         2\nModel / Type Ref.                               SPABRCD-16, SPABRCD-17\nTrade mark (if different from page 1)\nRating                                          DC Input: 200-380VDC, 10-5A\n                                                Output: V1: 12.0Vdc, 125A; Vsb:5 Vdc, 3.3 A / 3.3 Vdc, 5A.\nPrincipal characteristics                       V1 maximum output power de-rated at different input voltages and operating\n                                                ambient temperatures. See Condition of Acceptability for details.\n                                                (The model name maybe followed by alpha numeric characters indicating\n                                                non-safety critical options)\nProduct                                         AC/DC-DC, AC-DC, DC-DC Converter\nPos. No                                         3\nModel / Type Ref.                               PFE1500-12NAS412, PFE1500-12NACS412, PFE1500-12-054NACS439\nTrade mark (if different from page 1)\nRating                                          PFE1500-12NAS412, PFE1500-12NACS412:\n                                                AC input: 100-240V ~, 12-7A, 50/60Hz; DC Input: 200-350VDC, 10-5A\n                                                PFE1500-12-054NACS439:\n                                                AC input: 100-240V ~, 12-7A, 50/60Hz; DC Input: 200-350VDC, 10-5A\n                                                PFE1500-12NAS412, PFE1500-12NACS412:\n                                                Output: V1: 12.0 Vdc, 125 A; Vsb: 12.0 Vdc, 3 A\n                                                PFE1500-12-054NACS439:\n                                                Output: V1: 12.0Vdc, 125A; Vsb: 5 Vdc, 3.3 A / 3.3 Vdc, 5A.\nPrincipal characteristics                       V1 maximum output power de-rated at different input voltages and operating\n                                                ambient temperatures. See Condition of Acceptability for details.\n                                                (The model name maybe followed by alpha numeric characters indicating\n                                                non-safety critical options)\n\n\n\n\nDate of issue 07-01-2022\n\n\n\n\nJiyea Gim\nCertification Department\nNemko Group\nPhilip Pedersens vei 11, 1366 Lysaker, Norway\nTEL +47 22 96 03 30 EMAIL info@nemko.com\nENTERPRISE NUMBER NO974404532                                                                                       nemko.com\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "bel-pfe1500-nemko.pdf",
+    "extracted_at_utc": "2026-10-13T03:24:00.457726+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Creator:         Apache FOP Version 2.1\nProducer:        Apache FOP Version 2.1\nCreationDate:    Thu Jan  6 18:16:53 2022 PST\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       595.275 x 841.889 pts (A4)\nPage rot:        0\nFile size:       221876 bytes\nOptimized:       no\nPDF version:     1.4\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "182230efd690f71a6d8ba9f85b1f14edebb601e34134eb4928246820a30c8a94"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "84c01a4323621f929cd76d8e683027ab5de8cc73f8a959044e5c10bcf085b267"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "d1309c0c7fbc35dc91bf05c8383837b41808b80757095d0565d72f2aedf64eef"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

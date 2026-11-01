@@ -1,0 +1,208 @@
+[
+  {
+    "path": "data/raw/celestica-storage-manufacturer/sd4100.html",
+    "sha256": "e73d53544761cb2ccae989a35065609fdceeaf45eb332af13fd3f2eea2b2255e",
+    "titles": [
+      {
+        "tag": "title",
+        "text": "Storage Expansion System - SD4100"
+      },
+      {
+        "tag": "h1",
+        "text": "SD4100"
+      },
+      {
+        "tag": "h1",
+        "text": "2U 12 HDD SAS-4 Storage Expansion System"
+      },
+      {
+        "tag": "h1",
+        "text": "WHY CHOOSE SD4100?"
+      },
+      {
+        "tag": "h1",
+        "text": "BENEFITS"
+      },
+      {
+        "tag": "h1",
+        "text": "SD4100 FEATURES"
+      },
+      {
+        "tag": "h1",
+        "text": "OPTIMIZED FOR COST-EFFECTIVE, ENTERPRISE CLASS, TIERED STORAGE"
+      },
+      {
+        "tag": "h1",
+        "text": "RESOURCES"
+      },
+      {
+        "tag": "h1",
+        "text": "Unlock Innovation, Together."
+      }
+    ],
+    "technical_hrefs": [
+      {
+        "href": " https://www.celestica.com/hps/sd4100",
+        "text": "Download"
+      },
+      {
+        "href": "https://www.celestica.com/blog/article/celesticas-new-sd4100-storage-expansion-platform",
+        "text": "Learn more"
+      },
+      {
+        "href": "https://www.celestica.com/uploadedFiles/Site/About_Us/Corporate_Governance/Compliance_and_Ethics/Business_Conduct_Governance_List/Privacy%20Policy.pdf",
+        "text": "Privacy Policy"
+      },
+      {
+        "href": "https://www.celestica.com/uploadedFiles/Site/About_Us/Corporate_Governance/Compliance_and_Ethics/Business_Conduct_Governance_List/Privacy%20Policy.pdf",
+        "text": "Privacy Policy"
+      },
+      {
+        "href": "https://www.celestica.com/uploadedFiles/Master/slavery_and_human_trafficking_statement.pdf",
+        "text": "Modern Slavery Statement"
+      }
+    ],
+    "scope": "Read saved href/title only; no execution or extraction"
+  },
+  {
+    "path": "data/raw/oracle-zfs-components/oracle-zfs-storage-zs3-2.html",
+    "sha256": "c286c00e266f74d378a94609c38207f2f3be8520a2830cdb6507f6209854304f",
+    "titles": [
+      {
+        "tag": "title",
+        "text": "Oracle ZFS Storage ZS3-2 PCIe I/O Cards"
+      }
+    ],
+    "technical_hrefs": [
+      {
+        "href": "oracle-zfs-storage-zs3-2-internal-components.html",
+        "text": "Previous"
+      }
+    ],
+    "scope": "Read saved href/title only; no execution or extraction"
+  },
+  {
+    "path": "data/raw/oracle-zfs-components/oracle-zfs-storage-zs3-4.html",
+    "sha256": "fbd875dfa68dd39755ffbe146f64460ec76d52f3db515343a69d9526ffe2ef32",
+    "titles": [
+      {
+        "tag": "title",
+        "text": "Oracle ZFS Storage ZS3-4 PCIe I/O Cards"
+      }
+    ],
+    "technical_hrefs": [
+      {
+        "href": "oracle-zfs-storage-zs3-4-internal-components.html",
+        "text": "Previous"
+      }
+    ],
+    "scope": "Read saved href/title only; no execution or extraction"
+  },
+  {
+    "path": "data/raw/celestica-networking-index.html",
+    "sha256": "26b0b40bb0bb84446f6e3ec76eaabb05408f233a89da2c6a457341103deaa154",
+    "titles": [
+      {
+        "tag": "title",
+        "text": "Networking Switches | Celestica"
+      },
+      {
+        "tag": "h1",
+        "text": "Celestica Networking Switches"
+      }
+    ],
+    "technical_hrefs": [
+      {
+        "href": "/uploadedFiles/Site/landing/networking-storage-and-server-hardware-platform-solutions/celestica_datasheet_silverstone.pdf",
+        "text": ""
+      },
+      {
+        "href": "/uploadedFiles/Master/Legal%20Notice%20and%20Terms%20of%20Use.pdf",
+        "text": "Legal Notice and Terms of Use"
+      },
+      {
+        "href": "/uploadedFiles/Site/About_Us/Corporate_Governance/Compliance_and_Ethics/Business_Conduct_Governance_List/Privacy Policy.pdf",
+        "text": "Privacy Policy"
+      },
+      {
+        "href": "/uploadedFiles/Master/slavery_and_human_trafficking_statement.pdf",
+        "text": "Modern Slavery Statement"
+      }
+    ],
+    "scope": "Read saved href/title only; no execution or extraction"
+  },
+  {
+    "path": "data/raw/celestica-storage.html",
+    "sha256": "8f160d10a19de60eb53d476724bd4cfd986242b257b09d2b7dcee69aa4bce114",
+    "titles": [
+      {
+        "tag": "title",
+        "text": "Storage Hardware Solutions | Celestica"
+      },
+      {
+        "tag": "h1",
+        "text": "Storage"
+      }
+    ],
+    "technical_hrefs": [
+      {
+        "href": "https://cls.celestica.com/hardware-platforms/sd4100/",
+        "text": "SD4100"
+      },
+      {
+        "href": "https://cls.celestica.com/hardware-platforms/sd4100/",
+        "text": "Learn More"
+      },
+      {
+        "href": "/uploadedFiles/Site/our-expertise/platform-solutions/case-studies/Xinnor_Case_Study.pdf",
+        "text": "High-Availability NVMe Storage with xiRAID + Lustre for the Helma Supercomputer"
+      },
+      {
+        "href": "/uploadedFiles/Site/our-expertise/platform-solutions/case-studies/Xinnor_Case_Study.pdf",
+        "text": "Learn More"
+      },
+      {
+        "href": "/uploadedFiles/Master/Legal%20Notice%20and%20Terms%20of%20Use.pdf",
+        "text": "Legal Notice and Terms of Use"
+      },
+      {
+        "href": "/uploadedFiles/Site/About_Us/Corporate_Governance/Compliance_and_Ethics/Business_Conduct_Governance_List/Privacy Policy.pdf",
+        "text": "Privacy Policy"
+      },
+      {
+        "href": "/uploadedFiles/Master/slavery_and_human_trafficking_statement.pdf",
+        "text": "Modern Slavery Statement"
+      }
+    ],
+    "scope": "Read saved href/title only; no execution or extraction"
+  },
+  {
+    "path": "data/raw/celestica-compute.html",
+    "sha256": "5cc321d573f9fdb367ec54009d2d6e42a9c5e47d42fafacf0d052e39e14ce9fb",
+    "titles": [
+      {
+        "tag": "title",
+        "text": "Compute Hardware Soluions | Celestica"
+      },
+      {
+        "tag": "h1",
+        "text": "Compute"
+      }
+    ],
+    "technical_hrefs": [
+      {
+        "href": "/uploadedFiles/Master/Legal%20Notice%20and%20Terms%20of%20Use.pdf",
+        "text": "Legal Notice and Terms of Use"
+      },
+      {
+        "href": "/uploadedFiles/Site/About_Us/Corporate_Governance/Compliance_and_Ethics/Business_Conduct_Governance_List/Privacy Policy.pdf",
+        "text": "Privacy Policy"
+      },
+      {
+        "href": "/uploadedFiles/Master/slavery_and_human_trafficking_statement.pdf",
+        "text": "Modern Slavery Statement"
+      }
+    ],
+    "scope": "Read saved href/title only; no execution or extraction"
+  }
+]

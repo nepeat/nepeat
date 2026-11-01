@@ -1,0 +1,168 @@
+{
+  "pdf_sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 4,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "                                               DATASHEET                                                                     www.edge-core.com\n\n\n\n                     AS5710-54X, AS5712-54X                                                       First Switch Design Accepted by Open Compute Project\n\n                     10GbE Data Center Switch\n                     Bare-Metal Hardware\n\n                     Product Overview\n                     The Edgecore AS5710-54X/AS5712-54X switch meets the high-performance, availability, and network-scaling requirements of\n                     enterprise and cloud data centers. The AS5710-54X/AS5712-54X provides full line-rate switching at Layer 2 or Layer 3 across 48 x\n                     10GbE ports and 6 x 40GbE uplinks. The switch can be deployed either as a Top-of-Rack switch, or as part of a 10GbE or 40GbE\n                     distributed spine, forming a non-blocking folded CLOS data center fabric. The switch is rack mountable in either a standard 19 inch\n                     rack, or with the Open Rack Switch Adapter in the 21 inch Open Rack.\n\n                     The AS5710-54X/AS5712-54X hardware provides the high availability features required for data center operation, including;\n                     redundant, hot-swappable AC or -48 VDC PSUs or 12 VDC power input; fan with 4+1 redundant fan modules; and port-to-power or\n                     power-to-port airﬂow options. The AS5710-54X/AS5712-54X is an ideal Top-of-Rack switch for virtualized data centers, with its\n                     support of VXLAN and NVGRE tunneling functions in hardware.\n\n                     Key Features and Benefits\n                     ■ Cost-effective, bare-metal switch infrastructure for data center fabric.\n\n                     ■ 48 x SFP+ switch ports, supporting 10GbE (DAC, 10GBASE-SR/LR) or 1GbE (1000BASE-T/SX/LX).\n\n                     ■ 6 x 40 QSFP switch ports, each supporting 40GbE (DAC, 40GBASE-SR4/LR4) or 4 x 10GbE (DAC or ﬁber breakout cable).\n\n                     ■ Port Grouping to group 4 x 10G ports into one 40G port at the physical layer for maximum bandwidth utilization, and for 300 m\n                       optical reach over MMF (Subject to NOS options).\n\n\n\n\nData Center Switch\n                     ■ Full line-rate Layer 2 or Layer 3 forwarding of 1.44 Tbps full duplex\n\n                     ■ VXLAN and NVGRE tunneling support in hardware for network virtualization.\n\n                     ■ Rack mountable in standard 19\" racks. Mountable in 21\" Open Rack with the Open Rack Switch Adapter.\n\n                     ■ Supports hot/cold aisle with port-to-power and power-to-port airﬂow SKUs.\n\n                     ■ All ports on front; PSUs, fan modules on rear.\n\n                     ■ Hot-swappable, load sharing, redundant AC or -48 VDC PSUs. 12 VDC power input option.\n\n                     ■ Hot swappable 4+1 redundant fan modules.\n\n                     ■ Management: Ethernet and console RJ-45 ports; USB storage port.\n\n                     ■ Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source\n                       and commerical NOS offerings.\n                       AS5710 SKU and AS5712 SKU compatible with Open Network Linux (ONL), the open-source, OCP reference NOS.\n\n                     ■ AS5710 SKU and AS5712 SKU compatible with Big Monitoring Fabric™ and Big Cloud Fabric™ SDN applications from Big\n                       Switch.\n\n                     ■ AS5712 SKU compatible with Cumulus® Linux® r2.5.1 and later version from Cumulus Networks®.\n\n                     ■ AS5712 SKU compatible with PicOS™ r2.6 and later version from Pica8 Inc.\n\n                     ■ AS5712 SKU compatible with SnapRoute FlexSwitch software.\n\n                     ■ AS5712 SKU Compatible with Pluribus Netvisor® OS (ONVL) version 2.5 and later from Pluribus Networks.\n\n\n\n\n                                                                                                                For a world always connected…\n"
+    },
+    {
+      "page": 2,
+      "text": "  AS5710-54X/AS5712-54X Product Specifications\n                                                                                                             www.edge-core.com\n\n\nFeatures\nPorts                                                                 LEDs\n Switch Ports:                                                          10G SFP+ Port LEDs: Link Speed, Link Status, Activity\n  48 x SFP+ each supporting 10GbE or 1GbE                               40G QSFP Port LEDs: Link Status, Activity for 40G status\n  6 x QSFP each supporting 40GbE or 4 x 10GbE                           40G QSFP Breakout LEDs: set of 24 LEDs, 4 per QSFP port,\n Management Ports on Front Panel:                                        show Link, Status, Activity 10G links with 4x10G breakout\n  1 x RJ-45 serial console                                              Ethernet Management Port LED: Link Status, Activity\n  1 x RJ-45 100/1000BASE-T management                                   Console Port LED: Link Status\n  1 x USB Type A storage port                                           System LEDs: PSU1, PSU2, Diagnostic, Fans, Locator\n\nKey Components                                                        Software\n Switch Silicon: Broadcom BCM56854 Trident II 720Gbps                   Switch is loaded with Open Network Install Environment (ONIE)\n CPU Modules:                                                            software installer\n  AS5710-54X: Freescale P2041 quad-core 1.5GHz CPU                      Compatible with the following NOS options:\n   2 GB DDR3 SDRAM with ECC                                             AS5712-54X:\n   128 MB NOR Flash                                                      Cumulus® Linux® r2.5.1 and later version from Cumulus Networks®\n   8 GB NAND Flash                                                       Open Network Linux, the open-source, OCP reference NOS\n   8GB SD Card                                                           PicOS™ r2.6 and later version from Pica8 Inc.\n  AS5712-54X: Intel Atom C2538 quad-core 2.4GHz x86 processor            Big Monitoring Fabric™ and Big Cloud Fabric™ SDN applications\n   8 GB SO-DIMM DDR3 RAM with ECC                                         from Big Switch.\n   16 MB SPI Flash                                                       Pluribus Networks – Netvisor® OS (ONVL)\n   8 GB NAND Flash                                                       FlexSwitch software from SnapRoute\n   Reserve mSATA connector                                              AS5710-54X:\n                                                                         Open Network Linux, the open-source, OCP reference NOS\nPerformance                                                              Big Monitoring Fabric™ and Big Cloud Fabric™ SDN applications\n Wire Speed Forwarding: L2 and L3                                         from Big Switch.\n Switching Capacity: 1.44 Tbps full duplex\n Forwarding Rate: 1 Bpps                                              Power\n Jumbo frames support up to 9216 Bytes                                  PSUs: 2 redundant, load-sharing, hot-swappable AC or -48 VDC\n Packet Buffer Size: 12 MB integrated packet buffer                     Input Voltage: 90 to 264 VAC at 50-60 Hz. -48 to -72 VDC.\n Subject to NOS:                                                        Input Current: 6 A@100/120 VAC, 3 A@200/240 VAC,\n  MAC Address: 32 K min./288 K max.                                       10 A@-72 VDC\n  VLAN IDs: 4 K                                                         PSU Efﬁciency: Up to 93% for AC PSUs\n  IPv4: 16 K min./112 K max. host entries; 16 K LPM entries with        Power input option: 12 VDC\n    TCAM-only mode                                                      Max Power: 282 W, without pluggable optics\n  IPv6: 8 K min./56 K max. host entries; IPv6/64=8K TCAM-only\n  mode                                                                Regulatory\n                                                                        EMI\nSupported Optics and Cables                                              CE Mark\n SFP+ Ports:                                                             EN55022 Class A\n  10GBASE-CR DAC: up to 5 m passive; up to 10 m active                   EN55024\n  10GBASE-SRL/SR: up to 100/300 m over OM3 MMF                           FCC Part 15 Class A\n  10GBASE-LR: Up to 10km over SMF 10GBASE-                               EN61000-3-2\n  1000BASE-SX, 1000BASE-LX, 100/1000BASE-T                               EN61000-3-3\n QSFP Ports:                                                             VCCI\n  40GBASE-CR4 DAC; 0.5 m to 7 m; Passive and Active                     Safety\n 40GBASE-CR4 DAC to 4 x SFP+ 10GBASE-CR DAC; up to 5m                    CB\n  passive; up to 10m active                                              UL/CUL\n  40GBASE-SR4: Up to 100 m over OM3 MMF, 150 m over                     Environmental:\n   OM4 MMF                                                               Temperature: IEC 68-2-14\n  40GBASE-SR4 to 6 x 10GBASE-SR: 100 m over OM3, 150 m                   RoHS-6 Compliant\n  OM4                                                                    Vibration: IEC 68-2-36, IEC 68-2-6\n  40GBASE-LR4: Up to 10km over SMF                                       Shock: IEC 68-2-29\n                                                                        Country of Origin: Taiwan (TAA Compliant)\nPhysical and Environmental\n Dimensions (WxDxH): 44.3 x 47.3 x 4.34 cm (17.4 x 18.6 x 1.71 in)    Warranty\n Weight: 8.5 kg (18.74 lb), with two installed PSU modules              Please check www.edge-core.com for the warranty terms in your\n Fans: hot-swappable 4+1 redundant fans                                  country.\n Operating Temperature: 0°C to 40°C (32°F to 104°F)\n Storage Temperature: -40°C to 70°C (-40°F to 158°F)\n Operating Humidity: 5% to 95% non-condensing\n\n\n\n\n   TEL: +886-3-5638888 FAX: +886-3-6686111                           TEL: +1 (949)-336-6801\n   No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077        20 Mason Irvine, CA 92618\n   sales@edge-core.com         www.edge-core.com\n"
+    },
+    {
+      "page": 3,
+      "text": " AS5710-54X/AS5712-54X Product Specifications\n                                                                                                                       www.edge-core.com\n\n\nOrdering Information\nBase Model: AS5710-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer\nModel Number                 CPU Module                        PSU                              Airflow                 Region (power cord)\n\n5710-54X-O-AC-F-US           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    N. America\n\n5710-54X-O-AC-B-US           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    N. America\n\n5710-54X-O-AC-F-EU           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    Europe\n\n5710-54X-O-AC-B-EU           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    Europe\n\n5710-54X-O-AC-F-UK           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    UK\n\n5710-54X-O-AC-B-UK           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    UK\n\n5710-54X-O-AC-F-JP           Freescale P2041 processor         dual AC PSUs                     port-to-power airﬂow    Japan\n\n5710-54X-O-AC-B-JP           Freescale P2041 processor         dual AC PSUs                     power-to-port airﬂow    Japan\n\n5710-54X-O-48V-F             Freescale P2041 processor         dual 48 VDC PSUs                 port-to-power airﬂow\n\n5710-54X-O-48V-B             Freescale P2041 processor         dual 48 VDC PSUs                 power-to-port airﬂow\n\n5710-54X-O-12V-F             Freescale P2041 processor         one 12 VDC power input           port-to-power airﬂow\n\n5710-54X-O-12V-B             Freescale P2041 processor         one 12 VDC power input           power-to-port airﬂow\n\nBase Model: AS5712-54X 48-Port 10G SFP+ with 6x40G QSFP uplinks; ONIE software installer\nModel Number                 CPU Module                        PSU                              Airflow                 Region (power cord)\n\n5712-54X-O-AC-F-US           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    N. America\n\n5712-54X-O-AC-B-US           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    N. America\n\n5712-54X-O-AC-F-EU           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    Europe\n\n5712-54X-O-AC-B-EU           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    Europe\n\n5712-54X-O-AC-F-UK           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    UK\n\n5712-54X-O-AC-B-UK           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    UK\n\n5712-54X-O-AC-F-JP           Intel Atom C2538 processor        dual AC PSUs                     port-to-power airﬂow    Japan\n\n5712-54X-O-AC-B-JP           Intel Atom C2538 processor        dual AC PSUs                     power-to-port airﬂow    Japan\n\n5712-54X-O-48V-F             Intel Atom C2538 processor        dual 48 VDC PSUs                 port-to-power airﬂow\n\n5712-54X-O-48V-B             Intel Atom C2538 processor        dual 48 VDC PSUs                 power-to-port airﬂow\n\n5712-54X-O-12V-F             Intel Atom C2538 processor        one 12 VDC power input           port-to-power airﬂow\n\n5712-54X-O-12V-B             Intel Atom C2538 processor        one 12 VDC power input           power-to-port airﬂow\n\n\n\n\n  TEL: +886-3-5638888 FAX: +886-3-6686111                                     TEL: +1 (949)-336-6801\n  No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077                  20 Mason Irvine, CA 92618\n  sales@edge-core.com         www.edge-core.com\n"
+    },
+    {
+      "page": 4,
+      "text": "   AS5710-54X/AS5712-54X Product Specifications\n                                                                                                                                                                                                                        www.edge-core.com\n\n\nOrdering Information\n Model Number                                    PSU                                                                                                                    Airflow                                              Region (power cord)\n\n PSU-AC-400-F                                    400W AC Power Supply FRU                                                                                               port-to-power airﬂow                                 no power cord\n\n PSU-AC-400-B                                    400W AC Power Supply FRU                                                                                               power-to-port airﬂow                                 no power cord\n\n PSU-48V-400-F                                   400W -48V DC Power Supply FRU                                                                                          port-to-power airﬂow                                 no power cord\n\n PSU-48V-400-B                                   400W -48V DC Power Supply FRU                                                                                          power-to-port airﬂow                                 no power cord\n\n PSU-12V-400-1                                   12 VDC power input unit FRU\n\n FAN-1U-1x1D-F                                   Fan Tray FRU                                                                                                           port-to-power airﬂow\n\n FAN-1U-1x1D-B                                   Fan Tray FRU                                                                                                           power-to-port airﬂow\n\n Model Number                                    Description\n\n 57xx-54X-SVC-RTF                                AS5710-54X Annual Hardware Service, post warranty, Return-to-Factory\n\n RKIT-85-6712                                    Rack mount kit (for AS5710-54X / AS5712-54X / AS6712-32X)\n\n ORSA-1U                                         Open Rack Switch Adapter, for mounting standard 19 inch form factor 1U switches into 21 inch Open Rack\n\n CBL-PWR-US                                      AC Power Cable - US (125 V/13 A, 1830 mm) – only required with spare power supplies\n\n CBL-PWR-EU                                      AC Power Cable - Europe (250 V/10 A, 1830 mm) – only required with spare power supplies\n\n CBL-PWR-UK                                      AC Power Cable - UK (250 V/10 A, 1830 mm) – only required with spare power supplies\n\n CBL-PWR-JP                                      AC Power Cable - Japan – only required with spare power supplies\n\n\n\n\nFor More Information\n   To ﬁnd out more about Edgecore Networks Corporation products and solutions, visit www.edge-core.com.\n\nAbout Edgecore Networks Corporation\n   Edgecore Networks Corporation is in the business of providing innovative network solutions. In the service provider network, in the data\n   center or in the cloud, Edgecore Networks Corporation delivers the software and systems that transform the way the world connects.\n   Edgecore Networks Corporation serves customers and partners worldwide. Additional information can be found at www.edge-core.com.\n\n   Edgecore Networks Corporation is a subsidiary of Accton Technology Corporation, the leading network ODM company. The Edgecore\n   data center switches are developed and manufactured by Accton.\n\n   To purchase Edgecore Networks solutions, please contact your Edgecore Networks Corporation representatives at +886 3 563 8888 (HQ)\n   or +1 (949)-336-6801 or authorized resellers.\n\n© Copyright 2019 Edgecore Networks Corporation. The information contained herein is subject to change without notice. This document is for informational purposes only and does not set forth any warranty, expressed or implied, concerning any equipment,\nequipment feature, or service offered by Edgecore Networks Corporation. Edgecore Networks Corporation shall not be liable for technical or editorial errors or omissions contained herein.\n\n\n\n\n     TEL: +886-3-5638888 FAX: +886-3-6686111                                                                                            TEL: +1 (949)-336-6801\n     No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077                                                                         20 Mason Irvine, CA 92618\n     sales@edge-core.com         www.edge-core.com                                                                                                                                                                                            EC-DS-0619-09\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "as5710-as5712-ds-r09.pdf",
+    "extracted_at_utc": "2026-10-13T04:47:21.690518+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           AS5710_AS5712-54X ONIE DS R06\nCreator:         Adobe Illustrator CS6 (Windows)\nProducer:        www.ilovepdf.com\nCreationDate:    Wed Jun 19 23:46:44 2019 PDT\nModDate:         Thu Jun 20 00:29:28 2019 PDT\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           4\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       201945 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "455d46c0a022ae7b8f6a17ead58b4ff8585fed4eacdb9ac6cab75eff691794db"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "d35f0a834b39c2ac372989ba66d3e71872911375ee56eba6f547206c5ebfb60c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "4af90f2a7273ed7937c476ec9c1f5dbb14fc88ee15838feb5fda1281ee7867a3"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "096afcb37b8ffcf162ebb1f09fe3e154a5dcc8479615fbd41116f72dcc65062a"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "fb7bfa910111113c5620b4de2e12b83d56b6e7ffe08a06bb2da6bb41cfa846a8"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

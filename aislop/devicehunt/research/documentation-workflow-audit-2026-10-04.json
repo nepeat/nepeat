@@ -1,0 +1,300 @@
+{
+  "date": "2026-10-04",
+  "scope": "documentation reorganization only; no import or pending-code full-suite claim",
+  "database_sha256": "935d8774acac42b1906f1e30d77b127a7d40534123d72cb1cd916a3a84be8dcb",
+  "counts": {
+    "devices": 4064,
+    "records": 5273,
+    "sources": 263,
+    "documents": 50,
+    "document_pages": 3641
+  },
+  "owned_validation": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "vendor_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "verified_archive_snapshots": [
+    {
+      "original_path": "AGENTS.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/AGENTS.snapshot.md",
+      "sha256": "1d11f9541e416ae72cc2d627ed54c51c81fd85e3ad75bc3c59c1715aef1b90d3",
+      "lines": 109
+    },
+    {
+      "original_path": "GOAL.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/GOAL.md",
+      "sha256": "c2c4681b7f7faf56605551285ae72e2e019cfb86bb6b5a9ce6c3b8164225512c",
+      "lines": 3526
+    },
+    {
+      "original_path": "PROGRESS.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/PROGRESS.md",
+      "sha256": "0250d2f85b30febefbef692d7b1e7d22e125c1ad271312f0cdb1a319cf8bb692",
+      "lines": 904
+    },
+    {
+      "original_path": "README.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/README.md",
+      "sha256": "cb39d9673db38119d4c73ed30b673712852029915f1ef86205b1fa6094a95344",
+      "lines": 1080
+    }
+  ],
+  "current_line_counts": {
+    "GOAL.md": 47,
+    "PROGRESS.md": 96,
+    "README.md": 135,
+    "AGENTS.md": 82,
+    "docs/agent-workflow.md": 169,
+    "docs/evidence-policy.md": 74,
+    "docs/history/README.md": 26,
+    "research/documentation-workflow-2026-10-04.md": 38
+  },
+  "checked_local_links": [
+    {
+      "from": "GOAL.md",
+      "link": "docs/evidence-policy.md"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "validation/owned-hardware.json"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "validation/vendor-examples.json"
+    },
+    {
+      "from": "GOAL.md",
+      "link": "PROGRESS.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "GOAL.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "AGENTS.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "docs/history/README.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/documentation-workflow-2026-10-04.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/inspur-2018-inventec-2026-10-04.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/workflow-review-2026-10-04.md#pending-batch-nics-wiwynn-and-hyve"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "research/fcc-source-coverage.md"
+    },
+    {
+      "from": "PROGRESS.md",
+      "link": "README.md"
+    },
+    {
+      "from": "README.md",
+      "link": "GOAL.md"
+    },
+    {
+      "from": "README.md",
+      "link": "PROGRESS.md"
+    },
+    {
+      "from": "README.md",
+      "link": "AGENTS.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "README.md",
+      "link": "data/exports/catalog.html"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/model-fragment-search.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/listing-matching.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/vendor-inventory.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/specification-search.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/tested-components.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/pci-inventory.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/hyperscaler-inventory.md"
+    },
+    {
+      "from": "README.md",
+      "link": "research/fcc-collection-coverage.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "README.md",
+      "link": "docs/history/2026-10-04-before-workflow-simplification/README.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "GOAL.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "PROGRESS.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "README.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "docs/agent-workflow.md"
+    },
+    {
+      "from": "AGENTS.md",
+      "link": "docs/evidence-policy.md"
+    },
+    {
+      "from": "docs/agent-workflow.md",
+      "link": "../AGENTS.md"
+    },
+    {
+      "from": "docs/agent-workflow.md",
+      "link": "../PROGRESS.md"
+    },
+    {
+      "from": "docs/agent-workflow.md",
+      "link": "../GOAL.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../AGENTS.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/odm-target-registry.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../validation/owned-hardware.json"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../validation/vendor-examples.json"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/bytedance-inspur-2026-10-04.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/inspur-rail-2026-10-04.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/inspur-2018-inventec-2026-10-04.md"
+    },
+    {
+      "from": "docs/evidence-policy.md",
+      "link": "../research/workflow-review-2026-10-04.md#pending-batch-nics-wiwynn-and-hyve"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../GOAL.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../PROGRESS.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../README.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../AGENTS.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/manifest.json"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/GOAL.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/PROGRESS.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/README.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "2026-10-04-before-workflow-simplification/AGENTS.snapshot.md"
+    },
+    {
+      "from": "docs/history/README.md",
+      "link": "../../research/"
+    },
+    {
+      "from": "research/documentation-workflow-2026-10-04.md",
+      "link": "../docs/history/2026-10-04-before-workflow-simplification/manifest.json"
+    },
+    {
+      "from": "research/documentation-workflow-2026-10-04.md",
+      "link": "documentation-workflow-audit-2026-10-04.json"
+    },
+    {
+      "from": "research/documentation-workflow-2026-10-04.md",
+      "link": "../PROGRESS.md"
+    }
+  ],
+  "code_tests": "Not rerun for documentation-only edits; pending listing code retains earlier 22 affected-test result.",
+  "independent_review": {
+    "worker": "docs_review",
+    "result": "no findings after candidate comparison correction",
+    "review_scope": "documentation/evidence/ownership rules; no code tests or rebuild"
+  },
+  "entrypoint_lines_before": 5619,
+  "entrypoint_lines_after": 360
+}

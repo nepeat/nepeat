@@ -1,0 +1,1131 @@
+{
+  "status": "design simulation only; no production changes",
+  "started_utc": "2026-10-13T04:22:56.392702+00:00",
+  "finished_utc": "2026-10-13T04:22:56.791009+00:00",
+  "database_sha256_before": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+  "database_sha256_after": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+  "concurrent_baseline_changed": false,
+  "example_count": 8,
+  "network_calls": 0,
+  "examples": [
+    {
+      "label": "legal_m6_ieit",
+      "observed_utc": "2026-10-13T04:22:56.581055+00:00",
+      "device": {
+        "id": "0401e1a26671f300df5b",
+        "brand": "IEIT SYSTEMS Co.,Ltd.",
+        "model": "NF5280M6",
+        "revision": "",
+        "title": "IEIT SYSTEMS Co.,Ltd. NF5280M6",
+        "kind": "server"
+      },
+      "software_reference": false,
+      "source_records": [
+        {
+          "id": "4eee4882e4b79bc9188cac3e",
+          "source_id": "ubuntu-cert-202107-29338",
+          "source_key": "202107-29338",
+          "source_url": "https://ubuntu.com/certified/202107-29338"
+        },
+        {
+          "id": "92d484fd01f82f409aa37e5d",
+          "source_id": "ubuntu-cert-202208-30537",
+          "source_key": "202208-30537",
+          "source_url": "https://ubuntu.com/certified/202208-30537"
+        },
+        {
+          "id": "efe49f18f655287d65b8f7c2",
+          "source_id": "ubuntu-cert-202310-32174",
+          "source_key": "202310-32174",
+          "source_url": "https://ubuntu.com/certified/202310-32174"
+        },
+        {
+          "id": "ea38551f5c27f4aa387e2afe",
+          "source_id": "ubuntu-cert-202310-32175",
+          "source_key": "202310-32175",
+          "source_url": "https://ubuntu.com/certified/202310-32175"
+        },
+        {
+          "id": "2da37046608893f21f37bcf1",
+          "source_id": "redhat-cert-240217",
+          "source_key": "240217",
+          "source_url": "https://catalog.redhat.com/en/hardware/system/detail/240217"
+        },
+        {
+          "id": "b032bc908dfbf6ab9c7f7067",
+          "source_id": "redhat-cert-detail-240217",
+          "source_key": "240217",
+          "source_url": "https://catalog.redhat.com/en/hardware/system/detail/240217"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "4eee4882e4b79bc9188cac3e",
+          "kind": "ubuntu_certified_model",
+          "value": "NF5280M6",
+          "source_url": "https://ubuntu.com/certified/202107-29338"
+        },
+        {
+          "record_id": "92d484fd01f82f409aa37e5d",
+          "kind": "ubuntu_certified_model",
+          "value": "NF5280M6",
+          "source_url": "https://ubuntu.com/certified/202208-30537"
+        },
+        {
+          "record_id": "efe49f18f655287d65b8f7c2",
+          "kind": "ubuntu_certified_model",
+          "value": "NF5280M6",
+          "source_url": "https://ubuntu.com/certified/202310-32174"
+        },
+        {
+          "record_id": "ea38551f5c27f4aa387e2afe",
+          "kind": "ubuntu_certified_model",
+          "value": "NF5280M6",
+          "source_url": "https://ubuntu.com/certified/202310-32175"
+        },
+        {
+          "record_id": "2da37046608893f21f37bcf1",
+          "kind": "redhat_certified_product",
+          "value": "IEIT SYSTEMS NF5280M6",
+          "source_url": "https://catalog.redhat.com/en/hardware/system/detail/240217"
+        },
+        {
+          "record_id": "b032bc908dfbf6ab9c7f7067",
+          "kind": "redhat_certified_product",
+          "value": "IEIT SYSTEMS NF5280M6",
+          "source_url": "https://catalog.redhat.com/en/hardware/system/detail/240217"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "IEIT SYSTEMS Co.,Ltd. NF5280M6",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=IEIT+SYSTEMS+Co.%2CLtd.+NF5280M6",
+          "web": "https://www.google.com/search?q=%22IEIT+SYSTEMS+Co.%2CLtd.+NF5280M6%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "0401e1a26671f300df5b"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nIEIT SYSTEMS Co.,Ltd. NF5280M6\thttps://www.ebay.com/sch/i.html?_nkw=IEIT+SYSTEMS+Co.%2CLtd.+NF5280M6\thttps://www.google.com/search?q=%22IEIT+SYSTEMS+Co.%2CLtd.+NF5280M6%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [
+        {
+          "query": "IEIT SYSTEMS Co.,Ltd. NF5280M6",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=IEIT+SYSTEMS+Co.%2CLtd.+NF5280M6",
+          "web": "https://www.google.com/search?q=%22IEIT+SYSTEMS+Co.%2CLtd.+NF5280M6%22+used+surplus"
+        },
+        {
+          "query": "NF5280M6",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=NF5280M6",
+          "web": "https://www.google.com/search?q=%22NF5280M6%22+used+surplus"
+        }
+      ],
+      "model_query_added": true
+    },
+    {
+      "label": "legal_m6_inspur",
+      "observed_utc": "2026-10-13T04:22:56.588540+00:00",
+      "device": {
+        "id": "3296f362a273e5dde5ac",
+        "brand": "Inspur Corporation",
+        "model": "Inspur NF5280M6",
+        "revision": "",
+        "title": "Inspur Corporation Inspur NF5280M6",
+        "kind": "server"
+      },
+      "software_reference": false,
+      "source_records": [
+        {
+          "id": "c5ec08b12903563560d4d261",
+          "source_id": "spec-cpu2017-20220620-32070",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6342)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220620-32070.txt"
+        },
+        {
+          "id": "ce8826258981759ea9bac61c",
+          "source_id": "spec-cpu2017-20220704-32144",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6338N)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220704-32144.txt"
+        },
+        {
+          "id": "66339f707c17276ea62c1410",
+          "source_id": "spec-cpu2017-20220718-32214",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6330)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220718-32214.txt"
+        },
+        {
+          "id": "30c58ba70de36b6e599290f9",
+          "source_id": "spec-cpu2017-20220718-32219",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6348)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220718-32219.txt"
+        },
+        {
+          "id": "2d19b39aa6a70ed722314406",
+          "source_id": "spec-cpu2017-20220801-32249",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6338)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220801-32249.txt"
+        },
+        {
+          "id": "a94bb32f782487bea7d3837c",
+          "source_id": "spec-cpu2017-20220816-32305",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Silver 4310)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220816-32305.txt"
+        },
+        {
+          "id": "c0f4edbb2791218d23e764ad",
+          "source_id": "spec-cpu2017-20220816-32310",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 5318N)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220816-32310.txt"
+        },
+        {
+          "id": "d76e679e844a0e8863c3d229",
+          "source_id": "spec-cpu2017-20220829-32368",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 5320)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220829-32368.txt"
+        },
+        {
+          "id": "dcac863ad53cf5b025083f5e",
+          "source_id": "spec-cpu2017-20220912-32465",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 5318Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220912-32465.txt"
+        },
+        {
+          "id": "0f9a2073c52567c9c61516dc",
+          "source_id": "spec-cpu2017-20220912-32470",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Silver 4309Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220912-32470.txt"
+        },
+        {
+          "id": "89c7f45af98f3408213ca15e",
+          "source_id": "spec-cpu2017-20221010-32542",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Platinum 8380)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221010-32542.txt"
+        },
+        {
+          "id": "7fc655f087fc5238c6ceb28d",
+          "source_id": "spec-cpu2017-20221023-32581",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6326)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221023-32581.txt"
+        },
+        {
+          "id": "f5d04deb04453425412514ff",
+          "source_id": "spec-cpu2017-20221023-32582",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6346)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221023-32582.txt"
+        },
+        {
+          "id": "c144b745c92ba96be4133d76",
+          "source_id": "spec-cpu2017-20221023-32588",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Gold 6336Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221023-32588.txt"
+        },
+        {
+          "id": "499f0126110ac53e3b4d1172",
+          "source_id": "spec-cpu2017-20221206-33073",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Platinum 8352Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q1/cpu2017-20221206-33073.txt"
+        },
+        {
+          "id": "23bd7973b765825f55ddf5d8",
+          "source_id": "spec-cpu2017-20230116-33510",
+          "source_key": "Inspur NF5280M6 (Intel Xeon Silver 4314)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q1/cpu2017-20230116-33510.txt"
+        },
+        {
+          "id": "ec1706d7dbcf8cd238fd0425",
+          "source_id": "spec-jbb2015-20210519-00650",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2021q2/jbb2015-20210519-00650.html"
+        },
+        {
+          "id": "5b753473eaea32fb0182e83f",
+          "source_id": "spec-jbb2015-20210519-00651",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2021q2/jbb2015-20210519-00651.html"
+        },
+        {
+          "id": "2b9e0a39fe1e347c1261c4d6",
+          "source_id": "spec-jbb2015-20220209-00717",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00717.html"
+        },
+        {
+          "id": "5aeeffd7f5945cd9bffd5f08",
+          "source_id": "spec-jbb2015-20220209-00718",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00718.html"
+        },
+        {
+          "id": "d595c71d2554a96ac0964868",
+          "source_id": "spec-jbb2015-20220209-00719",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00719.html"
+        },
+        {
+          "id": "edbd729bea2983b1334d3d09",
+          "source_id": "spec-jbb2015-20220209-00720",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00720.html"
+        },
+        {
+          "id": "a4668cf1f5ea3f99f3945b86",
+          "source_id": "spec-jbb2015-20220209-00721",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00721.html"
+        },
+        {
+          "id": "590e68ceba7460d81cb038c5",
+          "source_id": "spec-jbb2015-20220209-00722",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00722.html"
+        },
+        {
+          "id": "cdeca848a01df459d33d189d",
+          "source_id": "spec-jbb2015-20221130-00931",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00931.html"
+        },
+        {
+          "id": "e165866cc84d0a04f1ec612f",
+          "source_id": "spec-jbb2015-20221130-00932",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00932.html"
+        },
+        {
+          "id": "a52f375fd54f36a9a528aff7",
+          "source_id": "spec-jbb2015-20221130-00933",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00933.html"
+        },
+        {
+          "id": "18e9fb4c688531850e24cd7a",
+          "source_id": "spec-jbb2015-20221130-00934",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00934.html"
+        },
+        {
+          "id": "ddf78de3234c07388246268e",
+          "source_id": "spec-jbb2015-20221130-00935",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00935.html"
+        },
+        {
+          "id": "d7e47025ad2101feac8c175f",
+          "source_id": "spec-jbb2015-20221130-00936",
+          "source_key": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00936.html"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "c5ec08b12903563560d4d261",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6342)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220620-32070.txt"
+        },
+        {
+          "record_id": "ce8826258981759ea9bac61c",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6338N)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220704-32144.txt"
+        },
+        {
+          "record_id": "66339f707c17276ea62c1410",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6330)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220718-32214.txt"
+        },
+        {
+          "record_id": "30c58ba70de36b6e599290f9",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6348)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220718-32219.txt"
+        },
+        {
+          "record_id": "2d19b39aa6a70ed722314406",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6338)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220801-32249.txt"
+        },
+        {
+          "record_id": "a94bb32f782487bea7d3837c",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Silver 4310)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220816-32305.txt"
+        },
+        {
+          "record_id": "c0f4edbb2791218d23e764ad",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 5318N)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220816-32310.txt"
+        },
+        {
+          "record_id": "d76e679e844a0e8863c3d229",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 5320)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220829-32368.txt"
+        },
+        {
+          "record_id": "dcac863ad53cf5b025083f5e",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 5318Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220912-32465.txt"
+        },
+        {
+          "record_id": "0f9a2073c52567c9c61516dc",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Silver 4309Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q3/cpu2017-20220912-32470.txt"
+        },
+        {
+          "record_id": "89c7f45af98f3408213ca15e",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Platinum 8380)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221010-32542.txt"
+        },
+        {
+          "record_id": "7fc655f087fc5238c6ceb28d",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6326)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221023-32581.txt"
+        },
+        {
+          "record_id": "f5d04deb04453425412514ff",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6346)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221023-32582.txt"
+        },
+        {
+          "record_id": "c144b745c92ba96be4133d76",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Gold 6336Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2022q4/cpu2017-20221023-32588.txt"
+        },
+        {
+          "record_id": "499f0126110ac53e3b4d1172",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Platinum 8352Y)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q1/cpu2017-20221206-33073.txt"
+        },
+        {
+          "record_id": "23bd7973b765825f55ddf5d8",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6 (Intel Xeon Silver 4314)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q1/cpu2017-20230116-33510.txt"
+        },
+        {
+          "record_id": "ec1706d7dbcf8cd238fd0425",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2021q2/jbb2015-20210519-00650.html"
+        },
+        {
+          "record_id": "5b753473eaea32fb0182e83f",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2021q2/jbb2015-20210519-00651.html"
+        },
+        {
+          "record_id": "2b9e0a39fe1e347c1261c4d6",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00717.html"
+        },
+        {
+          "record_id": "5aeeffd7f5945cd9bffd5f08",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00718.html"
+        },
+        {
+          "record_id": "d595c71d2554a96ac0964868",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00719.html"
+        },
+        {
+          "record_id": "edbd729bea2983b1334d3d09",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00720.html"
+        },
+        {
+          "record_id": "a4668cf1f5ea3f99f3945b86",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00721.html"
+        },
+        {
+          "record_id": "590e68ceba7460d81cb038c5",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q1/jbb2015-20220209-00722.html"
+        },
+        {
+          "record_id": "cdeca848a01df459d33d189d",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00931.html"
+        },
+        {
+          "record_id": "e165866cc84d0a04f1ec612f",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00932.html"
+        },
+        {
+          "record_id": "a52f375fd54f36a9a528aff7",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00933.html"
+        },
+        {
+          "record_id": "18e9fb4c688531850e24cd7a",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00934.html"
+        },
+        {
+          "record_id": "ddf78de3234c07388246268e",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00935.html"
+        },
+        {
+          "record_id": "d7e47025ad2101feac8c175f",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280M6",
+          "source_url": "https://www.spec.org/jbb2015/results/res2022q4/jbb2015-20221130-00936.html"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "Inspur Corporation Inspur NF5280M6",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Inspur+Corporation+Inspur+NF5280M6",
+          "web": "https://www.google.com/search?q=%22Inspur+Corporation+Inspur+NF5280M6%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "3296f362a273e5dde5ac"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nInspur Corporation Inspur NF5280M6\thttps://www.ebay.com/sch/i.html?_nkw=Inspur+Corporation+Inspur+NF5280M6\thttps://www.google.com/search?q=%22Inspur+Corporation+Inspur+NF5280M6%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [
+        {
+          "query": "Inspur Corporation Inspur NF5280M6",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Inspur+Corporation+Inspur+NF5280M6",
+          "web": "https://www.google.com/search?q=%22Inspur+Corporation+Inspur+NF5280M6%22+used+surplus"
+        },
+        {
+          "query": "Inspur NF5280M6",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Inspur+NF5280M6",
+          "web": "https://www.google.com/search?q=%22Inspur+NF5280M6%22+used+surplus"
+        }
+      ],
+      "model_query_added": true
+    },
+    {
+      "label": "legal_a7_iei",
+      "observed_utc": "2026-10-13T04:22:56.591974+00:00",
+      "device": {
+        "id": "32598b15a60784f4cfd2",
+        "brand": "Inspur Electronic Information Industry Co., Ltd. (IEI)",
+        "model": "Inspur NF5280A7",
+        "revision": "",
+        "title": "Inspur Electronic Information Industry Co., Ltd. (IEI) Inspur NF5280A7",
+        "kind": "server"
+      },
+      "software_reference": false,
+      "source_records": [
+        {
+          "id": "15ded7fcd92ac6767aed1b5c",
+          "source_id": "spec-cpu2017-20230410-35801",
+          "source_key": "Inspur NF5280A7 (AMD EPYC 9354)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q2/cpu2017-20230410-35801.txt"
+        },
+        {
+          "id": "19482f0a2d2fada0bb53b0dd",
+          "source_id": "spec-cpu2017-20230410-35789",
+          "source_key": "Inspur NF5280A7 (AMD EPYC 9174F)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q2/cpu2017-20230410-35789.txt"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "15ded7fcd92ac6767aed1b5c",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280A7 (AMD EPYC 9354)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q2/cpu2017-20230410-35801.txt"
+        },
+        {
+          "record_id": "19482f0a2d2fada0bb53b0dd",
+          "kind": "spec_system_name",
+          "value": "Inspur NF5280A7 (AMD EPYC 9174F)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q2/cpu2017-20230410-35789.txt"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "Inspur Electronic Information Industry Co., Ltd. (IEI) Inspur NF5280A7",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Inspur+Electronic+Information+Industry+Co.%2C+Ltd.+%28IEI%29+Inspur+NF5280A7",
+          "web": "https://www.google.com/search?q=%22Inspur+Electronic+Information+Industry+Co.%2C+Ltd.+%28IEI%29+Inspur+NF5280A7%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "32598b15a60784f4cfd2"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nInspur Electronic Information Industry Co., Ltd. (IEI) Inspur NF5280A7\thttps://www.ebay.com/sch/i.html?_nkw=Inspur+Electronic+Information+Industry+Co.%2C+Ltd.+%28IEI%29+Inspur+NF5280A7\thttps://www.google.com/search?q=%22Inspur+Electronic+Information+Industry+Co.%2C+Ltd.+%28IEI%29+Inspur+NF5280A7%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [
+        {
+          "query": "Inspur Electronic Information Industry Co., Ltd. (IEI) Inspur NF5280A7",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Inspur+Electronic+Information+Industry+Co.%2C+Ltd.+%28IEI%29+Inspur+NF5280A7",
+          "web": "https://www.google.com/search?q=%22Inspur+Electronic+Information+Industry+Co.%2C+Ltd.+%28IEI%29+Inspur+NF5280A7%22+used+surplus"
+        },
+        {
+          "query": "Inspur NF5280A7",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Inspur+NF5280A7",
+          "web": "https://www.google.com/search?q=%22Inspur+NF5280A7%22+used+surplus"
+        }
+      ],
+      "model_query_added": true
+    },
+    {
+      "label": "legal_a7_ieit",
+      "observed_utc": "2026-10-13T04:22:56.595891+00:00",
+      "device": {
+        "id": "aeba47c106c5d5b17c40",
+        "brand": "IEIT Systems Co., Ltd.",
+        "model": "NF5280A7",
+        "revision": "",
+        "title": "IEIT Systems Co., Ltd. NF5280A7",
+        "kind": "server"
+      },
+      "software_reference": false,
+      "source_records": [
+        {
+          "id": "9d10057088b30e49156e572d",
+          "source_id": "spec-cpu2017-20240603-43699",
+          "source_key": "NF5280A7 (AMD EPYC 9174F)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q2/cpu2017-20240603-43699.txt"
+        },
+        {
+          "id": "a94bb1f396346e8e8d0bfd6a",
+          "source_id": "spec-cpu2017-20241007-44987",
+          "source_key": "NF5280A7 (AMD EPYC 9684X)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q4/cpu2017-20241007-44987.txt"
+        },
+        {
+          "id": "3cd86973225ffdb2542d6017",
+          "source_id": "spec-cpu2017-20231106-39648",
+          "source_key": "NF5280A7 (AMD EPYC 9334)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q4/cpu2017-20231106-39648.txt"
+        },
+        {
+          "id": "86623a180f23071941daa53c",
+          "source_id": "spec-cpu2017-20240311-41919",
+          "source_key": "NF5280A7 (AMD EPYC 9754)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q1/cpu2017-20240311-41919.txt"
+        },
+        {
+          "id": "819da742b551afb82e2ab40a",
+          "source_id": "spec-cpu2017-20240421-42977",
+          "source_key": "NF5280A7 (AMD EPYC 9654)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q2/cpu2017-20240421-42977.txt"
+        },
+        {
+          "id": "0073ade2a74a29fc244f0f6c",
+          "source_id": "spec-cpu2017-20240421-42978",
+          "source_key": "NF5280A7 (AMD EPYC 9354)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q2/cpu2017-20240421-42978.txt"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "9d10057088b30e49156e572d",
+          "kind": "spec_system_name",
+          "value": "NF5280A7 (AMD EPYC 9174F)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q2/cpu2017-20240603-43699.txt"
+        },
+        {
+          "record_id": "a94bb1f396346e8e8d0bfd6a",
+          "kind": "spec_system_name",
+          "value": "NF5280A7 (AMD EPYC 9684X)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q4/cpu2017-20241007-44987.txt"
+        },
+        {
+          "record_id": "3cd86973225ffdb2542d6017",
+          "kind": "spec_system_name",
+          "value": "NF5280A7 (AMD EPYC 9334)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2023q4/cpu2017-20231106-39648.txt"
+        },
+        {
+          "record_id": "86623a180f23071941daa53c",
+          "kind": "spec_system_name",
+          "value": "NF5280A7 (AMD EPYC 9754)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q1/cpu2017-20240311-41919.txt"
+        },
+        {
+          "record_id": "819da742b551afb82e2ab40a",
+          "kind": "spec_system_name",
+          "value": "NF5280A7 (AMD EPYC 9654)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q2/cpu2017-20240421-42977.txt"
+        },
+        {
+          "record_id": "0073ade2a74a29fc244f0f6c",
+          "kind": "spec_system_name",
+          "value": "NF5280A7 (AMD EPYC 9354)",
+          "source_url": "https://www.spec.org/cpu2017/results/res2024q2/cpu2017-20240421-42978.txt"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "IEIT Systems Co., Ltd. NF5280A7",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=IEIT+Systems+Co.%2C+Ltd.+NF5280A7",
+          "web": "https://www.google.com/search?q=%22IEIT+Systems+Co.%2C+Ltd.+NF5280A7%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "aeba47c106c5d5b17c40"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nIEIT Systems Co., Ltd. NF5280A7\thttps://www.ebay.com/sch/i.html?_nkw=IEIT+Systems+Co.%2C+Ltd.+NF5280A7\thttps://www.google.com/search?q=%22IEIT+Systems+Co.%2C+Ltd.+NF5280A7%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [
+        {
+          "query": "IEIT Systems Co., Ltd. NF5280A7",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=IEIT+Systems+Co.%2C+Ltd.+NF5280A7",
+          "web": "https://www.google.com/search?q=%22IEIT+Systems+Co.%2C+Ltd.+NF5280A7%22+used+surplus"
+        },
+        {
+          "query": "NF5280A7",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=NF5280A7",
+          "web": "https://www.google.com/search?q=%22NF5280A7%22+used+surplus"
+        }
+      ],
+      "model_query_added": true
+    },
+    {
+      "label": "software_wedge",
+      "observed_utc": "2026-10-13T04:22:56.599135+00:00",
+      "device": {
+        "id": "b764ab4c2c47be5a1677",
+        "brand": "Meta OpenBMC platform",
+        "model": "wedge",
+        "revision": "",
+        "title": "Meta OpenBMC platform wedge",
+        "kind": "BMC firmware platform definition (software reference)"
+      },
+      "software_reference": true,
+      "source_records": [
+        {
+          "id": "2bc2289f7d61ca61b02f7328",
+          "source_id": "fbobmc-wedge-wedge",
+          "source_key": "fbobmc-wedge-wedge",
+          "source_url": "https://github.com/facebook/openbmc/blob/94594682123991e330709fd814b256f023f2ddcf/meta-facebook/meta-wedge/conf/machine/wedge.conf"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "2bc2289f7d61ca61b02f7328",
+          "kind": "fb_openbmc_platform",
+          "value": "wedge",
+          "source_url": "https://github.com/facebook/openbmc/blob/94594682123991e330709fd814b256f023f2ddcf/meta-facebook/meta-wedge/conf/machine/wedge.conf"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "Meta OpenBMC platform wedge",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Meta+OpenBMC+platform+wedge",
+          "web": "https://www.google.com/search?q=%22Meta+OpenBMC+platform+wedge%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "b764ab4c2c47be5a1677"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nMeta OpenBMC platform wedge\thttps://www.ebay.com/sch/i.html?_nkw=Meta+OpenBMC+platform+wedge\thttps://www.google.com/search?q=%22Meta+OpenBMC+platform+wedge%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [],
+      "model_query_added": false
+    },
+    {
+      "label": "owned_7760",
+      "observed_utc": "2026-10-13T04:22:56.602452+00:00",
+      "device": {
+        "id": "fa989f63133b3fb248d8",
+        "brand": "Edge-Core",
+        "model": "7760-32X-A-AC-F",
+        "revision": "",
+        "title": "Edge-Core 7760-32X-A-AC-F",
+        "kind": "seller-listed hardware"
+      },
+      "software_reference": false,
+      "source_records": [
+        {
+          "id": "b6dab80755ae5603580a01a1",
+          "source_id": "ecrunch-I610661",
+          "source_key": "I610661",
+          "source_url": "https://www.ecrunch.com/edge-core-7760-32x-a-ac-f-as7760-32-100g-ethernet-data-center-spine-switch-red-i610661.html"
+        },
+        {
+          "id": "6a11f24a97497e97e9a9587e",
+          "source_id": "edgecore-7760-label",
+          "source_key": "7760-32X-A-AC-F-label",
+          "source_url": "https://www.ebay.com/itm/389108536363"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "b6dab80755ae5603580a01a1",
+          "kind": "seller_sku",
+          "value": "I610661",
+          "source_url": "https://www.ecrunch.com/edge-core-7760-32x-a-ac-f-as7760-32-100g-ethernet-data-center-spine-switch-red-i610661.html"
+        },
+        {
+          "record_id": "6a11f24a97497e97e9a9587e",
+          "kind": "part_number",
+          "value": "AS7760-32X",
+          "source_url": "https://www.ebay.com/itm/389108536363"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "AS7760-32X",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=AS7760-32X",
+          "web": "https://www.google.com/search?q=%22AS7760-32X%22+used+surplus"
+        },
+        {
+          "query": "Edge-Core 7760-32X-A-AC-F",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Edge-Core+7760-32X-A-AC-F",
+          "web": "https://www.google.com/search?q=%22Edge-Core+7760-32X-A-AC-F%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "fa989f63133b3fb248d8"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nAS7760-32X\thttps://www.ebay.com/sch/i.html?_nkw=AS7760-32X\thttps://www.google.com/search?q=%22AS7760-32X%22+used+surplus\nEdge-Core 7760-32X-A-AC-F\thttps://www.ebay.com/sch/i.html?_nkw=Edge-Core+7760-32X-A-AC-F\thttps://www.google.com/search?q=%22Edge-Core+7760-32X-A-AC-F%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [
+        {
+          "query": "7760-32X-A-AC-F",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=7760-32X-A-AC-F",
+          "web": "https://www.google.com/search?q=%227760-32X-A-AC-F%22+used+surplus"
+        },
+        {
+          "query": "AS7760-32X",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=AS7760-32X",
+          "web": "https://www.google.com/search?q=%22AS7760-32X%22+used+surplus"
+        },
+        {
+          "query": "Edge-Core 7760-32X-A-AC-F",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Edge-Core+7760-32X-A-AC-F",
+          "web": "https://www.google.com/search?q=%22Edge-Core+7760-32X-A-AC-F%22+used+surplus"
+        }
+      ],
+      "model_query_added": true
+    },
+    {
+      "label": "owned_cs8200",
+      "observed_utc": "2026-10-13T04:22:56.606174+00:00",
+      "device": {
+        "id": "77acd4d1fd66d5464b25",
+        "brand": "Celestica",
+        "model": "CS8200-32X-UN-00",
+        "revision": "",
+        "title": "Celestica CS8200-32X-UN-00",
+        "kind": "listed ICT equipment"
+      },
+      "software_reference": false,
+      "source_records": [
+        {
+          "id": "13e31f700b85f21e624d2562",
+          "source_id": "ul-celestica-cs",
+          "source_key": "CS8200-32X-UN-00",
+          "source_url": "https://productiq.ulprospector.com/zh-cn/profile/2858121/azot.e362364?page=23&term=AZOT"
+        },
+        {
+          "id": "60271dcb56e73a49942fc0b3",
+          "source_id": "tec-mtcte",
+          "source_key": "967|CS8200-32X-UN-00",
+          "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte"
+        },
+        {
+          "id": "d11f487717b1294bf155c9f2",
+          "source_id": "anatel-products",
+          "source_key": "61886",
+          "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos"
+        },
+        {
+          "id": "6d8b454ddaba66db7fa5e56a",
+          "source_id": "rra-official-query-41e4ca912b33",
+          "source_key": "R-R-ZZR-CS8200-32X-UN:CS8200-32X-UN-00",
+          "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8200-32X-UN"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "13e31f700b85f21e624d2562",
+          "kind": "ul_document",
+          "value": "AZOT.E362364",
+          "source_url": "https://productiq.ulprospector.com/zh-cn/profile/2858121/azot.e362364?page=23&term=AZOT"
+        },
+        {
+          "record_id": "60271dcb56e73a49942fc0b3",
+          "kind": "tec_certificate_id",
+          "value": "379401371",
+          "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte"
+        },
+        {
+          "record_id": "d11f487717b1294bf155c9f2",
+          "kind": "anatel_approval_id",
+          "value": "143732011923",
+          "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos"
+        },
+        {
+          "record_id": "6d8b454ddaba66db7fa5e56a",
+          "kind": "rra_certificate_id",
+          "value": "R-R-ZZR-CS8200-32X-UN",
+          "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8200-32X-UN"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "Celestica CS8200-32X-UN-00",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Celestica+CS8200-32X-UN-00",
+          "web": "https://www.google.com/search?q=%22Celestica+CS8200-32X-UN-00%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "77acd4d1fd66d5464b25"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nCelestica CS8200-32X-UN-00\thttps://www.ebay.com/sch/i.html?_nkw=Celestica+CS8200-32X-UN-00\thttps://www.google.com/search?q=%22Celestica+CS8200-32X-UN-00%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [
+        {
+          "query": "CS8200-32X-UN-00",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=CS8200-32X-UN-00",
+          "web": "https://www.google.com/search?q=%22CS8200-32X-UN-00%22+used+surplus"
+        },
+        {
+          "query": "Celestica CS8200-32X-UN-00",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Celestica+CS8200-32X-UN-00",
+          "web": "https://www.google.com/search?q=%22Celestica+CS8200-32X-UN-00%22+used+surplus"
+        }
+      ],
+      "model_query_added": true
+    },
+    {
+      "label": "ordinary_sd6200",
+      "observed_utc": "2026-10-13T04:22:56.609621+00:00",
+      "device": {
+        "id": "d1daa8e8c3ad705b1118",
+        "brand": "Celestica",
+        "model": "SD6200",
+        "revision": "",
+        "title": "Celestica SD6200",
+        "kind": "storage enclosure"
+      },
+      "software_reference": false,
+      "source_records": [
+        {
+          "id": "03ff1350d2a1345c3a652455",
+          "source_id": "celestica-storage",
+          "source_key": "SD6200|https://cls.celestica.com/hardware-platforms/sd6200/",
+          "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+        },
+        {
+          "id": "220e9b2a51e974ac789f5a55",
+          "source_id": "celestica-2025-catalog",
+          "source_key": "SD6200",
+          "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+        },
+        {
+          "id": "4b25d4fc9723ba6290caa987",
+          "source_id": "ul-celestica-platforms",
+          "source_key": "SD6200",
+          "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+        },
+        {
+          "id": "2c63d84b159f1427ee5a26e5",
+          "source_id": "celestica-storage-manufacturer-sd6200",
+          "source_key": "SD6200",
+          "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+        }
+      ],
+      "all_explicit_identifiers": [
+        {
+          "record_id": "03ff1350d2a1345c3a652455",
+          "kind": "model_search",
+          "value": "SD6200",
+          "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+        },
+        {
+          "record_id": "4b25d4fc9723ba6290caa987",
+          "kind": "ul_document",
+          "value": "AZOT.E362364",
+          "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+        }
+      ],
+      "legacy_allowed_identifier_kinds": [
+        "fcc_id",
+        "part_number",
+        "manufacturer_model",
+        "model_search",
+        "alias",
+        "onie_platform"
+      ],
+      "before_query_rows": [
+        {
+          "query": "Celestica SD6200",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Celestica+SD6200",
+          "web": "https://www.google.com/search?q=%22Celestica+SD6200%22+used+surplus"
+        },
+        {
+          "query": "SD6200",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=SD6200",
+          "web": "https://www.google.com/search?q=%22SD6200%22+used+surplus"
+        }
+      ],
+      "cli_argv": [
+        "python3",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+        "shopping",
+        "d1daa8e8c3ad705b1118"
+      ],
+      "cli_returncode": 0,
+      "cli_stdout": "query\tebay\tweb\nCelestica SD6200\thttps://www.ebay.com/sch/i.html?_nkw=Celestica+SD6200\thttps://www.google.com/search?q=%22Celestica+SD6200%22+used+surplus\nSD6200\thttps://www.ebay.com/sch/i.html?_nkw=SD6200\thttps://www.google.com/search?q=%22SD6200%22+used+surplus\n",
+      "cli_stderr": "",
+      "proposal_query_rows": [
+        {
+          "query": "Celestica SD6200",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=Celestica+SD6200",
+          "web": "https://www.google.com/search?q=%22Celestica+SD6200%22+used+surplus"
+        },
+        {
+          "query": "SD6200",
+          "ebay": "https://www.ebay.com/sch/i.html?_nkw=SD6200",
+          "web": "https://www.google.com/search?q=%22SD6200%22+used+surplus"
+        }
+      ],
+      "model_query_added": false
+    }
+  ],
+  "read_input_hashes": {
+    "AGENTS.md": "25f80387ba7b37d4248c6d846adf1b8280f0a4c36c6b95e74bc4be10a041b9ea",
+    "PROGRESS.md": "52b71d050b82f96723091761afe8457c0675dbb26512eda1dab29fd2f4855626",
+    "research/batches/discovery-2026-10-11/review/buyer-audit.md": "9c3f38f6197071a5fce37bd444d32f1f77a0a120df1b912e11377b04fce1590c",
+    "devicehunt/__main__.py": "540f7b1d4f118e2b42b2bbf2a84a9a0ccb17ce4c0be1d33f101ebf81a17f73e6",
+    "devicehunt/listings.py": "9a3b2aa136eb2920fa5900e9fbd888e61086db2e9042de5534fe2c4148fcad6a",
+    "devicehunt/report.html": "b05db38547daed0cdaf34d2ff5d1b793b27db9726a2fb4149a5fbab675b7c6e4",
+    "tests/report.test.cjs": "2eb1b8f76309f2613052873b449e3e2d87f24a79825beb69475abc9c621834e8",
+    "tests/test_readonly_catalog_commands.py": "7d66c476ba265742efa8e094479e5faaa1921182aac0ac6152fb46707085bbd3",
+    "tests/test_listing_software_refs.py": "2dfd43d9b58c21fa9569f9b1a18047ad5c4e914ad786b3164f2cee1dba45e454"
+  }
+}

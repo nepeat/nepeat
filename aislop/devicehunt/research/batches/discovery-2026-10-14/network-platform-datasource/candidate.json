@@ -1,0 +1,522 @@
+{
+  "sources": [
+    {
+      "id": "bisdn-linux-hcl-2026-10-14",
+      "url": "https://www.bisdn.de/en/linux/compatibility/",
+      "tier": "project",
+      "license": "Public factual compatibility listing; original upstream rights retained; local research only.",
+      "coverage": "Complete 11-row captured BISDN Linux HTML hardware compatibility table; source-scoped listing records, not hardware identity/alias/manufacturer/deployment assertions. Exact Vendor/Platform/ASIC/Architecture/Release cells and download URLs retained. Vendor is a table label, not physical manufacture. No grouped-name or parenthetical alias expansion. No installed OS, unit fitment, stock, entitlement, current support guarantee, retired status or recommendation to flash a device is inferred. Download links were not fetched. Upstream rights retained; local research only.",
+      "snapshot": "raw/05-bisdn-hcl.body",
+      "original_sha256": "281d4717ae1003e3843ab4bd0eb1ccc0564f5bc729d1ab9d4b1095a6fda1635f",
+      "captured_at_utc": "2026-10-15T05:49:32.573071+00:00"
+    }
+  ],
+  "devices": [
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-1",
+      "brand": "BISDN Linux HCL",
+      "model": "Questone 2 D3030 (Questone 2A)",
+      "title": "BISDN Linux HCL listing: Questone 2 D3030 (Questone 2A)",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "Questone 2 D3030 (Questone 2A)"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Celestica [captured BISDN HCL table 1, data row 1, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "Questone 2 D3030 (Questone 2A) [captured BISDN HCL table 1, data row 1, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Trident 3 [captured BISDN HCL table 1, data row 1, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "x86-64 [captured BISDN HCL table 1, data row 1, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 1, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=Questone+2+D3030+%28Questone+2A%29 [captured BISDN HCL table 1, data row 1, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 1, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-2",
+      "brand": "BISDN Linux HCL",
+      "model": "AG5648",
+      "title": "BISDN Linux HCL listing: AG5648",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "AG5648"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Delta [captured BISDN HCL table 1, data row 2, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "AG5648 [captured BISDN HCL table 1, data row 2, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Tomahawk (+) [captured BISDN HCL table 1, data row 2, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "x86-64 [captured BISDN HCL table 1, data row 2, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 2, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=AG5648 [captured BISDN HCL table 1, data row 2, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 2, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-3",
+      "brand": "BISDN Linux HCL",
+      "model": "AG7648",
+      "title": "BISDN Linux HCL listing: AG7648",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "AG7648"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Delta [captured BISDN HCL table 1, data row 3, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "AG7648 [captured BISDN HCL table 1, data row 3, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Trident 2+ [captured BISDN HCL table 1, data row 3, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "x86-64 [captured BISDN HCL table 1, data row 3, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 3, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=AG7648 [captured BISDN HCL table 1, data row 3, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 3, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-4",
+      "brand": "BISDN Linux HCL",
+      "model": "AS4610-30T",
+      "title": "BISDN Linux HCL listing: AS4610-30T",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "AS4610-30T"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 4, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "AS4610-30T [captured BISDN HCL table 1, data row 4, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Helix 4 [captured BISDN HCL table 1, data row 4, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "ARM (iproc) [captured BISDN HCL table 1, data row 4, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 4, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=AS4610-30T [captured BISDN HCL table 1, data row 4, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 4, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-5",
+      "brand": "BISDN Linux HCL",
+      "model": "AS4610-30P",
+      "title": "BISDN Linux HCL listing: AS4610-30P",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "AS4610-30P"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 5, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "AS4610-30P [captured BISDN HCL table 1, data row 5, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Helix 4 [captured BISDN HCL table 1, data row 5, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "ARM (iproc) [captured BISDN HCL table 1, data row 5, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 5, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=AS4610-30P [captured BISDN HCL table 1, data row 5, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 5, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-6",
+      "brand": "BISDN Linux HCL",
+      "model": "AS4610-54T",
+      "title": "BISDN Linux HCL listing: AS4610-54T",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "AS4610-54T"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 6, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "AS4610-54T [captured BISDN HCL table 1, data row 6, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Helix 4 [captured BISDN HCL table 1, data row 6, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "ARM (iproc) [captured BISDN HCL table 1, data row 6, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 6, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=AS4610-54T [captured BISDN HCL table 1, data row 6, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 6, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-7",
+      "brand": "BISDN Linux HCL",
+      "model": "AS4610-54P",
+      "title": "BISDN Linux HCL listing: AS4610-54P",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "AS4610-54P"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 7, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "AS4610-54P [captured BISDN HCL table 1, data row 7, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Helix 4 [captured BISDN HCL table 1, data row 7, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "ARM (iproc) [captured BISDN HCL table 1, data row 7, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 7, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=AS4610-54P [captured BISDN HCL table 1, data row 7, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 7, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-8",
+      "brand": "BISDN Linux HCL",
+      "model": "EPS201 (AS4630-54TE)",
+      "title": "BISDN Linux HCL listing: EPS201 (AS4630-54TE)",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "EPS201 (AS4630-54TE)"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 8, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "EPS201 (AS4630-54TE) [captured BISDN HCL table 1, data row 8, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Trident 3 [captured BISDN HCL table 1, data row 8, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "x86-64 [captured BISDN HCL table 1, data row 8, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 8, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=EPS201+%28AS4630-54TE%29 [captured BISDN HCL table 1, data row 8, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 8, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-9",
+      "brand": "BISDN Linux HCL",
+      "model": "EPS202 (AS4630-54PE)",
+      "title": "BISDN Linux HCL listing: EPS202 (AS4630-54PE)",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "EPS202 (AS4630-54PE)"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 9, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "EPS202 (AS4630-54PE) [captured BISDN HCL table 1, data row 9, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Trident 3 [captured BISDN HCL table 1, data row 9, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "x86-64 [captured BISDN HCL table 1, data row 9, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 9, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=EPS202+%28AS4630-54PE%29 [captured BISDN HCL table 1, data row 9, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 9, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-10",
+      "brand": "BISDN Linux HCL",
+      "model": "DCS201 (AS5835-54X)",
+      "title": "BISDN Linux HCL listing: DCS201 (AS5835-54X)",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "DCS201 (AS5835-54X)"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 10, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "DCS201 (AS5835-54X) [captured BISDN HCL table 1, data row 10, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Trident 3 [captured BISDN HCL table 1, data row 10, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "x86-64 [captured BISDN HCL table 1, data row 10, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 10, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=DCS201+%28AS5835-54X%29 [captured BISDN HCL table 1, data row 10, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 10, HTML line 9]"
+        ]
+      ]
+    },
+    {
+      "source": "bisdn-linux-hcl-2026-10-14",
+      "key": "table-1-row-11",
+      "brand": "BISDN Linux HCL",
+      "model": "AS7726-32X",
+      "title": "BISDN Linux HCL listing: AS7726-32X",
+      "kind": "network OS compatibility listing (software reference)",
+      "affiliations": [],
+      "identifiers": [
+        [
+          "bisdn_hcl_platform",
+          "AS7726-32X"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "bisdn_hcl_vendor_as_printed",
+          "Edgecore [captured BISDN HCL table 1, data row 11, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_platform_as_printed",
+          "AS7726-32X [captured BISDN HCL table 1, data row 11, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_asic_as_printed",
+          "Broadcom Trident 3 [captured BISDN HCL table 1, data row 11, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_architecture_as_printed",
+          "x86-64 [captured BISDN HCL table 1, data row 11, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_release_as_printed",
+          "6.0.0 [captured BISDN HCL table 1, data row 11, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_download_url",
+          "https://www.bisdn.de/en/linux/download/?platform=AS7726-32X [captured BISDN HCL table 1, data row 11, HTML line 9]"
+        ],
+        [
+          "bisdn_hcl_listing_scope",
+          "listed in captured BISDN HCL; no current/retired label inferred [captured BISDN HCL table 1, data row 11, HTML line 9]"
+        ]
+      ]
+    }
+  ]
+}

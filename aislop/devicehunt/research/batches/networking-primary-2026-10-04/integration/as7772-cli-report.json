@@ -1,0 +1,2184 @@
+{
+  "query": "AS7772-32X",
+  "vendor": null,
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "3cd458914e3561b284315aa1",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ntra-2026-01",
+      "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf",
+      "tier": "regulatory",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+      "coverage": "All PDF pages screened for target names, then candidate tables parsed by column. Only exact target-brand matches imported. Linked models are separate facts, not aliases. Registry brand does not prove physical OEM or AWS use. Snapshot URL is January 2026; English and Arabic printed dates disagree, so no effective approval date is inferred.",
+      "fetched_at": "2026-09-26T21:10:43.339349+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "registry_brand"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "AS7772-32X"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "pdf_page",
+          "value": "189"
+        },
+        {
+          "name": "registry_brand",
+          "value": "EDGE-CORE"
+        },
+        {
+          "name": "registry_product_description",
+          "value": "SWITCH"
+        },
+        {
+          "name": "registry_row",
+          "value": "11963"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "AS7772-32X"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "active_flag",
+          "value": "S"
+        },
+        {
+          "name": "antenna_flag",
+          "value": "N"
+        },
+        {
+          "name": "applicant",
+          "value": "OPENGLOBE TECNOLOGIA LTDA"
+        },
+        {
+          "name": "applicant_cnpj",
+          "value": "24603617000160"
+        },
+        {
+          "name": "application_status",
+          "value": "Homologação Emitida"
+        },
+        {
+          "name": "application_status_code",
+          "value": "6"
+        },
+        {
+          "name": "approval_date",
+          "value": "12/04/2020"
+        },
+        {
+          "name": "approval_number",
+          "value": "030911807643"
+        },
+        {
+          "name": "certificate_date",
+          "value": "10/05/2018"
+        },
+        {
+          "name": "certificate_number",
+          "value": "UL-BR 18.0183"
+        },
+        {
+          "name": "certificate_status",
+          "value": "Preenchimento Concluído"
+        },
+        {
+          "name": "certificate_status_code",
+          "value": "2"
+        },
+        {
+          "name": "country_iso",
+          "value": "TWN"
+        },
+        {
+          "name": "country_itu",
+          "value": "TWN"
+        },
+        {
+          "name": "csv_record_number",
+          "value": "37300"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Registry manufacturer/model assertion; commercial-name cells are unparsed facts, not model aliases. Raw dates and statuses do not imply present validity or unit provenance."
+        },
+        {
+          "name": "manufacturer_country",
+          "value": "Taiwan"
+        },
+        {
+          "name": "product_category",
+          "value": "3"
+        },
+        {
+          "name": "product_type",
+          "value": "Equipamento de Rede de Dados"
+        },
+        {
+          "name": "registry_manufacturer",
+          "value": "EdgeCore Networks Corporation"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "aeeefd7d8e4c6d5943d32e1e",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-63cb0b9098c7",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Edgecore\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T04:58:18.125132+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "(주) 인포에이",
+          "target": null,
+          "role": "regulatory_applicant"
+        },
+        {
+          "company": "Edgecore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "AS7772-32X"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "approval_date_raw",
+          "value": "2017-10-31"
+        },
+        {
+          "name": "country_raw",
+          "value": "중국"
+        },
+        {
+          "name": "detail_sha256",
+          "value": "c6db62fae25121bb575515fea6d3ddec3992f88c5a757c6fbb40ca68f1fb0cf4"
+        },
+        {
+          "name": "rra_main_model",
+          "value": "AS7712-32X"
+        },
+        {
+          "name": "rra_model_role",
+          "value": "derived"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "af279284a305947ac341c1f3",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-e5984834207f",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Accton\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment. Additional whole-cell Accton Singapore spellings depend on a separately hashed factual search extract of the 2013 Accton consolidated report, not original PDF. The geographic qualifier interpretation and reported Edgecore parent are retained per record. Accton is the named manufacturer namespace; historical or current parent ownership, parent manufacturing and cross-company device equivalence are not inferred.",
+      "fetched_at": "2026-09-27T05:53:13.549217+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "AS7772-32X"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "approval_date_raw",
+          "value": "2016-11-29"
+        },
+        {
+          "name": "country_raw",
+          "value": "대만"
+        },
+        {
+          "name": "detail_sha256",
+          "value": "1fda9564ee0a4d6b2513f604eeb93783568d3ed1358605f2708efc6e2e4f4df5"
+        },
+        {
+          "name": "rra_main_model",
+          "value": "AS7762-32X"
+        },
+        {
+          "name": "rra_model_role",
+          "value": "derived"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "AS7772-32X"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "certificate_category",
+          "value": "Mandatory"
+        },
+        {
+          "name": "certificate_date_scope",
+          "value": "Historical register assertion; not current status or vendor support deadline"
+        },
+        {
+          "name": "certificate_issue_date",
+          "value": "2023-06-09"
+        },
+        {
+          "name": "certificate_type",
+          "value": "Regular"
+        },
+        {
+          "name": "certificate_valid_upto",
+          "value": "2033-06-08"
+        },
+        {
+          "name": "model_column",
+          "value": "Product Model Name"
+        },
+        {
+          "name": "product_variant",
+          "value": "L2 LAN Switch"
+        },
+        {
+          "name": "registry_row",
+          "value": "1518"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "e18ea3940f4e0b1312ba8adf",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ul-accton-platforms",
+      "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "observed_at": "2026-10-04T11:26:22+00:00",
+      "source_home_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "tier": "certification_body",
+      "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+      "coverage": "Selected complete platform identifiers from the public abridged Models section, via web.run. The original HTML is not cached. The page explicitly excludes some models from public view. Reviewed AS/AZ/AIS/ECS/DMC/CSX/AMX/Wedge families and Minipack, Barefoot DNA X1032C, ORV3 HSM names, plus reviewed QFX/EX/ACX/JNP/SRX/JCP and additional complete commercial codes and named models. Adjacent RMN annotations are retained without inferred aliases. Numeric-only names, ambiguous 1FINITY groupings, unreviewed names and wildcard patterns remain unparsed. Accton is the listing-holder identity namespace, not an asserted product brand. Known whitespace qualifiers are preserved. Listing-holder association only: not physical manufacturer, cross-brand equivalence, hyperscaler deployment or current certification validity.",
+      "fetched_at": "2026-09-26T22:59:32.056835+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "listing_holder"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "AS7772-32X"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "capture_format",
+          "value": "web_tool_models_section"
+        },
+        {
+          "name": "identity_namespace",
+          "value": "Accton listing holder; product brand not established by this record"
+        },
+        {
+          "name": "listing_holder_name",
+          "value": "ACCTON TECHNOLOGY CORPORATION"
+        },
+        {
+          "name": "retrieved_at",
+          "value": "2026-09-26 22:57:28 UTC"
+        },
+        {
+          "name": "source_scope",
+          "value": "Selected identifiers from an abridged listing; may describe products or components"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "e401fabe015a4a496e7e74de",
+      "device_id": "ee98faf36b19bd060124",
+      "brand": "",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+      "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+      "upstream_revision": null,
+      "company_roles": [],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "AS7772-32X"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "artifact_compatible_declaration",
+          "value": "accton,as7772_32x"
+        },
+        {
+          "name": "artifact_model_declaration",
+          "value": "accton,as7772_32x"
+        },
+        {
+          "name": "artifact_partition_labels",
+          "value": "RCW; hw-info; onie; diag; open; Fman-FW; uboot-env; uboot"
+        },
+        {
+          "name": "artifact_serial0_alias",
+          "value": "/soc@ffe000000/serial@11c500"
+        },
+        {
+          "name": "artifact_title",
+          "value": "AS7772-32X DTB"
+        },
+        {
+          "name": "configuration_limit",
+          "value": "No assertion of installed firmware, physical flash layout, current owned-unit behavior, supported NOS, entitlement, safe flashing or vendor support; account authorship does not bind artifact to owned unit."
+        },
+        {
+          "name": "source_location",
+          "value": "gistfile1.txt lines 7-8, 75, 118, 123, 128, 133, 138, 143, 148, 154"
+        },
+        {
+          "name": "source_observed_date",
+          "value": "2026-10-04"
+        },
+        {
+          "name": "source_scope",
+          "value": "Published DTB-source declarations associated by exact gist title AS7772-32X DTB; not physical configuration or supported installation instructions."
+        },
+        {
+          "name": "source_sha256",
+          "value": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "cooling": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "chassis_physical": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "firmware_boot_software": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "e401fabe015a4a496e7e74de",
+          "device_id": "ee98faf36b19bd060124",
+          "brand": "",
+          "model": "AS7772-32X",
+          "revision": "",
+          "source_id": "community-as7772-dtb-gist-2026-10-04",
+          "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "tier": "community",
+          "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+          "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+          "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+          "upstream_revision": null,
+          "company_roles": [],
+          "claim_status": "source_statement",
+          "fact_name": "artifact_compatible_declaration",
+          "statement": "accton,as7772_32x",
+          "context_record_id": "e401fabe015a4a496e7e74de"
+        },
+        {
+          "record_id": "e401fabe015a4a496e7e74de",
+          "device_id": "ee98faf36b19bd060124",
+          "brand": "",
+          "model": "AS7772-32X",
+          "revision": "",
+          "source_id": "community-as7772-dtb-gist-2026-10-04",
+          "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "tier": "community",
+          "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+          "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+          "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+          "upstream_revision": null,
+          "company_roles": [],
+          "claim_status": "source_statement",
+          "fact_name": "artifact_model_declaration",
+          "statement": "accton,as7772_32x",
+          "context_record_id": "e401fabe015a4a496e7e74de"
+        },
+        {
+          "record_id": "e401fabe015a4a496e7e74de",
+          "device_id": "ee98faf36b19bd060124",
+          "brand": "",
+          "model": "AS7772-32X",
+          "revision": "",
+          "source_id": "community-as7772-dtb-gist-2026-10-04",
+          "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "tier": "community",
+          "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+          "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+          "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+          "upstream_revision": null,
+          "company_roles": [],
+          "claim_status": "source_statement",
+          "fact_name": "artifact_partition_labels",
+          "statement": "RCW; hw-info; onie; diag; open; Fman-FW; uboot-env; uboot",
+          "context_record_id": "e401fabe015a4a496e7e74de"
+        },
+        {
+          "record_id": "e401fabe015a4a496e7e74de",
+          "device_id": "ee98faf36b19bd060124",
+          "brand": "",
+          "model": "AS7772-32X",
+          "revision": "",
+          "source_id": "community-as7772-dtb-gist-2026-10-04",
+          "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+          "tier": "community",
+          "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+          "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+          "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+          "upstream_revision": null,
+          "company_roles": [],
+          "claim_status": "source_statement",
+          "fact_name": "artifact_serial0_alias",
+          "statement": "/soc@ffe000000/serial@11c500",
+          "context_record_id": "e401fabe015a4a496e7e74de"
+        }
+      ]
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "3cd458914e3561b284315aa1",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ntra-2026-01",
+      "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf",
+      "tier": "regulatory",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+      "coverage": "All PDF pages screened for target names, then candidate tables parsed by column. Only exact target-brand matches imported. Linked models are separate facts, not aliases. Registry brand does not prove physical OEM or AWS use. Snapshot URL is January 2026; English and Arabic printed dates disagree, so no effective approval date is inferred.",
+      "fetched_at": "2026-09-26T21:10:43.339349+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "registry_brand"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "pdf_page",
+      "statement": "189",
+      "context_record_id": "3cd458914e3561b284315aa1"
+    },
+    {
+      "record_id": "3cd458914e3561b284315aa1",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ntra-2026-01",
+      "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf",
+      "tier": "regulatory",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+      "coverage": "All PDF pages screened for target names, then candidate tables parsed by column. Only exact target-brand matches imported. Linked models are separate facts, not aliases. Registry brand does not prove physical OEM or AWS use. Snapshot URL is January 2026; English and Arabic printed dates disagree, so no effective approval date is inferred.",
+      "fetched_at": "2026-09-26T21:10:43.339349+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "registry_brand"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "registry_brand",
+      "statement": "EDGE-CORE",
+      "context_record_id": "3cd458914e3561b284315aa1"
+    },
+    {
+      "record_id": "3cd458914e3561b284315aa1",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ntra-2026-01",
+      "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf",
+      "tier": "regulatory",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+      "coverage": "All PDF pages screened for target names, then candidate tables parsed by column. Only exact target-brand matches imported. Linked models are separate facts, not aliases. Registry brand does not prove physical OEM or AWS use. Snapshot URL is January 2026; English and Arabic printed dates disagree, so no effective approval date is inferred.",
+      "fetched_at": "2026-09-26T21:10:43.339349+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "registry_brand"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "registry_product_description",
+      "statement": "SWITCH",
+      "context_record_id": "3cd458914e3561b284315aa1"
+    },
+    {
+      "record_id": "3cd458914e3561b284315aa1",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ntra-2026-01",
+      "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf",
+      "tier": "regulatory",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+      "coverage": "All PDF pages screened for target names, then candidate tables parsed by column. Only exact target-brand matches imported. Linked models are separate facts, not aliases. Registry brand does not prove physical OEM or AWS use. Snapshot URL is January 2026; English and Arabic printed dates disagree, so no effective approval date is inferred.",
+      "fetched_at": "2026-09-26T21:10:43.339349+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "registry_brand"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "registry_row",
+      "statement": "11963",
+      "context_record_id": "3cd458914e3561b284315aa1"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "active_flag",
+      "statement": "S",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "antenna_flag",
+      "statement": "N",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "applicant",
+      "statement": "OPENGLOBE TECNOLOGIA LTDA",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "applicant_cnpj",
+      "statement": "24603617000160",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "application_status",
+      "statement": "Homologação Emitida",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "application_status_code",
+      "statement": "6",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "approval_date",
+      "statement": "12/04/2020",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "approval_number",
+      "statement": "030911807643",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_date",
+      "statement": "10/05/2018",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_number",
+      "statement": "UL-BR 18.0183",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_status",
+      "statement": "Preenchimento Concluído",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_status_code",
+      "statement": "2",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "country_iso",
+      "statement": "TWN",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "country_itu",
+      "statement": "TWN",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "csv_record_number",
+      "statement": "37300",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "evidence_scope",
+      "statement": "Registry manufacturer/model assertion; commercial-name cells are unparsed facts, not model aliases. Raw dates and statuses do not imply present validity or unit provenance.",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_country",
+      "statement": "Taiwan",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "product_category",
+      "statement": "3",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "product_type",
+      "statement": "Equipamento de Rede de Dados",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "8a2b11935bb85c28c245f825",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "anatel-products",
+      "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+      "observed_at": "2026-10-04T11:26:16+00:00",
+      "source_home_url": "https://www.anatel.gov.br/dadosabertos/paineis_de_dados/certificacao_de_produtos/produtos_certificados.zip",
+      "tier": "regulatory",
+      "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710",
+      "coverage": "All records in the official published ZIP/CSV, including duplicates and empty model cells. Two archive downloads agree byte-for-byte and the official index links the archive; no independent database total is exposed, so completeness is limited to the published file. Catalog includes exact target manufacturer matches with nonempty models. Applicant, commercial-name and raw status/date fields remain distinct. No present approval validity, factory or deployment is inferred.",
+      "fetched_at": "2026-09-26T22:27:46.555883+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "EdgeCore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "OPENGLOBE TECNOLOGIA LTDA",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "registry_manufacturer",
+      "statement": "EdgeCore Networks Corporation",
+      "context_record_id": "8a2b11935bb85c28c245f825"
+    },
+    {
+      "record_id": "aeeefd7d8e4c6d5943d32e1e",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-63cb0b9098c7",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Edgecore\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T04:58:18.125132+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "(주) 인포에이",
+          "target": null,
+          "role": "regulatory_applicant"
+        },
+        {
+          "company": "Edgecore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "approval_date_raw",
+      "statement": "2017-10-31",
+      "context_record_id": "aeeefd7d8e4c6d5943d32e1e"
+    },
+    {
+      "record_id": "aeeefd7d8e4c6d5943d32e1e",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-63cb0b9098c7",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Edgecore\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T04:58:18.125132+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "(주) 인포에이",
+          "target": null,
+          "role": "regulatory_applicant"
+        },
+        {
+          "company": "Edgecore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "country_raw",
+      "statement": "중국",
+      "context_record_id": "aeeefd7d8e4c6d5943d32e1e"
+    },
+    {
+      "record_id": "aeeefd7d8e4c6d5943d32e1e",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-63cb0b9098c7",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Edgecore\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T04:58:18.125132+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "(주) 인포에이",
+          "target": null,
+          "role": "regulatory_applicant"
+        },
+        {
+          "company": "Edgecore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "detail_sha256",
+      "statement": "c6db62fae25121bb575515fea6d3ddec3992f88c5a757c6fbb40ca68f1fb0cf4",
+      "context_record_id": "aeeefd7d8e4c6d5943d32e1e"
+    },
+    {
+      "record_id": "aeeefd7d8e4c6d5943d32e1e",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-63cb0b9098c7",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Edgecore\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T04:58:18.125132+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "(주) 인포에이",
+          "target": null,
+          "role": "regulatory_applicant"
+        },
+        {
+          "company": "Edgecore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "rra_main_model",
+      "statement": "AS7712-32X",
+      "context_record_id": "aeeefd7d8e4c6d5943d32e1e"
+    },
+    {
+      "record_id": "aeeefd7d8e4c6d5943d32e1e",
+      "device_id": "2a47ae32d8a5f3fb5ef9",
+      "brand": "Edge-Core",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-63cb0b9098c7",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Edgecore\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T04:58:18.125132+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "(주) 인포에이",
+          "target": null,
+          "role": "regulatory_applicant"
+        },
+        {
+          "company": "Edgecore Networks Corporation",
+          "target": "Edge-Core",
+          "role": "registry_manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "rra_model_role",
+      "statement": "derived",
+      "context_record_id": "aeeefd7d8e4c6d5943d32e1e"
+    },
+    {
+      "record_id": "af279284a305947ac341c1f3",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-e5984834207f",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Accton\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment. Additional whole-cell Accton Singapore spellings depend on a separately hashed factual search extract of the 2013 Accton consolidated report, not original PDF. The geographic qualifier interpretation and reported Edgecore parent are retained per record. Accton is the named manufacturer namespace; historical or current parent ownership, parent manufacturing and cross-company device equivalence are not inferred.",
+      "fetched_at": "2026-09-27T05:53:13.549217+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "approval_date_raw",
+      "statement": "2016-11-29",
+      "context_record_id": "af279284a305947ac341c1f3"
+    },
+    {
+      "record_id": "af279284a305947ac341c1f3",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-e5984834207f",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Accton\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment. Additional whole-cell Accton Singapore spellings depend on a separately hashed factual search extract of the 2013 Accton consolidated report, not original PDF. The geographic qualifier interpretation and reported Edgecore parent are retained per record. Accton is the named manufacturer namespace; historical or current parent ownership, parent manufacturing and cross-company device equivalence are not inferred.",
+      "fetched_at": "2026-09-27T05:53:13.549217+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "country_raw",
+      "statement": "대만",
+      "context_record_id": "af279284a305947ac341c1f3"
+    },
+    {
+      "record_id": "af279284a305947ac341c1f3",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-e5984834207f",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Accton\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment. Additional whole-cell Accton Singapore spellings depend on a separately hashed factual search extract of the 2013 Accton consolidated report, not original PDF. The geographic qualifier interpretation and reported Edgecore parent are retained per record. Accton is the named manufacturer namespace; historical or current parent ownership, parent manufacturing and cross-company device equivalence are not inferred.",
+      "fetched_at": "2026-09-27T05:53:13.549217+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "detail_sha256",
+      "statement": "1fda9564ee0a4d6b2513f604eeb93783568d3ed1358605f2708efc6e2e4f4df5",
+      "context_record_id": "af279284a305947ac341c1f3"
+    },
+    {
+      "record_id": "af279284a305947ac341c1f3",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-e5984834207f",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Accton\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment. Additional whole-cell Accton Singapore spellings depend on a separately hashed factual search extract of the 2013 Accton consolidated report, not original PDF. The geographic qualifier interpretation and reported Edgecore parent are retained per record. Accton is the named manufacturer namespace; historical or current parent ownership, parent manufacturing and cross-company device equivalence are not inferred.",
+      "fetched_at": "2026-09-27T05:53:13.549217+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "rra_main_model",
+      "statement": "AS7762-32X",
+      "context_record_id": "af279284a305947ac341c1f3"
+    },
+    {
+      "record_id": "af279284a305947ac341c1f3",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "rra-official-query-e5984834207f",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+      "observed_at": "2026-10-04T11:26:38+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Accton\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment. Additional whole-cell Accton Singapore spellings depend on a separately hashed factual search extract of the 2013 Accton consolidated report, not original PDF. The geographic qualifier interpretation and reported Edgecore parent are retained per record. Accton is the named manufacturer namespace; historical or current parent ownership, parent manufacturing and cross-company device equivalence are not inferred.",
+      "fetched_at": "2026-09-27T05:53:13.549217+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "rra_model_role",
+      "statement": "derived",
+      "context_record_id": "af279284a305947ac341c1f3"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_category",
+      "statement": "Mandatory",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_date_scope",
+      "statement": "Historical register assertion; not current status or vendor support deadline",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_issue_date",
+      "statement": "2023-06-09",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_type",
+      "statement": "Regular",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "certificate_valid_upto",
+      "statement": "2033-06-08",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_column",
+      "statement": "Product Model Name",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "product_variant",
+      "statement": "L2 LAN Switch",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "bb98186553826e233079dd44",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "tec-mtcte",
+      "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+      "tier": "regulatory",
+      "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3",
+      "coverage": "All rows of one cached HTML table scanned. OEM Name is retained as a declared-OEM relationship; Company Name is the applicant. Product Model No. entries become separate identities, not aliases. Certificate dates are historical table assertions, not current validity or support deadlines. This is a historical cached table, not a complete current TEC register.",
+      "fetched_at": "2026-09-26T21:20:17.524717+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Accton Technology Corporation",
+          "target": "Accton",
+          "role": "declared_oem"
+        },
+        {
+          "company": "Omega QMS Private Limited",
+          "target": null,
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "registry_row",
+      "statement": "1518",
+      "context_record_id": "bb98186553826e233079dd44"
+    },
+    {
+      "record_id": "e18ea3940f4e0b1312ba8adf",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ul-accton-platforms",
+      "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "observed_at": "2026-10-04T11:26:22+00:00",
+      "source_home_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "tier": "certification_body",
+      "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+      "coverage": "Selected complete platform identifiers from the public abridged Models section, via web.run. The original HTML is not cached. The page explicitly excludes some models from public view. Reviewed AS/AZ/AIS/ECS/DMC/CSX/AMX/Wedge families and Minipack, Barefoot DNA X1032C, ORV3 HSM names, plus reviewed QFX/EX/ACX/JNP/SRX/JCP and additional complete commercial codes and named models. Adjacent RMN annotations are retained without inferred aliases. Numeric-only names, ambiguous 1FINITY groupings, unreviewed names and wildcard patterns remain unparsed. Accton is the listing-holder identity namespace, not an asserted product brand. Known whitespace qualifiers are preserved. Listing-holder association only: not physical manufacturer, cross-brand equivalence, hyperscaler deployment or current certification validity.",
+      "fetched_at": "2026-09-26T22:59:32.056835+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "listing_holder"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "capture_format",
+      "statement": "web_tool_models_section",
+      "context_record_id": "e18ea3940f4e0b1312ba8adf"
+    },
+    {
+      "record_id": "e18ea3940f4e0b1312ba8adf",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ul-accton-platforms",
+      "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "observed_at": "2026-10-04T11:26:22+00:00",
+      "source_home_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "tier": "certification_body",
+      "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+      "coverage": "Selected complete platform identifiers from the public abridged Models section, via web.run. The original HTML is not cached. The page explicitly excludes some models from public view. Reviewed AS/AZ/AIS/ECS/DMC/CSX/AMX/Wedge families and Minipack, Barefoot DNA X1032C, ORV3 HSM names, plus reviewed QFX/EX/ACX/JNP/SRX/JCP and additional complete commercial codes and named models. Adjacent RMN annotations are retained without inferred aliases. Numeric-only names, ambiguous 1FINITY groupings, unreviewed names and wildcard patterns remain unparsed. Accton is the listing-holder identity namespace, not an asserted product brand. Known whitespace qualifiers are preserved. Listing-holder association only: not physical manufacturer, cross-brand equivalence, hyperscaler deployment or current certification validity.",
+      "fetched_at": "2026-09-26T22:59:32.056835+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "listing_holder"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "identity_namespace",
+      "statement": "Accton listing holder; product brand not established by this record",
+      "context_record_id": "e18ea3940f4e0b1312ba8adf"
+    },
+    {
+      "record_id": "e18ea3940f4e0b1312ba8adf",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ul-accton-platforms",
+      "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "observed_at": "2026-10-04T11:26:22+00:00",
+      "source_home_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "tier": "certification_body",
+      "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+      "coverage": "Selected complete platform identifiers from the public abridged Models section, via web.run. The original HTML is not cached. The page explicitly excludes some models from public view. Reviewed AS/AZ/AIS/ECS/DMC/CSX/AMX/Wedge families and Minipack, Barefoot DNA X1032C, ORV3 HSM names, plus reviewed QFX/EX/ACX/JNP/SRX/JCP and additional complete commercial codes and named models. Adjacent RMN annotations are retained without inferred aliases. Numeric-only names, ambiguous 1FINITY groupings, unreviewed names and wildcard patterns remain unparsed. Accton is the listing-holder identity namespace, not an asserted product brand. Known whitespace qualifiers are preserved. Listing-holder association only: not physical manufacturer, cross-brand equivalence, hyperscaler deployment or current certification validity.",
+      "fetched_at": "2026-09-26T22:59:32.056835+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "listing_holder"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "listing_holder_name",
+      "statement": "ACCTON TECHNOLOGY CORPORATION",
+      "context_record_id": "e18ea3940f4e0b1312ba8adf"
+    },
+    {
+      "record_id": "e18ea3940f4e0b1312ba8adf",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ul-accton-platforms",
+      "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "observed_at": "2026-10-04T11:26:22+00:00",
+      "source_home_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "tier": "certification_body",
+      "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+      "coverage": "Selected complete platform identifiers from the public abridged Models section, via web.run. The original HTML is not cached. The page explicitly excludes some models from public view. Reviewed AS/AZ/AIS/ECS/DMC/CSX/AMX/Wedge families and Minipack, Barefoot DNA X1032C, ORV3 HSM names, plus reviewed QFX/EX/ACX/JNP/SRX/JCP and additional complete commercial codes and named models. Adjacent RMN annotations are retained without inferred aliases. Numeric-only names, ambiguous 1FINITY groupings, unreviewed names and wildcard patterns remain unparsed. Accton is the listing-holder identity namespace, not an asserted product brand. Known whitespace qualifiers are preserved. Listing-holder association only: not physical manufacturer, cross-brand equivalence, hyperscaler deployment or current certification validity.",
+      "fetched_at": "2026-09-26T22:59:32.056835+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "listing_holder"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "retrieved_at",
+      "statement": "2026-09-26 22:57:28 UTC",
+      "context_record_id": "e18ea3940f4e0b1312ba8adf"
+    },
+    {
+      "record_id": "e18ea3940f4e0b1312ba8adf",
+      "device_id": "3f0edec15c7dec98a1d4",
+      "brand": "Accton",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "ul-accton-platforms",
+      "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "observed_at": "2026-10-04T11:26:22+00:00",
+      "source_home_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+      "tier": "certification_body",
+      "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b",
+      "coverage": "Selected complete platform identifiers from the public abridged Models section, via web.run. The original HTML is not cached. The page explicitly excludes some models from public view. Reviewed AS/AZ/AIS/ECS/DMC/CSX/AMX/Wedge families and Minipack, Barefoot DNA X1032C, ORV3 HSM names, plus reviewed QFX/EX/ACX/JNP/SRX/JCP and additional complete commercial codes and named models. Adjacent RMN annotations are retained without inferred aliases. Numeric-only names, ambiguous 1FINITY groupings, unreviewed names and wildcard patterns remain unparsed. Accton is the listing-holder identity namespace, not an asserted product brand. Known whitespace qualifiers are preserved. Listing-holder association only: not physical manufacturer, cross-brand equivalence, hyperscaler deployment or current certification validity.",
+      "fetched_at": "2026-09-26T22:59:32.056835+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ACCTON TECHNOLOGY CORPORATION",
+          "target": "Accton",
+          "role": "listing_holder"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_scope",
+      "statement": "Selected identifiers from an abridged listing; may describe products or components",
+      "context_record_id": "e18ea3940f4e0b1312ba8adf"
+    },
+    {
+      "record_id": "e401fabe015a4a496e7e74de",
+      "device_id": "ee98faf36b19bd060124",
+      "brand": "",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+      "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+      "upstream_revision": null,
+      "company_roles": [],
+      "claim_status": "source_statement",
+      "fact_name": "artifact_title",
+      "statement": "AS7772-32X DTB",
+      "context_record_id": "e401fabe015a4a496e7e74de"
+    },
+    {
+      "record_id": "e401fabe015a4a496e7e74de",
+      "device_id": "ee98faf36b19bd060124",
+      "brand": "",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+      "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+      "upstream_revision": null,
+      "company_roles": [],
+      "claim_status": "source_statement",
+      "fact_name": "configuration_limit",
+      "statement": "No assertion of installed firmware, physical flash layout, current owned-unit behavior, supported NOS, entitlement, safe flashing or vendor support; account authorship does not bind artifact to owned unit.",
+      "context_record_id": "e401fabe015a4a496e7e74de"
+    },
+    {
+      "record_id": "e401fabe015a4a496e7e74de",
+      "device_id": "ee98faf36b19bd060124",
+      "brand": "",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+      "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+      "upstream_revision": null,
+      "company_roles": [],
+      "claim_status": "source_statement",
+      "fact_name": "source_location",
+      "statement": "gistfile1.txt lines 7-8, 75, 118, 123, 128, 133, 138, 143, 148, 154",
+      "context_record_id": "e401fabe015a4a496e7e74de"
+    },
+    {
+      "record_id": "e401fabe015a4a496e7e74de",
+      "device_id": "ee98faf36b19bd060124",
+      "brand": "",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+      "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+      "upstream_revision": null,
+      "company_roles": [],
+      "claim_status": "source_statement",
+      "fact_name": "source_observed_date",
+      "statement": "2026-10-04",
+      "context_record_id": "e401fabe015a4a496e7e74de"
+    },
+    {
+      "record_id": "e401fabe015a4a496e7e74de",
+      "device_id": "ee98faf36b19bd060124",
+      "brand": "",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+      "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+      "upstream_revision": null,
+      "company_roles": [],
+      "claim_status": "source_statement",
+      "fact_name": "source_scope",
+      "statement": "Published DTB-source declarations associated by exact gist title AS7772-32X DTB; not physical configuration or supported installation instructions.",
+      "context_record_id": "e401fabe015a4a496e7e74de"
+    },
+    {
+      "record_id": "e401fabe015a4a496e7e74de",
+      "device_id": "ee98faf36b19bd060124",
+      "brand": "",
+      "model": "AS7772-32X",
+      "revision": "",
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "source_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://gist.github.com/nepeat/4d80007ef64987497f64c365522531f7",
+      "tier": "community",
+      "sha256": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "coverage": "Exact-model-titled public source artifact; HTML line cells inspected without execution. Not vendor documentation.",
+      "fetched_at": "2026-10-04T22:59:07.650546+00:00",
+      "upstream_revision": null,
+      "company_roles": [],
+      "claim_status": "source_statement",
+      "fact_name": "source_sha256",
+      "statement": "d7f4d9523f3e253638445f6476ddd0eced3ba83b1db1095d90d45e3a3e49cb7b",
+      "context_record_id": "e401fabe015a4a496e7e74de"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "scope": "all local batch artifacts excluding this manifest; acquisition originals unchanged",
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "0ccfdd7d69b1bbcd801af5085e92cb8fd435488410e18e291fa7e63bee0fd8b6",
+      "bytes": 7604
+    },
+    {
+      "path": "amd-instinct-catalog.pdf",
+      "sha256": "8436689a7a45614e4b4078e2bd13ad6aba0403d0407d5d4f79f4b557203c2d5c",
+      "bytes": 365195
+    },
+    {
+      "path": "amd-instinct-catalog.pdf.headers",
+      "sha256": "b3cb83ba61e7b2e30e5b3660048a715006f45ca249a9b1517ffad5f48537c3b7",
+      "bytes": 717
+    },
+    {
+      "path": "amd-instinct-pages.json",
+      "sha256": "fd3a5afdef89c5050b632b7320d923701b8e26fa9a64e783b94dd4f80b31f0a0",
+      "bytes": 40996
+    },
+    {
+      "path": "bulk-extracted.json",
+      "sha256": "a879a64c9f7b9db320faa82245d2d1cea7a657d471830183e627047647e8c2df",
+      "bytes": 3891685
+    },
+    {
+      "path": "capture-complete.json",
+      "sha256": "f650ba44f8afa9869c64b3d26b0e742ca072edf23055c25b1df9bc85a0f26240",
+      "bytes": 2894
+    },
+    {
+      "path": "catalog-novelty.json",
+      "sha256": "67c47fd33b17057185c1da22f63cf4eae9159ca7a5282aafdefb68e5ed2166b5",
+      "bytes": 706323
+    },
+    {
+      "path": "checks.json",
+      "sha256": "06040254aca407543903200f3abf8a61507a126c823cd681302c72c5486c1f96",
+      "bytes": 5298
+    },
+    {
+      "path": "compare_novelty.py",
+      "sha256": "ff0e394a9748c4c5eab0db1ef3d8d55e07bda9fce843a2d0a5bb07f5dd872d35",
+      "bytes": 6428
+    },
+    {
+      "path": "curated-proposal.json",
+      "sha256": "97c0deda94f1a928f64b066a97717e7bbcdaae96fdea58e8e474cff3434991de",
+      "bytes": 176762
+    },
+    {
+      "path": "discovery-rows.json",
+      "sha256": "5a8bc70209bb58ec2b6be5b1c36c0597495c2b4ef0e1b80275ec1a2b9d37f4a7",
+      "bytes": 1052243
+    },
+    {
+      "path": "extract_bulk.py",
+      "sha256": "f6b113b11778f6ffd0b2be0e01c8b03a6d2867fa91119833ccf8c21d58fcb426",
+      "bytes": 12844
+    },
+    {
+      "path": "extraction-summary.json",
+      "sha256": "bf32f88cb202c67851ad17ac8598782810cde4931f52134d3749a81c009a94f4",
+      "bytes": 258
+    },
+    {
+      "path": "fetch.py",
+      "sha256": "107a39598426297ce84ada440b5fd4ff8f8c23fc3182ded23850d69ce941e616",
+      "bytes": 5171
+    },
+    {
+      "path": "fixtures/cards.html",
+      "sha256": "5e608d9b6dee337e3f24f21235692a57c6bcd07772c4086b020b3360fa29fa50",
+      "bytes": 467
+    },
+    {
+      "path": "fixtures/tables.html",
+      "sha256": "f923070924c6b4bb7975e85546f61b48fdf1ece95938633830c826d6c183672a",
+      "bytes": 520
+    },
+    {
+      "path": "handoff.md",
+      "sha256": "5ddfd17085da7d783a64c7146a564f83986135d676d1c436b5711af9edb5dcae",
+      "bytes": 2954
+    },
+    {
+      "path": "mitac-ai.html",
+      "sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+      "bytes": 289277
+    },
+    {
+      "path": "mitac-ai.html.headers",
+      "sha256": "f5efcab97b8d8a9105e9221c64f08c600748a4dbc35ce52e5cbb81e2a2a42dc5",
+      "bytes": 3677
+    },
+    {
+      "path": "mitac-general.html",
+      "sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+      "bytes": 277058
+    },
+    {
+      "path": "mitac-general.html.headers",
+      "sha256": "5e7a8a0d1ab41dc40077c2dacda691da4e5bd2c260a3fe4f0a5f61f870af96a3",
+      "bytes": 3677
+    },
+    {
+      "path": "mitac-multi.html",
+      "sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+      "bytes": 318733
+    },
+    {
+      "path": "mitac-multi.html.headers",
+      "sha256": "a269e6ea18bf3981ac18bdd49df96c2e46fbde882b416eab142728f390ae012d",
+      "bytes": 3677
+    },
+    {
+      "path": "nvidia-certified.html",
+      "sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+      "bytes": 241183
+    },
+    {
+      "path": "nvidia-certified.html.headers",
+      "sha256": "28d20f429945c4e73f597f4b2a1bfb02cb9af48b224ee1d375159982c195601e",
+      "bytes": 1998
+    },
+    {
+      "path": "nvidia-ngc-ready.pdf",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "nvidia-ngc-ready.pdf.headers",
+      "sha256": "2bf48d44bfbe03fe48d3f251f1e5006de835f025271bb4ecd2151a1bcc0a2586",
+      "bytes": 1697
+    },
+    {
+      "path": "plan.json",
+      "sha256": "86bd758323eaca1d90707b1d0dfa247468c1f591e60ff91a25785657335fd72b",
+      "bytes": 3309
+    },
+    {
+      "path": "prior-coverage-pins.json",
+      "sha256": "00b35b566cf67b3343b3da143d9e458e834f7fd08e55b518b0c9da08af77dd00",
+      "bytes": 1825
+    },
+    {
+      "path": "redirect-nvidia-ngc-ready.pdf",
+      "sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+      "bytes": 72825
+    },
+    {
+      "path": "redirect-nvidia-ngc-ready.pdf.headers",
+      "sha256": "a7c5c498a73f3d06941fca94070b8a8b1af4ead96fa7b0388c06dde535eb3fe6",
+      "bytes": 1998
+    },
+    {
+      "path": "requests.jsonl",
+      "sha256": "981eb03ffee977f7453fbe2c7d9dc20a6c96c9043ca42c1ae62facbbd5d7eef5",
+      "bytes": 18067
+    },
+    {
+      "path": "resume-full-access.md",
+      "sha256": "72ce93010f896b9147a9b549cac5b8d039febd3bb919fa1fd29a88659db0dbce",
+      "bytes": 8710
+    },
+    {
+      "path": "robots-docs.nvidia.com.txt",
+      "sha256": "40023dc772d7c169f4125e750b925c3b77ee9ef745226699f746b7d0d4129978",
+      "bytes": 2787
+    },
+    {
+      "path": "robots-docs.nvidia.com.txt.headers",
+      "sha256": "6e1bbb7692330a222fb3a1ef9253fdeb08e2181c125835af8d842fbe86d57990",
+      "bytes": 1817
+    },
+    {
+      "path": "robots-www.amd.com.txt",
+      "sha256": "0b1fd3de47d303a51102f2e720c1f447a3666b80cbf9f36bacc4a184cb186194",
+      "bytes": 1300
+    },
+    {
+      "path": "robots-www.amd.com.txt.headers",
+      "sha256": "5b1045552a1e46dc19b1d1cbfa6b7a0ab311657f26873a07a8c4343c13051eec",
+      "bytes": 682
+    },
+    {
+      "path": "robots-www.mitaccomputing.com.txt",
+      "sha256": "1fa5f9c8004ad0f603dee61878dad6ae8dc7789cca58dbac914cc7f729c67e88",
+      "bytes": 26
+    },
+    {
+      "path": "robots-www.mitaccomputing.com.txt.headers",
+      "sha256": "71a4a300482f345224e05081286270254919d651c4a15016127214a9efa3e9b5",
+      "bytes": 2474
+    },
+    {
+      "path": "test_bulk.py",
+      "sha256": "bf686f41ee65d06f60e5a9eac7641ef18f1e6042bb39a6f6a29d6f50604f1130",
+      "bytes": 7850
+    },
+    {
+      "path": "verify_offline.py",
+      "sha256": "76c6d7fef2855e7788ec8af4c2713d29223414f726386df51d179b49a4b3a7c4",
+      "bytes": 1362
+    }
+  ]
+}

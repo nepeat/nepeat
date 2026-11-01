@@ -1,0 +1,7 @@
+rra-official-query-33f7d154085d rra-amazon-data-services-official-live-2026-10-11a 57 {'status': 'matches_pinned', 'mismatches': [], 'location_only': True}
+rra-official-query-41e4ca912b33 rra-celestica-official-live-2026-10-11a-carried 151 {'status': 'matches_pinned', 'mismatches': [], 'location_only': True}
+rra-official-query-5827f2fe7092 rra-edge-core-hyphen-official-live-2026-10-11a 7 {'status': 'matches_pinned', 'mismatches': [], 'location_only': True}
+rra-official-query-63cb0b9098c7 rra-edgecore-official-live-2026-10-11a 110 {'status': 'matches_pinned', 'mismatches': [], 'location_only': True}
+rra-official-query-73009f906e4e rra-oracle-official-live-2026-10-11a 516 {'status': 'matches_pinned', 'mismatches': [], 'location_only': True}
+rra-official-query-78fc6b2e95f6 rra-edge-core-space-official-live-2026-10-11a 0 {'status': 'matches_pinned', 'mismatches': [], 'location_only': False}
+rra-official-query-e5984834207f rra-accton-official-live-2026-10-11a-carried 200 {'status': 'matches_pinned', 'mismatches': [], 'location_only': True}

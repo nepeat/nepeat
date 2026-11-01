@@ -1,0 +1,116 @@
+{
+  "pdf_sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 2,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "SC6100\n2U 24 SSD High Availability All-Flash PCIe® Gen 5 Storage Controller\n\n\n\n                                                             FEATURES\n                                                                2U chassis, fits 19” rack\n                                                                2x hot-swap computing nodes\n                                                                24x U.2 PCIe Gen 5 NVMe SSDs\n                                                                Dual redundant power supplies\n                                                                2x PCIe Gen 5 (x16) low profile slots per node + 2\n                                                                PCIe Gen 5 (x8) slot\n                                                                BBU available for node power in the event of AC\n                                                                power loss\n                                                             NODE FEATURES\n                                                                Built in socket support for AMD’s EPYC 9004 series\n                                                                of high-performance microprocessors based on the\nSC6100 is a next-generation 2U rackmount                        Zen 4 microarchitecture\nall-flash storage controller for the enterprise.                12x DDR5 DIMMs\nIt is powered by two AMD EPYC™ 9004 series                      Support BMC (ASPEED AST2600)\nof high-performance microprocessors based                       4x Standard HHHL PCIe Gen 5 slots\non the Zen 4 microarchitecture and supports                     2x PCIe Gen 5 x16 slots + 2x Gen 5 x8 slot\n\nup to 24 dual-port U.2 PCIe Gen 5 solid state                   2x 10GbE RJ45 + 1x 1GbE RJ45 ( for BMC)\n                                                                1x USB3.0 ports\ndrives (SSDs). The SC6100 delivers extreme\n                                                                1x Service Port (USB Type-C)\nperformance with high availability for the most\n                                                             POWER AND COOLING\ndemanding enterprise application workloads.\n                                                                Two 2400W (Titanium 80+ efficiency) CRPS power\n                                                                supply units\nThe platform is ideal for:\n                                                                200-240Vac, 47-63 Hz\n• File Shares                                                   1+1 redundant, hot-swappable\n• Database                                                      14, 40 mm x 56 mm fan, hot-swapped with compute\n• Virtual Desktop                                               nodes (7 per node)\n• On Line Transaction Processing (OLTP)                      PHYSICAL DIMENSIONS\n• High Performance Computing (HPC)                              Height: 87 mm (3.43”)\n• High Frequency Trading (HFT)                                  Width: 446 mm (17.56”)\n                                                                Depth: 874 mm (34.41”)\n\n\n\n\n                                      Enterprise-Class Quality. Cloud Economics.\n\nNorth America: (Toll Free) +1 888 899 9998   |   Global: +1 416 448 5800   |   contactus@celestica.com   |   celestica.com\n"
+    },
+    {
+      "page": 2,
+      "text": "SC6100 2U 24 SSD High Availability All-Flash PCIe® Gen 5 Storage Controller\n\n\n\n\nENVIRONMENTAL: OPERATING                                                                  APPLICATION TOPOLOGY\n  Temperature: 5°C to 35°C                                                                     Address mainstream applications with AMD’s EPYCTM\n  Humidity: 8% to 80% RH                                                                       9004 series of high-performance microprocessors\n                                                                                               per node\n  Altitude: 0 to 950 m (De-rate temperature\n  1°C per 300 m above 950 m)                                                                   Extremely low latency and high bandwidth\n  Shock: 10G, 5ms half sine pulse width                                                        Delivers 737.28TB using 30.72TB NVMe SSD (x 24)\n  Vibration: 0.278 Grms; 5 ~ 500Hz; Random                                                     4x standard HHHL PCIe Gen 5 cards\n  Vibration Spectrum                                                                           2x PCIe Gen 5 x16 slots + 2x Gen 5 x8 slot\n  Sound power: (23+/- 2°C) <=8.6 Bels                                                          1x USB 3.0\nENVIRONMENTAL: NON-OPERATING                                                                   1x USB Type-C (Service Port)\n  Temperature: -40°C to 60°C                                                                   2x 10GbE RJ45 + 1x 1GbE RJ45 (for BMC)\n  Humidity: 8% to 95% RH                                                                       1x VGA port\n  Altitude: 0 to 12,000 m                                                                 APPROVALS\n  Shock: 35G, 152 in/sec; Trapezoidal Shock                                                    EMC: EN 55032 Class A, EN55035, EN 61000-3-2\n  Vibration: 1.04 Grms with Power Spectrum;                                                    EN 61000-3-3, FCC part 15 Class A, VCCI Class A\n  2 ~ 200 Hz; (transit)                                                                        ICES-003 Class A, GB/T9254 Class A\n                                                                                               Safety: IEC/EN/UL/CSA 62368-1, GB4943\n                                                                                               Environment: RoHS, REACH, WEEE, ERP Lot9X\n\n                                                                                          Note: All specifications and figures are subject to change\n                                                                                          without prior notice.\n\n\n\n\n                   © Copyright Celestica Inc. 2024. All rights reserved. ™CELESTICA & Design and SC6100 are existing, pending or registered trademarks of Celestica Inc. or its   092724\n                   subsidiaries, used under license. All trademarks and registered trademarks are the property of their respective owners.\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "sc6100-datasheet.pdf",
+    "extracted_at_utc": "2026-10-13T04:09:40.308740+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           cls_branded_datasheet_SC6100_091024.indd\nCreator:         Adobe InDesign 19.5 (Macintosh)\nProducer:        Adobe PDF Library 17.0\nCreationDate:    Fri Sep 27 06:16:26 2024 PDT\nModDate:         Fri Sep 27 06:16:26 2024 PDT\nCustom Metadata: yes\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       618920 bytes\nOptimized:       no\nPDF version:     1.6\nPDF subtype:    PDF/X-4\n    Title:         ISO 15930 - Electronic document file format for prepress digital data exchange (PDF/X)\n    Abbreviation:  PDF/X-4\n    Subtitle:      Part 7: Complete exchange of printing data (PDF/X-4) and partial exchange of printing data with external profile reference (PDF/X-4p) using PDF 1.6\n    Standard:      ISO 15930-7\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "ae23def6e742ffb4c0a88b28a4dab43c42bf6b645a1c6d4f037cd96b7e7237e9"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "363447c8feacc30d980c11f03a5b668b2e7e7b8b290fe61459cbc773ff292813"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "f0bf5a6aec616bcf4acd9304242b3abb6558c30b6b246eafb5610287afef654d"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

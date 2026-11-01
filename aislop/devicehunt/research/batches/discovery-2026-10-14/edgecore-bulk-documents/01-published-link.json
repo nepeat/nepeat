@@ -1,0 +1,11 @@
+{
+  "selection_number": 1,
+  "landing_path": "01-landing.html",
+  "landing_sha256": "481b12b91ec4fe3ae7c1a1d6becb383a557c7876a0970f46c700e21fc4404d4b",
+  "fresh_heading": "AGR400 (AS7946-30XB) DS R05",
+  "published_download_url": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/?wpdmdl=1268&refresh=6ad06ce93bfe91792044265",
+  "expected_wpdmdl_values": [
+    "1268"
+  ],
+  "stale_graph_tokens_used": false
+}

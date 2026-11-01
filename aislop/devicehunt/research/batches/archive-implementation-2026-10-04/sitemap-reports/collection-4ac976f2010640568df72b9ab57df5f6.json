@@ -1,0 +1,1097 @@
+{
+  "schema_version": 2,
+  "index": {
+    "url": "https://fccid.co/sitemap.xml",
+    "checked_at": "2026-09-27T12:00:22.898060+00:00",
+    "status": 200,
+    "content_type": "application/xml",
+    "final_url": "https://fccid.co/sitemap.xml",
+    "bytes": 5888,
+    "sha256": "5c51be60b525288d393d65beed6bf9630112bd9ec569a06198bcf0eb7ab6b774",
+    "path": "fccid-co-sitemap.xml"
+  },
+  "entries": [
+    {
+      "url": "https://fccid.co/sitemaps/main.xml",
+      "request_id": "13540ba9969dee182f504b3994caa290b048ce046842f164049f4ba5953788e4",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/main.xml",
+        "checked_at": "2026-09-27T12:02:36.208433+00:00",
+        "status": 200,
+        "path": "main.xml",
+        "bytes": 598,
+        "sha256": "359e92fc3bd75847464e6d8cc7fdea1b869adee84c582f0826223e1210170200"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "359e92fc3bd75847464e6d8cc7fdea1b869adee84c582f0826223e1210170200",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 0
+      },
+      "id": "saved-443ec105daa12ba291c2862a2f4c9dc9dbd73ffff37791b6544c56cc1070f4a4"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2026.xml",
+      "request_id": "338fb6c17dc7f76a5136002d28606ca4f07f43d3f9fb80a31e0ca078bda7aeb3",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2026.xml",
+        "checked_at": "2026-09-27T12:01:21.971826+00:00",
+        "status": 200,
+        "content_type": "application/xml",
+        "final_url": "https://fccid.co/sitemaps/applications-2026.xml",
+        "bytes": 2068316,
+        "sha256": "f980742a4bfae82f9c21ac8d9330d42d7aa384b21e3846e914eafa9c3fd4a1b3",
+        "path": "applications-2026.xml"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "f980742a4bfae82f9c21ac8d9330d42d7aa384b21e3846e914eafa9c3fd4a1b3",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 1
+      },
+      "id": "saved-d45e06ea7132ba97f442b22b6cb32ee7889b69bc3389942f65d309e6b71fb68a"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2025.xml",
+      "request_id": "c62c84d09626f00f90097bb1b68dd1ef528f5f1e7b3eadc3f414d9e0a5e9cd3e",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2025.xml",
+        "checked_at": "2026-09-27T12:02:36.999021+00:00",
+        "status": 200,
+        "path": "applications-2025.xml",
+        "bytes": 708723,
+        "sha256": "46953520ec03894d5f21cdb60726ec7a8d4f72804b1f565aef7c7398c13d9dab"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "46953520ec03894d5f21cdb60726ec7a8d4f72804b1f565aef7c7398c13d9dab",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 2
+      },
+      "id": "saved-9fd3f04d050889cc59f16711d939b4a2dbbc408345cec4799890c6d4f5bfc896"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2024.xml",
+      "request_id": "abf222fb731472635e44814ff9ce9fb37059e2e55e4460d131c13f9f6d6534d9",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2024.xml",
+        "checked_at": "2026-09-27T12:02:39.299411+00:00",
+        "status": 200,
+        "path": "applications-2024.xml",
+        "bytes": 1648097,
+        "sha256": "77b3d18321b9654c6ebfdbba8270eea0bf5e8379ce517411fbb33f7af56182b7"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "77b3d18321b9654c6ebfdbba8270eea0bf5e8379ce517411fbb33f7af56182b7",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 3
+      },
+      "id": "saved-c9c0ac3b4c7c7c216a40e716ef3eb54d184cfed08ddc5a8224302e27d0024974"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2023.xml",
+      "request_id": "fcbdd2567c9cfdfe439fd559c168c474fb5c97de92c851236c7dc249ab4be2aa",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2023.xml",
+        "checked_at": "2026-09-27T12:02:41.444489+00:00",
+        "status": 200,
+        "path": "applications-2023.xml",
+        "bytes": 1581969,
+        "sha256": "915f8e0ddec8dcdb97021e6a5370dd435fd0250f738e5fe4844e1bc2ef639e94"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "915f8e0ddec8dcdb97021e6a5370dd435fd0250f738e5fe4844e1bc2ef639e94",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 4
+      },
+      "id": "saved-72f0156faebdd70edaf2a9f4a673abb3466caf007697a1e6e1445cb4b0117332"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2022.xml",
+      "request_id": "df050485b39e70e5a6789659ce57a791d8348b01a8f17ed5df3466e21c68b9a6",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2022.xml",
+        "checked_at": "2026-09-27T12:02:43.338814+00:00",
+        "status": 200,
+        "path": "applications-2022.xml",
+        "bytes": 920157,
+        "sha256": "022f209cd81ca399a0230eddd590fbd729cbbfdbbd7498bd79ca9cfd5344e0ed"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "022f209cd81ca399a0230eddd590fbd729cbbfdbbd7498bd79ca9cfd5344e0ed",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 5
+      },
+      "id": "saved-3c5ca9d5d97689f1e9ef111aedb6974ccec7800509042bb0640a031d7e22e314"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2021.xml",
+      "request_id": "8fa1eb31b4a1b640e94ffc1daa7f50001117369c16a1bc1c55f30163e8a7db40",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2021.xml",
+        "checked_at": "2026-09-27T12:02:44.343087+00:00",
+        "status": 200,
+        "path": "applications-2021.xml",
+        "bytes": 1296179,
+        "sha256": "517b5a669b1780768cc04d9aada6a0f4d1f355435cd270afc7ad6ff9574522bd"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "517b5a669b1780768cc04d9aada6a0f4d1f355435cd270afc7ad6ff9574522bd",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 6
+      },
+      "id": "saved-06e014e2a8c79c489fd1f732e50b542a6f3fd29d641b3296191daff920fc1690"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2020.xml",
+      "request_id": "071ff0d1739f618ef057462df87943ec757362c0818b616efe29a7f5c2e8835d",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2020.xml",
+        "checked_at": "2026-09-27T12:02:46.592738+00:00",
+        "status": 200,
+        "path": "applications-2020.xml",
+        "bytes": 1943768,
+        "sha256": "e4df5ce286fc1481bb5e52f3366f5c31be1dad27d83b40c2011e0bc318305ae6"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "e4df5ce286fc1481bb5e52f3366f5c31be1dad27d83b40c2011e0bc318305ae6",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 7
+      },
+      "id": "saved-28b429bca73ba725999c2c12c7886c2ab0ff5ae77552c9fe27e4bb50ac8b7688"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2019.xml",
+      "request_id": "56aa9a5ccfb49aa19606f4daedb16d3236322928fba823afc7d945ecc0bd733f",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2019.xml",
+        "checked_at": "2026-09-27T12:02:48.784181+00:00",
+        "status": 200,
+        "path": "applications-2019.xml",
+        "bytes": 2767,
+        "sha256": "33264de04ce3cb3be53d4d96ab85bd411958058ba18c0edc7989d4fc91e2960b"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "33264de04ce3cb3be53d4d96ab85bd411958058ba18c0edc7989d4fc91e2960b",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 8
+      },
+      "id": "saved-23e90b723919b2f6a38f0dfab7f3ae4dd93c8a6b20df0b5c8778561c3afb2fba"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2016.xml",
+      "request_id": "010352792f7fbbcdd8e5733b8f433d88b11295c7d614bf1f0ea685235af6895f",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2016.xml",
+        "checked_at": "2026-09-27T12:02:49.606761+00:00",
+        "status": 200,
+        "path": "applications-2016.xml",
+        "bytes": 59567,
+        "sha256": "a5f1c470df778abbb5719436f56627472e42af5499f233c49a0512bff3c49f1b"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "a5f1c470df778abbb5719436f56627472e42af5499f233c49a0512bff3c49f1b",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 9
+      },
+      "id": "saved-432c12b51ec06575c1600bd055b59ccb156cb6a5c5e7d2e00c66e75873c1d5df"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2015.xml",
+      "request_id": "697001b5fd9d601bef1499ec81aedd512417095df583a5f699e4e40199728752",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2015.xml",
+        "checked_at": "2026-09-27T12:02:50.837784+00:00",
+        "status": 200,
+        "path": "applications-2015.xml",
+        "bytes": 1586129,
+        "sha256": "4a7bee6792794a1c3dc726817af53e55880b7a310748b88cb0ffb99635b55bd8"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "4a7bee6792794a1c3dc726817af53e55880b7a310748b88cb0ffb99635b55bd8",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 10
+      },
+      "id": "saved-76f5ff0ad4b3be383e48afb7593ae7fbb43a4aa600913e21b2806f0dace6616c"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2014.xml",
+      "request_id": "4a0ab87b3f4f2d40831a2efd3fceb79b82b2df02feff130a3e332e726b2341e9",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2014.xml",
+        "checked_at": "2026-09-27T12:02:52.726553+00:00",
+        "status": 200,
+        "path": "applications-2014.xml",
+        "bytes": 1463419,
+        "sha256": "c2ae46bc675497e1e8e48e115347bdf2a2eaa933e7331dff8ff00ec22482a622"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "c2ae46bc675497e1e8e48e115347bdf2a2eaa933e7331dff8ff00ec22482a622",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 11
+      },
+      "id": "saved-6d513d26144db2c65496c92f9f3c6cdb56c68ecf963f1de20607409664c1ec27"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2013.xml",
+      "request_id": "3c79beb232f0d0823ed36eb0212be7686c5da4fbe601e6572f6a35ba4c7eda36",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2013.xml",
+        "checked_at": "2026-09-27T12:02:54.755129+00:00",
+        "status": 200,
+        "path": "applications-2013.xml",
+        "bytes": 1258248,
+        "sha256": "0401f2e45c0afb95d3c593bf594533ca2d41ce3de86ea0177e8cf73a813dcdec"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "0401f2e45c0afb95d3c593bf594533ca2d41ce3de86ea0177e8cf73a813dcdec",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 12
+      },
+      "id": "saved-8b7d1e07e1bbb26170c6988abb1885e32babbe8a599a6d46bd0c69045b1cf8a3"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2012.xml",
+      "request_id": "8ce8834506e39431c45f94fed3c61462ab1c82e15168f3aa862c3c58f5aa7cd6",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2012.xml",
+        "checked_at": "2026-09-27T12:02:56.721891+00:00",
+        "status": 200,
+        "path": "applications-2012.xml",
+        "bytes": 1246393,
+        "sha256": "b91e39cb3f7e824c60721deb0d9bd97b725fe9c3e0b03ce3016127877d726b48"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "b91e39cb3f7e824c60721deb0d9bd97b725fe9c3e0b03ce3016127877d726b48",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 13
+      },
+      "id": "saved-42708066b97d79e80ca0838d86cd5dfd0326676cf45638c34ae81cbf77975ab7"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2011.xml",
+      "request_id": "0e12a1766e865c054f85a888cc17fff8e9c07d9de01973e55f7213ae3f9d7ea9",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2011.xml",
+        "checked_at": "2026-09-27T12:02:58.693527+00:00",
+        "status": 200,
+        "path": "applications-2011.xml",
+        "bytes": 1222816,
+        "sha256": "4ab3c5ae11a1a5f0574ef078ee35a89df46f445531301fd08f892f6d9371fa34"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "4ab3c5ae11a1a5f0574ef078ee35a89df46f445531301fd08f892f6d9371fa34",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 14
+      },
+      "id": "saved-9618069be3c397e9cadce033e2a6b0130b1b14884313e05316ebb7a8b67d3b07"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2010.xml",
+      "request_id": "de0430c0ca8a712fea0b6a773f53d874f688f7dd9616ad52a5662f87ed86b410",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2010.xml",
+        "checked_at": "2026-09-27T12:03:00.759360+00:00",
+        "status": 200,
+        "path": "applications-2010.xml",
+        "bytes": 1156315,
+        "sha256": "e63cb70344577063d6372e780939de40010f571d54da857a522f3ae06f11bf33"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "e63cb70344577063d6372e780939de40010f571d54da857a522f3ae06f11bf33",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 15
+      },
+      "id": "saved-4bb9680f02b9485b1ab910a1a94ccec3a453e558d4c1e84b98a0902c8453b7b3"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2009.xml",
+      "request_id": "2df9de60b8190d05c48318c1de916c4736d09346eb4d397d17e913f5ad957ae1",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2009.xml",
+        "checked_at": "2026-09-27T12:03:02.588117+00:00",
+        "status": 200,
+        "path": "applications-2009.xml",
+        "bytes": 123826,
+        "sha256": "cc6a077f5d903f1c0476f552022864ba1822816bfdd1bee408a68787d82b5bfa"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "cc6a077f5d903f1c0476f552022864ba1822816bfdd1bee408a68787d82b5bfa",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 16
+      },
+      "id": "saved-35d6263d40e15d5cd2351c1f6eb151c2b3cae27efdc61884b7a14c1f5f83652e"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2008.xml",
+      "request_id": "0d6c2f0f833b0ed1da5ca2e4ebb204bbe7594ce4f0191c219deceaee6d24abaa",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2008.xml",
+        "checked_at": "2026-09-27T12:03:03.367273+00:00",
+        "status": 200,
+        "path": "applications-2008.xml",
+        "bytes": 309551,
+        "sha256": "793cbbcd1edc202aa1457d911b6f76bc4fa4dd3a2073a4b71ff2f1238d26ad37"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "793cbbcd1edc202aa1457d911b6f76bc4fa4dd3a2073a4b71ff2f1238d26ad37",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 17
+      },
+      "id": "saved-81acd537e7c0bd8a78074be8062a7aac258f531e0efac65b1266ddaeba5e0c58"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2007.xml",
+      "request_id": "b9cc5fdc541ed9279e4a1172f9bdac510e26ca2869ff778340f9b30df26d7657",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2007.xml",
+        "checked_at": "2026-09-27T12:03:04.925217+00:00",
+        "status": 200,
+        "path": "applications-2007.xml",
+        "bytes": 806310,
+        "sha256": "802fe0362f4955742f6a4b57b4f721bdf4e004f432ef4aa333003f4d52538f82"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "802fe0362f4955742f6a4b57b4f721bdf4e004f432ef4aa333003f4d52538f82",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 18
+      },
+      "id": "saved-ce3ac78f1303eb302d927e7c02dbb5c5fcfa6b8fa4c56309ca569f4e290ace8c"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2006.xml",
+      "request_id": "3a2c56d1f00785cbb4f82da98d925c2beb298b2d4ba3913ea4886faec6a8b97c",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2006.xml",
+        "checked_at": "2026-09-27T12:03:06.330708+00:00",
+        "status": 200,
+        "path": "applications-2006.xml",
+        "bytes": 853680,
+        "sha256": "bae7a7633537f8e54ee58d20f881b42d4dd3babb596622b2c29a8acdecd6d035"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "bae7a7633537f8e54ee58d20f881b42d4dd3babb596622b2c29a8acdecd6d035",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 19
+      },
+      "id": "saved-50d5fb7e7b0a4663d66c7b5347fd52bb12f0c4088058ef0f6a8e2af1419f213a"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2005.xml",
+      "request_id": "a10087dd8889616be2240747cc72f589f8759c9649b0c027e4839f00a0b77806",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2005.xml",
+        "checked_at": "2026-09-27T12:03:08.089303+00:00",
+        "status": 200,
+        "path": "applications-2005.xml",
+        "bytes": 771484,
+        "sha256": "689e5013e10af1a9c86e5515a5f856a4c3c97e5b739b47d4c71122048cdb9625"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "689e5013e10af1a9c86e5515a5f856a4c3c97e5b739b47d4c71122048cdb9625",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 20
+      },
+      "id": "saved-5ba2d2110d3193418b3a03cf906b070337de523c0b911c66fd83865d2c2c206e"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2004.xml",
+      "request_id": "30b07576373f3e10fe1f3423dc5a13ff0196e4831432c31ddb58ddc7b4a252be",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2004.xml",
+        "checked_at": "2026-09-27T12:03:09.850989+00:00",
+        "status": 200,
+        "path": "applications-2004.xml",
+        "bytes": 800082,
+        "sha256": "13517464435a9979524438c3e8b274ccae20ed9b30840b81300f38ffce184a2b"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "13517464435a9979524438c3e8b274ccae20ed9b30840b81300f38ffce184a2b",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 21
+      },
+      "id": "saved-627d63157e889b1bf8d939d7ec5c7d7b8bf60785de247c6573a7641199fdcfa5"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2003.xml",
+      "request_id": "d130868607b4f07383f6b3826638808726c519493332ff1a5f732df2eaf71325",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2003.xml",
+        "checked_at": "2026-09-27T12:03:11.491862+00:00",
+        "status": 200,
+        "path": "applications-2003.xml",
+        "bytes": 730916,
+        "sha256": "fa2b35bec374a25d6562a3cf7fede157fd27ba88d4b4e741d9593e0134ddc737"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "fa2b35bec374a25d6562a3cf7fede157fd27ba88d4b4e741d9593e0134ddc737",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 22
+      },
+      "id": "saved-402cf8130e544f8a088aa48b42ee7669fe442aa10dec343facdef1a5601550f2"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2002.xml",
+      "request_id": "97d231fc4179ee5fc9c584e278be7a7d683ffaf2b0c5c594f61c53fc6328af51",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2002.xml",
+        "checked_at": "2026-09-27T12:03:13.234675+00:00",
+        "status": 200,
+        "path": "applications-2002.xml",
+        "bytes": 631907,
+        "sha256": "7507ccb6a86b8aed021532c2aa76a5cf1f963f07c4b39329538f3a4e880248f1"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "7507ccb6a86b8aed021532c2aa76a5cf1f963f07c4b39329538f3a4e880248f1",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 23
+      },
+      "id": "saved-ba39d30f4c853af0cc87723bd8d0549c8e04adcff96c908dee43f10c7120e8f3"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2001.xml",
+      "request_id": "49f961c24b66cd712dc5c1e02332514193aa47e6f61770e4cc7b0583b558ae1c",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2001.xml",
+        "checked_at": "2026-09-27T12:03:14.965198+00:00",
+        "status": 200,
+        "path": "applications-2001.xml",
+        "bytes": 517443,
+        "sha256": "a475614f0a3d6d16b5eaeb9120c65492da7414095cd20d568c68e62183d902e1"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "a475614f0a3d6d16b5eaeb9120c65492da7414095cd20d568c68e62183d902e1",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 24
+      },
+      "id": "saved-2edaa8e66d847efd900b599eadbcecb4402a28b031890628c80b48feae8379ce"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-2000.xml",
+      "request_id": "8b802145423337d7813d1b168097fbdfe25e4822dfb54b62f3d983982528e2c7",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-2000.xml",
+        "checked_at": "2026-09-27T12:03:17.315772+00:00",
+        "status": 200,
+        "path": "applications-2000.xml",
+        "bytes": 426053,
+        "sha256": "fa1403c5cc2010bd9e82bad719262fe72cd8c3ab3dea700e375684210fbdd204"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "fa1403c5cc2010bd9e82bad719262fe72cd8c3ab3dea700e375684210fbdd204",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 25
+      },
+      "id": "saved-bd1fdf918171047c79d398a25a9dfd6e42322a204befa03be8fb5a21ca9181bd"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1999.xml",
+      "request_id": "de7d6f933f52d240674be11922009e47440f26df5cb4bac561935aadfc109065",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1999.xml",
+        "checked_at": "2026-09-27T12:03:18.844771+00:00",
+        "status": 200,
+        "path": "applications-1999.xml",
+        "bytes": 388356,
+        "sha256": "0e6f58dacb33f771660d0da8005c9a81055b167a5ab65f4a6e27bbbc842dea80"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "0e6f58dacb33f771660d0da8005c9a81055b167a5ab65f4a6e27bbbc842dea80",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 26
+      },
+      "id": "saved-912a1dc354169ca0d1b8211128a7f6ebf3ebfd25d7ee1109aab9888ca3fa2317"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1998.xml",
+      "request_id": "75c2cfb01be2b57ea083fa8f80800174543c9141d3dcccfbf26af2cde618af9e",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1998.xml",
+        "checked_at": "2026-09-27T12:03:20.310113+00:00",
+        "status": 200,
+        "path": "applications-1998.xml",
+        "bytes": 498527,
+        "sha256": "4ddabed1126befe0f37a453f5cb7babbce0444d03f6142bb24ba3422182cb526"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "4ddabed1126befe0f37a453f5cb7babbce0444d03f6142bb24ba3422182cb526",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 27
+      },
+      "id": "saved-1af7e20de778a94ce93620a7c4478f3c57b3fd201139f27a90f435bf9c070adf"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1997.xml",
+      "request_id": "d8d25323bbc01ef07bb2bfbde7abc0e0b246458453c805087b190a5a44845438",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1997.xml",
+        "checked_at": "2026-09-27T12:03:22.053634+00:00",
+        "status": 200,
+        "path": "applications-1997.xml",
+        "bytes": 596575,
+        "sha256": "2e041a888f6344188f364d82d7c3b9da07da931c2e9e0066fb8f7c812f131bbe"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "2e041a888f6344188f364d82d7c3b9da07da931c2e9e0066fb8f7c812f131bbe",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 28
+      },
+      "id": "saved-7d50d322d4b623ccc9b21dd975dc8f29599c9ddf6861c961973287b9c00ebcab"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1996.xml",
+      "request_id": "d54dcccb7bed899dd2922a9081c8dce949f8103858772aded6a6d8525f161dca",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1996.xml",
+        "checked_at": "2026-09-27T12:03:23.871014+00:00",
+        "status": 200,
+        "path": "applications-1996.xml",
+        "bytes": 839851,
+        "sha256": "286c8672bd2b04307c3285d829d979309fdef65df0a96fc2eb23388f94202713"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "286c8672bd2b04307c3285d829d979309fdef65df0a96fc2eb23388f94202713",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 29
+      },
+      "id": "saved-ad4cd244727204d53e5cdb4773c483f2343a95921c16cd48341d1c94c3109839"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1995.xml",
+      "request_id": "48febb84b6b304f2cc00142ab1fee763e1cbb8cf4f5380c7a5dc68e6d0298aab",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1995.xml",
+        "checked_at": "2026-09-27T12:03:26.016899+00:00",
+        "status": 200,
+        "path": "applications-1995.xml",
+        "bytes": 822354,
+        "sha256": "9af83db27d4e97560e02d48c7158a0fad46ba47a5e6a29d6e0489d3b4334d6e0"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "9af83db27d4e97560e02d48c7158a0fad46ba47a5e6a29d6e0489d3b4334d6e0",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 30
+      },
+      "id": "saved-0ab81e5781f8147bd9568974f25fe0ae807c4ebd23a4bdfed7ba18241bf0fe5a"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1994.xml",
+      "request_id": "1f3253dd1a13b346ce22fe0699f44269bdc8960df2b7fd6b65e729dbfd82cfd3",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1994.xml",
+        "checked_at": "2026-09-27T12:03:27.647516+00:00",
+        "status": 200,
+        "path": "applications-1994.xml",
+        "bytes": 917047,
+        "sha256": "8770feb7354100891b1d1981cbd5243828837b5ddff00ecdfad148c90c119dce"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "8770feb7354100891b1d1981cbd5243828837b5ddff00ecdfad148c90c119dce",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 31
+      },
+      "id": "saved-ff33762fcdd12fc603dd9cc9fec008a8e6369cf21d78ad6895e29e0997d8e62d"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1993.xml",
+      "request_id": "af6fb13f376b0f70087995bcedbbc15cc64bf533047333c92988da440222132e",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1993.xml",
+        "checked_at": "2026-09-27T12:03:29.630404+00:00",
+        "status": 200,
+        "path": "applications-1993.xml",
+        "bytes": 847576,
+        "sha256": "a6682b1bc015397929d10e6f617993b2b7862bcf5b927e7c1deebf15dc9248f1"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "a6682b1bc015397929d10e6f617993b2b7862bcf5b927e7c1deebf15dc9248f1",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 32
+      },
+      "id": "saved-d87fe3df581335608699b753fbd3298a0aac9f8cb6cdbc2678ac16405a74f42c"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1992.xml",
+      "request_id": "c17b2611974dd4825f152ba99f14e06966085ec4efabaa1c335db008fcef12b2",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1992.xml",
+        "checked_at": "2026-09-27T12:03:30.834535+00:00",
+        "status": 200,
+        "path": "applications-1992.xml",
+        "bytes": 888506,
+        "sha256": "a0e9f4814b04a2a211a53ad30b7034f13004c16d50bb8fb9020b9c9a5cd0649d"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "a0e9f4814b04a2a211a53ad30b7034f13004c16d50bb8fb9020b9c9a5cd0649d",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 33
+      },
+      "id": "saved-763cbae3f53ee33cead2ff32297d7f77821a98b437ea73e091a3f00031f7c0d6"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1991.xml",
+      "request_id": "acc71332c68aa16fd1fa58d1d471f58eeb5d7ce3b792c007ce2b440cd23b17c3",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1991.xml",
+        "checked_at": "2026-09-27T12:03:32.547015+00:00",
+        "status": 200,
+        "path": "applications-1991.xml",
+        "bytes": 828205,
+        "sha256": "7039631aef6855423929b1b4fbe493ad802f7dfeb8927330ff7de7976cbcce6c"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "7039631aef6855423929b1b4fbe493ad802f7dfeb8927330ff7de7976cbcce6c",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 34
+      },
+      "id": "saved-9d74761f961c13be3e09e9c45ee5d1e8768be56ca81eb44735354f35095aa71f"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1990.xml",
+      "request_id": "b64cd199f446a88b9ab7f830a04d64319d8ae014c029ead976303e9048704cc3",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1990.xml",
+        "checked_at": "2026-09-27T12:03:34.187621+00:00",
+        "status": 200,
+        "path": "applications-1990.xml",
+        "bytes": 599215,
+        "sha256": "11d26e0a58e53d8fdc157ea7742bd9922108dc66a0cc29557f3a77192829fda1"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "11d26e0a58e53d8fdc157ea7742bd9922108dc66a0cc29557f3a77192829fda1",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 35
+      },
+      "id": "saved-db6f9cb56cb08e30688ad078899df6bcd025c137cef138dc94e89c1be19eecf0"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1989.xml",
+      "request_id": "96dc96161c910a2e8cd481f7bd8455dd6ebdb257289e5bd16ed3dec20ecd86eb",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1989.xml",
+        "checked_at": "2026-09-27T12:03:35.927455+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 36
+      },
+      "id": "saved-a3ddd434fdd2e9032add6da649308a05d0c133a05fa1434439d005f8b984541d"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1988.xml",
+      "request_id": "2e953a95ff67cd26c21693081d1c93958da8c1a1caeade83730007de04f9005b",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1988.xml",
+        "checked_at": "2026-09-27T12:03:36.715061+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 37
+      },
+      "id": "saved-0535fbd53a3644ffc1788bba4d19c931fe2eb7ba752ba1555ff42cc2546420ed"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1987.xml",
+      "request_id": "9aee61dfe34e13637053c9d16a1cd5f71093b1c3098371864a527d8e623194e6",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1987.xml",
+        "checked_at": "2026-09-27T12:03:37.482351+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 38
+      },
+      "id": "saved-7b8966bf854c3f44363069644f0606c7feb179641b6921bf7c7a6323edd793a1"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1986.xml",
+      "request_id": "a1b80468efe8293f5dc821ef72fa87c949a076318050b0acaf9fd4620c27dd94",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1986.xml",
+        "checked_at": "2026-09-27T12:03:38.276594+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 39
+      },
+      "id": "saved-99e25f4cc62f9f36ff93438db1263bd5050cb57e5b673f0939ad7953e1c4e6ff"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1985.xml",
+      "request_id": "c743f7d5f0d4cc897eb9c6cb3390b34cc480e44be2d2f474b2e275eea241e6ff",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1985.xml",
+        "checked_at": "2026-09-27T12:03:39.068327+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 40
+      },
+      "id": "saved-f170c05c18a22a363fab6b9dceda308ca13c5efabba9e129c51bf8ba61d24eea"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1984.xml",
+      "request_id": "fbdd54170778ea351c5bf8082131fe5cf09eaf4a7ba673dc5a266dfb1f7a1274",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1984.xml",
+        "checked_at": "2026-09-27T12:03:41.457016+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 41
+      },
+      "id": "saved-7c63952e5e4f12a98de5b97f0b5100ef3b0f5885bfdd4dc5ab236649d022ed88"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1983.xml",
+      "request_id": "2e2467622485e18350d2e2cd37d4d2ac91c34e0b0f69310916b3d32c11aa8cd8",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1983.xml",
+        "checked_at": "2026-09-27T12:03:42.241832+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 42
+      },
+      "id": "saved-9c4ded35d75ab920aa615a49163304627f99a21deca158386af448bcaab533bb"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1982.xml",
+      "request_id": "7c3c387aae101561afdbf2ffeef77ba1de2e28801c00976820f5056437e38f2f",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1982.xml",
+        "checked_at": "2026-09-27T12:03:43.031064+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 43
+      },
+      "id": "saved-929c190c19d74a372dc3a1acd889d29b9f69c309fc0ba1d788a67616abea98af"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1981.xml",
+      "request_id": "10b82fa7289771e105f109664efeae13a0e0bb75982e416a2afaf22ad74ecf19",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1981.xml",
+        "checked_at": "2026-09-27T12:03:43.896131+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 44
+      },
+      "id": "saved-c9f7be87b51a71f27bc2eed6ae22d53f70cad2d53035b4ce6ad467ee53bc8eb4"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/applications-1980.xml",
+      "request_id": "3f10c1752af28874c0941ae819e57ad2e00fe53f28c6890f88dfb167ded5996b",
+      "status": null,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/applications-1980.xml",
+        "checked_at": "2026-09-27T12:03:44.683436+00:00",
+        "error": "HTTP Error 400: Bad Request"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "unavailable",
+      "error": "HTTP Error 400: Bad Request",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 45
+      },
+      "id": "saved-ca9340012aa1019234239cff9a86b19492349a36b717af61f7d9e61c1fae2e98"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/companies.xml",
+      "request_id": "3174b1abeb36f93ea67f4f16ea43ff9e978ec014959290c3a3a3435ae420d8b2",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/companies.xml",
+        "checked_at": "2026-09-27T12:03:45.470333+00:00",
+        "status": 200,
+        "path": "companies.xml",
+        "bytes": 6720353,
+        "sha256": "59f54eff95744ec5cd2847128f734974870c12fc273d147a35f239c8c9990447"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "59f54eff95744ec5cd2847128f734974870c12fc273d147a35f239c8c9990447",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 46
+      },
+      "id": "saved-7ddad97d7e2330e71abeb929b68d8ba9ba3e13d79c16b34a37c133faa2e58014"
+    },
+    {
+      "url": "https://fccid.co/sitemaps/equipment-classes.xml",
+      "request_id": "6227abfd74d3b1cbd76830b602ece9830309a725fed621ab6a2b9b9cd23c7a46",
+      "status": 200,
+      "historical": {
+        "url": "https://fccid.co/sitemaps/equipment-classes.xml",
+        "checked_at": "2026-09-27T12:03:47.976164+00:00",
+        "status": 200,
+        "path": "equipment-classes.xml",
+        "bytes": 20528,
+        "sha256": "02cb488f9c4eb7af67fe7af5643ebfa0eb2f1d7a15b3a965ec26452b9de8342f"
+      },
+      "acquisition_method": "saved_report",
+      "request_context_known": false,
+      "outcome": "success",
+      "artifact_sha256": "02cb488f9c4eb7af67fe7af5643ebfa0eb2f1d7a15b3a965ec26452b9de8342f",
+      "historical_locator": {
+        "report": "collection-report.json",
+        "report_sha256": "4d7e8ec29f7cecf60115e3ff421ea30fce7d009ee6557a59734d7670cc92353a",
+        "ordinal": 47
+      },
+      "id": "saved-911db7a16e8c641aa3b05ffb662ea12f53ecadff99fb6fdfa40eac815d4c425a"
+    }
+  ],
+  "coverage": "finite advertised URL set; saved observations are not freshness checks",
+  "checkpoint": {
+    "completed": 48,
+    "advertised": 48,
+    "stopped": false
+  }
+}

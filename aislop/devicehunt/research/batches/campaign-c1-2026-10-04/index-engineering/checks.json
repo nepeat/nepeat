@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-04",
+  "owner": "campaign_index_engineer",
+  "phase": "coherent core; independent review pending combined integration freeze",
+  "files": {
+    "devicehunt/artifacts.py": "0fef20bbd1e472188be6e9e8d40998e13f8415fd322b15684e3e3a181608eeeb",
+    "devicehunt/archive.py": "9ce8507e2f028e0849284f976fbdb8226aa443483f52f251aa64ff6d86ff3410",
+    "devicehunt/derivations.py": "33cd34486c4fe920646e205c7d23042ab05a3c90bc7773c7418c2eb1fd662788",
+    "tests/test_artifacts.py": "0f29240968002f833fde0fd98300915a076db7b587a2b214ab7516367af0b579",
+    "tests/test_derivations.py": "68648f0656d6e9e53088f48dcadc08f54951f19213490502625dea23a65ffeed",
+    "tests/test_archive_index.py": "1c42311b18e23622c136687c62972e0f2d9783dbcb307335a67c856393c35669"
+  },
+  "checks": [
+    {
+      "pattern": "test_artifacts.py",
+      "tests": 8,
+      "result": "pass"
+    },
+    {
+      "pattern": "test_archive_index.py",
+      "tests": 17,
+      "result": "pass"
+    },
+    {
+      "pattern": "test_derivations.py",
+      "tests": 4,
+      "result": "pass"
+    },
+    {
+      "pattern": "test_archive_release.py",
+      "tests": 3,
+      "result": "pass"
+    },
+    {
+      "pattern": "test_lineage.py",
+      "tests": 7,
+      "result": "pass"
+    }
+  ],
+  "total_affected_tests": 39,
+  "benchmark": "benchmark.json",
+  "network": "disabled in fixtures/benchmark; no transport invoked",
+  "live_migration": false,
+  "combined_full_suite": "coordinator after both authors freeze",
+  "limitations": [
+    "process crash fixtures are not physical power-loss tests",
+    "normal opens assume cooperating writers and explicit restore quarantine; restoring both old head and index requires explicit restore handling",
+    "spent quota cannot be reconstructed from receipts when operational authority is missing or rolled back"
+  ]
+}

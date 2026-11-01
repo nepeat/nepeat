@@ -1,0 +1,883 @@
+{
+  "query": "Horsea",
+  "vendor": null,
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "be050059c4998fbfb54c3c70",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-server-index-en",
+      "source_url": "https://ebg.inventec.com/en/product",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/product",
+      "tier": "vendor",
+      "sha256": "685b1cd8f1f2d1c9f53925fcb4446cbcd9381daa199075263f96adc7779b073d",
+      "coverage": "Public English server-index cards only, including publicly displayed names of login-restricted products. No linked page, document, image, authentication or network request. Exact headings and suffixes retained. Public index visibility is not complete historical coverage, manufacture, operator deployment, release date, firmware access or an installed auction-unit configuration.",
+      "fetched_at": "2026-10-04T11:59:28.703842+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Horsea"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "detail_access_status",
+          "value": "not fetched; public index evidence only"
+        },
+        {
+          "name": "index_url",
+          "value": "https://ebg.inventec.com/en/product"
+        },
+        {
+          "name": "product_url",
+          "value": "https://ebg.inventec.com/en/product/Server/2U/Horsea"
+        },
+        {
+          "name": "public_index_subtitle",
+          "value": "2U1N2P AMD EPYC™ 7003/7002 Series Processor-based System"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "cae7204ca2c8575d575f2229",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-horsea-page",
+      "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "tier": "vendor",
+      "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+      "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+      "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Horsea"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "configuration_limit",
+          "value": "PSU capacities and chassis configurations are alternatives, not all installed together. No exact SKU A/B/C ordering-code mapping supplied."
+        },
+        {
+          "name": "cooling_description",
+          "value": "Six 6056 hot-swappable fans; N+1 redundancy."
+        },
+        {
+          "name": "management",
+          "value": "IPMI 2.0 + KVM with dedicated LAN"
+        },
+        {
+          "name": "memory",
+          "value": "32 DDR4 DIMM slots; two DIMMs per channel"
+        },
+        {
+          "name": "physical_description",
+          "value": "2U2P; W x H x D: 447.6 x 87 x 780 mm"
+        },
+        {
+          "name": "power_description",
+          "value": "1+1 redundant Platinum PSUs; alternatives 800/1300/1600/2000 W; printed input 100-220 VAC."
+        },
+        {
+          "name": "power_statement_as_printed",
+          "value": "1+1 冗余，800W/1300W/1600W/2000W (100-220VAC)白金"
+        },
+        {
+          "name": "processor",
+          "value": "Two AMD EPYC 7003/7002 sockets; up to 280 W TDP per CPU"
+        },
+        {
+          "name": "source_language",
+          "value": "Chinese; selected facts translated to English"
+        },
+        {
+          "name": "source_observed_date",
+          "value": "2026-10-04"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "db3ce69a5d3826103e56bb06",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Horsea"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "identity_limit",
+          "value": "Printed product name retained; no inferred commercial-order-code alias."
+        },
+        {
+          "name": "manufacturer_scope",
+          "value": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned."
+        },
+        {
+          "name": "manufacturer_statement_as_printed",
+          "value": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造"
+        },
+        {
+          "name": "manufacturer_statement_translation",
+          "value": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG)."
+        },
+        {
+          "name": "manufacturer_unit_as_printed",
+          "value": "英业达企业电脑事业群(EBG)"
+        },
+        {
+          "name": "statement_date",
+          "value": "2020-11-04"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "cae7204ca2c8575d575f2229",
+          "device_id": "1708ef612debe7d40fa8",
+          "brand": "Inventec",
+          "model": "Horsea",
+          "revision": "",
+          "source_id": "inventec-horsea-page",
+          "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "observed_at": "2026-10-04T14:31:12+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "tier": "vendor",
+          "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+          "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+          "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "power_description",
+          "statement": "1+1 redundant Platinum PSUs; alternatives 800/1300/1600/2000 W; printed input 100-220 VAC.",
+          "context_record_id": "cae7204ca2c8575d575f2229"
+        },
+        {
+          "record_id": "cae7204ca2c8575d575f2229",
+          "device_id": "1708ef612debe7d40fa8",
+          "brand": "Inventec",
+          "model": "Horsea",
+          "revision": "",
+          "source_id": "inventec-horsea-page",
+          "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "observed_at": "2026-10-04T14:31:12+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "tier": "vendor",
+          "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+          "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+          "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "power_statement_as_printed",
+          "statement": "1+1 冗余，800W/1300W/1600W/2000W (100-220VAC)白金",
+          "context_record_id": "cae7204ca2c8575d575f2229"
+        }
+      ]
+    },
+    "cooling": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "cae7204ca2c8575d575f2229",
+          "device_id": "1708ef612debe7d40fa8",
+          "brand": "Inventec",
+          "model": "Horsea",
+          "revision": "",
+          "source_id": "inventec-horsea-page",
+          "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "observed_at": "2026-10-04T14:31:12+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "tier": "vendor",
+          "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+          "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+          "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "cooling_description",
+          "statement": "Six 6056 hot-swappable fans; N+1 redundancy.",
+          "context_record_id": "cae7204ca2c8575d575f2229"
+        }
+      ]
+    },
+    "chassis_physical": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "cae7204ca2c8575d575f2229",
+          "device_id": "1708ef612debe7d40fa8",
+          "brand": "Inventec",
+          "model": "Horsea",
+          "revision": "",
+          "source_id": "inventec-horsea-page",
+          "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "observed_at": "2026-10-04T14:31:12+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "tier": "vendor",
+          "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+          "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+          "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "physical_description",
+          "statement": "2U2P; W x H x D: 447.6 x 87 x 780 mm",
+          "context_record_id": "cae7204ca2c8575d575f2229"
+        }
+      ]
+    },
+    "firmware_boot_software": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "cae7204ca2c8575d575f2229",
+          "device_id": "1708ef612debe7d40fa8",
+          "brand": "Inventec",
+          "model": "Horsea",
+          "revision": "",
+          "source_id": "inventec-horsea-page",
+          "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "observed_at": "2026-10-04T14:31:12+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "tier": "vendor",
+          "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+          "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+          "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory",
+          "statement": "32 DDR4 DIMM slots; two DIMMs per channel",
+          "context_record_id": "cae7204ca2c8575d575f2229"
+        },
+        {
+          "record_id": "cae7204ca2c8575d575f2229",
+          "device_id": "1708ef612debe7d40fa8",
+          "brand": "Inventec",
+          "model": "Horsea",
+          "revision": "",
+          "source_id": "inventec-horsea-page",
+          "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "observed_at": "2026-10-04T14:31:12+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+          "tier": "vendor",
+          "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+          "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+          "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "processor",
+          "statement": "Two AMD EPYC 7003/7002 sockets; up to 280 W TDP per CPU",
+          "context_record_id": "cae7204ca2c8575d575f2229"
+        }
+      ]
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "be050059c4998fbfb54c3c70",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-server-index-en",
+      "source_url": "https://ebg.inventec.com/en/product",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/product",
+      "tier": "vendor",
+      "sha256": "685b1cd8f1f2d1c9f53925fcb4446cbcd9381daa199075263f96adc7779b073d",
+      "coverage": "Public English server-index cards only, including publicly displayed names of login-restricted products. No linked page, document, image, authentication or network request. Exact headings and suffixes retained. Public index visibility is not complete historical coverage, manufacture, operator deployment, release date, firmware access or an installed auction-unit configuration.",
+      "fetched_at": "2026-10-04T11:59:28.703842+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "detail_access_status",
+      "statement": "not fetched; public index evidence only",
+      "context_record_id": "be050059c4998fbfb54c3c70"
+    },
+    {
+      "record_id": "be050059c4998fbfb54c3c70",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-server-index-en",
+      "source_url": "https://ebg.inventec.com/en/product",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/product",
+      "tier": "vendor",
+      "sha256": "685b1cd8f1f2d1c9f53925fcb4446cbcd9381daa199075263f96adc7779b073d",
+      "coverage": "Public English server-index cards only, including publicly displayed names of login-restricted products. No linked page, document, image, authentication or network request. Exact headings and suffixes retained. Public index visibility is not complete historical coverage, manufacture, operator deployment, release date, firmware access or an installed auction-unit configuration.",
+      "fetched_at": "2026-10-04T11:59:28.703842+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "index_url",
+      "statement": "https://ebg.inventec.com/en/product",
+      "context_record_id": "be050059c4998fbfb54c3c70"
+    },
+    {
+      "record_id": "be050059c4998fbfb54c3c70",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-server-index-en",
+      "source_url": "https://ebg.inventec.com/en/product",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/product",
+      "tier": "vendor",
+      "sha256": "685b1cd8f1f2d1c9f53925fcb4446cbcd9381daa199075263f96adc7779b073d",
+      "coverage": "Public English server-index cards only, including publicly displayed names of login-restricted products. No linked page, document, image, authentication or network request. Exact headings and suffixes retained. Public index visibility is not complete historical coverage, manufacture, operator deployment, release date, firmware access or an installed auction-unit configuration.",
+      "fetched_at": "2026-10-04T11:59:28.703842+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "product_url",
+      "statement": "https://ebg.inventec.com/en/product/Server/2U/Horsea",
+      "context_record_id": "be050059c4998fbfb54c3c70"
+    },
+    {
+      "record_id": "be050059c4998fbfb54c3c70",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-server-index-en",
+      "source_url": "https://ebg.inventec.com/en/product",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/product",
+      "tier": "vendor",
+      "sha256": "685b1cd8f1f2d1c9f53925fcb4446cbcd9381daa199075263f96adc7779b073d",
+      "coverage": "Public English server-index cards only, including publicly displayed names of login-restricted products. No linked page, document, image, authentication or network request. Exact headings and suffixes retained. Public index visibility is not complete historical coverage, manufacture, operator deployment, release date, firmware access or an installed auction-unit configuration.",
+      "fetched_at": "2026-10-04T11:59:28.703842+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "public_index_subtitle",
+      "statement": "2U1N2P AMD EPYC™ 7003/7002 Series Processor-based System",
+      "context_record_id": "be050059c4998fbfb54c3c70"
+    },
+    {
+      "record_id": "cae7204ca2c8575d575f2229",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-horsea-page",
+      "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "tier": "vendor",
+      "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+      "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+      "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "configuration_limit",
+      "statement": "PSU capacities and chassis configurations are alternatives, not all installed together. No exact SKU A/B/C ordering-code mapping supplied.",
+      "context_record_id": "cae7204ca2c8575d575f2229"
+    },
+    {
+      "record_id": "cae7204ca2c8575d575f2229",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-horsea-page",
+      "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "tier": "vendor",
+      "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+      "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+      "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "management",
+      "statement": "IPMI 2.0 + KVM with dedicated LAN",
+      "context_record_id": "cae7204ca2c8575d575f2229"
+    },
+    {
+      "record_id": "cae7204ca2c8575d575f2229",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-horsea-page",
+      "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "tier": "vendor",
+      "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+      "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+      "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_language",
+      "statement": "Chinese; selected facts translated to English",
+      "context_record_id": "cae7204ca2c8575d575f2229"
+    },
+    {
+      "record_id": "cae7204ca2c8575d575f2229",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-horsea-page",
+      "source_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "observed_at": "2026-10-04T14:31:12+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/product/%E6%9C%8D%E5%8A%A1%E5%99%A8/2U/Horsea",
+      "tier": "vendor",
+      "sha256": "caa401cee9ff1988db60d395b4eaf0374f34b0c7d53b06764ba662fc56572180",
+      "coverage": "Original Chinese product page captured 2026-10-04. Exact named platform and selected specification-table facts; English statements are translations, raw power text retained. Alternatives and SKU A/B/C are not commercial order-code aliases. No manufacturer, operator, installed auction-unit configuration or firmware-access claim.",
+      "fetched_at": "2026-10-04T11:58:58.323416+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_observed_date",
+      "statement": "2026-10-04",
+      "context_record_id": "cae7204ca2c8575d575f2229"
+    },
+    {
+      "record_id": "db3ce69a5d3826103e56bb06",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "identity_limit",
+      "statement": "Printed product name retained; no inferred commercial-order-code alias.",
+      "context_record_id": "db3ce69a5d3826103e56bb06"
+    },
+    {
+      "record_id": "db3ce69a5d3826103e56bb06",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_scope",
+      "statement": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned.",
+      "context_record_id": "db3ce69a5d3826103e56bb06"
+    },
+    {
+      "record_id": "db3ce69a5d3826103e56bb06",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_statement_as_printed",
+      "statement": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造",
+      "context_record_id": "db3ce69a5d3826103e56bb06"
+    },
+    {
+      "record_id": "db3ce69a5d3826103e56bb06",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_statement_translation",
+      "statement": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG).",
+      "context_record_id": "db3ce69a5d3826103e56bb06"
+    },
+    {
+      "record_id": "db3ce69a5d3826103e56bb06",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_unit_as_printed",
+      "statement": "英业达企业电脑事业群(EBG)",
+      "context_record_id": "db3ce69a5d3826103e56bb06"
+    },
+    {
+      "record_id": "db3ce69a5d3826103e56bb06",
+      "device_id": "1708ef612debe7d40fa8",
+      "brand": "Inventec",
+      "model": "Horsea",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "statement_date",
+      "statement": "2020-11-04",
+      "context_record_id": "db3ce69a5d3826103e56bb06"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

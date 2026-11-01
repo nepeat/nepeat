@@ -1,0 +1,756 @@
+{
+  "sources": [
+    {
+      "id": "inventec-fpga-smartnic-c5020x-cn-brief-2021",
+      "url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+      "tier": "vendor",
+      "license": "Original Inventec document rights retained; local factual extraction",
+      "snapshot": "raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-smartnic-c5020x-cn-2021.pdf",
+      "coverage": "Historical exact FPGA SmartNIC C5020X vendor brief; Chinese version explicitly reference-only with English governing. No English-version equivalence, IPU alias, C5000X alias, installed configuration, current support, firmware access, host OS compatibility, operator, physical factory, measured consumption or auxiliary power requirement inferred. TDP is a vendor rating, not PSU specification or measured draw. PDF SHA-256 b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870; copyright 2021 and PDF metadata 2021-05-26 are document dates, not product release dates."
+    },
+    {
+      "id": "inventec-fpga-ipu-c5020x-en-brief-2021",
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+      "tier": "vendor",
+      "snapshot": "raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-ipu-c5020x-en-2021.pdf",
+      "license": "Original Inventec document rights retained; local factual extraction",
+      "coverage": "Exact printed FPGA IPU C5020X vendor brief; separate identity from FPGA SmartNIC C5020X. Matching C5020X token/specifications/photos do not establish an alias or the governing English version for Chinese SmartNIC brief. English page 2 last row literally reads TPM 75W; preserve without relabeling as TDP or interpreting TPM capability. No physical manufacture, factory, installed configuration, measured power, host compatibility, current support or firmware entitlement inferred."
+    },
+    {
+      "id": "qct-t42s-portfolio-specifications-2023",
+      "url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+      "tier": "vendor",
+      "license": "Original QCT document rights retained; local factual extraction",
+      "snapshot": "raw/smartnic-qct-2026-10-04/t42s/qct-product-portfolio-v14-2023.pdf",
+      "coverage": "Exact QuantaPlex T42S-2U table only, bottom right, PDF page 43 / printed page 42, in original QCT 2023 portfolio. CPU, memory, networking and expansion explicitly per node; storage table lists chassis alternatives without per-node qualifier. No facts from adjacent T43Z/S24P or T42D/T42SP. PDF metadata creation/modification 2023-03-31, filename January0331 and URL 2023/04 are document provenance, not release date. No manufacturer, operator, Quanta alias, physical factory, deployed unit, current stock or firmware entitlement inferred."
+    },
+    {
+      "id": "qct-t42s-qxvdi-solution-specifications-2020",
+      "url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+      "tier": "vendor",
+      "license": "Original QCT document rights retained; local factual extraction",
+      "snapshot": "raw/qct-qxvdi-2020-2026-10-04.pdf",
+      "coverage": "QxStack/QxVDI-OA/HC High-Density Optimized SKU, Version 2.0, copyright 2020-2021. Additional extraction from the EXISTING complete QCT capture, not independent corroboration or a new capture. PDF pages 9-10 / printed 5-6. Literal shared-PSU consumption wording is a historical vendor solution claim; not measured power draw, PSU rating/input/derating, platform-wide options or auction-unit configuration. Per-node capacities and M.2 support remain solution-scoped. No software entitlement, current support, manufacturer or operator inferred."
+    }
+  ],
+  "devices": [
+    {
+      "source": "inventec-fpga-smartnic-c5020x-cn-brief-2021",
+      "key": "FPGA SmartNIC C5020X",
+      "brand": "Inventec",
+      "model": "FPGA SmartNIC C5020X",
+      "title": "Inventec FPGA SmartNIC C5020X",
+      "kind": "SmartNIC",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "form_factor",
+          "Full height / half length / single width standard PCIe card (Chinese reference specification)"
+        ],
+        [
+          "processor",
+          "Intel Xeon D; one DDR4 channel; x8 PCIe Gen3 connects to FPGA (Chinese reference specification)"
+        ],
+        [
+          "fpga_as_printed",
+          "Intel FPGA Stratix 10 DX 双 DDR4 通道\nx16 PCIe Gen3（SoC 为 x8，golden finger 为\nx8）"
+        ],
+        [
+          "memory",
+          "SoC 板载 16GB DDR4-2133：\n单通道\n支持 72 位（64 位 +8 位 ECC）DDR4，速率最高\n可达到 2133 MT/s\nFPGA 板载 4GB DDR4-2133：双通道，每条通\n道 2GB，支持的 DDR4 速率为 2133 MT/s"
+        ],
+        [
+          "storage",
+          "32GB eMMC flash (Chinese reference specification)"
+        ],
+        [
+          "network",
+          "Dual port 25G SFP28 (Chinese reference specification)"
+        ],
+        [
+          "host_interface",
+          "PCIe Gen3 x16 (only x8 data width; Chinese reference specification)"
+        ],
+        [
+          "power_statement_as_printed",
+          "TDP 75W"
+        ],
+        [
+          "software",
+          "Intel Xeon-D runs embedded Linux; vendor programmability description, no distribution, release, image availability or host OS support specified."
+        ],
+        [
+          "programmability_scope_as_printed",
+          "而可提供极大的灵活性。Inventec C5020X 系列通常可\n进行自定义，以加速云端中工作负载，如虚拟交换机和存\n储功能，以及加速 5G RAN、边缘计算以及其他软件定义\n网络中的工作负载。"
+        ],
+        [
+          "source_language_scope_as_printed",
+          "本文档中有关产品、机型、配置、功能描述等内容请以英文版本为准，中文仅做参考。本文档所含信\n息如有更改，恕不另行通知。实际产品可能与照片存在偏差。英业达对本文档所含的技术或编辑错误\n或遗漏概不负责。英业达保留不时修改本文件规格的权利。本文档最终解释权在英业达股份有限公\n司。"
+        ],
+        [
+          "model_name_as_printed",
+          "型号名称 Inventec FPGA SmartNIC C5020X"
+        ],
+        [
+          "source_capture_sha256",
+          "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870"
+        ],
+        [
+          "source_document_copyright",
+          "© 2021 Inventec Corp."
+        ],
+        [
+          "source_pdf_creation_metadata",
+          "D:20210526175005+08'00'"
+        ],
+        [
+          "source_pdf_modification_metadata",
+          "D:20210526175007+08'00'"
+        ],
+        [
+          "specification_scope",
+          "Historical exact FPGA SmartNIC C5020X vendor brief; Chinese version explicitly reference-only with English governing. No English-version equivalence, IPU alias, C5000X alias, installed configuration, current support, firmware access, host OS compatibility, operator, physical factory, measured consumption or auxiliary power requirement inferred. TDP is a vendor rating, not PSU specification or measured draw."
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_name": "form_factor",
+          "literal_quote": "外形 全高度 / 半长度 / 单宽度标准 PCIe 卡",
+          "pdf_page": 2,
+          "extracted_line_start": 23,
+          "extracted_line_end": 23,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "processor",
+          "literal_quote": "CPU\nIntel\n®\n Xeon D\n单 DDR4 通道\nx8 PCIe Gen3 连接至 FPGA",
+          "pdf_page": 2,
+          "extracted_line_start": 24,
+          "extracted_line_end": 29,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "fpga_as_printed",
+          "literal_quote": "Intel FPGA Stratix 10 DX 双 DDR4 通道\nx16 PCIe Gen3（SoC 为 x8，golden finger 为\nx8）",
+          "pdf_page": 2,
+          "extracted_line_start": 31,
+          "extracted_line_end": 33,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "memory",
+          "literal_quote": "SoC 板载 16GB DDR4-2133：\n单通道\n支持 72 位（64 位 +8 位 ECC）DDR4，速率最高\n可达到 2133 MT/s\nFPGA 板载 4GB DDR4-2133：双通道，每条通\n道 2GB，支持的 DDR4 速率为 2133 MT/s",
+          "pdf_page": 2,
+          "extracted_line_start": 35,
+          "extracted_line_end": 40,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "storage",
+          "literal_quote": "存储设备 32GB eMMC 闪存",
+          "pdf_page": 2,
+          "extracted_line_start": 41,
+          "extracted_line_end": 41,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "network",
+          "literal_quote": "网络  双端口 25G SFP28",
+          "pdf_page": 2,
+          "extracted_line_start": 42,
+          "extracted_line_end": 42,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "host_interface",
+          "literal_quote": "主机接口 PCIe Gen3 x16（仅限 x8 数据宽度）",
+          "pdf_page": 2,
+          "extracted_line_start": 43,
+          "extracted_line_end": 43,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "power_statement_as_printed",
+          "literal_quote": "TDP 75W",
+          "pdf_page": 2,
+          "extracted_line_start": 44,
+          "extracted_line_end": 44,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "software",
+          "literal_quote": "当作两个独立器件，性能可得到提升。FPGA 提供可编程\n性和高性能，同时，Intel\n®\n Xeon-D 运行嵌入式 Linux - \n新功能可添加到任一器件，也可同时添加到两个器件，从\n而可提供极大的灵活性。Inventec C5020X 系列通常可",
+          "pdf_page": 1,
+          "extracted_line_start": 20,
+          "extracted_line_end": 25,
+          "location": "page prose/footer",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "programmability_scope_as_printed",
+          "literal_quote": "而可提供极大的灵活性。Inventec C5020X 系列通常可\n进行自定义，以加速云端中工作负载，如虚拟交换机和存\n储功能，以及加速 5G RAN、边缘计算以及其他软件定义\n网络中的工作负载。",
+          "pdf_page": 1,
+          "extracted_line_start": 25,
+          "extracted_line_end": 28,
+          "location": "page prose/footer",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "source_language_scope_as_printed",
+          "literal_quote": "本文档中有关产品、机型、配置、功能描述等内容请以英文版本为准，中文仅做参考。本文档所含信\n息如有更改，恕不另行通知。实际产品可能与照片存在偏差。英业达对本文档所含的技术或编辑错误\n或遗漏概不负责。英业达保留不时修改本文件规格的权利。本文档最终解释权在英业达股份有限公\n司。",
+          "pdf_page": 2,
+          "extracted_line_start": 11,
+          "extracted_line_end": 14,
+          "location": "page prose/footer",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        },
+        {
+          "fact_name": "model_name_as_printed",
+          "literal_quote": "型号名称 Inventec FPGA SmartNIC C5020X",
+          "pdf_page": 2,
+          "extracted_line_start": 22,
+          "extracted_line_end": 22,
+          "location": "page 2 specification table",
+          "source_url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+          "capture_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+          "visual_review": "Both complete pages visually inspected; table labels/rows verified. Translation is explicitly separated from literal quote."
+        }
+      ]
+    },
+    {
+      "source": "inventec-fpga-ipu-c5020x-en-brief-2021",
+      "key": "FPGA IPU C5020X",
+      "brand": "Inventec",
+      "model": "FPGA IPU C5020X",
+      "title": "Inventec FPGA IPU C5020X",
+      "kind": "Infrastructure Processing Unit",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "model_name_as_printed",
+          "Model Name Inventec FPGA IPU C5020X"
+        ],
+        [
+          "form_factor",
+          "Form Factor Full Height/Half Length/Single Width \nStandard PCIe Card "
+        ],
+        [
+          "processor",
+          "Intel® Xeon D\nOne DDR4 channel \nx8 PCIe Gen3 connect to FPGA "
+        ],
+        [
+          "fpga_as_printed",
+          "Intel FPGA Stratix 10 DX\nTwo DDR4 channels\nx16 PCIe Gen3 (x8 for SoC, x8 for golden \nfinger)"
+        ],
+        [
+          "memory",
+          "16GB DDR4-2133 on board for SoC:\n  One channel\n  Support 72 bit (64 bit+8 bit ECC) DDR4 up \nto 2133 MT/s\n4GB DDR4-2133 on board for FPGA:\n  Two channels, 2GB per channel\n  Support for DDR4 at 2133 MT/s"
+        ],
+        [
+          "storage",
+          "Storage 32GB eMMC flash "
+        ],
+        [
+          "network",
+          "Network Dual port 25G SFP28  "
+        ],
+        [
+          "host_interface",
+          "Host Interface PCIe Gen3 x16 (only x8 data width)"
+        ],
+        [
+          "tpm_table_row_as_printed",
+          "TPM 75W "
+        ],
+        [
+          "software",
+          "and the FPGA as two independent devices. The FPGA offers \nprogrammability and high performance, while the Intel® \nXeon-D runs embedded Linux - new features can be added-\nin to either or both of them, providing great flexibility. "
+        ],
+        [
+          "programmability_scope_as_printed",
+          "The Inventec C5020X series is generally customizable to \naccelerate workloads in cloud such virtual switch and \nstorage functions, as well as in 5G RAN, edge computing, \nand other software defined networks."
+        ],
+        [
+          "source_reference_only_as_printed",
+          "Inventec reserves the right to modify this document, the Specifications and photos \nfrom time to time without notifying the Party. The entire materials provided herein \nare for reference only."
+        ],
+        [
+          "source_capture_sha256",
+          "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311"
+        ],
+        [
+          "source_document_copyright",
+          "© 2021 Inventec Corp."
+        ],
+        [
+          "source_pdf_creation_metadata",
+          "D:20210616131419+08'00'"
+        ],
+        [
+          "source_pdf_modification_metadata",
+          "D:20210616131421+08'00'"
+        ],
+        [
+          "specification_scope",
+          "Exact printed FPGA IPU C5020X vendor brief; separate identity from FPGA SmartNIC C5020X. Matching C5020X token/specifications/photos do not establish an alias or the governing English version for Chinese SmartNIC brief. English page 2 last row literally reads TPM 75W; preserve without relabeling as TDP or interpreting TPM capability. No physical manufacture, factory, installed configuration, measured power, host compatibility, current support or firmware entitlement inferred."
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_name": "model_name_as_printed",
+          "literal_quote": "Model Name Inventec FPGA IPU C5020X",
+          "pdf_page": 2,
+          "extracted_line_start": 1,
+          "extracted_line_end": 1,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "form_factor",
+          "literal_quote": "Form Factor Full Height/Half Length/Single Width \nStandard PCIe Card ",
+          "pdf_page": 2,
+          "extracted_line_start": 2,
+          "extracted_line_end": 3,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "processor",
+          "literal_quote": "Intel® Xeon D\nOne DDR4 channel \nx8 PCIe Gen3 connect to FPGA ",
+          "pdf_page": 2,
+          "extracted_line_start": 5,
+          "extracted_line_end": 7,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "fpga_as_printed",
+          "literal_quote": "Intel FPGA Stratix 10 DX\nTwo DDR4 channels\nx16 PCIe Gen3 (x8 for SoC, x8 for golden \nfinger)",
+          "pdf_page": 2,
+          "extracted_line_start": 9,
+          "extracted_line_end": 12,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "memory",
+          "literal_quote": "16GB DDR4-2133 on board for SoC:\n  One channel\n  Support 72 bit (64 bit+8 bit ECC) DDR4 up \nto 2133 MT/s\n4GB DDR4-2133 on board for FPGA:\n  Two channels, 2GB per channel\n  Support for DDR4 at 2133 MT/s",
+          "pdf_page": 2,
+          "extracted_line_start": 14,
+          "extracted_line_end": 20,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "storage",
+          "literal_quote": "Storage 32GB eMMC flash ",
+          "pdf_page": 2,
+          "extracted_line_start": 21,
+          "extracted_line_end": 21,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "network",
+          "literal_quote": "Network Dual port 25G SFP28  ",
+          "pdf_page": 2,
+          "extracted_line_start": 22,
+          "extracted_line_end": 22,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "host_interface",
+          "literal_quote": "Host Interface PCIe Gen3 x16 (only x8 data width)",
+          "pdf_page": 2,
+          "extracted_line_start": 23,
+          "extracted_line_end": 23,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "tpm_table_row_as_printed",
+          "literal_quote": "TPM 75W ",
+          "pdf_page": 2,
+          "extracted_line_start": 24,
+          "extracted_line_end": 24,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "software",
+          "literal_quote": "and the FPGA as two independent devices. The FPGA offers \nprogrammability and high performance, while the Intel® \nXeon-D runs embedded Linux - new features can be added-\nin to either or both of them, providing great flexibility. ",
+          "pdf_page": 1,
+          "extracted_line_start": 23,
+          "extracted_line_end": 26,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "programmability_scope_as_printed",
+          "literal_quote": "The Inventec C5020X series is generally customizable to \naccelerate workloads in cloud such virtual switch and \nstorage functions, as well as in 5G RAN, edge computing, \nand other software defined networks.",
+          "pdf_page": 1,
+          "extracted_line_start": 27,
+          "extracted_line_end": 30,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        },
+        {
+          "fact_name": "source_reference_only_as_printed",
+          "literal_quote": "Inventec reserves the right to modify this document, the Specifications and photos \nfrom time to time without notifying the Party. The entire materials provided herein \nare for reference only.",
+          "pdf_page": 2,
+          "extracted_line_start": 40,
+          "extracted_line_end": 42,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+          "capture_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+          "visual_review": "Both complete pages visually inspected; last table row visibly TPM, value 75W."
+        }
+      ]
+    },
+    {
+      "source": "qct-t42s-portfolio-specifications-2023",
+      "key": "QuantaPlex T42S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T42S-2U",
+      "title": "QCT QuantaPlex T42S-2U",
+      "kind": "multi-node server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "processor",
+          "(2) Intel Xeon Scalable Processors per node, up to 165W"
+        ],
+        [
+          "chipset",
+          "Intel C621/C624"
+        ],
+        [
+          "memory",
+          "(16) 2666 MHz DDR4 RDIMM/LRDIMM per node"
+        ],
+        [
+          "storage",
+          "Chassis storage alternatives: Option 1 (24) 2.5-inch hot-plug SATA/SAS; Option 2 (12) 3.5-inch/2.5-inch hot-plug SATA/SAS. Table does not label these quantities per node."
+        ],
+        [
+          "network",
+          "(1) OCP 2.0 mezzanine or PHY card per node; (1) 1 GbE dedicated management port per node"
+        ],
+        [
+          "expansion",
+          "Per node: (1) PCIe Gen3 x16 LP MD-2; (1) PCIe Gen3 x8 for SAS mezzanine; (1) PCIe Gen3 x16 for OCP 2.0 mezzanine; (1) PCIe Gen3 x2 for 2280/22110 M.2"
+        ],
+        [
+          "form_factor",
+          "2U Rackmount, 4 Nodes"
+        ],
+        [
+          "source_pages",
+          "PDF 43 / printed 42"
+        ],
+        [
+          "source_capture_sha256",
+          "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a"
+        ],
+        [
+          "specification_scope",
+          "Exact QuantaPlex T42S-2U table only, bottom right, PDF page 43 / printed page 42, in original QCT 2023 portfolio. CPU, memory, networking and expansion explicitly per node; storage table lists chassis alternatives without per-node qualifier. No facts from adjacent T43Z/S24P or T42D/T42SP. PDF metadata creation/modification 2023-03-31, filename January0331 and URL 2023/04 are document provenance, not release date. No manufacturer, operator, Quanta alias, physical factory, deployed unit, current stock or firmware entitlement inferred."
+        ],
+        [
+          "source_date_limit",
+          "PDF creation/modification 2023-03-31; no release date inferred"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_name": "processor",
+          "literal_quote": "(2) Intel® Xeon® Scalable Processors per node, up to 165W",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Processor",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "chipset",
+          "literal_quote": "Intel® C621/C624",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Chipset",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "memory",
+          "literal_quote": "(16) 2666 MHz DDR4 RDIMM/LRDIMM per node",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Memory",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "storage",
+          "literal_quote": "Option 1:\n(24) 2.5\" hot-plug SATA/SAS\nOption 2:\n(12) 3.5\"/2.5\" hot-plug SATA/SAS",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Storage",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "network",
+          "literal_quote": "(1) OCP 2.0 mezzanine or PHY card per node\n(1) 1 GbE dedicated management port per node",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Network Controller",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "expansion",
+          "literal_quote": "(1) PCIe Gen3 x16 LP MD-2 per node\n(1) PCIe Gen3 x8 for SAS mezzanine slot per node\n(1) PCIe Gen3 x16 for OCP 2.0 mezzanine slot per node\n(1) PCIe Gen3 x2 for 2280/22110 M.2 per node",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Expansion Slot",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "form_factor",
+          "literal_quote": "2U Rackmount, 4 Nodes",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Form Factor",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        }
+      ]
+    },
+    {
+      "source": "qct-t42s-qxvdi-solution-specifications-2020",
+      "key": "QuantaPlex T42S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T42S-2U",
+      "title": "QCT QuantaPlex T42S-2U",
+      "kind": "multi-node server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "power_description",
+          "Historical QxVDI solution describes two shared PSUs for its 2U four-node T42S-2U; claims \"consumes 1600 watt for each power supply\". Retained as vendor marketing statement, not PSU rating or measured consumption."
+        ],
+        [
+          "power_statement_as_printed",
+          "QuantaPlex T42S-2U is a 2U 4-node server, which shares only two power supplies and consumes 1600 watt for each power supply."
+        ],
+        [
+          "processor",
+          "QxVDI solution: 2 CPUs in Intel Xeon Processor family per node"
+        ],
+        [
+          "storage",
+          "QxVDI solution: 6 SATA/SAS disks per node"
+        ],
+        [
+          "memory",
+          "QxVDI solution: up to 512GB DDR4 RDIMM memory per node; memory bandwidth up to 2666MHz as stated"
+        ],
+        [
+          "boot_storage",
+          "QxVDI solution: extra M.2 riser on motherboard supports both SATA and PCIe M.2 devices for OS boot"
+        ],
+        [
+          "form_factor",
+          "QxVDI solution: 2U 4-node server"
+        ],
+        [
+          "source_pages",
+          "PDF 9-10 / printed 5-6"
+        ],
+        [
+          "source_capture_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "specification_scope",
+          "QxStack/QxVDI-OA/HC High-Density Optimized SKU, Version 2.0, copyright 2020-2021. Additional extraction from the EXISTING complete QCT capture, not independent corroboration or a new capture. PDF pages 9-10 / printed 5-6. Literal shared-PSU consumption wording is a historical vendor solution claim; not measured power draw, PSU rating/input/derating, platform-wide options or auction-unit configuration. Per-node capacities and M.2 support remain solution-scoped. No software entitlement, current support, manufacturer or operator inferred."
+        ],
+        [
+          "source_date_limit",
+          "Version 2.0; copyright 2020-2021; no release date inferred"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_name": "power_description",
+          "literal_quote": "QuantaPlex T42S-2U is a 2U 4-node server, which shares only two power supplies and consumes 1600 watt for each power supply.",
+          "pdf_page": 9,
+          "printed_page": 5,
+          "location": "3.5 Economical Total Cost / Energy Saving - Shared Energy System",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "power_statement_as_printed",
+          "literal_quote": "QuantaPlex T42S-2U is a 2U 4-node server, which shares only two power supplies and consumes 1600 watt for each power supply.",
+          "pdf_page": 9,
+          "printed_page": 5,
+          "location": "3.5 Economical Total Cost / Energy Saving - Shared Energy System",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "processor",
+          "literal_quote": "2 CPUs in Intel® Xeon® Processor family per node",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "storage",
+          "literal_quote": "6 SATA/SAS disks per node",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "memory",
+          "literal_quote": "up to 512GB DDR4 RDIMM memory per node.\nHigh floating-point operation per second with Intel Xeon Processor and great memory bandwidth up to 2666MHz provide outstanding performance.",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "boot_storage",
+          "literal_quote": "An extra M.2 riser equipped on the MB can support both SATA and PCIe M.2 devices for OS boot.",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "form_factor",
+          "literal_quote": "In QCT QxStack/QxVDI-OA/HC High-Density Optimized SKU, the server QuantaPlex T42S-2U, a 2U 4-node server, is used to build the infrastructure.",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        }
+      ]
+    }
+  ]
+}

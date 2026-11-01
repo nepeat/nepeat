@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    {
+      "snapshot": "snapshots/sd6200-datasheet.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-datasheet.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "bytes": 642770
+    },
+    {
+      "snapshot": "snapshots/sd6200-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-pages.json",
+      "sha256": "167e926937d22b6aa6ba4028773124000c73b76b21e104c7acf299d14a68b38f",
+      "bytes": 8787
+    },
+    {
+      "snapshot": "snapshots/wedge100-32x-r04.pdf",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "bytes": 281885
+    },
+    {
+      "snapshot": "snapshots/wedge100-32x-r04-pages.json",
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04-pages.json",
+      "sha256": "aaf215bb1ee5bb9a67c881ca9cabea40d50d89a89b034ec518fb5d454af0609c",
+      "bytes": 17200
+    }
+  ],
+  "reviewed_findings_sha256": "437ac50ef27031bb6373d3005090d3678ba6f8667901b77d6c1923bc20f34211"
+}

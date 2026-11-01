@@ -1,0 +1,4 @@
+validated_original_records_sha256 equal: True
+occurrences equal ignoring detail_path: True
+other pinned keys differing: []
+detail_path pairs: [('data/raw/rra-edge-core-hyphen-official-live-2026-10-10d/detail-001.html', 'data/raw/rra-edge-core-hyphen-official/detail-001.html'), ('data/raw/rra-edge-core-hyphen-official-live-2026-10-10d/detail-002.html', 'data/raw/rra-edge-core-hyphen-official/detail-002.html')] ...

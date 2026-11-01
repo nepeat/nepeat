@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "collection": "public-device-references-v1",
+  "documents": [
+    {
+      "id": "inventec-golduck-product-brief-v3-2020",
+      "pdf": {
+        "path": "inventec-golduck-v3-2020.pdf",
+        "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd"
+      },
+      "text": {
+        "path": "inventec-golduck-v3-2020.pages.json",
+        "sha256": "6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c"
+      },
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "title": "Inventec Golduck product brief v3 2020",
+      "category": "product brief",
+      "tier": "vendor",
+      "scope": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded.",
+      "page_count": 2
+    }
+  ]
+}

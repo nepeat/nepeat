@@ -1,0 +1,61 @@
+8
+                                                                                               PFE1100-12-054xA
+
+
+
+
+                  Figure 17. Load transient V1, 40 to 85A (500μs/div)                   Figure 18. Load transient V1, 85 to 40A (500μs/div)
+                        CH2: V1 (200mV/div), CH4: I1 (20A/div)                                CH2: V1 (200mV/div), CH4: I1 (20A/div)
+
+
+
+    6
+    PARAMETER                               DESCRIPTION / CONDITION                                   MIN        NOM        MAX         UNIT
+     F               Input Fuses (L+N)      Not user accessible, quick-acting (F)                                 16                      A
+     V1 OV           OV Threshold V1                                                                  13.3                   14.5        VDC
+     tOV V1          OV Latch Off Time V1                                                                                     1          ms
+     VSB OV          OV Threshold VSB                                                                 115                    125        % VSB
+                     OV Latch Off Time
+     tOV VSB                                                                                                                  1          ms
+                     VSB
+                     Current Limit V1       Vi > 115VAC, Ta < 45°C                                    93.5                   100
+                     PFE1100-12-054NA       Vi > 90VAC, Ta < 45°C                                      74                    78
+     IV1 lim                                                                                                                              A
+                     Current Limit V1       Vi > 180VAC, Ta < 45°C                                     92                    100
+                     PFE1100-12-054RA       Vi > 90VAC, Ta < 45°C                                      72                    78
+                     Max Short Circuit
+     IV1 SC                                 V1 < 3V                                                                          110          A
+                     Current V1
+                     Short Circuit
+     tV1 SC                                 V1 < 3V, time until IV1 is limited to < IV1 sc                                    2          ms
+                     Regulation Time
+                     Short Circuit Latch
+     tV1 SC off                             Time to latch off when in short circuit                                          200         ms
+                     Off Time
+                     Over Temperature on
+     TSD                                    Automatic shut-down                                                   115                     °C
+                     Heat Sinks
+
+
+    6.1 OVERVOLTAGE PROTECTION
+           The PFE front-ends provide a fixed threshold overvoltage (OV) protection implemented with a HW comparator. Once an OV
+           condition has been triggered, the supply will shut down and latch the fault condition. The latch can be unlocked by
+           disconnecting the supply from the AC mains or by toggling the PSON_L input.
+
+
+    6.2 VSB UNDERVOLTAGE DETECTION
+           Both main and standby outputs are monitored. LED and PWOK_H pin signal if the output voltage exceeds ±5% of its nominal
+           voltage. Output undervoltage protection is provided on the standby output only. When VSB falls below 75% of its nominal
+           voltage, the main output V1 is inhibited.
+
+
+    6.3 CURRENT LIMITATION
+           MAIN OUTPUT
+           The main output exhibits a substantially rectangular output characteristic controlled by a software feedback loop. If it runs in
+           current limitation and its voltage drops below ~10.0 VDC for more than 200 ms, the output will latch off (standby remains on).
+
+
+
+
+                                                                                                               tech.support@psbel.com
+

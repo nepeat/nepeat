@@ -1,0 +1,39 @@
+{
+  "result": "pass",
+  "facts": [
+    20,
+    22
+  ],
+  "pdf_pages": 2,
+  "golduck_literal_quotes": 16,
+  "prepare_path": "research/batches/inventec-practical-2026-10-04/review/pdf-prepare-1",
+  "complete_bundle_entries_before": 46,
+  "sha256": {
+    "research/batches/inventec-practical-2026-10-04/entei/evidence.json": "426b5d37dce003eb0613ee57b1ead7a6f7c83e5712fe8df08233703846259a7b",
+    "research/batches/inventec-practical-2026-10-04/entei/artifact-hashes.json": "8481700b52ec469ad080c14e7ded13bdd4aca3b01ad1687772297db6a5283175",
+    "research/batches/inventec-practical-2026-10-04/entei/candidate-curated.json": "f7eb3c11e98967b448b80b145f0b66f6135224d021a54d60901d4b560162e5eb",
+    "research/batches/inventec-practical-2026-10-04/entei/handoff.md": "93062035b6f0efe29f182af0da86736558e8ee07698e7ee8a8d53ae00d6ad94d",
+    "data/raw/inventec-practical-2026-10-04/golduck/inventec-golduck-v3-2020.pages.json": "6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c",
+    "data/raw/inventec-practical-2026-10-04/golduck/inventec-golduck-v3-2020.pdf": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "data/raw/inventec-practical-2026-10-04/golduck/reference-pdf-proposal.json": "b88d96c7a666c0eaddaffef9a48a428fda478f565f8e499cce2cdc71c558c6dc",
+    "data/raw/inventec-practical-2026-10-04/golduck/candidate-curated.json": "8891d26b0085e4e59d9f22b5b06f18399fa3125119e7bb2fddca76db00c41af4",
+    "data/raw/inventec-practical-2026-10-04/golduck/fetch-report.json": "d0fd33d0d477ca6e080ed074574f27bb1c2b180ae76046a162a18718034d512a",
+    "research/batches/inventec-practical-2026-10-04/golduck/fact-provenance.json": "36cd1e75b863ddb3c9c2cf0e97ed36118623f37dfedf5320a6728da9852b000b",
+    "research/batches/inventec-practical-2026-10-04/golduck/handoff.md": "0c770e036fe20581c76b3d478474728275ad72a8776f4f3816c7a43c0796a497",
+    "research/batches/inventec-practical-2026-10-04/golduck/page-1.png": "708a007a2a92d50fc7db3470771e735a58322de0bde527a8e581e5b6581cc552",
+    "research/batches/inventec-practical-2026-10-04/golduck/page-2.png": "5facf636c896d337acdfded0cd435406db754ba5c1abe59e9639dd5f45fe5936",
+    "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+    "data/raw/inventec-practical-2026-10-04/entei/queries-outcomes.json": "235ce3ddf9df8bfd677215980238124aae258349246d27e1a72c3de09079aa4e",
+    "data/raw/inventec-practical-2026-10-04/entei/product-fetch-report.json": "594c1ce04e0c68eb5bb4ad251a2b4b694d1f9fd969d0fa45e5d2b74797f39fb6",
+    "data/raw/inventec-practical-2026-10-04/entei/entei-product.html": "3176d41b82bb0f5cfe38a8123c65b8858b9fe8a724b058077690d895357af1d3",
+    "data/raw/inventec-practical-2026-10-04/entei/fetch-report.json": "bc7be28e682617f61fc30179c98207651a1b65971f42bc34a7cc8cab295d24c4"
+  },
+  "live_database_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "pdf_metadata": {
+    "/CreationDate": "D:20200727163305+08'00'",
+    "/Creator": "Adobe InDesign 15.0 (Windows)",
+    "/ModDate": "D:20200727163308+08'00'",
+    "/Producer": "Adobe PDF Library 15.0",
+    "/Trapped": "/False"
+  }
+}

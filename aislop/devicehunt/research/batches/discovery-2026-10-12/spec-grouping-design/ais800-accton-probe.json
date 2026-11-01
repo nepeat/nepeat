@@ -1,0 +1,129 @@
+{
+  "case": {
+    "name": "ais800-accton",
+    "query": "AIS800-32O",
+    "exact_model": true,
+    "target": "Accton"
+  },
+  "actual_baseline_cli_argv": [
+    "--db",
+    "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+    "specs",
+    "AIS800-32O",
+    "--include-source-facts",
+    "--format",
+    "json",
+    "--exact-model",
+    "--vendor",
+    "Accton"
+  ],
+  "baseline_full_rows": [
+    {
+      "record_id": "2b44d7c556af69cf724e7c47",
+      "device_id": "74dae24f1a556fae7c51",
+      "brand": "Edge-Core",
+      "model": "AIS800-32O",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+      "source_id": "picos45-edgecore-accton",
+      "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    }
+  ],
+  "precollapse_full_rows": [
+    {
+      "record_id": "2b44d7c556af69cf724e7c47",
+      "device_id": "74dae24f1a556fae7c51",
+      "brand": "Edge-Core",
+      "model": "AIS800-32O",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+      "source_id": "picos45-edgecore-accton",
+      "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "software_installation_description",
+        "value": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table."
+      },
+      "affiliations": [
+        {
+          "company": "Accton",
+          "target": "Accton",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "Pica8",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AIS800-32O"
+    }
+  ],
+  "prototype_groups": [
+    {
+      "device_id": "74dae24f1a556fae7c51",
+      "brand": "Edge-Core",
+      "model": "AIS800-32O",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "2b44d7c556af69cf724e7c47",
+          "device_id": "74dae24f1a556fae7c51",
+          "brand": "Edge-Core",
+          "model": "AIS800-32O",
+          "revision": "",
+          "category": "software_installation_description",
+          "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+          "source_id": "picos45-edgecore-accton",
+          "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "software_installation_description",
+            "value": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table."
+          },
+          "affiliations": [
+            {
+              "company": "Accton",
+              "target": "Accton",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "Pica8",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AIS800-32O"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    }
+  ],
+  "scope": "read-only diagnostic/prototype; grouped output is not implemented or accepted",
+  "baseline_cli_sha256": "1d8ddd502a637a55d0ce39e0dd10d8bf13457073bfe23324d0c3e19b750d7bb7"
+}

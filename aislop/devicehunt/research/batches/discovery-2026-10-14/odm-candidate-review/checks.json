@@ -1,0 +1,300 @@
+{
+  "reviewer": "/root/vendor_bulk_full",
+  "decision": "accept_exact_candidate",
+  "candidate_sha256": "f4bb69c73b809f5d35da8e4de58b6b933d3024136f4ed18228f473db1befcc71",
+  "network_calls": 0,
+  "shared_writes": false,
+  "original_acquisition_hashes_verified": [
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/robots-docs.nvidia.com.txt",
+      "sha256": "40023dc772d7c169f4125e750b925c3b77ee9ef745226699f746b7d0d4129978"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/robots-docs.nvidia.com.txt.headers",
+      "sha256": "6e1bbb7692330a222fb3a1ef9253fdeb08e2181c125835af8d842fbe86d57990"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/nvidia-certified.html",
+      "sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/nvidia-certified.html.headers",
+      "sha256": "28d20f429945c4e73f597f4b2a1bfb02cb9af48b224ee1d375159982c195601e"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/nvidia-ngc-ready.pdf",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/nvidia-ngc-ready.pdf.headers",
+      "sha256": "2bf48d44bfbe03fe48d3f251f1e5006de835f025271bb4ecd2151a1bcc0a2586"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/redirect-nvidia-ngc-ready.pdf",
+      "sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/redirect-nvidia-ngc-ready.pdf.headers",
+      "sha256": "a7c5c498a73f3d06941fca94070b8a8b1af4ead96fa7b0388c06dde535eb3fe6"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/robots-www.amd.com.txt",
+      "sha256": "0b1fd3de47d303a51102f2e720c1f447a3666b80cbf9f36bacc4a184cb186194"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/robots-www.amd.com.txt.headers",
+      "sha256": "5b1045552a1e46dc19b1d1cbfa6b7a0ab311657f26873a07a8c4343c13051eec"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+      "sha256": "8436689a7a45614e4b4078e2bd13ad6aba0403d0407d5d4f79f4b557203c2d5c"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf.headers",
+      "sha256": "b3cb83ba61e7b2e30e5b3660048a715006f45ca249a9b1517ffad5f48537c3b7"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/robots-www.mitaccomputing.com.txt",
+      "sha256": "1fa5f9c8004ad0f603dee61878dad6ae8dc7789cca58dbac914cc7f729c67e88"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/robots-www.mitaccomputing.com.txt.headers",
+      "sha256": "71a4a300482f345224e05081286270254919d651c4a15016127214a9efa3e9b5"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/mitac-general.html",
+      "sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/mitac-general.html.headers",
+      "sha256": "5e7a8a0d1ab41dc40077c2dacda691da4e5bd2c260a3fe4f0a5f61f870af96a3"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/mitac-ai.html",
+      "sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/mitac-ai.html.headers",
+      "sha256": "f5efcab97b8d8a9105e9221c64f08c600748a4dbc35ce52e5cbb81e2a2a42dc5"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/mitac-multi.html",
+      "sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/mitac-multi.html.headers",
+      "sha256": "a269e6ea18bf3981ac18bdd49df96c2e46fbde882b416eab142728f390ae012d"
+    }
+  ],
+  "copied_capture_hashes_verified": [
+    {
+      "path": "mitac-ai.html",
+      "sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d"
+    },
+    {
+      "path": "mitac-general.html",
+      "sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f"
+    },
+    {
+      "path": "mitac-ai.html.headers",
+      "sha256": "f5efcab97b8d8a9105e9221c64f08c600748a4dbc35ce52e5cbb81e2a2a42dc5"
+    },
+    {
+      "path": "mitac-multi.html",
+      "sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222"
+    },
+    {
+      "path": "mitac-general.html.headers",
+      "sha256": "5e7a8a0d1ab41dc40077c2dacda691da4e5bd2c260a3fe4f0a5f61f870af96a3"
+    },
+    {
+      "path": "nvidia-certified.html.headers",
+      "sha256": "28d20f429945c4e73f597f4b2a1bfb02cb9af48b224ee1d375159982c195601e"
+    },
+    {
+      "path": "redirect-nvidia-ngc-ready.pdf",
+      "sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd"
+    },
+    {
+      "path": "redirect-nvidia-ngc-ready.pdf.headers",
+      "sha256": "a7c5c498a73f3d06941fca94070b8a8b1af4ead96fa7b0388c06dde535eb3fe6"
+    },
+    {
+      "path": "nvidia-certified.html",
+      "sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25"
+    },
+    {
+      "path": "mitac-multi.html.headers",
+      "sha256": "a269e6ea18bf3981ac18bdd49df96c2e46fbde882b416eab142728f390ae012d"
+    }
+  ],
+  "original_extraction_rows_recomputed": 1120,
+  "all_source_records_independently_verified": 214,
+  "raw_fragment_checks": 1418,
+  "facts_verified": 2255,
+  "exact_company_model_pairs": 154,
+  "extra_duplicate_references_preserved": 60,
+  "roles": {
+    "program_partner": 137,
+    "listing_holder": 39,
+    "documentation_vendor": 38
+  },
+  "blank_table_cells_retained": 27,
+  "nonidentity_footnote_rows": [
+    {
+      "company": "PEGATRON",
+      "model": "AS201-1N0",
+      "locator": {
+        "table_id": "table-arm-cpu-systems",
+        "row_ordinal": 5
+      },
+      "cells": [
+        "PEGATRON",
+        "AS201-1N0",
+        "GH200 144 GB, GH200 96 GB*",
+        "CX7"
+      ]
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid S74G-2U",
+      "locator": {
+        "table_id": "table-arm-cpu-systems",
+        "row_ordinal": 6
+      },
+      "cells": [
+        "QCT",
+        "QuantaGrid S74G-2U",
+        "GH200 96 GB*",
+        "CX7"
+      ]
+    }
+  ],
+  "footnote_scope": "Both selected * markers belong only to the GH200 module cell; source note says Tested as a standalone system. No compatibility fact is derived; marker and full snapshot remain. Historical AI Enterprise is conditional on V100/T4.",
+  "source_dates": [
+    {
+      "source": "nvidia-certified-system-index-2026-10-14",
+      "captured_at_utc": "2026-10-15T05:48:49.053067+00:00",
+      "printed_last_update": "Oct 04, 2026",
+      "date_scope": "capture timestamp is not publication/manufacture/current-support date"
+    },
+    {
+      "source": "nvidia-ngc-ready-system-index-2026-10-14",
+      "captured_at_utc": "2026-10-15T05:49:02.610011+00:00",
+      "printed_last_update": "Sep 30, 2026",
+      "date_scope": "capture timestamp is not publication/manufacture/current-support date"
+    },
+    {
+      "source": "mitac-general-purpose-index-2026-10-14",
+      "captured_at_utc": "2026-10-15T05:49:21.886270+00:00",
+      "printed_last_update": null,
+      "date_scope": "capture timestamp is not publication/manufacture/current-support date"
+    },
+    {
+      "source": "mitac-ai-server-index-2026-10-14",
+      "captured_at_utc": "2026-10-15T05:49:23.376051+00:00",
+      "printed_last_update": null,
+      "date_scope": "capture timestamp is not publication/manufacture/current-support date"
+    },
+    {
+      "source": "mitac-multi-node-index-2026-10-14",
+      "captured_at_utc": "2026-10-15T05:49:25.720945+00:00",
+      "printed_last_update": null,
+      "date_scope": "capture timestamp is not publication/manufacture/current-support date"
+    }
+  ],
+  "missing_card_fields_preserved": [
+    "D50DNP1MHCPAC",
+    "D50DNP1MHCPLC",
+    "D50DNP1MHEVAC",
+    "B8016H68D5"
+  ],
+  "unchanged_author_tests_pass": 10,
+  "prepare_curated_sources": 5,
+  "scratch_import_and_replacement": [
+    214,
+    214
+  ],
+  "scratch_counts": {
+    "sources": 5,
+    "devices": 154,
+    "records": 214,
+    "facts": 2255,
+    "affiliations": 214,
+    "identifiers": 0,
+    "hyperscaler_evidence": 0
+  },
+  "integrity": "ok",
+  "foreign_key_violations": 0,
+  "fts_probe_hits": 4,
+  "exact_live_identity_reuses": [
+    {
+      "id": "06ddf70cf0f3af8248a8",
+      "company": "Inspur",
+      "model": "NF5468M5",
+      "live_company": "Inspur",
+      "live_model": "NF5468M5"
+    },
+    {
+      "id": "1f3b656ec8cdc4c10e83",
+      "company": "Inspur",
+      "model": "NE5260M5",
+      "live_company": "Inspur",
+      "live_model": "NE5260M5"
+    },
+    {
+      "id": "215f827e059f1291fc49",
+      "company": "Inventec",
+      "model": "E850G4",
+      "live_company": "Inventec",
+      "live_model": "E850G4"
+    },
+    {
+      "id": "4a6e5e0a8bcb11b27b58",
+      "company": "Inventec",
+      "model": "P5000AG7",
+      "live_company": "Inventec",
+      "live_model": "P5000AG7"
+    },
+    {
+      "id": "5d2e680ed27f04048062",
+      "company": "Inspur",
+      "model": "NF5280M5",
+      "live_company": "Inspur",
+      "live_model": "NF5280M5"
+    },
+    {
+      "id": "6ee517a1c95c50fc377a",
+      "company": "Inventec",
+      "model": "P9000IG6(AC)",
+      "live_company": "Inventec",
+      "live_model": "P9000IG6(AC)"
+    },
+    {
+      "id": "9bd88a5c0b3897b5071a",
+      "company": "QCT",
+      "model": "QuantaGrid D52BV-2U",
+      "live_company": "QCT",
+      "live_model": "QuantaGrid D52BV-2U"
+    },
+    {
+      "id": "c961c8dc5ff9c726e02c",
+      "company": "Inspur",
+      "model": "NF5488M5",
+      "live_company": "Inspur",
+      "live_model": "NF5488M5"
+    },
+    {
+      "id": "e22d657528396b29efb4",
+      "company": "Inventec",
+      "model": "P90G6",
+      "live_company": "Inventec",
+      "live_model": "P90G6"
+    }
+  ],
+  "unexpected_namespace_collisions": 0,
+  "protected_input_files_unchanged": 64,
+  "live_catalog_sha256_unchanged": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "manifest_sha256_unchanged": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b",
+  "limits": "Empty scratch acceptance only; combined preservation, full-suite and clean rebuild belong to exclusive integration. AMD fragments remain unaccepted raw discovery. No manufacturer, alias, deployment, installed-configuration, current support or licence claim accepted."
+}

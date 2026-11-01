@@ -1,0 +1,26 @@
+{
+  "live_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "manifest_sha256": "27ff5fc4a6a0d170dfb1128e17c1a452aa6bdc725c3d3c7060584ca165bd3540",
+  "frozen_release_sha256": "2eadea0c31d9ffdfc1b763b26b8500ebddcb78c94d2706900ed382549fb33736",
+  "recovery_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "rebuild_sha256": "c4eccb0c03ffac2c3810788098191866b2bce2ff9d0268f001d0837121be4281",
+  "archive_audit": {
+    "ok": true,
+    "errors": [],
+    "orphan_objects": [],
+    "staging": [],
+    "receipts": 374
+  },
+  "refreshed_lookup_reports": 98,
+  "accepted_evidence_export_statements": 4,
+  "owned_baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "vendor_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  }
+}

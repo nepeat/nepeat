@@ -1,0 +1,38 @@
+{
+  "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+  "original_snapshot": "data/raw/ingrasys-servers-2026-10-04/sv1120-sv1121-sv2121-sv2221.html",
+  "original_sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+  "fresh_response_sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+  "fresh_response_identical_to_original": true,
+  "source_span_half_open": [
+    4128654,
+    8355366
+  ],
+  "source_span_length": 4226712,
+  "discarded_first_span_half_open": [
+    3,
+    4128651
+  ],
+  "first_span_prefix_matches_second": true,
+  "first_span_length": 4128648,
+  "transform": "Take exact second PDF byte span [4128654,8355366); append only ASCII F followed by CR LF (46 0d 0a) to complete truncated %%EO token and final newline. No object/xref/image/content byte edits. This is a reconstructed derivative, not a valid original download.",
+  "appended_bytes_hex": "460d0a",
+  "derivative_sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+  "derivative_length": 4226715,
+  "linearized_declared_length": 4226715,
+  "strict_pypdf_pages": 10,
+  "embedded_text_lengths": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "render": "pdftoppm -scale-to 1500 -png; all ten pages visually inspected",
+  "completeness_limit": "All 10 declared pages render; recovered page evidence only, not complete valid original HTTP document. First concatenated span is truncated inside content and is an exact prefix of the second; no independent edition claim."
+}

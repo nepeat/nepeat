@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "consulted_date": "2026-10-04",
+  "scope": "three named publishers; documentation only",
+  "recommendation": "no_qualifying_sustainable_free_row_level_feed_established",
+  "row_level_sample_qualified": false,
+  "adapter_design_started": false,
+  "api_or_data_access_validated": false,
+  "global_source_absence_claim": false,
+  "sources": [
+    {
+      "id": "un_comtrade",
+      "publisher_type": "UN statistical compiler",
+      "grain": "aggregate commodity/partner statistics",
+      "origin": "reporting-country data; reviewed 2019 methodology",
+      "exact_device_usefulness": "no shipment/company/model identity established",
+      "free_access": "homepage search lead only; opened body empty",
+      "automated_acquisition": "unqualified",
+      "local_retention": "unqualified; dated 2012 agreement section 5 restricts copying/downloads without permission; current applicability unknown",
+      "coverage": "annual/monthly merchandise and annual services documented in 2019 guide; current availability untested",
+      "identifiers": "commodity/partner/mode/procedure classifications; not shipment or device keys",
+      "disposition": "aggregate_context_only_access_unqualified",
+      "unknowns": [
+        "current license applicability",
+        "current free quotas and key requirements",
+        "historical/current availability"
+      ],
+      "docs": [
+        "https://comtrade.un.org/licenseagreement.html",
+        "https://comtrade.un.org/data/MethodologyGuideforComtradePlus.pdf"
+      ]
+    },
+    {
+      "id": "us_census_trade_api",
+      "publisher_type": "official government statistical publisher",
+      "grain": "aggregate commodity/country/district statistics",
+      "origin": "EEI/ACE and other import documentation per trade page",
+      "exact_device_usefulness": "statistical context only; terms exclude respondent identification",
+      "free_access": "key required for all data queries; payment requirement not established; key requirement does not imply paywall",
+      "automated_acquisition": "API retrieval/analysis documented; not tested and no key sought",
+      "local_retention": "retrieval/analysis allowed subject to API terms; no data retained; no blanket retention clearance claimed",
+      "coverage": "monthly 2010-present; monthly updates; annual April revisions documented",
+      "identifiers": "commodity/country/district classifications; no BOL or commercial SKU established",
+      "disposition": "aggregate_context_only",
+      "unknowns": [
+        "current numerical quotas",
+        "cost explicitly documented",
+        "latest available month",
+        "credential authorization if future context work is desired"
+      ],
+      "docs": [
+        "https://www.census.gov/data/developers/data-sets/international-trade.html",
+        "https://www.census.gov/data/developers/about/terms-of-service.html"
+      ]
+    },
+    {
+      "id": "importyeti",
+      "publisher_type": "third-party commercial provider, not regulator/government publisher",
+      "grain": "BOL shipment/party/product fields are search-extracted API documentation leads; line-item grain unvalidated",
+      "origin": "provider describes public container-shipment trails; upstream originals unverified",
+      "exact_device_usefulness": "potential literal product-description leads; none queried or validated",
+      "free_access": "current manual/export allowances unknown; pricing URL 404; FAQ answers not extracted",
+      "automated_acquisition": "unqualified; search-extracted docs describe account/key and paid-credit calls; any free/trial allowance unknown",
+      "local_retention": "unknown; manual UI does not establish reusable automated feed rights",
+      "coverage": "US/Mexico imports/exports only a search-extracted doc lead; dates/delays/frequency unknown",
+      "identifiers": "BOL-number lookup described in search extraction; durable upstream keys/line items unvalidated",
+      "disposition": "row_level_candidate_unqualified",
+      "unknowns": [
+        "current free UI/export allowances",
+        "free/trial API credits",
+        "API/local retention terms",
+        "source-original provenance",
+        "durable record/line-item keys",
+        "date/mode/geographic completeness",
+        "model yield"
+      ],
+      "docs": [
+        "https://www.importyeti.com/about",
+        "https://www.importyeti.com/faqs",
+        "https://docs.importyeti.com/docs/getting-started",
+        "https://www.importyeti.com/pricing"
+      ]
+    }
+  ],
+  "source_matrix": "source-matrix.md",
+  "request_ledger": "request-budget.json",
+  "acceptance_owner": "/root and independent reviewer",
+  "next_step": "no t2; any remaining documentation investigation requires separate bounded assignment"
+}

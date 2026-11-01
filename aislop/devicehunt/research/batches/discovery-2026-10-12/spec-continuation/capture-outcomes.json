@@ -1,0 +1,157 @@
+{
+  "finished_utc": "2026-10-13T04:28:55.954940+00:00",
+  "actual_HTTP": 19,
+  "cap": 20,
+  "result_sources_planned": 18,
+  "outcomes": [
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2015q4/jbb2015-20151123-00036.html",
+      "benchmark": "jbb2015",
+      "outcome": "captured",
+      "request_sequence": 2,
+      "status": 200,
+      "body_path": "jbb2015/jbb2015-20151123-00036.html"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q1/jbb2015-20160118-00041.html",
+      "benchmark": "jbb2015",
+      "outcome": "captured",
+      "request_sequence": 3,
+      "status": 200,
+      "body_path": "jbb2015/jbb2015-20160118-00041.html"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00065.html",
+      "benchmark": "jbb2015",
+      "outcome": "captured",
+      "request_sequence": 4,
+      "status": 200,
+      "body_path": "jbb2015/jbb2015-20160321-00065.html"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00066.html",
+      "benchmark": "jbb2015",
+      "outcome": "captured",
+      "request_sequence": 5,
+      "status": 200,
+      "body_path": "jbb2015/jbb2015-20160321-00066.html"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00067.html",
+      "benchmark": "jbb2015",
+      "outcome": "captured",
+      "request_sequence": 6,
+      "status": 200,
+      "body_path": "jbb2015/jbb2015-20160321-00067.html"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160516-00095.html",
+      "benchmark": "jbb2015",
+      "outcome": "captured",
+      "request_sequence": 7,
+      "status": 200,
+      "body_path": "jbb2015/jbb2015-20160516-00095.html"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31246.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 8,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220325-31246.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31244.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 9,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220325-31244.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31242.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 10,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220325-31242.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220311-31155.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 11,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220311-31155.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220301-31137.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 12,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220301-31137.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220301-31136.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 13,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220301-31136.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220220-30983.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 14,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220220-30983.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220220-30979.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 15,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220220-30979.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220125-30794.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 16,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220125-30794.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220125-30791.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 17,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20220125-30791.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2021q4/cpu2017-20211206-30304.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 18,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20211206-30304.txt"
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2021q4/cpu2017-20211206-30303.txt",
+      "benchmark": "cpu2017",
+      "outcome": "captured",
+      "request_sequence": 19,
+      "status": 200,
+      "body_path": "cpu2017/cpu2017-20211206-30303.txt"
+    }
+  ],
+  "prior_inputs_unchanged": true,
+  "redirects_followed": 0,
+  "searches": 0,
+  "screenshots": 0,
+  "whole_run_stopped_on429": false
+}

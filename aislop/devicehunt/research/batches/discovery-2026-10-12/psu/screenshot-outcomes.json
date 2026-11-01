@@ -1,0 +1,6 @@
+{
+  "captured_at": "2026-10-13T03:00:00Z (approximate)",
+  "method": "web.run screenshot against already-open PDF resources; flattened tool response contained no usable image",
+  "result": " (https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf)\nciteturn9view0 --------------------------------------------------------------------------------\nInternal Error ()\nciteturn9view1 [wordlim: 200] Source: screenshot({\"ref_id\":\"turn6view4\",\"pageno\":1,\"height\":null,\"offset\":null}); Total lines: 1\nL0: Failed to fetch https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf: TimeoutError\n--------------------------------------------------------------------------------\nInternal Error ()\nciteturn9view2 [wordlim: 200] Source: screenshot({\"ref_id\":\"turn8view0\",\"pageno\":8,\"height\":null,\"offset\":null}); Total lines: 1\nL0: Failed to fetch https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf: TimeoutError\n",
+  "visual_review": "unresolved; no screenshot observation accepted"
+}

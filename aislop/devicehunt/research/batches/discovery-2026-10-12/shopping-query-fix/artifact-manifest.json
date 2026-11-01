@@ -1,0 +1,72 @@
+{
+  "artifacts": [
+    {
+      "path": "before/devicehunt/__main__.py",
+      "sha256": "540f7b1d4f118e2b42b2bbf2a84a9a0ccb17ce4c0be1d33f101ebf81a17f73e6",
+      "bytes": 40497
+    },
+    {
+      "path": "before/devicehunt/report.html",
+      "sha256": "b05db38547daed0cdaf34d2ff5d1b793b27db9726a2fb4149a5fbab675b7c6e4",
+      "bytes": 9436
+    },
+    {
+      "path": "before/tests/report.test.cjs",
+      "sha256": "2eb1b8f76309f2613052873b449e3e2d87f24a79825beb69475abc9c621834e8",
+      "bytes": 6220
+    },
+    {
+      "path": "changes.diff",
+      "sha256": "decbc8a7656bb9c4c322d6f00d3e422f54e6887fe0a2ff2142d98236d5f179a9",
+      "bytes": 11308
+    },
+    {
+      "path": "code-manifest.json",
+      "sha256": "fb72bd1db71d49ab8bae63196b078e5f1058cd6754449128e427fca3b6e5845b",
+      "bytes": 703
+    },
+    {
+      "path": "focused-tests-summary.txt",
+      "sha256": "9420141d54349a8ec9eb42b85bee126f89d16aa19d7fdef6257d42defc60b4ff",
+      "bytes": 318
+    },
+    {
+      "path": "focused-tests.json",
+      "sha256": "d16d01fcf75fe0a8ec085cf164b455a6741fee1e3a00282bd2efee1ebd22fe94",
+      "bytes": 952
+    },
+    {
+      "path": "handoff.md",
+      "sha256": "b5e6683af1d0fca1a2b63d2e05f5892ed22f96bd55231636790ab278d00f43e3",
+      "bytes": 3575
+    },
+    {
+      "path": "original-files.json",
+      "sha256": "31421c2cf9c443a4e4c6bf758d013368714504dc24f8223a519d5199ef31799d",
+      "bytes": 949
+    }
+  ],
+  "production_files": [
+    {
+      "path": "devicehunt/__main__.py",
+      "sha256": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83",
+      "bytes": 40996
+    },
+    {
+      "path": "devicehunt/report.html",
+      "sha256": "14491e46545fed986edf1920deb87de769e94a824f61fd7d1e28fde448744e3e",
+      "bytes": 9460
+    },
+    {
+      "path": "tests/test_shopping.py",
+      "sha256": "19b0d4c4f2f32f559d4d5bccb546a0732da1136a85d2835bec047e8eb756606e",
+      "bytes": 6446
+    },
+    {
+      "path": "tests/report.test.cjs",
+      "sha256": "2f74690b5e05da33525839b0d2191b5c6d24f49377e6df0b0225d05f4c3da883",
+      "bytes": 7154
+    }
+  ],
+  "status": "implemented; focused tests pass; independent review pending"
+}

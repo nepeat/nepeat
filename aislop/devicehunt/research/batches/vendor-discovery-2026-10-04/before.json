@@ -1,0 +1,7 @@
+{
+  "classification_of_previous_goal_turn": "progress: 26 accepted facts promoted, reports refreshed and independent handoff review completed",
+  "database": "data/devices.sqlite",
+  "database_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "manifest_sha256": "aa1022ba0bdcc70d924c343589457fb5a1ad0c9818c3aa84ae02c8f49b73f71f",
+  "complete_pdf_bundle": "data/raw/reference-documents-with-nics-wiwynn-hyve-2026-10-04.json"
+}

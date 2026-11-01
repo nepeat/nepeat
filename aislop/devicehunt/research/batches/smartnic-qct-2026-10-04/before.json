@@ -1,0 +1,19 @@
+{
+  "previous_turn": "progress",
+  "previous_completion_sha256": "1c313b340dae9ad427686521825b8fb3c1c48d819c83b852ec391dcd45d10040",
+  "live_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "manifest_sha256": "3eefe9fcb79e17e1c0f0e724c53472e523decef37fbe603d1e0ff69fb3906277",
+  "counts": {
+    "devices": 4090,
+    "records": 5319,
+    "sources": 290,
+    "facts": 45017,
+    "documents": 58,
+    "document_pages": 3663
+  },
+  "source_budget": {
+    "queries": 6,
+    "new_captures": 3
+  },
+  "engineering_scope": "Profile and optimize lookup refresh only with exact equivalence and read-only behavior."
+}

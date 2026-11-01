@@ -1,0 +1,72 @@
+PFE1100-12-054xA                                                                                                                                 3
+
+
+
+
+        General Condition: TA = 0… 45 °C unless otherwise noted.
+
+PARAMETER                                     DESCRIPTION / CONDITION                                           MIN     NOM     MAX     UNITS
+ Vi nom     Nominal Input Voltage                                                                               100      230    230      VAC
+ Vi         Input Voltage Ranges              Normal operating (Vi min to Vi max)                                90             264      VAC
+ Vi red     Derated Input Voltage Range       See Figure 20 and Figure 40                                        90             180      VAC
+ Ii max     Max Input Current                                                                                                    13       Arms
+                                              Vi    min    to      Vi      max,   TNTC      =   25°C     (
+ Ii p       Inrush Current Limitation                                                                                            40        Ap
+                                              Figure 5)
+ Fi         Input Frequency                                                                                      47     50/60    64       Hz
+ PF         Power Factor                      Vi nom, 50Hz, > 0.3 I1 nom                                        0.96                     W/VA
+ Vi on      Turn-on Input Voltage1            Ramping up                                                         80              87      VAC
+ Vi off     Turn-off Input Voltage1           Ramping down                                                       75              85      VAC
+                                              Vi nom, 0.1∙Ix nom, Vx nom, TA = 25°C                                      90.3
+                                              Vi nom, 0.2∙Ix nom, Vx nom, TA = 25°C                                      93.4
+        η   Efficiency without Fan                                                                                                         %
+                                              Vi nom, 0.5∙Ix nom, Vx nom, TA = 25°C                                      94.5
+                                              Vi nom, Ix nom, Vx nom, TA = 25°C                                          93.8
+                                              After last AC zero point, V1 > 10.8V, VSB within
+ Thold      Hold-up Time                                                                                         12                       ms
+                                              regulation, Vi = 230 VAC, Px nom
+
+
+
+            INPUT FUSE
+            Quick-acting 16 A input fuses (5 x 20 mm) in series with both the L- and N-line inside the power supply protect against severe
+            defects. The fuses are not accessible from the outside and are therefore not serviceable parts.
+
+
+            INRUSH CURRENT
+            The AC-DC power supply exhibits an X-capacitance of only 3.2 μF, resulting in a low and short peak current, when the supply
+            is connected to the mains. The internal bulk capacitor will be charged through an NTC which will limit the inrush current.
+
+            NOTE:
+            Do not repeat plug-in / out operations within a short time, or else the internal in-rush current limiting device (NTC) may not
+            sufficiently cool down and excessive inrush current or component failure(s) may result.
+
+
+            INPUT UNDER-VOLTAGE
+            If the sinusoidal input voltage stays below the input undervoltage lockout threshold Vi on, the supply will be inhibited. Once the
+            input voltage returns within the normal operating range, the supply will return to normal operation again.
+
+
+            POWER FACTOR CORRECTION
+            Power factor correction (PFC) is achieved by controlling the input current waveform synchronously with the input voltage. A
+            fully digital controller is implemented giving outstanding PFC results over a wide input voltage and load ranges. The input current
+            will follow the shape of the input voltage. If for instance the input voltage has a trapezoidal waveform, then the current will also
+            show a trapezoidal waveform.
+            In addition, the PFC circuit has a stability region to be observed when operating the power supply at high input current
+            amplitudes. At a low source inductance (<150 μH) the power supply will work stable up to its full maximum input current (13
+            Arms). If the source inductance is higher, the region with stable PFC operation is slightly reduced (as shown in Figure 4). The
+            power supply will also work in the unstable region, but it may exhibit a slight current oscillation during the sinusoidal peak.
+
+
+
+
+                1 The Front-End is provided with a minimum hysteresis of 3 V during turn-on and turn-off within the ranges.
+
+
+
+
+                                                                                      Asia-Pacific     Europe, Middle East       North America
+                                                                             +86 755 298 85888               +353 61 49 8941    +1 866 513 2839
+
+                                                                                                        © 2023 Bel Fuse Inc.      BCD.00012_AP
+

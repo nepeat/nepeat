@@ -1,0 +1,21 @@
+{
+  "phase": "c1b-state-integration",
+  "status": "affected-tests-pass-independent-review-pending",
+  "command": "python3 -m unittest tests.test_campaign_state tests.test_capture",
+  "tests": 52,
+  "seconds": 33.047,
+  "result": "OK",
+  "code_sha256": {
+    "devicehunt/campaign_state.py": "62c7a5dd0e6cd851c7bc1c91916019e1516b1335a4a155dbcdd9a59f0deffad2",
+    "devicehunt/capture.py": "0fda5848f818ebb9f45ea784e1834e3efa58db7fe01dd26308fcfc84f2f44660",
+    "tests/test_campaign_state.py": "8c1718d6f497744e4ce889dffe501b909201b8d8970f73379d9a7571b7a586e1",
+    "tests/test_capture.py": "df92b3c538eb71c474aff6f4e1b072af0bb9874d510bcbc39f5117a8acae5df7",
+    "research/fetch_fcc_sitemaps.py": "efc19a47119b95cd36c9e493405885dda910420ef339e6f8a9b5eb5d490b6370"
+  },
+  "live_migration": false,
+  "live_account_activation": false,
+  "fixture_activation": "positive guarded /tmp fixture only",
+  "network": "no live HTTP; socket/HTTP/subprocess guards plus mocked native opener",
+  "full_suite": "coordinator owned pending",
+  "core_interfaces": "compatible with peer core readiness/publication_guard/proof/candidates/safety selector APIs"
+}

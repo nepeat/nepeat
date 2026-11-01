@@ -1,0 +1,98 @@
+{
+  "checked_at": "2026-10-13T03:06:18.750438+00:00",
+  "inspection_commands_used": 4,
+  "method": "PATH and named-location checks; shallow Nix store root-name inventory only; direct absolute-path subprocesses, no nix build/eval/shell or downloads",
+  "toolroot": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+  "source": "research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+  "source_sha256_before": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+  "source_sha256_after": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+  "commands": [
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+    },
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+    },
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "pdftoppm version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+    },
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+        "research/batches/discovery-2026-10-12/pdf-runtime/bel-pfe1500-csa-demo.pdf"
+      ],
+      "returncode": 0,
+      "stdout": "Creator:         Microsoft\u00ae Word 2016\nProducer:        Microsoft\u00ae Word 2016\nCreationDate:    Mon Jan 10 14:43:17 2022 PST\nModDate:         Mon Jan 10 14:43:17 2022 PST\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           7\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       224731 bytes\nOptimized:       no\nPDF version:     1.7\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+        "-layout",
+        "research/batches/discovery-2026-10-12/pdf-runtime/bel-pfe1500-csa-demo.pdf",
+        "research/batches/discovery-2026-10-12/pdf-runtime/bel-pfe1500-csa-poppler-layout.txt"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "4",
+        "-l",
+        "4",
+        "-singlefile",
+        "-scale-to",
+        "1800",
+        "-png",
+        "research/batches/discovery-2026-10-12/pdf-runtime/bel-pfe1500-csa-demo.pdf",
+        "research/batches/discovery-2026-10-12/pdf-runtime/bel-pfe1500-csa-page4"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "files": [
+    {
+      "file": "bel-pfe1500-csa-demo.pdf",
+      "bytes": 224731,
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60"
+    },
+    {
+      "file": "bel-pfe1500-csa-page4.png",
+      "bytes": 322472,
+      "sha256": "7eef9de3435ced3594258a22f616e0bee891f103c16d3ba0b05c2da409eee197"
+    },
+    {
+      "file": "bel-pfe1500-csa-poppler-layout.txt",
+      "bytes": 16602,
+      "sha256": "fa1d1ec95b37a620e91ea28fe6e73d8d56773919c34f0ce0dcfdd06a860c5c23"
+    }
+  ],
+  "realized_pypdf_related_store_candidates": [
+    "/nix/store/dw4q9qg8qn73qxsdn583y77305f2wdm1-python3.14-pdfminer-six-20260107",
+    "/nix/store/f2hax46i0pfn3zr6ng2rpgn1xjj3l241-python3.14-pdfminer-six-20260107"
+  ],
+  "extract_method": "Poppler pdftotext -layout 26.06.0; no OCR; runtime demonstration only, not accepted pypdf envelope"
+}

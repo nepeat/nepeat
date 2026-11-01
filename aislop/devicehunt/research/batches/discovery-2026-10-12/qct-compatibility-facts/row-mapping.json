@@ -1,0 +1,146 @@
+[
+  {
+    "fact_ordinal_zero_based": 0,
+    "table_1based": 12,
+    "row_1based": 3,
+    "QuantaPN": "AF800C00002",
+    "VendorPN": "MC800B6-3-4R-02",
+    "all_nine_cells": {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Titanium",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800C00002",
+      "VendorPN": "MC800B6-3-4R-02",
+      "Note": ""
+    }
+  },
+  {
+    "fact_ordinal_zero_based": 1,
+    "table_1based": 12,
+    "row_1based": 4,
+    "QuantaPN": "AF800C00030",
+    "VendorPN": "MPS8146",
+    "all_nine_cells": {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Titanium",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800C00030",
+      "VendorPN": "MPS8146",
+      "Note": ""
+    }
+  },
+  {
+    "fact_ordinal_zero_based": 2,
+    "table_1based": 12,
+    "row_1based": 5,
+    "QuantaPN": "AF800B00009",
+    "VendorPN": "MC800B4-3-4R-02",
+    "all_nine_cells": {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800B00009",
+      "VendorPN": "MC800B4-3-4R-02",
+      "Note": ""
+    }
+  },
+  {
+    "fact_ordinal_zero_based": 3,
+    "table_1based": 12,
+    "row_1based": 6,
+    "QuantaPN": "AF800B00019",
+    "VendorPN": "MC800B4-3-5R-02",
+    "all_nine_cells": {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800B00019",
+      "VendorPN": "MC800B4-3-5R-02",
+      "Note": ""
+    }
+  },
+  {
+    "fact_ordinal_zero_based": 4,
+    "table_1based": 12,
+    "row_1based": 7,
+    "QuantaPN": "AFC00F00019",
+    "VendorPN": "MC1200B4-3-4R-02",
+    "all_nine_cells": {
+      "Power Capacity": "1200W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFC00F00019",
+      "VendorPN": "MC1200B4-3-4R-02",
+      "Note": ""
+    }
+  },
+  {
+    "fact_ordinal_zero_based": 5,
+    "table_1based": 12,
+    "row_1based": 8,
+    "QuantaPN": "AFC00B00032",
+    "VendorPN": "PS-2122-7Q",
+    "all_nine_cells": {
+      "Power Capacity": "1200W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFC00B00032",
+      "VendorPN": "PS-2122-7Q",
+      "Note": ""
+    }
+  },
+  {
+    "fact_ordinal_zero_based": 6,
+    "table_1based": 12,
+    "row_1based": 9,
+    "QuantaPN": "AFB00E00003",
+    "VendorPN": "FSF048-930G",
+    "all_nine_cells": {
+      "Power Capacity": "1100W",
+      "Type": "Redundant",
+      "Efficiency": "Gold",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFB00E00003",
+      "VendorPN": "FSF048-930G",
+      "Note": "Regulatory only for USA/EU. Taiwan/China/Russia will implement on end of Q2 2018 ."
+    }
+  },
+  {
+    "fact_ordinal_zero_based": 7,
+    "table_1based": 12,
+    "row_1based": 10,
+    "QuantaPN": "AFB00E00005",
+    "VendorPN": "FSF048-931G",
+    "all_nine_cells": {
+      "Power Capacity": "1100W",
+      "Type": "Redundant",
+      "Efficiency": "Gold",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "No",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFB00E00005",
+      "VendorPN": "FSF048-931G",
+      "Note": ""
+    }
+  }
+]

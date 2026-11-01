@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /upload/
+Disallow: /solution/*
+Disallow: /de-DE/solution/*
+Disallow: /zh-CN/solution/*
+Disallow: /ja-JP/solution/*
+Disallow: /en-US/solution/*
+Disallow: /microsite/qct-cascade-lake-processor-family-products/*
+Disallow: /en-US/Download-internal-only/*
+Disallow: /*.pdf$
+Disallow: /*/Rack/*
+Sitemap: http://www.qct.io/sitemap-20170317.xml

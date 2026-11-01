@@ -1,0 +1,15 @@
+{
+  "reference_documents": 47,
+  "pdf_text_dependency_files_registered_in_place": 94,
+  "pdf_text_dependency_bytes": 104318884,
+  "saved_child_sitemap_outcomes": {
+    "success": 38,
+    "unavailable": 10
+  },
+  "advertised_child_urls": 48,
+  "new_network_attempt_receipts": 0,
+  "new_derivation_runs": 3,
+  "downstream_consumer_receipts": 5,
+  "compatible_executions_reused": 2,
+  "note": "Measured reuse in this bounded offline run; not a speedup claim against the prior cached collectors or full upstream coverage."
+}

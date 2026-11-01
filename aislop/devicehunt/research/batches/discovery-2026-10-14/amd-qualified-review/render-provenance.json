@@ -1,0 +1,70 @@
+{
+  "source_pdf": "research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+  "pdf_sha256": "8436689a7a45614e4b4078e2bd13ad6aba0403d0407d5d4f79f4b557203c2d5c",
+  "pages": 6,
+  "render": {
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+      "-f",
+      "1",
+      "-l",
+      "6",
+      "-r",
+      "140",
+      "-png",
+      "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+      "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/amd-qualified-review/page"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "tool_version": "pdftoppm version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+    "tool_sha256": "a6d468851e73df98afa3c3ac8d07501de53c41c4e6217762089d05de9f569333",
+    "dpi": 140,
+    "images": [
+      {
+        "page": 1,
+        "path": "page-1.png",
+        "sha256": "fd5405e1c076680622b59267b4fa642936879a0a57e9de6d7e9915a0162fc933"
+      },
+      {
+        "page": 2,
+        "path": "page-2.png",
+        "sha256": "aac35fc978d84129597d1f62abcec6414ee6712f83a05858620a4604941c1258"
+      },
+      {
+        "page": 3,
+        "path": "page-3.png",
+        "sha256": "ce4b004b7c853c901a40d917679168fdafb03edbb2a29b41709913ae42af673d"
+      },
+      {
+        "page": 4,
+        "path": "page-4.png",
+        "sha256": "d87bbdd5e93b370448142a3858d9554603c18c28760a3b2b9a0471dcb9f3f285"
+      },
+      {
+        "page": 5,
+        "path": "page-5.png",
+        "sha256": "a856da193a0b6026652d0434aba014e769a1cbcd23fbf72b9c3d30dca9206709"
+      },
+      {
+        "page": 6,
+        "path": "page-6.png",
+        "sha256": "fa789a14ea3408b26756615e2835b99dd7a47c9660b9fff7526c5c0aa2660d22"
+      }
+    ]
+  },
+  "bbox": {
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+      "-bbox-layout",
+      "-enc",
+      "UTF-8",
+      "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+      "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/amd-qualified-review/pages-bbox.xhtml"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "path": "pages-bbox.xhtml",
+    "sha256": "f775805bc5d32e4a592d57b83a51d0012a3e9c174087b4c5abe0dd36615888e1"
+  }
+}

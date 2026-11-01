@@ -1,0 +1,76 @@
+{
+  "status": "PENDING final rebuild/comparison; corrected helper findings resolved",
+  "checked_utc": "2026-10-13T05:01:44.279447+00:00",
+  "helper_hashes": {
+    "research/batches/discovery-2026-10-12/integration-wave4/stage.py": "988a75c526d66018c086713fe761b604c57653d9dc31e05158ab0c401f866cda",
+    "research/batches/discovery-2026-10-12/integration-wave4/promote.py": "f5a984654ebac42887294963a8c9a1dfac79891b9b8197658fe230c622dc818a",
+    "research/batches/discovery-2026-10-12/integration-wave4/refresh_exports.py": "e15ee2ea78f24a8eb5c8a2276b435e2ece3cf6853c46079388af943731c27e58",
+    "research/batches/discovery-2026-10-12/integration-wave4/check_queries.py": "d272eb808553a635173f8dfdf8503851ab500b7f15dc0f0eec3756176b3aa83c"
+  },
+  "preserved_before_fix_hashes": {
+    "research/batches/discovery-2026-10-12/integration-wave4/promote.py.before-review-fixes": "be45e27e4b894d8e58e45c79898ee95bdc7dced9e6a921cbfdf14e2fca9b4227",
+    "research/batches/discovery-2026-10-12/integration-wave4/refresh_exports.py.before-review-fixes": "fe9e2322cab5f4285029187b9f11796ddfc524212b5e2375570804c85e213ee6"
+  },
+  "mandatory_proof_paths": [
+    "data/exports/wave4-2026-10-12-comparison.json",
+    "data/exports/wave4-2026-10-12-validation.json",
+    "data/rebuilt-wave4-2026-10-12.sqlite",
+    "research/batches/campaign-c2-2026-10-05/acceptance/discovery-2026-10-12-curated-wave3-suite-result.json",
+    "research/batches/discovery-2026-10-12/integration-wave4/check_queries.py",
+    "research/batches/discovery-2026-10-12/integration-wave4/code-under-test.json",
+    "research/batches/discovery-2026-10-12/integration-wave4/compare.log",
+    "research/batches/discovery-2026-10-12/integration-wave4/model-query-check.json",
+    "research/batches/discovery-2026-10-12/integration-wave4/promote.py",
+    "research/batches/discovery-2026-10-12/integration-wave4/refresh_exports.py",
+    "research/batches/discovery-2026-10-12/integration-wave4/stage-report.json",
+    "research/batches/discovery-2026-10-12/integration-wave4/stage.py",
+    "research/batches/discovery-2026-10-12/review/as8000-sc6100-facts-r2-review.md",
+    "research/batches/discovery-2026-10-12/review/as8000-sc6100-facts-review.md",
+    "research/batches/discovery-2026-10-12/review/curated-import-fix-review.md",
+    "research/batches/discovery-2026-10-12/review/shopping-js-tests.log",
+    "research/batches/discovery-2026-10-12/review/shopping-python-tests.log",
+    "research/batches/discovery-2026-10-12/review/shopping-query-fix-review.md",
+    "research/batches/discovery-2026-10-12/review/spec-continuation-facts-review.md",
+    "research/batches/discovery-2026-10-12/review/wave4-stage-helper-review.md",
+    "research/batches/discovery-2026-10-12/review/wave4-stage-review.md",
+    "scripts/compare_rebuild.py"
+  ],
+  "mandatory_count": 22,
+  "required_missing_but_pending": [],
+  "code_freeze_verified": 209,
+  "corrected_fresh_backup_pending_guard": true,
+  "dated_source_fact_options_match_query_checker": true,
+  "six_model_spec_counts": {
+    "Minipack-AS8000": 11,
+    "SC6100": 11,
+    "Inspur NF5170M4": 3,
+    "Inspur NF5180M4": 3,
+    "Inspur NF5270M4": 3,
+    "Inspur NF5488M5": 0
+  },
+  "six_model_origins": {
+    "Minipack-AS8000": [
+      "curated statement"
+    ],
+    "SC6100": [
+      "curated statement",
+      "source fact"
+    ],
+    "Inspur NF5170M4": [
+      "source fact"
+    ],
+    "Inspur NF5180M4": [
+      "source fact"
+    ],
+    "Inspur NF5270M4": [
+      "source fact"
+    ],
+    "Inspur NF5488M5": []
+  },
+  "candidate_sha256_unchanged": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "live_pair_unchanged": {
+    "devices.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+    "import-manifest.json": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec"
+  },
+  "limits": "Only completed stage/query results and helper code inspected. Rebuild/comparator outcomes intentionally not inspected while running; no helper, imports, suite or rebuild executed."
+}

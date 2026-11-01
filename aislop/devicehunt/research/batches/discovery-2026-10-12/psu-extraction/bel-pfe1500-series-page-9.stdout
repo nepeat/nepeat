@@ -1,0 +1,59 @@
+PFE1500 Series                                                                                                                                      9
+
+
+     The output power derating of V1 refers to Figure 7. The main output at high line will decrease if the ambient (inlet) temperature
+     increases beyond 45°C, and low line will decrease if the ambient (inlet) temperature increases beyond 40°C.
+
+
+
+
+                                                        Figure 7. Power derating curve with Vin and Ambient Temperature
+
+
+  Note:
+  1. The application of power supply should also refer to installation instructions document.
+  2. The power supply has no limitation on its output current/power in the respect of meeting the operating conditions shown by
+  the derating limits shown above. It is the responsibility of the end user to ensure operating conditions are maintained within their
+  safety agency certification limits to assure safe and reliable operation.
+
+
+     6.3.2 STANDBY OUTPUT
+     3.3 / 5 VSB
+     The standby output exhibits a substantially rectangular output characteristic down to 0 V (no hiccup mode / latch off). If it runs
+     in current limitation and its output voltage drops below the UV threshold, then the main output will be inhibited (standby remains
+     on). The current limitation of the standby output is independent of the AC input voltage.
+
+
+
+                                  5
+
+
+
+
+     Standby Output Voltage [V]
+                                  4
+
+
+                                  3
+
+
+                                  2
+                                          VSB=3.3V
+                                  1       VSB=5V
+
+                                  0
+                                      0    2               4              6        8
+                                               Standby Output Current [A]
+
+
+
+                                                       Figure 8. Current Limitation and Temperature Derating on 3.3 / 5 VSB
+
+
+
+
+                                                                                             Asia-Pacific     Europe, Middle East       North America
+                                                                                       +86 755 298 85888          +353 61 49 8941      +1 866 513 2839
+
+                                                                                                                © 2024 Bel Fuse Inc.      BCD.00733_J
+

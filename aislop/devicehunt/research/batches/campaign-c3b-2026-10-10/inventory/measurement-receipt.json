@@ -1,0 +1,30 @@
+{
+  "canonical_inventory_sha256": "26c4a484fd459980e1e100f287e4785afb6cdf6b1ec8d3cb17afed0cce06c656",
+  "capacity_recommendation": {
+    "free_space_floor_bytes": 2147483648,
+    "max_referenced_source_paths": 1121,
+    "max_source_jobs": 12,
+    "network_bytes": 0,
+    "network_requests": 0,
+    "new_metadata_and_candidates_bytes_cap": 67108864,
+    "new_source_bytes": 0
+  },
+  "filesystem": {
+    "free_bytes": 660749025280,
+    "total_bytes": 728006000640,
+    "used_bytes": 67256975360
+  },
+  "generated_inventory_definition_bytes": 1577047,
+  "inventory_file_sha256": "059a155715167580ce0819fb5527facfecd9d0d03fe6679a13644682dec5ab98",
+  "measured_at": "2026-10-10T10:02:39.280304+00:00",
+  "measurement_kind": "local registration/validation; not capture time",
+  "network_requests": 0,
+  "pilot_source_storage": {
+    "file_paths": 1121,
+    "logical_bytes_by_path": 7764220,
+    "source_copy_bytes_created": 0,
+    "unique_content_bytes": 7160749,
+    "unique_sha256": 1093
+  },
+  "source_allocated_bytes": 9765376
+}

@@ -1,0 +1,27 @@
+{
+  "candidate": "data/devices-candidate-discovery-2026-10-11-b.sqlite",
+  "candidate_manifest": "data/import-manifest-candidate-discovery-2026-10-11-b.json",
+  "counts": {
+    "devices": 5015,
+    "records": 6626,
+    "sources": 1477
+  },
+  "foreign_key_violations": 0,
+  "growth": {
+    "affiliations": 701,
+    "devices": 365,
+    "facts": 11853,
+    "identifiers": 730,
+    "records": 701,
+    "sources": 701
+  },
+  "imported": {
+    "raw/discovery-2026-10-11-netbox/netbox-devicetype-facts-2026-10-11.json": 33,
+    "raw/discovery-2026-10-11-redhat-cert/redhat-cert-facts-2026-10-11.json": 342,
+    "raw/discovery-2026-10-11-spec/spec-results-facts-2026-10-11.json": 237,
+    "raw/discovery-2026-10-11-ubuntu-cert/ubuntu-cert-facts-2026-10-11.json": 89
+  },
+  "integrity": "ok",
+  "live_sha256": "1cfd84cac2f3d23d3d59b4277665a0179932641cd8f06b1d6f4108fd0380ba0c",
+  "tables_with_lost_live_rows": {}
+}

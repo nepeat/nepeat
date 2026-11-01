@@ -1,0 +1,8 @@
+{
+  "command": "python3 -m unittest tests.test_listing_accessory_revisions tests.test_listings tests.test_listing_specifications tests.test_listing_software_refs",
+  "tests": 34,
+  "result": "OK",
+  "duration_seconds": 22.844,
+  "warnings": "ResourceWarning for unclosed SQLite connections in existing tests",
+  "live_smoke": "live-smoke.json"
+}

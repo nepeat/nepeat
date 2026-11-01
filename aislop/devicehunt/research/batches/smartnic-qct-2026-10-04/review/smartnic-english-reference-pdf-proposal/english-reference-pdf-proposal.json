@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "collection": "public-device-references-v1",
+  "documents": [
+    {
+      "id": "inventec-fpga-ipu-c5020x-en-brief-2021",
+      "pdf": {
+        "path": "inventec-fpga-ipu-c5020x-en-2021.pdf",
+        "sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311"
+      },
+      "text": {
+        "path": "inventec-fpga-ipu-c5020x-en-2021.pages.json",
+        "sha256": "a1c1134e07f858143d1ce4215109a76e9c391a9a98dad92e193ec1c9a09895ba"
+      },
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+      "title": "Inventec FPGA IPU C5020X English product brief 2021",
+      "category": "product brief",
+      "tier": "vendor",
+      "scope": "Exact printed FPGA IPU C5020X vendor brief; separate identity from FPGA SmartNIC C5020X. Matching C5020X token/specifications/photos do not establish an alias or the governing English version for Chinese SmartNIC brief. English page 2 last row literally reads TPM 75W; preserve without relabeling as TDP or interpreting TPM capability. No physical manufacture, factory, installed configuration, measured power, host compatibility, current support or firmware entitlement inferred.",
+      "page_count": 2
+    }
+  ]
+}

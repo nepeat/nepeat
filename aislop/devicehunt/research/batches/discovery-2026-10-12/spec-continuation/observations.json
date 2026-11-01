@@ -1,0 +1,4793 @@
+{
+  "status": "finite research observations only; no candidate or role decisions",
+  "observed_pages": [
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2015q4/jbb2015-20151123-00036.html",
+      "benchmark": "jbb2015",
+      "captured_at_utc": "2026-10-13T04:25:59.600499+00:00",
+      "body_path": "jbb2015/jbb2015-20151123-00036.html",
+      "capture_sha256": "1fdf11211162954d70d64056dba4d8d8808c0e9250e65d5fbd2e4b66472f6286",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5280M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2015q4/jbb2015-20151123-00036.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u60",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_60",
+        "result.metric.max-jOPS": "92616",
+        "result.metric.critical-jOPS": "27134"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "document_title": "SPECjbb2015 Report for jbb2015-20151123-00036  : 92616 max-jOPS ; 27134 critical-jOPS ",
+      "header_rows": [
+        {
+          "row_index_zero_based": 0,
+          "raw_cells_whitespace_normalized": [
+            "Inspur Corporation NF5280M4 (E5-2699 v3)",
+            "92616 SPECjbb2015-MultiJVM max-jOPS 27134 SPECjbb2015-MultiJVM critical-jOPS"
+          ]
+        },
+        {
+          "row_index_zero_based": 1,
+          "raw_cells_whitespace_normalized": [
+            "Tested by: Inspur Corporation",
+            "Test Sponsor: Inspur Corporation",
+            "Test location: Jinan, PRC",
+            "Test date: Nov 21, 2015"
+          ]
+        },
+        {
+          "row_index_zero_based": 2,
+          "raw_cells_whitespace_normalized": [
+            "SPEC license #: 3358",
+            "Hardware Availability: Sep-2014",
+            "Software Availability: Aug-2015",
+            "Publication: Dec 16, 2015"
+          ]
+        }
+      ],
+      "hardware_blocks": [
+        {
+          "section_as_printed": "Hardware hw_1",
+          "fields": [
+            {
+              "label_as_printed": "Name",
+              "value_as_printed_cell_text": "Inspur NF5280M4",
+              "locator": {
+                "table_row_index_zero_based": 22,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Name",
+                "Inspur NF5280M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Vendor",
+              "value_as_printed_cell_text": "Inspur Corporation",
+              "locator": {
+                "table_row_index_zero_based": 23,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Vendor",
+                "Inspur Corporation"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Available",
+              "value_as_printed_cell_text": "Dec-2014",
+              "locator": {
+                "table_row_index_zero_based": 25,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Available",
+                "Dec-2014"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Model",
+              "value_as_printed_cell_text": "Inspur NF5280M4",
+              "locator": {
+                "table_row_index_zero_based": 26,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Model",
+                "Inspur NF5280M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Form Factor",
+              "value_as_printed_cell_text": "2U",
+              "locator": {
+                "table_row_index_zero_based": 27,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Form Factor",
+                "2U"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Name",
+              "value_as_printed_cell_text": "Intel Xeon E5-2699 v3",
+              "locator": {
+                "table_row_index_zero_based": 28,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Name",
+                "Intel Xeon E5-2699 v3"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Characteristics",
+              "value_as_printed_cell_text": "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)",
+              "locator": {
+                "table_row_index_zero_based": 29,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Characteristics",
+                "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Number of Systems",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 30,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Number of Systems",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Nodes Per System",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 31,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Nodes Per System",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Chips Per System",
+              "value_as_printed_cell_text": "2",
+              "locator": {
+                "table_row_index_zero_based": 32,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Chips Per System",
+                "2"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per System",
+              "value_as_printed_cell_text": "36",
+              "locator": {
+                "table_row_index_zero_based": 33,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per System",
+                "36"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per Chip",
+              "value_as_printed_cell_text": "18",
+              "locator": {
+                "table_row_index_zero_based": 34,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per Chip",
+                "18"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Threads Per System",
+              "value_as_printed_cell_text": "72",
+              "locator": {
+                "table_row_index_zero_based": 35,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Threads Per System",
+                "72"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Frequency (MHz)",
+              "value_as_printed_cell_text": "2300",
+              "locator": {
+                "table_row_index_zero_based": 38,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Frequency (MHz)",
+                "2300"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Amount (GB)",
+              "value_as_printed_cell_text": "256",
+              "locator": {
+                "table_row_index_zero_based": 45,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Amount (GB)",
+                "256"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "# and size of DIMM(s)",
+              "value_as_printed_cell_text": "16 x 16GB",
+              "locator": {
+                "table_row_index_zero_based": 46,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "# and size of DIMM(s)",
+                "16 x 16GB"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Details",
+              "value_as_printed_cell_text": "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)",
+              "locator": {
+                "table_row_index_zero_based": 47,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Details",
+                "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Power Supply Quantity and Rating (W)",
+              "value_as_printed_cell_text": "1 x 550W",
+              "locator": {
+                "table_row_index_zero_based": 49,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Power Supply Quantity and Rating (W)",
+                "1 x 550W"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cabinet/Housing/Enclosure",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 51,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cabinet/Housing/Enclosure",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Description",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 52,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Description",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Comment",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 53,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Comment",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            }
+          ]
+        }
+      ],
+      "text_method": "Saved stdlib HTML cell parser; cell whitespace normalized only, raw HTML unchanged.",
+      "block_boundary": "Every found Hardware hw_N block retained separately; hw_2 fields never assigned to hw_1.",
+      "benchmark_metrics_boundary": "Header max-jOPS/critical-jOPS are benchmark throughput for the printed mode, not hardware specifications; modes are not cross-comparable."
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q1/jbb2015-20160118-00041.html",
+      "benchmark": "jbb2015",
+      "captured_at_utc": "2026-10-13T04:26:09.972807+00:00",
+      "body_path": "jbb2015/jbb2015-20160118-00041.html",
+      "capture_sha256": "05d789cc4565f35e4bcb498924eee2780604c8ca5b4493fd834d4763dd220548",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5280M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q1/jbb2015-20160118-00041.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u60",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_60",
+        "result.metric.max-jOPS": "98333",
+        "result.metric.critical-jOPS": "29009"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "document_title": "SPECjbb2015 Report for jbb2015-20160118-00041  : 98333 max-jOPS ; 29009 critical-jOPS ",
+      "header_rows": [
+        {
+          "row_index_zero_based": 0,
+          "raw_cells_whitespace_normalized": [
+            "Inspur Corporation Inspur NF5280M4",
+            "98333 SPECjbb2015-MultiJVM max-jOPS 29009 SPECjbb2015-MultiJVM critical-jOPS"
+          ]
+        },
+        {
+          "row_index_zero_based": 1,
+          "raw_cells_whitespace_normalized": [
+            "Tested by: Inspur Corporation",
+            "Test Sponsor: Inspur Corporation",
+            "Test location: Jinan, PRC",
+            "Test date: Jan 13, 2016"
+          ]
+        },
+        {
+          "row_index_zero_based": 2,
+          "raw_cells_whitespace_normalized": [
+            "SPEC license #: 3358",
+            "Hardware Availability: Sep-2014",
+            "Software Availability: Aug-2015",
+            "Publication: Feb 03, 2016"
+          ]
+        }
+      ],
+      "hardware_blocks": [
+        {
+          "section_as_printed": "Hardware hw_1",
+          "fields": [
+            {
+              "label_as_printed": "Name",
+              "value_as_printed_cell_text": "Inspur NF5280M4",
+              "locator": {
+                "table_row_index_zero_based": 22,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Name",
+                "Inspur NF5280M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Vendor",
+              "value_as_printed_cell_text": "Inspur Corporation",
+              "locator": {
+                "table_row_index_zero_based": 23,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Vendor",
+                "Inspur Corporation"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Available",
+              "value_as_printed_cell_text": "Dec-2014",
+              "locator": {
+                "table_row_index_zero_based": 25,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Available",
+                "Dec-2014"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Model",
+              "value_as_printed_cell_text": "Inspur NF5280M4",
+              "locator": {
+                "table_row_index_zero_based": 26,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Model",
+                "Inspur NF5280M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Form Factor",
+              "value_as_printed_cell_text": "2U",
+              "locator": {
+                "table_row_index_zero_based": 27,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Form Factor",
+                "2U"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Name",
+              "value_as_printed_cell_text": "Intel Xeon E5-2699 v3",
+              "locator": {
+                "table_row_index_zero_based": 28,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Name",
+                "Intel Xeon E5-2699 v3"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Characteristics",
+              "value_as_printed_cell_text": "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)",
+              "locator": {
+                "table_row_index_zero_based": 29,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Characteristics",
+                "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Number of Systems",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 30,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Number of Systems",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Nodes Per System",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 31,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Nodes Per System",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Chips Per System",
+              "value_as_printed_cell_text": "2",
+              "locator": {
+                "table_row_index_zero_based": 32,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Chips Per System",
+                "2"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per System",
+              "value_as_printed_cell_text": "36",
+              "locator": {
+                "table_row_index_zero_based": 33,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per System",
+                "36"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per Chip",
+              "value_as_printed_cell_text": "18",
+              "locator": {
+                "table_row_index_zero_based": 34,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per Chip",
+                "18"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Threads Per System",
+              "value_as_printed_cell_text": "72",
+              "locator": {
+                "table_row_index_zero_based": 35,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Threads Per System",
+                "72"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Frequency (MHz)",
+              "value_as_printed_cell_text": "2300",
+              "locator": {
+                "table_row_index_zero_based": 38,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Frequency (MHz)",
+                "2300"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Amount (GB)",
+              "value_as_printed_cell_text": "256",
+              "locator": {
+                "table_row_index_zero_based": 45,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Amount (GB)",
+                "256"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "# and size of DIMM(s)",
+              "value_as_printed_cell_text": "16 x 16GB",
+              "locator": {
+                "table_row_index_zero_based": 46,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "# and size of DIMM(s)",
+                "16 x 16GB"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Details",
+              "value_as_printed_cell_text": "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)",
+              "locator": {
+                "table_row_index_zero_based": 47,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Details",
+                "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Power Supply Quantity and Rating (W)",
+              "value_as_printed_cell_text": "1 x 550W",
+              "locator": {
+                "table_row_index_zero_based": 49,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Power Supply Quantity and Rating (W)",
+                "1 x 550W"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cabinet/Housing/Enclosure",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 51,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cabinet/Housing/Enclosure",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Description",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 52,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Description",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Comment",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 53,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Comment",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            }
+          ]
+        }
+      ],
+      "text_method": "Saved stdlib HTML cell parser; cell whitespace normalized only, raw HTML unchanged.",
+      "block_boundary": "Every found Hardware hw_N block retained separately; hw_2 fields never assigned to hw_1.",
+      "benchmark_metrics_boundary": "Header max-jOPS/critical-jOPS are benchmark throughput for the printed mode, not hardware specifications; modes are not cross-comparable."
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00065.html",
+      "benchmark": "jbb2015",
+      "captured_at_utc": "2026-10-13T04:26:20.340118+00:00",
+      "body_path": "jbb2015/jbb2015-20160321-00065.html",
+      "capture_sha256": "5d1f3b2c7c131511f7b88681f17da4cd2c313cee637db43dff5f08ecd94785f5",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5180M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160321-00065.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u74",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_74",
+        "result.metric.max-jOPS": "98145",
+        "result.metric.critical-jOPS": "28591"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "document_title": "SPECjbb2015 Report for jbb2015-20160321-00065  : 98145 max-jOPS ; 28591 critical-jOPS ",
+      "header_rows": [
+        {
+          "row_index_zero_based": 0,
+          "raw_cells_whitespace_normalized": [
+            "Inspur Corporation Inspur NF5180M4",
+            "98145 SPECjbb2015-MultiJVM max-jOPS 28591 SPECjbb2015-MultiJVM critical-jOPS"
+          ]
+        },
+        {
+          "row_index_zero_based": 1,
+          "raw_cells_whitespace_normalized": [
+            "Tested by: Inspur Corporation",
+            "Test Sponsor: Inspur Corporation",
+            "Test location: Jinan, PRC",
+            "Test date: Mar 14, 2016"
+          ]
+        },
+        {
+          "row_index_zero_based": 2,
+          "raw_cells_whitespace_normalized": [
+            "SPEC license #: 3358",
+            "Hardware Availability: Dec-2014",
+            "Software Availability: Feb-2016",
+            "Publication: Apr 13, 2016"
+          ]
+        }
+      ],
+      "hardware_blocks": [
+        {
+          "section_as_printed": "Hardware hw_1",
+          "fields": [
+            {
+              "label_as_printed": "Name",
+              "value_as_printed_cell_text": "Inspur NF5180M4",
+              "locator": {
+                "table_row_index_zero_based": 22,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Name",
+                "Inspur NF5180M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Vendor",
+              "value_as_printed_cell_text": "Inspur Corporation",
+              "locator": {
+                "table_row_index_zero_based": 23,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Vendor",
+                "Inspur Corporation"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Available",
+              "value_as_printed_cell_text": "Dec-2014",
+              "locator": {
+                "table_row_index_zero_based": 25,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Available",
+                "Dec-2014"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Model",
+              "value_as_printed_cell_text": "Inspur NF5180M4",
+              "locator": {
+                "table_row_index_zero_based": 26,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Model",
+                "Inspur NF5180M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Form Factor",
+              "value_as_printed_cell_text": "1U",
+              "locator": {
+                "table_row_index_zero_based": 27,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Form Factor",
+                "1U"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Name",
+              "value_as_printed_cell_text": "Intel Xeon E5-2699 v3",
+              "locator": {
+                "table_row_index_zero_based": 28,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Name",
+                "Intel Xeon E5-2699 v3"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Characteristics",
+              "value_as_printed_cell_text": "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)",
+              "locator": {
+                "table_row_index_zero_based": 29,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Characteristics",
+                "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Number of Systems",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 30,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Number of Systems",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Nodes Per System",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 31,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Nodes Per System",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Chips Per System",
+              "value_as_printed_cell_text": "2",
+              "locator": {
+                "table_row_index_zero_based": 32,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Chips Per System",
+                "2"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per System",
+              "value_as_printed_cell_text": "36",
+              "locator": {
+                "table_row_index_zero_based": 33,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per System",
+                "36"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per Chip",
+              "value_as_printed_cell_text": "18",
+              "locator": {
+                "table_row_index_zero_based": 34,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per Chip",
+                "18"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Threads Per System",
+              "value_as_printed_cell_text": "72",
+              "locator": {
+                "table_row_index_zero_based": 35,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Threads Per System",
+                "72"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Frequency (MHz)",
+              "value_as_printed_cell_text": "2300",
+              "locator": {
+                "table_row_index_zero_based": 38,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Frequency (MHz)",
+                "2300"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Amount (GB)",
+              "value_as_printed_cell_text": "256",
+              "locator": {
+                "table_row_index_zero_based": 45,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Amount (GB)",
+                "256"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "# and size of DIMM(s)",
+              "value_as_printed_cell_text": "16 x 16GB",
+              "locator": {
+                "table_row_index_zero_based": 46,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "# and size of DIMM(s)",
+                "16 x 16GB"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Details",
+              "value_as_printed_cell_text": "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)",
+              "locator": {
+                "table_row_index_zero_based": 47,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Details",
+                "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Power Supply Quantity and Rating (W)",
+              "value_as_printed_cell_text": "1 x 550W",
+              "locator": {
+                "table_row_index_zero_based": 49,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Power Supply Quantity and Rating (W)",
+                "1 x 550W"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cabinet/Housing/Enclosure",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 51,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cabinet/Housing/Enclosure",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Description",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 52,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Description",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Comment",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 53,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Comment",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            }
+          ]
+        }
+      ],
+      "text_method": "Saved stdlib HTML cell parser; cell whitespace normalized only, raw HTML unchanged.",
+      "block_boundary": "Every found Hardware hw_N block retained separately; hw_2 fields never assigned to hw_1.",
+      "benchmark_metrics_boundary": "Header max-jOPS/critical-jOPS are benchmark throughput for the printed mode, not hardware specifications; modes are not cross-comparable."
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00066.html",
+      "benchmark": "jbb2015",
+      "captured_at_utc": "2026-10-13T04:26:30.712377+00:00",
+      "body_path": "jbb2015/jbb2015-20160321-00066.html",
+      "capture_sha256": "4db0fbc588f18529a6af95460f0a40d5855cc42114d9b3ce2f3262d5b6a5be5c",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5270M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160321-00066.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u74",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_74",
+        "result.metric.max-jOPS": "97551",
+        "result.metric.critical-jOPS": "28206"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "document_title": "SPECjbb2015 Report for jbb2015-20160321-00066  : 97551 max-jOPS ; 28206 critical-jOPS ",
+      "header_rows": [
+        {
+          "row_index_zero_based": 0,
+          "raw_cells_whitespace_normalized": [
+            "Inspur Corporation Inspur NF5270M4",
+            "97551 SPECjbb2015-MultiJVM max-jOPS 28206 SPECjbb2015-MultiJVM critical-jOPS"
+          ]
+        },
+        {
+          "row_index_zero_based": 1,
+          "raw_cells_whitespace_normalized": [
+            "Tested by: Inspur Corporation",
+            "Test Sponsor: Inspur Corporation",
+            "Test location: Jinan, PRC",
+            "Test date: Mar 15, 2016"
+          ]
+        },
+        {
+          "row_index_zero_based": 2,
+          "raw_cells_whitespace_normalized": [
+            "SPEC license #: 3358",
+            "Hardware Availability: Dec-2014",
+            "Software Availability: Feb-2016",
+            "Publication: Apr 13, 2016"
+          ]
+        }
+      ],
+      "hardware_blocks": [
+        {
+          "section_as_printed": "Hardware hw_1",
+          "fields": [
+            {
+              "label_as_printed": "Name",
+              "value_as_printed_cell_text": "Inspur NF5270M4",
+              "locator": {
+                "table_row_index_zero_based": 22,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Name",
+                "Inspur NF5270M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Vendor",
+              "value_as_printed_cell_text": "Inspur Corporation",
+              "locator": {
+                "table_row_index_zero_based": 23,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Vendor",
+                "Inspur Corporation"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Available",
+              "value_as_printed_cell_text": "Dec-2014",
+              "locator": {
+                "table_row_index_zero_based": 25,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Available",
+                "Dec-2014"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Model",
+              "value_as_printed_cell_text": "Inspur NF5270M4",
+              "locator": {
+                "table_row_index_zero_based": 26,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Model",
+                "Inspur NF5270M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Form Factor",
+              "value_as_printed_cell_text": "2U",
+              "locator": {
+                "table_row_index_zero_based": 27,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Form Factor",
+                "2U"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Name",
+              "value_as_printed_cell_text": "Intel Xeon E5-2699 v3",
+              "locator": {
+                "table_row_index_zero_based": 28,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Name",
+                "Intel Xeon E5-2699 v3"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Characteristics",
+              "value_as_printed_cell_text": "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)",
+              "locator": {
+                "table_row_index_zero_based": 29,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Characteristics",
+                "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Number of Systems",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 30,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Number of Systems",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Nodes Per System",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 31,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Nodes Per System",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Chips Per System",
+              "value_as_printed_cell_text": "2",
+              "locator": {
+                "table_row_index_zero_based": 32,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Chips Per System",
+                "2"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per System",
+              "value_as_printed_cell_text": "36",
+              "locator": {
+                "table_row_index_zero_based": 33,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per System",
+                "36"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per Chip",
+              "value_as_printed_cell_text": "18",
+              "locator": {
+                "table_row_index_zero_based": 34,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per Chip",
+                "18"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Threads Per System",
+              "value_as_printed_cell_text": "72",
+              "locator": {
+                "table_row_index_zero_based": 35,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Threads Per System",
+                "72"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Frequency (MHz)",
+              "value_as_printed_cell_text": "2300",
+              "locator": {
+                "table_row_index_zero_based": 38,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Frequency (MHz)",
+                "2300"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Amount (GB)",
+              "value_as_printed_cell_text": "256",
+              "locator": {
+                "table_row_index_zero_based": 45,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Amount (GB)",
+                "256"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "# and size of DIMM(s)",
+              "value_as_printed_cell_text": "16 x 16GB",
+              "locator": {
+                "table_row_index_zero_based": 46,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "# and size of DIMM(s)",
+                "16 x 16GB"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Details",
+              "value_as_printed_cell_text": "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)",
+              "locator": {
+                "table_row_index_zero_based": 47,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Details",
+                "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Power Supply Quantity and Rating (W)",
+              "value_as_printed_cell_text": "1 x 550W",
+              "locator": {
+                "table_row_index_zero_based": 49,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Power Supply Quantity and Rating (W)",
+                "1 x 550W"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cabinet/Housing/Enclosure",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 51,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cabinet/Housing/Enclosure",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Description",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 52,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Description",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Comment",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 53,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Comment",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            }
+          ]
+        }
+      ],
+      "text_method": "Saved stdlib HTML cell parser; cell whitespace normalized only, raw HTML unchanged.",
+      "block_boundary": "Every found Hardware hw_N block retained separately; hw_2 fields never assigned to hw_1.",
+      "benchmark_metrics_boundary": "Header max-jOPS/critical-jOPS are benchmark throughput for the printed mode, not hardware specifications; modes are not cross-comparable."
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00067.html",
+      "benchmark": "jbb2015",
+      "captured_at_utc": "2026-10-13T04:26:41.107596+00:00",
+      "body_path": "jbb2015/jbb2015-20160321-00067.html",
+      "capture_sha256": "a15d9689775057ffce652aa029d41a1992106487ed357d7a98d4cbd8b3fe3ebc",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur NF5170M4",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160321-00067.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u74",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_74",
+        "result.metric.max-jOPS": "97543",
+        "result.metric.critical-jOPS": "28535"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "document_title": "SPECjbb2015 Report for jbb2015-20160321-00067  : 97543 max-jOPS ; 28535 critical-jOPS ",
+      "header_rows": [
+        {
+          "row_index_zero_based": 0,
+          "raw_cells_whitespace_normalized": [
+            "Inspur Corporation Inspur NF5170M4",
+            "97543 SPECjbb2015-MultiJVM max-jOPS 28535 SPECjbb2015-MultiJVM critical-jOPS"
+          ]
+        },
+        {
+          "row_index_zero_based": 1,
+          "raw_cells_whitespace_normalized": [
+            "Tested by: Inspur Corporation",
+            "Test Sponsor: Inspur Corporation",
+            "Test location: Jinan, PRC",
+            "Test date: Mar 17, 2016"
+          ]
+        },
+        {
+          "row_index_zero_based": 2,
+          "raw_cells_whitespace_normalized": [
+            "SPEC license #: 3358",
+            "Hardware Availability: Dec-2014",
+            "Software Availability: Feb-2016",
+            "Publication: Apr 13, 2016"
+          ]
+        }
+      ],
+      "hardware_blocks": [
+        {
+          "section_as_printed": "Hardware hw_1",
+          "fields": [
+            {
+              "label_as_printed": "Name",
+              "value_as_printed_cell_text": "Inspur NF5170M4",
+              "locator": {
+                "table_row_index_zero_based": 22,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Name",
+                "Inspur NF5170M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Vendor",
+              "value_as_printed_cell_text": "Inspur Corporation",
+              "locator": {
+                "table_row_index_zero_based": 23,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Vendor",
+                "Inspur Corporation"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Available",
+              "value_as_printed_cell_text": "Dec-2014",
+              "locator": {
+                "table_row_index_zero_based": 25,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Available",
+                "Dec-2014"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Model",
+              "value_as_printed_cell_text": "Inspur NF5170M4",
+              "locator": {
+                "table_row_index_zero_based": 26,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Model",
+                "Inspur NF5170M4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Form Factor",
+              "value_as_printed_cell_text": "1U",
+              "locator": {
+                "table_row_index_zero_based": 27,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Form Factor",
+                "1U"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Name",
+              "value_as_printed_cell_text": "Intel Xeon E5-2699 v3",
+              "locator": {
+                "table_row_index_zero_based": 28,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Name",
+                "Intel Xeon E5-2699 v3"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Characteristics",
+              "value_as_printed_cell_text": "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)",
+              "locator": {
+                "table_row_index_zero_based": 29,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Characteristics",
+                "18-Core, 2.30GHz (Turbo Boost Technology up to 3.60 GHz)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Number of Systems",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 30,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Number of Systems",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Nodes Per System",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 31,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Nodes Per System",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Chips Per System",
+              "value_as_printed_cell_text": "2",
+              "locator": {
+                "table_row_index_zero_based": 32,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Chips Per System",
+                "2"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per System",
+              "value_as_printed_cell_text": "36",
+              "locator": {
+                "table_row_index_zero_based": 33,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per System",
+                "36"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per Chip",
+              "value_as_printed_cell_text": "18",
+              "locator": {
+                "table_row_index_zero_based": 34,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per Chip",
+                "18"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Threads Per System",
+              "value_as_printed_cell_text": "72",
+              "locator": {
+                "table_row_index_zero_based": 35,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Threads Per System",
+                "72"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Frequency (MHz)",
+              "value_as_printed_cell_text": "2300",
+              "locator": {
+                "table_row_index_zero_based": 38,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Frequency (MHz)",
+                "2300"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Amount (GB)",
+              "value_as_printed_cell_text": "256",
+              "locator": {
+                "table_row_index_zero_based": 45,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Amount (GB)",
+                "256"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "# and size of DIMM(s)",
+              "value_as_printed_cell_text": "16 x 16GB",
+              "locator": {
+                "table_row_index_zero_based": 46,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "# and size of DIMM(s)",
+                "16 x 16GB"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Details",
+              "value_as_printed_cell_text": "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)",
+              "locator": {
+                "table_row_index_zero_based": 47,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Details",
+                "256 GB (16 x 16 GB 2Rx4 PC4-2133P-R)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Power Supply Quantity and Rating (W)",
+              "value_as_printed_cell_text": "1 x 550W",
+              "locator": {
+                "table_row_index_zero_based": 49,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Power Supply Quantity and Rating (W)",
+                "1 x 550W"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cabinet/Housing/Enclosure",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 51,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cabinet/Housing/Enclosure",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Description",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 52,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Description",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Comment",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 53,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Comment",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            }
+          ]
+        }
+      ],
+      "text_method": "Saved stdlib HTML cell parser; cell whitespace normalized only, raw HTML unchanged.",
+      "block_boundary": "Every found Hardware hw_N block retained separately; hw_2 fields never assigned to hw_1.",
+      "benchmark_metrics_boundary": "Header max-jOPS/critical-jOPS are benchmark throughput for the printed mode, not hardware specifications; modes are not cross-comparable."
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160516-00095.html",
+      "benchmark": "jbb2015",
+      "captured_at_utc": "2026-10-13T04:26:51.523573+00:00",
+      "body_path": "jbb2015/jbb2015-20160516-00095.html",
+      "capture_sha256": "6055a6bf577154a73ca1cb80bc3d4cdd051001232ef4f2fe7776300b8ab7b8b8",
+      "saved_index_row": {
+        "test.testedBy": "Inspur Corporation",
+        "product.SUT.hw.system.hw_1.name": "Inspur TS860G3",
+        "_links": {
+          "HTML": "/jbb2015/results/res2016q2/jbb2015-20160516-00095.html"
+        },
+        "_date": "",
+        "product.SUT.sw.jvm.jvm_1.name": "Oracle Java SE 8u91",
+        "product.SUT.sw.jvm.jvm_1.version": "Java HotSpot 64-bit Server VM, version 1.8.0_91",
+        "result.metric.max-jOPS": "397601",
+        "result.metric.critical-jOPS": "124466"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "document_title": "SPECjbb2015 Report for jbb2015-20160516-00095  : 397601 max-jOPS ; 124466 critical-jOPS ",
+      "header_rows": [
+        {
+          "row_index_zero_based": 0,
+          "raw_cells_whitespace_normalized": [
+            "Inspur Corporation Inspur TS860G3",
+            "397601 SPECjbb2015-MultiJVM max-jOPS 124466 SPECjbb2015-MultiJVM critical-jOPS"
+          ]
+        },
+        {
+          "row_index_zero_based": 1,
+          "raw_cells_whitespace_normalized": [
+            "Tested by: Inspur Corporation",
+            "Test Sponsor: Inspur Corporation",
+            "Test location: Beijing, PRC",
+            "Test date: May 16, 2016"
+          ]
+        },
+        {
+          "row_index_zero_based": 2,
+          "raw_cells_whitespace_normalized": [
+            "SPEC license #: 3358",
+            "Hardware Availability: Jun-2016",
+            "Software Availability: Apr-2016",
+            "Publication: Jun 13, 2016"
+          ]
+        }
+      ],
+      "hardware_blocks": [
+        {
+          "section_as_printed": "Hardware hw_1",
+          "fields": [
+            {
+              "label_as_printed": "Name",
+              "value_as_printed_cell_text": "Inspur TS860G3",
+              "locator": {
+                "table_row_index_zero_based": 22,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Name",
+                "Inspur TS860G3"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Vendor",
+              "value_as_printed_cell_text": "Inspur Corporation",
+              "locator": {
+                "table_row_index_zero_based": 23,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Vendor",
+                "Inspur Corporation"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Available",
+              "value_as_printed_cell_text": "Jun-2016",
+              "locator": {
+                "table_row_index_zero_based": 25,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Available",
+                "Jun-2016"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Model",
+              "value_as_printed_cell_text": "Inspur TS860G3",
+              "locator": {
+                "table_row_index_zero_based": 26,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Model",
+                "Inspur TS860G3"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Form Factor",
+              "value_as_printed_cell_text": "8U",
+              "locator": {
+                "table_row_index_zero_based": 27,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Form Factor",
+                "8U"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Name",
+              "value_as_printed_cell_text": "Intel Xeon E7-8890 v4",
+              "locator": {
+                "table_row_index_zero_based": 28,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Name",
+                "Intel Xeon E7-8890 v4"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Characteristics",
+              "value_as_printed_cell_text": "24-Core, 2.20GHz , 60MB L3 Cache(Turbo Boost Technology up to 3.40 GHz)",
+              "locator": {
+                "table_row_index_zero_based": 29,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Characteristics",
+                "24-Core, 2.20GHz , 60MB L3 Cache(Turbo Boost Technology up to 3.40 GHz)"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Number of Systems",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 30,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Number of Systems",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Nodes Per System",
+              "value_as_printed_cell_text": "1",
+              "locator": {
+                "table_row_index_zero_based": 31,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Nodes Per System",
+                "1"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Chips Per System",
+              "value_as_printed_cell_text": "8",
+              "locator": {
+                "table_row_index_zero_based": 32,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Chips Per System",
+                "8"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per System",
+              "value_as_printed_cell_text": "192",
+              "locator": {
+                "table_row_index_zero_based": 33,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per System",
+                "192"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cores Per Chip",
+              "value_as_printed_cell_text": "24",
+              "locator": {
+                "table_row_index_zero_based": 34,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cores Per Chip",
+                "24"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Threads Per System",
+              "value_as_printed_cell_text": "384",
+              "locator": {
+                "table_row_index_zero_based": 35,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Threads Per System",
+                "384"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "CPU Frequency (MHz)",
+              "value_as_printed_cell_text": "2200",
+              "locator": {
+                "table_row_index_zero_based": 38,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "CPU Frequency (MHz)",
+                "2200"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Amount (GB)",
+              "value_as_printed_cell_text": "2048",
+              "locator": {
+                "table_row_index_zero_based": 45,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Amount (GB)",
+                "2048"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "# and size of DIMM(s)",
+              "value_as_printed_cell_text": "128 x 16GB",
+              "locator": {
+                "table_row_index_zero_based": 46,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "# and size of DIMM(s)",
+                "128 x 16GB"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Memory Details",
+              "value_as_printed_cell_text": "2048 GB (128 x 16 GB 2Rx4 PC4-2133P-R), running at 1600 MHz",
+              "locator": {
+                "table_row_index_zero_based": 47,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Memory Details",
+                "2048 GB (128 x 16 GB 2Rx4 PC4-2133P-R), running at 1600 MHz"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Power Supply Quantity and Rating (W)",
+              "value_as_printed_cell_text": "4 x 2000W",
+              "locator": {
+                "table_row_index_zero_based": 49,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Power Supply Quantity and Rating (W)",
+                "4 x 2000W"
+              ],
+              "literal_None_means_source_omission": false
+            },
+            {
+              "label_as_printed": "Cabinet/Housing/Enclosure",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 51,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Cabinet/Housing/Enclosure",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Description",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 52,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Description",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            },
+            {
+              "label_as_printed": "Shared Comment",
+              "value_as_printed_cell_text": "None",
+              "locator": {
+                "table_row_index_zero_based": 53,
+                "section": "Hardware hw_1"
+              },
+              "raw_cell_row": [
+                "Shared Comment",
+                "None"
+              ],
+              "literal_None_means_source_omission": true
+            }
+          ]
+        }
+      ],
+      "text_method": "Saved stdlib HTML cell parser; cell whitespace normalized only, raw HTML unchanged.",
+      "block_boundary": "Every found Hardware hw_N block retained separately; hw_2 fields never assigned to hw_1.",
+      "benchmark_metrics_boundary": "Header max-jOPS/critical-jOPS are benchmark throughput for the printed mode, not hardware specifications; modes are not cross-comparable."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31246.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:27:01.885294+00:00",
+      "body_path": "cpu2017/cpu2017-20220325-31246.txt",
+      "capture_sha256": "00b367fd47cd240412e94eb6cdeb297b50b54c889e072f08ff89b8ab09a05e2e",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8480M6 (Intel Xeon Platinum 8376H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.html",
+          "CSV": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.csv",
+          "Text": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.txt",
+          "PDF": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.pdf",
+          "PS": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.ps",
+          "Config": "/cpu2017/results/res2022q2/cpu2017-20220325-31246.cfg"
+        },
+        "_date": "",
+        "base_copies": "224",
+        "hw_ncores": "112",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "784",
+        "peakmean": "813",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                               SPEC CPU(R)2017 Integer Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                  Inspur Corporation Inspur NF8480M6 (Intel Xeon Platinum 8376H)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Mar-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Sep-2020"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Platinum 8376H"
+              ],
+              "lines_1based": [
+                58
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Platinum 8376H"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "4300"
+              ],
+              "lines_1based": [
+                59
+              ],
+              "raw_lines": [
+                "             Max MHz: 4300"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2600"
+              ],
+              "lines_1based": [
+                60
+              ],
+              "raw_lines": [
+                "             Nominal: 2600"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "112 cores, 4 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                61
+              ],
+              "raw_lines": [
+                "             Enabled: 112 cores, 4 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "2,4 chips"
+              ],
+              "lines_1based": [
+                62
+              ],
+              "raw_lines": [
+                "           Orderable: 2,4 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                63
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                64
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "38.5 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                65
+              ],
+              "raw_lines": [
+                "                  L3: 38.5 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                66
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ],
+              "lines_1based": [
+                67
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 2 TB NVME SSD"
+              ],
+              "lines_1based": [
+                68
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 2 TB NVME SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                69
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 56,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Platinum 8376H",
+            "             Max MHz: 4300",
+            "             Nominal: 2600",
+            "             Enabled: 112 cores, 4 chips, 2 threads/core",
+            "           Orderable: 2,4 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 38.5 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)",
+            "             Storage: 1 x 2 TB NVME SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31244.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:27:12.242567+00:00",
+      "body_path": "cpu2017/cpu2017-20220325-31244.txt",
+      "capture_sha256": "032cf03841493c88ca33a345aa7b4140e0a226cdb856b816cc765503f9409b83",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M6 (Intel Xeon Platinum 8376H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.html",
+          "CSV": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.csv",
+          "Text": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.txt",
+          "PDF": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.pdf",
+          "PS": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.ps",
+          "Config": "/cpu2017/results/res2022q2/cpu2017-20220325-31244.cfg"
+        },
+        "_date": "",
+        "base_copies": "224",
+        "hw_ncores": "112",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "659",
+        "peakmean": "699",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                            SPEC CPU(R)2017 Floating Point Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                  Inspur Corporation Inspur NF8260M6 (Intel Xeon Platinum 8376H)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Mar-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Sep-2020"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Platinum 8376H"
+              ],
+              "lines_1based": [
+                70
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Platinum 8376H"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "4300"
+              ],
+              "lines_1based": [
+                71
+              ],
+              "raw_lines": [
+                "             Max MHz: 4300"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2600"
+              ],
+              "lines_1based": [
+                72
+              ],
+              "raw_lines": [
+                "             Nominal: 2600"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "112 cores, 4 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                73
+              ],
+              "raw_lines": [
+                "             Enabled: 112 cores, 4 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "2,4 chips"
+              ],
+              "lines_1based": [
+                74
+              ],
+              "raw_lines": [
+                "           Orderable: 2,4 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                75
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                76
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "38.5 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                77
+              ],
+              "raw_lines": [
+                "                  L3: 38.5 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                78
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ],
+              "lines_1based": [
+                79
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 2 TB NVME SSD"
+              ],
+              "lines_1based": [
+                80
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 2 TB NVME SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                81
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 68,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Platinum 8376H",
+            "             Max MHz: 4300",
+            "             Nominal: 2600",
+            "             Enabled: 112 cores, 4 chips, 2 threads/core",
+            "           Orderable: 2,4 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 38.5 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)",
+            "             Storage: 1 x 2 TB NVME SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q2/cpu2017-20220325-31242.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:27:22.600587+00:00",
+      "body_path": "cpu2017/cpu2017-20220325-31242.txt",
+      "capture_sha256": "ddfcfc75d57921197bc93266a025a51c3854a06bb570a3b49982580e0baff941",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M6 (Intel Xeon Platinum 8360H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.html",
+          "CSV": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.csv",
+          "Text": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.txt",
+          "PDF": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.pdf",
+          "PS": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.ps",
+          "Config": "/cpu2017/results/res2022q2/cpu2017-20220325-31242.cfg"
+        },
+        "_date": "",
+        "base_copies": "192",
+        "hw_ncores": "96",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "708",
+        "peakmean": "734",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                               SPEC CPU(R)2017 Integer Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                  Inspur Corporation Inspur NF8260M6 (Intel Xeon Platinum 8360H)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Mar-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Sep-2020"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Platinum 8360H"
+              ],
+              "lines_1based": [
+                58
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Platinum 8360H"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "4200"
+              ],
+              "lines_1based": [
+                59
+              ],
+              "raw_lines": [
+                "             Max MHz: 4200"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "3000"
+              ],
+              "lines_1based": [
+                60
+              ],
+              "raw_lines": [
+                "             Nominal: 3000"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "96 cores, 4 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                61
+              ],
+              "raw_lines": [
+                "             Enabled: 96 cores, 4 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "2,4 chips"
+              ],
+              "lines_1based": [
+                62
+              ],
+              "raw_lines": [
+                "           Orderable: 2,4 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                63
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                64
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "33 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                65
+              ],
+              "raw_lines": [
+                "                  L3: 33 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                66
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ],
+              "lines_1based": [
+                67
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 2 TB NVME SSD"
+              ],
+              "lines_1based": [
+                68
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 2 TB NVME SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                69
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 56,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Platinum 8360H",
+            "             Max MHz: 4200",
+            "             Nominal: 3000",
+            "             Enabled: 96 cores, 4 chips, 2 threads/core",
+            "           Orderable: 2,4 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 33 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)",
+            "             Storage: 1 x 2 TB NVME SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220311-31155.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:27:32.965476+00:00",
+      "body_path": "cpu2017/cpu2017-20220311-31155.txt",
+      "capture_sha256": "6dfc129904136f1350f1bb8f2142073a497bbe9ae10450ad126b844cfb659e86",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur I24M6 (Intel Xeon Gold 6330N)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220311-31155.cfg"
+        },
+        "_date": "",
+        "base_copies": "112",
+        "hw_ncores": "56",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "2",
+        "basemean": "322",
+        "peakmean": "336",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                            SPEC CPU(R)2017 Floating Point Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                     Inspur Corporation Inspur I24M6 (Intel Xeon Gold 6330N)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Mar-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: May-2021"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Gold 6330N"
+              ],
+              "lines_1based": [
+                70
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Gold 6330N"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "3400"
+              ],
+              "lines_1based": [
+                71
+              ],
+              "raw_lines": [
+                "             Max MHz: 3400"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2200"
+              ],
+              "lines_1based": [
+                72
+              ],
+              "raw_lines": [
+                "             Nominal: 2200"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "56 cores, 2 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                73
+              ],
+              "raw_lines": [
+                "             Enabled: 56 cores, 2 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "1,2 chips"
+              ],
+              "lines_1based": [
+                74
+              ],
+              "raw_lines": [
+                "           Orderable: 1,2 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 48 KB D on chip per core"
+              ],
+              "lines_1based": [
+                75
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 48 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1.25 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                76
+              ],
+              "raw_lines": [
+                "                  L2: 1.25 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "42 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                77
+              ],
+              "raw_lines": [
+                "                  L3: 42 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                78
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "512 GB (16 x 32 GB 2Rx8 PC4-3200AA-R, running at",
+                "                      2666)"
+              ],
+              "lines_1based": [
+                79,
+                80
+              ],
+              "raw_lines": [
+                "              Memory: 512 GB (16 x 32 GB 2Rx8 PC4-3200AA-R, running at",
+                "                      2666)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 480 GB SATA SSD"
+              ],
+              "lines_1based": [
+                81
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 480 GB SATA SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                82
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 68,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Gold 6330N",
+            "             Max MHz: 3400",
+            "             Nominal: 2200",
+            "             Enabled: 56 cores, 2 chips, 2 threads/core",
+            "           Orderable: 1,2 chips",
+            "            Cache L1: 32 KB I + 48 KB D on chip per core",
+            "                  L2: 1.25 MB I+D on chip per core",
+            "                  L3: 42 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 512 GB (16 x 32 GB 2Rx8 PC4-3200AA-R, running at",
+            "                      2666)",
+            "             Storage: 1 x 480 GB SATA SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220301-31137.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:27:43.373983+00:00",
+      "body_path": "cpu2017/cpu2017-20220301-31137.txt",
+      "capture_sha256": "d0459eb694c5950ee6bee0135ce9a158036e4393760e01023225668c80ef173f",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur I24LM6 (Intel Xeon Platinum 8360Y)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220301-31137.cfg"
+        },
+        "_date": "",
+        "base_copies": "144",
+        "hw_ncores": "72",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "2",
+        "basemean": "422",
+        "peakmean": "448",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                            SPEC CPU(R)2017 Floating Point Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                   Inspur Corporation Inspur I24LM6 (Intel Xeon Platinum 8360Y)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Feb-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: May-2021"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Nov-2021"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Platinum 8360Y"
+              ],
+              "lines_1based": [
+                70
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Platinum 8360Y"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "3500"
+              ],
+              "lines_1based": [
+                71
+              ],
+              "raw_lines": [
+                "             Max MHz: 3500"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2400"
+              ],
+              "lines_1based": [
+                72
+              ],
+              "raw_lines": [
+                "             Nominal: 2400"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "72 cores, 2 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                73
+              ],
+              "raw_lines": [
+                "             Enabled: 72 cores, 2 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "1,2 chips"
+              ],
+              "lines_1based": [
+                74
+              ],
+              "raw_lines": [
+                "           Orderable: 1,2 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 48 KB D on chip per core"
+              ],
+              "lines_1based": [
+                75
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 48 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1.25 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                76
+              ],
+              "raw_lines": [
+                "                  L2: 1.25 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "54 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                77
+              ],
+              "raw_lines": [
+                "                  L3: 54 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                78
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "256 GB (16 x 16 GB 2Rx8 PC4-3200AA-R)"
+              ],
+              "lines_1based": [
+                79
+              ],
+              "raw_lines": [
+                "              Memory: 256 GB (16 x 16 GB 2Rx8 PC4-3200AA-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 480 GB SATA SSD"
+              ],
+              "lines_1based": [
+                80
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 480 GB SATA SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                81
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 68,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Platinum 8360Y",
+            "             Max MHz: 3500",
+            "             Nominal: 2400",
+            "             Enabled: 72 cores, 2 chips, 2 threads/core",
+            "           Orderable: 1,2 chips",
+            "            Cache L1: 32 KB I + 48 KB D on chip per core",
+            "                  L2: 1.25 MB I+D on chip per core",
+            "                  L3: 54 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 256 GB (16 x 16 GB 2Rx8 PC4-3200AA-R)",
+            "             Storage: 1 x 480 GB SATA SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220301-31136.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:27:53.741329+00:00",
+      "body_path": "cpu2017/cpu2017-20220301-31136.txt",
+      "capture_sha256": "b28ba6665cfe5d227d0752a948156ec52ee05cc269b92fd31340734b09688c9d",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur I24LM6 (Intel Xeon Platinum 8368Q)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220301-31136.cfg"
+        },
+        "_date": "",
+        "base_copies": "152",
+        "hw_ncores": "76",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "2",
+        "basemean": "445",
+        "peakmean": "472",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                            SPEC CPU(R)2017 Floating Point Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                   Inspur Corporation Inspur I24LM6 (Intel Xeon Platinum 8368Q)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Feb-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: May-2021"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Nov-2021"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Platinum 8368Q"
+              ],
+              "lines_1based": [
+                70
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Platinum 8368Q"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "3700"
+              ],
+              "lines_1based": [
+                71
+              ],
+              "raw_lines": [
+                "             Max MHz: 3700"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2600"
+              ],
+              "lines_1based": [
+                72
+              ],
+              "raw_lines": [
+                "             Nominal: 2600"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "76 cores, 2 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                73
+              ],
+              "raw_lines": [
+                "             Enabled: 76 cores, 2 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "1,2 chips"
+              ],
+              "lines_1based": [
+                74
+              ],
+              "raw_lines": [
+                "           Orderable: 1,2 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 48 KB D on chip per core"
+              ],
+              "lines_1based": [
+                75
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 48 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1.25 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                76
+              ],
+              "raw_lines": [
+                "                  L2: 1.25 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "57 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                77
+              ],
+              "raw_lines": [
+                "                  L3: 57 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                78
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "512 GB (16 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ],
+              "lines_1based": [
+                79
+              ],
+              "raw_lines": [
+                "              Memory: 512 GB (16 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 480 GB SATA SSD"
+              ],
+              "lines_1based": [
+                80
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 480 GB SATA SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                81
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 68,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Platinum 8368Q",
+            "             Max MHz: 3700",
+            "             Nominal: 2600",
+            "             Enabled: 76 cores, 2 chips, 2 threads/core",
+            "           Orderable: 1,2 chips",
+            "            Cache L1: 32 KB I + 48 KB D on chip per core",
+            "                  L2: 1.25 MB I+D on chip per core",
+            "                  L3: 57 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 512 GB (16 x 32 GB 2Rx8 PC4-3200AA-R)",
+            "             Storage: 1 x 480 GB SATA SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220220-30983.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:28:04.102596+00:00",
+      "body_path": "cpu2017/cpu2017-20220220-30983.txt",
+      "capture_sha256": "22f694f186541869c321778e3eab34d4ff80d0ec97b9cac3340cc3ac2e86d5f0",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF5488M5 (Intel Xeon Platinum 8260)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220220-30983.cfg"
+        },
+        "_date": "",
+        "sw_parallel": "Yes",
+        "base_threads": "48",
+        "hw_ncores": "48",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "1",
+        "basemean": "10.9",
+        "peakmean": "11.2",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                               SPEC CPU(R)2017 Integer Speed Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                  Inspur Corporation Inspur NF5488M5 (Intel Xeon Platinum 8260)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Feb-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Apr-2019"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Nov-2021"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Platinum 8260"
+              ],
+              "lines_1based": [
+                58
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Platinum 8260"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "3900"
+              ],
+              "lines_1based": [
+                59
+              ],
+              "raw_lines": [
+                "             Max MHz: 3900"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2400"
+              ],
+              "lines_1based": [
+                60
+              ],
+              "raw_lines": [
+                "             Nominal: 2400"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "48 cores, 2 chips"
+              ],
+              "lines_1based": [
+                61
+              ],
+              "raw_lines": [
+                "             Enabled: 48 cores, 2 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "1,2 chips"
+              ],
+              "lines_1based": [
+                62
+              ],
+              "raw_lines": [
+                "           Orderable: 1,2 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                63
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                64
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "35.75 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                65
+              ],
+              "raw_lines": [
+                "                  L3: 35.75 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                66
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (24 x 64 GB 2Rx4 PC4-2933Y-R)"
+              ],
+              "lines_1based": [
+                67
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (24 x 64 GB 2Rx4 PC4-2933Y-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 1.9 TB NVME SSD"
+              ],
+              "lines_1based": [
+                68
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 1.9 TB NVME SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                69
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 56,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Platinum 8260",
+            "             Max MHz: 3900",
+            "             Nominal: 2400",
+            "             Enabled: 48 cores, 2 chips",
+            "           Orderable: 1,2 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 35.75 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (24 x 64 GB 2Rx4 PC4-2933Y-R)",
+            "             Storage: 1 x 1.9 TB NVME SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220220-30979.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:28:14.471076+00:00",
+      "body_path": "cpu2017/cpu2017-20220220-30979.txt",
+      "capture_sha256": "82276d7e65e543dd411a200ec6d27ef74b00244eb4a36b9d668d110380688110",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M5 (Intel Xeon Gold 6246)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220220-30979.cfg"
+        },
+        "_date": "",
+        "base_copies": "96",
+        "hw_ncores": "48",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "382",
+        "peakmean": "395",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                               SPEC CPU(R)2017 Integer Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                    Inspur Corporation Inspur NF8260M5 (Intel Xeon Gold 6246)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Jan-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Apr-2019"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Gold 6246"
+              ],
+              "lines_1based": [
+                58
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Gold 6246"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "4200"
+              ],
+              "lines_1based": [
+                59
+              ],
+              "raw_lines": [
+                "             Max MHz: 4200"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "3300"
+              ],
+              "lines_1based": [
+                60
+              ],
+              "raw_lines": [
+                "             Nominal: 3300"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "48 cores, 4 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                61
+              ],
+              "raw_lines": [
+                "             Enabled: 48 cores, 4 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "2,4 chips"
+              ],
+              "lines_1based": [
+                62
+              ],
+              "raw_lines": [
+                "           Orderable: 2,4 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                63
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                64
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "24.75 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                65
+              ],
+              "raw_lines": [
+                "                  L3: 24.75 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                66
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (48 x 32 GB 2Rx4 PC4-2933Y-R)"
+              ],
+              "lines_1based": [
+                67
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (48 x 32 GB 2Rx4 PC4-2933Y-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 500 GB SATA HDD, 7200RPM"
+              ],
+              "lines_1based": [
+                68
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 500 GB SATA HDD, 7200RPM"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                69
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 56,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Gold 6246",
+            "             Max MHz: 4200",
+            "             Nominal: 3300",
+            "             Enabled: 48 cores, 4 chips, 2 threads/core",
+            "           Orderable: 2,4 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 24.75 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (48 x 32 GB 2Rx4 PC4-2933Y-R)",
+            "             Storage: 1 x 500 GB SATA HDD, 7200RPM",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220125-30794.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:28:24.868396+00:00",
+      "body_path": "cpu2017/cpu2017-20220125-30794.txt",
+      "capture_sha256": "307bd0ae2e2ae949840ac8c10dfe0fba81899646b2b7e203987bacea287e0d89",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF5280M5 (Intel Xeon Gold 5218R)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220125-30794.cfg"
+        },
+        "_date": "",
+        "sw_parallel": "Yes",
+        "base_threads": "40",
+        "hw_ncores": "40",
+        "hw_nchips": "2",
+        "hw_nthreadspercore": "1",
+        "basemean": "124",
+        "peakmean": "126",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                           SPEC CPU(R)2017 Floating Point Speed Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                    Inspur Corporation Inspur NF5280M5 (Intel Xeon Gold 5218R)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Jan-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Feb-2020"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Gold 5218R"
+              ],
+              "lines_1based": [
+                58
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Gold 5218R"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "4000"
+              ],
+              "lines_1based": [
+                59
+              ],
+              "raw_lines": [
+                "             Max MHz: 4000"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2100"
+              ],
+              "lines_1based": [
+                60
+              ],
+              "raw_lines": [
+                "             Nominal: 2100"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "40 cores, 2 chips"
+              ],
+              "lines_1based": [
+                61
+              ],
+              "raw_lines": [
+                "             Enabled: 40 cores, 2 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "1,2 chips"
+              ],
+              "lines_1based": [
+                62
+              ],
+              "raw_lines": [
+                "           Orderable: 1,2 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                63
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                64
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "27.5 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                65
+              ],
+              "raw_lines": [
+                "                  L3: 27.5 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                66
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "768 GB (24 x 32 GB 2Rx4 PC4-2933Y-R, running at",
+                "                      2666)"
+              ],
+              "lines_1based": [
+                67,
+                68
+              ],
+              "raw_lines": [
+                "              Memory: 768 GB (24 x 32 GB 2Rx4 PC4-2933Y-R, running at",
+                "                      2666)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 480 GB SATA SSD"
+              ],
+              "lines_1based": [
+                69
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 480 GB SATA SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                70
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 56,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Gold 5218R",
+            "             Max MHz: 4000",
+            "             Nominal: 2100",
+            "             Enabled: 40 cores, 2 chips",
+            "           Orderable: 1,2 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 27.5 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 768 GB (24 x 32 GB 2Rx4 PC4-2933Y-R, running at",
+            "                      2666)",
+            "             Storage: 1 x 480 GB SATA SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2022q1/cpu2017-20220125-30791.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:28:35.212702+00:00",
+      "body_path": "cpu2017/cpu2017-20220125-30791.txt",
+      "capture_sha256": "5518b9efeaa35453632b9ed111b7306852d59b1d83817f7e3f837e0ff1b299a8",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8260M5 (Intel Xeon Gold 6234)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.html",
+          "CSV": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.csv",
+          "Text": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.txt",
+          "PDF": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.pdf",
+          "PS": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.ps",
+          "Config": "/cpu2017/results/res2022q1/cpu2017-20220125-30791.cfg"
+        },
+        "_date": "",
+        "base_copies": "64",
+        "hw_ncores": "32",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "263",
+        "peakmean": "272",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                               SPEC CPU(R)2017 Integer Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                    Inspur Corporation Inspur NF8260M5 (Intel Xeon Gold 6234)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Jan-2022"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Apr-2019"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Gold 6234"
+              ],
+              "lines_1based": [
+                58
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Gold 6234"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "4000"
+              ],
+              "lines_1based": [
+                59
+              ],
+              "raw_lines": [
+                "             Max MHz: 4000"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "3300"
+              ],
+              "lines_1based": [
+                60
+              ],
+              "raw_lines": [
+                "             Nominal: 3300"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "32 cores, 4 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                61
+              ],
+              "raw_lines": [
+                "             Enabled: 32 cores, 4 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "2,4 chips"
+              ],
+              "lines_1based": [
+                62
+              ],
+              "raw_lines": [
+                "           Orderable: 2,4 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                63
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                64
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "24.75 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                65
+              ],
+              "raw_lines": [
+                "                  L3: 24.75 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                66
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (48 x 32 GB 2Rx4 PC4-2933Y-R)"
+              ],
+              "lines_1based": [
+                67
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (48 x 32 GB 2Rx4 PC4-2933Y-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 500 GB SATA HDD, 7200RPM"
+              ],
+              "lines_1based": [
+                68
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 500 GB SATA HDD, 7200RPM"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                69
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 56,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Gold 6234",
+            "             Max MHz: 4000",
+            "             Nominal: 3300",
+            "             Enabled: 32 cores, 4 chips, 2 threads/core",
+            "           Orderable: 2,4 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 24.75 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (48 x 32 GB 2Rx4 PC4-2933Y-R)",
+            "             Storage: 1 x 500 GB SATA HDD, 7200RPM",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2021q4/cpu2017-20211206-30304.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:28:45.591265+00:00",
+      "body_path": "cpu2017/cpu2017-20211206-30304.txt",
+      "capture_sha256": "d986fe2c0debc18278fe23e7f13cd4608f2e804b9aa0245543fe31cadac01584",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8480M6 (Intel Xeon Platinum 8380HL)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.html",
+          "CSV": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.csv",
+          "Text": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.txt",
+          "PDF": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.pdf",
+          "PS": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.ps",
+          "Config": "/cpu2017/results/res2021q4/cpu2017-20211206-30304.cfg"
+        },
+        "_date": "",
+        "base_copies": "224",
+        "hw_ncores": "112",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "662",
+        "peakmean": "703",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                            SPEC CPU(R)2017 Floating Point Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                 Inspur Corporation Inspur NF8480M6 (Intel Xeon Platinum 8380HL)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Nov-2021"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Sep-2020"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Platinum 8380HL"
+              ],
+              "lines_1based": [
+                70
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Platinum 8380HL"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "4300"
+              ],
+              "lines_1based": [
+                71
+              ],
+              "raw_lines": [
+                "             Max MHz: 4300"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2900"
+              ],
+              "lines_1based": [
+                72
+              ],
+              "raw_lines": [
+                "             Nominal: 2900"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "112 cores, 4 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                73
+              ],
+              "raw_lines": [
+                "             Enabled: 112 cores, 4 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "2,4 chips"
+              ],
+              "lines_1based": [
+                74
+              ],
+              "raw_lines": [
+                "           Orderable: 2,4 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                75
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                76
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "38.5 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                77
+              ],
+              "raw_lines": [
+                "                  L3: 38.5 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                78
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ],
+              "lines_1based": [
+                79
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 1.9 TB NVME SSD"
+              ],
+              "lines_1based": [
+                80
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 1.9 TB NVME SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                81
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 68,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Platinum 8380HL",
+            "             Max MHz: 4300",
+            "             Nominal: 2900",
+            "             Enabled: 112 cores, 4 chips, 2 threads/core",
+            "           Orderable: 2,4 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 38.5 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R)",
+            "             Storage: 1 x 1.9 TB NVME SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    },
+    {
+      "url": "https://www.spec.org/cpu2017/results/res2021q4/cpu2017-20211206-30303.txt",
+      "benchmark": "cpu2017",
+      "captured_at_utc": "2026-10-13T04:28:55.954423+00:00",
+      "body_path": "cpu2017/cpu2017-20211206-30303.txt",
+      "capture_sha256": "a9d0f6fbee4a747833cbb6948db7706b80a01037f58d6e73de6e53b3644ac679",
+      "saved_index_row": {
+        "test_sponsor": "Inspur Corporation",
+        "hw_model": "Inspur NF8480M6 (Intel Xeon Gold 6330H)",
+        "_links": {
+          "HTML": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.html",
+          "CSV": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.csv",
+          "Text": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.txt",
+          "PDF": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.pdf",
+          "PS": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.ps",
+          "Config": "/cpu2017/results/res2021q4/cpu2017-20211206-30303.cfg"
+        },
+        "_date": "",
+        "base_copies": "192",
+        "hw_ncores": "96",
+        "hw_nchips": "4",
+        "hw_nthreadspercore": "2",
+        "basemean": "531",
+        "peakmean": "561",
+        "baseenergymean": "--",
+        "peakenergymean": "--"
+      },
+      "scope": "Historical submitted test configuration only. No identity routing, role, manufacture, deployment, current support or hardware-capability decision.",
+      "header_lines": [
+        {
+          "line_1based": 1,
+          "raw_line": "                                            SPEC CPU(R)2017 Floating Point Rate Result"
+        },
+        {
+          "line_1based": 2,
+          "raw_line": "                                    Inspur Corporation Inspur NF8480M6 (Intel Xeon Gold 6330H)"
+        },
+        {
+          "line_1based": 3,
+          "raw_line": ""
+        },
+        {
+          "line_1based": 4,
+          "raw_line": "                           CPU2017 License: 3358                                    Test date: Nov-2021"
+        },
+        {
+          "line_1based": 5,
+          "raw_line": "                           Test sponsor: Inspur Corporation             Hardware availability: Sep-2020"
+        },
+        {
+          "line_1based": 6,
+          "raw_line": "                           Tested by:    Inspur Corporation             Software availability: Dec-2020"
+        },
+        {
+          "line_1based": 7,
+          "raw_line": ""
+        }
+      ],
+      "hardware_sections": [
+        {
+          "section_as_printed": "HARDWARE",
+          "fields": [
+            {
+              "label_as_printed": "CPU Name",
+              "value_lines_as_printed": [
+                "Intel Xeon Gold 6330H"
+              ],
+              "lines_1based": [
+                70
+              ],
+              "raw_lines": [
+                "            CPU Name: Intel Xeon Gold 6330H"
+              ]
+            },
+            {
+              "label_as_printed": "Max MHz",
+              "value_lines_as_printed": [
+                "3700"
+              ],
+              "lines_1based": [
+                71
+              ],
+              "raw_lines": [
+                "             Max MHz: 3700"
+              ]
+            },
+            {
+              "label_as_printed": "Nominal",
+              "value_lines_as_printed": [
+                "2000"
+              ],
+              "lines_1based": [
+                72
+              ],
+              "raw_lines": [
+                "             Nominal: 2000"
+              ]
+            },
+            {
+              "label_as_printed": "Enabled",
+              "value_lines_as_printed": [
+                "96 cores, 4 chips, 2 threads/core"
+              ],
+              "lines_1based": [
+                73
+              ],
+              "raw_lines": [
+                "             Enabled: 96 cores, 4 chips, 2 threads/core"
+              ]
+            },
+            {
+              "label_as_printed": "Orderable",
+              "value_lines_as_printed": [
+                "2,4 chips"
+              ],
+              "lines_1based": [
+                74
+              ],
+              "raw_lines": [
+                "           Orderable: 2,4 chips"
+              ]
+            },
+            {
+              "label_as_printed": "Cache L1",
+              "value_lines_as_printed": [
+                "32 KB I + 32 KB D on chip per core"
+              ],
+              "lines_1based": [
+                75
+              ],
+              "raw_lines": [
+                "            Cache L1: 32 KB I + 32 KB D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L2",
+              "value_lines_as_printed": [
+                "1 MB I+D on chip per core"
+              ],
+              "lines_1based": [
+                76
+              ],
+              "raw_lines": [
+                "                  L2: 1 MB I+D on chip per core"
+              ]
+            },
+            {
+              "label_as_printed": "L3",
+              "value_lines_as_printed": [
+                "33 MB I+D on chip per chip"
+              ],
+              "lines_1based": [
+                77
+              ],
+              "raw_lines": [
+                "                  L3: 33 MB I+D on chip per chip"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                78
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            },
+            {
+              "label_as_printed": "Memory",
+              "value_lines_as_printed": [
+                "1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R, running at",
+                "                      2933)"
+              ],
+              "lines_1based": [
+                79,
+                80
+              ],
+              "raw_lines": [
+                "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R, running at",
+                "                      2933)"
+              ]
+            },
+            {
+              "label_as_printed": "Storage",
+              "value_lines_as_printed": [
+                "1 x 1.9 TB NVME SSD"
+              ],
+              "lines_1based": [
+                81
+              ],
+              "raw_lines": [
+                "             Storage: 1 x 1.9 TB NVME SSD"
+              ]
+            },
+            {
+              "label_as_printed": "Other",
+              "value_lines_as_printed": [
+                "None"
+              ],
+              "lines_1based": [
+                82
+              ],
+              "raw_lines": [
+                "               Other: None"
+              ]
+            }
+          ],
+          "start_line_1based": 68,
+          "raw_section_lines": [
+            "                                                             HARDWARE",
+            "                                                             --------",
+            "            CPU Name: Intel Xeon Gold 6330H",
+            "             Max MHz: 3700",
+            "             Nominal: 2000",
+            "             Enabled: 96 cores, 4 chips, 2 threads/core",
+            "           Orderable: 2,4 chips",
+            "            Cache L1: 32 KB I + 32 KB D on chip per core",
+            "                  L2: 1 MB I+D on chip per core",
+            "                  L3: 33 MB I+D on chip per chip",
+            "               Other: None",
+            "              Memory: 1536 GB (48 x 32 GB 2Rx8 PC4-3200AA-R, running at",
+            "                      2933)",
+            "             Storage: 1 x 1.9 TB NVME SSD",
+            "               Other: None",
+            "",
+            ""
+          ]
+        }
+      ],
+      "printed_system_boundary": "Header vendor/system text and saved index hw_model preserved; no vendor splitting, CPU suffix removal or identity normalization.",
+      "power_section_present": false,
+      "benchmark_metrics_boundary": "Benchmark rate/speed scores are not hardware capability facts; not selected as hardware observations."
+    }
+  ],
+  "jbb_parser_path": "research/batches/discovery-2026-10-11/spec/scripts/jbbparse.py",
+  "jbb_parser_sha256": "9adc0fe9fc158230bacb9566dcf948e6f2a7c91de3c4aad4d384c4d3710575ec",
+  "no_normalization_of_vendor_or_system_names": true,
+  "rights": "Original SPEC and submitter rights retained; local factual research only."
+}

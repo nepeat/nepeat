@@ -1,0 +1,93 @@
+{
+  "status": "preparation only; inputs not frozen or accepted",
+  "database_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "manifest_sha256": "67f8359024342fb2204bdcfdb6cf5d6fd404c0ce27f2422d30f094cf80f962fb",
+  "bundle_sha256": "05a97196b76534bfeff625703535204316f3947f773935435dd53e906cbe38a0",
+  "live_counts": {
+    "devices": 4084,
+    "records": 5302,
+    "sources": 283,
+    "facts": 44763,
+    "documents": 56,
+    "document_pages": 3651
+  },
+  "manifest_jobs": 118,
+  "manifest_hashed_inputs": 2181,
+  "complete_bundle_entries": 45,
+  "inputs": {
+    "oracle/candidate-curated.json": {
+      "sha256": "9bc1b31ff468ba41e0d10be4e04fe38a07f43553b8125ff13e18552bcc7153df",
+      "sources": 1,
+      "records": 1,
+      "facts": 16,
+      "source_ids": [
+        "nist-4506-e4-2c-reviewed-detail-2026-10-04"
+      ]
+    },
+    "ingrasys/candidate-curated.json": {
+      "sha256": "0e8117434ef4e8a49ca761045b5ca1e239fc7c433195ccc2f84bef9bccab423d",
+      "sources": 1,
+      "records": 8,
+      "facts": 124,
+      "source_ids": [
+        "ingrasys-server-catalog-recovered-pages-2026-10-04"
+      ]
+    },
+    "ingrasys/portfolio-proposal.json": {
+      "sha256": "48aed6968181c37c1d3587891fe902039ee340f10a18d2a294ae811721e219f9",
+      "sources": 1,
+      "records": 6,
+      "facts": 72,
+      "source_ids": [
+        "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04"
+      ]
+    }
+  },
+  "combined_input_duplicate_source_keys_if_all_three_merged": [],
+  "distinct_expected_new_identities": [
+    [
+      "45033b8e2e09cb835ed0",
+      "Ingrasys",
+      "SV1121I"
+    ],
+    [
+      "cb4d37074619df946b1f",
+      "Ingrasys",
+      "SV1121A"
+    ],
+    [
+      "d4edaa8ffe273db4848d",
+      "Ingrasys",
+      "SV2121A"
+    ],
+    [
+      "e429acc0f592d5797f5b",
+      "Ingrasys",
+      "SV1120I"
+    ],
+    [
+      "e9b147c76d4bdf9bb38c",
+      "Ingrasys",
+      "SV1120A"
+    ],
+    [
+      "f2b947993987b461ece7",
+      "Ingrasys",
+      "SV2121I"
+    ]
+  ],
+  "source_id_collisions": {
+    "oracle/candidate-curated.json": [],
+    "ingrasys/candidate-curated.json": [],
+    "ingrasys/portfolio-proposal.json": []
+  },
+  "archive_sources_allowed_metadata_refresh": [
+    "sha256",
+    "cache_path",
+    "fetched_at"
+  ],
+  "integrity_check": [
+    "ok"
+  ],
+  "foreign_key_violations": []
+}

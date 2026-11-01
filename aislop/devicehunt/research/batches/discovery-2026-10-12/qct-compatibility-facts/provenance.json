@@ -1,0 +1,54 @@
+{
+  "original_sources": [
+    {
+      "original": "research/batches/discovery-2026-10-12/qct-compatibility-discovery/compatibility.html",
+      "copied": "snapshots/qct-d52bq-ccl.html",
+      "URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+      "sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+      "bytes": 303591,
+      "capture_finished_utc": "2026-10-13T05:00:32.403114+00:00",
+      "original_headers_sha256": "fbf7b8d9da01899c9f90f5f521f57b5f34fd8e7546eae0af77c36729ba1634ff"
+    },
+    {
+      "original": "data/raw/vendor-discovery-qct-2026-10-04/d52bq-product.html",
+      "copied": "snapshots/parent-product.html",
+      "URL": "https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U",
+      "sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+      "bytes": 111372,
+      "purpose": "Auxiliary identity/href evidence only; not a second candidate source"
+    }
+  ],
+  "discovery_handoff_sha256": "896c61de2dd8cbc3593a99bc048fa97224a64fdb3dc6350a72ac8f8665254123",
+  "discovery_observations_sha256": "437bebc720b1e71bf74646166b245d8addc33c43feeb390975c5fc3e98d2d2e9",
+  "discovery_ledger_sha256": "9d0e1aceb3e2bc6e21449f98833744000d5eec8aa625c8ad1964145118c1a88a",
+  "reviewed_discovery": "research/batches/discovery-2026-10-12/review/qct-compatibility-discovery-review.md",
+  "review_sha256": "a248a2305a6d5e7827db22337d95623c1f224fb757a556db2536ae5e733521ed",
+  "future_manifest_dependencies": [
+    {
+      "path": "candidate.json",
+      "purpose": "One curated job"
+    },
+    {
+      "path": "snapshots/qct-d52bq-ccl.html",
+      "sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+      "purpose": "Curated source snapshot"
+    },
+    {
+      "path": "snapshots/parent-product.html",
+      "sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+      "purpose": "Auxiliary routing dependency: explicitly pin in manifest files; curated importer does not auto-enforce this ignored metadata field"
+    }
+  ],
+  "routing_namespace": {
+    "brand": "QCT",
+    "model": "QuantaGrid D52BQ-2U",
+    "revision": "",
+    "device_id": "f65a474568c484317fc5"
+  },
+  "exclusions": [
+    "No new identity, standalone PSU, alias, identifier, Quanta namespace bridge or manufacturer/factory/target-family inference.",
+    "No axis order decoding, AC/DC input range, PSU installed count/summed power, pinout/connector/safe standalone wiring or efficiency certification inference.",
+    "No current regulatory/stock/EOL/support conclusion; preserve historical regional note, blank notes, style attributes and footer.",
+    "Other fourteen HTML tables unselected; auxiliary parent capture adds no new factual claims."
+  ]
+}

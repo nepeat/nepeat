@@ -1,0 +1,17 @@
+HTTP/2 200 
+date: Tue, 13 Oct 2026 04:46:09 GMT
+content-type: text/plain; charset=utf-8
+link: <https://www.edge-core.com/wp-json/>; rel="https://api.w.org/"
+server: cloudflare
+strict-transport-security: max-age=31536000; includeSubdomains; preload
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+vary: Accept-Encoding
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: microphone=(),fullscreen=()
+x-xss-protection: 1;mode=block
+last-modified: Tue, 13 Oct 2026 04:46:09 GMT
+cf-cache-status: EXPIRED
+cf-ray: a49bb2ea2c70ca33-SEA
+alt-svc: h3=":443"; ma=86400
+

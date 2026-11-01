@@ -1,0 +1,306 @@
+{
+  "before_sha256": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "after_sha256": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "queries": [
+    {
+      "query": "CS8200-32X-UN-00",
+      "records": 4,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "firmware_boot_software": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "not_collected",
+          "statements": 0
+        }
+      }
+    },
+    {
+      "query": "CS8210-32x-un-00",
+      "records": 1,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "firmware_boot_software": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "not_collected",
+          "statements": 0
+        }
+      }
+    },
+    {
+      "query": "DMC-12-48R-AS0",
+      "records": 2,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "firmware_boot_software": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "not_collected",
+          "statements": 0
+        }
+      }
+    },
+    {
+      "query": "7760-32X-A-AC-F",
+      "records": 2,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "firmware_boot_software": {
+          "status": "collected_source_statements",
+          "statements": 1
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "not_collected",
+          "statements": 0
+        }
+      }
+    },
+    {
+      "query": "AZ4444-52X-DC-10",
+      "records": 1,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "firmware_boot_software": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "not_collected",
+          "statements": 0
+        }
+      }
+    },
+    {
+      "query": "AS7772-32X",
+      "records": 3,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "firmware_boot_software": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "not_collected",
+          "statements": 0
+        }
+      }
+    },
+    {
+      "query": "E4-2C",
+      "records": 2,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "collected_source_statements",
+          "statements": 1
+        },
+        "firmware_boot_software": {
+          "status": "collected_source_statements",
+          "statements": 2
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "collected_source_statements",
+          "statements": 3
+        }
+      }
+    },
+    {
+      "query": "E5-2C",
+      "records": 2,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "collected_source_statements",
+          "statements": 1
+        },
+        "firmware_boot_software": {
+          "status": "collected_source_statements",
+          "statements": 2
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "collected_source_statements",
+          "statements": 4
+        }
+      }
+    },
+    {
+      "query": "X7-2C",
+      "records": 1,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "firmware_boot_software": {
+          "status": "collected_source_statements",
+          "statements": 1
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "not_collected",
+          "statements": 0
+        }
+      }
+    },
+    {
+      "query": "X10-2C",
+      "records": 2,
+      "categories": {
+        "power": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "cooling": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "chassis_physical": {
+          "status": "collected_source_statements",
+          "statements": 1
+        },
+        "firmware_boot_software": {
+          "status": "collected_source_statements",
+          "statements": 3
+        },
+        "licensing": {
+          "status": "not_collected",
+          "statements": 0
+        },
+        "compute_network_storage": {
+          "status": "collected_source_statements",
+          "statements": 3
+        }
+      }
+    }
+  ]
+}

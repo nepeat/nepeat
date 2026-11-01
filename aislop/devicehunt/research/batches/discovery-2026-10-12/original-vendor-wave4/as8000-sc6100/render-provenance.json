@@ -1,0 +1,81 @@
+{
+  "utc": "2026-10-13T04:10:13.236443+00:00",
+  "tool": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+  "tool_sha256": "a6d468851e73df98afa3c3ac8d07501de53c41c4e6217762089d05de9f569333",
+  "version_stdout": "",
+  "version_stderr": "pdftoppm version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+  "commands": [
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "1",
+        "-l",
+        "4",
+        "-r",
+        "120",
+        "-png",
+        "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+        "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "pdf_sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "1",
+        "-l",
+        "2",
+        "-r",
+        "120",
+        "-png",
+        "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf",
+        "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "pdf_sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "pages": [
+        1,
+        2
+      ]
+    }
+  ],
+  "images": [
+    {
+      "path": "as8000-01.png",
+      "sha256": "98bc9fe6f652ff04871ef2954a9b2d3f27342b468d993960e38c004f121b7837"
+    },
+    {
+      "path": "as8000-02.png",
+      "sha256": "343db14d4657d17dcc62b03b42853d4db05a14b8f335fae172866f07d6cad338"
+    },
+    {
+      "path": "as8000-03.png",
+      "sha256": "3258e6c2d899a753e1f2d498b9e3dbd564a6b79ba076f48545a3b460c7f6d11b"
+    },
+    {
+      "path": "as8000-04.png",
+      "sha256": "a04f90a09885864c29270d9fdd73b1d366e064b8dfcdb7b7c92bb6a6f4ea93eb"
+    },
+    {
+      "path": "sc6100-1.png",
+      "sha256": "42f751a8621ddad35b9bf5c8b03601451013c4d9bc0d99c2c9e4b460c6c302b5"
+    },
+    {
+      "path": "sc6100-2.png",
+      "sha256": "cbf4a23ea6fcd8ac1cfc59e1b574582272d4f818baeafab869b2d91d4466baae"
+    }
+  ]
+}

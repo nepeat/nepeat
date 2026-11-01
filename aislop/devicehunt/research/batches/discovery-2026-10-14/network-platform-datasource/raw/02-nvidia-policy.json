@@ -1,0 +1,19 @@
+{
+  "sequence": 2,
+  "url": "https://www.nvidia.com/robots.txt",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:49:09.509435+00:00",
+  "automatic_redirects": false,
+  "retries": 0,
+  "policy": null,
+  "status": 200,
+  "location": null,
+  "content_type": "text/plain; charset=UTF-8",
+  "body_path": "raw/02-nvidia-policy.body",
+  "body_bytes": 3725,
+  "body_sha256": "5069f0e6713ea599a59d48d5fb160ac859af14dcce9ec2a87fb9f554fe0f7125",
+  "headers_path": "raw/02-nvidia-policy.headers",
+  "headers_sha256": "b0a1ee60af81215c3e9a97a32458d481706f122e9ee7c8ff0db3caac3d620fdb",
+  "finished_utc": "2026-10-15T05:49:09.681289+00:00"
+}

@@ -1,0 +1,220 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Entei",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Entei",
+        "--format",
+        "json",
+        "--vendor",
+        "Inventec"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Entei",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Golduck",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Golduck",
+        "--format",
+        "json",
+        "--vendor",
+        "Inventec"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Golduck",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "EnteiX",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "GolduckX",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Horsea",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "buying-report",
+        "Golduck",
+        "--vendor",
+        "NoSuchVendor",
+        "--format",
+        "json"
+      ],
+      "returncode": 1
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "documents",
+        "",
+        "--source",
+        "reference-pdf-inventec-golduck-product-brief-v3-2020",
+        "--format",
+        "json",
+        "--limit",
+        "-1"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "validate-inventory",
+        "--format",
+        "json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite",
+        "validate-inventory",
+        "--inventory",
+        "validation/vendor-examples.json",
+        "--format",
+        "json"
+      ],
+      "returncode": 2
+    }
+  ],
+  "database_hashes_before_after": {
+    "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-inventec-practical-2026-10-04.sqlite": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+    "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/devices.sqlite": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0"
+  },
+  "read_only": true,
+  "literal_context_roles_and_noalias": "pass",
+  "archive_two_pages": "pass"
+}

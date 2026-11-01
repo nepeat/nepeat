@@ -1,0 +1,953 @@
+{
+  "query": "Oracle Server E4-2C",
+  "vendor": "Oracle",
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Oracle Server E4-2C"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "cmvp_module_caveat",
+          "value": "When operated in FIPS mode. No assurance of the minimum strength of generated keys."
+        },
+        {
+          "name": "cmvp_module_historical_reason",
+          "value": "Moved to historical list due to sunsetting"
+        },
+        {
+          "name": "cmvp_module_name",
+          "value": "Oracle OpenSSL FIPS Provider"
+        },
+        {
+          "name": "cmvp_module_software_versions",
+          "value": "3.0.15"
+        },
+        {
+          "name": "cmvp_module_standard",
+          "value": "FIPS 140-2"
+        },
+        {
+          "name": "cmvp_module_status_at_capture",
+          "value": "Historical"
+        },
+        {
+          "name": "cmvp_module_type",
+          "value": "Software"
+        },
+        {
+          "name": "cmvp_module_validation_history_row",
+          "value": "[\"3/26/2025\", \"Update\", \"Lightship Security, Inc.\"]"
+        },
+        {
+          "name": "cmvp_module_validation_history_row",
+          "value": "[\"5/3/2023\", \"Initial\", \"Acumen Security\"]"
+        },
+        {
+          "name": "cmvp_module_vendor_literal",
+          "value": "Oracle Corporation"
+        },
+        {
+          "name": "cmvp_tested_configuration",
+          "value": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA"
+        },
+        {
+          "name": "cmvp_tested_configuration",
+          "value": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)"
+        },
+        {
+          "name": "configuration_limit",
+          "value": "No assertion of general/current OS support, installed CPU or OS, hardware certification, manufacturing, deployment, bootability, firmware access or secondhand software entitlement. Validation history dates are module events and are not separately assigned to either platform row."
+        },
+        {
+          "name": "source_location",
+          "value": "Details panel: #module-name; #module-standard; Tested Configuration(s) list items 14-15, HTML lines 583-584; Software Versions lines 685-689; #validation-history-table rows 1-2"
+        },
+        {
+          "name": "source_scope",
+          "value": "Saved NIST CMVP certificate 4506 software-module tested-platform detail; two exact E4-2C rows, preserving PAA and single-user-mode modifiers. Status/date are snapshot/module statements."
+        },
+        {
+          "name": "source_sha256",
+          "value": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "86f9ea91a2a9ed89732d4962",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Oracle server names in the Tested Configurations list of NIST CMVP certificate 4506. The certificate concerns a software module, not certification of the server hardware.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Oracle Server E4-2C"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "cmvp_certificate",
+          "value": "4506"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "e9e52b0180cbdc94eb4012d6",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "broadcom-servers",
+      "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+      "observed_at": "2026-10-04T22:08:51+00:00",
+      "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+      "tier": "vendor",
+      "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+      "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+      "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "compatibility_partner"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Oracle Server E4-2C"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "compatibility_bios_certification_rows",
+          "value": "[{\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8768890}, {\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9144834}, {\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9164102}]"
+        },
+        {
+          "name": "compatibility_cpu_series",
+          "value": "AMD EPYC 7003/7003X Series"
+        },
+        {
+          "name": "compatibility_cpu_series_max_cores_per_socket",
+          "value": "64"
+        },
+        {
+          "name": "compatibility_notes",
+          "value": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: If your server boot device is SD/USB flash media, please refer to KB 85685 for best practice and support considerations. For build information see KB 2143832 ESXi 6.7u3 support starts at 6.7.p03."
+        },
+        {
+          "name": "compatibility_releases",
+          "value": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1"
+        },
+        {
+          "name": "compatibility_sockets",
+          "value": "2"
+        },
+        {
+          "name": "compatibility_system_type",
+          "value": "Rackmount"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "cooling": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "chassis_physical": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "e9e52b0180cbdc94eb4012d6",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "observed_at": "2026-10-04T22:08:51+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_system_type",
+          "statement": "Rackmount",
+          "context_record_id": "e9e52b0180cbdc94eb4012d6"
+        }
+      ]
+    },
+    "firmware_boot_software": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "32b059c9159db8f5dd4b300a",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+          "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+          "observed_at": "2026-10-04T23:43:24+00:00",
+          "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+          "tier": "regulatory",
+          "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+          "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+          "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "tested_platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "cmvp_tested_configuration",
+          "statement": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA",
+          "context_record_id": "32b059c9159db8f5dd4b300a"
+        },
+        {
+          "record_id": "32b059c9159db8f5dd4b300a",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+          "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+          "observed_at": "2026-10-04T23:43:24+00:00",
+          "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+          "tier": "regulatory",
+          "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+          "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+          "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "tested_platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "cmvp_tested_configuration",
+          "statement": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)",
+          "context_record_id": "32b059c9159db8f5dd4b300a"
+        },
+        {
+          "record_id": "e9e52b0180cbdc94eb4012d6",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "observed_at": "2026-10-04T22:08:51+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_bios_certification_rows",
+          "statement": "[{\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8768890}, {\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9144834}, {\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9164102}]",
+          "context_record_id": "e9e52b0180cbdc94eb4012d6"
+        },
+        {
+          "record_id": "e9e52b0180cbdc94eb4012d6",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "observed_at": "2026-10-04T22:08:51+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_notes",
+          "statement": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: If your server boot device is SD/USB flash media, please refer to KB 85685 for best practice and support considerations. For build information see KB 2143832 ESXi 6.7u3 support starts at 6.7.p03.",
+          "context_record_id": "e9e52b0180cbdc94eb4012d6"
+        },
+        {
+          "record_id": "e9e52b0180cbdc94eb4012d6",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "observed_at": "2026-10-04T22:08:51+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_releases",
+          "statement": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1",
+          "context_record_id": "e9e52b0180cbdc94eb4012d6"
+        }
+      ]
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "e9e52b0180cbdc94eb4012d6",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "observed_at": "2026-10-04T22:08:51+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_cpu_series",
+          "statement": "AMD EPYC 7003/7003X Series",
+          "context_record_id": "e9e52b0180cbdc94eb4012d6"
+        },
+        {
+          "record_id": "e9e52b0180cbdc94eb4012d6",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "observed_at": "2026-10-04T22:08:51+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_cpu_series_max_cores_per_socket",
+          "statement": "64",
+          "context_record_id": "e9e52b0180cbdc94eb4012d6"
+        },
+        {
+          "record_id": "e9e52b0180cbdc94eb4012d6",
+          "device_id": "b5decfa477ec728d6252",
+          "brand": "Oracle",
+          "model": "Oracle Server E4-2C",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "observed_at": "2026-10-04T22:08:51+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_sockets",
+          "statement": "2",
+          "context_record_id": "e9e52b0180cbdc94eb4012d6"
+        }
+      ]
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_caveat",
+      "statement": "When operated in FIPS mode. No assurance of the minimum strength of generated keys.",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_historical_reason",
+      "statement": "Moved to historical list due to sunsetting",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_name",
+      "statement": "Oracle OpenSSL FIPS Provider",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_software_versions",
+      "statement": "3.0.15",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_standard",
+      "statement": "FIPS 140-2",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_status_at_capture",
+      "statement": "Historical",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_type",
+      "statement": "Software",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_validation_history_row",
+      "statement": "[\"3/26/2025\", \"Update\", \"Lightship Security, Inc.\"]",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_validation_history_row",
+      "statement": "[\"5/3/2023\", \"Initial\", \"Acumen Security\"]",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_module_vendor_literal",
+      "statement": "Oracle Corporation",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "configuration_limit",
+      "statement": "No assertion of general/current OS support, installed CPU or OS, hardware certification, manufacturing, deployment, bootability, firmware access or secondhand software entitlement. Validation history dates are module events and are not separately assigned to either platform row.",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_location",
+      "statement": "Details panel: #module-name; #module-standard; Tested Configuration(s) list items 14-15, HTML lines 583-584; Software Versions lines 685-689; #validation-history-table rows 1-2",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_scope",
+      "statement": "Saved NIST CMVP certificate 4506 software-module tested-platform detail; two exact E4-2C rows, preserving PAA and single-user-mode modifiers. Status/date are snapshot/module statements.",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "32b059c9159db8f5dd4b300a",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Additive reviewed detail from the existing immutable NIST 4506 capture; one exact Oracle E4-2C tested-platform identity. Preserves original nist-4506 source and all four records. Module vendor is not asserted as hardware manufacturer.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_sha256",
+      "statement": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "context_record_id": "32b059c9159db8f5dd4b300a"
+    },
+    {
+      "record_id": "86f9ea91a2a9ed89732d4962",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Oracle server names in the Tested Configurations list of NIST CMVP certificate 4506. The certificate concerns a software module, not certification of the server hardware.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "cmvp_certificate",
+      "statement": "4506",
+      "context_record_id": "86f9ea91a2a9ed89732d4962"
+    },
+    {
+      "record_id": "86f9ea91a2a9ed89732d4962",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "nist-4506",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "source_home_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "tier": "regulatory",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "coverage": "Oracle server names in the Tested Configurations list of NIST CMVP certificate 4506. The certificate concerns a software module, not certification of the server hardware.",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "evidence_scope",
+      "statement": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership",
+      "context_record_id": "86f9ea91a2a9ed89732d4962"
+    },
+    {
+      "record_id": "e9e52b0180cbdc94eb4012d6",
+      "device_id": "b5decfa477ec728d6252",
+      "brand": "Oracle",
+      "model": "Oracle Server E4-2C",
+      "revision": "",
+      "source_id": "broadcom-servers",
+      "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+      "observed_at": "2026-10-04T22:08:51+00:00",
+      "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+      "tier": "vendor",
+      "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+      "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+      "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "compatibility_partner"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "evidence_scope",
+      "statement": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement",
+      "context_record_id": "e9e52b0180cbdc94eb4012d6"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

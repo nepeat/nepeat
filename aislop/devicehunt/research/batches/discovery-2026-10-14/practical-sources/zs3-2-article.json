@@ -1,0 +1,1291 @@
+{
+  "source_path": "zs3-2-internal-components.html",
+  "source_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+  "method": "stdlib HTMLParser saved article text and literal table-cell rows; no remote images/assets",
+  "normalized_article_text": "Oracle ZFS Storage ZS3-2 Internal Components The Oracle ZFS Storage ZS3-2 chassis has the following field-replaceable units (FRUs). FRUs are not customer-serviceable and must be replaced by trained Oracle service technicians. PCIe Risers - There are three risers per system, each attached to the rear of the motherboard. Each riser supports two PCIe cards (which are customer-replaceable units (CRUs)). Motherboard - The motherboard includes CPU modules, slots for 16 DIMMs, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off. Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the controller. It is directly connected to the connector break out board and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock kill switch. The power supplies connect directly to the power distribution board. Storage Drive Backplane - The storage drive backplane includes the connectors for the storage drives, as well as the interconnect for the I/O board, power and locator buttons, and system/component status LEDs. The system has an 8-disk backplane. Each drive has an LED indicator for Power/Activity, Fault, and Locate. Oracle ZFS Storage ZS3-2 Motherboard, Memory, and PCIe Cards - The Oracle ZFS Storage ZS3-2 controller motherboard, memory, and PCIe components are described in the following figure and legend. Note: Field-replaceable components (FRUs) are not customer-serviceable, and must be replaced by trained Oracle service technicians. 1 Drive cage (FRU) 5 Airduct 9 Battery 2 Drive backplane (FRU) 6 PCIe Risers (FRU) 10 PDB duct 3 Motherboard (FRU) 7 PCIe cards 11 Power distribution board (FRU) 4 DIMMs 8 USB flash drive Oracle ZFS Storage ZS3-2 CPU and Memory - The Oracle ZFS Storage ZS3-2 controller motherboard has 16 slots in two groups that hold industry-standard DDR3 low voltage (LV) DIMMS. Note: All sockets must be occupied by identical DDR3 DIMMs. Table 11-4 Oracle ZFS Storage ZS3-2 Controller CPU Descriptions Capacity CPU 0 CPU 1 256GB D0, D2, D5, D7 (blue) D0, D2, D5, D7 (blue) . D1, D3, D4, D6 (white) D1, D3, D4, D6 (white) The Oracle ZFS Storage ZS3-2 controller replaceable memory components and part numbers are listed next. Table 11-5 Oracle ZFS Storage ZS3-2 Controller Replaceable Memory Components Component Description FRU/CRU Part Number CPU Intel E5-2658, 2.1G, 8-core FRU 7019701 Memory DIMM, 16GB,DDR3,1600,2Rx4,1.35V CRU 7041603 Memory DIMM, 32GB,DDR3,1066,4Rx4,1.35V CRU 7055964 Oracle ZFS Storage ZS3-2 Storage, Power, and Fan Components - The Oracle ZFS Storage ZS3-2 controller's internal storage, power, and cooling components are described in the following figure and legend. A component identified as a field-replaceable unit (FRU) must be replaced by trained Oracle service technicians. 1 Air Filter 5 Drive power cable (FRU) 9 Fan modules 2 Drives 6 Drive signal cable (FRU) 10 Fan tray 3 Chassis (FRU) 7 Top cover 11 USB board (FRU) 4 LED board (FRU) 8 PDB signal cable (FRU) 12 Power supplies Oracle ZFS Storage ZS3-2 Internal Cables - The Oracle ZFS Storage ZS3-2 controller contains the following field-replaceable unit (FRU) internal cables. FRUs are not customer-serviceable, and must be replaced by trained Oracle service technicians. 1 PDB signal cable 3 Drive signal cable 5 Drive power cable 2 USB board cable 4 LED board cable",
+  "blocks": [
+    {
+      "tag": "h2",
+      "attrs": {
+        "id": "ZFSRE-GUID-273AA3FF-EA32-492A-AA48-6AA67EFB0A7F",
+        "class": "sect2"
+      },
+      "start_line": 65,
+      "end_line": 65,
+      "text": "Oracle ZFS Storage ZS3-2 Internal Components"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 68,
+      "end_line": 68,
+      "text": "The Oracle ZFS Storage ZS3-2 chassis has the following field-replaceable units (FRUs). FRUs are not customer-serviceable and must be replaced by trained Oracle service technicians."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 72,
+      "end_line": 73,
+      "text": "PCIe Risers - There are three risers per system, each attached to the rear of the motherboard. Each riser supports two PCIe cards (which are customer-replaceable units (CRUs))."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 78,
+      "end_line": 85,
+      "text": "Motherboard - The motherboard includes CPU modules, slots for 16 DIMMs, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 90,
+      "end_line": 96,
+      "text": "Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the controller. It is directly connected to the connector break out board and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock kill switch. The power supplies connect directly to the power distribution board."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 101,
+      "end_line": 107,
+      "text": "Storage Drive Backplane - The storage drive backplane includes the connectors for the storage drives, as well as the interconnect for the I/O board, power and locator buttons, and system/component status LEDs. The system has an 8-disk backplane. Each drive has an LED indicator for Power/Activity, Fault, and Locate."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 111,
+      "end_line": 112,
+      "text": "Oracle ZFS Storage ZS3-2 Motherboard, Memory, and PCIe Cards - The Oracle ZFS Storage ZS3-2 controller motherboard, memory, and PCIe components are described in the following figure and legend."
+    },
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "notep1"
+      },
+      "start_line": 114,
+      "end_line": 114,
+      "text": "Note:"
+    },
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "infoboxnote",
+        "id": "GUID-273AA3FF-EA32-492A-AA48-6AA67EFB0A7F__GUID-CB34C82F-843E-4226-9625-FA190DA8C8D4"
+      },
+      "start_line": 113,
+      "end_line": 115,
+      "text": "Note: Field-replaceable components (FRUs) are not customer-serviceable, and must be replaced by trained Oracle service technicians."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 124,
+      "end_line": 125,
+      "text": "1 Drive cage (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 130,
+      "end_line": 131,
+      "text": "5 Airduct"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 136,
+      "end_line": 137,
+      "text": "9 Battery"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 144,
+      "end_line": 145,
+      "text": "2 Drive backplane (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 150,
+      "end_line": 151,
+      "text": "6 PCIe Risers (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 156,
+      "end_line": 157,
+      "text": "10 PDB duct"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 164,
+      "end_line": 165,
+      "text": "3 Motherboard (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 170,
+      "end_line": 171,
+      "text": "7 PCIe cards"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 176,
+      "end_line": 177,
+      "text": "11 Power distribution board (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 184,
+      "end_line": 185,
+      "text": "4 DIMMs"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 190,
+      "end_line": 191,
+      "text": "8 USB flash drive"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 198,
+      "end_line": 199,
+      "text": "Oracle ZFS Storage ZS3-2 CPU and Memory - The Oracle ZFS Storage ZS3-2 controller motherboard has 16 slots in two groups that hold industry-standard DDR3 low voltage (LV) DIMMS."
+    },
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "notep1"
+      },
+      "start_line": 202,
+      "end_line": 202,
+      "text": "Note:"
+    },
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "infoboxnote",
+        "id": "GUID-273AA3FF-EA32-492A-AA48-6AA67EFB0A7F__GUID-FF9C5EBE-D6BA-4D2F-A4DB-C5767FB14965"
+      },
+      "start_line": 201,
+      "end_line": 205,
+      "text": "Note: All sockets must be occupied by identical DDR3 DIMMs."
+    },
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "titleintable"
+      },
+      "start_line": 207,
+      "end_line": 207,
+      "text": "Table 11-4 Oracle ZFS Storage ZS3-2 Controller CPU Descriptions"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 226,
+      "end_line": 226,
+      "text": "256GB"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 231,
+      "end_line": 231,
+      "text": "D0, D2, D5, D7 (blue)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 236,
+      "end_line": 236,
+      "text": "D0, D2, D5, D7 (blue)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 242,
+      "end_line": 242,
+      "text": "."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 246,
+      "end_line": 246,
+      "text": "D1, D3, D4, D6 (white)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 251,
+      "end_line": 251,
+      "text": "D1, D3, D4, D6 (white)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 258,
+      "end_line": 258,
+      "text": "The Oracle ZFS Storage ZS3-2 controller replaceable memory components and part numbers are listed next."
+    },
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "titleintable"
+      },
+      "start_line": 260,
+      "end_line": 260,
+      "text": "Table 11-5 Oracle ZFS Storage ZS3-2 Controller Replaceable Memory Components"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 282,
+      "end_line": 282,
+      "text": "CPU"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 287,
+      "end_line": 287,
+      "text": "Intel E5-2658, 2.1G, 8-core"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 292,
+      "end_line": 292,
+      "text": "FRU"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 297,
+      "end_line": 297,
+      "text": "7019701"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 304,
+      "end_line": 304,
+      "text": "Memory"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 309,
+      "end_line": 309,
+      "text": "DIMM, 16GB,DDR3,1600,2Rx4,1.35V"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 314,
+      "end_line": 314,
+      "text": "CRU"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 319,
+      "end_line": 319,
+      "text": "7041603"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 326,
+      "end_line": 326,
+      "text": "Memory"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 331,
+      "end_line": 331,
+      "text": "DIMM, 32GB,DDR3,1066,4Rx4,1.35V"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 336,
+      "end_line": 336,
+      "text": "CRU"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 341,
+      "end_line": 341,
+      "text": "7055964"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 348,
+      "end_line": 349,
+      "text": "Oracle ZFS Storage ZS3-2 Storage, Power, and Fan Components - The Oracle ZFS Storage ZS3-2 controller's internal storage, power, and cooling components are described in the following figure and legend. A component identified as a field-replaceable unit (FRU) must be replaced by trained Oracle service technicians."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 357,
+      "end_line": 358,
+      "text": "1 Air Filter"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 363,
+      "end_line": 364,
+      "text": "5 Drive power cable (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 369,
+      "end_line": 370,
+      "text": "9 Fan modules"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 377,
+      "end_line": 378,
+      "text": "2 Drives"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 383,
+      "end_line": 384,
+      "text": "6 Drive signal cable (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 389,
+      "end_line": 390,
+      "text": "10 Fan tray"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 397,
+      "end_line": 398,
+      "text": "3 Chassis (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 403,
+      "end_line": 404,
+      "text": "7 Top cover"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 409,
+      "end_line": 410,
+      "text": "11 USB board (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 417,
+      "end_line": 418,
+      "text": "4 LED board (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 423,
+      "end_line": 424,
+      "text": "8 PDB signal cable (FRU)"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 429,
+      "end_line": 430,
+      "text": "12 Power supplies"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 437,
+      "end_line": 438,
+      "text": "Oracle ZFS Storage ZS3-2 Internal Cables - The Oracle ZFS Storage ZS3-2 controller contains the following field-replaceable unit (FRU) internal cables. FRUs are not customer-serviceable, and must be replaced by trained Oracle service technicians."
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 447,
+      "end_line": 448,
+      "text": "1 PDB signal cable"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 453,
+      "end_line": 454,
+      "text": "3 Drive signal cable"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 459,
+      "end_line": 460,
+      "text": "5 Drive power cable"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 467,
+      "end_line": 468,
+      "text": "2 USB board cable"
+    },
+    {
+      "tag": "p",
+      "attrs": {},
+      "start_line": 473,
+      "end_line": 474,
+      "text": "4 LED board cable"
+    }
+  ],
+  "tables": [
+    {
+      "start_line": 119,
+      "attrs": {
+        "cellpadding": "4",
+        "cellspacing": "0",
+        "class": "Formal",
+        "title": null,
+        "summary": " Table showing information regarding the Oracle ZFS Storage ZS3-2 controller components ",
+        "frame": "hsides",
+        "border": "1",
+        "rules": "rows"
+      },
+      "rows": [
+        {
+          "start_line": 121,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e77"
+              },
+              "start_line": 122,
+              "end_line": 127,
+              "text": "1 Drive cage (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e77 "
+              },
+              "start_line": 128,
+              "end_line": 133,
+              "text": "5 Airduct"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e77 "
+              },
+              "start_line": 134,
+              "end_line": 139,
+              "text": "9 Battery"
+            }
+          ],
+          "end_line": 140
+        },
+        {
+          "start_line": 141,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e102"
+              },
+              "start_line": 142,
+              "end_line": 147,
+              "text": "2 Drive backplane (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e102 "
+              },
+              "start_line": 148,
+              "end_line": 153,
+              "text": "6 PCIe Risers (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e102 "
+              },
+              "start_line": 154,
+              "end_line": 159,
+              "text": "10 PDB duct"
+            }
+          ],
+          "end_line": 160
+        },
+        {
+          "start_line": 161,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e127"
+              },
+              "start_line": 162,
+              "end_line": 167,
+              "text": "3 Motherboard (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e127 "
+              },
+              "start_line": 168,
+              "end_line": 173,
+              "text": "7 PCIe cards"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e127 "
+              },
+              "start_line": 174,
+              "end_line": 179,
+              "text": "11 Power distribution board (FRU)"
+            }
+          ],
+          "end_line": 180
+        },
+        {
+          "start_line": 181,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e152"
+              },
+              "start_line": 182,
+              "end_line": 187,
+              "text": "4 DIMMs"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e152 "
+              },
+              "start_line": 188,
+              "end_line": 193,
+              "text": "8 USB flash drive"
+            }
+          ],
+          "end_line": 194
+        }
+      ],
+      "end_line": 196
+    },
+    {
+      "start_line": 208,
+      "attrs": {
+        "cellpadding": "4",
+        "cellspacing": "0",
+        "class": "Formal",
+        "title": "Oracle ZFS Storage ZS3-2 Controller CPU Descriptions",
+        "summary": " Table showing the Oracle ZFS Storage ZS3-2 controller CPU descriptions ",
+        "frame": "hsides",
+        "border": "1",
+        "rules": "rows"
+      },
+      "rows": [
+        {
+          "start_line": 210,
+          "cells": [
+            {
+              "tag": "th",
+              "attrs": {
+                "align": "left",
+                "valign": "bottom",
+                "width": "20%",
+                "id": "d74510e190"
+              },
+              "start_line": 211,
+              "end_line": 213,
+              "text": "Capacity"
+            },
+            {
+              "tag": "th",
+              "attrs": {
+                "align": "left",
+                "valign": "bottom",
+                "width": "20%",
+                "id": "d74510e195"
+              },
+              "start_line": 214,
+              "end_line": 216,
+              "text": "CPU 0"
+            },
+            {
+              "tag": "th",
+              "attrs": {
+                "align": "left",
+                "valign": "bottom",
+                "width": "20%",
+                "id": "d74510e200"
+              },
+              "start_line": 217,
+              "end_line": 219,
+              "text": "CPU 1"
+            }
+          ],
+          "end_line": 220
+        },
+        {
+          "start_line": 223,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e207",
+                "headers": "d74510e190 "
+              },
+              "start_line": 224,
+              "end_line": 228,
+              "text": "256GB"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e207 d74510e195 "
+              },
+              "start_line": 229,
+              "end_line": 233,
+              "text": "D0, D2, D5, D7 (blue)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e207 d74510e200 "
+              },
+              "start_line": 234,
+              "end_line": 238,
+              "text": "D0, D2, D5, D7 (blue)"
+            }
+          ],
+          "end_line": 239
+        },
+        {
+          "start_line": 240,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e223",
+                "headers": "d74510e190 "
+              },
+              "start_line": 241,
+              "end_line": 243,
+              "text": "."
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e223 d74510e195 "
+              },
+              "start_line": 244,
+              "end_line": 248,
+              "text": "D1, D3, D4, D6 (white)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e223 d74510e200 "
+              },
+              "start_line": 249,
+              "end_line": 253,
+              "text": "D1, D3, D4, D6 (white)"
+            }
+          ],
+          "end_line": 254
+        }
+      ],
+      "end_line": 256
+    },
+    {
+      "start_line": 261,
+      "attrs": {
+        "cellpadding": "4",
+        "cellspacing": "0",
+        "class": "Formal",
+        "title": "Oracle ZFS Storage ZS3-2 Controller Replaceable Memory Components",
+        "summary": " Table showing the Oracle ZFS Storage ZS3-2 controller replaceable memory components ",
+        "frame": "hsides",
+        "border": "1",
+        "rules": "rows"
+      },
+      "rows": [
+        {
+          "start_line": 263,
+          "cells": [
+            {
+              "tag": "th",
+              "attrs": {
+                "align": "left",
+                "valign": "bottom",
+                "width": "20%",
+                "id": "d74510e251"
+              },
+              "start_line": 264,
+              "end_line": 266,
+              "text": "Component"
+            },
+            {
+              "tag": "th",
+              "attrs": {
+                "align": "left",
+                "valign": "bottom",
+                "width": "20%",
+                "id": "d74510e256"
+              },
+              "start_line": 267,
+              "end_line": 269,
+              "text": "Description"
+            },
+            {
+              "tag": "th",
+              "attrs": {
+                "align": "left",
+                "valign": "bottom",
+                "width": "20%",
+                "id": "d74510e261"
+              },
+              "start_line": 270,
+              "end_line": 272,
+              "text": "FRU/CRU"
+            },
+            {
+              "tag": "th",
+              "attrs": {
+                "align": "left",
+                "valign": "bottom",
+                "width": "20%",
+                "id": "d74510e266"
+              },
+              "start_line": 273,
+              "end_line": 275,
+              "text": "Part Number"
+            }
+          ],
+          "end_line": 276
+        },
+        {
+          "start_line": 279,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e273",
+                "headers": "d74510e251 "
+              },
+              "start_line": 280,
+              "end_line": 284,
+              "text": "CPU"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e273 d74510e256 "
+              },
+              "start_line": 285,
+              "end_line": 289,
+              "text": "Intel E5-2658, 2.1G, 8-core"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e273 d74510e261 "
+              },
+              "start_line": 290,
+              "end_line": 294,
+              "text": "FRU"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e273 d74510e266 "
+              },
+              "start_line": 295,
+              "end_line": 299,
+              "text": "7019701"
+            }
+          ],
+          "end_line": 300
+        },
+        {
+          "start_line": 301,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e294",
+                "headers": "d74510e251 "
+              },
+              "start_line": 302,
+              "end_line": 306,
+              "text": "Memory"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e294 d74510e256 "
+              },
+              "start_line": 307,
+              "end_line": 311,
+              "text": "DIMM, 16GB,DDR3,1600,2Rx4,1.35V"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e294 d74510e261 "
+              },
+              "start_line": 312,
+              "end_line": 316,
+              "text": "CRU"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e294 d74510e266 "
+              },
+              "start_line": 317,
+              "end_line": 321,
+              "text": "7041603"
+            }
+          ],
+          "end_line": 322
+        },
+        {
+          "start_line": 323,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e315",
+                "headers": "d74510e251 "
+              },
+              "start_line": 324,
+              "end_line": 328,
+              "text": "Memory"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e315 d74510e256 "
+              },
+              "start_line": 329,
+              "end_line": 333,
+              "text": "DIMM, 32GB,DDR3,1066,4Rx4,1.35V"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e315 d74510e261 "
+              },
+              "start_line": 334,
+              "end_line": 338,
+              "text": "CRU"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e315 d74510e266 "
+              },
+              "start_line": 339,
+              "end_line": 343,
+              "text": "7055964"
+            }
+          ],
+          "end_line": 344
+        }
+      ],
+      "end_line": 346
+    },
+    {
+      "start_line": 352,
+      "attrs": {
+        "cellpadding": "4",
+        "cellspacing": "0",
+        "class": "Formal",
+        "title": null,
+        "summary": " Table showing information regarding the Oracle ZFS Storage ZS3-2 components ",
+        "frame": "hsides",
+        "border": "1",
+        "rules": "rows"
+      },
+      "rows": [
+        {
+          "start_line": 354,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e353"
+              },
+              "start_line": 355,
+              "end_line": 360,
+              "text": "1 Air Filter"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e353 "
+              },
+              "start_line": 361,
+              "end_line": 366,
+              "text": "5 Drive power cable (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e353 "
+              },
+              "start_line": 367,
+              "end_line": 372,
+              "text": "9 Fan modules"
+            }
+          ],
+          "end_line": 373
+        },
+        {
+          "start_line": 374,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e378"
+              },
+              "start_line": 375,
+              "end_line": 380,
+              "text": "2 Drives"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e378 "
+              },
+              "start_line": 381,
+              "end_line": 386,
+              "text": "6 Drive signal cable (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e378 "
+              },
+              "start_line": 387,
+              "end_line": 392,
+              "text": "10 Fan tray"
+            }
+          ],
+          "end_line": 393
+        },
+        {
+          "start_line": 394,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e403"
+              },
+              "start_line": 395,
+              "end_line": 400,
+              "text": "3 Chassis (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e403 "
+              },
+              "start_line": 401,
+              "end_line": 406,
+              "text": "7 Top cover"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e403 "
+              },
+              "start_line": 407,
+              "end_line": 412,
+              "text": "11 USB board (FRU)"
+            }
+          ],
+          "end_line": 413
+        },
+        {
+          "start_line": 414,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e428"
+              },
+              "start_line": 415,
+              "end_line": 420,
+              "text": "4 LED board (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e428 "
+              },
+              "start_line": 421,
+              "end_line": 426,
+              "text": "8 PDB signal cable (FRU)"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e428 "
+              },
+              "start_line": 427,
+              "end_line": 432,
+              "text": "12 Power supplies"
+            }
+          ],
+          "end_line": 433
+        }
+      ],
+      "end_line": 435
+    },
+    {
+      "start_line": 442,
+      "attrs": {
+        "cellpadding": "4",
+        "cellspacing": "0",
+        "class": "Formal",
+        "title": null,
+        "summary": " Table showing information regarding the Oracle ZFS Storage ZS3-2 controller internal cables ",
+        "frame": "hsides",
+        "border": "1",
+        "rules": "rows"
+      },
+      "rows": [
+        {
+          "start_line": 444,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e472"
+              },
+              "start_line": 445,
+              "end_line": 450,
+              "text": "1 PDB signal cable"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e472 "
+              },
+              "start_line": 451,
+              "end_line": 456,
+              "text": "3 Drive signal cable"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e472 "
+              },
+              "start_line": 457,
+              "end_line": 462,
+              "text": "5 Drive power cable"
+            }
+          ],
+          "end_line": 463
+        },
+        {
+          "start_line": 464,
+          "cells": [
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "id": "d74510e497"
+              },
+              "start_line": 465,
+              "end_line": 470,
+              "text": "2 USB board cable"
+            },
+            {
+              "tag": "td",
+              "attrs": {
+                "align": "left",
+                "valign": "top",
+                "width": "20%",
+                "headers": "d74510e497 "
+              },
+              "start_line": 471,
+              "end_line": 476,
+              "text": "4 LED board cable"
+            }
+          ],
+          "end_line": 477
+        }
+      ],
+      "end_line": 479
+    }
+  ]
+}

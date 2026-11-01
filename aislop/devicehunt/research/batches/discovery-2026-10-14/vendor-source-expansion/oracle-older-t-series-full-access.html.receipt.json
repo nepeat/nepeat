@@ -1,0 +1,37 @@
+{
+  "sequence": 8,
+  "url": "https://docs.oracle.com/cd/F24630_01/index.html",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:55:48.022421+00:00",
+  "policy": {
+    "path": "research/batches/discovery-2026-10-14/practical-sources/robots-oracle.txt",
+    "sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0",
+    "url": "https://docs.oracle.com/robots.txt",
+    "agent": "devicehunt-public-research/1.0",
+    "allowed": true,
+    "crawl_delay": null
+  },
+  "path": "oracle-older-t-series-full-access.html",
+  "redirect_followed": false,
+  "environment_recovery_plan": {
+    "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-recovery-plan.json",
+    "sha256": "18e2308e67951711da4ba3c9cbfb2dac080611db6df92aa17fb5cedffb57a53d",
+    "prior_dns_failure_sequence": 6
+  },
+  "status": 200,
+  "headers": {
+    "Server": "AkamaiNetStorage",
+    "Content-Length": "42655",
+    "Content-Type": "text/html",
+    "Akamai-GRN": "0.86f23517.1792043748.30f1cb25",
+    "ETag": "\"27cd5b263d86ddb591adf22955a88319:1572573108.085789\"",
+    "Cache-Control": "max-age=21600",
+    "Date": "Thu, 15 Oct 2026 05:55:48 GMT",
+    "Connection": "close"
+  },
+  "bytes": 42655,
+  "sha256": "8226d79a1d89a337993078b5872087dd9d19ffa6ec6d8c6cc7a0be38792ac2cb",
+  "state": "completed",
+  "finished_utc": "2026-10-15T05:55:48.262742+00:00"
+}

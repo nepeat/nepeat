@@ -1,0 +1,113 @@
+{
+  "artifacts": [
+    {
+      "path": "checks.json",
+      "sha256": "a413aaf13b14430ebf83b16f23da3091fb7d989f3debf2ba3921c1e65eea6274",
+      "bytes": 2469
+    },
+    {
+      "path": "fetch.py",
+      "sha256": "2f72c7be816544cc606cac54845b1d7931eac028ab57b30f11c2461a38424cd1",
+      "bytes": 2206
+    },
+    {
+      "path": "findings.json",
+      "sha256": "437ac50ef27031bb6373d3005090d3678ba6f8667901b77d6c1923bc20f34211",
+      "bytes": 8356
+    },
+    {
+      "path": "handoff.md",
+      "sha256": "7f56ea228ba0dac73744aaa5a4b039160208ba80ef88a5bd6be175f789c8db65",
+      "bytes": 6625
+    },
+    {
+      "path": "policy-checks.json",
+      "sha256": "5161898375e776d36aa3a0dfb5f48f81069b6b6a9788856d4e72dd487cffe6d8",
+      "bytes": 515
+    },
+    {
+      "path": "published-link.json",
+      "sha256": "6c379a11d485a5ddfcb24dc15ebdfe061af4934e07ae2697c903663e9807fae1",
+      "bytes": 340
+    },
+    {
+      "path": "redirect-check.json",
+      "sha256": "09bd8cef2dcd4ebc83cab4e8e33b18ab060f98515c711b6f80b4a358605e9449",
+      "bytes": 166
+    },
+    {
+      "path": "render-provenance.json",
+      "sha256": "9841a84e15ed62b4b8478ae3835e395e601798bed30ecf3ab7ef757f4a5a86c6",
+      "bytes": 2168
+    },
+    {
+      "path": "requests.json",
+      "sha256": "8b2680da5a015c64976b42407a14bf0f1f6155a1ffc1ab4e1ae98fb3c7412a97",
+      "bytes": 9347
+    },
+    {
+      "path": "robots-celestica.txt",
+      "sha256": "b60e9385e9f08f0913c050aa40c41cb10b292d0210d3d8dda9459195da928f34",
+      "bytes": 1136
+    },
+    {
+      "path": "robots-edgecore.txt",
+      "sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "bytes": 323
+    },
+    {
+      "path": "sd6200-1.png",
+      "sha256": "f6413d21b7955749674b41ef74acc359097ada58255bd5ccbed9b8cc0597d687",
+      "bytes": 229641
+    },
+    {
+      "path": "sd6200-2.png",
+      "sha256": "585e574c353ea5a0976b03737b4f8d0b0425f9a58825c2f6ff383800162e5eff",
+      "bytes": 116177
+    },
+    {
+      "path": "sd6200-datasheet.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "bytes": 642770
+    },
+    {
+      "path": "sd6200-pages.json",
+      "sha256": "167e926937d22b6aa6ba4028773124000c73b76b21e104c7acf299d14a68b38f",
+      "bytes": 8787
+    },
+    {
+      "path": "wedge100-2.png",
+      "sha256": "61b517fb3741f987733466856637e33fca992bd8ecba3ca35e4bc669c8dffc98",
+      "bytes": 481055
+    },
+    {
+      "path": "wedge100-3.png",
+      "sha256": "dbb7c6fa6e5ec7484521f01604c32e728bbad40a8be79a9a8027eff2d4fdfcea",
+      "bytes": 135180
+    },
+    {
+      "path": "wedge100-32x-download.response",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "wedge100-32x-r04-landing.html",
+      "sha256": "917334bb5a7e590dcc1d07928e6584c66e97d2ec7daab23fab677dc5b5a4c828",
+      "bytes": 289672
+    },
+    {
+      "path": "wedge100-32x-r04-pages.json",
+      "sha256": "aaf215bb1ee5bb9a67c881ca9cabea40d50d89a89b034ec518fb5d454af0609c",
+      "bytes": 17200
+    },
+    {
+      "path": "wedge100-32x-r04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "bytes": 281885
+    }
+  ],
+  "network_requests": 6,
+  "network_cap": 7,
+  "local_render_pages": 4,
+  "discovery_only": true
+}

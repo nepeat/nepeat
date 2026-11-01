@@ -1,0 +1,82 @@
+{
+  "status": "PREPARATORY ONLY; no proof outcome or promotion acceptance",
+  "checked_utc": "2026-10-13T04:38:56.048459+00:00",
+  "promote_sha256": "5cc7ece3ee58abbfa9f97bcd3248659e5ccae0bb286ec97da157fd1dfb0c065c",
+  "syntax_compile_without_execution": [
+    "promote.py",
+    "refresh_exports.py",
+    "check_queries.py",
+    "stage-r2.py"
+  ],
+  "candidate_existing_logical_table_set": [
+    "affiliations",
+    "anatel_equipment",
+    "archive_artifacts",
+    "archive_receipts",
+    "archive_release_artifacts",
+    "archive_release_receipts",
+    "archive_release_statements",
+    "archive_releases",
+    "bahrain_equipment",
+    "bsmi_certificates",
+    "bsmi_declarations",
+    "bsmi_product_certificates",
+    "bsmi_voluntary_certificates",
+    "devices",
+    "document_pages",
+    "document_search",
+    "documents",
+    "energystar_datacenter",
+    "energystar_server_archives",
+    "energystar_servers",
+    "equipment_register",
+    "evidence_links",
+    "evidence_reviews",
+    "evidence_statements",
+    "facts",
+    "fcc_applications",
+    "fcc_company_rows",
+    "fcc_detail_links",
+    "fcc_detail_pages",
+    "fcc_exhibits",
+    "fcc_grantees",
+    "fcc_id_index",
+    "fcc_sitemap_pages",
+    "fcc_sitemap_urls",
+    "fcc_text_excerpts",
+    "ghana_equipment",
+    "hyperscaler_evidence",
+    "identifiers",
+    "ieee_assignments",
+    "inspur_support_entries",
+    "ised_equipment",
+    "japan_equipment",
+    "ncc_equipment",
+    "nigeria_equipment",
+    "ntra_equipment",
+    "pci_entries",
+    "public_equipment_rows",
+    "records",
+    "rra_equipment",
+    "search_index",
+    "sources",
+    "tec_equipment"
+  ],
+  "table_count": 52,
+  "FTS_included": true,
+  "synthetic_path_checks": [
+    {
+      "example": "data/rebuilt-wave3-2026-10-12.sqlite",
+      "would_pass_workspace_path_guard": true
+    },
+    {
+      "example": "../outside-proof.json",
+      "would_pass_workspace_path_guard": false
+    },
+    {
+      "example": "/tmp/outside-proof.json",
+      "would_pass_workspace_path_guard": false
+    }
+  ],
+  "limits": "Only complete staged candidate schema and helper syntax/path expressions inspected; new clean rebuild/fullsuite not inspected or executed."
+}

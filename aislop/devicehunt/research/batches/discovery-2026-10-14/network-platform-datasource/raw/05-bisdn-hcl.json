@@ -1,0 +1,24 @@
+{
+  "sequence": 5,
+  "url": "https://www.bisdn.de/en/linux/compatibility/",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:49:31.833314+00:00",
+  "automatic_redirects": false,
+  "retries": 0,
+  "policy": {
+    "receipt": "raw/04-bisdn-policy.json",
+    "sha256": "8ccb27dae29b2cf821c3fd5b163bbccef4b7df3ea08569ba8dcba3804868a39e",
+    "allowed": true,
+    "crawl_delay_seconds": 0
+  },
+  "status": 200,
+  "location": null,
+  "content_type": "text/html; charset=UTF-8",
+  "body_path": "raw/05-bisdn-hcl.body",
+  "body_bytes": 12602,
+  "body_sha256": "281d4717ae1003e3843ab4bd0eb1ccc0564f5bc729d1ab9d4b1095a6fda1635f",
+  "headers_path": "raw/05-bisdn-hcl.headers",
+  "headers_sha256": "7b16e78e0b1473342c74b734e0601ea6756ec8608f29d646c021850f4652d94f",
+  "finished_utc": "2026-10-15T05:49:32.573071+00:00"
+}

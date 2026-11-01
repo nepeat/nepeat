@@ -1,0 +1,82 @@
+--- before/tests/test_archive_release.py
++++ tests/test_archive_release.py
+@@ -3,9 +3,11 @@
+ import unittest
+ from pathlib import Path
+ 
+-from devicehunt.artifacts import Archive
++from devicehunt.artifacts import Archive, canonical, digest
+ from devicehunt.archive import freeze, register_reference
+ from devicehunt import lineage
++from devicehunt.documents import PYPDF_METHOD, POPPLER_METHOD
++from tests.test_pdf_extraction import poppler_capture
+ 
+ 
+ class ArchiveReleaseTests(unittest.TestCase):
+@@ -66,12 +68,66 @@
+         capture = self.a.receipts('legacy-capture')[0]['payload']
+         self.assertIsNone(capture['started_at'])
+         self.assertIsNone(capture['collector_version'])
++        self.assertEqual(self.a.receipts('reference-document')[0]['payload']['entry'], entry)
++        expected_derivation = dict(
++            inputs=[{'role': 'pdf', 'sha256': sha, 'order': 0}],
++            outputs=[{'role': 'saved-output', 'sha256': lineage.checksum(text)}],
++            method=PYPDF_METHOD, recipe_id=None, tool_version=None, code_sha256=None,
++            configuration=None, extracted_at=None, historical_status=None,
++            output_schema_version=None, metadata_status='unknown',
++            locator={'bundle_sha256': lineage.checksum(bundle), 'pointer': '/documents/0'},
++        )
++        derivation = self.a.receipts('saved-derivation')[0]
++        self.assertEqual(derivation['payload'], expected_derivation)
++        self.assertEqual(derivation['id'], 'saved-derivation-' + digest(canonical(expected_derivation)))
+         before = len(self.a.receipts())
+         text.write_text('bad')
+         with self.assertRaisesRegex(ValueError, 'Pinned inventory changed'):
+             register_reference(self.a, path)
+         self.assertEqual(len(self.a.receipts()), before)
+ 
++    def test_mixed_method_registration_uses_sidecar_not_inventory_label(self):
++        entries, dependencies = [], []
++        def pin(p):
++            return {'path': p.name, 'sha256': lineage.checksum(p), 'byte_count': p.stat().st_size}
++        for name, method in [('one', PYPDF_METHOD), ('two', POPPLER_METHOD)]:
++            pdf = self.root / (name + '.pdf')
++            pdf.write_bytes(b'%PDF-fixture ' + name.encode())
++            text = self.root / (name + '-text.json')
++            capture = poppler_capture(lineage.checksum(pdf))
++            if method == PYPDF_METHOD:
++                capture = {'pdf_sha256': capture['pdf_sha256'], 'extraction_method': method,
++                           'pages': capture['pages']}
++            text.write_text(json.dumps(capture))
++            # The pinned bundle is preserved verbatim; this untrusted field
++            # must not become saved-derivation provenance.
++            entries.append(dict(id=name, url='https://example.invalid/' + name,
++                title='fixture', category='fixture', scope='synthetic only', tier='vendor',
++                page_count=2, extraction_method='untrusted inventory method',
++                pdf={'path': pdf.name, 'sha256': lineage.checksum(pdf)},
++                text={'path': text.name, 'sha256': lineage.checksum(text)}))
++            dependencies.extend([pin(pdf), pin(text)])
++        bundle = self.root / 'mixed.json'
++        bundle.write_text(json.dumps({'schema_version': 1, 'collection': 'public-device-references-v1',
++                                     'documents': entries}))
++        inventory = dict(pins={'complete_bundle': pin(bundle)}, dependencies=dependencies,
++                         supporting_provenance=[], documents=[{'entry': e} for e in entries],
++                         special_lineage={'document_id': 'not-present'})
++        path = self.root / 'mixed-inventory.json'
++        path.write_text(json.dumps(inventory))
++        first = register_reference(self.a, path)
++        self.assertEqual(first, register_reference(self.a, path))
++        self.assertEqual({r['payload']['method'] for r in self.a.receipts('saved-derivation')},
++                         {PYPDF_METHOD, POPPLER_METHOD})
++        self.assertEqual(sorted((r['payload']['entry'] for r in self.a.receipts('reference-document')),
++                                key=lambda e: e['id']), entries)
++        before = len(self.a.receipts())
++        inventory['documents'].reverse()
++        path.write_text(json.dumps(inventory))
++        with self.assertRaisesRegex(ValueError, 'complete selected bundle'):
++            register_reference(self.a, path)
++        self.assertEqual(len(self.a.receipts()), before)
++
+ 
+ if __name__ == '__main__':
+     unittest.main()

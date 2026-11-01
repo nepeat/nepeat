@@ -1,0 +1,47 @@
+{
+  "sequence": 22,
+  "url": "https://www.edge-core.com/wp-content/uploads/2023/09/ECIS4500-PoE-Series-DS-R04.pdf",
+  "method": "GET",
+  "purpose": "published_same_origin_redirect",
+  "basis": {
+    "redirect_receipt": "07-download.response.receipt.json",
+    "redirect_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "location_raw": "https://www.edge-core.com/wp-content/uploads/2023/09/ECIS4500-PoE-Series-DS-R04.pdf"
+  },
+  "body_path": "07-pdf.response",
+  "started_utc": "2026-10-15T06:04:34.940456+00:00",
+  "request_headers": {
+    "User-Agent": "devicehunt-public-research/1.0",
+    "Accept": "*/*"
+  },
+  "automatic_redirects": false,
+  "timeout_seconds": 30,
+  "maximum_body_bytes": 20000000,
+  "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "exact_path_allowed": true,
+  "status": 200,
+  "response_url": "https://www.edge-core.com/wp-content/uploads/2023/09/ECIS4500-PoE-Series-DS-R04.pdf",
+  "headers": {
+    "Date": "Thu, 15 Oct 2026 06:04:35 GMT",
+    "Content-Type": "application/pdf",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-frame-options": "SAMEORIGIN",
+    "x-content-type-options": "nosniff",
+    "last-modified": "Fri, 18 Sep 2026 08:24:12 GMT",
+    "cf-cache-status": "HIT",
+    "vary": "Accept-Encoding",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "microphone=(),fullscreen=()",
+    "x-xss-protection": "1;mode=block",
+    "Server": "cloudflare",
+    "Age": "90418",
+    "CF-RAY": "a4aca08ee90c347d-SEA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "state": "completed",
+  "bytes": 4782697,
+  "sha256": "ff825d61c5d0dec969a7bc89f4ec612a4bbfc348775b1584c8bb2c253f54bf2f",
+  "finished_utc": "2026-10-15T06:04:35.155427+00:00"
+}

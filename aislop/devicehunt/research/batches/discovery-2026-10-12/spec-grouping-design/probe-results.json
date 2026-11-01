@@ -1,0 +1,264 @@
+{
+  "at_utc": "2026-10-13T04:59:35.657082+00:00",
+  "database": "data/devices.sqlite",
+  "sha256_before": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "sha256_after": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "unchanged": true,
+  "code_hashes": {
+    "devicehunt/specifications.py": "2d6de287745b8d6d3a60483fbdc53baf900215170aa8fabdb3875c6994104391",
+    "devicehunt/__main__.py": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83",
+    "devicehunt/catalog.py": "1e162a142420e16806850baec3b024199d62db8e61bd3cef6d0aee849871e6e6",
+    "tests/test_specifications.py": "b597364dd9403fa2575be88aca7c68fac915ff4554e55f57c2e394e713e4fc27",
+    "tests/test_specifications_source_facts.py": "2720ff2d7dee7bbdcfe2a875fb4f183807c1a58f0c5fac5f9354d745c0b26a5f",
+    "docs/specification-search.md": "6075a1b3b405477402b878279d9cb0c61a7b8449bbcd050d13972e84586a45b7"
+  },
+  "cases": [
+    {
+      "case": {
+        "name": "nf5280m7",
+        "query": "NF5280M7",
+        "exact_model": true
+      },
+      "baseline_full_rows": 11,
+      "baseline_default_100_rows": 11,
+      "precollapse_rows": 11,
+      "strict_literal_groups": 7,
+      "strict_group_default_100_rows": 7,
+      "baseline_first_100_distinct_display_statements": 7,
+      "first_5_distinct_display_statements": 4,
+      "grouped_first_5_distinct_display_statements": 5,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 2,
+      "exact_models_with_multiple_brands": {
+        "NF5280M7": [
+          "IEIT Systems Co., Ltd.",
+          "Inspur Electronic Information Industry Co., Ltd. (IEI)"
+        ]
+      },
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "1ee674d912cbe7c33d91174145741df7724aed8ebd7aee2234e4dff05c3a35f7",
+      "probe_sha256": "1999f31312a06194c1c38052d15720e7ad5d55e5d3e4006286539101709e54ac"
+    },
+    {
+      "case": {
+        "name": "as7326",
+        "query": "AS7326-56X",
+        "exact_model": true
+      },
+      "baseline_full_rows": 14,
+      "baseline_default_100_rows": 14,
+      "precollapse_rows": 14,
+      "strict_literal_groups": 14,
+      "strict_group_default_100_rows": 14,
+      "baseline_first_100_distinct_display_statements": 14,
+      "first_5_distinct_display_statements": 5,
+      "grouped_first_5_distinct_display_statements": 5,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 1,
+      "exact_models_with_multiple_brands": {},
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "1b03c4a3acb898a42a8a5c3ef2779b03d64d82ef8ca3c8956fd465c76c7037c2",
+      "probe_sha256": "69476f695acc0f6db6f4b2285235c2a40a94a380e05715fd315c356cc14d3326"
+    },
+    {
+      "case": {
+        "name": "oracle7420",
+        "query": "Sun ZFS Storage 7420",
+        "exact_model": true
+      },
+      "baseline_full_rows": 9,
+      "baseline_default_100_rows": 9,
+      "precollapse_rows": 9,
+      "strict_literal_groups": 9,
+      "strict_group_default_100_rows": 9,
+      "baseline_first_100_distinct_display_statements": 9,
+      "first_5_distinct_display_statements": 5,
+      "grouped_first_5_distinct_display_statements": 5,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 1,
+      "exact_models_with_multiple_brands": {},
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "6d2db690895cdff8c849e2f748864153163a2d4f708bed854c4337264e92df56",
+      "probe_sha256": "afe1ee6282a3cd89096eb99abb88892be78c3ff7881087ab9586c5e91c2af1b9"
+    },
+    {
+      "case": {
+        "name": "as6700",
+        "query": "AS6700-32X",
+        "exact_model": true
+      },
+      "baseline_full_rows": 8,
+      "baseline_default_100_rows": 8,
+      "precollapse_rows": 8,
+      "strict_literal_groups": 8,
+      "strict_group_default_100_rows": 8,
+      "baseline_first_100_distinct_display_statements": 8,
+      "first_5_distinct_display_statements": 5,
+      "grouped_first_5_distinct_display_statements": 5,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 1,
+      "exact_models_with_multiple_brands": {},
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "804c6526133c8496c3c5c001c4f3f8021283f81b5fc93a8eca1f02451ff73e09",
+      "probe_sha256": "a3cc27dea7b5705de90ef66e791db78e1df1b41f91592951408830b688c52ff3"
+    },
+    {
+      "case": {
+        "name": "nf5280-discovery",
+        "query": "NF5280",
+        "exact_model": false
+      },
+      "baseline_full_rows": 201,
+      "baseline_default_100_rows": 100,
+      "precollapse_rows": 201,
+      "strict_literal_groups": 79,
+      "strict_group_default_100_rows": 79,
+      "baseline_first_100_distinct_display_statements": 47,
+      "first_5_distinct_display_statements": 3,
+      "grouped_first_5_distinct_display_statements": 5,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 14,
+      "exact_models_with_multiple_brands": {
+        "NF5280M7": [
+          "IEIT Systems Co., Ltd.",
+          "Inspur Electronic Information Industry Co., Ltd. (IEI)"
+        ],
+        "NF5280A7": [
+          "Inspur",
+          "Inspur Electronic Information Industry Co., Ltd. (IEI)"
+        ],
+        "NF5280M4": [
+          "Inspur",
+          "Inspur Corporation"
+        ]
+      },
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "51e064fc53eec4668bfb12e2926d577d622a3b6264aa4411bba12b6a2dcd7851",
+      "probe_sha256": "6aa353b418db203b01e47a6e89ca5ec4e2badf85ecd07dad39f6cab20452c916"
+    },
+    {
+      "case": {
+        "name": "ais800-accton",
+        "query": "AIS800-32O",
+        "exact_model": true,
+        "target": "Accton"
+      },
+      "baseline_full_rows": 1,
+      "baseline_default_100_rows": 1,
+      "precollapse_rows": 1,
+      "strict_literal_groups": 1,
+      "strict_group_default_100_rows": 1,
+      "baseline_first_100_distinct_display_statements": 1,
+      "first_5_distinct_display_statements": 1,
+      "grouped_first_5_distinct_display_statements": 1,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 1,
+      "exact_models_with_multiple_brands": {},
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "1d8ddd502a637a55d0ce39e0dd10d8bf13457073bfe23324d0c3e19b750d7bb7",
+      "probe_sha256": "7e7bb4bb3c763d1b53e5793eb8e501a885c825679fd6aec847ec4ab899b4f90f"
+    },
+    {
+      "case": {
+        "name": "ds4000-part-number",
+        "query": "R4023-F9102-A0",
+        "exact_part_number": true,
+        "target": "Celestica"
+      },
+      "baseline_full_rows": 2,
+      "baseline_default_100_rows": 2,
+      "precollapse_rows": 2,
+      "strict_literal_groups": 2,
+      "strict_group_default_100_rows": 2,
+      "baseline_first_100_distinct_display_statements": 2,
+      "first_5_distinct_display_statements": 2,
+      "grouped_first_5_distinct_display_statements": 2,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 1,
+      "exact_models_with_multiple_brands": {},
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "f747889f0da23b0f81c9644e0786b04f600c3e333061d36772a49408ad091943",
+      "probe_sha256": "14a98eaa5e46a62ff90752eaa3f8129f3baa05451638af94c3eb0a252e42bf97"
+    },
+    {
+      "case": {
+        "name": "global-presentation-duplicate-scope",
+        "query": "",
+        "exact_model": false
+      },
+      "baseline_full_rows": 2294,
+      "baseline_default_100_rows": 100,
+      "precollapse_rows": 2294,
+      "strict_literal_groups": 1911,
+      "strict_group_default_100_rows": 100,
+      "baseline_first_100_distinct_display_statements": 89,
+      "first_5_distinct_display_statements": 5,
+      "grouped_first_5_distinct_display_statements": 5,
+      "repeated_same_source_keys": 0,
+      "max_repeat": 14,
+      "exact_models_with_multiple_brands": {
+        "NF5180M7": [
+          "IEIT Systems Co., Ltd.",
+          "Inspur Electronic Information Industry Co., Ltd. (IEI)"
+        ],
+        "NF5280M7": [
+          "IEIT Systems Co., Ltd.",
+          "Inspur Electronic Information Industry Co., Ltd. (IEI)"
+        ],
+        "NF5180A7": [
+          "Inspur",
+          "Inspur Electronic Information Industry Co., Ltd. (IEI)"
+        ],
+        "NF5280A7": [
+          "Inspur",
+          "Inspur Electronic Information Industry Co., Ltd. (IEI)"
+        ],
+        "NF5280M4": [
+          "Inspur",
+          "Inspur Corporation"
+        ],
+        "QuantaGrid D51B-2U": [
+          "QCT",
+          "Quanta"
+        ],
+        "QuantaGrid D52BQ-2U": [
+          "QCT",
+          "Quanta"
+        ],
+        "QuantaGrid S31A-1U": [
+          "QCT",
+          "Quanta"
+        ],
+        "QuantaPlex T41S-2U": [
+          "QCT",
+          "Quanta"
+        ],
+        "QuantaGrid D43K-1U": [
+          "Quanta",
+          "Quanta Cloud Technology"
+        ],
+        "QuantaGrid D54Q-2U": [
+          "Quanta Cloud Technology",
+          "Quanta Cloud Technology Inc."
+        ]
+      },
+      "display_origin_overlap_groups": 0,
+      "baseline_cli_sha256": "52644966c94eecf5fcb1064ffb1301f733de7a8e244de199ad91efabdfd477e3",
+      "probe_sha256": "3122245dd0aeea3256b46ddc96844e2ab62993e0d56ca770d580a751f0f28826"
+    }
+  ],
+  "total_cases": 8,
+  "current_CLI_default_limit": 100,
+  "prototype_group_key": [
+    "device_id",
+    "category",
+    "origin",
+    "source_fact_name",
+    "displayed statement",
+    "raw fact value"
+  ],
+  "imports": 0,
+  "network": 0,
+  "production_edits": 0,
+  "scope": "eight read-only representative queries, actual current CLI/API output plus in-memory presentation prototype; no current behavior change"
+}

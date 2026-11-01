@@ -1,0 +1,20 @@
+{
+  "scope": "temporary two-source fixture only; no live import",
+  "error": {
+    "type": "KeyError",
+    "message": "'model'"
+  },
+  "before_models": [
+    "old-one",
+    "old-two"
+  ],
+  "after_rollback_models": [
+    "new-one",
+    "old-two"
+  ],
+  "first_source_replacement_survives_later_failure": true,
+  "live_sha256_unchanged": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "importer_sha256": "99e5051a5c09c0abee1606e2127bea88e7539ca65b704f503b44ccb7d3ba7d51",
+  "catalog_sha256": "2c5731c8a1fbac7f7c6f3d57284cb0ae3448cd26277c5e1446e83f054192c8ef",
+  "performance_observation": "Catalog.finish reindexes and commits once per curated source; current pinned redhat-cert-facts input contains342 sources. This is static call-path inspection, not a benchmark."
+}

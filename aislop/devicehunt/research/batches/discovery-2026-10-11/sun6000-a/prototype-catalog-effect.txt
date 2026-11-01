@@ -1,0 +1,3 @@
+{'registry_rows': 151, 'model_assertions': 154}
+{"manufacturer": {"pairs": 2142, "ids": 2141, "by": {"Celestica": [193, 239, 241], "Oracle": [859, 928, 928]}}, "all": {"pairs": 4581, "ids": 4443, "by": {"Celestica": [374, 534, 592], "Oracle": [1281, 1617, 2460]}}, "devices": 5107, "records": 7225, "affiliations": 10557, "facts": 74074, "identifiers": 6833, "rra_equipment": 1081, "sources": 2076, "seen": 151}
+{"manufacturer": {"pairs": 2147, "ids": 2146, "by": {"Celestica": [198, 244, 246], "Oracle": [859, 928, 928]}}, "all": {"pairs": 4591, "ids": 4448, "by": {"Celestica": [379, 539, 597], "Oracle": [1286, 1622, 2465]}}, "devices": 5112, "records": 7230, "affiliations": 10567, "facts": 74129, "identifiers": 6838, "rra_equipment": 1081, "sources": 2076, "seen": 151}

@@ -1,0 +1,473 @@
+{
+  "verdict": "PASS candidate audit; no import",
+  "checked_utc": "2026-10-13T04:46:59.629411+00:00",
+  "candidate_sha256": "580ff0e2aa3f46b996fc28612fe8d0489de9a8ca8fdd649948dd202ffc8b8608",
+  "counts": {
+    "jbb2015": 162,
+    "source_quotes": 348,
+    "request_locators": 18,
+    "cpu2017": 204
+  },
+  "records": [
+    {
+      "source": "spec-jbb2015-20151123-00036",
+      "printed": "Inspur NF5280M4",
+      "model": "Inspur NF5280M4",
+      "facts": 27,
+      "metrics": [
+        [
+          "spec_result_max_jops",
+          "92616 SPECjbb2015-MultiJVM max-jOPS"
+        ],
+        [
+          "spec_result_critical_jops",
+          "27134 SPECjbb2015-MultiJVM critical-jOPS"
+        ]
+      ],
+      "power": [
+        [
+          "spec_power_supply_quantity_and_rating_w",
+          "1 x 550W"
+        ]
+      ]
+    },
+    {
+      "source": "spec-jbb2015-20160118-00041",
+      "printed": "Inspur NF5280M4",
+      "model": "Inspur NF5280M4",
+      "facts": 27,
+      "metrics": [
+        [
+          "spec_result_max_jops",
+          "98333 SPECjbb2015-MultiJVM max-jOPS"
+        ],
+        [
+          "spec_result_critical_jops",
+          "29009 SPECjbb2015-MultiJVM critical-jOPS"
+        ]
+      ],
+      "power": [
+        [
+          "spec_power_supply_quantity_and_rating_w",
+          "1 x 550W"
+        ]
+      ]
+    },
+    {
+      "source": "spec-jbb2015-20160321-00065",
+      "printed": "Inspur NF5180M4",
+      "model": "Inspur NF5180M4",
+      "facts": 27,
+      "metrics": [
+        [
+          "spec_result_max_jops",
+          "98145 SPECjbb2015-MultiJVM max-jOPS"
+        ],
+        [
+          "spec_result_critical_jops",
+          "28591 SPECjbb2015-MultiJVM critical-jOPS"
+        ]
+      ],
+      "power": [
+        [
+          "spec_power_supply_quantity_and_rating_w",
+          "1 x 550W"
+        ]
+      ]
+    },
+    {
+      "source": "spec-jbb2015-20160321-00066",
+      "printed": "Inspur NF5270M4",
+      "model": "Inspur NF5270M4",
+      "facts": 27,
+      "metrics": [
+        [
+          "spec_result_max_jops",
+          "97551 SPECjbb2015-MultiJVM max-jOPS"
+        ],
+        [
+          "spec_result_critical_jops",
+          "28206 SPECjbb2015-MultiJVM critical-jOPS"
+        ]
+      ],
+      "power": [
+        [
+          "spec_power_supply_quantity_and_rating_w",
+          "1 x 550W"
+        ]
+      ]
+    },
+    {
+      "source": "spec-jbb2015-20160321-00067",
+      "printed": "Inspur NF5170M4",
+      "model": "Inspur NF5170M4",
+      "facts": 27,
+      "metrics": [
+        [
+          "spec_result_max_jops",
+          "97543 SPECjbb2015-MultiJVM max-jOPS"
+        ],
+        [
+          "spec_result_critical_jops",
+          "28535 SPECjbb2015-MultiJVM critical-jOPS"
+        ]
+      ],
+      "power": [
+        [
+          "spec_power_supply_quantity_and_rating_w",
+          "1 x 550W"
+        ]
+      ]
+    },
+    {
+      "source": "spec-jbb2015-20160516-00095",
+      "printed": "Inspur TS860G3",
+      "model": "Inspur TS860G3",
+      "facts": 27,
+      "metrics": [
+        [
+          "spec_result_max_jops",
+          "397601 SPECjbb2015-MultiJVM max-jOPS"
+        ],
+        [
+          "spec_result_critical_jops",
+          "124466 SPECjbb2015-MultiJVM critical-jOPS"
+        ]
+      ],
+      "power": [
+        [
+          "spec_power_supply_quantity_and_rating_w",
+          "4 x 2000W"
+        ]
+      ]
+    },
+    {
+      "source": "spec-cpu2017-20220325-31246",
+      "printed": "Inspur NF8480M6 (Intel Xeon Platinum 8376H)",
+      "model": "Inspur NF8480M6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_int_base",
+          "784"
+        ],
+        [
+          "spec_result_specrate_r_2017_int_peak",
+          "813"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220325-31244",
+      "printed": "Inspur NF8260M6 (Intel Xeon Platinum 8376H)",
+      "model": "Inspur NF8260M6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_fp_base",
+          "659"
+        ],
+        [
+          "spec_result_specrate_r_2017_fp_peak",
+          "699"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220325-31242",
+      "printed": "Inspur NF8260M6 (Intel Xeon Platinum 8360H)",
+      "model": "Inspur NF8260M6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_int_base",
+          "708"
+        ],
+        [
+          "spec_result_specrate_r_2017_int_peak",
+          "734"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220311-31155",
+      "printed": "Inspur I24M6 (Intel Xeon Gold 6330N)",
+      "model": "Inspur I24M6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_fp_base",
+          "322"
+        ],
+        [
+          "spec_result_specrate_r_2017_fp_peak",
+          "336"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220301-31137",
+      "printed": "Inspur I24LM6 (Intel Xeon Platinum 8360Y)",
+      "model": "Inspur I24LM6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_fp_base",
+          "422"
+        ],
+        [
+          "spec_result_specrate_r_2017_fp_peak",
+          "448"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220301-31136",
+      "printed": "Inspur I24LM6 (Intel Xeon Platinum 8368Q)",
+      "model": "Inspur I24LM6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_fp_base",
+          "445"
+        ],
+        [
+          "spec_result_specrate_r_2017_fp_peak",
+          "472"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220220-30983",
+      "printed": "Inspur NF5488M5 (Intel Xeon Platinum 8260)",
+      "model": "Inspur NF5488M5",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specspeed_r_2017_int_base",
+          "10.9"
+        ],
+        [
+          "spec_result_specspeed_r_2017_int_peak",
+          "11.2"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220220-30979",
+      "printed": "Inspur NF8260M5 (Intel Xeon Gold 6246)",
+      "model": "Inspur NF8260M5",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_int_base",
+          "382"
+        ],
+        [
+          "spec_result_specrate_r_2017_int_peak",
+          "395"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220125-30794",
+      "printed": "Inspur NF5280M5 (Intel Xeon Gold 5218R)",
+      "model": "Inspur NF5280M5",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specspeed_r_2017_fp_base",
+          "124"
+        ],
+        [
+          "spec_result_specspeed_r_2017_fp_peak",
+          "126"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20220125-30791",
+      "printed": "Inspur NF8260M5 (Intel Xeon Gold 6234)",
+      "model": "Inspur NF8260M5",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_int_base",
+          "263"
+        ],
+        [
+          "spec_result_specrate_r_2017_int_peak",
+          "272"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20211206-30304",
+      "printed": "Inspur NF8480M6 (Intel Xeon Platinum 8380HL)",
+      "model": "Inspur NF8480M6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_fp_base",
+          "662"
+        ],
+        [
+          "spec_result_specrate_r_2017_fp_peak",
+          "703"
+        ]
+      ],
+      "power": []
+    },
+    {
+      "source": "spec-cpu2017-20211206-30303",
+      "printed": "Inspur NF8480M6 (Intel Xeon Gold 6330H)",
+      "model": "Inspur NF8480M6",
+      "facts": 17,
+      "metrics": [
+        [
+          "spec_result_specrate_r_2017_fp_base",
+          "531"
+        ],
+        [
+          "spec_result_specrate_r_2017_fp_peak",
+          "561"
+        ]
+      ],
+      "power": []
+    }
+  ],
+  "routing": [
+    {
+      "path": "data/devices.sqlite",
+      "existing": [
+        "09fd28196820640d4c48",
+        "291ef0b1ebfda1c953d7",
+        "2efcb0bdbfed7895e91c",
+        "710919c49765e744012c",
+        "896c2531d53210a1ef86",
+        "9e6ff32d891fb085be76",
+        "bf057d2343118456e21b",
+        "d3f48f11da28bc2c2661"
+      ],
+      "new": [
+        "0bad71144fd3f941299a",
+        "85a144b68839f17b3901",
+        "a6d17cb838346ee56f8f",
+        "eebe272934886ec0b12b"
+      ],
+      "case_differences": [
+        {
+          "source": "spec-cpu2017-20220311-31155",
+          "printed_model": "Inspur I24M6",
+          "catalog_model": "Inspur i24M6",
+          "id": "710919c49765e744012c"
+        },
+        {
+          "source": "spec-cpu2017-20220301-31137",
+          "printed_model": "Inspur I24LM6",
+          "catalog_model": "Inspur i24LM6",
+          "id": "2efcb0bdbfed7895e91c"
+        },
+        {
+          "source": "spec-cpu2017-20220301-31136",
+          "printed_model": "Inspur I24LM6",
+          "catalog_model": "Inspur i24LM6",
+          "id": "2efcb0bdbfed7895e91c"
+        }
+      ]
+    },
+    {
+      "path": "data/devices-candidate-wave3-2026-10-12.sqlite",
+      "existing": [
+        "09fd28196820640d4c48",
+        "291ef0b1ebfda1c953d7",
+        "2efcb0bdbfed7895e91c",
+        "710919c49765e744012c",
+        "896c2531d53210a1ef86",
+        "9e6ff32d891fb085be76",
+        "bf057d2343118456e21b",
+        "d3f48f11da28bc2c2661"
+      ],
+      "new": [
+        "0bad71144fd3f941299a",
+        "85a144b68839f17b3901",
+        "a6d17cb838346ee56f8f",
+        "eebe272934886ec0b12b"
+      ],
+      "case_differences": [
+        {
+          "source": "spec-cpu2017-20220311-31155",
+          "printed_model": "Inspur I24M6",
+          "catalog_model": "Inspur i24M6",
+          "id": "710919c49765e744012c"
+        },
+        {
+          "source": "spec-cpu2017-20220301-31137",
+          "printed_model": "Inspur I24LM6",
+          "catalog_model": "Inspur i24LM6",
+          "id": "2efcb0bdbfed7895e91c"
+        },
+        {
+          "source": "spec-cpu2017-20220301-31136",
+          "printed_model": "Inspur I24LM6",
+          "catalog_model": "Inspur i24LM6",
+          "id": "2efcb0bdbfed7895e91c"
+        }
+      ]
+    }
+  ],
+  "snapshot_copies_verified": 18,
+  "original_artifact_hashes_verified": 47,
+  "builder_check": {
+    "returncode": 0,
+    "stdout": "PASS 18 sources / 18 records / 366 facts / 12 exact identities; no import\n",
+    "stderr": "",
+    "candidate_tree_unchanged": true
+  },
+  "live_and_staged_database_hashes_unchanged": {
+    "data/devices.sqlite": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+    "data/devices-candidate-wave3-2026-10-12.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea"
+  },
+  "input_hashes": {
+    "candidate.json": "580ff0e2aa3f46b996fc28612fe8d0489de9a8ca8fdd649948dd202ffc8b8608",
+    "provenance.json": "944c9078b5a07c357fe0c21c0ca766321c15674ff1a10fb10144214e6f2a0d24",
+    "build_candidate.py": "e74fe084c4f52966ab824274534e19ebc83eee1e8e0a212670217158748e0566",
+    "check_candidate.py": "e6726e545ee50b76abda3c4cd25ebc5f75e81b3d05f9eafb9eae41c60eb8b279",
+    "first-attempt.log": "8b4dac084f81d47651c24e91fc6e43c4968d2cbfe3bf9387765f4b8bad8ec932",
+    "build_candidate.py.first-attempt": "5d2fd6a31acf34d89bdc32728dfd1478630faaf7f850ec0bc837b6200e923452",
+    "first-attempt-note.txt": "282190bf6ca060fd0cecc22d19fba8e327a6de970d443952a2388b08d8d223d4",
+    "field-mapping.json": "053576ab18546d03ae72e9bb62514341171c8765299fd4784878c94962b2e964",
+    "routing.json": "244687c22c4813bb24b95ab114be59810083d88f227014a80203fa1386eaa2eb",
+    "checks.json": "72d6317467a5f1d33de7ba696aaaeecba64f4cd0c59382b693806c91daee4aa7",
+    "SHA256SUMS": "154cc2233848771fe954667445bbee9e4dd4f061ba0c3429f0f995ea5bd9c9de",
+    "handoff.md": "3625b46eb58c3e2c00c09e86d41fab9c28f3c0cbb4ffd80ca635fc3c8c287ff5",
+    "snapshots/cpu2017/cpu2017-20211206-30303.txt": "a9d0f6fbee4a747833cbb6948db7706b80a01037f58d6e73de6e53b3644ac679",
+    "snapshots/cpu2017/cpu2017-20211206-30304.txt": "d986fe2c0debc18278fe23e7f13cd4608f2e804b9aa0245543fe31cadac01584",
+    "snapshots/cpu2017/cpu2017-20220220-30983.txt": "22f694f186541869c321778e3eab34d4ff80d0ec97b9cac3340cc3ac2e86d5f0",
+    "snapshots/cpu2017/cpu2017-20220311-31155.txt": "6dfc129904136f1350f1bb8f2142073a497bbe9ae10450ad126b844cfb659e86",
+    "snapshots/cpu2017/cpu2017-20220125-30791.txt": "5518b9efeaa35453632b9ed111b7306852d59b1d83817f7e3f837e0ff1b299a8",
+    "snapshots/cpu2017/cpu2017-20220325-31246.txt": "00b367fd47cd240412e94eb6cdeb297b50b54c889e072f08ff89b8ab09a05e2e",
+    "snapshots/cpu2017/cpu2017-20220220-30979.txt": "82276d7e65e543dd411a200ec6d27ef74b00244eb4a36b9d668d110380688110",
+    "snapshots/cpu2017/cpu2017-20220301-31137.txt": "d0459eb694c5950ee6bee0135ce9a158036e4393760e01023225668c80ef173f",
+    "snapshots/cpu2017/cpu2017-20220325-31242.txt": "ddfcfc75d57921197bc93266a025a51c3854a06bb570a3b49982580e0baff941",
+    "snapshots/cpu2017/cpu2017-20220325-31244.txt": "032cf03841493c88ca33a345aa7b4140e0a226cdb856b816cc765503f9409b83",
+    "snapshots/cpu2017/cpu2017-20220301-31136.txt": "b28ba6665cfe5d227d0752a948156ec52ee05cc269b92fd31340734b09688c9d",
+    "snapshots/cpu2017/cpu2017-20220125-30794.txt": "307bd0ae2e2ae949840ac8c10dfe0fba81899646b2b7e203987bacea287e0d89",
+    "snapshots/jbb2015/jbb2015-20160321-00065.html": "5d1f3b2c7c131511f7b88681f17da4cd2c313cee637db43dff5f08ecd94785f5",
+    "snapshots/jbb2015/jbb2015-20151123-00036.html": "1fdf11211162954d70d64056dba4d8d8808c0e9250e65d5fbd2e4b66472f6286",
+    "snapshots/jbb2015/jbb2015-20160321-00067.html": "a15d9689775057ffce652aa029d41a1992106487ed357d7a98d4cbd8b3fe3ebc",
+    "snapshots/jbb2015/jbb2015-20160118-00041.html": "05d789cc4565f35e4bcb498924eee2780604c8ca5b4493fd834d4763dd220548",
+    "snapshots/jbb2015/jbb2015-20160516-00095.html": "6055a6bf577154a73ca1cb80bc3d4cdd051001232ef4f2fe7776300b8ab7b8b8",
+    "snapshots/jbb2015/jbb2015-20160321-00066.html": "4db0fbc588f18529a6af95460f0a40d5855cc42114d9b3ce2f3262d5b6a5be5c"
+  }
+}

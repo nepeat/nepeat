@@ -1,0 +1,16 @@
+[
+  {
+    "policy_file": "robots-celestica.txt",
+    "url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SD6200.pdf",
+    "user_agent": "devicehunt-public-research/1.0",
+    "allowed": true,
+    "crawl_delay": null
+  },
+  {
+    "policy_file": "robots-edgecore.txt",
+    "url": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+    "user_agent": "devicehunt-public-research/1.0",
+    "allowed": true,
+    "crawl_delay": null
+  }
+]

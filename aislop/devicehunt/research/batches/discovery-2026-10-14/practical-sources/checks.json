@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "actual_HTTP_exchanges": 6,
+  "request_attempts": 7,
+  "sandbox_DNS_failures": 1,
+  "local_PDF_renders": 2,
+  "complete_PDF_pages": 2,
+  "HTML_tables": 7,
+  "candidate_sources": 3,
+  "candidate_records": 4,
+  "candidate_facts": 60,
+  "candidate_sha256": "a431ea99bb69582ace0bebbeda90b2804959e3ffa91731707ae2eadc63568385",
+  "checks": [
+    "all capture/header SHA-256 receipts",
+    "fresh policy exact paths",
+    "literal same-origin redirect",
+    "complete source-bound PDF text sidecar",
+    "two local render hashes",
+    "HTML article/table reproducibility",
+    "curated preflight only; no database/import",
+    "60 fact evidence locators and source scopes",
+    "exact order row receives only its own p2 facts; no component identities/parent identifiers"
+  ],
+  "network_calls_by_check": 0,
+  "database_writes_by_check": 0
+}

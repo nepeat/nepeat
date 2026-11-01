@@ -1,0 +1,308 @@
+{
+  "status": "OFFLINE planning only; no requests, candidate or import",
+  "owner": "/root/handoff_audit",
+  "created_utc": "2026-10-13T05:20:46.592739+00:00",
+  "leads": [
+    {
+      "priority": 1,
+      "vendor": "Celestica",
+      "printed_model_scope": "SD4100",
+      "basis": "data/raw/celestica-storage-manufacturer/sd4100.html",
+      "basis_url": "https://cls.celestica.com/hardware-platforms/sd4100/",
+      "raw_href": " https://www.celestica.com/hps/sd4100",
+      "href_label": "Download",
+      "gap": "Existing SD4100 records have portfolio/product/registry identity and 2U storage-enclosure description, but no categorized PSU/input/cooling ratings, chassis dimensions/weight or exact ordering/service-parts table. The explicitly linked HPS Download route may provide a datasheet or a landing; content type and access are unknown.",
+      "boundary": "Read only the exact published HPS route and at most one permitted literal same-origin redirect. Do not presume PDF, manufacture new filenames, traverse links/forms, submit contact data or use the separate blog link to recover a denied document. Preserve SD4100 spelling, optional/configuration conditions and any actual printed revision.",
+      "policy": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/robots-celestica.txt",
+      "URL": "https://www.celestica.com/hps/sd4100",
+      "parent_sha256": "e73d53544761cb2ccae989a35065609fdceeaf45eb332af13fd3f2eea2b2255e",
+      "parent_titles": [
+        {
+          "tag": "title",
+          "text": "Storage Expansion System - SD4100"
+        },
+        {
+          "tag": "h1",
+          "text": "SD4100"
+        },
+        {
+          "tag": "h1",
+          "text": "2U 12 HDD SAS-4 Storage Expansion System"
+        },
+        {
+          "tag": "h1",
+          "text": "WHY CHOOSE SD4100?"
+        },
+        {
+          "tag": "h1",
+          "text": "BENEFITS"
+        },
+        {
+          "tag": "h1",
+          "text": "SD4100 FEATURES"
+        },
+        {
+          "tag": "h1",
+          "text": "OPTIMIZED FOR COST-EFFECTIVE, ENTERPRISE CLASS, TIERED STORAGE"
+        },
+        {
+          "tag": "h1",
+          "text": "RESOURCES"
+        },
+        {
+          "tag": "h1",
+          "text": "Unlock Innovation, Together."
+        }
+      ],
+      "exact_anchor": {
+        "href": " https://www.celestica.com/hps/sd4100",
+        "text": "Download"
+      },
+      "URL_resolution": "Only outer leading whitespace removed from the actual saved href; no URL path/file/version guessed",
+      "novelty": {
+        "current_exact_source_record_document_URL_matches": {
+          "sources": [],
+          "records": [],
+          "documents": []
+        },
+        "staged_source_URL_matches": [],
+        "named_metadata_URL_or_path_hits": {
+          "data/raw/celestica-storage-manufacturer/fetch-report.json": false,
+          "data/raw/oracle-zfs-components/bundle.json": false,
+          "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": false,
+          "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": false,
+          "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": false,
+          "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": false,
+          "data/raw/odm-primary-2026-10-04/fetch-report.json": false,
+          "data/raw/odm-models-2026-10-04/fetch-report.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl": false,
+          "research/batches/discovery-2026-10-12/qct-compatibility-discovery/requests.jsonl": false,
+          "research/batches/discovery-2026-10-12/hyve-orion-rugged-discovery/requests.jsonl": false
+        },
+        "bounded_scope": "Fourteen named request/fetch/source-bundle files, accepted source/record/document exact URLs, two staged candidate source URL lists and source-family raw filename check; no claim of global absence or novel content",
+        "filename_only_matches": [
+          "data/raw/celestica-storage-manufacturer/sd4100.html"
+        ],
+        "filename_match_interpretation": "Existing SD4100 product-page filename is the known parent, not this new HPS resource; no separate SD4100 document filename found in checked roots."
+      },
+      "policy_checkpoint": {
+        "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/robots-celestica.txt",
+        "sha256": "b60e9385e9f08f0913c050aa40c41cb10b292d0210d3d8dda9459195da928f34",
+        "agent": "devicehunt-public-research/1.0",
+        "saved_exact_path_allowed": true,
+        "saved_crawl_delay_seconds": null,
+        "current_policy": "Unknown; refresh applicable host robots before any authorized capture, enforce fresh delay and stop on policy denial/failure"
+      },
+      "standalone_HTTP_cap": 3,
+      "standalone_HTTP_budget": {
+        "policy": 1,
+        "exact_page_route": 1,
+        "manual_same_origin_redirect_allowance": 1
+      },
+      "source_availability": "Unrequested exact resource; response/content/registration unknown",
+      "stop_rule": "Stop source on robots denial or 402/403/login/registration, one 404/timeout, unexpected host/scope, known captured redirect target or source cap; no retry/alternate host/copy/form/query/API or guessed filename/version. Stop whole run on429. Do not expand to unassigned sibling links after a negative finding."
+    },
+    {
+      "priority": 2,
+      "vendor": "Oracle",
+      "printed_model_scope": "Oracle ZFS Storage ZS3-2",
+      "basis": "data/raw/oracle-zfs-components/oracle-zfs-storage-zs3-2.html",
+      "basis_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-pcie-io-cards.html",
+      "raw_href": "oracle-zfs-storage-zs3-2-internal-components.html",
+      "href_label": "Previous",
+      "gap": "Existing Oracle ZFS Storage ZS3-2 controller identity is supported by one regulatory record with no categorized power/cooling/physical specification facts. Saved PCIe page supplies component context only; the internal-components sibling may supply source-local power distribution/standby, fan/FRU relationships or configuration/service constraints.",
+      "boundary": "Printed ZS3-2 controller and individual components stay separate. Figure legend labels are not counts. Record only explicit power/fan/FRU conditions; do not turn registry identity, numeric resemblance or marketing/manufacturing card numbers into controller/PSU aliases or roles.",
+      "policy": "research/batches/discovery-2026-10-12/original-vendor-wave5/robots-oracle.txt",
+      "URL": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+      "parent_sha256": "c286c00e266f74d378a94609c38207f2f3be8520a2830cdb6507f6209854304f",
+      "parent_titles": [
+        {
+          "tag": "title",
+          "text": "Oracle ZFS Storage ZS3-2 PCIe I/O Cards"
+        }
+      ],
+      "exact_anchor": {
+        "href": "oracle-zfs-storage-zs3-2-internal-components.html",
+        "text": "Previous"
+      },
+      "URL_resolution": "Literal relative href resolution",
+      "novelty": {
+        "current_exact_source_record_document_URL_matches": {
+          "sources": [],
+          "records": [],
+          "documents": []
+        },
+        "staged_source_URL_matches": [],
+        "named_metadata_URL_or_path_hits": {
+          "data/raw/celestica-storage-manufacturer/fetch-report.json": false,
+          "data/raw/oracle-zfs-components/bundle.json": false,
+          "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": false,
+          "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": false,
+          "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": false,
+          "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": false,
+          "data/raw/odm-primary-2026-10-04/fetch-report.json": false,
+          "data/raw/odm-models-2026-10-04/fetch-report.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl": false,
+          "research/batches/discovery-2026-10-12/qct-compatibility-discovery/requests.jsonl": false,
+          "research/batches/discovery-2026-10-12/hyve-orion-rugged-discovery/requests.jsonl": false
+        },
+        "bounded_scope": "Fourteen named request/fetch/source-bundle files, accepted source/record/document exact URLs, two staged candidate source URL lists and source-family raw filename check; no claim of global absence or novel content",
+        "filename_only_matches": [],
+        "filename_match_interpretation": "No target internal-components filename found in checked roots."
+      },
+      "policy_checkpoint": {
+        "path": "research/batches/discovery-2026-10-12/original-vendor-wave5/robots-oracle.txt",
+        "sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0",
+        "agent": "devicehunt-public-research/1.0",
+        "saved_exact_path_allowed": true,
+        "saved_crawl_delay_seconds": null,
+        "current_policy": "Unknown; refresh applicable host robots before any authorized capture, enforce fresh delay and stop on policy denial/failure"
+      },
+      "standalone_HTTP_cap": 3,
+      "standalone_HTTP_budget": {
+        "policy": 1,
+        "exact_page_route": 1,
+        "manual_same_origin_redirect_allowance": 1
+      },
+      "source_availability": "Unrequested exact resource; response/content/registration unknown",
+      "stop_rule": "Stop source on robots denial or 402/403/login/registration, one 404/timeout, unexpected host/scope, known captured redirect target or source cap; no retry/alternate host/copy/form/query/API or guessed filename/version. Stop whole run on429. Do not expand to unassigned sibling links after a negative finding."
+    },
+    {
+      "priority": 3,
+      "vendor": "Oracle",
+      "printed_model_scope": "Oracle ZFS Storage ZS3-4 (service title; separate from registry ZS3-4 until routing review)",
+      "basis": "data/raw/oracle-zfs-components/oracle-zfs-storage-zs3-4.html",
+      "basis_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-pcie-io-cards.html",
+      "raw_href": "oracle-zfs-storage-zs3-4-internal-components.html",
+      "href_label": "Previous",
+      "gap": "Existing Oracle / ZS3-4 has one regulatory Server/Storage record, no categorized power/cooling/physical facts. Internal-components sibling may supply source-local boards/rails/PSU/fan/FRU or controller configuration/service constraints; sought wattage/part numbers may be absent.",
+      "boundary": "Preserve full printed Oracle ZFS Storage ZS3-4 service-platform name versus registry ZS3-4; no prefix removal/equivalence decided in discovery. Keep figure numbers vs counts, chassis/controllers vs parts and any differentiated revision/configuration passages separate.",
+      "policy": "research/batches/discovery-2026-10-12/original-vendor-wave5/robots-oracle.txt",
+      "URL": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+      "parent_sha256": "fbd875dfa68dd39755ffbe146f64460ec76d52f3db515343a69d9526ffe2ef32",
+      "parent_titles": [
+        {
+          "tag": "title",
+          "text": "Oracle ZFS Storage ZS3-4 PCIe I/O Cards"
+        }
+      ],
+      "exact_anchor": {
+        "href": "oracle-zfs-storage-zs3-4-internal-components.html",
+        "text": "Previous"
+      },
+      "URL_resolution": "Literal relative href resolution",
+      "novelty": {
+        "current_exact_source_record_document_URL_matches": {
+          "sources": [],
+          "records": [],
+          "documents": []
+        },
+        "staged_source_URL_matches": [],
+        "named_metadata_URL_or_path_hits": {
+          "data/raw/celestica-storage-manufacturer/fetch-report.json": false,
+          "data/raw/oracle-zfs-components/bundle.json": false,
+          "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": false,
+          "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": false,
+          "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": false,
+          "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": false,
+          "data/raw/odm-primary-2026-10-04/fetch-report.json": false,
+          "data/raw/odm-models-2026-10-04/fetch-report.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": false,
+          "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl": false,
+          "research/batches/discovery-2026-10-12/qct-compatibility-discovery/requests.jsonl": false,
+          "research/batches/discovery-2026-10-12/hyve-orion-rugged-discovery/requests.jsonl": false
+        },
+        "bounded_scope": "Fourteen named request/fetch/source-bundle files, accepted source/record/document exact URLs, two staged candidate source URL lists and source-family raw filename check; no claim of global absence or novel content",
+        "filename_only_matches": [],
+        "filename_match_interpretation": "No target internal-components filename found in checked roots."
+      },
+      "policy_checkpoint": {
+        "path": "research/batches/discovery-2026-10-12/original-vendor-wave5/robots-oracle.txt",
+        "sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0",
+        "agent": "devicehunt-public-research/1.0",
+        "saved_exact_path_allowed": true,
+        "saved_crawl_delay_seconds": null,
+        "current_policy": "Unknown; refresh applicable host robots before any authorized capture, enforce fresh delay and stop on policy denial/failure"
+      },
+      "standalone_HTTP_cap": 3,
+      "standalone_HTTP_budget": {
+        "policy": 1,
+        "exact_page_route": 1,
+        "manual_same_origin_redirect_allowance": 1
+      },
+      "source_availability": "Unrequested exact resource; response/content/registration unknown",
+      "stop_rule": "Stop source on robots denial or 402/403/login/registration, one 404/timeout, unexpected host/scope, known captured redirect target or source cap; no retry/alternate host/copy/form/query/API or guessed filename/version. Stop whole run on429. Do not expand to unassigned sibling links after a negative finding."
+    }
+  ],
+  "budget": {
+    "maximum_resources": 3,
+    "actual_HTTP_cap_including_policies_redirects": 8,
+    "fresh_policies": 2,
+    "exact_resource_requests": 3,
+    "manual_same_origin_redirect_allowance": 3,
+    "standalone_caps": {
+      "SD4100": 3,
+      "ZS3-2": 3,
+      "ZS3-4": 3
+    },
+    "shared_Oracle_policy_counted_once_overall": true,
+    "searches": 0,
+    "remote_screenshots": 0,
+    "retries": 0,
+    "local_render_cap_if_later_authorized": 6,
+    "execution_this_task": 0
+  },
+  "later_capture_boundaries": [
+    "Capture only the exact three planned resource routes and at most one permitted literal same-origin redirect each; disable automatic redirects/crawl.",
+    "No linked PDF/resource hunt after SD4100 HPS landing; an unexpected gate is a stopped unavailable outcome, not empty content.",
+    "If a successful assigned response is PDF, use complete existing reviewed extraction with accurate method/source hashes; max6local selected page renders overall. If HTML, review saved article/table text only; no additional remote image/assets or screenshot request.",
+    "Preserve exact model/revision/configuration/part scopes, figure labels vs counts, conflicts and unknowns. No identities, manufacturer/factory role or unit-fitment inference; no candidate/import.",
+    "Plans are not acquisition authorization; root must issue a separate bounded brief."
+  ],
+  "explicit_exclusions": [
+    "All eight sources from prior practical lead plans are now captured; no repeats.",
+    "QCT CCL whole HTML already captured; eight PSU-row candidate approved separately; no new CCL request.",
+    "Hyve Orion/Rugged: CDN robots403 before PDFs. No CDN policy/resource/alternate retry.",
+    "Known Accton/UL/AS7710-AS7760-AS7761/certificate denials and four Edge-Core legacy404 PDFs remain excluded.",
+    "Owned E4/E5/X7/plain-X10 and 7760/7772 practical gaps still have no new qualifying explicit href found in this finite saved-source set."
+  ],
+  "offline_HTML_index_sources_read": 6,
+  "HTML_source_cap": 10,
+  "prior_input_hashes": {
+    "research/batches/discovery-2026-10-12/next-leads/handoff.md": "c5d9f1b468289eb1438597f500c6ded4411038f2546ffa564441e3137c6a453c",
+    "research/batches/discovery-2026-10-12/next-leads-r2/handoff.md": "9b608165c25bf64ce1b036af82da8b2df6f1c986ca10d99e56b3814653cbf916",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/handoff.md": "851e9a17c6fa7db2e61d9d4fc4e89cdd74f526df1013c9676394d37d1be3a264",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/handoff.md": "7f56ea228ba0dac73744aaa5a4b039160208ba80ef88a5bd6be175f789c8db65",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/handoff.md": "b0e2a851c02aba8cb195bf8999a3665b4a2420fb38b21b1613fdf18c2ddd7617",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5/handoff.md": "91a32cc775d0caad30fc43c0cc5c1c297b3d80e0ba2c9f43677ebc5293b250a5",
+    "research/batches/discovery-2026-10-12/qct-compatibility-facts/handoff.md": "bbd5348ef71dfd13f5dbc6b4e0ebcca9eeca3f259a0f7bf68b016d6e11872824",
+    "research/batches/discovery-2026-10-12/hyve-orion-rugged-discovery/handoff.md": "ca37bc0a22a80cd7de9d9ec7509224a37b5d5891114882e8d52c774317b87feb",
+    "research/owned-hardware-gaps.md": "21914bea61834a08de626ccb72e414d76c2804ea4134b67ef4dab165bf4ca973",
+    "research/accton-manufacturer-leads.md": "63a9d1d27b79e33fec4874b8441502daf72cbb2474a68ea5429d4799ec9de873",
+    "data/raw/celestica-storage-manufacturer/fetch-report.json": "3f0b3afe439305d02f48ec46306745ab52268638a8e2d701bed9918834c9f938",
+    "data/raw/oracle-zfs-components/bundle.json": "2d1fbf3fac89691749173ae0cc7ff1be519fb379f63cdf72956accc80b4af688",
+    "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": "2bba17ac10baaeb6085fb118595820305163bd0faf3b45e7c3175e047638a85f",
+    "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": "6be23f49ad98046737fce0fcec1a22b3ac6a57f3f70361975d6af0d0b7c4ba71",
+    "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": "2ecaf6a440fcfd5ea04a2e7700014afebf42bdddb2ba7c54da206bd964faa064",
+    "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": "624d1cf183229903712e6cc89777efb8dd82b98f27632fe435d7aa2a800ec2f6",
+    "data/raw/odm-primary-2026-10-04/fetch-report.json": "8bd5804db21df1ed74c16e011dd72b7f064f1fdda13f85e3b48505e5e203da52",
+    "data/raw/odm-models-2026-10-04/fetch-report.json": "021a001a82b2fbaf3056e607548319ffcae1ca5f443ae0fd6fd05f25a50dd0a5",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": "1ea0b9c90d16cecd0c7e06501cba6563e5ad11f846a73d1b1ea787544d2029d6",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": "8b2680da5a015c64976b42407a14bf0f1f6155a1ffc1ab4e1ae98fb3c7412a97",
+    "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": "1f8b82c7c790e607c75ca070f194a9c56b1aa137291cc68a2d911451b31b383b",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl": "6bdfb0ddb561a6a975b5197113e5fa66a5a55b40251740829c70fc8006056bd8",
+    "research/batches/discovery-2026-10-12/qct-compatibility-discovery/requests.jsonl": "9d0e1aceb3e2bc6e21449f98833744000d5eec8aa625c8ad1964145118c1a88a",
+    "research/batches/discovery-2026-10-12/hyve-orion-rugged-discovery/requests.jsonl": "b3e033c6e6d9b96555585e8cd20277a4dd683acb0fdb5426a0b11f06467d813f",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/candidate.json": "687da4d58027a507cce2f2f4d31225548d3a57fd73ec6a12be5605c4fe5de86b",
+    "research/batches/discovery-2026-10-12/qct-compatibility-facts/candidate.json": "9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd"
+  },
+  "source_set_scope": "Six named saved HTML/index files only; three selected explicit primary hrefs; bounded novelty checks, not global collection coverage."
+}

@@ -1,0 +1,16 @@
+{
+  "module_paths": {
+    "devicehunt": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review/overlay/devicehunt/__init__.py",
+    "devicehunt.specifications": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review/overlay/devicehunt/specifications.py",
+    "devicehunt.__main__": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review/overlay/devicehunt/__main__.py"
+  },
+  "cwd": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review",
+  "pythonpath": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-review/overlay",
+  "tests": 48,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "blocked_calls": [],
+  "elapsed_seconds": 36.54904552001972,
+  "all_209_production_files_unchanged": true
+}

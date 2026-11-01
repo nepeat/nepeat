@@ -1,0 +1,398 @@
+{
+  "sources": [
+    {
+      "id": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "license": "Ingrasys factual product/corporate information; upstream rights retained",
+      "snapshot": "raw/ingrasys-servers-2026-10-04/about.html",
+      "coverage": "Explicit cross-source parent portfolio inference for six newly evidenced A/I variants only; not manufacturer. Existing immutable 2026-10-04 Ingrasys company capture plus exact recovered catalog variant pages. Corporate page does not name these models; derivative provenance required."
+    }
+  ],
+  "devices": [
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1120A",
+      "brand": "Ingrasys",
+      "model": "SV1120A",
+      "title": "Ingrasys SV1120A",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "3"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1120I",
+      "brand": "Ingrasys",
+      "model": "SV1120I",
+      "title": "Ingrasys SV1120I",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "4"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1121A",
+      "brand": "Ingrasys",
+      "model": "SV1121A",
+      "title": "Ingrasys SV1121A",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "5"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV1121I",
+      "brand": "Ingrasys",
+      "model": "SV1121I",
+      "title": "Ingrasys SV1121I",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "6"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV2121A",
+      "brand": "Ingrasys",
+      "model": "SV2121A",
+      "title": "Ingrasys SV2121A",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "7"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+      "key": "SV2121I",
+      "brand": "Ingrasys",
+      "model": "SV2121I",
+      "title": "Ingrasys SV2121I",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Foxconn",
+          "parent_company_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "association_method",
+          "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        ],
+        [
+          "relationship_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "parent_name_as_printed",
+          "Foxconn Technology Group"
+        ],
+        [
+          "subsidiary_name_as_printed",
+          "Ingrasys"
+        ],
+        [
+          "corporate_source_url",
+          "https://www.ingrasys.com/company/about/"
+        ],
+        [
+          "corporate_source_sha256",
+          "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        ],
+        [
+          "model_source_id",
+          "ingrasys-server-catalog-recovered-pages-2026-10-04"
+        ],
+        [
+          "model_source_url",
+          "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        ],
+        [
+          "model_source_sha256",
+          "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8"
+        ],
+        [
+          "association_limit",
+          "Portfolio association only; not manufacturer or hyperscaler deployment."
+        ],
+        [
+          "model_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "model_document_page",
+          "8"
+        ]
+      ]
+    }
+  ]
+}

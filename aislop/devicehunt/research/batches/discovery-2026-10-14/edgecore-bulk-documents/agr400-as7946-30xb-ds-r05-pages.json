@@ -1,0 +1,168 @@
+{
+  "pdf_sha256": "b0864e81189c3da6c2a4c3e04e8d22de410ea7516ec0cada8684b1594a7a0c4e",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 4,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "AGR400               Aggregation Router\n\nAGGREGATION ROUTER\nAS7946-30XB\n\n\n\n\nThe AGR400 is a high-performance 100GbE aggregation router that consists of ﬁxed 2 x 400G QSFP-DD (21.3 W), 2\nx 400G QSFP-DD (16.5 W), 4 x 100G QSFP-DD (16.5 W), 18 x 100G QSFP28 (5 W), and 4 x 25G SFP28 (2 W) network\ninterfaces in a 2RU compact design that can be deployed as a disaggregated or standalone router.\n\nThe AGR400 is engineered with the latest Broadcom StrataDNX™ Qumran2C silicon that targets use cases\nincluding OpenBNG, 100GbE aggregation router, PE router, or data center TOR switch/router.\n\nThe AGR400 is loaded with the Open Network Install Environment (ONIE), which supports the installation of\ncompatible Network Operating System (NOS) soﬅware, including the open source option Open Network Linux\n(ONL), plus commercial NOS oﬀerings.\n\nKey Features and Beneﬁts\n■ High-performance 100GbE router for telecom and data center applications\n■ Incorporates Broadcom StrataDNX™ Qumran2C silicon\n■ Supports front-to-back airﬂow SKUs\n■ Hot-swappable, load-sharing, and 1+1 redundant DC-DC/AC-DC PSUs\n■ 4+1 redundant, hot-swappable fan modules\n■ Support Synchronous Ethernet, and IEEE 1588v2 PTP\n\nApplications\n■ Disaggregated aggregation or PE router\n■ Standalone 100GbE aggregation router\n"
+    },
+    {
+      "page": 2,
+      "text": "Free Soﬅware Included\n\n\n\n\nInterfaces\n\n                      2                      3                 4             5      6      7\n\n\n                                                                                                   8\n                                                                                                   9\n      1                                                                                            10\n\n\n\n\n                                                                                        11 12 13\n\n\n                           14                          15\n\n\n\n\nDescription\n 1.       2 x 400GE QSFP-DD ports (16.5 W)       9.    1 x RJ-45 management port\n\n 2.       2 x 400GE QSFP-DD ports (21.3 W)       10.   1 x RJ-45 console management port\n\n 3.       18 x 100GE QSFP28 ports (5 W)          11.   1 x RJ-45 (1PPS) port\n\n 4.       4 x 100GE QSFP-DD ports (16.5 W)       12.   1 x SMB 1PPS out\n\n 5.       4 x 1/10/25GE SFP28 ports (2 W)        13.   1 x Micro USB console port\n\n 6.       3 x RJ-45 BITS ports                   14.   1+1 DC-DC/AC-DC redundant PSUs\n\n 7.       1 x SMB 10MHz in                       15.   4 +1 redundant fans\n\n 8.       1 x USB Type A\n"
+    },
+    {
+      "page": 3,
+      "text": "Ports                                                                    Regulatory\n■ Interface:                                                             ■ Safety:\n  4 x 1G/10G/25G SFP28                                                     UL (CAN/CSA 22.2 No 60950-1 & UL60950-1)\n  18 x 100G QSFP28                                                         IEC 62368-1\n  4 x 100G QSFP-DD                                                         CB (IEC/EN60950-1)\n  4 x 400G QSFP-DD                                                       ■ Electromagnetic Compatibility:\n  Supports 1GE, 10G, 40GE and 100GE modes                                  CE Mark:\n  Supports standard 1GE, 10GE, 25GE, 50GE conﬁgurations by                   EN 55032 Class A\n    using DAC breakout cables into 2x50GE, 4x25GE, or 4x10GE                 EN 55024 (Immunity) for Information Technology Equipment\n■ Supported Transceivers and Cables:                                         EN 61000-3-3\n  1000BASE-EX/ZX                                                             EN 61000-3-2\n  10GBASE-SR/LR/ER/ZR                                                      FCC Title 47, Part 15, Subpart B Class A\n  100GBASE-SR4/LR4/ER4/ZR4/PSM4-2                                        ■ Environmental:\n  400GBASE-ZR/ZR+                                                          Bump: IEC60068-2-29- packaged\n  • Note: More optics and detailed cabling information can be found at     Shock: ETSI EN 300 019-2-3 -Operational Tests, Class T3.2 op\n    www.edge-core.com.                                                     RoHS 2.0 Compliant\n■ Management Ports:                                                        WEEE Standards: The switches complied with the following\n  1 x RJ-45 serial console port                                              WEEE standards: Waste Electrical and Electronic Equipment\n  1 x RJ-45 10/100/1000BASE-T management port                                (WEEE Directive 2002/96/EC)\n  1 x USB (storage)\n  1 x Micro USB console port                                             Warranty\n■ Timing:                                                                Please check www.edge-core.com for the warranty terms in your\n  3 x RJ-45 (BITS)                                                       country.\n  1 x RJ-45 (1PPS)\n  1 x SMB (1PPS out)                                                     For More Information\n  1 x SMB (10MHz input)                                                  To ﬁnd out more about Edgecore Networks Corporation products\n                                                                         and solutions, visit www.edge-core.com.\nKey Componets\n■ Switch Silicon: Broadcom BCM88823 Qumran-2C                            About Edgecore Networks Corporation\n■ CPU Modules:                                                           Edgecore Networks Corporation is in the business of providing\n  Intel® Xeon® D-1548 8-Core                                             innovative network solutions. In the service provider network, in the\n  SDRAM DDR4 SO-DIMM 32GB (16 GB x 2)                                    data center or in the cloud, Edgecore Networks Corporation delivers\n  SPI Boot Flash redundant (2 x 16 MB)                                   the soﬅware and systems that transform the way the world\n  SSD: M.2 128GB                                                         connects. Edgecore Networks Corporation serves customers and\n■ BMC: ASPEED AST2600                                                    partners worldwide. Additional information can be found at\n                                                                         www.edge-core.com.\nPerformance\n■ Capacity: 2.4 Tb/s full duplex                                         Edgecore Networks Corporation is a subsidiary of Accton\n■ 4Gb Integrated Deep Buﬀering                                           Technology Corporation, the leading network ODM company. The\n                                                                         Edgecore data center switches are developed and manufactured by\nPhysical and Environmental                                               Accton.\n■ Dimensions (WxDxH): 440 mm x 480 mm x 87 mm (2RU)\n■ Weight: 16 Kg with PSUs and fans                                       To purchase Edgecore Networks solutions, please contact your\n■ Fans: Hot-swappable 4+1 redundant fans                                 Edgecore Networks Corporation representatives at +886 3 563 8888\n■ Operating Temperature/Humidity:                                        (HQ) or +1 (949)-336-6801 or authorized resellers.\n  0°C to 45°C (32°F ~ 113°F)/5% to 85%\n                                                                         © Copyright 2023 Edgecore Networks Corporation. The information\nPSU                                                                      contained herein is subject to change without notice. This document\n■ DC Input: -40 - -75V, 40 A, per PS                                     is for informational purposes only and does not set forth any\n■ AC Input: 100V-120V, 12 A, per PS                                      warranty, expressed or implied, concerning any equipment,\n            200V-240V, 7.5 A, per PS                                     equipment feature, or service oﬀered by Edgecore Networks\n                                                                         Corporation. Edgecore Networks Corporation shall not be liable for\nPower Consumption                                                        technical or editorial errors or omissions contained herein.\n■ Max: 527 W\n■ Typical: 186 W\n"
+    },
+    {
+      "page": 4,
+      "text": "Ordering Information\nBase Model: AS7946-30XB; Intel® Xeon® D-1548 8-Core; 4 x 10G/25G SFP28, 18 x 100GE QSFP28, 4 x 100GE\nQSFP-DD,and 4 x 400G QSFP-DD ﬁxed ports. ONIE Soﬅware Installer.\nModel Number            Part Number        PSU                    Airﬂow                 Region (Power Cord)\nAS7946-30XB-O-AC-F-US   FNPEC7946401Z      Modular Dual AC PSUs   Front-to-Back Airﬂow   N. America\n\nAS7946-30XB-O-AC-F-EU   FNPEC7946201Z      Modular Dual AC PSUs   Front-to-Back Airﬂow   EU\n\nAS7946-30XB-O-AC-F-UK   FNPEC7946301Z      Modular Dual AC PSUs   Front-to-Back Airﬂow   UK\n\nAS7946-30XB-O-AC-F-JP   FNPEC7946501Z      Modular Dual AC PSUs   Front-to-Back Airﬂow   JP\n\nAS7946-30XB-O-48V-F     FNPEC7946005Z      Modular Dual DC PSUs   Front-to-Back Airﬂow   N/A\n\n\n\n\n                                                                                                       EC-DS-0523-R05\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "agr400-as7946-30xb-ds-r05.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.335827+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2023-050-AGR400_AS7946-30XB DS R05 20230524\nCreator:         Adobe Illustrator CS6 (Windows)\nProducer:        Adobe PDF library 10.01\nCreationDate:    Tue May 23 21:29:07 2023 PDT\nModDate:         Tue May 23 22:29:07 2023 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           4\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       3745530 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/agr400-as7946-30xb-ds-r05.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "883f3dcbeae8332e7e77b4bb5ea067212bda78b5dc4cf3fbf3d49c89e2d3ced1"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/agr400-as7946-30xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "77514887aeecc3f95ce1fc93e9f73feedbf9c4fdb341cfd5ebac488c52fbd544"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/agr400-as7946-30xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "0f50ac2d21bd5f128a2de4d9d371fe3d5966dacdd5a98c0d6b5cea4637f4cdb7"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/agr400-as7946-30xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "f7d9f94e64c3aefd256c4b4358bc0beeb2b6e4e70afa5ac99255e173a02c54ae"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/agr400-as7946-30xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "ce9acd79a0d9d2b3e403067a5b6df554f2f6af6817cb2ba5a9ee8e593f9073dc"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

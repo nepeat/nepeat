@@ -1,0 +1,7 @@
+{
+  "landing_sha256": "917334bb5a7e590dcc1d07928e6584c66e97d2ec7daab23fab677dc5b5a4c828",
+  "exact_published_href": "https://www.edge-core.com/download/wedge-100-32x-r04/?wpdmdl=3223&refresh=6acda754b06ef1791862612",
+  "policy_allowed": true,
+  "selector": "only a[href] containing wpdmdl; one link",
+  "login_required_text_found": false
+}

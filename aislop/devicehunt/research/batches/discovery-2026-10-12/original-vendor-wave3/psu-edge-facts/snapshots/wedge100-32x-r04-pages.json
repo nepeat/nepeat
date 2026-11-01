@@ -1,0 +1,142 @@
+{
+  "pdf_sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 3,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "                                                   DATASHEET                                                           www.edge-core.com\n\n\n\n                            Wedge 100-32X                                                                    OCP Accepted\n                            100GbE Data Center Switch\n\n\n                            Product Overview\n                            The Edgecore Wedge 100-32X is a commercial product based on Facebook’s Wedge 100 design. Facebook\n                            designed the Wedge 100 as a 32 x 100 GbE Top-of-Rack switch optimized for web-scale data centers, and submitted\n                            the design to the Open Compute Project. Edgecore’s parent company, Accton Technology, performed the design\n                            validation for Facebook and manufactures the Wedge 100 for Facebook’s deployment. Edgecore now offers the\n                            Wedge 100 as a fully supported commercial product to enable network operators to increase capacity with 25 G and\n                            100 G networking.\n\n                            The Wedge 100 switch provides 32 QSFP28 ports that can each run at 100 GbE/40 GbE, or as 4 x 25 GbE/\n                            4 x 10 GbE/2 x 50 GbE through breakout cables. The Wedge 100 design is based on the Broadcom BCM56960\n                            Tomahawk 3.2 Tbps switch silicon. The Wedge CPU subsystem is the COM-E CPU module, based on the Intel Atom\n                            E3800 x86 processor. The use of this standard CPU system, coupled with the BMC (Baseboard Management\n                            Controller) on the Wedge main board, enables the Wedge 100 to be provisioned and managed using similar tools\n                            used by data center operators for their server and application environments.\n\n\n                            Key Features and Benefits\n                            ■ Bare-metal TOR switch for data center fabric.\n\n\n\n\n100GbE Data Center Switch\n                            ■ Open hardware design contributed by Facebook to Open Compute Project.\n\n                            ■ Compatible with 19” rack, or 21” Open Rack with Open Rack Switch Adapter.\n\n                            ■ 32 x QSFP28 ports in compact 1RU form factor.\n\n                            ■ Each port supports 1 x 100 GbE/40 GbE, or 4 x 25 GbE/4 x 10 GbE/2 x 50 GbE via breakout cables.\n\n                            ■ Line-rate Layer 2 or Layer 3 forwarding of 3.2 Tbps full duplex.\n\n                            ■ Hot-swappable, load-sharing, redundant AC PSUs or 12 V DC PSUs.\n\n                            ■ 4+1 redundant, hot-swappable fans.\n\n                            ■ Front (port) to Back (power) airﬂow.\n\n                            ■ Console, management, and USB ports on switch side.\n\n                            ■ Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible\n                              open source and commerical NOS offerings.\n\n                            ■ Compatible with SnapRoute FlexSwitch software, a full function L2 and L3 NOS with rich APIs and analytics,\n                              accpeted by OCP.\n\n                            ■ Compatible with Open Network Linux (ONL), an open-source, OCP reference NOS.\n\n                            ■ BMC controller and OpenBMC ﬁrmware for standard system management of switch hardware functions.\n\n                            ■ Compatible with open-source FBOSS Agent software.\n\n                            ■ Compatible with Cumulus Linux 3.4 and later version.\n\n\n\n\n                                                                                                           For a world always connected…\n"
+    },
+    {
+      "page": 2,
+      "text": "  Wedge 100-32X Product Specifications\n                                                                                                                                 www.edge-core.com\n\n\nFeatures\nPorts                                                                 Power\n Switch Ports:                                                          PSUs: 2 redundant, load-sharing, hot-swappable AC or -54 VDC\n  32 QSFP28 ﬁxed ports:                                                 Input Voltage: 120 to 240 VAC at 50-60 Hz. 40 to 72 VDC.\n  100 GbE/40 GbE or 4 x 25 GbE/4 x 10 GbE/ 2 x 50 GbE per port          PSU Efﬁciency: Up to 93% for AC PSUs\n Total Switch Capacity: 32 x 100 GbE                                    Power Input Option: 12 VDC\n Management Ports (on port side):                                       Typical Power Consumption: 436 W\n  1 x RJ-45 serial console port to BMC\n  1 x RJ-45 100/1000BASE-T management port                            Regulatory\n  1 x USB Type A storage port                                           EMI\n  Facebook-speciﬁc debug port                                           CE Mark\n Management Ports (on power side):                                       EN55022 Class A\n  1 x RJ-45 100/1000BASE-T management port                               EN55024\n  Facebook-speciﬁc ports                                                 EN61000-3-2\n                                                                         EN61000-3-3\nKey Components                                                           FCC Part 15 Class A\n Switch Silicon: Broadcom BCM56960 Tomahawk 3.2 Tbps                    Safety\n  CPU Module: COM-E CPU module based on Intel Atom Processor             CB\n    E3800 family                                                         UL/CUL\n 8GB SO-DIMM DDR3 1600MHz ECC                                           Environmental\n 2 x SATA 2.0                                                            Temperature: IEC 68-2-14\n                                                                         Vibration: IEC 68-2-36, IEC 68-2-6\nPerformance                                                              Shock: 68-2-29\n Switching Capacity: 3.2 Tbps full duplex                                Drop: ISTA 2A\n Forwarding Rate: 4.7 Bpps                                              RoHS-6 Compliant\n Jumbo frames support up to 9216 Bytes\n Packet Buffer Size: 16 MB integrated packet buffer                   Software\n Subject to NOS:                                                        Switch is loaded with OpenBMC\n  MAC Addresses: 8K min./136K max.                                      Switch is loaded with Diagnostics\n  VLAN IDs: 4K                                                          Compatible with FBOSS Agent open-source software from OCP\n  IPv4: 8K min./72K max. host entries; 16K LPM entries with             Compatible with the following NOS options:\n    TCAM-only mode                                                       Open Network Linux, the open-source, OCP reference NOS\n  IPv6: 4K//36K max. host entries; IPv6/64=8K TCAM-only mode             FlexSwitch software from SnapRoute\n                                                                        Compatible with Cumulus Linux 3.4 and later version.\nLEDs\n 100G QSFP28 Ports: 2 LEDs per port for speed, activity\n System LEDs: Power, Heartbeat                                        Warranty\n Fan LEDs: on each fan module indicating status                         Please check www.edge-core.com for the warranty terms in your\n                                                                         country.\nSupported Optics and Cables\n 40GBASE-CR4 DAC; 0.5 m to 3 m; passive and active\n 40GBASE-CR4 to 4 x SFP+ 10GBASE-CR DAC; 0.5 to 3 m                   For More Information\n 40GBASE-SR4: 100 m over OM3 MMF, 150 m OM4 MMF                         To ﬁnd out more about Edgecore Networks Corporation products and\n                                                                        solutions, visit www.edge-core.com.\n 40GBASE-SR4 to 4 x 10GBASE-SR: 100 m OM3, 150 m OM4\n 40GBASE-LR4: 10 km over SMF\n 100GBASE-CR4 DAC; 0.5 m to 3 m; passive and active                   About Edgecore Networks Corporation\n                                                                        Edgecore Networks Corporation is in the business of providing innovative\n 100GBASE-CR4 to 4 x SFP28 25G DAC; 0.5 to 3 m\n                                                                        network solutions. In the service provider network, in the data center or in\n 100GBASE-SR4: 100 m over OM3 MMF, 150 m OM4 MMF                        the cloud, Edgecore Networks Corporation delivers the software and\n 100GBASE-LR4: 10 km over SMF                                           systems that transform the way the world connects. Edgecore Networks\n Cat 5/6 cables for console and management ports                        Corporation serves customers and partners worldwide. Additional\n                                                                        information can be found at www.edge-core.com.\nPhysical\n Dimensions (WxDxH): 44 x 50.7 x 4.4 cm (17.32 x 19.97 x 1.732 in)      Edgecore Networks Corporation is a subsidiary of Accton Technology\n                                                                        Corporation, the leading network ODM company. The Edgecore Data\n Weight: 8.8 kg (19.56 lb)\n                                                                        Center switches are developed and manufactured by Accton.\n Fans: 4+1 redundant, hot-swappable\n Front (port) to back (power) airﬂow direction                          To purchase Edgecore Networks solutions, please contact your\n                                                                        Edgecore Networks Corporation representatives at +886 3 563 8888 (HQ)\nEnvironmental                                                           or +1 (949)-336-6801 or authorized resellers.\n Operating Temperature: 0°C to 45°C (32°F to 113°F)\n                                                                      © Copyright 2016 Edgecore Networks Corporation. The information contained herein is subject to\n Storage Temperature: -40°C to 70°C (-40°F to 158°F)                  change without notice. This document is for informational purposes only and does not set forth any\n Operating Humidity: 10% to 90% non-condensing                        warranty, expressed or implied, concerning any equipment, equipment feature, or service offered by\n                                                                      Edgecore Networks Corporation. Edgecore Networks Corporation shall not be liable for technical or\n Storage Humidity: 10% to 90% non-condensing                          editorial errors or omissions contained herein.\n\n\n\n\n   TEL: +886-3-5638888 FAX: +886-3-6686111                           TEL: +1 (949)-336-6801\n   No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077        20 Mason Irvine, CA 92618\n   sales@edge-core.com         www.edge-core.com\n"
+    },
+    {
+      "page": 3,
+      "text": " Wedge 100-32X Product Specifications\n                                                                                                       www.edge-core.com\n\n\nOrdering Information\nModel Number                      Description\n\nWedge100-32X-O-12V-F              12V power supply\n\nWedge100-32X-O-AC-F-US            US SKU power cord of Wedge\n\nWedge100-32X-O-AC-F-EU            EU SKU power cord of Wedge\n\nWedge100-32X-O-AC-F-UK            UK SKU power cord of Wedge\n\nWedge100-32X-O-AC-F-JP            JP SKU power cord of Wedge\n\nORSA-1U                           Open Rack Switch Adapter for Open Rack installation\n\n\n\n\n  TEL: +886-3-5638888 FAX: +886-3-6686111                                  TEL: +1 (949)-336-6801\n  No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077               20 Mason Irvine, CA 92618\n  sales@edge-core.com         www.edge-core.com                                                                EC-DS-0617-04\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "wedge100-32x-r04.pdf",
+    "extracted_at_utc": "2026-10-13T03:37:55.334658+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           Wedge 100-32X DS R04\nCreator:         Adobe Illustrator CS6 (Windows)\nProducer:        ilovepdf.com\nCreationDate:    Tue Sep 26 22:07:18 2017 PDT\nModDate:         Tue Sep 26 23:15:58 2017 PDT\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           3\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       281885 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "091bf50b68c84d2ef35744d96f90af5832db60a9fa4e52a536987be0f32f65a8"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "4b4729fafa3f0a337971aa03aa13fb7e6b2bbe3bdb27ce18bdf015bbb38adf89"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "148cac2ba8840e480b4f012d6de3b28f1e2908391ef69f10eff09c2b12f6e21b"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "98eae9a5204be19352553193b018f62ffdf353fddbef1e8dd72c8fc39e62bf18"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

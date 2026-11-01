@@ -1,0 +1,8 @@
+{
+  "new_bundle": "data/raw/ntra-targets-saved-bundle-2026-10-04.json",
+  "bundle_sha256": "35c77a188f2fac4bfbe1a8479efa7a2912ed19d589e8668257851c0bf89e1b26",
+  "manifest_sha256": "209f75aa9a913e8d12119a7db49defed1d094efd54b4c5d770a875a050ef93a8",
+  "previous_manifest": "data/import-manifest-archive-before-ntra-replay-2026-10-04.json",
+  "source_count_change": 0,
+  "reason": "Replay already saved complete positional tables and page text; no optional PDF parser on rebuild."
+}

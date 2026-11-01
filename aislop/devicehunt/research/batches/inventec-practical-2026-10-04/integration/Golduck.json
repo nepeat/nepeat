@@ -1,0 +1,1134 @@
+{
+  "query": "Golduck",
+  "vendor": null,
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Golduck"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "compute_configuration",
+          "value": "up to \n128 cores and 16 memory  channels for a single computing \nnode."
+        },
+        {
+          "name": "controller",
+          "value": "Direct control from CPU\n12x NVMe/SATA SSD\n2x M.2 SATA"
+        },
+        {
+          "name": "cooling_description",
+          "value": "N+1 redundancy, 8x 4056 dual rotor fan"
+        },
+        {
+          "name": "drive_bays",
+          "value": "Front HDD Tray: Up to 12x 2.5” U.2  NVMe/\nSATA SSD\nInternal: 2x M.2 SATA socket"
+        },
+        {
+          "name": "expansion",
+          "value": "(Rear side)  \n2x PCIe Gen 4 x16 slot (FHHL)\n1x PCIe Gen4 x16 OCP 3.0"
+        },
+        {
+          "name": "form_factor",
+          "value": "1U1N rack mount with slide rail \nW x H x D: 435 x 43.2 x 800 mm\n(17.3 x 1.7x 31.5 inch)"
+        },
+        {
+          "name": "memory",
+          "value": "32x DDR4 DIMM slots"
+        },
+        {
+          "name": "memory_page_1_as_printed",
+          "value": "32 DIMM capacity  (up  to  4TB  \nwith 128GB DIMMs)"
+        },
+        {
+          "name": "network",
+          "value": "Support 10GbE/25GbE/100GbE/200GbE \nOCP 3.0 card"
+        },
+        {
+          "name": "pcie_lanes_as_printed",
+          "value": "total 162 available PCIe lanes"
+        },
+        {
+          "name": "power_supply",
+          "value": "1+1 redundancy\n800W/1300W (100-220VAC & 240V HVDC) \nPlatinum"
+        },
+        {
+          "name": "processor",
+          "value": "Dual Socket; AMD EPYC™ 7002 Series \nProcessors (2nd Gen AMD EPYC™ \nProcessors) \nTDP : Up to 165W"
+        },
+        {
+          "name": "security_features_as_printed",
+          "value": "AMD Secure Root-of-\nTrust, AMD Secure Run, and AMD Secure Move \nTechnologies."
+        },
+        {
+          "name": "serviceability_as_printed",
+          "value": "tool-less storage drives and \nhot-swappable fan modules."
+        },
+        {
+          "name": "source_capture_sha256",
+          "value": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd"
+        },
+        {
+          "name": "source_captured_at",
+          "value": "2026-10-05T00:03:45.086881+00:00"
+        },
+        {
+          "name": "source_document_copyright",
+          "value": "© 2020 Inventec Corp."
+        },
+        {
+          "name": "source_pdf_creation_metadata",
+          "value": "D:20200727163305+08'00'"
+        },
+        {
+          "name": "source_pdf_modification_metadata",
+          "value": "D:20200727163308+08'00'"
+        },
+        {
+          "name": "specification_scope",
+          "value": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded."
+        },
+        {
+          "name": "system_management_as_printed",
+          "value": "IPMI 2.0 compliant+ KVM with Dedicated \nLAN"
+        },
+        {
+          "name": "tpm_as_printed",
+          "value": "TPM2.0 (optional)"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "a92dea9f4e0c4d4fd6dd14b9",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Golduck"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "identity_limit",
+          "value": "Printed product name retained; no inferred commercial-order-code alias."
+        },
+        {
+          "name": "manufacturer_scope",
+          "value": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned."
+        },
+        {
+          "name": "manufacturer_statement_as_printed",
+          "value": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造"
+        },
+        {
+          "name": "manufacturer_statement_translation",
+          "value": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG)."
+        },
+        {
+          "name": "manufacturer_unit_as_printed",
+          "value": "英业达企业电脑事业群(EBG)"
+        },
+        {
+          "name": "statement_date",
+          "value": "2020-11-04"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "power_supply",
+          "statement": "1+1 redundancy\n800W/1300W (100-220VAC & 240V HVDC) \nPlatinum",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        }
+      ]
+    },
+    "cooling": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "cooling_description",
+          "statement": "N+1 redundancy, 8x 4056 dual rotor fan",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        }
+      ]
+    },
+    "chassis_physical": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "form_factor",
+          "statement": "1U1N rack mount with slide rail \nW x H x D: 435 x 43.2 x 800 mm\n(17.3 x 1.7x 31.5 inch)",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        }
+      ]
+    },
+    "firmware_boot_software": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compute_configuration",
+          "statement": "up to \n128 cores and 16 memory  channels for a single computing \nnode.",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        },
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "controller",
+          "statement": "Direct control from CPU\n12x NVMe/SATA SSD\n2x M.2 SATA",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        },
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "drive_bays",
+          "statement": "Front HDD Tray: Up to 12x 2.5” U.2  NVMe/\nSATA SSD\nInternal: 2x M.2 SATA socket",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        },
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "expansion",
+          "statement": "(Rear side)  \n2x PCIe Gen 4 x16 slot (FHHL)\n1x PCIe Gen4 x16 OCP 3.0",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        },
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory",
+          "statement": "32x DDR4 DIMM slots",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        },
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory_page_1_as_printed",
+          "statement": "32 DIMM capacity  (up  to  4TB  \nwith 128GB DIMMs)",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        },
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "network",
+          "statement": "Support 10GbE/25GbE/100GbE/200GbE \nOCP 3.0 card",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        },
+        {
+          "record_id": "4715ba6e603634694296bbc0",
+          "device_id": "6a00fc4a3ef95e14872f",
+          "brand": "Inventec",
+          "model": "Golduck",
+          "revision": "",
+          "source_id": "inventec-golduck-product-brief-v3-2020",
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "observed_at": "2026-10-05T00:11:52+00:00",
+          "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "tier": "vendor",
+          "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+          "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "processor",
+          "statement": "Dual Socket; AMD EPYC™ 7002 Series \nProcessors (2nd Gen AMD EPYC™ \nProcessors) \nTDP : Up to 165W",
+          "context_record_id": "4715ba6e603634694296bbc0"
+        }
+      ]
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "pcie_lanes_as_printed",
+      "statement": "total 162 available PCIe lanes",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "security_features_as_printed",
+      "statement": "AMD Secure Root-of-\nTrust, AMD Secure Run, and AMD Secure Move \nTechnologies.",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "serviceability_as_printed",
+      "statement": "tool-less storage drives and \nhot-swappable fan modules.",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_capture_sha256",
+      "statement": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_captured_at",
+      "statement": "2026-10-05T00:03:45.086881+00:00",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_document_copyright",
+      "statement": "© 2020 Inventec Corp.",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_pdf_creation_metadata",
+      "statement": "D:20200727163305+08'00'",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_pdf_modification_metadata",
+      "statement": "D:20200727163308+08'00'",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "specification_scope",
+      "statement": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded.",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "system_management_as_printed",
+      "statement": "IPMI 2.0 compliant+ KVM with Dedicated \nLAN",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "4715ba6e603634694296bbc0",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-golduck-product-brief-v3-2020",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "observed_at": "2026-10-05T00:11:52+00:00",
+      "source_home_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2.",
+      "fetched_at": "2026-10-05T00:03:46.975550+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "tpm_as_printed",
+      "statement": "TPM2.0 (optional)",
+      "context_record_id": "4715ba6e603634694296bbc0"
+    },
+    {
+      "record_id": "a92dea9f4e0c4d4fd6dd14b9",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "identity_limit",
+      "statement": "Printed product name retained; no inferred commercial-order-code alias.",
+      "context_record_id": "a92dea9f4e0c4d4fd6dd14b9"
+    },
+    {
+      "record_id": "a92dea9f4e0c4d4fd6dd14b9",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_scope",
+      "statement": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned.",
+      "context_record_id": "a92dea9f4e0c4d4fd6dd14b9"
+    },
+    {
+      "record_id": "a92dea9f4e0c4d4fd6dd14b9",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_statement_as_printed",
+      "statement": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造",
+      "context_record_id": "a92dea9f4e0c4d4fd6dd14b9"
+    },
+    {
+      "record_id": "a92dea9f4e0c4d4fd6dd14b9",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_statement_translation",
+      "statement": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG).",
+      "context_record_id": "a92dea9f4e0c4d4fd6dd14b9"
+    },
+    {
+      "record_id": "a92dea9f4e0c4d4fd6dd14b9",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_unit_as_printed",
+      "statement": "英业达企业电脑事业群(EBG)",
+      "context_record_id": "a92dea9f4e0c4d4fd6dd14b9"
+    },
+    {
+      "record_id": "a92dea9f4e0c4d4fd6dd14b9",
+      "device_id": "6a00fc4a3ef95e14872f",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "statement_date",
+      "statement": "2020-11-04",
+      "context_record_id": "a92dea9f4e0c4d4fd6dd14b9"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

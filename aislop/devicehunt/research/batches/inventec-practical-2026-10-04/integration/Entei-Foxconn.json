@@ -1,0 +1,46 @@
+{
+  "query": "Entei",
+  "vendor": "Foxconn",
+  "match_status": "no_exact_records",
+  "matched_records": [],
+  "categories": {
+    "power": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "cooling": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "chassis_physical": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "firmware_boot_software": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    }
+  },
+  "unclassified_facts": [],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

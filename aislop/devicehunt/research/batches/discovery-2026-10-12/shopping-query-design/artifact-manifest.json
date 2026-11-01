@@ -1,0 +1,33 @@
+{
+  "artifacts": [
+    {
+      "path": "capture_examples.py",
+      "sha256": "659c718b66b4df5dddfc7277e8070c200ff30ed7d2e1a0c16cdcfce42020a213",
+      "bytes": 3824
+    },
+    {
+      "path": "design.md",
+      "sha256": "8df9e1cf0df83ab48961ede9f4ab0399dcb70f73373569f9beaa91ce3b2669e6",
+      "bytes": 9459
+    },
+    {
+      "path": "examples-before-and-proposal.json",
+      "sha256": "2f6db578c3bc8d7680f4596253e106d1d24e132a184bf4bd4c8485d7b7934faf",
+      "bytes": 46211
+    },
+    {
+      "path": "handoff.md",
+      "sha256": "b3874791199f97dda86894e27118ddb47e75d833c35ae15b3f200b2d253067f5",
+      "bytes": 2981
+    },
+    {
+      "path": "synthetic-risk-examples.json",
+      "sha256": "91f89b1139c4cbd65a6daca2022adc6b5c998864f50555e6fd2c816cc00bfb31",
+      "bytes": 5298
+    }
+  ],
+  "live_identities_inspected": 8,
+  "network_requests": 0,
+  "production_changes": 0,
+  "status": "design only"
+}

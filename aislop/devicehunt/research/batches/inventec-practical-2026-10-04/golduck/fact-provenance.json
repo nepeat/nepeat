@@ -1,0 +1,178 @@
+[
+  {
+    "fact_name": "form_factor",
+    "literal_quote": "1U1N rack mount with slide rail \nW x H x D: 435 x 43.2 x 800 mm\n(17.3 x 1.7x 31.5 inch)",
+    "pdf_page": 2,
+    "location": "Form Factor",
+    "extracted_line_start": 4,
+    "extracted_line_end": 6,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "processor",
+    "literal_quote": "Dual Socket; AMD EPYC™ 7002 Series \nProcessors (2nd Gen AMD EPYC™ \nProcessors) \nTDP : Up to 165W",
+    "pdf_page": 2,
+    "location": "Processor",
+    "extracted_line_start": 8,
+    "extracted_line_end": 11,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "memory",
+    "literal_quote": "32x DDR4 DIMM slots",
+    "pdf_page": 2,
+    "location": "Memory Slot",
+    "extracted_line_start": 12,
+    "extracted_line_end": 12,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "drive_bays",
+    "literal_quote": "Front HDD Tray: Up to 12x 2.5” U.2  NVMe/\nSATA SSD\nInternal: 2x M.2 SATA socket",
+    "pdf_page": 2,
+    "location": "Disk Drive Bay",
+    "extracted_line_start": 14,
+    "extracted_line_end": 16,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "expansion",
+    "literal_quote": "(Rear side)  \n2x PCIe Gen 4 x16 slot (FHHL)\n1x PCIe Gen4 x16 OCP 3.0",
+    "pdf_page": 2,
+    "location": "Expansion Slot",
+    "extracted_line_start": 18,
+    "extracted_line_end": 20,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "network",
+    "literal_quote": "Support 10GbE/25GbE/100GbE/200GbE \nOCP 3.0 card",
+    "pdf_page": 2,
+    "location": "Network Controller",
+    "extracted_line_start": 21,
+    "extracted_line_end": 22,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "controller",
+    "literal_quote": "Direct control from CPU\n12x NVMe/SATA SSD\n2x M.2 SATA",
+    "pdf_page": 2,
+    "location": "Storage Controller",
+    "extracted_line_start": 24,
+    "extracted_line_end": 26,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "system_management_as_printed",
+    "literal_quote": "IPMI 2.0 compliant+ KVM with Dedicated \nLAN",
+    "pdf_page": 2,
+    "location": "System Management",
+    "extracted_line_start": 27,
+    "extracted_line_end": 28,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "tpm_as_printed",
+    "literal_quote": "TPM2.0 (optional)",
+    "pdf_page": 2,
+    "location": "TPM",
+    "extracted_line_start": 29,
+    "extracted_line_end": 29,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "power_supply",
+    "literal_quote": "1+1 redundancy\n800W/1300W (100-220VAC & 240V HVDC) \nPlatinum",
+    "pdf_page": 2,
+    "location": "Power Supply",
+    "extracted_line_start": 31,
+    "extracted_line_end": 33,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "cooling_description",
+    "literal_quote": "N+1 redundancy, 8x 4056 dual rotor fan",
+    "pdf_page": 2,
+    "location": "Fan",
+    "extracted_line_start": 34,
+    "extracted_line_end": 34,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "memory_page_1_as_printed",
+    "literal_quote": "32 DIMM capacity  (up  to  4TB  \nwith 128GB DIMMs)",
+    "pdf_page": 1,
+    "location": "opening paragraph",
+    "extracted_line_start": 9,
+    "extracted_line_end": 10,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "compute_configuration",
+    "literal_quote": "up to \n128 cores and 16 memory  channels for a single computing \nnode.",
+    "pdf_page": 1,
+    "location": "Boosted Performance and Computing Density",
+    "extracted_line_start": 19,
+    "extracted_line_end": 21,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "serviceability_as_printed",
+    "literal_quote": "tool-less storage drives and \nhot-swappable fan modules.",
+    "pdf_page": 1,
+    "location": "opening paragraph",
+    "extracted_line_start": 13,
+    "extracted_line_end": 14,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "security_features_as_printed",
+    "literal_quote": "AMD Secure Root-of-\nTrust, AMD Secure Run, and AMD Secure Move \nTechnologies.",
+    "pdf_page": 2,
+    "location": "SoC Level Security",
+    "extracted_line_start": 47,
+    "extracted_line_end": 49,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  },
+  {
+    "fact_name": "pcie_lanes_as_printed",
+    "literal_quote": "total 162 available PCIe lanes",
+    "pdf_page": 2,
+    "location": "left introductory paragraph",
+    "extracted_line_start": 36,
+    "extracted_line_end": 36,
+    "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+    "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "visual_review": "both pages inspected; printed table-cell assignment checked"
+  }
+]

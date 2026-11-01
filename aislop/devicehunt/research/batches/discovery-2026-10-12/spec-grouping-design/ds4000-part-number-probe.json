@@ -1,0 +1,208 @@
+{
+  "case": {
+    "name": "ds4000-part-number",
+    "query": "R4023-F9102-A0",
+    "exact_part_number": true,
+    "target": "Celestica"
+  },
+  "actual_baseline_cli_argv": [
+    "--db",
+    "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+    "specs",
+    "R4023-F9102-A0",
+    "--include-source-facts",
+    "--format",
+    "json",
+    "--exact-part-number",
+    "--vendor",
+    "Celestica"
+  ],
+  "baseline_full_rows": [
+    {
+      "record_id": "2dc37c481e43ea26469858f5",
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+      "source_id": "celestica-ds4000-chassis-skus",
+      "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf#page=7",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "matched_part_numbers": [
+        "R4023-F9102-A0"
+      ]
+    },
+    {
+      "record_id": "2dc37c481e43ea26469858f5",
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+      "source_id": "celestica-ds4000-chassis-skus",
+      "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf#page=7",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "matched_part_numbers": [
+        "R4023-F9102-A0"
+      ]
+    }
+  ],
+  "precollapse_full_rows": [
+    {
+      "record_id": "2dc37c481e43ea26469858f5",
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+      "source_id": "celestica-ds4000-chassis-skus",
+      "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf#page=7",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "matched_part_numbers": [
+        "R4023-F9102-A0"
+      ],
+      "raw_fact": {
+        "name": "cooling_description",
+        "value": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ."
+      },
+      "affiliations": [
+        {
+          "company": "Celestica",
+          "target": "Celestica",
+          "role": "brand"
+        }
+      ],
+      "source_key": "R4023-F9102-A0"
+    },
+    {
+      "record_id": "2dc37c481e43ea26469858f5",
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+      "source_id": "celestica-ds4000-chassis-skus",
+      "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf#page=7",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "matched_part_numbers": [
+        "R4023-F9102-A0"
+      ],
+      "raw_fact": {
+        "name": "power_description",
+        "value": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ."
+      },
+      "affiliations": [
+        {
+          "company": "Celestica",
+          "target": "Celestica",
+          "role": "brand"
+        }
+      ],
+      "source_key": "R4023-F9102-A0"
+    }
+  ],
+  "prototype_groups": [
+    {
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "2dc37c481e43ea26469858f5",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "cooling_description",
+          "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+          "source_id": "celestica-ds4000-chassis-skus",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf#page=7",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "matched_part_numbers": [
+            "R4023-F9102-A0"
+          ],
+          "raw_fact": {
+            "name": "cooling_description",
+            "value": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ."
+          },
+          "affiliations": [
+            {
+              "company": "Celestica",
+              "target": "Celestica",
+              "role": "brand"
+            }
+          ],
+          "source_key": "R4023-F9102-A0"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "6cfb4db52485fb182035",
+      "brand": "Celestica",
+      "model": "DS4000",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "2dc37c481e43ea26469858f5",
+          "device_id": "6cfb4db52485fb182035",
+          "brand": "Celestica",
+          "model": "DS4000",
+          "revision": "",
+          "category": "power_description",
+          "statement": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ.",
+          "source_id": "celestica-ds4000-chassis-skus",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf#page=7",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "matched_part_numbers": [
+            "R4023-F9102-A0"
+          ],
+          "raw_fact": {
+            "name": "power_description",
+            "value": "Published configuration for chassis SKU R4023-F9102-A0: ASSY,TLA,DS4000,32X400GbE,4C D1627,1X16GB DDR4,64GB SSD, 2X1500W AC PSU,7 FAN,F2B,W/ PACKAGING. PSU ratings are not measured draw; actual installed parts may differ."
+          },
+          "affiliations": [
+            {
+              "company": "Celestica",
+              "target": "Celestica",
+              "role": "brand"
+            }
+          ],
+          "source_key": "R4023-F9102-A0"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    }
+  ],
+  "scope": "read-only diagnostic/prototype; grouped output is not implemented or accepted",
+  "baseline_cli_sha256": "f747889f0da23b0f81c9644e0786b04f600c3e333061d36772a49408ad091943"
+}

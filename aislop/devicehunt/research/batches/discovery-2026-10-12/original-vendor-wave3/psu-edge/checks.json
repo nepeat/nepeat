@@ -1,0 +1,74 @@
+{
+  "request_count": 6,
+  "cap": 7,
+  "redirects_automatic": false,
+  "remote_screenshots": 0,
+  "searches": 0,
+  "local_render_pages": 4,
+  "pdf_checks": [
+    {
+      "pdf": "sd6200-datasheet.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "sidecar": "sd6200-pages.json",
+      "sidecar_sha256": "167e926937d22b6aa6ba4028773124000c73b76b21e104c7acf299d14a68b38f",
+      "page_count": 2,
+      "pages": [
+        1,
+        2
+      ],
+      "method": "Poppler pdftotext -layout embedded text; no OCR",
+      "extraction_options": {
+        "layout": true,
+        "encoding": "UTF-8",
+        "eol": "unix",
+        "remove_hyphens": "none",
+        "page_selection": "individual",
+        "page_breaks": false
+      }
+    },
+    {
+      "pdf": "wedge100-32x-r04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "sidecar": "wedge100-32x-r04-pages.json",
+      "sidecar_sha256": "aaf215bb1ee5bb9a67c881ca9cabea40d50d89a89b034ec518fb5d454af0609c",
+      "page_count": 3,
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "method": "Poppler pdftotext -layout embedded text; no OCR",
+      "extraction_options": {
+        "layout": true,
+        "encoding": "UTF-8",
+        "eol": "unix",
+        "remove_hyphens": "none",
+        "page_selection": "individual",
+        "page_breaks": false
+      }
+    }
+  ],
+  "tool_script_sha256": "b657512ff584715df4d8f2d90cc8ba489d896df7196a6bb2ca11c88c080feb38",
+  "input_plan_sha256": "4e37b4a342a3e7ecc1cd7eb608227647cbf9d955577eb15e7d634d2785424db7",
+  "checked_utc": "2026-10-13T03:39:28.639201+00:00",
+  "extraction_invocations": [
+    [
+      "python3",
+      "scripts/extract_pdf_pages.py",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-datasheet.pdf",
+      "--output",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-pages.json",
+      "--tool-directory",
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin"
+    ],
+    [
+      "python3",
+      "scripts/extract_pdf_pages.py",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf",
+      "--output",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04-pages.json",
+      "--tool-directory",
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin"
+    ]
+  ]
+}

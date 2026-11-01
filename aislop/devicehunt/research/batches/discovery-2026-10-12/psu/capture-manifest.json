@@ -1,0 +1,64 @@
+{
+  "finalized_at": "2026-10-13T02:59:54.951505+00:00",
+  "local_capture_date": "2026-10-12 America/Los_Angeles",
+  "scope": "discovery-only; not an accepted importer input",
+  "pdf_capture_method": "urllib GET; immutable captured bytes",
+  "web_extract_method": "web.run tool response; abridged, no pypdf envelope and no complete-page assertion",
+  "files": [
+    {
+      "file": "bel-pfe1100-html-jsonld.json",
+      "bytes": 9262,
+      "sha256": "859c52ba850a69593b44afafedbc37ac9b97fc9a156166965669d3d2a6724075"
+    },
+    {
+      "file": "bel-pfe1100-series.html",
+      "bytes": 218050,
+      "sha256": "a2ef4636e4d3c062078621b281f2d3e668b4ed06c0cff13038270439012b4f27"
+    },
+    {
+      "file": "bel-pfe1100-series.pdf",
+      "bytes": 1234296,
+      "sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e"
+    },
+    {
+      "file": "bel-pfe1500-csa.pdf",
+      "bytes": 224731,
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60"
+    },
+    {
+      "file": "bel-pfe1500-nemko.pdf",
+      "bytes": 221876,
+      "sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2"
+    },
+    {
+      "file": "bel-pfe1500-series.pdf",
+      "bytes": 1561064,
+      "sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693"
+    },
+    {
+      "file": "fetch-report.json",
+      "bytes": 3417,
+      "sha256": "bfd02c6945a82de858f3322d5e716145c12b2e330d4a20c82e26b8c5ed62b2b0"
+    },
+    {
+      "file": "fsp550-29fm.pdf",
+      "bytes": 585174,
+      "sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45"
+    },
+    {
+      "file": "screenshot-outcomes.json",
+      "bytes": 1157,
+      "sha256": "82a4cd784455241dda92d036e02de17c8e486db41c6fcc7d05f86c8a78ef9927"
+    },
+    {
+      "file": "web-captures.json",
+      "bytes": 118013,
+      "sha256": "a78e85e82628d235276807e94b8fb7fe14b04740b94941b4ce214210214f1019"
+    },
+    {
+      "file": "web-pfe1100-capture.json",
+      "bytes": 21613,
+      "sha256": "c9c5b75e7c9f0d24f0cf0208a0e8e351b94e0d3eb8d17a5156cc80ec5f201b06"
+    }
+  ]
+}

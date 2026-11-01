@@ -1,0 +1,555 @@
+{
+  "base_observation_selections": [
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-27",
+      "fact_index": 0,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-28",
+      "fact_index": 1,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-29",
+      "fact_index": 2,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-30",
+      "fact_index": 3,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-31",
+      "fact_index": 4,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-32",
+      "fact_index": 5,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-33",
+      "fact_index": 6,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-34",
+      "fact_index": 7,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-35",
+      "fact_index": 8,
+      "scope_split": null
+    },
+    {
+      "record_key": "Sun ZFS Storage 7420",
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "original_observation_id": "oracle-rating-note",
+      "fact_index": 9,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-1",
+      "fact_index": 0,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-2",
+      "fact_index": 1,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-3",
+      "fact_index": 2,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-4",
+      "fact_index": 3,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-5",
+      "fact_index": 4,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-6",
+      "fact_index": 5,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-7",
+      "fact_index": 6,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-8",
+      "fact_index": 7,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-9",
+      "fact_index": 8,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-10",
+      "fact_index": 9,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-11",
+      "fact_index": 10,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-12",
+      "fact_index": 11,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-13",
+      "fact_index": 12,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-14",
+      "fact_index": 13,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-15",
+      "fact_index": 14,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-16",
+      "fact_index": 15,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-17",
+      "fact_index": 16,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6700-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-18",
+      "fact_index": 17,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-1",
+      "fact_index": 0,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-2",
+      "fact_index": 1,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-3",
+      "fact_index": 2,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-4",
+      "fact_index": 3,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-5",
+      "fact_index": 4,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-6",
+      "fact_index": 5,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-7",
+      "fact_index": 6,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-8",
+      "fact_index": 7,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-9",
+      "fact_index": 8,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-10",
+      "fact_index": 9,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-11",
+      "fact_index": 10,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-12",
+      "fact_index": 11,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-13",
+      "fact_index": 12,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-14",
+      "fact_index": 13,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-15",
+      "fact_index": 14,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-16",
+      "fact_index": 15,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-17",
+      "fact_index": 16,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS6701-32X",
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "original_observation_id": "as6700-18",
+      "fact_index": 17,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5710-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-19",
+      "fact_index": 0,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5710-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-20",
+      "fact_index": 1,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5710-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-22",
+      "fact_index": 2,
+      "scope_split": [
+        "AS5710-54X: Freescale P2041 quad-core 1.5GHz CPU",
+        "2 GB DDR3 SDRAM with ECC",
+        "128 MB NOR Flash",
+        "8 GB NAND Flash",
+        "8GB SD Card"
+      ]
+    },
+    {
+      "record_key": "AS5710-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-23",
+      "fact_index": 3,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5710-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-24",
+      "fact_index": 4,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5710-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-25",
+      "fact_index": 5,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5710-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-26",
+      "fact_index": 6,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-19",
+      "fact_index": 0,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-20",
+      "fact_index": 1,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-21",
+      "fact_index": 2,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-22",
+      "fact_index": 3,
+      "scope_split": [
+        "AS5712-54X: Intel Atom C2538 quad-core 2.4GHz x86 processor",
+        "8 GB SO-DIMM DDR3 RAM with ECC",
+        "16 MB SPI Flash",
+        "8 GB NAND Flash",
+        "Reserve mSATA connector"
+      ]
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-23",
+      "fact_index": 4,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-24",
+      "fact_index": 5,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-25",
+      "fact_index": 6,
+      "scope_split": null
+    },
+    {
+      "record_key": "AS5712-54X",
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "original_observation_id": "as5712-26",
+      "fact_index": 7,
+      "scope_split": null
+    }
+  ],
+  "ordering_records": [
+    "5710-54X-O-AC-F-US",
+    "5710-54X-O-AC-B-US",
+    "5710-54X-O-AC-F-EU",
+    "5710-54X-O-AC-B-EU",
+    "5710-54X-O-AC-F-UK",
+    "5710-54X-O-AC-B-UK",
+    "5710-54X-O-AC-F-JP",
+    "5710-54X-O-AC-B-JP",
+    "5710-54X-O-48V-F",
+    "5710-54X-O-48V-B",
+    "5710-54X-O-12V-F",
+    "5710-54X-O-12V-B",
+    "5712-54X-O-AC-F-US",
+    "5712-54X-O-AC-B-US",
+    "5712-54X-O-AC-F-EU",
+    "5712-54X-O-AC-B-EU",
+    "5712-54X-O-AC-F-UK",
+    "5712-54X-O-AC-B-UK",
+    "5712-54X-O-AC-F-JP",
+    "5712-54X-O-AC-B-JP",
+    "5712-54X-O-48V-F",
+    "5712-54X-O-48V-B",
+    "5712-54X-O-12V-F",
+    "5712-54X-O-12V-B",
+    "PSU-AC-400-F",
+    "PSU-AC-400-B",
+    "PSU-48V-400-F",
+    "PSU-48V-400-B",
+    "PSU-12V-400-1",
+    "RKIT-85-6712",
+    "ORSA-1U",
+    "CBL-PWR-US",
+    "CBL-PWR-EU",
+    "CBL-PWR-UK",
+    "CBL-PWR-JP"
+  ],
+  "excluded_rows": [
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 18,
+      "raw_line": " FAN-1U-1x1D-F                                   Fan Tray FRU                                                                                                           port-to-power airﬂow",
+      "raw_cells_from_embedded_text": [
+        "FAN-1U-1x1D-F",
+        "Fan Tray FRU",
+        "port-to-power airﬂow"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision.",
+      "model_text_render_conflict": true,
+      "model_as_embedded_text": "FAN-1U-1x1D-F",
+      "model_visible_in_render": "AN-1U-1x1D-F",
+      "conflict_note": "Initial F exists in embedded text but is not visible in both 150/240dpi original-page renders. Retain both observations unresolved; do not canonicalize either into a hardware identity.",
+      "additional_visual_page": "as5712-reread4-4.png"
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 20,
+      "raw_line": " FAN-1U-1x1D-B                                   Fan Tray FRU                                                                                                           power-to-port airﬂow",
+      "raw_cells_from_embedded_text": [
+        "FAN-1U-1x1D-B",
+        "Fan Tray FRU",
+        "power-to-port airﬂow"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "PSU",
+        "Airflow",
+        "Region (power cord)"
+      ],
+      "row_scope": "PSU_fan_FRU_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision.",
+      "model_text_render_conflict": true,
+      "model_as_embedded_text": "FAN-1U-1x1D-B",
+      "model_visible_in_render": "AN-1U-1x1D-B",
+      "conflict_note": "Initial F exists in embedded text but is not visible in both 150/240dpi original-page renders. Retain both observations unresolved; do not canonicalize either into a hardware identity.",
+      "additional_visual_page": "as5712-reread4-4.png"
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_page": 4,
+      "line_1based": 24,
+      "raw_line": " 57xx-54X-SVC-RTF                                AS5710-54X Annual Hardware Service, post warranty, Return-to-Factory",
+      "raw_cells_from_embedded_text": [
+        "57xx-54X-SVC-RTF",
+        "AS5710-54X Annual Hardware Service, post warranty, Return-to-Factory"
+      ],
+      "base_model_line_as_printed": null,
+      "table_headers_as_embedded_text": [
+        "Model Number",
+        "Description"
+      ],
+      "row_scope": "service_mounting_cable_order_row",
+      "visually_reviewed": true,
+      "visual_page": "as5712-4.png",
+      "scope": "Literal source ordering row only; no aliases, SKU expansion, standalone hardware kind/fitment, role or current stock/entitlement decision."
+    }
+  ]
+}

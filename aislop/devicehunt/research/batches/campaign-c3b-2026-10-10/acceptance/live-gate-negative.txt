@@ -1,0 +1,3 @@
+accepted manifest passes: campaign-release-2a5b2f0cc9e273a56128cbfb680bdc4a3b4ade1b30a883a9f7c0068611410fed
+tampered input refused: campaign gate: input differs from the reviewed release: raw/ised-amazon-export/results.csv
+dropped job refused: campaign gate: manifest must import exactly the released job for rra-official-query-73009f906e4e

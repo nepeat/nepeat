@@ -1,0 +1,950 @@
+{
+  "database_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "candidate_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "previous_sha256": "5b1317f554968fae6c20a4dc0cd2d4d8524ee1c5e60a662675e36a763203a904",
+  "rebuild_sha256": "1a291d34a5947f0dc5ac1f61f77d92ff1cc1b2463e0afc5fc1865249fa01c1f0",
+  "manifest_sha256": "67f8359024342fb2204bdcfdb6cf5d6fd404c0ce27f2422d30f094cf80f962fb",
+  "merged_input_sha256": "fd2ece9f8f3105e8f1e6adfcd7202ad5a6c38df9741616c543dad1a038005998",
+  "schema": 28,
+  "counts": {
+    "devices": 4084,
+    "records": 5302,
+    "facts": 44763,
+    "sources": 283,
+    "documents": 56,
+    "document_pages": 3651,
+    "hyperscaler_evidence": 22
+  },
+  "additions": {
+    "devices": 1,
+    "records": 2,
+    "facts": 35,
+    "sources": 2,
+    "documents": 0,
+    "document_pages": 0
+  },
+  "source_counts": {
+    "devicecode": 9260,
+    "sonic": 37,
+    "onl": 39,
+    "oracle-x86": 8,
+    "oracle-previous": 12,
+    "oracle-sparc": 15,
+    "oracle-netra": 9,
+    "celestica-storage": 6,
+    "oracle-storage": 9,
+    "oracle-ethernet": 9,
+    "oracle-unified-storage": 5,
+    "oracle-eol": 185,
+    "onie": 111,
+    "celestica-catalog": 14,
+    "edgecore-wedge": 1,
+    "amazon-fcc": 2,
+    "cubscout-report": 1,
+    "monitron-model": 1,
+    "monitron-recertification": 1,
+    "oracle-e5-geekbench": 1,
+    "fcc-manifest": 2,
+    "edgecore-products": 239,
+    "edgecore-eol-2014-q2-edgecore-eol-notice": 48,
+    "edgecore-eol-2015-edgecore-wireless-eol-notice": 5,
+    "edgecore-eol-2015-q2-edgecore-networks-eol-notice": 2,
+    "edgecore-eol-2015-q3-edgecore-eol-notice": 2,
+    "edgecore-eol-2016-edgecore-datacenter-product-eos-notice": 8,
+    "edgecore-eol-2016-edgecore-ecs5610-52s-eol-notice": 1,
+    "edgecore-eol-2016-edgecore-ecw5320-ecwo5320-eol-notice": 2,
+    "edgecore-eol-2016-q2-edgecore-dc-product-eos-notice": 18,
+    "edgecore-eol-2016-q3-edgecore-dc-product-eol-notice": 18,
+    "edgecore-eol-2016-q3-edgecore-wireless-product-eol-notice": 2,
+    "edgecore-eol-2017-december-eol-notice": 2,
+    "edgecore-eol-2017-q3-eol-notice": 3,
+    "edgecore-eol-2017-q4-eol-notice": 1,
+    "edgecore-eol-2018-january-data-center-eol-notice": 2,
+    "edgecore-eol-2018-january-eol-notice": 3,
+    "edgecore-eol-2018-july-eol-notice": 1,
+    "edgecore-eol-2018-july-wireless-product-eol-notice": 1,
+    "edgecore-eol-2018-may-eol-notice": 5,
+    "edgecore-eol-2018-q4-data-center-switch-eol-notice": 2,
+    "edgecore-eol-2018-q4-enterprise-switch-eol-notice": 11,
+    "edgecore-eol-2019-q1-enterprise-switch-eol-announcement": 2,
+    "edgecore-eol-2019-q2-enterprise-switch-eol-announcement": 3,
+    "edgecore-eol-2019-q3-enterprise-switch-eol-announcement-2": 2,
+    "edgecore-eol-2019-q3-enterprise-switch-eol-announcement": 2,
+    "edgecore-eol-2020-q1-data-center-switch-eol-notice": 2,
+    "edgecore-eol-2020-q2-data-center-switch-eol-notice": 1,
+    "edgecore-eol-2020-q3-enterprise-switch-eol-notice": 3,
+    "edgecore-eol-2020-q4-enterprise-switch-and-network-appliance-eol-notice": 10,
+    "edgecore-eol-2020-q4-enterprise-switch-eol-notice": 3,
+    "edgecore-eol-2021-april-module-eol-notice": 1,
+    "edgecore-eol-2021-dec-eol-notice-as5512-54x": 1,
+    "edgecore-eol-2021-january-data-center-switch-eol-notice": 1,
+    "edgecore-eol-2021-may-eol-notice-ecview-pro": 0,
+    "edgecore-eol-2021-oct-eol-notice-ecs3510-28t": 1,
+    "edgecore-eol-2022-feb-eol-notice-as6812-32x": 4,
+    "edgecore-eol-2022-feb-eol-notice-saf-series": 2,
+    "edgecore-eol-2022-july-eol-notice-l3-switches": 3,
+    "edgecore-eol-2024-oct-eol-notice-tofino-based-products": 12,
+    "edgecore-eol-2025-december-eol-notice-as5812-54t": 6,
+    "edgecore-eol-2025-december-eol-notice-as7712-32x": 6,
+    "edgecore-eol-2025-january-eol-notice-as5812-54x": 6,
+    "edgecore-eol-2025-january-eol-notice-as7312-54xs": 6,
+    "edgecore-eol-2025-june-eol-notice-as4610-series": 5,
+    "edgecore-eol-2025-june-eol-notice-asxvolt16": 5,
+    "edgecore-eol-2025-november-eol-notice-as5916-54xm": 6,
+    "edgecore-eol-2025-november-eol-notice-as7716-24sc": 5,
+    "edgecore-eol-2025-november-eol-notice-as8000": 7,
+    "edgecore-eol-2025-november-eol-notice-asgvolt64": 2,
+    "edgecore-eol-2025-september-eol-notice-as7316-26xb": 2,
+    "edgecore-eol-2026-january-eol-notice-as5912-54x": 6,
+    "edgecore-eol-2026-june-eol-notice-as7315-30x": 2,
+    "edgecore-notice-index": 51,
+    "ntra-2026-01": 169,
+    "ul-celestica-cs": 25,
+    "tec-mtcte": 2331,
+    "ecrunch-I610661": 1,
+    "oracle-oss": 74,
+    "oracle-x10-license": 1,
+    "nist-4506": 4,
+    "fcc-grantees": 50153,
+    "icasa-2025": 26258,
+    "bahrain-tra": 10169,
+    "aws-scout-declaration": 2,
+    "aws-cubscout-declaration": 1,
+    "aws-outposts-compliance": 3,
+    "broadcom-servers": 24,
+    "anatel-products": 190852,
+    "ised-rel-25869": 4,
+    "ised-rel-query-accton": 167,
+    "ised-rel-query-edgecore": 4,
+    "ised-rel-query-oracle": 12,
+    "ised-rel-query-celestica": 0,
+    "ul-accton-platforms": 437,
+    "meta-minipack-2019": 1,
+    "meta-ocp-2021": 2,
+    "meta-ocp-2024": 1,
+    "meta-ocp-2025": 2,
+    "ocp-products-reviewed": 12,
+    "ntra-register-2026-01": 47302,
+    "ieee-mac-assignments": 58639,
+    "fcc-index-hed": 146,
+    "fcc-index-yzk": 20,
+    "fcc-index-a4h": 4,
+    "fcc-index-2avpl": 1,
+    "fcc-index-mrf": 0,
+    "fcc-index-nvn": 0,
+    "fcc-documents-2avpl-te1a001": 11,
+    "aws-monitron-sensor": 2,
+    "aws-monitron-ex-sensor": 1,
+    "aws-monitron-wifi-eu": 1,
+    "aws-monitron-ethernet-eu": 1,
+    "aws-monitron-service-history": 5,
+    "celestica-2025-catalog": 17,
+    "fcc-detail-pages": 171,
+    "fcc-accton-report-covers": 30,
+    "ipinfusion-ocnos-hcl": 44,
+    "tec-register": 2331,
+    "cisco-ncs-cb-certificates": 2,
+    "aws-panorama-safety": 2,
+    "aws-panorama-end-of-support": 1,
+    "aws-snowcone-declarations": 2,
+    "aws-snow-family-return-context": 1,
+    "reference-pdf-aws-cubscout": 1,
+    "reference-pdf-aws-monitron-ethernet-eu": 1,
+    "reference-pdf-aws-monitron-ethernet-us": 1,
+    "reference-pdf-aws-monitron-ex-sensor": 1,
+    "reference-pdf-aws-monitron-sensor": 1,
+    "reference-pdf-aws-monitron-wifi-eu": 1,
+    "reference-pdf-aws-monitron-wifi-us": 1,
+    "reference-pdf-aws-panorama": 1,
+    "reference-pdf-aws-scout": 1,
+    "reference-pdf-aws-snow-family-2022": 1,
+    "reference-pdf-aws-snowcone-it": 1,
+    "reference-pdf-celestica-2025": 1,
+    "reference-pdf-cisco-ncs-certificates": 1,
+    "reference-pdf-icasa-2025": 1,
+    "reference-pdf-ntra-2026-01": 1,
+    "reference-pdf-aws-thin-client-eu": 1,
+    "reference-pdf-aws-thin-client-safety": 1,
+    "reference-pdf-ntra-2022-12": 1,
+    "reference-pdf-oracle-x9-2-ecodesign": 1,
+    "reference-pdf-oracle-x9-2l-ecodesign": 1,
+    "reference-pdf-oracle-x10m-ecodesign": 1,
+    "reference-pdf-oracle-x11m-ecodesign": 1,
+    "reference-pdf-kenya-2026-08": 1,
+    "reference-pdf-celestica-ds4000-guide": 1,
+    "reference-pdf-meta-minipack2-spec": 1,
+    "reference-pdf-odm-wiwynn-sv7100g4": 1,
+    "reference-pdf-odm-hyve-jade-2026": 1,
+    "reference-pdf-accton-b4010-compliance": 1,
+    "reference-pdf-inspur-i24-whitepaper": 1,
+    "ul-celestica-platforms": 163,
+    "pci-id-repository": 42438,
+    "ntra-register-2022-12": 29208,
+    "oracle-components-sun-zfs-storage-7420": 9,
+    "oracle-components-oracle-zfs-storage-zs3-2": 11,
+    "oracle-components-oracle-zfs-storage-zs3-4": 10,
+    "ncc-equipment-5996": 110957,
+    "bsmi-certificates-166852": 105732,
+    "bsmi-reviewed-targets": 42,
+    "ncc-reviewed-targets": 252,
+    "bsmi-product-reviewed-targets": 1,
+    "oracle-ecodesign-x9-2": 1,
+    "oracle-ecodesign-x9-2l": 1,
+    "oracle-ecodesign-x10m": 1,
+    "oracle-ecodesign-x11m": 1,
+    "fcc-index-reviewed-mrf": 2,
+    "bsmi-additional-162936": 17797,
+    "bsmi-additional-30176": 1818,
+    "bsmi-additional-169189": 564,
+    "celestica-networking-index": 17,
+    "rra-reviewed-rr-zzr-cs8000-32x-dc": 2,
+    "rra-official-query-41e4ca912b33": 151,
+    "rra-official-query-33f7d154085d": 57,
+    "rra-official-query-63cb0b9098c7": 110,
+    "rra-official-query-e5984834207f": 200,
+    "rra-official-query-73009f906e4e": 516,
+    "rra-official-query-5827f2fe7092": 7,
+    "rra-official-query-78fc6b2e95f6": 0,
+    "ul-amazon-platforms": 57,
+    "picos45-edgecore-accton": 26,
+    "rra-official-query-beff7e7a4f46": 40,
+    "rra-sun-portfolio-beff7e7a4f46": 29,
+    "energystar-enterprise-servers": 495,
+    "energystar-server-archive-v2": 279,
+    "energystar-server-archive-v1_1": 594,
+    "energystar-network": 96,
+    "energystar-storage-file": 35,
+    "energystar-storage-block": 83,
+    "energystar-storage-file-v1": 9,
+    "energystar-storage-block-v1": 229,
+    "nigeria-ncc-equipment": 8517,
+    "ghana-nca-equipment": 1153,
+    "rra-reviewed-manufacturer-lists": 22,
+    "kenya-ca-reviewed": 6,
+    "fcc-sporton-cover-roles": 7,
+    "public-register-ntrc-vc": 2896,
+    "public-register-mauritius-icta": 2089,
+    "celestica-ds4000-chassis-skus": 8,
+    "metrolinq-ml1-report-fields": 2,
+    "metrolinq-ml10g-guide-fields": 1,
+    "fcc-gap-probes": 3,
+    "japan-mic-mirror-accton": 177,
+    "japan-mic-mirror-edgecore": 21,
+    "japan-mic-mirror-edge-core": 0,
+    "japan-mic-mirror-celestica": 0,
+    "japan-mic-mirror-oracle": 1,
+    "japan-mic-mirror-amazon": 0,
+    "japan-mic-mirror-amazon-broad": 143,
+    "japan-mic-mirror-oracle-ja": 0,
+    "japan-mic-mirror-celestica-ja": 0,
+    "japan-mic-mirror-edgecore-ja": 0,
+    "japan-mic-mirror-accton-zh": 0,
+    "japan-mic-mirror-accton-ja": 4,
+    "celestica-storage-manufacturer-sc6100": 1,
+    "celestica-storage-manufacturer-sd4100": 1,
+    "celestica-storage-manufacturer-sd6200": 1,
+    "meta-wedge100-2016": 2,
+    "anatel-accton-historical-portfolio": 1,
+    "fcc-company-accton": 235,
+    "fcc-company-amazon": 2,
+    "edgecore-7760-label": 1,
+    "fcc-sitemaps": 231962,
+    "wiwynn-product-index": 12,
+    "hyve-hercules-2023": 1,
+    "wiwynn-sv7100g4-datasheet": 2,
+    "hyve-jade-datasheet-2026": 1,
+    "accton-b4010-compliance": 1,
+    "inspur-i24-whitepaper-2020": 1,
+    "reference-pdf-ingrasys-es2000-es2100": 1,
+    "ingrasys-server-docs-index": 4,
+    "ingrasys-sv2221a-page": 1,
+    "ingrasys-sv2221i-page": 1,
+    "ingrasys-es2000-es2100-datasheet": 2,
+    "ingrasys-es2100-page": 1,
+    "ingrasys-foxconn-portfolio-2026-10-04": 8,
+    "reference-pdf-quanta-affiliates-2025": 1,
+    "reference-pdf-qct-wssd": 1,
+    "reference-pdf-qct-qxvdi-2020": 1,
+    "inventec-server-index-en": 28,
+    "inventec-horsea-page": 1,
+    "inventec-seadra-page": 1,
+    "qct-wssd-models": 9,
+    "qct-quanta-portfolio-2020": 9,
+    "inventec-dongguan-manufacturer-2020": 5,
+    "reference-pdf-inspur-nf5280m5-whitepaper": 1,
+    "reference-pdf-inventec-e850g4-brief": 1,
+    "inspur-support-models": 1064,
+    "inventec-metagross-page": 1,
+    "inventec-e850g4-brief-2021": 1,
+    "inspur-nf5280m5-whitepaper-2019": 1,
+    "reference-pdf-inspur-incloud-rail-compatibility": 1,
+    "inspur-incloud-rail-hardware-2023": 34,
+    "inspur-ne5260m5-launch-2019": 1,
+    "inspur-i24-node-relationship-2020": 2,
+    "reference-pdf-inspur-products-2018": 1,
+    "reference-pdf-inventec-artemis-ii-rack": 1,
+    "reference-pdf-inventec-x680m": 1,
+    "inspur-products-2018-reviewed": 91,
+    "inventec-artemis-ii-rack-2025": 1,
+    "inventec-x680m-2024": 1,
+    "reference-pdf-wiwynn-sv7100g2": 1,
+    "reference-pdf-wiwynn-sv7220g3": 1,
+    "reference-pdf-wiwynn-st7000g2": 1,
+    "reference-pdf-hyve-hercules-2026": 1,
+    "reference-pdf-hyve-jbof-2026": 1,
+    "inspur-incloud-rail-nics-2023": 10,
+    "wiwynn-sv7100g2-product-page-2026-10-04": 1,
+    "wiwynn-sv7220g3-product-page-2026-10-04": 1,
+    "wiwynn-st7000g2-product-page-2026-10-04": 1,
+    "wiwynn-sv7000g2-product-page-2026-10-04": 1,
+    "wiwynn-sv7100g2-datasheet-reviewed-2026-10-04": 1,
+    "wiwynn-sv7220g3-datasheet-reviewed-2026-10-04": 4,
+    "wiwynn-st7000g2-datasheet-reviewed-2026-10-04": 3,
+    "hyve-hercules-2026-datasheet-reviewed-2026-10-04": 2,
+    "hyve-jbof-2026-datasheet-reviewed-2026-10-04": 1,
+    "qct-d51b-datasheet-mirror-2017": 1,
+    "qct-d52bq-public-product-2026": 1,
+    "reference-pdf-qct-d51b-datasheet-mirror-2017": 1,
+    "community-as7772-dtb-gist-2026-10-04": 1,
+    "oracle-x7-2c-vpat-t2-6972-2017": 1
+  },
+  "new_source_counts": {
+    "community-as7772-dtb-gist-2026-10-04": 1,
+    "oracle-x7-2c-vpat-t2-6972-2017": 1
+  },
+  "manifest_jobs": 118,
+  "hashed_inputs": 2181,
+  "tests": {
+    "focused": 10,
+    "full": 427
+  },
+  "test_logs_sha256": {
+    "engineering/full-tests.log": "33bc5f74ec982f94596caa907e9ade43d96eb64b93406ea56b3f1baad5d044fa",
+    "engineering/focused-tests.log": "674dd7d77f918239ef12051ed1f46fce1ffd1b3e93fb04448c26f5e2ffb1e68c"
+  },
+  "lookup_reports_refreshed": 98,
+  "buying_reports": 2,
+  "buying_vendor": null,
+  "buying_snapshot_sha256": "d3ed4dcf9eb74c65ed89abe12992e602b2d62acb8c380744590c9e802e94285e",
+  "verified_pdfs": [
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_coverletters_4843968_e0467458a9.pdf",
+      "sha256": "040d6304509633a9358bf8eac449c195144640dbdbc6edd58a402293c51937bb"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_externalphotos_4843973_c6f718269f.pdf",
+      "sha256": "7eefb4ea5ab5290edb6af96b22c7a885a84e894b66495c3f24fea687d5210d6c"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_externalphotos_4843974_f42d107bdd.pdf",
+      "sha256": "daf33d656f08417deda6ea97cc91c532a31237fec9aa1f575ed61c068705ffbb"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_idlabellocationinfo_4843977_d45d86db8c.pdf",
+      "sha256": "866511bc53240e36c09ef297a6f3bb8273389fd0425901132d58f74b884b7957"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_internalphotos_4843975_7ae9da4c9e.pdf",
+      "sha256": "3cd0857568f19110e9f52701fafc3c1a6411282991f6fec51270925768410602"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_internalphotos_4843976_5b2f7a5576.pdf",
+      "sha256": "b8b87c4d5f0f38243780c6f736fe532ad0aebbad1cec4e1694242ffd2dd94f53"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_rfexposureinfo_4843967_9c7ae7d462.pdf",
+      "sha256": "917956f195f4207417669c568020a4524ed50ce138f9eda452f4b3bfa1a8aa5a"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testreport_4843964_7839e8b400.pdf",
+      "sha256": "29a99eea257155148f31b6668f797a55e0244e5336362d5e97bdb8479575aed8"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testreport_4843966_90fb396dec.pdf",
+      "sha256": "6cf9e600e56fe2956350b0637b84bf1f3f4906913533959a4dd7bf2046176dd8"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testsetupphotos_4843963_323741fcce.pdf",
+      "sha256": "07e38611fa136adaf81ed3936b0fc2c25e445f3ea9bc98adc9e5114fee5cc0e1"
+    },
+    {
+      "source": "fcc-documents-2avpl-te1a001",
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testsetupphotos_4843965_79b9b9ecd4.pdf",
+      "sha256": "af489c477bf9ebd98977fdc3a8881aa00f848a4f500f7b1c6763a43367e96626"
+    },
+    {
+      "source": "reference-pdf-accton-b4010-compliance",
+      "path": "data/raw/accton-b4010-compliance-2026-10-04.pdf",
+      "sha256": "1f0a0588426b88d6d691bc42686ea86ecaea6338f01ec975f0024b199359e5ce"
+    },
+    {
+      "source": "reference-pdf-aws-cubscout",
+      "path": "data/raw/aws-cubscout-declaration.pdf",
+      "sha256": "e258c61b4536296561ae26fdbd070726f8b88522a6b3179365a0abea9a2651fe"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-ethernet-eu",
+      "path": "data/raw/aws-monitron-ethernet-eu-guide.pdf",
+      "sha256": "a88209624a7147c5c9f2ed33cb57bc255e5c2f03b008090d2514baf97361dfe9"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-ethernet-us",
+      "path": "data/raw/aws-monitron-ethernet-guide.pdf",
+      "sha256": "4eb1eceacafece63f4960018df9965ca3e8eb627fe2748b63f207be01dd250dc"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-ex-sensor",
+      "path": "data/raw/aws-monitron-ex-sensor-guide.pdf",
+      "sha256": "92f3e9c5e330a801392df706ab4454c8a81d7cdfb6b127fb92935fa356b466dc"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-sensor",
+      "path": "data/raw/aws-monitron-sensor-guide.pdf",
+      "sha256": "9b82344bafed90505a8ebd0ba1c490e2f0bd75b7c0e6d34444e7bd1e8dec1294"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-wifi-eu",
+      "path": "data/raw/aws-monitron-wifi-eu-guide.pdf",
+      "sha256": "e3bebd6f7414965b5ab98df924d9f9840acef3b29b6f85463620c71d6b602925"
+    },
+    {
+      "source": "reference-pdf-aws-monitron-wifi-us",
+      "path": "data/raw/aws-monitron-wifi-guide.pdf",
+      "sha256": "c661317b2e078d0f3462b9b3eb186fb72a1c4d55df945ea2c7b7d7d93a907f5b"
+    },
+    {
+      "source": "reference-pdf-aws-panorama",
+      "path": "data/raw/aws-panorama-safety.pdf",
+      "sha256": "d8c04a0bd82a912c925c9e1a66c5404e1529a286115bf62dac6de52830559293"
+    },
+    {
+      "source": "reference-pdf-aws-scout",
+      "path": "data/raw/aws-scout-declaration.pdf",
+      "sha256": "6e5407e727678a793a5a471692d755bb8614325d8a5863aec6148827c6e3aa6b"
+    },
+    {
+      "source": "reference-pdf-aws-snow-family-2022",
+      "path": "data/raw/aws-snow-eu-2022-safety.pdf",
+      "sha256": "c9145c31a888847d9dfb5f2cedd943c5c29d96c5d62efcd5516fa908fdb2b15f"
+    },
+    {
+      "source": "reference-pdf-aws-snowcone-it",
+      "path": "data/raw/aws-snowcone-it-safety.pdf",
+      "sha256": "6485ca4ed7482eaf7d2c7005f769be9bd908294885e9a8d4b2b6a348d47b30ca"
+    },
+    {
+      "source": "reference-pdf-aws-thin-client-eu",
+      "path": "data/raw/aws-thin-client-eu.pdf",
+      "sha256": "423c1ccac53b7504f72d98324ab6aba8781d427eb31f519f2db7e0f83b9082bb"
+    },
+    {
+      "source": "reference-pdf-aws-thin-client-safety",
+      "path": "data/raw/aws-thin-client-safety.pdf",
+      "sha256": "798d2cedfe05102d0c1d2681a133e6f082d32b7e3943dfee11c60bff64a302cd"
+    },
+    {
+      "source": "reference-pdf-celestica-2025",
+      "path": "data/raw/celestica-2025-catalog.pdf",
+      "sha256": "01766330de9b4b344e14dd401e5ae343f10c3e31d41f535ac87de5d3697a2e82"
+    },
+    {
+      "source": "reference-pdf-celestica-ds4000-guide",
+      "path": "data/raw/celestica-ds4000-installation-guide.pdf",
+      "sha256": "f15763a8a33018bbe8fb27e4f6303c891c0b17d0ac1a22462c026ba60c3ccfb2"
+    },
+    {
+      "source": "reference-pdf-cisco-ncs-certificates",
+      "path": "data/raw/cisco-ncs-cb-certificates.pdf",
+      "sha256": "ff989cee3acd7cdd3a7d048ca11fa23be6d8225f9424c214d6620d276e3d0d50"
+    },
+    {
+      "source": "reference-pdf-hyve-hercules-2026",
+      "path": "data/raw/hyve-hercules-2026-2026-10-04.pdf",
+      "sha256": "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03"
+    },
+    {
+      "source": "reference-pdf-hyve-jbof-2026",
+      "path": "data/raw/hyve-jbof-2026-2026-10-04.pdf",
+      "sha256": "77b9c9b5bfc75dbf90749bbf9dccbb8a910356676fea938077efb35297eade02"
+    },
+    {
+      "source": "reference-pdf-icasa-2025",
+      "path": "data/raw/icasa-2025.pdf",
+      "sha256": "c9b0585f1a3d7c61c6238bcb91748401db352c69555a8e2d35cb9e2fa0099be0"
+    },
+    {
+      "source": "reference-pdf-ingrasys-es2000-es2100",
+      "path": "data/raw/ingrasys-es2000-es2100-bom-removed-2026-10-04.pdf",
+      "sha256": "4973720e3dac6ff31d6a24fcc87b5edbf491e7a7fdfab561ea11fcf0e3c926f1"
+    },
+    {
+      "source": "reference-pdf-inspur-i24-whitepaper",
+      "path": "data/raw/inspur-i24-whitepaper-2026-10-04.pdf",
+      "sha256": "75849e77d63a0ee89d600049e2b861d768f47768930ba2ad55eee3b3c3e042ec"
+    },
+    {
+      "source": "reference-pdf-inspur-incloud-rail-compatibility",
+      "path": "data/raw/inspur-incloud-rail-compatibility-2026-10-04.pdf",
+      "sha256": "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+    },
+    {
+      "source": "reference-pdf-inspur-nf5280m5-whitepaper",
+      "path": "data/raw/inspur-nf5280m5-whitepaper-2026-10-04.pdf",
+      "sha256": "b5924c6b10133ba06fa1e02eb12813f0737c1b6fb1807ec7dd246d35908f5bf5"
+    },
+    {
+      "source": "reference-pdf-inspur-products-2018",
+      "path": "data/raw/inspur-products-2018-2026-10-04.pdf",
+      "sha256": "ed6030f0b1d2381e1cfdbe7aa906cbb515ad11eec45119ca554618e798d69e35"
+    },
+    {
+      "source": "reference-pdf-inventec-artemis-ii-rack",
+      "path": "data/raw/inventec-artemis-ii-rack-2026-10-04.pdf",
+      "sha256": "49c13762f3c508a5cef5748a4da5b3359ba14b1838a5e05a30eb988d5dece115"
+    },
+    {
+      "source": "reference-pdf-inventec-e850g4-brief",
+      "path": "data/raw/inventec-e850g4-brief-2026-10-04.pdf",
+      "sha256": "57f37f88885c8c465f67ee044e5847a209765ea9417a2a9fff2b2c441b917fe6"
+    },
+    {
+      "source": "reference-pdf-inventec-x680m",
+      "path": "data/raw/inventec-x680m-2026-10-04.pdf",
+      "sha256": "26be2d61d7322935652f95caa2313ec950245d2f5a537d21cc42827174fcc662"
+    },
+    {
+      "source": "reference-pdf-kenya-2026-08",
+      "path": "data/raw/kenya-approved-2026-08.pdf",
+      "sha256": "874900238c0cdde2ca3beeac372fd29928b38dfba31f84831678b8d8cf574e19"
+    },
+    {
+      "source": "reference-pdf-meta-minipack2-spec",
+      "path": "data/raw/meta-minipack2-spec.pdf",
+      "sha256": "7f71b13da4039fee1f4f24c2dc63f91301a9c83d37f89e4e470fed9109b96842"
+    },
+    {
+      "source": "reference-pdf-ntra-2022-12",
+      "path": "data/raw/ntra-2022-12.pdf",
+      "sha256": "da373d0fdd2f804f10e14570771896e4fbd4aa6ef582aa740cb06b7cc276dc3c"
+    },
+    {
+      "source": "reference-pdf-ntra-2026-01",
+      "path": "data/raw/ntra-2026-01.pdf",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a"
+    },
+    {
+      "source": "reference-pdf-odm-hyve-jade-2026",
+      "path": "data/raw/odm-hyve-jade-2026-2026-10-04.pdf",
+      "sha256": "265022432d27e3ca5efadf4306bb2148df1b303df9916c515fcc2aaf64745b9e"
+    },
+    {
+      "source": "reference-pdf-odm-wiwynn-sv7100g4",
+      "path": "data/raw/odm-wiwynn-sv7100g4-2026-10-04.pdf",
+      "sha256": "6a6f0ef15a7f4552bcf08f589c8b98bcf8801ccb870f4cf1c11582d8c6413ded"
+    },
+    {
+      "source": "reference-pdf-oracle-x10m-ecodesign",
+      "path": "data/raw/oracle-x10m-ecodesign.pdf",
+      "sha256": "50e3873d18341dd742e730843c4b6f2ac5756cf2687dd9a1376a57088ad2c31a"
+    },
+    {
+      "source": "reference-pdf-oracle-x11m-ecodesign",
+      "path": "data/raw/oracle-x11m-ecodesign.pdf",
+      "sha256": "5839b8a7f1f6d1dcda3660e7674aed13a194c48397172070b982550d0e183f40"
+    },
+    {
+      "source": "reference-pdf-oracle-x9-2-ecodesign",
+      "path": "data/raw/oracle-x9-2-ecodesign.pdf",
+      "sha256": "535f09d0de89b74fd44618ea1bee9ef86c72a8ba781595ff722602cf1f0a2533"
+    },
+    {
+      "source": "reference-pdf-oracle-x9-2l-ecodesign",
+      "path": "data/raw/oracle-x9-2l-ecodesign.pdf",
+      "sha256": "d720fe5eec5a5250ff32736258c996e87b91eda263bc6f53baf1d089885cb80b"
+    },
+    {
+      "source": "reference-pdf-qct-d51b-datasheet-mirror-2017",
+      "path": "data/raw/qct-d51b-datasheet-mirror-2017.pdf",
+      "sha256": "68418af147f05d4afa468a5fce8a5fad1026168fa90f37b9277b6b8e559ecf7e"
+    },
+    {
+      "source": "reference-pdf-qct-qxvdi-2020",
+      "path": "data/raw/qct-qxvdi-2020-2026-10-04.pdf",
+      "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+    },
+    {
+      "source": "reference-pdf-qct-wssd",
+      "path": "data/raw/qct-wssd-2026-10-04.pdf",
+      "sha256": "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+    },
+    {
+      "source": "reference-pdf-quanta-affiliates-2025",
+      "path": "data/raw/quanta-affiliates-2025-2026-10-04.pdf",
+      "sha256": "903230cfc536a79701083360fa116698a9ce2096efee45c7ce6d20184e746ea6"
+    },
+    {
+      "source": "reference-pdf-wiwynn-st7000g2",
+      "path": "data/raw/wiwynn-st7000g2-2026-10-04.pdf",
+      "sha256": "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1"
+    },
+    {
+      "source": "reference-pdf-wiwynn-sv7100g2",
+      "path": "data/raw/wiwynn-sv7100g2-2026-10-04.pdf",
+      "sha256": "079a515d8a1d6b86021912f2d9eabe4427bde46a680bb50962438b8c3377899e"
+    },
+    {
+      "source": "reference-pdf-wiwynn-sv7220g3",
+      "path": "data/raw/wiwynn-sv7220g3-2026-10-04.pdf",
+      "sha256": "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783"
+    }
+  ],
+  "all_previous_manifest_inputs_unchanged": 2178,
+  "reference_bundle": "unchanged",
+  "logical_tables_equal": 43,
+  "both_fts_duplicate_sensitive_equal": true,
+  "candidate_live_bytes_equal": true,
+  "readonly_cli_and_exports_unchanged_database": true,
+  "exact_old_rows_including_timestamps_and_source_metadata_preserved": true,
+  "owned_baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "owned_evidence": {
+    "document_snapshot_hits": 9,
+    "label_photo_only_hits": 1,
+    "unresolved_identity_gaps": 0
+  },
+  "vendor_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "inventories": {
+    "manufacturer": {
+      "identity_target_pairs": 2142,
+      "unique_identities": 2141,
+      "counts_by_target": [
+        {
+          "target": "Accton",
+          "identities": 425,
+          "source_records": 491,
+          "sources": 12,
+          "role_assertions": 491
+        },
+        {
+          "target": "Edge-Core",
+          "identities": 219,
+          "source_records": 291,
+          "sources": 7,
+          "role_assertions": 291
+        },
+        {
+          "target": "Celestica",
+          "identities": 193,
+          "source_records": 239,
+          "sources": 11,
+          "role_assertions": 241
+        },
+        {
+          "target": "Oracle",
+          "identities": 859,
+          "source_records": 928,
+          "sources": 11,
+          "role_assertions": 928
+        },
+        {
+          "target": "Amazon Data Services",
+          "identities": 176,
+          "source_records": 212,
+          "sources": 11,
+          "role_assertions": 212
+        },
+        {
+          "target": "Inventec",
+          "identities": 44,
+          "source_records": 75,
+          "sources": 3,
+          "role_assertions": 75
+        },
+        {
+          "target": "Hyve",
+          "identities": 11,
+          "source_records": 11,
+          "sources": 3,
+          "role_assertions": 11
+        },
+        {
+          "target": "Foxconn",
+          "identities": 169,
+          "source_records": 170,
+          "sources": 1,
+          "role_assertions": 170
+        },
+        {
+          "target": "Wiwynn",
+          "identities": 2,
+          "source_records": 2,
+          "sources": 1,
+          "role_assertions": 2
+        },
+        {
+          "target": "TD SYNNEX",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Quanta",
+          "identities": 41,
+          "source_records": 58,
+          "sources": 4,
+          "role_assertions": 58
+        },
+        {
+          "target": "ByteDance",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Inspur",
+          "identities": 3,
+          "source_records": 3,
+          "sources": 1,
+          "role_assertions": 3
+        }
+      ]
+    },
+    "factory": {
+      "identity_target_pairs": 2,
+      "unique_identities": 2,
+      "counts_by_target": [
+        {
+          "target": "Accton",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Edge-Core",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Celestica",
+          "identities": 2,
+          "source_records": 4,
+          "sources": 1,
+          "role_assertions": 4
+        },
+        {
+          "target": "Oracle",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Amazon Data Services",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Inventec",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Hyve",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Foxconn",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Wiwynn",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "TD SYNNEX",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Quanta",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "ByteDance",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Inspur",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        }
+      ]
+    },
+    "all": {
+      "identity_target_pairs": 4221,
+      "unique_identities": 4083,
+      "counts_by_target": [
+        {
+          "target": "Accton",
+          "identities": 1143,
+          "source_records": 1446,
+          "sources": 23,
+          "role_assertions": 1665
+        },
+        {
+          "target": "Edge-Core",
+          "identities": 676,
+          "source_records": 982,
+          "sources": 72,
+          "role_assertions": 1151
+        },
+        {
+          "target": "Celestica",
+          "identities": 368,
+          "source_records": 527,
+          "sources": 25,
+          "role_assertions": 585
+        },
+        {
+          "target": "Oracle",
+          "identities": 1267,
+          "source_records": 1548,
+          "sources": 37,
+          "role_assertions": 2388
+        },
+        {
+          "target": "Amazon Data Services",
+          "identities": 213,
+          "source_records": 281,
+          "sources": 19,
+          "role_assertions": 446
+        },
+        {
+          "target": "Inventec",
+          "identities": 81,
+          "source_records": 116,
+          "sources": 12,
+          "role_assertions": 155
+        },
+        {
+          "target": "Hyve",
+          "identities": 33,
+          "source_records": 33,
+          "sources": 8,
+          "role_assertions": 41
+        },
+        {
+          "target": "Foxconn",
+          "identities": 198,
+          "source_records": 199,
+          "sources": 3,
+          "role_assertions": 200
+        },
+        {
+          "target": "Wiwynn",
+          "identities": 23,
+          "source_records": 28,
+          "sources": 10,
+          "role_assertions": 54
+        },
+        {
+          "target": "TD SYNNEX",
+          "identities": 5,
+          "source_records": 5,
+          "sources": 4,
+          "role_assertions": 5
+        },
+        {
+          "target": "Quanta",
+          "identities": 73,
+          "source_records": 97,
+          "sources": 10,
+          "role_assertions": 103
+        },
+        {
+          "target": "ByteDance",
+          "identities": 0,
+          "source_records": 0,
+          "sources": 0,
+          "role_assertions": 0
+        },
+        {
+          "target": "Inspur",
+          "identities": 141,
+          "source_records": 152,
+          "sources": 10,
+          "role_assertions": 282
+        }
+      ]
+    }
+  },
+  "code_test_files_unchanged": 162,
+  "accepted_inputs_unchanged": 11,
+  "accepted_proof_hashes": {
+    "acceptance.json": "cbd9e97cce6aa5f48e234580e4da21c356ad8fc0ba208e1d88eee584cb9782ad",
+    "candidate-review.md": "ea156f3dbac1e49e6f87089a5159c4af7340a9ce547748fb1b776bbc96b9ee1c",
+    "review.md": "00e869d49f4cc0a3354941bf25baed3ad9fde1ed7e38b319f4b09b99bbaa38e5",
+    "code-review.md": "f50b8cc32baf8d90167330dc0083dabf51fd95b03fa3d204ff9e2169092dfc27",
+    "integration/review-ready.json": "558054301cbb67ea5253b92c76f8a428d069255c64fb2baa05d689c267939213",
+    "integration/stage-verification.json": "9f61ea0be7491d52fb9f361603e3e013f72525576a8ec85f82af8487b99add88",
+    "integration/candidate-audit.json": "e08c69b54f7b4fdb32f372b9045e80e8c4dafc02131a9c01290f06a847c8ee1f",
+    "integration/candidate-practical-proof.json": "252e22a1b149c6e26fc71efbb6b5c87638a99096267fcde42dfba1a4fbfaa110",
+    "engineering/full-tests.log": "33bc5f74ec982f94596caa907e9ade43d96eb64b93406ea56b3f1baad5d044fa",
+    "engineering/focused-tests.log": "674dd7d77f918239ef12051ed1f46fce1ffd1b3e93fb04448c26f5e2ffb1e68c"
+  },
+  "html_sha256": "c72e9486c10ead7aa13f55d86021eacd6ab4c5258a249f5979118eff986c8c8e",
+  "html_dom": "pass; no screenshot",
+  "export_audit_hashes": {
+    "latest-export-audit": "6b922d9d9316cc2df83a134bb36fea858d7cd80cd1e128147aa0cbc02411e49f",
+    "collection-reports-audit": "0ddcc6064c9afea3296dc41d7e084c8d68ec0c1b2b9f40754758ca46e7d94a8a",
+    "hyperscaler-inventory-audit": "ecedbd15c45eb9b4d941bffb108864838d8c3942bbcb34f55af4cf99594f8947",
+    "rebuild-comparison": "4b31e11fdf6806d3921bc66671fb05b968f4872d489dbf54bcef28d4c32a7895",
+    "rebuild-validation": "d0a4f6f9dfeba9efde32ddbbcb24349c196361cce707a8add7cefc8bd30af401"
+  },
+  "processes_completed": true
+}

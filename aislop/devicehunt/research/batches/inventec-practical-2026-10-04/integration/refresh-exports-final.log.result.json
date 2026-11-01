@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "-c",
+    "from pathlib import Path; s=Path('scripts/refresh_exports.py').read_text(); s=s.replace(\"if 'query' in previous and 'limit_per_dataset' in previous:\",\"if isinstance(previous,dict) and 'query' in previous and 'limit_per_dataset' in previous:\"); exec(compile(s,'scripts/refresh_exports.py','exec'))"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 176.0450320000091,
+  "log": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/inventec-practical-2026-10-04/integration/refresh-exports-final.log"
+}

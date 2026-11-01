@@ -1,0 +1,168 @@
+{
+  "pdf_sha256": "33cfffaea8da22e82f20afcb5b50fa58ccceb99740e38109f877435fc1168129",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 4,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "Datasheet                Data Center Switch\n\n DATA CENTER SWITCH\n EXP400-32X\n\n\n\n\n The Edgecore EXP400-32X is a high performance, low power, low latency, fully programmable SDN data center switch\n designed for data center, cloud, and AI networks.\n\n The EXP400-32X is a 32 x 400G QSFP112 port switch in a 1RU form factor. Each of the 400G QSFP112 ports can breakout\n to 2 x 200G, or 4 x 100G, optimizing compute racks by enabling 100Gbps-per-lane server links. The device is an ideal leaf or\n ToR switch for cloud data center operators that are driving the rapid adoption of compute server NICs to 400Gbps speeds.\n\n The EXP400-32X also supports Xsight Instruction Set Architecture (ISA) for users to deﬁne ﬂexible packet processing rules,\n routing protocols, and network policies. The programmability is also an important underlying capability for many of the\n advanced features, including queue management, congestion control, and telemetry. The programmability will handle\n newly-deﬁned notiﬁcation mechanisms, such as the Ultra Ethernet Transport (UET) protocol, packet trimming, and PFC. In\n addition, programmability allows ﬂexible, precise, and real time telemetry, supporting INT, IOAM, IFA, ERSPAN, sFlow,\n NetFlow, and Netstream, all using hardware acceleration.\n\n Optimized for interconnecting AI/ML, storage, and compute clusters in data centers, the EXP400-32X supports\n congestion-aware routing, which comprises measuring and signaling congestion as well as load balancing across the\n network fabric. For a given fabric link, the EXP400-32X can measure ﬂow rate, latency, and queue level. When congestion is\n detected, it can signal using Explicit Congestion Notiﬁcation (ECN), Congestion Signaling (CSIG), or other customer-deﬁned\n mechanisms. The EXP400-32X can handle ﬂowlet-based load balancing and packet spraying across fabric links, as well as\n traditional ﬂow-based approaches like ECMP.\n\n Key Features and Beneﬁts\n ●   Supports 12.8Tbps full-duplex throughput\n ●   Supports 100 Gbps PAM4 LR SerDes with a retimer-less design\n ●   The 32 x 400G QSFP112 ports can breakout to 2 x 200G, or 4 x 100G\n ●   Fully programmable software-deﬁned pipeline and elastic control tables enable application-speciﬁc optimization and\n     in-ﬁeld updates\n ●   Supports UEC-compatible features such as congestion-aware dynamic load balancing, CSIG, packet trimming, PFC,\n     and UET header parsing\n ●   Supports fast link-failure recovery, rich telemetry, advanced data-plane failure prediction, and lossless operation with\n     PFC required for deployment in AI/ML clusters\n ●   Supports front-to-back airﬂow direction\n ●   All ports on front; PSUs and fans accessible from rear\n ●   Hot-swappable, load-sharing, redundant AC power.\n ●   5+1 redundant, hot-swappable fan modules\n ●   Switch pre-loaded Open Networking Install Environment (ONIE) for the automated loading of community SONiC, Xsight\n     OS, or commercial NOS\n"
+    },
+    {
+      "page": 2,
+      "text": "Free Software Included\n\n\n\n\nInterfaces\n\n  1     2                       3                                                 4\n\n\n\n\n        5                                                                         6\n\n             7                  8                                             9\n\n\n\n\nDescription\n 1.   Console port                  6.   USB 3.0 storage port\n\n 2.   1PPS SMA connector            7.   PSU 1\n\n 3.   32 x 400G QSFP112 ports       8.   Hot-swappable 5 + 1 redundant fans\n\n 4.   Management port               9.   PSU 2\n\n 5.   Reset button\n"
+    },
+    {
+      "page": 3,
+      "text": "Ports                                                                Regulatory Compliance\n▪ Switch Ports:                                                      ▪ EMI\n  32 x 400G QSFP112 switch ports, each supports 2 x 200GbE, and        FCC\n    4 x 100GbE via breakout cables                                     • FCC 47 CFR Part 15 Subpart B Class A\n▪ Management Ports on Port Side:                                       CE\n  1 x RJ-45 serial console                                             • EN55022 Class A\n  1 x RJ-45 1G BASE-T management                                       • EN55035\n  1 x USB Type A storage                                               • EN300 286\n▪ Supported Transceivers and Cables:                                   • EN 61000-3-2\n  400G DAC cable                                                       • EN 61000-3-3\n  400G AOC cable                                                       UKCA\n  400G QSFP112 SR4                                                     • BS EN 62368-1: 2014 + A11: 2017\n  200G QSFP56-SR4                                                      VCCI\n  100G DAC                                                             • VCCI-32\n  100G AOC                                                           ▪ Safety\n  100G SR4                                                             UL/ CUL\n  100G LR4                                                             • UL, CSA\n  100G DR1                                                             CB\n  100G FR1                                                             • IEC: EN-60950-1 & IEC 62368\n  100G LR1                                                           ▪ RoHS\n  Note: More optics and detailed cabling information can be found at   Restriction of Hazardous Substances (RoHS) 6/6\n  www.edge-core.com.                                                   China Restriction of Hazardous Substances (RoHS)\n                                                                     ▪ Environmental:\nKey Components                                                         • Low-Temperature Exposure and Thermal Shock (packaged):\n▪ Switch Silicon: Xsight Labs X2                                         NEBS GR63-CORE ISSUE 5, Section 4.1.1.1\n▪ CPU Modules:                                                         • High Relative Humidity Exposure (Packaged): NEBS\n  Intel® Xeon® D-1713NTE 4-Core 2.2GHz                                   GR63-CORE ISSUE 5, Section 4.1.1.2\n  32GB DDR4 SO-DIMM with ECC                                           • High-Temperature Exposure and Thermal Shock (Packaged):\n  1TB m.2 2280 NVMe SSD                                                  NEBS GR63-CORE ISSUE 4, Section 4.1.1.3\n                                                                       • Operating Temperature and Relative Humidity: NEBS\nPerformance                                                              GR63-CORE ISSUE 5, Section 4.1.2\n▪ Switching Capacity: 12.8 Tbps (full duplex)                          • Altitude : NEBS GR63-CORE ISSUE 4, Section 4.1.3\n▪ Jumbo frames support up to 9216 Bytes                                • Handling Drop Tests -Packaged Equipment: NEBS\n▪ Packet Buffer Size: 64 MB integrated packet buffer                     GR63-CORE ISSUE 5,Section 4.3.1.1\n                                                                       • Unpackaged Equipment -Drop Tests (All Equipment): NEBS\nPhysical and Environmental                                               GR63-CORE ISSUE 5, Section 4.3.2\n▪ Dimensions (WxDxH): 442 x 509 x 44 mm (17.40 x 20.04 x 1.73 inch)    • Earthquake (10U Rack): NEBS GR63-CORE ISSUE 4, Section\n▪ Weight: 10.005 kg (20.05 lb)                                           4.4.1 (Zone4)\n▪ Fans: 5+1 hot-swappable redundant fans                               • Office Vibration Test Procedure;90 minutes/axis (Stand & 42U\n▪ Operating Temperature: 0°C – 40°C (32°F – 104°F)                       Rack): NEBS GR63-CORE ISSUE 5,section 4.4.4\n▪ Storage Temperature: -40°C – 70°C (-40°F – 158°F)                    • Transportation Vibration-Packaged Equipment: NEBS\n▪ Operating Humidity: 0% – 95% non-condensing                            GR63-CORE ISSUE 5, section 4.4.5\n▪ Operating Altitude: 0 – 10,000 feet                                  • Acoustic noise: NEBS GR63-CORE ISSUE 5, section 4.6\n                                                                       • Bump: IEC60068-2-29- packaged\nSoftware                                                               • Shock: ETSI EN 300 019-2-3 -Operational Tests, Class T3.2 op\n▪ Switch is loaded with Open Network Install Environment (ONIE)\n  software installer\n▪ Compatible with the following NOS options: open source\n  options, plus commercial NOS offerings\n\nLEDs\n▪ QSFP112 Port LEDs: Link Status, Activity, Rate\n▪ Ethernet Management Port LED: Link Status, Activity\n▪ System LEDs: Diagnostic, Locator, PSU and Fan Status\n\nPower\n▪ PSUs: 2 redundant, load-sharing, hot-swappable AC PSUs\n▪ AC Input Voltage: 90 to 240 VAC at 50-60 Hz\n"
+    },
+    {
+      "page": 4,
+      "text": "Warranty\nPlease check www.edge-core.com for the warranty terms in your country.\n\nFor More Information\nTo ﬁnd out more about Edgecore Networks Corporation products and solutions, visit www.edge-core.com.\n\nAbout Edgecore Networks Corporation\nEdgecore Networks Corporation is in the business of providing innovative network solutions. In the service provider network, in the data\ncenter or in the cloud, Edgecore Networks Corporation delivers the software and systems that transform the way the world connects.\nEdgecore Networks Corporation serves customers and partners worldwide. Additional information can be found at\nwww.edge-core.com.\n\nEdgecore Networks Corporation is a subsidiary of Accton Technology Corporation, the leading network ODM company. The Edgecore\ndata center switches are developed and manufactured by Accton.\n\nTo purchase Edgecore Networks solutions, please contact your Edgecore Networks Corporation representatives at +886 3 563 8888\n(HQ) or +1 (949)-336-6801 or authorized resellers.\n\n© Copyright 2026 Edgecore Networks Corporation. The information contained herein is subject to change without notice. This\ndocument is for informational purposes only and does not set forth any warranty, expressed or implied, concerning any equipment,\nequipment feature, or service offered by Edgecore Networks Corporation. Edgecore Networks Corporation shall not be liable for\ntechnical or editorial errors or omissions contained herein.\n\n\n\n\n                                                                                                                                EC-DS-0426-R01\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "exp400-32x-datasheet-r01.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.842256+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2025-068-EXP400-32X DS R01 20260424\nCreator:         Adobe Illustrator 29.7 (Windows)\nProducer:        Adobe PDF library 17.00\nCreationDate:    Fri Apr 24 00:03:32 2026 PDT\nModDate:         Fri Apr 24 01:06:02 2026 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           4\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       1944159 bytes\nOptimized:       no\nPDF version:     1.6\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/exp400-32x-datasheet-r01.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "44966aa7eda6621f5b77ccdb5e89e02567fa7e7ca66f8084a1f06932daee4068"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/exp400-32x-datasheet-r01.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "5d9ee529ce4f9ad06e7a7332ee4d36a811b6a073ad7c2756b28263027d7a81ad"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/exp400-32x-datasheet-r01.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "fa03ffc534adce14896b5654619c2428b611b797c4e680819f2782d77904feb6"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/exp400-32x-datasheet-r01.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "efc92610bd13a40c34a178be4467f5e7a7fb02e431f814d870b8b262981290dc"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/exp400-32x-datasheet-r01.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "58e03d5d38bdf8b214d2fce5047e908615684db7e5bdc222aae312c61579a9d6"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "archive_manifest_sha256": "83b5283c94cefc242c0e57decacdd27cbc6a4a633408bafe4b668c843fce83dc",
+  "all_121_files_stream_verified": true,
+  "selected_restores": [
+    {
+      "path": "data/rebuilt.sqlite",
+      "sha256": "17dfbb83ba73e96015c6ba0fdd09fc2ccbcc1751131dcab61ab8c1e70c53db31",
+      "byte_count": 7061504,
+      "integrity": [
+        "ok"
+      ],
+      "foreign_keys": []
+    },
+    {
+      "path": "data/candidate-with-inventec-practical-2026-10-04.sqlite",
+      "sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+      "byte_count": 371552256,
+      "integrity": [
+        "ok"
+      ],
+      "foreign_keys": []
+    }
+  ],
+  "temporary_copies_cleaned": true,
+  "originals_unchanged": true
+}

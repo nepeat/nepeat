@@ -1,0 +1,25 @@
+{
+  "original_artifact_manifest_verified_unchanged": true,
+  "artifacts": [
+    {
+      "path": "probe_fixes.py",
+      "sha256": "886134870f837f93bf59a426ad682ef50e06314463e354d8759c368460f17c05",
+      "bytes": 8642
+    },
+    {
+      "path": "fix-probes.json",
+      "sha256": "a136cf06e11ac896258650fb170d161076e32156426df979c536ce93eeb6ea20",
+      "bytes": 1811
+    },
+    {
+      "path": "stage-fixed-reviewed.py",
+      "sha256": "e795eac0ec21a9315adfc13d0f18d45515ffdd9764a558a127747627ad86e6cc",
+      "bytes": 8392
+    },
+    {
+      "path": "fix-review.md",
+      "sha256": "2c6af7b4a1d0b8c5be0082947394709cf00857b9196d0fc30eefa86598419ced",
+      "bytes": 3353
+    }
+  ]
+}

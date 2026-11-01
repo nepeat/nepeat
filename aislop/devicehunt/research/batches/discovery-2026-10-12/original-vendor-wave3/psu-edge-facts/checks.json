@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "candidate_sha256": "0fbf35eb2c9e35364ca915cdba6c4622ae6cd7ae037e9955376576d38d7d03ab",
+  "sources": 2,
+  "records": 2,
+  "existing_identities": 2,
+  "new_identities_proposed": 0,
+  "facts": 27,
+  "ordering_rows_as_literal_facts": 6,
+  "aliases_or_part_number_identifiers": 0,
+  "manufacturer_or_factory_affiliations": 0,
+  "snapshot_artifacts": 4,
+  "snapshot_hash_mismatches": 0,
+  "complete_pdf_pages": 5,
+  "scope": "pure JSON/provenance checks; no imports/network/live mutation; timestamped catalog observation in catalog-context.json"
+}

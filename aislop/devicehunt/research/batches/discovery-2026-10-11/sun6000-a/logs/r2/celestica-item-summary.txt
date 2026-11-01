@@ -1,0 +1,16 @@
+ised-rel-query-oracle review-item-0e8990f24c5dc9285a3ebbc349fb1f4bfbcef50c4840dfea26e197aba870b78d no_changes
+ised-rel-25869 review-item-183042d486a9dc1da3f8ca2a681a7e80c88a584eb83ae9ba0640bf3b686fff57 no_changes
+rra-official-query-78fc6b2e95f6 review-item-22a58547c70a4d72ab402ef1668d6f3cfc37358b7b194eccec3d84b233410a0c no_changes
+ised-rel-query-accton review-item-3b048fa5a07b2acaa4f98fabc67528cc2cd4a27b9b783348a3479473d6acbd01 no_changes
+ised-rel-query-celestica review-item-4851f8870d3984577e1251299940045aee00167e408aeecfeb7f2827a80cbe4f no_changes
+rra-official-query-e5984834207f review-item-4c9b70e229f5dca1768936bf5de70a9d08b7456127af8c354c8097cd8e5589da no_changes
+rra-official-query-63cb0b9098c7 review-item-4d61233c3e8a639cd17000fb6a893ccd25730144a148bce9aecd50278f91017d no_changes
+rra-official-query-73009f906e4e review-item-6297155c0d3b4ca502477fd92b97e163cedda155b200ba890331d5488d93ee38 no_changes
+rra-official-query-41e4ca912b33 review-item-6fe3b47a8dad7ca7824dd2506d10d81143b9223ad8cdf6f7f1346ed07a9403b3 CHANGED
+ job {'path': 'raw/rra-celestica-official/bundle-composite-cells.json', 'source': 'rra'} baseline {'path': 'raw/rra-celestica-official/bundle.json', 'source': 'rra'} 160 161
+  {'raw_row_numbers_changed': False, 'raw_rows_added': 0, 'raw_rows_removed': 0, 'raw_rows_reordered': False, 'records_added': 5, 'records_changed': 0, 'records_moved': 0, 'records_removed': 0, 'records_unchanged': 149} ['coverage', 'sha256']
+ baseline a313914da2427d983de6b7060b6ffe3022613479dbc9244e43889c013df40cc9 candidate {'projection_sha256': '5699fd4120bf68bebccb1783d2ca355829193743aa63195208736a4c968b4997', 'records': 154}
+ coverage tail: cation. Composite manufacturer cells remain unsplit. Exception to unsplit composite cells: 1 reviewed certificate-scoped entry (SUN-6000): each keys one exact manufacturer cell (certificate plus cell text and hash, with its detail page hash) and applies to that certificate and cell only. A split part carries registry_manufacturer only where reviewed legal-name evidence for that name exists; every other part, and any trailing unlabelled parenthetical, is unmapped literal context with no role, target or affiliation. No factory, per-factory country or sole-manufacturer claim is made, and the same cell under another query gets no claim.
+rra-official-query-5827f2fe7092 review-item-7f24684f40d979866b0b78758d21cd8925b9507cf3db475de7194f6ff89d9e6d no_changes
+ised-rel-query-edgecore review-item-b008f6320a151f736636465a94083b7435b708ebbadb8ae93377cb77b37a84ab no_changes
+rra-official-query-33f7d154085d review-item-e95cf9e2e0ba042856bdb8897a22935ba5c247e2907dba957feb59b9ba68e765 no_changes

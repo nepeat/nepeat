@@ -1,0 +1,154 @@
+{
+  "reviewed_on": "2026-09-27",
+  "sources": [
+    {
+      "id": "celestica-storage-manufacturer-sc6100",
+      "url": "https://cls.celestica.com/hardware-platforms/sc6100/",
+      "tier": "vendor",
+      "license": "Factual model and manufacturer statements; original page rights retained",
+      "snapshot": "raw/celestica-storage-manufacturer/sc6100.html",
+      "coverage": "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred."
+    },
+    {
+      "id": "celestica-storage-manufacturer-sd4100",
+      "url": "https://cls.celestica.com/hardware-platforms/sd4100/",
+      "tier": "vendor",
+      "license": "Factual model and manufacturer statements; original page rights retained",
+      "snapshot": "raw/celestica-storage-manufacturer/sd4100.html",
+      "coverage": "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred."
+    },
+    {
+      "id": "celestica-storage-manufacturer-sd6200",
+      "url": "https://cls.celestica.com/hardware-platforms/sd6200/",
+      "tier": "vendor",
+      "license": "Factual model and manufacturer statements; original page rights retained",
+      "snapshot": "raw/celestica-storage-manufacturer/sd6200.html",
+      "coverage": "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred."
+    }
+  ],
+  "devices": [
+    {
+      "source": "celestica-storage-manufacturer-sc6100",
+      "key": "SC6100",
+      "url": "https://cls.celestica.com/hardware-platforms/sc6100/",
+      "brand": "Celestica",
+      "model": "SC6100",
+      "title": "Celestica SC6100",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ],
+        [
+          "Celestica",
+          "manufacturer"
+        ]
+      ],
+      "facts": [
+        [
+          "manufacturer_statement",
+          "Designed and manufactured by Celestica with nearly 30 years of experience in storage"
+        ],
+        [
+          "physical_description",
+          "2U 24 SSD High Availability All-Flash PCIe® Gen 5 Storage Controller"
+        ],
+        [
+          "capture_method",
+          "Original HTML; model h1, product subtitle h1 and manufacturer paragraph reviewed"
+        ],
+        [
+          "source_html_sha256",
+          "fa7fced2791e4b3e94ea7946879607b04f76db899cb54fabc2f6b0cba7958782"
+        ],
+        [
+          "evidence_scope",
+          "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred."
+        ]
+      ]
+    },
+    {
+      "source": "celestica-storage-manufacturer-sd4100",
+      "key": "SD4100",
+      "url": "https://cls.celestica.com/hardware-platforms/sd4100/",
+      "brand": "Celestica",
+      "model": "SD4100",
+      "title": "Celestica SD4100",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ],
+        [
+          "Celestica",
+          "manufacturer"
+        ]
+      ],
+      "facts": [
+        [
+          "manufacturer_statement",
+          "Designed and manufactured by Celestica with 30+ years of experience in storage"
+        ],
+        [
+          "physical_description",
+          "2U 12 HDD SAS-4 Storage Expansion System"
+        ],
+        [
+          "capture_method",
+          "Original HTML; model h1, product subtitle h1 and manufacturer paragraph reviewed"
+        ],
+        [
+          "source_html_sha256",
+          "e73d53544761cb2ccae989a35065609fdceeaf45eb332af13fd3f2eea2b2255e"
+        ],
+        [
+          "evidence_scope",
+          "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred."
+        ]
+      ]
+    },
+    {
+      "source": "celestica-storage-manufacturer-sd6200",
+      "key": "SD6200",
+      "url": "https://cls.celestica.com/hardware-platforms/sd6200/",
+      "brand": "Celestica",
+      "model": "SD6200",
+      "title": "Celestica SD6200",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Celestica",
+          "brand"
+        ],
+        [
+          "Celestica",
+          "manufacturer"
+        ]
+      ],
+      "facts": [
+        [
+          "manufacturer_statement",
+          "Designed and manufactured by Celestica with nearly 30 years of experience in storage"
+        ],
+        [
+          "physical_description",
+          "4U 90 HDD Dense Storage SAS-4 Expansion System"
+        ],
+        [
+          "capture_method",
+          "Original HTML; model h1, product subtitle h1 and manufacturer paragraph reviewed"
+        ],
+        [
+          "source_html_sha256",
+          "d7916c9f54392bb4c572233c341b7db0595aac2af1490d8e6aad0f349ee78189"
+        ],
+        [
+          "evidence_scope",
+          "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred."
+        ]
+      ]
+    }
+  ]
+}

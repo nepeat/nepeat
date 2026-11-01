@@ -1,0 +1,547 @@
+{
+  "sources": [
+    {
+      "id": "inventec-entei-announcement-specs-2020",
+      "url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "license": "Inventec factual product announcement; original rights retained",
+      "snapshot": "raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration."
+    },
+    {
+      "id": "inventec-golduck-product-brief-v3-2020",
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "tier": "vendor",
+      "license": "Original Inventec document rights retained; local factual extraction",
+      "snapshot": "raw/inventec-practical-2026-10-04/golduck/inventec-golduck-v3-2020.pdf",
+      "coverage": "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded. Captured 2026-10-05T00:03:45.086881+00:00; PDF SHA-256 0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd. Visually reviewed pages 1–2."
+    }
+  ],
+  "devices": [
+    {
+      "source": "inventec-entei-announcement-specs-2020",
+      "key": "Entei",
+      "brand": "Inventec",
+      "model": "Entei",
+      "title": "Inventec Entei",
+      "kind": "storage server",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "statement_date",
+          "2020-08-14"
+        ],
+        [
+          "source_observed_date",
+          "2026-10-04 America/Los_Angeles; captured 2026-10-05T00:03:32.241613+00:00"
+        ],
+        [
+          "source_capture_sha256",
+          "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396"
+        ],
+        [
+          "form_factor",
+          "2U"
+        ],
+        [
+          "cpu",
+          "Dual 2nd Gen Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "Twelve DIMMs in the whole system; up to 768GB with 64GB DIMMs"
+        ],
+        [
+          "memory_as_printed",
+          "DDR4; up to 768GB"
+        ],
+        [
+          "memory_as_printed",
+          "Intel Optane persistent memory supported; capacity up to 1TB as stated"
+        ],
+        [
+          "chipset",
+          "Intel C621"
+        ],
+        [
+          "drive_bays",
+          "24x 3.5 inch and 4x 2.5 inch hot-swappable drives"
+        ],
+        [
+          "storage",
+          "NVMe support in the rear for a caching layer"
+        ],
+        [
+          "storage",
+          "2x M.2 via interposer connection"
+        ],
+        [
+          "storage",
+          "A variety of storage mezzanine cards; specific cards not named"
+        ],
+        [
+          "serviceability",
+          "Drawer design for easier drive maintenance"
+        ],
+        [
+          "expansion",
+          "enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards."
+        ],
+        [
+          "network",
+          "OCP NIC mezzanine option ranging from 10G Ethernet to 40G (optical or Base-T, compatible with OCP 2.0), as stated"
+        ],
+        [
+          "evidence_scope",
+          "Dated vendor announcement, not complete specifications or auction-unit configuration."
+        ],
+        [
+          "source_locations",
+          "HTML lines 315-340; quote-level provenance in evidence.json"
+        ],
+        [
+          "practical_gaps",
+          "PSU/input/connector, cooling/fans, rack dimensions/rails/weight, BMC/OS/firmware unspecified."
+        ],
+        [
+          "expansion",
+          "Hosting 3 PCIe x16 lanes"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact": "form_factor",
+          "value": "2U",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 321,
+          "quote": "TAIPEI, Aug. 14, 2020 — To match an ever-growing need for data storage space, Inventec (2356.TW), one of the key suppliers of world's leading server brands, hyperscale data centers and server system integrators, announced the arrival of Entei - a 2U24Bay Storage Server System to support dual 2nd Gen Intel Xeon Scalable processors. The solution comes with dual-socket 24 LFF HDD Bay in 2U form factor and will allow the scaling of the IoT and cloud industries."
+        },
+        {
+          "fact": "cpu",
+          "value": "Dual 2nd Gen Intel Xeon Scalable processors",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 330,
+          "quote": "Entei is powered by dual 2nd Gen Intel Xeon Scalable processors with twelve DIMM capacity (up to 768GB with 64GB DIMMs) in the whole system, laying a new foundation of scalability. Entei also supports Intel Optane persistent memory which capacity is up to 1TB."
+        },
+        {
+          "fact": "memory",
+          "value": "Twelve DIMMs in the whole system; up to 768GB with 64GB DIMMs",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 330,
+          "quote": "Entei is powered by dual 2nd Gen Intel Xeon Scalable processors with twelve DIMM capacity (up to 768GB with 64GB DIMMs) in the whole system, laying a new foundation of scalability. Entei also supports Intel Optane persistent memory which capacity is up to 1TB."
+        },
+        {
+          "fact": "memory_as_printed",
+          "value": "DDR4; up to 768GB",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 337,
+          "quote": "Entei adopts the Intel® C621 chipset, supports dual Intel Xeon Scalable processors, and has up to 768GB of DDR4 memory. Hosting 3 PCIe x16 lanes, enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards."
+        },
+        {
+          "fact": "memory_as_printed",
+          "value": "Intel Optane persistent memory supported; capacity up to 1TB as stated",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 330,
+          "quote": "Entei is powered by dual 2nd Gen Intel Xeon Scalable processors with twelve DIMM capacity (up to 768GB with 64GB DIMMs) in the whole system, laying a new foundation of scalability. Entei also supports Intel Optane persistent memory which capacity is up to 1TB."
+        },
+        {
+          "fact": "chipset",
+          "value": "Intel C621",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 337,
+          "quote": "Entei adopts the Intel® C621 chipset, supports dual Intel Xeon Scalable processors, and has up to 768GB of DDR4 memory. Hosting 3 PCIe x16 lanes, enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards."
+        },
+        {
+          "fact": "drive_bays",
+          "value": "24x 3.5 inch and 4x 2.5 inch hot-swappable drives",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 333,
+          "quote": "Entei supports 24x 3.5\" and 4x 2.5\" form factor hot-swappable drives with easy serviceability, providing balanced computing power and storage capacity, flexible I/O expansibility, and hardware redundancy. Together with multiple storage options for greater flexibility and scalability including NVMe support in the rear for a caching layer, Entei also includes 2x M.2 via interposer connection and a variety of storage mezzanine cards."
+        },
+        {
+          "fact": "storage",
+          "value": "NVMe support in the rear for a caching layer",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 333,
+          "quote": "Entei supports 24x 3.5\" and 4x 2.5\" form factor hot-swappable drives with easy serviceability, providing balanced computing power and storage capacity, flexible I/O expansibility, and hardware redundancy. Together with multiple storage options for greater flexibility and scalability including NVMe support in the rear for a caching layer, Entei also includes 2x M.2 via interposer connection and a variety of storage mezzanine cards."
+        },
+        {
+          "fact": "storage",
+          "value": "2x M.2 via interposer connection",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 333,
+          "quote": "Entei supports 24x 3.5\" and 4x 2.5\" form factor hot-swappable drives with easy serviceability, providing balanced computing power and storage capacity, flexible I/O expansibility, and hardware redundancy. Together with multiple storage options for greater flexibility and scalability including NVMe support in the rear for a caching layer, Entei also includes 2x M.2 via interposer connection and a variety of storage mezzanine cards."
+        },
+        {
+          "fact": "storage",
+          "value": "A variety of storage mezzanine cards; specific cards not named",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 333,
+          "quote": "Entei supports 24x 3.5\" and 4x 2.5\" form factor hot-swappable drives with easy serviceability, providing balanced computing power and storage capacity, flexible I/O expansibility, and hardware redundancy. Together with multiple storage options for greater flexibility and scalability including NVMe support in the rear for a caching layer, Entei also includes 2x M.2 via interposer connection and a variety of storage mezzanine cards."
+        },
+        {
+          "fact": "serviceability",
+          "value": "Drawer design for easier drive maintenance",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 334,
+          "quote": "\"Entei is an ideal hybrid system for warm storage and is applicable to further storage applications. By optimizing the ratio of SSDs and HDDs, it can highly accelerate IOPS and throughput performance while offering excellent storage capacity. Also, Entei's drawer design for easier drive maintenance is a particular design feature which provides convenience to its users,\" said George Lin, General Manager of Business Unit VI, Inventec Enterprise Business Group (Inventec EBG)."
+        },
+        {
+          "fact": "expansion",
+          "value": "enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards.",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 337,
+          "quote": "Entei adopts the Intel® C621 chipset, supports dual Intel Xeon Scalable processors, and has up to 768GB of DDR4 memory. Hosting 3 PCIe x16 lanes, enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards."
+        },
+        {
+          "fact": "network",
+          "value": "OCP NIC mezzanine option ranging from 10G Ethernet to 40G (optical or Base-T, compatible with OCP 2.0), as stated",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 340,
+          "quote": "Lastly, Entei offers an OCP NIC mezzanine option, ranging from 10G Ethernet to 40G (optical or Base-T, compatible with OCP 2.0). This allows high-speed performance and I/O flexibility, catering to suitable demands of different application procedures."
+        },
+        {
+          "fact": "expansion",
+          "value": "Hosting 3 PCIe x16 lanes",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "capture_path": "data/raw/inventec-practical-2026-10-04/entei/entei-announcement-2020.html",
+          "capture_sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "html_line": 337,
+          "quote": "Entei adopts the Intel® C621 chipset, supports dual Intel Xeon Scalable processors, and has up to 768GB of DDR4 memory. Hosting 3 PCIe x16 lanes, enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards."
+        }
+      ],
+      "excluded_claims": [
+        "Power supply wattage/input/connector/redundancy not specified in captured article.",
+        "Fans/cooling method/noise/temperature limits not specified.",
+        "Rack depth/rail kit/weight not specified.",
+        "OS/BMC/firmware/software downloads not specified.",
+        "No commercial-order-code aliases or auction-unit contents inferred.",
+        "No specific hyperscaler/operator/deployment inferred from generic supplier introduction.",
+        "Product-page lead redirected to generic product index; excluded from Entei assertions.",
+        "PCIe wording preserved as printed, without converting lanes into inferred physical slots.",
+        "OCP optical/Base-T range preserved as a source statement, not a supported-port capability matrix."
+      ]
+    },
+    {
+      "source": "inventec-golduck-product-brief-v3-2020",
+      "key": "Golduck",
+      "brand": "Inventec",
+      "model": "Golduck",
+      "title": "Inventec Golduck",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "form_factor",
+          "1U1N rack mount with slide rail \nW x H x D: 435 x 43.2 x 800 mm\n(17.3 x 1.7x 31.5 inch)"
+        ],
+        [
+          "processor",
+          "Dual Socket; AMD EPYC™ 7002 Series \nProcessors (2nd Gen AMD EPYC™ \nProcessors) \nTDP : Up to 165W"
+        ],
+        [
+          "memory",
+          "32x DDR4 DIMM slots"
+        ],
+        [
+          "drive_bays",
+          "Front HDD Tray: Up to 12x 2.5” U.2  NVMe/\nSATA SSD\nInternal: 2x M.2 SATA socket"
+        ],
+        [
+          "expansion",
+          "(Rear side)  \n2x PCIe Gen 4 x16 slot (FHHL)\n1x PCIe Gen4 x16 OCP 3.0"
+        ],
+        [
+          "network",
+          "Support 10GbE/25GbE/100GbE/200GbE \nOCP 3.0 card"
+        ],
+        [
+          "controller",
+          "Direct control from CPU\n12x NVMe/SATA SSD\n2x M.2 SATA"
+        ],
+        [
+          "system_management_as_printed",
+          "IPMI 2.0 compliant+ KVM with Dedicated \nLAN"
+        ],
+        [
+          "tpm_as_printed",
+          "TPM2.0 (optional)"
+        ],
+        [
+          "power_supply",
+          "1+1 redundancy\n800W/1300W (100-220VAC & 240V HVDC) \nPlatinum"
+        ],
+        [
+          "cooling_description",
+          "N+1 redundancy, 8x 4056 dual rotor fan"
+        ],
+        [
+          "memory_page_1_as_printed",
+          "32 DIMM capacity  (up  to  4TB  \nwith 128GB DIMMs)"
+        ],
+        [
+          "compute_configuration",
+          "up to \n128 cores and 16 memory  channels for a single computing \nnode."
+        ],
+        [
+          "serviceability_as_printed",
+          "tool-less storage drives and \nhot-swappable fan modules."
+        ],
+        [
+          "security_features_as_printed",
+          "AMD Secure Root-of-\nTrust, AMD Secure Run, and AMD Secure Move \nTechnologies."
+        ],
+        [
+          "pcie_lanes_as_printed",
+          "total 162 available PCIe lanes"
+        ],
+        [
+          "source_capture_sha256",
+          "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd"
+        ],
+        [
+          "source_captured_at",
+          "2026-10-05T00:03:45.086881+00:00"
+        ],
+        [
+          "source_document_copyright",
+          "© 2020 Inventec Corp."
+        ],
+        [
+          "source_pdf_creation_metadata",
+          "D:20200727163305+08'00'"
+        ],
+        [
+          "source_pdf_modification_metadata",
+          "D:20200727163308+08'00'"
+        ],
+        [
+          "specification_scope",
+          "Historical 2020 vendor brief for exact Golduck only; ratings/options do not establish installed configuration, input-range derating, power draw, rail inclusion, firmware access, OS support, current support, operator, or physical factory. Keep printed mm/inch discrepancy and 162 PCIe-lane claim without correction. Copyright 2020 and PDF creation/modification 2020-07-27 are document dates, not release dates. Search-only October release announcement is excluded."
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_name": "form_factor",
+          "literal_quote": "1U1N rack mount with slide rail \nW x H x D: 435 x 43.2 x 800 mm\n(17.3 x 1.7x 31.5 inch)",
+          "pdf_page": 2,
+          "location": "Form Factor",
+          "extracted_line_start": 4,
+          "extracted_line_end": 6,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "processor",
+          "literal_quote": "Dual Socket; AMD EPYC™ 7002 Series \nProcessors (2nd Gen AMD EPYC™ \nProcessors) \nTDP : Up to 165W",
+          "pdf_page": 2,
+          "location": "Processor",
+          "extracted_line_start": 8,
+          "extracted_line_end": 11,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "memory",
+          "literal_quote": "32x DDR4 DIMM slots",
+          "pdf_page": 2,
+          "location": "Memory Slot",
+          "extracted_line_start": 12,
+          "extracted_line_end": 12,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "drive_bays",
+          "literal_quote": "Front HDD Tray: Up to 12x 2.5” U.2  NVMe/\nSATA SSD\nInternal: 2x M.2 SATA socket",
+          "pdf_page": 2,
+          "location": "Disk Drive Bay",
+          "extracted_line_start": 14,
+          "extracted_line_end": 16,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "expansion",
+          "literal_quote": "(Rear side)  \n2x PCIe Gen 4 x16 slot (FHHL)\n1x PCIe Gen4 x16 OCP 3.0",
+          "pdf_page": 2,
+          "location": "Expansion Slot",
+          "extracted_line_start": 18,
+          "extracted_line_end": 20,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "network",
+          "literal_quote": "Support 10GbE/25GbE/100GbE/200GbE \nOCP 3.0 card",
+          "pdf_page": 2,
+          "location": "Network Controller",
+          "extracted_line_start": 21,
+          "extracted_line_end": 22,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "controller",
+          "literal_quote": "Direct control from CPU\n12x NVMe/SATA SSD\n2x M.2 SATA",
+          "pdf_page": 2,
+          "location": "Storage Controller",
+          "extracted_line_start": 24,
+          "extracted_line_end": 26,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "system_management_as_printed",
+          "literal_quote": "IPMI 2.0 compliant+ KVM with Dedicated \nLAN",
+          "pdf_page": 2,
+          "location": "System Management",
+          "extracted_line_start": 27,
+          "extracted_line_end": 28,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "tpm_as_printed",
+          "literal_quote": "TPM2.0 (optional)",
+          "pdf_page": 2,
+          "location": "TPM",
+          "extracted_line_start": 29,
+          "extracted_line_end": 29,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "power_supply",
+          "literal_quote": "1+1 redundancy\n800W/1300W (100-220VAC & 240V HVDC) \nPlatinum",
+          "pdf_page": 2,
+          "location": "Power Supply",
+          "extracted_line_start": 31,
+          "extracted_line_end": 33,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "cooling_description",
+          "literal_quote": "N+1 redundancy, 8x 4056 dual rotor fan",
+          "pdf_page": 2,
+          "location": "Fan",
+          "extracted_line_start": 34,
+          "extracted_line_end": 34,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "memory_page_1_as_printed",
+          "literal_quote": "32 DIMM capacity  (up  to  4TB  \nwith 128GB DIMMs)",
+          "pdf_page": 1,
+          "location": "opening paragraph",
+          "extracted_line_start": 9,
+          "extracted_line_end": 10,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "compute_configuration",
+          "literal_quote": "up to \n128 cores and 16 memory  channels for a single computing \nnode.",
+          "pdf_page": 1,
+          "location": "Boosted Performance and Computing Density",
+          "extracted_line_start": 19,
+          "extracted_line_end": 21,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "serviceability_as_printed",
+          "literal_quote": "tool-less storage drives and \nhot-swappable fan modules.",
+          "pdf_page": 1,
+          "location": "opening paragraph",
+          "extracted_line_start": 13,
+          "extracted_line_end": 14,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "security_features_as_printed",
+          "literal_quote": "AMD Secure Root-of-\nTrust, AMD Secure Run, and AMD Secure Move \nTechnologies.",
+          "pdf_page": 2,
+          "location": "SoC Level Security",
+          "extracted_line_start": 47,
+          "extracted_line_end": 49,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        },
+        {
+          "fact_name": "pcie_lanes_as_printed",
+          "literal_quote": "total 162 available PCIe lanes",
+          "pdf_page": 2,
+          "location": "left introductory paragraph",
+          "extracted_line_start": 36,
+          "extracted_line_end": 36,
+          "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+          "capture_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+          "visual_review": "both pages inspected; printed table-cell assignment checked"
+        }
+      ]
+    }
+  ]
+}

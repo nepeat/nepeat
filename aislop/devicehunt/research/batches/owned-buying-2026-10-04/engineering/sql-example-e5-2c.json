@@ -1,0 +1,92 @@
+[
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "compatibility_cpu_series",
+    "value": "AMD EPYC 9004 Series",
+    "source_id": "broadcom-servers",
+    "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+    "tier": "vendor"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "compatibility_cpu_series_max_cores_per_socket",
+    "value": "128",
+    "source_id": "broadcom-servers",
+    "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+    "tier": "vendor"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "compatibility_notes",
+    "value": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: Boot from SD/USB flash media is not supported. ESXi 7.0u3 support starts at ESXi 7.0 Update 3i. For build information see https://kb.vmware.com/s/article/2143832 For support of 'Zen 4c' or AMD 3D V-Cache™ technology, contact your hardware vendor for the minimum BIOS/UEFI firmware version required.",
+    "source_id": "broadcom-servers",
+    "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+    "tier": "vendor"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "compatibility_releases",
+    "value": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1",
+    "source_id": "broadcom-servers",
+    "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+    "tier": "vendor"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "compatibility_sockets",
+    "value": "2",
+    "source_id": "broadcom-servers",
+    "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+    "tier": "vendor"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "compatibility_system_type",
+    "value": "Rackmount",
+    "source_id": "broadcom-servers",
+    "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+    "tier": "vendor"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "evidence_scope",
+    "value": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement",
+    "source_id": "broadcom-servers",
+    "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+    "tier": "vendor"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "evidence_scope",
+    "value": "User-submitted benchmark identification only; needs independent corroboration",
+    "source_id": "oracle-e5-geekbench",
+    "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+    "tier": "benchmark_submission"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "reported_motherboard",
+    "value": "Oracle Corporation Asm,MB+Tray,E5-2c",
+    "source_id": "oracle-e5-geekbench",
+    "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+    "tier": "benchmark_submission"
+  },
+  {
+    "brand": "Oracle",
+    "model": "Oracle Server E5-2c",
+    "name": "reported_system_model",
+    "value": "Oracle Corporation ORACLE SERVER E5-2c",
+    "source_id": "oracle-e5-geekbench",
+    "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+    "tier": "benchmark_submission"
+  }
+]

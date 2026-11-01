@@ -1,0 +1,194 @@
+{
+  "pdf_sha256": "412b026ece49efbd70ff4aa02507e2407a47e596b66e3e2604189d3500c81ab4",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 5,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "DCS511               Data Center Switch\n\nDATA CENTER SWITCH\nAS9737-32DB\n\n\n\n\nThe Edgecore DCS511 is a high-performance, low latency switch for high-performance data centers. The switch\nprovides L2 and L3 switching across the 32 x QSFP56-DD ports, each supporting 1 x 400 GbE or 1 x 100 GbE, or\nvia breakout cables 2 x 200 GbE, 4 x 100 GbE, or 4 x 25 GbE. The DCS511 can be deployed as a leaf or spine\nswitch supporting 100/400 GbE interconnects, as well as 400 GbE ZR or OpenZR+ transceivers for data center\ninterconnect applications. This open network switch is loaded with the Open Network Install Environment\n(ONIE), which supports the installation of compatible Network Operating System (NOS) software, including the\nopen source options, plus commercial NOS offerings.\n\nKey Features and Beneﬁts\n●   QSFP56-DD switch ports, each supporting 1 x 400 GbE, or via breakout cables 2 x 200 GbE or 4 x 100 GbE.\n    Upper 16 ports support up to 24 W per transceiver.\n    Lower 16 ports support up to 14 W per transceiver.\n●   QSFP56-DD switch ports also support 100 GbE QSFP28 and 40 GbE QSFP+, and via breakout cables 4 x 25 GbE\n    or 4 x 10 GbE.\n●   Supports 400G ZR/Open ZR+ coherent transceivers in the upper 16 QSFP56-DD ports.\n●   Incorporates Broadcom Tomahawk 4 switch series silicon.\n●   BMC module with Serial-over-LAN support\n●   SyncE and PTP support with 1PPS connector on the front panel\n●   Contains e-fuses to protect individual transceivers\n●   Standby power mode\n●   Ability to selectively power off individual ports\n●   1 RU form factor.\n●   Supports hot/cold aisles with front-to-back and back-to-front airﬂow SKUs.\n●   All ports on front; PSUs and fans accessible from rear.\n●   Hot-swappable, load-sharing, redundant 1500 W AC or 48VDC PSUs.\n●   5+1 redundant, hot-swappable fan modules.\n●   Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of\n    compatible open source and commercial NOS offerings.\n"
+    },
+    {
+      "page": 2,
+      "text": "Free Software Included\n\n\n\n\nInterfaces\n\n\n          1    2                    3                               4                                                  5\n\n\n\n\n6\n\n\n\n\n           7 8                                                                          9\n\n                     10                                             11                                                 12\n\n\n\n\n    Description\n     1   1PPS SMB connector Input/output                                 7    USB storage port\n\n     2   RJ-45 management port                                           8    RJ-45 console port\n         16 x 400G QSFP56-DD ports supporting up to 24W per port,\n     3                                                                   9    16 x 400G QSFP56-DD ports supporting up to 14W per port\n         supports 400G ZR/OpenZR+ transceivers.\n     4   Port indicators                                                 10   PSU 2\n         Top: 10G SFP+ port (MAC)\n     5                                                                   11   Hot-swappable 5 + 1 redundant fans\n         Bottom: 1G SFP port (CPU)\n     6   Micro USB console port (higher priority)                        12   PSU 1\n"
+    },
+    {
+      "page": 3,
+      "text": "Ports                                                                    Software\n▪ Switch Ports: 32 x QSFP56-DD 400 GbE                                   ▪ Switch is loaded with Open Network Install Environment (ONIE)\n▪ Logical Ports: Max. 128                                                  software installer\n▪ Port Modes:                                                            ▪ Compatible with the following NOS options: open source options, plus\n  1 x 400G (8 lanes 50G PAM4)                                              commercial NOS offerings.\n  2 x 200G (4 lanes 50G PAM4) QSFP56-DD breakout\n  4 x 100G (2 lanes 50G PAM4) QSFP56-DD breakout                         System and Port LEDs\n  1 x 100G (4 lanes 25G NRZ) QSFP28                                      ▪ Port LEDs: Link Status, Activity, Rate\n  1 x 40G (4 lanes 10G NRZ) QSFP+                                        ▪ Ethernet Management Port LEDs: Link Status, Activity\n  4 x 25G (1 lane 25G NRZ) QSFP28 breakout                                 RJ-45 Port: Link Status, Activity\n  4 x 10G (1 lane 10G NRZ) QSFP+ breakout                                ▪ System LEDs: Locator, Diagnostic, PSU and Fan Status\n▪ Management Ports on Port Side:                                         ▪ Reset Button\n  1 x RJ-45 serial console\n  1 x Micro USB console port                                             Power\n  • Note: When both console ports are connected, only one is active.     ▪ PSUs: 2 redundant, load-sharing, hot-swappable AC or 48VDC\n  The Micro USB port has a higher priority.                              ▪ AC PSU:\n  1 x RJ-45 1000BASE-T management                                          AC input ranges:\n  1 x SFP+ 10G ASIC management                                             100-127VAC at 50-60Hz (12 A/1000 W max.)*\n  1 x SFP 1G CPU management                                                200-240VAC at 50-60Hz (8 A/1500 W max.)\n  1 x USB 3.0 storage port                                                 *200-240VAC may be required for power redundancy under full loading.\n▪ Supported Transceivers and Cables:                                       AC Inlet: IEC 60320 C14\n  40GBASE-SR4/LR4                                                          Power efficiency: >90%\n  40G-DAC Cable                                                          ▪ DC PSU:\n  100GBASE-SR4/CWDM4/LR4                                                   48VDC input ranges:\n  100G-DAC/AOC Cable                                                       -40 - -75VDC (1600 W/40 A max.)\n  400GBASE-FR4/ZR                                                          DC Inlet: Terminal screws\n  400G-DAC/AOC Cable                                                       Power efficiency: >88%\n  • Note: More optics and detailed cabling information can be found at   ▪ Power Draw: 1370 W (Maximum)\n    www.edge-core.com.                                                   ▪ Power Budget: 24 W on upper 16 ports, 14 W on lower 16 ports\n\nKey Components                                                           Regulatory\n▪ Switch Silicon: BCM56993 Tomahawk 4                                    ▪ Emissions:\n▪ CPU Module:                                                              EN 55032 Class A\n  Processor: Intel® Xeon® Processor D-1713NTE 4-Core 2.2 GHz               EN 61000-3-2\n  SPI Flash: 512MB x 2                                                     EN 61000-3-3\n  Memory: 32GB DDR4 SO-DIMM with ECC                                       FCC Class A\n  Storage: 128GB m.2 SATA SSD with PLP support                             VCCI\n  TPM: TPM2.0                                                              ICES\n▪ BMC: AST2600 with OpenBMC                                                CSPR32 (AU/NZS)\n▪ Timing and Sync:                                                       ▪ Immunity:\n  1PPS Port, SyncE, IEEE 1588v2 PTP                                        EN 55035\n                                                                           EN 55024\nPerformance                                                                IEC 61000-4-2/3/4/5/6/8/11\n▪ Switching Capability: 12.8 Tbps (25.6 Tbps full duplex)                ▪ Safety:\n▪ Forwarding Rate: 5.079 Bpps                                              UL (CSA 22.2 No 62368-1 & UL62368-1)\n▪ Latency: 649 ns                                                          CB (IEC/EN60950-1 & IEC/EN 62368-1)\n▪ Jumbo Frames: up to 9416 Bytes                                         ▪ Environmental:\n▪ Packet Buffer Size: 56.83MB                                              GR63-CORE (Pre-test)\n▪ Subject to NOS:                                                        ▪ RoHS-2.0 Compliant\n  Shared TCAM space with the following maximum entries:                  ▪ Electrical and Electronic Equipment (WEEE Directive 2002/96/EC)\n  MAC Addresses: 8K (exact)/128K (fuzzy)                                 ▪ Country of Origin: Taiwan (TAA Compliant)\n  VRF: 8192\n  L3 LPM: 4K IPv4/2K IPv6 64b/1K IPv6 (128b)\n  ALPM: 850K IPv4/360K IPv6 64b/240K IPv6 128b\n  VXLAN RIOT support\n\nPhysical and Environmental\n▪ Dimensions (WxDxH): 43.84 x 59 x 4.35 cm (17.26 x 23.23 x 1.71 in.)\n▪ Weight: 11.85 kg (26.12 lb), with 2 PSUs and 6 fans installed\n▪ Fans: Hot-swappable 5 + 1 redundant fans\n▪ Storage Temperature: -40°C ~ 70°C (-40°F ~ 158°F)\n▪ Operating Temperature:\n  (FtoB): 0°C ~ 45°C (32°F ~ 113°F)\n  (BtoF): 0° C ~ 30° C (32°F to 86°F)\n▪ Operating Humidity: 5% ~ 95% non-condensing\n"
+    },
+    {
+      "page": 4,
+      "text": "Ordering Information\nBase Model: AS9737-32DB; Intel® Xeon® Processor D-1713NTE 4-Core 2.2 GHz; 32 x QSFP56-DD 400GbE; ONIE\nSoftware Installer.\nModel Number             Part Number         PSU               Airﬂow                Power Cord\n\nAS9737-32DB-O-AC-F       FP5EC8632004Z       Dual AC PSUs      Front-to-Back         Without Power Cord\n\nAS9737-32DB-O-AC-B       FP5EC8632005Z       Dual AC PSUs      Back-to-Front         Without Power Cord\n\n200-240VAC, 1500 W max. (power redundancy under full loading)\nModel Number             Part Number         PSU               Airﬂow                Power Cord\n\nAS9737-32DB-O-AC-F-UN                        Dual AC PSUs      Front-to-Back         IEC 60320 C13-C14\n\nAS9737-32DB-O-AC-B-UN                        Dual AC PSUs      Back-to-Front         IEC 60320 C13-C14\n\nAS9737-32DB-O-AC-F-EU                        Dual AC PSUs      Front-to-Back         IEC 60083 Type E/F (CEE 7/7) EU\n\nAS9737-32DB-O-AC-B-EU                        Dual AC PSUs      Back-to-Front         IEC 60083 Type E/F (CEE 7/7) EU\n\nAS9737-32DB-O-AC-F-UK                        Dual AC PSUs      Front-to-Back         IEC 60083 Type G (BS 1363) UK\n\nAS9737-32DB-O-AC-B-UK                        Dual AC PSUs      Back-to-Front         IEC 60083 Type G (BS 1363) UK\n100-120VAC, 1000 W max. (may not have power redundancy under full loading, depending on type and number of\ntransceivers present)\nModel Number             Part Number         PSU               Airﬂow                Power Cord\n\nAS9737-32DB-O-AC-F-US                        Dual AC PSUs      Front-to-Back         NEMA 5-15\n\nAS9737-32DB-O-AC-B-US                        Dual AC PSUs      Back-to-Front         NEMA 5-15\n\nAS9737-32DB-O-AC-F-JP                        Dual AC PSUs      Front-to-Back         JIS C 8303, Class I\n\nAS9737-32DB-O-AC-B-JP                        Dual AC PSUs      Back-to-Front         JIS C 8303, Class I\n\n48VDC, 1600 W max. (includes 6/8AWG (4.3/6.4mm²) power cord 3 x ring terminal to 3 x ring terminal, 3m)\nModel Number             Part Number         PSU               Airﬂow                Power Cord\n\nAS9737-32DB-O-48V-F      FP5EC8632006Z       Dual 48VDC PSUs   Front-to-Back\n\nAS9737-32DB-O-48V-B      FP5EC8632007Z       Dual 48VDC PSUs   Back-to-Front\n\nPSU FRUs (power cord not included)\nModel Number             Part Number         PSU               Airﬂow                Region\n\nFSJ001-612G              F0OZZ8632002A       AC                Font-to-Back          Worldwide\n\nFSJ004-612G              F0OZZ8632003A       AC                Back-to-Front         Worldwide\n\nSPAACTN-01 S539          F0OZZ8632004A       AC                Font-to-Back          Worldwide except Japan, Taiwan\n\nSPAACTN-02 S540          F0OZZ8632005A       AC                Back-to-Front         Worldwide except Japan, Taiwan\n\nFSJ035-610G              F0OZZ8632008A       48VDC             Font-to-Back          Worldwide\n\nFSJ036-610G              F0OZZ8632009A       48VDC             Back-to-Front         Worldwide\n\nFans\nModel Number             Part Number         Airﬂow\n\nFAN-1U-1x1N-F            F0OZZ8632006A       Front-to-Back\n\nFAN-1U-1x1N-B            F0OZZ8632007A       Back-to-Front\n"
+    },
+    {
+      "page": 5,
+      "text": "Warranty\nPlease check www.edge-core.com for the warranty terms in your country.\n\nFor More Information\nTo ﬁnd out more about Edgecore Networks Corporation productsand solutions, visit www.edge-core.com.\n\nAbout Edgecore Networks Corporation\nEdgecore Networks Corporation is in the business of providing innovative network solutions. In the service provider network, in the data\ncenter or in the cloud, Edgecore Networks Corporation delivers the software and systems that transform the way the world connects.\nEdgecore Networks Corporation serves customers and partners worldwide. Additional information can be found at www.edge-core.com.\n\nEdgecore Networks Corporation is a subsidiary of Accton Technology Corporation, the leading network ODM company. The Edgecore\ndata center switches are developed and manufactured by Accton.\n\nTo purchase Edgecore Networks solutions, please contact your Edgecore Networks Corporation representatives at +886 3 563 8888\n(HQ) or +1 (949)-336-6801 or authorized resellers.\n\n© Copyright 2026 Edgecore Networks Corporation. The information contained herein is subject to change without notice. This document is for informational purposes only\nand does not set forth any warranty, expressed or implied, concerning any equipment, equipment feature, or service offered by Edgecore Networks Corporation. Edgecore\nNetworks Corporation shall not be liable for technical or editorial errors or omissions contained herein.\n\n\n\n\n                                                                                                                                                           EC-DS-0726-R02\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "dcs511-as9737-32db-datasheet-r02.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.678668+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2026-039-DCS511_AS9737-32DB DS R02 20260707\nCreator:         Adobe Illustrator 29.7 (Windows)\nProducer:        Adobe PDF library 17.00\nCreationDate:    Mon Jul  6 21:58:10 2026 PDT\nModDate:         Mon Jul  6 22:59:54 2026 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           5\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       4625067 bytes\nOptimized:       no\nPDF version:     1.6\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/dcs511-as9737-32db-datasheet-r02.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "dfd51cb2714929f30643c9d39a488bff9292254fef648fb88e881161e56c6eb0"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/dcs511-as9737-32db-datasheet-r02.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "8e15ebc0503b567d8f482c7c384aeece0d53d704ca445c459377b55283ed0090"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/dcs511-as9737-32db-datasheet-r02.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "f19b56802b6df5e7b27696f47909e9bb0a496334a9b898c03662fed957443d1c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/dcs511-as9737-32db-datasheet-r02.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "0c3db389026b757ecec9eec6f4f7ef5e557a9dc2e181db940d45d606da6b450d"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/dcs511-as9737-32db-datasheet-r02.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "f8a442a2d3e2b930b4f129b6c77206249fd7d3af5c749456349c3b9e89ff0286"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "5",
+          "-l",
+          "5",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/dcs511-as9737-32db-datasheet-r02.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "b09fb18efa10035d7ac5cc86b11d8e851dae2e4fce431217f228780b3ba9d21a"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "checked_document_hashes": {
+    "AGENTS.md": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7",
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "PROGRESS.md": "e64663c6d640da6ae3d14565b7a76235430eb4a78ee4284a76bae1881c8d5add",
+    "docs/agent-workflow.md": "ca55fb9e99e84a0be0712f2eaa9889448b0f3220cc7c694c273ec94ba2a2bb6c",
+    "docs/buying-reports.md": "2d1db1ab9011955160d52b0e57d9efb2ff885dc6503a78b3c3e473fdabb0479d",
+    "research/server-evidence-batch-2026-10-04.md": "bf30ee7cdac2921c4553fa3188ec1642a1d729a9fcaa44dabdd227afd4e59361",
+    "research/ingrasys-servers-2026-10-04.md": "297027ca89e2e6e59d5115a211006a5d59714e3238a89902af801556a42af07d",
+    "research/owned-oracle-buying-2026-10-04.md": "805fbe3c544d50ff14b8e6d4980173cd02ea218f8f829714b22de06c4b2bcdda",
+    "research/odm-models-2026-10-04.md": "0374f83105138245afb66830cd8a14c019b9649cfcfe9dc8988abb49b239ea91",
+    "docs/history/README.md": "ea32e7d369d7402bbd2969c4994de8028d5e5c9b3b012d842cc9799c5496ab26"
+  },
+  "local_links_checked": 75,
+  "broken_links": [],
+  "live_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "counts": {
+    "devices": 4090,
+    "records": 5317,
+    "sources": 287,
+    "facts": 44975,
+    "documents": 57,
+    "document_pages": 3661
+  },
+  "final_verification_sha256": "b73273a35aa91088642a6c85a1713c2c378b9af76e2db84ac2c83697cb41676c",
+  "final_freeze_sha256": "8ee50c33c4a1fddf3bcf58136aa4af5f5983c89d7498f31e75df0ab2af81d242",
+  "all910export_hashes_verified": true,
+  "all57_pdf_hashes_verified": true,
+  "frozen_source_code_hashes_verified": true,
+  "lookup_reports": 98,
+  "buying_reports": 9,
+  "owned_evidence": {
+    "document_snapshot_hits": 9,
+    "label_photo_only_hits": 1,
+    "unresolved_identity_gaps": 0
+  }
+}

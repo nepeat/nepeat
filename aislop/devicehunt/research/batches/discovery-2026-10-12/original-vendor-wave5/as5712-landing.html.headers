@@ -1,0 +1,17 @@
+HTTP/2 200 
+date: Tue, 13 Oct 2026 04:46:23 GMT
+content-type: text/html; charset=UTF-8
+link: <https://www.edge-core.com/wp-json/>; rel="https://api.w.org/", <https://www.edge-core.com/wp-json/wp/v2/wpdmpro/3327>; rel="alternate"; title="JSON"; type="application/json", <https://www.edge-core.com/?p=3327>; rel=shortlink
+set-cookie: __wpdm_client=b1dd08142d66433e8315f4fb93fdf2fc; path=/; domain=www.edge-core.com; secure; HttpOnly
+strict-transport-security: max-age=31536000; includeSubdomains; preload
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+vary: Accept-Encoding
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: microphone=(),fullscreen=()
+x-xss-protection: 1;mode=block
+server: cloudflare
+cf-cache-status: DYNAMIC
+cf-ray: a49bb33fdf98f7ff-SEA
+alt-svc: h3=":443"; ma=86400
+

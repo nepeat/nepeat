@@ -1,0 +1,2822 @@
+{
+ "repo": "https://github.com/sonic-net/sonic-buildimage",
+ "commit": "c431b65bf2905ce88d14578a03c68338413b353b",
+ "platform_count": 63,
+ "vendors": [
+  "accton",
+  "alphanetworks",
+  "celestica",
+  "ingrasys",
+  "inventec",
+  "quanta",
+  "wistron"
+ ],
+ "owned_model_check": {
+  "tokens": [
+   "CS8200",
+   "CS8210",
+   "AZ4444",
+   "7760",
+   "AS7760",
+   "DMC-12",
+   "AS7772"
+  ],
+  "name_hits_in_captured_names": [],
+  "path_hits_in_sparse_checkout_device_vendors": []
+ },
+ "platforms": [
+  {
+   "platform_id": "x86_64-accton_as4630_54pe-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as4630_54pe-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS4630-54PE t1",
+   "default_hwsku": "Accton-AS4630-54PE",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"intel_iommu=off modprobe.blacklist=i2c-ismt,i2c_ismt,i2c-i801,i2c_i801\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS4630-54PE",
+    "pddf",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS4630-54PE"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS4630-54PE": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as4630_54te-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as4630_54te-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS4630-54TE t1",
+   "default_hwsku": "Accton-AS4630-54TE",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS4630-54TE",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS4630-54TE"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS4630-54TE": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as5712_54x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as5712_54x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS5712-54X t1",
+   "default_hwsku": "Accton-AS5712-54X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS5712-54X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS5712-54X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS5712-54X": 72
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as5812_54t-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as5812_54t-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS5812-54T t1",
+   "default_hwsku": "Accton-AS5812-54T",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS5812-54T",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS5812-54T"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS5812-54T": 72
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as5812_54x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as5812_54x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS5812-54X t1",
+   "default_hwsku": "Accton-AS5812-54X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS5812-54X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS5812-54X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS5812-54X": 72
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as5835_54t-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as5835_54t-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS5835-54T t1",
+   "default_hwsku": "Accton-AS5835-54T",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS5835-54T",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS5835-54T"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS5835-54T": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as5835_54x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as5835_54x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS5835-54X t1",
+   "default_hwsku": "Accton-AS5835-54X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"intel_iommu=off modprobe.blacklist=i2c-ismt,i2c_ismt,i2c-i801,i2c_i801\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS5835-54X",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS5835-54X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS5835-54X": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as6712_32x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as6712_32x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS6712-32X t1",
+   "default_hwsku": "Accton-AS6712-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS6712-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS6712-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS6712-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7116_54x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7116_54x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "nephos",
+   "default_sku_line": "Accton-AS7116-54X-R0 t1",
+   "default_hwsku": "Accton-AS7116-54X-R0",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"pci=noaer\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7116-54X-R0",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS7116-54X-R0"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7116-54X-R0": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7212_54x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7212_54x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "AS7212-54x t1",
+   "default_hwsku": "AS7212-54x",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "AS7212-54x",
+    "plugins"
+   ],
+   "hwskus": [
+    "AS7212-54x"
+   ],
+   "port_config_rows_by_hwsku": {
+    "AS7212-54x": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7312_54x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7312_54x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7312-54X t1",
+   "default_hwsku": "Accton-AS7312-54X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7312-54X",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS7312-54X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7312-54X": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7312_54xs-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7312_54xs-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7312-54XS t1",
+   "default_hwsku": "Accton-AS7312-54XS",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7312-54XS",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS7312-54XS"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7312-54XS": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7315_27xb-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7315_27xb-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7315-27XB t1",
+   "default_hwsku": "Accton-AS7315-27XB",
+   "installer_conf_console_lines": [
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"tg3.short_preamble=1 tg3.bcm5718s_reset=1 intel_iommu=off modprobe.blacklist=i2c-ismt,i2c_ismt,i2c-i801,i2c_i801\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7315-27XB",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS7315-27XB"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7315-27XB": 27
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7326_56x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7326_56x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7326-56X t1",
+   "default_hwsku": "Accton-AS7326-56X",
+   "installer_conf_console_lines": [
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"pcie_aspm=off tg3.short_preamble=1 tg3.bcm5718s_reset=1\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7326-56X",
+    "pddf",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS7326-56X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7326-56X": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7712_32x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7712_32x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7712-32X t1",
+   "default_hwsku": "Accton-AS7712-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"modprobe.blacklist=i2c-ismt,i2c_ismt,i2c-i801,i2c_i801\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7712-32X",
+    "pddf",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS7712-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7712-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7716_32x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7716_32x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7716-32X t1",
+   "default_hwsku": "Accton-AS7716-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"tg3.short_preamble=1 tg3.bcm5718s_reset=1\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7716-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS7716-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7716-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7716_32xb-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7716_32xb-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7716-32XB t1",
+   "default_hwsku": "Accton-AS7716-32XB",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"tg3.short_preamble=1 tg3.bcm5718s_reset=1\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7716-32XB",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS7716-32XB"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7716-32XB": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7726_32x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7726_32x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7726-32X t1",
+   "default_hwsku": "Accton-AS7726-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"pcie_aspm=off\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7726-32X",
+    "pddf",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS7726-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7726-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as7816_64x-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as7816_64x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 64,
+   "chassis_name_as_printed": "7816-64X",
+   "psu_names": [
+    "PSU-1",
+    "PSU-2"
+   ],
+   "fan_drawer_names": [
+    "FanTray1",
+    "FanTray2",
+    "FanTray3",
+    "FanTray4"
+   ],
+   "drawer_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R"
+   ],
+   "chassis_level_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R"
+   ],
+   "thermal_names": [
+    "Temp sensor 1",
+    "Temp sensor 2",
+    "Temp sensor 3",
+    "Temp sensor 4",
+    "Temp sensor 5",
+    "Temp sensor 6"
+   ],
+   "sfp_entry_count": 64,
+   "sfp_first_last": [
+    "Ethernet0",
+    "Ethernet252"
+   ],
+   "platform_json_component_names": [
+    "CPLD1",
+    "CPLD2",
+    "CPLD3",
+    "CPLD4",
+    "BIOS"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "thermals"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS7816-64X t1",
+   "default_hwsku": "Accton-AS7816-64X",
+   "installer_conf_console_lines": [
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"tg3.short_preamble=1 tg3.bcm5718s_reset=1 pcie_aspm=off\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS7816-64X",
+    "pddf",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS7816-64X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS7816-64X": 64
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as9716_32d-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as9716_32d-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS9716-32D t1",
+   "default_hwsku": "Accton-AS9716-32D",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"pcie_aspm=off\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS9716-32D",
+    "pddf",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-AS9716-32D"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS9716-32D": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_as9726_32d-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_as9726_32d-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-AS9726-32D t1",
+   "default_hwsku": "Accton-AS9726-32D",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Accton-AS9726-32D",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Accton-AS9726-32D"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-AS9726-32D": 34
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_minipack-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_minipack-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Accton-MINIPACK t1",
+   "default_hwsku": "Accton-MINIPACK",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=57600",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"pcie_aspm=off\""
+   ],
+   "console_speed": "57600",
+   "subdirs": [
+    "Accton-MINIPACK",
+    "plugins"
+   ],
+   "hwskus": [
+    "Accton-MINIPACK"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Accton-MINIPACK": 128
+   }
+  },
+  {
+   "platform_id": "x86_64-accton_wedge100bf_32qs-r0",
+   "vendor_dir": "accton",
+   "path": "device/accton/x86_64-accton_wedge100bf_32qs-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 32,
+   "chassis_name_as_printed": "Wedge100BF-32QS-O-AC-F-BF",
+   "psu_names": [
+    "psu-1",
+    "psu-2"
+   ],
+   "fan_drawer_names": [
+    "fantray-1"
+   ],
+   "drawer_fan_names": [
+    "counter-rotating-fan-1",
+    "counter-rotating-fan-2",
+    "counter-rotating-fan-3",
+    "counter-rotating-fan-4",
+    "counter-rotating-fan-5"
+   ],
+   "chassis_level_fan_names": [
+    "counter-rotating-fan-1",
+    "counter-rotating-fan-2",
+    "counter-rotating-fan-3",
+    "counter-rotating-fan-4",
+    "counter-rotating-fan-5"
+   ],
+   "thermal_names": [
+    "com_e_driver-i2c-4-33:memory-temp",
+    "com_e_driver-i2c-4-33:cpu-temp",
+    "pfe1100-i2c-7-59:temp1",
+    "pfe1100-i2c-7-59:temp2",
+    "pfe1100-i2c-7-5a:temp1",
+    "pfe1100-i2c-7-5a:temp2",
+    "tmp75-i2c-3-48:outlet-middle-temp",
+    "tmp75-i2c-3-49:inlet-middle-temp",
+    "tmp75-i2c-3-4a:inlet-left-temp",
+    "tmp75-i2c-3-4b:switch-temp",
+    "tmp75-i2c-3-4c:inlet-right-temp",
+    "tmp75-i2c-8-48:outlet-right-temp",
+    "tmp75-i2c-8-49:outlet-left-temp",
+    "coretemp-isa-0000:package-id-0",
+    "coretemp-isa-0000:core-0",
+    "coretemp-isa-0000:core-1",
+    "coretemp-isa-0000:core-2",
+    "coretemp-isa-0000:core-3",
+    "pch_haswell-virtual-0:temp1"
+   ],
+   "sfp_entry_count": 32,
+   "sfp_first_last": [
+    "sfp1",
+    "sfp32"
+   ],
+   "chassis_keys_present": [
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "thermals"
+   ],
+   "platform_components_chassis_keys": [
+    "Wedge100BF-32QS-O-AC-F"
+   ],
+   "platform_components_names": {
+    "Wedge100BF-32QS-O-AC-F": []
+   },
+   "platform_asic": "barefoot",
+   "default_sku_line": "montara t1",
+   "default_hwsku": "montara",
+   "installer_conf_console_lines": [
+    "CONSOLE_SPEED=57600"
+   ],
+   "console_speed": "57600",
+   "subdirs": [
+    "montara"
+   ],
+   "hwskus": [
+    "montara"
+   ],
+   "port_config_rows_by_hwsku": {
+    "montara": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-alphanetworks_bes2348t-r0",
+   "vendor_dir": "alphanetworks",
+   "path": "device/alphanetworks/x86_64-alphanetworks_bes2348t-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Alphanetworks-BES2348T t1",
+   "default_hwsku": "Alphanetworks-BES2348T",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"intel_iommu=off modprobe.blacklist=i2c-ismt,i2c_ismt,i2c-i801,i2c_i801\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Alphanetworks-BES2348T",
+    "pddf",
+    "plugins"
+   ],
+   "hwskus": [
+    "Alphanetworks-BES2348T"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Alphanetworks-BES2348T": 52
+   }
+  },
+  {
+   "platform_id": "x86_64-alphanetworks_snh60a0_320fv2-r0",
+   "vendor_dir": "alphanetworks",
+   "path": "device/alphanetworks/x86_64-alphanetworks_snh60a0_320fv2-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Alphanetworks-SNH60A0-320FV2 t1",
+   "default_hwsku": "Alphanetworks-SNH60A0-320FV2",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Alphanetworks-SNH60A0-320FV2",
+    "plugins"
+   ],
+   "hwskus": [
+    "Alphanetworks-SNH60A0-320FV2"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Alphanetworks-SNH60A0-320FV2": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-alphanetworks_snh60b0_640f-r0",
+   "vendor_dir": "alphanetworks",
+   "path": "device/alphanetworks/x86_64-alphanetworks_snh60b0_640f-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Alphanetworks-SNH60B0-640F t1",
+   "default_hwsku": "Alphanetworks-SNH60B0-640F",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Alphanetworks-SNH60B0-640F",
+    "plugins"
+   ],
+   "hwskus": [
+    "Alphanetworks-SNH60B0-640F"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Alphanetworks-SNH60B0-640F": 66
+   }
+  },
+  {
+   "platform_id": "x86_64-alphanetworks_snj60d0_320f-r0",
+   "vendor_dir": "alphanetworks",
+   "path": "device/alphanetworks/x86_64-alphanetworks_snj60d0_320f-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_env.conf",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 34,
+   "platform_asic": "broadcom",
+   "default_sku_line": "Alphanetworks-SNJ60D0-320F t1",
+   "default_hwsku": "Alphanetworks-SNJ60D0-320F",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"modprobe.blacklist=i2c-ismt,i2c_ismt,i2c-i801,i2c_i801\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Alphanetworks-SNJ60D0-320F"
+   ],
+   "hwskus": [
+    "Alphanetworks-SNJ60D0-320F"
+   ],
+   "port_config_rows_by_hwsku": {}
+  },
+  {
+   "platform_id": "x86_64-cel_ds1000-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_ds1000-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 56,
+   "chassis_name_as_printed": "DS1000",
+   "psu_names": [
+    "PSU 1",
+    "PSU 2"
+   ],
+   "fan_drawer_names": [
+    "Drawer 1",
+    "Drawer 2",
+    "Drawer 3"
+   ],
+   "drawer_fan_names": [
+    "Fan 1",
+    "Fan 2",
+    "Fan 3"
+   ],
+   "chassis_level_fan_names": [
+    "Fan 1",
+    "Fan 2",
+    "Fan 3"
+   ],
+   "thermal_names": [
+    "Front Left Temp",
+    "Front Right Temp",
+    "Rear Right Temp",
+    "ASIC External Temp"
+   ],
+   "sfp_entry_count": 8,
+   "sfp_first_last": [
+    "PORT48",
+    "PORT55"
+   ],
+   "platform_json_component_names": [
+    "CPLD SW",
+    "BIOS",
+    "ONIE",
+    "SSD"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "status_led",
+    "thermal_manager",
+    "thermals"
+   ],
+   "platform_components_chassis_keys": [
+    "DS1000"
+   ],
+   "platform_components_names": {
+    "DS1000": [
+     "BIOS",
+     "ONIE",
+     "CPLD SW",
+     "SSD"
+    ]
+   },
+   "platform_asic": "broadcom",
+   "default_sku_line": "DS1000 t1",
+   "default_hwsku": "DS1000",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0xe060",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"intel_iommu=off modprobe.blacklist=gpio_ich,i2c-ismt,i2c_ismt,i2c-i801,i2c_i801 crashkernel=0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M acpi_no_watchdog\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "DS1000",
+    "led-source-code",
+    "pddf",
+    "plugins"
+   ],
+   "hwskus": [
+    "DS1000"
+   ],
+   "port_config_rows_by_hwsku": {
+    "DS1000": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_ds2000-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_ds2000-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 56,
+   "platform_asic": "broadcom",
+   "default_sku_line": "DS2000 t1",
+   "default_hwsku": "DS2000",
+   "installer_conf_console_lines": [
+    "CONSOLE_DEV=0",
+    "CONSOLE_PORT=0xe060",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"processor.max_cstate=1 intel_idle.max_cstate=0 intel_iommu=off noirqdebug acpi_no_watchdog\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "DS2000",
+    "pddf",
+    "plugins"
+   ],
+   "hwskus": [
+    "DS2000"
+   ],
+   "port_config_rows_by_hwsku": {
+    "DS2000": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_ds3000-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_ds3000-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 33,
+   "platform_components_chassis_keys": [
+    "DS3000"
+   ],
+   "platform_components_names": {
+    "DS3000": [
+     "BIOS",
+     "ONIE",
+     "BMC",
+     "FPGA",
+     "CPLD COMe",
+     "CPLD BASE",
+     "CPLD SW1",
+     "CPLD SW2",
+     "ASIC PCIe",
+     "SSD"
+    ]
+   },
+   "platform_asic": "broadcom",
+   "default_sku_line": "DS3000 t1",
+   "default_hwsku": "DS3000",
+   "installer_conf_console_lines": [
+    "CONSOLE_DEV=0",
+    "CONSOLE_PORT=0xe060",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"intel_iommu=off noirqdebug earlycon=uart8250,mmio,0xdf37b000\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "DS3000",
+    "pddf"
+   ],
+   "hwskus": [
+    "DS3000"
+   ],
+   "port_config_rows_by_hwsku": {
+    "DS3000": 33
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_e1031-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_e1031-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 0,
+   "chassis_name_as_printed": "Celestica-E1031-T48S4",
+   "psu_names": [
+    "PSU-R",
+    "PSU-L"
+   ],
+   "fan_drawer_names": [
+    "Drawer1",
+    "Drawer2",
+    "Drawer3"
+   ],
+   "drawer_fan_names": [
+    "FAN-1",
+    "FAN-2",
+    "FAN-3"
+   ],
+   "chassis_level_fan_names": [
+    "FAN-1",
+    "FAN-2",
+    "FAN-3"
+   ],
+   "thermal_names": [
+    "Inlet ambient sensor (Rear to Front)",
+    "Helix shutdown sensor (Rear to Front)",
+    "Inlet ambient sensor (Front to Rear, right)",
+    "Helix shutdown sensor (Front to Rear)",
+    "Inlet ambient sensor (Front to Rear, left)",
+    "CPU errata sensor (Front to Rear)",
+    "CPU errata sensor (Rear to Front)"
+   ],
+   "sfp_entry_count": 55,
+   "sfp_first_last": [
+    "Ethernet0",
+    "Ethernet54"
+   ],
+   "platform_json_component_names": [
+    "SMC_CPLD",
+    "MMC_CPLD",
+    "BIOS"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "status_led",
+    "thermals"
+   ],
+   "platform_components_chassis_keys": [
+    "Celestica-E1031-T48S4"
+   ],
+   "platform_components_names": {
+    "Celestica-E1031-T48S4": [
+     "BIOS",
+     "SMC_CPLD",
+     "MMC_CPLD"
+    ]
+   },
+   "platform_asic": "broadcom",
+   "default_sku_line": "Celestica-E1031-T48S4 t1",
+   "default_hwsku": "Celestica-E1031-T48S4",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=9600",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"module_blacklist=gpio_ich processor.max_cstate=1 intel_idle.max_cstate=0 i2c-i801.disable_features=0x10\""
+   ],
+   "console_speed": "9600",
+   "subdirs": [
+    "Celestica-E1031-T48S4",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Celestica-E1031-T48S4"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Celestica-E1031-T48S4": 55
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_midstone-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_midstone-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "marvell-teralynx",
+   "default_sku_line": "Midstone-200i t1",
+   "default_hwsku": "Midstone-200i",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Midstone-200i",
+    "Midstone-200i_128x100",
+    "Midstone-200i_32x400",
+    "Midstone-200i_64x100",
+    "Midstone-200i_64x100nrz",
+    "Midstone-200i_64x200",
+    "plugins"
+   ],
+   "hwskus": [
+    "Midstone-200i",
+    "Midstone-200i_128x100",
+    "Midstone-200i_32x400",
+    "Midstone-200i_64x100",
+    "Midstone-200i_64x100nrz",
+    "Midstone-200i_64x200"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Midstone-200i": 64,
+    "Midstone-200i_128x100": 130,
+    "Midstone-200i_32x400": 34,
+    "Midstone-200i_64x100": 66,
+    "Midstone-200i_64x100nrz": 64,
+    "Midstone-200i_64x200": 66
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_questone_2-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_questone_2-r0",
+   "files_present": [
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": null,
+   "default_hwsku": null,
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0xe060",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"processor.max_cstate=1 intel_idle.max_cstate=0 intel_iommu=off thermal.off=1 noirqdebug\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Questone_2",
+    "Questone_2A",
+    "plugins"
+   ],
+   "hwskus": [
+    "Questone_2",
+    "Questone_2A"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Questone_2": 56,
+    "Questone_2A": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_seastone-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_seastone-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 32,
+   "chassis_name_as_printed": "DX010",
+   "psu_names": [
+    "PSU-1",
+    "PSU-2"
+   ],
+   "fan_drawer_names": [
+    "Drawer1",
+    "Drawer2",
+    "Drawer3",
+    "Drawer4",
+    "Drawer5"
+   ],
+   "drawer_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R",
+    "FAN-5F",
+    "FAN-5R"
+   ],
+   "chassis_level_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R",
+    "FAN-5F",
+    "FAN-5R"
+   ],
+   "thermal_names": [
+    "Front-panel temp sensor 1",
+    "Front-panel temp sensor 2",
+    "ASIC temp sensor",
+    "Rear-panel temp sensor 1",
+    "Rear-panel temp sensor 2"
+   ],
+   "sfp_entry_count": 32,
+   "sfp_first_last": [
+    "Ethernet124",
+    "Ethernet120"
+   ],
+   "platform_json_component_names": [
+    "CPLD1",
+    "CPLD2",
+    "CPLD3",
+    "CPLD4",
+    "CPLD5",
+    "BIOS"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "status_led",
+    "thermals"
+   ],
+   "platform_components_chassis_keys": [
+    "DX010"
+   ],
+   "platform_components_names": {
+    "DX010": [
+     "CPLD1",
+     "CPLD2",
+     "CPLD3",
+     "CPLD4",
+     "CPLD5",
+     "BIOS"
+    ]
+   },
+   "platform_asic": "broadcom",
+   "default_sku_line": "Seastone-DX010 t1",
+   "default_hwsku": "Seastone-DX010",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"module_blacklist=gpio_ich i2c-i801.disable_features=0x10\""
+   ],
+   "console_speed": null,
+   "subdirs": [
+    "Celestica-DX010-C32",
+    "Celestica-DX010-D48C8",
+    "Seastone-DX010",
+    "Seastone-DX010-10-50",
+    "Seastone-DX010-25-50",
+    "Seastone-DX010-50",
+    "Seastone-DX010-50-40",
+    "Seastone-DX010-50-50-40",
+    "led-code",
+    "plugins",
+    "sonic_platform"
+   ],
+   "hwskus": [
+    "Celestica-DX010-C32",
+    "Celestica-DX010-D48C8",
+    "Seastone-DX010",
+    "Seastone-DX010-10-50",
+    "Seastone-DX010-25-50",
+    "Seastone-DX010-50",
+    "Seastone-DX010-50-40",
+    "Seastone-DX010-50-50-40"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Celestica-DX010-C32": 32,
+    "Celestica-DX010-D48C8": 56,
+    "Seastone-DX010": 32,
+    "Seastone-DX010-10-50": 112,
+    "Seastone-DX010-25-50": 112,
+    "Seastone-DX010-50": 64,
+    "Seastone-DX010-50-40": 48,
+    "Seastone-DX010-50-50-40": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_seastone_2-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_seastone_2-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 33,
+   "platform_components_chassis_keys": [
+    "Seastone_2"
+   ],
+   "platform_components_names": {
+    "Seastone_2": [
+     "BIOS",
+     "ONIE",
+     "BMC",
+     "FPGA",
+     "CPLD COMe",
+     "CPLD BASE",
+     "CPLD SW1",
+     "CPLD SW2",
+     "SSD"
+    ]
+   },
+   "platform_asic": "broadcom",
+   "default_sku_line": "Seastone_2 t1",
+   "default_hwsku": "Seastone_2",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0xe060",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"intel_iommu=off thermal.off=1 noirqdebug acpi_no_watchdog earlycon=uart8250,mmio,0xdf37b000\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Seastone_2",
+    "plugins"
+   ],
+   "hwskus": [
+    "Seastone_2"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Seastone_2": 33
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_silverstone-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_silverstone-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 32,
+   "platform_components_chassis_keys": [
+    "Silverstone"
+   ],
+   "platform_components_names": {
+    "Silverstone": [
+     "BIOS",
+     "ONIE",
+     "BMC",
+     "FPGA",
+     "CPLD COMe",
+     "CPLD BASE",
+     "CPLD SW1",
+     "CPLD SW2",
+     "CPLD FAN",
+     "SSD"
+    ]
+   },
+   "platform_asic": "broadcom",
+   "default_sku_line": "Silverstone t1",
+   "default_hwsku": "Silverstone",
+   "installer_conf_console_lines": [
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Silverstone",
+    "Silverstone-128x100",
+    "plugins"
+   ],
+   "hwskus": [
+    "Silverstone",
+    "Silverstone-128x100"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Silverstone": 32,
+    "Silverstone-128x100": 128
+   }
+  },
+  {
+   "platform_id": "x86_64-cel_silverstone_v2-r0",
+   "vendor_dir": "celestica",
+   "path": "device/celestica/x86_64-cel_silverstone_v2-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_env.conf",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 32,
+   "chassis_name_as_printed": "Silverstone_v2",
+   "psu_names": [
+    "PSU 1",
+    "PSU 2"
+   ],
+   "fan_drawer_names": [
+    "Fantray1",
+    "Fantray2",
+    "Fantray3",
+    "Fantray4",
+    "Fantray5",
+    "Fantray6",
+    "Fantray7"
+   ],
+   "drawer_fan_names": [
+    "Fantray1_1",
+    "Fantray1_2",
+    "Fantray2_1",
+    "Fantray2_2",
+    "Fantray3_1",
+    "Fantray3_2",
+    "Fantray4_1",
+    "Fantray4_2",
+    "Fantray5_1",
+    "Fantray5_2",
+    "Fantray6_1",
+    "Fantray6_2",
+    "Fantray7_1",
+    "Fantray7_2"
+   ],
+   "chassis_level_fan_names": [
+    "Fantray1_1",
+    "Fantray1_2",
+    "Fantray2_1",
+    "Fantray2_2",
+    "Fantray3_1",
+    "Fantray3_2",
+    "Fantray4_1",
+    "Fantray4_2",
+    "Fantray5_1",
+    "Fantray5_2",
+    "Fantray6_1",
+    "Fantray6_2",
+    "Fantray7_1",
+    "Fantray7_2"
+   ],
+   "platform_json_component_names": [
+    "BIOS",
+    "ONIE",
+    "BMC",
+    "FPGA",
+    "CPLD COMe",
+    "CPLD BASE",
+    "CPLD SW1",
+    "CPLD SW2",
+    "CPLD FAN",
+    "ASIC PCIe",
+    "SSD"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "status_led"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Silverstone_v2 t1",
+   "default_hwsku": "Silverstone_v2",
+   "installer_conf_console_lines": [
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"acpi_no_watchdog earlycon=uart8250,mmio,0xdf37b000\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Silverstone_v2",
+    "Silverstone_v2_128X100G",
+    "pddf",
+    "plugins"
+   ],
+   "hwskus": [
+    "Silverstone_v2",
+    "Silverstone_v2_128X100G"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Silverstone_v2": 32,
+    "Silverstone_v2_128X100G": 128
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s8810_32q-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s8810_32q-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INGRASYS-S8810-32Q t1",
+   "default_hwsku": "INGRASYS-S8810-32Q",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S8810-32Q",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S8810-32Q"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S8810-32Q": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s8900_54xc-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s8900_54xc-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INGRASYS-S8900-54XC t1",
+   "default_hwsku": "INGRASYS-S8900-54XC",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S8900-54XC",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S8900-54XC"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S8900-54XC": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s8900_64xc-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s8900_64xc-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INGRASYS-S8900-64XC t1",
+   "default_hwsku": "INGRASYS-S8900-64XC",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S8900-64XC",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S8900-64XC"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S8900-64XC": 64
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s9100-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s9100-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INGRASYS-S9100-C32 t1",
+   "default_hwsku": "INGRASYS-S9100-C32",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S9100-C32",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S9100-C32"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S9100-C32": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s9130_32x-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s9130_32x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "nephos",
+   "default_sku_line": "INGRASYS-S9130-32X t1",
+   "default_hwsku": "INGRASYS-S9130-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S9130-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S9130-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S9130-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s9180_32x-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s9180_32x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INGRASYS-S9180-32X t1",
+   "default_hwsku": "INGRASYS-S9180-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S9180-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S9180-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S9180-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s9200_64x-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s9200_64x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INGRASYS-S9200-64X t1",
+   "default_hwsku": "INGRASYS-S9200-64X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S9200-64X",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S9200-64X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S9200-64X": 64
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s9230_64x-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s9230_64x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "nephos",
+   "default_sku_line": "INGRASYS-S9230-64X t1",
+   "default_hwsku": "INGRASYS-S9230-64X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S9230-64X",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S9230-64X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S9230-64X": 64
+   }
+  },
+  {
+   "platform_id": "x86_64-ingrasys_s9280_64x-r0",
+   "vendor_dir": "ingrasys",
+   "path": "device/ingrasys/x86_64-ingrasys_s9280_64x-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "barefoot",
+   "default_sku_line": "INGRASYS-S9280-64X t1",
+   "default_hwsku": "INGRASYS-S9280-64X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INGRASYS-S9280-64X",
+    "plugins"
+   ],
+   "hwskus": [
+    "INGRASYS-S9280-64X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INGRASYS-S9280-64X": 64
+   }
+  },
+  {
+   "platform_id": "x86_64-inventec_d6254qs-r0",
+   "vendor_dir": "inventec",
+   "path": "device/inventec/x86_64-inventec_d6254qs-r0",
+   "files_present": [
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": null,
+   "default_hwsku": null,
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INVENTEC-D6254QS",
+    "plugins"
+   ],
+   "hwskus": [
+    "INVENTEC-D6254QS"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INVENTEC-D6254QS": 72
+   }
+  },
+  {
+   "platform_id": "x86_64-inventec_d6332-r0",
+   "vendor_dir": "inventec",
+   "path": "device/inventec/x86_64-inventec_d6332-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INVENTEC-D6332 t1",
+   "default_hwsku": "INVENTEC-D6332",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INVENTEC-D6332",
+    "plugins"
+   ],
+   "hwskus": [
+    "INVENTEC-D6332"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INVENTEC-D6332": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-inventec_d6356-r0",
+   "vendor_dir": "inventec",
+   "path": "device/inventec/x86_64-inventec_d6356-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INVENTEC-D6356 t1",
+   "default_hwsku": "INVENTEC-D6356",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INVENTEC-D6356",
+    "plugins"
+   ],
+   "hwskus": [
+    "INVENTEC-D6356"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INVENTEC-D6356": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-inventec_d6556-r0",
+   "vendor_dir": "inventec",
+   "path": "device/inventec/x86_64-inventec_d6556-r0",
+   "files_present": [
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": null,
+   "default_hwsku": null,
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INVENTEC-D6556",
+    "plugins"
+   ],
+   "hwskus": [
+    "INVENTEC-D6556"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INVENTEC-D6556": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-inventec_d7032q28b-r0",
+   "vendor_dir": "inventec",
+   "path": "device/inventec/x86_64-inventec_d7032q28b-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INVENTEC-D7032Q28B-C32 t1",
+   "default_hwsku": "INVENTEC-D7032Q28B-C32",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INVENTEC-D7032Q28B-C32",
+    "plugins"
+   ],
+   "hwskus": [
+    "INVENTEC-D7032Q28B-C32"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INVENTEC-D7032Q28B-C32": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-inventec_d7054q28b-r0",
+   "vendor_dir": "inventec",
+   "path": "device/inventec/x86_64-inventec_d7054q28b-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INVENTEC-D7054Q28B-S48-Q6 t1",
+   "default_hwsku": "INVENTEC-D7054Q28B-S48-Q6",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INVENTEC-D7054Q28B-S48-Q6",
+    "plugins"
+   ],
+   "hwskus": [
+    "INVENTEC-D7054Q28B-S48-Q6"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INVENTEC-D7054Q28B-S48-Q6": 54
+   }
+  },
+  {
+   "platform_id": "x86_64-inventec_d7264q28b-r0",
+   "vendor_dir": "inventec",
+   "path": "device/inventec/x86_64-inventec_d7264q28b-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "INVENTEC-D7264Q28B t1",
+   "default_hwsku": "INVENTEC-D7264Q28B",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "INVENTEC-D7264Q28B",
+    "plugins"
+   ],
+   "hwskus": [
+    "INVENTEC-D7264Q28B"
+   ],
+   "port_config_rows_by_hwsku": {
+    "INVENTEC-D7264Q28B": 64
+   }
+  },
+  {
+   "platform_id": "x86_64-quanta_ix1b_32x-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix1b_32x-r0",
+   "files_present": [
+    "default_sku",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX1B-32X t1",
+   "default_hwsku": "Quanta-IX1B-32X",
+   "installer_conf_console_lines": null,
+   "console_speed": null,
+   "subdirs": [],
+   "hwskus": [],
+   "port_config_rows_by_hwsku": {}
+  },
+  {
+   "platform_id": "x86_64-quanta_ix1b_rglbmc-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix1b_rglbmc-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX1B-32X t1",
+   "default_hwsku": "Quanta-IX1B-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Quanta-IX1B-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Quanta-IX1B-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Quanta-IX1B-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-quanta_ix7_bwde-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix7_bwde-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX7-BWDE-32X t1",
+   "default_hwsku": "Quanta-IX7-BWDE-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Quanta-IX7-BWDE-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Quanta-IX7-BWDE-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Quanta-IX7-BWDE-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-quanta_ix7_rglbmc-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix7_rglbmc-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX7-32X t1",
+   "default_hwsku": "Quanta-IX7-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Quanta-IX7-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Quanta-IX7-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Quanta-IX7-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-quanta_ix8_rglbmc-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix8_rglbmc-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX8-56X t1",
+   "default_hwsku": "Quanta-IX8-56X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x2f8",
+    "CONSOLE_DEV=1",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"modprobe.blacklist=i2c-ismt,i2c_ismt,ixgbe\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Quanta-IX8-56X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Quanta-IX8-56X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Quanta-IX8-56X": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-quanta_ix8a_bwde-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix8a_bwde-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX8A-BWDE-56X t1",
+   "default_hwsku": "Quanta-IX8A-BWDE-56X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Quanta-IX8A-BWDE-56X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Quanta-IX8A-BWDE-56X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Quanta-IX8A-BWDE-56X": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-quanta_ix8c_bwde-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix8c_bwde-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX8C-56X t1",
+   "default_hwsku": "Quanta-IX8C-56X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Quanta-IX8C-56X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Quanta-IX8C-56X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Quanta-IX8C-56X": 56
+   }
+  },
+  {
+   "platform_id": "x86_64-quanta_ix9_bwde-r0",
+   "vendor_dir": "quanta",
+   "path": "device/quanta/x86_64-quanta_ix9_bwde-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 32,
+   "chassis_name_as_printed": "T9032-IX9",
+   "psu_names": [
+    "PSU 1",
+    "PSU 2"
+   ],
+   "fan_drawer_names": [
+    "Fantray1",
+    "Fantray2",
+    "Fantray3",
+    "Fantray4",
+    "Fantray5",
+    "Fantray6"
+   ],
+   "drawer_fan_names": [
+    "Fantray1_1",
+    "Fantray1_2",
+    "Fantray2_1",
+    "Fantray2_2",
+    "Fantray3_1",
+    "Fantray3_2",
+    "Fantray4_1",
+    "Fantray4_2",
+    "Fantray5_1",
+    "Fantray5_2",
+    "Fantray6_1",
+    "Fantray6_2"
+   ],
+   "chassis_level_fan_names": [
+    "Fantray1_1",
+    "Fantray1_2",
+    "Fantray2_1",
+    "Fantray2_2",
+    "Fantray3_1",
+    "Fantray3_2",
+    "Fantray4_1",
+    "Fantray4_2",
+    "Fantray5_1",
+    "Fantray5_2",
+    "Fantray6_1",
+    "Fantray6_2"
+   ],
+   "thermal_names": [
+    "PSU1_TEMP1",
+    "PSU1_TEMP2",
+    "PSU1_TEMP3",
+    "PSU2_TEMP1",
+    "PSU2_TEMP2",
+    "PSU2_TEMP3",
+    "Temp_1V05_PCH_VR",
+    "Temp_Ambient_0",
+    "Temp_Ambient_1",
+    "Temp_Ambient_2",
+    "Temp_Ambient_3",
+    "Temp_Ambient_4",
+    "Temp_Ambient_5",
+    "Temp_CPU",
+    "Temp_DDRAB_VR",
+    "Temp_SOC_DIMMA0",
+    "Temp_VCCGBE_VR",
+    "Temp_VCCIN_VR"
+   ],
+   "sfp_entry_count": 32,
+   "sfp_first_last": [
+    "Ethernet0",
+    "Ethernet248"
+   ],
+   "platform_json_component_names": [
+    "BIOS",
+    "BMC",
+    "BOOT_CPLD",
+    "FAN_CPLD",
+    "MB_CPLD_IO_1",
+    "MB_CPLD_IO_2",
+    "MB_CPLD_LED_1",
+    "MB_CPLD_LED_2",
+    "PCIe"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "thermals"
+   ],
+   "platform_asic": "broadcom",
+   "default_sku_line": "Quanta-IX9-32X t1",
+   "default_hwsku": "Quanta-IX9-32X",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200"
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "Quanta-IX9-32X",
+    "plugins"
+   ],
+   "hwskus": [
+    "Quanta-IX9-32X"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Quanta-IX9-32X": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-wistron_6512_32r-r0",
+   "vendor_dir": "wistron",
+   "path": "device/wistron/x86_64-wistron_6512_32r-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 32,
+   "chassis_name_as_printed": "wistron_6512_32r",
+   "psu_names": [
+    "PSU-1",
+    "PSU-2"
+   ],
+   "fan_drawer_names": [
+    "FanTray1",
+    "FanTray2",
+    "FanTray3",
+    "FanTray4",
+    "FanTray5",
+    "FanTray6",
+    "FanTray7"
+   ],
+   "drawer_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R",
+    "FAN-5F",
+    "FAN-5R",
+    "FAN-6F",
+    "FAN-6R",
+    "FAN-7F",
+    "FAN-7R"
+   ],
+   "chassis_level_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R",
+    "FAN-5F",
+    "FAN-5R",
+    "FAN-6F",
+    "FAN-6R",
+    "FAN-7F",
+    "FAN-7R"
+   ],
+   "thermal_names": [
+    "Switch",
+    "UCPUB",
+    "UFANB",
+    "UFRNT1",
+    "UFRNT2",
+    "UFRNT3",
+    "UFRNT4",
+    "UREAR1"
+   ],
+   "sfp_entry_count": 32,
+   "sfp_first_last": [
+    "port1",
+    "port32"
+   ],
+   "platform_json_component_names": [
+    "BIOS",
+    "CPLD1",
+    "CPLD2",
+    "MB_FPGA",
+    "CPU_FPGA",
+    "BMC"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "thermals"
+   ],
+   "platform_asic": "marvell-teralynx",
+   "default_sku_line": "wistron_6512_32r t1",
+   "default_hwsku": "wistron_6512_32r",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=0",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"pcie_aspm=off intel_iommu=off\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "CSV",
+    "plugins",
+    "wistron_6512_32r",
+    "wistron_6512_32r_32x100"
+   ],
+   "hwskus": [
+    "wistron_6512_32r",
+    "wistron_6512_32r_32x100"
+   ],
+   "port_config_rows_by_hwsku": {
+    "wistron_6512_32r": 32,
+    "wistron_6512_32r_32x100": 32
+   }
+  },
+  {
+   "platform_id": "x86_64-wistron_sw_to3200k-r0",
+   "vendor_dir": "wistron",
+   "path": "device/wistron/x86_64-wistron_sw_to3200k-r0",
+   "files_present": [
+    "default_sku",
+    "installer.conf",
+    "platform.json",
+    "platform_asic",
+    "platform_components.json",
+    "pmon_daemon_control.json",
+    "subdir-listing.json"
+   ],
+   "platform_json_top_keys": [
+    "chassis",
+    "interfaces"
+   ],
+   "platform_json_interfaces_count": 32,
+   "chassis_name_as_printed": "Wistron_sw_to3200k",
+   "psu_names": [
+    "PSU-1",
+    "PSU-2"
+   ],
+   "fan_drawer_names": [
+    "FanTray1",
+    "FanTray2",
+    "FanTray3",
+    "FanTray4",
+    "FanTray5",
+    "FanTray6",
+    "FanTray7"
+   ],
+   "drawer_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R",
+    "FAN-5F",
+    "FAN-5R",
+    "FAN-6F",
+    "FAN-6R",
+    "FAN-7F",
+    "FAN-7R"
+   ],
+   "chassis_level_fan_names": [
+    "FAN-1F",
+    "FAN-1R",
+    "FAN-2F",
+    "FAN-2R",
+    "FAN-3F",
+    "FAN-3R",
+    "FAN-4F",
+    "FAN-4R",
+    "FAN-5F",
+    "FAN-5R",
+    "FAN-6F",
+    "FAN-6R",
+    "FAN-7F",
+    "FAN-7R"
+   ],
+   "thermal_names": [
+    "Bottom-Front",
+    "Bottom-Rear",
+    "Left-Front",
+    "Right-Front",
+    "Top-Center",
+    "Top-Front",
+    "Top-Rear"
+   ],
+   "sfp_entry_count": 32,
+   "sfp_first_last": [
+    "port1",
+    "port32"
+   ],
+   "platform_json_component_names": [
+    "BIOS",
+    "CPLD1",
+    "CPLD2",
+    "MB_FPGA",
+    "FAN_CPLD",
+    "BMC"
+   ],
+   "chassis_keys_present": [
+    "components",
+    "fan_drawers",
+    "fans",
+    "name",
+    "psus",
+    "sfps",
+    "thermals"
+   ],
+   "platform_components_chassis_keys": [
+    "Wistron_sw_to3200k"
+   ],
+   "platform_components_names": {
+    "Wistron_sw_to3200k": [
+     "BIOS",
+     "CPLD1",
+     "CPLD2",
+     "MB_FPGA",
+     "FAN_CPLD",
+     "BMC"
+    ]
+   },
+   "platform_asic": "marvell-teralynx",
+   "default_sku_line": "Wistron_sw_to3200k t1",
+   "default_hwsku": "Wistron_sw_to3200k",
+   "installer_conf_console_lines": [
+    "CONSOLE_PORT=0x3f8",
+    "CONSOLE_DEV=4",
+    "CONSOLE_SPEED=115200",
+    "ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=\"pcie_aspm=off intel_iommu=off\""
+   ],
+   "console_speed": "115200",
+   "subdirs": [
+    "CSV",
+    "Wistron_sw_to3200k",
+    "Wistron_sw_to3200k_104x1025_6x100",
+    "Wistron_sw_to3200k_24x400_8x100",
+    "Wistron_sw_to3200k_28x400_4x100",
+    "Wistron_sw_to3200k_32x100",
+    "Wistron_sw_to3200k_72x25_6x400",
+    "plugins"
+   ],
+   "hwskus": [
+    "Wistron_sw_to3200k",
+    "Wistron_sw_to3200k_104x1025_6x100",
+    "Wistron_sw_to3200k_24x400_8x100",
+    "Wistron_sw_to3200k_28x400_4x100",
+    "Wistron_sw_to3200k_32x100",
+    "Wistron_sw_to3200k_72x25_6x400"
+   ],
+   "port_config_rows_by_hwsku": {
+    "Wistron_sw_to3200k": 32,
+    "Wistron_sw_to3200k_104x1025_6x100": 110,
+    "Wistron_sw_to3200k_24x400_8x100": 32,
+    "Wistron_sw_to3200k_28x400_4x100": 32,
+    "Wistron_sw_to3200k_32x100": 32,
+    "Wistron_sw_to3200k_72x25_6x400": 86
+   }
+  }
+ ]
+}

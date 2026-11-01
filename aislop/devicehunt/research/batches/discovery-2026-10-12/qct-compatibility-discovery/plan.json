@@ -1,0 +1,11 @@
+{
+  "owner": "/root",
+  "url": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+  "basis": "data/raw/vendor-discovery-qct-2026-10-04/d52bq-product.html",
+  "basis_sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+  "prior_capture_report": "data/raw/vendor-discovery-qct-2026-10-04/fetch-report.json",
+  "novelty": "Exact source URL absent in current catalog; no match across research/data raw markdown, request, plan, outcome and fetch-report files. Prior D51B/T41S404 URLs excluded.",
+  "max_http_requests": 2,
+  "scope": "Fresh robots followed only by this literal public compatibility HTML URL if allowed. No redirects/retries/linked downloads/API/login/registration; stop any failure, denial or throttle. No role/manufacture/identity import from compatibility mention.",
+  "status": "planned"
+}

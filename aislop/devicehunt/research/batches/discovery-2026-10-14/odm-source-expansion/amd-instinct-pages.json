@@ -1,0 +1,220 @@
+{
+  "pdf_sha256": "8436689a7a45614e4b4078e2bd13ad6aba0403d0407d5d4f79f4b557203c2d5c",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 6,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "      AMD INSTINCT™\n      GPU-POWERED SERVERS\n      SOLUTION CATALOG\n\n\n\n\n      AMD INSTINCT™ GPU-BASED SERVERS                                       to speed artificial intelligence workloads with the AMD Instinct\n                                                                            platforms. For HPC workloads needing an integrated balance of\n      FROM OUR PARTNERS                                                     CPU and GPU processor cores, the AMD Instinct MI300A comprise\n                                                                            a complete computing solution. And if you’re in the market for\n      Whether your workload is machine learning or high performance         PCIe® form-factor acceleration, or the power of the AMD Instinct\n      computing (HPC), our partners offer servers that can help speed       MI250 GPU, a mature server market awaits you.\n      results and return value on your investment. Choose among\n      servers powered by AMD EPYC™ CPUs or Intel® Xeon® processors\n\n\n\n      AMD INSTINCT MI355X GPU SERVERS\n                                                                                                                  AMD\n                                                           RACK            MAX                        MAX\n       PARTNER             PRODUCT                               COOLING            CPU SERIES                  INSTINCT          I/O\n                                                           UNITS           CPUS                       GPUS\n                                                                                                                 MODEL\n\n                           8U8M-TURIN2 SYN MI355X           8U     Air      2      EPYC 9004/9005    8 (UBB)      MI355X     PCIe Gen 5 OAM\n       ASROCKRACK\n                           4U8M-TURIN2/DLC SYN MI355X       4U     DLC      2      EPYC 9004/9005    8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n       ASUS                XA AM3A-E13                      10U    Air      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n       BULL                BullSequana AI 642-H03          4RU     DLC      2      EPYC 9004/9005    8 (UBB)      MI355X     PCIe Gen 5 OAM\n       (FORMERLY\n       EVIDEN)             BullSequana AI 1242              2RU    DLC      2      EPYC 9004/9005    8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n       DELL                PowerEdge XE9785 Rack Server     10U    Air      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n       TECHNOLOGIES        PowerEdge XE9785L Rack Server   3OU     DLC      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n                           G4L3-ZX1_LAT4                    4U     DLC      2      EPYC 9004/9005    8 (UBB)      MI355X     PCIe Gen 5 OAM\n       GIGABYTE\n                           G893-ZX1-AAX4                    8U     Air      2      EPYC 9004/9005    8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n       HPE                 HPE ProLiant Compute XD685       5U     DLC      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n       MITAC               G4826Z5                          4U     DLC      2      EPYC 9004/9005    8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n                           AS404-2A1                        4U     DLC      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n       PEGATRON\n                           AS501-4A1                        5U     DLC      2         EPYC 9005      16 (UBB)     MI355X     PCIe Gen 5 OAM\n\n                           AS-A126GS-TNMR                   10U    Air      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n       SUPERMICRO\n                           AS -4126GS-NMR-LCC               4U     DLC      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n       WISTRON             GH-14H00                         4U     DLC      2         EPYC 9005      8 (UBB)      MI355X     PCIe Gen 5 OAM\n\n\n\n\nSOLUTION CATALOG: AMD INSTINCT GPU-POWERED SERVERS                                                                                             1\n"
+    },
+    {
+      "page": 2,
+      "text": "      AMD INSTINCT MI350X GPU SERVERS\n                                                                                                              AMD\n                                                          RACK            MAX                     MAX\n       PARTNER             PRODUCT                              COOLING           CPU SERIES                INSTINCT        I/O\n                                                          UNITS           CPUS                    GPUS\n                                                                                                             MODEL\n\n       ASROCKRACK          6U8M-TURIN2 SYN MI350X          6U     Air      2     EPYC 9004/9005   8 (UBB)    MI350X    PCIe Gen 5 OAM\n\n       CISCO               UCS C885A M8 Rack Server        8U     Air      2     EPYC 9004/9005   8 (UBB)    MI350X    PCIe Gen 5 OAM\n\n       COMPAL              SG720-2A                        7U     Air      2     EPYC 9004/9005   8 (UBB)    MI350X    PCIe Gen 5 OAM\n\n       GIGABYTE            G893-ZX1-AAX3                   8U     Air      2       EPYC 9005      8 (UBB)    MI350X    PCIe Gen 5 OAM\n\n       MITAC               G8825Z5                         8U     Air      2     EPYC 9004/9005   8 (UBB)    MI350X    PCIe Gen 5 OAM\n\n       QUANTA\n                           QuantaGrid D75T-7U              7U     Air      2       EPYC 9005      8 (UBB)    MI350X    PCIe Gen 5 OAM\n       COMPUTER\n\n       SUPERMICRO          AS-8126GS-TNMR                  8U     Air      2       EPYC 9005      8 (UBB)    MI350X    PCIe Gen 5 OAM\n\n       WISTRON             GS-18G00                        8U     Air      2       EPYC 9005      8 (UBB)    MI350X    PCIe Gen 5 OAM\n\n\n\n\n      AMD INSTINCT MI300X AND 325X GPU SERVERS\n                                                                                                              AMD\n                                                          RACK            MAX                     MAX\n       PARTNER             PRODUCT                              COOLING           CPU SERIES                INSTINCT        I/O\n                                                          UNITS           CPUS                    GPUS\n                                                                                                             MODEL\n\n                           KR6298-E2                       10U    Air      2       EPYC 9004      8 (UBB)    MI325X    PCIe Gen 5 OAM\n       AIVRES\n                           KR6298-E2                       6U     Air      2       EPYC 9004      8 (UBB)    MI300X    PCIe Gen 5 OAM\n\n                           AceleMax AXG-828AM              8U     Air      2     EPYC 9004/9005   8 (UBB)    MI325X    PCIe Gen 5 OAM\n\n                           AceleMax AXG-828AM              8U     Air      2       EPYC 9004      8 (UBB)    MI300X    PCIe Gen 5 OAM\n       AMAX\n                           AceleMax AXG-728AM              7U     Air      2       EPYC 9005      8 (UBB)    MI325X    PCIe Gen 5 OAM\n\n                           AceleMax AXG-728AM              7U     Air      2       EPYC 9005      8 (UBB)    MI300X    PCIe Gen 5 OAM\n\n                           6U8M-TURIN2 SYN MI325X          6U     Air      2     EPYC 9004/9005   8 (UBB)    MI325X    PCIe Gen 5 OAM\n\n       ASROCKRACK          4U8M-TURIN2/DLC SYN MI325X      4U     DLC      2     EPYC 9004/9005   8 (UBB)    MI325X    PCIe Gen 5 OAM\n\n                           6U8M-TURIN2 SYN MI300X          6U     Air      2     EPYC 9004/9005   8 (UBB)    MI300X    PCIe Gen 5 OAM\n\n       ASUS                ESC A8A-E12U                    7U     Air      2       EPYC 9005      8 (UBB)    MI325X    PCIe Gen 5 OAM\n\n                           BullSequana AI 642-H02         4RU     DLC      2     EPYC 9004/9005   8 (UBB)    MI325X    PCIe Gen 5 OAM\n       BULL\n       (FORMERLY           BullSequana AI 642-A01          5U     Air      2     EPYC 9004/9005   8 (UBB)    MI300X    PCIe Gen 5 OAM\n       EVIDEN)\n                           BullSequana AI 642-H01          5U     DLC      2     EPYC 9004/9005   8 (UBB)    MI300X    PCIe Gen 5 OAM\n\n       CISCO               UCS C885A M8 Rack Server        8U     Air      2     EPYC 9004/9005   8 (UBB)    MI300X    PCIe Gen 5 OAM\n\n                           SG720-2A                        7U     Air      2     EPYC 9004/9005   8 (UBB)    MI300X    PCIe Gen 5 OAM\n       COMPAL\n                           SG720-2A                        7U     Air      2     EPYC 9004/9005   8 (UBB)    MI325X    PCIe Gen 5 OAM\n\n       DELL\n                           PowerEdge XE9680 Rack Server    6U     Air      2      5th Gen Xeon    8 (UBB)    MI300X    PCIe Gen 5 OAM\n       TECHNOLOGIES\n\n\n       EXXACT              TensorEX TS4-105403132          6U     Air      2     EPYC 9004/9005   8 (UBB)    MI325X    PCIe Gen 5 OAM\n       CORPORATION         TS4-185328443 Server            8U     Air      2       EPYC 9004      8 (UBB)    MI300X    PCIe Gen 5 OAM\n\n\n\n\nSOLUTION CATALOG: AMD INSTINCT GPU-POWERED SERVERS                                                                                      2\n"
+    },
+    {
+      "page": 3,
+      "text": "                                                                                                                     AMD\n                                                               RACK            MAX                      MAX\n       PARTNER             PRODUCT                                   COOLING           CPU SERIES                  INSTINCT        I/O\n                                                               UNITS           CPUS                     GPUS\n                                                                                                                    MODEL\n\n                           G4L3-ZX1_LAX2                        4U      DLC     2     EPYC 9004/9005    8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n                           G893-ZX1-AAX2                        8U      Air     2       EPYC 9005       8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n                           G4L3-ZX1-LAX1                        4U      DLC     2     EPYC 9004/9005    8 (UBB)     MI300X    PCIe Gen 5 OAM\n                                                                                      4th and 5th Gen\n                           G593-SX1-AAX1                        5U      Air     2                       8 (UBB)     MI300X    PCIe Gen 5 OAM\n                                                                                           Xeon\n       GIGABYTE\n                           G593-ZX1-AAX1                        5U      Air     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n                           G593-ZX1-LAX1                        5U      DLC     2     EPYC 9004/9005    8 (UBB)     MI300X    PCIe Gen 5 OAM\n                                                                                      4th and 5th Gen\n                           G593-SX1-LAX1                        5U      DLC     2                       8 (UBB)     MI300X    PCIe Gen 5 OAM\n                                                                                           Xeon\n                           G893-ZX1-AAX1                        8U      Air     2     EPYC 9004/9005    8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n                                                               4 Node                                    Four                     FabreX\n       GIGAIO              SuperNODE                                    Air     8       EPYC 7003                   MI300X\n                                                                Rack                                    8 (UBB)               PCIe Gen 5 OAM\n\n       INGRASYS            GB10181A Server                      10U     Air     2      4th Gen Xeon     8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n                           EG23-8UDP9ZX1AAX1                    8U      Air     2       EPYC 9005       8 (UBB)     MI300X    PCIe Gen 5 OAM\n       KOI\n                           EG23-5UDP9ZX1AAX1                    5U      Air     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n                           ThinkSystem SR685a V3 Rack Server    8U      Air     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n       LENOVO\n                           ThinkSystem SR680a v3 Rack Server    8U      Air     2      5th Gen Xeon     8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n       MITAC               G8825Z5                              8U      Air     2     EPYC 9004/9005    8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n       PEGATRON            AS500-4A1                            5U      DLC     2       EPYC 9005       16 (UBB)    MI325X    PCIe Gen 5 OAM\n\n       PENGUIN             Relion XE5318GTO                     5U      Air     2      4th Gen Xeon     8 (UBB)     MI300X    PCIe Gen 5 OAM\n       SOLUTIONS           Altus XE5318GTO                      5U      Air     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n       QUANTA              QuantaGrid D75T-7U                   7U      Air     2       EPYC 9005       8 (UBB)     MI325X    PCIe Gen 5 OAM\n       COMPUTER            QuantaGrid D74A-7U                   7U      Air     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n                           AS-4126GS-NMR-LCC                    4U      DLC     2     EPYC 9004/9005    8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n                           AS -8126GS-TNMR                      8U      Air     2     EPYC 9004/9005    8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n                           AS -8125GS-TNMR2                     8U      Air     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n       SUPERMICRO\n                           AS-4126GS-NMR-LCC                    4U      DLC     2     EPYC 9004/9005    8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n                           AS -4125GS-TNMR2-LCC                 4U      DLC     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n                           SYS -821GE-TNMR2                     8U      Air     2      4th Gen Xeon     8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n       SYMMETRIC\n                           Ada-X Departmental Supercomputer    Varies   Air     2       EPYC 9004       8 (UBB)     MI300X    PCIe Gen 5 OAM\n       COMPUTING\n\n                           GH-14E00                             4U      DLC     2       EPYC 9005       8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n       WISTRON             GS-18F00                             8U      Air     2       EPYC 9005       8 (UBB)     MI325X    PCIe Gen 5 OAM\n\n                           GS-18C00                             8U      Air     2       EPYC 9005       8 (UBB)     MI300X    PCIe Gen 5 OAM\n\n\n\n\nSOLUTION CATALOG: AMD INSTINCT GPU-POWERED SERVERS                                                                                             3\n"
+    },
+    {
+      "page": 4,
+      "text": "      AMD INSTINCT MI300A GPU PROCESSING UNIT (APU)-POWERED SERVERS\n                                                                                                                              AMD\n                                                                            RACK                               MAX\n       PARTNER             PRODUCT                                                         COOLING                          INSTINCT      I/O           SOCKET\n                                                                            UNITS                              APUS\n                                                                                                                             MODEL\n\n                           AceleMax DGS-214A Server                           2U               DLC               4           MI300A    PCIe Gen 5         SH5\n\n       AMAX                AceleMax DGS-324A Server                           3U               Air               4           MI300A    PCIe Gen 5         SH5\n\n                           AceleMax DGS-424AI Server                          3U               Air               4           MI300A    PCIe Gen 5         SH5\n\n                           AceleMax DGS-428A Server                           4U               Air               4           MI300A    PCIe Gen 5         SH5\n       BULL                BullSequana XH3000 Supercomputer                1U Blade            DLC               2           MI300A    PCIe Gen 5         SH5\n       (FORMERLY\n       EVIDEN)             BullSequana XH3406-3MQ Supercomputer            1U Blade            DLC               2           MI300A    PCIe Gen 5\n\n       EXAACT              TensorEX TS2-122401506 Supercomputer               2U               Air               4           MI300A    PCIe Gen 5         SH5\n       CORPORATION         TensorEX TS4-196773402 Supercomputer               4U               Air               4           MI300A    PCIe Gen 5         SH5\n\n                           G383-R80                                           3U             Air/DLC             4           MI300A    PCIe Gen 5         SH5\n       GIGABYTE\n                           G383-R80-AAP1                                      3U             Air/DLC             4           MI300A    PCIe Gen 5         SH5\n\n                           HPE Cray EX255a Accelerator Blade\n                                                                          1U (2-Node)\n       HPE CRAY            4-APU tray for EX2500 and EX4000                                    DLC               8           MI300A    PCIe Gen 5         SH5\n                                                                              Tray\n                           Two nodes (8 APUs) per tray\n\n       LENOVO              ThinkSystem SR680a v3 Rack Server                  8U               Air             8 (UBB)       MI300A    PCIe Gen 5\n\n                           AS -2145GH-TNMR                                    2U               DLC               4           MI300A    PCIe Gen 5         SH5\n       SUPERMICRO\n                           AS -4145GH-TNMR                                    4U               Air               4           MI300A    PCIe Gen 5         SH5\n\n\n\n\n      SERVERS SUPPORTING AMD MI210 AND MI250 GPU ACCELERATORS\n                                                                                                                              AMD\n                                                                  RACK     MAX                                       MAX               CARD       INFINITY\n       PARTNER             PRODUCT                                                         CPU SERIES                       INSTINCT\n                                                                  UNITS    CPUS                                      GPUS              TYPE     FABRIC™ HIVES\n                                                                                                                             MODEL\n\n                                                                   Mid\n       ADVANTECH           SKY-602E3 AI Edge Server                           1         EPYC Embedded 8004            4       MI210    PCIe\n                                                                  Tower\n\n       AEWIN               SCB-1946C Server                        2U         2           EPYC 9004/9005              2       MI210    PCIe\n\n                           AceleMax AXG-4110AE                     4U         2           EPYC 9004/9005              8       MI210    PCIe             N/A\n       AMAX\n                           AceleMax AXG -5210AE                    5U         2           EPYC 9004/9005              10      MI210    PCIe     Dual (4 GPU/2 GPU)\n\n                           ESC4000A-E11                            2U         1              EPYC 7003                4       MI210    PCIe         Dual (2 GPU)\n       ASUS\n                           ESC8000A-E11                            4U         2              EPYC 7003                8       MI210    PCIe         Dual (4 GPU)\n\n                           BullSequana AI 221-A01                  2U         2         4th and 5th Gen Xeon          4       MI210    PCIe             N/A\n       BULL                BullSequana AI 222-A01                  4U         2           EPYC 9004/9005              4       MI210    PCIe             N/A\n       (FORMERLY\n       EVIDEN)             BullSequana AI 621-A01                  4U         2         4th and 5th Gen Xeon          8       MI210    PCIe             N/A\n\n                           BullSequana AI 622-A01                  4U         2           EPYC 9004/9005              4       MI210    PCIe             N/A\n\n       CANCON              SUMA X7840HO                            4U         2              EPYC 7003                8       MI210    PCIe         Dual (4 GPU)\n\n       CISCO               UCS C245 M8 Rack Server                 2U         2           EPYC 9004/9005              3       MI210    PCIe             N/A\n\n       COMPAL              SG220-2 Server                          2U         2            4th Gen Xeon               4       MI210    PCIe             N/A\n\n\n\n\nSOLUTION CATALOG: AMD INSTINCT GPU-POWERED SERVERS                                                                                                                   4\n"
+    },
+    {
+      "page": 5,
+      "text": "                                                                                                                      AMD\n                                                               RACK       MAX                             MAX                  CARD      INFINITY\n       PARTNER             PRODUCT                                                   CPU SERIES                     INSTINCT\n                                                               UNITS      CPUS                            GPUS                 TYPE    FABRIC™ HIVES\n                                                                                                                     MODEL\n\n                           PowerEdge R750XA Rack Server          2U        2          3rd Gen Xeon          4        MI2104    PCIe     Dual (2 GPU)\n       DELL\n                           PowerEdge R7525 Rack Server           2U        2           EPYC 7003            3        MI2104    PCIe         N/A\n       TECHNOLOGIES\n                           PowerEdge R7515 Rack Server           2U         1          EPYC 7003            1        MI2104    PCIe         N/A\n\n                           TensorEX TS2-185671979                2U         1     EPYC 7003, EPYC 7002      4        MI210     PCIe         N/A\n       EXXACT\n                           TensorEX TS2-158632687-DPN            2U        2      EPYC 7003, EPYC 7002      4        MI210     PCIe         N/A\n       CORPORATION\n                           TensorEX TS4-173535991                4U        2      EPYC 7003, EPYC 700       8        MI210     PCIe     Dual (4 GPU)\n\n                           G242-Z12                              2U         1          EPYC 7003            4        MI210     PCIe         N/A\n\n                           G262-ZO0                              2U        2           EPYC 7003            4        MI250     OAM     4 GPU on board1\n\n                           G292-Z40                              2U        2           EPYC 7002            8        MI210     PCIe     Quad (2 GPU)\n\n                           G292-Z43                              2U        2           EPYC 7003            8        MI210     PCIe         N/A\n       GIGABYTE\n                           G292-Z44                              2U        2           EPYC 7002            8        MI210     PCIe     Dual (4 GPU)\n\n                           G292-Z45                              2U        2           EPYC 7003            8        MI210     PCIe     Quad (2 GPU)\n\n                           G482-Z54                              4U        2           EPYC 7002            8        MI210     PCIe     Dual (4 GPU)\n\n                           R282-Z93                              2U        2           EPYC 7002            3        MI210     PCIe         N/A\n\n                                                               4 Node                                                          OAM\n                                                                          2 per\n       GIGAIO              SuperNODE                            Rack                   EPYC 9004           32        MI210      UBB         N/A\n                                                                          Node\n                                                               Solution                                                        Board\n\n                           Cray EX235a Accelerator Blade       2-Node     4 per                           4 per\n                                                                                       EPYC 7003                     MI250X    OAM     4 GPU on board1\n                           (water cooled)                       Blade     Node                            Node\n       HPE\n                           ProLiant XL675d Gen10 Plus Server     N/A       2           EPYC 7003            8        MI210     PCIe     Dual (4 GPU)\n\n                           ProLiant XL645d Gen10 Plus Server     N/A        1          EPYC 7003            4        MI210     PCIe        4 GPU\n\n       KOI                 XG23/EG21 Series Servers              2U        2        EPYC 9005/7003          10       MI210     PCIe         N/A\n\n                           ThinkSystem SR655 Rack Server         2U         1       EPYC 7003/7004          3        MI210     PCIe         N/A\n\n       LENOVO              ThinkSystem SR665 Rack Server         2U        2           EPYC 7003            3        MI210     PCIe         N/A\n\n                           ThinkSystem SR670 v2 Rack Server      2U        2      3rd and 4th Gen Xeon      4        MI210     PCIe        4 GPU\n\n                                                                                                         2 DW x16\n                                                                 4U                                       + 2 SW\n                           FT65T-B8050                                      1       EPYC 9004/9005                   MI210     PCIe\n                                                                Tower                                    x16 GPU\n                                                                                                           cards\n\n       MITAC               TN85B 8261                            2U        2        EPYC 9004/9005       8 (UBB)     MI210     PCIe\n\n                           TN83-B8251                            2U        2           EPYC 7003            4        MI210     PCIe\n\n                                                                 4U\n                           TN83-B8030                                      2           EPYC 7003            4        MI210     PCIe\n                                                                Tower\n\n       NOR-TECH            HPC Cluster Solutions                Varies     2           EPYC 7003           4|8       MI210     PCIe         N/A\n\n       PENGUIN             Altus XE2214GT Server                 2U        2           EPYC 7003            4        MI210     PCIe         N/A\n       SOLUTIONS           Altus XE4218GT Server                 4U        2           EPYC 7003            8        MI210     PCIe     Dual (4 GPU)\n\n\n\n\nSOLUTION CATALOG: AMD INSTINCT GPU-POWERED SERVERS                                                                                                       5\n"
+    },
+    {
+      "page": 6,
+      "text": "                                                                                                                                                                 AMD\n                                                                                  RACK           MAX                                              MAX                              CARD           INFINITY\n          PARTNER             PRODUCT                                                                               CPU SERIES                                 INSTINCT\n                                                                                  UNITS          CPUS                                             GPUS                             TYPE         FABRIC™ HIVES\n                                                                                                                                                                MODEL\n\n                              AS-2014CS-TR                                           2U             1                 EPYC 7003                      2             MI210            PCIe\n\n                              AS-2024US-TRT                                          2U             2                 EPYC 7003                      2             MI210            PCIe\n\n                              AS-2114GT-DNR (2-Node totals listed)                   2U             2                 EPYC 7003                      6             MI210            PCIe\n\n                              SBA-4119SG SuperBlade® Server                          8U            20                 EPYC 7003                     20             MI210            PCIe\n\n                              AS-4124GS-TNR                                          4U             2                 EPYC 7003                      8             MI210            PCIe\n\n          SUPERMICRO          AS-4124GQ-TNMI                                         4U             2                 EPYC 7003                      4            MI250             PCIe\n\n                                                                                                                                                                  3rd Gen\n                              GPU SuperServer SYS-740GP-TNRT                         4U             2                 EPYC 7003                      4                              PCIe\n                                                                                                                                                                   Xeon\n\n                                                                                                               Ryzen™ Threadripper™\n                              AS -2115HV-TNRT Workstation                         2U UP             1                                                4             MI210            PCIe\n                                                                                                                  PRO 7000WX\n\n\n                                                                                                               Ryzen™ Threadripper™\n                              AS-2115HV-TNRT Workstation                             2U             1                                                4             MI210            PCIe\n                                                                                                                  PRO 7000WX\n\n          SYMMETRIC                                                                                                                               4 per\n                              Ada Departmental GPU Supercomputer                   Varies           2                 EPYC 7003                                    MI210            PCIe\n          COMPUTING                                                                                                                               node\n\n\n\n\n      FOR MORE INFORMATION VISIT AMD.COM/INSTINCT\n      FOOTNOTES\n      Fully connected CPU and GPU components through AMD Infinity Fabric™ technology with cache coherency.\n      1\n\n\n      Links to third party sites are provided for convenience and unless explicitly stated, AMD is not responsible for the contents of such linked sites and no endorsement is implied. GD-97\n\n      Footnote explanations are available at: https://www.amd.com/en/legal/claims/instinct.html\n      © 2026 Advanced Micro Devices, Inc. All rights reserved. AMD, the AMD Arrow logo, AMD Instinct, CDNA, Infinity Cache, Infinity Fabric, ROCm, and combinations thereof are trademarks of Advanced Micro\n      Devices, Inc. PCIe is a registered trademark of PCI-SIG Corporation. PyTorch, the PyTorch logo and any related marks are trademarks of The Linux Foundation..TensorFlow, the TensorFlow logo, and any related\n      marks are trademarks of Google Inc. Other product names used in this publication are for identification purposes only and may be trademarks of their respective companies. Use of third party marks/logos/\n      products is for informational purposes only and no endorsement of or by AMD is intended or implied GD-83                                                                                       LE-92707-00 2/26\n\n\n\n\nSOLUTION CATALOG: AMD INSTINCT GPU-POWERED SERVERS                                                                                                                                                                      6\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "amd-instinct-catalog.pdf",
+    "extracted_at_utc": "2026-10-15T05:49:34.502397+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           AMD INSTINCT™ \nGPU-Powered Servers\nSubject:         Solution Catalog\nCreator:         Adobe InDesign 20.0 (Macintosh)\nProducer:        Adobe PDF Library 17.0\nCreationDate:    Tue Feb 24 17:03:38 2026 PST\nModDate:         Thu Feb 26 12:53:14 2026 PST\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           6\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       365195 bytes\nOptimized:       yes\nPDF version:     1.4\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "76321ce2b9efe7a30e7d81f1e869dd6ea65d3b8eb36201e4a0ef4aa42511c1cc"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "186d58bb5a9a670c46f30dfb75a73472b1a304d41483ea06b05b8dd8d4be7e9d"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "00e1fd65910360e026695589dbb09bb0f654e3256f01240899f3946384cbf578"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "01fcf5a528876b8b9abd1cc006aee73da389dafc654ca80e1e1090424510e321"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "bd76d01c4e3be7a4cfbaf85cfa947fad3d466b7c0cef41a11e2533ed02620607"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "5",
+          "-l",
+          "5",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "d2bc149d6824f8529098e7bf4d20358ac250e81680777276ee6bc9491b34b4b5"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "6",
+          "-l",
+          "6",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "216104b58adcfbd6d12b4270d65e06713341e9c2bcc5d49b0a839dfa26807692"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

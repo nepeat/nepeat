@@ -1,0 +1,91 @@
+{
+  "mode": "read-only immutable SQLite; no imports",
+  "checks": [
+    {
+      "unit_id": "ised-rel-25869",
+      "projected_source_keys_match_live": true,
+      "live_records": 4,
+      "live_raw_rows": 4,
+      "records_seen": 4
+    },
+    {
+      "unit_id": "ised-rel-query-accton",
+      "projected_source_keys_match_live": true,
+      "live_records": 162,
+      "live_raw_rows": 579,
+      "records_seen": 167
+    },
+    {
+      "unit_id": "ised-rel-query-edgecore",
+      "projected_source_keys_match_live": true,
+      "live_records": 4,
+      "live_raw_rows": 29,
+      "records_seen": 4
+    },
+    {
+      "unit_id": "ised-rel-query-oracle",
+      "projected_source_keys_match_live": true,
+      "live_records": 12,
+      "live_raw_rows": 16,
+      "records_seen": 12
+    },
+    {
+      "unit_id": "ised-rel-query-celestica",
+      "projected_source_keys_match_live": true,
+      "live_records": 0,
+      "live_raw_rows": 0,
+      "records_seen": 0
+    },
+    {
+      "unit_id": "rra-official-query-41e4ca912b33",
+      "projected_source_keys_match_live": true,
+      "live_records": 149,
+      "live_raw_rows": 151,
+      "records_seen": 151
+    },
+    {
+      "unit_id": "rra-official-query-33f7d154085d",
+      "projected_source_keys_match_live": true,
+      "live_records": 161,
+      "live_raw_rows": 57,
+      "records_seen": 57
+    },
+    {
+      "unit_id": "rra-official-query-63cb0b9098c7",
+      "projected_source_keys_match_live": true,
+      "live_records": 146,
+      "live_raw_rows": 110,
+      "records_seen": 110
+    },
+    {
+      "unit_id": "rra-official-query-e5984834207f",
+      "projected_source_keys_match_live": true,
+      "live_records": 188,
+      "live_raw_rows": 200,
+      "records_seen": 200
+    },
+    {
+      "unit_id": "rra-official-query-73009f906e4e",
+      "projected_source_keys_match_live": true,
+      "live_records": 896,
+      "live_raw_rows": 516,
+      "records_seen": 516
+    },
+    {
+      "unit_id": "rra-official-query-5827f2fe7092",
+      "projected_source_keys_match_live": true,
+      "live_records": 13,
+      "live_raw_rows": 7,
+      "records_seen": 7
+    },
+    {
+      "unit_id": "rra-official-query-78fc6b2e95f6",
+      "projected_source_keys_match_live": true,
+      "live_records": 0,
+      "live_raw_rows": 0,
+      "records_seen": 0
+    }
+  ],
+  "all_match": true,
+  "network_requests": 0
+}

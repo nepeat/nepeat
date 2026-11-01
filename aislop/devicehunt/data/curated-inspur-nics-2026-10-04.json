@@ -1,0 +1,832 @@
+{
+  "sources": [
+    {
+      "id": "inspur-incloud-rail-nics-2023",
+      "url": "https://partner.inspur.com/eportal/fileDir/lcjtww/resource/cms/2024/03/2024032014450874883.pdf",
+      "tier": "vendor",
+      "license": "Public vendor compatibility-table facts; original document rights retained",
+      "snapshot": "raw/inspur-incloud-rail-compatibility-2026-10-04.pdf",
+      "coverage": "Eight literal NIC names in ten Inspur table-vendor rows on PDF pages 14–15, visually checked with continuation page 16. Inspur brand field is an identity/grouping namespace only; only compatibility_table_vendor affiliation is asserted. Preserve separate storage and management/business rows, blank remarks and unresolved general X722 exclusion versus specific row. Historical source statements, not current support, manufacture, brand, deployment, firmware entitlement or auction-unit provenance."
+    }
+  ],
+  "devices": [
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p14-row01-X710_2Port_LC_PCIe",
+      "brand": "Inspur",
+      "model": "X710_2Port_LC_PCIe",
+      "title": "X710_2Port_LC_PCIe",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 14,
+        "printed_page": "7",
+        "vendor": "Inspur",
+        "section": "6.1 存储网卡",
+        "speed_group": "10G",
+        "model": "X710_2Port_LC_PCIe",
+        "remarks": "适用 Intel +HG 版本"
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "14 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "7"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.1 存储网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          "适用 Intel +HG 版本"
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "printed"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p14-row02-82599_2Port_LC_PCIe",
+      "brand": "Inspur",
+      "model": "82599_2Port_LC_PCIe",
+      "title": "82599_2Port_LC_PCIe",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 14,
+        "printed_page": "7",
+        "vendor": "Inspur",
+        "section": "6.1 存储网卡",
+        "speed_group": "10G",
+        "model": "82599_2Port_LC_PCIe",
+        "remarks": "适用 Intel +HG 版本"
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "14 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "7"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.1 存储网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          "适用 Intel +HG 版本"
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "printed"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p14-row03-Inspur_Vostok_I350_1G_RJ_PCIEx4-G3_2",
+      "brand": "Inspur",
+      "model": "Inspur_Vostok_I350_1G_RJ_PCIEx4-G3_2",
+      "title": "Inspur_Vostok_I350_1G_RJ_PCIEx4-G3_2",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 14,
+        "printed_page": "7",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "1G",
+        "model": "Inspur_Vostok_I350_1G_RJ_PCIEx4-G3_2",
+        "remarks": "适用 Intel +HG 版本"
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "14 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "7"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "1G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          "适用 Intel +HG 版本"
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "printed"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p14-row04-I350_4Port_RJ45_PCIe",
+      "brand": "Inspur",
+      "model": "I350_4Port_RJ45_PCIe",
+      "title": "I350_4Port_RJ45_PCIe",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 14,
+        "printed_page": "7",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "1G",
+        "model": "I350_4Port_RJ45_PCIe",
+        "remarks": "适用 Intel +HG 版本"
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "14 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "7"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "1G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          "适用 Intel +HG 版本"
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "printed"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p14-row05-82599_2Port_LC_PCIe",
+      "brand": "Inspur",
+      "model": "82599_2Port_LC_PCIe",
+      "title": "82599_2Port_LC_PCIe",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 14,
+        "printed_page": "7",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "10G",
+        "model": "82599_2Port_LC_PCIe",
+        "remarks": "适用 Intel +HG 版本"
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "14 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "7"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          "适用 Intel +HG 版本"
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "printed"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p15-row06-X710_2Port_LC_PCIe",
+      "brand": "Inspur",
+      "model": "X710_2Port_LC_PCIe",
+      "title": "X710_2Port_LC_PCIe",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 15,
+        "printed_page": "8",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "10G",
+        "model": "X710_2Port_LC_PCIe",
+        "remarks": "适用 Intel\n+HG+ARM 版本"
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "15 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "8"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          "适用 Intel\n+HG+ARM 版本"
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "printed"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p15-row07-Inspur_Andes-M6_X710_10G_LC_OCP3x8_2",
+      "brand": "Inspur",
+      "model": "Inspur_Andes-M6_X710_10G_LC_OCP3x8_2",
+      "title": "Inspur_Andes-M6_X710_10G_LC_OCP3x8_2",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 15,
+        "printed_page": "8",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "10G",
+        "model": "Inspur_Andes-M6_X710_10G_LC_OCP3x8_2",
+        "remarks": "适用 Intel +HG 版本"
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "15 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "8"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          "适用 Intel +HG 版本"
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "printed"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p15-row08-NIC_10Gbps_2Port_LC_Inspur_X710_PCIe_MM",
+      "brand": "Inspur",
+      "model": "NIC_10Gbps_2Port_LC_Inspur_X710_PCIe_MM",
+      "title": "NIC_10Gbps_2Port_LC_Inspur_X710_PCIe_MM",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 15,
+        "printed_page": "8",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "10G",
+        "model": "NIC_10Gbps_2Port_LC_Inspur_X710_PCIe_MM",
+        "remarks": ""
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "15 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "8"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          ""
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "blank"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p15-row09-Inspur_Sbt_X722_10G_LC_PCIEx8-G3_2",
+      "brand": "Inspur",
+      "model": "Inspur_Sbt_X722_10G_LC_PCIEx8-G3_2",
+      "title": "Inspur_Sbt_X722_10G_LC_PCIEx8-G3_2",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 15,
+        "printed_page": "8",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "10G",
+        "model": "Inspur_Sbt_X722_10G_LC_PCIEx8-G3_2",
+        "remarks": ""
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "15 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "8"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          ""
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "blank"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ],
+        [
+          "compatibility_conflict",
+          "Page 14 generally excludes intel X722 10-Gigabit; page 15 lists this specific Inspur X722 name in the management/business table with blank remarks. Scope/resolution unstated; no unqualified compatibility asserted."
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-nics-2023",
+      "key": "p15-row10-E810_2Port_LC_PCIe",
+      "brand": "Inspur",
+      "model": "E810_2Port_LC_PCIe",
+      "title": "E810_2Port_LC_PCIe",
+      "kind": "network interface card",
+      "affiliations": [
+        [
+          "Inspur",
+          "compatibility_table_vendor"
+        ]
+      ],
+      "raw_table_row": {
+        "pdf_page": 15,
+        "printed_page": "8",
+        "vendor": "Inspur",
+        "section": "6.2 管理网卡/业务网卡",
+        "speed_group": "25G",
+        "model": "E810_2Port_LC_PCIe",
+        "remarks": ""
+      },
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "source_pdf_sha256",
+          "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150"
+        ],
+        [
+          "source_pages",
+          "15 (PDF page number)"
+        ],
+        [
+          "source_printed_page",
+          "8"
+        ],
+        [
+          "compatibility_table_section_as_printed",
+          "6.2 管理网卡/业务网卡"
+        ],
+        [
+          "compatibility_table_vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "compatibility_table_speed_group_as_printed",
+          "25G"
+        ],
+        [
+          "compatibility_table_remarks_as_printed",
+          ""
+        ],
+        [
+          "compatibility_table_remarks_state",
+          "blank"
+        ],
+        [
+          "identity_namespace_context",
+          "Inspur brand field groups names from Inspur table-vendor cells; it does not assert product brand or physical manufacturer."
+        ],
+        [
+          "compatibility_context",
+          "Archived December 2023 InCloud Rail table row; not unqualified or current compatibility."
+        ],
+        [
+          "nic_section_general_warning_as_printed",
+          "特别说明：intel X722 10-Gigabit 不兼容、易飞扬的光模块不兼容。"
+        ],
+        [
+          "nic_section_general_warning_source_page",
+          "14 (PDF page number)"
+        ],
+        [
+          "same_spelling_other_vendor_context",
+          "Separate Intel 25G row on PDF page 15 prints E810_2Port_LC_PCIe; this record preserves only the Inspur table-vendor row, without transferring Intel affiliations or equating vendor rows."
+        ]
+      ]
+    }
+  ]
+}

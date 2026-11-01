@@ -1,0 +1,39 @@
+{
+  "query_started_utc": "2026-10-13T03:50:14.037003+00:00",
+  "hash_started_utc": "2026-10-13T03:50:14.040096+00:00",
+  "hash_finished_utc": "2026-10-13T03:50:14.333218+00:00",
+  "catalog_hash_observed": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "catalog_file_stat_stable_while_hashing": true,
+  "scope": "timestamped read-only observations; coordinating integration may change live state afterward",
+  "anchors": [
+    {
+      "device": {
+        "id": "d1daa8e8c3ad705b1118",
+        "brand": "Celestica",
+        "model": "SD6200",
+        "revision": "",
+        "title": "Celestica SD6200",
+        "kind": "storage enclosure"
+      },
+      "source_ids": [
+        "celestica-2025-catalog",
+        "celestica-storage",
+        "celestica-storage-manufacturer-sd6200",
+        "ul-celestica-platforms"
+      ]
+    },
+    {
+      "device": {
+        "id": "9287d01bdc56adda4517",
+        "brand": "Edge-Core",
+        "model": "Wedge 100-32X",
+        "revision": "",
+        "title": "Edgecore Wedge 100-32X manufactured by Accton",
+        "kind": "network switch"
+      },
+      "source_ids": [
+        "meta-wedge100-2016"
+      ]
+    }
+  ]
+}

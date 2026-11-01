@@ -1,0 +1,168 @@
+{
+  "pdf_sha256": "6d75183e4ade0ccd7d08ec09e7ea9d4029de3baaf473115f701ffe7e46c48b03",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 4,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "                                                      DATASHEET                                                                      www.edge-core.com\n\n\n\n                             SAF4100I\n                             Network Appliance Platform\n\n\n\n\n                             Product Overview\n                             The Edgecore Network Appliance Platform utilizes standard Intel® x86 architecture that provides openness and ﬂexibility to fulﬁll\n                             various use cases in different vertical markets. With the advent of SDN and NFV, the platform supports open-source-based\n                             software or 3rd party VNFs that enable Service Providers to deliver and deploy innovative services and applications with agility\n                             and scalability.\n\n                             In the emerging 5G networks and edge computing, the platform is an excellent choice for Service Providers to deliver Residential\n                             and Enterprise vCPE/uCPE solutions from the cloud or edge cloud. The platform supports a range of ﬁxed Gigabit Ethernet ports\n                             for connectivity along with internal M.2 SSD and HDD storage options, which are all contained within a compact form-factor.\n\n\n                             Product Applications\n                              • Uniﬁed Threat Management\n\n\n\n\nNetwork Appliance Platform\n                              • WAN Optimization\n                              • Virtual CPE\n                              • Next-Generation Firewall\n                              • Virtual Private Network\n\n                             Key Features\n                              • CPU\n                                –Intel D-1500 Series SoC (Broadwell-DE)\n                              • Memory\n                                –2x DDR4 SODIMM slots (max 32GB). Default 4GB.\n                              • Ethernet Interfaces:\n                                –1 x RJ-45 and 1 x SFP GbE Port for WAN, through 2 x Intel I210 controllers\n                                –1 x SFP+ 10GbE port, through CPU built-in Ethernet controller\n                                –8 x RJ-45 GbE port for LAN, through Marvell 88E6190X Ethernet Switch Hub\n                              • Local Storage:\n                                –1 M.2 SATA SSD, default 32 GB\n                              • Advanced Technology\n                                –Virtualization - VT-d, VT-x, SR-IOV\n                                –Security – H/W TPM 1.2, AES-NI\n                                –DPDK\n                              • FIPS 140-2 Level 2 compliant (Hardware level)\n                              • Desktop Form Factor\n\n\n\n\n                                                                                                                       For a world always connected…\n"
+    },
+    {
+      "page": 2,
+      "text": "SAF4100I Product Specifications\n                                                                                                                                       www.edge-core.com\n\n\nFeatures\n\n                   Product Model                                                                        SAF4100I\n\n\n\n                   Product Image\n\n\n\nMechanical Platform                                       Compact desktop (support FIPS 140-2 Level 2 in chassis)\n\n                              Processor Type              SoC, Intel® Broadwell-DE D1508 (FCBGA, 14nm)\n\nProcessor System              Max Speed                   2.2 GHz (Turbo 2.5 GHz)\n\n                              Cores/Virtual CPUs          Support 2 cores, 4 threads\n\n                              Socket                      2 x DDR4 SO-DIMM slots\nSystem Memory\n                              Type/Capacity               DDR4 SO-DIMM 1866 MHz ECC 4 GB (32 GB Max.)\n\n                              Flash Type                  SPI Flash\nBoot Flash\n                              Firmware Base               AMI AptioV UEFI BIOS\n\n                              WAN                         1 x RJ-45 and 1 x SFP GbE Port for WAN, through 2 x Intel I210 controllers\n\nEthernet Ports                LAN                         1 x SFP+ 10GbE port, through CPU built-in Ethernet controller\n\n                              LAN                         8 x RJ-45 GbE port for LAN, through Marvell 88E6190X Ethernet Switch Hub\n\nAdvanced Technologies                                     Intel vPro, VT-x, VT-d, EPT, AES-NI, TSX-NI, TPM V1.2 through ST ST33TPM12LPC\n\nLocal Storage                 M.2                         1 x M.2 SATAIII SSD, support 2242 type, default 32 GB\n\n                                                          1 x USB 3.0 Type-A\n\n                                                          1 x RJ-45 serial console port\nI/O Interface\n                                                          1 x hardware reset button\n\n                                                          Ethernet (refer to above Ethernet Ports)\n\n                              Type/Watts                  Single power supply unit 150 W\nPower\n                              Input                       AC 110 to 240 @ 50/60 Hz\n\nSystem Cooling                                            2 x PWM fans, supports smart fan\n\n                              OS Support                  Ubuntu Linux Server 16.04 LTS\nSoftware\n                              Applications                Support DPDK\n\n                              Dimensions                  330 (W) x 203.8 (D) x 43.6 (H) mm\nPhysical\n                              Weight                      2.2 kg\n\n                              Operating                   Temperature: 0 to 40ºC, Humidity: 20%~90% RH\nEnvironment\n                              Storage                     Temperature: -20 to 70ºC, Humidity: 5%~90% RH\n\n                              EMC/Safety                  CE/FCC compliance\nCompliances\n                              RoHS                        RoHS 2.0\n\n\n\n\n    TEL: +886-3-5638888 FAX: +886-3-6686111                                            TEL: +1 (949)-336-6801\n    No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077                         20 Mason Irvine, CA 92618\n    sales@edge-core.com         www.edge-core.com\n"
+    },
+    {
+      "page": 3,
+      "text": "SAF4100I Product Specifications\n                                                                                                  www.edge-core.com\n\n\nFeatures\n\nSAF4100I Dimensions (W x H x D): 330 x 203.8 x 43.6 mm\n\n\n                                                                330\n\n\n\n\n      43.6\n\n\n\n\n                                                                                                            203.8\n\n\n\n\n   TEL: +886-3-5638888 FAX: +886-3-6686111                            TEL: +1 (949)-336-6801\n   No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077         20 Mason Irvine, CA 92618\n   sales@edge-core.com         www.edge-core.com\n"
+    },
+    {
+      "page": 4,
+      "text": "SAF4100I Product Specifications\n                                                                                                                                               www.edge-core.com\n\n\nFeatures\n\nWarranty\n Please check www.edge-core.com for the warranty terms in your country.\n\nFor More Information\n To ﬁnd out more about Edgecore Networks Corporation products and solutions, visit www.edge-core.com.\n\nAbout Edgecore Networks Corporation\n Edgecore Networks Corporation is in the business of providing innovative network solutions. In the service provider network, in the data\n center or in the cloud, Edgecore Networks Corporation delivers the software and systems that transform the way the world connects.\n Edgecore Networks Corporation serves customers and partners worldwide. Additional information can be found at www.edge-core.com.\n\n Edgecore Networks Corporation is a subsidiary of Accton Technology Corporation, the leading network ODM company. The Edgecore data\n center switches are developed and manufactured by Accton.\n\n To purchase Edgecore Networks solutions, please contact your Edgecore Networks Corporation representatives at +886 3 563 8888 (HQ)\n or+1 (949)-336-6801 or authorized resellers.\n\n© Copyright 2020 Edgecore Networks Corporation. The information contained herein is subject to change without notice. This document is for informational purposes only and does\nnot set forth any warranty, expressed or implied, concerning any equipment, equipment feature, or service offered by Edgecore Networks Corporation. Edgecore Networks Corporation\nshall not be liable for technical or editorial errors or omissions contained herein.\n\n\n\n\n    TEL: +886-3-5638888 FAX: +886-3-6686111                                               TEL: +1 (949)-336-6801\n    No.1, Creation Rd. III, Hsinchu Science Park, Taiwan 30077                            20 Mason Irvine, CA 92618\n    sales_ec@edge-core.com         www.edge-core.com                                                                                                          EC-DS-0320-03\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "saf4100i-ds-r03.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.921488+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           067-SAF4100I DS R03 20200325\nCreator:         Adobe Illustrator CS6 (Windows)\nProducer:        Adobe PDF library 10.01\nCreationDate:    Tue Mar 24 21:29:10 2020 PDT\nModDate:         Tue Mar 24 22:29:10 2020 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           4\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       1155800 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/saf4100i-ds-r03.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "354023a6a3ea0bdbde90f3a74001fce85ce071bff483169499847b9297f2d648"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/saf4100i-ds-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "1535d52bb727bafb52e271cbdfe9f0b162dbce57b1025e067aa82df66828b32f"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/saf4100i-ds-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "ecb3fab40ef841fe1945731db0b7b404e33a79b223cb230b7112170ea6c71fb1"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/saf4100i-ds-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "d729788a87ef572b6e672c4b43f0839b911092f63ce88e78159772c0321c5b36"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/saf4100i-ds-r03.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "5b8d228e2fb53e015b8e084259d5162403a5050de5a16c5ed49baa9cd4959434"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

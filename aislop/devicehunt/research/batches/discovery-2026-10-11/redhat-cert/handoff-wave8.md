@@ -1,0 +1,13 @@
+# redhat_certified handoff — wave 8 (2026-10-11, Claude Sonnet 5.5)
+
+## Outcome
+Detail pages for the 21 listing-only `Inspur Power Commercial Systems Co., Ltd.` products. **21 new requests** (cap 25; running total 195 + 161 + 21 = 377), all HTTP 200, no 403/429/5xx, no retries; robots reused (`Allow: /`), one UA, 2.2 s sleep before each request. No promoted or earlier file was modified.
+- Captures: `data/raw/discovery-2026-10-11-redhat-cert/detail-wave8/<id>.html` (21); manifest `capture-manifest-wave8.json` sha256 `41d63fee3ff24be87711f9cabe45803f0666ba84616faa7c5a899fe316676654`.
+- Supplement: `redhat-cert-detail-supplement-wave8-2026-10-11.json` sha256 `32d077a6dc134d444dff826407c7c54dc4522c5f7f97b8f6a56b888857793ceb`: 21 sources `redhat-cert-detail-<id>` (tier `certification_body`, snapshot `detail-wave8/<id>.html`) and 21 devices. All 21 pages carried usable data (0 skipped). Built exactly like wave 5: each device reuses the promoted candidate's exact brand (`Inspur Power Commercial Systems Co., Ltd.`, target none, no mapping), model (listing model field as printed, e.g. `K1 Power K8880G2`), title, kind, `listing_holder` affiliation and `redhat_certified_product` identifier (full printed name); page `name`/`companyName` asserted equal to the promoted facts. Facts are detail-only (`catalog_id, supplements_source, product_name_as_printed, detail_form_factors, detail_company_name, detail_platforms, certifications, certification_count, cpu_certifications, detail_file`); coverage says it supplements `redhat-cert-<id>`. Example: `K1 Power K8880G2` RHEL 8.1 cert 381795, ppc64le, published 2021-09-28T12:44:20Z.
+
+## Temp import
+Scratchpad COPY of the CURRENT `data/devices.sqlite` (sha256 `baa016d2...`, unchanged afterwards). Returned 21. Before -> after: **devices 5042 -> 5042 (0 new)**, sources 1672 -> 1693, records 6821 -> 6842, identifiers 6429 -> 6450, facts 65930 -> 66119 (+189), affiliations 10178 -> 10199 (each +21). integrity_check ok, foreign_key_check empty, all old rows in the six tables unchanged. vendor-inventory (`--limit 0`) before -> after: Inspur all 221 -> 221, manufacturer 3 -> 3; Quanta all 175 -> 175, manufacturer 41 -> 41 (Inspur Power is not a target, so no inventory moves).
+
+## Checks / gaps
+- Owned-model check (CS8200, CS8210, AZ4444, 7760, DMC-12, AS7772, SV1120/1121/2121/2221, ByteDance, B4020, B4010, case-insensitive) over the 21 pages and the supplement: 0 hits.
+- After this wave every System listing in the candidate has a detail capture except the 3 empty-data Quanta pages (6378, 6548, 6592, wave 5 note) and `5864` (render error). Scripts: scratchpad `redhat-cert/{fetch8,build8,imp8}.py`.

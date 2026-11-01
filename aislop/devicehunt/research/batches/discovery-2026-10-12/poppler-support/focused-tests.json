@@ -1,0 +1,24 @@
+{
+  "completed_at": "2026-10-13T03:18:18.177079+00:00",
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.test_pdf_extraction",
+    "tests.test_documents",
+    "tests.test_reference_documents",
+    "tests.test_lineage",
+    "tests.test_archive_release",
+    "tests.test_ntra",
+    "tests.test_cb_certificates",
+    "tests.test_snowcone",
+    "tests.test_monitron",
+    "tests.test_panorama",
+    "tests.test_celestica_catalog",
+    "tests.test_oracle_ecodesign"
+  ],
+  "exit_code": 0,
+  "stdout": "focused-tests.stdout",
+  "stderr": "focused-tests.stderr",
+  "network": "none; extractor subprocess mocked in tests"
+}

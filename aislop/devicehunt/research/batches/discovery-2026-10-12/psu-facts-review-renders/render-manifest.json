@@ -1,0 +1,134 @@
+[
+  {
+    "source": "research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+    "source_sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+    "page": 1,
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+      "-f",
+      "1",
+      "-l",
+      "1",
+      "-singlefile",
+      "-scale-to",
+      "1800",
+      "-png",
+      "research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+      "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1500-nemko-p1"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "image": "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1500-nemko-p1.png",
+    "image_sha256": "f3800b25074bd8d413e0305d549253f6fef298cfa368028099a5ca91d09154ac"
+  },
+  {
+    "source": "research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+    "source_sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+    "page": 1,
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+      "-f",
+      "1",
+      "-l",
+      "1",
+      "-singlefile",
+      "-scale-to",
+      "1800",
+      "-png",
+      "research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+      "research/batches/discovery-2026-10-12/psu-facts-review-renders/fsp550-29fm-p1"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "image": "research/batches/discovery-2026-10-12/psu-facts-review-renders/fsp550-29fm-p1.png",
+    "image_sha256": "fb428da247337a66d887d4c5c96587f021032bc40403ed6f7a2f7681f3935962"
+  },
+  {
+    "source": "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+    "source_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+    "page": 1,
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+      "-f",
+      "1",
+      "-l",
+      "1",
+      "-singlefile",
+      "-scale-to",
+      "1800",
+      "-png",
+      "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+      "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1100-series-p1"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "image": "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1100-series-p1.png",
+    "image_sha256": "bd9b60b601b05d128011a1c3c21a5ad4ca21da9bf621e1da2979f48375f73d71"
+  },
+  {
+    "source": "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+    "source_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+    "page": 2,
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+      "-f",
+      "2",
+      "-l",
+      "2",
+      "-singlefile",
+      "-scale-to",
+      "1800",
+      "-png",
+      "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+      "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1100-series-p2"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "image": "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1100-series-p2.png",
+    "image_sha256": "3383ce1f805b18a8dd075e625a75330ef77db9ddfd48ddeaf5b0ef4ef0ecaac0"
+  },
+  {
+    "source": "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+    "source_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+    "page": 5,
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+      "-f",
+      "5",
+      "-l",
+      "5",
+      "-singlefile",
+      "-scale-to",
+      "1800",
+      "-png",
+      "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+      "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1100-series-p5"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "image": "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1100-series-p5.png",
+    "image_sha256": "e51be7f6f7f50f191bc9c6bf9a1654b8b6ba5030597f978a16460d2ae3f65fc5"
+  },
+  {
+    "source": "research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+    "source_sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+    "page": 2,
+    "argv": [
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+      "-f",
+      "2",
+      "-l",
+      "2",
+      "-singlefile",
+      "-scale-to",
+      "1800",
+      "-png",
+      "research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+      "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1500-series-p2"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "image": "research/batches/discovery-2026-10-12/psu-facts-review-renders/bel-pfe1500-series-p2.png",
+    "image_sha256": "f1eee8bf2072c5b98ab91e7bd026c82f09be96140d43bd956568b3a70351b921"
+  }
+]

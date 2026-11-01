@@ -1,0 +1,16 @@
+{
+  "old": {
+    "devices.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+    "import-manifest.json": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec"
+  },
+  "new": {
+    "devices.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "import-manifest.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562"
+  },
+  "backups": {
+    "data/devices-before-wave4-2026-10-12.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+    "data/import-manifest-before-wave4-2026-10-12.json": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec"
+  },
+  "review_sha256": "fe5982907b13c76f9279af616fecd742860dc2b71d65964e98280ffaa16d72df",
+  "suite_sha256": "984ce136f22355fec7d92e4fb22cd4166151f8a6204c1090085ad35b7727702c"
+}

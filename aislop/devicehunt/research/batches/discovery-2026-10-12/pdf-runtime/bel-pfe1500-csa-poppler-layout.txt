@@ -1,0 +1,281 @@
+             Certificate of Compliance
+      Certificate:        80005631                                           Master Contract:      170351
+
+      Project:            80111077                                            Date Issued:         2022-01-10
+
+      Issued To:          Bel Fuse Inc.
+                          206 Van Vorst St
+                          Jersey City, New Jersey, 07302
+                          United States
+
+                          Attention: Editha S. Vergara
+
+        The products listed below are eligible to bear the CSA Mark shown with
+         adjacent indicators 'C' and 'US' for Canada and US or with adjacent
+        indicator 'US' for US only or without either indicator for Canada only.
+
+
+                                                                              Issued by: Gwangyeol Park
+                                                                                             Gwangyeol Park
+
+
+
+
+    PRODUCTS
+    CLASS - C531167 - POWER SUPPLIES Component Type(CSA 62368-1)
+    CLASS - C531197 - POWER SUPPLIES - Component Type (UL 62368-1) - Component Type (UL 62368-1)
+    - Certified to US Stds
+
+    Component type power supplies intended for use with Information Technology and Business Equipment, where
+    the suitability of the combination is to be determined by CSA Group.
+
+    Power Supply, Models PFE1500-12-054NAH; PFE1500-12-054NAC; PFE1500-12-054NA; PPC33 A022;
+    PFE1500-12-054RAH; PFE1500-12-054RAC; PFE1500-12-054RA; SPABRCD-14G; SPABRCD-15G,
+    SPABRCD-16, SPABRCD-17, PFE1500-12NAS412, PFE1500-12NACS412, PFE1500-12NAHS412,
+    PFE1500-12-054NACS439; model number may be followed by XXX or SXXX, X may be blank,0-9, or
+    a-Z indicating non-safety option
+
+
+
+DQD 507 Rev. 2019-04-30                         © 2018 CSA Group. All rights reserved.                          Page 1
+      Certificate: 80005631                                                                         Master Contract: 170351
+      Project: 80111077                                                                              Date Issued: 2022-01-10
+
+
+
+    Electrical Rating:
+
+      Model                          Input                                            Output (DC)
+                                     V                      A                         V                 A
+      SPABRCD-16, SPABRCD-17         200-380 VDC            10-5                      12.0              125 max.
+                                                                                      3.3 or 5          5 or 3.3
+      PFE1500-12-054NAC;             100-240 VAC            12-7                      12                125 max.
+      PFE1500-12-054RAC;
+                                                                                      3.3 or 5          5 or 3.3
+      PFE1500-12-054NA;
+      PFE1500-12-054RA;
+      PFE1500-12-054NAH;
+      PFE1500-12-054RAH;
+      SPABRCD-14G;
+      SPABRCD-15G
+      PFE1500-12NAS412,              100-240 VAC            12-7                      12                125 max.
+      PFE1500-12NACS412
+                                     200-350 VDC            10-5                      12                3
+      PFE1500-12NAHS412              100-240 VAC            12-7                      12                125 max.
+                                     200-380 VDC            10-5                      12                3
+
+      PFE1500-12-054NACS439          100-240 VAC            12-7                      12.0              125 max.
+                                     200-350 VDC            10-5                      3.3 or 5          5 or 3.3
+
+      PPC33 A022                     100-240 VAC            12-5                      12.0              70
+                                     200-380 VDC            7-4                       3.3 or 5          5 or 3.3
+
+    The maximum current of main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and
+    when input voltage decreases from 200 to 100V, see tables as below:
+
+    For PFE1500-12-054NAH, PFE1500-12NAHS412 and PFE1500-12-054RAH:
+     Vin\ambient                     45°C                60°C
+     100-200Vac                      90-125A             69-104A
+     200-240Vac,200-380Vdc           125A                104A
+
+    For PFE1500-12-054NAC, PFE1500-12-054RAC, PFE1500-12-054NA, PFE1500-12-054RA, For
+    PFE1500-12-054NAC, PFE1500-12-054RAC, PFE1500-12-054NA, PFE1500-12-054RA, PFE1500-
+    12NAS412, PFE1500-12NACS412, SPABRCD-14G, SPABRCD-15G:
+     Vin\ambient                     45°C                 60°C
+     100-200Vac                      83.4-125A            69-104A
+     200-240Vac,200-350Vdc           125A                 104A
+
+
+
+DQD 507 Rev. 2019-04-30                      © 2018 CSA Group. All rights reserved.                                     Page 2
+      Certificate: 80005631                                                                 Master Contract: 170351
+      Project: 80111077                                                                      Date Issued: 2022-01-10
+
+
+
+    For SPABRCD-16, SPABRCD-17:
+     Vin\ambient                             45°C                             60°C
+     200-380Vdc                              125A                             104A
+
+    For PPC33 A022:
+     Vin\ambient                             45°C                              60°C
+     100-240Vac,200-380Vdc                   70A                               69A
+
+
+    APPLICABLE REQUIREMENTS
+
+    CAN/CSA-C22.2 No. 62368-1:19             -      Audio/video, information and communication
+                                                    technology equipment – Part 1: Safety requirements
+    ANSI/UL 62368-1, 3rd Ed.                 -      Audio/video, information and communication
+                                                    technology equipment – Part 1: Safety requirements
+
+
+    CONDITIONS OF ACCEPTABILITY
+
+    1.        Equipment shall be installed only trained service personal, according to manufacturer installation
+              instructions.
+    2.        The detachable power supply cord connector for detachable power supply core is considered the main
+              disconnect device.
+    3.        Suitability of the equipment enclosure as a Fire, Mechanical and Electrical Enclosure is to be determined
+              in the end use installation. Front and sides panels have been evaluated and meet fire, electrical and
+              mechanical enclosure.
+    4.        The Power supply unit (PSU) has been evaluated for use in Class I equipment, Reliable connection to
+              Protective Earth shall be provided in the end use installation.
+    5.        The Clearance values of PSU have been evaluated for an altitude of 3048 m, under IEC60664-1:1992
+              Table A.2 (altitude correction factor is 1.15)
+    6.        The Creepage values of PSU have been evaluated for material group IIIb.
+    7.        The PSU was tested on a listed 20A branch circuit. If use on branch circuit greater than this, additional
+              testing may be necessary
+    8.        Safety isolating transformers T603, T604 employ an insulation system designated Class F, T400/T607 is
+              employs Class B, evaluated to UL 1446. Safety isolating transformer T601, T605 are Class A.
+    9.        The output connector is not suitable for field connection; only intended for connection to a mating
+              connector inside the end system. The connector was evaluated and may be used for hot swap operation.
+              Current Interruptions Test (200 cycles) was performed.
+    10.       The maximum output rating of unit varies with input voltage and ambient as below
+              For PFE1500-12-054NAH, PFE1500-12NAHS412 operating at Canada and United States of America,
+              and PFE1500-12-054RAH operating at worldwide. the main output V1: 12.0V derate linearly when
+              ambient increase from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as table below:
+
+
+
+
+DQD 507 Rev. 2019-04-30                          © 2018 CSA Group. All rights reserved.                            Page 3
+      Certificate: 80005631                                                                           Master Contract: 170351
+      Project: 80111077                                                                                Date Issued: 2022-01-10
+
+
+
+               Vin\ambient                          45°C                               60°C
+               100-200Vac                           90-125A                            69-104A
+               200-240Vac, 200-380Vdc               125A                               104A
+
+
+              For PFE1500-12-054NAH, PFE1500-12NAHS412 operating at countries other than Canada and United
+              States of America, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C
+              and input voltage decrease from 200Vac to 100Vac as table below:
+               Vin\ambient                          45°C                     60°C
+               100-200Vac                           70-91A                             14-19A
+               200-240Vac, 200-380Vdc               91A                                19A
+
+
+              For PFE1500-12-054NAC, PFE1500-12-054RAC, PFE1500-12-054NA, PFE1500-12-054RA, PFE1500-
+              12NAS412, PFE1500-12NACS412, SPABRCD-14G, SPABRCD-15G operating at Canada and United
+              States of America, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C
+              and input voltage decrease from 200Vac to 100Vac as table below:
+               Vin\ambient                          45°C                     60°C
+               100-200Vac                           83.4-125A                          69-104A
+               200-240Vac, 200-350Vdc               125A                               104A
+
+
+              For PFE1500-12-054NAC, PFE1500-12NACS412, PFE1500-12-054RAC operating at countries other
+              than Canada and United States of America, the main output V1: 12.0V derate linearly when ambient
+              increase from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                             60°C
+                          100-200Vac                           66.5-125A                        66.5-104A
+                          200-240Vac, 200-350Vdc               125A                             104A
+
+
+              For PFE1500-12-054NA, PFE1500-12NAS412, SPABRCD-14G operating at countries other than
+              Canada and United States of America, the main output V1: 12.0V derate linearly when ambient increase
+              from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                             60°C
+                          100-200Vac                           42-75A                           13-19A
+                          200-240Vac, 200-350Vdc               75A                              19A
+
+
+
+
+DQD 507 Rev. 2019-04-30                       © 2018 CSA Group. All rights reserved.                                      Page 4
+      Certificate: 80005631                                                                  Master Contract: 170351
+      Project: 80111077                                                                       Date Issued: 2022-01-10
+
+
+
+              For SPABRCD-16 operating at Canada and United States of America, and SPABRCD-17 operating at
+              worldwide, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and as
+              table below:
+                          Vin\ambient                          45°C                    60°C
+                          200-380Vdc                           125A                    104A
+
+
+              For SPABRCD-16 operating at countries other than Canada and United States of America, the main
+              output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C as table below:
+                          Vin\ambient                          45°C                    60°C
+                          200-380Vdc                           91A                     19A
+
+
+              For PFE1500-12-054RA, SPABRCD-15G operating at countries other than Canada and United States of
+              America, the main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and input
+              voltage decrease from 200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                    60°C
+                          100-200Vac                           66.5-125A               36-77A
+                          200-240Vac                           125A                    77A
+
+
+              For PPC33 A022 operating at Canada and United States of America, the main output V1: 12.0V derate
+              linearly when ambient increase from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as
+              table below:
+                          Vin\ambient                          45°C                    60°C
+                          100-240Vac,200-380Vdc                70A                     69A
+
+
+              For PPC33 A022 operating at countries other than Canada and United States of America, the main output
+              V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and input voltage decrease from
+              200Vac to 100Vac as table below:
+                          Vin\ambient                          45°C                    60°C
+                          100-200Vac                           70A                     14-19A
+                          200-240Vac,200V-                     70A                     19A
+                          380Vdc
+
+
+
+
+DQD 507 Rev. 2019-04-30                       © 2018 CSA Group. All rights reserved.                             Page 5
+      Certificate: 80005631                                                           Master Contract: 170351
+      Project: 80111077                                                                Date Issued: 2022-01-10
+
+
+
+    Notes:
+
+      Products certified under Class C531167 have been certified under CSA’s ISO/IEC 17065
+      accreditation with the Standards Council of Canada (SCC). www.scc.ca
+
+
+
+
+DQD 507 Rev. 2019-04-30                     © 2018 CSA Group. All rights reserved.                        Page 6
+                                   Supplement to Certificate of Compliance
+
+      Certificate: 80005631                                                               Master Contract: 170351
+
+
+                             The products listed, including the latest revision described below,
+                          are eligible to be marked in accordance with the referenced Certificate.
+
+
+                                          Product Certification History
+
+      Project               Date            Description
+
+
+      80111077              2022-01-10      Update CSA 80005631 (PFE1500) to add transformers due to alternate
+                                            insulation systems, add alternate component sources, and upgrade to 62368-
+                                            1 3rd Ed.
+                                            - based on acceptance of data from CPC program
+                                            - remove Chily type 3527 as alternate source for AC inlet.
+
+      80005631              2019-06-07      Component Power Supplies, models PFE1500-12-054NAH; PFE1500-12-
+                                            054NAC; PFE1500-12-054NA; PPC33 A022; PFE1500-12-054RAH;
+                                            PFE1500-12-054RAC; PFE1500-12-054RA; SPABRCD-14G; SPABRCD-
+                                            15G, SPABRCD-16, SPABRCD-17, PFE1500-12NAS412, PFE1500-
+                                            12NACS412, PFE1500-12NAHS412, PFE1500-12-054NACS439
+                                            (Obsoletes report 70081883, update to Standard 62368-1 and include
+                                            alternate construction) (CAN/CSA-C22.2 No. 62368-1:14; UL 62368-1 2nd
+                                            Ed.)
+
+
+
+
+DQD 507 Rev. 2019-04-30                        © 2018 CSA Group. All rights reserved.                           Page 1
+

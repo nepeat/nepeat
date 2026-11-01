@@ -1,0 +1,24 @@
+{
+  "candidate": "data/devices-candidate-discovery-2026-10-11-e.sqlite",
+  "candidate_manifest": "data/import-manifest-candidate-discovery-2026-10-11-e.json",
+  "counts": {
+    "devices": 5084,
+    "records": 7076,
+    "sources": 1927
+  },
+  "foreign_key_violations": 0,
+  "growth": {
+    "affiliations": 150,
+    "devices": 17,
+    "facts": 2548,
+    "identifiers": 150,
+    "records": 150,
+    "sources": 150
+  },
+  "imported": {
+    "raw/discovery-2026-10-11-spec/spec-results-wave9-2026-10-11.json": 150
+  },
+  "integrity": "ok",
+  "live_sha256": "09891954c24498ba1faba91297d7ca43eb301fc187101f0785f35acfdacc79a4",
+  "tables_with_lost_live_rows": {}
+}

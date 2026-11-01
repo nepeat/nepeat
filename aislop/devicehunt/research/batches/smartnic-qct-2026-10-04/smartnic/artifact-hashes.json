@@ -1,0 +1,14 @@
+{
+  "data/raw/smartnic-qct-2026-10-04/smartnic/candidate-curated.json": "7b78f01ab9745ccc5106a9eced89b12bb5c80657924108f0612def6230d0e61b",
+  "data/raw/smartnic-qct-2026-10-04/smartnic/capture-headers.txt": "681e3a8aa88cf218ac3e53bde270d08956ec8e9c057f56f089d8f664761d92c3",
+  "data/raw/smartnic-qct-2026-10-04/smartnic/capture-ledger.json": "e033a70cbd6f28607e69bcb1a719e1574a8bb2911bdb82769682ff9ff72e789f",
+  "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-smartnic-c5020x-cn-2021.pages.json": "c590aa1f78ff4b03590d455156d833b512adc66a3e3d2beac5299a99701ac420",
+  "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-smartnic-c5020x-cn-2021.pdf": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+  "data/raw/smartnic-qct-2026-10-04/smartnic/reference-pdf-proposal.json": "b20f68f00d30c73c6eb19251c0f333ce5ee5f9b93b5dfbf46e84bc8b434901d0",
+  "research/batches/smartnic-qct-2026-10-04/smartnic/build-candidate.py": "0269bea016682880da29207785211a3902005dfb5ce7536e98cbcf531412c9e6",
+  "research/batches/smartnic-qct-2026-10-04/smartnic/english-lead.json": "c427f56c5d88ca27181e9638cf7231b0fd509d6eb53c9dc87cafbb55bea05f98",
+  "research/batches/smartnic-qct-2026-10-04/smartnic/handoff.md": "67965c2298d4f47e3b6b502ae072be2a1aea5263301217fd975c9d89fff08746",
+  "research/batches/smartnic-qct-2026-10-04/smartnic/page-1.png": "eab79911db1898e9cf5c62f26a89874f177f5afd56b730f705c66dd3a9dffce4",
+  "research/batches/smartnic-qct-2026-10-04/smartnic/page-2.png": "6e1c83aa8f1ea9be6a2d9768d292c95dd724503e3814d8278451e7d0a758cd09",
+  "research/batches/smartnic-qct-2026-10-04/smartnic/validation.json": "f0c84a76c80edcaecbd06d1ca467893659934518177e98974f2113904e2eda4a"
+}

@@ -1,0 +1,93 @@
+{
+  "PASS": true,
+  "status": "staged candidate; independent review required, no import",
+  "sources": 3,
+  "records": 40,
+  "distinct_namespace_model_pairs": 40,
+  "facts": 227,
+  "base_records": 5,
+  "ordering_records": 35,
+  "identifiers": 35,
+  "base_facts": 61,
+  "ordering_facts": 166,
+  "all36observations_mapped": true,
+  "all227evidence_records_verified": true,
+  "only_own_row_cells_or_explicit_heading_on_order_records": true,
+  "excluded_service_and_fan_rows": [
+    "57xx-54X-SVC-RTF",
+    "FAN-1U-1x1D-B",
+    "FAN-1U-1x1D-F"
+  ],
+  "per_source": {
+    "oracle-sun-zfs-storage-7420-specifications-2026-10-12": {
+      "records": 1,
+      "facts": 10
+    },
+    "edgecore-as6700-as6701-qsg-2026-10-12": {
+      "records": 2,
+      "facts": 36
+    },
+    "edgecore-as5710-as5712-ds-r09-2026-10-12": {
+      "records": 37,
+      "facts": 181
+    }
+  },
+  "routing_counts": [
+    {
+      "catalog_path": "data/devices.sqlite",
+      "observed_utc": "2026-10-13T05:07:08.844118+00:00",
+      "catalog_sha256": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+      "existing": 5,
+      "new": 35
+    },
+    {
+      "catalog_path": "data/devices-candidate-wave4-2026-10-12.sqlite",
+      "observed_utc": "2026-10-13T05:07:10.106044+00:00",
+      "catalog_sha256": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+      "existing": 5,
+      "new": 35
+    }
+  ],
+  "all50original_artifacts_verified": true,
+  "all5immutable_copies_match": true,
+  "complete_PDF_pages": 6,
+  "frozen_inputs_unchanged": true,
+  "builder_check_no_writes": true,
+  "builder_check": {
+    "returncode": 0,
+    "stdout": "PASS 3 sources / 40 records / 227 facts; no import\n",
+    "stderr": ""
+  },
+  "candidate_sha256": "687da4d58027a507cce2f2f4d31225548d3a57fd73ec6a12be5605c4fe5de86b",
+  "builder_sha256": "ef5ba67ab4f94d8e65b22b6e7a8e90a2cf43dd147ca860306e57811bb6cbf198",
+  "checker_sha256": "32d094ebbe96f046c72c7afd490d4d06416afdb956dd88a8f072fd335007203b",
+  "provenance_sha256": "bfde0fd7068eaa1c67b6029ae2254f3ca50d137c8370311a46eaef68a9c70fee",
+  "mapping_sha256": "1a1bf5e9b26024c0e3ddab76683769df05b83700ee63e4ce082ae0855624a557",
+  "routing_sha256": "fe276e1f9ce6fd603b303daa2432326daea0772c484133acd20e6ddfb56eaf6d",
+  "fact_names": {
+    "physical_description": 21,
+    "power_description": 47,
+    "power_rating_scope_note_as_printed": 1,
+    "model_heading_as_printed": 4,
+    "software_installation_description": 11,
+    "cooling_description": 30,
+    "service_constraint_as_printed": 2,
+    "document_revision_as_printed": 4,
+    "model_configuration_as_printed": 2,
+    "company_context_as_printed": 2,
+    "ordering_row_as_printed": 35,
+    "base_model_heading_as_printed": 24,
+    "cpu_module_as_printed": 24,
+    "power_cord_region_as_printed": 16,
+    "power_cord_scope_as_printed": 4
+  },
+  "network_requests": 0,
+  "imports": 0,
+  "temporary_or_prepared_databases": 0,
+  "shared_writes": 0,
+  "production_frozen_files": {
+    "devicehunt/catalog.py": "1e162a142420e16806850baec3b024199d62db8e61bd3cef6d0aee849871e6e6",
+    "devicehunt/importers.py": "56dd6d4c6d97d7b1764321c5ce075a5fe42a4f0c91ad6f024ed55a0d1f5c88ab",
+    "devicehunt/documents.py": "88f9af6b44e7d0f435365c5c4f9cf88500551ee97d266557dc77337d49f77b81"
+  }
+}

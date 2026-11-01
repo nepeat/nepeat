@@ -1,0 +1,13 @@
+..................<frozen os>:709: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7247d6c72d40>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................................./home/erin/nepeat/aislop/devicehunt/devicehunt/catalog.py:485: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7247d6c72d40>
+  parts.extend(row[0] for row in self.db.execute(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/erin/nepeat/aislop/devicehunt/devicehunt/catalog.py:485: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7247d6b80c70>
+  parts.extend(row[0] for row in self.db.execute(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............
+----------------------------------------------------------------------
+Ran 63 tests in 39.119s
+
+OK

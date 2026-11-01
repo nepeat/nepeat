@@ -1,0 +1,946 @@
+{
+  "schema_version": 1,
+  "complete": true,
+  "form_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+  "csv_url": "https://www.rra.go.kr/ko/license/csv_down.do",
+  "query": {
+    "category": "",
+    "fromdate": "19900101",
+    "todate": "20260926",
+    "firm": "",
+    "equip": "",
+    "model_no": "",
+    "app_no": "",
+    "maker": "Celestica",
+    "nation": ""
+  },
+  "form": {
+    "path": "search-form.html",
+    "sha256": "210348ab1eb4b284f92b590de30ca375e2c5fa0607aedab0d521c80e28babc1e"
+  },
+  "csv_before": {
+    "path": "before.csv",
+    "sha256": "cac1fbb3330ca86faf3468791caa10850be6be18e0534ab24d67a89d0cd6075e"
+  },
+  "csv_after": {
+    "path": "after.csv",
+    "sha256": "cac1fbb3330ca86faf3468791caa10850be6be18e0534ab24d67a89d0cd6075e"
+  },
+  "first_result_page": {
+    "path": "result-first.html",
+    "sha256": "3a91b18e7d6f94e196f92fd518e608cf907d6ca67ef2eaa83972c240227b53da"
+  },
+  "expected_rows": 151,
+  "details": [
+    {
+      "certificate": "R-R-3C3-DS4100",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-3C3-DS4100",
+      "path": "detail-001.html",
+      "sha256": "48e5f6de99df201f2e20a1eb125bed1c6196f9ac808faa0e73a65ca530c8ca2e"
+    },
+    {
+      "certificate": "R-R-Tke-MAXi",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-Tke-MAXi",
+      "path": "detail-002.html",
+      "sha256": "aa5b200fa072bdf2685fbab0fd7b575c2955bd90f518eda7138068c1248fc392"
+    },
+    {
+      "certificate": "R-R-Tke-WFM-E20",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-Tke-WFM-E20",
+      "path": "detail-003.html",
+      "sha256": "ce0af750867416aad9dae343e6411083c9e37e3b3d17bc5c49531d81f788729a"
+    },
+    {
+      "certificate": "R-R-ZZR-CS827432XDC42",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS827432XDC42",
+      "path": "detail-004.html",
+      "sha256": "2b060e398a6db490d98ae5cf2353b6f2f7b79cab1c38e2389d835610711f5f5b"
+    },
+    {
+      "certificate": "R-R-ZZR-TPDR-05-1-001",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-TPDR-05-1-001",
+      "path": "detail-005.html",
+      "sha256": "1ec49b6e4b9f29a267d6f58fad4c9b741fdcc83d7058c049976f305de5df343c"
+    },
+    {
+      "certificate": "R-R-ZZR-AZ332400XDC11",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-AZ332400XDC11",
+      "path": "detail-006.html",
+      "sha256": "a3dbd5c0fd5af83cd594cad0ad2444bd809bc8764651868660968299a233fa97"
+    },
+    {
+      "certificate": "R-R-ZZR-AZ907464XDC42",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-AZ907464XDC42",
+      "path": "detail-007.html",
+      "sha256": "fc2491136e51795c0af870004f61c2ae080465793cae86fe763aa22bbc23b1f9"
+    },
+    {
+      "certificate": "R-R-3C3-DS5000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-3C3-DS5000",
+      "path": "detail-008.html",
+      "sha256": "db79a4443ab8086ee54c50986ff03f410ac833dc2462b76caf5f46efb03629ef"
+    },
+    {
+      "certificate": "R-R-Kst-1A23875",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-Kst-1A23875",
+      "path": "detail-009.html",
+      "sha256": "c741fbac47eca7eb2c30d4dbe6ea66db100b6848d3073b46b98cedbe80474bc5"
+    },
+    {
+      "certificate": "R-R-ZZR-DX450",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-DX450",
+      "path": "detail-010.html",
+      "sha256": "970d8806023172bb9822628be0c6a6626877e49001453b0e5779debda9172b1e"
+    },
+    {
+      "certificate": "R-R-ZZR-DS4000-F02",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-DS4000-F02",
+      "path": "detail-011.html",
+      "sha256": "d36e20f3eb7cf993fda918e713ad5995874168def14603aa94816fa08b2cbeac"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8274-32XDC11",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8274-32XDC11",
+      "path": "detail-012.html",
+      "sha256": "d13bd0d86105d606cdecd8fc93e22e53dd15ff0053e209512ecf7b241a560eb8"
+    },
+    {
+      "certificate": "R-R-Kst-1A22866",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-Kst-1A22866",
+      "path": "detail-013.html",
+      "sha256": "01baf425f7873deed3c71bc8445e861f9363bd2a8f394daa21dc8c70144980c1"
+    },
+    {
+      "certificate": "R-R-ZZR-D6040",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-D6040",
+      "path": "detail-014.html",
+      "sha256": "38d9b786bd56194011f0b1e56761e6c4c19d1f931af93ea5a0f2a0d364472ca6"
+    },
+    {
+      "certificate": "R-R-ZZR-DS4000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-DS4000",
+      "path": "detail-015.html",
+      "sha256": "f9b8e7edfc0c159f557d5825d2998cd754bd207341b6151a1ca8fbbabee9951b"
+    },
+    {
+      "certificate": "R-R-Cth-Diorite",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-Cth-Diorite",
+      "path": "detail-016.html",
+      "sha256": "9ad33ec8d5f2e6cfdfbe7cb1140e9e6a6e23ad0e6fc32ae1910793c3159da0ff"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8260-32XDC11",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8260-32XDC11",
+      "path": "detail-017.html",
+      "sha256": "9311eb86f1fe61e33d35578774298839789bb668b6b68cee6ea2257b6be85206"
+    },
+    {
+      "certificate": "R-R-ZZR-BRIXIA",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-BRIXIA",
+      "path": "detail-018.html",
+      "sha256": "c7052e2b7ab2ae6daa0a3423b12321e9442c62b0e06338ac3b4e26ad4f49c101"
+    },
+    {
+      "certificate": "R-R-ZZR-E1070",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-E1070",
+      "path": "detail-019.html",
+      "sha256": "a0d5aae3f44acdb6567651b778a55e17ca94c525c9cf9f1520bfef5faddda0f1"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8210-32X-DC",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8210-32X-DC",
+      "path": "detail-020.html",
+      "sha256": "603d60fcd986317a3cf84ecc15703bb1e12e0d4362201a5248d7c1da3be0bd36"
+    },
+    {
+      "certificate": "R-R-Cth-Granite",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-Cth-Granite",
+      "path": "detail-021.html",
+      "sha256": "1da01a4e1ce116c795a023a4462566b8074daf20256237c74ba80053b785caa9"
+    },
+    {
+      "certificate": "R-R-ZZR-AS14-40D-F-CL",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-AS14-40D-F-CL",
+      "path": "detail-022.html",
+      "sha256": "c009ff450ec8714e8e8a1b4243665aa1ae2f6ad43446b2770e999d64d91857ec"
+    },
+    {
+      "certificate": "R-R-ZZR-AS24-128D-CL",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-AS24-128D-CL",
+      "path": "detail-023.html",
+      "sha256": "86915ad4b3a3b984b34c02925a98f32e3a4b057ea8498523b5c03885cc82d691"
+    },
+    {
+      "certificate": "R-R-ZZR-CS1200-MN3-440",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS1200-MN3-440",
+      "path": "detail-024.html",
+      "sha256": "e6c37c0395e6670d999981a08da4d357728e14f7189defb1e4de7c933961bfc8"
+    },
+    {
+      "certificate": "R-R-ZZR-CS1200-MN3-441",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS1200-MN3-441",
+      "path": "detail-025.html",
+      "sha256": "2b7c34e5adea62677532efd94614ff2382f3fa18befa47729c10315cffb4026d"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8320-16X-UN",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8320-16X-UN",
+      "path": "detail-026.html",
+      "sha256": "eeab6c6ec98cbbab5d4bc489e876bea6ffa3811709b28f72d483718531a06f34"
+    },
+    {
+      "certificate": "R-R-ZZR-C1010",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-C1010",
+      "path": "detail-027.html",
+      "sha256": "d88d81619b9069667feb05091fa9c5370c589a716af64ef6934124f7749f4e4f"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8000-32X-DC",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8000-32X-DC",
+      "path": "detail-028.html",
+      "sha256": "7b34fbcb2868c1ce5f90da9c439f7bcf3e40157ddae3e3493eb8649167b6670d"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8200-32X-DC",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8200-32X-DC",
+      "path": "detail-029.html",
+      "sha256": "12dceb48862221badd1378cfe583d4d7528bf61f6bb2004714618a319897a6fc"
+    },
+    {
+      "certificate": "R-R-Tke-MAXV2",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-Tke-MAXV2",
+      "path": "detail-030.html",
+      "sha256": "dbbf24b368259a16a3ca292c7d79a117101fcb6e9c76d5b33f1085c7eccc75d0"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8000-32X-UN",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8000-32X-UN",
+      "path": "detail-031.html",
+      "sha256": "f5b5676d2bffb7a422ca31a6e2a0d0359b2f5de9283872596461b3b9144d004f"
+    },
+    {
+      "certificate": "R-R-ZZR-CS8200-32X-UN",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8200-32X-UN",
+      "path": "detail-032.html",
+      "sha256": "58539cfb4f53f08d4b6cb98e60de94663b34468eb79d1fbd3ed3452571c3c10e"
+    },
+    {
+      "certificate": "R-R-ZZR-DX010",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-DX010",
+      "path": "detail-033.html",
+      "sha256": "73a851c2d7e2c3494f2ed2593c2ec3209faf0d6ec6ba39141f460e5d028c6a95"
+    },
+    {
+      "certificate": "R-R-ZZR-E1031",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-E1031",
+      "path": "detail-034.html",
+      "sha256": "ecacb1cd784f2711932b4516977161ba46b6022123d42829263bb51007bb39ca"
+    },
+    {
+      "certificate": "MSIP-REM-ZZR-X2024-M",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ZZR-X2024-M",
+      "path": "detail-035.html",
+      "sha256": "ac988ecc9cc2f18130f753d490dd6a51605a18749e407a02cdb3e642f7f80e6a"
+    },
+    {
+      "certificate": "MSIP-REM-Kst-BL17448",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-Kst-BL17448",
+      "path": "detail-036.html",
+      "sha256": "dda9eb621cf0c7029b929cb1ee984b44ee392b11d00dd5568aa3d6833b3e4ffb"
+    },
+    {
+      "certificate": "MSIP-REM-Kst-BL17450",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-Kst-BL17450",
+      "path": "detail-037.html",
+      "sha256": "33f4fee9d0b8406468458fec46e89418b7126d13ec580f15cab6bdae2db31464"
+    },
+    {
+      "certificate": "MSIP-REM-Kst-BL17437",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-Kst-BL17437",
+      "path": "detail-038.html",
+      "sha256": "b62bab3709219d897dd02f4dfa1e95524eb16134009b6e4b310e08c4994c4c36"
+    },
+    {
+      "certificate": "MSIP-REM-Kst-1A16181",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-Kst-1A16181",
+      "path": "detail-039.html",
+      "sha256": "68c2a1bee49e3a9fea296c77a4aedb68790f8f4306bd6cbc729f364ad2ab595b"
+    },
+    {
+      "certificate": "MSIP-REM-Kst-1A16182",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-Kst-1A16182",
+      "path": "detail-040.html",
+      "sha256": "c716e6a51029779ec1d964d6f014f1328637c824b79301e6e1796d565fe9b918"
+    },
+    {
+      "certificate": "MSIP-REM-ZZR-D4040",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ZZR-D4040",
+      "path": "detail-041.html",
+      "sha256": "edccd5dbdd86a244537afd70a12887ab51b2d81eefbc3d09d8009ea24de5b7a4"
+    },
+    {
+      "certificate": "MSIP-REM-ZZR-D2060",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ZZR-D2060",
+      "path": "detail-042.html",
+      "sha256": "1dbc6e631642afac1d28677d1d7eca7bd6bd9b35c64417f1c0e59cf7d1055d13"
+    },
+    {
+      "certificate": "MSIP-REM-ZZR-D2024",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ZZR-D2024",
+      "path": "detail-043.html",
+      "sha256": "7fd79d951e5c1c6d505e8d872a355f84ab7872fc4b160d91aea8f3b0d3c2ff8a"
+    },
+    {
+      "certificate": "MSIP-REM-ZZR-D2020",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ZZR-D2020",
+      "path": "detail-044.html",
+      "sha256": "ea89fb39183b5aefb9a3d4c79dd13d545dd43058f04785ee847bb079fb4bec0e"
+    },
+    {
+      "certificate": "MSIP-REM-Kst-1B16183",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-Kst-1B16183",
+      "path": "detail-045.html",
+      "sha256": "8490db0910b53ece197f0518899eb2f1b56577f1b755b194ba09498d2a8ae3b7"
+    },
+    {
+      "certificate": "MSIP-REM-ATi-1ADSOX6000A",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ATi-1ADSOX6000A",
+      "path": "detail-046.html",
+      "sha256": "d3803369c2970a5970aa11015fab139cf474e21e893ddec027b409ea78cfd9cd"
+    },
+    {
+      "certificate": "MSIP-REI-GYK-P-3297",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-GYK-P-3297",
+      "path": "detail-047.html",
+      "sha256": "dedf926c8c7ebb9038ca728d6e3af651bc87cf4d91de651a04b297dbcac05776"
+    },
+    {
+      "certificate": "MSIP-REI-GYK-P-3930",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-GYK-P-3930",
+      "path": "detail-048.html",
+      "sha256": "33a801ebec7c26db7fa0b9d5497e0c40b0d964ea55b52397c9cbe037137d31bc"
+    },
+    {
+      "certificate": "KCC-CMM-PLM-VVX600",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=KCC-CMM-PLM-VVX600",
+      "path": "detail-049.html",
+      "sha256": "67846915ffe638487bf18f27628a81cf35d53556a0dd2263f316c572d85b03df"
+    },
+    {
+      "certificate": "KCC-REM-ATi-1BU4154A",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=KCC-REM-ATi-1BU4154A",
+      "path": "detail-050.html",
+      "sha256": "92f4c3249a52ba27f848ffe92f57574a5ec8ec2893192a4078c2583e94956197"
+    },
+    {
+      "certificate": "KCC-REM-ATi-1ADSOX3000A",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=KCC-REM-ATi-1ADSOX3000A",
+      "path": "detail-051.html",
+      "sha256": "16f3c7ad0cffc1a0ebad8280e456195d315162d0cd77e600097b4b68e319fc31"
+    },
+    {
+      "certificate": "KCC-REM-ATi-1ADSOX4000A",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=KCC-REM-ATi-1ADSOX4000A",
+      "path": "detail-052.html",
+      "sha256": "a97be8544e401a7db9e1c5d642dfd05312bc895352d7737def29fc6015062ba2"
+    },
+    {
+      "certificate": "KCC-CMM-PLM-SSDUO",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=KCC-CMM-PLM-SSDUO",
+      "path": "detail-053.html",
+      "sha256": "6a4335268b352a4a35a3bc930c2441cae606e0a09cfb26f4cbbe202cb25ea277"
+    },
+    {
+      "certificate": "EM1-SLIC22",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=EM1-SLIC22",
+      "path": "detail-054.html",
+      "sha256": "f90eff8a1e84539885ddf1d21c1bc79f106a44146de841608e5dca22b121ca79"
+    },
+    {
+      "certificate": "EM1-SLIC20",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=EM1-SLIC20",
+      "path": "detail-055.html",
+      "sha256": "1ad27d36962af79c8dfe4de3f3adcf200cc494e7d1c3168e1ffb32f22f0c9a22"
+    },
+    {
+      "certificate": "PLM-HDX9006",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-HDX9006",
+      "path": "detail-056.html",
+      "sha256": "35117f62502f573707f52009c2c357f25a222e6e546bbe96cbacb64a9118ace7"
+    },
+    {
+      "certificate": "PLM-RSS4000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-RSS4000",
+      "path": "detail-057.html",
+      "sha256": "8ab66169c0e60821e1bc43eb85e94e58ceec9a32f8ac2023dcae26c5f47c9aa3"
+    },
+    {
+      "certificate": "PLM-IP335",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-IP335",
+      "path": "detail-058.html",
+      "sha256": "22a21554bed494ed3be3ced2ddb9b50a9d526dfee8ec5ad239c864218c7f7243"
+    },
+    {
+      "certificate": "GNM-BTE2",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=GNM-BTE2",
+      "path": "detail-059.html",
+      "sha256": "bd01aa541d7b444cb0af0e39debb184b4e008013a1d5a880bb4dd0b424668527"
+    },
+    {
+      "certificate": "HFI-DS4100",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=HFI-DS4100",
+      "path": "detail-060.html",
+      "sha256": "39eb44d257ac059600f46c4aeb8e7bfb513bee7eb89730842c4a35d3ffe58edf"
+    },
+    {
+      "certificate": "HFI-Cheetah",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=HFI-Cheetah",
+      "path": "detail-061.html",
+      "sha256": "eed1e160bfdba7f800cc2d15a120c0aed362cddaacb41ee3c23aab0cb9a8e15d"
+    },
+    {
+      "certificate": "PLM-IP331",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-IP331",
+      "path": "detail-062.html",
+      "sha256": "27a66cfa398c7d1817b4ae2df03151e2655c84a91147acf8e5f0af0a1422989c"
+    },
+    {
+      "certificate": "PLM-HDX6000HD",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-HDX6000HD",
+      "path": "detail-063.html",
+      "sha256": "2becace4b29e9bfaf986e15902795690d7a74c4517dcdd40de27cf017eb8b696"
+    },
+    {
+      "certificate": "JPR-M120",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=JPR-M120",
+      "path": "detail-064.html",
+      "sha256": "0b84402cf8d4e544c7c99ee78bfcee01bc5a793d600900e2a2cfc3aea1a2020d"
+    },
+    {
+      "certificate": "PLM-QDX6000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-QDX6000",
+      "path": "detail-065.html",
+      "sha256": "dcd0ef2f9e41811167030fe3ab07a29d1cfb6611ff2b31afdbd4f161dbd17ada"
+    },
+    {
+      "certificate": "PLM-C16",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-C16",
+      "path": "detail-066.html",
+      "sha256": "9f5cebf612ee1471941732a1cfde13a4eb9b38d47952b022fbab95761a1f8768"
+    },
+    {
+      "certificate": "PLM-VVX1500",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-VVX1500",
+      "path": "detail-067.html",
+      "sha256": "5d80d3d5b0ca5e392e0cf838eeeae0a662b523d24fb3a5ad679a4369225dbf21"
+    },
+    {
+      "certificate": "GNM-BT530",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=GNM-BT530",
+      "path": "detail-068.html",
+      "sha256": "275bed80faf1427ff5c041bb375dafa63e7e6fc9d275a6039c1e7fc38d8f5a80"
+    },
+    {
+      "certificate": "GNM-M5390BS",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=GNM-M5390BS",
+      "path": "detail-069.html",
+      "sha256": "0e5a7c26c8f3d2b9e05b687bc9e06caae4e3237578e6840fb844b2ef7e6a8564"
+    },
+    {
+      "certificate": "GNM-M5390HS",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=GNM-M5390HS",
+      "path": "detail-070.html",
+      "sha256": "ee6c3134561a9def5c806d1716635186723ed8d7a1acc14366e1179874e6855b"
+    },
+    {
+      "certificate": "SEC-WEP450",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SEC-WEP450",
+      "path": "detail-071.html",
+      "sha256": "2015af626fa9636450ee29769093004107dc7768700b6123e4f86e908bd40fc9"
+    },
+    {
+      "certificate": "GNM-BT4010",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=GNM-BT4010",
+      "path": "detail-072.html",
+      "sha256": "c112a467c975576a27aba5f7b8575163e11e95138f01a9446fb6560db3a6726c"
+    },
+    {
+      "certificate": "MNJ-RMX1000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MNJ-RMX1000",
+      "path": "detail-073.html",
+      "sha256": "2803689e9601056448d31debb520da354060a314474b8a722848c53aff52568b"
+    },
+    {
+      "certificate": "PLM-IP6000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-IP6000",
+      "path": "detail-074.html",
+      "sha256": "b954e9b0b2d9e062fc68ae13a97715d1b996c36e431e17ec0925d6a5e5ebd7f2"
+    },
+    {
+      "certificate": "GNM-OTE2",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=GNM-OTE2",
+      "path": "detail-075.html",
+      "sha256": "0dea581b95f52cf3810ed5171f8d58d2f2b3c92065a7aae02c550755601352fa"
+    },
+    {
+      "certificate": "PLM-HDX7000HD",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-HDX7000HD",
+      "path": "detail-076.html",
+      "sha256": "e63919c0df953db54b6d68c22b27685dc46c063fcaee0162d8eb3f661a430b33"
+    },
+    {
+      "certificate": "MNJ-B5",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MNJ-B5",
+      "path": "detail-077.html",
+      "sha256": "892477403921c78f1a819e70b3775298916c0f738875eaf1f495b342698902ec"
+    },
+    {
+      "certificate": "SUN-ARTM-HD",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-ARTM-HD",
+      "path": "detail-078.html",
+      "sha256": "eb436afd8de31881d669474fc5e8b27c9c6682a93c17a16d43668743c71d28b0"
+    },
+    {
+      "certificate": "SUN-ALOZ",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-ALOZ",
+      "path": "detail-079.html",
+      "sha256": "79ba653bef6f8eeec01237f56d22c9548f118b3ea5f031efd5055edf5b9acc69"
+    },
+    {
+      "certificate": "PLM-C12",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-C12",
+      "path": "detail-080.html",
+      "sha256": "3c3f56ea7628a7b3b83e19eaabb4da7f9c9e55fbbf8e2b831cec1af866de8f7c"
+    },
+    {
+      "certificate": "PLM-C8",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-C8",
+      "path": "detail-081.html",
+      "sha256": "3f3af5f24721c46f0d335f4476bca121b86c01d477851a2a360307c60bcbb9cf"
+    },
+    {
+      "certificate": "PLM-IP7000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-IP7000",
+      "path": "detail-082.html",
+      "sha256": "0b4d3a920c0919929e670c43a9f0a339a5d17c733258d49292585a25c3415fa6"
+    },
+    {
+      "certificate": "PLM-7937",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-7937",
+      "path": "detail-083.html",
+      "sha256": "b15830dfc58084de26ccad41a6016d8ede407025652d05cf5c1da4c815b115ec"
+    },
+    {
+      "certificate": "PLM-803X",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-803X",
+      "path": "detail-084.html",
+      "sha256": "7950372c51eabce446df1a6e184050e6b74752bd2a06ce96af164e22bba678fd"
+    },
+    {
+      "certificate": "PLM-802X",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-802X",
+      "path": "detail-085.html",
+      "sha256": "c056ace3e94aab6ae9afca696bc8072ea1226f5b85674f95abdc550f330e924b"
+    },
+    {
+      "certificate": "PLM-IP320",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-IP320",
+      "path": "detail-086.html",
+      "sha256": "97d0f2d59e6acacffa0d6165567badd063def62c5ddebfc118c518b3eaec04b0"
+    },
+    {
+      "certificate": "PLM-IP330",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-IP330",
+      "path": "detail-087.html",
+      "sha256": "5a2ea650a81d4101f95d9ae9d8b0b724d9d0adb4b87a84cbd8d1cbe201c8c4a7"
+    },
+    {
+      "certificate": "SUN-X6200-Series",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-X6200-Series",
+      "path": "detail-088.html",
+      "sha256": "03b6a874f0589a80b71f2f256818abd9c864167ba9c16b04af95d2476144ef53"
+    },
+    {
+      "certificate": "SUN-T6300",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-T6300",
+      "path": "detail-089.html",
+      "sha256": "223dd5ce12718af9b6cd10acb966a9ad49c18a2423c54aec898a1c85846a0cde"
+    },
+    {
+      "certificate": "SUN-6000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-6000",
+      "path": "detail-090.html",
+      "sha256": "3c01977f51bc25c4865c1c7e59c4fe7024d6e7cb4c8a46f20ceee5aeedfa870b"
+    },
+    {
+      "certificate": "S2K-XFRAME-II-LP",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=S2K-XFRAME-II-LP",
+      "path": "detail-091.html",
+      "sha256": "c1720e90a5a2d764d1136e7c13bc2ab7e4cb8b320820cf67d1ba9b4e842a1bd5"
+    },
+    {
+      "certificate": "PLM-V700",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-V700",
+      "path": "detail-092.html",
+      "sha256": "67efcfeecd9a4ddf2ececd5d757de44fe17f576e9113ce89a8707041b4f73fd8"
+    },
+    {
+      "certificate": "PLM-HDX900A",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-HDX900A",
+      "path": "detail-093.html",
+      "sha256": "77863864f96121694bc662766ef1597f57f554c24eb21c8b52e431081a1af389"
+    },
+    {
+      "certificate": "SUN-MTYA",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-MTYA",
+      "path": "detail-094.html",
+      "sha256": "2885c5badbb00a24a93d30feb14e2fb9cdcd1009af4b02e7576d9dc87e06eda2"
+    },
+    {
+      "certificate": "SUN-MTYA-R",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-MTYA-R",
+      "path": "detail-095.html",
+      "sha256": "7d8040112ed8528846d0776a548f63a20b3f902728f39b4a21610f7fa8612ae5"
+    },
+    {
+      "certificate": "PLM-IP430",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-IP430",
+      "path": "detail-096.html",
+      "sha256": "72a47e1f0f2ce104859991b0a9c79738f11e3f1f64f616781b3549b31944a03f"
+    },
+    {
+      "certificate": "FXK-S650-01",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=FXK-S650-01",
+      "path": "detail-097.html",
+      "sha256": "bc6ba26514dd74f9ecc10b0972ed636aee91cedc579bb805b781a6f77b6bae2c"
+    },
+    {
+      "certificate": "PLM-PMR8000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-PMR8000",
+      "path": "detail-098.html",
+      "sha256": "11a8f11efec16cbfda53cd3691d13f844e371b8e36b8360332f51fdbcc6f0afe"
+    },
+    {
+      "certificate": "EXR-A350-2",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=EXR-A350-2",
+      "path": "detail-099.html",
+      "sha256": "60eeeab3110526ace6fd023eb738f86d09789a0813907715f44340213ec8597d"
+    },
+    {
+      "certificate": "SK1-LS7808",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SK1-LS7808",
+      "path": "detail-100.html",
+      "sha256": "ff8d360f8a6d7b0a1942c653e3ec0784c87c3f14e26584e33f0a4eba3e4349e8"
+    },
+    {
+      "certificate": "SUN-F1D",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-F1D",
+      "path": "detail-101.html",
+      "sha256": "cabc8f160559f5670ddc0b5e16c63dd399f8925629098735d4427d7708e69972"
+    },
+    {
+      "certificate": "SUN-SCHUR",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-SCHUR",
+      "path": "detail-102.html",
+      "sha256": "1b92c8d8f62fa8077a3fde94c6427cac71680727cfc5944a483569c50cb01262"
+    },
+    {
+      "certificate": "SUN-SCHU",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-SCHU",
+      "path": "detail-103.html",
+      "sha256": "1dd933284668bda817f1ec5732e35ebbf1cd9c0a2d4cff7db2eff1f99391cbb9"
+    },
+    {
+      "certificate": "SUN-ANDR",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-ANDR",
+      "path": "detail-104.html",
+      "sha256": "3c682ffbda6d512b1e001e7c49b7608a993fef7d701234f6eea7cf9a6a9f3c9e"
+    },
+    {
+      "certificate": "MSK-XBOX360RF01XDK",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSK-XBOX360RF01XDK",
+      "path": "detail-105.html",
+      "sha256": "8beacfa667f0d640c5dabffb92724a43d5f22060bf2805218495022d3f9f71d0"
+    },
+    {
+      "certificate": "MSK-XBOX360RF01",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSK-XBOX360RF01",
+      "path": "detail-106.html",
+      "sha256": "a20369b60336e964a6a603b246734f447b57f0ea92b77a5935cc4bd6f0d2cdd3"
+    },
+    {
+      "certificate": "PLM-SPTIP501",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-SPTIP501",
+      "path": "detail-107.html",
+      "sha256": "8e9fe785dbf9a423175f099d035f884245c19ee2c623a1951168af2616e5ddf6"
+    },
+    {
+      "certificate": "PLM-SPTIP301",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-SPTIP301",
+      "path": "detail-108.html",
+      "sha256": "ba6f7f35912313d5ac01999924fa6557aa56f70efa3504183e3481c786e946fb"
+    },
+    {
+      "certificate": "PLM-SPTIP601",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-SPTIP601",
+      "path": "detail-109.html",
+      "sha256": "7c3625050b3466668fa1d3f27eaa45c0b6ae8b47440b206a7cc102ad48a8ecdf"
+    },
+    {
+      "certificate": "PLM-C100S",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-C100S",
+      "path": "detail-110.html",
+      "sha256": "1af3d335a40d14fc237df37f43ed8e51cf5155118b518b1abca7fd58cddfa858"
+    },
+    {
+      "certificate": "SUN-445",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-445",
+      "path": "detail-111.html",
+      "sha256": "e50958416762a59e9a7c47e21a5faad51b8c12368b0accefad346146f74c1e7f"
+    },
+    {
+      "certificate": "PLM-VSX7000E",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-VSX7000E",
+      "path": "detail-112.html",
+      "sha256": "4d1f6e17038034dbea64e29acb33deb6391b5ff897f455d4d3a8966ae4c362a3"
+    },
+    {
+      "certificate": "JPR-DX3600",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=JPR-DX3600",
+      "path": "detail-113.html",
+      "sha256": "4d96f5c08c1500a3739d2d1dd3bbcc47ffb335c11ce7587891ecf9374eb26ddf"
+    },
+    {
+      "certificate": "PLM-VSX4PORTBRI",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-VSX4PORTBRI",
+      "path": "detail-114.html",
+      "sha256": "7c4d27d59cb8a3b19cf8fafb9bca12eef4f4e9cafc02c46737991d3799ef06ad"
+    },
+    {
+      "certificate": "SUN-T1000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-T1000",
+      "path": "detail-115.html",
+      "sha256": "34abbf5620609e8a948c74f38ec97067c03325821a5edd7e561f70ed99c77b71"
+    },
+    {
+      "certificate": "PLM-VSX5000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=PLM-VSX5000",
+      "path": "detail-116.html",
+      "sha256": "26069007b94d07606c8e155f36741ed683b8919057085a6eaeee20d33ed91d3c"
+    },
+    {
+      "certificate": "SUN-T2000",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-T2000",
+      "path": "detail-117.html",
+      "sha256": "5bc82b7a3e80a129d0cb0a61ae3c346ae0763cc8852df84958ded212631a37b0"
+    },
+    {
+      "certificate": "MSK-XBOX360XDK",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSK-XBOX360XDK",
+      "path": "detail-118.html",
+      "sha256": "01ef84c75e1bcbdc2fbc9210a35be46a2047e15f2b7b190e35350c35b61ec150"
+    },
+    {
+      "certificate": "MSK-XBOX360CONSOLE",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSK-XBOX360CONSOLE",
+      "path": "detail-119.html",
+      "sha256": "a41caa9e2c11995d9f25a8ce6a102880351e440773d7100a662f524735a7fc14"
+    },
+    {
+      "certificate": "E-G022-05-4762",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-G022-05-4762",
+      "path": "detail-120.html",
+      "sha256": "955bd5942be0164d760c4b64124ad8bb3a5b4a8e7979d443e05b2d3e23e26717"
+    },
+    {
+      "certificate": "E-E011-05-3641",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-E011-05-3641",
+      "path": "detail-121.html",
+      "sha256": "e23573f5f83b9cdda3ae905224b82e905bb3393248db55410ce7af3ab9aa0994"
+    },
+    {
+      "certificate": "TE-A99/K900-05-0194",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-A99%2FK900-05-0194",
+      "path": "detail-122.html",
+      "sha256": "4ce0f0c920eb16100d118a138d35e3650195bc8376d34f4378fc8134f64a7d07"
+    },
+    {
+      "certificate": "E-F900-05-1003",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-F900-05-1003",
+      "path": "detail-123.html",
+      "sha256": "eded58c594cbaae3a8e39996f31524144d9d6ae22f211819e570186388e744af"
+    },
+    {
+      "certificate": "E-C031-05-0010",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-C031-05-0010",
+      "path": "detail-124.html",
+      "sha256": "bad3a0c5817cb5d37c91648358832cc291446d7b1371e80d316fe2f52c8d8c95"
+    },
+    {
+      "certificate": "E-F900-04-5555",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-F900-04-5555",
+      "path": "detail-125.html",
+      "sha256": "eb8a317ac4602a4b16c99b9be85435353dc9ffcc1a1d40d5e5def2170af5a807"
+    },
+    {
+      "certificate": "E-F900-04-5317",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-F900-04-5317",
+      "path": "detail-126.html",
+      "sha256": "58a7dee534d24d0962e3e21fb86e79c612897f365d50b3abfd2acba2a19b7740"
+    },
+    {
+      "certificate": "E-G021-04-4706",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-G021-04-4706",
+      "path": "detail-127.html",
+      "sha256": "603ee74f701866dfe5e454a7c803d3ef68a491659e2dc5d220a358a916d79035"
+    },
+    {
+      "certificate": "TE-A35/K016-04-0363",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-A35%2FK016-04-0363",
+      "path": "detail-128.html",
+      "sha256": "2e6f520d256c3320581f84cc7786611cea76cfe1407e925a95d35cf945da9ede"
+    },
+    {
+      "certificate": "TE-C31/K900-04-0305",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-C31%2FK900-04-0305",
+      "path": "detail-129.html",
+      "sha256": "9815b8ce2bbc70b89136f854154372d97b051b89337f866cb172b4b19f8c002d"
+    },
+    {
+      "certificate": "TE-A35/K016-04-0186",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-A35%2FK016-04-0186",
+      "path": "detail-130.html",
+      "sha256": "b096d7ffe87e6603959473ff6adb870bffb4ce5c9d22fa49716a0038d0ae5998"
+    },
+    {
+      "certificate": "T-A11-04-0226",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=T-A11-04-0226",
+      "path": "detail-131.html",
+      "sha256": "acdf80832a1d461c4b889fcbb1866d16f2ca4e5d98e8914a5cc4bbbd0e321907"
+    },
+    {
+      "certificate": "T-A11-04-0223",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=T-A11-04-0223",
+      "path": "detail-132.html",
+      "sha256": "97cc16e1c421eb0a5b1c05c68c8b5e42d02451ea5a2457c1be854a2d91cb7e19"
+    },
+    {
+      "certificate": "TE-A35/K016-04-0153",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-A35%2FK016-04-0153",
+      "path": "detail-133.html",
+      "sha256": "3db564527723b5d497d850cf9bd00eb21f7a6c950efd2ca597980f90ce6d4276"
+    },
+    {
+      "certificate": "TE-B13/K023-04-0077",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-B13%2FK023-04-0077",
+      "path": "detail-134.html",
+      "sha256": "71c0578c927d4c5c8c6a2931475eaa004c3587bae55e86ef32000789dc5dc44f"
+    },
+    {
+      "certificate": "E-A031-03-5218",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-A031-03-5218",
+      "path": "detail-135.html",
+      "sha256": "5fa2db567b7fe58153e54a78259379db4752b8e52d5cdcb434f359ee82f21159"
+    },
+    {
+      "certificate": "E-A031-03-4841",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-A031-03-4841",
+      "path": "detail-136.html",
+      "sha256": "7bb76802ac57e70080f09500cf2b8bc6674cadc3c3ba7321ece12e09280b16e8"
+    },
+    {
+      "certificate": "TE-A35/K016-03-0353",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-A35%2FK016-03-0353",
+      "path": "detail-137.html",
+      "sha256": "1f050970ea0a2c029849bcedb8d15c7d2c37d7a2697dbedc1e8f4083d2f37bc4"
+    },
+    {
+      "certificate": "E-G016-03-0627",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-G016-03-0627",
+      "path": "detail-138.html",
+      "sha256": "f2b8307b1974534a22cc78831d88c97549fe3d12083c6183b7d5621dc9704783"
+    },
+    {
+      "certificate": "E-G016-03-0625",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-G016-03-0625",
+      "path": "detail-139.html",
+      "sha256": "fb357e2bacb7b9dc78a5c25822d6412b4d1edb7f49348875cd51105b9095520c"
+    },
+    {
+      "certificate": "E-G016-03-0626",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-G016-03-0626",
+      "path": "detail-140.html",
+      "sha256": "0a3aad584a61684da6f265d5b73a3add64b628d0a64a86b1bcb59acec355e9cb"
+    },
+    {
+      "certificate": "TE-C21/K900-02-0185",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=TE-C21%2FK900-02-0185",
+      "path": "detail-141.html",
+      "sha256": "4957de518325e883c987248920923d760c1b641737a7eb9364028b3f63d38401"
+    },
+    {
+      "certificate": "E-E011-02-1138",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-E011-02-1138",
+      "path": "detail-142.html",
+      "sha256": "9c2ab47ef3b1e54811217d536d1b8fd7dc214e39da0f3fd91d7d40976d6a55bc"
+    },
+    {
+      "certificate": "E-E011-02-1067",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-E011-02-1067",
+      "path": "detail-143.html",
+      "sha256": "a436bb5e92030a04f6385ecde4e9d14fcae22ef3ed0b8db216f4ae9a30e76673"
+    },
+    {
+      "certificate": "E-E011-01-5874",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-E011-01-5874",
+      "path": "detail-144.html",
+      "sha256": "f448306f30a295982b064a53230ae3b1ba1f6c55c661e0900df4d30bcfcee76c"
+    },
+    {
+      "certificate": "T-A81-01-0944",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=T-A81-01-0944",
+      "path": "detail-145.html",
+      "sha256": "622f6548a699f0d141db86a78b8d90b397fcb514474eaa88886b273ebe04c065"
+    },
+    {
+      "certificate": "T-A11-01-0918",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=T-A11-01-0918",
+      "path": "detail-146.html",
+      "sha256": "826f936a52ed9a3b9a5873d4c0c308e07727ad3e17005c2a9cd6d1e57ce47b73"
+    },
+    {
+      "certificate": "E-C900-01-2130",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-C900-01-2130",
+      "path": "detail-147.html",
+      "sha256": "b2db352b20f8a7ba87b720fda433bc578c3e8c329587641738e9849b10639ce4"
+    },
+    {
+      "certificate": "E-G021-01-1470",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-G021-01-1470",
+      "path": "detail-148.html",
+      "sha256": "0a20735126e8a0937404a2b2a7d0be2ecd311ca8a20dc44eaa2088b46daddda8"
+    },
+    {
+      "certificate": "E-G021-01-1176",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-G021-01-1176",
+      "path": "detail-149.html",
+      "sha256": "3921a54db678790f590d4dff2e2500ea130c464220f6222db51a265174ca7d0e"
+    },
+    {
+      "certificate": "T-A23-96-0857",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=T-A23-96-0857",
+      "path": "detail-150.html",
+      "sha256": "b40c13611d61761c3c81b6ce918d15212dc43babe1f82f0761a6b0557d124a6d"
+    },
+    {
+      "certificate": "E-K012-96-2135",
+      "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=E-K012-96-2135",
+      "path": "detail-151.html",
+      "sha256": "2be6cded018c83a8a77b070fa8afb3ba79366515b4f5d0543d70179122d872e8"
+    }
+  ],
+  "company_evidence": {
+    "path": "rra-composite-manufacturer-cells-2026-10-11.json",
+    "sha256": "6daf8c28102bbe160e4757a15216057d66bbf08de485697c83996ab2720d54b7"
+  }
+}

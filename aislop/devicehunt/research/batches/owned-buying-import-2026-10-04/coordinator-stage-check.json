@@ -1,0 +1,9 @@
+{
+  "documented_query_rows": 206,
+  "guide_records": 24,
+  "candidate_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "read_only": true,
+  "all_frozen_hashes_match": true,
+  "logical_tables_compared": 43,
+  "source_rows_have_literal_bios_and_urls": true
+}

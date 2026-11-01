@@ -1,0 +1,74 @@
+{
+  "files": [
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/candidate-curated.json",
+      "sha256": "463aed0f82a40bfca6962ac98d6f41c9e59a8f220aa64475a560ec07ff760954",
+      "bytes": 17419
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/fetch-report.json",
+      "sha256": "9f04538c6605579a4d44b8e639272a9856ff371e45a736d4e9e307f9f1bbdd39",
+      "bytes": 564
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/qct-product-portfolio-v14-2023.pages.json",
+      "sha256": "f9a7bc46e384ee84776dc02a441029fdc8395d5db0f5bfc58bf825510c1cb7ef",
+      "bytes": 99611
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/qct-product-portfolio-v14-2023.pdf",
+      "sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+      "bytes": 11012939
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/reference-pdf-proposal.json",
+      "sha256": "df355b0d0b7d95f14f6d5a56e49dc1e0ee571b443d0e2a8908094f686044b5f9",
+      "bytes": 908
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/fact-proof.json",
+      "sha256": "dd5fb899b45cba7278f1f99b1c101275dafcd3197a14e92fc4fa6d558c449b55",
+      "bytes": 16863
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/handoff.md",
+      "sha256": "786474cf4d66531b565cf217587098cfa7e2b254bafabb60d76f931064bf5afb",
+      "bytes": 4495
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/portfolio-p42.png",
+      "sha256": "541776063ddf82a2a9a147aab1374ff1758cc01516b17ffc09be31dc8a3c3a2b",
+      "bytes": 417680
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/portfolio-p43.png",
+      "sha256": "e70551d4275fdbd72c7c9bd82380a81e460d229c94a5da2bbdd190d71eff82af",
+      "bytes": 382846
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/prepare.py",
+      "sha256": "ca762523b911677421f1739cca9909c08e1eb7e9287984f30b37ab53dbb04752",
+      "bytes": 9381
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/qxvdi-09.png",
+      "sha256": "3e6ad8c69fbf4c42e59e10131ae26c88b2b7de475e12454775e1b75b739be275",
+      "bytes": 223654
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/qxvdi-10.png",
+      "sha256": "f77cf9aa97c732a82a35350df7e000352c29d10a8d96e200fc611c7b74401b30",
+      "bytes": 337662
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/search-ledger.json",
+      "sha256": "cd43ca91ff3e45ad3c4d8b7331b6e88d52cb067de795859079eb4b749151558c",
+      "bytes": 1134
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/t42s/verification.json",
+      "sha256": "e94954cf5fbd72860526d07a73a20af42d34717da8330ebecebd6029cad41523",
+      "bytes": 319
+    }
+  ]
+}

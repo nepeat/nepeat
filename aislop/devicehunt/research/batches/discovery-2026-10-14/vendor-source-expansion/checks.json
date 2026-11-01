@@ -1,0 +1,62 @@
+{
+  "outcome": "pass",
+  "fixture_tests": 8,
+  "independent_raw_link_recomputation": "equal including duplicate multiplicities",
+  "deterministic_reparse": "equal",
+  "input_capture_hashes_verified": 243,
+  "input_capture_bytes_unchanged": true,
+  "private_sqlite": {
+    "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/discovery.sqlite",
+    "sha256": "ad3235bef94c46819d117898db2f28b06466c2d5f7c682ef0da3ee8ebc092f61",
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "fts_probe_hits": 3,
+    "read_only_search_hash_unchanged": true
+  },
+  "catalog_sha256_unchanged": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "catalog_counts": {
+    "devices": 5157,
+    "records": 7302,
+    "sources": 2121,
+    "facts": 74837
+  },
+  "manifest_sha256_unchanged": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b",
+  "conservative_http_attempts": 8,
+  "actual_http_responses": 7,
+  "web_search_queries": 3,
+  "source_summary": {
+    "edgecore_product_downloads": {
+      "rows": 615,
+      "raw_urls": 607,
+      "endpoints": 465,
+      "endpoints_absent_catalog": 465,
+      "captures_with_links": 230,
+      "complete_label_model_match_rows": 7
+    },
+    "celestica_sitemap": {
+      "rows": 189,
+      "raw_urls": 189,
+      "endpoints": 189,
+      "endpoints_absent_catalog": 187,
+      "captures_with_links": 1,
+      "complete_label_model_match_rows": 0
+    },
+    "oracle_legacy_x86": {
+      "rows": 18,
+      "raw_urls": 18,
+      "endpoints": 18,
+      "endpoints_absent_catalog": 18,
+      "captures_with_links": 1,
+      "complete_label_model_match_rows": 15
+    },
+    "oracle_older_sparc_indexes": {
+      "rows": 67,
+      "raw_urls": 65,
+      "endpoints": 65,
+      "endpoints_absent_catalog": 57,
+      "captures_with_links": 2,
+      "complete_label_model_match_rows": 0
+    }
+  },
+  "revision_disagreement_rows": 40
+}

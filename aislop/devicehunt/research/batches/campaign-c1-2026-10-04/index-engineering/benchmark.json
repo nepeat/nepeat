@@ -1,0 +1,75 @@
+{
+  "real_readonly_legacy": {
+    "elapsed_seconds": 0.0010468889995536301,
+    "wrapper_reads": 1,
+    "head_reads": 0,
+    "directory_scans": 0,
+    "artifact_hashes": 0,
+    "result": {
+      "readiness": "legacy_readonly",
+      "selected_receipt": "0cd60f76-bd69-444e-982e-6be070ca811e",
+      "receipt_count": 374,
+      "artifact_count": 146
+    }
+  },
+  "real_protected_hashes": {
+    "index.sqlite": "bafa57caca45b832b54bf53b993193889e51026c1ec5837577edfa3bffeed01f",
+    "capture-leases.sqlite": "5e75311bd991abec0ea710a432ce9a0383c52ce3d7daa89a9eb387c9981783de"
+  },
+  "real_hashes_unchanged": true,
+  "synthetic_modern": {
+    "receipt_count": 5005,
+    "logical_bytes": 1901207,
+    "normal_open": {
+      "elapsed_seconds": 0.0004606870006682584,
+      "wrapper_reads": 0,
+      "head_reads": 2,
+      "directory_scans": 0,
+      "artifact_hashes": 0,
+      "result": "ready"
+    },
+    "capture_lookup": {
+      "elapsed_seconds": 0.0006604030004382366,
+      "wrapper_reads": 1,
+      "head_reads": 2,
+      "directory_scans": 0,
+      "artifact_hashes": 0,
+      "result": "selected"
+    },
+    "derivation_lookup": {
+      "elapsed_seconds": 0.0014526730010402389,
+      "wrapper_reads": 3,
+      "head_reads": 6,
+      "directory_scans": 0,
+      "artifact_hashes": 2,
+      "result": "run-5c1b7f04-81f9-4adc-9ecc-9b642f89c7f3"
+    },
+    "query_plans": {
+      "capture": [
+        {
+          "id": 3,
+          "parent": 0,
+          "notused": 62,
+          "detail": "SEARCH capture_lookup USING INDEX capture_request (request_id=?)"
+        }
+      ],
+      "derivation": [
+        {
+          "id": 3,
+          "parent": 0,
+          "notused": 61,
+          "detail": "SEARCH derivation_lookup USING INDEX derivation_recipe_inputs (recipe_id=? AND input_fingerprint=? AND status=?)"
+        }
+      ],
+      "safety": [
+        {
+          "id": 2,
+          "parent": 0,
+          "notused": 190,
+          "detail": "SEARCH safety_lookup USING COVERING INDEX safety_sequence (sequence>?)"
+        }
+      ]
+    }
+  },
+  "limits": "5000 bootstrap wrappers plus five public modern receipts; process-crash tests do not simulate power loss; filesystem fsync durability uses supported local POSIX/SQLite semantics"
+}

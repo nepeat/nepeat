@@ -1,0 +1,315 @@
+{
+  "new_capture": {
+    "url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+    "final_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+    "status": 200,
+    "capture_utc": "2026-10-05T00:35:57.055800+00:00",
+    "method": "urllib.request; default TLS validation; no retries",
+    "path": "data/raw/smartnic-qct-2026-10-04/t42s/qct-product-portfolio-v14-2023.pdf",
+    "sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+    "bytes": 11012939
+  },
+  "existing_capture": {
+    "path": "data/raw/qct-qxvdi-2020-2026-10-04.pdf",
+    "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+    "text_sha256": "6068ca98868b29acd7446d8f74202e45027e276afe81ac883fa9c7431506b382",
+    "url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+    "reused": true
+  },
+  "model": "QuantaPlex T42S-2U",
+  "records": [
+    {
+      "source": "qct-t42s-portfolio-specifications-2023",
+      "key": "QuantaPlex T42S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T42S-2U",
+      "title": "QCT QuantaPlex T42S-2U",
+      "kind": "multi-node server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "processor",
+          "(2) Intel Xeon Scalable Processors per node, up to 165W"
+        ],
+        [
+          "chipset",
+          "Intel C621/C624"
+        ],
+        [
+          "memory",
+          "(16) 2666 MHz DDR4 RDIMM/LRDIMM per node"
+        ],
+        [
+          "storage",
+          "Chassis storage alternatives: Option 1 (24) 2.5-inch hot-plug SATA/SAS; Option 2 (12) 3.5-inch/2.5-inch hot-plug SATA/SAS. Table does not label these quantities per node."
+        ],
+        [
+          "network",
+          "(1) OCP 2.0 mezzanine or PHY card per node; (1) 1 GbE dedicated management port per node"
+        ],
+        [
+          "expansion",
+          "Per node: (1) PCIe Gen3 x16 LP MD-2; (1) PCIe Gen3 x8 for SAS mezzanine; (1) PCIe Gen3 x16 for OCP 2.0 mezzanine; (1) PCIe Gen3 x2 for 2280/22110 M.2"
+        ],
+        [
+          "form_factor",
+          "2U Rackmount, 4 Nodes"
+        ],
+        [
+          "source_pages",
+          "PDF 43 / printed 42"
+        ],
+        [
+          "source_capture_sha256",
+          "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a"
+        ],
+        [
+          "specification_scope",
+          "Exact QuantaPlex T42S-2U table only, bottom right, PDF page 43 / printed page 42, in original QCT 2023 portfolio. CPU, memory, networking and expansion explicitly per node; storage table lists chassis alternatives without per-node qualifier. No facts from adjacent T43Z/S24P or T42D/T42SP. PDF metadata creation/modification 2023-03-31, filename January0331 and URL 2023/04 are document provenance, not release date. No manufacturer, operator, Quanta alias, physical factory, deployed unit, current stock or firmware entitlement inferred."
+        ],
+        [
+          "source_date_limit",
+          "PDF creation/modification 2023-03-31; no release date inferred"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_name": "processor",
+          "literal_quote": "(2) Intel® Xeon® Scalable Processors per node, up to 165W",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Processor",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "chipset",
+          "literal_quote": "Intel® C621/C624",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Chipset",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "memory",
+          "literal_quote": "(16) 2666 MHz DDR4 RDIMM/LRDIMM per node",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Memory",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "storage",
+          "literal_quote": "Option 1:\n(24) 2.5\" hot-plug SATA/SAS\nOption 2:\n(12) 3.5\"/2.5\" hot-plug SATA/SAS",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Storage",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "network",
+          "literal_quote": "(1) OCP 2.0 mezzanine or PHY card per node\n(1) 1 GbE dedicated management port per node",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Network Controller",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "expansion",
+          "literal_quote": "(1) PCIe Gen3 x16 LP MD-2 per node\n(1) PCIe Gen3 x8 for SAS mezzanine slot per node\n(1) PCIe Gen3 x16 for OCP 2.0 mezzanine slot per node\n(1) PCIe Gen3 x2 for 2280/22110 M.2 per node",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Expansion Slot",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "form_factor",
+          "literal_quote": "2U Rackmount, 4 Nodes",
+          "pdf_page": 43,
+          "printed_page": 42,
+          "location": "QuantaPlex T42S-2U bottom-right table / Form Factor",
+          "source_url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+          "capture_sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+          "visual_review": "PDF 43 printed 42 table visually inspected",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        }
+      ]
+    },
+    {
+      "source": "qct-t42s-qxvdi-solution-specifications-2020",
+      "key": "QuantaPlex T42S-2U",
+      "brand": "QCT",
+      "model": "QuantaPlex T42S-2U",
+      "title": "QCT QuantaPlex T42S-2U",
+      "kind": "multi-node server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "power_description",
+          "Historical QxVDI solution describes two shared PSUs for its 2U four-node T42S-2U; claims \"consumes 1600 watt for each power supply\". Retained as vendor marketing statement, not PSU rating or measured consumption."
+        ],
+        [
+          "power_statement_as_printed",
+          "QuantaPlex T42S-2U is a 2U 4-node server, which shares only two power supplies and consumes 1600 watt for each power supply."
+        ],
+        [
+          "processor",
+          "QxVDI solution: 2 CPUs in Intel Xeon Processor family per node"
+        ],
+        [
+          "storage",
+          "QxVDI solution: 6 SATA/SAS disks per node"
+        ],
+        [
+          "memory",
+          "QxVDI solution: up to 512GB DDR4 RDIMM memory per node; memory bandwidth up to 2666MHz as stated"
+        ],
+        [
+          "boot_storage",
+          "QxVDI solution: extra M.2 riser on motherboard supports both SATA and PCIe M.2 devices for OS boot"
+        ],
+        [
+          "form_factor",
+          "QxVDI solution: 2U 4-node server"
+        ],
+        [
+          "source_pages",
+          "PDF 9-10 / printed 5-6"
+        ],
+        [
+          "source_capture_sha256",
+          "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        ],
+        [
+          "specification_scope",
+          "QxStack/QxVDI-OA/HC High-Density Optimized SKU, Version 2.0, copyright 2020-2021. Additional extraction from the EXISTING complete QCT capture, not independent corroboration or a new capture. PDF pages 9-10 / printed 5-6. Literal shared-PSU consumption wording is a historical vendor solution claim; not measured power draw, PSU rating/input/derating, platform-wide options or auction-unit configuration. Per-node capacities and M.2 support remain solution-scoped. No software entitlement, current support, manufacturer or operator inferred."
+        ],
+        [
+          "source_date_limit",
+          "Version 2.0; copyright 2020-2021; no release date inferred"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_name": "power_description",
+          "literal_quote": "QuantaPlex T42S-2U is a 2U 4-node server, which shares only two power supplies and consumes 1600 watt for each power supply.",
+          "pdf_page": 9,
+          "printed_page": 5,
+          "location": "3.5 Economical Total Cost / Energy Saving - Shared Energy System",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "power_statement_as_printed",
+          "literal_quote": "QuantaPlex T42S-2U is a 2U 4-node server, which shares only two power supplies and consumes 1600 watt for each power supply.",
+          "pdf_page": 9,
+          "printed_page": 5,
+          "location": "3.5 Economical Total Cost / Energy Saving - Shared Energy System",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "processor",
+          "literal_quote": "2 CPUs in Intel® Xeon® Processor family per node",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "storage",
+          "literal_quote": "6 SATA/SAS disks per node",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "memory",
+          "literal_quote": "up to 512GB DDR4 RDIMM memory per node.\nHigh floating-point operation per second with Intel Xeon Processor and great memory bandwidth up to 2666MHz provide outstanding performance.",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "boot_storage",
+          "literal_quote": "An extra M.2 riser equipped on the MB can support both SATA and PCIe M.2 devices for OS boot.",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        },
+        {
+          "fact_name": "form_factor",
+          "literal_quote": "In QCT QxStack/QxVDI-OA/HC High-Density Optimized SKU, the server QuantaPlex T42S-2U, a 2U 4-node server, is used to build the infrastructure.",
+          "pdf_page": 10,
+          "printed_page": 6,
+          "location": "4.1 Hardware configuration",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "capture_sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+          "visual_review": "PDF pages 9-10 / printed 5-6 visually inspected; solution qualifiers retained",
+          "quote_method": "Direct visible transcription; line breaks normalized; combined passages explicitly separated by newline where used"
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    "No T42D/T42SP/T43Z/S24P facts",
+    "No T41S facts or alias",
+    "No repeat Quanta parent portfolio record",
+    "No dimensions/cooling/input voltage/PSU options from secondary snippets",
+    "No interpreted 1600W PSU rating from consumption statement"
+  ]
+}

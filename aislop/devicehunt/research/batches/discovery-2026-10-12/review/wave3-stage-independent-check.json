@@ -1,0 +1,156 @@
+{
+  "verdict": "ACCEPT STAGE ONLY",
+  "started_utc": "2026-10-13T04:17:15.128024+00:00",
+  "finished_utc": "2026-10-13T04:17:29.341748+00:00",
+  "stage_report_sha256": "16bb5a658c486e407d3d2d71e8b002066380fad90883be641a0814ccb1853bfd",
+  "candidate_database_sha256": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "candidate_manifest_sha256": "9b4d93229e1519770a79f665e02987e9706e74cf86db086599160b905157ffec",
+  "old_code_hashes_bound": {
+    "devicehunt/importers.py": "99e5051a5c09c0abee1606e2127bea88e7539ca65b704f503b44ccb7d3ba7d51",
+    "devicehunt/catalog.py": "2c5731c8a1fbac7f7c6f3d57284cb0ae3448cd26277c5e1446e83f054192c8ef"
+  },
+  "current_code_hash_observation": {
+    "devicehunt/importers.py": "99e5051a5c09c0abee1606e2127bea88e7539ca65b704f503b44ccb7d3ba7d51",
+    "devicehunt/catalog.py": "2c5731c8a1fbac7f7c6f3d57284cb0ae3448cd26277c5e1446e83f054192c8ef",
+    "devicehunt/pipeline.py": "85e91e3f78375ac2b749e0588279b59406a20b83d17c21c1219a40d3dc62ef28"
+  },
+  "manifest_all_input_hashes_verified": 3941,
+  "manifest_jobs": 148,
+  "new_pins_verified": 13,
+  "complete_bundle_entries": 57,
+  "complete_bundle_pages": 3710,
+  "old_entries_unchanged": 55,
+  "old_bundle_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29",
+  "new_bundle_sha256": "31b38a268680871b09b016e74b712e6b825f29866557d8560e95c038ef769e6d",
+  "counts": {
+    "devices": 5117,
+    "records": 7241,
+    "facts": 74210,
+    "sources": 2093,
+    "documents": 68,
+    "document_pages": 3784
+  },
+  "new_source_counts": {
+    "celestica-sd6200-datasheet-2026-10-12": {
+      "records": 1,
+      "facts": 11
+    },
+    "edgecore-wedge100-32x-r04-2026-10-12": {
+      "records": 1,
+      "facts": 16
+    },
+    "oracle7420-internal-components-2026-10-12": {
+      "records": 2,
+      "facts": 11
+    },
+    "oracle7420-attached-storage-2026-10-12": {
+      "records": 1,
+      "facts": 1
+    }
+  },
+  "models": [
+    [
+      "Celestica",
+      "SD6200"
+    ],
+    [
+      "Edge-Core",
+      "Wedge 100-32X"
+    ],
+    [
+      "Oracle",
+      "Sun ZFS Storage 7420"
+    ],
+    [
+      "Oracle",
+      "Sun ZFS Storage 7420 M2"
+    ]
+  ],
+  "roles": [
+    [
+      "Celestica Inc.",
+      "documentation_vendor"
+    ],
+    [
+      "Edgecore Networks Corporation",
+      "documentation_vendor"
+    ],
+    [
+      "Oracle",
+      "documentation_vendor"
+    ]
+  ],
+  "preservation_missing_rows": {
+    "sources": 0,
+    "devices": 0,
+    "records": 0,
+    "affiliations": 0,
+    "identifiers": 0,
+    "facts": 0,
+    "hyperscaler_evidence": 0,
+    "fcc_applications": 0,
+    "fcc_exhibits": 0,
+    "fcc_grantees": 0,
+    "equipment_register": 0,
+    "ntra_equipment": 0,
+    "bsmi_certificates": 0,
+    "bsmi_product_certificates": 0,
+    "bsmi_voluntary_certificates": 0,
+    "bsmi_declarations": 0,
+    "ncc_equipment": 0,
+    "tec_equipment": 0,
+    "ieee_assignments": 0,
+    "pci_entries": 0,
+    "fcc_id_index": 0,
+    "fcc_detail_pages": 0,
+    "fcc_detail_links": 0,
+    "fcc_text_excerpts": 0,
+    "documents": 0,
+    "document_pages": 0,
+    "bahrain_equipment": 0,
+    "anatel_equipment": 0,
+    "rra_equipment": 0,
+    "energystar_servers": 0,
+    "energystar_server_archives": 0,
+    "energystar_datacenter": 0,
+    "ised_equipment": 0,
+    "nigeria_equipment": 0,
+    "ghana_equipment": 0,
+    "public_equipment_rows": 0,
+    "japan_equipment": 0,
+    "fcc_company_rows": 0,
+    "fcc_sitemap_pages": 0,
+    "fcc_sitemap_urls": 0,
+    "inspur_support_entries": 0,
+    "archive_releases": 0,
+    "archive_artifacts": 0,
+    "archive_release_artifacts": 0,
+    "archive_receipts": 0,
+    "archive_release_receipts": 0,
+    "evidence_statements": 0,
+    "evidence_reviews": 0,
+    "evidence_links": 0,
+    "archive_release_statements": 0
+  },
+  "allowed_reference_source_hash_changes": 55,
+  "integrity": [
+    "ok"
+  ],
+  "foreign_key_violations": 0,
+  "owned_baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "vendor_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "campaign_gate": "input and projection checks pass",
+  "live_unchanged": {
+    "devices.sqlite": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+    "import-manifest.json": "6ab359e22929bdb6a55e47c2a816c2c78fc3e5d0f90c8b252129f8fafea3aac5"
+  },
+  "limits": "No imports/rebuild/full suite/promotion; old-code staging only. Exact original artifacts untouched."
+}

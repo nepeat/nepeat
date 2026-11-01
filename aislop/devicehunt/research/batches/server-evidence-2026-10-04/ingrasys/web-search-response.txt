@@ -1,0 +1,47 @@
+query: site:ingrasys.com "SV1120" "SV1121"
+web search response (returned textual results, no downloaded page bodies):
+Servers-DOCS-ingrasys (https://www.ingrasys.com/docs/servers/)
+[reference turn427search0; wordlim 200] Crawled: yesterday; SV1120/SV1121/SV2121/SV2221
+# DOCS
+Servers
+  * ## All Files
+  * ## Servers
+  * ## Storages
+  * ## AI Accelerators
+  * ## Advanced Cooling Solution
+Update Date
+File
+Download PDF
+Oct/2023
+SV1120/SV1121/SV2121/SV2221
+Image: SV1120/SV1121/SV2121/SV2221
+
+DOCS-ingrasys (https://www.ingrasys.com/docs/)
+[reference turn427search1; wordlim 200] Crawled: yesterday; SV1120/SV1121/SV2121/SV2221
+# DOCS
+All Files
+  * ## All Files
+  * ## Servers
+  * ## Storages
+  * ## AI Accelerators
+  * ## Advanced Cooling Solution
+Update Date
+File
+Download PDF
+May/2025
+GB12481N
+Dec/2024
+GB6181I
+Dec/2024
+GB10181A
+Oct/2024
+Liquid Cooling Rack Catalogue
+Oct/2024
+GB10281N
+Jun/2024
+ES2000/ES2100
+Nov/2023
+GB6181N
+Oct/2023
+SV1120/SV1121/SV2121/SV2221
+Image: SV1120/SV1121/SV2121/SV2221

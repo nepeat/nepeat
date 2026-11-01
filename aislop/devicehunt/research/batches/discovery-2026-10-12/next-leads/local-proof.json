@@ -1,0 +1,500 @@
+{
+  "read_inputs": [
+    {
+      "path": "GOAL.md",
+      "sha256": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323"
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "c91748dc3fda3efed6defaef5b20874c53990ba91f33c896017a839faaae912a"
+    },
+    {
+      "path": "research/accton-manufacturer-leads.md",
+      "sha256": "63a9d1d27b79e33fec4874b8441502daf72cbb2474a68ea5429d4799ec9de873"
+    },
+    {
+      "path": "research/accton-joy-portfolio.md",
+      "sha256": "aa287f6bf4163532abb802f9e67edf5ea46cb50e7ccc70f388d08931f5bdc7e6"
+    },
+    {
+      "path": "research/rra-accton-company-name.md",
+      "sha256": "341c6b86d8c7a4c0b64e5e4d086e52972e4a82f42bcfcdd52e400dd87fb4a11f"
+    },
+    {
+      "path": "research/ul-celestica-platforms.md",
+      "sha256": "81b13173814142858bc77831dafc6d027f214a5449316cf170149af3092bc30f"
+    },
+    {
+      "path": "research/rra-celestica-company-names.md",
+      "sha256": "507575db9f9361d95cf6bd81d7ffcbe9a3866a78fe43e7b00520221ca593f976"
+    },
+    {
+      "path": "research/cisco-celestica-factory-evidence.md",
+      "sha256": "66a99a014ad426e3a197306f853a327cd317d811207e1008c0308bb3cc952367"
+    },
+    {
+      "path": "research/celestica-chassis-ordering-codes.md",
+      "sha256": "ffa550c55d34d492bb0ee3211b15fef0671e6f84344a943c3abcfed2bc06a2a2"
+    },
+    {
+      "path": "research/celestica-2025-catalog.md",
+      "sha256": "4bc95ee7b6eed04a6e9e6bc12ad478abfb2111aa3035dd1c791bdd9233f9c612"
+    },
+    {
+      "path": "research/celestica-networking-index.md",
+      "sha256": "bbe7e63624807598649a365c1c85e2410e39632a27320b03e73ebeafb2a0f566"
+    },
+    {
+      "path": "research/celestica-storage-manufacturer.md",
+      "sha256": "04a8b0152799bfcaf9dbd5fa3f4e540bc9fc81b1ac7d1c1e1a906691a4112f38"
+    },
+    {
+      "path": "research/oracle-component-options.md",
+      "sha256": "79f164acf3dd9dc36a51ab8a61f214872a101581c686a91321ea6447bba7336a"
+    },
+    {
+      "path": "research/owned-oracle-buying-2026-10-04.md",
+      "sha256": "805fbe3c544d50ff14b8e6d4980173cd02ea218f8f829714b22de06c4b2bcdda"
+    },
+    {
+      "path": "research/batches/hunt-2026-10-10/oracle/handoff.md",
+      "sha256": "0dc6463b0e0c045521caa8f5a129387dcaa689c59fa6964cce09eae88236852d"
+    },
+    {
+      "path": "research/batches/hunt-2026-10-10/edgecore/handoff.md",
+      "sha256": "17dc8bf2b65d91e85b0c02c77915ffd1f93e839d3661440c9b06ea444dfecab4"
+    },
+    {
+      "path": "data/import-manifest.json",
+      "sha256": "14c2a1f177051b6e62c8e04dabbd9621a3d4baf6b759d2db25a722ba8efc9195"
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json",
+      "sha256": "2bba17ac10baaeb6085fb118595820305163bd0faf3b45e7c3175e047638a85f"
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-oracle/capture-ledger.json",
+      "sha256": "6be23f49ad98046737fce0fcec1a22b3ac6a57f3f70361975d6af0d0b7c4ba71"
+    },
+    {
+      "path": "data/raw/celestica-storage-manufacturer/fetch-report.json",
+      "sha256": "3f0b3afe439305d02f48ec46306745ab52268638a8e2d701bed9918834c9f938"
+    },
+    {
+      "path": "data/raw/celestica-storage-manufacturer/sd6200.html",
+      "sha256": "d7916c9f54392bb4c572233c341b7db0595aac2af1490d8e6aad0f349ee78189"
+    },
+    {
+      "path": "data/raw/edgecore/product-wedge100-32x.html",
+      "sha256": "28b58ce6cf776ed84ace6a10240008195d177e5172886a30acb9c81294ed8f14"
+    },
+    {
+      "path": "data/raw/oracle-zfs-components/sun-zfs-storage-7420.html",
+      "sha256": "d0e6fb8ab728d0a12fa1cd8b6e77d4bebda4df121fa0b7da06ab040d8a95361a"
+    },
+    {
+      "path": "data/raw/edgecore/product-minipack-as8000-open-modular-platform.html",
+      "sha256": "804afbdb3da9fdb9330b7a0dfdc1f0da01c8869d5307f3dabe726a2ffe26461e"
+    },
+    {
+      "path": "data/raw/celestica-storage-manufacturer/sc6100.html",
+      "sha256": "fa7fced2791e4b3e94ea7946879607b04f76db899cb54fabc2f6b0cba7958782"
+    }
+  ],
+  "catalog_sha256_at_read": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "model_facts": {
+    "SD6200": [
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "form_factor",
+        "value": "4U",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "pdf_sha256",
+        "value": "01766330de9b4b344e14dd401e5ae343f10c3e31d41f535ac87de5d3697a2e82",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "physical_description",
+        "value": "4U form factor stated in 2025 catalog",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "product_description",
+        "value": "4U 90 HDD Dense Storage SAS-4 Expansion System",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "source_model_heading",
+        "value": "SD6200",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "source_page",
+        "value": "5",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "source_year",
+        "value": "2025",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-storage",
+        "name": "index_url",
+        "value": "https://www.celestica.com/our-expertise/platform-solutions/storage",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sd6200",
+        "name": "capture_method",
+        "value": "Original HTML; model h1, product subtitle h1 and manufacturer paragraph reviewed",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sd6200",
+        "name": "evidence_scope",
+        "value": "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred.",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sd6200",
+        "name": "manufacturer_statement",
+        "value": "Designed and manufactured by Celestica with nearly 30 years of experience in storage",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sd6200",
+        "name": "physical_description",
+        "value": "4U 90 HDD Dense Storage SAS-4 Expansion System",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sd6200",
+        "name": "source_html_sha256",
+        "value": "d7916c9f54392bb4c572233c341b7db0595aac2af1490d8e6aad0f349ee78189",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sd6200/"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "capture_format",
+        "value": "web_search_models_section",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "identity_namespace",
+        "value": "Celestica listing holder; product brand not established by this record",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "listing_holder_name",
+        "value": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "retrieved_at",
+        "value": "2026-09-27 02:10:48 UTC",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      }
+    ],
+    "SC6100": [
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "form_factor",
+        "value": "2U",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "pdf_sha256",
+        "value": "01766330de9b4b344e14dd401e5ae343f10c3e31d41f535ac87de5d3697a2e82",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "physical_description",
+        "value": "2U form factor stated in 2025 catalog",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "product_description",
+        "value": "2U 24 SSD High Availability All-Flash PCIe® Gen 5 Storage Controller",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "source_model_heading",
+        "value": "SC6100",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "source_page",
+        "value": "5",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-2025-catalog",
+        "name": "source_year",
+        "value": "2025",
+        "source_url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf#page=5"
+      },
+      {
+        "source_id": "celestica-storage",
+        "name": "index_url",
+        "value": "https://www.celestica.com/our-expertise/platform-solutions/storage",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sc6100/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sc6100",
+        "name": "capture_method",
+        "value": "Original HTML; model h1, product subtitle h1 and manufacturer paragraph reviewed",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sc6100/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sc6100",
+        "name": "evidence_scope",
+        "value": "Explicit manufacturer statement on the model-specific Celestica product page, saved as original HTML. Manufacturer is the source-stated Celestica name; no subsidiary, physical factory, current stock or individual unit provenance is established. Only the exact page model is covered. Chassis description is a platform specification, not a promise of installed drives or auction-unit configuration. Application-workload marketing is not hyperscaler deployment evidence; no aliases, ordering codes or deployment assertions are inferred.",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sc6100/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sc6100",
+        "name": "manufacturer_statement",
+        "value": "Designed and manufactured by Celestica with nearly 30 years of experience in storage",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sc6100/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sc6100",
+        "name": "physical_description",
+        "value": "2U 24 SSD High Availability All-Flash PCIe® Gen 5 Storage Controller",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sc6100/"
+      },
+      {
+        "source_id": "celestica-storage-manufacturer-sc6100",
+        "name": "source_html_sha256",
+        "value": "fa7fced2791e4b3e94ea7946879607b04f76db899cb54fabc2f6b0cba7958782",
+        "source_url": "https://cls.celestica.com/hardware-platforms/sc6100/"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "capture_format",
+        "value": "web_search_models_section",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "identity_namespace",
+        "value": "Celestica listing holder; product brand not established by this record",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "listing_holder_name",
+        "value": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      },
+      {
+        "source_id": "ul-celestica-platforms",
+        "name": "retrieved_at",
+        "value": "2026-09-27 02:10:48 UTC",
+        "source_url": "https://productiq.ulprospector.com/en/profile/2858121/azot.e362364?page=379&term=switch"
+      }
+    ],
+    "WEDGE100-32X": [
+      {
+        "source_id": "edgecore-products",
+        "name": "cooling_description",
+        "value": "4+1 redundant, hot-swappable fans.",
+        "source_url": "https://www.edge-core.com/product/wedge100-32x/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "cooling_description",
+        "value": "Front (port) to Back (power) airflow.",
+        "source_url": "https://www.edge-core.com/product/wedge100-32x/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "physical_description",
+        "value": "32 x QSFP28 ports in compact 1RU form factor.",
+        "source_url": "https://www.edge-core.com/product/wedge100-32x/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "power_description",
+        "value": "Hot-swappable, load-sharing, redundant AC PSUs or 12 V DC PSUs.",
+        "source_url": "https://www.edge-core.com/product/wedge100-32x/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "software_installation_description",
+        "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings.",
+        "source_url": "https://www.edge-core.com/product/wedge100-32x/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "vendor_category",
+        "value": "In-active",
+        "source_url": "https://www.edge-core.com/product/wedge100-32x/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "vendor_description",
+        "value": "The Wedge 100-32X switch provides 32 QSFP28 ports that can each run at 100GbE/40GbE, or as 4 x 25 GbE/4 x 10 GbE/2 x 50 GbE through breakout cables.",
+        "source_url": "https://www.edge-core.com/product/wedge100-32x/"
+      }
+    ],
+    "MINIPACK AS8000 OPEN MODULAR PLATFORM": [
+      {
+        "source_id": "edgecore-products",
+        "name": "cooling_description",
+        "value": "All ports on front; PSUs, fan modules on rear.",
+        "source_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "cooling_description",
+        "value": "Hot swappable redundant fan modules.",
+        "source_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "power_description",
+        "value": "All ports on front; PSUs, fan modules on rear.",
+        "source_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "power_description",
+        "value": "Hot-swappable, load sharing, redundant AC power input options.",
+        "source_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "software_installation_description",
+        "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commercial NOS offerings.",
+        "source_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "vendor_category",
+        "value": "In-active",
+        "source_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/"
+      },
+      {
+        "source_id": "edgecore-products",
+        "name": "vendor_description",
+        "value": "128 x 100G QSFP28 switch ports with Tomahawk 3. 100G open modular platform for data center Next generation of leaf/spine fabrics network with high capacity",
+        "source_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/"
+      }
+    ],
+    "Minipack-AS8000-O-AC-F": [
+      {
+        "source_id": "edgecore-eol-2025-november-eol-notice-as8000",
+        "name": "affected_model_cell",
+        "value": "Minipack-AS8000-O-AC-F",
+        "source_url": "https://www.edge-core.com/eol-notice/2025-november-eol-notice-as8000/"
+      },
+      {
+        "source_id": "edgecore-eol-2025-november-eol-notice-as8000",
+        "name": "lifecycle_notice",
+        "value": "Affected model listed in an Edgecore retirement notice",
+        "source_url": "https://www.edge-core.com/eol-notice/2025-november-eol-notice-as8000/"
+      },
+      {
+        "source_id": "edgecore-eol-2025-november-eol-notice-as8000",
+        "name": "notice_effective_date",
+        "value": "2025-11-15",
+        "source_url": "https://www.edge-core.com/eol-notice/2025-november-eol-notice-as8000/"
+      },
+      {
+        "source_id": "edgecore-eol-2025-november-eol-notice-as8000",
+        "name": "notice_effective_date_text",
+        "value": "November 15, 2025",
+        "source_url": "https://www.edge-core.com/eol-notice/2025-november-eol-notice-as8000/"
+      },
+      {
+        "source_id": "edgecore-eol-2025-november-eol-notice-as8000",
+        "name": "notice_model_column",
+        "value": "EOL Equipment",
+        "source_url": "https://www.edge-core.com/eol-notice/2025-november-eol-notice-as8000/"
+      },
+      {
+        "source_id": "edgecore-eol-2025-november-eol-notice-as8000",
+        "name": "vendor_replacement_text",
+        "value": "Not Available",
+        "source_url": "https://www.edge-core.com/eol-notice/2025-november-eol-notice-as8000/"
+      }
+    ],
+    "ZFS STORAGE 7420": [
+      {
+        "source_id": "ntra-2026-01",
+        "name": "pdf_page",
+        "value": "523",
+        "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=523"
+      },
+      {
+        "source_id": "ntra-2026-01",
+        "name": "registry_brand",
+        "value": "ORACLE",
+        "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=523"
+      },
+      {
+        "source_id": "ntra-2026-01",
+        "name": "registry_product_description",
+        "value": "NETWORK STORAGE",
+        "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=523"
+      },
+      {
+        "source_id": "ntra-2026-01",
+        "name": "registry_row",
+        "value": "33211",
+        "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=523"
+      }
+    ],
+    "S7420": [
+      {
+        "source_id": "rra-official-query-73009f906e4e",
+        "name": "approval_date_raw",
+        "value": "2010-04-12",
+        "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+      },
+      {
+        "source_id": "rra-official-query-73009f906e4e",
+        "name": "country_raw",
+        "value": "미국",
+        "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+      },
+      {
+        "source_id": "rra-official-query-73009f906e4e",
+        "name": "detail_sha256",
+        "value": "e9fe2cfc7e4a2a6166abebc08f31acf586d43fdf72db2bd14160a269d054c64c",
+        "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+      },
+      {
+        "source_id": "rra-official-query-73009f906e4e",
+        "name": "rra_main_model",
+        "value": "CALI3",
+        "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+      },
+      {
+        "source_id": "rra-official-query-73009f906e4e",
+        "name": "rra_model_role",
+        "value": "derived",
+        "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+      }
+    ]
+  },
+  "network_requests": 0
+}

@@ -1,0 +1,4 @@
+data/rebuilt-c3b-gate-2026-10-10.sqlite gate_projections passed for 12 entries
+flipped projection refused: campaign gate: projection of ised-rel-25869 differs from the reviewed release
+data/devices.sqlite gate_projections passed for 12 entries
+flipped projection refused: campaign gate: projection of ised-rel-25869 differs from the reviewed release

@@ -1,0 +1,8 @@
+{
+  "promoted_pair_verified": {
+    "devices.sqlite": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+    "import-manifest.json": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b"
+  },
+  "export_files_verified": 8,
+  "campaign_inputs_and_projections": "pass"
+}

@@ -1,0 +1,44 @@
+{
+  "initial_sqlite_files": 124,
+  "initial_sqlite_logical_bytes": 33168826368,
+  "initial_sqlite_allocated_bytes": 8121968640,
+  "current_sqlite_files": 5,
+  "current_sqlite": [
+    {
+      "path": "data/archive/capture-leases.sqlite",
+      "size": 12288,
+      "allocated": 4608
+    },
+    {
+      "path": "data/archive/index.sqlite",
+      "size": 405504,
+      "allocated": 102912
+    },
+    {
+      "path": "data/catalog-archive-rebuilt-2026-10-04.sqlite",
+      "size": 366092288,
+      "allocated": 83173888
+    },
+    {
+      "path": "data/devices-before-archive-2026-10-04.sqlite",
+      "size": 371552256,
+      "allocated": 90989056
+    },
+    {
+      "path": "data/devices.sqlite",
+      "size": 371552256,
+      "allocated": 90673664
+    }
+  ],
+  "current_sqlite_logical_bytes": 1109614592,
+  "current_sqlite_allocated_bytes": 264944128,
+  "history_archive_bytes": 3322683747,
+  "history_archive_allocated_bytes": 3469767680,
+  "database_storage_total_logical_bytes": 4432298339,
+  "database_storage_total_allocated_bytes": 3734711808,
+  "logical_bytes_saved": 28736528029,
+  "allocated_bytes_saved": 4387256832,
+  "total_data_logical_bytes": 5609830605,
+  "total_data_allocated_bytes": 4394115072,
+  "historic_databases_byte_restorable": 123
+}

@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    {
+      "path": "audit-results.json",
+      "sha256": "e9d7d3bcadf7ff01e5b748b2f5a61f08052d149709ed6d3ef3fd89af67f3c30b",
+      "bytes": 49090
+    },
+    {
+      "path": "audit.py",
+      "sha256": "8fc116e38cb99fad2282659ffb4d3e4a950f61e01042906fda4158bff72e19cc",
+      "bytes": 10575
+    },
+    {
+      "path": "candidate-review.sqlite",
+      "sha256": "9ff8085834688e2a3428420b3b44bd47ecc6bff06206ff8419cbc5c340e67935",
+      "bytes": 405053440
+    },
+    {
+      "path": "review.md",
+      "sha256": "4a0d6817a06964db32634fe650a65e173a6466a3e96076be25af539ff872feba",
+      "bytes": 6871
+    }
+  ]
+}

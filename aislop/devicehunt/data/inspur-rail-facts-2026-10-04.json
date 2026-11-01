@@ -1,0 +1,1946 @@
+{
+  "sources": [
+    {
+      "id": "inspur-incloud-rail-hardware-2023",
+      "url": "https://partner.inspur.com/eportal/fileDir/lcjtww/resource/cms/2024/03/2024032014450874883.pdf",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/inspur-rail-2026-10-04/inspur-incloud-rail-compatibility.pdf",
+      "coverage": "Selected original compatibility-table rows: nine appliance/node pairs, four SSDs, five RAID cards, five switches and two FPGA cards. Distinct names remain separate identities. Brand/platform association only; the vendor column is not a physical-manufacture assertion. Third-party components and software are excluded from curated devices. Historical compatibility and firmware rows are source claims, not current support or a recommendation to flash an auction unit."
+    },
+    {
+      "id": "inspur-ne5260m5-launch-2019",
+      "url": "https://partner.inspur.com/qudao/2392089/2392123/2025021410101280931/index.html",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/inspur-rail-2026-10-04/inspur-ne5260m5-launch.html",
+      "coverage": "Original Inspur 2019-02-27 launch article describing the 2019-02-25 event and NE5260M5. Brand/platform specifications only. OTII industry collaboration is not deployment evidence. Later URL migration and site footer dates are not article dates."
+    },
+    {
+      "id": "inspur-i24-node-relationship-2020",
+      "url": "https://www.inspur.com/eportal/fileDir/defaultCurSite/resource/cms/2020/08/2020081316525840458.pdf",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/bytedance-inspur-2026-10-04/inspur-i24-whitepaper.pdf",
+      "coverage": "Additional reviewed pages of the existing original i24 revision 3.0 white paper. PDF page 5 explicitly separates the i24 chassis and NS5162M5 nodes; page 8 describes node architecture. Existing i24 statements are retained independently. No node/chassis alias, manufacturer, electrical interchangeability or operator inference."
+    }
+  ],
+  "devices": [
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "IR5280M7",
+      "brand": "Inspur",
+      "model": "IR5280M7",
+      "title": "Inspur IR5280M7",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M7"
+        ],
+        [
+          "server_node_model",
+          "NF5280M7"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF5280M7",
+      "brand": "Inspur",
+      "model": "NF5280M7",
+      "title": "Inspur NF5280M7",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M7"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "IR5280M7"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "IR8480M7",
+      "brand": "Inspur",
+      "model": "IR8480M7",
+      "title": "Inspur IR8480M7",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M7"
+        ],
+        [
+          "server_node_model",
+          "NF8480M7"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF8480M7",
+      "brand": "Inspur",
+      "model": "NF8480M7",
+      "title": "Inspur NF8480M7",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M7"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "IR8480M7"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "IR5280M6",
+      "brand": "Inspur",
+      "model": "IR5280M6",
+      "title": "Inspur IR5280M6",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "server_node_model",
+          "NF5280M6"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF5280M6",
+      "brand": "Inspur",
+      "model": "NF5280M6",
+      "title": "Inspur NF5280M6",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "IR5280M6"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "IR5266M6",
+      "brand": "Inspur",
+      "model": "IR5266M6",
+      "title": "Inspur IR5266M6",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "server_node_model",
+          "NF5266M6"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF5266M6",
+      "brand": "Inspur",
+      "model": "NF5266M6",
+      "title": "Inspur NF5266M6",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "IR5266M6"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "IR8480M6",
+      "brand": "Inspur",
+      "model": "IR8480M6",
+      "title": "Inspur IR8480M6",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "server_node_model",
+          "NF8480M6"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF8480M6",
+      "brand": "Inspur",
+      "model": "NF8480M6",
+      "title": "Inspur NF8480M6",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "IR8480M6"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "IR5468M6",
+      "brand": "Inspur",
+      "model": "IR5468M6",
+      "title": "Inspur IR5468M6",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "server_node_model",
+          "NF5468M6"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF5468M6",
+      "brand": "Inspur",
+      "model": "NF5468M6",
+      "title": "Inspur NF5468M6",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M6"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "IR5468M6"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "600S-M5",
+      "brand": "Inspur",
+      "model": "600S-M5",
+      "title": "Inspur 600S-M5",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M5"
+        ],
+        [
+          "server_node_model",
+          "NE5260M5"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NE5260M5",
+      "brand": "Inspur",
+      "model": "NE5260M5",
+      "title": "Inspur NE5260M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M5"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "600S-M5"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "4010S-M5",
+      "brand": "Inspur",
+      "model": "4010S-M5",
+      "title": "Inspur 4010S-M5",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M5"
+        ],
+        [
+          "server_node_model",
+          "NF8480M5"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF8480M5",
+      "brand": "Inspur",
+      "model": "NF8480M5",
+      "title": "Inspur NF8480M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M5"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "4010S-M5"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "1010S-M5",
+      "brand": "Inspur",
+      "model": "1010S-M5",
+      "title": "Inspur 1010S-M5",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M5"
+        ],
+        [
+          "server_node_model",
+          "NF5280M5"
+        ],
+        [
+          "identity_scope",
+          "Hyperconverged model column; the paired server-node name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NF5280M5",
+      "brand": "Inspur",
+      "model": "NF5280M5",
+      "title": "Inspur NF5280M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "model_generation_as_printed",
+          "M5"
+        ],
+        [
+          "hyperconverged_appliance_model",
+          "1010S-M5"
+        ],
+        [
+          "identity_scope",
+          "Server-node model column; the paired appliance name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NS8600G1",
+      "brand": "Inspur",
+      "model": "NS8600G1",
+      "title": "Inspur NS8600G1",
+      "kind": "SSD",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "interface_as_printed",
+          "U.2"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "HUT600D7"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NS8500G2",
+      "brand": "Inspur",
+      "model": "NS8500G2",
+      "title": "Inspur NS8500G2",
+      "kind": "SSD",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "interface_as_printed",
+          "U.2"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "MM5MA027"
+        ],
+        [
+          "compatibility_note",
+          "Intel+HG versions as printed"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NS8500G1",
+      "brand": "Inspur",
+      "model": "NS8500G1",
+      "title": "Inspur NS8500G1",
+      "kind": "SSD",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "interface_as_printed",
+          "U.2"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "HUT600D7"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "NS6510",
+      "brand": "Inspur",
+      "model": "NS6510",
+      "title": "Inspur NS6510",
+      "kind": "SSD",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "interface_as_printed",
+          "U.2"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "3108_2GB",
+      "brand": "Inspur",
+      "model": "3108_2GB",
+      "title": "Inspur 3108_2GB",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "17 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_section_as_printed",
+          "7.1 Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "4.680.00-8573"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "3108_4GB",
+      "brand": "Inspur",
+      "model": "3108_4GB",
+      "title": "Inspur 3108_4GB",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "17 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_section_as_printed",
+          "7.1 Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "4.680.00-8527"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "3008IT",
+      "brand": "Inspur",
+      "model": "3008IT",
+      "title": "Inspur 3008IT",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "17 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_section_as_printed",
+          "7.1 Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "16.00.18.00"
+        ],
+        [
+          "compatibility_note",
+          "Intel and Hygon ICR versions"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "3008IMR",
+      "brand": "Inspur",
+      "model": "3008IMR",
+      "title": "Inspur 3008IMR",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "17 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_section_as_printed",
+          "7.1 Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "4.680.01-8582"
+        ],
+        [
+          "compatibility_note",
+          "Intel and Hygon ICR versions"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "PM8204_2GB",
+      "brand": "Inspur",
+      "model": "PM8204_2GB",
+      "title": "Inspur PM8204_2GB",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "17 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_section_as_printed",
+          "7.1 Inspur"
+        ],
+        [
+          "recommended_firmware_as_printed",
+          "5.92"
+        ],
+        [
+          "compatibility_note",
+          "Intel and Hygon ICR versions"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "SC5630EL",
+      "brand": "Inspur",
+      "model": "SC5630EL",
+      "title": "Inspur SC5630EL",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "20 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "switch_type_as_printed",
+          "25G"
+        ],
+        [
+          "compatibility_note",
+          "Deep management integration as printed"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "CN9008-48YC-S",
+      "brand": "Inspur",
+      "model": "CN9008-48YC-S",
+      "title": "Inspur CN9008-48YC-S",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "20 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "switch_type_as_printed",
+          "25G"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "S6550V2-48TQ-AC/D",
+      "brand": "Inspur",
+      "model": "S6550V2-48TQ-AC/D",
+      "title": "Inspur S6550V2-48TQ-AC/D",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "20 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "switch_type_as_printed",
+          "1G"
+        ],
+        [
+          "compatibility_note",
+          "Grouped AC/D spelling retained; no suffix expansion"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "S6820-24XQ-E",
+      "brand": "Inspur",
+      "model": "S6820-24XQ-E",
+      "title": "Inspur S6820-24XQ-E",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "20 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "switch_type_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_note",
+          "Deep management integration as printed"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "CN61108PC-V-H",
+      "brand": "Inspur",
+      "model": "CN61108PC-V-H",
+      "title": "Inspur CN61108PC-V-H",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "20 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ],
+        [
+          "switch_type_as_printed",
+          "10G"
+        ],
+        [
+          "compatibility_note",
+          "Deep management integration as printed"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "F10A",
+      "brand": "Inspur",
+      "model": "F10A",
+      "title": "Inspur F10A",
+      "kind": "FPGA accelerator",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "51 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-incloud-rail-hardware-2023",
+      "key": "F37X",
+      "brand": "Inspur",
+      "model": "F37X",
+      "title": "Inspur F37X",
+      "kind": "FPGA accelerator",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_as_printed",
+          "2023-12"
+        ],
+        [
+          "document_date_context",
+          "Cover December 2023; PDF modification metadata March 2024; not a product release date"
+        ],
+        [
+          "source_pages",
+          "51 (PDF page number)"
+        ],
+        [
+          "compatibility_context",
+          "Listed in the archived InCloud Rail compatibility list; historical source claim, not current support or hyperscaler deployment"
+        ],
+        [
+          "vendor_as_printed",
+          "Inspur"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-ne5260m5-launch-2019",
+      "key": "NE5260M5",
+      "brand": "Inspur",
+      "model": "NE5260M5",
+      "title": "Inspur NE5260M5",
+      "kind": "edge server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "article_date",
+          "2019-02-27"
+        ],
+        [
+          "launch_event_date",
+          "2019-02-25"
+        ],
+        [
+          "physical_description",
+          "2U, 19-inch width, 430 mm chassis depth; wall-mount design described"
+        ],
+        [
+          "processor",
+          "Two forthcoming Intel scalable processors, as described in the 2019 launch article; exact SKU unasserted"
+        ],
+        [
+          "memory",
+          "16 DIMM slots"
+        ],
+        [
+          "expansion",
+          "Six PCI-E slots"
+        ],
+        [
+          "drive_bays",
+          "Six 2.5-inch drives and two M.2 SSDs"
+        ],
+        [
+          "design_context",
+          "OTII edge-server design; named telecom collaboration is not operator deployment"
+        ],
+        [
+          "configuration_limit",
+          "Historical platform options, not actual auction-unit contents or current firmware access"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-i24-node-relationship-2020",
+      "key": "i24",
+      "brand": "Inspur",
+      "model": "i24",
+      "title": "Inspur i24",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_revision",
+          "3.0"
+        ],
+        [
+          "document_release_date",
+          "2020-01"
+        ],
+        [
+          "source_pages",
+          "5, 8 (PDF page numbers)"
+        ],
+        [
+          "physical_description",
+          "2U chassis supports four NS5162M5 compute nodes"
+        ],
+        [
+          "compute_node_model",
+          "NS5162M5"
+        ],
+        [
+          "management",
+          "CMC and BMC management"
+        ],
+        [
+          "power_description",
+          "Nodes share chassis power supplies and cooling through the side-card connection"
+        ],
+        [
+          "identity_scope",
+          "Chassis/platform identity; NS5162M5 is a separate compute-node model"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-i24-node-relationship-2020",
+      "key": "NS5162M5",
+      "brand": "Inspur",
+      "model": "NS5162M5",
+      "title": "Inspur NS5162M5",
+      "kind": "compute node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_revision",
+          "3.0"
+        ],
+        [
+          "document_release_date",
+          "2020-01"
+        ],
+        [
+          "source_pages",
+          "5, 8 (PDF page numbers)"
+        ],
+        [
+          "chassis_model",
+          "i24"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors per node"
+        ],
+        [
+          "memory",
+          "Up to 16 DDR4 DIMMs per node"
+        ],
+        [
+          "expansion",
+          "Page 8 describes three PCIe x16 slots and OCP/PHY connectivity; configuration-dependent"
+        ],
+        [
+          "power_description",
+          "Uses the i24 chassis shared power and cooling via a side card"
+        ],
+        [
+          "identity_scope",
+          "Compute-node identity; not an alias for the i24 chassis or an independent rack server"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+HTTP/2 200 
+content-type: text/plain; charset=utf-8
+server: gunicorn
+content-disposition: inline; filename=robots.txt
+last-modified: Tue, 22 Sep 2026 15:32:10 GMT
+cache-control: public, max-age=86400
+expires: Tue, 06 Oct 2026 20:33:11 GMT
+etag: "1790091130.0-53-2367883880"
+accept-ranges: bytes
+age: 0
+date: Thu, 15 Oct 2026 05:48:43 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300040-BFI
+x-cache: HIT
+x-cache-hits: 0
+vary: Cookie
+content-length: 53
+

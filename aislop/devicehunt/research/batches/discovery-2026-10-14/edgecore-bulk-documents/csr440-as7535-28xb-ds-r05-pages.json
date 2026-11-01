@@ -1,0 +1,168 @@
+{
+  "pdf_sha256": "10e43dd38a65b18edd67c448d49b853628af720262f64f5ddc161d27faf7a4c0",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 4,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "CSR440                Cell Site Router\n\nCELL SITE ROUTER\nAS7535-28XB\n\n\n\n\nEdgecore CSR440 is an open disaggregated cell site gateway platform that provides a combination of 1/10/25Gbps,\n40/100Gbps, and 100/400Gbps interfaces, utilizing a powerful Qumran family merchant silicon and an Intel Xeon\nx86 processor with hyper threading technology providing optimized performance for service provider access and\naggregation networks.\n\nCSR440 is a temperature hardened design product, able to operate at a wide operational temperature range from\n-40˚C to 65˚C, and with redundant/hot swappable power modules and 5+1 high eﬃcient modular fans that provide\nhigh availability and hassle-free maintenance for mission critical applications, making the hardware an ideal choice\nfor current LTE and emerging 5G mobile xhaul network solutions.\n\nCSR440 is pre-installed with ONIE (Open Network Install Environment) to provide freedom of choice and ﬂexibility\nfor preferred NOS (Network Operating System) integrated with user applications.\n\nKey Features and Beneﬁts\n■ Open disaggregated cell site gateway for mobile fronthaul, backhaul, and O-RAN networks.\n■ 24 x 25G SFP28, 2 x 100G QSFP28 and 2 x 400G QSFP-DD ﬁxed ports.\n■ Supports IEEE1588v2 and SyncE functions in hardware.\n■ Supports TSN (Time-Sensitive Networking) IEEE 802.1CM in hardware.\n■ Rack mountable in standard 19\" racks.\n■ All ports and PSUs on front; fan modules on rear.\n■ Hot-swappable, load sharing, redundant AC/48VDC PSUs.\n■ Hot-swappable 5+1 redundant fan modules.\n■ Management: Ethernet and console RJ-45 ports; USB storage port.\n■ Pre-loaded with Open Network Install Environment (ONIE).\n■ Compatible with Open Network Linux (ONL).\n"
+    },
+    {
+      "page": 2,
+      "text": "Free Soﬅware Included\n\n\n\n\nInterfaces\n\n\n                      1                2            3                             4    5   6 7\n\n\n\n                                                                                                    8\n                                                                                                    14\n\n\n\n\n                                       9                                          10   11 12   13\n\n\n                                       15\n\n\n\n\nDescription\n 1.   Power supply                          9.    2 x 400G QSFP-DD Ethernet ports\n\n 2.   2 x 100G QSFP28 Ethernet ports        10.   1 x RJ-45 console port\n\n 3.   24 x 25G SFP28 Ethernet ports         11.   USB console port\n\n 4.   1 x RJ-45 management port             12.   1 x TOD RJ-45 port\n\n 5.   1 x BITS port                         13.   1 x Alarm port\n\n 6.   1 x 10MHz I/O                         14.   Micro USB Type-B console port\n\n 7.   1 x PPS I/O                           15.   Hot-swappable 5 + 1 redundant fans\n\n 8.   GNSS antenna input\n"
+    },
+    {
+      "page": 3,
+      "text": "Ports                                                            Electromagnetic Compatibility\n■ Switch Ports                                                   ■ Safety\n  24 x SFP28 (each supports 1/10 GbE or 25 GbE)                    UL (CAN/CSA 22.2 No 62368-1 & UL62368-1)\n  2 x 100G QSFP28 (each supports 40/100 GbE)                       CB (IEC/EN60950-1 & IEC/EN62368-1)\n  2 x 400G QSFP-DD (each supports 50/100/200/400 GbE)              BSMI (CNS15598-1)*\n■ Management Ports on Front Panel:                               ■ Electromagnetic Compatibility\n  1 x RJ-45 serial console                                         CE Mark\n  1 x RJ-45 1000BASE-T management Ethernet port (MGMT)               EN 55032 Class A\n  1 x USB Type C (Storage)                                           EN 55024 (Immunity) for Information Technology Equipment\n  1 x Micro USB console port                                         EN 55035 Class A\n  1 x RJ-45 Alarm port                                               EN 61000-3-3\n■ Clocking and Timing ports                                          EN 61000-3-2\n  1 x 1PPS I/O port                                                FCC Title 47, Part 15, Subpart B Class A\n  1 x 10MHz I/O port                                               VCCI Class A\n  1 x Time of day (ToD) RJ-45 port                                 CNS 15936 (BSMI)*\n  1 x Building-Integrated Timing System port (BITS) RJ-45 port\n■ GNSS Antenna: 1 x GNSS antenna input port                      Environmental\n■ Supported Transceivers and Cables:                             ■ NEBS Level 3 compliance (Pre-test)*\n  1000BASE-SX/LX/EX/ZX                                           ■ Bump: IEC60068-2-29- packaged\n  10GBASE-SR/LR/ER/ZR                                            ■ Shock: ETSI EN 300 019-2-3 -Operational Tests, Class T3.2 op\n  25GBASE-SR/LR                                                  ■ RoHS 2.0 Compliant\n  100GBASE-SR4/LR4/ER4/ZR4/PSM4-2                                ■ WEEE Standards: The switches complied with the following\n  400GBASE-SR8/DR4/FR4/ZR/ZR+                                      WEEE standards: Waste Electrical and Electronic Equipment\n  • Note: More optics and detailed cabling information can be      (WEEE Directive 2002/96/EC)\n    found at www.edge-core.com.\n  • Note: Condition of supporting ZR/ZR+ transceivers to be      Warranty\n    under ambient temperature up to 55°C with 85°C transceiver   Please check www.edge-core.com for the warranty terms in your\n    case temperature limit.                                      country.\n\nKey Components                                                   For More Information\n■ Switch Silicon: Broadcom BCM88843 Qumran-2A                    To ﬁnd out more about Edgecore Networks Corporation products\n■ CPU Modules:                                                   and solutions, visit www.edge-core.com.\n  Processor: Intel® Xeon® D-1539 1.6GHz 8-Core\n  Memory: DDR4 SO-DIMM 2x 8GB SDRAM with ECC support             About Edgecore Networks Corporation\n  Storage: 1 x 128GB mSATA SSD                                   Edgecore Networks Corporation is in the business of providing\n                                                                 innovative network solutions. In the service provider network, in the\nPerformance                                                      data center or in the cloud, Edgecore Networks Corporation delivers\n■ 800 Gbps bidirectional switching capacity                      the soﬅware and systems that transform the way the world\n■ 600 Mpps packet processing rate                                connects. Edgecore Networks Corporation serves customers and\n                                                                 partners worldwide. Additional information can be found at\nPhysical and Environmental                                       www.edge-core.com.\n■ Dimensions (WxDxH): 438.4 x 300 x 43.3 mm\n■ Weight: 7.5 kg (NW) 16.53 lb                                   Edgecore Networks Corporation is a subsidiary of Accton\n■ Fans: Hot-swappable 5+1 redundant fans                         Technology Corporation, the leading network ODM company. The\n■ Operating Temperature: -40°C to 65°C (-40°F to 149°F)          Edgecore data center switches are developed and manufactured by\n■ Storage Temperature: -40°C to 70°C (-40°F to 158°F)            Accton.\n■ Operating Humidity: 5% to 95% non-condensing\n                                                                 To purchase Edgecore Networks solutions, please contact your\nPSU                                                              Edgecore Networks Corporation representatives at +886 3 563 8888\n■ DC Input: -44 - -60V, 15.5-9.6 A, per PS                       (HQ) or +1 (949)-336-6801 or authorized resellers.\n■ AC Input: 100V-240V, 6.0-2.4 A, per PS\n                                                                 © Copyright 2024 Edgecore Networks Corporation. The information\nPower Consumption                                                contained herein is subject to change without notice. This document\n■ Max: 383.6 W                                                   is for informational purposes only and does not set forth any\n  Minimum: 78.68 W                                               warranty, expressed or implied, concerning any equipment,\n                                                                 equipment feature, or service oﬀered by Edgecore Networks\n                                                                 Corporation. Edgecore Networks Corporation shall not be liable for\n                                                                 technical or editorial errors or omissions contained herein.\n\n\n\n\n*Certiﬁcation is by request with fees.\n"
+    },
+    {
+      "page": 4,
+      "text": "Ordering Information\nBase Model: AS7535-28XB; Intel® Xeon® D-1539 1.6GHz 8-Core, 24 x SFP28, 2 x QSFP28, 2 x QSFP-DD ﬁxed ports.\nONIE Soﬅware Installer.\nModel Number               Part Number       PSU                    Airﬂow                 Region (Power Cord)\n\nAS7535-28XB-O-AC-F V2      F0PEC7332007A     Modular Dual AC PSUs   Front-to-Back Airﬂow   N/A\n\nAS7535-28XB-O-AC-F-US V2   F0PEC7332403A     Modular Dual AC PSUs   Front-to-Back Airﬂow   US\n\nAS7535-28XB-O-AC-F-EU V2   F0PEC7332203A     Modular Dual AC PSUs   Front-to-Back Airﬂow   EU\n\nAS7535-28XB-O-AC-F-JP V2   F0PEC7332503A     Modular Dual AC PSUs   Front-to-Back Airﬂow   JP\n\nAS7535-28XB-O-AC-F-TW V2   F0PEC7332T03A     Modular Dual AC PSUs   Front-to-Back Airﬂow   TW\n\nAS7535-28XB-O-AC-F-CN V2   F0PEC7332703A     Modular Dual AC PSUs   Front-to-Back Airﬂow   CN\n\nAS7535-28XB-O-AC-F-UK V2   F0PEC7332303A     Modular Dual AC PSUs   Front-to-Back Airﬂow   UK\n\nAS7535-28XB-O-48V-F V2     F0PEC7332006A     Modular Dual DC PSUs   Front-to-Back Airﬂow   N/A\n\n\n\n\n                                                                                                           EC-DS-0824-R05\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "csr440-as7535-28xb-ds-r05.pdf",
+    "extracted_at_utc": "2026-10-15T06:05:14.610036+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2024-073-CSR440_AS7535-28XB DS R05 20240828\nCreator:         Adobe Illustrator 27.8 (Windows)\nProducer:        Adobe PDF library 17.00\nCreationDate:    Tue Aug 27 22:23:19 2024 PDT\nModDate:         Tue Aug 27 23:23:39 2024 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           4\nEncrypted:       no\nPage size:       595.28 x 841.89 pts (A4)\nPage rot:        0\nFile size:       2910495 bytes\nOptimized:       no\nPDF version:     1.6\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/csr440-as7535-28xb-ds-r05.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "01c14f1d0cf0a5a669a92c9818c7e5e92c7115b3761229386ede517235dd755b"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/csr440-as7535-28xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "e1ec51cc018202bd3e17562c45dcb4bb2e9163d8546fabebb75d905b55124d9b"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/csr440-as7535-28xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "8d9cbf398d7e96ecedc016e8515604e594cae6e739f22191c796a0f8f488292e"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/csr440-as7535-28xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "e60342ff4a397de524ae4893d5aaff6addafc5ba972bb7110ebf9947e142241e"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/edgecore-bulk-documents/csr440-as7535-28xb-ds-r05.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "87b67c60a6478a00483ae8db48dddcb70efc19f4e14b75dd12397061ecf7cc85"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

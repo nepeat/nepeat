@@ -1,0 +1,714 @@
+{
+  "pdf_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 25,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "          The PFE1100-12-054xA is a 1100 Watt AC to DC power-factor-\n          corrected (PFC) power supply that converts standard AC mains power\n          into a main output of 12 VDC for powering intermediate bus\n          architectures (IBA) in high performance and reliability servers, routers,\n          and network switches.\n\n          The PFE1100-12-054xA meets international safety standards and\n          displays the CE-Mark for the European Low Voltage Directive (LVD).\n\n\n\n\n          •     Best-in-class, 80 PLUS certified “Platinum” efficiency\n          •     Wide input voltage range: 90-264 VAC\n          •     AC input with power factor correction\n          •     Always-On 16.5 W programmable standby output (3.3/5 V)\n          •     Hot-plug capable\n          •     Parallel operation with active digital current sharing\n          •     Full digital controls for improved performance\n          •     High density design: 25.6 W/in3\n          •     Small form factor: 321.5 x 54.5 x 40 mm (12.66 x 2.14 x 1.57 in)\n          •     I2C communication interface for control, programming and\n          •     monitoring with PSMI and Power Management Bus protocol\n          •     Overtemperature, output overvoltage and overcurrent protection\n          •     256 Bytes of EEPROM for user information\n          •     2 Status LEDs: AC OK and DC OK with fault signaling\n\n\n\n\n          •     High Performance Servers\n          •     Routers\n          •     Switches\n\n\n\n\nPlease read our datasheet & drawing disclaimer here.\n"
+    },
+    {
+      "page": 2,
+      "text": "2\n                                                                                              PFE1100-12-054xA\n\n     PFE                1100              -                   12                    -            054                   x                A\nProduct Family   Power Level             Dash              V1 Output               Dash         Width             Airflow              Input\n                                                                                                                N: Normal\nPFE Front-Ends      1100 W                                   12 V                              54 mm                                   A: AC\n                                                                                                                R: Reverse\n\n\n\n\n    The PFE1100-12-054xA AC/DC power supply is a fully DSP controlled, highly efficient front-end power supply. It incorporates\n    resonance-soft-switching technology and interleaved power trains to reduce component stresses, providing increased system\n    reliability and very high efficiency. With a wide input operational voltage range and minimal linear derating of output power with input\n    voltage and temperature, the PFE1100-12-054xA maximizes power availability in demanding server, network, and other high\n    availability applications. The supply is fan cooled and ideally suited for integration with a matching airflow paths.\n    The PFC stage is digitally controlled using a state-of-the-art digital signal processing algorithm to guarantee best efficiency and unity\n    power factor over a wide operating range. The DC/DC stage uses soft switching resonant techniques in conjunction with synchronous\n    rectification. An active OR-ing device on the output ensures no reverse load current and renders the supply ideally suited for operation\n    in redundant power systems. The always-on standby output, with selectable voltage level (3.3/5.0 Volts), provides power to external\n    power distribution and management controllers. It is protected with an active OR-ing device for maximum reliability.\n    Status information is provided with front-panel LEDs. In addition, the power supply can be controlled and the fan speed set via the\n    I2C bus. The I2C bus allows full monitoring of the supply, including input and output voltage, current, power, and inside temperatures.\n    Cooling is managed by a fan controlled by the DSP controller. The fan speed is adjusted automatically depending on the actual power\n    demand and supply temperature and can be overridden through the I2C bus.\n\n\n\n                    L                                                                                            V1\n\n                                                                        DC\n                                                                                                                 Vsb\n                                                                                                                 VsbSense+\n                                Filter        PFC                                               Buck\n                                                                                                                 VsbSense-\n\n\n\n                                                                                   DC\n                    N                                                                                            GND\n\n\n                   PE\n                                              PWM\n                                                              Aux\n                                                                                                       EEPROM\n                                                            Converter\n                                                                                    FAN\n\n\n                                                                             PWM                                 V1Sense+\n\n                                            Digital                                        Digital               V1Sense-\n                                             Prim                                           Sec                  I2C\n                                                                Communication Bus\n                                           Controls                                       Controls               APS\n                                                                                                                 Logic Signals\n\n\n\n\n                                                    Figure 1. PFE1100-12-054xA Block Diagram\n\n\n\n\n     Stresses in excess of the absolute maximum ratings may cause performance degradation, adversely affect long-term reliability and\n     cause permanent damage to the supply.\n\nPARAMETER                                CONDITIONS / DESCRIPTION                                               MIN          MAX        UNITS\nVi maxc     Maximum Input                Continuous                                                                              264      VAC\n\n\n\n\n                                                                                                                tech.support@psbel.com\n"
+    },
+    {
+      "page": 3,
+      "text": "PFE1100-12-054xA                                                                                                                                 3\n\n\n\n\n        General Condition: TA = 0… 45 °C unless otherwise noted.\n\nPARAMETER                                     DESCRIPTION / CONDITION                                           MIN     NOM     MAX     UNITS\n Vi nom     Nominal Input Voltage                                                                               100      230    230      VAC\n Vi         Input Voltage Ranges              Normal operating (Vi min to Vi max)                                90             264      VAC\n Vi red     Derated Input Voltage Range       See Figure 20 and Figure 40                                        90             180      VAC\n Ii max     Max Input Current                                                                                                    13       Arms\n                                              Vi    min    to      Vi      max,   TNTC      =   25°C     (\n Ii p       Inrush Current Limitation                                                                                            40        Ap\n                                              Figure 5)\n Fi         Input Frequency                                                                                      47     50/60    64       Hz\n PF         Power Factor                      Vi nom, 50Hz, > 0.3 I1 nom                                        0.96                     W/VA\n Vi on      Turn-on Input Voltage1            Ramping up                                                         80              87      VAC\n Vi off     Turn-off Input Voltage1           Ramping down                                                       75              85      VAC\n                                              Vi nom, 0.1∙Ix nom, Vx nom, TA = 25°C                                      90.3\n                                              Vi nom, 0.2∙Ix nom, Vx nom, TA = 25°C                                      93.4\n        η   Efficiency without Fan                                                                                                         %\n                                              Vi nom, 0.5∙Ix nom, Vx nom, TA = 25°C                                      94.5\n                                              Vi nom, Ix nom, Vx nom, TA = 25°C                                          93.8\n                                              After last AC zero point, V1 > 10.8V, VSB within\n Thold      Hold-up Time                                                                                         12                       ms\n                                              regulation, Vi = 230 VAC, Px nom\n\n\n\n            INPUT FUSE\n            Quick-acting 16 A input fuses (5 x 20 mm) in series with both the L- and N-line inside the power supply protect against severe\n            defects. The fuses are not accessible from the outside and are therefore not serviceable parts.\n\n\n            INRUSH CURRENT\n            The AC-DC power supply exhibits an X-capacitance of only 3.2 μF, resulting in a low and short peak current, when the supply\n            is connected to the mains. The internal bulk capacitor will be charged through an NTC which will limit the inrush current.\n\n            NOTE:\n            Do not repeat plug-in / out operations within a short time, or else the internal in-rush current limiting device (NTC) may not\n            sufficiently cool down and excessive inrush current or component failure(s) may result.\n\n\n            INPUT UNDER-VOLTAGE\n            If the sinusoidal input voltage stays below the input undervoltage lockout threshold Vi on, the supply will be inhibited. Once the\n            input voltage returns within the normal operating range, the supply will return to normal operation again.\n\n\n            POWER FACTOR CORRECTION\n            Power factor correction (PFC) is achieved by controlling the input current waveform synchronously with the input voltage. A\n            fully digital controller is implemented giving outstanding PFC results over a wide input voltage and load ranges. The input current\n            will follow the shape of the input voltage. If for instance the input voltage has a trapezoidal waveform, then the current will also\n            show a trapezoidal waveform.\n            In addition, the PFC circuit has a stability region to be observed when operating the power supply at high input current\n            amplitudes. At a low source inductance (<150 μH) the power supply will work stable up to its full maximum input current (13\n            Arms). If the source inductance is higher, the region with stable PFC operation is slightly reduced (as shown in Figure 4). The\n            power supply will also work in the unstable region, but it may exhibit a slight current oscillation during the sinusoidal peak.\n\n\n\n\n                1 The Front-End is provided with a minimum hysteresis of 3 V during turn-on and turn-off within the ranges.\n\n\n\n\n                                                                                      Asia-Pacific     Europe, Middle East       North America\n                                                                             +86 755 298 85888               +353 61 49 8941    +1 866 513 2839\n\n                                                                                                        © 2023 Bel Fuse Inc.      BCD.00012_AP\n"
+    },
+    {
+      "page": 4,
+      "text": "4\n                                                                                                                                          PFE1100-12-054xA\n\n    EFFICIENCY\n    High efficiency (see Figure 2) is achieved by using state-of-the-art silicon power devices in conjunction with soft-transition\n    topologies minimizing switching losses and a full digital control scheme. Synchronous rectifiers on the output reduce the losses\n    in the high current output path. The speed of the fan is digitally controlled to keep all components at an optimal operating\n    temperature regardless of the ambient temperature and load conditions.\n\n                                 95                                                                                           1\n                                                                                                                            0.98\n                                 94\n                                                                                                                            0.96\n                                 93                                                                                         0.94\n\n\n\n       Efficiency [%]                                                                                        Power factor\n                                                                                                                            0.92\n                                 92\n                                                                                                                             0.9\n                                 91                                                                                         0.88\n                                 90                                                                                         0.86\n                                                                        Vi = 230Vac, fan internal                                                                       Vi = 230Vac\n                                                                                                                            0.84\n                                 89                                     Vi = 230Vac, fan external\n                                                                        Platinum                                            0.82                                        Vi = 115Vac\n\n                                 88                                                                                          0.8\n                                      0         200      400             600          800         1000                             0         200     400       600    800        1000\n                                                                     Po [W]                                                                                Po [W]\n\n     Figure 2. Efficiency vs. Load current (ratio metric loading)                                                                      Figure 3. Power factor vs. Load current\n\n\n                                 16\n\n                                 14                                            Unstable\n\n\n\n\n          Input Current [Arms]\n                                 12\n\n                                 10\n\n                                  8\n\n                                  6\n\n                                  4                              Stable\n                                  2\n\n                                  0\n                                      0   100    200   300     400    500      600   700    800   900 1000\n                                                             Line Inductance [uH]\n\n                                                Figure 4. PFC Stability Region                                                     Figure 5. Inrush current, Vin = 230Vac, 90°\n                                                                                                                                      CH4: Vin (200V/div), CH3: Iin (20A/div)\n\n\n\n\n                                                                                                                                                           tech.support@psbel.com\n"
+    },
+    {
+      "page": 5,
+      "text": "PFE1100-12-054xA                                                                                                                                5\n\n\n\n\n       General Condition: Ta = 0 … +45 °C unless otherwise noted.\n\nPARAMETER                                  DESCRIPTION / CONDITION                                           MIN      NOM     MAX        UNIT\nMain Output V1\nV1 nom        Nominal Output Voltage                                                                                   12.0              VDC\n                                           0.5 ∙I1 nom, Tamb = 25 °C\nV1 set        Output Setpoint Accuracy                                                                        -0.5            +0.5      % V1 nom\ndV1 tot       Total Regulation             Vi min to Vi max, 0 to 100% I1 nom, Ta min to Ta max                -1              +1       % V1 nom\nP1 nom        Nominal Output Power         V1 = 12 VDC                                                                 1080                W\nI1 nom        Nominal Output Current       V1 = 12 VDC                                                                 90.0              ADC\nv1 pp         Output Ripple Voltage        V1 nom, I1 nom, 20MHz BW (See Section 5.1)                                         150        mVpp\ndV1 Load      Load Regulation              Vi = Vi nom, 0 - 100 % I1 nom                                                60                mV\ndV1 Line      Line Regulation              Vi =Vi min…Vi max                                                            0                 mV\n              Current Limitation           Vi > 115 VAC, Ta < 45°C                                            93.5            100\n              PFE1100-12-054NA             Vi > 90 VAC, Ta < 45°C                                              74             78\nI1 max        Current Limitation           Vi > 180 VAC, Ta < 45°C                                             91             95\n                                                                                                                                         ADC\n              PFE1100-12-054RA             Vi > 90 VAC, Ta < 45°C                                              71             75\ndIshare       Current Sharing              Deviation from I1 tot / N, I1 > 10%                                 -3             +3           A\ndVdyn         Dynamic Load Regulation      ΔI1 = 50% I1 nom, I1 = 5 … 100% I1 nom,                            -0.6             0.6         V\nTrec          Recovery Time                dI1/dt = 1A/μs, recovery within 1% of V1 nom                                        1          ms\ntAC V1        Start-up Time from AC        V1 = 10.8 VDC (see Figure 7)                                                        2          sec\ntV1 rise      Rise Time                    V1 = 10…90% V1 nom (see Figure 8)                                            1      10         ms\nCLoad         Capacitive Loading           Ta = 25°C                                                                          30000       μF\nStandby Output VSB\n  VSB nom     Nominal Output Voltage                                                     VSB_SEL = 1                    3.3              VDC\n                                           0.5 ∙ISB nom, Tamb = 25°C                     VSB_SEL = 0                    5.0              VDC\n  VSB set     Output Setpoint Accuracy\n                                                                                         VSB_SEL = 0 / 1      -0.5            +0.5      %V1nom\n dVSB tot     Total Regulation             Vi min to Vi max, 0 to 100% ISB nom, Ta min to Ta max               -1              +1       %VSBnom\n                                           VSB = 3.3 VDC, normal airflow                                               16.5\n  PSB nom     Nominal Output Power         VSB = 3.3 VDC, reverse airflow                                              11.5                W\n                                           VSB = 5.0 VDC, normal/reverse airflow                                       16.5\n                                           VSB = 3.3 VDC, normal airflow                                                5\n  ISB nom     Nominal Output Current       VSB = 3.3 VDC, reverse airflow                                               3.5              ADC\n                                           VSB = 5.0 VDC, normal/reverse airflow                                        3.3\n  VSB pp      Output Ripple Voltage        VSB nom, ISB nom, 20 MHz BW (See Section 5.1)                                      100        mVpp\n                                                                                         VSB_SEL = 1                    67\n   dVSB       Droop                        0 - 100 % ISB nom                                                                              mV\n                                                                                         VSB_SEL = 0                    44\n                                           VSB_SEL = 1, normal airflow                                        5.25             6\n  ISB max     Current Limitation           VSB_SEL = 1, reverse airflow                                        4              4.75       ADC\n                                           VSB_SEL = 0, normal/reverse airflow                                3.45             4.3\n   dVSBdyn    Dynamic Load Regulation      ΔISB = 50% ISB nom, ISB = 5 … 100% ISB nom,                         -3              3        %VSBnom\n       Trec   Recovery Time                dIo/dt = 0.5 A/μs, recovery within 1% of V1 nom                                    250         μs\n  tAC VSB     Start-up Time from AC        VSB = 90% VSB nom (Figure 7)                                                        2          sec\n  tVSB rise   Rise Time                    VSB = 10…90% VSB nom (see Figure 8)                                          4      20         ms\n  CLoad       Capacitive Loading           Tamb = 25°C                                                                        10000       μF\n\n\n\n\n                                                                                   Asia-Pacific     Europe, Middle East         North America\n                                                                           +86 755 298 85888               +353 61 49 8941     +1 866 513 2839\n\n                                                                                                       © 2023 Bel Fuse Inc.        BCD.00012_AP\n"
+    },
+    {
+      "page": 6,
+      "text": "6\n                                                                                             PFE1100-12-054xA\n\n    Internal capacitance at the 12 V output (behind the OR-ing circuitry) is minimized to prevent disturbances during hot plug. In\n    order to provide low output ripple voltage in the application, external capacitors should be added close to the power supply\n    output.\n    The setup of Figure 6 has been used to evaluate suitable capacitor types. The capacitor combinations of Table 1 and Table 2\n    should be used to reduce the output ripple voltage. The ripple voltage is measured with 20 MHz BWL, close to the external\n    capacitors.\n\n\n\n                                                                                     V1\n\n\n\n\n                                                   PFExxxx-12-054NA\n                                                                                   PGND\n\n\n\n                                                                                    VSB\n\n                                                                             Connection board\n\n\n                                              Figure 6. Output ripple test setup\n\n    NOTE:\n    Care must be taken when using ceramic capacitors with a total capacitance of 1 µF to 50 µF on output V1, due to their high\n    quality factor the output ripple voltage may be increased in certain frequency ranges due to resonance effects.\n\n     External capacitor V1                dV1max                      Unit\n     2Pcs 47 µF/16 V/X5R/1210                150                      mVpp\n                                                                             External capacitor VSB                  dV1max      Unit\n     1Pcs 1000 µF/16 V/Low ESR\n                                             120                      mVpp   1Pcs 10 µF/16 V/X5R/1206                   80       mVpp\n     Aluminum/ø10x20\n     1Pcs 270 µF/16 V/Conductive                                             2Pcs 10 µ/F16 V/X5R/1206                   50       mVpp\n                                             120                      mVpp\n     Polymer/ø8x12                                                           1Pcs 47 µF/16 V/X5R/1210                   40       mVpp\n     2Pcs 47 µF/16 V/X5R/1210 plus\n                                                                             2Pcs 100 µF/6.3 V/X5R/1206                 30       mVpp\n     1Pcs 270 µF Conductive Polymer          60                       mVpp\n     OR 1Pcs 1000 µF Low ESR AlCap                                                        Table 2. Suitable capacitors for VSB\n               Table 1. Suitable capacitors for V1\n\n    The output ripple voltage on VSB is influenced by the main output V1. Evaluating VSB output ripple must be done when\n    maximum load is applied to V1.\n\n\n\n\n         Figure 7. Turn-On AC Line 230VAC, full load (200ms/div)                 Figure 8. Turn-On AC Line 230VAC, full load (5ms/div)\n           CH1: V1 (2V/div) CH2: VSB (2V/div) CH3: Vin (200V/div)                CH1: V1 (2V/div) CH2: VSB (2V/div) CH3: Vin (200V/div)\n\n\n\n\n                                                                                                              tech.support@psbel.com\n"
+    },
+    {
+      "page": 7,
+      "text": "PFE1100-12-054xA                                                                                                             7\n\n\n\n\n     Figure 9. Turn-Off AC Line 230VAC, full load (20ms/div)             Figure 10. Short circuit on V1 (500 μs/Div)\n      CH1: V1 (2V/div) CH2: VSB (2V/div) CH3: Vin (200V/div)         CH1: V1 (2V/div) CH2: VSB (1V/div) CH3: I1 (200A/div)\n\n\n\n\n           Figure 11. Short circuit on V1 (50ms/div)                     Figure 12. AC drop out 10 ms (10ms/div)\n      CH1: V1 (2V/div) CH2: VSB (1V/div) CH3: I1 (200A/div)         CH1: V1 (2V/div) CH2: VSB (1V/div) CH4: Vin (200V/div)\n\n\n\n\n           Figure 13. AC drop out 20 ms (10ms/div)                Figure 14. AC drop out 20ms (200ms/div), V1 restart after 1s\n      CH1: V1 (5V/div) CH2: VSB (2V/div) CH4: Vin (200V/div)          CH1: V1 (5V/div) CH2: VSB (2V/div) CH4: I1 (200V/div)\n\n\n\n\n       Figure 15. Load transient V1, 5 to 50A (500μs/div)             Figure 16. Load transient V1, 50 to 5A (500μs/div)\n             CH2: V1 (200mV/div), CH4: I1 (20A/div)                         CH2: V1 (200mV/div), CH4: I1 (20A/div)\n\n\n\n\n                                                               Asia-Pacific     Europe, Middle East            North America\n                                                         +86 755 298 85888          +353 61 49 8941          +1 866 513 2839\n\n                                                                                 © 2023 Bel Fuse Inc.           BCD.00012_AP\n"
+    },
+    {
+      "page": 8,
+      "text": "8\n                                                                                               PFE1100-12-054xA\n\n\n\n\n                  Figure 17. Load transient V1, 40 to 85A (500μs/div)                   Figure 18. Load transient V1, 85 to 40A (500μs/div)\n                        CH2: V1 (200mV/div), CH4: I1 (20A/div)                                CH2: V1 (200mV/div), CH4: I1 (20A/div)\n\n\n\n    6\n    PARAMETER                               DESCRIPTION / CONDITION                                   MIN        NOM        MAX         UNIT\n     F               Input Fuses (L+N)      Not user accessible, quick-acting (F)                                 16                      A\n     V1 OV           OV Threshold V1                                                                  13.3                   14.5        VDC\n     tOV V1          OV Latch Off Time V1                                                                                     1          ms\n     VSB OV          OV Threshold VSB                                                                 115                    125        % VSB\n                     OV Latch Off Time\n     tOV VSB                                                                                                                  1          ms\n                     VSB\n                     Current Limit V1       Vi > 115VAC, Ta < 45°C                                    93.5                   100\n                     PFE1100-12-054NA       Vi > 90VAC, Ta < 45°C                                      74                    78\n     IV1 lim                                                                                                                              A\n                     Current Limit V1       Vi > 180VAC, Ta < 45°C                                     92                    100\n                     PFE1100-12-054RA       Vi > 90VAC, Ta < 45°C                                      72                    78\n                     Max Short Circuit\n     IV1 SC                                 V1 < 3V                                                                          110          A\n                     Current V1\n                     Short Circuit\n     tV1 SC                                 V1 < 3V, time until IV1 is limited to < IV1 sc                                    2          ms\n                     Regulation Time\n                     Short Circuit Latch\n     tV1 SC off                             Time to latch off when in short circuit                                          200         ms\n                     Off Time\n                     Over Temperature on\n     TSD                                    Automatic shut-down                                                   115                     °C\n                     Heat Sinks\n\n\n    6.1 OVERVOLTAGE PROTECTION\n           The PFE front-ends provide a fixed threshold overvoltage (OV) protection implemented with a HW comparator. Once an OV\n           condition has been triggered, the supply will shut down and latch the fault condition. The latch can be unlocked by\n           disconnecting the supply from the AC mains or by toggling the PSON_L input.\n\n\n    6.2 VSB UNDERVOLTAGE DETECTION\n           Both main and standby outputs are monitored. LED and PWOK_H pin signal if the output voltage exceeds ±5% of its nominal\n           voltage. Output undervoltage protection is provided on the standby output only. When VSB falls below 75% of its nominal\n           voltage, the main output V1 is inhibited.\n\n\n    6.3 CURRENT LIMITATION\n           MAIN OUTPUT\n           The main output exhibits a substantially rectangular output characteristic controlled by a software feedback loop. If it runs in\n           current limitation and its voltage drops below ~10.0 VDC for more than 200 ms, the output will latch off (standby remains on).\n\n\n\n\n                                                                                                               tech.support@psbel.com\n"
+    },
+    {
+      "page": 9,
+      "text": "PFE1100-12-054xA                                                                                                                                                                                                                                                                                           9\n\n\n\n                                                                                                                               12\n\n\n\n\n                                                                                                     Main Output Voltage [V]\n                                                                                                                               10\n\n                                                                                                                               8\n\n                                                                                                                               6\n\n                                                                                                                               4\n\n                                                                                                                               2\n\n                                                                                                                               0\n                                                                                                                                    0         20           40        60          80                                                             100\n                                                                                                                                                         Main Output Current [A]\n\n                                                                                                     Figure 19. Current Limitation on V1 (Vi = 230 VAC)\n\n    A second current limitation circuit on V1 will immediately switch off the main output if the output current increases beyond the\n    peak current trip point. The supply will re-start 4 ms later with a soft start, if the short circuit persists (V1 < 10.0V for >200 ms)\n    the output will latch off; otherwise it continuous to operate (hardware current limit triggers).\n    The latch can be unlocked by disconnecting the supply from the AC mains or by toggling the PSON_L input.\n    The main output current limitation will decrease if the ambient (inlet) temperature increases beyond 45°C or if the AC input\n    voltage is too low (see Figure 20 and Figure 21). Note that the actual current limitation on V1 will begin at a current level\n    approximately 4 A higher than what is shown in Figure 20. (See also Temperature and Fan Control for additional information.)\n\n    STANDBY OUTPUT\n    The standby output exhibits a substantially rectangular output characteristic down to 0V (no hiccup mode / latch off). If it runs\n    in current limitation and its output voltage drops below the UV threshold, then the main output will be inhibited (standby remains\n    on). The current limitation of the standby output is independent of the AC input voltage, but is derated with the ambient\n    temperature (only for reverse airflow).\n\n                                                      100                                                                                                                                                                  100\n\n\n\n\n                    Main Output Nominal Current [A]                                                                                                                                      Main Output Nominal Current [A]\n                                                      80                                                                                                                                                                       80\n\n\n                                                      60                                                                                                                                                                       60\n\n                                                                                                                                                                                                                                                                 Ta < 35°C\n                                                      40                                 Ta < 35°C                                                                                                                             40\n                                                                                                                                                                                                                                                                 Ta < 45°C\n                                                                                         Ta < 45°C\n                                                                                                                                                                                                                                                                 Ta < 55°C\n                                                                                         Ta < 55°C                                                                                                                             20\n                                                      20                                                                                                                                                                                                         Ta < 65°C\n                                                                                         Ta < 65°C\n\n                                                          0                                                                                                                                                                    0\n                                                              90    115        140     165     190    215                               240        265                                                                              90    115         140      165    190       215     240     265\n                                                                                 Input AC Voltage [VAC]                                                                                                                                                 Input AC Voltage [VAC]\n\n                                                              Figure 20. Derating on V1 vs. Vi and Ta for                                                                                                                            Figure 21. Derating on V1 vs. Vi and Ta for\n                                                                         PFE1100-12-054NA                                                                                                                                                       PFE1100-12-054RA\n                                                                                                                                                                                                                           6\n\n\n\n\n                                                                                                                                                                   Standby Output Nominal Current\n                                                      5\n\n\n\n\n     Standby Output Voltage [V]\n                                                                                                                                                                                                                           5\n                                                      4\n                                                                                                                                                                                                                           4\n\n                                                      3\n                                                                                                                                                                                                                           3\n\n\n\n\n                                                                                                                                                                                [A]\n                                                      2                                                                                                                                                                                                     Vsb = 3.3V, RA\n                                                                                                                                                                                                                           2\n                                                                          VSB=3.3V                                                                                                                                                                          Vsb = 3.3V, NA\n                                                      1                   VSB=5V                                                                                                                                           1                                Vsb = 5V, NA & RA\n\n\n                                                      0                                                                                                                                                                    0\n                                                          0                2               4              6                                              8                                                                     0         10           20     30     40        50           60         70\n                                                                               Standby Output Current [A]                                                                                                                                              Ambient Temperature [°C]\n\n                                                                   Figure 22. Current limitation on VSB                                                                                                                              Figure 23. Temperature derating on VSB\n\n\n\n\n                                                                                                                                                                Asia-Pacific                                                                  Europe, Middle East                      North America\n                                                                                                                                                     +86 755 298 85888                                                                            +353 61 49 8941                     +1 866 513 2839\n\n                                                                                                                                                                                                                                               © 2023 Bel Fuse Inc.                     BCD.00012_AP\n"
+    },
+    {
+      "page": 10,
+      "text": "10\n                                                                                            PFE1100-12-054xA\n     7\n     PARAMETER                                  DESCRIPTION / CONDITION                     MIN    NOM         MAX          UNIT\n      Vi mon              Input RMS Voltage     Vi min ≤ Vi ≤ Vi max                        -2.5               +2.5          %\n                                                Ii > 4 Arms                                  -5                 +5           %\n      Ii mon              Input RMS Current\n                                                Ii ≤ 4 Arms                                 -0.2               +0.2         Arms\n                                                Pi > 100 W                                   -5                 +5           %\n      Pi mon              True Input Power\n                                                Pi ≤ 100 W                                   -5                 +5           W\n      V1 mon              V1 Voltage                                                         -2                 +2           %\n                                                I1 > 10 A                                    -2                 +2           %\n      I1 mon              V1 Current\n                                                I1 ≤ 10 A                                   -0.2               +0.2          A\n                                                Po > 120 W                                   -4                 +4           %\n      Po nom              Total Output Power\n                                                Po ≤ 120 W                                  -4.5               +4.5          W\n      VSB mon             Standby Voltage                                                   -0.1               +0.1          V\n      ISB mon             Standby Current       ISB ≤ ISB nom                               -0.2               +0.2          A\n\n\n\n\n     8\n      8.1 ELECTRICAL CHARACTERISTICS\n\n     PARAMETER                DESCRIPTION / CONDITION                                              MIN    NOM         MAX    UNIT\n     PSKILL_H / PSON_L / VSB_SEL / HOTSTANDBYEN_H Inputs\n                VIL           Input Low Level Voltage                                              -0.2               0.8        V\n                VIH           Input High Level Voltage                                             2.4                3.5        V\n                IIL, H        Maximum Input Sink or Source Current                                  0                  1      mA\n          RpuPSKILL_H         Internal Pull Up Resistor on PSKILL_H                                       100                    kΩ\n           RpuPSON_L          Internal Pull Up Resistor on PSON_L                                          10                    kΩ\n           RpuVSB_SEL         Internal Pull Up Resistor on VSB_SEL                                         10                    kΩ\n                              Internal Pull Up Resistor on\n     RpuHOTSTANDBYEN_H                                                                                     10                    kΩ\n                              HOTSTANDBYEN_H\n               RLOW           Resistance Pin to SGND for Low Level                                  0                  1         kΩ\n               RHIGH          Resistance Pin to SGND for High Level                                50                            kΩ\n     PWOK_H Output\n                VOL           Output Low Level Voltage                   Isink < 4 mA               0                 0.4        V\n                VOH           Output High Level Voltage                  Isource < 0.5 mA          2.6                3.5        V\n           RpuPWOK_H          Internal Pull Up Resistor on PWOK_H                                          1                     kΩ\n     ACOK_H Output\n                VOL           Output Low Level Voltage                   Isink < 2 mA               0                 0.4        V\n                VOH           Output High Level Voltage                  Isource < 50 µA           2.6                3.5        V\n           RpuACOK_H          Internal Pull Up Resistor on ACOK_H                                          10                    kΩ\n     SMB_ALERT_L Output\n                Vext          Maximum External Pull Up Voltage                                                        12         V\n                VOL           Output Low Level Voltage                   Isource < 4 mA             0                 0.4        V\n                IOH           Maximum High Level Leakage Current                                                      10      µA\n         RpuSMB_ALERT_L       Internal Pull Up Resistor on SMB_ALERT_L                                    None                   kΩ\n\n\n\n\n                                                                                                   tech.support@psbel.com\n"
+    },
+    {
+      "page": 11,
+      "text": "PFE1100-12-054xA                                                                                                                     11\n\n\n\n\n  8.2 INTERFACING WITH SIGNALS\n\n    All signal pins have protection diodes implemented to protect internal circuits. When the power supply is not powered, the\n    protection devices start clamping at signal pin voltages exceeding ±0.5 V. Therefore, all input signals should be driven only\n    by an open collector/drain to prevent back feeding inputs when the power supply is switched off.\n    If interconnecting of signal pins of several power supplies is required, then this should be done by decoupling with small\n    signal schottky diodes as shown in examples in Figure 24 (Except for SMB_ALERT_L, ISHARE and I2C pins). This will ensure\n    the pin voltage is not affected by an unpowered power supply.\n    SMB_ALERT_L pins can be interconnected without decoupling diodes, since these pins have no internal pull up resistor and\n    use a 15 V zener diode as protection device against positive voltage on pins.\n    ISHARE pins must be interconnected without any additional components. This in-/output also has a 15 V zener diode as a\n    protection device and is disconnected from internal circuits when the power supply is switched off.\n\n                                                    PSU 1 PDU                             PSU 1 PDU\n                                            3.3V                                  3.3V\n\n                                                                                           PWOK\n                                      VSB_SEL\n\n\n\n\n                                                                                          PSU 2\n                                                    PSU 2\n                                                                                  3.3V\n                                            3.3V\n                                                                                           PWOK\n                                      VSB_SEL\n\n\n\n\n                                                   Figure 24. Interconnection of Signal Pins\n\n  8.3 FRONT LEDS\n    The front-end has 2 front LEDs showing the status of the supply. LED number one is green and indicates AC power is on or\n    off, while LED number two is bi-colored: green and yellow, and indicates DC power presence or fault situations. For the position\n    of the LEDs see Table 1 lists the different LED status.\n\n            OPERATING CONDITION                                                          LED SIGNALING\n            AC LED\n            AC Line within range                                                         Solid Green\n            AC Line UV condition                                                         Off\n            DC LED 1\n            PSON_L High                                                                  Blinking Yellow (1:1)\n            Hot-Standby Mode                                                             Blinking Yellow/Green (1:2)\n            V1 or VSB out of regulation\n            Over temperature shutdown\n            Output over voltage shutdown (V1 or VSB)                                     Solid Yellow\n            Output over current shutdown (V1 or VSB)\n            Fan error (>15%)\n            Over temperature warning                                                     Blinking Yellow/Green (2:1)\n            Minor fan regulation error (>5%, <15%)                                       Blinking Yellow/Green (1:1)\n\n            1)   The order of the criteria in the table corresponds to the testing precedence in the controller.\n\n                                                                Table 1. LED Status\n\n\n\n\n                                                                          Asia-Pacific         Europe, Middle East        North America\n                                                                    +86 755 298 85888               +353 61 49 8941      +1 866 513 2839\n\n                                                                                                  © 2023 Bel Fuse Inc.     BCD.00012_AP\n"
+    },
+    {
+      "page": 12,
+      "text": "12\n                                                                                       PFE1100-12-054xA\n     8.4 PRESENT_L\n        This signaling pin is recessed within the connector and will contact only once all other connector contacts are closed. This\n        active-low pin is used to indicate to a power distribution unit controller that a supply is plugged in. The maximum current on\n        PRESENT_L pin should not exceed 10 mA.\n                                                                    PFE            PDU\n\n                                                         V1\n                                                       VSB\n                                                              0V\n\n                                                     PRESENT_L\n\n\n\n\n                                                     Figure 25. PRESENT_L signal pin\n\n\n     8.5 PSKILL_H INPUT\n        The PSKILL_H input is active-high and is located on a recessed pin on the connector and is used to disconnect the main output\n        as soon as the power supply is being plugged out. This pin should be connected to SGND in the power distribution unit. The\n        standby output will remain on regardless of the PSKILL_H input state.\n\n\n     8.6 AC TURN-ON / DROP-OUTS / ACOK_H\n        The power supply will automatically turn-on when connected to the AC line under the condition that the PSON_L signal is\n        pulled low and the AC line is within range. The ACOK_H signal is active-high. The timing diagram is shown in Figure 26 and\n        referenced in Table 4.\n\n     OPERATING CONDITION                           MIN MAX UNIT\n     tAC VSB     AC Line to 90% VVSB                      2  sec\n                                                                                 AC\n     tAC V1      AC Line to 90% V1                        2  sec               Input\n     tACOK_H on1 ACOK_H signal on delay (start-up)      2000 ms\n     tACOK_H on2 ACOK_H signal on delay (dips)           100 ms\n                                                                                VSB                                                 tV1 rise\n     tACOK_H off ACOK_H signal off delay                  5  ms\n     tVSB V1 del VSB to V1 delay                    10   500 ms                                tAC VSB         tVSB rise\n     tV1 holdup  Effective V1 holdup time           12       ms                  V1                            tVSB V1 del\n\n     tVSB holdup Effective VSB holdup time          20       ms                                            tAC V1\n                                                                            PSON_L\n     tACOK_H V1  ACOK_H to V1 holdup                7        ms\n                                                                                           tACOK_H on1\n     tACOK_H VSB ACOK_H to VSB holdup               15       ms            ACOK_H\n\n     tV1 off     Minimum V1 off time               1000 1200 ms            PWOK_H\n                                                                                                                      tPWOK_H del\n\n     tVSB off    Minimum VSB off time              1000 1200 ms\n                    Table 2. AC Turn-on / Dip Timing                                     Figure 26. AC turn-on timing\n\n\n\n\n                                                                                                         tech.support@psbel.com\n"
+    },
+    {
+      "page": 13,
+      "text": "PFE1100-12-054xA                                                                                                                                                                             13\n\n\n\n\n             AC                                                                                                 AC\n           Input                                                                                              Input\n\n\n\n                                                                                                                                        tVSB holdup            tVSB off\n            VSB                            tV1 holdup                                                          VSB\n\n\n                                                                        tV1 off                                                        tV1 holdup                tV1 off\n             V1                       tACOK_H on2                                                               V1\n                                                                                                                       tACOK_H V1\n                             tACOK_H off                                                                                 tACOK_H off\n       PSON_L                                                                                               PSON_L\n                                                                                                                                           tACOK_H VSB\n       ACOK_H                                                                                               ACOK_H\n                                                                  tPWOK_H warn                                                                        tPWOK_H warn\n       PWOK_H                                                                                           PWOK_H\n\n\n                           Figure 27. AC short dips                                                                             Figure 28. AC long dips\n\n  8.7 PSON_L INPUT\n     The PSON_L is an internally pulled-up (3.3 V) input signal to enable/disable the main output V1 of the front-end. This active-\n     low pin is also used to clear any latched fault condition. The timing diagram is given Figure 29 and the parameters in Table 5.\n\n\n                                                        OPERATING CONDITION                                     MIN           MAX               UNIT\n                                     tPSON_L V1on                 PSON_L to V1 delay (on)                        2              20                  ms\n                                     tPSON_L V1off                PSON_L to V1 delay (off)                       2              20                  ms\n                                     tPSON_L H min                   PSON_L minimum High time                    10                                 ms\n\n                                                                                  Table 3. AC Turn-on / Dip Timing\n\n\n  8.8 PWOK_H SIGNAL\n     The PWOK_H is an open drain output with an internal pull-up to 3.3 V indicating whether both VSB and V1 outputs are within\n     regulation. This pin is active-low. The timing diagram is shown in Figure 26 / Figure 29 and referenced in the Table 6.\n\n                                                                                              OPERATING CONDITION                                                         MIN MAX       UNIT\n\n            AC                                                                                tPWOK_H del     PWOK_H to V1 delay (on)                                     100     500   ms\n          Input\n                                                                                                              PWOK_H to V1 delay (off) caused by:\n                                                                                                              PSKILL_H                                                     0       1    ms\n           VSB\n                                                                                                              PSON_L, ACOK_H, OT, Fan Failure                              1      2.5   ms\n                      tPSON_L V1on           tV1 rise        tPSON_L V1off\n                                                                                              tPWOK_H warn* UV and OV on VSB                                               1       30   ms\n             V1\n                                                                                                              OC on V1 (Software trigger)                                  -11     0    ms\n                                             tPSON_L H min                                                    OC on V1 (Hardware trigger)                                   -1     0    ms\n       PSON_L\n\n       ACOK_H\n                                                                                                              OV on V1                                                     -3      0    ms\n                             tPWOK_H del                                     tPWOK_H warn     * A positive value means a warning time, a negative value a delay\n       PWOK_H\n                                                                                              (after fact).\n                  Figure 29. PSON_L turn-on/off timing                                                                Table 4. PWOK_H timing\n\n\n  8.9 CURRENT SHARE\n     The PFE front-ends have an active current share scheme implemented for V1. All the ISHARE current share pins need to be\n     interconnected in order to activate the sharing function. If a supply has an internal fault or is not turned on, it will disconnect\n     its ISHARE pin from the share bus. This will prevent dragging the output down (or up) in such cases.\n     The current share function uses a digital bi-directional data exchange on a recessive bus configuration to transmit and receive\n     current share information. The controller implements a Master/Slave current share function. The power supply providing the\n\n\n\n\n                                                                                                 Asia-Pacific            Europe, Middle East                                     North America\n                                                                                            +86 755 298 85888                   +353 61 49 8941                                +1 866 513 2839\n\n                                                                                                                            © 2023 Bel Fuse Inc.                                 BCD.00012_AP\n"
+    },
+    {
+      "page": 14,
+      "text": "14\n                                                                                                               PFE1100-12-054xA\n        largest current among the group is automatically the Master. The other supplies will operate as Slaves and increase their output\n        current to a value close to the Master by slightly increasing their output voltage. The voltage increase is limited to +250 mV.\n        The standby output uses a passive current share method (droop output voltage characteristic).\n\n\n\n     8.10       SENSE INPUTS\n        Both main and standby outputs have sense lines implemented to compensate for voltage drop on load wires. The maximum\n        allowed voltage drop is 200 mV on the positive rail and 100 mV on the PGND rail.\n        With open sense inputs the main output voltage will rise by 270 mV and the standby output by 50 mV. Therefore, if not used,\n        these inputs should be connected to the power output and PGND close to the power supply connector. The sense inputs are\n        protected against short circuit. In this case the power supply will shut down.\n\n\n     8.11       HOT-STANDBY OPERATION\n        The hot-standby operation is an operating mode allowing to further increase efficiency at light load conditions in a redundant\n        power supply system. Under specific conditions one of the power supplies is allowed to disable its DC/DC stage. This will save\n        the power losses associated with this power supply and at the same time the other power supply will operate in a load range\n        having a better efficiency. In order to enable the hot standby operation, the HOTSTANDBYEN_H and the ISHARE pins need to\n        be interconnected. A power supply will only be allowed to enter the hot-standby mode, when the HOTSTANDBYEN_H pin is\n        high, the load current is low (see Figure 30) and the supply was allowed to enter the hot-standby mode by the system controller\n        via the appropriate I2C command (by default disabled). The system controller needs to ensure that only one of the power\n        supplies is allowed to enter the hot-standby mode.\n        If a power supply is in a fault condition, it will pull low its active-high HOTSTANDBYEN_H pin which indicates to the other\n        power supply that it is not allowed to enter the hot-standby mode or that it needs to return to normal operation should it already\n        have been in the hot-standby mode.\n\n        NOTE:\n        The system controller needs to ensure that only one of the power supplies is allowed to enter the hot-standby model.\n        Figure 33 shows the achievable power loss savings when using the hot-standby mode operation. A total power loss reduction\n        of 45% is achievable.\n\n                                                                                                          60\n\n                                                                                                          50\n\n\n\n\n                                                                                   Total Power Loss [W]\n            2 PSU on                                                                                      40\n\n                                                                                                          30\n\n            1 PSU on                                                                                      20\n                                                                      Total                                                                Hot-Standby Disabled\n                                                                     System                               10\n                                                                                                                                           Hot-Standby Enabled\n                                  10A   25A               50A        Current\n                                                                                                          0\n                                                                                                               0    100   200   300    400     500   600    700   800\n                                                                                                                                      Po [W]\n\n              Figure 30. Hot-standby enable/disable current thresholds                              Figure 31. PSU power losses with/without hot-\n                                                                                                                 standby mode\n                                                      PSU 1                                               PSU 2\n\n                                                                      3 x 3k3\n                                                   VSB                                                             VSB\n\n\n                                                    CS                                                             CS\n\n\n                                        HOTSTANDBYEN                                                               HOTSTANDBYEN\n\n                                            PRESENT_L                                                              PRESENT_L\n\n\n\n                                              Figure 32. Recommended hot-standby configuration\n\n\n\n\n                                                                                                                                 tech.support@psbel.com\n"
+    },
+    {
+      "page": 15,
+      "text": "PFE1100-12-054xA                                                                                                                                  15\n\n\n         In order to prevent voltage dips when the active power supply is unplugged while the other is in hot-standby mode, it is strongly\n         recommended to add the external circuit as shown in Figure 32. If the PRESENT_L pin status needs also to be read by the\n         system controller, it is recommended to exchange the bipolar transistors with small signal MOS transistors or with digital\n         transistors.\n\n\n   8.12          I2C / SMBUS COMMUNICATION\n         The interface driver in the PFE supply is referenced to the V1 Return. The PFE supply is a communication Slave device only;\n         it never initiates messages on the I2C/SMBus by itself. The communication bus voltage and timing is defined in Table 7 further\n         characterized through:\n\n             •    There are no internal pull-up resistors                                                               3.3/5V\n             •    The SDA/SCL IOs are 3.3/5 V tolerant                                            RX\n             •    Full SMBus clock speed of 100 kbps                                              TX                         Rpull-up\n             •    Clock stretching limited to 1 ms                                                                                      SDA/SCL\n             •    SCL low time-out of >25 ms with recovery within 10 ms\n             •    Recognizes any time Start/Stop bus conditions\n\n                                                                                            Figure 33. Physical layer of communication interface\n\n\n         The SMB_ALERT_L signal indicates that the power supply is experiencing a problem that the system agent should investigate.\n         This is a logical OR of the Shutdown and Warning events. The power supply responds to a read command on the general\n         SMB_ALERT_L call address 25(0x19) by sending its status register.\n         Communication to the DSP or the EEPROM will be possible as long as the input AC voltage is provided. If no AC is present,\n         communication to the unit is possible as long as it is connected to a life V1 output (provided e.g. by the redundant unit). If\n         only VSB is provided, communication is not possible.\n\n    PARAMETER            DESCRIPTION                                 CONDITION                         MIN           MAX                   UNIT\n    ViL                  Input low voltage                                                             -0.5          1.0                     V\n    ViH                  Input high voltage                                                            2.3           5.5                     V\n    Vhys                 Input hysteresis                                                              0.15                                  V\n    VoL                  Output low voltage                          3 mA sink current                  0            0.4                     V\n    tr                   Rise time for SDA and SCL                                                20+0.1Cb1          300                     Ns\n    tof                  Output fall time ViHmin → ViLmax            10 pF < Cb1 < 400 pF         20+0.1Cb1          250                     Ns\n    Ii                   Input current SCL/SDA                       0.1 VDD < Vi < 0.9 VDD            -10           10                      μA\n    Ci                   Internal Capacitance for each SCL/SDA                                                       50                      pF\n    fSCL                 SCL clock frequency                                                            0            100                    kHz\n    Rpu                  External pull-up resistor                   fSCL ≤ 100 kHz                            1000 ns / Cb1                 Ω\n    tHDSTA               Hold time (repeated) START                  fSCL ≤ 100 kHz                    4.0                                   μs\n    tLOW                 Low period of the SCL clock                 fSCL ≤ 100 kHz                    4.7                                   μs\n    tHIGH                High period of the SCL clock                fSCL ≤ 100 kHz                    4.0                                   μs\n    tSUSTA               Setup time for a repeated START             fSCL ≤ 100 kHz                    4.7                                   μs\n    tHDDAT               Data hold time                              fSCL ≤ 100 kHz                     0            3.45                    μs\n    tSUDAT               Data setup time                             fSCL ≤ 100 kHz                    250                                   ns\n    tSUSTO               Setup time for STOP condition               fSCL ≤ 100 kHz                    4.0                                   μs\n    tBUF                 Bus free time between STOP and START        fSCL ≤ 100 kHz                     5                                    ms\n\n   1 Cb = Capacitance of bus line in pF, typically in the range of 10…400 pF\n\n\n\n                                                       Table 5. I2C / SMBus Specification\n\n\n\n\n                                                                         Asia-Pacific        Europe, Middle East             North America\n                                                                  +86 755 298 85888              +353 61 49 8941            +1 866 513 2839\n\n                                                                                              © 2023 Bel Fuse Inc.               BCD.00012_AP\n"
+    },
+    {
+      "page": 16,
+      "text": "16\n                                                                                                                PFE1100-12-054xA\n                                                tof   tLOW            tHIGH                  tLOW                                    tr\n\n                SCL\n\n                           tSUSTA      tHDSTA                                       tHDDAT tSUDAT                                         tSUSTO    tBUF\n\n\n                SDA\n\n                                                               Figure 34. I2C / SMBus Timing\n\n\n\n     8.13       ADDRESS / PROTOCOL SELECTION (APS)\n       The APS pin provides the possibility to select the communication protocol and address by connecting a resistor to V1 return\n       (0 V). A fixed addressing offset exists between the Controller and the EEPROM.\n\n       NOTES:\n       If the APS pin is left open, the supply will operate with the PSMI protocol at controller / EEPROM addresses 0xB6/0xA6.\n       The ASP pin is only read at start-up of the power supply. Therefore, it is not possible to change the communication protocol\n       and address dynamically.\n\n                                                             I2C Address 2)\n                RAPS (Ω) 1)          Protocol                                                                                         3.3V\n                                                      Controller           EEPROM\n                   820                                  0xB0                 0xA0\n                                      Power\n                   2700                                 0xB2                 0xA2                                                             12k\n                                    Management\n                   5600                                 0xB4                 0xA4                                                                     APS\n                                       Bus\n                   8200\n                  15000\n                                                        0xB6\n                                                        0xB0\n                                                                             0xA6\n                                                                             0xA0\n                                                                                                                          ADC\n                  27000                                 0xB2                 0xA2                                                                           RAPS\n                                      PSMI\n                  56000                                 0xB4                 0xA4\n                  180000                                0xB6                 0xA6\n        1)\n             E12 resistor values, use max 5% resistors, see also Figure 35.\n        2) The LSB of the address byte is the R/W bit.\n\n                                                                                                                     Figure 35. I2C address and protocol setting\n                       Table 6. Address and protocol encoding\n\n\n     8.14       CONTROLLER AND EEPROM ACCESS\n       The controller and the EEPROM in the power supply share the same I2C bus physical layer (see Figure 36). An I2C driver\n       device assures logic level shifting (3.3/5 V) and a glitch-free clock stretching. The driver also pulls the SDA/SCL line to nearly\n       0 V when driven low by the DSP or the EEPROM providing maximum flexibility when additional external bus repeaters are\n       needed. Such repeaters usually encode the low state with different voltage levels depending on the transmission direction.\n       The DSP will automatically set the I2C address of the EEPROM with the necessary offset when its own address is changed /\n       set. In order to write to the EEPROM, first the write protection needs to be disabled by sending the appropriate command to\n       the DSP. By default the write protection is on.\n       The EEPROM provides 256 bytes of user memory. None of the bytes are used for the operation of the power supply.\n\n                                                                APS                   Address & Protocol Selection\n\n\n\n                                                                                                SDAi\n\n                                                                                    Driver\n                                                        SDA\n                                                                                                SCLi          DSP\n                                                         SCL\n\n\n                                                                                                       WP\n                                                                                             EEPROM\n                                                                       Protection\n                                                                                                       Addr\n\n\n\n\n                                                       Figure 36. I2C Bus to DSP and EEPROM\n\n\n\n\n                                                                                                                                 tech.support@psbel.com\n"
+    },
+    {
+      "page": 17,
+      "text": "PFE1100-12-054xA                                                                                                                    17\n\n\n\n\n   8.15    EEPROM PROTOCOL\n     The EEPROM follows the industry communication protocols used for this type of device. Even though page write / read\n     commands are defined, it is recommended to use the single byte write / read commands.\n\n     WRITE\n     The write command follows the SMBus 1.1 Write Byte protocol. After the device address with the write bit cleared a first byte\n     with the data address to write to is sent followed by the data byte and the STOP condition. A new START condition on the\n     bus should only occur after 5ms of the last STOP condition to allow the EEPROM to write the data into its memory.\n\n                                        S Address W A      Data Address      A          Data        A   P\n\n\n     READ\n     The read command follows the SMBus 1.1 Read Byte protocol. After the device address with the write bit cleared the data\n     address byte is sent followed by a repeated start, the device address and the read bit set. The EEPROM will respond with\n     the data byte at the specified location.\n\n                                                  S Address W A       Data Address      A\n\n\n\n                                                  S Address R     A          Data       nA P\n\n\n\n\n   8.16    PSMI PROTOCOL\n     New power management features in computer systems require the system to communicate with the power supply to access\n     current, voltage, fan speed, and temperature information. Current measurements provide data to the system for determining\n     potential system configuration limitations and provide actual system power consumption for facility planning. Temperature\n     and fan monitoring allow the system to better manage fan speeds and temperatures for optimizing system acoustics. Voltage\n     monitoring allows the system to calculate input wattage and warning of system voltage regulation problems. The Power\n     Supply Management Interface (PSMI) supports diagnostic capabilities and allows managing of redundant power supplies.\n     The communication method is SMBus. The current design guideline is version 2.12.\n     The communication protocol is register based and defines a read and write communication protocol to read / write to a single\n     register address. All registers are accessed via the same basic command given below. No PEC (Packet Error Code) is used.\n\n     WRITE\n     The write protocol used is the SMBus 2.0 Write Word protocol. All writes are 16-bit words; byte reads are not supported nor\n     allowed. The shaded areas in the figure indicate bits and bytes written by the PSMI master device. See PFE Programming\n     Manual for further information.\n\n                                                  S Address W A           Register ID   A\n\n\n\n                                                  Data Low Byte   A   Data High Byte A      P\n\n\n\n\n     READ\n     The read protocol used is the SMBus 2.0 Read Word protocol. All reads are 16-bit words; byte reads are not supported nor\n     allowed. The shaded areas in the figure indicate bits and bytes written by the PSMI master device. See PFE Programming\n     Manual for further information.\n\n                                        S Address W A       Register ID      A\n\n\n\n                                        S Address R   A    Data Low Byte     A      Data High Byte nA P\n\n\n\n\n                                                                      Asia-Pacific              Europe, Middle East      North America\n                                                             +86 755 298 85888                     +353 61 49 8941      +1 866 513 2839\n\n                                                                                                 © 2023 Bel Fuse Inc.     BCD.00012_AP\n"
+    },
+    {
+      "page": 18,
+      "text": "18\n                                                                                                   PFE1100-12-054xA\n     8.17    POWER MANAGEMENT BUS PROTOCOL\n       The Power Management Bus is an open standard protocol that defines means of communicating with power conversion and\n       other devices. For more information, please see the System Management Interface Forum web site at: www.powerSIG.org.\n\n       Power Management Bus command codes are not register addresses. They describe a specific command to be executed.\n       The PFE1100-12-054xA supply supports the following basic command structures:\n           •   Clock stretching limited to 1 ms\n           •   SCL low time-out of >25 ms with recovery within 10 ms\n           •   Recognized any time Start/Stop bus conditions\n\n       WRITE\n       The write protocol is the SMBus 1.1 Write Byte/Word protocol. Note that the write protocol may end after the command byte\n       or after the first data byte (Byte command) or then after sending 2 data bytes (Word command).\n\n                                                         S Address W A              Command        A\n\n\n\n                                                         Data Low Byte1) A      Data High Byte1) A       P\n                                                     1)\n                                                          Optional\n\n\n       In addition, Block write commands are supported with a total maximum length of 255 bytes. See PFE Programming Manual\n       for further information.\n\n                                          S Address W A                 Command         A     Byte Count         A\n\n\n\n                                                 Byte 1           A                             Byte N           A   P\n\n\n       READ\n       The read protocol is the SMBus 1.1 Read Byte/Word protocol. Note that the read protocol may request a single byte or word.\n\n                                          S Address W A                 Command         A\n\n\n\n                                          S Address R             A   Data (Low) Byte A     Data High Byte1) nA P\n                                         1)\n                                              Optional\n\n\n       In addition, Block read commands are supported with a total maximum length of 255 bytes. See PFE Programming Manual\n       BCA.00006 for further information.\n\n                                        S Address W A                 Command       A       S Address R      A\n\n\n\n                                          Byte Count          A       Byte 1    A               Byte N       nA P\n\n\n\n\n                                                                                                                         tech.support@psbel.com\n"
+    },
+    {
+      "page": 19,
+      "text": "PFE1100-12-054xA                                                                                                              19\n\n\n\n   8.18      GRAPHICAL USER INTERFACE\n     Bel Power Solutions provides with its “I2C Utility” a Windows® XP/Vista/Win7 compatible graphical user interface allowing\n     the programming and monitoring of the PFE1100-12-054xA Front-End.\n     The utility can be downloaded on belfuse.com/power-solution and supports both the PSMI and Power Management Bus\n     protocols.\n     The GUI allows automatic discovery of the units connected to the communication bus and will show them in the navigation\n     tree. In the monitoring view the power supply can be controlled and monitored.\n     If the GUI is used in conjunction with the SNP-OP-BOARD-01 Evaluation Kit it is also possible to control the PSON_L pin(s)\n     of the power supply.\n     Further there is a button to disable the internal fan for approximately 10 seconds. This allows the user to take input power\n     measurements without fan consumptions to check efficiency compliance to the Climate Saver Computing Platinum\n     specification.\n     The monitoring screen also allows to enable the hot-standby mode on the power supply. The mode status is monitored and\n     by changing the load current it can be monitored when the power supply is being disabled for further energy savings. This\n     obviously requires 2 power supplies being operated as a redundant system (like the evaluation kit).\n\n     NOTE:\n     The user of the GUI needs to ensure that only one of the power supplies have the hot-standby mode enabled.\n\n\n\n\n                                                                  Asia-Pacific      Europe, Middle East          North America\n                                                            +86 755 298 85888           +353 61 49 8941         +1 866 513 2839\n\n                                                                                     © 2023 Bel Fuse Inc.         BCD.00012_AP\n"
+    },
+    {
+      "page": 20,
+      "text": "20\n                                                                                                                                         PFE1100-12-054xA\n\n     To achieve best cooling results sufficient airflow through the supply must be ensured. Do not block or obstruct the airflow\n     at the rear of the supply by placing large objects directly at the output connector. The PFE1100-12-054NA is provided with\n     a normal airflow, which means the air enters through the rear of the supply and leaves at the front. The PFE1100-12-054RA\n     is provided with a reverse airflow, which means the air enters through the front of the supply and leaves at the rear. PFE\n     supplies have been designed for horizontal operation.\n     The fan inside of the supply is controlled by a microprocessor. The rpm of the fan is adjusted to ensure optimal supply\n     cooling and is a function of output power and the inlet temperature.\n     For the normal airflow version additional constraints apply because of the AC-connector. In a normal airflow unit, the hot\n     air is exiting the power supply unit at the AC-inlet.\n     The IEC connector on the unit is rated 105°C. If 70°C mating connector is used then end user must derate the input power\n     to meet a maximum 70°C temperature at the front, see Figure 42.\n\n     NOTE:\n     It is the responsibility of the user to check the front temperature in such cases. The unit is not limiting its power automati\n     cally to meet such a temperature limitation.\n\n\n\n\n                                                                                  Figure 37. Airflow direction\n\n                              25                                                                                            25\n\n                                                 High Line fan curve                                                                           High Line fan curve\n                              20                 Low Line fan curve                                                         20\n\n\n\n\n     Fan Speed [1000xRPM]\n                                                                                                                                               Low Line fan curve\n\n\n\n\n                                                                                                   Fan Speed [1000xRPM]\n                                                 Min speed at ISB > 3A                                                                         Min speed at ISB > 3A\n\n                              15                                                                                            15\n\n\n                              10                                                                                            10\n\n\n                               5                                                                                             5\n\n\n                               0                                                                                             0\n                                   0        20           40         60         80          100                                   0        20           40         60         80        100\n                                                     Main Output Current [A]                                                                       Main Output Current [A]\n\n                                   Figure 38. Fan speed vs. main output load for                                                 Figure 39. Fan speed vs. main output load for\n                                               PFE1100-12-054NA                                                                              PFE1100-12-054RA\n\n\n                              1000                                                                                          1000\n\n\n\n\n      Main Output Power [W]                                                                         Main Output Power [W]\n                               800                                                                                           800\n\n\n                               600                                                                                           600\n                                                             Vi > 90VAC\n                               400                           Vi > 103VAC                                                     400                            Vi > 90VAC\n                                                             Vi > 115VAC                                                                                    Vi > 145VAC\n                               200                           Vin = 90VAC                                                     200                            Vi > 180VAC\n                                                             Vin = 115VAC\n                                   0                                                                                             0\n                                       0   10        20      30     40       50       60                                             0   10        20      30     40       50     60\n                                                    Ambient Temperature [°C]                                                                      Ambient Temperature [°C]\n\n                              Figure 40. Thermal derating for PFE1100-12-054NA                                              Figure 41. Thermal derating for PFE1100-12-054RA\n\n\n\n\n                                                                                                                                                           tech.support@psbel.com\n"
+    },
+    {
+      "page": 21,
+      "text": "PFE1100-12-054xA                                                                                                                             21\n\n\n\n\n   10.1        IMMUNITY\n\n        NOTE: Most of the immunity requirements are derived from EN 55024: 2010 + A1:2015.\n\n  PARAMETER                           DESCRIPTION / CONDITION                                                                CRITERION\n                                      IEC / EN 61000-4-2, ±8 kV, 25+25 discharges per test point\n  ESD Contact Discharge                                                                                                              B\n                                      (metallic case, LEDs, connector body)\n                                      IEC / EN 61000-4-2, ±15 kV, 25+25 discharges per test point\n  ESD Air Discharge                                                                                                                  B\n                                      (non-metallic user accessible surfaces)\n                                      IEC / EN 61000-4-3, 10 V/m, 1 kHz/80% Amplitude Modulation,\n  Radiated Electromagnetic Field                                                                                                     A\n                                      1 µs Pulse Modulation, 10 kHz…2 GHz\n                                      IEC / EN 61000-4-4, level 3\n  Burst                               AC port ±2 kV, 1 minute                                                                        B\n                                      DC port ±1 kV, 1 minute\n                                      IEC / EN 61000-4-5\n  Surge                               Line to earth: level 3, ±2 kV                                                           VSB: A; V1: B1\n                                      Line to line: level 2, ±1 kV                                                                  A\n  RF Conducted Immunity                IEC/EN 61000-4-6, Level 3, 10 Vrms, CW, 0.1 … 80 MHz                                          A\n                                      IEC/EN 61000-4-11\n                                      1: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration 10 ms                                   A\n  Voltage Dips and Interruptions\n                                      2: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration 20 ms                             VSB: A; V1: B\n                                      3: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration >20 ms                             VSB, V1: B\n\n\n   10.2        EMISSION\n  PARAMETER                           DESCRIPTION / CONDITION                                                                 CRITERION\n                                      EN 55032 / CISPR 22: 0.15 … 30 MHz, QP and AVG,                                            Class A\n                                      single unit                                                                              6 dB margin\n  Conducted Emission\n                                      EN 55032 / CISPR 22: 0.15 … 30 MHz, QP and AVG,                                            Class A\n                                      2 units in rack system                                                                   6 dB margin\n                                      EN 55032 / CISPR 22: 30 MHz … 1 GHz, QP,                                                   Class A\n                                      single unit                                                                              6 dB margin\n  Radiated Emission\n                                      EN 55032 / CISPR 22: 30 MHz … 1 GHz, QP,                                                   Class A\n                                      2 units in rack system                                                                   6 dB margin\n  Harmonic Emissions                  IEC 61000-3-2, Vin = 115 VAC / 60 Hz, & Vin = 230VAC/ 50 Hz, 100% Load                       Class A\n  Acoustical Noise                    46 dBA at 1 meter, 25°C, 50% Load                                                               -\n  AC Flicker                          IEC 61000-3-3, Vin = 230 VAC / 60 Hz, 100% Load                                               Pass\n\n\n\n\n          Maximum electric strength testing is performed in the factory according to EN/IEC 62368-1, and UL/CSA 62368-1.\n          Input-to-output electric strength tests should not be repeated in the field. Bel Power Solutions will not honor any warranty\n          claims resulting from electric strength field tests.\n\n  PARAMETER                           DESCRIPTION / CONDITION                                               MIN        NOM         MAX       UNIT\n                                      Approved to latest edition of the following standards:\n           Agency Approvals\n                                      UL/CSA 62368-1 and EN/IEC 62368-1\n                                      Input (L/N) to case (PE)                                                          Basic\n           Isolation Strength         Input (L/N) to output                                                           Reinforced\n                                      Output to case (PE)                                                             Functional\n                                      Primary (L/N) to protective earth (PE)\n   dC      Creepage / Clearance\n                                      Primary to secondary\n                                      Input to case                                                          2500                              VDC\n           Electrical Strength Test\n                                      Input to output (tested by manufacturer only)                          4000                              VDC\n\n\n\n\n                                                                        Asia-Pacific       Europe, Middle East               North America\n                                                                 +86 755 298 85888               +353 61 49 8941           +1 866 513 2839\n\n                                                                                               © 2023 Bel Fuse Inc.           BCD.00012_AP\n"
+    },
+    {
+      "page": 22,
+      "text": "22\n                                                                                           PFE1100-12-054xA\n\n     PARAMETER                          DESCRIPTION / CONDITION                                              MIN     NOM     MAX      UNIT\n                  Ambient\n      TA                                  Vi min to Vi max, I1 nom, ISB nom                                      0            +45      °C\n                  Temperature\n                  Extended Temp.          Derated output (see Figure 20 and Figure 41)\n      TAext                                                                                                  +45              +65      °C\n                  Range\n                  Storage\n      TS                                  Non-operational                                                    -20              +70      °C\n                  Temperature\n                  Altitude                Operational, above Sea Level                                                       10,000   Feet\n      Na          Audible Noise           Vi nom, 50% Io nom, TA = 25°C                                               42              dBA\n\n\n\n\n     PARAMETER                          DESCRIPTION / CONDITION                                              MIN     NOM     MAX      UNIT\n                                        Width                                                                        54.5\n                  Dimensions            Height                                                                       40.0             mm\n                                        Depth                                                                        321.5\n      M           Weight                                                                                             1050              g\n\n           NOTE: A 3D step file of the power supply casing is available on request.\n\n\n\n\n                                          Reverse Air Flow Direction                 Normal Air Flow Direction\n                                                                                     Direction\n\n\n\n\n                                                                  Figure 42. Side View 1\n\n\n\n\n                                                                    Figure 43. Top View\n\n\n\n\n                                                                                                           tech.support@psbel.com\n"
+    },
+    {
+      "page": 23,
+      "text": "PFE1100-12-054xA                                                                        23\n\n\n\n\n                      Figure 44. Side View 2\n\n\n\n\n                   Figure 45. Front and Rear View\n\n\n\n\n                                  Asia-Pacific      Europe, Middle East      North America\n                            +86 755 298 85888          +353 61 49 8941      +1 866 513 2839\n\n                                                     © 2023 Bel Fuse Inc.     BCD.00012_AP\n"
+    },
+    {
+      "page": 24,
+      "text": "24\n                                                                                  PFE1100-12-054xA\n\n\n\n\n     Power Supply Connector: Tyco Electronics P/N 1926736-3 or FCI connector 10133129-002LF or equivalent\n                             (NOTE: Column 5 is recessed (short pins))\n     Mating Connector:       Tyco Electronics P/N 2-1926739-5 or FCI 10108888-R10253SLF\n\n                  PIN                   NAME            DESCRIPTION\n     Output\n              6, 7, 8, 9, 10             V1             +12 VDC main output\n              1, 2, 3, 4, 5             PGND            Power ground (return)\n     Control Pins\n                    A1                  VSB             Standby positive output (+3.3/5 V)\n                    B1                  VSB             Standby positive output (+3.3/5 V)\n                    C1                  VSB             Standby positive output (+3.3/5 V)\n                    D1                  VSB             Standby positive output (+3.3/5 V)\n                    E1                  VSB             Standby positive output (+3.3/5 V)\n                    A2                  SGND            Signal ground (return)\n                    B2                  SGND            Signal ground (return)\n                    C2           HOTSTANDBYEN_H         Hot standby enable signal: active-high\n                    D2              VSB_SENSE_R         Standby output negative sense\n                    E2               VSB_SENSE          Standby output positive sense\n                    A3                  APS             I2C address and protocol selection (select by a pull down resistor)\n                    B3                   N/C            Reserved\n                    C3                  SDA             I2C data signal line\n                    D3              V1_SENSE_R          Main output negative sense\n                    E3                V1_SENSE          Main output positive sense\n                    A4                   SCL            I2C clock signal line\n                    B4                 PSON_L           Power supply on input (connect to A2/B2 to turn unit on): active-low\n                    C4              SMB_ALERT_L         SMB Alert signal output: active-low\n                    D4                   N/C            Reserved\n                    E4                ACOK_H            AC input OK signal: active-high\n                    A5                PSKILL_H          Power supply kill (lagging pin): active-high\n                    B5                 ISHARE           Current share bus (lagging pin)\n                    C5                PWOK_H            Power OK signal output (lagging pin): active-high\n                    D5                VSB_SEL           Standby voltage selection (lagging pin)\n                    E5               PRESENT_L          Power supply present (lagging pin): active-low\n\n\n\n\n                                                                                                       tech.support@psbel.com\n"
+    },
+    {
+      "page": 25,
+      "text": "PFE1100-12-054xA                                                                                                                     25\n\n\n\n\n      ITEM                       DESCRIPTION                           ORDERING PART NUMBER                         SOURCE\n\n\n                                 I2C Utility\n                                 Windows XP/Vista/7 compatible\n                                 GUI to program, control and                      N/A                   belfuse.com/power-solution\n                                 monitor PFE Front-Ends (and\n                                 other I2C units)\n\n\n\n\n                                 Dual Connector Board\n                                 Connector board to operate 2\n                                 PFE units in parallel. Includes an\n                                                                           SNP-OP-BOARD-01                      Bel Power Solution\n                                 on-board USB to I2C converter\n                                 (use I2C Utility as desktop\n                                 software).\n\n\n\n\n                                 Latch Lock\n                                 Optional latch lock to prevent\n                                 accidental removal of the power               XSL.00019.0                      Bel Power Solution\n                                 supply from the system while\n                                 the AC plug is engaged.\n\n\n\n\nFor more information on these products consult: tech.support@psbel.com\n\nNUCLEAR AND MEDICAL APPLICATIONS - Products are not designed or intended for use as critical components in life support\nsystems, equipment used in hazardous environments, or nuclear control systems.\nTECHNICAL REVISIONS - The appearance of products, including safety agency certifications pictured on labels, may change\ndepending on the date manufactured. Specifications are subject to change without notice.\n\n\n\n\n                                                                        Asia-Pacific    Europe, Middle East            North America\n                                                                   +86 755 298 85888         +353 61 49 8941         +1 866 513 2839\n\n                                                                                         © 2023 Bel Fuse Inc.           BCD.00012_AP\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "bel-pfe1100-series.pdf",
+    "extracted_at_utc": "2026-10-13T03:24:00.112174+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Creator:         Microsoft® Word for Microsoft 365\nProducer:        PDFsharp 6.2.4 (Original: Microsoft® Word for Microsoft 365)\nCreationDate:    Tue Sep 12 22:42:48 2023 PDT\nModDate:         Thu Jul  2 01:09:40 2026 PDT\nCustom Metadata: yes\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           25\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       1234296 bytes\nOptimized:       no\nPDF version:     1.7\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "9db835ca7e0ec6150903a971f061a89ea73d4f41b642f8eb6d91197e4b09a7ee"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "29eff9d15e9f52ecad39aea7836d38a74474d512f2ce5783c127c21557844045"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "2e963043afc3fb176d1f029f37806c837c921333f5b84bd62766d1a08a6005d9"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "3",
+          "-l",
+          "3",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "f8d482d9f6572fec9c03f63099d21147907c12b122f0a435533113515e800af5"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "4",
+          "-l",
+          "4",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "bf937a769ad8e09ac7b8df3a7bfd540f0070106aa8478bd3b45060b3571cd16c"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "5",
+          "-l",
+          "5",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "8141f378f55aa71ce50d3bd1ddeddb3f405b3e9db724b035c5fb9f3df2d28fbb"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "6",
+          "-l",
+          "6",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "0a4abc17ef27f8917c807e5dcab8a84a3a7267f801e2e9c3897cf0f22e6f4c79"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "7",
+          "-l",
+          "7",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "4b0f31394b543924c1ad544a7f32bc46cec58c20f31a5eac23b5e6bbb2c3aaec"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "8",
+          "-l",
+          "8",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "a50016190e274f526b6fdcdf93318896774adfea8be1d10fb6e1b0ac0680082e"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "9",
+          "-l",
+          "9",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "67a3359f15907d4ccf297a25462cab0349c505cf4f3a6b37b2afbd16b6cb50c1"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "10",
+          "-l",
+          "10",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "41c76d5f221308163cd867226956f0e9d340e82642a9ec91faf4ae8dcebeeeca"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "11",
+          "-l",
+          "11",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "c5f77754677e1ccb6774ac0056e6442bc39cc30a094581d598fe4e8b67d75eb1"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "12",
+          "-l",
+          "12",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "d92d1a4f01ddb507610599f501bf7205e09e0de43430e36cf18e85c6f5dd3fb4"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "13",
+          "-l",
+          "13",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "0a54a2e3dd09ab8f2fe4060162be9b6b0672073d87676522c512c29c15c8f174"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "14",
+          "-l",
+          "14",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "f1d7dc350b05748c665b07ff7f32d659508673abb6a113601e4cd2cabc4de452"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "15",
+          "-l",
+          "15",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "194394c7c9b3c61fa2f80380ad2dc058c2e11bd6822143903b8ae5219b2a973b"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "16",
+          "-l",
+          "16",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "4a030cc452f4a791a9f13351a62432c7a73a01e1e5f99a4f570838e161646074"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "17",
+          "-l",
+          "17",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "78c0666a51e1f3fe5f7f92b113d68d173de3c4d247b33e92dddddd772e2307fb"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "18",
+          "-l",
+          "18",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "2a3033975cd6dbc12396dcebbd24c9da0e7651a0e9afb84afb520e96449ebaec"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "19",
+          "-l",
+          "19",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "89951145b053a73ad984934527118447f1989b85735aae006ceee0ac32a1ba90"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "20",
+          "-l",
+          "20",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "a9149a8867fc666febbd9735c61b2701db942e4fec1787c86d3ef6f3e36b7487"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "21",
+          "-l",
+          "21",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "caa5987c4c1b7ac71f5ba256e23af7a8b56e6f4cea5d04d8e580eda40c24bac8"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "22",
+          "-l",
+          "22",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "8b30359fb75f50ad09e27fadd5d78f85d6853c59bc98e0d996a06482879cfe4b"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "23",
+          "-l",
+          "23",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "621945eff62825cf735583b4b86ad4dc7d267639e935ddd4d662e5ef938586f7"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "24",
+          "-l",
+          "24",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "5194e55b07fb00d408b6b32a999abec6707d5c8e150f56ef23e7d1cae29ee3c4"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "25",
+          "-l",
+          "25",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "25b035d3ab02a0353733e1d83fdddf615a7cb20b8061a63cba1ee5672a500428"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

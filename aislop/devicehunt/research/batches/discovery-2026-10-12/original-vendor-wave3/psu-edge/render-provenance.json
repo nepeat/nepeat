@@ -1,0 +1,69 @@
+{
+  "tool": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+  "tool_sha256": "a6d468851e73df98afa3c3ac8d07501de53c41c4e6217762089d05de9f569333",
+  "version_stdout": "",
+  "version_stderr": "pdftoppm version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+  "utc": "2026-10-13T03:38:18.243890+00:00",
+  "commands": [
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "1",
+        "-l",
+        "2",
+        "-r",
+        "120",
+        "-png",
+        "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-datasheet.pdf",
+        "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "pdf_sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "rendered_pages": [
+        1,
+        2
+      ]
+    },
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "2",
+        "-l",
+        "3",
+        "-r",
+        "120",
+        "-png",
+        "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf",
+        "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "pdf_sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "rendered_pages": [
+        2,
+        3
+      ]
+    }
+  ],
+  "images": [
+    {
+      "path": "sd6200-1.png",
+      "sha256": "f6413d21b7955749674b41ef74acc359097ada58255bd5ccbed9b8cc0597d687"
+    },
+    {
+      "path": "sd6200-2.png",
+      "sha256": "585e574c353ea5a0976b03737b4f8d0b0425f9a58825c2f6ff383800162e5eff"
+    },
+    {
+      "path": "wedge100-2.png",
+      "sha256": "61b517fb3741f987733466856637e33fca992bd8ecba3ca35e4bc669c8dffc98"
+    },
+    {
+      "path": "wedge100-3.png",
+      "sha256": "dbb7c6fa6e5ec7484521f01604c32e728bbad40a8be79a9a8027eff2d4fdfcea"
+    }
+  ]
+}

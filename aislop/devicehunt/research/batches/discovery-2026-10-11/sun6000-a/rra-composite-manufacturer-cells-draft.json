@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "rra-composite-manufacturer-cells",
+  "base": {
+    "path": "celestica-historical-companies.json",
+    "sha256": "ab28b04a02c7d49adad9c3f681c4179e034d213585d6e27c8c6d8c1950305c5d"
+  },
+  "reviewed_on": "2026-10-11",
+  "decision": "user decision 2026-10-11 for SUN-6000: proposal A (scoped company evidence), narrowed by coordinator decision 2026-10-11 to Kladno-only on independent-review evidence-policy grounds (Monterrey has no reviewed legal-name basis); the user may override",
+  "scope": "Certificate-scoped reading of listed manufacturer cells of the Celestica manufacturer-query capture only. Each entry applies to exactly one certificate whose detail page and manufacturer cell hashes match; it is not a company alias, not a general split rule and not evidence about any other certificate or cell. Only names with a reviewed legal-name basis are mapped (role registry_manufacturer); other parts are kept as unmapped literal context with no role and no affiliation, as in rra-reviewed-manufacturer-lists. No factory, per-factory country or sole-manufacturer claim; the legal manufacturer is not necessarily the physical factory.",
+  "entries": [
+    {
+      "certificate_number": "SUN-6000",
+      "query_maker": "Celestica",
+      "detail_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-6000",
+      "detail_sha256": "3c01977f51bc25c4865c1c7e59c4fe7024d6e7cb4c8a46f20ceee5aeedfa870b",
+      "detail_file": "detail-090.html",
+      "cell": {
+        "field": "manufacturer",
+        "label": "제조자",
+        "text": "Celestica de Monterrey S.A. de C.V.,Celestica Kladno s.r.o. (Oracle America, Inc.)",
+        "text_sha256": "4b68ec1b447e01f9b15bf3de88a0ea2d724a1693b0272097559c7541964e23d5",
+        "raw_html_cell_bytes": {
+          "offset": 3897,
+          "length": 110,
+          "sha256": "4d03ef3a337c713042920acc67d223e21dd3a55ff298a644de20b0c317ed083c"
+        },
+        "text_derivation": "the parser's whitespace-collapsed cell text (rra.parse_detail); in the saved HTML a line break separates 'Celestica Kladno s.r.o.' from '(Oracle America, Inc.)'"
+      },
+      "separator": ",",
+      "parts": [
+        {
+          "text": "Celestica de Monterrey S.A. de C.V.",
+          "role": null,
+          "target": null,
+          "name_evidence": "unmapped_context",
+          "name_basis": "kept as literal context only: no saved reviewed extract (2025 Exhibit 21.1, SEC 8.1, archived 21.1) relates this name to Celestica; a Celestica-containing name returned by the Celestica query is a substring match, not an entity-relationship review, and the project does not map other such names (e.g. Celestica Czech Republic, s.r.o. on SUN-445); same treatment as SUN-X6200-Series and SUN-T6300 in rra-reviewed-manufacturer-lists"
+        },
+        {
+          "text": "Celestica Kladno s.r.o.",
+          "role": "registry_manufacturer",
+          "target": "Celestica",
+          "name_evidence": "base",
+          "name_basis": "already maps to Celestica via the reviewed archived Exhibit 21.1 extract ('Celestica Kladno, s.r.o.', evidence period not established); stated here so the entry does not silently depend on it"
+        }
+      ],
+      "unlabelled_parenthetical": {
+        "text": "(Oracle America, Inc.)",
+        "role": null,
+        "note": "unlabelled in the cell: not a role, not an affiliation, not a third manufacturer, not brand; the applicant field separately names ORACLE AMERICA. INC"
+      },
+      "reconstruction": "parts joined by the separator, then one space, then the parenthetical, must equal cell.text exactly",
+      "evidence_basis": "The certificate SUN-6000 was returned by the regulator's own manufacturer query for 'Celestica' (source rra-official-query-41e4ca912b33, row 90; the detail page hash is this entry's detail_sha256). The cell text names two companies. Celestica Kladno s.r.o. is mapped to Celestica because the saved archived Exhibit 21.1 extract lists 'Celestica Kladno, s.r.o.' (evidence period not established); the unit already maps that name for other certificates. Celestica de Monterrey S.A. de C.V. appears in no saved reviewed extract and stays unmapped literal context. The mapped role is registry_manufacturer, the regulator's labelled manufacturer field.",
+      "limits": [
+        "no factory or physical-manufacture claim; the cell lists two companies and one country field (멕시코, Mexico), which is not split per factory; the Monterrey name carries no role or affiliation",
+        "no claim about which entity built any unit, or when; the certificate date is 2007-05-15",
+        "the same cell also appears under the Oracle manufacturer query (row 215, identical detail page); that occurrence receives no claims and is not independent corroboration",
+        "main and derived model identities stay the RRA's literal strings; derived names are RRA-asserted for this certificate only",
+        "not merged with the Oracle-documented 'Sun Blade 6000 Modular System' identity",
+        "the Celestica-brand identity 'Sun Blade 6000 Chassis' (RRA-asserted derived name) is distinct from, and never merged with, the Oracle-brand 'Sun Blade 6000 Chassis' retired-hardware identity; the bare main model '6000' is the RRA's literal string"
+      ],
+      "live_reobservation": {
+        "cycle": "2026-10-10d",
+        "note": "no-change live refresh re-fetched the same detail page, byte-identical; context only, not corroboration",
+        "celestica_query_detail_receipt": "71049355-03cf-48e9-b529-75402eb5bfd2",
+        "oracle_query_detail_receipt": "e11177f0-15b3-4615-98cd-ec61bdd51507"
+      }
+    }
+  ]
+}

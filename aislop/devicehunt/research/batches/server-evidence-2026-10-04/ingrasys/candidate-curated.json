@@ -1,0 +1,670 @@
+{
+  "sources": [
+    {
+      "id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "license": "Ingrasys factual product information; upstream rights retained",
+      "snapshot": "raw/server-evidence-ingrasys-2026-10-04/server-catalog.response",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases."
+    }
+  ],
+  "devices": [
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1120A",
+      "brand": "Ingrasys",
+      "model": "SV1120A",
+      "title": "Ingrasys SV1120A recovered catalog page 3",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 RU"
+        ],
+        [
+          "power_description",
+          "2 x 2400W Platinum Redundant (1+1) PSU"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.71” x 17.32” x 32.4” / 43.4mm x 440.0mm x 823.4mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "8 x 4056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "3"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1120A only; no equivalence to unsuffixed SV1120 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 24 x E1.S SSDs, 2 x 22110 M.2 Boot Drives; SKU 2: 12 x U.2 NVMe SSDs, 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1120I",
+      "brand": "Ingrasys",
+      "model": "SV1120I",
+      "title": "Ingrasys SV1120I recovered catalog page 4",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 RU"
+        ],
+        [
+          "power_description",
+          "2 x 2400W Platinum Redundant (1+1) PSU"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.71” x 17.32” x 32.4” / 43.4mm x 440.0mm x 823.4mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "8 x 4056 Dual Rotor System Fans (N+1 Redundant), CPU Remote Heatsink"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen Intel® Xeon® Scalable Processors"
+        ],
+        [
+          "memory",
+          "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "4"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1120I only; no equivalence to unsuffixed SV1120 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 24 x E1.S SSDs, 2 x 22110 M.2 Boot Drives; SKU 2: 12 x U.2 NVMe SSDs, 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1121A",
+      "brand": "Ingrasys",
+      "model": "SV1121A",
+      "title": "Ingrasys SV1121A recovered catalog page 5",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "SKU 1 & 3: 2 x PCIe 5.0 x16 FHHL Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0; SKU 2: 2 x PCIe 5.0 x16 FHAHL Slots, 2 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.75” x 21.14” x 31.76” / 44.7mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 11 x 4056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 7 x 4056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC; 2 x E3.S CXL Memory Modules (SKU 3)"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "5"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1121A only; no equivalence to unsuffixed SV1121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 12 x E1.S SSDs; SKU 2: 6 x E1.S SSDs; SKU 3: 6 x E1.S SSDs; All SKUs with 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV1121I",
+      "brand": "Ingrasys",
+      "model": "SV1121I",
+      "title": "Ingrasys SV1121I recovered catalog page 6",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "1 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "SKU 1 & 3: 2 x PCIe 5.0 x16 FHHL Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0; SKU 2: 2 x PCIe 5.0 x16 FHAHL Slots, 2 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots, 1 x PCIe 5.0 x16 OCP NIC 3.0"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 1.75” x 21.14” x 31.76” / 44.7mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 11 x 4056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 7 x 4056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen Intel® Xeon® Scalable Processors"
+        ],
+        [
+          "memory",
+          "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC; 2 x E3.S CXL Memory Modules (SKU 3)"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "6"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV1121I only; no equivalence to unsuffixed SV1121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ],
+        [
+          "storage_description",
+          "SKU 1: 12 x E1.S SSDs; SKU 2: 6 x E1.S SSDs; SKU 3: 6 x E1.S SSDs; All SKUs with 2 x 22110 M.2 Boot Drives"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2121A",
+      "brand": "Ingrasys",
+      "model": "SV2121A",
+      "title": "Ingrasys SV2121A recovered catalog page 7",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 4th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 4800 MT/s at 1DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "7"
+        ],
+        [
+          "document_footer_year",
+          "2023"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV2121A only; no equivalence to unsuffixed SV2121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2121I",
+      "brand": "Ingrasys",
+      "model": "SV2121I",
+      "title": "Ingrasys SV2121I recovered catalog page 8",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 1.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 5th/4th Gen Intel® Xeon® Scalable Processors"
+        ],
+        [
+          "memory",
+          "5th Gen: 32x DDR5 RDIMMs, 8-Channel, up to 5600 MT/s at 1DPC, 4800 MT/s at 2DPC; 4th Gen: 32x DDR5 RDIMMs, 8-Channel, up to 4800 MT/s at 1DPC, 4400 MT/s at 2DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "8"
+        ],
+        [
+          "document_footer_year",
+          "2025"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "Exact SV2121I only; no equivalence to unsuffixed SV2121 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2221A",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "title": "Ingrasys SV2221A recovered catalog page 9",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x 5th Gen AMD EPYC™ Processors"
+        ],
+        [
+          "memory",
+          "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 6000 MT/s at 1DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "AMD Platform"
+        ],
+        [
+          "document_page",
+          "9"
+        ],
+        [
+          "document_footer_year",
+          "2025"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    },
+    {
+      "source": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "key": "SV2221I",
+      "brand": "Ingrasys",
+      "model": "SV2221I",
+      "title": "Ingrasys SV2221I recovered catalog page 10",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Ingrasys",
+          "brand"
+        ],
+        [
+          "Ingrasys",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "physical_description",
+          "2 OU"
+        ],
+        [
+          "power_description",
+          "Centralized 48V Bus Bar with PDB"
+        ],
+        [
+          "expansion_slots",
+          "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        ],
+        [
+          "chassis_dimensions",
+          "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        ],
+        [
+          "io_ports",
+          "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        ],
+        [
+          "security_management",
+          "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)"
+        ],
+        [
+          "cooling_description",
+          "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        ],
+        [
+          "processor",
+          "2 x Intel® Xeon® 6 Processors"
+        ],
+        [
+          "memory",
+          "32 x DDR5 RDIMMs, 8-Channel per CPU, up to 6400 MT/s at 1DPC, 5200 MT/s at 2DPC"
+        ],
+        [
+          "hpm_motherboard",
+          "Intel Platform"
+        ],
+        [
+          "document_page",
+          "10"
+        ],
+        [
+          "document_footer_year",
+          "2025"
+        ],
+        [
+          "source_scope",
+          "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        ],
+        [
+          "identity_limit",
+          "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        ],
+        [
+          "source_derivative_sha256",
+          "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        ]
+      ]
+    }
+  ]
+}

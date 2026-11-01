@@ -1,0 +1,59 @@
+10
+                                                                                            PFE1100-12-054xA
+     7
+     PARAMETER                                  DESCRIPTION / CONDITION                     MIN    NOM         MAX          UNIT
+      Vi mon              Input RMS Voltage     Vi min ≤ Vi ≤ Vi max                        -2.5               +2.5          %
+                                                Ii > 4 Arms                                  -5                 +5           %
+      Ii mon              Input RMS Current
+                                                Ii ≤ 4 Arms                                 -0.2               +0.2         Arms
+                                                Pi > 100 W                                   -5                 +5           %
+      Pi mon              True Input Power
+                                                Pi ≤ 100 W                                   -5                 +5           W
+      V1 mon              V1 Voltage                                                         -2                 +2           %
+                                                I1 > 10 A                                    -2                 +2           %
+      I1 mon              V1 Current
+                                                I1 ≤ 10 A                                   -0.2               +0.2          A
+                                                Po > 120 W                                   -4                 +4           %
+      Po nom              Total Output Power
+                                                Po ≤ 120 W                                  -4.5               +4.5          W
+      VSB mon             Standby Voltage                                                   -0.1               +0.1          V
+      ISB mon             Standby Current       ISB ≤ ISB nom                               -0.2               +0.2          A
+
+
+
+
+     8
+      8.1 ELECTRICAL CHARACTERISTICS
+
+     PARAMETER                DESCRIPTION / CONDITION                                              MIN    NOM         MAX    UNIT
+     PSKILL_H / PSON_L / VSB_SEL / HOTSTANDBYEN_H Inputs
+                VIL           Input Low Level Voltage                                              -0.2               0.8        V
+                VIH           Input High Level Voltage                                             2.4                3.5        V
+                IIL, H        Maximum Input Sink or Source Current                                  0                  1      mA
+          RpuPSKILL_H         Internal Pull Up Resistor on PSKILL_H                                       100                    kΩ
+           RpuPSON_L          Internal Pull Up Resistor on PSON_L                                          10                    kΩ
+           RpuVSB_SEL         Internal Pull Up Resistor on VSB_SEL                                         10                    kΩ
+                              Internal Pull Up Resistor on
+     RpuHOTSTANDBYEN_H                                                                                     10                    kΩ
+                              HOTSTANDBYEN_H
+               RLOW           Resistance Pin to SGND for Low Level                                  0                  1         kΩ
+               RHIGH          Resistance Pin to SGND for High Level                                50                            kΩ
+     PWOK_H Output
+                VOL           Output Low Level Voltage                   Isink < 4 mA               0                 0.4        V
+                VOH           Output High Level Voltage                  Isource < 0.5 mA          2.6                3.5        V
+           RpuPWOK_H          Internal Pull Up Resistor on PWOK_H                                          1                     kΩ
+     ACOK_H Output
+                VOL           Output Low Level Voltage                   Isink < 2 mA               0                 0.4        V
+                VOH           Output High Level Voltage                  Isource < 50 µA           2.6                3.5        V
+           RpuACOK_H          Internal Pull Up Resistor on ACOK_H                                          10                    kΩ
+     SMB_ALERT_L Output
+                Vext          Maximum External Pull Up Voltage                                                        12         V
+                VOL           Output Low Level Voltage                   Isource < 4 mA             0                 0.4        V
+                IOH           Maximum High Level Leakage Current                                                      10      µA
+         RpuSMB_ALERT_L       Internal Pull Up Resistor on SMB_ALERT_L                                    None                   kΩ
+
+
+
+
+                                                                                                   tech.support@psbel.com
+

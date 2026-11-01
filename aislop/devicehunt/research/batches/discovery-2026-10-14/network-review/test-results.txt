@@ -1,0 +1,26 @@
+test_actual_http_budget_is_hard_stop (test_capture.CaptureTests.test_actual_http_budget_is_hard_stop) ... ok
+test_allowlist_and_missing_policy_prevent_calls (test_capture.CaptureTests.test_allowlist_and_missing_policy_prevent_calls) ... ok
+test_denied_response_stops_host_and_redirect_is_not_followed (test_capture.CaptureTests.test_denied_response_stops_host_and_redirect_is_not_followed) ... ok
+test_dns_failure_is_unavailable_not_empty (test_capture.CaptureTests.test_dns_failure_is_unavailable_not_empty) ... ok
+test_dns_failures_do_not_consume_http_budget (test_capture.CaptureTests.test_dns_failures_do_not_consume_http_budget) ... ok
+test_orphaned_capture_file_is_never_overwritten (test_capture.CaptureTests.test_orphaned_capture_file_is_never_overwritten) ... ok
+test_oversized_actual_response_remains_counted_and_fails (test_capture.CaptureTests.test_oversized_actual_response_remains_counted_and_fails) ... ok
+test_robots_hash_and_denial_gate_content (test_capture.CaptureTests.test_robots_hash_and_denial_gate_content) ... ok
+test_candidate_is_source_scoped_with_no_alias_expansion_or_roles (test_hcl.MatrixTests.test_candidate_is_source_scoped_with_no_alias_expansion_or_roles) ... ok
+test_capture_hash_mismatch_rejected (test_hcl.MatrixTests.test_capture_hash_mismatch_rejected) ... ok
+test_complete_fixture_preserves_every_qualifier_and_download (test_hcl.MatrixTests.test_complete_fixture_preserves_every_qualifier_and_download) ... ok
+test_current_retired_context_is_literal_per_table (test_hcl.MatrixTests.test_current_retired_context_is_literal_per_table) ... ok
+test_duplicate_rows_are_retained (test_hcl.MatrixTests.test_duplicate_rows_are_retained) ... ok
+test_inline_text_entities_and_links_are_retained (test_hcl.MatrixTests.test_inline_text_entities_and_links_are_retained) ... ok
+test_novelty_distinguishes_exact_case_and_substring_without_writing (test_hcl.MatrixTests.test_novelty_distinguishes_exact_case_and_substring_without_writing) ... ok
+test_real_capture_has_exact_fixture_rows (test_hcl.MatrixTests.test_real_capture_has_exact_fixture_rows) ... ok
+test_schema_and_structural_changes_fail_closed (test_hcl.MatrixTests.test_schema_and_structural_changes_fail_closed) ... ok
+test_all_listings_recognized_as_software_references (test_integration.SourceReferenceIntegrationTests.test_all_listings_recognized_as_software_references) ... ok
+test_default_listing_matcher_excludes_hcl_reference (test_integration.SourceReferenceIntegrationTests.test_default_listing_matcher_excludes_hcl_reference) ... ok
+test_explicit_reference_flag_preserves_separate_software_match_kind (test_integration.SourceReferenceIntegrationTests.test_explicit_reference_flag_preserves_separate_software_match_kind) ... ok
+test_shopping_links_empty_for_every_hcl_listing (test_integration.SourceReferenceIntegrationTests.test_shopping_links_empty_for_every_hcl_listing) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 2.581s
+
+OK

@@ -1,0 +1,116 @@
+[
+  {
+    "partner": "ASRock Industrial Computer Corp.",
+    "source": "redhat-certified-vendor-expansion-01-2026-10-14",
+    "numFound": 4,
+    "captured": 4,
+    "complete_query": true,
+    "accepted_records": 4,
+    "excluded": []
+  },
+  {
+    "partner": "ASRockRack",
+    "source": "redhat-certified-vendor-expansion-02-2026-10-14",
+    "numFound": 26,
+    "captured": 26,
+    "complete_query": true,
+    "accepted_records": 25,
+    "excluded": [
+      {
+        "row": 0,
+        "id": "318717",
+        "title": "ASRock Rack W880M WS",
+        "category": "System",
+        "system_types": [
+          "Desktop/Workstation"
+        ],
+        "reason": "Not an explicitly listed server or edge system"
+      }
+    ]
+  },
+  {
+    "partner": "Aivres Systems Inc.",
+    "source": "redhat-certified-vendor-expansion-03-2026-10-14",
+    "numFound": 40,
+    "captured": 40,
+    "complete_query": true,
+    "accepted_records": 40,
+    "excluded": []
+  },
+  {
+    "partner": "Gigabyte",
+    "source": "redhat-certified-vendor-expansion-04-2026-10-14",
+    "numFound": 106,
+    "captured": 106,
+    "complete_query": true,
+    "accepted_records": 105,
+    "excluded": [
+      {
+        "row": 29,
+        "id": "3445",
+        "title": "GIGABYTE GA-6PXSV3",
+        "category": "System",
+        "system_types": [
+          "Desktop/Workstation"
+        ],
+        "reason": "Not an explicitly listed server or edge system"
+      }
+    ]
+  },
+  {
+    "partner": "MiTAC Computing Technology Corp",
+    "source": "redhat-certified-vendor-expansion-05-2026-10-14",
+    "numFound": 11,
+    "captured": 11,
+    "complete_query": true,
+    "accepted_records": 11,
+    "excluded": []
+  },
+  {
+    "partner": "Pegatron Corporation",
+    "source": "redhat-certified-vendor-expansion-06-2026-10-14",
+    "numFound": 6,
+    "captured": 6,
+    "complete_query": true,
+    "accepted_records": 5,
+    "excluded": [
+      {
+        "row": 0,
+        "id": "280857",
+        "title": "NUC series ASUS ROG NUC (2025)",
+        "category": "System",
+        "system_types": [
+          "Desktop/Workstation"
+        ],
+        "reason": "Not an explicitly listed server or edge system"
+      }
+    ]
+  },
+  {
+    "partner": "TYAN Computer Corporation",
+    "source": "redhat-certified-vendor-expansion-07-2026-10-14",
+    "numFound": 8,
+    "captured": 8,
+    "complete_query": true,
+    "accepted_records": 8,
+    "excluded": []
+  },
+  {
+    "partner": "Wistron",
+    "source": "redhat-certified-vendor-expansion-08-2026-10-14",
+    "numFound": 5,
+    "captured": 5,
+    "complete_query": true,
+    "accepted_records": 5,
+    "excluded": []
+  },
+  {
+    "partner": "xFusion Digital Technologies Co. Ltd",
+    "source": "redhat-certified-vendor-expansion-09-2026-10-14",
+    "numFound": 39,
+    "captured": 39,
+    "complete_query": true,
+    "accepted_records": 39,
+    "excluded": []
+  }
+]

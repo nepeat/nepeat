@@ -1,0 +1,222 @@
+{
+  "sources": [
+    {
+      "id": "inventec-metagross-page",
+      "url": "https://ebg.inventec.com/en/product/Storage/2U%2042%20Bay/Metagross",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/storage-inspur-2026-10-04/inventec-metagross.html",
+      "coverage": "Original named Inventec product page and specification table. Exact Metagross identity; brand/platform evidence only. No manufacturer, installed drives or operator claim."
+    },
+    {
+      "id": "inventec-e850g4-brief-2021",
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/80?note=",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/storage-inspur-2026-10-04/inventec-e850g4-brief.pdf",
+      "coverage": "Original two-page Inventec brief. Selected page 2 table visually reviewed. Exact E850G4 platform facts supplement the separate 2020 manufacturer statement without transferring its role to this document. No installed auction configuration or operator assertion."
+    },
+    {
+      "id": "inspur-nf5280m5-whitepaper-2019",
+      "url": "https://en.inspur.com/eportal/fileDir/defaultCurSite/resource/cms/2020/04/2020040710453910867.pdf",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/storage-inspur-2026-10-04/inspur-nf5280m5-whitepaper.pdf",
+      "coverage": "Original Inspur technical white paper revision 5.0. Brand/platform facts and selected specifications, with conditional PSU limits and apparent source errors retained. Not a manufacturer assertion, component-equivalence guarantee or hyperscaler deployment claim."
+    }
+  ],
+  "devices": [
+    {
+      "source": "inventec-metagross-page",
+      "key": "Metagross",
+      "brand": "Inventec",
+      "model": "Metagross",
+      "title": "Inventec Metagross",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "physical_description",
+          "2U JBOD; D 925 x W 447 x H 86.8 mm"
+        ],
+        [
+          "drive_bays",
+          "42 hot-swappable 3.5-inch SATA drives"
+        ],
+        [
+          "power_description",
+          "Two 800 W power supplies; 1+1 redundancy. Input voltage not printed."
+        ],
+        [
+          "cooling_description",
+          "Four 8056 hot-swappable dual-rotor fans; N+1 redundancy"
+        ],
+        [
+          "management",
+          "RJ45 management NIC, separate RJ45 UART, mini USB I2C; BMC health monitoring"
+        ],
+        [
+          "storage_connectivity",
+          "Two Mini SAS HD x4 connectors"
+        ],
+        [
+          "configuration_limit",
+          "Platform capabilities; auction-unit drive/PSU contents and firmware access unverified."
+        ]
+      ]
+    },
+    {
+      "source": "inventec-e850g4-brief-2021",
+      "key": "E850G4",
+      "brand": "Inventec",
+      "model": "E850G4",
+      "title": "Inventec E850G4",
+      "kind": "edge server",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_pages",
+          "1-2"
+        ],
+        [
+          "source_date_context",
+          "Copyright 2021; PDF metadata 2021-03-16; no product release date inferred"
+        ],
+        [
+          "physical_description",
+          "2U1N rackmount; W 447 x H 87 x D 450 mm"
+        ],
+        [
+          "processor",
+          "Dual-socket second-generation Intel Xeon Scalable"
+        ],
+        [
+          "memory",
+          "12 DDR4 DIMM slots; up to 1.5 TB"
+        ],
+        [
+          "drive_bays",
+          "6 (+2) 2.5-inch SAS/SATA/NVMe hot-plug bays"
+        ],
+        [
+          "expansion",
+          "Three PCIe Gen3 x8 and four PCIe Gen3 x16 low-profile slots"
+        ],
+        [
+          "network",
+          "Two onboard 10G SFP+ ports"
+        ],
+        [
+          "power_description",
+          "800 W or 1300 W CRPS options; 1+1 redundancy; no input-voltage claim"
+        ],
+        [
+          "cooling_description",
+          "8056 dual-rotor fans; 3+1 redundancy"
+        ],
+        [
+          "management",
+          "IPMI 2.0 and KVM with dedicated LAN"
+        ],
+        [
+          "design_context",
+          "OTII hardware specification design; not a named operator deployment"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-nf5280m5-whitepaper-2019",
+      "key": "NF5280M5",
+      "brand": "Inspur",
+      "model": "NF5280M5",
+      "title": "Inspur NF5280M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_revision",
+          "5.0"
+        ],
+        [
+          "document_release_date",
+          "2019-12-22"
+        ],
+        [
+          "source_pages",
+          "1, 5, 21-22, 35-36 (PDF page numbers)"
+        ],
+        [
+          "physical_description",
+          "2U; without handles W 435 x H 87 x D 779.8 mm; with handles W 478.8 x H 87 x D 811.5 mm"
+        ],
+        [
+          "processor",
+          "One or two Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "Up to 24 DDR4 DIMMs; 2400/2666/2933 MT/s options"
+        ],
+        [
+          "power_description",
+          "Up to two hot-swappable CRPS PSUs. Platinum 550/800/1300/1600/2000 W options; the 1300/1600/2000 W options are limited to 1000 W at rated 110 VAC."
+        ],
+        [
+          "power_limit",
+          "Certain GPU configurations do not support 1+1 redundancy. PSU alternatives depend on the actual module."
+        ],
+        [
+          "source_power_errors",
+          "Titanium rows repeat 230VAC and list 550 W DC values under higher ratings. Page 36 prints 130W for a 1300 W row and AC -48V. These lines remain uncorrected in archived text; no electrical equivalence inferred."
+        ],
+        [
+          "management",
+          "ASPEED AST2500; IPMI, SOL, KVM over IP and virtual media"
+        ],
+        [
+          "configuration_limit",
+          "Historical platform options, not actual auction-unit contents; no manufacturer or operator attribution."
+        ]
+      ]
+    }
+  ]
+}

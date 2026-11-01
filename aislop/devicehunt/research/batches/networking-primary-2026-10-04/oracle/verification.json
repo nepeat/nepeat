@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-10-04T23:01:40.461770+00:00",
+  "original_capture_unchanged": true,
+  "official_capture_byte_equal": true,
+  "normalized_visible_text_equal": true,
+  "candidate_json_valid": true,
+  "candidate_source_tier": "vendor",
+  "candidate_snapshot_exists": true,
+  "variant_sections_separate": true,
+  "fact_count": 25,
+  "network_requests": 1,
+  "search_queries": 1,
+  "schema_read": "devicehunt/importers.py:206 curated() and devicehunt/catalog.py:398 add()",
+  "identity_routing": "Existing catalog identity uses model.casefold().strip(), so printed lower-case c routes to existing uppercase-C identity without alias invention. No import run.",
+  "live_database_access": "none; no import, rebuild or shared-state mutation"
+}

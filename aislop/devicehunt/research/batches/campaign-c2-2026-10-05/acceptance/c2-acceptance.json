@@ -1,0 +1,76 @@
+{
+  "checked_at": "2026-10-05T10:04:27.252622+00:00",
+  "coordinator": "/root-claude",
+  "stage": "c2 offline runner accepted; live registry at operational schema 3",
+  "full_suite": {
+    "tests": 562,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "blocked_network_or_external_process_calls": 0,
+    "proof": "acceptance/c2-final-suite-result.json",
+    "log": "acceptance/c2-final-suite.log",
+    "runner": "acceptance/run_offline_suite.py (copy of the c1 network-guarded runner)",
+    "note": "run on the final code hashes below, after SmartNIC/QCT promotion"
+  },
+  "affected_after_final_edit": {
+    "modules": [
+      "tests.test_campaign",
+      "tests.test_campaign_state"
+    ],
+    "tests": 53,
+    "result": "OK"
+  },
+  "reviews": {
+    "c1_followup": "review/c1-followup-review.md",
+    "c2_runner": "review/c2-runner-review.md (VERDICT: ACCEPT with notes); the final _receipt_cost index-page margin (+4096 B per receipt) was added after that verification and covered by rerun affected tests and the guarded suite",
+    "docs": "review/docs-review.md (ACCEPT with notes; findings applied)"
+  },
+  "rehearsals": {
+    "registry_upgrade": "rehearsal/rehearsal-1.json",
+    "campaign": "rehearsal/campaign-rehearsal.json"
+  },
+  "live": {
+    "registry_upgrade": "acceptance/live-upgrade.json",
+    "campaign": "acceptance/live-campaign.json",
+    "ok": true,
+    "first_run_units": {
+      "blocked": 0,
+      "budget_exhausted": 0,
+      "declared": 12,
+      "explicit_zero": 2,
+      "failed": 0,
+      "inputs_registered": 12,
+      "observed": 12,
+      "pending": 0,
+      "unknown": 0,
+      "validated_complete": 12
+    },
+    "first_run_new_bytes": 4782388,
+    "second_run_actions": {
+      "reused": 36
+    },
+    "second_run_new_bytes": 0
+  },
+  "protected": {
+    "proof": "acceptance/protected-final.json",
+    "pinned_sources_and_bundle_unchanged": 1123,
+    "immutable_archive_entries_unchanged": 422,
+    "expected_checkpoint_changes": {
+      "data/devices.sqlite": "SmartNIC/QCT promotion; prior bytes = data/devices-before-smartnic-qct-2026-10-05.sqlite",
+      "data/import-manifest.json": "SmartNIC/QCT promotion; prior bytes = data/import-manifest-before-smartnic-qct-2026-10-05.json"
+    },
+    "c0_verify": "fails only on these accepted checkpoints (immutable c0 pins); pilot sources verify"
+  },
+  "code_sha256": {
+    "devicehunt/campaign.py": "7b37372eef859e42135ff48070f6f96592629e3c6d232e29b94db71ab74203b6",
+    "devicehunt/campaign_sources.py": "d5ba661a9818f501c5dda13df786339d8782b1f85356ca2ed36b4dfdd3e0626f",
+    "devicehunt/campaign_state.py": "20c9a104b1e8ee962f7d45307758623ce06a102fed0ee21f6d05e725efc1bc45",
+    "devicehunt/artifacts.py": "c788a3c63eb800b43a85c17aed092028000297bc74685093a2c349c3b870ed8a",
+    "devicehunt/capture.py": "f34bc773f892ebae30e64c53007cb3b3ab9506e099395f6a64b764f87966586c",
+    "tests/test_campaign.py": "073eb794be570a894de7223c78464c17c5dd01717ab49a33543f125bb9a418db",
+    "tests/test_campaign_state.py": "14b86b9c67aaaaa32e838baa627e521af8ca8786d9e1b3ffa74c12603ee8b8be",
+    "tests/test_capture.py": "1f01f6be597416126561b1a445212198a4523ab037b1323570d50e9386fd446b"
+  },
+  "network_requests": 0
+}

@@ -1,0 +1,13 @@
+{
+  "sources": 6,
+  "rows": 1120,
+  "by_dataset": {
+    "nvidia-certified-systems": 742,
+    "nvidia-ngc-ready": 198,
+    "amd-instinct-qualified-servers": 142,
+    "mitac-product-indexes": 38
+  },
+  "html_tables": 21,
+  "html_cards": 38,
+  "amd_pages": 6
+}

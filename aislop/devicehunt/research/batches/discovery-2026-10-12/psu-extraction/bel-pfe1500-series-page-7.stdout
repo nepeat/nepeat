@@ -1,0 +1,61 @@
+PFE1500 Series                                                                                                                                                  7
+
+
+
+12 VSB Standby Output
+VSB nom        Nominal Output Voltage                                                                                            12                       VDC
+                                                               0.5 ∙ISB nom, Tamb = 25°C
+VSB set        Output Setpoint Accuracy                                                                             -1                     +1         %VSB nom
+dVSB tot       Total Regulation                Vi min to Vi max, 0 to 100% ISB nom, Ta min to Ta max                -3                     +3          %VSB nom
+PSB nom        Nominal Output Power            VSB = 12 VDC                                                                      36                       W
+ISB nom        Nominal Output Current          VSB = 12 VDC                                                                          3                     A
+VSB pp         Output Ripple Voltage           VSB nom, ISB nom, 20 MHz BW (See Section 5.1)                                     60       120           mVpp
+dVSB           Droop                           0 - 100 % ISB nom                                                                270                       mV
+dVSBdyn        Dynamic Load Regulation         ΔISB = 50% ISB nom, ISB = 5 … 100% ISB nom,                          -0.6                   0.6             V
+Trec           Recovery Time                   dIo/dt = 1 A/μs, recovery within 1% of V1 nom                                               0.5            ms
+tAC VSB        Start-up Time from AC           VSB = 90% VSB nom                                                                           2               s
+tVSB rise      Rise Time                       VSB = 10…90% VSB nom                                                                        20             ms
+CLoad          Capacitive Loading              Tamb = 25°C                                                                                 1,500          μF
+
+
+       5.1 OUTPUT VOLTAGE RIPPLE
+             Internal capacitance at the 12 V output (behind the OR-ing circuitry) is minimized to prevent disturbances during hot plug. In
+             order to provide low output ripple voltage in the application, external capacitors (a parallel combination of 10 µF tantalum
+             capacitor in parallel with 0.1 µF ceramic capacitors) should be added close to the power supply output.
+             The setup of Figure 5 has been used to evaluate suitable capacitor types. The capacitor combinations of Table 1 and Table 2
+             should be used to reduce the output ripple voltage. The ripple voltage is measured with 20 MHz BWL, close to the external
+             capacitors.
+
+
+
+
+                                                                      Figure 5. Output ripple test setup
+
+             NOTE: Care must be taken when using ceramic capacitors with a total capacitance of 1 µF to 50 µF on output V1, due to their
+             high quality factor the output ripple voltage may be increased in certain frequency ranges due to resonance effects.
+
+
+            EXTERNAL CAPACITOR V1                            DV1MAX         UNIT          EXTERNAL CAPACITOR VSB                          DV1MAX        UNIT
+            Standard test condition:                                                      Standard test condition:
+            1 Pc 10 µF / 63 V Electrolytic Capacitor            150         mVpp          1 pc 10 µF / 63 V Electrolytic Capacitor          100         mVpp
+            1 pc 0.1 uF / 100 V ceramic capacitor                                         1 pc 0.1 uF / 100 V ceramic capacitor
+            1Pcs 1000µF/16V/Low ESR Aluminum/ø10x20             120         mVpp         Add 1 pc 10µF/16 V/X5R/1206                           50       mVpp
+
+            2Pcs 47µF/16V/X5R/1210                              100         mVpp         Add 2 pcs 10µF/1V/X5R/1206                            40       mVpp
+            2Pcs 47µF/16V/X5R/1210 plus
+                                                                 90         mVpp
+            1Pcs 1000µF Low ESR AlCap
+                                                                                                       Table 2. Suitable capacitors for 3.3VSB and 5VSB
+                            Table 1. Suitable capacitors for V1
+
+             The output ripple voltage on VSB is influenced by the main output V1. Evaluating VSB output ripple must be done when maximum
+             load is applied to V1.
+
+
+
+
+                                                                                         Asia-Pacific             Europe, Middle East        North America
+                                                                                   +86 755 298 85888                  +353 61 49 8941       +1 866 513 2839
+
+                                                                                                                   © 2024 Bel Fuse Inc.             BCD.00733_J
+

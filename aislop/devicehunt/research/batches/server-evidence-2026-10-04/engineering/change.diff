@@ -1,0 +1,84 @@
+--- before/devicehunt/buying.py
++++ after/devicehunt/buying.py
+@@ -31,6 +31,9 @@
+ # record context; these field names do not assert installed firmware or safety.
+ CATEGORY_FIELDS['firmware_boot_software'].update({'artifact_model_declaration', 'artifact_compatible_declaration',
+                                                  'artifact_serial0_alias', 'artifact_partition_labels'})
++# CMVP environments are dated software-module tested configurations; module
++# versions/status/history/caveats remain full record context, not firmware claims.
++CATEGORY_FIELDS['firmware_boot_software'].add('cmvp_tested_configuration')
+ LIMITS = [
+     'Statements describe their own source record, not the configuration or condition of an auction unit.',
+     'Seller statements remain seller claims; photographed firmware is an observation of that unit.',
+--- before/tests/test_buying.py
++++ after/tests/test_buying.py
+@@ -171,6 +171,69 @@
+         for query in ('accton,as7772_32x', 'RELATED-REG', '/soc@ffe000000/serial@11c500'):
+             self.assertEqual(self.report(query)['match_status'], 'no_exact_records')
+ 
++    def test_cmvp_tested_environments_keep_module_context_and_exact_scope(self):
++        facts = [
++            ('cmvp_tested_configuration', 'Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA'),
++            ('cmvp_tested_configuration', 'Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)'),
++            ('cmvp_module_name', 'Oracle OpenSSL FIPS Provider'),
++            ('cmvp_module_type', 'Software'),
++            ('cmvp_module_standard', 'FIPS 140-2'),
++            ('cmvp_module_software_versions', '3.0.15'),
++            ('cmvp_module_status_at_capture', 'Historical'),
++            ('cmvp_module_historical_reason', 'Moved to historical list due to sunsetting'),
++            ('cmvp_module_caveat', 'When operated in FIPS mode. No assurance of the minimum strength of generated keys.'),
++            ('cmvp_module_vendor_literal', 'Oracle Corporation'),
++            ('cmvp_module_validation_history_row', '["5/3/2023", "Initial", "Acumen Security"]'),
++            ('cmvp_module_validation_history_row', '["3/26/2025", "Update", "Lightship Security, Inc."]'),
++            ('source_sha256', '47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064'),
++            ('source_location', 'Details panel: #module-name; #module-standard; Tested Configuration(s) list items 14-15, HTML lines 583-584; Software Versions lines 685-689; #validation-history-table rows 1-2'),
++            ('source_scope', 'Saved NIST CMVP certificate 4506 software-module tested-platform detail; two exact E4-2C rows, preserving PAA and single-user-mode modifiers. Status/date are snapshot/module statements.'),
++            ('configuration_limit', 'No assertion of general/current OS support, installed CPU or OS, hardware certification, manufacturing, deployment, bootability, firmware access or secondhand software entitlement. Validation history dates are module events and are not separately assigned to either platform row.'),
++        ]
++        capture = self.path.parent / 'cmvp.txt'
++        capture.write_bytes(b'saved CMVP capture')
++        self.c.source('cmvp', 'https://example.org/cmvp', 'regulatory', 'test',
++                      'saved module detail', path=capture)
++        self.c.add('cmvp', 'e4-detail', 'https://example.org/cmvp', 'Oracle',
++                   'Oracle Server E4-2C', 'Oracle Server E4-2C', 'server platform', {},
++                   [('Oracle', 'tested_platform_vendor')], facts=facts)
++        self.c.finish('cmvp', 1)
++        self.add('other-model', model='Oracle Server E4-2', vendor='Oracle',
++                 facts=[('cmvp_tested_configuration', 'OTHER MODEL'), ('cpu', 'OTHER CPU')])
++        self.add('other-vendor', model='Oracle Server E4-2C', vendor='Hyve',
++                 facts=[('cmvp_tested_configuration', 'OTHER VENDOR'), ('os_support_as_printed', 'OTHER OS')])
++        report = self.report('Oracle Server E4-2C', 'Oracle')
++        statements = report['categories']['firmware_boot_software']['statements']
++        configurations = [value for name, value in facts if name == 'cmvp_tested_configuration']
++        self.assertEqual([s['statement'] for s in statements], sorted(configurations))
++        self.assertEqual([s['fact_name'] for s in statements], ['cmvp_tested_configuration'] * 2)
++        self.assertEqual(len(report['matched_records']), 1)
++        record = report['matched_records'][0]
++        self.assertEqual(record['context_facts'],
++                         [{'name': name, 'value': value} for name, value in sorted(facts)])
++        self.assertEqual({s['context_record_id'] for s in statements}, {record['record_id']})
++        for statement in statements:
++            self.assertEqual(statement['company_roles'], record['company_roles'])
++            self.assertEqual(statement['company_roles'],
++                             [{'company': 'Oracle', 'target': 'Oracle', 'role': 'tested_platform_vendor'}])
++            self.assertEqual(statement['tier'], 'regulatory')
++            self.assertEqual(statement['source_url'], 'https://example.org/cmvp')
++            self.assertEqual(statement['sha256'], record['sha256'])
++            self.assertEqual(statement['claim_status'], 'source_statement')
++        self.assertTrue(all(category['status'] == 'not_collected'
++                            for name, category in report['categories'].items()
++                            if name != 'firmware_boot_software'))
++        self.assertEqual([(s['fact_name'], s['statement']) for s in report['unclassified_facts']],
++                         sorted((name, value) for name, value in facts
++                                if name != 'cmvp_tested_configuration'))
++        table = buying.render_table(report)
++        for name, value in facts:
++            self.assertIn(name + ': ' + value, table)
++        for excluded in ('OTHER MODEL', 'OTHER CPU', 'OTHER VENDOR', 'OTHER OS'):
++            self.assertNotIn(excluded, table)
++        self.assertEqual(self.report('E4-2C', 'Oracle')['match_status'], 'no_exact_records')
++        self.assertEqual(self.report(configurations[0])['match_status'], 'no_exact_records')
++
+     def test_matched_identity_with_no_practical_facts_still_reports_gaps(self):
+         self.add('index', facts=[('source_scope', 'identity only')])
+         r = self.report('MODEL-V')

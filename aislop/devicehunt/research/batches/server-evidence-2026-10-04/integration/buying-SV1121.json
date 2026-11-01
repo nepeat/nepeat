@@ -1,0 +1,607 @@
+{
+  "query": "SV1121",
+  "vendor": null,
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "0a2a3941ed3ad44fbb69f1ab",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-server-docs-index",
+      "source_url": "https://www.ingrasys.com/docs/",
+      "observed_at": "2026-10-04T11:48:25+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs/",
+      "tier": "vendor",
+      "sha256": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16",
+      "coverage": "Four exact unsuffixed server names split from the DOCS heading SV1120/SV1121/SV2121/SV2221, dated Oct/2023 in the index captured 2026-10-04. Index evidence only. Original linked catalog HTTP 200 body is malformed (BOM, repeated PDF header, truncated tail); no specs or document pages imported from it. No equivalence to SV2221A or SV2221I inferred.",
+      "fetched_at": "2026-10-04T11:12:21.208106+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "SV1121"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "document_url",
+          "value": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/"
+        },
+        {
+          "name": "group_heading",
+          "value": "SV1120/SV1121/SV2121/SV2221"
+        },
+        {
+          "name": "identity_limit",
+          "value": "Unsuffixed name as printed; no automatic alias to suffixed variants."
+        },
+        {
+          "name": "index_date",
+          "value": "Oct/2023; not established as product release date"
+        },
+        {
+          "name": "source_scope",
+          "value": "DOCS index model heading only; malformed linked catalog remains an unresolved document gap."
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "SV1121"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "association_limit",
+          "value": "Portfolio association only; not manufacturer or hyperscaler deployment."
+        },
+        {
+          "name": "association_method",
+          "value": "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        },
+        {
+          "name": "corporate_source_sha256",
+          "value": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        },
+        {
+          "name": "corporate_source_url",
+          "value": "https://www.ingrasys.com/company/about/"
+        },
+        {
+          "name": "model_source_id",
+          "value": "ingrasys-server-docs-index"
+        },
+        {
+          "name": "model_source_sha256",
+          "value": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16"
+        },
+        {
+          "name": "model_source_url",
+          "value": "https://www.ingrasys.com/docs/"
+        },
+        {
+          "name": "parent_name_as_printed",
+          "value": "Foxconn Technology Group"
+        },
+        {
+          "name": "relationship_observed_date",
+          "value": "2026-10-04"
+        },
+        {
+          "name": "subsidiary_name_as_printed",
+          "value": "Ingrasys"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "cooling": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "chassis_physical": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "firmware_boot_software": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "0a2a3941ed3ad44fbb69f1ab",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-server-docs-index",
+      "source_url": "https://www.ingrasys.com/docs/",
+      "observed_at": "2026-10-04T11:48:25+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs/",
+      "tier": "vendor",
+      "sha256": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16",
+      "coverage": "Four exact unsuffixed server names split from the DOCS heading SV1120/SV1121/SV2121/SV2221, dated Oct/2023 in the index captured 2026-10-04. Index evidence only. Original linked catalog HTTP 200 body is malformed (BOM, repeated PDF header, truncated tail); no specs or document pages imported from it. No equivalence to SV2221A or SV2221I inferred.",
+      "fetched_at": "2026-10-04T11:12:21.208106+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "document_url",
+      "statement": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "context_record_id": "0a2a3941ed3ad44fbb69f1ab"
+    },
+    {
+      "record_id": "0a2a3941ed3ad44fbb69f1ab",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-server-docs-index",
+      "source_url": "https://www.ingrasys.com/docs/",
+      "observed_at": "2026-10-04T11:48:25+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs/",
+      "tier": "vendor",
+      "sha256": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16",
+      "coverage": "Four exact unsuffixed server names split from the DOCS heading SV1120/SV1121/SV2121/SV2221, dated Oct/2023 in the index captured 2026-10-04. Index evidence only. Original linked catalog HTTP 200 body is malformed (BOM, repeated PDF header, truncated tail); no specs or document pages imported from it. No equivalence to SV2221A or SV2221I inferred.",
+      "fetched_at": "2026-10-04T11:12:21.208106+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "group_heading",
+      "statement": "SV1120/SV1121/SV2121/SV2221",
+      "context_record_id": "0a2a3941ed3ad44fbb69f1ab"
+    },
+    {
+      "record_id": "0a2a3941ed3ad44fbb69f1ab",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-server-docs-index",
+      "source_url": "https://www.ingrasys.com/docs/",
+      "observed_at": "2026-10-04T11:48:25+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs/",
+      "tier": "vendor",
+      "sha256": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16",
+      "coverage": "Four exact unsuffixed server names split from the DOCS heading SV1120/SV1121/SV2121/SV2221, dated Oct/2023 in the index captured 2026-10-04. Index evidence only. Original linked catalog HTTP 200 body is malformed (BOM, repeated PDF header, truncated tail); no specs or document pages imported from it. No equivalence to SV2221A or SV2221I inferred.",
+      "fetched_at": "2026-10-04T11:12:21.208106+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "identity_limit",
+      "statement": "Unsuffixed name as printed; no automatic alias to suffixed variants.",
+      "context_record_id": "0a2a3941ed3ad44fbb69f1ab"
+    },
+    {
+      "record_id": "0a2a3941ed3ad44fbb69f1ab",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-server-docs-index",
+      "source_url": "https://www.ingrasys.com/docs/",
+      "observed_at": "2026-10-04T11:48:25+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs/",
+      "tier": "vendor",
+      "sha256": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16",
+      "coverage": "Four exact unsuffixed server names split from the DOCS heading SV1120/SV1121/SV2121/SV2221, dated Oct/2023 in the index captured 2026-10-04. Index evidence only. Original linked catalog HTTP 200 body is malformed (BOM, repeated PDF header, truncated tail); no specs or document pages imported from it. No equivalence to SV2221A or SV2221I inferred.",
+      "fetched_at": "2026-10-04T11:12:21.208106+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "index_date",
+      "statement": "Oct/2023; not established as product release date",
+      "context_record_id": "0a2a3941ed3ad44fbb69f1ab"
+    },
+    {
+      "record_id": "0a2a3941ed3ad44fbb69f1ab",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-server-docs-index",
+      "source_url": "https://www.ingrasys.com/docs/",
+      "observed_at": "2026-10-04T11:48:25+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs/",
+      "tier": "vendor",
+      "sha256": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16",
+      "coverage": "Four exact unsuffixed server names split from the DOCS heading SV1120/SV1121/SV2121/SV2221, dated Oct/2023 in the index captured 2026-10-04. Index evidence only. Original linked catalog HTTP 200 body is malformed (BOM, repeated PDF header, truncated tail); no specs or document pages imported from it. No equivalence to SV2221A or SV2221I inferred.",
+      "fetched_at": "2026-10-04T11:12:21.208106+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_scope",
+      "statement": "DOCS index model heading only; malformed linked catalog remains an unresolved document gap.",
+      "context_record_id": "0a2a3941ed3ad44fbb69f1ab"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "association_limit",
+      "statement": "Portfolio association only; not manufacturer or hyperscaler deployment.",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "association_method",
+      "statement": "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship.",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "corporate_source_sha256",
+      "statement": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "corporate_source_url",
+      "statement": "https://www.ingrasys.com/company/about/",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_source_id",
+      "statement": "ingrasys-server-docs-index",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_source_sha256",
+      "statement": "5284bcfba53b566006b47ca1b1489df0c89d6acb8346f33781271ff46768fe16",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_source_url",
+      "statement": "https://www.ingrasys.com/docs/",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "parent_name_as_printed",
+      "statement": "Foxconn Technology Group",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "relationship_observed_date",
+      "statement": "2026-10-04",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    },
+    {
+      "record_id": "9ab0e942caba8043dbe21d50",
+      "device_id": "402294fea46093c7f4e2",
+      "brand": "Ingrasys",
+      "model": "SV1121",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "subsidiary_name_as_printed",
+      "statement": "Ingrasys",
+      "context_record_id": "9ab0e942caba8043dbe21d50"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

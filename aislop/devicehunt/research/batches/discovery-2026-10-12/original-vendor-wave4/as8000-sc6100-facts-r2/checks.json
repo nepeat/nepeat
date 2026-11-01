@@ -1,0 +1,46 @@
+{
+  "status": "PASS; title-only candidate successor, root independent review pending",
+  "checked_utc": "2026-10-13T04:44:13.748273+00:00",
+  "exact_changed_paths": [
+    ".devices[0].title",
+    ".devices[1].title"
+  ],
+  "title_changes": [
+    {
+      "source": "edgecore-as8000-r02-practical-facts-2026-10-12",
+      "key": "Minipack-AS8000",
+      "old_title": "Edge-Core Minipack-AS8000 source-scoped document statements",
+      "new_title": "Edge-Core Minipack-AS8000"
+    },
+    {
+      "source": "celestica-sc6100-datasheet-practical-facts-2026-10-12",
+      "key": "SC6100",
+      "old_title": "Celestica SC6100 source-scoped document statements",
+      "new_title": "Celestica SC6100"
+    }
+  ],
+  "all_other_fields_logically_equal": true,
+  "counts": {
+    "sources": 2,
+    "records": 2,
+    "facts": 26,
+    "immutable_PDF_sidecar_copies": 4
+  },
+  "r1_SHA256SUMS_all_entries_unchanged": true,
+  "r1_candidate_sha256": "66fbabc7252652a5748d71e53a45cfd29ecf26d434a77ccedd45e18c2d3aae00",
+  "r2_candidate_sha256": "7c73ce18d7a5812f776b3bde2dbec704a45bed68c7922b3e1e4dad0db2dcaa3e",
+  "builder_sha256": "24ca383d9b0240f621545d744382fe16bfe54571ede41fd75087ae2f2aec6a25",
+  "provenance_sha256": "8fff3edfc7d8090dfb482b5e791320017823e4425b35c26dab4ebe0a37325ba7",
+  "accepted_r1_fact_review_path": "research/batches/discovery-2026-10-12/review/as8000-sc6100-facts-review.md",
+  "accepted_r1_fact_review_sha256": "18d8ef9eed16c806aa59b470f0c93ce309b84e67c29995a0bfa6a39612430df1",
+  "builder_check": {
+    "returncode": 0,
+    "stdout": "PASS: exactly 2 titles changed; 2 sources / 2 records / 26 facts; 4 immutable copies; no import\n",
+    "stderr": "",
+    "writes": 0
+  },
+  "network_requests": 0,
+  "imports": 0,
+  "shared_DB_reads_or_writes": 0,
+  "production_edits": 0
+}

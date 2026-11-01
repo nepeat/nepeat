@@ -1,0 +1,17 @@
+{
+  "candidate_manifest_sha256": "14c2a1f177051b6e62c8e04dabbd9621a3d4baf6b759d2db25a722ba8efc9195",
+  "candidate_sha256": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "devices": 5112,
+  "foreign_key_violations": 0,
+  "gate_projections": "ok",
+  "import_result": {
+    "model_assertions": 154,
+    "registry_rows": 151
+  },
+  "integrity": "ok",
+  "live_rows_missing": {
+    "records": 149,
+    "sources": 1
+  },
+  "records": 7230
+}

@@ -1,0 +1,64 @@
+4                                                                                                        PFE1500 Series
+
+         General Condition: TA = 0… 45°C unless otherwise specified.
+
+
+
+                                                                                                    100                    240         VAC
+Vi nom        Nominal Input Voltage
+                                                                                                    200                    3501        VDC
+Vi            Input Voltage Ranges            Normal operating (Vi min to Vi max)                   90                      264        VAC
+                                                                                                    180                     350        VDC
+Vi red        Derating Input Voltage Range    See Figure 7                                          90                      180        VAC
+Ii max        Max Input Current                                                                                             15         Arms
+Ii p          Inrush Current Limitation       Vi min to Vi max, TNTC = 25°C (Figure 4)                                      40          Ap
+Fi            Input Frequency                                                                       47        50/60         64          Hz
+PF            Power Factor                    Vi nom, 50 Hz, > 0.3 I1 nom                           0.96                               W/VA
+                                                                                                    80          84          89         VAC
+Vi on         Turn-on Input Voltage2          Ramping up
+                                                                                                    169        174          180        VDC
+                                                                                                    75          80          85         VAC
+Vi off        Turn-off Input Voltage          Ramping down
+                                                                                                    166        171          176        VDC
+                                              Vi nom, 0.1∙Ix nom, Vx nom, TA = 25°C                             90
+
+              Efficiency without Fan at AC    Vi nom, 0.2∙Ix nom, Vx nom, TA = 25°C                             92
+              input                           Vi nom, 0.5∙Ix nom, Vx nom, TA = 25°C                             94
+                                              Vi nom, Ix nom, Vx nom, TA = 25°C                                 92
+η                                                                                                                                       %
+                                              Vi nom=336VDC, 0.1∙Ix nom, Vx nom, TA = 25°C                      89
+
+              Efficiency without Fan at DC    Vi nom=336VDC, 0.2∙Ix nom, Vx nom, TA = 25°C                      92
+              input                           Vi nom=336VDC, 0.5∙Ix nom, Vx nom, TA = 25°C                     93.5
+                                              Vi nom=336VDC, Ix nom, Vx nom, TA = 25°C                          92
+                                              After last AC zero point to V1 ≥ 10.8 V, VSB within
+Thold         Hold-up Time                                                                          10                                  ms
+                                              regulation, Vi = 230 VAC, Px nom
+
+
+
+
+         4.1 INPUT FUSE
+              Quick-acting 16A input fuse (5 x 20 mm) in series the L line inside the power supply protect against severe defects. The fuses
+              are not accessible from the outside and are therefore not serviceable parts.
+
+         4.2 INRUSH CURRENT
+              The AC-DC power supply exhibits an X-capacitance of only 3.2 µF, resulting in a low and short peak current, when the supply
+              is connected to the mains. The internal bulk capacitor will be charged through an NTC which will limit the inrush current.
+
+              NOTE: Do not repeat plug-in / out operations within a short time, or else the internal in-rush current limiting device (NTC) may
+              not sufficiently cool down and excessive inrush current or component failure(s) may result.
+
+
+
+
+          1
+               For PFE1500-12-054NAH, PFE1500-12-054RAH and PFE1500-12NAHS412, normal DC operation input range is 200 VDC to 380 VDC
+               and input range is 180 VDC to 400 VDC; input AC range is 90 VAC ~ 264 VAC.
+          2    The Front-End is provided with a minimum hysteresis of 3 V during turn-on and turn-off within the ranges.
+
+
+
+
+                                                                                                              tech.support@psbel.com
+

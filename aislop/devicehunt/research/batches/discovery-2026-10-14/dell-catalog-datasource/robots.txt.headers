@@ -1,0 +1,17 @@
+HTTP/2 200 
+content-type: text/plain
+last-modified: Mon, 12 Apr 2021 17:53:37 GMT
+accept-ranges: bytes
+etag: "5a9e8fc3c42fd71:0"
+report-to: {"group":"network-errors","max_age":3600,"endpoints":[{"url":"https://www.dell.com/support/onlineapi/nellogger/log"}]}
+nel: {"report_to":"network-errors","max_age":3600}
+x-set: dr-02
+x-powered-by: ARR/3.0
+x-powered-by: ASP.NET
+x-arr-set: arr6
+content-length: 64
+date: Thu, 15 Oct 2026 05:52:33 GMT
+akamai-request-bc: [a=23.202.113.14,b=899976868,c=g,n=US_CA_ELSEGUNDO,o=20940]
+strict-transport-security: max-age=86400
+akamai-grn: 0.0e71ca17.1792043553.35a48ea4
+

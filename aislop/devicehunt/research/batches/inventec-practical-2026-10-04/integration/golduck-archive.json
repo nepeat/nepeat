@@ -1,0 +1,48 @@
+{
+  "state": "loaded",
+  "query": "",
+  "fcc_id": null,
+  "source": "reference-pdf-inventec-golduck-product-brief-v3-2020",
+  "matches": 2,
+  "shown": 2,
+  "truncated": false,
+  "rows": [
+    {
+      "document_key": "e577f1a21a25ca5d602c1308",
+      "source_id": "reference-pdf-inventec-golduck-product-brief-v3-2020",
+      "fcc_id": "",
+      "document_id": "inventec-golduck-product-brief-v3-2020",
+      "title": "Inventec Golduck product brief v3 2020",
+      "category": "product brief",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "pdf_file": "inventec-golduck-v3-2020.pdf",
+      "pdf_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "page_count": 2,
+      "pages_with_text": 2,
+      "extraction_method": "pypdf embedded text; no OCR",
+      "page_number": 1,
+      "text_status": "embedded_text",
+      "excerpt": "Golduck\n1U1N2P\nAMD EPYC™ 7002 Series \nProcessor-based System\nHighlights\nAs an alternative performance server option based on \n7nm AMD EPYC™ 7002 series processors (Rome), Golduck \ntargets HPC (high performance computing), storage and \ngeneral-purpose usage … ",
+      "local_pdf": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inventec-golduck-v3-2020.pdf"
+    },
+    {
+      "document_key": "e577f1a21a25ca5d602c1308",
+      "source_id": "reference-pdf-inventec-golduck-product-brief-v3-2020",
+      "fcc_id": "",
+      "document_id": "inventec-golduck-product-brief-v3-2020",
+      "title": "Inventec Golduck product brief v3 2020",
+      "category": "product brief",
+      "source_url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "pdf_file": "inventec-golduck-v3-2020.pdf",
+      "pdf_sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "page_count": 2,
+      "pages_with_text": 2,
+      "extraction_method": "pypdf embedded text; no OCR",
+      "page_number": 2,
+      "text_status": "embedded_text",
+      "excerpt": "© 2020 Inventec Corp.\nPositioning General Purpose\nForm Factor\n1U1N rack mount with slide rail \nW x H x D: 435 x 43.2 x 800 mm\n(17.3 x 1.7x 31.5 inch)\nProcessor\nDual … ",
+      "local_pdf": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/inventec-golduck-v3-2020.pdf"
+    }
+  ],
+  "scope": "Page text matches, not independent model corroboration. No OCR; image content can be missing even on pages with some text. Blank-text pages remain in the archive. An empty query lists all pages including pages without embedded text."
+}

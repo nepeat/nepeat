@@ -1,0 +1,425 @@
+{
+  "query": "E5-2C",
+  "vendor": "Oracle",
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "697fb643a659a66c15695445",
+      "device_id": "ec74840c347894d9933e",
+      "brand": "Oracle",
+      "model": "Oracle Server E5-2c",
+      "revision": "",
+      "source_id": "oracle-e5-geekbench",
+      "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+      "observed_at": "2026-10-04T11:25:27+00:00",
+      "source_home_url": "https://browser.geekbench.com/v5/cpu/21469175",
+      "tier": "benchmark_submission",
+      "sha256": null,
+      "coverage": "One user-submitted Geekbench result, uploaded 2023-07-18, reviewed through public web retrieval 2026-09-26. Original HTML not cached (direct retrieval returned 403). Reported system strings are discovery leads, not vendor certification or independently verified chassis specifications.",
+      "fetched_at": null,
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "reported_system_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "model_search",
+          "value": "E5-2c"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "evidence_scope",
+          "value": "User-submitted benchmark identification only; needs independent corroboration"
+        },
+        {
+          "name": "reported_motherboard",
+          "value": "Oracle Corporation Asm,MB+Tray,E5-2c"
+        },
+        {
+          "name": "reported_system_model",
+          "value": "Oracle Corporation ORACLE SERVER E5-2c"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "dab003a1abaa70756570c82a",
+      "device_id": "ec74840c347894d9933e",
+      "brand": "Oracle",
+      "model": "Oracle Server E5-2c",
+      "revision": "",
+      "source_id": "broadcom-servers",
+      "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+      "observed_at": "2026-10-04T11:26:13+00:00",
+      "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+      "tier": "vendor",
+      "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+      "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+      "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "compatibility_partner"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "model_search",
+          "value": "E5-2c"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "compatibility_cpu_series",
+          "value": "AMD EPYC 9004 Series"
+        },
+        {
+          "name": "compatibility_cpu_series_max_cores_per_socket",
+          "value": "128"
+        },
+        {
+          "name": "compatibility_notes",
+          "value": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: Boot from SD/USB flash media is not supported. ESXi 7.0u3 support starts at ESXi 7.0 Update 3i. For build information see https://kb.vmware.com/s/article/2143832 For support of 'Zen 4c' or AMD 3D V-Cache™ technology, contact your hardware vendor for the minimum BIOS/UEFI firmware version required."
+        },
+        {
+          "name": "compatibility_releases",
+          "value": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1"
+        },
+        {
+          "name": "compatibility_sockets",
+          "value": "2"
+        },
+        {
+          "name": "compatibility_system_type",
+          "value": "Rackmount"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "cooling": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "chassis_physical": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "dab003a1abaa70756570c82a",
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+          "observed_at": "2026-10-04T11:26:13+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_system_type",
+          "statement": "Rackmount",
+          "context_record_id": "dab003a1abaa70756570c82a"
+        }
+      ]
+    },
+    "firmware_boot_software": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "dab003a1abaa70756570c82a",
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+          "observed_at": "2026-10-04T11:26:13+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_notes",
+          "statement": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: Boot from SD/USB flash media is not supported. ESXi 7.0u3 support starts at ESXi 7.0 Update 3i. For build information see https://kb.vmware.com/s/article/2143832 For support of 'Zen 4c' or AMD 3D V-Cache™ technology, contact your hardware vendor for the minimum BIOS/UEFI firmware version required.",
+          "context_record_id": "dab003a1abaa70756570c82a"
+        },
+        {
+          "record_id": "dab003a1abaa70756570c82a",
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+          "observed_at": "2026-10-04T11:26:13+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_releases",
+          "statement": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1",
+          "context_record_id": "dab003a1abaa70756570c82a"
+        }
+      ]
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "697fb643a659a66c15695445",
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "source_id": "oracle-e5-geekbench",
+          "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+          "observed_at": "2026-10-04T11:25:27+00:00",
+          "source_home_url": "https://browser.geekbench.com/v5/cpu/21469175",
+          "tier": "benchmark_submission",
+          "sha256": null,
+          "coverage": "One user-submitted Geekbench result, uploaded 2023-07-18, reviewed through public web retrieval 2026-09-26. Original HTML not cached (direct retrieval returned 403). Reported system strings are discovery leads, not vendor certification or independently verified chassis specifications.",
+          "fetched_at": null,
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "reported_system_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "reported_motherboard",
+          "statement": "Oracle Corporation Asm,MB+Tray,E5-2c",
+          "context_record_id": "697fb643a659a66c15695445"
+        },
+        {
+          "record_id": "dab003a1abaa70756570c82a",
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+          "observed_at": "2026-10-04T11:26:13+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_cpu_series",
+          "statement": "AMD EPYC 9004 Series",
+          "context_record_id": "dab003a1abaa70756570c82a"
+        },
+        {
+          "record_id": "dab003a1abaa70756570c82a",
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+          "observed_at": "2026-10-04T11:26:13+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_cpu_series_max_cores_per_socket",
+          "statement": "128",
+          "context_record_id": "dab003a1abaa70756570c82a"
+        },
+        {
+          "record_id": "dab003a1abaa70756570c82a",
+          "device_id": "ec74840c347894d9933e",
+          "brand": "Oracle",
+          "model": "Oracle Server E5-2c",
+          "revision": "",
+          "source_id": "broadcom-servers",
+          "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+          "observed_at": "2026-10-04T11:26:13+00:00",
+          "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+          "tier": "vendor",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+          "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "compatibility_partner"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "compatibility_sockets",
+          "statement": "2",
+          "context_record_id": "dab003a1abaa70756570c82a"
+        }
+      ]
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "697fb643a659a66c15695445",
+      "device_id": "ec74840c347894d9933e",
+      "brand": "Oracle",
+      "model": "Oracle Server E5-2c",
+      "revision": "",
+      "source_id": "oracle-e5-geekbench",
+      "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+      "observed_at": "2026-10-04T11:25:27+00:00",
+      "source_home_url": "https://browser.geekbench.com/v5/cpu/21469175",
+      "tier": "benchmark_submission",
+      "sha256": null,
+      "coverage": "One user-submitted Geekbench result, uploaded 2023-07-18, reviewed through public web retrieval 2026-09-26. Original HTML not cached (direct retrieval returned 403). Reported system strings are discovery leads, not vendor certification or independently verified chassis specifications.",
+      "fetched_at": null,
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "reported_system_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "evidence_scope",
+      "statement": "User-submitted benchmark identification only; needs independent corroboration",
+      "context_record_id": "697fb643a659a66c15695445"
+    },
+    {
+      "record_id": "697fb643a659a66c15695445",
+      "device_id": "ec74840c347894d9933e",
+      "brand": "Oracle",
+      "model": "Oracle Server E5-2c",
+      "revision": "",
+      "source_id": "oracle-e5-geekbench",
+      "source_url": "https://browser.geekbench.com/v5/cpu/21469175",
+      "observed_at": "2026-10-04T11:25:27+00:00",
+      "source_home_url": "https://browser.geekbench.com/v5/cpu/21469175",
+      "tier": "benchmark_submission",
+      "sha256": null,
+      "coverage": "One user-submitted Geekbench result, uploaded 2023-07-18, reviewed through public web retrieval 2026-09-26. Original HTML not cached (direct retrieval returned 403). Reported system strings are discovery leads, not vendor certification or independently verified chassis specifications.",
+      "fetched_at": null,
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "reported_system_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "reported_system_model",
+      "statement": "Oracle Corporation ORACLE SERVER E5-2c",
+      "context_record_id": "697fb643a659a66c15695445"
+    },
+    {
+      "record_id": "dab003a1abaa70756570c82a",
+      "device_id": "ec74840c347894d9933e",
+      "brand": "Oracle",
+      "model": "Oracle Server E5-2c",
+      "revision": "",
+      "source_id": "broadcom-servers",
+      "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57328&persona=live",
+      "observed_at": "2026-10-04T11:26:13+00:00",
+      "source_home_url": "https://compatibilityguide.broadcom.com/search?program=server&persona=live",
+      "tier": "vendor",
+      "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+      "coverage": "Seven target-name public server queries, each checked against its API total and repeated after detail capture. Exact target partner matches only; this is the live server-guide query scope, not all historical hardware or all programs. Compatibility entries describe submitted configurations, not factory/OEM, current firmware access, entitlement, or configuration of a particular used unit. Search/detail model and partner must agree. No release-to-BIOS relationship is inferred from the unfiltered detail tables.",
+      "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "compatibility_partner"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "evidence_scope",
+      "statement": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement",
+      "context_record_id": "dab003a1abaa70756570c82a"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

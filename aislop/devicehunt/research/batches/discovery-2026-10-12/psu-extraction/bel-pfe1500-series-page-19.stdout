@@ -1,0 +1,65 @@
+PFE1500 Series                                                                                                                        19
+
+
+
+  8.17     PSMI PROTOCOL
+     New power management features in computer systems require the system to communicate with the power supply to access
+     current, voltage, fan speed, and temperature information. Current measurements provide data to the system for determining
+     potential system configuration limitations and provide actual system power consumption for facility planning. Temperature and
+     fan monitoring allow the system to better manage fan speeds and temperatures for optimizing system acoustics. Voltage
+     monitoring allows the system to calculate input wattage and warning of system voltage regulation problems. The Power Supply
+     Management Interface (PSMI) supports diagnostic capabilities and allows managing of redundant power supplies. The
+     communication method is SMBus. The current design guideline is version 2.12.
+     The communication protocol is register based and defines a read and write communication protocol to read / write to a single
+     register address. All registers are accessed via the same basic command given below. No PEC (Packet Error Code) is used.
+     WRITE
+     The write protocol used is the SMBus 2.0 Write Word protocol. All writes are 16-bit words; byte reads are not supported nor
+     allowed. The shaded areas in the figure indicate bits and bytes written by the PSMI master device. See PFE Programming
+     Manual for further information.
+                                                  S Address W A           Register ID   A
+
+
+
+                                                 Data Low Byte   A   Data High Byte A       P
+
+
+
+
+     READ
+     The read protocol used is the SMBus 2.0 Read Word protocol. All reads are 16-bit words; byte reads are not supported nor
+     allowed. The shaded areas in the figure indicate bits and bytes written by the PSMI master device. See PFE Programming
+     Manual for further information.
+                                        S Address W A       Register ID      A
+
+
+
+                                        S Address R   A   Data Low Byte      A     Data High Byte nA P
+
+
+
+
+  8.18     GRAPHICAL USER INTERFACE
+
+     Bel Power Solutions provides with its “Bel Power Solutions I2C Utility” a Windows® XP/Vista/Win7 compatible graphical user
+     interface allowing the programming and monitoring of the PFE1500-12-054 Front-End. The utility can be downloaded on:
+     belfuse.com/power-solutions and supports Power Management Bus protocols.
+     The GUI allows automatic discovery of the units connected to the communication bus and will show them in the navigation
+     tree. In the monitoring view the power supply can be controlled and monitored.
+     If the GUI is used in conjunction with the SNP-OP-BOARD-01 or YTM.G1Q01.0 Evaluation Kit it is also possible to control
+     the PSON_L pin(s) of the power supply.
+     Further there is a button to disable the internal fan for approximately 10 seconds. This allows the user to take input power
+     measurements without fan consumptions to check efficiency compliance to the Climate Saver Computing Platinum
+     specification.
+     The monitoring screen also allows to enable the hot-standby mode on the power supply. The mode status is monitored and
+     by changing the load current it can be monitored when the power supply is being disabled for further energy savings. This
+     obviously requires 2 power supplies being operated as a redundant system (as in the evaluation kit).
+     NOTE: The user of the GUI needs to ensure that only one of the power supplies have the hot-standby mode enabled.
+
+
+
+
+                                                                       Asia-Pacific              Europe, Middle East       North America
+                                                                 +86 755 298 85888                   +353 61 49 8941      +1 866 513 2839
+
+                                                                                                   © 2024 Bel Fuse Inc.      BCD.00733_J
+

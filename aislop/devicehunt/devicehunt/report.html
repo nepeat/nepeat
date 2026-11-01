@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Device hunting — local catalog</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui;background:#111820;color:#e2eaf2}body{max-width:1200px;margin:40px auto;padding:0 24px}h1{font-size:34px;letter-spacing:-1px;margin-bottom:8px}p{color:#acbfce;line-height:1.6}a{color:#86dcd0}input,select{background:#1e2b36;color:inherit;border:1px solid #527080;border-radius:6px;padding:12px;font:inherit}input{flex:1;min-width:200px}.controls{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}.card{background:#19242f;border:1px solid #344653;border-radius:10px;padding:20px;margin:16px 0}h2{margin:0 0 10px;font-size:21px}.tag{display:inline-block;background:#283e4a;color:#b8eadf;font-size:13px;padding:4px 8px;border-radius:4px;margin:4px 8px 4px 0}.muted{color:#adbdcc;font-size:14px}summary{cursor:pointer;margin-top:14px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}table{border-collapse:collapse;font-size:13px;width:100%}td,th{padding:10px;text-align:left;border-bottom:1px solid #344653;vertical-align:top}button{padding:10px;background:#284e53;color:white;border:0;border-radius:4px;cursor:pointer}label{align-self:center}footer{padding:24px 0}#count{min-height:24px}.source-wrap{overflow-x:auto}
+</style>
+<h1>device hunting <span style="color:#86dcd0">/</span> local catalog</h1>
+<p>__TARGET_NAMES__<br>
+Search models, chipsets, FCC IDs, OEM names, and codenames. This is a sourced starting catalog, not an exhaustive inventory.</p>
+<div class="controls"><input id="query" aria-label="Search devices" placeholder="try: DX010, Wedge, CUBSCOUT, Trident…"><select id="vendor" aria-label="Target company"><option value="">all target companies</option>__TARGET_OPTIONS__</select><label><input id="hyper" type="checkbox" style="min-width:0"> hyperscaler evidence</label></div>
+<p class="muted">Manufacturer claims is the starting view. Choose all associations to include brands, applicants, compatibility and seller leads. Manufacturer and factory views require imported external source evidence with saved snapshot metadata. Company, scope and role must match the same association. Legal manufacturer does not necessarily identify the physical factory or establish the history of your unit.</p>
+<p id="count" role="status" aria-live="polite"></p><div id="results"></div><button id="more" hidden>show 50 more</button>
+<details><summary>sources & coverage</summary><div class="source-wrap"><table><thead><tr><th>source</th><th>type</th><th>records scanned/listed</th><th>scope</th></tr></thead><tbody>__SOURCE_ROWS__</tbody></table></div></details>
+<footer class="muted">Everything above searches the embedded local snapshot. Marketplace links open external searches; no listings, prices, availability, or unit provenance have been verified. A brand, FCC applicant, and physical manufacturer can be different companies. Hyperscaler evidence describes a platform relationship, not the history of a particular surplus unit.</footer>
+<script id="data" type="application/json">__DEVICE_DATA__</script>
+<script>
+const devices=JSON.parse(document.getElementById('data').textContent);
+const query=document.getElementById('query'),vendor=document.getElementById('vendor'),hyper=document.getElementById('hyper'),results=document.getElementById('results'),more=document.getElementById('more');
+const role=el('select');role.id='role';role.setAttribute('aria-label','Company role');
+const anyRole=el('option','all company roles');anyRole.value='';role.append(anyRole);
+for(const name of [...new Set(devices.flatMap(d=>d.affiliations.map(a=>a.role)))].sort()){
+ const option=el('option',name.replaceAll('_',' '));option.value=name;role.append(option);
+}
+const scope=el('select');scope.id='scope';scope.setAttribute('aria-label','Evidence scope');
+for(const [value,label] of [['manufacturer','manufacturer claims'],['factory','factory listings'],['all','all associations']]){
+ const option=el('option',label);option.value=value;scope.append(option);
+}
+scope.value='manufacturer';vendor.after(scope);scope.after(role);
+let shown=50;
+const norm=s=>s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ');
+const texts=devices.map(d=>norm(JSON.stringify([d.title,d.model,d.kind,d.affiliations,d.identifiers,d.facts,d.hyperscaler_evidence,d.fcc_exhibits])));
+function el(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;}
+function link(text,url){const a=el('a',text);if(/^https?:\/\//.test(url)){a.href=url;a.target='_blank';a.rel='noopener noreferrer';}return a;}
+function matchingAffiliation(a){
+ return (!vendor.value||a.target===vendor.value)&&(!role.value||a.role===role.value)&&
+  (scope.value==='all'||(a.target&&a.source_snapshot_eligible===true&&
+   a.evidence_class===(scope.value==='factory'?'factory_listing':'manufacturer_claim')));
+}
+function render(){
+ const tokens=norm(query.value).split(' ').filter(Boolean);
+ const filtered=scope.value!=='all'||vendor.value||role.value;
+ const matches=devices.filter((d,i)=>tokens.every(t=>texts[i].includes(t))&&(!filtered||d.affiliations.some(matchingAffiliation))&&(!hyper.checked||d.hyperscaler_evidence.length));
+ document.getElementById('count').textContent=`${matches.length} matches · ${devices.length} catalog identities · showing ${Math.min(shown,matches.length)}`;
+ results.replaceChildren();
+ for(const d of matches.slice(0,shown)){
+  const card=el('article',undefined,'card');card.append(el('h2',d.title));card.append(el('div',`${d.kind} · ${d.id}`,'muted'));
+  const roles=[...new Set(d.affiliations.filter(a=>a.target).map(a=>`${a.target}: ${a.role.replaceAll('_',' ')}`))];
+  for(const r of roles)card.append(el('span',r,'tag'));
+  if(filtered){const evidence=el('details');evidence.append(el('summary','evidence matching your filters'));
+   for(const a of d.affiliations.filter(matchingAffiliation)){const p=el('p',`${a.company}: ${a.role.replaceAll('_',' ')} · ${a.source_tier} · ${a.source_snapshot_eligible?'eligible external snapshot':'outside manufacturer/factory source requirements'} `);p.append(link('source',a.source_url));evidence.append(p);}card.append(evidence);}
+  for(const h of d.hyperscaler_evidence){const p=el('p',`${h.operator} — ${h.relationship.replaceAll('_',' ')}: ${h.detail} `);p.append(link('source',h.source_url));card.append(p);}
+  const specificationNames=new Set(['power_description','cooling_description','physical_description','software_installation_description']);
+  const specifications=[...new Map(d.facts.filter(f=>specificationNames.has(f.name)).map(f=>[JSON.stringify([f.record_id,f.value]),f])).values()];
+  if(specifications.length){const specs=el('details');specs.append(el('summary','power, cooling & installation'));specs.append(el('p','Vendor product-level statements. Check the exact ordering code and installed components on the unit; alternatives below may describe different SKUs.'));
+   for(const f of specifications){const p=el('p',f.value+' ');p.append(link('vendor source',f.source_url));specs.append(p);}card.append(specs);}
+  const facts=el('details');facts.append(el('summary','identifiers, specifications & evidence'));
+  for(const a of d.affiliations){const p=el('p',`${a.company}: ${a.role.replaceAll('_',' ')} `);p.append(link('source',a.source_url));facts.append(p);}
+  for(const f of [...d.identifiers,...d.facts]){const p=el('p');p.append(el('strong',(f.kind||f.name)+': '));p.append(document.createTextNode(f.value+' '));p.append(link('source',f.source_url));facts.append(p);}
+  const sourceURLs=[...new Set(d.affiliations.map(a=>a.source_url))];for(const u of sourceURLs){const p=el('p');p.append(link(u,u));facts.append(p);}card.append(facts);
+  if(d.fcc_exhibits.length){const exhibits=el('details');exhibits.append(el('summary',`FCC exhibits (${d.fcc_exhibits.length})`));exhibits.append(el('p','These are reviewed index entries. PDF contents are not stored in this offline page; listed availability is not a download verification.'));
+   for(const e of d.fcc_exhibits){const p=el('p',`${e.title} · ${e.document_type} · ${e.availability.replaceAll('_',' ')}${e.document_id?' · '+e.document_id:''} `);p.append(link('source',e.document_url||e.source_url));exhibits.append(p);}card.append(exhibits);}
+  if(d.registry_matches?.length){const registry=el('details');registry.append(el('summary',`equipment register: ${d.registry_matches.length} exact model-string matches`));registry.append(el('p','These rows match a model string. The register does not identify a manufacturer or applicant; matching text alone does not verify the same hardware.'));
+   for(const r of d.registry_matches){const p=el('p',`${r.model} · ${r.approval_number} · ${r.category} · page ${r.page} `);p.append(link('register page',r.source_url));registry.append(p);}card.append(registry);}
+  if(d.shopping.length){const shop=el('details');shop.append(el('summary','marketplace search terms'));
+   for(const s of d.shopping){const p=el('p',s.query+' · ');p.append(link('eBay',s.ebay));p.append(document.createTextNode(' · '));p.append(link('web / surplus',s.web));shop.append(p);}card.append(shop);}results.append(card);
+ }
+ more.hidden=matches.length<=shown;
+}
+for(const e of [query,vendor,scope,role,hyper])e.addEventListener('input',()=>{shown=50;render();});
+more.addEventListener('click',()=>{shown+=50;render();});render();
+</script></html>

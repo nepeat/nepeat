@@ -1,0 +1,288 @@
+{
+  "catalog_path": "data/devices-candidate-wave3-2026-10-12.sqlite",
+  "observed_utc": "2026-10-13T05:12:00.510437+00:00",
+  "catalog_sha256_before": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "catalog_sha256_after": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+  "read_only": true,
+  "all3source_ids_absent": true,
+  "existing_identities": 5,
+  "new_identities": 35,
+  "anchors": [
+    {
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "key": "Sun ZFS Storage 7420",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "existing_same_namespace": {
+        "id": "c15cbf498b7bd8b8da21",
+        "brand": "Oracle",
+        "model": "Sun ZFS Storage 7420",
+        "revision": "",
+        "title": "Sun ZFS Storage 7420",
+        "kind": "storage controller"
+      }
+    },
+    {
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "key": "AS6700-32X",
+      "device_id": "df4d521920cd17049b73",
+      "existing_same_namespace": {
+        "id": "df4d521920cd17049b73",
+        "brand": "Edge-Core",
+        "model": "AS6700-32X",
+        "revision": "",
+        "title": "Edge-Core AS6700-32X",
+        "kind": "vendor product"
+      }
+    },
+    {
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "key": "AS6701-32X",
+      "device_id": "8c2dd1e5f3d650f6683b",
+      "existing_same_namespace": {
+        "id": "8c2dd1e5f3d650f6683b",
+        "brand": "Edge-Core",
+        "model": "AS6701-32X",
+        "revision": "",
+        "title": "Edge-Core AS6701-32X",
+        "kind": "vendor product"
+      }
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "AS5710-54X",
+      "device_id": "9e56d1f1423b9d6ef6ad",
+      "existing_same_namespace": {
+        "id": "9e56d1f1423b9d6ef6ad",
+        "brand": "Edge-Core",
+        "model": "AS5710-54X",
+        "revision": "",
+        "title": "Edge-Core AS5710-54X",
+        "kind": "vendor product"
+      }
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "AS5712-54X",
+      "device_id": "30f1e4348b216588a7fd",
+      "existing_same_namespace": {
+        "id": "30f1e4348b216588a7fd",
+        "brand": "Edge-Core",
+        "model": "AS5712-54X",
+        "revision": "",
+        "title": "Edge-Core AS5712-54X",
+        "kind": "vendor product"
+      }
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-US",
+      "device_id": "7e4e381e353f3b078281",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-US",
+      "device_id": "3719baf0b00d80f95ff8",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-EU",
+      "device_id": "c27ab904eaebe9f4248d",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-EU",
+      "device_id": "6bf2a677bd5dd6a4ce2a",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-UK",
+      "device_id": "9ad330c98a8e9fdd28c7",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-UK",
+      "device_id": "9464249ce43575ce3e42",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-JP",
+      "device_id": "21873472c81c944c9df6",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-JP",
+      "device_id": "48993c8fc9c6694189fa",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-48V-F",
+      "device_id": "2cd6dfb48a023a6d14a9",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-48V-B",
+      "device_id": "ab688960f3232380c462",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-12V-F",
+      "device_id": "231eeff85744d934cea2",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-12V-B",
+      "device_id": "88cdce10c67d8f0ef007",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-US",
+      "device_id": "b7dba8f887630041a2c6",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-US",
+      "device_id": "fde6987d5b9630355f08",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-EU",
+      "device_id": "56b963686796ffac603f",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-EU",
+      "device_id": "6a0dba56630450957fb1",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-UK",
+      "device_id": "04f5c56b5c1985351f26",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-UK",
+      "device_id": "5a3591cccf733c88ef7f",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-JP",
+      "device_id": "ea8f3e365695318cf670",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-JP",
+      "device_id": "08a0f559dc5af3e24b40",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-48V-F",
+      "device_id": "496dc3a3706786d912ed",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-48V-B",
+      "device_id": "44f0ca58ded282045866",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-12V-F",
+      "device_id": "cdaeda4be70e17346dcf",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-12V-B",
+      "device_id": "87c547be91cf18eb20a8",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-AC-400-F",
+      "device_id": "23ccc708658cefb19a26",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-AC-400-B",
+      "device_id": "d2eca82cfef35e5059fe",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-48V-400-F",
+      "device_id": "b847c4d7a4d0b2e2eeb5",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-48V-400-B",
+      "device_id": "a90e1deddd809c7b46ea",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-12V-400-1",
+      "device_id": "2b2c44570c92d2d16e24",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "RKIT-85-6712",
+      "device_id": "93c480209b98b842ebda",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "ORSA-1U",
+      "device_id": "c5707720e0049ec8e51e",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-US",
+      "device_id": "1ebd1cd2598ddadad6e3",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-EU",
+      "device_id": "390f623967c4fee0b646",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-UK",
+      "device_id": "867b79979cf04ffa2a3f",
+      "existing_same_namespace": null
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-JP",
+      "device_id": "d143721d230bae19b22a",
+      "existing_same_namespace": null
+    }
+  ],
+  "scope": "Explicit preservedwave3 checkpoint; currentlive advanced to wave4 during authorized candidate work. Same5existing+35new mapping. No shared write."
+}

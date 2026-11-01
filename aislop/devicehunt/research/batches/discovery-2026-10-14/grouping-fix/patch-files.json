@@ -1,0 +1,22 @@
+{
+  "patch_sha256": "7fcaaff208d454c06c22d66a444e613af7eb9c751464947d8390079fe6995e18",
+  "production_patch_files": {
+    "devicehunt/specifications.py": {
+      "before_sha256": "2d6de287745b8d6d3a60483fbdc53baf900215170aa8fabdb3875c6994104391",
+      "after_sha256": "ba2cf7a77c4e403a3af5f2cb892ef3f5380158f5480e1d655fa3aecde155ba8c"
+    },
+    "devicehunt/__main__.py": {
+      "before_sha256": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83",
+      "after_sha256": "92a044a7c28bf62e48f252b5b62bd7006b0be4b3a877563e260f44157ddf0d30"
+    },
+    "tests/test_specification_grouping.py": {
+      "before_sha256": null,
+      "after_sha256": "dbaed01c51dbc5f4ac6e5364d69f0c6fce304cd32e77cd96a535999006d26f14"
+    },
+    "tests/fixtures/specification-grouping-defaults.json": {
+      "before_sha256": null,
+      "after_sha256": "e92fd7b7e59177eb8a8a625f67abb2268501b8873760ef19c29e678518ade3b3"
+    }
+  },
+  "baseline_files_copied_to_normal_layout": 209
+}

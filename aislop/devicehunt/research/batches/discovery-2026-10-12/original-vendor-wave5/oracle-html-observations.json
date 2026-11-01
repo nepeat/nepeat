@@ -1,0 +1,202 @@
+{
+  "method": "stdlib HTMLParser, selected article blocks; whitespace normalized only, raw HTML immutable",
+  "blocks": [
+    {
+      "tag": "h2",
+      "text": "Sun ZFS Storage 7420 Specifications",
+      "attrs": {
+        "id": "ZFSRE-GUID-0DFDF978-84CC-48AD-B0BA-79020A335F2A",
+        "class": "sect2"
+      },
+      "ordinal_zero_based": 0
+    },
+    {
+      "tag": "p",
+      "text": "Sun ZFS Storage 7420 Physical Specifications - The 3U chassis form factor dimensions are as follows:",
+      "attrs": {},
+      "ordinal_zero_based": 1
+    },
+    {
+      "tag": "p",
+      "text": "Table 12-2 Sun ZFS Storage 7420 Controller Dimensions",
+      "attrs": {
+        "class": "titleintable"
+      },
+      "ordinal_zero_based": 2
+    },
+    {
+      "tag": "tr",
+      "text": "Dimension Measurement Dimension Measurement",
+      "attrs": {
+        "align": "left",
+        "valign": "top"
+      },
+      "ordinal_zero_based": 3
+    },
+    {
+      "tag": "p",
+      "text": "Height",
+      "attrs": {},
+      "ordinal_zero_based": 4
+    },
+    {
+      "tag": "p",
+      "text": "13.3 cm/5.25 in",
+      "attrs": {},
+      "ordinal_zero_based": 5
+    },
+    {
+      "tag": "p",
+      "text": "Depth",
+      "attrs": {},
+      "ordinal_zero_based": 6
+    },
+    {
+      "tag": "p",
+      "text": "70.6 cm/27.8 in",
+      "attrs": {},
+      "ordinal_zero_based": 7
+    },
+    {
+      "tag": "tr",
+      "text": "Height 13.3 cm/5.25 in Depth 70.6 cm/27.8 in",
+      "attrs": {
+        "align": "left",
+        "valign": "top"
+      },
+      "ordinal_zero_based": 8
+    },
+    {
+      "tag": "p",
+      "text": "Width",
+      "attrs": {},
+      "ordinal_zero_based": 9
+    },
+    {
+      "tag": "p",
+      "text": "43.7 cm/17.19 in",
+      "attrs": {},
+      "ordinal_zero_based": 10
+    },
+    {
+      "tag": "p",
+      "text": "Weight",
+      "attrs": {},
+      "ordinal_zero_based": 11
+    },
+    {
+      "tag": "p",
+      "text": "16.36 kg/96 lbs",
+      "attrs": {},
+      "ordinal_zero_based": 12
+    },
+    {
+      "tag": "tr",
+      "text": "Width 43.7 cm/17.19 in Weight 16.36 kg/96 lbs",
+      "attrs": {
+        "align": "left",
+        "valign": "top"
+      },
+      "ordinal_zero_based": 13
+    },
+    {
+      "tag": "p",
+      "text": "Sun ZFS Storage 7420 Electrical Specifications - The following list shows the electrical specifications for Sun ZFS Storage 7420 controllers.",
+      "attrs": {},
+      "ordinal_zero_based": 14
+    },
+    {
+      "tag": "p",
+      "text": "Note:",
+      "attrs": {
+        "class": "notep1"
+      },
+      "ordinal_zero_based": 15
+    },
+    {
+      "tag": "p",
+      "text": "Input",
+      "attrs": {},
+      "ordinal_zero_based": 16
+    },
+    {
+      "tag": "p",
+      "text": "Nominal frequencies: 50/60Hz",
+      "attrs": {},
+      "ordinal_zero_based": 17
+    },
+    {
+      "tag": "li",
+      "text": "Nominal frequencies: 50/60Hz",
+      "attrs": {},
+      "ordinal_zero_based": 18
+    },
+    {
+      "tag": "p",
+      "text": "AC operating range: 100-127 VAC for 2 CPUs and 200-240 VAC for 2 or 4 CPUs",
+      "attrs": {},
+      "ordinal_zero_based": 19
+    },
+    {
+      "tag": "li",
+      "text": "AC operating range: 100-127 VAC for 2 CPUs and 200-240 VAC for 2 or 4 CPUs",
+      "attrs": {},
+      "ordinal_zero_based": 20
+    },
+    {
+      "tag": "p",
+      "text": "Maximum current AC RMS: 12A @ 100 VAC / 12A @ 200 VAC",
+      "attrs": {},
+      "ordinal_zero_based": 21
+    },
+    {
+      "tag": "li",
+      "text": "Maximum current AC RMS: 12A @ 100 VAC / 12A @ 200 VAC",
+      "attrs": {},
+      "ordinal_zero_based": 22
+    },
+    {
+      "tag": "p",
+      "text": "Power Dissipation",
+      "attrs": {},
+      "ordinal_zero_based": 23
+    },
+    {
+      "tag": "p",
+      "text": "Max power consumption: 1800 W",
+      "attrs": {},
+      "ordinal_zero_based": 24
+    },
+    {
+      "tag": "li",
+      "text": "Max power consumption: 1800 W",
+      "attrs": {},
+      "ordinal_zero_based": 25
+    },
+    {
+      "tag": "p",
+      "text": "Max heat output: 6143 BTU/hr",
+      "attrs": {},
+      "ordinal_zero_based": 26
+    },
+    {
+      "tag": "li",
+      "text": "Max heat output: 6143 BTU/hr",
+      "attrs": {},
+      "ordinal_zero_based": 27
+    },
+    {
+      "tag": "p",
+      "text": "Volt-Ampere rating: 1837 VA @ 240 VAC, 0.98 P.F.",
+      "attrs": {},
+      "ordinal_zero_based": 28
+    },
+    {
+      "tag": "li",
+      "text": "Volt-Ampere rating: 1837 VA @ 240 VAC, 0.98 P.F.",
+      "attrs": {},
+      "ordinal_zero_based": 29
+    }
+  ],
+  "article_text": "Sun ZFS Storage 7420 Specifications Sun ZFS Storage 7420 Physical Specifications - The 3U chassis form factor dimensions are as follows: Table 12-2 Sun ZFS Storage 7420 Controller Dimensions Dimension Measurement Dimension Measurement Height 13.3 cm/5.25 in Depth 70.6 cm/27.8 in Width 43.7 cm/17.19 in Weight 16.36 kg/96 lbs Sun ZFS Storage 7420 Electrical Specifications - The following list shows the electrical specifications for Sun ZFS Storage 7420 controllers. Note: The power dissipation numbers listed are the maximum rated for the power supply and are not a rating of the actual power consumption of the appliance. Input Nominal frequencies: 50/60Hz AC operating range: 100-127 VAC for 2 CPUs and 200-240 VAC for 2 or 4 CPUs Maximum current AC RMS: 12A @ 100 VAC / 12A @ 200 VAC Power Dissipation Max power consumption: 1800 W Max heat output: 6143 BTU/hr Volt-Ampere rating: 1837 VA @ 240 VAC, 0.98 P.F."
+}

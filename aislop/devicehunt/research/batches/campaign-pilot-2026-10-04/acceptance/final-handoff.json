@@ -1,0 +1,15 @@
+{
+  "status": "c0 accepted; c1 implementation pending",
+  "local_links_checked": 43,
+  "final_document_sha256": {
+    "PROGRESS.md": "6f7d377f1613a98e61eba3374d95217670945872ea9a5747b2cc4b34e18bbffd",
+    "docs/campaign-state-contract.md": "4e9a76ec16267bf3d814078db1c455a65893b98aef0f4a4dcff1902e6c3f081d",
+    "research/campaign-pilot-2026-10-04.md": "102c6e30e487625c294fc717fe680e3cb4bf58aa5697f637c6190f9039ff09b9",
+    "research/batches/campaign-pilot-2026-10-04/contract-review.md": "8b585bbfd2ad3f3d549ded2a4d01f239ea2eba3199b195950d1380a3d32a7a90",
+    "research/batches/campaign-pilot-2026-10-04/inventory/findings.md": "f6e8e127064887a266f4a5383739ef83505c1a98d9b2d1c251dd9f9141af2287"
+  },
+  "inventory_sha256": "0b891f166c67093515fd7dc6ebe4c41281a2db5501aeb20aa5e4b6ee2083629a",
+  "protected_hashes_match": true,
+  "review_note": "final contract status changed from draft to accepted after independent review; no semantic change after sign-off",
+  "implementation_tests": "not run; c1 is not implemented"
+}

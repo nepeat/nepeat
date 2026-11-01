@@ -1,0 +1,34 @@
+{
+  "counts": {
+    "devices": 4091,
+    "records": 5323,
+    "sources": 297,
+    "facts": 45073,
+    "documents": 61,
+    "document_pages": 3716
+  },
+  "jobs": 122,
+  "hashed_inputs": 2280,
+  "imports": {
+    "reference": {
+      "documents": 50,
+      "pages": 3642,
+      "pages_with_text": 3627
+    },
+    "curated": 4
+  },
+  "old_hashed_inputs_preserved": 2255,
+  "old_bundle_entries_preserved": 47,
+  "copied_sibling_files": [
+    "data/raw/inventec-fpga-smartnic-c5020x-cn-2021.pdf",
+    "data/raw/inventec-fpga-smartnic-c5020x-cn-2021.pages.json",
+    "data/raw/inventec-fpga-ipu-c5020x-en-2021.pdf",
+    "data/raw/inventec-fpga-ipu-c5020x-en-2021.pages.json",
+    "data/raw/qct-product-portfolio-v14-2023.pdf",
+    "data/raw/qct-product-portfolio-v14-2023.pages.json"
+  ],
+  "candidate_sha256": "b66dc555ef7a38e2d942a4ba3534a71f442bc073c431c55308c413eb59bbf88e",
+  "staged_manifest_sha256": "984624e6e9d77927326b0000d75dc22a5eec13c90a81c2ce4cbd587cc86c17fc",
+  "live_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "live_manifest_unchanged": true
+}

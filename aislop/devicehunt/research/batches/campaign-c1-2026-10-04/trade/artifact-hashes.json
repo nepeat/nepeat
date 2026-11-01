@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "consulted_date": "2026-10-04",
+  "artifacts": [
+    {
+      "path": "open-1.tool-response.json",
+      "bytes": 18352,
+      "sha256": "8220150d8ed5d8f0647a5a052de2a1bf198e5ac4ea39866833ec09d93a0a4597",
+      "representation": "derived web-tool text JSON, not original HTTP bytes"
+    },
+    {
+      "path": "open-2.tool-response.json",
+      "bytes": 34920,
+      "sha256": "3aa80bad8e7860808346689cb69c5e30ae5e3befca28bc9b9aeebb68faf71a05",
+      "representation": "derived web-tool text JSON, not original HTTP bytes"
+    },
+    {
+      "path": "open-3.tool-response.json",
+      "bytes": 20854,
+      "sha256": "f5eaf71abccc43e989cc7f064dbda729b2e095e20acfdc72d707d2e3adba6d44",
+      "representation": "derived web-tool text JSON, not original HTTP bytes"
+    },
+    {
+      "path": "qualification.json",
+      "bytes": 4761,
+      "sha256": "f1f35a844fb15f0a0105b29503180691abd81dc2dcbfb0e5ce9c81805d113b2e",
+      "representation": "local research/decision artifact"
+    },
+    {
+      "path": "request-budget.json",
+      "bytes": 7413,
+      "sha256": "3e30d20ba3915c46998c8a8ffd95bbd486ff2bd9704fb28ad4e08d8fb0e596b5",
+      "representation": "local research/decision artifact"
+    },
+    {
+      "path": "search-1.tool-response.json",
+      "bytes": 35001,
+      "sha256": "1e19540e515e989c0c26414c684e87038af49b36387fcb2b4074a90ac7355926",
+      "representation": "derived web-tool text JSON, not original HTTP bytes"
+    },
+    {
+      "path": "source-matrix.md",
+      "bytes": 8755,
+      "sha256": "a9f5147e6a1948c1fedefdec1b84e2b2f36688890bdb529548b5fda304bd2539",
+      "representation": "local research/decision artifact"
+    }
+  ],
+  "upstream_original_hashes": null
+}

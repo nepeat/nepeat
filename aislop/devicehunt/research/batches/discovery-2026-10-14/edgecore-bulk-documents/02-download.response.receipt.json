@@ -1,0 +1,52 @@
+{
+  "sequence": 6,
+  "url": "https://www.edge-core.com/download/ags8200-datasheet-r01/?wpdmdl=5123&refresh=6ad06ceaa5cd91792044266",
+  "method": "GET",
+  "purpose": "published_download",
+  "basis": {
+    "selection_number": 2,
+    "landing_path": "02-landing.html",
+    "landing_sha256": "db541266218caa40f1a5c206afa5aa7dab4ca25b2b50fcdcc2b1d393bf1992fa",
+    "fresh_heading": "AGS8200 Datasheet R01",
+    "published_download_url": "https://www.edge-core.com/download/ags8200-datasheet-r01/?wpdmdl=5123&refresh=6ad06ceaa5cd91792044266",
+    "expected_wpdmdl_values": [
+      "5123"
+    ],
+    "stale_graph_tokens_used": false
+  },
+  "body_path": "02-download.response",
+  "started_utc": "2026-10-15T06:04:26.860953+00:00",
+  "request_headers": {
+    "User-Agent": "devicehunt-public-research/1.0",
+    "Accept": "*/*"
+  },
+  "automatic_redirects": false,
+  "timeout_seconds": 30,
+  "maximum_body_bytes": 20000000,
+  "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "exact_path_allowed": true,
+  "status": 302,
+  "response_url": "https://www.edge-core.com/download/ags8200-datasheet-r01/?wpdmdl=5123&refresh=6ad06ceaa5cd91792044266",
+  "headers": {
+    "Date": "Thu, 15 Oct 2026 06:04:27 GMT",
+    "Content-Type": "text/html; charset=UTF-8",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-frame-options": "SAMEORIGIN",
+    "x-content-type-options": "nosniff",
+    "location": "https://www.edge-core.com/wp-content/uploads/2025/03/2024-002-AGS8200-DS-R01-20250313.pdf",
+    "vary": "Accept-Encoding",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "microphone=(),fullscreen=()",
+    "x-xss-protection": "1;mode=block",
+    "Server": "cloudflare",
+    "cf-cache-status": "DYNAMIC",
+    "CF-RAY": "a4aca05c7aa49614-SEA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "state": "completed",
+  "bytes": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "finished_utc": "2026-10-15T06:04:27.246594+00:00"
+}

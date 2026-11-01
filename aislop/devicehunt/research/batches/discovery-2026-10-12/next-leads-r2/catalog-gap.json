@@ -1,0 +1,1259 @@
+{
+  "observed_at_utc": "2026-10-13T04:43:38.623962+00:00",
+  "scope": "exact selected model queries only, read-only SQLite transactions; dated checkpoints, not fixed future catalog state",
+  "databases": {
+    "data/devices.sqlite": {
+      "sha256_before": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+      "sha256_after": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+      "unchanged_during_check": true,
+      "models": {
+        "Oracle / Sun ZFS Storage 7420": [],
+        "Oracle / Sun ZFS Storage 7420 M2": [],
+        "Oracle / ZFS STORAGE 7420": [
+          {
+            "id": "737b374150e34090ee08",
+            "brand": "Oracle",
+            "model": "ZFS STORAGE 7420",
+            "revision": "",
+            "title": "ORACLE ZFS STORAGE 7420",
+            "kind": "network storage",
+            "records": [
+              {
+                "source_id": "ntra-2026-01",
+                "source_key": "33211",
+                "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=523"
+              }
+            ],
+            "facts": [
+              {
+                "name": "pdf_page",
+                "value": "523"
+              },
+              {
+                "name": "registry_brand",
+                "value": "ORACLE"
+              },
+              {
+                "name": "registry_product_description",
+                "value": "NETWORK STORAGE"
+              },
+              {
+                "name": "registry_row",
+                "value": "33211"
+              }
+            ]
+          }
+        ],
+        "Oracle / S7420": [
+          {
+            "id": "b67822022258cb9d46f5",
+            "brand": "Oracle",
+            "model": "S7420",
+            "revision": "",
+            "title": "Oracle S7420",
+            "kind": "Server/Storage",
+            "records": [
+              {
+                "source_id": "rra-official-query-73009f906e4e",
+                "source_key": "SUN-CALI3:S7420",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+              }
+            ],
+            "facts": [
+              {
+                "name": "approval_date_raw",
+                "value": "2010-04-12"
+              },
+              {
+                "name": "country_raw",
+                "value": "\ubbf8\uad6d"
+              },
+              {
+                "name": "detail_sha256",
+                "value": "e9fe2cfc7e4a2a6166abebc08f31acf586d43fdf72db2bd14160a269d054c64c"
+              },
+              {
+                "name": "rra_main_model",
+                "value": "CALI3"
+              },
+              {
+                "name": "rra_model_role",
+                "value": "derived"
+              }
+            ]
+          }
+        ],
+        "Edge-Core / AS6700-32X": [
+          {
+            "id": "df4d521920cd17049b73",
+            "brand": "Edge-Core",
+            "model": "AS6700-32X",
+            "revision": "",
+            "title": "Edge-Core AS6700-32X",
+            "kind": "vendor product",
+            "records": [
+              {
+                "source_id": "edgecore-products",
+                "source_key": "https://www.edge-core.com/product/as6700-32x/",
+                "source_url": "https://www.edge-core.com/product/as6700-32x/"
+              }
+            ],
+            "facts": [
+              {
+                "name": "cooling_description",
+                "value": "4+1 redundant, hot-swappable fans."
+              },
+              {
+                "name": "cooling_description",
+                "value": "All ports on front; PSUs and fans on rear."
+              },
+              {
+                "name": "cooling_description",
+                "value": "Supports hot/cold aisle with port-to-power and power-to-port airflow SKUs."
+              },
+              {
+                "name": "physical_description",
+                "value": "Up to 32 x 40GbE ports in compact 1RU form factor."
+              },
+              {
+                "name": "power_description",
+                "value": "All ports on front; PSUs and fans on rear."
+              },
+              {
+                "name": "power_description",
+                "value": "Energy Efficiency: 267 W typical power consumption."
+              },
+              {
+                "name": "power_description",
+                "value": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs."
+              },
+              {
+                "name": "software_installation_description",
+                "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible independent switchOS software."
+              },
+              {
+                "name": "vendor_category",
+                "value": "In-active"
+              },
+              {
+                "name": "vendor_description",
+                "value": "AS6701-32X is a 20-Port 40G QSFP+ plus 2 x 6-port 40G QSFP+ modules switch with ONIE software installer. AS6701-32X embedded Broadcom Trident II 1.28Tbps and Freescale P2020 CPU as well as dual 110-230VAC 400W PSUs included and power-to-port airflow. AS6701-32X is 3-year Hardware Warranty."
+              }
+            ]
+          }
+        ],
+        "Accton / AS6700-32X": [
+          {
+            "id": "25c041b85d0e71e419d5",
+            "brand": "Accton",
+            "model": "AS6700-32X",
+            "revision": "",
+            "title": "Accton AS6700-32X",
+            "kind": "switch",
+            "records": [
+              {
+                "source_id": "onie",
+                "source_key": "accton/accton_as6700_32x/machine.make",
+                "source_url": "https://github.com/opencomputeproject/onie/blob/ce480be7094deef7198ee4d50af8427ea89b93e3/machine/accton/accton_as6700_32x/machine.make"
+              },
+              {
+                "source_id": "onl",
+                "source_key": "Accton/Edge-Core:AS6700-32X",
+                "source_url": "https://raw.githubusercontent.com/opencomputeproject/OpenNetworkLinux/master/docs/SupportedHardware.md"
+              },
+              {
+                "source_id": "rra-official-query-e5984834207f",
+                "source_key": "MSIP-REM-PBJ-AS6700-32X:AS6700-32X",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS6700-32X"
+              }
+            ],
+            "facts": [
+              {
+                "name": "approval_date_raw",
+                "value": "2015-11-27"
+              },
+              {
+                "name": "asic",
+                "value": "BCM56850 (Trident2)"
+              },
+              {
+                "name": "build_onie_arch",
+                "value": "powerpc-softfloat"
+              },
+              {
+                "name": "build_switch_asic_vendor",
+                "value": "bcm"
+              },
+              {
+                "name": "build_vendor_id",
+                "value": "259"
+              },
+              {
+                "name": "country_raw",
+                "value": "\ub300\ub9cc"
+              },
+              {
+                "name": "cpu",
+                "value": "FreeScale P2041"
+              },
+              {
+                "name": "detail_sha256",
+                "value": "2640df5f94ee157656be400a7685995778db11248ddc40b2158bc416c9e5557d"
+              },
+              {
+                "name": "identity_basis",
+                "value": "Explicit ONIE source title model"
+              },
+              {
+                "name": "ports",
+                "value": "32x40G"
+              },
+              {
+                "name": "rra_main_model",
+                "value": "AS6700-32X"
+              },
+              {
+                "name": "rra_model_role",
+                "value": "main"
+              },
+              {
+                "name": "software_evidence",
+                "value": "Build definition in pinned ONIE repository. Not proof of installed firmware, available NOS images, or per-unit boot compatibility."
+              },
+              {
+                "name": "software_evidence",
+                "value": "Historical ONL listing from 2018; not a current support guarantee"
+              },
+              {
+                "name": "source_title",
+                "value": "Makefile fragment for Accton AS6700_32X"
+              }
+            ]
+          }
+        ],
+        "Edge-Core / AS5712-54X": [
+          {
+            "id": "30f1e4348b216588a7fd",
+            "brand": "Edge-Core",
+            "model": "AS5712-54X",
+            "revision": "",
+            "title": "Edge-Core AS5712-54X",
+            "kind": "vendor product",
+            "records": [
+              {
+                "source_id": "edgecore-eol-2020-q1-data-center-switch-eol-notice",
+                "source_key": "0|AS5712-54X",
+                "source_url": "https://www.edge-core.com/eol-notice/2020-q1-data-center-switch-eol-notice/"
+              },
+              {
+                "source_id": "edgecore-products",
+                "source_key": "https://www.edge-core.com/product/as5712-54x/",
+                "source_url": "https://www.edge-core.com/product/as5712-54x/"
+              },
+              {
+                "source_id": "netbox-dt-edgecore-as5712-54x",
+                "source_key": "device-types/Edgecore/AS5712-54X.yaml",
+                "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/device-types/Edgecore/AS5712-54X.yaml"
+              },
+              {
+                "source_id": "picos45-edgecore-accton",
+                "source_key": "AS5712-54X",
+                "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch"
+              },
+              {
+                "source_id": "rra-official-query-63cb0b9098c7",
+                "source_key": "MSIP-REM-ECn-AS5712-54X:AS5712-54X",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ECn-AS5712-54X"
+              }
+            ],
+            "facts": [
+              {
+                "name": "affected_model_cell",
+                "value": "AS5712-54X"
+              },
+              {
+                "name": "approval_date_raw",
+                "value": "2016-03-25"
+              },
+              {
+                "name": "compatibility_asic",
+                "value": "Trident II"
+              },
+              {
+                "name": "compatibility_cpu",
+                "value": "Intel x86"
+              },
+              {
+                "name": "compatibility_guide",
+                "value": "PICOS-4.5_Configuration_Guide"
+              },
+              {
+                "name": "compatibility_ports",
+                "value": "48 x 10G 6 x 40G"
+              },
+              {
+                "name": "compatibility_software",
+                "value": "PICOS"
+              },
+              {
+                "name": "cooling_description",
+                "value": "All ports on front; PSUs, fan modules on rear."
+              },
+              {
+                "name": "cooling_description",
+                "value": "Hot swappable 4+1 redundant fan modules."
+              },
+              {
+                "name": "cooling_description",
+                "value": "Supports hot/cold aisle with port-to-power and power-to-port airflow SKUs."
+              },
+              {
+                "name": "country_raw",
+                "value": "\ub300\ub9cc"
+              },
+              {
+                "name": "detail_sha256",
+                "value": "2045b3ad02374887b6ca516447fb50329c2128f9e6d5fc878fd04eca069aa97f"
+              },
+              {
+                "name": "identity_namespace",
+                "value": "Edge-Core namespace for joint EdgeCore/Accton guide; manufacturer unestablished"
+              },
+              {
+                "name": "lifecycle_notice",
+                "value": "Affected model listed in an Edgecore retirement notice"
+              },
+              {
+                "name": "lifecycle_reason",
+                "value": "Replaced by later generation"
+              },
+              {
+                "name": "netbox_comments",
+                "value": "See [Datasheet](https://www.edge-core.com/_upload/images/AS5710_AS5712-54X_DS_R09_20190620.pdf). (device-types/Edgecore/AS5712-54X.yaml:9)"
+              },
+              {
+                "name": "netbox_commit",
+                "value": "7438a8e603622be0983d91e5c5e5fe4ca3cf2794"
+              },
+              {
+                "name": "netbox_console_ports",
+                "value": "Console: type=rj-45 (line 26); USB: type=usb-a (line 28) [device-types/Edgecore/AS5712-54X.yaml]"
+              },
+              {
+                "name": "netbox_interface_counts",
+                "value": "{\"1000base-t\": 1, \"10gbase-x-sfpp\": 48, \"40gbase-x-qsfpp\": 6}; total 55; mgmt_only 1 (device-types/Edgecore/AS5712-54X.yaml:32-142)"
+              },
+              {
+                "name": "netbox_is_full_depth",
+                "value": "true (device-types/Edgecore/AS5712-54X.yaml:6)"
+              },
+              {
+                "name": "netbox_manufacturer_as_printed",
+                "value": "Edgecore (device-types/Edgecore/AS5712-54X.yaml:2)"
+              },
+              {
+                "name": "netbox_model_as_printed",
+                "value": "AS5712-54X (device-types/Edgecore/AS5712-54X.yaml:3)"
+              },
+              {
+                "name": "netbox_module_bays",
+                "value": "7: PSU 1, PSU 2, FAN 1, FAN 2, FAN 3, FAN 4, FAN 5 (device-types/Edgecore/AS5712-54X.yaml:11-24)"
+              },
+              {
+                "name": "netbox_slug",
+                "value": "edgecore-as5712-54x (device-types/Edgecore/AS5712-54X.yaml:4)"
+              },
+              {
+                "name": "netbox_u_height",
+                "value": "1.0 (device-types/Edgecore/AS5712-54X.yaml:5)"
+              },
+              {
+                "name": "netbox_weight",
+                "value": "8.5 kg (device-types/Edgecore/AS5712-54X.yaml:7,8)"
+              },
+              {
+                "name": "notice_effective_date",
+                "value": "2020-04-01"
+              },
+              {
+                "name": "notice_effective_date_text",
+                "value": "Apr, 1 2020"
+              },
+              {
+                "name": "notice_model_column",
+                "value": "EOL Model"
+              },
+              {
+                "name": "physical_description",
+                "value": "Rack mountable in standard 19\u2033 racks. Mountable in 21\u2033 Open Rack with the Open Rack Switch Adapter."
+              },
+              {
+                "name": "power_description",
+                "value": "All ports on front; PSUs, fan modules on rear."
+              },
+              {
+                "name": "power_description",
+                "value": "Hot-swappable, load sharing, redundant AC or -48 VDC PSUs. 12 VDC power input option."
+              },
+              {
+                "name": "retrieved_at",
+                "value": "2026-09-27 05:59:43 UTC"
+              },
+              {
+                "name": "rra_main_model",
+                "value": "AS5712-54X"
+              },
+              {
+                "name": "rra_model_role",
+                "value": "main"
+              },
+              {
+                "name": "software_installation_description",
+                "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings."
+              },
+              {
+                "name": "software_installation_description",
+                "value": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table."
+              },
+              {
+                "name": "source_platform_heading",
+                "value": "AS5712-54X"
+              },
+              {
+                "name": "source_portfolio",
+                "value": "10G Switch Portfolio"
+              },
+              {
+                "name": "source_vendor_group",
+                "value": "EdgeCore/Accton"
+              },
+              {
+                "name": "vendor_category",
+                "value": "In-active"
+              },
+              {
+                "name": "vendor_description",
+                "value": "AS5712-54X has 48-Port 10G SFP+ with 6x40G QSFP+ uplinks with ONIE software installer. AS5712-54X embedded Broadcom Trident II 720Gbps and Intel Atom C2538 CPU as well as PHY-Less/Re-timer-Less, dual -48VDC 400W PSUs included and port-to-power airflow."
+              },
+              {
+                "name": "vendor_replacement_text",
+                "value": "AS5812-54X"
+              }
+            ]
+          }
+        ],
+        "Accton / AS5712-54X": [
+          {
+            "id": "1cbdf06ff02b387f45fb",
+            "brand": "Accton",
+            "model": "AS5712-54X",
+            "revision": "",
+            "title": "Accton AS5712-54X",
+            "kind": "switch",
+            "records": [
+              {
+                "source_id": "onie",
+                "source_key": "accton/accton_as5712_54x/machine.make",
+                "source_url": "https://github.com/opencomputeproject/onie/blob/ce480be7094deef7198ee4d50af8427ea89b93e3/machine/accton/accton_as5712_54x/machine.make"
+              },
+              {
+                "source_id": "onl",
+                "source_key": "Accton/Edge-Core:AS5712-54X",
+                "source_url": "https://raw.githubusercontent.com/opencomputeproject/OpenNetworkLinux/master/docs/SupportedHardware.md"
+              },
+              {
+                "source_id": "sonic",
+                "source_key": "Accton:AS5712-54X",
+                "source_url": "https://sonic-net.github.io/SONiC/Supported-Devices-and-Platforms.html"
+              },
+              {
+                "source_id": "ul-accton-platforms",
+                "source_key": "AS5712-54X",
+                "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136"
+              }
+            ],
+            "facts": [
+              {
+                "name": "asic",
+                "value": "BCM56854 (Trident2)"
+              },
+              {
+                "name": "asic",
+                "value": "Trident 2"
+              },
+              {
+                "name": "asic_vendor",
+                "value": "Broadcom"
+              },
+              {
+                "name": "build_console_dev",
+                "value": "1"
+              },
+              {
+                "name": "build_onie_arch",
+                "value": "x86_64"
+              },
+              {
+                "name": "build_switch_asic_vendor",
+                "value": "bcm"
+              },
+              {
+                "name": "build_vendor_id",
+                "value": "259"
+              },
+              {
+                "name": "capture_format",
+                "value": "web_tool_models_section"
+              },
+              {
+                "name": "cpu",
+                "value": "Intel C2538"
+              },
+              {
+                "name": "identity_basis",
+                "value": "Explicit ONIE source title model"
+              },
+              {
+                "name": "identity_namespace",
+                "value": "Accton listing holder; product brand not established by this record"
+              },
+              {
+                "name": "listing_holder_name",
+                "value": "ACCTON TECHNOLOGY CORPORATION"
+              },
+              {
+                "name": "ports",
+                "value": "48x10G + 6x40G"
+              },
+              {
+                "name": "ports",
+                "value": "72x10G"
+              },
+              {
+                "name": "retrieved_at",
+                "value": "2026-09-26 22:57:28 UTC"
+              },
+              {
+                "name": "software_evidence",
+                "value": "Build definition in pinned ONIE repository. Not proof of installed firmware, available NOS images, or per-unit boot compatibility."
+              },
+              {
+                "name": "software_evidence",
+                "value": "Historical ONL listing from 2018; not a current support guarantee"
+              },
+              {
+                "name": "software_evidence",
+                "value": "Listed in SONiC platform table; check release and exact hardware revision before purchase"
+              },
+              {
+                "name": "source_scope",
+                "value": "Selected identifiers from an abridged listing; may describe products or components"
+              },
+              {
+                "name": "source_title",
+                "value": "Accton AS5712_54X"
+              }
+            ]
+          }
+        ]
+      },
+      "lead_URL_matches": [
+        {
+          "priority": 1,
+          "matching_exact_URL_rows": {
+            "sources": [],
+            "records": [],
+            "documents": []
+          }
+        },
+        {
+          "priority": 2,
+          "matching_exact_URL_rows": {
+            "sources": [],
+            "records": [],
+            "documents": []
+          }
+        },
+        {
+          "priority": 3,
+          "matching_exact_URL_rows": {
+            "sources": [],
+            "records": [],
+            "documents": []
+          }
+        }
+      ]
+    },
+    "data/devices-candidate-wave3-2026-10-12.sqlite": {
+      "sha256_before": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+      "sha256_after": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea",
+      "unchanged_during_check": true,
+      "models": {
+        "Oracle / Sun ZFS Storage 7420": [
+          {
+            "id": "c15cbf498b7bd8b8da21",
+            "brand": "Oracle",
+            "model": "Sun ZFS Storage 7420",
+            "revision": "",
+            "title": "Sun ZFS Storage 7420",
+            "kind": "storage controller",
+            "records": [
+              {
+                "source_id": "oracle7420-attached-storage-2026-10-12",
+                "source_key": "Sun ZFS Storage 7420",
+                "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html"
+              },
+              {
+                "source_id": "oracle7420-internal-components-2026-10-12",
+                "source_key": "Sun ZFS Storage 7420",
+                "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html"
+              }
+            ],
+            "facts": [
+              {
+                "name": "component_legend_as_printed",
+                "value": "Figure legend labels (not quantities): 1: Motherboard; 2: Low-profile PCIe cards; 3: Power supplies; 4: Power supply backplane; 5: Drive backplane; 6: System lithium battery; 7: CPUs and heatsinks; 8: Memory risers; 9: Fan board; 10: Fan modules; 11: Boot drives and SSDs. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 3,4,5,6,7,8,9,10,11,12,13]"
+              },
+              {
+                "name": "cooling_description",
+                "value": "Fan-module fault indications: front/rear Service Action Required LEDs, front Fan Module Service Action Required (TOP) LED, and Fan Fault LED on/adjacent to faulty module. System Overtemp LED might also light if temperature rises. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 37,39,40,41,42]"
+              },
+              {
+                "name": "cooling_description",
+                "value": "Two fan power boards are FRUs; power fan modules, carry status LEDs and transfer I2C fan-module data. Two refers to boards, not fan-module quantity. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 19]"
+              },
+              {
+                "name": "physical_description",
+                "value": "Attached storage: one to six chains; each chain contains up to six HDD-only or SSD-capable disk shelves, combined in any order. No shelf/cable model or wiring topology is stated here. [HTML #ZFSRE-GUID-6D3F47EA-7D39-46CC-B484-3CC3BF6671DB; article paragraphs 1]"
+              },
+              {
+                "name": "physical_description",
+                "value": "Documented configuration/cluster rule in dated OS8.8.x manual, not installed-unit inventory: Two system boot drives in slots 0 and 1 form a mirrored pair; up to four read-optimized cache SSDs can populate slots 2\u20135 in order. In a Sun ZFS Storage 7420 clustered configuration, both controllers SSD counts must match. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 22]"
+              },
+              {
+                "name": "physical_description",
+                "value": "Six-drive backplane is a FRU with drive connectors, I/O-board interconnect, Power/Locator buttons and status LEDs; this is not an installed-drive count. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 20]"
+              },
+              {
+                "name": "physical_description",
+                "value": "Vertical PDB Card, also called vertical power distribution board or Paddle Card, is a FRU interconnecting PDB with fan power boards, hard-drive backplane and I/O board. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 17]"
+              },
+              {
+                "name": "power_description",
+                "value": "Power Distribution Board is a FRU: distributes main 12V from supplies; connects to Vertical PDB, motherboard bus bar/ribbon cable and top-cover interlock kill switch. power supplies \u2192 power supply backplane \u2192 power distribution board topology is explicitly described. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 16]"
+              },
+              {
+                "name": "power_description",
+                "value": "Power Supply Backplane Card connects the PDB to power supplies 0 and 1. These are named connection positions; no PSU model, rating or redundancy inference is supplied. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 18]"
+              },
+              {
+                "name": "power_description",
+                "value": "SP subsystem controls host power and monitors host events. SP controller uses host 3.3V standby rail whenever AC input is present, even when system is off. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 15]"
+              },
+              {
+                "name": "service_restriction_as_printed",
+                "value": "Field-replaceable units should only be replaced by trained Oracle service technicians. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 14]"
+              }
+            ]
+          }
+        ],
+        "Oracle / Sun ZFS Storage 7420 M2": [
+          {
+            "id": "540f1ef136965044d347",
+            "brand": "Oracle",
+            "model": "Sun ZFS Storage 7420 M2",
+            "revision": "",
+            "title": "Sun ZFS Storage 7420 M2",
+            "kind": "storage controller",
+            "records": [
+              {
+                "source_id": "oracle7420-internal-components-2026-10-12",
+                "source_key": "Sun ZFS Storage 7420 M2",
+                "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html"
+              }
+            ],
+            "facts": [
+              {
+                "name": "physical_description",
+                "value": "Documented configuration/cluster rule in dated OS8.8.x manual, not installed-unit inventory: Two system boot drives in slots 0 and 1 form a mirrored pair; up to four read-optimized cache SSDs can populate slots 2\u20135 in order. In a Sun ZFS Storage 7420 M2 clustered configuration, each controller SSD count can vary. [HTML #ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3; article paragraphs 21]"
+              }
+            ]
+          }
+        ],
+        "Oracle / ZFS STORAGE 7420": [
+          {
+            "id": "737b374150e34090ee08",
+            "brand": "Oracle",
+            "model": "ZFS STORAGE 7420",
+            "revision": "",
+            "title": "ORACLE ZFS STORAGE 7420",
+            "kind": "network storage",
+            "records": [
+              {
+                "source_id": "ntra-2026-01",
+                "source_key": "33211",
+                "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=523"
+              }
+            ],
+            "facts": [
+              {
+                "name": "pdf_page",
+                "value": "523"
+              },
+              {
+                "name": "registry_brand",
+                "value": "ORACLE"
+              },
+              {
+                "name": "registry_product_description",
+                "value": "NETWORK STORAGE"
+              },
+              {
+                "name": "registry_row",
+                "value": "33211"
+              }
+            ]
+          }
+        ],
+        "Oracle / S7420": [
+          {
+            "id": "b67822022258cb9d46f5",
+            "brand": "Oracle",
+            "model": "S7420",
+            "revision": "",
+            "title": "Oracle S7420",
+            "kind": "Server/Storage",
+            "records": [
+              {
+                "source_id": "rra-official-query-73009f906e4e",
+                "source_key": "SUN-CALI3:S7420",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3"
+              }
+            ],
+            "facts": [
+              {
+                "name": "approval_date_raw",
+                "value": "2010-04-12"
+              },
+              {
+                "name": "country_raw",
+                "value": "\ubbf8\uad6d"
+              },
+              {
+                "name": "detail_sha256",
+                "value": "e9fe2cfc7e4a2a6166abebc08f31acf586d43fdf72db2bd14160a269d054c64c"
+              },
+              {
+                "name": "rra_main_model",
+                "value": "CALI3"
+              },
+              {
+                "name": "rra_model_role",
+                "value": "derived"
+              }
+            ]
+          }
+        ],
+        "Edge-Core / AS6700-32X": [
+          {
+            "id": "df4d521920cd17049b73",
+            "brand": "Edge-Core",
+            "model": "AS6700-32X",
+            "revision": "",
+            "title": "Edge-Core AS6700-32X",
+            "kind": "vendor product",
+            "records": [
+              {
+                "source_id": "edgecore-products",
+                "source_key": "https://www.edge-core.com/product/as6700-32x/",
+                "source_url": "https://www.edge-core.com/product/as6700-32x/"
+              }
+            ],
+            "facts": [
+              {
+                "name": "cooling_description",
+                "value": "4+1 redundant, hot-swappable fans."
+              },
+              {
+                "name": "cooling_description",
+                "value": "All ports on front; PSUs and fans on rear."
+              },
+              {
+                "name": "cooling_description",
+                "value": "Supports hot/cold aisle with port-to-power and power-to-port airflow SKUs."
+              },
+              {
+                "name": "physical_description",
+                "value": "Up to 32 x 40GbE ports in compact 1RU form factor."
+              },
+              {
+                "name": "power_description",
+                "value": "All ports on front; PSUs and fans on rear."
+              },
+              {
+                "name": "power_description",
+                "value": "Energy Efficiency: 267 W typical power consumption."
+              },
+              {
+                "name": "power_description",
+                "value": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs."
+              },
+              {
+                "name": "software_installation_description",
+                "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible independent switchOS software."
+              },
+              {
+                "name": "vendor_category",
+                "value": "In-active"
+              },
+              {
+                "name": "vendor_description",
+                "value": "AS6701-32X is a 20-Port 40G QSFP+ plus 2 x 6-port 40G QSFP+ modules switch with ONIE software installer. AS6701-32X embedded Broadcom Trident II 1.28Tbps and Freescale P2020 CPU as well as dual 110-230VAC 400W PSUs included and power-to-port airflow. AS6701-32X is 3-year Hardware Warranty."
+              }
+            ]
+          }
+        ],
+        "Accton / AS6700-32X": [
+          {
+            "id": "25c041b85d0e71e419d5",
+            "brand": "Accton",
+            "model": "AS6700-32X",
+            "revision": "",
+            "title": "Accton AS6700-32X",
+            "kind": "switch",
+            "records": [
+              {
+                "source_id": "onie",
+                "source_key": "accton/accton_as6700_32x/machine.make",
+                "source_url": "https://github.com/opencomputeproject/onie/blob/ce480be7094deef7198ee4d50af8427ea89b93e3/machine/accton/accton_as6700_32x/machine.make"
+              },
+              {
+                "source_id": "onl",
+                "source_key": "Accton/Edge-Core:AS6700-32X",
+                "source_url": "https://raw.githubusercontent.com/opencomputeproject/OpenNetworkLinux/master/docs/SupportedHardware.md"
+              },
+              {
+                "source_id": "rra-official-query-e5984834207f",
+                "source_key": "MSIP-REM-PBJ-AS6700-32X:AS6700-32X",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS6700-32X"
+              }
+            ],
+            "facts": [
+              {
+                "name": "approval_date_raw",
+                "value": "2015-11-27"
+              },
+              {
+                "name": "asic",
+                "value": "BCM56850 (Trident2)"
+              },
+              {
+                "name": "build_onie_arch",
+                "value": "powerpc-softfloat"
+              },
+              {
+                "name": "build_switch_asic_vendor",
+                "value": "bcm"
+              },
+              {
+                "name": "build_vendor_id",
+                "value": "259"
+              },
+              {
+                "name": "country_raw",
+                "value": "\ub300\ub9cc"
+              },
+              {
+                "name": "cpu",
+                "value": "FreeScale P2041"
+              },
+              {
+                "name": "detail_sha256",
+                "value": "2640df5f94ee157656be400a7685995778db11248ddc40b2158bc416c9e5557d"
+              },
+              {
+                "name": "identity_basis",
+                "value": "Explicit ONIE source title model"
+              },
+              {
+                "name": "ports",
+                "value": "32x40G"
+              },
+              {
+                "name": "rra_main_model",
+                "value": "AS6700-32X"
+              },
+              {
+                "name": "rra_model_role",
+                "value": "main"
+              },
+              {
+                "name": "software_evidence",
+                "value": "Build definition in pinned ONIE repository. Not proof of installed firmware, available NOS images, or per-unit boot compatibility."
+              },
+              {
+                "name": "software_evidence",
+                "value": "Historical ONL listing from 2018; not a current support guarantee"
+              },
+              {
+                "name": "source_title",
+                "value": "Makefile fragment for Accton AS6700_32X"
+              }
+            ]
+          }
+        ],
+        "Edge-Core / AS5712-54X": [
+          {
+            "id": "30f1e4348b216588a7fd",
+            "brand": "Edge-Core",
+            "model": "AS5712-54X",
+            "revision": "",
+            "title": "Edge-Core AS5712-54X",
+            "kind": "vendor product",
+            "records": [
+              {
+                "source_id": "edgecore-eol-2020-q1-data-center-switch-eol-notice",
+                "source_key": "0|AS5712-54X",
+                "source_url": "https://www.edge-core.com/eol-notice/2020-q1-data-center-switch-eol-notice/"
+              },
+              {
+                "source_id": "edgecore-products",
+                "source_key": "https://www.edge-core.com/product/as5712-54x/",
+                "source_url": "https://www.edge-core.com/product/as5712-54x/"
+              },
+              {
+                "source_id": "netbox-dt-edgecore-as5712-54x",
+                "source_key": "device-types/Edgecore/AS5712-54X.yaml",
+                "source_url": "https://github.com/netbox-community/devicetype-library/blob/7438a8e603622be0983d91e5c5e5fe4ca3cf2794/device-types/Edgecore/AS5712-54X.yaml"
+              },
+              {
+                "source_id": "picos45-edgecore-accton",
+                "source_key": "AS5712-54X",
+                "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch"
+              },
+              {
+                "source_id": "rra-official-query-63cb0b9098c7",
+                "source_key": "MSIP-REM-ECn-AS5712-54X:AS5712-54X",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-ECn-AS5712-54X"
+              }
+            ],
+            "facts": [
+              {
+                "name": "affected_model_cell",
+                "value": "AS5712-54X"
+              },
+              {
+                "name": "approval_date_raw",
+                "value": "2016-03-25"
+              },
+              {
+                "name": "compatibility_asic",
+                "value": "Trident II"
+              },
+              {
+                "name": "compatibility_cpu",
+                "value": "Intel x86"
+              },
+              {
+                "name": "compatibility_guide",
+                "value": "PICOS-4.5_Configuration_Guide"
+              },
+              {
+                "name": "compatibility_ports",
+                "value": "48 x 10G 6 x 40G"
+              },
+              {
+                "name": "compatibility_software",
+                "value": "PICOS"
+              },
+              {
+                "name": "cooling_description",
+                "value": "All ports on front; PSUs, fan modules on rear."
+              },
+              {
+                "name": "cooling_description",
+                "value": "Hot swappable 4+1 redundant fan modules."
+              },
+              {
+                "name": "cooling_description",
+                "value": "Supports hot/cold aisle with port-to-power and power-to-port airflow SKUs."
+              },
+              {
+                "name": "country_raw",
+                "value": "\ub300\ub9cc"
+              },
+              {
+                "name": "detail_sha256",
+                "value": "2045b3ad02374887b6ca516447fb50329c2128f9e6d5fc878fd04eca069aa97f"
+              },
+              {
+                "name": "identity_namespace",
+                "value": "Edge-Core namespace for joint EdgeCore/Accton guide; manufacturer unestablished"
+              },
+              {
+                "name": "lifecycle_notice",
+                "value": "Affected model listed in an Edgecore retirement notice"
+              },
+              {
+                "name": "lifecycle_reason",
+                "value": "Replaced by later generation"
+              },
+              {
+                "name": "netbox_comments",
+                "value": "See [Datasheet](https://www.edge-core.com/_upload/images/AS5710_AS5712-54X_DS_R09_20190620.pdf). (device-types/Edgecore/AS5712-54X.yaml:9)"
+              },
+              {
+                "name": "netbox_commit",
+                "value": "7438a8e603622be0983d91e5c5e5fe4ca3cf2794"
+              },
+              {
+                "name": "netbox_console_ports",
+                "value": "Console: type=rj-45 (line 26); USB: type=usb-a (line 28) [device-types/Edgecore/AS5712-54X.yaml]"
+              },
+              {
+                "name": "netbox_interface_counts",
+                "value": "{\"1000base-t\": 1, \"10gbase-x-sfpp\": 48, \"40gbase-x-qsfpp\": 6}; total 55; mgmt_only 1 (device-types/Edgecore/AS5712-54X.yaml:32-142)"
+              },
+              {
+                "name": "netbox_is_full_depth",
+                "value": "true (device-types/Edgecore/AS5712-54X.yaml:6)"
+              },
+              {
+                "name": "netbox_manufacturer_as_printed",
+                "value": "Edgecore (device-types/Edgecore/AS5712-54X.yaml:2)"
+              },
+              {
+                "name": "netbox_model_as_printed",
+                "value": "AS5712-54X (device-types/Edgecore/AS5712-54X.yaml:3)"
+              },
+              {
+                "name": "netbox_module_bays",
+                "value": "7: PSU 1, PSU 2, FAN 1, FAN 2, FAN 3, FAN 4, FAN 5 (device-types/Edgecore/AS5712-54X.yaml:11-24)"
+              },
+              {
+                "name": "netbox_slug",
+                "value": "edgecore-as5712-54x (device-types/Edgecore/AS5712-54X.yaml:4)"
+              },
+              {
+                "name": "netbox_u_height",
+                "value": "1.0 (device-types/Edgecore/AS5712-54X.yaml:5)"
+              },
+              {
+                "name": "netbox_weight",
+                "value": "8.5 kg (device-types/Edgecore/AS5712-54X.yaml:7,8)"
+              },
+              {
+                "name": "notice_effective_date",
+                "value": "2020-04-01"
+              },
+              {
+                "name": "notice_effective_date_text",
+                "value": "Apr, 1 2020"
+              },
+              {
+                "name": "notice_model_column",
+                "value": "EOL Model"
+              },
+              {
+                "name": "physical_description",
+                "value": "Rack mountable in standard 19\u2033 racks. Mountable in 21\u2033 Open Rack with the Open Rack Switch Adapter."
+              },
+              {
+                "name": "power_description",
+                "value": "All ports on front; PSUs, fan modules on rear."
+              },
+              {
+                "name": "power_description",
+                "value": "Hot-swappable, load sharing, redundant AC or -48 VDC PSUs. 12 VDC power input option."
+              },
+              {
+                "name": "retrieved_at",
+                "value": "2026-09-27 05:59:43 UTC"
+              },
+              {
+                "name": "rra_main_model",
+                "value": "AS5712-54X"
+              },
+              {
+                "name": "rra_model_role",
+                "value": "main"
+              },
+              {
+                "name": "software_installation_description",
+                "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings."
+              },
+              {
+                "name": "software_installation_description",
+                "value": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table."
+              },
+              {
+                "name": "source_platform_heading",
+                "value": "AS5712-54X"
+              },
+              {
+                "name": "source_portfolio",
+                "value": "10G Switch Portfolio"
+              },
+              {
+                "name": "source_vendor_group",
+                "value": "EdgeCore/Accton"
+              },
+              {
+                "name": "vendor_category",
+                "value": "In-active"
+              },
+              {
+                "name": "vendor_description",
+                "value": "AS5712-54X has 48-Port 10G SFP+ with 6x40G QSFP+ uplinks with ONIE software installer. AS5712-54X embedded Broadcom Trident II 720Gbps and Intel Atom C2538 CPU as well as PHY-Less/Re-timer-Less, dual -48VDC 400W PSUs included and port-to-power airflow."
+              },
+              {
+                "name": "vendor_replacement_text",
+                "value": "AS5812-54X"
+              }
+            ]
+          }
+        ],
+        "Accton / AS5712-54X": [
+          {
+            "id": "1cbdf06ff02b387f45fb",
+            "brand": "Accton",
+            "model": "AS5712-54X",
+            "revision": "",
+            "title": "Accton AS5712-54X",
+            "kind": "switch",
+            "records": [
+              {
+                "source_id": "onie",
+                "source_key": "accton/accton_as5712_54x/machine.make",
+                "source_url": "https://github.com/opencomputeproject/onie/blob/ce480be7094deef7198ee4d50af8427ea89b93e3/machine/accton/accton_as5712_54x/machine.make"
+              },
+              {
+                "source_id": "onl",
+                "source_key": "Accton/Edge-Core:AS5712-54X",
+                "source_url": "https://raw.githubusercontent.com/opencomputeproject/OpenNetworkLinux/master/docs/SupportedHardware.md"
+              },
+              {
+                "source_id": "sonic",
+                "source_key": "Accton:AS5712-54X",
+                "source_url": "https://sonic-net.github.io/SONiC/Supported-Devices-and-Platforms.html"
+              },
+              {
+                "source_id": "ul-accton-platforms",
+                "source_key": "AS5712-54X",
+                "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136"
+              }
+            ],
+            "facts": [
+              {
+                "name": "asic",
+                "value": "BCM56854 (Trident2)"
+              },
+              {
+                "name": "asic",
+                "value": "Trident 2"
+              },
+              {
+                "name": "asic_vendor",
+                "value": "Broadcom"
+              },
+              {
+                "name": "build_console_dev",
+                "value": "1"
+              },
+              {
+                "name": "build_onie_arch",
+                "value": "x86_64"
+              },
+              {
+                "name": "build_switch_asic_vendor",
+                "value": "bcm"
+              },
+              {
+                "name": "build_vendor_id",
+                "value": "259"
+              },
+              {
+                "name": "capture_format",
+                "value": "web_tool_models_section"
+              },
+              {
+                "name": "cpu",
+                "value": "Intel C2538"
+              },
+              {
+                "name": "identity_basis",
+                "value": "Explicit ONIE source title model"
+              },
+              {
+                "name": "identity_namespace",
+                "value": "Accton listing holder; product brand not established by this record"
+              },
+              {
+                "name": "listing_holder_name",
+                "value": "ACCTON TECHNOLOGY CORPORATION"
+              },
+              {
+                "name": "ports",
+                "value": "48x10G + 6x40G"
+              },
+              {
+                "name": "ports",
+                "value": "72x10G"
+              },
+              {
+                "name": "retrieved_at",
+                "value": "2026-09-26 22:57:28 UTC"
+              },
+              {
+                "name": "software_evidence",
+                "value": "Build definition in pinned ONIE repository. Not proof of installed firmware, available NOS images, or per-unit boot compatibility."
+              },
+              {
+                "name": "software_evidence",
+                "value": "Historical ONL listing from 2018; not a current support guarantee"
+              },
+              {
+                "name": "software_evidence",
+                "value": "Listed in SONiC platform table; check release and exact hardware revision before purchase"
+              },
+              {
+                "name": "source_scope",
+                "value": "Selected identifiers from an abridged listing; may describe products or components"
+              },
+              {
+                "name": "source_title",
+                "value": "Accton AS5712_54X"
+              }
+            ]
+          }
+        ]
+      },
+      "lead_URL_matches": [
+        {
+          "priority": 1,
+          "matching_exact_URL_rows": {
+            "sources": [],
+            "records": [],
+            "documents": []
+          }
+        },
+        {
+          "priority": 2,
+          "matching_exact_URL_rows": {
+            "sources": [],
+            "records": [],
+            "documents": []
+          }
+        },
+        {
+          "priority": 3,
+          "matching_exact_URL_rows": {
+            "sources": [],
+            "records": [],
+            "documents": []
+          }
+        }
+      ]
+    }
+  }
+}

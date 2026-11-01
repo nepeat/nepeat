@@ -1,0 +1,122 @@
+[
+  {
+    "priority": 1,
+    "basis_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+    "exact_anchor_matches": [
+      {
+        "href": "sun-zfs-storage-7420-specifications.html",
+        "anchor_text": "Previous"
+      }
+    ],
+    "ledger_substring_hits": {
+      "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": [],
+      "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": [],
+      "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": [],
+      "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json": [],
+      "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": [],
+      "data/raw/odm-primary-2026-10-04/fetch-report.json": [],
+      "data/raw/odm-models-2026-10-04/fetch-report.json": [],
+      "data/raw/celestica-storage-manufacturer/fetch-report.json": []
+    },
+    "checked_metadata_paths": [
+      "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json",
+      "data/raw/hunt-2026-10-10-oracle/capture-ledger.json",
+      "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json",
+      "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json",
+      "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json",
+      "data/raw/odm-primary-2026-10-04/fetch-report.json",
+      "data/raw/odm-models-2026-10-04/fetch-report.json",
+      "data/raw/celestica-storage-manufacturer/fetch-report.json"
+    ],
+    "local_filename_matches": [
+      "data/raw/hunt-2026-10-10-sun6000/sbm6000-service-manual-chassis-part-numbers.html",
+      "data/raw/hunt-2026-10-10-sun6000/sbm6000-service-manual-replacement-components.html"
+    ],
+    "catalog_exact_URL_matches_empty": true,
+    "scope": "bounded check of eleven named capture ledgers, exact source/record/document URL rows in accepted and staged databases, named raw-directory filenames and reviewed failure notes; not exhaustive historical absence proof"
+  },
+  {
+    "priority": 2,
+    "basis_sha256": "5ac0b18e67eb51c982b5aad820520dd77f00c2463487e0eee3eede87bac33748",
+    "exact_anchor_matches": [
+      {
+        "href": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6ab82f7a6292c1790455674",
+        "anchor_text": "Download"
+      }
+    ],
+    "ledger_substring_hits": {
+      "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": [],
+      "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": [],
+      "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": [],
+      "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json": [],
+      "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": [],
+      "data/raw/odm-primary-2026-10-04/fetch-report.json": [],
+      "data/raw/odm-models-2026-10-04/fetch-report.json": [],
+      "data/raw/celestica-storage-manufacturer/fetch-report.json": []
+    },
+    "checked_metadata_paths": [
+      "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json",
+      "data/raw/hunt-2026-10-10-oracle/capture-ledger.json",
+      "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json",
+      "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json",
+      "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json",
+      "data/raw/odm-primary-2026-10-04/fetch-report.json",
+      "data/raw/odm-models-2026-10-04/fetch-report.json",
+      "data/raw/celestica-storage-manufacturer/fetch-report.json"
+    ],
+    "local_filename_matches": [],
+    "catalog_exact_URL_matches_empty": true,
+    "scope": "bounded check of eleven named capture ledgers, exact source/record/document URL rows in accepted and staged databases, named raw-directory filenames and reviewed failure notes; not exhaustive historical absence proof"
+  },
+  {
+    "priority": 3,
+    "basis_sha256": "008735960fcbd2370fe13f35fe6e32b84ed2c5e781397e014190a24e85b3f6b1",
+    "exact_anchor_matches": [
+      {
+        "href": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6ab82f79313cd1790455673",
+        "anchor_text": "Download"
+      }
+    ],
+    "ledger_substring_hits": {
+      "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json": [],
+      "data/raw/hunt-2026-10-10-oracle/capture-ledger.json": [],
+      "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json": [],
+      "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json": [],
+      "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json": [],
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json": [],
+      "data/raw/odm-primary-2026-10-04/fetch-report.json": [],
+      "data/raw/odm-models-2026-10-04/fetch-report.json": [],
+      "data/raw/celestica-storage-manufacturer/fetch-report.json": []
+    },
+    "checked_metadata_paths": [
+      "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json",
+      "data/raw/hunt-2026-10-10-oracle/capture-ledger.json",
+      "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json",
+      "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json",
+      "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json",
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json",
+      "data/raw/odm-primary-2026-10-04/fetch-report.json",
+      "data/raw/odm-models-2026-10-04/fetch-report.json",
+      "data/raw/celestica-storage-manufacturer/fetch-report.json"
+    ],
+    "local_filename_matches": [],
+    "catalog_exact_URL_matches_empty": true,
+    "scope": "bounded check of eleven named capture ledgers, exact source/record/document URL rows in accepted and staged databases, named raw-directory filenames and reviewed failure notes; not exhaustive historical absence proof"
+  }
+]

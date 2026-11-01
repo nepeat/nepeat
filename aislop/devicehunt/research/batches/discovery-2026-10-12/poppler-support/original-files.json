@@ -1,0 +1,49 @@
+{
+  "saved_at": "2026-10-13T03:11:55.179026+00:00",
+  "files": [
+    {
+      "path": "devicehunt/documents.py",
+      "existed": true,
+      "sha256": "bf53dda105b2e98fcc46c851c9fa24483c32fa5308a82a7b5024c629750b53d5",
+      "snapshot": "research/batches/discovery-2026-10-12/poppler-support/before/devicehunt/documents.py"
+    },
+    {
+      "path": "devicehunt/reference_documents.py",
+      "existed": true,
+      "sha256": "f6b3e70676bff56a89e50b508aa112e6739ec4b184bab9c689b490ffc1022430",
+      "snapshot": "research/batches/discovery-2026-10-12/poppler-support/before/devicehunt/reference_documents.py"
+    },
+    {
+      "path": "scripts/extract_pdf_pages.py",
+      "existed": false
+    },
+    {
+      "path": "tests/test_pdf_extraction.py",
+      "existed": false
+    },
+    {
+      "path": "tests/test_documents.py",
+      "existed": true,
+      "sha256": "0d8dbe2e1e3cb90128f837c609d9f5986164a14ab49044491e1a40d88373dc28",
+      "snapshot": "research/batches/discovery-2026-10-12/poppler-support/before/tests/test_documents.py"
+    },
+    {
+      "path": "tests/test_reference_documents.py",
+      "existed": true,
+      "sha256": "df6c2de996043d854f8138f78db6cc45ea2a5e2b16c5fce6b8a094115b3a4811",
+      "snapshot": "research/batches/discovery-2026-10-12/poppler-support/before/tests/test_reference_documents.py"
+    },
+    {
+      "path": "devicehunt/archive.py",
+      "existed": true,
+      "sha256": "9ce8507e2f028e0849284f976fbdb8226aa443483f52f251aa64ff6d86ff3410",
+      "snapshot": "research/batches/discovery-2026-10-12/poppler-support/before/devicehunt/archive.py"
+    },
+    {
+      "path": "tests/test_archive_release.py",
+      "existed": true,
+      "sha256": "1a8a7498496dcc4e5343b8cbc52b24d2dba3131e75c22bb20a382e6bbe6bb55a",
+      "snapshot": "research/batches/discovery-2026-10-12/poppler-support/before/tests/test_archive_release.py"
+    }
+  ]
+}

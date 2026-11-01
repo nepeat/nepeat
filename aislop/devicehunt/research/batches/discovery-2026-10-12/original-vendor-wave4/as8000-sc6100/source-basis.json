@@ -1,0 +1,135 @@
+{
+  "leads": [
+    {
+      "priority": 4,
+      "vendor": "Edge-Core",
+      "model": "MINIPACK AS8000 OPEN MODULAR PLATFORM / printed document identity to verify",
+      "basis": "data/raw/edgecore/product-minipack-as8000-open-modular-platform.html",
+      "basis_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/",
+      "links": [
+        "https://www.edge-core.com/download/as8000-quick-start-guide-r02/?wpdmdl=632&refresh=6ab8300e25a801790455822"
+      ],
+      "first_fetch": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "coverage": "Product-page AC redundancy, rear PSUs/fans and ONIE already captured. Separate Minipack-AS8000-O-AC-F / Chassis / FAN / RAIL KIT identities have retirement-notice facts; that notice supplies no operating ratings.",
+      "gap": "R02 quick-start: power input/connectors, assembly module requirements, rail/rack clearance, service airflow and installation restrictions. Do not turn a chassis or SCM order code into a working complete system or decoder for other suffixes.",
+      "request_cap": 3,
+      "basis_sha256": "804afbdb3da9fdb9330b7a0dfdc1f0da01c8869d5307f3dabe726a2ffe26461e",
+      "resolved_links": [
+        "https://www.edge-core.com/download/as8000-quick-start-guide-r02/?wpdmdl=632&refresh=6ab8300e25a801790455822"
+      ],
+      "novelty_check": "Linked exact document absent from current sources and three relevant vendor capture ledgers; no corresponding PDF/HTML capture identified in local coverage. This is a bounded negative check, not exhaustive proof over every historical artifact.",
+      "availability": "not requested; public link provenance only; current response/content unknown"
+    },
+    {
+      "priority": 5,
+      "vendor": "Celestica",
+      "model": "SC6100",
+      "basis": "data/raw/celestica-storage-manufacturer/sc6100.html",
+      "basis_url": "https://cls.celestica.com/hardware-platforms/sc6100/",
+      "links": [
+        "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SC6100.pdf"
+      ],
+      "coverage": "17 current facts; 2U / 24 SSD / high-availability / PCIe Gen5 description and source manufacturer statement. No categorized power/cooling or dimension facts found.",
+      "gap": "Datasheet exact power/input, chassis depth/weight, cooling and controller/drive/host conditions if present. Published capacity is not installed-drive count.",
+      "request_cap": 1,
+      "basis_sha256": "fa7fced2791e4b3e94ea7946879607b04f76db899cb54fabc2f6b0cba7958782",
+      "resolved_links": [
+        "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SC6100.pdf"
+      ],
+      "novelty_check": "Linked exact document absent from current sources and three relevant vendor capture ledgers; no corresponding PDF/HTML capture identified in local coverage. This is a bounded negative check, not exhaustive proof over every historical artifact.",
+      "availability": "not requested; public link provenance only; current response/content unknown"
+    }
+  ],
+  "reused_policy": [
+    {
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/robots-celestica.txt",
+      "copied_file": "robots-celestica.txt",
+      "sha256": "b60e9385e9f08f0913c050aa40c41cb10b292d0210d3d8dda9459195da928f34",
+      "original_request": {
+        "sequence": 1,
+        "requested_url": "https://www.celestica.com/robots.txt",
+        "method": "GET",
+        "origin": "www.celestica.com",
+        "purpose": "policy",
+        "started_at_utc": "2026-10-13T03:36:16.847429+00:00",
+        "automatic_redirects": false,
+        "request_headers": {
+          "User-Agent": "devicehunt-public-research/1.0",
+          "Accept": "*/*"
+        },
+        "timeout_seconds": 30,
+        "status": 200,
+        "final_url": "https://www.celestica.com/robots.txt",
+        "headers": {
+          "Cache-Control": "public",
+          "Content-Type": "text/plain",
+          "Expires": "Wed, 13 Oct 2027 03:36:17 GMT",
+          "Last-Modified": "Thu, 21 May 2026 16:00:45 GMT",
+          "Accept-Ranges": "bytes",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Content-Type-Options": "nosniff",
+          "X-XSS-Protection": "1; mode=block",
+          "Referrer-Policy": "strict-origin-when-cross-origin",
+          "Strict-Transport-Security": "max-age=31536000",
+          "Date": "Tue, 13 Oct 2026 03:36:17 GMT",
+          "Connection": "close",
+          "Content-Length": "1136"
+        },
+        "bytes": 1136,
+        "sha256": "b60e9385e9f08f0913c050aa40c41cb10b292d0210d3d8dda9459195da928f34",
+        "body_path": "robots-celestica.txt",
+        "finished_at_utc": "2026-10-13T03:36:17.260177+00:00"
+      }
+    },
+    {
+      "original": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/robots-edgecore.txt",
+      "copied_file": "robots-edgecore.txt",
+      "sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "original_request": {
+        "sequence": 2,
+        "requested_url": "https://www.edge-core.com/robots.txt",
+        "method": "GET",
+        "origin": "www.edge-core.com",
+        "purpose": "policy",
+        "started_at_utc": "2026-10-13T03:36:25.796323+00:00",
+        "automatic_redirects": false,
+        "request_headers": {
+          "User-Agent": "devicehunt-public-research/1.0",
+          "Accept": "*/*"
+        },
+        "timeout_seconds": 30,
+        "status": 200,
+        "final_url": "https://www.edge-core.com/robots.txt",
+        "headers": {
+          "Date": "Tue, 13 Oct 2026 03:36:26 GMT",
+          "Content-Type": "text/plain; charset=utf-8",
+          "Transfer-Encoding": "chunked",
+          "Connection": "close",
+          "link": "<https://www.edge-core.com/wp-json/>; rel=\"https://api.w.org/\"",
+          "Server": "cloudflare",
+          "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "vary": "Accept-Encoding",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "microphone=(),fullscreen=()",
+          "x-xss-protection": "1;mode=block",
+          "cf-cache-status": "EXPIRED",
+          "last-modified": "Tue, 13 Oct 2026 03:36:26 GMT",
+          "CF-RAY": "a49b4cc9fa5fe2db-SEA",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        },
+        "bytes": 323,
+        "sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+        "body_path": "robots-edgecore.txt",
+        "finished_at_utc": "2026-10-13T03:36:26.362024+00:00"
+      }
+    }
+  ],
+  "failures_read": [
+    "docs/evidence-policy.md",
+    "research/batches/hunt-2026-10-10/edgecore/handoff.md",
+    "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json",
+    "data/raw/celestica-storage-manufacturer/fetch-report.json"
+  ]
+}

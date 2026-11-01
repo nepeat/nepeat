@@ -1,0 +1,1547 @@
+{
+  "query": "Oracle Server X7-2C",
+  "vendor": null,
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Oracle Server X7-2C"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "software_evidence",
+          "value": "Public source-code archive links only; not installable firmware or a current support guarantee"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.0.21"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.0.30"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.2.20.b"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.2.29"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121579.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121770.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r123532.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r124016.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_heading",
+          "value": "Oracle Server X7-2C"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "b8768c1ffa5a51c99da86b88",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "rra-official-query-73009f906e4e",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+      "observed_at": "2026-10-04T11:26:39+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Oracle\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T05:02:52.299279+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Oracle Server X7-2C"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "approval_date_raw",
+          "value": "2017-09-28"
+        },
+        {
+          "name": "country_raw",
+          "value": "미국"
+        },
+        {
+          "name": "detail_sha256",
+          "value": "4e463ee8fb26c586aaaef6c0f1f75838dc97299c4950655fe10c8f608bb26b50"
+        },
+        {
+          "name": "rra_main_model",
+          "value": "X72c2U"
+        },
+        {
+          "name": "rra_model_role",
+          "value": "derived"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Oracle Server X7-2C"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "capture_provenance",
+          "value": "Official Oracle public documentation fetched 2026-10-04 is byte-identical to previously saved capture; prior request URL/time remain historically unknown."
+        },
+        {
+          "name": "configuration_limit",
+          "value": "SM 1U and SM 2U descriptions retained as separate variant sections. Neither establishes the owned unit variant or installed configuration. No alias, OEM/manufacturer or deployment inference."
+        },
+        {
+          "name": "dependent_products_literal",
+          "value": "Dependent Products This product interacts with or is built with the other Oracle products listedin this section. Click below to view information about the accessibility ofthese dependent products. Products listed are the versions available at thetime of publication of this document; newer documents may be available that supersedethese versions. Integrated Lights Out Manager (ILOM) 4.0.0 Oracle Hardware Management Pack 2.4 Oracle x86 Product Documentation 1.0 Oracle Solaris 11.3 (updated) System BIOS for Oracle X86 Servers Oracle Linux Fault Management Architecture 2.3.0.0.0 (Updated) Oracle VTS 8.2.1.0 Hardware with No User Interface (updated) Oracle VM Server for x86 (Updated) 3.4 Oracle Linux (OL) 7 "
+        },
+        {
+          "name": "model_source_url",
+          "value": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html"
+        },
+        {
+          "name": "processor_power_limit",
+          "value": "150W Max and 205W Max / 165W Max for GPU are printed in processor descriptions; not PSU ratings, AC input requirements or measured wall draw."
+        },
+        {
+          "name": "sm_1u_chassis_description",
+          "value": "SM 1U"
+        },
+        {
+          "name": "sm_1u_drive_bays_description",
+          "value": "Two (2) 2.5-inch SFF bays supporting NVMe SATA SFF SSDs or SATA SSDs"
+        },
+        {
+          "name": "sm_1u_memory_description",
+          "value": "Twenty four (24) DDR4 DIMM slots; Up to 2666 MHz"
+        },
+        {
+          "name": "sm_1u_pcie_description",
+          "value": "One (1) PCIe Gen3 Low Profile slot; One 1x 16-lane slot, low profile half height, half length - front external; 48 PCIe Gen3 lanes per CPU"
+        },
+        {
+          "name": "sm_1u_processor_power_raw",
+          "value": "150W Max"
+        },
+        {
+          "name": "sm_1u_product_description_literal",
+          "value": "Oracle Server X7-2c SM 1U with the following components: - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers * Six (6) Memory Channels per Socket, 2 sockets per channel *DDR4 interface (2666 MT/s) * 3 UPI Ports: two up to 10.4 GT/s links per processor * 150W Max - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - One (1) PCIe Gen3 Low Profile slot * One 1x 16-lane slot, low profile half height, half length - front external * 48 PCIe Gen3 lanes per CPU - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Hard Drive Options *Two (2) 2.5-inch SFF bays supporting NVMe SATA SFF SSDs or SATA SSDs "
+        },
+        {
+          "name": "sm_1u_variant_literal",
+          "value": "Oracle Server X7-2c SM 1U"
+        },
+        {
+          "name": "sm_2u_chassis_description",
+          "value": "SM 2U"
+        },
+        {
+          "name": "sm_2u_drive_bays_description",
+          "value": "Four (4) 2.5-inch SFF bays supporting NVMe SFF SSDs, SATA3 and SAS3 HDDs"
+        },
+        {
+          "name": "sm_2u_memory_description",
+          "value": "Twenty four (24) DDR4 DIMM slots; Up to 2666 MHz"
+        },
+        {
+          "name": "sm_2u_pcie_description",
+          "value": "Up to Five (5) PCIe Gen3 Low profile slots; Three (3) front external x16 lane slots - low profile half height, half length option; Two (2) front external x8 lane slots - low profile half height, half length option"
+        },
+        {
+          "name": "sm_2u_processor_power_raw",
+          "value": "205W Max / 165W Max for GPU"
+        },
+        {
+          "name": "sm_2u_product_description_literal",
+          "value": "Oracle Server X7-2c SM 2U with the following components: \" - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers per Socket * Six (6) Memory Channels per Socket * Two (2) DIMMs per Channel * 3 UPI Ports * Two (2) up to 10.4 GT/s links per processor * 205W Max / 165W Max for GPU - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - Up to Five (5) PCIe Gen3 Low profile slots * Three (3) front external x16 lane slots - low profile half height, half length option * Two (2) front external x8 lane slots - low profile half height, half length option - Two (2) 10 GbE Serial RJ-45 ports - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Host GbE - Hard Drive Options with SATA3 HDDs, SAS3 HDD and NVMe SSD support * Four (4) 2.5-inch SFF bays supporting NVMe SFF SSDs, SATA3 and SAS3 HDDs\" "
+        },
+        {
+          "name": "sm_2u_variant_literal",
+          "value": "Oracle Server X7-2c SM 2U"
+        },
+        {
+          "name": "software_evidence",
+          "value": "Dated dependency list gives accessibility report links, not current OS compatibility, installable firmware access, resale entitlement or standalone-unit boot proof."
+        },
+        {
+          "name": "source_capture_fetched_at",
+          "value": "2026-10-04T23:00:28.889695+00:00"
+        },
+        {
+          "name": "source_document_date_raw",
+          "value": "23-Aug-2017"
+        },
+        {
+          "name": "source_product_name_literal",
+          "value": "Oracle Server X7-2c 1.0"
+        },
+        {
+          "name": "source_scope",
+          "value": "Name of Product; Product Description; Date; Dependent Products; dated accessibility conformance report, not installation/service manual"
+        },
+        {
+          "name": "source_sha256",
+          "value": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "cooling": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "chassis_physical": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_1u_chassis_description",
+          "statement": "SM 1U",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_2u_chassis_description",
+          "statement": "SM 2U",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        }
+      ]
+    },
+    "firmware_boot_software": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "9690c65d568095810894db23",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-oss",
+          "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+          "observed_at": "2026-10-04T11:26:10+00:00",
+          "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+          "tier": "vendor",
+          "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+          "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+          "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "documentation_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "software_evidence",
+          "statement": "Public source-code archive links only; not installable firmware or a current support guarantee",
+          "context_record_id": "9690c65d568095810894db23"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "software_evidence",
+          "statement": "Dated dependency list gives accessibility report links, not current OS compatibility, installable firmware access, resale entitlement or standalone-unit boot proof.",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        }
+      ]
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_1u_drive_bays_description",
+          "statement": "Two (2) 2.5-inch SFF bays supporting NVMe SATA SFF SSDs or SATA SSDs",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_1u_memory_description",
+          "statement": "Twenty four (24) DDR4 DIMM slots; Up to 2666 MHz",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_1u_pcie_description",
+          "statement": "One (1) PCIe Gen3 Low Profile slot; One 1x 16-lane slot, low profile half height, half length - front external; 48 PCIe Gen3 lanes per CPU",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_1u_processor_power_raw",
+          "statement": "150W Max",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_2u_drive_bays_description",
+          "statement": "Four (4) 2.5-inch SFF bays supporting NVMe SFF SSDs, SATA3 and SAS3 HDDs",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_2u_memory_description",
+          "statement": "Twenty four (24) DDR4 DIMM slots; Up to 2666 MHz",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_2u_pcie_description",
+          "statement": "Up to Five (5) PCIe Gen3 Low profile slots; Three (3) front external x16 lane slots - low profile half height, half length option; Two (2) front external x8 lane slots - low profile half height, half length option",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        },
+        {
+          "record_id": "eb3d73a0d4bbef83d15d7644",
+          "device_id": "bc48b3df0d0606266074",
+          "brand": "Oracle",
+          "model": "Oracle Server X7-2C",
+          "revision": "",
+          "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+          "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "observed_at": "2026-10-04T23:10:53+00:00",
+          "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+          "tier": "vendor",
+          "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+          "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+          "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "brand"
+            },
+            {
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "sm_2u_processor_power_raw",
+          "statement": "205W Max / 165W Max for GPU",
+          "context_record_id": "eb3d73a0d4bbef83d15d7644"
+        }
+      ]
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_label",
+      "statement": "ILOM-4.0.0.21",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_label",
+      "statement": "ILOM-4.0.0.30",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_label",
+      "statement": "ILOM-4.0.2.20.b",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_label",
+      "statement": "ILOM-4.0.2.29",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_url",
+      "statement": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121579.gpl_src.tar.bz2",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_url",
+      "statement": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121770.gpl_src.tar.bz2",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_url",
+      "statement": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r123532.gpl_src.tar.bz2",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_archive_url",
+      "statement": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r124016.gpl_src.tar.bz2",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-oss",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "source_home_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "tier": "vendor",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "coverage": "Hardware headings and archive links in the same section of one cached Oracle source-code index. Some hardware headings have no same-section links; version-only sections are excluded rather than assigning their links to a guessed parent. Software-only headings excluded; suffixes preserved. Archives not downloaded or executed.",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "documentation_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_heading",
+      "statement": "Oracle Server X7-2C",
+      "context_record_id": "9690c65d568095810894db23"
+    },
+    {
+      "record_id": "b8768c1ffa5a51c99da86b88",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "rra-official-query-73009f906e4e",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+      "observed_at": "2026-10-04T11:26:39+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Oracle\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T05:02:52.299279+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "approval_date_raw",
+      "statement": "2017-09-28",
+      "context_record_id": "b8768c1ffa5a51c99da86b88"
+    },
+    {
+      "record_id": "b8768c1ffa5a51c99da86b88",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "rra-official-query-73009f906e4e",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+      "observed_at": "2026-10-04T11:26:39+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Oracle\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T05:02:52.299279+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "country_raw",
+      "statement": "미국",
+      "context_record_id": "b8768c1ffa5a51c99da86b88"
+    },
+    {
+      "record_id": "b8768c1ffa5a51c99da86b88",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "rra-official-query-73009f906e4e",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+      "observed_at": "2026-10-04T11:26:39+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Oracle\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T05:02:52.299279+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "detail_sha256",
+      "statement": "4e463ee8fb26c586aaaef6c0f1f75838dc97299c4950655fe10c8f608bb26b50",
+      "context_record_id": "b8768c1ffa5a51c99da86b88"
+    },
+    {
+      "record_id": "b8768c1ffa5a51c99da86b88",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "rra-official-query-73009f906e4e",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+      "observed_at": "2026-10-04T11:26:39+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Oracle\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T05:02:52.299279+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "rra_main_model",
+      "statement": "X72c2U",
+      "context_record_id": "b8768c1ffa5a51c99da86b88"
+    },
+    {
+      "record_id": "b8768c1ffa5a51c99da86b88",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "rra-official-query-73009f906e4e",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+      "observed_at": "2026-10-04T11:26:39+00:00",
+      "source_home_url": "https://www.rra.go.kr/ko/license/A_c_search_en.do",
+      "tier": "regulatory",
+      "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+      "coverage": "Official manufacturer search {\"app_no\": \"\", \"category\": \"\", \"equip\": \"\", \"firm\": \"\", \"fromdate\": \"19900101\", \"maker\": \"Oracle\", \"model_no\": \"\", \"nation\": \"\", \"todate\": \"20260926\"}. All numbered rows in the two identical CSV exports have checked original detail HTML. Completeness is limited to this returned query, not all historical Korean approvals. CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail fields supply identities. Composite company cells stay unsplit; only exact known target manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. Simple comma-separated main and derived model entries remain distinct literal identities, not aliases or proven distinct physical products. Main lists containing annotations or empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses and countries do not prove present validity, a factory or operator deployment.",
+      "fetched_at": "2026-09-27T05:02:52.299279+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "registry_manufacturer"
+        },
+        {
+          "company": "ORACLE AMERICA. Inc",
+          "target": "Oracle",
+          "role": "regulatory_applicant"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "rra_model_role",
+      "statement": "derived",
+      "context_record_id": "b8768c1ffa5a51c99da86b88"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "capture_provenance",
+      "statement": "Official Oracle public documentation fetched 2026-10-04 is byte-identical to previously saved capture; prior request URL/time remain historically unknown.",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "configuration_limit",
+      "statement": "SM 1U and SM 2U descriptions retained as separate variant sections. Neither establishes the owned unit variant or installed configuration. No alias, OEM/manufacturer or deployment inference.",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "dependent_products_literal",
+      "statement": "Dependent Products This product interacts with or is built with the other Oracle products listedin this section. Click below to view information about the accessibility ofthese dependent products. Products listed are the versions available at thetime of publication of this document; newer documents may be available that supersedethese versions. Integrated Lights Out Manager (ILOM) 4.0.0 Oracle Hardware Management Pack 2.4 Oracle x86 Product Documentation 1.0 Oracle Solaris 11.3 (updated) System BIOS for Oracle X86 Servers Oracle Linux Fault Management Architecture 2.3.0.0.0 (Updated) Oracle VTS 8.2.1.0 Hardware with No User Interface (updated) Oracle VM Server for x86 (Updated) 3.4 Oracle Linux (OL) 7 ",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_source_url",
+      "statement": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "processor_power_limit",
+      "statement": "150W Max and 205W Max / 165W Max for GPU are printed in processor descriptions; not PSU ratings, AC input requirements or measured wall draw.",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "sm_1u_product_description_literal",
+      "statement": "Oracle Server X7-2c SM 1U with the following components: - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers * Six (6) Memory Channels per Socket, 2 sockets per channel *DDR4 interface (2666 MT/s) * 3 UPI Ports: two up to 10.4 GT/s links per processor * 150W Max - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - One (1) PCIe Gen3 Low Profile slot * One 1x 16-lane slot, low profile half height, half length - front external * 48 PCIe Gen3 lanes per CPU - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Hard Drive Options *Two (2) 2.5-inch SFF bays supporting NVMe SATA SFF SSDs or SATA SSDs ",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "sm_1u_variant_literal",
+      "statement": "Oracle Server X7-2c SM 1U",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "sm_2u_product_description_literal",
+      "statement": "Oracle Server X7-2c SM 2U with the following components: \" - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers per Socket * Six (6) Memory Channels per Socket * Two (2) DIMMs per Channel * 3 UPI Ports * Two (2) up to 10.4 GT/s links per processor * 205W Max / 165W Max for GPU - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - Up to Five (5) PCIe Gen3 Low profile slots * Three (3) front external x16 lane slots - low profile half height, half length option * Two (2) front external x8 lane slots - low profile half height, half length option - Two (2) 10 GbE Serial RJ-45 ports - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Host GbE - Hard Drive Options with SATA3 HDDs, SAS3 HDD and NVMe SSD support * Four (4) 2.5-inch SFF bays supporting NVMe SFF SSDs, SATA3 and SAS3 HDDs\" ",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "sm_2u_variant_literal",
+      "statement": "Oracle Server X7-2c SM 2U",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_capture_fetched_at",
+      "statement": "2026-10-04T23:00:28.889695+00:00",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_document_date_raw",
+      "statement": "23-Aug-2017",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_product_name_literal",
+      "statement": "Oracle Server X7-2c 1.0",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_scope",
+      "statement": "Name of Product; Product Description; Date; Dependent Products; dated accessibility conformance report, not installation/service manual",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    },
+    {
+      "record_id": "eb3d73a0d4bbef83d15d7644",
+      "device_id": "bc48b3df0d0606266074",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2C",
+      "revision": "",
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "source_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "observed_at": "2026-10-04T23:10:53+00:00",
+      "source_home_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer.",
+      "fetched_at": "2026-10-04T23:00:29.245075+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "brand"
+        },
+        {
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_sha256",
+      "statement": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+      "context_record_id": "eb3d73a0d4bbef83d15d7644"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

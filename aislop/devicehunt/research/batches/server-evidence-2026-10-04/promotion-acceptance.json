@@ -1,0 +1,24 @@
+{
+  "phase": "promotion_and_exports",
+  "staging_ready_sha256": "6f0de4a60f0cab2ba8d411b3ef8aaed75f1ad01766962d07f2c46d0fb2f6dd89",
+  "old_live_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "candidate_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "rebuild_sha256": "3195750c32a390712ab08850c87c3f03928bfb358eebe511cfc8b8eef287f64f",
+  "manifest_sha256": "eb70b70552dbba72e57212cd79aa9baa470bf883a59ec48c440f6dc88d8c2ce2",
+  "accepted_proof_hashes": {
+    "research/batches/server-evidence-2026-10-04/acceptance.json": "4b72b77b7c17e77e61b62a9b8e277512e65d634b214694f62f49fedf4b4bc7d4",
+    "research/batches/server-evidence-2026-10-04/text-envelope-authorization.json": "a0d57fbfe7d18a81730c091c7e6c7e3c06831f77d81980a70f9b3e260cca3233",
+    "research/batches/server-evidence-2026-10-04/source-review.md": "14ede920a9c43def38c034012c5ba55a3d4b4d2cef0509ed035f3ac409af6300",
+    "research/batches/server-evidence-2026-10-04/code-review.md": "52c2854775689fe3113eb86a987c980c9ad52afab84b39d15ae26129e398e191",
+    "research/batches/server-evidence-2026-10-04/candidate-review.md": "fea5e4b645e7059e20ffc9766831fe3339af39d97c1a061c84285da865695c8b",
+    "research/batches/server-evidence-2026-10-04/review/candidate-independent-audit.json": "d902c2b33adaa1adb35b52fe2e617743ebc011e640a15023d5f978e6bb01540a",
+    "research/batches/server-evidence-2026-10-04/integration/staging-ready.json": "6f0de4a60f0cab2ba8d411b3ef8aaed75f1ad01766962d07f2c46d0fb2f6dd89",
+    "research/batches/server-evidence-2026-10-04/integration/candidate-verification.json": "9f88863dfae73fc05ce5365b17459f3d4273bbff85e5db059cad8e9adbfe4cae",
+    "research/batches/server-evidence-2026-10-04/integration/cli-verification.json": "49aa07b0989d5ab5f122f2cdd46466ae6b18a77e69743ed6a10af377cebbced8",
+    "research/batches/server-evidence-2026-10-04/integration/text-envelope-transformation.json": "4b7bd0598ed0ad4bdac870cfc060cead9387d22f584fa331453f64298e8bb7d4",
+    "research/batches/server-evidence-2026-10-04/engineering/focused.log": "b1ff2926958a5330ef984d814edbac035a3d85a758ac9fcbdf23a6435ab0ff44",
+    "research/batches/server-evidence-2026-10-04/engineering/full-suite.log": "de289b419646d6ac9f92645fbf80efc7f90d776605f9956fe70164ccde3b82fe"
+  },
+  "integrator": "/root/server_evidence_integrator",
+  "required": "Promote exact candidate and refresh standard/current exports,98lookups,generic acceptedrebuild comparison,9unfiltered fullmodel buying reports. Preserve all originals/derivatives/backups. Bind final hashes/counts/DOM and complete handles; independent finaldocs/export QA before milestone closure. Root owns current docs."
+}

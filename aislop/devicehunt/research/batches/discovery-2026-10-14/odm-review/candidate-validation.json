@@ -1,0 +1,834 @@
+{
+  "reviewer": "/root/network_bulk_full",
+  "production_writes": false,
+  "network_calls": 0,
+  "schema": 29,
+  "database_sha256_before": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "database_sha256_after": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "all_discovery_novelty_rows_recomputed": 1120,
+  "novelty_counts": {
+    "no_literal_model_or_identifier_hit": 1070,
+    "exact_printed_partner_and_model": 15,
+    "same_literal_model_other_or_unknown_partner": 35
+  },
+  "exact_source_urls_absent": 6,
+  "accepted_pair_count": 154,
+  "accepted_pairs_with_exact_live_match": 9,
+  "accepted_pairs_without_exact_live_match": 145,
+  "actual_catalog_identity_reuses": 9,
+  "nonexact_catalog_identity_reuses": [],
+  "pair_details": [
+    {
+      "company": "Inspur",
+      "model": "NE5260M5",
+      "exact_pair_ids": [
+        "1f3b656ec8cdc4c10e83"
+      ]
+    },
+    {
+      "company": "Inspur",
+      "model": "NF5280M5",
+      "exact_pair_ids": [
+        "5d2e680ed27f04048062"
+      ]
+    },
+    {
+      "company": "Inspur",
+      "model": "NF5468M5",
+      "exact_pair_ids": [
+        "06ddf70cf0f3af8248a8"
+      ]
+    },
+    {
+      "company": "Inspur",
+      "model": "NF5488M5",
+      "exact_pair_ids": [
+        "c961c8dc5ff9c726e02c"
+      ]
+    },
+    {
+      "company": "Inventec",
+      "model": "Atlas-700-R",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Inventec",
+      "model": "E850G4",
+      "exact_pair_ids": [
+        "215f827e059f1291fc49"
+      ]
+    },
+    {
+      "company": "Inventec",
+      "model": "P5000AG7",
+      "exact_pair_ids": [
+        "4a6e5e0a8bcb11b27b58"
+      ]
+    },
+    {
+      "company": "Inventec",
+      "model": "P8000G6",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Inventec",
+      "model": "P9000IG6(AC)",
+      "exact_pair_ids": [
+        "6ee517a1c95c50fc377a"
+      ]
+    },
+    {
+      "company": "Inventec",
+      "model": "P90G6",
+      "exact_pair_ids": [
+        "e22d657528396b29efb4"
+      ]
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8016H68D5",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8046G73AE12HR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8056G68AE12HR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8056G68AE12HR-2T",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8056G68AE12HR-2T-TU-HE",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR-2T",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR-2T-TU",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8056G68CE12HR-2T-TU-HE",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8261T85E8HR-2T-N",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "B8261T85E8HR-2T-N-HE",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "C2810Z5D2E3XD",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "C2810Z5D2HYBD",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "C2811Z5X4E1XDR-555",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "CP3S11-S",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "CP3S11-U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "D50DNP1MHCPAC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "D50DNP1MHCPLC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "D50DNP1MHEVAC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "D50DNP2MFALAC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "D50DNP2MHSVAC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G4520G6E3BC-N",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G4520G6U2BC-N",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G4826Z5U2BC-355X-575",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G4826Z5U2BC-355X-755",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-325X-575",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-325X-755",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-350X-575",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "G8825Z5U2BC-350X-755",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M2510G6X4E1BC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M2810Z5D2E1XD",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M2810Z5X4E1BC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M2810Z6D2E1XD",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M2810Z6D2E3XD",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M2810Z6D2U2BC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M50FCP1UR204",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "M50FCP2UR208",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "MiTAC",
+      "model": "R2520G6U2BC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "PEGATRON",
+      "model": "AS201-1N0",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "PEGATRON",
+      "model": "AS205-2T1",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "PEGATRON",
+      "model": "AS400-2A1",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "PEGATRON",
+      "model": "AS400-2A1-CX8",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "PEGATRON",
+      "model": "AS800-2T0-8H1",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaEdge EGX77B-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaEdge EGX88D-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D43K-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D43N-3U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D44N-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D52BV-2U",
+      "exact_pair_ids": [
+        "9bd88a5c0b3897b5071a"
+      ]
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D52G-4U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D52Y-2U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D53X-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D53XQ-2U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D54U-3U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D54X-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D74H-7U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid D75E-4U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid S43KL-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid S44NL-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid S74G-2U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaGrid SD2H-1U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "QCT",
+      "model": "QuantaPlex T43Z-2U",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "2114GT-DNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "5014A-TT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "5039A-i",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "ARS-111GL-NHR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "ARS-221GL-NHIR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-2015CS-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-2015HS-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-2115HV-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNHR2-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-4125GS-TNRT2",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-4126GS-NB3RT-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-4126GS-NBR-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-5126GS-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-5126GS-TNRT2",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-8125GS-TNHR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "AS-A126GS-TNBR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "GPU Blade SBA-4119SG",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "Gold Series AS-8126GS-NB3RT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-1019D-FHN13TP",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-1019P-FHN2T",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-1019P-WTR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-1029U-TRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-120C-TN10R",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-120GQ-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-120U-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-121H-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-122H-TN",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-2029GP-TR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-212GB-FNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-220GP-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-220HE-FTNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-220U-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-221GE-NR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-221GE-TNHT-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-221H-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-221HE-FTNRD",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-222C-TN",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-222GS-NB3OT-ALC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-222H-TN",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-4029GP-TRT2",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-4029GP-TVRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-420GP-TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-421GE-NBRT-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-421GE-TNHR2-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-421GE-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-421GE-TNRT3",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-421GU-TNXR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-422GA-NBRT-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-422GA-NRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-422GL-FNR2",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-422GL-NR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-422GS-NB3RT-ALC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-422GS-NB3RT-LCC",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-5019D-FN8TP",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-5039MD18-H8TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-5039MD8-H8TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-5039MP-H8TNR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-511E-WR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-512B-WR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-521GE-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-522GA-NRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-531A-IL",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-540A-TR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-551A-T",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-621H-TN12R",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-7049GP-TRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-740GP-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-741GE-TNRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-741P-TR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-821GE-TNHR",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-822GS-NB3RT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-822GS-NBRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-A21GE-NBRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-A22GA-NBRT",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Supermicro",
+      "model": "SYS-E403-12P-FN2T",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Wistron",
+      "model": "E-Wing-Ahsoka",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Wistron",
+      "model": "Miramar - ICEMan",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Wistron",
+      "model": "Miramar -ICEMan",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Wistron",
+      "model": "X-wing-Flyboy (Tacoma)",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Wiwynn",
+      "model": "EP100",
+      "exact_pair_ids": []
+    },
+    {
+      "company": "Wiwynn",
+      "model": "SV310G3",
+      "exact_pair_ids": []
+    }
+  ],
+  "prepare_curated_sources": 5,
+  "deterministic_candidate_and_accepted_rows": true,
+  "isolated_import_and_replacement_records": [
+    214,
+    214
+  ],
+  "isolated_final_counts": {
+    "sources": 5,
+    "devices": 154,
+    "records": 214,
+    "facts": 2255,
+    "affiliations": 214,
+    "identifiers": 0,
+    "hyperscaler_evidence": 0
+  },
+  "roles": {
+    "documentation_vendor": 38,
+    "listing_holder": 39,
+    "program_partner": 137
+  },
+  "integrity_check": "ok",
+  "foreign_key_check": [],
+  "sample_fts_hits": 4,
+  "candidate_sha256": "f4bb69c73b809f5d35da8e4de58b6b933d3024136f4ed18228f473db1befcc71"
+}

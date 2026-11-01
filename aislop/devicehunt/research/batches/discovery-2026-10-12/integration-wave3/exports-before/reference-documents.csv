@@ -1,0 +1,56 @@
+title,source_id,page_count,pages_with_text,source_url
+AWS Outposts CubScout declaration,reference-pdf-aws-cubscout,2,2,https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_CubScout_Final-en_us.pdf
+AWS Outposts SCOUT declaration,reference-pdf-aws-scout,2,2,https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_Scout_Final-English.pdf
+AWS Panorama Appliance safety and compliance,reference-pdf-aws-panorama,11,11,https://d1.awsstatic.com/product-marketing/panorama/1_MHT_Safety_ComplianceManual_ENGLISHv3.pdf
+AWS Snowball and Snowcone September 2022 safety guide,reference-pdf-aws-snow-family-2022,3,3,https://d1.awsstatic.com/English-Guide-for-Snowball-and-Snowcone_Final_Sep2022.pdf
+AWS Snowcone Italian safety guide with English declarations,reference-pdf-aws-snowcone-it,10,10,https://d1.awsstatic.com/Digital%20Marketing/House/Hero/products/Snow/16%20Compliance%20Notice_Snowcone_EU_Italian_it-IT_locked.pdf
+AWS WorkSpaces Thin Client EU declaration,reference-pdf-aws-thin-client-eu,2,2,https://d1.awsstatic.com/reInvent/reinvent-2023/pdp/thin-client/EU%20DoC%20-%20Amazon%20WorkSpaces%20Thin%20Client.pdf
+"AWS WorkSpaces Thin Client safety and compliance guide, March 2025 URL",reference-pdf-aws-thin-client-safety,5,5,https://d1.awsstatic.com/reInvent/reinvent-2023/pdp/thin-client/safety-and-compliance-information-for-amazon-workspaces-thin-client-device-march-2025-update.pdf
+Amazon Monitron ethernet US safety guide,reference-pdf-aws-monitron-ethernet-us,3,3,https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/Amazon%20Monitron%20Sensor%20TG1A002%20Safety-Guide-USA-English.pdf
+Amazon Monitron ethernet-eu safety guide,reference-pdf-aws-monitron-ethernet-eu,5,5,https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/amazon-monitron-gateway-tg1a-002-safety-guide-eu-Een.pdf
+Amazon Monitron ex-sensor safety guide,reference-pdf-aws-monitron-ex-sensor,2,2,https://d1.awsstatic.com/legal/Amazon%20Monitron/TE1Ax9z-SM-monitron-sensor-ex-safety-guide.pdf
+Amazon Monitron sensor safety guide,reference-pdf-aws-monitron-sensor,52,52,https://d1.awsstatic.com/legal/Amazon%20Monitron/TE1Ax0z-SM-monitron-sensor-safety-guide_v0.2.pdf
+Amazon Monitron wifi US safety guide,reference-pdf-aws-monitron-wifi-us,3,3,https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/Amazon%20Monitron%20Gateway%20TG1A001%20Safety-Guide-USA.pdf
+Amazon Monitron wifi-eu safety guide,reference-pdf-aws-monitron-wifi-eu,5,3,https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/Amazon%20Monitron%20Gateway%20TG1A001%20Safety-Guide-EU-UK.pdf
+"BTL B4010 compliance statements; Accton applicant, brand N/A",reference-pdf-accton-b4010-compliance,2,2,https://www.accton.com.cn/wp-content/uploads/B4010-2302C014-CER_FCCISED.pdf
+Celestica 2025 portfolio catalog,reference-pdf-celestica-2025,8,8,https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf
+Celestica DS4000/DS4001 installation guide,reference-pdf-celestica-ds4000-guide,49,49,https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf
+Cisco NCS1004 and NCS1014 CB certificates,reference-pdf-cisco-ncs-certificates,6,6,https://www.cisco.com/web/dofc/21435998.pdf
+Hyve Jade datasheet May 2026 Rev0.050126,reference-pdf-odm-hyve-jade-2026,1,1,https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ec237474bffbedb6ffcd_Hyve%20-%20Jade_RGB_Rev1_050126.pdf
+ICASA 2025 type-approved equipment register,reference-pdf-icasa-2025,906,906,https://www.icasa.org.za/uploads/files/List-of-Type-Approved-Equipment-2025.pdf
+Ingrasys ES2000 / ES2100 storage datasheet (2024 footer),reference-pdf-ingrasys-es2000-es2100,2,0,https://www.ingrasys.com/docs-detail/es2000-es2100/
+Ingrasys server catalog recovered pages (explicit EOF reconstruction),reference-pdf-ingrasys-servers-reconstructed-2026-10-04,10,0,https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/
+"Inspur Chinese product catalog, copyright 2018",reference-pdf-inspur-products-2018,50,50,https://en.inspur.com/eportal/fileDir/lcjtww/resource/cms/article/2448179/2448543/2019032710162840541.pdf
+"Inspur InCloud Rail compatibility list, printed December 2023",reference-pdf-inspur-incloud-rail-compatibility,64,64,https://partner.inspur.com/eportal/fileDir/lcjtww/resource/cms/2024/03/2024032014450874883.pdf
+"Inspur NF5280M5 product technical white paper revision 5.0, 2019-12-22",reference-pdf-inspur-nf5280m5-whitepaper,47,47,https://en.inspur.com/eportal/fileDir/defaultCurSite/resource/cms/2020/04/2020040710453910867.pdf
+"Inspur i24 Product Technical White Paper, revision 3.0, 2020-01",reference-pdf-inspur-i24-whitepaper,34,34,https://www.inspur.com/eportal/fileDir/defaultCurSite/resource/cms/2020/08/2020081316525840458.pdf
+"Inventec Artemis II Rack brochure, copyright 2025",reference-pdf-inventec-artemis-ii-rack,2,2,https://ebg.inventec.com/en/tool-download/product_files/file/206?note=
+"Inventec E850G4 MEC Server product brief, copyright 2021",reference-pdf-inventec-e850g4-brief,2,2,https://ebg.inventec.com/en/tool-download/product_files/file/80?note=
+Inventec FPGA IPU C5020X English product brief 2021,reference-pdf-inventec-fpga-ipu-c5020x-en-brief-2021,2,2,https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=
+Inventec FPGA SmartNIC C5020X Chinese product brief 2021,reference-pdf-inventec-fpga-smartnic-c5020x-cn-brief-2021,2,2,https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=
+Inventec Golduck product brief v3 2020,reference-pdf-inventec-golduck-product-brief-v3-2020,2,2,https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=
+"Inventec X680m CXL Memory Accelerator brochure, copyright 2024",reference-pdf-inventec-x680m,2,2,https://ebg.inventec.com/en/tool-download/product_files/file/136?note=
+Kenya CA type approved equipment August 2026,reference-pdf-kenya-2026-08,203,203,https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf
+Meta Minipack2 generic system specification Rev 1.0 (2021-09-16),reference-pdf-meta-minipack2-spec,32,32,https://www.opencompute.org/documents/minipack2-generic-ocp-specification-rev1-0-pdf
+"NTRA equipment register, December 4, 2022",reference-pdf-ntra-2022-12,1218,1218,https://www.tra.gov.eg/wp-content/uploads/2022/12/Type-Approved-List-December-2022-%D9%90.pdf
+"NTRA equipment register, January 2026 file",reference-pdf-ntra-2026-01,760,760,https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf
+Oracle X10M EcoDesign technical documentation,reference-pdf-oracle-x10m-ecodesign,2,2,https://www.oracle.com/a/otn/docs/x10m_2u_zu2xl_ecodesignreportinginfo.pdf
+Oracle X11M EcoDesign technical documentation,reference-pdf-oracle-x11m-ecodesign,2,2,https://www.oracle.com/a/otn/docs/X11M_2U_ZU2XL_EcoDesignReportingInfo.pdf
+Oracle X9-2 EcoDesign technical documentation,reference-pdf-oracle-x9-2-ecodesign,3,3,https://www.oracle.com/a/otn/docs/WH1CL_X9-2_EcoDesignReportingInfo.pdf
+Oracle X9-2L EcoDesign technical documentation,reference-pdf-oracle-x9-2l-ecodesign,3,3,https://www.oracle.com/a/otn/docs/WH2CL_X9-2L_EcoDesignReportingInfo.pdf
+QCT Product Portfolio v14 2023 January0331,reference-pdf-qct-product-portfolio-v14-2023,49,48,https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf
+QCT QuantaGrid D51B-2U vendor-authored datasheet from public mirror,reference-pdf-qct-d51b-datasheet-mirror-2017,2,2,https://artofserver.com/downloads/QCT.io/D51B-2U/D51B-2U_DS_v03062017.pdf
+QCT QxStack QxVDI OA HC reference architecture version 2.0,reference-pdf-qct-qxvdi-2020,40,40,https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf
+QCT Windows Server Software Defined solutions (2018 footer),reference-pdf-qct-wssd,4,4,https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf
+Quanta Computer summaries of affiliated companies 2025,reference-pdf-quanta-affiliates-2025,18,18,https://www.quantatw.com/quanta/english/about/organize25en.pdf
+Wiwynn SV7100G4 and SV7100G4-C datasheet v1.0,reference-pdf-odm-wiwynn-sv7100g4,2,2,https://www.wiwynn.com/hubfs/Datasheet%20-%20SV7100G4_210917_internal.pdf
+bel-pfe1100-series — complete captured PSU document,reference-pdf-psu-bel-pfe1100-series-2026-10-12,25,25,https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf
+bel-pfe1500-csa — complete captured PSU document,reference-pdf-psu-bel-pfe1500-csa-2026-10-12,7,7,https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf
+bel-pfe1500-nemko — complete captured PSU document,reference-pdf-psu-bel-pfe1500-nemko-2026-10-12,2,2,https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-EN-62368-1-3rd-nemko-cert-456320.pdf
+bel-pfe1500-series — complete captured PSU document,reference-pdf-psu-bel-pfe1500-series-2026-10-12,27,27,https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf
+fsp550-29fm — complete captured PSU document,reference-pdf-psu-fsp550-29fm-2026-10-12,2,2,https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf
+hyve-hercules-2026 vendor datasheet,reference-pdf-hyve-hercules-2026,1,1,https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ec07a827785533ca84e5_Hercules_RGB_Rev1_050126.pdf
+hyve-jbof-2026 vendor datasheet,reference-pdf-hyve-jbof-2026,1,1,https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ecbeb6ef0bc0d959c6ca_JBOF_RGB_Rev1_050126.pdf
+wiwynn-st7000g2 vendor datasheet,reference-pdf-wiwynn-st7000g2,2,2,https://www.wiwynn.com/hubfs/Datasheet-ST7000G2_171222-1.pdf
+wiwynn-sv7100g2 vendor datasheet,reference-pdf-wiwynn-sv7100g2,2,2,https://www.wiwynn.com/hubfs/Datasheet-SV7100G2_181119.pdf
+wiwynn-sv7220g3 vendor datasheet,reference-pdf-wiwynn-sv7220g3,2,2,https://www.wiwynn.com/hubfs/Datasheet%20-%20SV7220G3_200430_internal-1.pdf

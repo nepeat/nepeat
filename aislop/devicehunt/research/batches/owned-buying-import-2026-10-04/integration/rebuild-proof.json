@@ -1,0 +1,23 @@
+{
+  "database_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "rebuild_sha256": "15f4d7aa04ff5fea619c2ea1bbac0f136e2c0122eddd1b9f01c113a58f0aadf3",
+  "checks": {
+    "owned": {
+      "total": 10,
+      "hits": 10,
+      "gaps": 0
+    },
+    "owned_evidence": {
+      "document_snapshot_hits": 9,
+      "label_photo_only_hits": 1,
+      "unresolved_identity_gaps": 0
+    },
+    "bytedance": {
+      "total": 2,
+      "hits": 0,
+      "gaps": 2
+    }
+  },
+  "duplicate_sensitive_equal": true,
+  "logical_tables": 43
+}

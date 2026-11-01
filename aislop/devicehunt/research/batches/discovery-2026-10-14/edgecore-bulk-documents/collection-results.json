@@ -1,0 +1,117 @@
+{
+  "selection_plan_sha256": "8d6bf2f0933774e65a645a70acd71eb322ea962e2a04041548d6828a493b29a4",
+  "outcome": "finite_selection_complete",
+  "stop_reason": null,
+  "conservative_attempts": 28,
+  "actual_http_responses": 28,
+  "results": [
+    {
+      "selection_number": 1,
+      "slug": "agr400-as7946-30xb-ds-r05",
+      "printed_document_heading": "AGR400 (AS7946-30XB) DS R05",
+      "outcome": "new_pdf",
+      "pdf": "agr400-as7946-30xb-ds-r05.pdf",
+      "sha256": "b0864e81189c3da6c2a4c3e04e8d22de410ea7516ec0cada8684b1594a7a0c4e",
+      "bytes": 3745530,
+      "response_path": "01-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2023/09/AGR400-AS7946-30XB-DS-R05.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 2,
+      "slug": "ags8200-datasheet-r01",
+      "printed_document_heading": "AGS8200 Datasheet R01",
+      "outcome": "new_pdf",
+      "pdf": "ags8200-datasheet-r01.pdf",
+      "sha256": "b6964128742c402672a11cd5b1c14499f76df089a4db587c4b1ae4b523751833",
+      "bytes": 7801229,
+      "response_path": "02-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2025/03/2024-002-AGS8200-DS-R01-20250313.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 3,
+      "slug": "ais800-32d-32o-datasheet-r03",
+      "printed_document_heading": "AIS800-32D/32O Datasheet R03",
+      "outcome": "new_pdf",
+      "pdf": "ais800-32d-32o-datasheet-r03.pdf",
+      "sha256": "30a674d4af1d7e39d57d3b06500fe10f9af45c0dda7abd2fa6695c547a60c76b",
+      "bytes": 5098865,
+      "response_path": "03-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-043-AIS800-32O_AIS800-32D-DS-R03-20260709.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 4,
+      "slug": "cor550-as7926-40xkfb-ds-r07",
+      "printed_document_heading": "COR550 (AS7926-40XKFB) DS R07",
+      "outcome": "new_pdf",
+      "pdf": "cor550-as7926-40xkfb-ds-r07.pdf",
+      "sha256": "e7a8daad0460fa5fc07d66a2d73f67861ace2fb1e82241bcf08683742d29410b",
+      "bytes": 2040763,
+      "response_path": "04-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2023/09/COR550-AS7926-40XKFB-DS-R07.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 5,
+      "slug": "csr440-as7535-28xb-ds-r05",
+      "printed_document_heading": "CSR440 (AS7535-28XB) DS R05",
+      "outcome": "new_pdf",
+      "pdf": "csr440-as7535-28xb-ds-r05.pdf",
+      "sha256": "10e43dd38a65b18edd67c448d49b853628af720262f64f5ddc161d27faf7a4c0",
+      "bytes": 2910495,
+      "response_path": "05-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2024/08/2024-073-CSR440_AS7535-28XB-DS-R05-20240828.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 6,
+      "slug": "dcs511-as9737-32db-datasheet-r02",
+      "printed_document_heading": "DCS511 (AS9737-32DB) Datasheet R02",
+      "outcome": "new_pdf",
+      "pdf": "dcs511-as9737-32db-datasheet-r02.pdf",
+      "sha256": "412b026ece49efbd70ff4aa02507e2407a47e596b66e3e2604189d3500c81ab4",
+      "bytes": 4625067,
+      "response_path": "06-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-039-DCS511_AS9737-32DB-DS-R02-20260707.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 7,
+      "slug": "ecis4500-poe-series-ds-r04",
+      "printed_document_heading": "ECIS4500 PoE Series DS R04",
+      "outcome": "new_pdf",
+      "pdf": "ecis4500-poe-series-ds-r04.pdf",
+      "sha256": "ff825d61c5d0dec969a7bc89f4ec612a4bbfc348775b1584c8bb2c253f54bf2f",
+      "bytes": 4782697,
+      "response_path": "07-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2023/09/ECIS4500-PoE-Series-DS-R04.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 8,
+      "slug": "exp400-32x-datasheet-r01",
+      "printed_document_heading": "EXP400-32X Datasheet R01",
+      "outcome": "new_pdf",
+      "pdf": "exp400-32x-datasheet-r01.pdf",
+      "sha256": "33cfffaea8da22e82f20afcb5b50fa58ccceb99740e38109f877435fc1168129",
+      "bytes": 1944159,
+      "response_path": "08-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2026/05/EXP400-32X-DS-R01.pdf",
+      "source_role": "documentation_publisher_only"
+    },
+    {
+      "selection_number": 9,
+      "slug": "saf4100i-ds-r03",
+      "printed_document_heading": "SAF4100I DS R03",
+      "outcome": "new_pdf",
+      "pdf": "saf4100i-ds-r03.pdf",
+      "sha256": "6d75183e4ade0ccd7d08ec09e7ea9d4029de3baaf473115f701ffe7e46c48b03",
+      "bytes": 1155800,
+      "response_path": "09-pdf.response",
+      "response_url": "https://www.edge-core.com/wp-content/uploads/2024/01/SAF4100I-DS-R03.pdf",
+      "source_role": "documentation_publisher_only"
+    }
+  ]
+}

@@ -1,0 +1,735 @@
+--- a/devicehunt/specifications.py
++++ b/devicehunt/specifications.py
+@@ -200,11 +200,13 @@
+ 
+ 
+ def search(catalog, query='', target=None, limit=100, exact_model=False, exact_part_number=False,
+-           include_source_facts=False):
++           include_source_facts=False, *, group_identical=False):
+     if limit < -1:
+         raise ValueError('Limit must be -1 or nonnegative')
+     if exact_model and exact_part_number:
+         raise ValueError('Choose exact model or exact part number')
++    if group_identical:
++        return grouped_search(catalog, query, target, limit, exact_model, exact_part_number, include_source_facts)
+     if exact_part_number:
+         return part_number_statements(catalog, query, target, limit, include_source_facts)
+     canonical = target_for(target) if target else None
+@@ -330,3 +332,105 @@
+         if item['record_id'] in matched:
+             rows.append(dict(item, matched_part_numbers=matched[item['record_id']]))
+     return rows if limit == -1 else rows[:limit]
++
++
++def grouped_search(catalog, query, target, limit, exact_model, exact_part_number, include_source_facts):
++    """Present complete, record-local evidence under conservative identical keys.
++
++    This deliberately bypasses the flat view's legacy within-source collapse.
++    All metadata is read in bulk; no query is issued for an individual member.
++    """
++    if exact_part_number and not query.strip():
++        raise ValueError('Exact part-number lookup requires a part number')
++    canonical = target_for(target) if target else None
++    if target and canonical is None:
++        raise ValueError('Unknown target: ' + target)
++    matched = {}
++    records = None
++    devices = None
++    if exact_part_number:
++        wanted = query.strip().casefold()
++        for row in catalog.db.execute(
++                "SELECT record_id,value FROM identifiers WHERE kind='part_number' ORDER BY record_id,value"):
++            if row['value'].strip().casefold() == wanted:
++                matched.setdefault(row['record_id'], []).append(row['value'])
++        records = set(matched)
++    elif exact_model:
++        if not query.strip():
++            raise ValueError('Exact model lookup requires a model string')
++        wanted = query.strip().casefold()
++        records = {row['id'] for row in catalog.db.execute(
++            'SELECT r.id,d.model FROM records r JOIN devices d ON d.id=r.device_id')
++            if row['model'].strip().casefold() == wanted}
++        records.update(row['record_id'] for row in catalog.db.execute(
++            "SELECT record_id,value FROM identifiers WHERE kind IN ('alias','model_search','manufacturer_model')")
++            if row['value'].strip().casefold() == wanted)
++    else:
++        devices = {row['id'] for row in catalog.search(query, target=target, limit=-1)}
++    if records == set() or devices == set():
++        return []
++
++    names = {}
++    if include_source_facts:
++        for (name,) in catalog.db.execute('SELECT DISTINCT name FROM facts'):
++            category = source_fact_category(name)
++            if category:
++                names[name] = category
++    fact_names = list(CATEGORIES) + list(names)
++    args = list(fact_names)
++    clause = ''
++    if canonical:
++        clause = ' AND EXISTS (SELECT 1 FROM affiliations a WHERE a.record_id=r.id AND a.target=?)'
++        args.append(canonical)
++    rows = []
++    for row in catalog.db.execute(
++            'SELECT r.id AS record_id,d.id AS device_id,d.brand,d.model,d.revision,'
++            'f.name,f.value,r.source_id,r.source_key,r.source_url,s.tier '
++            'FROM facts f JOIN records r ON r.id=f.record_id '
++            'JOIN devices d ON d.id=r.device_id JOIN sources s ON s.id=r.source_id '
++            'WHERE f.name IN (' + ','.join('?' for _ in fact_names) + ')' + clause +
++            ' ORDER BY d.brand,d.model,d.revision,d.id,r.source_id,r.id,f.name,f.value', args):
++        if records is not None and row['record_id'] not in records:
++            continue
++        if devices is not None and row['device_id'] not in devices:
++            continue
++        curated = row['name'] in CATEGORIES
++        statement = row['value'] if curated else source_fact_statement(row['name'], row['value'])
++        if statement is None:
++            continue
++        member = {key: row[key] for key in ('record_id', 'device_id', 'brand', 'model', 'revision')}
++        member.update(category=row['name'] if curated else names[row['name']], statement=statement,
++                      source_id=row['source_id'], source_url=row['source_url'], tier=row['tier'],
++                      origin='curated statement' if curated else 'source fact',
++                      source_fact_name='' if curated else row['name'], source_key=row['source_key'],
++                      raw_fact={'name': row['name'], 'value': row['value']}, affiliations=[])
++        if exact_part_number:
++            member['matched_part_numbers'] = matched[row['record_id']]
++        rows.append(member)
++    rows.sort(key=lambda r: (r['brand'], r['model'], r['revision'], r['device_id'], r['source_id'],
++                            r['record_id'], r['category'], r['origin'] != 'curated statement',
++                            r['source_fact_name'], r['statement']))
++    affiliations = {}
++    eligible = {row['record_id'] for row in rows}
++    if rows:
++        for row in catalog.db.execute(
++                'SELECT record_id,company,target,role FROM affiliations ORDER BY record_id,company,target,role'):
++            if row['record_id'] in eligible:
++                affiliations.setdefault(row['record_id'], []).append(
++                    {key: row[key] for key in ('company', 'target', 'role')})
++    groups = {}
++    for member in rows:
++        member['affiliations'] = affiliations.get(member['record_id'], [])
++        key = tuple(member[field] for field in ('device_id', 'category', 'origin', 'source_fact_name', 'statement'))
++        key += (member['raw_fact']['value'],)
++        if key not in groups:
++            groups[key] = {field: member[field] for field in
++                           ('device_id', 'brand', 'model', 'revision', 'category', 'statement', 'origin', 'source_fact_name')}
++            groups[key].update(evidence_count=0, record_count=0, source_count=0, evidence=[])
++        groups[key]['evidence'].append(member)
++    result = list(groups.values())
++    for group in result:
++        group['evidence_count'] = len(group['evidence'])
++        group['record_count'] = len({row['record_id'] for row in group['evidence']})
++        group['source_count'] = len({row['source_id'] for row in group['evidence']})
++    return result if limit == -1 else result[:limit]
+--- a/devicehunt/__main__.py
++++ b/devicehunt/__main__.py
+@@ -88,6 +88,32 @@
+         print("\t".join(keys),file=out)
+         for row in rows:
+             print("\t".join(str(row[k] if row[k] is not None else "").replace("\n"," ") for k in keys),file=out)
++
++
++def write_specification_groups(groups, fmt, out=None):
++    """Keep nested evidence structured in CSV and expose every member in tables."""
++    if fmt == 'json' or not groups:
++        return write_rows(groups, fmt, out)
++    if fmt == 'csv':
++        rows = [{key: value for key, value in group.items() if key != 'evidence'} |
++                {'evidence_json': json.dumps(group['evidence'], ensure_ascii=False)} for group in groups]
++        return write_rows(rows, fmt, out)
++    if out is None:
++        out = sys.stdout
++    for group in groups:
++        shared = {key: value for key, value in group.items() if key != 'evidence'}
++        # The strict key makes the raw fact common to every member. Preserve it
++        # once when formatting changed the value (for example, DMI citations).
++        raw_fact = group['evidence'][0]['raw_fact']
++        if raw_fact['value'] != group['statement']:
++            shared['raw_fact'] = raw_fact
++        print(json.dumps(shared, ensure_ascii=False), file=out)
++        for member in group['evidence']:
++            provenance = {key: member[key] for key in ('record_id', 'source_id', 'source_key', 'source_url',
++                                                      'tier', 'origin', 'source_fact_name', 'affiliations')}
++            if 'matched_part_numbers' in member:
++                provenance['matched_part_numbers'] = member['matched_part_numbers']
++            print('  evidence ' + json.dumps(provenance, ensure_ascii=False), file=out)
+ 
+ 
+ def shopping_links(detail):
+@@ -236,6 +262,7 @@
+     scope.add_argument("--exact-model",action="store_true",help="Match complete model strings or aliases; an alias selects only its own source records")
+     scope.add_argument("--exact-part-number",action="store_true",help="Show specifications from source records that explicitly identify this complete part number")
+     p.add_argument("--include-source-facts",action="store_true",help="Also show reviewed practical source facts (PSU, airflow, U height, weight, form factor, nodes), labelled origin=source fact")
++    p.add_argument("--group-identical",action="store_true",help="Group strictly identical statements within each device; keep every evidence member. Limits count complete groups; grouping does not merge configurations or certify agreement")
+     p.add_argument("--limit",type=int,default=100)
+     p.add_argument("--format",choices=["table","json","csv"],default="table")
+     p = sub.add_parser("show")
+@@ -554,7 +581,11 @@
+         elif args.command=="search":
+             write_rows(c.search(args.query,args.vendor,args.hyperscaler,args.limit,args.role),args.format)
+         elif args.command=="specs":
+-            write_rows(specifications.search(c,args.query,args.vendor,args.limit,args.exact_model,args.exact_part_number,args.include_source_facts),args.format)
++            rows = specifications.search(c,args.query,args.vendor,args.limit,args.exact_model,args.exact_part_number,args.include_source_facts,group_identical=args.group_identical)
++            if args.group_identical:
++                write_specification_groups(rows,args.format)
++            else:
++                write_rows(rows,args.format)
+         elif args.command=="grantees":
+             write_rows(grantees.search(c.db,args.query,args.limit),args.format)
+         elif args.command=="registry":
+--- /dev/null
++++ b/tests/test_specification_grouping.py
+@@ -0,0 +1,229 @@
++import contextlib
++import csv
++import hashlib
++import io
++import json
++from pathlib import Path
++import tempfile
++import unittest
++from unittest.mock import patch
++
++from devicehunt import specifications
++from devicehunt import __main__ as cli
++from devicehunt.catalog import Catalog
++
++DEFAULT_OUTPUTS = json.loads(
++    (Path(__file__).parent / 'fixtures' / 'specification-grouping-defaults.json').read_text())
++
++
++class GroupingTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.path = Path(self.tmp.name) / 'fixture.sqlite'
++        self.c = Catalog(self.path)
++        self.sources = set()
++
++    def tearDown(self):
++        self.c.db.close()
++        self.tmp.cleanup()
++
++    def add(self, sid, key, facts, affiliations=(('Celestica', 'documentation_vendor'),),
++            identifiers=(), brand='Celestica', model='DS4000', revision=''):
++        if sid not in self.sources:
++            self.c.source(sid, 'https://example.invalid/' + sid, 'vendor' if sid != 'b' else 'community', 'fixture', 'fixture')
++            self.sources.add(sid)
++        self.c.add(sid, key, 'https://example.invalid/' + sid + '/' + key, brand, model,
++                   brand + ' ' + model, 'switch', {}, affiliations, identifiers, facts, revision=revision)
++        self.c.finish(sid, 1)
++
++    def groups(self, query='DS4000', **kwargs):
++        return specifications.search(self.c, query, limit=-1, group_identical=True, **kwargs)
++
++    def capture(self, module, args):
++        out = io.StringIO()
++        with contextlib.redirect_stdout(out):
++            self.assertEqual(module.main(['--db', str(self.path), 'specs', *args]), 0)
++        return out.getvalue()
++
++    def test_unflagged_api_and_all_cli_formats_are_byte_identical(self):
++        for sid in ('a', 'b'):
++            self.add(sid, 'one', [('power_description', '2 PSUs'), ('spec_power_supply', '2 x 800 W')],
++                     identifiers=[('part_number', 'P-1'), ('alias', 'alias')])
++        # These snapshots were captured from the original ungrouped modules;
++        # they are not regenerated by this test or derived from the new path.
++        for case in DEFAULT_OUTPUTS['cases']:
++            query, kwargs = case['query'], case['kwargs']
++            self.assertEqual(case['api_rows'],
++                             specifications.search(self.c, query, limit=-1, group_identical=False, **kwargs))
++            self.assertEqual(case['api_rows'], specifications.search(self.c, query, limit=-1, **kwargs))
++            for fmt in ('json', 'csv', 'table'):
++                self.assertEqual(case['cli'][fmt], self.capture(cli, case['args'] + ['--format', fmt]))
++        self.assertEqual(DEFAULT_OUTPUTS['default_api_rows'], specifications.search(self.c, 'DS4000'))
++
++    def test_full_duplicate_evidence_across_and_within_sources(self):
++        facts = [('spec_power_supply', '2 x 800 W')]
++        self.add('a', 'one', facts)
++        self.add('a', 'two', facts, affiliations=[('Celestica', 'reported_system_vendor')])
++        self.add('b', 'one', facts, affiliations=[('Oracle', 'documentation_vendor')])
++        group, = self.groups(include_source_facts=True)
++        self.assertEqual((group['evidence_count'], group['record_count'], group['source_count']), (3, 3, 2))
++        self.assertEqual(len(specifications.search(self.c, 'DS4000', include_source_facts=True, limit=-1)), 2)
++        self.assertEqual({r['source_url'] for r in group['evidence']},
++                         {'https://example.invalid/a/one', 'https://example.invalid/a/two', 'https://example.invalid/b/one'})
++        self.assertEqual({r['source_key'] for r in group['evidence']}, {'one', 'two'})
++        self.assertEqual({a['role'] for r in group['evidence'] for a in r['affiliations']},
++                         {'documentation_vendor', 'reported_system_vendor'})
++        self.assertNotIn('source_url', group)
++        self.assertTrue(all(r['raw_fact'] == {'name': 'spec_power_supply', 'value': '2 x 800 W'} for r in group['evidence']))
++        self.assertEqual(group, self.groups(include_source_facts=True)[0])
++
++    def test_alias_and_part_select_later_duplicate_before_grouping(self):
++        self.add('a', 'one', [('spec_power_supply', 'same')])
++        self.add('a', 'two', [('spec_power_supply', 'same')])
++        flat = specifications.search(self.c, 'DS4000', include_source_facts=True, limit=-1)
++        dropped = next(r['id'] for r in self.c.db.execute('SELECT id FROM records') if r['id'] != flat[0]['record_id'])
++        self.c.db.executemany('INSERT INTO identifiers VALUES (?,?,?)',
++                             [(dropped, 'alias', 'Straße_100%'), (dropped, 'part_number', 'Straße_100%')])
++        self.c.db.commit()
++        for mode in ('exact_model', 'exact_part_number'):
++            group, = self.groups(' STRASSE_100% ', include_source_facts=True, **{mode: True})
++            self.assertEqual([r['record_id'] for r in group['evidence']], [dropped])
++            if mode == 'exact_part_number':
++                self.assertEqual(group['evidence'][0]['matched_part_numbers'], ['Straße_100%'])
++            self.assertEqual(self.groups('STRASSE_100%-X', include_source_facts=True, **{mode: True}), [])
++        self.assertEqual(specifications.search(self.c, 'Straße_100%', exact_model=True, include_source_facts=True), [])
++
++    def test_vendor_cannot_borrow_sibling_role_or_alias(self):
++        self.add('a', 'one', [('power_description', 'same')])
++        self.add('b', 'one', [('power_description', 'same')], affiliations=[('Oracle', 'documentation_vendor')],
++                 identifiers=[('alias', 'only-b'), ('part_number', 'only-b')])
++        for mode in ('exact_model', 'exact_part_number'):
++            self.assertEqual(self.groups('only-b', target='Celestica', **{mode: True}), [])
++            group, = self.groups('only-b', target='Oracle', **{mode: True})
++            self.assertEqual([r['source_id'] for r in group['evidence']], ['b'])
++            self.assertEqual(group['evidence'][0]['affiliations'],
++                             [{'company': 'Oracle', 'target': 'Oracle', 'role': 'documentation_vendor'}])
++
++    def test_strict_device_revision_origin_field_raw_and_conflict_boundaries(self):
++        display = specifications.source_fact_statement('spec_power_supply', 'same')
++        facts = [('power_description', display), ('spec_power_supply', 'same'),
++                 ('psu_configuration_1', '2 x 800W'), ('psu_configuration_2', '2 x 800W'),
++                 ('psu_rated_output_raw', '800W'), ('psu_rated_output_raw', '800 W'),
++                 ('dmi_chassis_type', 'Rack Mount Chassis (a/0123456789ab:1)'),
++                 ('dmi_chassis_type', 'Rack Mount Chassis (b/0123456789ab:2)'),
++                 ('power_description', 'contradictory 3 PSUs')]
++        self.add('a', 'one', facts)
++        self.add('a', 'two', [('power_description', display)], brand='Oracle')
++        self.add('a', 'three', [('power_description', display)], revision='R2')
++        groups = self.groups(include_source_facts=True)
++        self.assertEqual(len(groups), 11)
++        self.assertEqual(len({g['device_id'] for g in groups}), 3)
++        dmi = [g for g in groups if g['source_fact_name'] == 'dmi_chassis_type']
++        self.assertEqual(len(dmi), 2)
++        self.assertEqual(dmi[0]['statement'], dmi[1]['statement'])
++        self.assertNotEqual(dmi[0]['evidence'][0]['raw_fact']['value'], dmi[1]['evidence'][0]['raw_fact']['value'])
++        overlap = [g for g in groups if g['statement'] == display and g['revision'] == '' and g['brand'] == 'Celestica']
++        self.assertEqual({g['origin'] for g in overlap}, {'curated statement', 'source fact'})
++
++    def test_placeholders_and_whitelist_keep_existing_meaning(self):
++        self.add('a', 'one', [('spec_power_supply', 'unknown'), ('power', '800W'),
++                             ('netbox_u_height', '2'), ('power_description', 'unknown')])
++        groups = self.groups(include_source_facts=True)
++        self.assertEqual({g['origin'] for g in groups}, {'curated statement', 'source fact'})
++        self.assertEqual({g['source_fact_name'] for g in groups}, {'', 'netbox_u_height'})
++        self.assertEqual(len(self.groups()), 1)
++
++    def test_complete_groups_precede_limit_and_keep_traversal_order(self):
++        for sid, values in [('a', ['first', 'second']), ('b', ['third']), ('z', ['first'])]:
++            self.add(sid, 'one', [('power_description', v) for v in values])
++        full = self.groups()
++        limited = specifications.search(self.c, 'DS4000', limit=1, group_identical=True)
++        self.assertEqual(limited, full[:1])
++        self.assertEqual([g['statement'] for g in full], ['first', 'second', 'third'])
++        self.assertEqual([r['source_id'] for r in limited[0]['evidence']], ['a', 'z'])
++        self.assertEqual(specifications.search(self.c, 'DS4000', limit=0, group_identical=True), [])
++        expected = specifications.curated_statement_rows(self.c)
++        members = [r for g in full for r in g['evidence']]
++        self.assertEqual(sorted((r['record_id'], r['category'], r['statement']) for r in members),
++                         sorted((r['record_id'], r['category'], r['statement']) for r in expected))
++
++    def test_validation_and_literal_model_space_suffix(self):
++        self.add('a', 'one', [('power_description', 'literal')], model='A  B-01')
++        self.assertEqual(len(self.groups(' a  b-01 ', exact_model=True)), 1)
++        for query in ('A B-01', 'A  B-01-X'):
++            self.assertEqual(self.groups(query, exact_model=True), [])
++        for kwargs in ({'limit': -2}, {'exact_model': True, 'exact_part_number': True},
++                       {'exact_model': True, 'query': ''}, {'exact_part_number': True, 'query': ''},
++                       {'target': 'unknown-vendor'}):
++            args = {'query': 'DS4000', 'group_identical': True} | kwargs
++            with self.assertRaises(ValueError): specifications.search(self.c, **args)
++
++    def test_json_csv_members_and_table_provenance(self):
++        for sid in ('a', 'b'):
++            self.add(sid, 'one', [('power_description', 'unique shared statement')],
++                     identifiers=[('part_number', 'PN-1')])
++        args = ['PN-1', '--exact-part-number', '--group-identical', '--limit', '-1']
++        groups = json.loads(self.capture(cli, args + ['--format', 'json']))
++        csv_rows = list(csv.DictReader(io.StringIO(self.capture(cli, args + ['--format', 'csv']))))
++        self.assertEqual(json.loads(csv_rows[0]['evidence_json']), groups[0]['evidence'])
++        self.assertNotIn('evidence', csv_rows[0])
++        table = self.capture(cli, args + ['--format', 'table'])
++        self.assertEqual(table.count('unique shared statement'), 1)
++        for member in groups[0]['evidence']:
++            for field in ('record_id', 'source_id', 'source_url', 'tier', 'source_key'):
++                self.assertIn(json.dumps(member[field]), table)
++        self.assertEqual(table.count('  evidence '), 2)
++        self.assertIn('matched_part_numbers', table)
++
++    def test_empty_output_conventions_and_missing_database(self):
++        for fmt, expected in [('json', '[]\n'), ('csv', ''), ('table', 'No matching records.\n')]:
++            self.assertEqual(self.capture(cli, ['missing', '--group-identical', '--format', fmt]), expected)
++        missing = Path(self.tmp.name) / 'missing.sqlite'
++        with self.assertRaises(Exception): Catalog(missing, read_only=True)
++        self.assertFalse(missing.exists())
++
++    def test_table_preserves_raw_values_when_displayed_statements_match(self):
++        raw_values = ['Rack Mount Chassis (a/0123456789ab:1)',
++                      'Rack Mount Chassis (b/0123456789ab:2)']
++        # One record and URL: neither provenance nor displayed text can stand
++        # in for the raw fact that distinguishes these two strict groups.
++        self.add('a', 'one', [('dmi_chassis_type', value) for value in raw_values])
++        args = ['DS4000', '--exact-model', '--include-source-facts', '--group-identical', '--limit', '-1']
++        groups = json.loads(self.capture(cli, args + ['--format', 'json']))
++        self.assertEqual(len(groups), 2)
++        self.assertEqual(groups[0]['statement'], groups[1]['statement'])
++        self.assertEqual(groups[0]['evidence'][0]['record_id'], groups[1]['evidence'][0]['record_id'])
++        table = self.capture(cli, args + ['--format', 'table'])
++        headers = [json.loads(line) for line in table.splitlines() if not line.startswith('  evidence ')]
++        self.assertEqual({row['raw_fact']['value'] for row in headers}, set(raw_values))
++        self.assertEqual({row['raw_fact']['name'] for row in headers}, {'dmi_chassis_type'})
++        self.assertNotEqual(headers[0], headers[1])
++        for value in raw_values:
++            self.assertEqual(table.count(value), 1)
++        self.assertEqual(table.count('  evidence '), 2)
++
++    def test_bulk_queries_read_only_transaction_and_no_external_calls(self):
++        self.add('a', 'one', [('spec_power_supply', 'same')])
++        queries = []
++        self.c.db.set_trace_callback(queries.append)
++        with patch('urllib.request.urlopen', side_effect=AssertionError('network')), \
++             patch('subprocess.run', side_effect=AssertionError('process')), \
++             patch('subprocess.Popen', side_effect=AssertionError('process')):
++            self.groups(exact_model=True, include_source_facts=True)
++        one_count = len(queries)
++        self.c.db.set_trace_callback(None)
++        for n in range(20): self.add('a', str(n), [('spec_power_supply', 'same')])
++        before = hashlib.sha256(self.path.read_bytes()).hexdigest()
++        self.c.db.execute('BEGIN')
++        queries.clear(); self.c.db.set_trace_callback(queries.append)
++        groups = self.groups(exact_model=True, include_source_facts=True)
++        self.c.db.set_trace_callback(None)
++        self.assertEqual(len(queries), one_count)
++        self.assertTrue(all(q.lstrip().upper().startswith('SELECT') for q in queries))
++        self.assertEqual(groups[0]['evidence_count'], 21)
++        self.assertTrue(self.c.db.in_transaction)
++        self.assertEqual(hashlib.sha256(self.path.read_bytes()).hexdigest(), before)
++        self.c.db.rollback()
++
++
++if __name__ == '__main__': unittest.main()
+--- /dev/null
++++ b/tests/fixtures/specification-grouping-defaults.json
+@@ -0,0 +1,321 @@
++{
++  "provenance": {
++    "description": "unchanged production defaults before optional grouping",
++    "modules_sha256": {
++      "specifications.py": "2d6de287745b8d6d3a60483fbdc53baf900215170aa8fabdb3875c6994104391",
++      "__main__.py": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83"
++    }
++  },
++  "cases": [
++    {
++      "query": "DS4000",
++      "kwargs": {},
++      "args": [
++        "DS4000",
++        "--limit",
++        "-1"
++      ],
++      "api_rows": [
++        {
++          "record_id": "b4ee94ced054a259fd0d0cf2",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "a",
++          "source_url": "https://example.invalid/a/one",
++          "tier": "vendor"
++        },
++        {
++          "record_id": "366598cfb67600d97f690f0f",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "b",
++          "source_url": "https://example.invalid/b/one",
++          "tier": "community"
++        }
++      ],
++      "cli": {
++        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\"\n  }\n]\n",
++        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community\r\n",
++        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\n"
++      }
++    },
++    {
++      "query": "DS4000",
++      "kwargs": {
++        "include_source_facts": true
++      },
++      "args": [
++        "DS4000",
++        "--limit",
++        "-1",
++        "--include-source-facts"
++      ],
++      "api_rows": [
++        {
++          "record_id": "b4ee94ced054a259fd0d0cf2",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "a",
++          "source_url": "https://example.invalid/a/one",
++          "tier": "vendor",
++          "origin": "curated statement",
++          "source_fact_name": ""
++        },
++        {
++          "record_id": "b4ee94ced054a259fd0d0cf2",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
++          "source_id": "a",
++          "source_url": "https://example.invalid/a/one",
++          "tier": "vendor",
++          "origin": "source fact",
++          "source_fact_name": "spec_power_supply"
++        },
++        {
++          "record_id": "366598cfb67600d97f690f0f",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "b",
++          "source_url": "https://example.invalid/b/one",
++          "tier": "community",
++          "origin": "curated statement",
++          "source_fact_name": ""
++        },
++        {
++          "record_id": "366598cfb67600d97f690f0f",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
++          "source_id": "b",
++          "source_url": "https://example.invalid/b/one",
++          "tier": "community",
++          "origin": "source fact",
++          "source_fact_name": "spec_power_supply"
++        }
++      ],
++      "cli": {
++        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  }\n]\n",
++        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier,origin,source_fact_name\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor,curated statement,\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,a,https://example.invalid/a/one,vendor,source fact,spec_power_supply\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community,curated statement,\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,b,https://example.invalid/b/one,community,source fact,spec_power_supply\r\n",
++        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\torigin\tsource_fact_name\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\tcurated statement\t\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\ta\thttps://example.invalid/a/one\tvendor\tsource fact\tspec_power_supply\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\tcurated statement\t\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\tb\thttps://example.invalid/b/one\tcommunity\tsource fact\tspec_power_supply\n"
++      }
++    },
++    {
++      "query": "alias",
++      "kwargs": {
++        "exact_model": true,
++        "include_source_facts": true
++      },
++      "args": [
++        "alias",
++        "--limit",
++        "-1",
++        "--exact-model",
++        "--include-source-facts"
++      ],
++      "api_rows": [
++        {
++          "record_id": "b4ee94ced054a259fd0d0cf2",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "a",
++          "source_url": "https://example.invalid/a/one",
++          "tier": "vendor",
++          "origin": "curated statement",
++          "source_fact_name": ""
++        },
++        {
++          "record_id": "b4ee94ced054a259fd0d0cf2",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
++          "source_id": "a",
++          "source_url": "https://example.invalid/a/one",
++          "tier": "vendor",
++          "origin": "source fact",
++          "source_fact_name": "spec_power_supply"
++        },
++        {
++          "record_id": "366598cfb67600d97f690f0f",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "b",
++          "source_url": "https://example.invalid/b/one",
++          "tier": "community",
++          "origin": "curated statement",
++          "source_fact_name": ""
++        },
++        {
++          "record_id": "366598cfb67600d97f690f0f",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
++          "source_id": "b",
++          "source_url": "https://example.invalid/b/one",
++          "tier": "community",
++          "origin": "source fact",
++          "source_fact_name": "spec_power_supply"
++        }
++      ],
++      "cli": {
++        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\"\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\"\n  }\n]\n",
++        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier,origin,source_fact_name\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor,curated statement,\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,a,https://example.invalid/a/one,vendor,source fact,spec_power_supply\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community,curated statement,\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,b,https://example.invalid/b/one,community,source fact,spec_power_supply\r\n",
++        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\torigin\tsource_fact_name\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\tcurated statement\t\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\ta\thttps://example.invalid/a/one\tvendor\tsource fact\tspec_power_supply\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\tcurated statement\t\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\tb\thttps://example.invalid/b/one\tcommunity\tsource fact\tspec_power_supply\n"
++      }
++    },
++    {
++      "query": "P-1",
++      "kwargs": {
++        "exact_part_number": true,
++        "target": "Celestica",
++        "include_source_facts": true
++      },
++      "args": [
++        "P-1",
++        "--limit",
++        "-1",
++        "--exact-part-number",
++        "--vendor",
++        "Celestica",
++        "--include-source-facts"
++      ],
++      "api_rows": [
++        {
++          "record_id": "b4ee94ced054a259fd0d0cf2",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "a",
++          "source_url": "https://example.invalid/a/one",
++          "tier": "vendor",
++          "origin": "curated statement",
++          "source_fact_name": "",
++          "matched_part_numbers": [
++            "P-1"
++          ]
++        },
++        {
++          "record_id": "b4ee94ced054a259fd0d0cf2",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
++          "source_id": "a",
++          "source_url": "https://example.invalid/a/one",
++          "tier": "vendor",
++          "origin": "source fact",
++          "source_fact_name": "spec_power_supply",
++          "matched_part_numbers": [
++            "P-1"
++          ]
++        },
++        {
++          "record_id": "366598cfb67600d97f690f0f",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "2 PSUs",
++          "source_id": "b",
++          "source_url": "https://example.invalid/b/one",
++          "tier": "community",
++          "origin": "curated statement",
++          "source_fact_name": "",
++          "matched_part_numbers": [
++            "P-1"
++          ]
++        },
++        {
++          "record_id": "366598cfb67600d97f690f0f",
++          "device_id": "6cfb4db52485fb182035",
++          "brand": "Celestica",
++          "model": "DS4000",
++          "revision": "",
++          "category": "power_description",
++          "statement": "PSU quantity and rating as submitted to SPEC: 2 x 800 W",
++          "source_id": "b",
++          "source_url": "https://example.invalid/b/one",
++          "tier": "community",
++          "origin": "source fact",
++          "source_fact_name": "spec_power_supply",
++          "matched_part_numbers": [
++            "P-1"
++          ]
++        }
++      ],
++      "cli": {
++        "json": "[\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  },\n  {\n    \"record_id\": \"b4ee94ced054a259fd0d0cf2\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"a\",\n    \"source_url\": \"https://example.invalid/a/one\",\n    \"tier\": \"vendor\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"2 PSUs\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"curated statement\",\n    \"source_fact_name\": \"\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  },\n  {\n    \"record_id\": \"366598cfb67600d97f690f0f\",\n    \"device_id\": \"6cfb4db52485fb182035\",\n    \"brand\": \"Celestica\",\n    \"model\": \"DS4000\",\n    \"revision\": \"\",\n    \"category\": \"power_description\",\n    \"statement\": \"PSU quantity and rating as submitted to SPEC: 2 x 800 W\",\n    \"source_id\": \"b\",\n    \"source_url\": \"https://example.invalid/b/one\",\n    \"tier\": \"community\",\n    \"origin\": \"source fact\",\n    \"source_fact_name\": \"spec_power_supply\",\n    \"matched_part_numbers\": [\n      \"P-1\"\n    ]\n  }\n]\n",
++        "csv": "record_id,device_id,brand,model,revision,category,statement,source_id,source_url,tier,origin,source_fact_name,matched_part_numbers\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,a,https://example.invalid/a/one,vendor,curated statement,,['P-1']\r\nb4ee94ced054a259fd0d0cf2,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,a,https://example.invalid/a/one,vendor,source fact,spec_power_supply,['P-1']\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,2 PSUs,b,https://example.invalid/b/one,community,curated statement,,['P-1']\r\n366598cfb67600d97f690f0f,6cfb4db52485fb182035,Celestica,DS4000,,power_description,PSU quantity and rating as submitted to SPEC: 2 x 800 W,b,https://example.invalid/b/one,community,source fact,spec_power_supply,['P-1']\r\n",
++        "table": "record_id\tdevice_id\tbrand\tmodel\trevision\tcategory\tstatement\tsource_id\tsource_url\ttier\torigin\tsource_fact_name\tmatched_part_numbers\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\ta\thttps://example.invalid/a/one\tvendor\tcurated statement\t\t['P-1']\nb4ee94ced054a259fd0d0cf2\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\ta\thttps://example.invalid/a/one\tvendor\tsource fact\tspec_power_supply\t['P-1']\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\t2 PSUs\tb\thttps://example.invalid/b/one\tcommunity\tcurated statement\t\t['P-1']\n366598cfb67600d97f690f0f\t6cfb4db52485fb182035\tCelestica\tDS4000\t\tpower_description\tPSU quantity and rating as submitted to SPEC: 2 x 800 W\tb\thttps://example.invalid/b/one\tcommunity\tsource fact\tspec_power_supply\t['P-1']\n"
++      }
++    }
++  ],
++  "default_api_rows": [
++    {
++      "record_id": "b4ee94ced054a259fd0d0cf2",
++      "device_id": "6cfb4db52485fb182035",
++      "brand": "Celestica",
++      "model": "DS4000",
++      "revision": "",
++      "category": "power_description",
++      "statement": "2 PSUs",
++      "source_id": "a",
++      "source_url": "https://example.invalid/a/one",
++      "tier": "vendor"
++    },
++    {
++      "record_id": "366598cfb67600d97f690f0f",
++      "device_id": "6cfb4db52485fb182035",
++      "brand": "Celestica",
++      "model": "DS4000",
++      "revision": "",
++      "category": "power_description",
++      "statement": "2 PSUs",
++      "source_id": "b",
++      "source_url": "https://example.invalid/b/one",
++      "tier": "community"
++    }
++  ]
++}

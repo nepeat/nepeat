@@ -1,0 +1,45 @@
+PFE1500 Series                                                                                                                   21
+
+
+
+
+                                         Figure 13. Fan speed vs. main output load
+
+
+
+
+ 10.1        IMMUNITY
+        NOTE: Most of the immunity requirements are derived from EN 55024:1998/A2:2003.
+
+
+
+                                     IEC / EN 61000-4-2, ±8 kV, 25+25 discharges per test point
+  ESD Contact Discharge                                                                                               A
+                                     (metallic case, LEDs, connector body)
+                                     IEC / EN 61000-4-2, ±15 kV, 25+25 discharges per test point
+  ESD Air Discharge                                                                                                   A
+                                     (non-metallic user accessible surfaces)
+                                     IEC / EN 61000-4-3, 10 V/m, 1 kHz/80% Amplitude Modulation,
+  Radiated Electromagnetic Field                                                                                      A
+                                     1 µs Pulse Modulation, 10 kHz…2 GHz
+                                     IEC / EN 61000-4-4, level 3
+  Burst                              AC port ±2 kV, 1 minute                                                          A
+                                     DC port ±1 kV, 1 minute
+                                     IEC / EN 61000-4-5
+  Surge                              Line to earth: level 3, ±2 kV                                                    A
+                                     Line to line: level 2, ±1 kV
+  RF Conducted Immunity              IEC/EN 61000-4-6, Level 3, 10 Vrms, CW, 0.1 … 80 MHz                             A
+                                     IEC/EN 61000-4-11
+                                     1: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration 10 ms                       A
+  Voltage Dips and Interruptions
+                                     2: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration 20 ms                 VSB: A, V1: B
+                                     3: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration >20 ms                      B
+
+
+
+
+                                                                    Asia-Pacific       Europe, Middle East       North America
+                                                              +86 755 298 85888            +353 61 49 8941      +1 866 513 2839
+
+                                                                                         © 2024 Bel Fuse Inc.       BCD.00733_J
+

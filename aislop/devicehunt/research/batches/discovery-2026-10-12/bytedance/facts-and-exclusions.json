@@ -1,0 +1,92 @@
+{
+  "artifact_type": "researcher_assertion_review",
+  "created_at_utc": "2026-10-13 02:57:30 UTC",
+  "local_research_date": "2026-10-12",
+  "outcome": "bounded research complete; no new qualifying primary source; affiliation remains an evidence gap",
+  "primary_exact_model_affiliation_hits": 0,
+  "new_importable_practical_facts": 0,
+  "curated_input_created": false,
+  "primary_sources": [
+    {
+      "url": "https://www.accton.com.cn/wp-content/uploads/B4010-2302C014-CER_FCCISED.pdf",
+      "capture_status": "existing immutable local PDF read via prior source review; newly resurfaced only in search preview; not fetched again",
+      "source_role": "Accton-hosted compliance certificate; Accton Technology Corporation applicant",
+      "exact_identifier": "B4010",
+      "brand": "N/A",
+      "equipment": "Ethernet Switch",
+      "report": "BTL-FICE-1-2302C014",
+      "supported_scope": "Existing reviewed applicant/model evidence only, not ByteDance affiliation, physical manufacture or deployment."
+    }
+  ],
+  "leads": [
+    {
+      "url": "https://www.volza.com/p/models/hsn-code-85176249/import-data/imports-in-malaysia/",
+      "artifact": "search-batch-3.json",
+      "evidence_type": "secondary_search_preview",
+      "excerpt_type": "exact_identifier_transcription",
+      "identifiers_as_printed": [
+        "COREB-TH4-B4020",
+        "BD3300004502",
+        "8Q-TOR-T4-B4010",
+        "BD3300004501",
+        "COREB TH5-B5020",
+        "BD3300033543"
+      ],
+      "source_row_date": "11-Mar-2025",
+      "scope": "Search preview juxtaposes these code strings. Do not create model aliases, company roles, chip generations or physical configuration from it. B5020 is outside assignment."
+    },
+    {
+      "url": "https://www.volza.com/p/ethernet-switch-module/import-data/imports-in-indonesia/",
+      "artifact": "search-batch-3.json",
+      "evidence_type": "secondary_search_preview",
+      "extract_type": "researcher_paraphrase",
+      "row_dates": [
+        "22-May-2025",
+        "29-Nov-2024",
+        "25-Nov-2024"
+      ],
+      "observation": "Preview describes B4020 shipment configurations with four AC supplies and six fan modules, and B4010 configurations with two AC supplies and six fan modules.",
+      "scope": "Unverified trade description; no PSU rating, input range, airflow, voltage, support or attachment to an individual auction unit established."
+    },
+    {
+      "url": "https://2048ai.net/692c5dc1791c233193d14822.html",
+      "artifact": "search-batch-1.json",
+      "evidence_type": "secondary_search_preview",
+      "extract_type": "researcher_paraphrase",
+      "title": "智算数据中心的参数面组网多平面网络设计",
+      "visible_publication": "2025-11-25 22:41:44 (timezone not provided in preview)",
+      "observation": "Search preview describes the article as reposted from the WeChat account 西贝吹风.",
+      "scope": "No original WeChat URL, exact B4020/B4010 attribution or primary ByteDance citation returned. It is a watermark provenance lead only."
+    }
+  ],
+  "exclusions": [
+    "No ByteDance identity/manufacturer/operator/deployment assertion inferred from a marketplace or trade-data label.",
+    "No TH4/T4 token decoded as a switch ASIC or chipset; no BD3300004501/BD3300004502 alias accepted.",
+    "Accton applicant/model certificate does not establish ByteDance affiliation or manufacture.",
+    "Community reposts and securities-report mirrors remain secondary; not opened or used for hardware facts.",
+    "Pulse transformer B4020, Imperx ICL-B4020 camera, fans, waste classifications, bins, brake parts and Catachem B4010 culture-medium codes are collisions.",
+    "Search result publication/crawl labels are tool metadata, not verified source publication dates.",
+    "No inference of absence across a whole host, worldwide coverage, current support, availability or historical auction origin."
+  ],
+  "denied_not_requested": [
+    {
+      "url": "https://www.eximpedia.app/companies/accton-technology-co-limited/10894156",
+      "known_status": 402
+    },
+    {
+      "url": "https://www.opencompute.org/events/past-events/2024-ocp-global-summit",
+      "known_status": 403
+    }
+  ],
+  "next_bounded_step": {
+    "stop_condition": "At most four distinct exact-code searches and three newly discovered primary sources; stop on denial/throttling or cap. Do not reopen existing denied items via another hostname or route.",
+    "queries_as_leads_only": [
+      "\"BD3300004501\"",
+      "\"BD3300004502\"",
+      "\"8Q-TOR-T4-B4010\"",
+      "\"COREB-TH4-B4020\" site:bytedance.com"
+    ],
+    "objective": "Find independently public primary documentation carrying exact new code strings and an explicit role or practical hardware fact. COREB-TH4-B4020 unrestricted query has already been exhausted in this batch; do not repeat it.",
+    "acquisition_boundary": "No paid trade access, bills-of-lading purchase, provider/author/seller contact, login, import or publishing."
+  }
+}

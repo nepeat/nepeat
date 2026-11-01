@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "description": "User-supplied vendor examples for evidence coverage. These are research expectations, not device assertions or a claim that the user owns them. Preserve complete model codes and require the expected company on the evidence record.",
+  "reported_on": "2026-10-04",
+  "devices": [
+    {"identifier": "B4020", "vendor": "ByteDance", "reported_label": "BYTEDANCE B4020"},
+    {"identifier": "B4010", "vendor": "ByteDance", "reported_label": "BYTEDANCE B4010"}
+  ]
+}

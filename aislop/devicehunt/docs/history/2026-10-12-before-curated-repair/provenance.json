@@ -1,0 +1,5 @@
+{
+  "source": "PROGRESS.md",
+  "sha256": "b401820e45332f5da1c708935ab9bc49602a381414d0811ab0f879106b54eedd",
+  "reason": "accepted PSU checkpoint before wave3 staging and curated repair; relative links use original project root"
+}

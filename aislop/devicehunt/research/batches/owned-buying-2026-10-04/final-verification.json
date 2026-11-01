@@ -1,0 +1,62 @@
+{
+  "outcome": "pass",
+  "database_sha256_before": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "database_sha256_after": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "counts": {
+    "devices": 4083,
+    "records": 5298,
+    "sources": 278,
+    "facts": 44664,
+    "documents": 55,
+    "document_pages": 3649
+  },
+  "reports": 10,
+  "report_scope": "all exact-record associations; baseline expected vendor is context only",
+  "source_scoped_statement_rows_checked": 215,
+  "export_sha256": "9d0e61ccc4988396e5d3b1bc6d454faf130310d1b7b845eb1bbbf6ca72010c7f",
+  "owned": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "owned_evidence": {
+    "document_snapshot_hits": 9,
+    "label_photo_only_hits": 1,
+    "unresolved_identity_gaps": 0
+  },
+  "bytedance": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "tests": {
+    "affected": 19,
+    "independent_new_tests": 6,
+    "full_python": 417
+  },
+  "local_doc_links_checked": 78,
+  "historical_hashes_checked": true,
+  "new_source_acquisitions": 0,
+  "imports": 0,
+  "code_and_doc_hashes": {
+    "devicehunt/buying.py": "326c8158f2c9691ca7f7ceb7fdc33140917459a2ead82029bffa2fe0af6ec74c",
+    "devicehunt/__main__.py": "6a25a52fc7b4ec8873b3e6ae320a2152b51af9fbd3ee4a24d7ccb8c802db4851",
+    "tests/test_buying.py": "8da49ab6ca6c122b4e7813d1cd82b0f31a790c12e267479be315c832bd7a6b74",
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "AGENTS.md": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7",
+    "PROGRESS.md": "280816084ce83f955ce521d3f51461e23b54026cddadb327f8a230f2c0b78c25",
+    "README.md": "6e57a9f36952555f2b2f853a121de5ebfbaaa0866c26a1949bb938fbb464e281",
+    "docs/buying-reports.md": "18c96ee2b6d8a7125a638c9f2ba66da8566d7537bc09e0d1612e744a60e4fbed",
+    "docs/history/README.md": "c9a1850f757fc5779224739a63400171c467e72c0f305bc984427993345fb565",
+    "research/owned-hardware-gaps.md": "21914bea61834a08de626ccb72e414d76c2804ea4134b67ef4dab165bf4ca973",
+    "research/owned-buying-batch-2026-10-04.md": "40f1ac79a93d839c9fe716debd63c4ce95fffe79aa0a336a962ecafa830f85d2",
+    "research/owned-oracle-buying-2026-10-04.md": "7fa59089589216cb21abfb6996d93c1fe65c9c94494bacd1a305772edd6f17de",
+    "research/owned-networking-buying-2026-10-04.md": "f2c3bf1b01477cd99198322a14a09ac5eca2c27c3702dabda6f0e8852002b987",
+    "research/batches/owned-buying-2026-10-04/generate_reports.py": "13b1f486cc36eaf59449a0315a8b9e7207c0f73b6f8c43364d05f67619a74459"
+  },
+  "independent_reviews": {
+    "research/batches/owned-buying-2026-10-04/review.md": "d824ad6f42ea48dcf644d74cee4ea8528a386fd7b51dbef92dca20c520ec57fc",
+    "research/batches/owned-buying-2026-10-04/docs-review.md": "2cda2633c30283b7284a75e8c85d308e6f5420a90a3509dd684e12326bbc7175"
+  },
+  "doc_status": "complete; independent final documentation review accepted"
+}

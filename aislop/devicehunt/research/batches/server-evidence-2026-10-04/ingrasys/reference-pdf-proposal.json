@@ -1,0 +1,22 @@
+{
+  "integration_instruction": "PROPOSAL ONLY. Copy PDF/text byte-identically as siblings beside complete collection bundle; append to FULL preserved bundle only after review. Do not import this proposal as a partial collection.",
+  "documents": [
+    {
+      "id": "ingrasys-servers-reconstructed-2026-10-04",
+      "pdf": {
+        "path": "ingrasys-servers-reconstructed-2026-10-04.pdf",
+        "sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+      },
+      "text": {
+        "path": "ingrasys-servers-reconstructed-2026-10-04-text.json",
+        "sha256": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345"
+      },
+      "url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "title": "Ingrasys server catalog recovered pages (explicit EOF reconstruction)",
+      "category": "server catalog derivative",
+      "tier": "vendor",
+      "scope": "Reconstructed second span of malformed HTTP body; appended three terminal EOF bytes only. All ten declared image-only pages visually reviewed. Not valid original download; suffixed page headings only. Pages 1/2 general, 3-10 model variants A/I. Footer years 2022/2023/2025 retained; no unsuffixed equivalence.",
+      "page_count": 10
+    }
+  ]
+}

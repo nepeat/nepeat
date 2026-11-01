@@ -1,0 +1,22 @@
+Content-Type: text/html; charset=UTF-8
+Server: Apache
+Edge-Cache-Tag: /en-eu/networking/ethernet-switching/hcl/this/,/en-eu/networking/ethernet-switching/hcl/,/en-eu/networking/ethernet-switching/,/en-eu/networking/,/en-eu/
+Last-Modified: Thu, 15 Oct 2026 05:49:14 GMT
+ETag: W/"7d1d1-65dda9b8d66c6"
+Content-Security-Policy: frame-ancestors 'self' *.awsapps.nvidia.com *.nvidia.com https://widget.stackla.com https://app-sj14.marketo.com https://www.youtube.com https://www.quadro-selector.com http://player.youku.com https://player.youku.com https://live.nvidia-china.com https://www.google.com *.nvidia.cn https://events.rainfocus.com https://www.twitch.tv https://store.nvidia.ru https://store.nvidia.in *.geforcenow.com https://salespro.hpe.com https://hpe.seismic.com https://cms.nvidia-docs-uat.lower.k3.m1.brightspot.cloud https://cms.nvidia-docs-qa3.lower.k3.m1.brightspot.cloud https://events.rainfocus.com https://docs.nvidia-docs-uat.lower.k3.m1.brightspot.cloud https://docs.nvidia-docs-qa3.lower.k3.m1.brightspot.cloud https://nvfile;
+ServerID: prod-web01
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Access-Control-Allow-Origin: *
+Vary: Accept-Encoding
+Date: Thu, 15 Oct 2026 05:49:14 GMT
+Transfer-Encoding: chunked
+Connection: close
+Connection: Transfer-Encoding
+Set-Cookie: c_code=US; Domain=nvidia.com; Path=/; Secure
+nv-defunct-locale-redirection: executed
+AK_EC_TYPE: LOCALE_ERD_POLICY
+Akamai-Cache-Status: Miss from child
+x-cdn-version: v452
+x-cdn: akam
+

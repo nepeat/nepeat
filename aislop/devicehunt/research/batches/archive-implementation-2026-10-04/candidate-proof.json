@@ -1,0 +1,16 @@
+{
+  "candidate": "data/catalog-archive-candidate-2026-10-04.sqlite",
+  "candidate_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "manifest": "data/import-manifest-archive-2026-10-04.json",
+  "manifest_sha256": "4a53aba9dd8a066dfe84e1f7b709f6e32d9b11f84aeddeade7683a24acefafbf",
+  "baseline_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "lineage": {
+    "release_id": "c468ef0721b90f5935615f37dd9619dad6fc1bc2159a107cbf054ede6aad5b79",
+    "artifacts": 146,
+    "receipts": 374,
+    "statements": 4
+  },
+  "source_paths_relocated": 285,
+  "schema": 29,
+  "live_unchanged": true
+}

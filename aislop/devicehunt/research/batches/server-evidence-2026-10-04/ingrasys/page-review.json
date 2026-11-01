@@ -1,0 +1,102 @@
+[
+  {
+    "page": 1,
+    "image": "page-01.png",
+    "image_sha256": "1331c5eaab9ac91e56491b5c7fa0808f14683fe26d91d8ca8d3bbfe7de17a7b7",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": null,
+    "scope": "general modular overview; no model-specific specifications",
+    "footer_year": 2022
+  },
+  {
+    "page": 2,
+    "image": "page-02.png",
+    "image_sha256": "affc842404c2d49a5c7951845686c8a43fdbbfa874a7ba7d4feb9b1f266ac674",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": null,
+    "scope": "general modular overview; no model-specific specifications",
+    "footer_year": 2022
+  },
+  {
+    "page": 3,
+    "image": "page-03.png",
+    "image_sha256": "ea6c64c2f3b7d2870b2040ed02250a4a15b7eeb7d109a3020bfb3b40eabf47e6",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV1120A",
+    "scope": "exact suffixed model only",
+    "footer_year": 2023
+  },
+  {
+    "page": 4,
+    "image": "page-04.png",
+    "image_sha256": "7abf484ed0096047a11f640aaa42a827b966e82b3a6262befaaa3fb46cd2460e",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV1120I",
+    "scope": "exact suffixed model only",
+    "footer_year": 2023
+  },
+  {
+    "page": 5,
+    "image": "page-05.png",
+    "image_sha256": "f39b3f80a7901785ea5b00b521158364efbb18f8832f266abd2171c94ba2acb7",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV1121A",
+    "scope": "exact suffixed model only",
+    "footer_year": 2023
+  },
+  {
+    "page": 6,
+    "image": "page-06.png",
+    "image_sha256": "8a2c2d33fd0cfb6ea3a8ce56a52db2dd1a929ff0f1de97da8eac3f31c8784d11",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV1121I",
+    "scope": "exact suffixed model only",
+    "footer_year": 2023
+  },
+  {
+    "page": 7,
+    "image": "page-07.png",
+    "image_sha256": "f30f6f8d2724f8d04892a71e4c7444253e2bad7a556e9780843c88a8e12ee1a9",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV2121A",
+    "scope": "exact suffixed model only",
+    "footer_year": 2023
+  },
+  {
+    "page": 8,
+    "image": "page-08.png",
+    "image_sha256": "16a7ac40b341623adb38232b7e172aac3bba9a8c9e2475d47ade1036f996b39f",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV2121I",
+    "scope": "exact suffixed model only",
+    "footer_year": 2025
+  },
+  {
+    "page": 9,
+    "image": "page-09.png",
+    "image_sha256": "28b6f02d5194c146703bb6cf35fd022697a9909ffacbe9af142ae9ef2ecceb6d",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV2221A",
+    "scope": "exact suffixed model only",
+    "footer_year": 2025
+  },
+  {
+    "page": 10,
+    "image": "page-10.png",
+    "image_sha256": "1c94360b2ba9f3d755cbec52d86582168122b2d3ff816b548587b61bdeaeab4a",
+    "embedded_text": "",
+    "visual_review": "Entire page rendered without visible truncation; reviewed manually",
+    "printed_model": "SV2221I",
+    "scope": "exact suffixed model only",
+    "footer_year": 2025
+  }
+]

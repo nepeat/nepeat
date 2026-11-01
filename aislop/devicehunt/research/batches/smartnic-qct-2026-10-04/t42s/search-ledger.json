@@ -1,0 +1,31 @@
+{
+  "queries": [
+    {
+      "query": "\"QuantaPlex T42S-2U\" specifications power supply dimensions",
+      "primary_leads": [],
+      "secondary_leads": [
+        "Hyperscalers QCT-branded -HS datasheet",
+        "TheServerStore T42S/T42SP userguide",
+        "Exalit 2023 QCT portfolio mirror"
+      ],
+      "decision": "Secondary sources not captured; do not promote snippet power/dimensions."
+    },
+    {
+      "query": "site:qct.io \"QuantaPlex T42S-2U\" \"Power Supply\"",
+      "primary_leads": [
+        "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+      ],
+      "decision": "Existing captured architecture; no recapture."
+    },
+    {
+      "query": "site:qct.io \"T42S-2U\" Specifications 790",
+      "primary_leads": [
+        "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf"
+      ],
+      "decision": "One new capture of complete primary portfolio; exact bottom-right table accepted as proposal."
+    }
+  ],
+  "query_count": 3,
+  "capture_count": 1,
+  "known_denied_resources_retried": false
+}

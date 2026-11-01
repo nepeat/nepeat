@@ -1,0 +1,51 @@
+      Certificate: 80005631                                                                         Master Contract: 170351
+      Project: 80111077                                                                              Date Issued: 2022-01-10
+
+
+
+    Electrical Rating:
+
+      Model                          Input                                            Output (DC)
+                                     V                      A                         V                 A
+      SPABRCD-16, SPABRCD-17         200-380 VDC            10-5                      12.0              125 max.
+                                                                                      3.3 or 5          5 or 3.3
+      PFE1500-12-054NAC;             100-240 VAC            12-7                      12                125 max.
+      PFE1500-12-054RAC;
+                                                                                      3.3 or 5          5 or 3.3
+      PFE1500-12-054NA;
+      PFE1500-12-054RA;
+      PFE1500-12-054NAH;
+      PFE1500-12-054RAH;
+      SPABRCD-14G;
+      SPABRCD-15G
+      PFE1500-12NAS412,              100-240 VAC            12-7                      12                125 max.
+      PFE1500-12NACS412
+                                     200-350 VDC            10-5                      12                3
+      PFE1500-12NAHS412              100-240 VAC            12-7                      12                125 max.
+                                     200-380 VDC            10-5                      12                3
+
+      PFE1500-12-054NACS439          100-240 VAC            12-7                      12.0              125 max.
+                                     200-350 VDC            10-5                      3.3 or 5          5 or 3.3
+
+      PPC33 A022                     100-240 VAC            12-5                      12.0              70
+                                     200-380 VDC            7-4                       3.3 or 5          5 or 3.3
+
+    The maximum current of main output V1: 12.0V derate linearly when ambient increase from 45°C to 60°C and
+    when input voltage decreases from 200 to 100V, see tables as below:
+
+    For PFE1500-12-054NAH, PFE1500-12NAHS412 and PFE1500-12-054RAH:
+     Vin\ambient                     45°C                60°C
+     100-200Vac                      90-125A             69-104A
+     200-240Vac,200-380Vdc           125A                104A
+
+    For PFE1500-12-054NAC, PFE1500-12-054RAC, PFE1500-12-054NA, PFE1500-12-054RA, For
+    PFE1500-12-054NAC, PFE1500-12-054RAC, PFE1500-12-054NA, PFE1500-12-054RA, PFE1500-
+    12NAS412, PFE1500-12NACS412, SPABRCD-14G, SPABRCD-15G:
+     Vin\ambient                     45°C                 60°C
+     100-200Vac                      83.4-125A            69-104A
+     200-240Vac,200-350Vdc           125A                 104A
+
+
+
+DQD 507 Rev. 2019-04-30                      © 2018 CSA Group. All rights reserved.                                     Page 2
+

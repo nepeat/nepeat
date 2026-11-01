@@ -1,0 +1,1060 @@
+{
+  "query": "Entei",
+  "vendor": null,
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Entei"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "chipset",
+          "value": "Intel C621"
+        },
+        {
+          "name": "cpu",
+          "value": "Dual 2nd Gen Intel Xeon Scalable processors"
+        },
+        {
+          "name": "drive_bays",
+          "value": "24x 3.5 inch and 4x 2.5 inch hot-swappable drives"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Dated vendor announcement, not complete specifications or auction-unit configuration."
+        },
+        {
+          "name": "expansion",
+          "value": "Hosting 3 PCIe x16 lanes"
+        },
+        {
+          "name": "expansion",
+          "value": "enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards."
+        },
+        {
+          "name": "form_factor",
+          "value": "2U"
+        },
+        {
+          "name": "memory",
+          "value": "Twelve DIMMs in the whole system; up to 768GB with 64GB DIMMs"
+        },
+        {
+          "name": "memory_as_printed",
+          "value": "DDR4; up to 768GB"
+        },
+        {
+          "name": "memory_as_printed",
+          "value": "Intel Optane persistent memory supported; capacity up to 1TB as stated"
+        },
+        {
+          "name": "network",
+          "value": "OCP NIC mezzanine option ranging from 10G Ethernet to 40G (optical or Base-T, compatible with OCP 2.0), as stated"
+        },
+        {
+          "name": "practical_gaps",
+          "value": "PSU/input/connector, cooling/fans, rack dimensions/rails/weight, BMC/OS/firmware unspecified."
+        },
+        {
+          "name": "serviceability",
+          "value": "Drawer design for easier drive maintenance"
+        },
+        {
+          "name": "source_capture_sha256",
+          "value": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396"
+        },
+        {
+          "name": "source_locations",
+          "value": "HTML lines 315-340; quote-level provenance in evidence.json"
+        },
+        {
+          "name": "source_observed_date",
+          "value": "2026-10-04 America/Los_Angeles; captured 2026-10-05T00:03:32.241613+00:00"
+        },
+        {
+          "name": "statement_date",
+          "value": "2020-08-14"
+        },
+        {
+          "name": "storage",
+          "value": "2x M.2 via interposer connection"
+        },
+        {
+          "name": "storage",
+          "value": "A variety of storage mezzanine cards; specific cards not named"
+        },
+        {
+          "name": "storage",
+          "value": "NVMe support in the rear for a caching layer"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "7d360b394a3932fd358a2a06",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "Entei"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "identity_limit",
+          "value": "Printed product name retained; no inferred commercial-order-code alias."
+        },
+        {
+          "name": "manufacturer_scope",
+          "value": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned."
+        },
+        {
+          "name": "manufacturer_statement_as_printed",
+          "value": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造"
+        },
+        {
+          "name": "manufacturer_statement_translation",
+          "value": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG)."
+        },
+        {
+          "name": "manufacturer_unit_as_printed",
+          "value": "英业达企业电脑事业群(EBG)"
+        },
+        {
+          "name": "statement_date",
+          "value": "2020-11-04"
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "cooling": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "chassis_physical": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "form_factor",
+          "statement": "2U",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        }
+      ]
+    },
+    "firmware_boot_software": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "chipset",
+          "statement": "Intel C621",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "cpu",
+          "statement": "Dual 2nd Gen Intel Xeon Scalable processors",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "drive_bays",
+          "statement": "24x 3.5 inch and 4x 2.5 inch hot-swappable drives",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "expansion",
+          "statement": "Hosting 3 PCIe x16 lanes",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "expansion",
+          "statement": "enabling expansion of up to 4 PCIe cards (two x8, two x16) with riser boards.",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory",
+          "statement": "Twelve DIMMs in the whole system; up to 768GB with 64GB DIMMs",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory_as_printed",
+          "statement": "DDR4; up to 768GB",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory_as_printed",
+          "statement": "Intel Optane persistent memory supported; capacity up to 1TB as stated",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "network",
+          "statement": "OCP NIC mezzanine option ranging from 10G Ethernet to 40G (optical or Base-T, compatible with OCP 2.0), as stated",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "storage",
+          "statement": "2x M.2 via interposer connection",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "storage",
+          "statement": "A variety of storage mezzanine cards; specific cards not named",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        },
+        {
+          "record_id": "446f0a874bebb2609fa4d758",
+          "device_id": "c5aec8ff6caf9f3e558d",
+          "brand": "Inventec",
+          "model": "Entei",
+          "revision": "",
+          "source_id": "inventec-entei-announcement-specs-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "observed_at": "2026-10-05T00:11:51+00:00",
+          "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+          "tier": "vendor",
+          "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+          "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+          "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "brand"
+            },
+            {
+              "company": "Inventec",
+              "target": "Inventec",
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "storage",
+          "statement": "NVMe support in the rear for a caching layer",
+          "context_record_id": "446f0a874bebb2609fa4d758"
+        }
+      ]
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "evidence_scope",
+      "statement": "Dated vendor announcement, not complete specifications or auction-unit configuration.",
+      "context_record_id": "446f0a874bebb2609fa4d758"
+    },
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "practical_gaps",
+      "statement": "PSU/input/connector, cooling/fans, rack dimensions/rails/weight, BMC/OS/firmware unspecified.",
+      "context_record_id": "446f0a874bebb2609fa4d758"
+    },
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "serviceability",
+      "statement": "Drawer design for easier drive maintenance",
+      "context_record_id": "446f0a874bebb2609fa4d758"
+    },
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_capture_sha256",
+      "statement": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "context_record_id": "446f0a874bebb2609fa4d758"
+    },
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_locations",
+      "statement": "HTML lines 315-340; quote-level provenance in evidence.json",
+      "context_record_id": "446f0a874bebb2609fa4d758"
+    },
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_observed_date",
+      "statement": "2026-10-04 America/Los_Angeles; captured 2026-10-05T00:03:32.241613+00:00",
+      "context_record_id": "446f0a874bebb2609fa4d758"
+    },
+    {
+      "record_id": "446f0a874bebb2609fa4d758",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-entei-announcement-specs-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "observed_at": "2026-10-05T00:11:51+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/29",
+      "tier": "vendor",
+      "sha256": "f7e99a943c6eedd406fff2d2b87a1573f9fbeb56fc166f40e7f4796f1f2e9396",
+      "coverage": "Exact Inventec Entei announcement dated 14 August 2020, captured 2026-10-04 local / 2026-10-05 UTC. HTML lines 315-340; literal quotes and SHA-256 binding in sibling evidence.json. Brand/platform vendor only here; dated manufacture claim stays in existing separate source. No power/cooling/software facts, inferred aliases, operator or installed-unit configuration.",
+      "fetched_at": "2026-10-05T00:03:32.240130+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "statement_date",
+      "statement": "2020-08-14",
+      "context_record_id": "446f0a874bebb2609fa4d758"
+    },
+    {
+      "record_id": "7d360b394a3932fd358a2a06",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "identity_limit",
+      "statement": "Printed product name retained; no inferred commercial-order-code alias.",
+      "context_record_id": "7d360b394a3932fd358a2a06"
+    },
+    {
+      "record_id": "7d360b394a3932fd358a2a06",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_scope",
+      "statement": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned.",
+      "context_record_id": "7d360b394a3932fd358a2a06"
+    },
+    {
+      "record_id": "7d360b394a3932fd358a2a06",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_statement_as_printed",
+      "statement": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造",
+      "context_record_id": "7d360b394a3932fd358a2a06"
+    },
+    {
+      "record_id": "7d360b394a3932fd358a2a06",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_statement_translation",
+      "statement": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG).",
+      "context_record_id": "7d360b394a3932fd358a2a06"
+    },
+    {
+      "record_id": "7d360b394a3932fd358a2a06",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "manufacturer_unit_as_printed",
+      "statement": "英业达企业电脑事业群(EBG)",
+      "context_record_id": "7d360b394a3932fd358a2a06"
+    },
+    {
+      "record_id": "7d360b394a3932fd358a2a06",
+      "device_id": "c5aec8ff6caf9f3e558d",
+      "brand": "Inventec",
+      "model": "Entei",
+      "revision": "",
+      "source_id": "inventec-dongguan-manufacturer-2020",
+      "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "observed_at": "2026-10-04T14:33:55+00:00",
+      "source_home_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+      "tier": "vendor",
+      "sha256": "4bd9bb31e04c5399cd0229ec7808da0e76724863428790aa28f1db51912b842c",
+      "coverage": "Original Inventec article dated 2020-11-04, captured 2026-10-04. In the datacenter hardware paragraph, five exact named products are followed by an explicit statement that Inventec EBG developed and manufactured them. This is a dated vendor manufacturer claim; no factory, production duration, customer/operator or unit provenance asserted. The unnamed custom servers, software offerings, Intel C5000X base platform and separately IAC-manufactured 5G V2X OBU Box are excluded; no global subsidiary alias added.",
+      "fetched_at": "2026-10-04T14:33:03.804585+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Inventec",
+          "target": "Inventec",
+          "role": "brand"
+        },
+        {
+          "company": "Inventec Corporation",
+          "target": "Inventec",
+          "role": "manufacturer"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "statement_date",
+      "statement": "2020-11-04",
+      "context_record_id": "7d360b394a3932fd358a2a06"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

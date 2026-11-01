@@ -1,0 +1,9 @@
+{
+  "result": "reference_documents.prepare passed",
+  "documents": 1,
+  "pages": 2,
+  "facts": 17,
+  "literal_proofs": 12,
+  "pdf_sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+  "visual_table_check": "last row printed TPM 75W; not converted to TDP"
+}

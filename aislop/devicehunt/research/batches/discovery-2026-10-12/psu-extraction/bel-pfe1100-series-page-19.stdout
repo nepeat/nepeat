@@ -1,0 +1,31 @@
+PFE1100-12-054xA                                                                                                              19
+
+
+
+   8.18      GRAPHICAL USER INTERFACE
+     Bel Power Solutions provides with its “I2C Utility” a Windows® XP/Vista/Win7 compatible graphical user interface allowing
+     the programming and monitoring of the PFE1100-12-054xA Front-End.
+     The utility can be downloaded on belfuse.com/power-solution and supports both the PSMI and Power Management Bus
+     protocols.
+     The GUI allows automatic discovery of the units connected to the communication bus and will show them in the navigation
+     tree. In the monitoring view the power supply can be controlled and monitored.
+     If the GUI is used in conjunction with the SNP-OP-BOARD-01 Evaluation Kit it is also possible to control the PSON_L pin(s)
+     of the power supply.
+     Further there is a button to disable the internal fan for approximately 10 seconds. This allows the user to take input power
+     measurements without fan consumptions to check efficiency compliance to the Climate Saver Computing Platinum
+     specification.
+     The monitoring screen also allows to enable the hot-standby mode on the power supply. The mode status is monitored and
+     by changing the load current it can be monitored when the power supply is being disabled for further energy savings. This
+     obviously requires 2 power supplies being operated as a redundant system (like the evaluation kit).
+
+     NOTE:
+     The user of the GUI needs to ensure that only one of the power supplies have the hot-standby mode enabled.
+
+
+
+
+                                                                  Asia-Pacific      Europe, Middle East          North America
+                                                            +86 755 298 85888           +353 61 49 8941         +1 866 513 2839
+
+                                                                                     © 2023 Bel Fuse Inc.         BCD.00012_AP
+

@@ -1,0 +1,31 @@
+{
+  "observed_at_utc": "2026-10-13T05:12:02.263753+00:00",
+  "database": "data/devices.sqlite",
+  "sha256_before": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "sha256_after": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "unchanged_during_read": true,
+  "parent": {
+    "id": "f65a474568c484317fc5",
+    "brand": "QCT",
+    "model": "QuantaGrid D52BQ-2U",
+    "revision": "",
+    "title": "QCT QuantaGrid D52BQ-2U",
+    "kind": "server platform"
+  },
+  "existing_records": [
+    {
+      "source_id": "qct-d52bq-public-product-2026",
+      "source_url": "https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U"
+    },
+    {
+      "source_id": "qct-quanta-portfolio-2020",
+      "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+    },
+    {
+      "source_id": "qct-wssd-models",
+      "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+    }
+  ],
+  "proposed_source_id_absent_at_checkpoint": true,
+  "scope": "Dated read-only routing checkpoint; no import. Live catalog can change during coordinator integration."
+}

@@ -1,0 +1,25 @@
+{
+  "command_working_directory": "/home/erin/nepeat/aislop/devicehunt",
+  "command": "rg -n '<script.*data' devicehunt/report.html\npython3 -B -m unittest tests.test_shopping tests.test_readonly_catalog_commands tests.test_listing_software_refs\nnode --test tests/report.test.cjs",
+  "tool_session_id": 85157,
+  "combined_shell_exit_code": 0,
+  "python": {
+    "tests": 15,
+    "seconds_reported": 7.474,
+    "result": "OK",
+    "new_shopping_tests": 6,
+    "readonly_tests": 3,
+    "software_reference_tests": 6
+  },
+  "javascript": {
+    "tests": 7,
+    "passes": 7,
+    "failures": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "duration_ms_reported": 56.68884
+  },
+  "warnings": "Non-failing ResourceWarning for unclosed SQLite connections from existing command/classifier paths; no relevant failure or skipped check.",
+  "scope": "Focused affected tests only; no full suite, production database/export/manifest access or network."
+}

@@ -1,0 +1,164 @@
+{
+  "database_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "verified_candidates": [
+    {
+      "brand": "Inventec",
+      "model": "FPGA SmartNIC C5020X",
+      "facts": [
+        {
+          "source_id": "inventec-dongguan-manufacturer-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+          "name": "identity_limit",
+          "value": "Printed product name retained; no inferred commercial-order-code alias."
+        },
+        {
+          "source_id": "inventec-dongguan-manufacturer-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+          "name": "manufacturer_scope",
+          "value": "Dated vendor claim for this named platform. Article distinguishes EBG from IAC and the Tianjin software subsidiary. No exact physical factory or operator assigned."
+        },
+        {
+          "source_id": "inventec-dongguan-manufacturer-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+          "name": "manufacturer_statement_as_printed",
+          "value": "这些产品均由英业达企业电脑事业群(EBG)负责研发制造"
+        },
+        {
+          "source_id": "inventec-dongguan-manufacturer-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+          "name": "manufacturer_statement_translation",
+          "value": "The preceding named products were developed and manufactured by Inventec Enterprise Business Group (EBG)."
+        },
+        {
+          "source_id": "inventec-dongguan-manufacturer-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+          "name": "manufacturer_unit_as_printed",
+          "value": "英业达企业电脑事业群(EBG)"
+        },
+        {
+          "source_id": "inventec-dongguan-manufacturer-2020",
+          "source_url": "https://ebg.inventec.com/cn/news/%E6%96%B0%E9%97%BB%E4%B8%8E%E5%85%AC%E5%91%8A/2020/37",
+          "name": "statement_date",
+          "value": "2020-11-04"
+        }
+      ],
+      "gap": "Only dated manufacturer context."
+    },
+    {
+      "brand": "QCT",
+      "model": "QuantaPlex T42S-2U",
+      "facts": [
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "association_limit",
+          "value": "Historical portfolio association; no manufacturer or operator inferred."
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "association_method",
+          "value": "Explicit cross-source inference: QCT product document plus separately dated QCT parent-company statement."
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "corporate_source_sha256",
+          "value": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed"
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "corporate_source_url",
+          "value": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "model_source_sha256",
+          "value": "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407"
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "model_source_url",
+          "value": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "parent_name_as_printed",
+          "value": "Quanta Computer Inc."
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "relationship_date_context",
+          "value": "Footer copyright 2020-2021; not a verified ownership-start date"
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "relationship_source_pages",
+          "value": "40"
+        },
+        {
+          "source_id": "qct-quanta-portfolio-2020",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+          "name": "subsidiary_name_as_printed",
+          "value": "QCT (Quanta Cloud Technology)"
+        },
+        {
+          "source_id": "qct-wssd-models",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+          "name": "configuration_limit",
+          "value": "WSSD solution configurations only. No full ordering code, PSU specification, firmware access or specific surplus-unit contents verified."
+        },
+        {
+          "source_id": "qct-wssd-models",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+          "name": "identity_limit",
+          "value": "Full printed QuantaGrid/QuantaPlex prefix retained; not automatically merged with a bare code under another brand."
+        },
+        {
+          "source_id": "qct-wssd-models",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+          "name": "physical_description",
+          "value": "2U 4-node rackmount server"
+        },
+        {
+          "source_id": "qct-wssd-models",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+          "name": "processor",
+          "value": "Intel Xeon Scalable; Silver, Gold and Platinum options"
+        },
+        {
+          "source_id": "qct-wssd-models",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+          "name": "solution_context",
+          "value": "Vendor Windows Server Software Defined configuration; compatibility/solution participation, not Microsoft-operated hardware."
+        },
+        {
+          "source_id": "qct-wssd-models",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+          "name": "source_date_limit",
+          "value": "Printed copyright 2018; PDF metadata 2018-11-21; URL path 2020/11; filename includes 2019. Product release date unassigned."
+        },
+        {
+          "source_id": "qct-wssd-models",
+          "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+          "name": "source_pages",
+          "value": "3"
+        }
+      ],
+      "gap": "Only WSSD solution form-factor/CPU context and separate Quanta portfolio relationship; full practical specifications not attached in current catalog."
+    }
+  ],
+  "scope": "Saved local evidence only; not worldwide absence. No acquisition performed. Preserve exact prefixes and no C5020X/C5000X alias inference.",
+  "proposed_next_budget": {
+    "queries": 6,
+    "new_primary_captures": 3
+  },
+  "post_promotion_database_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "post_promotion_rows_unchanged": true
+}

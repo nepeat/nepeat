@@ -1,0 +1,77 @@
+{
+  "status": "PASS; finite research only",
+  "checked_utc": "2026-10-13T04:30:02.655086+00:00",
+  "actual_HTTP": 19,
+  "HTTP_cap": 20,
+  "statuses": {
+    "200": 19
+  },
+  "planned_results_captured": 18,
+  "jbb2015_HTML": 6,
+  "CPU2017_text": 12,
+  "minimum_completion_to_next_request_gap_seconds": 10.000170751009136,
+  "fresh_robots_sha256": "cf5af82736d8ff7fe0ae89bda583603c005d6be47afa739ba93b2cc01795d4c8",
+  "fresh_policy_same_bytes_as_prior_wave10": true,
+  "exact_source_set_matches_plan": true,
+  "all_body_header_hashes_sizes_verified": true,
+  "prior_plan_indexes_scripts_ledgers_unchanged": true,
+  "requests_sha256": "13f86f17d4c6d814a8ddf31a1c2dd326021f841719f3adb653d783250cca6570",
+  "observations_sha256": "17f9894fbb70530a521599d7a0d0a91afb74daafe3762a5b2e9a8c6047b79645",
+  "capture_script_sha256": "70b205274a0ee14cac52ceda824b1adf6d4f29a342efa15021ba594428220508",
+  "observation_script_sha256": "4a6eceb0282e00dffd49d441aedc3cf3d26f5c96a7352286f3606e245be234e4",
+  "evidence_rows_or_fields_verified": 354,
+  "jbb_hardware_sections": {
+    "Hardware hw_1": 6
+  },
+  "selected_PSU_source_lines": [
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2015q4/jbb2015-20151123-00036.html",
+      "section": "Hardware hw_1",
+      "label": "Power Supply Quantity and Rating (W)",
+      "value": "1 x 550W"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q1/jbb2015-20160118-00041.html",
+      "section": "Hardware hw_1",
+      "label": "Power Supply Quantity and Rating (W)",
+      "value": "1 x 550W"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00065.html",
+      "section": "Hardware hw_1",
+      "label": "Power Supply Quantity and Rating (W)",
+      "value": "1 x 550W"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00066.html",
+      "section": "Hardware hw_1",
+      "label": "Power Supply Quantity and Rating (W)",
+      "value": "1 x 550W"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160321-00067.html",
+      "section": "Hardware hw_1",
+      "label": "Power Supply Quantity and Rating (W)",
+      "value": "1 x 550W"
+    },
+    {
+      "url": "https://www.spec.org/jbb2015/results/res2016q2/jbb2015-20160516-00095.html",
+      "section": "Hardware hw_1",
+      "label": "Power Supply Quantity and Rating (W)",
+      "value": "4 x 2000W"
+    }
+  ],
+  "CPU_hardware_sections": {
+    "HARDWARE": 12
+  },
+  "CPU_power_relevant_sections": 0,
+  "normalization_or_identity_role_decisions": false,
+  "redirects_followed": 0,
+  "retries": 0,
+  "searches": 0,
+  "screenshots": 0,
+  "imports": 0,
+  "current_live_catalog_sha256": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+  "current_manifest_sha256": "6ab359e22929bdb6a55e47c2a816c2c78fc3e5d0f90c8b252129f8fafea3aac5",
+  "curl_version": "curl 8.22.0 (x86_64-pc-linux-gnu) libcurl/8.22.0 OpenSSL/3.5.8 zlib/1.3.2 brotli/1.2.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.5 libssh2/1.11.1 nghttp2/1.70.0 ngtcp2/1.23.0 nghttp3/1.17.0 mit-krb5/1.22.2"
+}

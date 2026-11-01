@@ -1,0 +1,45 @@
+{
+  "sequence": 1,
+  "url": "https://www.edge-core.com/robots.txt",
+  "method": "GET",
+  "purpose": "policy",
+  "basis": {
+    "selection_plan_sha256": "8d6bf2f0933774e65a645a70acd71eb322ea962e2a04041548d6828a493b29a4"
+  },
+  "body_path": "robots.txt",
+  "started_utc": "2026-10-15T06:04:23.988329+00:00",
+  "request_headers": {
+    "User-Agent": "devicehunt-public-research/1.0",
+    "Accept": "*/*"
+  },
+  "automatic_redirects": false,
+  "timeout_seconds": 30,
+  "maximum_body_bytes": 20000000,
+  "policy_sha256": null,
+  "exact_path_allowed": null,
+  "status": 200,
+  "response_url": "https://www.edge-core.com/robots.txt",
+  "headers": {
+    "Date": "Thu, 15 Oct 2026 06:04:24 GMT",
+    "Content-Type": "text/plain; charset=utf-8",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "link": "<https://www.edge-core.com/wp-json/>; rel=\"https://api.w.org/\"",
+    "Server": "cloudflare",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-frame-options": "SAMEORIGIN",
+    "x-content-type-options": "nosniff",
+    "vary": "Accept-Encoding",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "microphone=(),fullscreen=()",
+    "x-xss-protection": "1;mode=block",
+    "cf-cache-status": "EXPIRED",
+    "last-modified": "Thu, 15 Oct 2026 06:04:24 GMT",
+    "CF-RAY": "a4aca04acda50b15-SEA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "state": "completed",
+  "bytes": 323,
+  "sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "finished_utc": "2026-10-15T06:04:24.564624+00:00"
+}

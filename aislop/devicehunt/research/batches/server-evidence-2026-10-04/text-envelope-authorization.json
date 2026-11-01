@@ -1,0 +1,14 @@
+{
+  "authorization": "metadata-only text envelope for reviewed reconstructed PDF",
+  "original_text_path": "data/raw/server-evidence-ingrasys-2026-10-04/server-catalog-pages-text.json",
+  "original_text_sha256": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345",
+  "new_path": "data/raw/ingrasys-servers-reconstructed-2026-10-04-text-envelope.json",
+  "added_metadata": {
+    "pdf_sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "extraction_method": "pypdf embedded text; no OCR"
+  },
+  "preserve": "All ten original page objects unchanged; original text and source proposal stay immutable. Strict pypdf must reproduce page text. No importer changes.",
+  "bundle_change": "Only added document text.path/text.sha256 differ from frozen proposal; all45prior entries and other added-entry fields remain identical.",
+  "recovery": "Record initial prepare failure; resume only after completed preparation. Do not overwrite or rerun completed backup/merge steps.",
+  "review": "Independent candidate QA must verify exact metadata-only transformation and all earlier acceptance constraints."
+}

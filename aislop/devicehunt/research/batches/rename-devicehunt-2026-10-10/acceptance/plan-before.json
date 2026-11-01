@@ -1,0 +1,356 @@
+{
+  "campaign_id": "rra-ised-saved-2026-10-04",
+  "definition_sha256": "8a6f54f1e36d33f50c82eceed7283f5c5e99c16846528f84326dced34406c7e5",
+  "mode": "offline_saved_inputs_only",
+  "network_requests": 0,
+  "units": [
+    {
+      "files": 8,
+      "source": "ised",
+      "stages": [
+        {
+          "job_id": "job-80a76671db2761cf30f21e33561cb654d0ab184d3b77297495c27a17eebe5b00",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-d551d5a4a2349ad11cb2f26bc198cbc8b972589aead3657741df58616822277d",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-48c13e5ec80db4f9fab1ac387182f0c3f84d8e54c86e363869f3d51aefd5cd74",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-64acdc278070cf6eb08cef2813fe8f03932f762f46223dcf6fc5121da3089dea",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e6f84a35c6991715391cff51e80257377e5be29658e7b7ef987c4362b7718243",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "ised-rel-25869",
+      "unit_revision": "unit-3ab5965f75845d07751703e8b9901861ac3495df6846eb8a55cf080e9993ebba"
+    },
+    {
+      "files": 16,
+      "source": "ised",
+      "stages": [
+        {
+          "job_id": "job-93345031bab509c125c03c4794820bc8ed4cd80d35a400d50459438021048931",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-19d7f20bc58ecd350fbbafc54c28f7537f4fb9619c17f5d56389ae85fd60fa66",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-48c13e5ec80db4f9fab1ac387182f0c3f84d8e54c86e363869f3d51aefd5cd74",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-d9b666ec122ad0a4f3020a60cbddad94e97128547c68b6e83368260d87503f49",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-617bb31e575a0074df21bd23dbfab4ce80b49a3d55061fb5d0d2553820d48bff",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "ised-rel-query-accton",
+      "unit_revision": "unit-a21a99932c97f6a93f482f0485357a7354c199ed177352572c94cefdb827ca24"
+    },
+    {
+      "files": 5,
+      "source": "ised",
+      "stages": [
+        {
+          "job_id": "job-361e557a6304af81a87f03c90cb09f9baf873a117ffc3cfdd7393da6a55b93c7",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-48afb302e12d82acd1a8fcbe2c95bcfa8528f61b823ce0dacb2b5577768c4771",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-48c13e5ec80db4f9fab1ac387182f0c3f84d8e54c86e363869f3d51aefd5cd74",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-8dbb3ab15b0bf1c6cb4c2c63b98f0a408a8f2f0dde5b26a8668eeb51c2943c6d",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-cb4bdd347aaa78a92d9adbdf33d641176ff9b0ebe6071552682866972d1e001e",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "ised-rel-query-celestica",
+      "unit_revision": "unit-41b4201aae86db04b52d2b8cb46d97099bac3c6d08405475921458a64fc40f9d"
+    },
+    {
+      "files": 8,
+      "source": "ised",
+      "stages": [
+        {
+          "job_id": "job-1e79d6efe9a5be3ba318dcba5c667ccea2139b22b77a86a2630a52ea8a22c7ba",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-a696b0326eb646bb4b624ea51321e70de41cf3fd63f957d629af57764dcfe1ff",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-48c13e5ec80db4f9fab1ac387182f0c3f84d8e54c86e363869f3d51aefd5cd74",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-579b1f1c3a09dada599bed68e0a9fa1453722e2404d766b975e3a47325ec3156",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-23ef25eaa12ffad08a3e2a795eb4925b307368bc1cac4e7813fab6a7121e28a3",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "ised-rel-query-edgecore",
+      "unit_revision": "unit-e3c80f68bff49865f76c05aca462f5d2bbcc8f52524f9c89fae8c5fae43ff260"
+    },
+    {
+      "files": 8,
+      "source": "ised",
+      "stages": [
+        {
+          "job_id": "job-7a9e545dcf13cfa850b4fff2fe45be181cee6b26dade7c52f852a76f037bd4e7",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-6870fb94293430805f96bc9bf226997dafc4adb64f2860f28bc5d8ab649b7b70",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-48c13e5ec80db4f9fab1ac387182f0c3f84d8e54c86e363869f3d51aefd5cd74",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-d675ff8b8adaaff0e8a1dfb7e0cc91ca3d7ae835eaf25eefa820ea6a409388f9",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-fb298e66058d2b0b96789f8cc2da0e2775f202ba2e2d99c2a56c3cde8b060380",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "ised-rel-query-oracle",
+      "unit_revision": "unit-46a05d306c49b80091698b070d5350fb124449666a236e341904ef33352d96b8"
+    },
+    {
+      "files": 61,
+      "source": "rra",
+      "stages": [
+        {
+          "job_id": "job-0d7ac042966922b9fbb6e61c8c0978745c27d9a16898f5121eb48b853e5bca29",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-20c1d5600b6be5d578500a4b5758ec18b4f4ce16fd2d9777072d0ff0639778f3",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-8aee595b0f0c301aa51572c56b00045f4e074d7b53bbb55a5019e7c53c0dd27f",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-122d719f3edf54d59ccf3f0aecfe3ebb4a0f81cbaba08fd820486834a629ed19",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-5f3b13e39e810fa2101990bb6bbca07b6fe9bde8371a316b0c433a76840b24e6",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "rra-official-query-33f7d154085d",
+      "unit_revision": "unit-f7efac2f3b536df2f5ae5be18333c67e2754bea96414646d6ae4a121a376f487"
+    },
+    {
+      "files": 160,
+      "source": "rra",
+      "stages": [
+        {
+          "job_id": "job-8db558a4d2863c6b833908bb0787e214e10da4c0bf5b34276c46c0f5bbc17ac4",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-6dd837126e267588ee9645f02520737b64a5d35356a449d24b88decd1801933f",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-8aee595b0f0c301aa51572c56b00045f4e074d7b53bbb55a5019e7c53c0dd27f",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-a1086ab84a49f6f75a746d32c09e23dd4faf0b6ff99604eb605cb683cb17bdde",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-2989d0f2bb0bc8ac4e6fac706cdebdf86f25adce303492ad437d3346c76c486c",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "rra-official-query-41e4ca912b33",
+      "unit_revision": "unit-5847543b4e61ff60b868f911e381bcb033aa31532da1946aaf075a3b71ffd36e"
+    },
+    {
+      "files": 11,
+      "source": "rra",
+      "stages": [
+        {
+          "job_id": "job-311083ed5aebff162d447fe5575968dc2e1a7fb27237cf74d9896fb17d72e0b6",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-79fc22b61789acbc43b81151588f58b3ed083b81a8e1d40d23c3cb061039fe60",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-8aee595b0f0c301aa51572c56b00045f4e074d7b53bbb55a5019e7c53c0dd27f",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-42eb444dd34698273947548aac11f315da234c3c23f7bc28f16b6f167deca3e8",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-452d31b3a06ec670190745402c6266dae363c088d432f4408f0b91892e90a4c3",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "rra-official-query-5827f2fe7092",
+      "unit_revision": "unit-641b332ab838a1c8c15650d282a5204d8cd8d7ee67b5b6ac8539656afe838e84"
+    },
+    {
+      "files": 114,
+      "source": "rra",
+      "stages": [
+        {
+          "job_id": "job-42c2cedc8dc060f556d8c4301ce4ae91329deeb84497308dbb2e229d9174991c",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-7f9d7b38f248fe4c2241376ec65d3de26220918cb1faf507c7a76be671d81b75",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-8aee595b0f0c301aa51572c56b00045f4e074d7b53bbb55a5019e7c53c0dd27f",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-73d6f768ae2b0d08531b215ecf97ae7fd8c5daca3fa2a4e874a6a16885252e0b",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-fbe73d843a980f253f3d464f117e26481ab0f9905d276cc07d7697a39f725089",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "rra-official-query-63cb0b9098c7",
+      "unit_revision": "unit-d2adf2dccbd8a1159b01a61f6120214e1c7a4f464d8a292d3ebfd292b42f5bd1"
+    },
+    {
+      "files": 520,
+      "source": "rra",
+      "stages": [
+        {
+          "job_id": "job-2f1cdc81c2e2009926b1b6f5db04f7b911248ebebe8467d3da0f83dcabd76c1d",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-c3c421cb90f3c3acbcd8bf003eeef66766ebf01ff6f5f45a09164998ee49f196",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-8aee595b0f0c301aa51572c56b00045f4e074d7b53bbb55a5019e7c53c0dd27f",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-f4209f67877d56e452d73d37422b6a99799c3a936775f46dcbcf3afef77946bf",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-62163b798e4f36089083ef69a0a337eb79194242200ace14994dde8791d1fc3d",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "rra-official-query-73009f906e4e",
+      "unit_revision": "unit-7c7f1b6a333ade9c73ca791640fa18158e65d4a4231bd1ab1917f2c0c5a73ef7"
+    },
+    {
+      "files": 5,
+      "source": "rra",
+      "stages": [
+        {
+          "job_id": "job-c271591fdf9601210e669a86944b2a754d96109be2263356291fe229c488cccb",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-2c37ad78a61fe978b8ca57270cf4fcae4a7b6e6358f8df26f8f2df6b6cd2e98c",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-8aee595b0f0c301aa51572c56b00045f4e074d7b53bbb55a5019e7c53c0dd27f",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-4514e229f2330b21757cab864db0af13ed3b50d80c9b12eeb377f10b93b31db4",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-fccb34a2828604fc689d3e69bad2fc7a83cab7bd5c9eaef7ce1978a84a0ca943",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "rra-official-query-78fc6b2e95f6",
+      "unit_revision": "unit-d680455cb0616acce2b642d8baefad822820273775b38cf2e8a1dfb1fb68c59d"
+    },
+    {
+      "files": 205,
+      "source": "rra",
+      "stages": [
+        {
+          "job_id": "job-92341a8752acf26113485c1a28544e55339af32fd065b650ca5870c3b3b4e68d",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-e9c7d0edf651712d33a3cd870f796de4bfa56f1c0d855dc49f05e19c7fa03c36",
+          "stage": "register",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-a59321f4c7d07987de3589c06ed19ce908f886d42786fb9cbdf1d32ad7cb9071",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-8aee595b0f0c301aa51572c56b00045f4e074d7b53bbb55a5019e7c53c0dd27f",
+          "stage": "validate",
+          "state": "unplanned"
+        },
+        {
+          "job_id": "job-cb24c2c151bac9daf1b46f51a9fb3d32caa1399a3f77af8c33118c3c869cf838",
+          "outcome": null,
+          "recipe_id": "campaign-recipe-2bc85be84a8da5fba45935f48d95d61bc9ddd7d67db106a8d5799b7f5317cac5",
+          "stage": "bundle",
+          "state": "unplanned"
+        }
+      ],
+      "unit_id": "rra-official-query-e5984834207f",
+      "unit_revision": "unit-277905065161941e5c6c59077936cde6457243d308f55b910eeb16bf6026bfe2"
+    }
+  ]
+}

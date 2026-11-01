@@ -1,0 +1,82 @@
+{
+  "account": "c4-rra-official-query-78fc6b2e95f6-2026-10-11a",
+  "account_state": {
+    "boot": "e4c6fa43-e8b6-4d8e-bca0-8e86027154cb",
+    "byte_limit": 4000004,
+    "deadline": null,
+    "definition_hash": "0f095a42de8acbdac6a58480cdf3e9552fb404c1b969a29cc5d85ea3b05e02d4",
+    "id": "c4-rra-official-query-78fc6b2e95f6-2026-10-11a",
+    "policy_hash": "rra-refresh/c4-2026-10-10",
+    "request_limit": 4,
+    "spent_bytes": 4000004,
+    "spent_requests": 4,
+    "start_mono": 577020.760859357,
+    "start_wall": 1791737964.145647,
+    "stopped": null,
+    "window": 1800.0
+  },
+  "archive_after": {
+    "head_sequence": 4408,
+    "index_bytes": 15273984,
+    "object_bytes": 43788863,
+    "receipt_bytes": 5174831,
+    "receipts": 4782
+  },
+  "archive_before": {
+    "head_sequence": 4400,
+    "index_bytes": 15237120,
+    "object_bytes": 43788863,
+    "receipt_bytes": 5163447,
+    "receipts": 4774
+  },
+  "bundle": {
+    "bundle": "/home/erin/nepeat/aislop/devicehunt/data/raw/rra-edge-core-space-official-live-2026-10-11a/bundle.json",
+    "outcome": "explicit_zero"
+  },
+  "comparison_with_pinned": {
+    "mismatches": [],
+    "status": "matches_pinned"
+  },
+  "cycle": "2026-10-11a",
+  "detail_cap": 0,
+  "interval_seconds": 1.0,
+  "live_query_records": 0,
+  "new_observations": 4,
+  "outcome": "captured",
+  "phase": "refresh",
+  "pinned_rows": 0,
+  "reason": null,
+  "request_cap": 4,
+  "seconds": 118.03,
+  "steps": [
+    {
+      "artifact_sha256": "210348ab1eb4b284f92b590de30ca375e2c5fa0607aedab0d521c80e28babc1e",
+      "error": null,
+      "outcome": "success",
+      "slot": "form",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "ed78cc26c1c4443784b4fa530892f36542118a19f5f8ed4f4b0b58084bd4df9e",
+      "error": null,
+      "outcome": "success",
+      "slot": "csv-before",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "898bbd42af415cd1629bea504b8218791196b89f2dc9eee906c539e5321eb6e8",
+      "error": null,
+      "outcome": "success",
+      "slot": "empty-result",
+      "status": 200
+    },
+    {
+      "artifact_sha256": "ed78cc26c1c4443784b4fa530892f36542118a19f5f8ed4f4b0b58084bd4df9e",
+      "error": null,
+      "outcome": "success",
+      "slot": "csv-after",
+      "status": 200
+    }
+  ],
+  "unit_id": "rra-official-query-78fc6b2e95f6"
+}

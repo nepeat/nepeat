@@ -1,0 +1,767 @@
+QuantaGrid-D52BQ | 2U Rackmount Server | QCT.io -Hyperscale Products | QCT- Quanta Cloud Technology
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K9RLR6J');
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2261475697431869');
+fbq('track', 'PageView');
+clear
+clear
+Products
+Server
+Overview
+Rackmount Server
+Edge Server
+1U
+2U
+4U
+GPGPU
+Multi-node Server
+uCPE
+Accessory
+OCP Network Mezzanine
+QCT Network Mezzanine
+QCT SAS Mezzanine
+Storage
+Overview
+JBOD
+4U
+2U
+Storage Server
+1U
+2U
+4U
+5U
+Accessory
+OCP Network Mezzanine
+QCT Network Mezzanine
+QCT SAS Mezzanine
+Switch
+Overview
+Switch OS
+SONiC
+QNOS
+SONiC Switch
+T4000 Series
+T7000 Series
+TA000-Series
+T1000 Series
+QNOS Switch
+T1000 Series
+T3000 Series
+T4000 Series
+T5000 Series
+T7000 Series
+Bare Metal Switch
+Spine Switch
+Leaf Switch
+Management Switch
+Loopback Module
+SFP28
+QSFP56
+QSFP28
+QSFP112
+Product Life Cycle Policy
+QCT QuantaMesh Product Life Cycle Policy
+RRU
+Overview
+Indoor RRU
+4T4R 250mW
+Outdoor RRU
+4T4R 5W
+Software
+Overview
+Management Tool
+Management Tool
+Solutions
+QCT AI POD
+QCT Telco solution
+OmniPOD Private 5G Solution
+QCT Application-Ready Solution (ARS)
+QCT VMware Solutions
+QCT RPA Solution
+Support
+QCT Security Policy
+Security Center
+GPL Open Source
+FAQ
+Download Center
+Service & Warranty
+QCT QuantaMesh Life Cycle policy
+Company
+Events
+About QCT
+Contact QCT
+Press Release
+Blog
+Career
+US Branch
+Where to buy
+language
+Global
+Global
+US
+日本語
+簡体中文
+Deutsch
+QuantaGrid D52BQ-2U
+Scale Along with Your Business
+Search
+Contact QCT
+Where to buy
+language
+Global
+Global
+US
+日本語
+簡体中文
+Deutsch
+Menu
+Home
+Server
+Rackmount Server
+2U
+Email share
+Print
+Share
+QuantaGrid D52BQ-2U
+Scale Along with Your Business
+Ultimate Compute and Storage Density
+Flexible and Scalable I/O options
+Tool-less HDD/SDD Tray and PCIe Riser Module
+Quick Deployment and Maintenance
+EOL
+Overview
+Overview
+Specifications
+Download
+FAQ
+Where to buy
+Unleashing Computing Performance
+Faster socket interconnect, 1.5x memory bandwidth and 2x FLOPs peak performance capability with Intel® Xeon® Processor Scalable Family.
+Up to 112 vCPUs per server and 3.9x higher virtualized throughput compared to previous platforms based on the Intel® Xeon® processor E5.
+Flexible and Scalable Configurations for Hyperconverged Datacenters
+Up to 10 PCIe expansion slots in a 2U chassis
+Flexible I/O options, including a variety of SAS mezz and OCP NIC/ PHY mezz options, so users avoid the extra expense of unnecessary LOM or RAID controllers.
+Multiple storage configurations, including optional NVMe tier, HBA pass-through, legacy MegaRAID with cache backup solutions tailored for diversified software-defined workloads.
+Optional SATADOM or M.2 SSD for OS installation.
+Sophisticated Power and Thermal Design to Avoid Unnecessary OPEX
+Minimized power consumption during system idle mode.
+Support for the industry’s most efficient 80 Plus Titanium PSU options.
+Precise power and airflow distribution to ensure performance stability under all levels of system loading.
+Quick Deployment and Maintenance
+Tool-less HDD, fan, PCIe card exchange
+Optional MicroSD card to record system health logs without opening the chassis even when powered-off
+Intuitive data center management with QCT System Manager (QSM) via integration with industry standard RESTful API and Intel® Rack Scale Design (RSD).
+Certification
+Processor
+Processor Family
+Intel®Xeon® Processor Scalable Family
+Processor Type
+Intel®Xeon® Processor Scalable Family
+Max. TDP Support
+205W
+(Refer to CCL)
+Number of Processors
+2 Processors
+Internal Interconnect
+9.6/10.4 GT/s
+Form Factor
+Form Factor
+2U
+Dimensions
+W x H x D (inch)
+17.3 x 3.4 x 30.7
+W x H x D (mm)
+440 x 87.5 x 780
+Chipset
+Chipset
+Intel® C621
+Intel® C624
+Storage
+Default Configuration
+NVMe support
+2.5" Hot-plug
+3.5" Hot-plug
+SKU - #1
+[12x LFF SATA/SAS SKU]:
+Front Storage: (12) 3.5"/2.5" hot-plug SATA/SAS
+Rear Storage: (2) 2.5" hot-plug NVMe/SATA/SAS (optional)
+SKU - #2
+[12x LFF Tiered SKU]:
+Front Storage: (8) 3.5"/2.5" hot-plug SATA/SAS + (4) 2.5" hot-plug NVMe/SATA/SAS SSD
+Rear Storage: (2) 2.5" hot-plug SATA/SAS (optional)
+SKU - #3
+[24x SFF PtP SKU]:
+Front Storage: (16) 2.5" hot-plug SATA/SAS + (8) 2.5" hot-plug NVMe SSD
+Rear Storage: (2) 2.5" hot-plug SATA (optional)
+SKU - #4
+[24x SFF SAS3224 Paddle SKU]:
+Front Storage: (24) 2.5" hot-plug SATA/SAS w/ SAS 3224
+Rear Storage: (2) 2.5" hot-plug NVMe/SATA (optional)
+SKU - #5
+[24x SFF Expander SKU]:
+Option 1:
+Front Storage: (24) 2.5" hot-plug SATA/SAS
+Rear Storage: (2) 2.5" hot-plug NVMe (optional)
+Option 2:
+Front Storage: (24) 2.5" hot-plug SATA/SAS
+Rear Storage: (2) 2.5" hot-plug SATA/SAS (optional)
+Memory
+Total Slots
+24
+Capacity
+Up to 3TB (128Gx24) of memory for RDIMM/LRDIMM
+Up to 7.68TB (512G*12 DCPMM + 128G*12 RDIMM/LRDIMM)
+Memory Type
+2666 MHz DDR4 RDIMM
+2933Mhz DDR4 RDIMM/LRDIMM
+Up to (12) 2666Mhz Intel® Optane™ DC Persistent Memory (DCPMM)
+Memory Size
+64GB, 32GB, 16GB, 8GB RDIMM
+16G, 32G, 64G 2933Mhz RDIMM/LRDIMM
+128G, 256G, 512G Intel DCPMM
+(Refer to CCL)
+Expansion Slot
+SKU - #1
+[12x LFF SATA/SAS SKU]
+(1) PCIe Gen3 x16 SAS mezzanine slot
+(1) PCIe Gen3 x16 OCP 2.0 mezzanine slot or PHY card
+(2) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 FHHL
+(3) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 + x8 FHHL
+(1) PCIe Gen3 x16 LP MD-2
+SKU - #2
+[12x LFF Tiered SKU]
+(1) PCIe Gen3 x16 SAS mezzanine slot
+(1) PCIe Gen3 x16 OCP 2.0 mezzanine slot or PHY card
+(1) PCIe Gen3 x 8 FHHL
+(3) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 + x8 FHHL
+(1) PCIe Gen3 x16 LP MD-2
+SKU - #3
+[24x SFF PtP SKU]
+(1) PCIe Gen3 x16 OCP 2.0 mezzanine slot or PHY card
+(2) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 FHHL
+(1) PCIe Gen3 x16 FHHL
+(1) PCIe Gen3 x16 LP MD-2 (must be with SAS add-on card)
+SKU - #4
+[24x SFF SAS3224 Paddle SKU]
+(1) PCIe Gen3 x16 OCP 2.0 mezzanine slot or PHY card
+(2) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 FHHL
+(3) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 + x8 FHHL
+(1) PCIe Gen3 x16 LP MD-2
+SKU - #5
+[24x SFF Expander SKU]
+Option 1:
+(1) PCIe Gen3 x16 SAS mezzanine slot
+(1) PCIe Gen3 x16 OCP 2.0 mezzanine slot or PHY card
+(2) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 FHHL
+(3) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 + x8 FHHL
+(1) PCIe Gen3 x16 LP MD-2
+Option 2:
+(1) PCIe Gen3 x16 SAS mezzanine slot
+(1) PCIe Gen3 x16 OCP 2.0 mezzanine slot or PHY card
+(2) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 FHHL
+(3) PCIe Gen3 x 8 FHHL or (1) PCIe Gen3 x16 + x8 FHHL
+(3) PCIe Gen3 x 8 LP MD-2 or (1) PCIe Gen3 x16 + x8 LP MD-2
+Network Controller
+LOM
+Dedicated (1) GbE management port
+Optional NIC
+Quanta Intel® X527 10G SFP+ dual/quad-port OCP PHY mezzanine or
+Quanta Intel® X557 10G RJ45 dual/quad-port OCP PHY mezzanine or
+Quanta Intel® I357 1G RJ45 dual/quad-port OCP PHY mezzanine or
+(more options refer to the CCL)
+Front I/O
+Front I/O
+Power/ID/Reset Buttons
+Power/ID/Status LEDs
+(2) USB ports
+(1) VGA port (Display Priority: First; one device one time)
+Storage Controller
+Onboard
+Intel® 621/ 624:
+14x SATA 6Gb/s ports
+SATA RAID 0, 1, 10
+Optional Controller
+Quanta LSI® 3216 12Gb/s SAS mezzanine
+Quanta LSI® 3516 12Gb/s SAS mezzanine (RAID 0,1,5,6,10,50,60)
+Intel® VROC Upgrade Module for PCIe SSD
+(2) PCIe M.2 support with M.2 adapter for boot optimization (option)
+(2) SATA M.2 support with M.2 adapter for boot optimization (option)
+Power Supply
+Power Supply
+1+1 High efficiency redundant hot-plug Platinum/Titanium 800W/1200W PSU
+(detailed PSU options please refer to "ordering info" or "CCL")
+Onboard Storage
+Onboard Storage
+(2) SATADOM (option)
+Fan
+Fan
+(6) dual rotor fans (11+1 redundant)
+Video
+Video
+Integrated ASPEED AST2500 8MB DDR4 video memory
+System Management
+System Management
+Redfish v1.1
+IPMI v2.0 Compliant, on board "KVM over IP" support
+QCT System Manager (QSM) v1.8 (Optional)
+Rear I/O
+Rear I/O
+(2) USB 3.0 ports
+(1) VGA port (Display Priority: Second; one device one time)
+(1) RS232 serial port
+(1) GbE RJ45 management port
+(1) ID LED
+(1) MicroSD slot
+Operating Environment
+Operating Environment
+Operating temperature: 5°C to 40°C  (can support 45°C under certain situation)
+Non-operating temperature: -40°C to 70°C
+Operating relative humidity: 20% to 85%RH
+Non-operating relative humidity: 10% to 95%RH
+TPM
+TPM
+TPM 1.2/2.0 SPI module
+Weight (Max. Configuration)
+Weight (Max. Configuration)
+35 KG
+Compatible Components List (1)
+Compatible Components List
+CPU Refresh Upgrade Package
+Network-Driver-Windows
+Network-Driver-Linux
+Network-Firmware
+Storage-Driver-Windows
+Storage-Driver-Linux
+Storage-Firmware
+RSTe-Driver-Windows
+RSTe-Driver-Linux
+VGA-Driver-Windows
+VGA-Driver-Linux
+Chipset-Driver-Windows
+Datasheet
+Expander
+FRU Part List
+Safety information
+Title
+Version
+Date
+Size
+D52BQ-2U.html
+*Noted: Micron 9200 series SSD do not support VMware and boot function
+2021/07/19
+38 KB
+Installation / Setup Tips (1)
+Installation / Setup Tips
+1. VMD function support
+Step
+1
+Australia
+Japan
+Singapore
+South Korea
+United States
+Step
+2
+All
+Distributor
+Reseller / System Integrator
+Go
+Contact
+Cambridge Computer -
+Reseller / System Integrator
+271 Waverley Oaks Road, Suite 400,  Waltham, MA 02452
+https://www.cambridgecomputer.com/
+Phone　781.250.3000
+Contact
+Colfax International -
+Reseller / System Integrator
+2805 Bowers Ave, Santa Clara, CA 95051
+https://www.colfax-intl.com/
+Phone　408-730-2275
+Contact
+Ma Labs -
+Distributor
+2075 North Capital Avenue, San Jose, CA 95132
+http://www.malabs.com/
+Phone　408-941-0808
+Contact
+SYNNEX -
+Distributor
+44201 Nobel Drive Fremont, CA 94538
+http://www.synnex.com/
+Phone　(800) 756-9888
+Toll-Free　888-756-4888
+$(function(){
+  $('#img_verifying_code_share').on('click', function(){
+    $.post("/verifycode/share", function(data){
+      $('#img_verifying_code_share').attr('src',data);
+    });
+  });
+});
+Email share
+To
+From
+Subject
+Content
+Your friend  shares the product information with you. Check it out on the Quanta Cloud Technology (QCT) website.
+https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U
+$(function(){
+  $('#img_verifying_code').on('click', function(){
+    $.post("/verifycode", function(data){
+      $('#img_verifying_code').attr('src',data);
+    });
+  });
+});
+QCT Download Center Request
+Please complete the registration form below and you will receive an email with a URL link for download. Please note the URL link is only available for 24 hours.
+Please select Company Type..
+Distributor
+System Intergrator
+VAR
+Cloud Service Provider
+End User
+Other
+Please select country....
+Afghanistan
+Aland Islands
+Albania
+Algeria
+American Samoa
+Andorra
+Angola
+Anguilla
+Antarctica
+Antigua and Barbuda
+Argentina
+Armenia
+Aruba
+Australia
+Austria
+Azerbaijan
+Bahamas
+Bahrain
+Bangladesh
+Barbados
+Belarus
+Belgium
+Belize
+Benin
+Bermuda
+Bhutan
+Bolivia
+Bonaire, Saint Eustatius and Saba
+Bosnia and Herzegovina
+Botswana
+Bouvet Island
+Brazil
+British Indian Ocean Territory
+British Virgin Islands
+Brunei
+Bulgaria
+Burkina Faso
+Burundi
+Cambodia
+Cameroon
+Canada
+Cape Verde
+Cayman Islands
+Central African Republic
+Chad
+Chile
+China
+Christmas Island
+Cocos Islands
+Colombia
+Comoros
+Cook Islands
+Costa Rica
+Croatia
+Cuba
+Curacao
+Cyprus
+Czech Republic
+Democratic Republic of the Congo
+Denmark
+Djibouti
+Dominica
+Dominican Republic
+East Timor
+Ecuador
+Egypt
+El Salvador
+Equatorial Guinea
+Eritrea
+Estonia
+Ethiopia
+Falkland Islands
+Faroe Islands
+Fiji
+Finland
+France
+French Guiana
+French Polynesia
+French Southern Territories
+Gabon
+Gambia
+Georgia
+Germany
+Ghana
+Gibraltar
+Greece
+Greenland
+Grenada
+Guadeloupe
+Guam
+Guatemala
+Guernsey
+Guinea
+Guinea-Bissau
+Guyana
+Haiti
+Heard Island and McDonald Islands
+Honduras
+Hong Kong
+Hungary
+Iceland
+India
+Indonesia
+Iran
+Iraq
+Ireland
+Isle of Man
+Israel
+Italy
+Ivory Coast
+Jamaica
+Japan
+Jersey
+Jordan
+Kazakhstan
+Kenya
+Kiribati
+Kosovo
+Kuwait
+Kyrgyzstan
+Laos
+Latvia
+Lebanon
+Lesotho
+Liberia
+Libya
+Liechtenstein
+Lithuania
+Luxembourg
+Macao
+Macedonia
+Madagascar
+Malawi
+Malaysia
+Maldives
+Mali
+Malta
+Marshall Islands
+Martinique
+Mauritania
+Mauritius
+Mayotte
+Mexico
+Micronesia
+Moldova
+Monaco
+Mongolia
+Montenegro
+Montserrat
+Morocco
+Mozambique
+Myanmar
+Namibia
+Nauru
+Nepal
+Netherlands
+New Caledonia
+New Zealand
+Nicaragua
+Niger
+Nigeria
+Niue
+Norfolk Island
+North Korea
+Northern Mariana Islands
+Norway
+Oman
+Pakistan
+Palau
+Palestinian Territory
+Panama
+Papua New Guinea
+Paraguay
+Peru
+Philippines
+Pitcairn
+Poland
+Portugal
+Puerto Rico
+Qatar
+Republic of the Congo
+Reunion
+Romania
+Russia
+Rwanda
+Saint Barthelemy
+Saint Helena
+Saint Kitts and Nevis
+Saint Lucia
+Saint Martin
+Saint Pierre and Miquelon
+Saint Vincent and the Grenadines
+Samoa
+San Marino
+Sao Tome and Principe
+Saudi Arabia
+Senegal
+Serbia
+Seychelles
+Sierra Leone
+Singapore
+Sint Maarten
+Slovakia
+Slovenia
+Solomon Islands
+Somalia
+South Africa
+South Georgia and the South Sandwich Islands
+South Korea
+South Sudan
+Spain
+Sri Lanka
+Sudan
+Suriname
+Svalbard and Jan Mayen
+Swaziland
+Sweden
+Switzerland
+Syria
+Taiwan
+Tajikistan
+Tanzania
+Thailand
+Togo
+Tokelau
+Tonga
+Trinidad and Tobago
+Tunisia
+Turkey
+Turkmenistan
+Turks and Caicos Islands
+Tuvalu
+U.S. Virgin Islands
+Uganda
+Ukraine
+United Arab Emirates
+United Kingdom
+United States
+United States Minor Outlying Islands
+Uruguay
+Uzbekistan
+Vanuatu
+Vatican
+Venezuela
+Vietnam
+Wallis and Futuna
+Western Sahara
+Yemen
+Zambia
+Zimbabwe
+Other regions
+Message
+clear
+What We Make
+Server
+Storage
+Switch
+RRU
+Software
+Solutions
+QCT AI POD
+QCT Telco solution
+OmniPOD Private 5G Solution
+QCT Application-Ready Solution (ARS)
+QCT VMware Solutions
+QCT RPA Solution
+Support
+QCT Security Policy
+Security Center
+GPL Open Source
+FAQ
+Download Center
+Service & Warranty
+QCT QuantaMesh Life Cycle policy
+Company
+Events
+About QCT
+Contact QCT
+Press Release
+Blog
+Career
+US Branch
+<!--
+.footer_community_html{
+								margin: 0 auto;
+							}
+							.footer_community_html td{
+								padding: 0 15px;
+							}
+							@media (max-width: 799px) {
+								.footer_community_html td{
+									padding: 0 13px;
+								}
+							}
+-->
+<!--
+.footer_about_html td{
+						color: #bdbdbd;
+						font-size: 13px;
+						line-height: 1.5em;
+						padding: 5px 10px 5px 0;
+					}
+					@media (min-width: 1050px) and (max-width: 1319px){
+						.footer_about_html tr{
+							display: inline-block;
+							float: left;
+							width: 50%;
+						}
+						.footer_about_html tr{
+							padding-right: 5px;
+						}
+						.footer_about_html td{
+							padding: 5px 25px 5px 0;
+						}
+					}
+					@media (min-width: 800px) and (max-width: 1049px){
+						.footer_about_html .img_td{
+							width: 15%;
+							margin-right: ;
+						}
+					}
+-->
+QCT, the QCT logo, Rackgo, Quanta, and the Quanta logo are trademarks or registered trademarks of Quanta Computer Inc.
+Intel, the Intel logo, Optane, and Xeon Inside are trademarks or registered trademarks of Intel Corporation in the U.S. and/or other countries. All trademarks and logos are the properties of their respective holders.
+© 2025 Quanta Computer Inc. All rights reserved.
+Terms of Use
+Privacy Policy
+moreinfo="https://www.qct.io/policy/privacy_policy"
+_linkedin_partner_id = "365731"; window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || []; window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+(function(){var s = document.getElementsByTagName("script")[0]; var b = document.createElement("script"); b.type = "text/javascript";b.async = true; b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js"; s.parentNode.insertBefore(b, s);})();
+window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-12D3XQJY7M');

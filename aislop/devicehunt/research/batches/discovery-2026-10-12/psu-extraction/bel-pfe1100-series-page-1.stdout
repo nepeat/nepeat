@@ -1,0 +1,39 @@
+          The PFE1100-12-054xA is a 1100 Watt AC to DC power-factor-
+          corrected (PFC) power supply that converts standard AC mains power
+          into a main output of 12 VDC for powering intermediate bus
+          architectures (IBA) in high performance and reliability servers, routers,
+          and network switches.
+
+          The PFE1100-12-054xA meets international safety standards and
+          displays the CE-Mark for the European Low Voltage Directive (LVD).
+
+
+
+
+          •     Best-in-class, 80 PLUS certified “Platinum” efficiency
+          •     Wide input voltage range: 90-264 VAC
+          •     AC input with power factor correction
+          •     Always-On 16.5 W programmable standby output (3.3/5 V)
+          •     Hot-plug capable
+          •     Parallel operation with active digital current sharing
+          •     Full digital controls for improved performance
+          •     High density design: 25.6 W/in3
+          •     Small form factor: 321.5 x 54.5 x 40 mm (12.66 x 2.14 x 1.57 in)
+          •     I2C communication interface for control, programming and
+          •     monitoring with PSMI and Power Management Bus protocol
+          •     Overtemperature, output overvoltage and overcurrent protection
+          •     256 Bytes of EEPROM for user information
+          •     2 Status LEDs: AC OK and DC OK with fault signaling
+
+
+
+
+          •     High Performance Servers
+          •     Routers
+          •     Switches
+
+
+
+
+Please read our datasheet & drawing disclaimer here.
+

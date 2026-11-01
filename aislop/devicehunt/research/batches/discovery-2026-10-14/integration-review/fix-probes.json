@@ -1,0 +1,11 @@
+{
+  "helper_sha256": "e795eac0ec21a9315adfc13d0f18d45515ffdd9764a558a127747627ad86e6cc",
+  "tests_run": 10,
+  "failures": 0,
+  "errors": 0,
+  "output": "test_all_old_columns_now_detect_changed_values (__main__.FixTests.test_all_old_columns_now_detect_changed_values) ... ok\ntest_clone_good_bytes_match_accepted_hash (__main__.FixTests.test_clone_good_bytes_match_accepted_hash) ... ok\ntest_clone_rejects_changed_source_before_copy (__main__.FixTests.test_clone_rejects_changed_source_before_copy) ... ok\ntest_clone_rejects_source_change_during_copy (__main__.FixTests.test_clone_rejects_source_change_during_copy) ... ok\ntest_final_hash_guards_cover_plan_reviews_originals_staged (__main__.FixTests.test_final_hash_guards_cover_plan_reviews_originals_staged) ... ok\ntest_group_count_mismatch_rejected_before_writes (__main__.FixTests.test_group_count_mismatch_rejected_before_writes) ... ok\ntest_sidecar_dependency_hash_passes_and_collision_rejected (__main__.FixTests.test_sidecar_dependency_hash_passes_and_collision_rejected) ... ok\ntest_unhashed_sidecar_fails_but_explicit_hash_passes (__main__.FixTests.test_unhashed_sidecar_fails_but_explicit_hash_passes) ... ok\ntest_unsafe_or_duplicate_group_names_fail_before_writes (__main__.FixTests.test_unsafe_or_duplicate_group_names_fail_before_writes) ... ok\ntest_valid_preflight_makes_no_staging_writes_and_pins_dependencies (__main__.FixTests.test_valid_preflight_makes_no_staging_writes_and_pins_dependencies) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 0.021s\n\nOK\n",
+  "stage_main_invoked": false,
+  "scope": "only extracted pure helpers, preflight-loop AST, all-column SQL, final guard inspection; fixture paths owned by this review",
+  "shared_paths_written": [],
+  "network_requests": 0
+}

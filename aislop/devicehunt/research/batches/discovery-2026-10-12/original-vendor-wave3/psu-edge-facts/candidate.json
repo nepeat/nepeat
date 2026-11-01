@@ -1,0 +1,204 @@
+{
+  "sources": [
+    {
+      "id": "celestica-sd6200-datasheet-2026-10-12",
+      "url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SD6200.pdf",
+      "tier": "vendor",
+      "license": "Public factual documentation; upstream rights retained.",
+      "coverage": "Exact existing family namespace only; all statements belong to this source record and its printed document conditions. No manufacturer/factory affiliation is transferred from other records or generic about-company prose. Ordering rows are literal discovery facts, not aliases, part-number identifiers, standalone FRUs or new device identities. No current support/certification, software entitlement, installed auction-unit components, safe wiring/standalone-operation or individual-order-code power/airflow fitment inferred. No full chassis ordering/SKU table, exact PSU manufacturer/model or weight supplied. No airflow direction, safe standalone wiring instruction or installed-drive configuration supplied. Redundancy line 3+1 (100-240V) differs in range expression from input line 100-127,200-240V; preserve both. DS6200 trademark footer differs from SD6200 headings.",
+      "snapshot": "snapshots/sd6200-datasheet.pdf",
+      "original_sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "text_sidecar": "snapshots/sd6200-pages.json",
+      "captured_at": "2026-10-13T03:36:44.260330+00:00",
+      "extraction_metadata": {
+        "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+        "extractor_version": "26.06.0",
+        "pdfinfo_version": "26.06.0",
+        "pdf_page_count": 2,
+        "extraction_options": {
+          "layout": true,
+          "encoding": "UTF-8",
+          "eol": "unix",
+          "remove_hyphens": "none",
+          "page_selection": "individual",
+          "page_breaks": false
+        }
+      }
+    },
+    {
+      "id": "edgecore-wedge100-32x-r04-2026-10-12",
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "tier": "vendor",
+      "license": "Public factual documentation; upstream rights retained.",
+      "coverage": "Exact existing family namespace only; all statements belong to this source record and its printed document conditions. No manufacturer/factory affiliation is transferred from other records or generic about-company prose. Ordering rows are literal discovery facts, not aliases, part-number identifiers, standalone FRUs or new device identities. No current support/certification, software entitlement, installed auction-unit components, safe wiring/standalone-operation or individual-order-code power/airflow fitment inferred. No exact PSU manufacturer/FRU model or electrical connector type supplied. No general suffix decoder or individual-order-code dimension/airflow allocation supplied. Page1/previous HTML describes AC or 12 V DC PSUs; p2 separately has AC or -54 VDC PSUs and power input option 12 VDC. Preserve option distinctions; no automatic resolution.",
+      "snapshot": "snapshots/wedge100-32x-r04.pdf",
+      "original_sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "text_sidecar": "snapshots/wedge100-32x-r04-pages.json",
+      "captured_at": "2026-10-13T03:37:46.659647+00:00",
+      "extraction_metadata": {
+        "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+        "extractor_version": "26.06.0",
+        "pdfinfo_version": "26.06.0",
+        "pdf_page_count": 3,
+        "extraction_options": {
+          "layout": true,
+          "encoding": "UTF-8",
+          "eol": "unix",
+          "remove_hyphens": "none",
+          "page_selection": "individual",
+          "page_breaks": false
+        }
+      }
+    }
+  ],
+  "devices": [
+    {
+      "source": "celestica-sd6200-datasheet-2026-10-12",
+      "key": "SD6200",
+      "brand": "Celestica",
+      "model": "SD6200",
+      "title": "Celestica SD6200 datasheet statements",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Celestica Inc.",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [],
+      "facts": [
+        [
+          "model_heading_as_printed",
+          "SD6200 — 4U 90 HDD Dense Storage SAS-4 Expansion System [PDF p. 1]"
+        ],
+        [
+          "power_description",
+          "Up to 90 12G SAS or 6G SATA 3.5-inch or 2.5-inch drives; 13 W maximum drive power at 35 C. [PDF p. 1]"
+        ],
+        [
+          "esm_configuration_as_printed",
+          "Dual redundant hot-swappable ESMs; single ESM configuration supported; ESM = Expansion SAS Module. [PDF p. 1]"
+        ],
+        [
+          "esm_interfaces_as_printed",
+          "Four 24G SAS4-capable mini-SAS HD ports per ESM; one RJ45 management port; one UART via 3.5 mm jack. [PDF p. 1]"
+        ],
+        [
+          "power_description",
+          "1300W 80 plus Platinum PSU, 2+2 (200-240V) or 3+1 (100-240V) redundant, hot swap. [PDF p. 2]"
+        ],
+        [
+          "power_description",
+          "100-127,200-240V AC input, auto ranging, 47~63Hz. These are printed separated voltage bands, not silently a continuous 100-240 V range. [PDF p. 2]"
+        ],
+        [
+          "cooling_description",
+          "5 x 80 mm dual-rotor fans, hot-pluggable from the top. [PDF p. 2]"
+        ],
+        [
+          "physical_description",
+          "Height 175.3 mm (6.9 in), width 448 mm (17.64 in), depth 1070 mm (42.12 in) w/CMA. [PDF p. 2]"
+        ],
+        [
+          "physical_description",
+          "Operating 5 C to 35 C; non-operating -40 C to 60 C; humidity 8% to 80% RH; altitude 0 to 950 m, de-rate temperature 1 C per 300 m above 950 m. [PDF p. 2]"
+        ],
+        [
+          "cooling_description",
+          "At (23+/-2 C), sound power <7.6 Bel; do not re-label as sound pressure or listening-position noise. [PDF p. 2]"
+        ],
+        [
+          "document_revision_and_conflict",
+          "Copyright Celestica Inc. 2024; literal token 091024. Footer calls DS6200 a trademark although both headings say SD6200; no alias inferred. [PDF p. 2]"
+        ]
+      ],
+      "existing_identity_id": "d1daa8e8c3ad705b1118",
+      "scope_limitations": "Exact existing family namespace only; all statements belong to this source record and its printed document conditions. No manufacturer/factory affiliation is transferred from other records or generic about-company prose. Ordering rows are literal discovery facts, not aliases, part-number identifiers, standalone FRUs or new device identities. No current support/certification, software entitlement, installed auction-unit components, safe wiring/standalone-operation or individual-order-code power/airflow fitment inferred."
+    },
+    {
+      "source": "edgecore-wedge100-32x-r04-2026-10-12",
+      "key": "Wedge 100-32X",
+      "brand": "Edge-Core",
+      "model": "Wedge 100-32X",
+      "title": "Edge-Core Wedge 100-32X datasheet statements",
+      "kind": "network switch",
+      "affiliations": [
+        [
+          "Edgecore Networks Corporation",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [],
+      "facts": [
+        [
+          "power_description",
+          "2 redundant, load-sharing, hot-swappable AC or -54 VDC PSUs; input voltage 120 to 240 VAC at 50-60 Hz and 40 to 72 VDC, as separately printed. [PDF p. 2]"
+        ],
+        [
+          "power_description",
+          "Separate power input option: 12 VDC; not merged into the -54 VDC PSU line or assumed wired the same way. [PDF p. 2]"
+        ],
+        [
+          "power_description",
+          "Typical power consumption 436 W, document statement with no test/load condition supplied in this section; not PSU output or maximum draw. [PDF p. 2]"
+        ],
+        [
+          "physical_description",
+          "Dimensions W x D x H: 44 x 50.7 x 4.4 cm (17.32 x 19.97 x 1.732 in); weight 8.8 kg (19.56 lb). [PDF p. 2]"
+        ],
+        [
+          "cooling_description",
+          "4+1 redundant, hot-swappable fans; front (port) to back (power) airflow direction. [PDF p. 2]"
+        ],
+        [
+          "physical_description",
+          "Operating temperature 0 C to 45 C; storage -40 C to 70 C; operating/storage humidity 10% to 90% non-condensing. [PDF p. 2]"
+        ],
+        [
+          "software_installation_description",
+          "Historical EC-DS-0617-04 document statement (©2016 footer; publication date not independently verified): Switch is loaded with OpenBMC and Diagnostics. Listed compatibility: FBOSS Agent, Open Network Linux, SnapRoute FlexSwitch, Cumulus Linux 3.4 and later. Historical vendor statements, not current support or installed software on an auction unit. [PDF p. 2–3]"
+        ],
+        [
+          "document_revision_as_printed",
+          "Ordering-page footer EC-DS-0617-04; page-2 copyright 2016. Download filename R04 and uploaded path 2024/01 are not revision/publication dates by themselves. [PDF p. 2–3]"
+        ],
+        [
+          "ordering_row_as_printed",
+          "{\"classification\": \"unresolved; literal family ordering-table row only\", \"code\": \"Wedge100-32X-O-12V-F\", \"description\": \"12V power supply\"} [PDF p. 3]"
+        ],
+        [
+          "ordering_row_as_printed",
+          "{\"classification\": \"unresolved; literal family ordering-table row only\", \"code\": \"Wedge100-32X-O-AC-F-US\", \"description\": \"US SKU power cord of Wedge\"} [PDF p. 3]"
+        ],
+        [
+          "ordering_row_as_printed",
+          "{\"classification\": \"unresolved; literal family ordering-table row only\", \"code\": \"Wedge100-32X-O-AC-F-EU\", \"description\": \"EU SKU power cord of Wedge\"} [PDF p. 3]"
+        ],
+        [
+          "ordering_row_as_printed",
+          "{\"classification\": \"unresolved; literal family ordering-table row only\", \"code\": \"Wedge100-32X-O-AC-F-UK\", \"description\": \"UK SKU power cord of Wedge\"} [PDF p. 3]"
+        ],
+        [
+          "ordering_row_as_printed",
+          "{\"classification\": \"unresolved; literal family ordering-table row only\", \"code\": \"Wedge100-32X-O-AC-F-JP\", \"description\": \"JP SKU power cord of Wedge\"} [PDF p. 3]"
+        ],
+        [
+          "ordering_row_as_printed",
+          "{\"classification\": \"unresolved; literal family ordering-table row only\", \"code\": \"ORSA-1U\", \"description\": \"Open Rack Switch Adapter for Open Rack installation\"} [PDF p. 3]"
+        ],
+        [
+          "power_option_source_conflict",
+          "Page 1 says hot-swappable, load-sharing, redundant AC PSUs or 12 V DC PSUs; page 2 separately prints AC or -54 VDC PSUs, 40–72 VDC input and 12 VDC input option. Option statements stay separate; no wiring or per-SKU rating inferred. [PDF pp. 1–2]"
+        ],
+        [
+          "company_context_as_printed",
+          "About-company paragraph describes Edgecore Networks Corporation as a subsidiary of Accton Technology Corporation and says Edgecore Data Center switches are developed and manufactured by Accton. Generic context only; no new per-model manufacturer/factory affiliation or physical provenance inferred. [PDF p. 2]"
+        ]
+      ],
+      "existing_identity_id": "9287d01bdc56adda4517",
+      "scope_limitations": "Exact existing family namespace only; all statements belong to this source record and its printed document conditions. No manufacturer/factory affiliation is transferred from other records or generic about-company prose. Ordering rows are literal discovery facts, not aliases, part-number identifiers, standalone FRUs or new device identities. No current support/certification, software entitlement, installed auction-unit components, safe wiring/standalone-operation or individual-order-code power/airflow fitment inferred."
+    }
+  ],
+  "status": "staged; independent candidate review required",
+  "scope_limitations": "Exact existing family namespace only; all statements belong to this source record and its printed document conditions. No manufacturer/factory affiliation is transferred from other records or generic about-company prose. Ordering rows are literal discovery facts, not aliases, part-number identifiers, standalone FRUs or new device identities. No current support/certification, software entitlement, installed auction-unit components, safe wiring/standalone-operation or individual-order-code power/airflow fitment inferred."
+}

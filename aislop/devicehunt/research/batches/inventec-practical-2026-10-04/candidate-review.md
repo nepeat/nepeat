@@ -1,0 +1,15 @@
+# inventec practical candidate gate
+
+result: pass. independent read-only validation found no blocking differences. no promotion, exports, current docs, source inputs or application code changed by reviewer. proof: [candidate-independent.json](review/candidate-independent.json).
+
+verified actual candidate SHA-256 `a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16`; live SHA remains `bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0`. all integration freeze files, accepted originals, 165 current code/test/script hashes and 968 standard export hashes agree with saved proofs.
+
+independently compared all 43 logical tables/indexes with duplicate-sensitive Counters. old rows are preserved, with only the accepted 46 reference-source hash/path/fetch metadata updates; device-search text changes are derived additions for Entei/Golduck only. candidate and existing offline rebuild match after documented timestamp/path normalization. independently reconstructed device FTS from source rows and document FTS from document pages; integrity and foreign keys pass. no new identity, identifier or hyperscaler row appears.
+
+actual new record raw objects, source records_seen, 42 fact rows and four Inventec brand/platform_vendor affiliations equal accepted proposals. exact new affiliations match the separate proof. manufacturer and all-association inventories retain identical DISTINCT target/id pairs; four additional source-scoped roles do not introduce target/device pairs. initial failed audit logs remain historical; final audit uses the proper id column and pair semantics.
+
+combined curated input differs only in snapshot rebases, which resolve to the identical original files. complete bundle retains all 46 old entries unchanged and appends the identical accepted Golduck entry. all sibling PDF/text hashes validate. all 57 old original PDF hashes agree; new original matches the accepted two-page Golduck PDF. manifest preserves all 119 old jobs except the authorized reference bundle path and all 2,191 old hashes; all actual 2,205 input bytes match the 120-job manifest.
+
+checked 13 saved real CLI runs and their bound hashes. Entei/Golduck buying reports include full accepted fact context and source-local brand/platform_vendor roles alongside the existing separate manufacturer source. wrong vendor and near-name queries exclude these sources; Horsea borrows no new facts. archive query retains both Golduck text pages. independently reran read-only inventory validation: 10/10 owned hits, including nine document-backed identifiers and the separate 7760 reviewed-label source; ByteDance 0/2.
+
+47 affected tests passed in saved current log. the prior full-suite log records 428 passing tests; its 162 application/test hashes equal current acceptance, with three additional current script hashes verified. no tests or rebuild were rerun unnecessarily. candidate totals: 4,090 identities, 5,319 records, 290 sources, 45,017 facts, 58 PDFs and 3,663 pages. this gate accepts staging; live promotion and subsequent export/docs verification remain coordinator-owned next steps.

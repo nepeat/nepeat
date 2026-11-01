@@ -1,0 +1,10 @@
+{
+  "reference_prepare": "pass; single-document proposal only, never import directly",
+  "read_pages": "pass; two pages",
+  "literal_quotes": "16 of 16 match exact embedded text",
+  "visual_review": "pages 1 and 2 inspected; specification labels and rows agree",
+  "curated_devices": 1,
+  "curated_facts": 22,
+  "captures_used": 1,
+  "search_queries_used": 1
+}

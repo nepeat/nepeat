@@ -1,0 +1,14 @@
+{
+  "oracle": "pass",
+  "source_sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+  "candidate_sha256": "9bc1b31ff468ba41e0d10be4e04fe38a07f43553b8125ff13e18552bcc7153df",
+  "live_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "existing_source_records_exactly_match_review": 4,
+  "existing_fact_role_identifier_rows_match": true,
+  "proposed_facts": 16,
+  "computed_existing_identity": "b5decfa477ec728d6252",
+  "new_identities_expected": 0,
+  "new_sources_expected": 1,
+  "new_records_expected": 1,
+  "integration_preservation_still_required": true
+}

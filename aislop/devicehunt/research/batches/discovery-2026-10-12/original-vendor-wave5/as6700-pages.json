@@ -1,0 +1,116 @@
+{
+  "pdf_sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 2,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "Q ui c k Sta r t G u id e\n32-Port 40G Data Center Switch\nAS6700-32X / AS6701-32X\n\n\n1. Unpack the Switch and Check Contents                                   3. Ground the Switch\n\n                                       AS6700-32X / AS6701-32X\n                                       40G Data Center Switch\n\n           Rack Mounting Kit—contains two brackets and eight\n           screws for attaching the brackets to the switch\n                                                                                  1\n           Grounding Wire                                                                         2\n\n           Power Cord—either Japan, US, Continental Europe\n           or UK\n                                                                              1       Ensure the rack on which the switch is to be mounted is\n                                                                                      properly grounded and in compliance with ETSI ETS 300 253.\n           Console Cable—RJ-45 to DB-9                                                Verify that there is a good electrical connection to the\n                                                                                      grounding point on the rack (no paint or isolating surface\n           Documentation—Quick Start Guide (this document)                            treatment).\n           and Safety and Regulatory Information\n                                                                              2       Attach the grounding wire to the grounding terminal on the\n                                                                                      switch rear panel, then to rack ground.\n      Note: For information on switch software, refer to                              Caution: The earth connection must not be removed\n      www.edge-core.com.                                                              unless all supply connections have been disconnected.\n      Switches with part numbers 6700/6701-32X-D*-********\n      have switch software pre-loaded on the switch. Software\n      user documentation can be found at www.edge-core.com.               4. Connect Power\n      Switches with part numbers 6700/6701-32X-O-********\n      have the Open Network Installer Environment (ONIE)\n      software installer pre-loaded on the switch, but no switch\n      software image. Information about compatible switch\n      software can be found at www.edge-core.com.\n                                                                                                                 1\n      Caution: The switch includes plug-in power supply and\n      fan tray modules that are installed into its chassis. All\n      installed modules must have a matching airflow direction.                               2\n      That is, all modules must have a front-to-back (F2B) airflow\n      direction, or all modules must have a back-to-front (B2F)\n      airflow direction. The airflow direction of PSU and fan tray\n      modules is indicated by labels on the modules.\n                                                                              1       Install one or two universal AC power modules in the switch.\n                                                                                      The switch supports up to two PSUs that must have the\n2. Mount the Switch                                                                   same matching airflow direction as the installed fan trays.\n                                                                              2       Connect an external AC power source to the modules.\n\n\n                                                                          5. Verify Switch Operation\n\n                                             1\n\n                            2\n\n                                                                                          1\n\n 1    Attach the brackets to the switch.\n                                                                              1       Verify basic switch operation by checking the system LEDs.\n 2    Use the screws supplied with the rack to secure the switch in                   When operating normally, the Sys LED should be on green.\n      the rack.\n      Caution: Installing the switch in a rack requires two\n      people. One person should position the switch in the rack,\n      while the other secures it using the rack screws.\n\n                                                                                                                                     E012014-CS-R01\nwww.edge-core.com                                                     – 1 –                                                          150200000827A\n"
+    },
+    {
+      "page": 2,
+      "text": "                                                                                                                              Quick Start Guide\n\n\n6. Perform Initial Configuration                                           7. Connect Network Cables\na. Edge-Core DCSS Software\n\n\n\n              2                                   3                                                         1\n\n\n\n\n                                       1\n                                                                                                                   2\n\n\n                                                                               1    Install QSFP+ transceivers in the QSFP+ slots.\n\n                                                                               2    Connect fiber optic cabling to the transceiver ports. Or,\n                                                                                    connect DAC cables directly to the QSFP+ slots.\n                                                                                    The following transceivers are supported:\n 1     Connect a PC to the switch console port using the included                   ◆   40GBASE-CR4 (DAC)\n       console cable.                                                               ◆   40GBASE-SR4\n                                                                                    ◆   40GBASE-LR4\n 2     Configure the PC’s serial port: 115200 bps, 8 characters, no\n       parity, one stop bit, 8 data bits, and no flow control.\n                                                                                    Note: As connections are made, check the port status LEDs\n 3     Log in to the command-line interface (CLI) using default                     to be sure the links are valid.\n       settings: User “admin” with no password.\n       Note: For information on initial switch configuration, refer        Hardware Specifications\n       to the Administrator’s Guide.\nb. ONIE Installer Software                                                 Chassis Specifications\n                                                                           SIze                W x D x H:\n                                                                                               438.4 x 473 x 43.4 mm (17.26 x 18.62 x 1.71 in.)\n                                                                           Weight              8.382 kg (18.52 lb), with two installed PSUs,\n                                                                                               five fan trays, and two 40G modules\n                                            1\n                                                                           Temperature         Operating: 0° C to 40° C (32° F to 104° F)\n                                                                                               Storage: -40° C to 70° C (-40° F to 158° F)\n              2\n                                                                           Humidity            Operating: 5% to 95% (non-condensing)\n\n 1     If the network operating system (NOS) installer is located on       Power Specifications\n       a network server, first connect the RJ-45 Management\n       (Mgmt) port to the network using Category 5, 5e or better           PSU AC Input        100-240 VAC, 50-60 Hz, 6.0-3.0 A\n       twisted-pair cable. (Not required if the NOS installer is           Rating\n       located on attached storage.)\n                                                                           Switch Power        375 Watts maximum, 267 Watts typical\n 2     Boot the switch. Wait for the ONIE software to locate and           Consumption\n       execute the NOS installer, and then wait for the installer to\n       load the NOS software image.                                        Regulatory Compliances\n       Subsequent switch boots will bypass ONIE and directly run           Emissions           EN 55022:2010, Class A\n       the NOS software.\n                                                                                               EN 61000-3-2:2009, Class A\n       Note: Refer to NOS installer and NOS documentation for                                  EN 61000-3-3:2008\n       details on software location options and set up for ONIE.                               FCC Class A\n                                                                                               VCCI Class A\n                                                                                               CE Mark\n                                                                           Immunity            EN 55024:2010\n                                                                                               IEC 61000-4-2/3/4/5/6/8/11\n                                                                           Safety              UL (CSA 22.2 No 60950-1 & UL60950-1)\n                                                                                               CB (IEC/EN60950-1)\n\n\n\n\n                                                                       – 2 –\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "as6700-quick-start.pdf",
+    "extracted_at_utc": "2026-10-13T04:47:21.655146+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           2P-QSG.fm\nAuthor:          chris\nCreator:         FrameMaker 9.0\nProducer:        Acrobat Distiller 11.0 (Windows)\nCreationDate:    Tue Apr 28 10:46:20 2009 PDT\nModDate:         Tue Jun 28 19:40:11 2016 PDT\nCustom Metadata: no\nMetadata Stream: yes\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       886779 bytes\nOptimized:       yes\nPDF version:     1.4\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-quick-start.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "dfaed16003983deb248b91bad18c41061f600613f317fb87b57f0839fbe806e0"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-quick-start.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "5c5752ac99a3b85ce3900d2b0b1c4964c97c2bf68f4d0609bb5c215ab58b0434"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-quick-start.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "43be04b372a8ed6fd9eaee08791df8ae2612c01fe66c8d119ecc60a2aebf470a"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "plan": "research/batches/discovery-2026-10-12/next-leads-r3/plan.json",
+  "plan_sha256": "dbbb1fbcc67631d2b312b30b8825a10e4b791e99b943c4b5b39854d2f7ea74f4",
+  "read_inputs": {
+    "data/raw/celestica-storage-manufacturer/sd4100.html": "e73d53544761cb2ccae989a35065609fdceeaf45eb332af13fd3f2eea2b2255e",
+    "data/raw/oracle-zfs-components/oracle-zfs-storage-zs3-2.html": "c286c00e266f74d378a94609c38207f2f3be8520a2830cdb6507f6209854304f",
+    "data/raw/oracle-zfs-components/oracle-zfs-storage-zs3-4.html": "fbd875dfa68dd39755ffbe146f64460ec76d52f3db515343a69d9526ffe2ef32",
+    "research/batches/discovery-2026-10-12/hyve-orion-rugged-discovery/handoff.md": "ca37bc0a22a80cd7de9d9ec7509224a37b5d5891114882e8d52c774317b87feb",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5/handoff.md": "91a32cc775d0caad30fc43c0cc5c1c297b3d80e0ba2c9f43677ebc5293b250a5",
+    "docs/evidence-policy.md": "688c4e932a6dc6e8951f10699e35dc62625e42466133b831c9c146b95a00357f",
+    "docs/agent-workflow.md": "1c73615cab2c82dadfebaca41c2c3d40d5f5e24a5504b78312ad97f7bfd5db1b",
+    "AGENTS.md": "25f80387ba7b37d4248c6d846adf1b8280f0a4c36c6b95e74bc4be10a041b9ea",
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "PROGRESS.md": "a3c1e3b87f14d4fa9275c227ad8e776b993f6c6c24c1710509b5b99b25adbf9b"
+  },
+  "authorized_scope": "three exact planned routes; eight actual HTTP exchanges including policy and manual same-origin redirects; no candidate/import"
+}

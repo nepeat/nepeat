@@ -1,0 +1,528 @@
+{
+  "ledger_files": [
+    {
+      "path": "data/raw/bytedance-inspur-2026-10-04/fetch-report.json",
+      "sha256": "fc8e084536b6bc95d9906f1ef0b9a828fbded998bb001a6b1cd3cf272f022cc8"
+    },
+    {
+      "path": "data/raw/celestica-storage-manufacturer/fetch-report.json",
+      "sha256": "3f0b3afe439305d02f48ec46306745ab52268638a8e2d701bed9918834c9f938"
+    },
+    {
+      "path": "data/raw/cubscout-fcc/fetch-report.json",
+      "sha256": "4d3f0a81f383c35d1aa58a804a3c5a6072effe14e318180a7705361d4d9d3b90"
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-spec/requests.jsonl",
+      "sha256": "391b0bec5c7ba3be61e900e96322760ba4de33de5f66e5be34ac0666d547cc8e"
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-spec/wave10/requests-wave10.jsonl",
+      "sha256": "bdf16e122066a6f3617fec0f6a83b9ae5eb17b5b08cd9762ccb1b00682ed5b18"
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-spec/wave8/requests-wave8.jsonl",
+      "sha256": "161a70820c39f9dc34498db61300b3f9476b46691483c0b72e1a6233cc85d37c"
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-spec/wave9/requests-wave9.jsonl",
+      "sha256": "2e1e484660b9de5e4c154373a87a12d9ac8590a43acddc1ef71b934282b52646"
+    },
+    {
+      "path": "data/raw/fcc-bulk-review/fetch-report.json",
+      "sha256": "1d647f7490ccfc14a290b7a6eab42a12eac5f0643ad3e1ad79cf8629d58ff027"
+    },
+    {
+      "path": "data/raw/fcc-company-accton/fetch-report.json",
+      "sha256": "872078e8cd48bd3bacf33c9c871acb04a7e99243e61e0e3037fb7dcf6d08a92d"
+    },
+    {
+      "path": "data/raw/fcc-details/fetch-report.json",
+      "sha256": "a300dc924e5f66706f19cd2bc3242e98cdc13822d6f38d0c2a8e9de68c02092a"
+    },
+    {
+      "path": "data/raw/fcc-sitemaps/fetch-report.json",
+      "sha256": "a518f5a43253ffa5c9790d2c9fc034354628a5cb449219eab87d97e4c2444537"
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json",
+      "sha256": "2bba17ac10baaeb6085fb118595820305163bd0faf3b45e7c3175e047638a85f"
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-oracle/capture-ledger.json",
+      "sha256": "6be23f49ad98046737fce0fcec1a22b3ac6a57f3f70361975d6af0d0b7c4ba71"
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-sun6000/capture-ledger.json",
+      "sha256": "2ecaf6a440fcfd5ea04a2e7700014afebf42bdddb2ba7c54da206bd964faa064"
+    },
+    {
+      "path": "data/raw/ingrasys-servers-2026-10-04/fetch-report.json",
+      "sha256": "1560810e63621b65aef6a3ed2f620020bd54b73204fc81f554f482508d55421a"
+    },
+    {
+      "path": "data/raw/inspur-2018-inventec-2026-10-04/fetch-report.json",
+      "sha256": "23d7733e220ef2bdfb61ce54b9924f03e0ef63dde98a01bc94cd47dcd66ceee3"
+    },
+    {
+      "path": "data/raw/inspur-rail-2026-10-04/fetch-report.json",
+      "sha256": "2ae54a8f069acdd761aea95a66f98d3bb35ed055139df57f11511d6fcb38ef6c"
+    },
+    {
+      "path": "data/raw/inventec-dongguan-2020-2026-10-04.fetch.json",
+      "sha256": "0ab24f07472f67a3ec97f15c6a89717295a1b284ea3a2532ae1f804bf194dc6d"
+    },
+    {
+      "path": "data/raw/inventec-practical-2026-10-04/entei/fetch-report.json",
+      "sha256": "bc7be28e682617f61fc30179c98207651a1b65971f42bc34a7cc8cab295d24c4"
+    },
+    {
+      "path": "data/raw/inventec-practical-2026-10-04/entei/product-fetch-report.json",
+      "sha256": "594c1ce04e0c68eb5bb4ad251a2b4b694d1f9fd969d0fa45e5d2b74797f39fb6"
+    },
+    {
+      "path": "data/raw/inventec-practical-2026-10-04/golduck/fetch-report.json",
+      "sha256": "d0fd33d0d477ca6e080ed074574f27bb1c2b180ae76046a162a18718034d512a"
+    },
+    {
+      "path": "data/raw/inventec-qct-2026-10-04/fetch-report.json",
+      "sha256": "adfdc128c23f7e96ea5d78d931eb0a69420220eb08cb20dbc029b8cc7c0e4974"
+    },
+    {
+      "path": "data/raw/japan-mic/fetch-report.json",
+      "sha256": "7d44bfa91cdb5fa62ba3c289066ba0caca3388b27ed3be327380886e39bc71d8"
+    },
+    {
+      "path": "data/raw/japan-mic-name-review/fetch-report.json",
+      "sha256": "d44474066ac6ebaa51b5d357e187e2ed5437aeb696282ddb00490473d80468f2"
+    },
+    {
+      "path": "data/raw/meta-minipack2-fetch-report.json",
+      "sha256": "243fc289cddb15f602085c7c8fecd9b139277c1c088816597c6158e5ebbebb64"
+    },
+    {
+      "path": "data/raw/meta-wedge100/fetch-report.json",
+      "sha256": "bff2bbbeb62e5c9724dcf2f37ef15b051e2a5c3f0b5c8cc8849ba6c73f28d516"
+    },
+    {
+      "path": "data/raw/networking-primary-owned-2026-10-04/fetch-ledger.json",
+      "sha256": "aeaec7ed3655c199bd00f961a325d676864b3a14c6253047ff26326a690ae68c"
+    },
+    {
+      "path": "data/raw/nics-wiwynn-hyve-2026-10-04/fetch-report.json",
+      "sha256": "cff1d100d89ac0f85c78b826fcb0f57dd4c4013253ffbeffeb77aff5d61b4b8c"
+    },
+    {
+      "path": "data/raw/odm-models-2026-10-04/fetch-report.json",
+      "sha256": "021a001a82b2fbaf3056e607548319ffcae1ca5f443ae0fd6fd05f25a50dd0a5"
+    },
+    {
+      "path": "data/raw/odm-primary-2026-10-04/fetch-report.json",
+      "sha256": "8bd5804db21df1ed74c16e011dd72b7f064f1fdda13f85e3b48505e5e203da52"
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/capture-ledger.json",
+      "sha256": "e033a70cbd6f28607e69bcb1a719e1574a8bb2911bdb82769682ff9ff72e789f"
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/english-capture-ledger.json",
+      "sha256": "687a29486556f3a41fb8c80c8afb8749d172a946fbc6c998ebc19320295e0bfa"
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/fetch-report.json",
+      "sha256": "9f04538c6605579a4d44b8e639272a9856ff371e45a736d4e9e307f9f1bbdd39"
+    },
+    {
+      "path": "data/raw/storage-inspur-2026-10-04/fetch-report.json",
+      "sha256": "04979557d25a644707ab202518c6977c8510a2ec3f75134bb51c1c24bd974495"
+    },
+    {
+      "path": "data/raw/vendor-discovery-qct-2026-10-04/fetch-report.json",
+      "sha256": "686adb688dcfbc2538c0ff5292035a2263c57145639a2eeb97ad721a353bf2a1"
+    },
+    {
+      "path": "research/batches/campaign-c1-2026-10-04/trade/request-budget.json",
+      "sha256": "3e30d20ba3915c46998c8a8ffd95bbd486ff2bd9704fb28ad4e08d8fb0e596b5"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/hyve-orion-rugged-discovery/requests.jsonl",
+      "sha256": "b3e033c6e6d9b96555585e8cd20277a4dd683acb0fdb5426a0b11f06467d813f"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/fetch-report.json",
+      "sha256": "97f2d16fe886b9223daf188b3dfebb5074a9276d0c869b45f08c7005cb5c4333"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/request-ledger.json",
+      "sha256": "1ea0b9c90d16cecd0c7e06501cba6563e5ad11f846a73d1b1ea787544d2029d6"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json",
+      "sha256": "8b2680da5a015c64976b42407a14bf0f1f6155a1ffc1ab4e1ae98fb3c7412a97"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json",
+      "sha256": "1f8b82c7c790e607c75ca070f194a9c56b1aa137291cc68a2d911451b31b383b"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl",
+      "sha256": "6bdfb0ddb561a6a975b5197113e5fa66a5a55b40251740829c70fc8006056bd8"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu/fetch-report.json",
+      "sha256": "bfd02c6945a82de858f3322d5e716145c12b2e330d4a20c82e26b8c5ed62b2b0"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/qct-compatibility-discovery/requests.jsonl",
+      "sha256": "9d0e1aceb3e2bc6e21449f98833744000d5eec8aa625c8ad1964145118c1a88a"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/spec-continuation/requests.jsonl",
+      "sha256": "13f86f17d4c6d814a8ddf31a1c2dd326021f841719f3adb653d783250cca6570"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/dell-catalog-datasource/requests.jsonl",
+      "sha256": "7e16afb7c7a32050f28f7f76e57c18e3e314ed921c7904d2ab6027ccb835d8a0"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/lvfs-datasource/requests.jsonl",
+      "sha256": "3c269991401368b3e5c33315f13fd19f9d2d1e7ad07753485a312bf59b3ac03d"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/network-platform-datasource/requests.jsonl",
+      "sha256": "a14bb5185cfacffd577c77ee65e0236689d905c729950febaf9fa1a82f0b2ca0"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/requests.jsonl",
+      "sha256": "981eb03ffee977f7453fbe2c7d9dc20a6c96c9043ca42c1ae62facbbd5d7eef5"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/practical-sources/requests.jsonl",
+      "sha256": "3a433adfbf794c734e4b59c6957437ba47ae6285fe3becc45a72f37fd558c084"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/redhat-vendor-expansion/requests.jsonl",
+      "sha256": "2e97e016b039af153f4405c8a5d04f0658850841b3fd2eb5bc0fe6d5a9e3d56b"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/requests.jsonl",
+      "sha256": "899679d1d78346fd4ea63918ac8e0d102f2feab4aaf0a109608c3848d8207992"
+    },
+    {
+      "path": "research/batches/networking-primary-2026-10-04/oracle/capture-ledger.json",
+      "sha256": "624d1cf183229903712e6cc89777efb8dd82b98f27632fe435d7aa2a800ec2f6"
+    },
+    {
+      "path": "research/batches/server-evidence-2026-10-04/ingrasys/capture-ledger.json",
+      "sha256": "af4527f7406a88715d377acd9b948d90f5d54b131c4c66ae9c1059ace218abad"
+    }
+  ],
+  "edgecore_urls": [
+    {
+      "url": "https://www.edge-core.com/_upload/images/AS7712_AS7716-32X_ONIE_DS_R03_20160707.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/AS7712_AS7716-32X_ONIE_DS_R03_20160707.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/AS7712_AS7716-32X_ONIE_DS_R03_20160707.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/AS7712_AS7716-32X_ONIE_DS_R03_20160707.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2023/08/DCS208-AS5812-54X-DS-R15.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2023/08/DCS208-AS5812-54X-DS-R15.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2023/08/DCS208-AS5812-54X-DS-R15.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2023/08/DCS208-AS5812-54X-DS-R15.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS203_AS7326-56X_DS_R09_20230717.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/DCS203_AS7326-56X_DS_R09_20230717.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS203_AS7326-56X_DS_R09_20230717.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/DCS203_AS7326-56X_DS_R09_20230717.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS510_AS9716-32D_DS_R09_20230717.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/DCS510_AS9716-32D_DS_R09_20230717.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS510_AS9716-32D_DS_R09_20230717.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/DCS510_AS9716-32D_DS_R09_20230717.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2021-135-AS7312-54X-DS-R02-20211203.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/2021-135-AS7312-54X-DS-R02-20211203.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2021-135-AS7312-54X-DS-R02-20211203.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/2021-135-AS7312-54X-DS-R02-20211203.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2023-028-EPS203_AS4630-54NPE_DS_R04_20230309.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/2023-028-EPS203_AS4630-54NPE_DS_R04_20230309.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2023-028-EPS203_AS4630-54NPE_DS_R04_20230309.pdf",
+      "comparison_key": "https://www.edge-core.com/_upload/images/2023-028-EPS203_AS4630-54NPE_DS_R04_20230309.pdf",
+      "status": "404",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs204-as7726-32x-ds-r09/",
+      "comparison_key": "https://www.edge-core.com/download/dcs204-as7726-32x-ds-r09/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs204-as7726-32x-ds-r09/",
+      "comparison_key": "https://www.edge-core.com/download/dcs204-as7726-32x-ds-r09/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs500-as7816-64x-ds-r14/",
+      "comparison_key": "https://www.edge-core.com/download/dcs500-as7816-64x-ds-r14/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs500-as7816-64x-ds-r15/",
+      "comparison_key": "https://www.edge-core.com/download/dcs500-as7816-64x-ds-r15/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/eps202-as4630-54p-ds-r08/",
+      "comparison_key": "https://www.edge-core.com/download/eps202-as4630-54p-ds-r08/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/eps202-as4630-54p-ds-r08/",
+      "comparison_key": "https://www.edge-core.com/download/eps202-as4630-54p-ds-r08/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs204-as7726-32x-ds-r09/?wpdmdl=537&refresh=6aca1b3dc57421791630141",
+      "comparison_key": "https://www.edge-core.com/download/dcs204-as7726-32x-ds-r09/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-040-DCS204_AS7726-32X-DS-R09-20260707.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-040-DCS204_AS7726-32X-DS-R09-20260707.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs500-as7816-64x-ds-r15/?wpdmdl=545&refresh=6aca1b3eece0f1791630142",
+      "comparison_key": "https://www.edge-core.com/download/dcs500-as7816-64x-ds-r15/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-036-DCS500_AS7816-64X-DS-R15-20260703.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-036-DCS500_AS7816-64X-DS-R15-20260703.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/eps202-as4630-54p-ds-r08/?wpdmdl=1081&refresh=6aca1b40107cd1791630144",
+      "comparison_key": "https://www.edge-core.com/download/eps202-as4630-54p-ds-r08/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2025/10/2025-057-EPS202_AS4630-54PE-DS-R10-20251030.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2025/10/2025-057-EPS202_AS4630-54PE-DS-R10-20251030.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs203-as7326-56x-ds-r09/",
+      "comparison_key": "https://www.edge-core.com/download/dcs203-as7326-56x-ds-r09/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs203-as7326-56x-ds-r09/",
+      "comparison_key": "https://www.edge-core.com/download/dcs203-as7326-56x-ds-r09/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/dcs203-as7326-56x-ds-r09/?wpdmdl=997&refresh=6aca1b4f967831791630159",
+      "comparison_key": "https://www.edge-core.com/download/dcs203-as7326-56x-ds-r09/",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2025/07/DCS203-AS7326-56X-DS-R10.pdf",
+      "status": "200",
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/robots.txt",
+      "comparison_key": "https://www.edge-core.com/robots.txt",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/robots.txt",
+      "comparison_key": "https://www.edge-core.com/robots.txt",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+      "comparison_key": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+      "comparison_key": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/wedge-100-32x-r04/?wpdmdl=3223&refresh=6acda754b06ef1791862612",
+      "comparison_key": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+      "status": 302,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/wedge-100-32x-r04/?wpdmdl=3223&refresh=6acda754b06ef1791862612",
+      "comparison_key": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+      "status": 302,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "status": null,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "comparison_key": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "comparison_key": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/?wpdmdl=632&refresh=6acdaed8154b81791864536",
+      "comparison_key": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "status": 302,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/?wpdmdl=632&refresh=6acdaed8154b81791864536",
+      "comparison_key": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "status": 302,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2023/08/AS8000-Quick-Start-Guide-R02.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2023/08/AS8000-Quick-Start-Guide-R02.pdf",
+      "status": null,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2023/08/AS8000-Quick-Start-Guide-R02.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2023/08/AS8000-Quick-Start-Guide-R02.pdf",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2023/08/AS8000-Quick-Start-Guide-R02.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2023/08/AS8000-Quick-Start-Guide-R02.pdf",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/requests.json"
+    },
+    {
+      "url": "https://www.edge-core.com/robots.txt",
+      "comparison_key": "https://www.edge-core.com/robots.txt",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/",
+      "comparison_key": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/",
+      "comparison_key": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6acdb799d770c1791866777",
+      "comparison_key": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/",
+      "status": 302,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/AS6700-32X-Quick-Start-Guide.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2024/01/AS6700-32X-Quick-Start-Guide.pdf",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl"
+    },
+    {
+      "url": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6acdb79f3e9e61791866783",
+      "comparison_key": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/",
+      "status": 302,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/AS5710_AS5712-54X-DS-R09-1.pdf",
+      "comparison_key": "https://www.edge-core.com/wp-content/uploads/2024/01/AS5710_AS5712-54X-DS-R09-1.pdf",
+      "status": 200,
+      "ledger": "research/batches/discovery-2026-10-12/original-vendor-wave5/requests.jsonl"
+    }
+  ]
+}

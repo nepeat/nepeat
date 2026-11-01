@@ -1,0 +1,13 @@
+{
+  "helper_sha256": {
+    "promote.py": "d7b46c9baca8bea22397ca89f2f5d3a440da4338e73f8ba6ffeaffd7552c1695",
+    "refresh_exports.py": "3942040b7a90b0d7c5beeaac909141f3bf5f1bea185ff37eaab6807694ef00c3"
+  },
+  "checks": 9,
+  "failures": 0,
+  "errors": 0,
+  "output": "test_all_clone_calls_bind_explicit_expected_hash (__main__.PromotionHelperChecks.test_all_clone_calls_bind_explicit_expected_hash) ... ok\ntest_both_replacements_follow_complete_journal (__main__.PromotionHelperChecks.test_both_replacements_follow_complete_journal) ... ok\ntest_candidate_and_manifest_bind_stage_and_acceptance (__main__.PromotionHelperChecks.test_candidate_and_manifest_bind_stage_and_acceptance) ... ok\ntest_export_backups_precede_refresh_and_success_report (__main__.PromotionHelperChecks.test_export_backups_precede_refresh_and_success_report) ... ok\ntest_export_catalog_read_only_and_queries_are_select (__main__.PromotionHelperChecks.test_export_catalog_read_only_and_queries_are_select) ... ok\ntest_live_hash_guard_and_sidecar_guard_precede_mutations (__main__.PromotionHelperChecks.test_live_hash_guard_and_sidecar_guard_precede_mutations) ... ok\ntest_promote_checks_all_comparison_tables_and_full_baseline (__main__.PromotionHelperChecks.test_promote_checks_all_comparison_tables_and_full_baseline) ... ok\ntest_proof_paths_are_confined_and_review_is_fixed (__main__.PromotionHelperChecks.test_proof_paths_are_confined_and_review_is_fixed) ... ok\ntest_required_proofs_include_all_new_helpers_reviews_and_rebuild (__main__.PromotionHelperChecks.test_required_proofs_include_all_new_helpers_reviews_and_rebuild) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.004s\n\nOK\n",
+  "mode": "static AST/source checks only; no helper main invocation",
+  "shared_paths_written": [],
+  "network_requests": 0
+}

@@ -1,0 +1,273 @@
+{
+  "result": "pass",
+  "checked_document_sha256": {
+    "PROGRESS.md": "6da69b2e0bfeb4489864363ceef63e493c1dcec0863e5892ec12d938a16ba871",
+    "research/inventec-practical-batch-2026-10-04.md": "9f8af9a21b4d453761140d8c50fbd0dd86464b3264dbe8b840d69e3afbb3e62f",
+    "research/inventec-qct-2026-10-04.md": "b7f606cb7a31a0820cb97cea26b7aa2e12fce726c3bb7a2f62f2830367492dfe",
+    "docs/history/README.md": "025a7910c7fc64f85c67151be7ae720cbca8693a486e0f91ff0b2597b1dfd9ac"
+  },
+  "stable_policy_sha256": {
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "AGENTS.md": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7",
+    "docs/agent-workflow.md": "ca55fb9e99e84a0be0712f2eaa9889448b0f3220cc7c694c273ec94ba2a2bb6c"
+  },
+  "docs_handoff_sha256": "e2a589d3f8b75e7e64fd545986395aba182001291bd1bd6d2fe37f5f87a94f21",
+  "local_links_checked": [
+    [
+      "PROGRESS.md",
+      "GOAL.md"
+    ],
+    [
+      "PROGRESS.md",
+      "AGENTS.md"
+    ],
+    [
+      "PROGRESS.md",
+      "docs/agent-workflow.md"
+    ],
+    [
+      "PROGRESS.md",
+      "research/inventec-practical-batch-2026-10-04.md"
+    ],
+    [
+      "PROGRESS.md",
+      "README.md"
+    ],
+    [
+      "PROGRESS.md",
+      "docs/buying-reports.md"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/inventec-practical-2026-10-04/source-review.md"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/inventec-practical-2026-10-04/candidate-review.md"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/inventec-practical-2026-10-04/integration/staging-ready.json"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/inventec-practical-2026-10-04/integration/promotion-result.json"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/inventec-practical-2026-10-04/integration/final-verification.json"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/inventec-practical-2026-10-04/integration/final-freeze.json"
+    ],
+    [
+      "PROGRESS.md",
+      "data/exports/inventec-practical-2026-10-04-buying-reports.json"
+    ],
+    [
+      "PROGRESS.md",
+      "research/server-evidence-batch-2026-10-04.md"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/server-evidence-2026-10-04/ingrasys/handoff.md"
+    ],
+    [
+      "PROGRESS.md",
+      "docs/history/README.md"
+    ],
+    [
+      "PROGRESS.md",
+      "research/batches/inventec-practical-2026-10-04/next-work-verification.json"
+    ],
+    [
+      "PROGRESS.md",
+      "research/owned-networking-buying-2026-10-04.md"
+    ],
+    [
+      "PROGRESS.md",
+      "research/owned-oracle-buying-2026-10-04.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "../PROGRESS.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "../docs/agent-workflow.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/source-review.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/acceptance.json"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/entei/handoff.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/golduck/handoff.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/candidate-review.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/integration/promotion-result.json"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/integration/final-verification.json"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/integration/final-freeze.json"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "../PROGRESS.md"
+    ],
+    [
+      "research/inventec-practical-batch-2026-10-04.md",
+      "batches/inventec-practical-2026-10-04/next-work-verification.json"
+    ],
+    [
+      "research/inventec-qct-2026-10-04.md",
+      "inventec-practical-batch-2026-10-04.md"
+    ],
+    [
+      "research/inventec-qct-2026-10-04.md",
+      "../PROGRESS.md"
+    ],
+    [
+      "research/inventec-qct-2026-10-04.md",
+      "vendor-discovery-batch-2026-10-04.md"
+    ],
+    [
+      "research/inventec-qct-2026-10-04.md",
+      "../README.md"
+    ],
+    [
+      "docs/history/README.md",
+      "../../GOAL.md"
+    ],
+    [
+      "docs/history/README.md",
+      "../../PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "../../README.md"
+    ],
+    [
+      "docs/history/README.md",
+      "../../AGENTS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-inventec-practical/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-inventec-practical/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-server-evidence/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-server-evidence/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-networking-primary/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-networking-primary/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-vendor-discovery/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-vendor-discovery/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-owned-buying-import/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-owned-buying-import/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-owned-buying/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-owned-buying/owned-hardware-gaps.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-owned-buying/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-nics-wiwynn-hyve/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-nics-wiwynn-hyve/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-workflow-simplification/manifest.json"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-workflow-simplification/GOAL.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-workflow-simplification/PROGRESS.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-workflow-simplification/README.md"
+    ],
+    [
+      "docs/history/README.md",
+      "2026-10-04-before-workflow-simplification/AGENTS.snapshot.md"
+    ],
+    [
+      "docs/history/README.md",
+      "../../research/"
+    ]
+  ],
+  "next_work_rows_equal_after_promotion": [
+    "FPGA SmartNIC C5020X",
+    "QuantaPlex T42S-2U"
+  ],
+  "live_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "html_key_roles": "Inventec Corporation manufacturer source separate from Inventec brand/platform_vendor sources",
+  "goal": "active",
+  "allowed_coordinator_completion_edits": [
+    "mark docs review complete and link report in PROGRESS and milestone note",
+    "write milestone-completion.json"
+  ],
+  "closed_finding": {
+    "file": "PROGRESS.md",
+    "wording": "Preserve prefixes; do not infer a C5000X alias.",
+    "sha256": "d25d02cd2130eace87cdb87d67ef9c9a7d8195cb3d33264916780cb533928f3f"
+  }
+}

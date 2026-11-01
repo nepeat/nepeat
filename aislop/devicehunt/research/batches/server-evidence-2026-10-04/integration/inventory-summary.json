@@ -1,0 +1,11 @@
+{
+  "manufacturer": {
+    "identity_target_pairs": 2142,
+    "unique_identities": 2141
+  },
+  "all": {
+    "identity_target_pairs": 4227,
+    "unique_identities": 4089
+  },
+  "hyperscaler_assertions": 22
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+    "final_url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+    "http_status": 200,
+    "fetched_at": "2026-10-04T23:00:28.889695+00:00",
+    "method": "Python urllib.request GET, public official Oracle documentation; no gated endpoints",
+    "headers": {
+      "Server": "AkamaiNetStorage",
+      "Content-Length": "36063",
+      "Content-Type": "text/html",
+      "Akamai-GRN": "0.86f23517.1791154829.7f377b21",
+      "ETag": "\"231f546574c302022476433ee0f6d43e:1775843202.583072\"",
+      "Cache-Control": "max-age=21600",
+      "Date": "Sun, 04 Oct 2026 23:00:29 GMT",
+      "Connection": "close"
+    },
+    "cache_path": "data/raw/networking-primary-oracle-2026-10-04/oracle-x7-2c-vpat-t2-6972.html",
+    "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+    "size_bytes": 36063
+  }
+]

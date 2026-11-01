@@ -1,0 +1,160 @@
+{
+  "at_utc": "2026-10-13T04:54:21.216150+00:00",
+  "status": "PASS finite discovery checks; independent review pending",
+  "actual_HTTP": 9,
+  "total_HTTP_cap": 12,
+  "statuses": {
+    "200": 7,
+    "302": 2
+  },
+  "standalone_policy_inclusive_counts": {
+    "oracle": 2,
+    "as6700": 4,
+    "as5712": 4
+  },
+  "policies": [
+    {
+      "sequence": 3,
+      "URL": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-specifications.html",
+      "policy_sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0",
+      "allowed": true,
+      "declared_delay_seconds": 0,
+      "actual_gap_since_prior_same_host_completion_seconds": 13.093259
+    },
+    {
+      "sequence": 4,
+      "URL": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/",
+      "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "allowed": true,
+      "declared_delay_seconds": 0,
+      "actual_gap_since_prior_same_host_completion_seconds": 7.789851
+    },
+    {
+      "sequence": 5,
+      "URL": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/",
+      "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "allowed": true,
+      "declared_delay_seconds": 0,
+      "actual_gap_since_prior_same_host_completion_seconds": 4.508007
+    },
+    {
+      "sequence": 6,
+      "URL": "https://www.edge-core.com/download/as6700-32x-quick-start-guide/?wpdmdl=3288&refresh=6acdb799d770c1791866777",
+      "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "allowed": true,
+      "declared_delay_seconds": 0,
+      "actual_gap_since_prior_same_host_completion_seconds": 20.458688
+    },
+    {
+      "sequence": 7,
+      "URL": "https://www.edge-core.com/wp-content/uploads/2024/01/AS6700-32X-Quick-Start-Guide.pdf",
+      "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "allowed": true,
+      "declared_delay_seconds": 0,
+      "actual_gap_since_prior_same_host_completion_seconds": 6.456951
+    },
+    {
+      "sequence": 8,
+      "URL": "https://www.edge-core.com/download/as5710_as5712-54x-ds-r09-2/?wpdmdl=3327&refresh=6acdb79f3e9e61791866783",
+      "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "allowed": true,
+      "declared_delay_seconds": 0,
+      "actual_gap_since_prior_same_host_completion_seconds": 3.359682
+    },
+    {
+      "sequence": 9,
+      "URL": "https://www.edge-core.com/wp-content/uploads/2024/01/AS5710_AS5712-54X-DS-R09-1.pdf",
+      "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+      "allowed": true,
+      "declared_delay_seconds": 0,
+      "actual_gap_since_prior_same_host_completion_seconds": 5.954767
+    }
+  ],
+  "sources": {
+    "as6700-quick-start.pdf": {
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "bytes": 886779,
+      "sidecar": "as6700-pages.json",
+      "sidecar_sha256": "fd8c4ba80be27ceb94de924a7ba75bf0ade90613743078cd9107a15c6da67ef6",
+      "pages": 2,
+      "metadata": {
+        "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+        "extractor_version": "26.06.0",
+        "pdfinfo_version": "26.06.0",
+        "pdf_page_count": 2,
+        "extraction_options": {
+          "layout": true,
+          "encoding": "UTF-8",
+          "eol": "unix",
+          "remove_hyphens": "none",
+          "page_selection": "individual",
+          "page_breaks": false
+        }
+      }
+    },
+    "as5710-as5712-ds-r09.pdf": {
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "bytes": 201945,
+      "sidecar": "as5712-pages.json",
+      "sidecar_sha256": "77850b847d33b76c07251cc55fa542d71164018382011eb30c11b0f63f6f9e87",
+      "pages": 4,
+      "metadata": {
+        "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+        "extractor_version": "26.06.0",
+        "pdfinfo_version": "26.06.0",
+        "pdf_page_count": 4,
+        "extraction_options": {
+          "layout": true,
+          "encoding": "UTF-8",
+          "eol": "unix",
+          "remove_hyphens": "none",
+          "page_selection": "individual",
+          "page_breaks": false
+        }
+      }
+    },
+    "oracle7420-specifications.html": {
+      "sha256": "9e4c532efbb0a19ecf67d35a925b8c65ddfa7de857c26c16ec66e497b0a4b37b",
+      "bytes": 10720,
+      "method": "original article/table markup; stdlib text aid, no screenshot"
+    }
+  },
+  "complete_PDF_pages": 6,
+  "distinct_PDF_pages_visually_reviewed": 6,
+  "local_renders": 7,
+  "local_render_cap": 8,
+  "visual_files_viewed": [
+    "as6700-1.png",
+    "as6700-2.png",
+    "as5712-1.png",
+    "as5712-2.png",
+    "as5712-3.png",
+    "as5712-4.png",
+    "as5712-reread4-4.png"
+  ],
+  "observations": 36,
+  "ordering_rows": 38,
+  "ordering_configuration_rows": 24,
+  "ordering_FRU_service_accessory_rows": 14,
+  "unresolved_fan_model_rows": 2,
+  "raw_locators_verified": 74,
+  "no_candidate": true,
+  "no_import": true,
+  "OCR": false,
+  "searches": 0,
+  "remote_screenshots": 0,
+  "retries": 0,
+  "unchanged_frozen_utilities": true,
+  "prior_plan_inputs_unchanged": true,
+  "artifacts": {
+    "requests.jsonl": "6bdfb0ddb561a6a975b5197113e5fa66a5a55b40251740829c70fc8006056bd8",
+    "capture-report.json": "2c95d3b5c12cdb187a4887d820c0a19c8dcdb946a1cf2a1806f929b76e3c621b",
+    "published-downloads.json": "118f45442959a444a39c8d2c9a2653beb3d12453ccb66ed88f4eb5a845731b63",
+    "render-provenance.json": "3c8c83dfd8a11ffc405e1ede00e83c61b0ccc1307d59d55c5646b09dddf8bb0a",
+    "findings.json": "95838a2586022a9b1e3dab7b00a3d82f4102a0a41fef0e444d8fb0208ae3a1f0",
+    "oracle-html-observations.json": "ee000337806e2b9000e9c679391f69240ca22543b6c4b9a9c206c155d42f62f1",
+    "fetch.py": "66115da44955596da1ee790fdde5b1b1b12a73dd1eceadac74db9fd616dd39e7",
+    "observe.py": "32caf0c70dab623510a819200882f577bb4c60cb9d889c7d85e9511c220d5be4"
+  },
+  "scope": "Only new original-vendor-wave5 artifacts written; raw bytes immutable, no production/sharedDB/manifest/archive/export/currentdocs changes, network expansion, installs or delegation"
+}

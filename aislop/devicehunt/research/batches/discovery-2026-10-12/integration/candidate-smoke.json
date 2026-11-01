@@ -1,0 +1,895 @@
+{
+  "PFE1100-12-054NA": {
+    "search": [
+      {
+        "id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "title": "PFE1100-12-054NA power supply module",
+        "kind": "power supply module"
+      },
+      {
+        "id": "09106c6a887a880ac487",
+        "brand": "Meta OpenBMC platform",
+        "model": "minipack",
+        "revision": "",
+        "title": "Meta OpenBMC platform minipack",
+        "kind": "BMC firmware platform definition (software reference)"
+      }
+    ],
+    "specifications": [
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "cooling_description",
+        "statement": "Series overview states fan cooling; ordering table defines N as Normal and R as Reverse airflow. For the exact NA identity, normal is a printed option label; connector-to-connector direction is not stated on these pages. [PDF p. 2, 9]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "physical_description",
+        "statement": "Printed small form factor: 321.5 \u00d7 54.5 \u00d7 40 mm (12.66 \u00d7 2.14 \u00d7 1.57 in); dimension order preserved without assigning unprinted axes. [PDF p. 1]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Always-On 16.5 W programmable standby output (3.3/5 V) is a series feature; it is not an instruction to sum rail maxima. [PDF p. 1]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Figure 20 for PFE1100-12-054NA shows nominal main-output current derating dependent on AC input voltage and ambient temperature. Prose says current limitation decreases above 45\u00b0C inlet ambient or when AC input is too low, and actual V1 current limitation begins approximately 4 A above Figure 20. No graph points are digitized or transferred from the separate RA Figure 21. [PDF p. 9]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Main output V1 nominal voltage 12.0 VDC; nominal output power 1080 W and nominal output current 90.0 ADC at V1 = 12 VDC. Table general condition Ta = 0 \u2026 +45 \u00b0C unless otherwise noted; these are not current-limitation thresholds. [PDF p. 5]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Normal-airflow standby nominal ratings: 3.3 VDC, 16.5 W, 5 ADC; or 5.0 VDC, 16.5 W, 3.3 ADC. Table general condition Ta = 0 \u2026 +45 \u00b0C unless otherwise noted. [PDF p. 5]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "power_description",
+        "statement": "PFE1100-12-054xA series is described as a 1100 Watt AC to DC power supply with 12 VDC main output; this class description is distinct from the nominal main-output table rating. [PDF p. 1]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "6425003dc04a9da584c498ae",
+        "device_id": "ea0f256425c572960e94",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1100-12-054NA",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Series wide input voltage range: 90\u2013264 VAC; output derating applies at low input voltage/raised ambient temperature. [PDF p. 1, 9]",
+        "source_id": "psu-bel-pfe1100-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+        "tier": "vendor"
+      }
+    ],
+    "document_matches": {
+      "state": "loaded",
+      "query": "PFE1100-12-054NA",
+      "fcc_id": null,
+      "source": null,
+      "matches": 5,
+      "shown": 5,
+      "truncated": false,
+      "rows": [
+        {
+          "document_key": "625a82e3a3cca6ccf798466d",
+          "source_id": "reference-pdf-psu-bel-pfe1100-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1100-series-2026-10-12",
+          "title": "bel-pfe1100-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1100-series.pdf",
+          "pdf_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+          "page_count": 25,
+          "pages_with_text": 25,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 5,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 45\u00b0C                                            93.5            100\n              [PFE1100]-[12]-[054NA]             Vi > 90 VAC, Ta < 45\u00b0C                                              74             78\nI1 max        Current Limitation           Vi > 180 VAC, Ta < 45\u00b0C                                             91             95\n                                                                                                                                         ADC\n              [PFE1100]-[12]-054RA             Vi > 90 VAC, Ta \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1100-series.pdf"
+        },
+        {
+          "document_key": "625a82e3a3cca6ccf798466d",
+          "source_id": "reference-pdf-psu-bel-pfe1100-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1100-series-2026-10-12",
+          "title": "bel-pfe1100-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1100-series.pdf",
+          "pdf_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+          "page_count": 25,
+          "pages_with_text": 25,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 6,
+          "text_status": "embedded_text",
+          "excerpt": "6\n                                                                                             [PFE1100]-[12]-054xA\n\n    Internal capacitance at the [12] V output (behind the OR-ing circuitry) is minimized to prevent disturbances during hot plug. In\n    order to provide low output ripple voltage in the application, external \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1100-series.pdf"
+        },
+        {
+          "document_key": "625a82e3a3cca6ccf798466d",
+          "source_id": "reference-pdf-psu-bel-pfe1100-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1100-series-2026-10-12",
+          "title": "bel-pfe1100-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1100-series.pdf",
+          "pdf_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+          "page_count": 25,
+          "pages_with_text": 25,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 8,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 45\u00b0C                                    93.5                   100\n                     [PFE1100]-[12]-[054NA]       Vi > 90VAC, Ta < 45\u00b0C                                      74                    78\n     IV1 lim                                                                                                                              A\n                     Current Limit V1       Vi > 180VAC, Ta < 45\u00b0C                                     92                    100\n                     [PFE1100]-[12]-054RA       Vi > 90VAC, Ta < 45\u00b0C \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1100-series.pdf"
+        },
+        {
+          "document_key": "625a82e3a3cca6ccf798466d",
+          "source_id": "reference-pdf-psu-bel-pfe1100-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1100-series-2026-10-12",
+          "title": "bel-pfe1100-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1100-series.pdf",
+          "pdf_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+          "page_count": 25,
+          "pages_with_text": 25,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 9,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 Vi and Ta for\n                                                                         [PFE1100]-[12]-[054NA]                                                                                                                                                       [PFE1100]-[12]-054RA\n                                                                                                                                                                                                                           6\n\n\n\n\n                                                                                                                                                                   Standby Output Nominal Current\n                                                      5\n\n\n\n\n     Standby Output Voltage [V]\n                                                                                                                                                                                                                           5\n                                                      4\n                                                                                                                                                                                                                           4\n\n                                                      3\n                                                                                                                                                                                                                           3\n\n\n\n\n                                                                                                                                                                                [A]\n                                                      2                                                                                                                                                                                                     Vsb = 3.3V, RA\n                                                                                                                                                                                                                           2\n                                                                          VSB=3.3V                                                                                                                                                                          Vsb \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1100-series.pdf"
+        },
+        {
+          "document_key": "625a82e3a3cca6ccf798466d",
+          "source_id": "reference-pdf-psu-bel-pfe1100-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1100-series-2026-10-12",
+          "title": "bel-pfe1100-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1100-series.pdf",
+          "pdf_sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+          "page_count": 25,
+          "pages_with_text": 25,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 20,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 The [PFE1100]-[12]-[054NA] is provided with\n     a normal airflow, which means the air enters through the rear of the supply and leaves at the front. The [PFE1100]-[12]-054RA\n     is provided with a reverse airflow \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1100-series.pdf"
+        }
+      ],
+      "scope": "Page text matches, not independent model corroboration. No OCR; image content can be missing even on pages with some text. Blank-text pages remain in the archive. An empty query lists all pages including pages without embedded text."
+    }
+  },
+  "PFE1500-12-054NAC": {
+    "search": [
+      {
+        "id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "title": "PFE1500-12-054NAC power supply module",
+        "kind": "power supply module"
+      },
+      {
+        "id": "09106c6a887a880ac487",
+        "brand": "Meta OpenBMC platform",
+        "model": "minipack",
+        "revision": "",
+        "title": "Meta OpenBMC platform minipack",
+        "kind": "BMC firmware platform definition (software reference)"
+      }
+    ],
+    "specifications": [
+      {
+        "record_id": "567533e2320e168eced34eb5",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Canada/United States, NAC-listed model group, 100\u2013200 VAC input: 83.4\u2013125 A at 45\u00b0C; 69\u2013104 A at 60\u00b0C. These are linear derating ranges, not a constant rating at every input voltage. [PDF p. 4]",
+        "source_id": "psu-bel-pfe1500-csa-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "567533e2320e168eced34eb5",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Canada/United States, NAC-listed model group, 200\u2013240 VAC or 200\u2013350 VDC input: 125 A at 45\u00b0C; 104 A at 60\u00b0C. [PDF p. 4]",
+        "source_id": "psu-bel-pfe1500-csa-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "567533e2320e168eced34eb5",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Countries other than Canada/United States, NAC-listed model group, 100\u2013200 VAC input: 66.5\u2013125 A at 45\u00b0C; 66.5\u2013104 A at 60\u00b0C. These are linear derating ranges, not a constant rating at every input voltage. [PDF p. 4]",
+        "source_id": "psu-bel-pfe1500-csa-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "567533e2320e168eced34eb5",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Countries other than Canada/United States, NAC-listed model group, 200\u2013240 VAC or 200\u2013350 VDC input: 125 A at 45\u00b0C; 104 A at 60\u00b0C. [PDF p. 4]",
+        "source_id": "psu-bel-pfe1500-csa-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "567533e2320e168eced34eb5",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "For model groups explicitly including PFE1500-12-054NAC, main output V1 = 12.0 V; output derates linearly as ambient increases 45\u00b0C \u2192 60\u00b0C and input voltage decreases 200 VAC \u2192 100 VAC. Regional tables remain separate. [PDF p. 4]",
+        "source_id": "psu-bel-pfe1500-csa-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "999a9374aad07d71bc3fdfc2",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Certificate rated AC input for listed model group including NAC: 100\u2013240 V ~, 12\u20137 A, 50/60 Hz. [PDF p. 1]",
+        "source_id": "psu-bel-pfe1500-nemko-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-EN-62368-1-3rd-nemko-cert-456320.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "999a9374aad07d71bc3fdfc2",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Certificate rated output for listed model group including NAC: V1 12.0 Vdc, 125 A; Vsb alternatives 5 Vdc, 3.3 A / 3.3 Vdc, 5 A. [PDF p. 1]",
+        "source_id": "psu-bel-pfe1500-nemko-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-EN-62368-1-3rd-nemko-cert-456320.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "999a9374aad07d71bc3fdfc2",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "V1 maximum output power is de-rated at different input voltages and operating ambient temperatures; certificate directs the reader to Conditions of Acceptability. It does not establish 125 A at every operating condition. [PDF p. 1]",
+        "source_id": "psu-bel-pfe1500-nemko-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-EN-62368-1-3rd-nemko-cert-456320.pdf",
+        "tier": "certification_body"
+      },
+      {
+        "record_id": "59d0fa0c10106cb00f856a18",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "cooling_description",
+        "statement": "N Normal Airflow from Output connector to Input AC socket; the exact PFE1500-12-054NAC ordering row is under that normal-airflow footnote. [PDF p. 2]",
+        "source_id": "psu-bel-pfe1500-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "59d0fa0c10106cb00f856a18",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Exact PFE1500-12-054NAC ordering row: C16 AC input connector; input range 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC. These operating ranges are distinct from certificate rated-input ranges. [PDF p. 2]",
+        "source_id": "psu-bel-pfe1500-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "59d0fa0c10106cb00f856a18",
+        "device_id": "9d145f7548a7d2f0f68e",
+        "brand": "Bel Fuse Inc.",
+        "model": "PFE1500-12-054NAC",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Upper standard ordering group has programmable 3.3/5 V standby; lower S412 12 VSB models are separate and excluded from this NAC statement. [PDF p. 2]",
+        "source_id": "psu-bel-pfe1500-series-2026-10-12",
+        "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf",
+        "tier": "vendor"
+      }
+    ],
+    "document_matches": {
+      "state": "loaded",
+      "query": "PFE1500-12-054NAC",
+      "fcc_id": null,
+      "source": null,
+      "matches": 9,
+      "shown": 9,
+      "truncated": false,
+      "rows": [
+        {
+          "document_key": "f1c1856cbfef38e573ca60a0",
+          "source_id": "reference-pdf-psu-bel-pfe1500-csa-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-csa-2026-10-12",
+          "title": "bel-pfe1500-csa \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-csa.pdf",
+          "pdf_sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+          "page_count": 7,
+          "pages_with_text": 7,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 1,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 Power Supply, Models [PFE1500]-[12]-054NAH; [PFE1500]-[12]-[054NAC]; [PFE1500]-[12]-054NA; PPC33 A022;\n    [PFE1500]-[12]-054RAH; [PFE1500]-[12]-054RAC; [PFE1500]-[12]-054RA; SPABRCD-14G; SPABRCD-15G,\n    SPABRCD-16, SPABRCD-17, [PFE1500]-[12NAS412], [PFE1500]-[12NACS412], [PFE1500] \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-csa.pdf"
+        },
+        {
+          "document_key": "f1c1856cbfef38e573ca60a0",
+          "source_id": "reference-pdf-psu-bel-pfe1500-csa-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-csa-2026-10-12",
+          "title": "bel-pfe1500-csa \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-csa.pdf",
+          "pdf_sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+          "page_count": 7,
+          "pages_with_text": 7,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 2,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 Vin\\ambient                     45\u00b0C                60\u00b0C\n     100-200Vac                      90-[125A]             69-104A\n     200-240Vac,200-380Vdc           [125A]                104A\n\n    For [PFE1500]-[12]-[054NAC], [PFE1500]-[12]-054RAC, [PFE1500]-[12]-054NA, [PFE1500]-[12]-054RA, For\n    [PFE1500]-[12]-[054NAC], [PFE1500] \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-csa.pdf"
+        },
+        {
+          "document_key": "f1c1856cbfef38e573ca60a0",
+          "source_id": "reference-pdf-psu-bel-pfe1500-csa-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-csa-2026-10-12",
+          "title": "bel-pfe1500-csa \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-csa.pdf",
+          "pdf_sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+          "page_count": 7,
+          "pages_with_text": 7,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 4,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 Vin\\ambient                          45\u00b0C                     60\u00b0C\n               100-200Vac                           70-91A                             14-19A\n               200-240Vac, 200-380Vdc               91A                                19A\n\n\n              For [PFE1500]-[12]-[054NAC], [PFE1500]-[12]-054RAC, [PFE1500]-[12]-054NA, [PFE1500]-[12]-054RA, [PFE1500]-\n              [12NAS412], [PFE1500]-[12NACS412], SPABRCD \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-csa.pdf"
+        },
+        {
+          "document_key": "f1c1856cbfef38e573ca60a0",
+          "source_id": "reference-pdf-psu-bel-pfe1500-csa-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-csa-2026-10-12",
+          "title": "bel-pfe1500-csa \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-csa.pdf",
+          "pdf_sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+          "page_count": 7,
+          "pages_with_text": 7,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 7,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 80005631              2019-06-07      Component Power Supplies, models [PFE1500]-[12]-054NAH; [PFE1500]-[12]-\n                                            [054NAC]; [PFE1500]-[12]-054NA; PPC33 A022; [PFE1500]-[12]-054RAH;\n                                            [PFE1500]-[12]-054RAC; [PFE1500]-[12]-054RA; SPABRCD-14G; SPABRCD-\n                                            15G, SPABRCD-16, SPABRCD-17 \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-csa.pdf"
+        },
+        {
+          "document_key": "0c51698be53d6994c9fb26cd",
+          "source_id": "reference-pdf-psu-bel-pfe1500-nemko-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-nemko-2026-10-12",
+          "title": "bel-pfe1500-nemko \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-EN-62368-1-3rd-nemko-cert-456320.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-nemko.pdf",
+          "pdf_sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+          "page_count": 2,
+          "pages_with_text": 2,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 1,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 [12].0Vdc, [125A]; Vsb: 5 Vdc, 3.3 A / 3.3 Vdc, 5A.\nTrade mark\n\n\n\n\nModel / Type Ref.                               [PFE1500]-[12]-054NA, SPABRCD-14G, SPABRCD-15G, [PFE1500]-[12]-[054NAC],\n                                                [PFE1500]-[12]-054NAH, [PFE1500]-[12]-054RA, [PFE1500]-[12] \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-nemko.pdf"
+        },
+        {
+          "document_key": "0c51698be53d6994c9fb26cd",
+          "source_id": "reference-pdf-psu-bel-pfe1500-nemko-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-nemko-2026-10-12",
+          "title": "bel-pfe1500-nemko \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-EN-62368-1-3rd-nemko-cert-456320.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-nemko.pdf",
+          "pdf_sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+          "page_count": 2,
+          "pages_with_text": 2,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 2,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 [PFE1500]-[12NAS412], [PFE1500]-[12NACS412], [PFE1500]-[12]-[054NACS439]\nTrade mark (if different from page 1)\nRating                                          [PFE1500]-[12NAS412], [PFE1500]-[12NACS412]:\n                                                AC input: 100-240V ~, [12]-7A, 50/60Hz; DC Input: 200-350VDC, 10-5A\n                                                [PFE1500]-[12]-[054NACS439] \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-nemko.pdf"
+        },
+        {
+          "document_key": "01f75d1395bba63d0020c9c7",
+          "source_id": "reference-pdf-psu-bel-pfe1500-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-series-2026-10-12",
+          "title": "bel-pfe1500-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-series.pdf",
+          "pdf_sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+          "page_count": 27,
+          "pages_with_text": 27,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 2,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 [PFE1500]-[12]-054NA for C14 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC\n        Ordering PN: [PFE1500]-[12]-[054NAC] for C16 AC input connector, input range is 180 VDC ~ 350 \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-series.pdf"
+        },
+        {
+          "document_key": "01f75d1395bba63d0020c9c7",
+          "source_id": "reference-pdf-psu-bel-pfe1500-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-series-2026-10-12",
+          "title": "bel-pfe1500-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-series.pdf",
+          "pdf_sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+          "page_count": 27,
+          "pages_with_text": 27,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 20,
+          "text_status": "embedded_text",
+          "excerpt": " \u2026 The [PFE1500]-[12]-054NA, [PFE1500]-[12]-[054NAC],\n     [PFE1500]-[12]-054NAH and [PFE1500]-[12NA]/NAC/NAHS412 are provided with normal airflow, which means the air enters through\n     the DC-output of the supply and leaves at the \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-series.pdf"
+        },
+        {
+          "document_key": "01f75d1395bba63d0020c9c7",
+          "source_id": "reference-pdf-psu-bel-pfe1500-series-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-bel-pfe1500-series-2026-10-12",
+          "title": "bel-pfe1500-series \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf",
+          "pdf_file": "psu-2026-10-12-bel-pfe1500-series.pdf",
+          "pdf_sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+          "page_count": 27,
+          "pages_with_text": 27,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 26,
+          "text_status": "embedded_text",
+          "excerpt": "26                                                                                                 [PFE1500] Series\n\n     AC INPUT CONNECTOR:\n\n     [PFE1500]-[12]-054NA/RA,[PFE1500]-[12NA]/RAS412: Power supplier connector: IEC320 C14 type\n     [PFE1500]-[12]-[054NAC]/RAC,[PFE1500]-[12NACS412]: Power supplier connector: IEC320 C16 type\n     [PFE1500]-[12]-054NAH/RAH,[PFE1500] \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-bel-pfe1500-series.pdf"
+        }
+      ],
+      "scope": "Page text matches, not independent model corroboration. No OCR; image content can be missing even on pages with some text. Blank-text pages remain in the archive. An empty query lists all pages including pages without embedded text."
+    }
+  },
+  "FSP550-29FM": {
+    "search": [
+      {
+        "id": "f63a657adee41527b848",
+        "brand": "FSP",
+        "model": "FSP550-29FM",
+        "revision": "",
+        "title": "FSP550-29FM power supply module",
+        "kind": "power supply module"
+      },
+      {
+        "id": "29bd33f0df6ec85e8a80",
+        "brand": "SONiC platform",
+        "model": "x86_64-cel_ds2000-r0",
+        "revision": "",
+        "title": "SONiC platform x86_64-cel_ds2000-r0",
+        "kind": "network switch software platform definition"
+      },
+      {
+        "id": "5371e30e2a24ffe65e03",
+        "brand": "SONiC platform",
+        "model": "x86_64-cel_ds3000-r0",
+        "revision": "",
+        "title": "SONiC platform x86_64-cel_ds3000-r0",
+        "kind": "network switch software platform definition"
+      }
+    ],
+    "specifications": [
+      {
+        "record_id": "26e84ae8e55ff66f8a0ccc95",
+        "device_id": "f63a657adee41527b848",
+        "brand": "FSP",
+        "model": "FSP550-29FM",
+        "revision": "",
+        "category": "physical_description",
+        "statement": "Dimension (L \u00d7 W \u00d7 H): 185 \u00d7 73.5 \u00d7 39 mm; 7.28 \u00d7 2.89 \u00d7 1.53 inch. These are page-1 specifications, not the disputed page-2 drawing. [PDF p. 1]",
+        "source_id": "psu-fsp550-29fm-2026-10-12",
+        "source_url": "https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "26e84ae8e55ff66f8a0ccc95",
+        "device_id": "f63a657adee41527b848",
+        "brand": "FSP",
+        "model": "FSP550-29FM",
+        "revision": "",
+        "category": "physical_description",
+        "statement": "Working temperature: 0\u00b0C to 55\u00b0C. [PDF p. 1]",
+        "source_id": "psu-fsp550-29fm-2026-10-12",
+        "source_url": "https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "26e84ae8e55ff66f8a0ccc95",
+        "device_id": "f63a657adee41527b848",
+        "brand": "FSP",
+        "model": "FSP550-29FM",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Input specifications: 90\u2013264 VAC, 47\u201363 Hz; input current 115 VAC @ 8 A, 230 VAC @ 4 A. Output rating is separately scoped to 100\u2013240 V input. [PDF p. 1]",
+        "source_id": "psu-fsp550-29fm-2026-10-12",
+        "source_url": "https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "26e84ae8e55ff66f8a0ccc95",
+        "device_id": "f63a657adee41527b848",
+        "brand": "FSP",
+        "model": "FSP550-29FM",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Output rating at 100\u2013240 V input: +12 V, minimum 1.0 A and maximum 45.8 A; +12 Vsb, minimum 0.0 A and maximum 2.1 A. Rail maxima are separate; no simultaneous summed total is inferred. [PDF p. 1]",
+        "source_id": "psu-fsp550-29fm-2026-10-12",
+        "source_url": "https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf",
+        "tier": "vendor"
+      },
+      {
+        "record_id": "26e84ae8e55ff66f8a0ccc95",
+        "device_id": "f63a657adee41527b848",
+        "brand": "FSP",
+        "model": "FSP550-29FM",
+        "revision": "",
+        "category": "power_description",
+        "statement": "Redundant power supply module based on CRPS 2.0; total power capacity up to 550 Watts. [PDF p. 1]",
+        "source_id": "psu-fsp550-29fm-2026-10-12",
+        "source_url": "https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf",
+        "tier": "vendor"
+      }
+    ],
+    "document_matches": {
+      "state": "loaded",
+      "query": "FSP550-29FM",
+      "fcc_id": null,
+      "source": null,
+      "matches": 1,
+      "shown": 1,
+      "truncated": false,
+      "rows": [
+        {
+          "document_key": "d0e4425538673aed3b1db32b",
+          "source_id": "reference-pdf-psu-fsp550-29fm-2026-10-12",
+          "fcc_id": "",
+          "document_id": "psu-fsp550-29fm-2026-10-12",
+          "title": "fsp550-29fm \u2014 complete captured PSU document",
+          "category": "power supply documentation",
+          "source_url": "https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf",
+          "pdf_file": "psu-2026-10-12-fsp550-29fm.pdf",
+          "pdf_sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+          "page_count": 2,
+          "pages_with_text": 2,
+          "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+          "page_number": 1,
+          "text_status": "embedded_text",
+          "excerpt": "                                TECHNICAL DATASHEET\n\n                                550W CRPS Module\n                                [FSP550]-[29FM]\n\n\n\n                                                                            [FSP550]-[29FM]\n                                                                             FEATURES\n                                                                              \u2022 Certified CB 62368-1 & CB 60950-1\n                                                                              \u2022 Meet 80 Plus Platinum\n                                                                              \u2022 Meet CRPS 2.0\n                                                                              \u2022 Meet PMBus 1.2\n                                                                              \u2022 Design for 5,000 Meter above sea \u2026 ",
+          "local_pdf": "/home/erin/nepeat/aislop/devicehunt/data/raw/psu-2026-10-12-fsp550-29fm.pdf"
+        }
+      ],
+      "scope": "Page text matches, not independent model corroboration. No OCR; image content can be missing even on pages with some text. Blank-text pages remain in the archive. An empty query lists all pages including pages without embedded text."
+    }
+  },
+  "manufacturer_inventory": {
+    "scope_description": "Collected catalog evidence only, not a complete historical inventory or an independent factory audit. Manufacturer scope includes named manufacturer, regulatory manufacturer and declared OEM claims on imported external snapshots. Legal manufacturer need not be the physical factory. Factory listings are separate. Other roles, seller claims and unhashed evidence are available with scope all. Each target and role must occur on the same evidence record; brand labels alone never qualify. No unit provenance, current certification, availability or software entitlement is inferred.",
+    "scope": "manufacturer",
+    "vendor": null,
+    "manufacturer_roles": [
+      "declared_manufacturer",
+      "declared_oem",
+      "manufacturer",
+      "registry_manufacturer"
+    ],
+    "factory_roles": [
+      "listed_factory"
+    ],
+    "identity_target_pairs": 2147,
+    "unique_identities": 2146,
+    "shown": 0,
+    "truncated": true,
+    "counts_by_target": [
+      {
+        "target": "Accton",
+        "identities": 425,
+        "source_records": 491,
+        "sources": 12,
+        "role_assertions": 491
+      },
+      {
+        "target": "Edge-Core",
+        "identities": 219,
+        "source_records": 291,
+        "sources": 7,
+        "role_assertions": 291
+      },
+      {
+        "target": "Celestica",
+        "identities": 198,
+        "source_records": 244,
+        "sources": 11,
+        "role_assertions": 246
+      },
+      {
+        "target": "Oracle",
+        "identities": 859,
+        "source_records": 928,
+        "sources": 11,
+        "role_assertions": 928
+      },
+      {
+        "target": "Amazon Data Services",
+        "identities": 176,
+        "source_records": 212,
+        "sources": 11,
+        "role_assertions": 212
+      },
+      {
+        "target": "Inventec",
+        "identities": 44,
+        "source_records": 75,
+        "sources": 3,
+        "role_assertions": 75
+      },
+      {
+        "target": "Hyve",
+        "identities": 11,
+        "source_records": 11,
+        "sources": 3,
+        "role_assertions": 11
+      },
+      {
+        "target": "Foxconn",
+        "identities": 169,
+        "source_records": 170,
+        "sources": 1,
+        "role_assertions": 170
+      },
+      {
+        "target": "Wiwynn",
+        "identities": 2,
+        "source_records": 2,
+        "sources": 1,
+        "role_assertions": 2
+      },
+      {
+        "target": "TD SYNNEX",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Quanta",
+        "identities": 41,
+        "source_records": 58,
+        "sources": 4,
+        "role_assertions": 58
+      },
+      {
+        "target": "ByteDance",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Inspur",
+        "identities": 3,
+        "source_records": 3,
+        "sources": 1,
+        "role_assertions": 3
+      }
+    ],
+    "rows": []
+  },
+  "all_associations": {
+    "scope_description": "Collected catalog evidence only, not a complete historical inventory or an independent factory audit. Manufacturer scope includes named manufacturer, regulatory manufacturer and declared OEM claims on imported external snapshots. Legal manufacturer need not be the physical factory. Factory listings are separate. Other roles, seller claims and unhashed evidence are available with scope all. Each target and role must occur on the same evidence record; brand labels alone never qualify. No unit provenance, current certification, availability or software entitlement is inferred.",
+    "scope": "all",
+    "vendor": null,
+    "manufacturer_roles": [
+      "declared_manufacturer",
+      "declared_oem",
+      "manufacturer",
+      "registry_manufacturer"
+    ],
+    "factory_roles": [
+      "listed_factory"
+    ],
+    "identity_target_pairs": 4591,
+    "unique_identities": 4448,
+    "shown": 0,
+    "truncated": true,
+    "counts_by_target": [
+      {
+        "target": "Accton",
+        "identities": 1143,
+        "source_records": 1446,
+        "sources": 23,
+        "role_assertions": 1665
+      },
+      {
+        "target": "Edge-Core",
+        "identities": 807,
+        "source_records": 1129,
+        "sources": 108,
+        "role_assertions": 1298
+      },
+      {
+        "target": "Celestica",
+        "identities": 379,
+        "source_records": 539,
+        "sources": 32,
+        "role_assertions": 597
+      },
+      {
+        "target": "Oracle",
+        "identities": 1286,
+        "source_records": 1622,
+        "sources": 106,
+        "role_assertions": 2465
+      },
+      {
+        "target": "Amazon Data Services",
+        "identities": 213,
+        "source_records": 281,
+        "sources": 19,
+        "role_assertions": 446
+      },
+      {
+        "target": "Inventec",
+        "identities": 85,
+        "source_records": 127,
+        "sources": 23,
+        "role_assertions": 170
+      },
+      {
+        "target": "Hyve",
+        "identities": 35,
+        "source_records": 35,
+        "sources": 10,
+        "role_assertions": 43
+      },
+      {
+        "target": "Foxconn",
+        "identities": 204,
+        "source_records": 205,
+        "sources": 4,
+        "role_assertions": 206
+      },
+      {
+        "target": "Wiwynn",
+        "identities": 35,
+        "source_records": 44,
+        "sources": 26,
+        "role_assertions": 70
+      },
+      {
+        "target": "TD SYNNEX",
+        "identities": 6,
+        "source_records": 6,
+        "sources": 5,
+        "role_assertions": 6
+      },
+      {
+        "target": "Quanta",
+        "identities": 175,
+        "source_records": 291,
+        "sources": 204,
+        "role_assertions": 297
+      },
+      {
+        "target": "ByteDance",
+        "identities": 0,
+        "source_records": 0,
+        "sources": 0,
+        "role_assertions": 0
+      },
+      {
+        "target": "Inspur",
+        "identities": 223,
+        "source_records": 384,
+        "sources": 242,
+        "role_assertions": 514
+      }
+    ],
+    "rows": []
+  },
+  "candidate_hash_unchanged": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee"
+}

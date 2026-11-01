@@ -1,0 +1,38 @@
+--- before/devicehunt/reference_documents.py
++++ devicehunt/reference_documents.py
+@@ -5,7 +5,7 @@
+ from urllib.parse import urlsplit
+ 
+ from .catalog import digest
+-from .documents import dependency, read_pages, reindex
++from .documents import dependency, read_capture, reindex
+ 
+ COLLECTION = 'public-device-references-v1'
+ PREFIX = 'reference-pdf-'
+@@ -34,7 +34,7 @@
+         pdf = dependency(path.parent, entry['pdf'])
+         if not pdf.startswith(b'%PDF-'):
+             raise ValueError('Reference document is not a PDF')
+-        pages = read_pages(dependency(path.parent, entry['text']), digest(pdf))
++        pages, metadata = read_capture(dependency(path.parent, entry['text']), digest(pdf))
+         if type(entry.get('page_count')) is not int or entry['page_count'] != len(pages):
+             raise ValueError('Reference PDF page count changed')
+         values = {'id': entry['id'], 'url': entry['url'], 'pdf': entry['pdf']['path'], 'sha256': digest(pdf)}
+@@ -42,7 +42,7 @@
+             if value in seen[key]:
+                 raise ValueError('Duplicate reference document ' + key)
+             seen[key].add(value)
+-        ready.append((entry, pages))
++        ready.append((dict(entry, extraction_method=metadata['extraction_method']), pages))
+     return path, ready
+ 
+ 
+@@ -66,7 +66,7 @@
+         c.db.execute('INSERT INTO documents VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                      (key, sid, '', entry['id'], entry['title'], entry['category'], entry['url'],
+                       entry['pdf']['path'], entry['pdf']['sha256'], len(pages), with_text,
+-                      'pypdf embedded text; no OCR'))
++                      entry['extraction_method']))
+         c.db.executemany('INSERT INTO document_pages VALUES (?,?,?,?)',
+                         [(key, p['page'], p['text'], 'embedded_text' if p['text'].strip() else 'no_embedded_text') for p in pages])
+         c.db.execute('UPDATE sources SET records_seen=1 WHERE id=?', (sid,))

@@ -1,0 +1,1249 @@
+{
+  "case": {
+    "name": "as7326",
+    "query": "AS7326-56X",
+    "exact_model": true
+  },
+  "actual_baseline_cli_argv": [
+    "--db",
+    "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+    "specs",
+    "AS7326-56X",
+    "--include-source-facts",
+    "--format",
+    "json",
+    "--exact-model"
+  ],
+  "baseline_full_rows": [
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "IP Infusion HCL reports 1RU; 438 × 536 × 43.5 mm; 10.0 kg / 22.05 lb",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "dimensions (in, compatibility list): 17.24 × 21.10 × 1.71 in",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_dimensions_in"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "dimensions (mm, compatibility list): 438 × 536 × 43.5 mm",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_dimensions_mm"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "weight (compatibility list): 10.0 kg / 22.05 lb",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_weight"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "power_description",
+      "statement": "IP Infusion HCL reports power: 550 W max; measurement conditions and PSU rating are unspecified.",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "IP Infusion HCL lists OcNOS 7.0.1 for OcNOS-DC. Listed SKUs: OcNOS-DC-IPBASE-2000, OcNOS-DC-PLUS-2000. Snapshot compatibility only; software access and license transfer are not established.",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "f2fba5926bf0cf93033e87c3",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Catalog describes AC and DC PSU options; no installed-unit supply claim",
+      "source_id": "ocp-products-reviewed",
+      "source_url": "https://www.opencompute.org/products/116/edgecore-networks-as7326-56x-25g-top-of-rack-switch",
+      "tier": "project",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "0a729e084fde0c7399e3ac2d",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+      "source_id": "picos45-edgecore-accton",
+      "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "5+1 redundant, hot-swappable fan modules",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "All ports on front; PSUs and fans accessible from rear",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Supports hot/cold aisles with front-to-back or back-to-front airflow SKUs.",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "power_description",
+      "statement": "All ports on front; PSUs and fans accessible from rear",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings.",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": ""
+    }
+  ],
+  "precollapse_full_rows": [
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "IP Infusion HCL reports 1RU; 438 × 536 × 43.5 mm; 10.0 kg / 22.05 lb",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "physical_description",
+        "value": "IP Infusion HCL reports 1RU; 438 × 536 × 43.5 mm; 10.0 kg / 22.05 lb"
+      },
+      "affiliations": [
+        {
+          "company": "Edgecore",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "IP Infusion",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AS7326-56X"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "dimensions (in, compatibility list): 17.24 × 21.10 × 1.71 in",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_dimensions_in",
+      "raw_fact": {
+        "name": "compatibility_dimensions_in",
+        "value": "17.24 × 21.10 × 1.71 in"
+      },
+      "affiliations": [
+        {
+          "company": "Edgecore",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "IP Infusion",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AS7326-56X"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "dimensions (mm, compatibility list): 438 × 536 × 43.5 mm",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_dimensions_mm",
+      "raw_fact": {
+        "name": "compatibility_dimensions_mm",
+        "value": "438 × 536 × 43.5 mm"
+      },
+      "affiliations": [
+        {
+          "company": "Edgecore",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "IP Infusion",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AS7326-56X"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "weight (compatibility list): 10.0 kg / 22.05 lb",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_weight",
+      "raw_fact": {
+        "name": "compatibility_weight",
+        "value": "10.0 kg / 22.05 lb"
+      },
+      "affiliations": [
+        {
+          "company": "Edgecore",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "IP Infusion",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AS7326-56X"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "power_description",
+      "statement": "IP Infusion HCL reports power: 550 W max; measurement conditions and PSU rating are unspecified.",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "power_description",
+        "value": "IP Infusion HCL reports power: 550 W max; measurement conditions and PSU rating are unspecified."
+      },
+      "affiliations": [
+        {
+          "company": "Edgecore",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "IP Infusion",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AS7326-56X"
+    },
+    {
+      "record_id": "cf652385471fc568e688ee65",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "IP Infusion HCL lists OcNOS 7.0.1 for OcNOS-DC. Listed SKUs: OcNOS-DC-IPBASE-2000, OcNOS-DC-PLUS-2000. Snapshot compatibility only; software access and license transfer are not established.",
+      "source_id": "ipinfusion-ocnos-hcl",
+      "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "software_installation_description",
+        "value": "IP Infusion HCL lists OcNOS 7.0.1 for OcNOS-DC. Listed SKUs: OcNOS-DC-IPBASE-2000, OcNOS-DC-PLUS-2000. Snapshot compatibility only; software access and license transfer are not established."
+      },
+      "affiliations": [
+        {
+          "company": "Edgecore",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "IP Infusion",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AS7326-56X"
+    },
+    {
+      "record_id": "f2fba5926bf0cf93033e87c3",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Catalog describes AC and DC PSU options; no installed-unit supply claim",
+      "source_id": "ocp-products-reviewed",
+      "source_url": "https://www.opencompute.org/products/116/edgecore-networks-as7326-56x-25g-top-of-rack-switch",
+      "tier": "project",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "power_description",
+        "value": "Catalog describes AC and DC PSU options; no installed-unit supply claim"
+      },
+      "affiliations": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "brand"
+        },
+        {
+          "company": "Edgecore Networks",
+          "target": "Edge-Core",
+          "role": "solution_provider"
+        }
+      ],
+      "source_key": "116|AS7326-56X"
+    },
+    {
+      "record_id": "0a729e084fde0c7399e3ac2d",
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+      "source_id": "picos45-edgecore-accton",
+      "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "software_installation_description",
+        "value": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table."
+      },
+      "affiliations": [
+        {
+          "company": "Accton",
+          "target": "Accton",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "compatibility_partner"
+        },
+        {
+          "company": "Pica8",
+          "target": null,
+          "role": "software_vendor"
+        }
+      ],
+      "source_key": "AS7326-56X"
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "5+1 redundant, hot-swappable fan modules",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "cooling_description",
+        "value": "5+1 redundant, hot-swappable fan modules"
+      },
+      "affiliations": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "brand"
+        }
+      ],
+      "source_key": "https://www.edge-core.com/product/dcs203/"
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "All ports on front; PSUs and fans accessible from rear",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "cooling_description",
+        "value": "All ports on front; PSUs and fans accessible from rear"
+      },
+      "affiliations": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "brand"
+        }
+      ],
+      "source_key": "https://www.edge-core.com/product/dcs203/"
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Supports hot/cold aisles with front-to-back or back-to-front airflow SKUs.",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "cooling_description",
+        "value": "Supports hot/cold aisles with front-to-back or back-to-front airflow SKUs."
+      },
+      "affiliations": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "brand"
+        }
+      ],
+      "source_key": "https://www.edge-core.com/product/dcs203/"
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "power_description",
+      "statement": "All ports on front; PSUs and fans accessible from rear",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "power_description",
+        "value": "All ports on front; PSUs and fans accessible from rear"
+      },
+      "affiliations": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "brand"
+        }
+      ],
+      "source_key": "https://www.edge-core.com/product/dcs203/"
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "power_description",
+        "value": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs"
+      },
+      "affiliations": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "brand"
+        }
+      ],
+      "source_key": "https://www.edge-core.com/product/dcs203/"
+    },
+    {
+      "record_id": "44be88f0a6e926feaa2b8614",
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings.",
+      "source_id": "edgecore-products",
+      "source_url": "https://www.edge-core.com/product/dcs203/",
+      "tier": "vendor",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "raw_fact": {
+        "name": "software_installation_description",
+        "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings."
+      },
+      "affiliations": [
+        {
+          "company": "Edge-Core",
+          "target": "Edge-Core",
+          "role": "brand"
+        }
+      ],
+      "source_key": "https://www.edge-core.com/product/dcs203/"
+    }
+  ],
+  "prototype_groups": [
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "IP Infusion HCL reports 1RU; 438 × 536 × 43.5 mm; 10.0 kg / 22.05 lb",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "cf652385471fc568e688ee65",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "IP Infusion HCL reports 1RU; 438 × 536 × 43.5 mm; 10.0 kg / 22.05 lb",
+          "source_id": "ipinfusion-ocnos-hcl",
+          "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "physical_description",
+            "value": "IP Infusion HCL reports 1RU; 438 × 536 × 43.5 mm; 10.0 kg / 22.05 lb"
+          },
+          "affiliations": [
+            {
+              "company": "Edgecore",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "IP Infusion",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "dimensions (in, compatibility list): 17.24 × 21.10 × 1.71 in",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_dimensions_in",
+      "evidence": [
+        {
+          "record_id": "cf652385471fc568e688ee65",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "dimensions (in, compatibility list): 17.24 × 21.10 × 1.71 in",
+          "source_id": "ipinfusion-ocnos-hcl",
+          "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+          "tier": "vendor",
+          "origin": "source fact",
+          "source_fact_name": "compatibility_dimensions_in",
+          "raw_fact": {
+            "name": "compatibility_dimensions_in",
+            "value": "17.24 × 21.10 × 1.71 in"
+          },
+          "affiliations": [
+            {
+              "company": "Edgecore",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "IP Infusion",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "dimensions (mm, compatibility list): 438 × 536 × 43.5 mm",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_dimensions_mm",
+      "evidence": [
+        {
+          "record_id": "cf652385471fc568e688ee65",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "dimensions (mm, compatibility list): 438 × 536 × 43.5 mm",
+          "source_id": "ipinfusion-ocnos-hcl",
+          "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+          "tier": "vendor",
+          "origin": "source fact",
+          "source_fact_name": "compatibility_dimensions_mm",
+          "raw_fact": {
+            "name": "compatibility_dimensions_mm",
+            "value": "438 × 536 × 43.5 mm"
+          },
+          "affiliations": [
+            {
+              "company": "Edgecore",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "IP Infusion",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "physical_description",
+      "statement": "weight (compatibility list): 10.0 kg / 22.05 lb",
+      "origin": "source fact",
+      "source_fact_name": "compatibility_weight",
+      "evidence": [
+        {
+          "record_id": "cf652385471fc568e688ee65",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "physical_description",
+          "statement": "weight (compatibility list): 10.0 kg / 22.05 lb",
+          "source_id": "ipinfusion-ocnos-hcl",
+          "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+          "tier": "vendor",
+          "origin": "source fact",
+          "source_fact_name": "compatibility_weight",
+          "raw_fact": {
+            "name": "compatibility_weight",
+            "value": "10.0 kg / 22.05 lb"
+          },
+          "affiliations": [
+            {
+              "company": "Edgecore",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "IP Infusion",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "power_description",
+      "statement": "IP Infusion HCL reports power: 550 W max; measurement conditions and PSU rating are unspecified.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "cf652385471fc568e688ee65",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "power_description",
+          "statement": "IP Infusion HCL reports power: 550 W max; measurement conditions and PSU rating are unspecified.",
+          "source_id": "ipinfusion-ocnos-hcl",
+          "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "IP Infusion HCL reports power: 550 W max; measurement conditions and PSU rating are unspecified."
+          },
+          "affiliations": [
+            {
+              "company": "Edgecore",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "IP Infusion",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "IP Infusion HCL lists OcNOS 7.0.1 for OcNOS-DC. Listed SKUs: OcNOS-DC-IPBASE-2000, OcNOS-DC-PLUS-2000. Snapshot compatibility only; software access and license transfer are not established.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "cf652385471fc568e688ee65",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "software_installation_description",
+          "statement": "IP Infusion HCL lists OcNOS 7.0.1 for OcNOS-DC. Listed SKUs: OcNOS-DC-IPBASE-2000, OcNOS-DC-PLUS-2000. Snapshot compatibility only; software access and license transfer are not established.",
+          "source_id": "ipinfusion-ocnos-hcl",
+          "source_url": "https://www.ipinfusion.com/resources/ocnos-hardware-compatibility-list/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "software_installation_description",
+            "value": "IP Infusion HCL lists OcNOS 7.0.1 for OcNOS-DC. Listed SKUs: OcNOS-DC-IPBASE-2000, OcNOS-DC-PLUS-2000. Snapshot compatibility only; software access and license transfer are not established."
+          },
+          "affiliations": [
+            {
+              "company": "Edgecore",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "IP Infusion",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Catalog describes AC and DC PSU options; no installed-unit supply claim",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "f2fba5926bf0cf93033e87c3",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "power_description",
+          "statement": "Catalog describes AC and DC PSU options; no installed-unit supply claim",
+          "source_id": "ocp-products-reviewed",
+          "source_url": "https://www.opencompute.org/products/116/edgecore-networks-as7326-56x-25g-top-of-rack-switch",
+          "tier": "project",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "Catalog describes AC and DC PSU options; no installed-unit supply claim"
+          },
+          "affiliations": [
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "brand"
+            },
+            {
+              "company": "Edgecore Networks",
+              "target": "Edge-Core",
+              "role": "solution_provider"
+            }
+          ],
+          "source_key": "116|AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "48164812037dec8361c2",
+      "brand": "Edge-Core",
+      "model": "AS7326-56X",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "0a729e084fde0c7399e3ac2d",
+          "device_id": "48164812037dec8361c2",
+          "brand": "Edge-Core",
+          "model": "AS7326-56X",
+          "revision": "",
+          "category": "software_installation_description",
+          "statement": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table.",
+          "source_id": "picos45-edgecore-accton",
+          "source_url": "https://pica8-fs.atlassian.net/wiki/spaces/PicOS45/pages/258605211/EdgeCore+Accton+Switch",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "software_installation_description",
+            "value": "Listed in the PICOS 4.5 guide hardware table. Exact release support, required firmware, image access and license entitlement are not established by this table."
+          },
+          "affiliations": [
+            {
+              "company": "Accton",
+              "target": "Accton",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "compatibility_partner"
+            },
+            {
+              "company": "Pica8",
+              "target": null,
+              "role": "software_vendor"
+            }
+          ],
+          "source_key": "AS7326-56X"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "5+1 redundant, hot-swappable fan modules",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "44be88f0a6e926feaa2b8614",
+          "device_id": "d116419d3eeb206d22d7",
+          "brand": "Edge-Core",
+          "model": "DCS203",
+          "revision": "",
+          "category": "cooling_description",
+          "statement": "5+1 redundant, hot-swappable fan modules",
+          "source_id": "edgecore-products",
+          "source_url": "https://www.edge-core.com/product/dcs203/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "cooling_description",
+            "value": "5+1 redundant, hot-swappable fan modules"
+          },
+          "affiliations": [
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "brand"
+            }
+          ],
+          "source_key": "https://www.edge-core.com/product/dcs203/"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "All ports on front; PSUs and fans accessible from rear",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "44be88f0a6e926feaa2b8614",
+          "device_id": "d116419d3eeb206d22d7",
+          "brand": "Edge-Core",
+          "model": "DCS203",
+          "revision": "",
+          "category": "cooling_description",
+          "statement": "All ports on front; PSUs and fans accessible from rear",
+          "source_id": "edgecore-products",
+          "source_url": "https://www.edge-core.com/product/dcs203/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "cooling_description",
+            "value": "All ports on front; PSUs and fans accessible from rear"
+          },
+          "affiliations": [
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "brand"
+            }
+          ],
+          "source_key": "https://www.edge-core.com/product/dcs203/"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "cooling_description",
+      "statement": "Supports hot/cold aisles with front-to-back or back-to-front airflow SKUs.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "44be88f0a6e926feaa2b8614",
+          "device_id": "d116419d3eeb206d22d7",
+          "brand": "Edge-Core",
+          "model": "DCS203",
+          "revision": "",
+          "category": "cooling_description",
+          "statement": "Supports hot/cold aisles with front-to-back or back-to-front airflow SKUs.",
+          "source_id": "edgecore-products",
+          "source_url": "https://www.edge-core.com/product/dcs203/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "cooling_description",
+            "value": "Supports hot/cold aisles with front-to-back or back-to-front airflow SKUs."
+          },
+          "affiliations": [
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "brand"
+            }
+          ],
+          "source_key": "https://www.edge-core.com/product/dcs203/"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "power_description",
+      "statement": "All ports on front; PSUs and fans accessible from rear",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "44be88f0a6e926feaa2b8614",
+          "device_id": "d116419d3eeb206d22d7",
+          "brand": "Edge-Core",
+          "model": "DCS203",
+          "revision": "",
+          "category": "power_description",
+          "statement": "All ports on front; PSUs and fans accessible from rear",
+          "source_id": "edgecore-products",
+          "source_url": "https://www.edge-core.com/product/dcs203/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "All ports on front; PSUs and fans accessible from rear"
+          },
+          "affiliations": [
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "brand"
+            }
+          ],
+          "source_key": "https://www.edge-core.com/product/dcs203/"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "power_description",
+      "statement": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "44be88f0a6e926feaa2b8614",
+          "device_id": "d116419d3eeb206d22d7",
+          "brand": "Edge-Core",
+          "model": "DCS203",
+          "revision": "",
+          "category": "power_description",
+          "statement": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs",
+          "source_id": "edgecore-products",
+          "source_url": "https://www.edge-core.com/product/dcs203/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "power_description",
+            "value": "Hot-swappable, load-sharing, redundant AC or -48V DC PSUs"
+          },
+          "affiliations": [
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "brand"
+            }
+          ],
+          "source_key": "https://www.edge-core.com/product/dcs203/"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    },
+    {
+      "device_id": "d116419d3eeb206d22d7",
+      "brand": "Edge-Core",
+      "model": "DCS203",
+      "revision": "",
+      "category": "software_installation_description",
+      "statement": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings.",
+      "origin": "curated statement",
+      "source_fact_name": "",
+      "evidence": [
+        {
+          "record_id": "44be88f0a6e926feaa2b8614",
+          "device_id": "d116419d3eeb206d22d7",
+          "brand": "Edge-Core",
+          "model": "DCS203",
+          "revision": "",
+          "category": "software_installation_description",
+          "statement": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings.",
+          "source_id": "edgecore-products",
+          "source_url": "https://www.edge-core.com/product/dcs203/",
+          "tier": "vendor",
+          "origin": "curated statement",
+          "source_fact_name": "",
+          "raw_fact": {
+            "name": "software_installation_description",
+            "value": "Hardware switch pre-loaded with Open Network Install Environment (ONIE) for automated loading of compatible open source and commerical NOS offerings."
+          },
+          "affiliations": [
+            {
+              "company": "Edge-Core",
+              "target": "Edge-Core",
+              "role": "brand"
+            }
+          ],
+          "source_key": "https://www.edge-core.com/product/dcs203/"
+        }
+      ],
+      "evidence_count": 1,
+      "record_count": 1,
+      "source_count": 1
+    }
+  ],
+  "scope": "read-only diagnostic/prototype; grouped output is not implemented or accepted",
+  "baseline_cli_sha256": "1b03c4a3acb898a42a8a5c3ef2779b03d64d82ef8ca3c8956fd465c76c7037c2"
+}

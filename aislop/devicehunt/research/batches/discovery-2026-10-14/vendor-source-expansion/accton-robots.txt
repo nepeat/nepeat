@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /*?c=
+Disallow: /*?channel=
+Disallow: /*&c=
+Disallow: /*&channel=
+

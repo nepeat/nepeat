@@ -1,0 +1,48 @@
+{'records_added': 5, 'records_removed': 0, 'records_changed': 0, 'records_moved': 0, 'records_unchanged': 149, 'raw_rows_added': 0, 'raw_rows_removed': 0, 'raw_rows_reordered': False, 'raw_row_numbers_changed': False} ['coverage', 'sha256']
+SUN-6000:Netra 6000 Chassis 85dd12651cb287e5f37e [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']] [['rra_certificate_id', 'SUN-6000']]
+SUN-6000:Netra 6000 AC 99b508523e17ada2c42e [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']] [['rra_certificate_id', 'SUN-6000']]
+SUN-6000:6000 9be05aeb826e74c4dbf7 [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']] [['rra_certificate_id', 'SUN-6000']]
+SUN-6000:Sun Blade 6000 Chassis bc5c87bcc9774cbe3065 [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']] [['rra_certificate_id', 'SUN-6000']]
+SUN-6000:Oracle Sun Blade 6000 Chassis M2 ff05b8155e26edf980db [['Celestica Kladno s.r.o.', 'Celestica', 'registry_manufacturer'], ['ORACLE AMERICA. INC', 'Oracle', 'regulatory_applicant']] [['rra_certificate_id', 'SUN-6000']]
+[
+ [
+  "approval_date_raw",
+  "2007-05-15"
+ ],
+ [
+  "country_raw",
+  "멕시코"
+ ],
+ [
+  "detail_sha256",
+  "3c01977f51bc25c4865c1c7e59c4fe7024d6e7cb4c8a46f20ceee5aeedfa870b"
+ ],
+ [
+  "manufacturer_cell_basis",
+  "reviewed certificate-scoped exact cell; The certificate SUN-6000 was returned by the regulator's own manufacturer query for 'Celestica' (source rra-official-query-41e4ca912b33, row 90; the detail page hash is this entry's detail_sha256). The cell text names two companies. Celestica Kladno s.r.o. is mapped to Celestica because the saved archived Exhibit 21.1 extract lists 'Celestica Kladno, s.r.o.' (evidence period not established); the unit already maps that name for other certificates. Celestica de Monterrey S.A. de C.V. appears in no saved reviewed extract and stays unmapped literal context. The mapped role is registry_manufacturer, the regulator's labelled manufacturer field."
+ ],
+ [
+  "manufacturer_cell_part",
+  "{\"company_evidence\": null, \"name_basis\": \"kept as literal context only: no saved reviewed extract (2025 Exhibit 21.1, SEC 8.1, archived 21.1) relates this name to Celestica; a Celestica-containing name returned by the Celestica query is a substring match, not an entity-relationship review, and the project does not map other such names (e.g. Celestica Czech Republic, s.r.o. on SUN-445); same treatment as SUN-X6200-Series and SUN-T6300 in rra-reviewed-manufacturer-lists\", \"name_evidence\": \"unmapped_context\", \"role\": null, \"target\": null, \"text\": \"Celestica de Monterrey S.A. de C.V.\"}"
+ ],
+ [
+  "manufacturer_cell_part",
+  "{\"company_evidence\": {\"capture_method\": \"reviewed factual web-search exhibit extract; not original PDF\", \"evidence_period\": \"not established from reviewed excerpt\", \"exhibit\": \"21.1\", \"legal_name\": \"Celestica Kladno, s.r.o.\", \"mapping_basis\": \"exact legal name after punctuation normalization\", \"scope\": \"historical legal-name association only; ownership at approval date and current ownership unverified\", \"sha256\": \"94ae2a80ac4fc89536afd748f01af1536f1a0b43ab76eaf23cdcc3376f9a45c5\", \"source_url\": \"https://corporate.celestica.com/static-files/aae92c39-4634-4e66-805e-6fb4adca1376\", \"target\": \"Celestica\"}, \"name_basis\": \"already maps to Celestica via the reviewed archived Exhibit 21.1 extract ('Celestica Kladno, s.r.o.', evidence period not established); stated here so the entry does not silently depend on it\", \"name_evidence\": \"base\", \"role\": \"registry_manufacturer\", \"target\": \"Celestica\", \"text\": \"Celestica Kladno s.r.o.\"}"
+ ],
+ [
+  "manufacturer_cell_review",
+  "{\"cell_text_sha256\": \"4b68ec1b447e01f9b15bf3de88a0ea2d724a1693b0272097559c7541964e23d5\", \"detail_sha256\": \"3c01977f51bc25c4865c1c7e59c4fe7024d6e7cb4c8a46f20ceee5aeedfa870b\", \"evidence_sha256\": \"6daf8c28102bbe160e4757a15216057d66bbf08de485697c83996ab2720d54b7\", \"limits\": [\"no factory or physical-manufacture claim; the cell lists two companies and one country field (멕시코, Mexico), which is not split per factory; the Monterrey name carries no role or affiliation\", \"no claim about which entity built any unit, or when; the certificate date is 2007-05-15\", \"the same cell also appears under the Oracle manufacturer query (row 215, identical detail page); that occurrence receives no claims and is not independent corroboration\", \"main and derived model identities stay the RRA's literal strings; derived names are RRA-asserted for this certificate only\", \"not merged with the Oracle-documented 'Sun Blade 6000 Modular System' identity\", \"the Celestica-brand identity 'Sun Blade 6000 Chassis' (RRA-asserted derived name) is distinct from, and never merged with, the Oracle-brand 'Sun Blade 6000 Chassis' retired-hardware identity; the bare main model '6000' is the RRA's literal string\"], \"reviewed_on\": \"2026-10-11\"}"
+ ],
+ [
+  "manufacturer_cell_unlabelled_text",
+  "(Oracle America, Inc.)"
+ ],
+ [
+  "rra_main_model",
+  "6000"
+ ],
+ [
+  "rra_manufacturer_as_
+coverage diff: ain per-record evidence. Reporting periods for the two historical excerpts are unverified; these establish historical legal-name associations, not current ownership, ownership at approval date or factory location. Composite manufacturer cells remain unsplit. Exception to unsplit composite cells: 1 reviewed certificate-scoped entry (SUN-6000): each names the exact manufacturer cell text and hash and its split parts as registry_manufacturer; a trailing unlabelled parenthetical is not a role. Part names without reviewed legal-name evidence are scoped to that certificate only. No factory, per-factory country or sole-manufacturer claim is made, and the same cell under another query gets no claim.
+{'csv_rows_before': 151, 'csv_rows_after': 151, 'detail_pages': 151, 'eligible_manufacturer_rows': 106, 'model_assertions': 154} {'validated_original_records_sha256': '140dcdd98664c0ab2b94dcf502e7706bb51e3ac69f0091cb793086daa717ae5d'}
+True ['SUN-6000:6000', 'SUN-6000:Netra 6000 AC', 'SUN-6000:Netra 6000 Chassis', 'SUN-6000:Oracle Sun Blade 6000 Chassis M2', 'SUN-6000:Sun Blade 6000 Chassis'] 563b3456007e61d8c78783054ceae6d4de175c85f80e138db620b618e957a94b

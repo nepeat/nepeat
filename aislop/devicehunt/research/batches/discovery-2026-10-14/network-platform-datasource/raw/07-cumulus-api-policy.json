@@ -1,0 +1,14 @@
+{
+  "sequence": 7,
+  "url": "https://platforms.cumulusnetworks.com/robots.txt",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:50:05.149991+00:00",
+  "automatic_redirects": false,
+  "retries": 0,
+  "policy": null,
+  "status": null,
+  "error_type": "URLError",
+  "error": "<urlopen error [Errno -2] Name or service not known>",
+  "finished_utc": "2026-10-15T05:50:05.568982+00:00"
+}

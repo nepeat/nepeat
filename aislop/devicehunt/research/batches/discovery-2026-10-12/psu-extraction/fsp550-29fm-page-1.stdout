@@ -1,0 +1,72 @@
+                                TECHNICAL DATASHEET
+
+                                550W CRPS Module
+                                FSP550-29FM
+
+
+
+                                                                            FSP550-29FM
+                                                                             FEATURES
+                                                                              • Certified CB 62368-1 & CB 60950-1
+                                                                              • Meet 80 Plus Platinum
+                                                                              • Meet CRPS 2.0
+                                                                              • Meet PMBus 1.2
+                                                                              • Design for 5,000 Meter above sea level
+                                                                              • High Reliability
+                                                                              • Low Ripple & Noise
+                                                                              • Over Current Protection
+                                                                              • Over Temperature Protection
+                                                                              • Over Voltage Protection
+
+
+                                                                                 SAFETY STANDARD APPROVAL
+
+
+
+
+DESCRIPTION
+
+FSP550-29FM is a redundant power supply module base on CRPS 2.0 standard. The power supply comes to offer the total power
+capacity up to 550 Watts, and provides PMbus features, which makes it to be able communicate with motherboard. In addition, the
+power supply is ideally the best choice for datacenter, workstation, communication or any other automation applications to use. The
+product also complies with the latest safety and EMC standards, which is perfectly to meet various regulations worldwide.
+
+GENERAL SPECIFICATIONS
+
+Dimension (L x W x H):       185 x 73.5 x 39 (mm)                Environment
+                             7.28 x 2.89 x 1.53 (inch)            Working temperature:     0°C to 55°C
+                                                                  Storage temperature:     -20°C to + 80°C
+Efficiency:                  80 Plus Platinum                     Working humidity:        5% to 90% RH non-condensing
+                                                                  Storage humidity:        5% to 95% RH non-condensing
+Hold-up time at 100%:        12V = 11ms
+Loading                      12Vsb = 70ms                        MTBF (SR-332 Issue 2): 500,000 hours of continuous operation at 55°C, 100% output load
+
+Operating altitude:          5,000 meters above sea level        Applications:             Storage System , Workstation, Industry Controller
+
+
+
+INPUT SPECIFICATIONS
+
+Input voltage:                     90-264Vac
+Input frequency:                   47-63Hz
+Input current:                     115Vac @ 8A, 230Vac @ 4A
+
+
+OUTPUT RATING
+
+               Outputs             Input          Min.       Max.            CLST Peak                 CLST Peak                  Pmax Peak
+                                  Voltage        Current    Current       20 Sec. duration          10m Sec. duration          100μ Sec. duration
+
+               +12V             100~240V           1.0A       45.8A          Rated +3.0A               Rated +15.0A               Rated +22.5A
+
+               +12Vsb           100~240V           0.0A       2.1A                 >4.0A                     NA                          NA
+
+               Note: 100Vac to 240Vac, rating current is 45.8A
+
+
+
+
+              © 2019 FSP Group. All Rights Reserved. All trademarks are registered to their respective owners.
+    1         2020.05 spec
+                                                                                                                           www.fsp-group.com.tw
+

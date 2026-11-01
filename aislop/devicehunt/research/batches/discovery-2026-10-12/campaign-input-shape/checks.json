@@ -1,0 +1,39 @@
+{
+  "scope": "isolated campaign/source tests and read-only saved adapters; no integration",
+  "commands": [
+    {
+      "command": "python3 -B -m unittest tests.test_campaign_input_shape",
+      "tests": 8,
+      "seconds": 7.009,
+      "passed": true
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_campaign_input_shape tests.test_campaign tests.test_rra tests.test_ised",
+      "tests": 39,
+      "seconds": 38.139,
+      "passed": true
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_campaign_input_shape tests.test_campaign",
+      "tests": 28,
+      "seconds": 35.451,
+      "passed": true,
+      "scope": "after independent-review nesting fix; nine shape tests + campaign"
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_campaign_input_shape",
+      "tests": 9,
+      "passed": true,
+      "seconds": 7.027,
+      "scope": "after final tuple-membership fix"
+    }
+  ],
+  "live_sha256": {
+    "data/devices.sqlite": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+    "data/import-manifest.json": "14c2a1f177051b6e62c8e04dabbd9621a3d4baf6b759d2db25a722ba8efc9195"
+  },
+  "changed_code_sha256": {
+    "devicehunt/campaign_sources.py": "67928a3994d6cd55c22047c66ac985765bc17c4d08f5c4355981209826294e49",
+    "tests/test_campaign_input_shape.py": "a7c7140f07e013068ba5ef9ea75b180c68794036a4d71fdeaa0a1fd973417644"
+  }
+}

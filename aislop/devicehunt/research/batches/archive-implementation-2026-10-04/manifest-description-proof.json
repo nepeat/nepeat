@@ -1,0 +1,10 @@
+{
+  "before_sha256": "209f75aa9a913e8d12119a7db49defed1d094efd54b4c5d770a875a050ef93a8",
+  "after_sha256": "27ff5fc4a6a0d170dfb1128e17c1a452aa6bdc725c3d3c7060584ca165bd3540",
+  "changed_fields": [
+    "description"
+  ],
+  "all_imports_files_expected_unchanged": true,
+  "before_description": "Reviewed local source snapshots for a complete rebuild of the collected catalog; not a claim of complete worldwide device coverage. Paths relative to this file. NTRA requires optional PDF packages.; frozen accepted archive lineage release 2026-10-04",
+  "after_description": "Offline rebuild from immutable saved source snapshots, complete cached NTRA text and positional tables, and a frozen accepted archive lineage release. No network or optional PDF extraction libraries required."
+}

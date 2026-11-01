@@ -1,0 +1,19 @@
+{
+  "sequence": 4,
+  "url": "https://www.bisdn.de/robots.txt",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:49:21.728161+00:00",
+  "automatic_redirects": false,
+  "retries": 0,
+  "policy": null,
+  "status": 200,
+  "location": null,
+  "content_type": "text/plain; charset=UTF-8",
+  "body_path": "raw/04-bisdn-policy.body",
+  "body_bytes": 81,
+  "body_sha256": "8ccb27dae29b2cf821c3fd5b163bbccef4b7df3ea08569ba8dcba3804868a39e",
+  "headers_path": "raw/04-bisdn-policy.headers",
+  "headers_sha256": "ede53c86d888b14b24abb7f6e2a076b9bea3e80f7f40f910370bc0dd656c09ec",
+  "finished_utc": "2026-10-15T05:49:22.689842+00:00"
+}

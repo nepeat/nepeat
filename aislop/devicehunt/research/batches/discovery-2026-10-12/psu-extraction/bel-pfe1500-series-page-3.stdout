@@ -1,0 +1,43 @@
+PFE1500 Series                                                                                                                             3
+
+
+
+
+    The PFE1500 Series AC/DC power supply is combination of analog and DSP control, highly efficient front-end power supply. It
+    incorporates resonance-soft-switching technology and interleaved power trains to reduce component stresses, providing increased
+    system reliability and very high efficiency. With a wide input operational voltage range and minimal derating of output power with
+    input voltage and temperature, the PFE1500 power supply maximizes power availability in demanding server, network, and other
+    high availability applications. The supply is fan cooled and ideally suited for integration with a matching airflow paths. The PFC stage
+    is an analogue solution; MCU is used to communicate with DSP chip on secondary side. The DC/DC stage uses soft switching
+    resonant techniques in conjunction with synchronous rectification. An active OR-ing device on the output ensures no reverse load
+    current and renders the supply ideally suited for operation in redundant power systems. The always-on standby output, provides
+    power to external power distribution and management controllers. It is protected with an active OR-ing device for maximum
+    reliability. Status information is provided with front-panel LEDs.
+
+    In addition, the power supply can be controlled and the fan speed set via the I2C bus. The I2C bus allows full monitoring of the
+    supply, including input and output voltage, current, power, and inside temperatures. The fan speed is adjusted automatically
+    depending on the actual power demand and supply temperature and can be overridden through the I2C bus.
+
+
+
+
+                                                Figure 1. PFE1500 Series Block Diagram
+
+
+
+
+    Stresses in excess of the absolute maximum ratings may cause performance degradation, adversely affect long-term reliability, and
+    cause permanent damage to the supply.
+
+
+
+Vi maxc    Maximum Input                  Continuous                                                                     264         VAC
+
+
+
+
+                                                                          Asia-Pacific         Europe, Middle East         North America
+                                                                    +86 755 298 85888              +353 61 49 8941        +1 866 513 2839
+
+                                                                                                 © 2024 Bel Fuse Inc.          BCD.00733_J
+

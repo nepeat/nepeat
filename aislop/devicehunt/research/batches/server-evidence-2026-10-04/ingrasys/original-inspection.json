@@ -1,0 +1,19 @@
+{
+  "original_sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+  "length": 8355366,
+  "headers": [
+    3,
+    4128654
+  ],
+  "eof": [
+    439,
+    4129090
+  ],
+  "startxref": [
+    425,
+    4129076,
+    8355346
+  ],
+  "tail_repr": "b'ize 44/Type/XRef/W[1 3 1]>>stream\\r\\nh\\xdebb\\x00\\x01&F\\x0e\\xe5\\xf5\\x0cL\\x0c\\x0c\\x8c\\xbb@$C\\x02\\x88T\\xae\\x00\\x92\\x1c\\xd6\\xb3\\xb1\\x8a\\xb3\\xad\\xd8\\x08\\x16\\xd9\\x03\\x96M\\x04\\x91J\\x95 \\xf1c\\x07\\xc1\"{\\xc1\\xb2`qe\\xb0x\\x1c+Xd/\\x9az\\xf6\\x82)X\\xc5\\xd9\\x96\\xedG3\\x87\\xed\\xcf\"4\\x11\\xd6\\x15\\xf7\\xd0\\xd5\\xaco\\x06\\xb1\\x99o\\x83H\\xde\\xc3`\\xd9\\xd5`\\xf2\\t\\xd0\\x8f\\x07\\x9a!n``D\\x90L\\xff@$#\\x03@\\x80\\x01\\x00\\xe7\\xb5\\x1f\\x80\\r\\nendstream\\rendobj\\rstartxref\\r\\n116\\r\\n%%EO'",
+  "head_repr": "b'\\xef\\xbb\\xbf%PDF-1.6\\r%\\xe2\\xe3\\xcf\\xd3\\r\\n44 0 obj\\r<</Linearized 1/L 4226715/O 46/E 533423/N 10/T 4226332/H [ 453 193]>>\\rendobj\\r            \\r\\n51 0 obj\\r<</DecodeParms<</Columns 3/Predictor 12>>/Filter/FlateDecode/ID[<CAEDCF8'"
+}

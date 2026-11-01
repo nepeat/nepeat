@@ -1,0 +1,428 @@
+{
+  "reviewed_on": "2026-09-27",
+  "sources": [
+    {
+      "id": "kenya-ca-reviewed",
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf",
+      "tier": "regulatory",
+      "license": "Kenya CA public register; factual extraction, source rights retained",
+      "snapshot": "raw/kenya-approved-2026-08.pdf",
+      "coverage": "Selected manufacturer/brand/model cells visually reviewed in the original Kenya CA August 2026 register. All 203 pages screened for target company names; seven candidate rows on five pages, six imported. The CAMILLO / GOLGI two-line cell remains unresolved in the page archive, not split or aliased. Printed categories may be inconsistent; retained as source facts, not inferred device capabilities. Manufacturer namespace is a registry claim, not a factory audit, current approval verification or unit provenance. The official index explicitly says the register is nonexhaustive. Physical PDF page and printed page are distinct."
+    }
+  ],
+  "devices": [
+    {
+      "source": "kenya-ca-reviewed",
+      "key": "pdf-9-table-1-row-11.",
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf#page=9",
+      "brand": "Amazon Data Services",
+      "model": "HOPPER26SF",
+      "title": "Amazon Data Services HOPPER26SF",
+      "kind": "registered equipment",
+      "affiliations": [
+        [
+          "Amazon Data Services, Inc.",
+          "registry_manufacturer"
+        ],
+        [
+          "AWS",
+          "brand"
+        ]
+      ],
+      "facts": [
+        [
+          "registry_manufacturer",
+          "AMAZON DATA SERVICES, INC, SEATTLE, USA"
+        ],
+        [
+          "registry_brand",
+          "AWS"
+        ],
+        [
+          "registry_model_cell",
+          "HOPPER26SF"
+        ],
+        [
+          "registry_category",
+          "MOBILE PHONES AND TABLETS"
+        ],
+        [
+          "document_page",
+          "9"
+        ],
+        [
+          "printed_page",
+          "9"
+        ],
+        [
+          "registry_row_number",
+          "11."
+        ],
+        [
+          "evidence_scope",
+          "Selected manufacturer/brand/model cells visually reviewed in the original Kenya CA August 2026 register. All 203 pages screened for target company names; seven candidate rows on five pages, six imported. The CAMILLO / GOLGI two-line cell remains unresolved in the page archive, not split or aliased. Printed categories may be inconsistent; retained as source facts, not inferred device capabilities. Manufacturer namespace is a registry claim, not a factory audit, current approval verification or unit provenance. The official index explicitly says the register is nonexhaustive. Physical PDF page and printed page are distinct."
+        ],
+        [
+          "manufacturer_mapping",
+          "This reviewed row maps the printed company and location to Amazon Data Services; no global alias rule added."
+        ]
+      ],
+      "reviewed_cells": [
+        "11.",
+        "AMAZON DATA SERVICES,\nINC, SEATTLE, USA",
+        "AWS",
+        "HOPPER26SF"
+      ],
+      "table_index": 0,
+      "row_index": 13
+    },
+    {
+      "source": "kenya-ca-reviewed",
+      "key": "pdf-23-table-1-row-183.",
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf#page=23",
+      "brand": "Edge-Core",
+      "model": "ECS TABLET PC (TR10RS1)",
+      "title": "Edge-Core ECS TABLET PC (TR10RS1)",
+      "kind": "registered equipment",
+      "affiliations": [
+        [
+          "EDGECORE NETWORKS",
+          "registry_manufacturer"
+        ],
+        [
+          "ECS TABLET PC",
+          "brand"
+        ]
+      ],
+      "facts": [
+        [
+          "registry_manufacturer",
+          "EDGECORE NETWORKS"
+        ],
+        [
+          "registry_brand",
+          "ECS TABLET PC"
+        ],
+        [
+          "registry_model_cell",
+          "ECS TABLET PC\n(TR10RS1)"
+        ],
+        [
+          "registry_category",
+          "MOBILE PHONES AND TABLETS"
+        ],
+        [
+          "document_page",
+          "23"
+        ],
+        [
+          "printed_page",
+          "23"
+        ],
+        [
+          "registry_row_number",
+          "183."
+        ],
+        [
+          "evidence_scope",
+          "Selected manufacturer/brand/model cells visually reviewed in the original Kenya CA August 2026 register. All 203 pages screened for target company names; seven candidate rows on five pages, six imported. The CAMILLO / GOLGI two-line cell remains unresolved in the page archive, not split or aliased. Printed categories may be inconsistent; retained as source facts, not inferred device capabilities. Manufacturer namespace is a registry claim, not a factory audit, current approval verification or unit provenance. The official index explicitly says the register is nonexhaustive. Physical PDF page and printed page are distinct."
+        ],
+        [
+          "manufacturer_mapping",
+          "This reviewed row maps the printed company and location to Edge-Core; no global alias rule added."
+        ],
+        [
+          "source_quality_note",
+          "Registry prints EDGECORE NETWORKS for ECS TABLET PC (TR10RS1). Preserved as a regulator claim; not independently confirmed as the physical manufacturer."
+        ]
+      ],
+      "reviewed_cells": [
+        "183.",
+        "EDGECORE NETWORKS",
+        "ECS TABLET PC",
+        "ECS TABLET PC\n(TR10RS1)"
+      ],
+      "table_index": 0,
+      "row_index": 11
+    },
+    {
+      "source": "kenya-ca-reviewed",
+      "key": "pdf-180-table-1-row-21.",
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf#page=180",
+      "brand": "Edge-Core",
+      "model": "ECS5550-30X",
+      "title": "Edge-Core ECS5550-30X",
+      "kind": "registered equipment",
+      "affiliations": [
+        [
+          "EDGECORE NETWORKS",
+          "registry_manufacturer"
+        ],
+        [
+          "EDGECORE",
+          "brand"
+        ]
+      ],
+      "facts": [
+        [
+          "registry_manufacturer",
+          "EDGECORE NETWORKS"
+        ],
+        [
+          "registry_brand",
+          "EDGECORE"
+        ],
+        [
+          "registry_model_cell",
+          "ECS5550-30X"
+        ],
+        [
+          "registry_category",
+          "ROUTERS"
+        ],
+        [
+          "document_page",
+          "180"
+        ],
+        [
+          "printed_page",
+          "183"
+        ],
+        [
+          "registry_row_number",
+          "21."
+        ],
+        [
+          "evidence_scope",
+          "Selected manufacturer/brand/model cells visually reviewed in the original Kenya CA August 2026 register. All 203 pages screened for target company names; seven candidate rows on five pages, six imported. The CAMILLO / GOLGI two-line cell remains unresolved in the page archive, not split or aliased. Printed categories may be inconsistent; retained as source facts, not inferred device capabilities. Manufacturer namespace is a registry claim, not a factory audit, current approval verification or unit provenance. The official index explicitly says the register is nonexhaustive. Physical PDF page and printed page are distinct."
+        ],
+        [
+          "manufacturer_mapping",
+          "This reviewed row maps the printed company and location to Edge-Core; no global alias rule added."
+        ],
+        [
+          "source_quality_note",
+          "Adjacent row 22 prints the same model ECS5550-30X under EXTREME NETWORKS, INC.; the conflicting source text is retained in the full PDF archive."
+        ]
+      ],
+      "reviewed_cells": [
+        "21.",
+        "EDGECORE NETWORKS",
+        "EDGECORE",
+        "ECS5550-30X"
+      ],
+      "table_index": 0,
+      "row_index": 22
+    },
+    {
+      "source": "kenya-ca-reviewed",
+      "key": "pdf-186-table-4-row-1.",
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf#page=186",
+      "brand": "Amazon Data Services",
+      "model": "TIMBERWLFL10",
+      "title": "Amazon Data Services TIMBERWLFL10",
+      "kind": "registered equipment",
+      "affiliations": [
+        [
+          "AMAZON DATA SERVICES INC",
+          "registry_manufacturer"
+        ],
+        [
+          "TIMBERWOLF",
+          "brand"
+        ]
+      ],
+      "facts": [
+        [
+          "registry_manufacturer",
+          "AMAZON DATA SERVICES INC"
+        ],
+        [
+          "registry_brand",
+          "TIMBERWOLF"
+        ],
+        [
+          "registry_model_cell",
+          "TIMBERWLFL10"
+        ],
+        [
+          "registry_category",
+          "SERVERS"
+        ],
+        [
+          "document_page",
+          "186"
+        ],
+        [
+          "printed_page",
+          "189"
+        ],
+        [
+          "registry_row_number",
+          "1."
+        ],
+        [
+          "evidence_scope",
+          "Selected manufacturer/brand/model cells visually reviewed in the original Kenya CA August 2026 register. All 203 pages screened for target company names; seven candidate rows on five pages, six imported. The CAMILLO / GOLGI two-line cell remains unresolved in the page archive, not split or aliased. Printed categories may be inconsistent; retained as source facts, not inferred device capabilities. Manufacturer namespace is a registry claim, not a factory audit, current approval verification or unit provenance. The official index explicitly says the register is nonexhaustive. Physical PDF page and printed page are distinct."
+        ],
+        [
+          "manufacturer_mapping",
+          "This reviewed row maps the printed company and location to Amazon Data Services; no global alias rule added."
+        ]
+      ],
+      "reviewed_cells": [
+        "1.",
+        "AMAZON DATA\nSERVICES INC",
+        "TIMBERWOLF",
+        "TIMBERWLFL10"
+      ],
+      "table_index": 3,
+      "row_index": 2
+    },
+    {
+      "source": "kenya-ca-reviewed",
+      "key": "pdf-192-table-1-row-71.",
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf#page=192",
+      "brand": "Edge-Core",
+      "model": "ECS5550-30X",
+      "title": "Edge-Core ECS5550-30X",
+      "kind": "registered equipment",
+      "affiliations": [
+        [
+          "EDGECORE NETWORKS CORPORATION",
+          "registry_manufacturer"
+        ],
+        [
+          "EDGECORE",
+          "brand"
+        ]
+      ],
+      "facts": [
+        [
+          "registry_manufacturer",
+          "EDGECORE NETWORKS CORPORATION, HSINCHU CITY, TAIWAN"
+        ],
+        [
+          "registry_brand",
+          "EDGECORE"
+        ],
+        [
+          "registry_model_cell",
+          "ECS5550-30X"
+        ],
+        [
+          "registry_category",
+          "SWITCHES"
+        ],
+        [
+          "document_page",
+          "192"
+        ],
+        [
+          "printed_page",
+          "195"
+        ],
+        [
+          "registry_row_number",
+          "71."
+        ],
+        [
+          "evidence_scope",
+          "Selected manufacturer/brand/model cells visually reviewed in the original Kenya CA August 2026 register. All 203 pages screened for target company names; seven candidate rows on five pages, six imported. The CAMILLO / GOLGI two-line cell remains unresolved in the page archive, not split or aliased. Printed categories may be inconsistent; retained as source facts, not inferred device capabilities. Manufacturer namespace is a registry claim, not a factory audit, current approval verification or unit provenance. The official index explicitly says the register is nonexhaustive. Physical PDF page and printed page are distinct."
+        ],
+        [
+          "manufacturer_mapping",
+          "This reviewed row maps the printed company and location to Edge-Core; no global alias rule added."
+        ]
+      ],
+      "reviewed_cells": [
+        "71.",
+        "EDGECORE NETWORKS\nCORPORATION, HSINCHU\nCITY, TAIWAN",
+        "EDGECORE",
+        "ECS5550-30X"
+      ],
+      "table_index": 0,
+      "row_index": 9
+    },
+    {
+      "source": "kenya-ca-reviewed",
+      "key": "pdf-192-table-1-row-72.",
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf#page=192",
+      "brand": "Edge-Core",
+      "model": "ACCTON-AS8060",
+      "title": "Edge-Core ACCTON-AS8060",
+      "kind": "registered equipment",
+      "affiliations": [
+        [
+          "EDGECORE",
+          "registry_manufacturer"
+        ],
+        [
+          "EDGECORE",
+          "brand"
+        ]
+      ],
+      "facts": [
+        [
+          "registry_manufacturer",
+          "EDGECORE TAIWAN"
+        ],
+        [
+          "registry_brand",
+          "EDGECORE"
+        ],
+        [
+          "registry_model_cell",
+          "ACCTON-AS8060"
+        ],
+        [
+          "registry_category",
+          "SWITCHES"
+        ],
+        [
+          "document_page",
+          "192"
+        ],
+        [
+          "printed_page",
+          "195"
+        ],
+        [
+          "registry_row_number",
+          "72."
+        ],
+        [
+          "evidence_scope",
+          "Selected manufacturer/brand/model cells visually reviewed in the original Kenya CA August 2026 register. All 203 pages screened for target company names; seven candidate rows on five pages, six imported. The CAMILLO / GOLGI two-line cell remains unresolved in the page archive, not split or aliased. Printed categories may be inconsistent; retained as source facts, not inferred device capabilities. Manufacturer namespace is a registry claim, not a factory audit, current approval verification or unit provenance. The official index explicitly says the register is nonexhaustive. Physical PDF page and printed page are distinct."
+        ],
+        [
+          "manufacturer_mapping",
+          "This reviewed row maps the printed company and location to Edge-Core; no global alias rule added."
+        ]
+      ],
+      "reviewed_cells": [
+        "72.",
+        "EDGECORE TAIWAN",
+        "EDGECORE",
+        "ACCTON-AS8060"
+      ],
+      "table_index": 0,
+      "row_index": 10
+    }
+  ],
+  "unresolved_rows": [
+    {
+      "physical_pdf_page": 186,
+      "printed_page": 189,
+      "table_index": 3,
+      "row_index": 3,
+      "cells": [
+        "2.",
+        "AMAZON DATA\nSERVICES INC",
+        "TIMBERWOLF",
+        "CAMILLO\nGOLGI"
+      ],
+      "reason": "Two-line model cell could be a combined label or multiple names; no split or alias to existing Camillo_Golgi inferred."
+    }
+  ]
+}

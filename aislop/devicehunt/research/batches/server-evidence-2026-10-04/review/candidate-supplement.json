@@ -1,0 +1,25 @@
+{
+  "counts": {
+    "devices": 4090,
+    "records": 5317,
+    "sources": 287,
+    "facts": 44975,
+    "documents": 57,
+    "document_pages": 3661
+  },
+  "new_identities": 6,
+  "new_sources": [
+    "ingrasys-recovered-variants-foxconn-portfolio-2026-10-04",
+    "ingrasys-server-catalog-recovered-pages-2026-10-04",
+    "nist-4506-e4-2c-reviewed-detail-2026-10-04",
+    "reference-pdf-ingrasys-servers-reconstructed-2026-10-04"
+  ],
+  "exact45named3field_source_changes": true,
+  "manifest_all2191_hashes_verified": true,
+  "jobs": 119,
+  "envelope_exact_metadata_only": true,
+  "frozen_merge_15records212facts_equal": true,
+  "buying_savedCLI_independent_logic_equality": 19,
+  "cooling_conflict_both_retained": true,
+  "staging_ready_sha256": "6f0de4a60f0cab2ba8d411b3ef8aaed75f1ad01766962d07f2c46d0fb2f6dd89"
+}

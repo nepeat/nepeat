@@ -1,0 +1,134 @@
+{
+  "sources": [
+    {
+      "id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "url": "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html",
+      "tier": "vendor",
+      "license": "Public Oracle product facts; original document rights retained",
+      "snapshot": "../../../../data/raw/networking-primary-oracle-2026-10-04/oracle-x7-2c-vpat-t2-6972.html",
+      "coverage": "Official Oracle accessibility report t2-6972, report date 23-Aug-2017. Newly fetched official bytes equal prior capture. Exact printed model case retained with separately scoped SM 1U/SM 2U descriptions; processor wattage not PSU/current-power evidence. No X7-2 specification transfer."
+    }
+  ],
+  "devices": [
+    {
+      "source": "oracle-x7-2c-vpat-t2-6972-2017",
+      "key": "Oracle Server X7-2c 1.0",
+      "brand": "Oracle",
+      "model": "Oracle Server X7-2c",
+      "title": "Oracle Server X7-2c",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Oracle",
+          "brand"
+        ],
+        [
+          "Oracle",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_product_name_literal",
+          "Oracle Server X7-2c 1.0"
+        ],
+        [
+          "source_document_date_raw",
+          "23-Aug-2017"
+        ],
+        [
+          "source_scope",
+          "Name of Product; Product Description; Date; Dependent Products; dated accessibility conformance report, not installation/service manual"
+        ],
+        [
+          "source_sha256",
+          "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6"
+        ],
+        [
+          "model_source_url",
+          "https://docs.oracle.com/en/corporate/accessibility/templates/t2-6972.html"
+        ],
+        [
+          "source_capture_fetched_at",
+          "2026-10-04T23:00:28.889695+00:00"
+        ],
+        [
+          "capture_provenance",
+          "Official Oracle public documentation fetched 2026-10-04 is byte-identical to previously saved capture; prior request URL/time remain historically unknown."
+        ],
+        [
+          "configuration_limit",
+          "SM 1U and SM 2U descriptions retained as separate variant sections. Neither establishes the owned unit variant or installed configuration. No alias, OEM/manufacturer or deployment inference."
+        ],
+        [
+          "processor_power_limit",
+          "150W Max and 205W Max / 165W Max for GPU are printed in processor descriptions; not PSU ratings, AC input requirements or measured wall draw."
+        ],
+        [
+          "dependent_products_literal",
+          "Dependent Products This product interacts with or is built with the other Oracle products listedin this section. Click below to view information about the accessibility ofthese dependent products. Products listed are the versions available at thetime of publication of this document; newer documents may be available that supersedethese versions. Integrated Lights Out Manager (ILOM) 4.0.0 Oracle Hardware Management Pack 2.4 Oracle x86 Product Documentation 1.0 Oracle Solaris 11.3 (updated) System BIOS for Oracle X86 Servers Oracle Linux Fault Management Architecture 2.3.0.0.0 (Updated) Oracle VTS 8.2.1.0 Hardware with No User Interface (updated) Oracle VM Server for x86 (Updated) 3.4 Oracle Linux (OL) 7 "
+        ],
+        [
+          "software_evidence",
+          "Dated dependency list gives accessibility report links, not current OS compatibility, installable firmware access, resale entitlement or standalone-unit boot proof."
+        ],
+        [
+          "sm_1u_variant_literal",
+          "Oracle Server X7-2c SM 1U"
+        ],
+        [
+          "sm_1u_product_description_literal",
+          "Oracle Server X7-2c SM 1U with the following components: - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers * Six (6) Memory Channels per Socket, 2 sockets per channel *DDR4 interface (2666 MT/s) * 3 UPI Ports: two up to 10.4 GT/s links per processor * 150W Max - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - One (1) PCIe Gen3 Low Profile slot * One 1x 16-lane slot, low profile half height, half length - front external * 48 PCIe Gen3 lanes per CPU - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Hard Drive Options *Two (2) 2.5-inch SFF bays supporting NVMe SATA SFF SSDs or SATA SSDs "
+        ],
+        [
+          "sm_2u_variant_literal",
+          "Oracle Server X7-2c SM 2U"
+        ],
+        [
+          "sm_2u_product_description_literal",
+          "Oracle Server X7-2c SM 2U with the following components: \" - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers per Socket * Six (6) Memory Channels per Socket * Two (2) DIMMs per Channel * 3 UPI Ports * Two (2) up to 10.4 GT/s links per processor * 205W Max / 165W Max for GPU - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - Up to Five (5) PCIe Gen3 Low profile slots * Three (3) front external x16 lane slots - low profile half height, half length option * Two (2) front external x8 lane slots - low profile half height, half length option - Two (2) 10 GbE Serial RJ-45 ports - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Host GbE - Hard Drive Options with SATA3 HDDs, SAS3 HDD and NVMe SSD support * Four (4) 2.5-inch SFF bays supporting NVMe SFF SSDs, SATA3 and SAS3 HDDs\" "
+        ],
+        [
+          "sm_1u_chassis_description",
+          "SM 1U"
+        ],
+        [
+          "sm_1u_memory_description",
+          "Twenty four (24) DDR4 DIMM slots; Up to 2666 MHz"
+        ],
+        [
+          "sm_1u_pcie_description",
+          "One (1) PCIe Gen3 Low Profile slot; One 1x 16-lane slot, low profile half height, half length - front external; 48 PCIe Gen3 lanes per CPU"
+        ],
+        [
+          "sm_1u_drive_bays_description",
+          "Two (2) 2.5-inch SFF bays supporting NVMe SATA SFF SSDs or SATA SSDs"
+        ],
+        [
+          "sm_1u_processor_power_raw",
+          "150W Max"
+        ],
+        [
+          "sm_2u_chassis_description",
+          "SM 2U"
+        ],
+        [
+          "sm_2u_memory_description",
+          "Twenty four (24) DDR4 DIMM slots; Up to 2666 MHz"
+        ],
+        [
+          "sm_2u_pcie_description",
+          "Up to Five (5) PCIe Gen3 Low profile slots; Three (3) front external x16 lane slots - low profile half height, half length option; Two (2) front external x8 lane slots - low profile half height, half length option"
+        ],
+        [
+          "sm_2u_drive_bays_description",
+          "Four (4) 2.5-inch SFF bays supporting NVMe SFF SSDs, SATA3 and SAS3 HDDs"
+        ],
+        [
+          "sm_2u_processor_power_raw",
+          "205W Max / 165W Max for GPU"
+        ]
+      ]
+    }
+  ]
+}

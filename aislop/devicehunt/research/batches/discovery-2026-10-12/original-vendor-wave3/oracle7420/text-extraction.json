@@ -1,0 +1,193 @@
+{
+  "method": "stdlib HTMLParser tree; article paragraphs in original DOM order, no OCR/network; preserves text labels; figures not downloaded",
+  "sources": {
+    "internal-components.html": {
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "title": "Sun ZFS Storage 7420 Internal Components",
+      "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+      "paragraphs": [
+        {
+          "article_p_ordinal": 1,
+          "text": "The Sun ZFS Storage 7420 controller components are shown in the following figure and identified in the table."
+        },
+        {
+          "article_p_ordinal": 2,
+          "text": ""
+        },
+        {
+          "article_p_ordinal": 3,
+          "text": "1 Motherboard"
+        },
+        {
+          "article_p_ordinal": 4,
+          "text": "7 CPUs and heatsinks"
+        },
+        {
+          "article_p_ordinal": 5,
+          "text": "2 Low-profile PCIe cards"
+        },
+        {
+          "article_p_ordinal": 6,
+          "text": "8 Memory risers"
+        },
+        {
+          "article_p_ordinal": 7,
+          "text": "3 Power supplies"
+        },
+        {
+          "article_p_ordinal": 8,
+          "text": "9 Fan board"
+        },
+        {
+          "article_p_ordinal": 9,
+          "text": "4 Power supply backplane"
+        },
+        {
+          "article_p_ordinal": 10,
+          "text": "10 Fan modules"
+        },
+        {
+          "article_p_ordinal": 11,
+          "text": "5 Drive backplane"
+        },
+        {
+          "article_p_ordinal": 12,
+          "text": "11 Boot drives and SSDs"
+        },
+        {
+          "article_p_ordinal": 13,
+          "text": "6 System lithium battery"
+        },
+        {
+          "article_p_ordinal": 14,
+          "text": "Sun ZFS Storage 7420 Internal Boards - The Sun ZFS Storage 7420 controller chassis has the following boards installed. Field-replaceable units (FRUs) should only be replaced by trained Oracle service technicians."
+        },
+        {
+          "article_p_ordinal": 15,
+          "text": "Motherboard: The motherboard is a FRU and includes CPU modules, slots for eight DIMM risers, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host's 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off."
+        },
+        {
+          "article_p_ordinal": 16,
+          "text": "Power Distribution Board: The power distribution board is a FRU and distributes main 12V power from the power supplies to the rest of the system. It is directly connected to the Vertical PDB card, and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock (\"kill\") switch. In the storage controller, the power supplies connect to the power supply backplane which connects to the power distribution board."
+        },
+        {
+          "article_p_ordinal": 17,
+          "text": "Vertical PDB Card: The vertical power distribution board, or Paddle Card is a FRU and serves as the interconnect between the power distribution board and the fan power boards, hard drive backplane, and I/O board."
+        },
+        {
+          "article_p_ordinal": 18,
+          "text": "Power Supply Backplane Card: This board connects the power distribution board to power supplies 0 and 1."
+        },
+        {
+          "article_p_ordinal": 19,
+          "text": "Fan Power Boards: The two fan power boards are FRUs and carry power to the storage controller fan modules. In addition, they contain fan module status LEDs and transfer I2C data for the fan modules."
+        },
+        {
+          "article_p_ordinal": 20,
+          "text": "Drive Backplane: The six-drive backplane is a FRU and includes the connectors for the drives, as well as the interconnect for the I/O board, Power and Locator buttons, and system/component status LEDs. Each drive has an LED indicator for Power/Activity, Fault, and Locate."
+        },
+        {
+          "article_p_ordinal": 21,
+          "text": "Sun ZFS Storage 7420 System Drives - The Sun ZFS Storage 7420 M2 controller has two system boot drives in slots 0 and 1, configured as a mirrored pair. Up to four read-optimized cache solid state drives (SSDs) may fill slots 2 through 5, in order. In a Sun ZFS Storage 7420 M2 clustered configuration, the number of SSDs installed in each controller can vary."
+        },
+        {
+          "article_p_ordinal": 22,
+          "text": "Sun ZFS Storage 7420 controllers have two system boot drives in slots 0 and 1, configured as a mirrored pair. Up to four read-optimized cache SSDs, may fill slots 2 through 5, in order. In a Sun ZFS Storage 7420 clustered configuration, the number of SSDs installed in both controllers must match."
+        },
+        {
+          "article_p_ordinal": 23,
+          "text": ""
+        },
+        {
+          "article_p_ordinal": 24,
+          "text": "1 Ready to remove (blue)"
+        },
+        {
+          "article_p_ordinal": 25,
+          "text": "2 Service action required (amber)"
+        },
+        {
+          "article_p_ordinal": 26,
+          "text": "3 OK/Activity (green)"
+        },
+        {
+          "article_p_ordinal": 27,
+          "text": "The Sun ZFS Storage 7420 controller supports the following configurations:"
+        },
+        {
+          "article_p_ordinal": 28,
+          "text": "Two, four, or eight 8GB DDR3 DIMMs installed on each riser, accommodating 128GB, 256GB, or 512GB of memory for 2.0Ghz CPUs."
+        },
+        {
+          "article_p_ordinal": 29,
+          "text": "Four or eight 8GB DDR3 DIMMs installed on each riser, accommodating 256GB or 512GB of memory for 2.0GHz and 2.4Ghz CPUs."
+        },
+        {
+          "article_p_ordinal": 30,
+          "text": "Four or eight 16GB DDR3 DIMMs installed on each riser, accommodating 512GB or 1TB of memory for 2.4Ghz CPUs."
+        },
+        {
+          "article_p_ordinal": 31,
+          "text": "Note:"
+        },
+        {
+          "article_p_ordinal": 32,
+          "text": "Sun ZFS Storage 7420 CPU and Memory - Previous Sun ZFS Storage 7420 controller configurations support two or four (1.86GHz or 2.00GHz) CPUs, with two memory risers required by each CPU. Four or eight 4GB or 8GB DDR3 DIMMs are installed on each riser, accommodating up to 256GB of memory for two CPUs, or up to 512GB for four CPUs."
+        },
+        {
+          "article_p_ordinal": 33,
+          "text": "Sun ZFS Storage 7420 Controller Memory Risers"
+        },
+        {
+          "article_p_ordinal": 34,
+          "text": "Refer to the service label on the cover for DIMM placement information. On every memory riser, slots D0, D2, D4, and D6 must be populated; optionally, slots D1, D3, D5, and D7 may be populated as a group on all installed memory risers. All DIMMs in the system must be identical."
+        },
+        {
+          "article_p_ordinal": 35,
+          "text": "Sun ZFS Storage 7420 Controller CPU and Memory"
+        },
+        {
+          "article_p_ordinal": 36,
+          "text": "DIMM names in appliance logs and the Maintenance: Hardware view are displayed with the full name, such as /SYS/MB/P0/D7 ."
+        },
+        {
+          "article_p_ordinal": 37,
+          "text": "Sun ZFS Storage 7420 Fan Modules - The Fan Modules and Fan Module LEDs of the Sun ZFS Storage 7420 controller are shown in the following figure. The following LEDs are lit when a fan module fault is detected:"
+        },
+        {
+          "article_p_ordinal": 38,
+          "text": "Sun ZFS Storage 7420 Controller Fan Module LEDs"
+        },
+        {
+          "article_p_ordinal": 39,
+          "text": "Front and rear Service Action Required LEDs"
+        },
+        {
+          "article_p_ordinal": 40,
+          "text": "Fan Module Service Action Required (TOP) LED on the front of the controller"
+        },
+        {
+          "article_p_ordinal": 41,
+          "text": "Fan Fault LED on or adjacent to the faulty fan module"
+        },
+        {
+          "article_p_ordinal": 42,
+          "text": "The system Overtemp LED might light if a fan fault causes an increase in system operating temperature."
+        }
+      ]
+    },
+    "attached-storage.html": {
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+      "source_sha256": "f3772553049f0e1a6671cb0579043be928550976129b2ea8e104f1ca3c4e6642",
+      "title": "Sun ZFS Storage 7420 Attached Storage",
+      "section_id": "ZFSRE-GUID-6D3F47EA-7D39-46CC-B484-3CC3BF6671DB",
+      "paragraphs": [
+        {
+          "article_p_ordinal": 1,
+          "text": "Primary storage for Sun ZFS Storage 7420 controllers is provided by one to six chains of attached storage. Each chain consists of up to six HDD-only or SSD-capable disk shelves, combined in any order. For more information, see Connecting to Attached Storage . See also Disk Shelf Hardware Overview for component specifications and diagrams."
+        }
+      ]
+    }
+  }
+}

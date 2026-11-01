@@ -1,0 +1,10 @@
+{
+  "phase": "full reference input validation before candidate/manifest writes",
+  "failure": "Invalid PDF text capture or source association",
+  "cause": "Accepted original ten-page text JSON contains only pages; required pdf_sha256 and extraction_method keys absent",
+  "preserved_original_text_sha256": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345",
+  "live_unchanged": true,
+  "manifest_unchanged": true,
+  "candidate_created": false,
+  "required_correction": "New separately hashed importer-format envelope with original ten blank pages, derivative pdf_sha256 and exact extraction_method; preserve original byte-identical text sibling and raw capture"
+}

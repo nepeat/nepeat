@@ -1,0 +1,7 @@
+# QCT candidate — independent ACCEPT
+
+Root independently compared the author candidate with the previously independently accepted raw discovery, reran the read-only builder, and checked current identity/source routing. Candidate SHA `9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd`. One source, one existing QCT parent record, eight power_description facts; no identifiers or new identity.
+
+All72 labeled cells decode from the fact JSON exactly, including seven blank Notes. Every original row, source/table/row locator, literal part-number pairing and scope qualification matches discovery. Both HTML copies equal originals. The parent source link explicitly anchors the existing QCT identity; the separate Quanta identity is untouched. Quanta Cloud Technology documentation_vendor is the sole role. No manufacturer, standalone PSU, alias, input-range/wiring, installed-quantity or current certification inference. Historical regional note, raw styles/footer/disclaimer and printed date remain preserved.
+
+The accepted source and candidate require three manifest pins: candidate.json, snapshots/qct-d52bq-ccl.html and auxiliary snapshots/parent-product.html. The latter must be explicitly copied and pinned by integration: importer metadata does not enforce it. [Independent checks](qct-compatibility-facts-check.json) bind the live database's unchanged hash and exact route. Not imported.

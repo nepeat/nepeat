@@ -1,0 +1,34 @@
+{
+  "data/raw/inventec-practical-2026-10-04/golduck/inventec-golduck-v3-2020.pages.json": {
+    "sha256": "6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c",
+    "bytes": 5040
+  },
+  "data/raw/inventec-practical-2026-10-04/golduck/inventec-golduck-v3-2020.pdf": {
+    "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+    "bytes": 515103
+  },
+  "data/raw/inventec-practical-2026-10-04/golduck/reference-pdf-proposal.json": {
+    "sha256": "b88d96c7a666c0eaddaffef9a48a428fda478f565f8e499cce2cdc71c558c6dc",
+    "bytes": 1220
+  },
+  "data/raw/inventec-practical-2026-10-04/golduck/candidate-curated.json": {
+    "sha256": "8891d26b0085e4e59d9f22b5b06f18399fa3125119e7bb2fddca76db00c41af4",
+    "bytes": 14142
+  },
+  "data/raw/inventec-practical-2026-10-04/golduck/fetch-report.json": {
+    "sha256": "d0fd33d0d477ca6e080ed074574f27bb1c2b180ae76046a162a18718034d512a",
+    "bytes": 586
+  },
+  "research/batches/inventec-practical-2026-10-04/golduck/fact-provenance.json": {
+    "sha256": "36cd1e75b863ddb3c9c2cf0e97ed36118623f37dfedf5320a6728da9852b000b",
+    "bytes": 8636
+  },
+  "research/batches/inventec-practical-2026-10-04/golduck/validation.json": {
+    "sha256": "141693e6e94b7c3dc5d3efc9f952a5ef40a35800980985fc7910aa0dc1fa4368",
+    "bytes": 361
+  },
+  "research/batches/inventec-practical-2026-10-04/golduck/queries-and-outcomes.json": {
+    "sha256": "791d92a8101afca1b71fc7141f4a3e9613549e3fdc7fa1e2bbde5e517249c437",
+    "bytes": 1223
+  }
+}

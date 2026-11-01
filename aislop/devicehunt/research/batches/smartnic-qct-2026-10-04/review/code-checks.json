@@ -1,0 +1,23 @@
+{
+  "code_hashes": {
+    "devicehunt/lookup.py": "a9642817ccca59428ba428d760950c1224e6e25d0edc81e2a1ee682c484f4d1f",
+    "scripts/refresh_exports.py": "528afe282a19b4a2d844c12a01ca9f72b2f10d39ca831c32702f6308d666315a",
+    "tests/test_lookup.py": "b400c25acabc10dec436e88c9cbc78c9387acc544299a9dcd66d6a359bc340f3",
+    "tests/test_lookup_batch.py": "ef3b94bd196f5129376767433cff0a18fb67d3642037f1222ed17b35c608e9f0",
+    "research/batches/smartnic-qct-2026-10-04/engineering/before/lookup.py": "ed723982ca4f12c808d5e3fdd6c84af5cd65a96024b1f6bd5a99ef72b8b59bcd",
+    "research/batches/smartnic-qct-2026-10-04/engineering/before/refresh_exports.py": "d191411d422280cadea49357c80f765b837f624043e0d9e8812c256729b9ba69"
+  },
+  "independently_verified_serialized_reports": 98,
+  "live_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "selective_tests": "tests.test_lookup_batch: 5 passed",
+  "author_full_suite": "433 pass, full-tests.log",
+  "benchmark": {
+    "reports": 98,
+    "before_seconds": 176.17120020800002,
+    "after_seconds": 13.811420083000002,
+    "speedup": 12.755473307545184,
+    "exact_equal": true,
+    "max_rss": 177684480,
+    "database_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16"
+  }
+}

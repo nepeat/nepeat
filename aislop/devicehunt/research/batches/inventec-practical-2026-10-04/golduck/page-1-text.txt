@@ -1,0 +1,45 @@
+1: Golduck
+2: 1U1N2P
+3: AMD EPYC™ 7002 Series 
+4: Processor-based System
+5: Highlights
+6: As an alternative performance server option based on 
+7: 7nm AMD EPYC™ 7002 series processors (Rome), Golduck 
+8: targets HPC (high performance computing), storage and 
+9: general-purpose usage with 32 DIMM capacity  (up  to  4TB  
+10: with 128GB DIMMs) and offers the expandability up to 2 
+11: standard PCIe x16 cards and one OCP 3.0 card. Designed 
+12: with a simple 1U enclosure, Golduck is optimized for large  
+13: density and scalability with tool-less storage drives and 
+14: hot-swappable fan modules. Perfect to various applications 
+15: including  virtualization solutions and big data analysis 
+16: scenarios requiring better flexibility, higher performance 
+17: and greater storage capability. 
+18: Boosted Performance and Computing Density
+19: The dual AMD EPYC™ 7002 series processors provide up to 
+20: 128 cores and 16 memory  channels for a single computing 
+21: node.  With the industry-leading core count and the 
+22: ground-up innovations, Golduck not only  offers ideal linear 
+23: scalability and demanding virtualization capacity workload, 
+24: but also boosts the performance of memory-intensive 
+25: applications. 
+26: Extending Server Capabilities without extra PCIe 
+27: Switch
+28: Requiring no additional PCIe switches to get the PCIe   
+29: lanes, Golduck allows  up to 2 standard PCIe cards and 1 
+30: OCP Mezz card through the CPUs, realizing high speed I/O 
+31: connectivity.
+32:  • Ground-up AMD EPYC™ SoC 
+33:    Design
+34:  • Efficient Dual-socket System
+35:  • 12x NVMe/SATA SSD in 1U  
+36:     Form Factor
+37:  • High Scalability and Flexibility
+38:  • Optimized Serviceability
+39: Front View Rear View
+40: Virtualization
+41:  Cloud 
+42: Computing
+43: High End  
+44: Enterprise Server
+45: 4.0

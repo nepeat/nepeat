@@ -1,0 +1,11 @@
+{
+  "selection_number": 4,
+  "landing_path": "04-landing.html",
+  "landing_sha256": "f5ab16a45225449fcf254e03eb7ead651aa20793ffa0e79a234f116b867f72e0",
+  "fresh_heading": "COR550 (AS7926-40XKFB) DS R07",
+  "published_download_url": "https://www.edge-core.com/download/cor550-as7926-40xkfb-ds-r07/?wpdmdl=1294&refresh=6ad06cee078281792044270",
+  "expected_wpdmdl_values": [
+    "1294"
+  ],
+  "stale_graph_tokens_used": false
+}

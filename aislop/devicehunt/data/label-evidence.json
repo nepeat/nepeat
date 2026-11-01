@@ -1,0 +1,72 @@
+{
+  "sources": [
+    {
+      "id": "edgecore-7760-label",
+      "url": "https://www.ebay.com/itm/389108536363",
+      "tier": "physical_label_photo",
+      "license": "User-supplied listing photograph; source rights retained",
+      "coverage": "Visually reviewed original user-supplied photograph, attributed by the user to eBay item 389108536363. Printed Edge-corE label explicitly pairs Model No. 7760-32X-A-AC-F with Supplier Sku AS7760-32X; the adjacent compliance label repeats AS7760-32X. This is physical-label evidence, not independent manufacturer-site scraping or seller-description text. The image is locally archived and hashed; its exact match to the live listing gallery was not independently checked. Label firmware, hardware and revision are observations of this photographed unit, not every unit. Brand association only; no inferred physical manufacturer, global interchangeability, operator deployment, current firmware, approval validity or ownership of this photographed unit. Serial and MAC remain in the original image but are not transcribed into searchable fields.",
+      "snapshot": "raw/edgecore-7760-label.png"
+    }
+  ],
+  "devices": [
+    {
+      "source": "edgecore-7760-label",
+      "key": "7760-32X-A-AC-F-label",
+      "brand": "Edge-Core",
+      "model": "7760-32X-A-AC-F",
+      "title": "Edge-Core 7760-32X-A-AC-F",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Edge-Core",
+          "brand"
+        ]
+      ],
+      "identifiers": [
+        [
+          "part_number",
+          "AS7760-32X"
+        ]
+      ],
+      "facts": [
+        [
+          "supplier_sku",
+          "AS7760-32X"
+        ],
+        [
+          "identity_mapping_basis",
+          "Model No. and Supplier Sku printed together on the same photographed label; no suffix stripping or cross-brand identity merge."
+        ],
+        [
+          "label_observed_firmware",
+          "V2015.02.00.30"
+        ],
+        [
+          "label_observed_hardware",
+          "R011"
+        ],
+        [
+          "label_observed_revision",
+          "R20"
+        ],
+        [
+          "capture_method",
+          "User-supplied original photo; visually reviewed label transcription"
+        ],
+        [
+          "image_sha256",
+          "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5"
+        ],
+        [
+          "image_listing_attribution",
+          "User attributed this photo to eBay item 389108536363; exact live-gallery match not independently verified."
+        ],
+        [
+          "observation_scope",
+          "Photographed unit only; serial and MAC not transcribed. No AWS deployment claim."
+        ]
+      ]
+    }
+  ]
+}

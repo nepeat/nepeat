@@ -1,0 +1,282 @@
+{
+  "outcome": "complete",
+  "network_requests": 0,
+  "capture": {
+    "path": "data/raw/nist-4506.html",
+    "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+    "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+    "fetched_at": "2026-09-26T21:27:12.503039+00:00"
+  },
+  "existing_source": {
+    "id": "nist-4506",
+    "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+    "tier": "regulatory",
+    "license": "Extracted factual hardware identifiers and source references; source rights retained",
+    "coverage": "Oracle server names in the Tested Configurations list of NIST CMVP certificate 4506. The certificate concerns a software module, not certification of the server hardware.",
+    "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+    "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+    "cache_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/nist-4506.html",
+    "upstream_revision": null,
+    "records_seen": 4
+  },
+  "existing_records": [
+    {
+      "id": "287552d18a2f3626d3680665",
+      "device_id": "d79264c766a77de93e37",
+      "source_id": "nist-4506",
+      "source_key": "Oracle Server A1-2C",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "raw_json": "{\"tested_configurations\": [\"Oracle Linux 8.9 64-bit running on Oracle A1-2C Server with ARMv8 with PAA\", \"Oracle Linux 8.9 64-bit running on Oracle A1-2C Server with ARMv8 without PAA\"]}",
+      "facts": [
+        {
+          "record_id": "287552d18a2f3626d3680665",
+          "name": "cmvp_certificate",
+          "value": "4506"
+        },
+        {
+          "record_id": "287552d18a2f3626d3680665",
+          "name": "evidence_scope",
+          "value": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership"
+        }
+      ],
+      "affiliations": [
+        {
+          "record_id": "287552d18a2f3626d3680665",
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "identifiers": [
+        {
+          "record_id": "287552d18a2f3626d3680665",
+          "kind": "model_search",
+          "value": "A1-2C"
+        }
+      ]
+    },
+    {
+      "id": "86f9ea91a2a9ed89732d4962",
+      "device_id": "b5decfa477ec728d6252",
+      "source_id": "nist-4506",
+      "source_key": "Oracle Server E4-2C",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "raw_json": "{\"tested_configurations\": [\"Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA\", \"Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)\"]}",
+      "facts": [
+        {
+          "record_id": "86f9ea91a2a9ed89732d4962",
+          "name": "cmvp_certificate",
+          "value": "4506"
+        },
+        {
+          "record_id": "86f9ea91a2a9ed89732d4962",
+          "name": "evidence_scope",
+          "value": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership"
+        }
+      ],
+      "affiliations": [
+        {
+          "record_id": "86f9ea91a2a9ed89732d4962",
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "identifiers": [
+        {
+          "record_id": "86f9ea91a2a9ed89732d4962",
+          "kind": "model_search",
+          "value": "E4-2C"
+        }
+      ]
+    },
+    {
+      "id": "531dce2ceaf4affcfa9bae0f",
+      "device_id": "1a7e289bc0a0921b044d",
+      "source_id": "nist-4506",
+      "source_key": "Oracle Server X9",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "raw_json": "{\"tested_configurations\": [\"Oracle Solaris 11.4 64-bit running on Oracle X9 Server with Intel XEON Gold 6354 with PAA\", \"Oracle Solaris 11.4 64-bit running on Oracle X9 Server with Intel XEON Gold 6354 without PAA\"]}",
+      "facts": [
+        {
+          "record_id": "531dce2ceaf4affcfa9bae0f",
+          "name": "cmvp_certificate",
+          "value": "4506"
+        },
+        {
+          "record_id": "531dce2ceaf4affcfa9bae0f",
+          "name": "evidence_scope",
+          "value": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership"
+        }
+      ],
+      "affiliations": [
+        {
+          "record_id": "531dce2ceaf4affcfa9bae0f",
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "identifiers": [
+        {
+          "record_id": "531dce2ceaf4affcfa9bae0f",
+          "kind": "model_search",
+          "value": "X9"
+        }
+      ]
+    },
+    {
+      "id": "fe8752151f4636721639c651",
+      "device_id": "7833115041547d02d98d",
+      "source_id": "nist-4506",
+      "source_key": "Oracle Server X9-2C",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "raw_json": "{\"tested_configurations\": [\"Oracle Linux 8.9 64-bit running on Oracle X9-2C Server with Intel XEON Platinum 8358 with PAA\", \"Oracle Linux 8.9 64-bit running on Oracle X9-2C Server with Intel XEON Platinum 8358 without PAA\", \"Windows Server 2019 running on Oracle X9-2C Server with Intel XEON Platinum 8358 with PAA\", \"Windows Server 2019 running on Oracle X9-2C Server with Intel XEON Platinum 8358 without PAA\"]}",
+      "facts": [
+        {
+          "record_id": "fe8752151f4636721639c651",
+          "name": "cmvp_certificate",
+          "value": "4506"
+        },
+        {
+          "record_id": "fe8752151f4636721639c651",
+          "name": "evidence_scope",
+          "value": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership"
+        }
+      ],
+      "affiliations": [
+        {
+          "record_id": "fe8752151f4636721639c651",
+          "company": "Oracle",
+          "target": "Oracle",
+          "role": "tested_platform_vendor"
+        }
+      ],
+      "identifiers": [
+        {
+          "record_id": "fe8752151f4636721639c651",
+          "kind": "model_search",
+          "value": "X9-2C"
+        }
+      ]
+    }
+  ],
+  "exact_identity": {
+    "id": "b5decfa477ec728d6252",
+    "brand": "Oracle",
+    "model": "Oracle Server E4-2C",
+    "revision": "",
+    "title": "Oracle Server E4-2C",
+    "kind": "server platform"
+  },
+  "existing_vs_proposed": "Existing raw_json already contains both literal E4-2C rows; newly useful structured facts expose them and their software-module context without importing new identities or general OS support. Certificate number and original evidence_scope facts are not duplicated.",
+  "tested_configuration_rows": [
+    {
+      "ordinal": 1,
+      "raw_inner_html": "Oracle ILOM OS v3.0 running on Emulex Pilot-4 Orion mainboard with Oracle ILOM SP v4 ARM v7",
+      "text": "Oracle ILOM OS v3.0 running on Emulex Pilot-4 Orion mainboard with Oracle ILOM SP v4 ARM v7"
+    },
+    {
+      "ordinal": 2,
+      "raw_inner_html": "Oracle ILOM OS v5.0 running on AST2520 Server Management Processor with Oracle ILOM SP v5 with ARM v11",
+      "text": "Oracle ILOM OS v5.0 running on AST2520 Server Management Processor with Oracle ILOM SP v5 with ARM v11"
+    },
+    {
+      "ordinal": 3,
+      "raw_inner_html": "Oracle ILOM OS v5.1 running on AST2600 Server Management Processor with Oracle ILOM SP v6 with ARM v7",
+      "text": "Oracle ILOM OS v5.1 running on AST2600 Server Management Processor with Oracle ILOM SP v6 with ARM v7"
+    },
+    {
+      "ordinal": 4,
+      "raw_inner_html": "Oracle Linux 8.9 64-bit running on Oracle A1-2C Server with ARMv8 with PAA",
+      "text": "Oracle Linux 8.9 64-bit running on Oracle A1-2C Server with ARMv8 with PAA"
+    },
+    {
+      "ordinal": 5,
+      "raw_inner_html": "Oracle Linux 8.9 64-bit running on Oracle A1-2C Server with ARMv8 without PAA",
+      "text": "Oracle Linux 8.9 64-bit running on Oracle A1-2C Server with ARMv8 without PAA"
+    },
+    {
+      "ordinal": 6,
+      "raw_inner_html": "Oracle Linux 8.9 64-bit running on Oracle X9-2C Server with Intel XEON Platinum 8358 with PAA",
+      "text": "Oracle Linux 8.9 64-bit running on Oracle X9-2C Server with Intel XEON Platinum 8358 with PAA"
+    },
+    {
+      "ordinal": 7,
+      "raw_inner_html": "Oracle Linux 8.9 64-bit running on Oracle X9-2C Server with Intel XEON Platinum 8358 without PAA",
+      "text": "Oracle Linux 8.9 64-bit running on Oracle X9-2C Server with Intel XEON Platinum 8358 without PAA"
+    },
+    {
+      "ordinal": 8,
+      "raw_inner_html": "Oracle Solaris 11.4 64-bit running on Oracle X9 Server with Intel XEON Gold 6354 with PAA",
+      "text": "Oracle Solaris 11.4 64-bit running on Oracle X9 Server with Intel XEON Gold 6354 with PAA"
+    },
+    {
+      "ordinal": 9,
+      "raw_inner_html": "Oracle Solaris 11.4 64-bit running on Oracle X9 Server with Intel XEON Gold 6354 without PAA",
+      "text": "Oracle Solaris 11.4 64-bit running on Oracle X9 Server with Intel XEON Gold 6354 without PAA"
+    },
+    {
+      "ordinal": 10,
+      "raw_inner_html": "Oracle Solaris 11.4 64-bit running on SPARC T8 with SPARC M8 with PAA",
+      "text": "Oracle Solaris 11.4 64-bit running on SPARC T8 with SPARC M8 with PAA"
+    },
+    {
+      "ordinal": 11,
+      "raw_inner_html": "Oracle Solaris 11.4 64-bit running on SPARC T8 with SPARC M8 without PAA",
+      "text": "Oracle Solaris 11.4 64-bit running on SPARC T8 with SPARC M8 without PAA"
+    },
+    {
+      "ordinal": 12,
+      "raw_inner_html": "Windows Server 2019 running on Oracle X9-2C Server with Intel XEON Platinum 8358 with PAA",
+      "text": "Windows Server 2019 running on Oracle X9-2C Server with Intel XEON Platinum 8358 with PAA"
+    },
+    {
+      "ordinal": 13,
+      "raw_inner_html": "Windows Server 2019 running on Oracle X9-2C Server with Intel XEON Platinum 8358 without PAA",
+      "text": "Windows Server 2019 running on Oracle X9-2C Server with Intel XEON Platinum 8358 without PAA"
+    },
+    {
+      "ordinal": 14,
+      "raw_inner_html": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA",
+      "text": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA"
+    },
+    {
+      "ordinal": 15,
+      "raw_inner_html": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)",
+      "text": "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)"
+    }
+  ],
+  "validation_history": {
+    "html_id": "validation-history-table",
+    "raw_inner_html": "\n\t\t\t\t\t\t\t\t<thead>\n\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t<th>Date</th>\n\t\t\t\t\t\t\t\t\t\t<th>Type</th>\n\t\t\t\t\t\t\t\t\t\t<th>Lab</th>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t</thead>\n\t\t\t\t\t\t\t\t<tbody>\n\t\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t<td class=\"text-nowrap\">5/3/2023</td>\n\t\t\t\t\t\t\t\t\t\t\t<td>Initial</td>\n\t\t\t\t\t\t\t\t\t\t\t<td>Acumen Security</td>\n\t\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t<td class=\"text-nowrap\">3/26/2025</td>\n\t\t\t\t\t\t\t\t\t\t\t<td>Update</td>\n\t\t\t\t\t\t\t\t\t\t\t<td>Lightship Security, Inc.</td>\n\t\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t</tbody>\n\t\t\t\t\t\t\t",
+    "rows": [
+      [
+        "5/3/2023",
+        "Initial",
+        "Acumen Security"
+      ],
+      [
+        "3/26/2025",
+        "Update",
+        "Lightship Security, Inc."
+      ]
+    ]
+  },
+  "proposed_fact_count": 16,
+  "excluded": "Other platform rows retained for context only; no cross-platform ILOM/OS/CPU transfer. PAA remains literal, unexpanded. Oracle Corporation is the module vendor; tested_platform_vendor remains Oracle; no manufacturer/operator role added. No claim that module-wide version/status/date establishes availability or support of an auction unit.",
+  "checks": {
+    "source_registry_hash_match": true,
+    "existing_records": 4,
+    "literal_e4_rows_match_existing_raw_json": true,
+    "all_platform_rows_preserved": 15,
+    "exact_identity_match": true,
+    "db_sha256_before": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+    "db_sha256_after": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+    "database_unchanged": true
+  }
+}

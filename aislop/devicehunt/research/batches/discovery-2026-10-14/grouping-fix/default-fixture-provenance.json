@@ -1,0 +1,9 @@
+{
+  "path": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/tests/fixtures/specification-grouping-defaults.json",
+  "sha256": "e92fd7b7e59177eb8a8a625f67abb2268501b8873760ef19c29e678518ade3b3",
+  "baseline_modules_sha256": {
+    "specifications.py": "2d6de287745b8d6d3a60483fbdc53baf900215170aa8fabdb3875c6994104391",
+    "__main__.py": "05f5e49d2e51f3cd1faeff44144c5730243561de31b0428c2eebeca536dd9b83"
+  },
+  "cases": 4
+}

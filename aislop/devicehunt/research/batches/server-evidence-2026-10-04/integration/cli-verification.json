@@ -1,0 +1,384 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1120A",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV1120A.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1120I",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV1120I.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1121A",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV1121A.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1121I",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV1121I.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2121A",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV2121A.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2121I",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV2121I.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2221A",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV2221A.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2221I",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV2221I.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1120",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV1120.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1121",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV1121.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2121",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV2121.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2221",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-SV2221.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1120A",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/foxconn-SV1120A.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1120I",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/foxconn-SV1120I.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1121A",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/foxconn-SV1121A.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV1121I",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/foxconn-SV1121I.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2121A",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/foxconn-SV2121A.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "SV2121I",
+        "--vendor",
+        "Foxconn",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/foxconn-SV2121I.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "buying-report",
+        "Oracle Server E4-2C",
+        "--vendor",
+        "Oracle",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/buying-oracle-e4-2c.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "validate-inventory",
+        "--format",
+        "json"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/owned-baseline.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "validate-inventory",
+        "--inventory",
+        "validation/vendor-examples.json",
+        "--format",
+        "json"
+      ],
+      "returncode": 2,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/bytedance-examples.json"
+    },
+    {
+      "command": [
+        "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "devicehunt",
+        "--db",
+        "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/candidate-with-server-evidence-2026-10-04.sqlite",
+        "documents",
+        "",
+        "--source",
+        "reference-pdf-ingrasys-servers-reconstructed-2026-10-04",
+        "--format",
+        "json",
+        "--limit",
+        "-1"
+      ],
+      "returncode": 0,
+      "output": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/research/batches/server-evidence-2026-10-04/integration/image-only-archive.json"
+    }
+  ],
+  "database_hashes_before_after": {
+    "candidate": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+    "live": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2"
+  },
+  "read_only": true,
+  "eight_variants_literal_vendor_context": true,
+  "six_foxconn_records_no_borrowed_vendor_specs": true,
+  "four_unsuffixed_no_variant_borrowing": true,
+  "oracle_two_literal_configurations_full_context": true,
+  "ten_blank_pages_not_missing": true
+}

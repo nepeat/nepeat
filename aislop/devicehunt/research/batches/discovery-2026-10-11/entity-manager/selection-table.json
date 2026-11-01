@@ -1,0 +1,2193 @@
+{
+ "repo_json_files_total": 361,
+ "selected_files": 169,
+ "files": [
+  {
+   "path": "configurations/foxconn-industrial-internet/kudo_bmc.json",
+   "rule_vendor_dir": "foxconn-industrial-internet",
+   "rule_string_hits": {},
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/foxconn-industrial-internet/kudo_motherboard.json",
+   "rule_vendor_dir": "foxconn-industrial-internet",
+   "rule_string_hits": {},
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/foxconn-industrial-internet/mori_bmc.json",
+   "rule_vendor_dir": "foxconn-industrial-internet",
+   "rule_string_hits": {},
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/foxconn-industrial-internet/mori_motherboard.json",
+   "rule_vendor_dir": "foxconn-industrial-internet",
+   "rule_string_hits": {},
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/ieisystem/fp5280g3/fp5280g3_chassis.json",
+   "rule_vendor_dir": "ieisystem",
+   "rule_string_hits": {},
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/ieisystem/fp5280g3/fp5280g3_fanboard.json",
+   "rule_vendor_dir": "ieisystem",
+   "rule_string_hits": {},
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/ieisystem/nf5280m7/nf5280m7_baseboard.json",
+   "rule_vendor_dir": "ieisystem",
+   "rule_string_hits": {},
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_l.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     200
+    ],
+    "wiwynn": [
+     200
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_l_t16_evt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     341
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_l_t16_evt2_dvt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     341
+    ],
+    "wiwynn": [
+     341
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_l_t20_evt2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     190
+    ],
+    "wiwynn": [
+     190
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_r.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     200
+    ],
+    "wiwynn": [
+     200
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_r_t16_evt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     341
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_r_t16_evt2_dvt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     341
+    ],
+    "wiwynn": [
+     341
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_bridge_r_t20_evt2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     190
+    ],
+    "wiwynn": [
+     190
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_cpu.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     5
+    ],
+    "wiwynn": [
+     5
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_mb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     3683
+    ],
+    "wiwynn": [
+     3683
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_mb_evt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     2227
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_mb_evt2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     3563
+    ],
+    "wiwynn": [
+     3563
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_nfc_adaptor.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     11
+    ],
+    "wiwynn": [
+     11
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_pdb_l.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     840
+    ],
+    "wiwynn": [
+     840
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_pdb_l_evt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     598
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_pdb_l_evt2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     840
+    ],
+    "wiwynn": [
+     840
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_pdb_r.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     1013
+    ],
+    "wiwynn": [
+     1013
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_pdb_r_evt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     764
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_pdb_r_evt2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     1013
+    ],
+    "wiwynn": [
+     1013
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/anacapa/anacapa_scm.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "inventec": [
+     426
+    ],
+    "quanta": [
+     426
+    ],
+    "wiwynn": [
+     426
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/bletchley15/bletchley15_baseboard.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     830
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/bletchley15/bletchley15_chassis.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     361
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/bmc_storage_module.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "wiwynn": [
+     11
+    ],
+    "quanta": [
+     11
+    ],
+    "ingrasys": [
+     11
+    ],
+    "inventec": [
+     11
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/catalina/catalina_hdd_adc_ina.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     93,
+     95
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/catalina/catalina_hdd_adc_isl.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     93,
+     95
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/clemente/clemente_fio.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     38
+    ],
+    "quanta": [
+     38
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/clemente/clemente_hdd.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     22
+    ],
+    "quanta": [
+     22
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/clemente/clemente_interposer.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     216,
+     470
+    ],
+    "quanta": [
+     472
+    ]
+   },
+   "top_level_objects": 2,
+   "objects_selected": 2
+  },
+  {
+   "path": "configurations/meta/clemente/clemente_osfp.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     12
+    ],
+    "quanta": [
+     12
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/clemente/clemente_pdb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     369
+    ],
+    "quanta": [
+     369
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/clemente/clemente_scm.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     260
+    ],
+    "quanta": [
+     260
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/minerva/minerva_aegis.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     22,
+     24
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/minerva/minerva_cmm_misc_boards.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     87
+    ],
+    "celestica": [
+     102,
+     117
+    ]
+   },
+   "top_level_objects": 8,
+   "objects_selected": 3
+  },
+  {
+   "path": "configurations/meta/minerva/minerva_fanboard_adc_silergy.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     531,
+     533,
+     1079,
+     1081,
+     1627,
+     1629,
+     2175,
+     2177,
+     2723,
+     2725,
+     3271,
+     3273
+    ]
+   },
+   "top_level_objects": 6,
+   "objects_selected": 6
+  },
+  {
+   "path": "configurations/meta/minerva/minerva_fanboard_adc_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     527,
+     529,
+     1071,
+     1073,
+     1615,
+     1617,
+     2159,
+     2161,
+     2703,
+     2705,
+     3247,
+     3249
+    ]
+   },
+   "top_level_objects": 6,
+   "objects_selected": 6
+  },
+  {
+   "path": "configurations/meta/rainier/rainier_hpm_vr_mps_v1p2vr_tic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     549
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/rainier/rainier_hpm_vr_rtt_v1p2vr_mps.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     549
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/rainier/rainier_mb_ssd.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     91,
+     192
+    ]
+   },
+   "top_level_objects": 2,
+   "objects_selected": 2
+  },
+  {
+   "path": "configurations/meta/rainier/rainier_scm_2600.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     638
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/rainier/rainier_scm_2700.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     703
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_fio.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     11
+    ],
+    "quanta": [
+     11
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_pdb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     589
+    ],
+    "quanta": [
+     589
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_pdb_mps.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     308
+    ],
+    "quanta": [
+     308
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_pdb_sni.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     308
+    ],
+    "quanta": [
+     308
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_pdb_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     314
+    ],
+    "quanta": [
+     314
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_scm.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     200
+    ],
+    "quanta": [
+     200
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_smm_carrier.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     44
+    ],
+    "quanta": [
+     44
+    ]
+   },
+   "top_level_objects": 2,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/sanmiguel/sanmiguel_smm_extender.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "ingrasys": [
+     46
+    ],
+    "quanta": [
+     46
+    ]
+   },
+   "top_level_objects": 2,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_arke_evb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     27
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_e1s_bp.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     443
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_e1s_bp_vr_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     443
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_e1s_bp_vr_tos.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     443
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_electra.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     27
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_evb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     21
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_evb_pdb2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     629
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_mb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2204
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_mb_evt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2204
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_mb_vr_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1919
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_mb_vr_rtt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2204
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_mb_vr_sni.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2204
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pcie_switch_board_aeb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     851
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pcie_switch_board_brcm.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     815
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pcie_switch_board_brcm_vr_sni.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     815
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pdb1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     505
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pdb1_vr_adv_efu_tos.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     505
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pdb1_vr_sni.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     505
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pdb1_vr_sni_efu_rds.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     505
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pdb2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     761
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pdb2_vr_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     761
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pdb2_vr_ti_brick_lux.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     751
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_pttv.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     572
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/santabarbara/santabarbara_rainbow.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     27
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura/ventura_fanboard_adc_max.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     62
+    ],
+    "ingrasys": [
+     62
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura/ventura_fanboard_adc_ocp_max.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     62
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura/ventura_fanboard_adc_ocp_tic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     62
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura/ventura_fanboard_adc_tic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     62
+    ],
+    "ingrasys": [
+     62
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_aalc.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     11
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_canbus.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     6668,
+     6670
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_fan_max.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     108
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_fan_tic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     108
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_management.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     11
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_minisas_bottom.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     532,
+     534
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_minisas_top.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     532,
+     534
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_rmcv2_mb.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     756
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_rmcv2_mb_2nd.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     756
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_rmcv2_mb_sku1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     193
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_rmcv2_mb_sku2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     415
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_scm.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2907
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_scm_2700.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2907
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_vt1_2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     11
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/ventura2/ventura2_vt3.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     11
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/fanboard/yosemite4_fanboard_fsc_max_adc_ti_led_nxp_ons_efuse_max.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     676,
+     678,
+     680
+    ],
+    "wiwynn": [
+     676,
+     678,
+     680
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/fanboard/yosemite4_fanboard_fsc_max_adc_ti_led_nxp_ons_efuse_mps.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     676,
+     678,
+     680
+    ],
+    "wiwynn": [
+     676,
+     678,
+     680
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/fanboard/yosemite4_fanboard_fsc_nct_adc_max_led_nxp_ons_efuse_max.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     676,
+     678,
+     680
+    ],
+    "wiwynn": [
+     676,
+     678,
+     680
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/fanboard/yosemite4_fanboard_fsc_nct_adc_max_led_nxp_ons_efuse_mps.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     676,
+     678,
+     680
+    ],
+    "wiwynn": [
+     676,
+     678,
+     680
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_12vhsc_adi_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_12vhsc_mps_48vhsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_12vhsc_mps_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_hsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_isl_12vhsc_adi_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_isl_12vhsc_mps_48vhsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_isl_12vhsc_mps_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_rns_isl_hsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2319
+    ],
+    "wiwynn": [
+     2319
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_silergy_12vhsc_adi_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_silergy_12vhsc_mps_48vhsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_silergy_12vhsc_mps_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_silergy_hsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_ti_12vhsc_adi_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_ti_12vhsc_mps_48vhsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_ti_12vhsc_mps_48vhsc_inf.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/medusaboard/yosemite4_medusaboard_adc_ti_hsc_adi.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     2318
+    ],
+    "wiwynn": [
+     2318
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/spiderboard/yosemite4_spiderboard_adc_max_pwr_rt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1178
+    ],
+    "wiwynn": [
+     1178
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/spiderboard/yosemite4_spiderboard_adc_max_pwr_silergy.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1168
+    ],
+    "wiwynn": [
+     1168
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/spiderboard/yosemite4_spiderboard_adc_max_pwr_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1173
+    ],
+    "wiwynn": [
+     1173
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/spiderboard/yosemite4_spiderboard_adc_ti_pwr_rt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1188
+    ],
+    "wiwynn": [
+     1188
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/spiderboard/yosemite4_spiderboard_adc_ti_pwr_silergy.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1178
+    ],
+    "wiwynn": [
+     1178
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/spiderboard/yosemite4_spiderboard_adc_ti_pwr_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1183
+    ],
+    "wiwynn": [
+     1183
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     767
+    ],
+    "wiwynn": [
+     767
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_chassis.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     10
+    ],
+    "wiwynn": [
+     10
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_cpu.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     4
+    ],
+    "wiwynn": [
+     4
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_floatingfalls.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     4
+    ],
+    "wiwynn": [
+     4
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_sentineldome_chassis.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     15
+    ],
+    "wiwynn": [
+     15
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_sentineldome_t1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     363
+    ],
+    "wiwynn": [
+     363
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_sentineldome_t1_retimer.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     422
+    ],
+    "wiwynn": [
+     422
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_sentineldome_t2.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     432
+    ],
+    "wiwynn": [
+     432
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_sentineldome_t2_retimer.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     491
+    ],
+    "wiwynn": [
+     491
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_wailuafalls.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     278
+    ],
+    "wiwynn": [
+     278
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4_wailuafalls_without_asic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     83
+    ],
+    "wiwynn": [
+     83
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv4/yosemite4n.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     788
+    ],
+    "wiwynn": [
+     788
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_1kw_paddle_board_hsc_mps.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     117
+    ],
+    "wiwynn": [
+     117
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_1kw_paddle_board_hsc_rds.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     117
+    ],
+    "wiwynn": [
+     117
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_1kw_paddle_board_hsc_tic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     117
+    ],
+    "wiwynn": [
+     117
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_3kw_paddle_board_hsc_mps.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "wiwynn": [
+     979
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_3kw_paddle_board_hsc_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "wiwynn": [
+     987
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr4_board_vr_mps_mcio3.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     843
+    ],
+    "wiwynn": [
+     843
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr4_board_vr_mps_mcio4.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     843
+    ],
+    "wiwynn": [
+     843
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr4_board_vr_raa_mcio3.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     843
+    ],
+    "wiwynn": [
+     843
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr4_board_vr_raa_mcio4.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     843
+    ],
+    "wiwynn": [
+     843
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr5_board_vr_mps_mcio3.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     667
+    ],
+    "wiwynn": [
+     667
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr5_board_vr_mps_mcio4.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     667
+    ],
+    "wiwynn": [
+     667
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr5_board_vr_raa_mcio3.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     667
+    ],
+    "wiwynn": [
+     667
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr5_board_vr_raa_mcio4.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     667
+    ],
+    "wiwynn": [
+     667
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_cxl_ddr5_evt_board_vr_raa.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     637
+    ],
+    "wiwynn": [
+     637
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_e1s_expansion_board_adc_qns_pmon_sgy.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     412
+    ],
+    "wiwynn": [
+     412
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_e1s_expansion_board_adc_tic_pmon_tic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     408
+    ],
+    "wiwynn": [
+     408
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_e1s_x4_expansion_board_adc_ons_pmon_rtk.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     490
+    ],
+    "wiwynn": [
+     490
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_e1s_x4_expansion_board_adc_ons_pmon_rtk_dvt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     748
+    ],
+    "wiwynn": [
+     748
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_e1s_x4_expansion_board_adc_ons_pmon_sgy.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     462
+    ],
+    "wiwynn": [
+     462
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_e1s_x4_expansion_board_adc_tic_pmon_tic.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     486
+    ],
+    "wiwynn": [
+     486
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_e1s_x4_expansion_board_adc_tic_pmon_tic_dvt1.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     740
+    ],
+    "wiwynn": [
+     740
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_mb_vr_mps_pvdd18vr_mps_adc_tic_i3chub_rtt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1537
+    ],
+    "wiwynn": [
+     1537
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_mb_vr_rtt_pvdd18vr_mps_adc_tic_i3chub_rtt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1537
+    ],
+    "wiwynn": [
+     1537
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_mb_vr_rtt_pvdd18vr_sni_adc_tic_i3chub_rtt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1537
+    ],
+    "wiwynn": [
+     1537
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_mb_vr_sni_pvdd18vr_sni_adc_tic_i3chub_rtt.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1537
+    ],
+    "wiwynn": [
+     1537
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_medusa_board_brick_hsc_ltc.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1377
+    ],
+    "wiwynn": [
+     1377
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_medusa_board_brick_hsc_xdp.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1379
+    ],
+    "wiwynn": [
+     1379
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_medusa_board_discrete_hsc_ltc.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1247
+    ],
+    "wiwynn": [
+     1247
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_medusa_board_discrete_hsc_xdp.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     1249
+    ],
+    "wiwynn": [
+     1249
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_rio_grande_adc_sgy.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "wiwynn": [
+     2857
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_rio_grande_adc_ti.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "wiwynn": [
+     2909
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_scm.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     702
+    ],
+    "wiwynn": [
+     702
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  },
+  {
+   "path": "configurations/meta/yv5/yosemite5_scm_2700.json",
+   "rule_vendor_dir": null,
+   "rule_string_hits": {
+    "quanta": [
+     778
+    ],
+    "wiwynn": [
+     778
+    ]
+   },
+   "top_level_objects": 1,
+   "objects_selected": 1
+  }
+ ]
+}

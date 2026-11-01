@@ -1,0 +1,36 @@
+{
+  "outcome": "pass",
+  "live_sha256": "5b1317f554968fae6c20a4dc0cd2d4d8524ee1c5e60a662675e36a763203a904",
+  "current_export_audits_match": true,
+  "frozen_inputs_code_reviews_unchanged": true,
+  "old_live_backup_preserved": true,
+  "actual_counts": {
+    "devices": 4083,
+    "records": 5300,
+    "facts": 44728,
+    "sources": 281,
+    "documents": 56,
+    "document_pages": 3651,
+    "hyperscaler_evidence": 22
+  },
+  "actual_new_facts": 38,
+  "buying_reports": 2,
+  "local_doc_links_checked": 78,
+  "doc_sha256": {
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "AGENTS.md": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7",
+    "PROGRESS.md": "46df1454007f1f2a0fdc915bdc8cdf872462a84d9db8fe0392d8ed58c67dc1c1",
+    "README.md": "6e57a9f36952555f2b2f853a121de5ebfbaaa0866c26a1949bb938fbb464e281",
+    "docs/agent-workflow.md": "a04d33d02e3fe3d0c40924abe5b98ea14c191ba548188095aedfb524c452ff33",
+    "docs/buying-reports.md": "19dc88d4a8634735a152558e6c734b7d63a9b71cc8b236eb12f84e9d46df2b47",
+    "docs/history/README.md": "6420df8b0b607f651b3dea66ba512ce11328296778d830c9a0b07587d31ee068",
+    "research/vendor-discovery-batch-2026-10-04.md": "028f621263dcc11a1833fc25b400e38201ddb45df3a4be66567245c60bbb9d8f",
+    "research/bytedance-inspur-2026-10-04.md": "4d964a649dfc30d416793978ea97495d90456859df459be3c2323d495e72e4dd",
+    "research/inventec-qct-2026-10-04.md": "d6d6f1a5547c7e330585dd9e21a61498ff611249c6366e372263ca677ca1b5f2",
+    "research/batches/vendor-discovery-2026-10-04/docs-review.md": "545bb54d2af2aaff3042d062b4fbe60b7acbaade0e50b3bc08c8b182ac3b3b40"
+  },
+  "independent_final_docs_review": "pass; no open findings",
+  "milestone": "complete",
+  "overall_goal": "active",
+  "post_review_changes": "Two completion status paragraphs and final review link only; unchanged reviewed documents and live hash rechecked."
+}

@@ -1,0 +1,172 @@
+{
+  "artifacts": [
+    {
+      "snapshot": "snapshots/jbb2015/jbb2015-20151123-00036.html",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/jbb2015/jbb2015-20151123-00036.html",
+      "sha256": "1fdf11211162954d70d64056dba4d8d8808c0e9250e65d5fbd2e4b66472f6286",
+      "bytes": 46733,
+      "type": "raw HTML capture",
+      "captured_at_utc": "2026-10-13T04:25:59.600499+00:00",
+      "original_mtime_ns": 1791865559597128586
+    },
+    {
+      "snapshot": "snapshots/jbb2015/jbb2015-20160118-00041.html",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/jbb2015/jbb2015-20160118-00041.html",
+      "sha256": "05d789cc4565f35e4bcb498924eee2780604c8ca5b4493fd834d4763dd220548",
+      "bytes": 46555,
+      "type": "raw HTML capture",
+      "captured_at_utc": "2026-10-13T04:26:09.972807+00:00",
+      "original_mtime_ns": 1791865569970170587
+    },
+    {
+      "snapshot": "snapshots/jbb2015/jbb2015-20160321-00065.html",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/jbb2015/jbb2015-20160321-00065.html",
+      "sha256": "5d1f3b2c7c131511f7b88681f17da4cd2c313cee637db43dff5f08ecd94785f5",
+      "bytes": 46545,
+      "type": "raw HTML capture",
+      "captured_at_utc": "2026-10-13T04:26:20.340118+00:00",
+      "original_mtime_ns": 1791865580337212044
+    },
+    {
+      "snapshot": "snapshots/jbb2015/jbb2015-20160321-00066.html",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/jbb2015/jbb2015-20160321-00066.html",
+      "sha256": "4db0fbc588f18529a6af95460f0a40d5855cc42114d9b3ce2f3262d5b6a5be5c",
+      "bytes": 46543,
+      "type": "raw HTML capture",
+      "captured_at_utc": "2026-10-13T04:26:30.712377+00:00",
+      "original_mtime_ns": 1791865590709253016
+    },
+    {
+      "snapshot": "snapshots/jbb2015/jbb2015-20160321-00067.html",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/jbb2015/jbb2015-20160321-00067.html",
+      "sha256": "a15d9689775057ffce652aa029d41a1992106487ed357d7a98d4cbd8b3fe3ebc",
+      "bytes": 46551,
+      "type": "raw HTML capture",
+      "captured_at_utc": "2026-10-13T04:26:41.107596+00:00",
+      "original_mtime_ns": 1791865601104293579
+    },
+    {
+      "snapshot": "snapshots/jbb2015/jbb2015-20160516-00095.html",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/jbb2015/jbb2015-20160516-00095.html",
+      "sha256": "6055a6bf577154a73ca1cb80bc3d4cdd051001232ef4f2fe7776300b8ab7b8b8",
+      "bytes": 46191,
+      "type": "raw HTML capture",
+      "captured_at_utc": "2026-10-13T04:26:51.523573+00:00",
+      "original_mtime_ns": 1791865611520333733
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220325-31246.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220325-31246.txt",
+      "sha256": "00b367fd47cd240412e94eb6cdeb297b50b54c889e072f08ff89b8ab09a05e2e",
+      "bytes": 28701,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:27:01.885294+00:00",
+      "original_mtime_ns": 1791865621882373202
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220325-31244.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220325-31244.txt",
+      "sha256": "032cf03841493c88ca33a345aa7b4140e0a226cdb856b816cc765503f9409b83",
+      "bytes": 33713,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:27:12.242567+00:00",
+      "original_mtime_ns": 1791865632239412181
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220325-31242.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220325-31242.txt",
+      "sha256": "ddfcfc75d57921197bc93266a025a51c3854a06bb570a3b49982580e0baff941",
+      "bytes": 28464,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:27:22.600587+00:00",
+      "original_mtime_ns": 1791865642597450711
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220311-31155.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220311-31155.txt",
+      "sha256": "6dfc129904136f1350f1bb8f2142073a497bbe9ae10450ad126b844cfb659e86",
+      "bytes": 32824,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:27:32.965476+00:00",
+      "original_mtime_ns": 1791865652962488818
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220301-31137.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220301-31137.txt",
+      "sha256": "d0459eb694c5950ee6bee0135ce9a158036e4393760e01023225668c80ef173f",
+      "bytes": 33078,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:27:43.373983+00:00",
+      "original_mtime_ns": 1791865663371526642
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220301-31136.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220301-31136.txt",
+      "sha256": "b28ba6665cfe5d227d0752a948156ec52ee05cc269b92fd31340734b09688c9d",
+      "bytes": 32416,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:27:53.741329+00:00",
+      "original_mtime_ns": 1791865673738563883
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220220-30983.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220220-30983.txt",
+      "sha256": "22f694f186541869c321778e3eab34d4ff80d0ec97b9cac3340cc3ac2e86d5f0",
+      "bytes": 22855,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:28:04.102596+00:00",
+      "original_mtime_ns": 1791865684099600680
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220220-30979.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220220-30979.txt",
+      "sha256": "82276d7e65e543dd411a200ec6d27ef74b00244eb4a36b9d668d110380688110",
+      "bytes": 27731,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:28:14.471076+00:00",
+      "original_mtime_ns": 1791865694468637091
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220125-30794.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220125-30794.txt",
+      "sha256": "307bd0ae2e2ae949840ac8c10dfe0fba81899646b2b7e203987bacea287e0d89",
+      "bytes": 24685,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:28:24.868396+00:00",
+      "original_mtime_ns": 1791865704865673192
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20220125-30791.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20220125-30791.txt",
+      "sha256": "5518b9efeaa35453632b9ed111b7306852d59b1d83817f7e3f837e0ff1b299a8",
+      "bytes": 27520,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:28:35.212702+00:00",
+      "original_mtime_ns": 1791865715210708718
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20211206-30304.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20211206-30304.txt",
+      "sha256": "d986fe2c0debc18278fe23e7f13cd4608f2e804b9aa0245543fe31cadac01584",
+      "bytes": 33714,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:28:45.591265+00:00",
+      "original_mtime_ns": 1791865725588743967
+    },
+    {
+      "snapshot": "snapshots/cpu2017/cpu2017-20211206-30303.txt",
+      "original": "research/batches/discovery-2026-10-12/spec-continuation/cpu2017/cpu2017-20211206-30303.txt",
+      "sha256": "a9d0f6fbee4a747833cbb6948db7706b80a01037f58d6e73de6e53b3644ac679",
+      "bytes": 33519,
+      "type": "raw full-disclosure text capture",
+      "captured_at_utc": "2026-10-13T04:28:55.954423+00:00",
+      "original_mtime_ns": 1791865735952778787
+    }
+  ],
+  "observations_sha256": "17f9894fbb70530a521599d7a0d0a91afb74daafe3762a5b2e9a8c6047b79645",
+  "requests_sha256": "13f86f17d4c6d814a8ddf31a1c2dd326021f841719f3adb653d783250cca6570",
+  "original_observations": "research/batches/discovery-2026-10-12/spec-continuation/observations.json",
+  "original_requests": "research/batches/discovery-2026-10-12/spec-continuation/requests.jsonl",
+  "new_requests": 0,
+  "historical_rules": "Accepted SPEC revision3, waves9/10; historical builders read only, never executed."
+}

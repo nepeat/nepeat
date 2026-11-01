@@ -1,0 +1,30 @@
+{
+  "source_basis": "data/raw/discovery-2026-10-11-redhat-cert/api/facet-partnerName-hardware.json",
+  "sha256": "b40e7e4a0ccf09f6aa5e9042712dd0bd8ae04b44ab5568731a820d1f9b0464d7",
+  "partners": [
+    "ASRock Industrial Computer Corp.",
+    "ASRockRack",
+    "Aivres Systems Inc.",
+    "Gigabyte",
+    "MiTAC Computing Technology Corp",
+    "Pegatron Corporation",
+    "TYAN Computer Corporation",
+    "Wistron",
+    "xFusion Digital Technologies Co. Ltd"
+  ],
+  "historical_counts": {
+    "ASRock Industrial Computer Corp.": 4,
+    "ASRockRack": 26,
+    "Aivres Systems Inc.": 40,
+    "Gigabyte": 106,
+    "MiTAC Computing Technology Corp": 11,
+    "Pegatron Corporation": 6,
+    "TYAN Computer Corporation": 8,
+    "Wistron": 5,
+    "xFusion Digital Technologies Co. Ltd": 39
+  },
+  "max_http": 10,
+  "per_query_rows_cap": 200,
+  "pagination": "none; current larger result sets explicitly incomplete",
+  "retries": 0
+}

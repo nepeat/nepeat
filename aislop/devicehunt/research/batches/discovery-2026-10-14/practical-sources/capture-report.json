@@ -1,0 +1,77 @@
+{
+  "outcome": "complete finite three-source acquisition; independently reviewable local candidate; no import",
+  "completed_at_utc": "2026-10-15T05:46:04.649415+00:00",
+  "http_attempts": 7,
+  "actual_http_exchanges": 6,
+  "actual_http_cap": 8,
+  "dns_only_local_sandbox_failures": 1,
+  "automatic_redirects": 0,
+  "remote_retries": 0,
+  "manual_same_origin_redirects": 1,
+  "fresh_host_policies": 2,
+  "pdf_documents": 1,
+  "pdf_pages": 2,
+  "local_renders": 2,
+  "local_render_cap": 6,
+  "source_records": [
+    {
+      "sequence": 1,
+      "url": "https://www.celestica.com/robots.txt",
+      "status": 0,
+      "body_path": null,
+      "sha256": null
+    },
+    {
+      "sequence": 2,
+      "url": "https://www.celestica.com/robots.txt",
+      "status": 200,
+      "body_path": "robots-celestica-escalated.txt",
+      "sha256": "b60e9385e9f08f0913c050aa40c41cb10b292d0210d3d8dda9459195da928f34"
+    },
+    {
+      "sequence": 3,
+      "url": "https://www.celestica.com/hps/sd4100",
+      "status": 302,
+      "body_path": "sd4100-resource.html",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "sequence": 4,
+      "url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+      "status": 200,
+      "body_path": "sd4100-known_captured_target_checked.pdf",
+      "sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385"
+    },
+    {
+      "sequence": 5,
+      "url": "https://docs.oracle.com/robots.txt",
+      "status": 200,
+      "body_path": "robots-oracle.txt",
+      "sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0"
+    },
+    {
+      "sequence": 6,
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+      "status": 200,
+      "body_path": "zs3-2-internal-components.html",
+      "sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1"
+    },
+    {
+      "sequence": 7,
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+      "status": 200,
+      "body_path": "zs3-4-internal-components.html",
+      "sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4"
+    }
+  ],
+  "candidate": {
+    "path": "candidate.json",
+    "sha256": "a431ea99bb69582ace0bebbeda90b2804959e3ffa91731707ae2eadc63568385",
+    "sources": 3,
+    "records": 4,
+    "facts": 60
+  },
+  "independent_review": "pending coordinator acceptance",
+  "shared_mutations": [],
+  "stop_reason": "all three named sources processed; no remaining HTTP use permitted"
+}

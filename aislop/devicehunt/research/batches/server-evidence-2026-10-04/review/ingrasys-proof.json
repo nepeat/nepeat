@@ -1,0 +1,264 @@
+{
+  "splice_and_eof_exact": true,
+  "prefix_exact": true,
+  "strict_pdf_pages": 10,
+  "all_embedded_text_empty": true,
+  "source_sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+  "derivative_sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+  "text_sha256": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345",
+  "corporate_sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+  "inputs": {
+    "candidate-curated.json": "0e8117434ef4e8a49ca761045b5ca1e239fc7c433195ccc2f84bef9bccab423d",
+    "portfolio-proposal.json": "48aed6968181c37c1d3587891fe902039ee340f10a18d2a294ae811721e219f9",
+    "reference-pdf-proposal.json": "34caba1972f0bf2fea1ae64485dec0f42c652c63b9e35122e0023813eb33148a"
+  },
+  "page_png_hashes": {
+    "page-01.png": "1331c5eaab9ac91e56491b5c7fa0808f14683fe26d91d8ca8d3bbfe7de17a7b7",
+    "page-02.png": "affc842404c2d49a5c7951845686c8a43fdbbfa874a7ba7d4feb9b1f266ac674",
+    "page-03.png": "ea6c64c2f3b7d2870b2040ed02250a4a15b7eeb7d109a3020bfb3b40eabf47e6",
+    "page-04.png": "7abf484ed0096047a11f640aaa42a827b966e82b3a6262befaaa3fb46cd2460e",
+    "page-05.png": "f39b3f80a7901785ea5b00b521158364efbb18f8832f266abd2171c94ba2acb7",
+    "page-06.png": "8a2c2d33fd0cfb6ea3a8ce56a52db2dd1a929ff0f1de97da8eac3f31c8784d11",
+    "page-07.png": "f30f6f8d2724f8d04892a71e4c7444253e2bad7a556e9780843c88a8e12ee1a9",
+    "page-08.png": "16a7ac40b341623adb38232b7e172aac3bba9a8c9e2475d47ade1036f996b39f",
+    "page-09.png": "28b6f02d5194c146703bb6cf35fd022697a9909ffacbe9af142ae9ef2ecceb6d",
+    "page-10.png": "1c94360b2ba9f3d755cbec52d86582168122b2d3ff816b548587b61bdeaeab4a"
+  },
+  "existing_models": [
+    "SV2221A",
+    "SV2221I"
+  ],
+  "new_models": [
+    "SV1120A",
+    "SV1120I",
+    "SV1121A",
+    "SV1121I",
+    "SV2121A",
+    "SV2121I"
+  ],
+  "new_identity_count_expected": 6,
+  "vendor_records": 8,
+  "vendor_facts": 124,
+  "parent_records": 6,
+  "parent_facts": 72,
+  "existing_sv2221_facts": [
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "association_limit",
+      "value": "Portfolio association only; not manufacturer or hyperscaler deployment."
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "association_method",
+      "value": "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "corporate_source_sha256",
+      "value": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "corporate_source_url",
+      "value": "https://www.ingrasys.com/company/about/"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "model_source_id",
+      "value": "ingrasys-sv2221a-page"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "model_source_sha256",
+      "value": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "model_source_url",
+      "value": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "parent_name_as_printed",
+      "value": "Foxconn Technology Group"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "relationship_observed_date",
+      "value": "2026-10-04"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "subsidiary_name_as_printed",
+      "value": "Ingrasys"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "cooling_description",
+      "value": "Liquid cooling"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "expansion",
+      "value": "Two PCIe 5.0 x16 FHHL slots; eight PCIe 5.0 x16 LP/HHHL slots with riser cards."
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "identity_limit",
+      "value": "Suffix retained; no equivalence to unsuffixed SV2221 asserted."
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "memory",
+      "value": "24 DDR5 RDIMM slots; 12 channels; up to 6000 MT/s at 1DPC"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "physical_description",
+      "value": "2 OU"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "power_description",
+      "value": "Centralized 48 V busbar with power distribution board (PDB)."
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "processor",
+      "value": "Two fifth-generation AMD EPYC server processors"
+    },
+    {
+      "model": "SV2221A",
+      "source_id": "ingrasys-sv2221a-page",
+      "name": "source_observed_date",
+      "value": "2026-10-04"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "association_limit",
+      "value": "Portfolio association only; not manufacturer or hyperscaler deployment."
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "association_method",
+      "value": "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "corporate_source_sha256",
+      "value": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "corporate_source_url",
+      "value": "https://www.ingrasys.com/company/about/"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "model_source_id",
+      "value": "ingrasys-sv2221i-page"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "model_source_sha256",
+      "value": "020583b6bfdbe2f011d7bfeccf59a1bc734c96799c0ee2ad559afb5fb2544370"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "model_source_url",
+      "value": "https://www.ingrasys.com/solutions/intel/intel-xeon-processor-solution/"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "parent_name_as_printed",
+      "value": "Foxconn Technology Group"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "relationship_observed_date",
+      "value": "2026-10-04"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "name": "subsidiary_name_as_printed",
+      "value": "Ingrasys"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "cooling_description",
+      "value": "Air or liquid cooling"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "expansion",
+      "value": "Two PCIe 5.0 x16 FHHL slots; eight PCIe 5.0 x16 LP/HHHL slots with riser cards."
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "identity_limit",
+      "value": "Suffix retained; no equivalence to unsuffixed SV2221 asserted."
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "memory",
+      "value": "32 DDR5 RDIMM slots; 8 channels; up to 6400 MT/s at 1DPC and 5200 MT/s at 2DPC"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "physical_description",
+      "value": "2 OU"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "power_description",
+      "value": "Centralized 48 V busbar with power distribution board (PDB)."
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "processor",
+      "value": "Two Intel Xeon 6 processors"
+    },
+    {
+      "model": "SV2221I",
+      "source_id": "ingrasys-sv2221i-page",
+      "name": "source_observed_date",
+      "value": "2026-10-04"
+    }
+  ],
+  "pixel_review": "all ten viewed; every proposed product specification checked on pages 3-10; matches",
+  "live_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2"
+}

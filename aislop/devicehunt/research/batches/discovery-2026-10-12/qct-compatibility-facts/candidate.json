@@ -1,0 +1,4127 @@
+{
+  "sources": [
+    {
+      "id": "qct-d52bq-2u-psu-ccl-2026-10-12",
+      "url": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+      "tier": "vendor",
+      "license": "Public vendor factual compatibility documentation; original QCT/third-party rights retained.",
+      "coverage": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms.",
+      "snapshot": "snapshots/qct-d52bq-ccl.html",
+      "original_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+      "captured_at_utc": "2026-10-13T05:00:32.403114+00:00",
+      "printed_publish_date": "2025-06-27",
+      "evidence_dependencies": [
+        {
+          "path": "snapshots/parent-product.html",
+          "sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+          "purpose": "Already imported parent product page; exact identity/href routing anchor only, no new source fact"
+        }
+      ]
+    }
+  ],
+  "devices": [
+    {
+      "source": "qct-d52bq-2u-psu-ccl-2026-10-12",
+      "key": "QuantaGrid D52BQ-2U:PSU-CCL",
+      "url": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "title": "QCT QuantaGrid D52BQ-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Quanta Cloud Technology",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [],
+      "facts": [
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Titanium\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800C00002\", \"VendorPN\": \"MC800B6-3-4R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 3]"
+        ],
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Titanium\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800C00030\", \"VendorPN\": \"MPS8146\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 4]"
+        ],
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800B00009\", \"VendorPN\": \"MC800B4-3-4R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 5]"
+        ],
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800B00019\", \"VendorPN\": \"MC800B4-3-5R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 6]"
+        ],
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1200W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFC00F00019\", \"VendorPN\": \"MC1200B4-3-4R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 7]"
+        ],
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1200W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFC00B00032\", \"VendorPN\": \"PS-2122-7Q\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 8]"
+        ],
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1100W\", \"Type\": \"Redundant\", \"Efficiency\": \"Gold\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFB00E00003\", \"VendorPN\": \"FSF048-930G\", \"Note\": \"Regulatory only for USA/EU. Taiwan/China/Russia will implement on end of Q2 2018 .\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 9]"
+        ],
+        [
+          "power_description",
+          "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1100W\", \"Type\": \"Redundant\", \"Efficiency\": \"Gold\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"No\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFB00E00005\", \"VendorPN\": \"FSF048-931G\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 10]"
+        ]
+      ],
+      "existing_identity_id": "f65a474568c484317fc5",
+      "evidence": [
+        {
+          "fact_ordinal_zero_based": 0,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Titanium\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800C00002\", \"VendorPN\": \"MC800B6-3-4R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 3]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 3,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "800W"
+                ],
+                "text": "800W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Titanium"
+                ],
+                "text": "Titanium"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "AF800C00002"
+                ],
+                "text": "AF800C00002"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "MC800B6-3-4R-02"
+                ],
+                "text": "MC800B6-3-4R-02"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [],
+                "text": ""
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "800W",
+            "Type": "Redundant",
+            "Efficiency": "Titanium",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "Yes",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AF800C00002",
+            "VendorPN": "MC800B6-3-4R-02",
+            "Note": ""
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        },
+        {
+          "fact_ordinal_zero_based": 1,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Titanium\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800C00030\", \"VendorPN\": \"MPS8146\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 4]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 4,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "800W"
+                ],
+                "text": "800W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Titanium"
+                ],
+                "text": "Titanium"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "AF800C00030"
+                ],
+                "text": "AF800C00030"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "MPS8146"
+                ],
+                "text": "MPS8146"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [],
+                "text": ""
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "800W",
+            "Type": "Redundant",
+            "Efficiency": "Titanium",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "Yes",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AF800C00030",
+            "VendorPN": "MPS8146",
+            "Note": ""
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        },
+        {
+          "fact_ordinal_zero_based": 2,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800B00009\", \"VendorPN\": \"MC800B4-3-4R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 5]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 5,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "800W"
+                ],
+                "text": "800W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Platinum"
+                ],
+                "text": "Platinum"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "AF800B00009"
+                ],
+                "text": "AF800B00009"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "MC800B4-3-4R-02"
+                ],
+                "text": "MC800B4-3-4R-02"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [],
+                "text": ""
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "800W",
+            "Type": "Redundant",
+            "Efficiency": "Platinum",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "Yes",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AF800B00009",
+            "VendorPN": "MC800B4-3-4R-02",
+            "Note": ""
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        },
+        {
+          "fact_ordinal_zero_based": 3,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"800W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AF800B00019\", \"VendorPN\": \"MC800B4-3-5R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 6]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 6,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "800W"
+                ],
+                "text": "800W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Platinum"
+                ],
+                "text": "Platinum"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "AF800B00019"
+                ],
+                "text": "AF800B00019"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "MC800B4-3-5R-02"
+                ],
+                "text": "MC800B4-3-5R-02"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [],
+                "text": ""
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "800W",
+            "Type": "Redundant",
+            "Efficiency": "Platinum",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "Yes",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AF800B00019",
+            "VendorPN": "MC800B4-3-5R-02",
+            "Note": ""
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        },
+        {
+          "fact_ordinal_zero_based": 4,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1200W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFC00F00019\", \"VendorPN\": \"MC1200B4-3-4R-02\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 7]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 7,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "1200W"
+                ],
+                "text": "1200W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Platinum"
+                ],
+                "text": "Platinum"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "AFC00F00019"
+                ],
+                "text": "AFC00F00019"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "MC1200B4-3-4R-02"
+                ],
+                "text": "MC1200B4-3-4R-02"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [],
+                "text": ""
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "1200W",
+            "Type": "Redundant",
+            "Efficiency": "Platinum",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "Yes",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AFC00F00019",
+            "VendorPN": "MC1200B4-3-4R-02",
+            "Note": ""
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        },
+        {
+          "fact_ordinal_zero_based": 5,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1200W\", \"Type\": \"Redundant\", \"Efficiency\": \"Platinum\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFC00B00032\", \"VendorPN\": \"PS-2122-7Q\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 8]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 8,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "1200W"
+                ],
+                "text": "1200W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Platinum"
+                ],
+                "text": "Platinum"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "AFC00B00032"
+                ],
+                "text": "AFC00B00032"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "PS-2122-7Q"
+                ],
+                "text": "PS-2122-7Q"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [],
+                "text": ""
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "1200W",
+            "Type": "Redundant",
+            "Efficiency": "Platinum",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "Yes",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AFC00B00032",
+            "VendorPN": "PS-2122-7Q",
+            "Note": ""
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        },
+        {
+          "fact_ordinal_zero_based": 6,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1100W\", \"Type\": \"Redundant\", \"Efficiency\": \"Gold\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"Yes\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFB00E00003\", \"VendorPN\": \"FSF048-930G\", \"Note\": \"Regulatory only for USA/EU. Taiwan/China/Russia will implement on end of Q2 2018 .\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 9]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 9,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "1100W"
+                ],
+                "text": "1100W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Gold"
+                ],
+                "text": "Gold"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "AFB00E00003"
+                ],
+                "text": "AFB00E00003"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "FSF048-930G"
+                ],
+                "text": "FSF048-930G"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Regulatory only for USA/EU. Taiwan/China/Russia will implement on end of Q2 2018\r\n."
+                ],
+                "text": "Regulatory only for USA/EU. Taiwan/China/Russia will implement on end of Q2 2018 ."
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "1100W",
+            "Type": "Redundant",
+            "Efficiency": "Gold",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "Yes",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AFB00E00003",
+            "VendorPN": "FSF048-930G",
+            "Note": "Regulatory only for USA/EU. Taiwan/China/Russia will implement on end of Q2 2018 ."
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        },
+        {
+          "fact_ordinal_zero_based": 7,
+          "fact_name": "power_description",
+          "fact_value": "QCT CCL PSU row (D52BQ-2U; publication 2025-06-27): {\"Power Capacity\": \"1100W\", \"Type\": \"Redundant\", \"Efficiency\": \"Gold\", \"Dimension(mm)\": \"86*196*40\", \"240VDC\": \"No\", \"Cold redundancy\": \"Yes\", \"QuantaPN\": \"AFB00E00005\", \"VendorPN\": \"FSF048-931G\", \"Note\": \"\"}. Historical reference-only CCL row; not full hardware certification or a third-party quality/reliability guarantee. Redundancy labels establish no installed quantity/capacity; 240VDC Yes/No is not an input range/wiring rating. Efficiency and dimension fields remain literal, without certification or axis inference. [HTML table 12, row 10]",
+          "source_URL": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+          "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+          "snapshot": "snapshots/qct-d52bq-ccl.html",
+          "table_1based": 12,
+          "row_1based": 10,
+          "table_attributes": [
+            [
+              "width",
+              "90%"
+            ],
+            [
+              "class",
+              "style5"
+            ],
+            [
+              "cellpadding",
+              "2"
+            ],
+            [
+              "cellspacing",
+              "1"
+            ]
+          ],
+          "header_original_row": {
+            "attributes": [
+              [
+                "bgcolor",
+                "#f7f9d0"
+              ]
+            ],
+            "start_line": 1,
+            "cells": [
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Power Capacity"
+                ],
+                "text": "Power Capacity"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Type"
+                ],
+                "text": "Type"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Efficiency"
+                ],
+                "text": "Efficiency"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Dimension(mm)"
+                ],
+                "text": "Dimension(mm)"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "240VDC"
+                ],
+                "text": "240VDC"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Cold redundancy"
+                ],
+                "text": "Cold redundancy"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "QuantaPN"
+                ],
+                "text": "QuantaPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "VendorPN"
+                ],
+                "text": "VendorPN"
+              },
+              {
+                "tag": "th",
+                "attributes": [
+                  [
+                    "align",
+                    "center"
+                  ],
+                  [
+                    "class",
+                    "style3"
+                  ]
+                ],
+                "start_line": 1,
+                "text_parts": [
+                  "Note"
+                ],
+                "text": "Note"
+              }
+            ]
+          },
+          "original_row": {
+            "attributes": [
+              [
+                "class",
+                "form01"
+              ]
+            ],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "1100W"
+                ],
+                "text": "1100W"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "Redundant"
+                ],
+                "text": "Redundant"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "Gold"
+                ],
+                "text": "Gold"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "86*196*40"
+                ],
+                "text": "86*196*40"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "No"
+                ],
+                "text": "No"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "Yes"
+                ],
+                "text": "Yes"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "AFB00E00005"
+                ],
+                "text": "AFB00E00005"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "FSF048-931G"
+                ],
+                "text": "FSF048-931G"
+              },
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [],
+                "text": ""
+              }
+            ]
+          },
+          "fields_in_header_order": {
+            "Power Capacity": "1100W",
+            "Type": "Redundant",
+            "Efficiency": "Gold",
+            "Dimension(mm)": "86*196*40",
+            "240VDC": "No",
+            "Cold redundancy": "Yes",
+            "QuantaPN": "AFB00E00005",
+            "VendorPN": "FSF048-931G",
+            "Note": ""
+          },
+          "table_original_footnote_row": {
+            "attributes": [],
+            "start_line": 2,
+            "cells": [
+              {
+                "tag": "td",
+                "attributes": [
+                  [
+                    "colspan",
+                    "20"
+                  ],
+                  [
+                    "class",
+                    "style4"
+                  ]
+                ],
+                "start_line": 2,
+                "text_parts": [
+                  "*Grayed-out items: to be EOL soon or already EOL"
+                ],
+                "text": "*Grayed-out items: to be EOL soon or already EOL"
+              }
+            ]
+          },
+          "table_footnote": [
+            "*Grayed-out items: to be EOL soon or already EOL"
+          ],
+          "introduction_original_table": {
+            "attributes": [
+              [
+                "width",
+                "100%"
+              ],
+              [
+                "border",
+                "0"
+              ],
+              [
+                "cellpadding",
+                "0"
+              ],
+              [
+                "cellspacing",
+                "0"
+              ]
+            ],
+            "start_line": 1,
+            "rows": [
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Publish date: 2025-06-27"
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "div",
+                        "attributes": [
+                          [
+                            "align",
+                            "right"
+                          ],
+                          [
+                            "class",
+                            "date"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "Publish date: 2025-06-27"
+                  }
+                ]
+              },
+              {
+                "attributes": [
+                  [
+                    "class",
+                    "brand"
+                  ]
+                ],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "height",
+                        "38"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "Quanta Cloud Technology"
+                    ],
+                    "text": "Quanta Cloud Technology"
+                  }
+                ]
+              },
+              {
+                "attributes": [],
+                "start_line": 1,
+                "cells": [
+                  {
+                    "tag": "td",
+                    "attributes": [
+                      [
+                        "class",
+                        "head"
+                      ]
+                    ],
+                    "start_line": 1,
+                    "text_parts": [
+                      "D52BQ-2U",
+                      "    ",
+                      "QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                    ],
+                    "nested_elements": [
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "class",
+                            "style7"
+                          ]
+                        ]
+                      },
+                      {
+                        "tag": "p",
+                        "attributes": [
+                          [
+                            "align",
+                            "justify"
+                          ],
+                          [
+                            "class",
+                            "style6"
+                          ]
+                        ]
+                      }
+                    ],
+                    "text": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+                  }
+                ]
+              }
+            ]
+          },
+          "printed_company": "Quanta Cloud Technology",
+          "printed_system": "D52BQ-2U",
+          "printed_publish_date": "2025-06-27",
+          "literal_CCL_disclaimer": "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program.",
+          "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+        }
+      ],
+      "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms.",
+      "parent_routing": {
+        "snapshot": "snapshots/parent-product.html",
+        "sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+        "source_URL": "https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U",
+        "printed_heading": "QuantaGrid D52BQ-2U",
+        "literal_CCL_href": "https://www.qct.io/microsite/ccl/D52BQ-2U.html",
+        "existing_parent_record_sources": [
+          {
+            "source_id": "qct-d52bq-public-product-2026",
+            "source_url": "https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U"
+          },
+          {
+            "source_id": "qct-quanta-portfolio-2020",
+            "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+          },
+          {
+            "source_id": "qct-wssd-models",
+            "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+          }
+        ]
+      }
+    }
+  ],
+  "status": "staged finite candidate; independent review required; no import",
+  "scope_limitations": "Historical QCT Compatible Components List (CCL), printed 2025-06-27, reference only; does not replace full QCT hardware certification or guarantee third-party component quality/reliability. Eight literal PSU compatibility-table rows on the existing QCT QuantaGrid D52BQ-2U family; not an installed inventory, PSU quantity/summed capacity, current certification/EOL/stock, manufacturer/factory identity, independent efficiency certification, physical-unit fitment, standalone-operation or safe-wiring claim. 240VDC Yes/No is not an input range; dimensions retain unlabelled axis order. QuantaPN and VendorPN stay distinct, no new identifiers/aliases or standalone PSU identities. Regional schedule and EOL footnote remain historical source text. No bridge to the separate Quanta namespace or other platforms."
+}

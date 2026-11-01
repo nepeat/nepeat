@@ -1,0 +1,24 @@
+{
+  "counts": {
+    "devices": 4090,
+    "records": 5319,
+    "sources": 290,
+    "facts": 45017,
+    "documents": 58,
+    "document_pages": 3663
+  },
+  "jobs": 120,
+  "inputs": 2205,
+  "imports": {
+    "reference": {
+      "documents": 47,
+      "pages": 3589,
+      "pages_with_text": 3575
+    },
+    "curated": 2
+  },
+  "old_hashed_inputs_preserved": 2191,
+  "old_bundle_entries_preserved": 46,
+  "candidate_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "live_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0"
+}

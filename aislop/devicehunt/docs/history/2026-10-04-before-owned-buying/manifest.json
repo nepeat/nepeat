@@ -1,0 +1,16 @@
+{
+  "archived_on": "2026-10-04",
+  "reason": "Preserve NIC/Wiwynn/Hyve checkpoint before owned buying-evidence milestone",
+  "files": [
+    {
+      "original_path": "PROGRESS.md",
+      "snapshot_path": "PROGRESS.md",
+      "sha256": "6114e3a7dec1570ffcf64224e1ffe4b97ac3d66f1cdae00b7614ff5404e2e1af"
+    },
+    {
+      "original_path": "research/owned-hardware-gaps.md",
+      "snapshot_path": "owned-hardware-gaps.md",
+      "sha256": "8dc12637076f976698ecd322e92065e19dabfae9bf904fa1b282383f498f0732"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "scope": "six tiny temporary catalogs only; no live mutation",
+  "results": {
+    "legacy_source_move": [
+      {
+        "model": "M1",
+        "title": "new title",
+        "kind": "new kind",
+        "revision": ""
+      }
+    ],
+    "deferred_source_move": [
+      {
+        "model": "M1",
+        "title": "old title",
+        "kind": "old kind",
+        "revision": ""
+      }
+    ],
+    "repeated_sources_keys_and_ignored_row": {
+      "returned": 4,
+      "records": 1,
+      "records_seen": 2,
+      "coverage": "fixturelast",
+      "devices": [
+        {
+          "model": "M1",
+          "title": "first identity title",
+          "kind": "fixture",
+          "revision": ""
+        }
+      ],
+      "raw_json": {
+        "source": "A",
+        "key": "same",
+        "brand": "Fixture",
+        "model": "M1",
+        "title": "last record title",
+        "kind": "fixture",
+        "affiliations": [],
+        "revision": "IGNORED"
+      }
+    },
+    "fact_identifier_values": {
+      "input": [
+        null,
+        "",
+        0,
+        false,
+        1,
+        true,
+        [],
+        {},
+        [
+          "x"
+        ],
+        {
+          "x": 1
+        },
+        1.5
+      ],
+      "facts": [
+        "0",
+        "1",
+        "1.5",
+        "False",
+        "True",
+        "['x']",
+        "[]",
+        "{'x': 1}",
+        "{}"
+      ],
+      "identifiers": [
+        "1",
+        "1.5",
+        "True",
+        "['x']",
+        "{'x': 1}"
+      ]
+    },
+    "legacy_caller_transaction": {
+      "in_transaction_after_success": false,
+      "caller_row_survives_rollback": true
+    },
+    "empty_sources_missing_devices": {
+      "returned": 0,
+      "in_transaction": false
+    }
+  }
+}

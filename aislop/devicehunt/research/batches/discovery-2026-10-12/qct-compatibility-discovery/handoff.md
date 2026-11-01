@@ -1,0 +1,9 @@
+# QCT D52BQ-2U compatibility discovery
+
+Root author; finite capture complete, independent review pending. No candidate or import. `plan.json` pins the literal saved product-page href and prior fetch report; denied/missing D51B/T41S routes and download registration remain outside scope. Exactly two HTTP requests, fresh robots then the exact public compatibility HTML, both200. No redirect, retry, download, login, search or external write. Requests preserve argv/UTC/status/body/header hashes and exact-path policy.
+
+`observations.json` preserves all15 HTML tables (892 rows including headings/footers) with original text fragments, attributes and source-line locators. This is discovery structure only. The selected finite evidence is the eight rows in PSU CCL, table12. The page prints Quanta Cloud Technology / D52BQ-2U and publication2025-06-27; parent product page explicitly linked this source. The bare and QuantaGrid-prefixed names are not merged by discovery.
+
+Eight rows pair literal QuantaPN and VendorPN columns with800W/1100W/1200W labels, redundancy/efficiency/dimensions,240VDC andcoldredundancy fields. Do not infer manufacturer from part spelling, convert these into aliases or claim installed quantity/current certification/safe standalone wiring. One historical regional regulatory note remains intact. The table EOL footnote and every row/cell style are retained; no currentEOL claim is created. Other component and OS tables remain unselected discovery, not added catalog facts.
+
+`capture.py` is a finite one-shot helper and must not be rerun. `observe.py` is exclusive-output local extraction, not an importer; prior artifacts are immutable. Capture/result/hash checks pass. Independent review must check raw HTML table/row boundaries and policy, then separately decide any candidate/identity scope. Original rights remain upstream; no publication.

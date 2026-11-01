@@ -1,0 +1,45 @@
+2                                                                                                    PFE1500 Series
+
+
+
+
+Product Family    Power Level          Dash           V1 Output          Dash           Width            Airflow              Input 3
+                                                                                                                          A: C14 Socket
+                                                                                                       N: Normal 1
+PFE Front-End       1500 W                               12 V                           54 mm                            AC: C16 Socket
+                                                                                                       R: Reverse 2
+                                                                                                                        AH: HVDC Socket
+    1   “N” Normal Airflow from Output connector to Input AC socket
+        Ordering PN: PFE1500-12-054NA for C14 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC
+        Ordering PN: PFE1500-12-054NAC for C16 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC
+        Ordering PN: PFE1500-12-054NAH for both AC and HVDC (RF-203-D-1.0) input connector, input range is 180 ~ 400 VDC and 90 ~ 264 VAC
+    2    “R” Reverse Airflow from Input AC socket to Output connector
+        Ordering PN: PFE1500-12-054RA for C14 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC
+        Ordering PN: PFE1500-12-054RAC for C16 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC
+        Ordering PN: PFE1500-12-054RAH for both AC and HVDC (RF-203-D-1.0) input connector, input range is 180 ~ 400 VDC and 90 ~ 264 VAC
+    3   For difference of the AC socket and mechanical outline refer to section 13.
+
+
+
+
+                                                                                                                              S412
+ Product Family      Power Level              Dash              V1 Output            Airflow             Input 6           VSB Output
+                                                                                                      A: C14 Socket
+                                                                                   N: Normal 4
+ PFE Front-End          1500 W                                    12 V                               AC: C16 Socket          12VSB
+                                                                                  R: Reverse 5
+                                                                                                    AH: HVDC Socket
+    4   “N” Normal Airflow from Output connector to Input AC socket
+        Ordering PN: PFE1500-12NAS412 for C14 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC
+        Ordering PN: PFE1500-12NACS412 for C16 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC
+        Ordering PN: PFE1500-12NAHS412 for both AC and HVDC (RF-203-D-1.0) input connector, input range is 180 VDC ~ 400 VDC
+        and 90 VAC ~ 264 VAC
+    5   “R” Reverse Airflow from Input AC socket to Output connector
+        Ordering PN: PFE1500-12RAS412 for C14 AC input connector, input range is 180 VDC ~ 350 VDC and 90 VAC ~ 264 VAC
+    6   For difference of the AC socket and mechanical outline refer to section 13.
+
+
+
+
+                                                                                                            tech.support@psbel.com
+

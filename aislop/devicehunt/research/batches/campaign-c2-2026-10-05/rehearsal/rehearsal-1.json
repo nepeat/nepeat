@@ -1,0 +1,98 @@
+{
+  "checked_at": "2026-10-05T09:23:31.067735+00:00",
+  "host": "Linux",
+  "live_archive_unchanged": true,
+  "live_root": "data/archive",
+  "negative_default_workspace": {
+    "changed_files": [],
+    "created_files": [
+      "capture-locks/3f662004cb4676be8aa8eae1a6a2328aeb693df48ceebb81f492e6b34872f4e7.lock"
+    ],
+    "failed_cleanly": true,
+    "outcome": "ValueError: missing or corrupt artifact: 6a1352aee405de6cd5a61e8c23d476bd3cd5b752d97a975a136d170caab6f70c /tmp/claude-1001/-home-erin-nepeat-aislop-fcc-shenanigans/38783359"
+  },
+  "ok": true,
+  "positive": {
+    "audit": {
+      "errors": 0,
+      "ok": true,
+      "orphan_objects": 0,
+      "receipts": 374
+    },
+    "indexed_receipts": 374,
+    "legacy_backup_matches": true,
+    "legacy_leases": 0,
+    "legacy_receipt_rows_preserved": true,
+    "live_archive_unchanged": true,
+    "migrated_leases_preserved": true,
+    "new_files": [
+      "capture-authority-ready.json",
+      "capture-authority.json",
+      "capture-leases.before-c1a.sqlite",
+      "index-head.json"
+    ],
+    "object_files": 48,
+    "operational": {
+      "accounts": 0,
+      "activations": 0,
+      "events": [
+        {
+          "kind": "recovery",
+          "provenance": "legacy-migration",
+          "reason": "quiesced explicit migration",
+          "scope": "archive"
+        },
+        {
+          "kind": "deny",
+          "provenance": "index-reference:0f49018a094853bffa74d5db67f2dbb7bc6b71f2f3e2f121cb8809e2142cb9d6",
+          "reason": "observed restriction",
+          "scope": "url"
+        },
+        {
+          "kind": "deny",
+          "provenance": "index-reference:677c52e5f415fd457fea1dca8780ab5cb15fd17bdc7be3c334e75c86041fce40",
+          "reason": "observed restriction",
+          "scope": "url"
+        },
+        {
+          "kind": "deny",
+          "provenance": "index-reference:93fc0e2c83f3da86b08c9062044d81c2414db9f2f8fa7d7f80f7a43ab4356398",
+          "reason": "observed restriction",
+          "scope": "url"
+        },
+        {
+          "kind": "deny",
+          "provenance": "index-reference:cb798fe83b198d12f31a42ff8414861733d6580c3814c8bacd3b5be25daac006",
+          "reason": "observed restriction",
+          "scope": "url"
+        },
+        {
+          "kind": "recovery",
+          "provenance": "safety-synchronization",
+          "reason": "acknowledged exact indexed safety references",
+          "scope": "archive"
+        }
+      ],
+      "meta": {
+        "archive_generation": "900bf321-28ea-4a15-a063-2c29b36656af",
+        "recovery": "ready",
+        "safety_sequence": 0,
+        "version": 2
+      },
+      "reservations": 0
+    },
+    "readiness": "ready",
+    "receipt_files": 374,
+    "receipts_and_objects_unchanged": true,
+    "remigration": "refused: completed authority cannot be remigrated from an old backup; explicit coherent restore required",
+    "safety_lookup_rows": 4,
+    "synchronized_reference_ids": 4,
+    "upgrade": {
+      "generation": "900bf321-28ea-4a15-a063-2c29b36656af",
+      "sequence": 0,
+      "status": "ready"
+    }
+  },
+  "python": "3.14.7",
+  "workspace": "project root (read-only)"
+}

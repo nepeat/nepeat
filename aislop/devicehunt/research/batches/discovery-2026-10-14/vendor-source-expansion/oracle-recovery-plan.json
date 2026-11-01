@@ -1,0 +1,18 @@
+{
+  "reason": "Full-access replacement may make one explicit environment-recovery attempt after the prior restricted-worker DNS failure; no HTTP denial occurred.",
+  "owner": "/root/vendor_bulk_full",
+  "failed_receipt": {
+    "path": "research/batches/discovery-2026-10-14/vendor-source-expansion/oracle-older-m-series.html.receipt.json",
+    "sha256": "23681c73613b540e53e4e0e8da472ea392de7f4aaa78491411e36356257ab121"
+  },
+  "source_capture": {
+    "path": "data/raw/oracle-sparc.html",
+    "sha256": "1f7433203f00fe2bb1d697e70c987c39e798485d64040158b9279d6907d101f2"
+  },
+  "allowed_urls": [
+    "https://docs.oracle.com/cd/F24632_01/index.html",
+    "https://docs.oracle.com/cd/F24630_01/index.html"
+  ],
+  "maximum_additional_attempts": 2,
+  "stop": "No redirects or retries; stop Oracle group on non-200, transport error, access denial or throttle; preserve original failed receipt and every ledger row."
+}

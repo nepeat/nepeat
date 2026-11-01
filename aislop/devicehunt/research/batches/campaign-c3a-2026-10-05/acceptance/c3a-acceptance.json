@@ -1,0 +1,33 @@
+{
+  "checked_at": "2026-10-05T11:04:59.380252+00:00",
+  "coordinator": "/root-claude",
+  "stage": "c3a accepted: claim-free coverage manifests",
+  "full_suite": {
+    "tests": 589,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 394.602,
+    "blocked_network_or_external_process_calls": 0,
+    "passed": true,
+    "scope": "full suite with network/external subprocess entrypoints guarded",
+    "proof": "acceptance/c3a-final-suite-result.json"
+  },
+  "review": "review/c3a-review.md (VERDICT: ACCEPT with notes after fix verification); later scope/source/comparison, claim-invariant, root, name and NaN checks covered by tests and this suite",
+  "published_manifest": {
+    "path": "data/coverage/rra-ised-saved-2026-10-04/coverage-fc6fe1ca0a7844d057a1c38abcf0df62bfcaf50e915e62304e87d8ddd19d0eda.json",
+    "sha256": "68673eeaeb76d187cf7adc843aacb34210a47e903e61cd7181808d9450325260",
+    "run": "c2-live-run-1",
+    "receipts": 36,
+    "artifacts": 1117
+  },
+  "live_archive_unchanged": {
+    "index_head_sequence": 1181
+  },
+  "protected": "acceptance/protected-final.json (only the two SmartNIC/QCT-promoted checkpoints differ from the c1 proof)",
+  "code_sha256": {
+    "devicehunt/coverage.py": "85da4b7d11c435cd2343304052628276a014c0894cfbf6faef3e039a1f271d41",
+    "tests/test_coverage.py": "3d4adc979e7969835c59d45bbbfd40160afb6db2fcf23ebd73245d0e0737b724"
+  },
+  "network_requests": 0
+}

@@ -1,0 +1,75 @@
+PFE1100-12-054xA                                                                                                                    17
+
+
+
+
+   8.15    EEPROM PROTOCOL
+     The EEPROM follows the industry communication protocols used for this type of device. Even though page write / read
+     commands are defined, it is recommended to use the single byte write / read commands.
+
+     WRITE
+     The write command follows the SMBus 1.1 Write Byte protocol. After the device address with the write bit cleared a first byte
+     with the data address to write to is sent followed by the data byte and the STOP condition. A new START condition on the
+     bus should only occur after 5ms of the last STOP condition to allow the EEPROM to write the data into its memory.
+
+                                        S Address W A      Data Address      A          Data        A   P
+
+
+     READ
+     The read command follows the SMBus 1.1 Read Byte protocol. After the device address with the write bit cleared the data
+     address byte is sent followed by a repeated start, the device address and the read bit set. The EEPROM will respond with
+     the data byte at the specified location.
+
+                                                  S Address W A       Data Address      A
+
+
+
+                                                  S Address R     A          Data       nA P
+
+
+
+
+   8.16    PSMI PROTOCOL
+     New power management features in computer systems require the system to communicate with the power supply to access
+     current, voltage, fan speed, and temperature information. Current measurements provide data to the system for determining
+     potential system configuration limitations and provide actual system power consumption for facility planning. Temperature
+     and fan monitoring allow the system to better manage fan speeds and temperatures for optimizing system acoustics. Voltage
+     monitoring allows the system to calculate input wattage and warning of system voltage regulation problems. The Power
+     Supply Management Interface (PSMI) supports diagnostic capabilities and allows managing of redundant power supplies.
+     The communication method is SMBus. The current design guideline is version 2.12.
+     The communication protocol is register based and defines a read and write communication protocol to read / write to a single
+     register address. All registers are accessed via the same basic command given below. No PEC (Packet Error Code) is used.
+
+     WRITE
+     The write protocol used is the SMBus 2.0 Write Word protocol. All writes are 16-bit words; byte reads are not supported nor
+     allowed. The shaded areas in the figure indicate bits and bytes written by the PSMI master device. See PFE Programming
+     Manual for further information.
+
+                                                  S Address W A           Register ID   A
+
+
+
+                                                  Data Low Byte   A   Data High Byte A      P
+
+
+
+
+     READ
+     The read protocol used is the SMBus 2.0 Read Word protocol. All reads are 16-bit words; byte reads are not supported nor
+     allowed. The shaded areas in the figure indicate bits and bytes written by the PSMI master device. See PFE Programming
+     Manual for further information.
+
+                                        S Address W A       Register ID      A
+
+
+
+                                        S Address R   A    Data Low Byte     A      Data High Byte nA P
+
+
+
+
+                                                                      Asia-Pacific              Europe, Middle East      North America
+                                                             +86 755 298 85888                     +353 61 49 8941      +1 866 513 2839
+
+                                                                                                 © 2023 Bel Fuse Inc.     BCD.00012_AP
+

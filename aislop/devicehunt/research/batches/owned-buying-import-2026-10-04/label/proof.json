@@ -1,0 +1,28 @@
+{
+  "original_input_sha256": "cb03db8c48a15a857a05dd1803c84e1a3315b472e1d8c6349e38e69216a1d4c9",
+  "new_input_sha256": "da337224625fc56240c387d579bbc5e9818edd1524064589384c3f28989c1de9",
+  "image_sha256": "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5",
+  "sources": 1,
+  "devices": 1,
+  "previous_fact_count": 9,
+  "new_fact_count": 11,
+  "added_facts": [
+    [
+      "label_observed_input_voltage_range",
+      "100-240~, 50 - 60Hz, 6A Max"
+    ],
+    [
+      "label_observed_input_voltage_range_reference",
+      "Adjacent compliance label in the same photograph, Model AS7760-32X, Input Voltage Range line."
+    ]
+  ],
+  "coverage_append": " Input marking 100-240~, 50 - 60Hz, 6A Max is transcribed from the adjacent AS7760-32X compliance label in the same photograph and applies only to the photographed marking. It does not establish measured draw, installed PSU inventory or wattage, or a universal input requirement for this ordering code or model family.",
+  "checks": {
+    "full_original_assertion_preservation": true,
+    "original_input_unchanged": true,
+    "image_hash_matches_prior_fact": true,
+    "json_roundtrip_and_importer_shape": true,
+    "snapshot_resolves_beside_new_input": true
+  },
+  "visual_review": "Original image viewed independently with view_image on 2026-10-04; adjacent Model AS7760-32X / Input Voltage Range line. No serial/MAC transcription."
+}

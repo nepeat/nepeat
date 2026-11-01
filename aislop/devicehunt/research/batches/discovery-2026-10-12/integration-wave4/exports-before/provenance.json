@@ -1,0 +1,12 @@
+{
+  "original_directory": "/home/erin/nepeat/aislop/devicehunt/data/exports",
+  "sha256": {
+    "targets.csv": "5a01d4bf24b4a8a920f2ba3290fff0ff1b19643cee3063ef356b192664796dc3",
+    "targets.json": "4b5f4024c1e5a329b2ca4afdb8dccf369e242ecacdaa50c8eb2a952d8b2e6daf",
+    "catalog.html": "56333167cadcb25ee04d318a084b15e2619098c9d543a4fc5310249f734cd149",
+    "specifications.csv": "33721e849e0043ef210bf3a54ca80ab9ca3bd4417f599264ac5a47a88ff13463",
+    "specifications.json": "4856f96e39c658c0284b62f7cddf2a726b6ff827e2671ae1842822d985e76ba0",
+    "reference-documents.csv": "f108a9fa02cce3dca99f00a9821f02950e3105bda852bb30c3dc7f1018688f39",
+    "inventory-validation.json": "232329593826e28fa5042fe9fcc8dacf90022c176b863583015e1007563de583"
+  }
+}

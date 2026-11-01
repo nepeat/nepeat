@@ -1,0 +1,60 @@
+10                                                                                                                                   PFE1500 Series
+
+           12 VSB
+           On the standby output, a hiccup type over current protection is implemented. This protection will shut down the standby output
+           immediately when standby current reaches or exceeds IVSB lim. After an off-time of 1 s the output automatically tries to restart. If
+           the overload condition is removed the output voltage will reach again its nominal value. At continuous overload condition the
+           output will repeatedly trying to restart with 1s intervals. A failure on the Standby output will shut down both Main and Standby
+           outputs.
+
+
+
+                                                                    12
+
+
+
+
+                                       Standby Output Voltage [V]
+                                                                    10
+
+                                                                     8
+
+                                                                     6
+
+                                                                     4
+
+                                                                     2
+
+                                                                     0
+                                                                         0           1                 2             3           4       5
+
+                                                                                            Standby Output Current [A]
+
+                                                                             Figure 9. Current Limitation on 12 VSB
+
+
+
+
+ PARAMETER           DESCRIPTION / CONDITION                                                                              MIN          NOM     MAX     UNIT
+ Vi mon              Input RMS Voltage                                        Vi min ≤ Vi ≤ Vi max                        -2.5                 +2.5     %
+ Ii mon              Input RMS Current                                        Ii > 2 Arms                                 -5                    +5      %
+ Pi mon              True Input Power                                         Ii > 2 Arms                                 -5                    +5      %
+ V1 mon              V1 Voltage                                                                                           -2                    +2      %
+                                                                              I1 > 25 A                                   -2                    +2      %
+ I1 mon              V1 Current
+                                                                              I1 ≤ 25 A                                   -1                    +1       A
+                                                                              Po > 120 W                                  -5                    +5      %
+ Po nom              Total Output Power
+                                                                              Po ≤ 120 W                                  -12                  +12       W
+                                                                                                     3.3 / 5 VSB Models   -0.2                 +0.2
+ VSB mon             Standby Voltage                                                                                                                     V
+                                                                                                         12 VSB Models    -0.5                 +0.5
+                                                                                                     3.3 / 5 VSB Models   -0.5                 +0.5
+ ISB mon             Standby Current                                          ISB ≤ ISB nom                                                              A
+                                                                                                         12 VSB Models    -0.5                 +0.5
+
+
+
+
+                                                                                                                                       tech.support@psbel.com
+

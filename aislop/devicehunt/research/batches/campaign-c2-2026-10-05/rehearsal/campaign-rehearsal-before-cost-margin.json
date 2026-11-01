@@ -1,0 +1,137 @@
+{
+  "audit": {
+    "errors": 0,
+    "ok": true,
+    "orphan_objects": 0,
+    "receipts": 1555
+  },
+  "checked_at": "2026-10-05T09:55:41.984461+00:00",
+  "crash": {
+    "exitcode": 17,
+    "point": "after validate result publication",
+    "run_state_after_crash": "running",
+    "unit": "rra-official-query-41e4ca912b33"
+  },
+  "live_archive_unchanged": true,
+  "network_requests": 0,
+  "ok": true,
+  "prior_receipts_and_objects_unchanged": true,
+  "resumed_run": {
+    "actions": {
+      "executed": 35,
+      "recovered": 1,
+      "reused": 19
+    },
+    "new_bytes": 4770100,
+    "state": "complete",
+    "units": [
+      {
+        "mismatches": [],
+        "occurrences": 8,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "ised-rel-25869"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 746,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "ised-rel-query-accton"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 0,
+        "outcome": "explicit_zero",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "ised-rel-query-celestica"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 33,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "ised-rel-query-edgecore"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 28,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "ised-rel-query-oracle"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 57,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "rra-official-query-33f7d154085d"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 151,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "rra-official-query-41e4ca912b33"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 7,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "rra-official-query-5827f2fe7092"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 110,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "rra-official-query-63cb0b9098c7"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 516,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "rra-official-query-73009f906e4e"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 0,
+        "outcome": "explicit_zero",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "rra-official-query-78fc6b2e95f6"
+      },
+      {
+        "mismatches": [],
+        "occurrences": 200,
+        "outcome": "validated_nonempty",
+        "pinned_comparison": "matches_pinned",
+        "unit_id": "rra-official-query-e5984834207f"
+      }
+    ],
+    "units_accounted_for": {
+      "blocked": 0,
+      "budget_exhausted": 0,
+      "declared": 12,
+      "explicit_zero": 2,
+      "failed": 0,
+      "inputs_registered": 12,
+      "observed": 12,
+      "pending": 0,
+      "unknown": 0,
+      "validated_complete": 12
+    }
+  },
+  "second_run": {
+    "actions": {
+      "reused": 36
+    },
+    "changes": [
+      "unchanged"
+    ],
+    "new_archive_sequences": 0,
+    "new_bytes": 0,
+    "state": "complete"
+  }
+}

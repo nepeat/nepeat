@@ -1,0 +1,34 @@
+{
+  "checked_at": "2026-10-05T10:51:40.335731+00:00",
+  "coordinator": "/root-claude",
+  "stage": "c2b accepted: RRA refresh path through shared capture, mocked transport only",
+  "full_suite": {
+    "tests": 580,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 403.824,
+    "blocked_network_or_external_process_calls": 0,
+    "passed": true,
+    "scope": "full suite with network/external subprocess entrypoints guarded",
+    "proof": "acceptance/c2b-final-suite-result.json",
+    "log": "acceptance/c2b-final-suite.log"
+  },
+  "review": "review/c2b-review.md (VERDICT: ACCEPT with notes after fix verification); later sticky pacing and deny-over-throttle precedence covered by affected tests and this suite",
+  "live_archive_unchanged": {
+    "index_head_sequence": 1181,
+    "receipts": 1555,
+    "reservations": 0,
+    "accounts": 0,
+    "leases": 0
+  },
+  "code_sha256": {
+    "devicehunt/campaign_rra_live.py": "0d7380e41a9d61c4c41c7cccb13f4ebd5fc58f0053b05ee65914ecfb3d711fe5",
+    "devicehunt/capture.py": "cbfc15d5e7ad488b752fd84e42b3e6b7f3a5b19b641c3258f8060f076408d67f",
+    "devicehunt/artifacts.py": "88e28e5c703b9564dd0ec7123642dd17a763f742682307f90a4de97bb4d7d368",
+    "tests/test_campaign_rra_live.py": "2dbee2737f12b000b8239bf3ea8677aacd5b297be08a012905601bbc971184b3",
+    "tests/test_capture.py": "0e2827799c3992f8e0b501679e94c7c96ec6f5a0a7a95afa05321fe293cbb469"
+  },
+  "network_requests": 0,
+  "live_accounts_or_activation": false
+}

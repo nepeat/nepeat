@@ -1,0 +1,16 @@
+{
+  "bundle": {
+    "bundle": "/home/erin/nepeat/aislop/devicehunt/data/raw/rra-celestica-official-live-2026-10-11a-carried/bundle.json",
+    "outcome": "validated_nonempty"
+  },
+  "compare_live": {
+    "location_only": true,
+    "mismatches": [],
+    "status": "matches_pinned"
+  },
+  "cycle": "2026-10-11a",
+  "http_requests": 0,
+  "phase": "rebundle",
+  "source_live_bundle": "data/raw/rra-celestica-official-live-2026-10-11a",
+  "unit_id": "rra-official-query-41e4ca912b33"
+}

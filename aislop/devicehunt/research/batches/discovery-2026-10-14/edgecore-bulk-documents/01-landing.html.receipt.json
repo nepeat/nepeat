@@ -1,0 +1,59 @@
+{
+  "sequence": 2,
+  "url": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/",
+  "method": "GET",
+  "purpose": "landing",
+  "basis": {
+    "source_rows": [
+      {
+        "source_url": "https://www.edge-core.com/product/agr400/",
+        "capture_path": "data/raw/edgecore/product-agr400.html",
+        "capture_sha256": "67c0c406234df5c88807c9ef0c91c797332173748406035655e62a89a9236c2b",
+        "source_line": 538,
+        "row_number": 195,
+        "url": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/?wpdmdl=1268&refresh=6ab82f6f60b571790455663",
+        "href_raw": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/?wpdmdl=1268&refresh=6ab82f6f60b571790455663",
+        "wpdmdl_values": [
+          "1268"
+        ],
+        "document_heading_raw": "AGR400 (AS7946-30XB) DS R05",
+        "document_metadata_raw": " Datasheet   4 MB"
+      }
+    ]
+  },
+  "body_path": "01-landing.html",
+  "started_utc": "2026-10-15T06:04:24.565314+00:00",
+  "request_headers": {
+    "User-Agent": "devicehunt-public-research/1.0",
+    "Accept": "*/*"
+  },
+  "automatic_redirects": false,
+  "timeout_seconds": 30,
+  "maximum_body_bytes": 20000000,
+  "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "exact_path_allowed": true,
+  "status": 200,
+  "response_url": "https://www.edge-core.com/download/agr400-as7946-30xb-ds-r05/",
+  "headers": {
+    "Date": "Thu, 15 Oct 2026 06:04:25 GMT",
+    "Content-Type": "text/html; charset=UTF-8",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "link": "<https://www.edge-core.com/wp-json/>; rel=\"https://api.w.org/\", <https://www.edge-core.com/wp-json/wp/v2/wpdmpro/1268>; rel=\"alternate\"; title=\"JSON\"; type=\"application/json\", <https://www.edge-core.com/?p=1268>; rel=shortlink",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-frame-options": "SAMEORIGIN",
+    "x-content-type-options": "nosniff",
+    "vary": "Accept-Encoding",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "microphone=(),fullscreen=()",
+    "x-xss-protection": "1;mode=block",
+    "Server": "cloudflare",
+    "cf-cache-status": "DYNAMIC",
+    "CF-RAY": "a4aca04e3bb776a2-SEA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "state": "completed",
+  "bytes": 289977,
+  "sha256": "481b12b91ec4fe3ae7c1a1d6becb383a557c7876a0970f46c700e21fc4404d4b",
+  "finished_utc": "2026-10-15T06:04:25.442755+00:00"
+}

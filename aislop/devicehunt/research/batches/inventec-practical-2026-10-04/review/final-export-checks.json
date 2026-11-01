@@ -1,0 +1,30 @@
+{
+  "result": "pass",
+  "final_verification_sha256": "e4ba95fec7d1be352828e395b420864fbec89149dc28573c49adae698e5c9940",
+  "final_freeze_sha256": "824006fa3d8e4a0addc4a88c0922e3079bcd2c153764b1239dc45e100710f772",
+  "database_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "export_hashes_checked": 971,
+  "verified_pdf_bytes": 58,
+  "preserved_lookup_queries": 98,
+  "terminal_commands": 5,
+  "owned_evidence": {
+    "document_snapshot_hits": 9,
+    "label_photo_only_hits": 1,
+    "unresolved_identity_gaps": 0
+  },
+  "vendor_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "key_exports": {
+    "data/exports/catalog.html": "dd01f517867822da035ecb28320ca240e11d4d1d9b2d16755a7e25e08610ccdc",
+    "data/exports/vendor-example-validation.json": "b5555d74ae7dc623efaeb2ddaf0e3e5ce0696c4d5d1ddfea3f740c5c99abd631",
+    "data/exports/inventory-validation.json": "fea28fac06875817c978e2ca38d8ac63d45ba353406ea25929d0ac6943494f83",
+    "data/exports/targets.json": "13ab3ad67bf5e3082630899e4d94db0914356e39409608f8ed290c75390c6f11",
+    "data/exports/inventec-practical-2026-10-04-buying-reports.json": "6a55ed7056ec7d956c94692f7a5868717b61adeaabc650a9ef8aadd348ed8d1e",
+    "data/exports/latest-export-audit.json": "6e6d76fd965ce387e95e81db35b7bc9d7c176595912bd5a1f27606fb6bc442ed",
+    "data/exports/rebuild-comparison.json": "6134015157bd8cb66e518aaa3bbae2104c70e803bdf943ee9cd7098dc2307bcc",
+    "data/exports/targets.csv": "e07471e760215e724002ca20e4f131334244b18cc3a568cfee765623cf0c1622"
+  }
+}

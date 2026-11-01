@@ -1,0 +1,15 @@
+{
+  "prepare_sources": 9,
+  "first_import": 242,
+  "replacement_import": 242,
+  "counts": {
+    "sources": 9,
+    "devices": 242,
+    "records": 242,
+    "facts": 3388,
+    "affiliations": 242
+  },
+  "integrity": "ok",
+  "foreign_keys": 0,
+  "roles": "listing_holder only; no target alias introduced"
+}

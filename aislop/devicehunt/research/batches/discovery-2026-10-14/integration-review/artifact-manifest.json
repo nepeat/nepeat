@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    {
+      "path": "probe_helper.py",
+      "sha256": "63f3f6b4cd8af498fe8e689de925da608b1fcc6688b2d391068c1a8e0ca8f4e6",
+      "bytes": 2742
+    },
+    {
+      "path": "probes.json",
+      "sha256": "5cae350eab7267f140dd5764959f8ecbd6ab14e30c03d7bb469d20e87b4f2d9e",
+      "bytes": 408
+    },
+    {
+      "path": "review.md",
+      "sha256": "822f2d85d967b604cee7780e0f696fc3f90ad23902ece1eb1f0165319a284aee",
+      "bytes": 5513
+    },
+    {
+      "path": "stage-reviewed.py",
+      "sha256": "04c9449ebcaf3da1b3852f57d083c018dc4fbdad5ebad15561d250c5a1f36fb5",
+      "bytes": 6499
+    }
+  ]
+}

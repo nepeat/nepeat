@@ -1,0 +1,8 @@
+{
+  "devices.sqlite": true,
+  "import-manifest.json": true,
+  "devices-candidate-wave5-2026-10-12.sqlite": true,
+  "import-manifest-candidate-wave5-2026-10-12.json": true,
+  "all_209_code_files": true,
+  "rebuild_destination_absent": true
+}

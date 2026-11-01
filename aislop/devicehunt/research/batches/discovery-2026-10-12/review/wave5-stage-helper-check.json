@@ -1,0 +1,201 @@
+{
+  "status": "PASS final frozen unexecuted stage helper; actual stage/rebuild remain pending",
+  "checked_utc": "2026-10-13T05:20:38.090534+00:00",
+  "stage_helper_sha256": "ec9ebc10d4f7bebab2875467ff7fdc70ce9fbb94ca02d3f56c6f09734007418e",
+  "review_hashes_bound": {
+    "original-vendor-wave5-facts-review.md": "b92a9e6d11600ec962f8d9c81f48c6441729824cd71ebe5a3d16e0ea34d81ac0",
+    "qct-compatibility-facts-review.md": "32752842d07b3b25325b92132fef23b6e3a28e5865174aa53030d5f211d3170c"
+  },
+  "input_hashes": {
+    "research/batches/discovery-2026-10-12/integration-wave5/stage.py": "ec9ebc10d4f7bebab2875467ff7fdc70ce9fbb94ca02d3f56c6f09734007418e",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/candidate.json": "687da4d58027a507cce2f2f4d31225548d3a57fd73ec6a12be5605c4fe5de86b",
+    "research/batches/discovery-2026-10-12/review/original-vendor-wave5-facts-review.md": "b92a9e6d11600ec962f8d9c81f48c6441729824cd71ebe5a3d16e0ea34d81ac0",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/oracle7420-specifications.html": "9e4c532efbb0a19ecf67d35a925b8c65ddfa7de857c26c16ec66e497b0a4b37b",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as6700-quick-start.pdf": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as6700-pages.json": "fd8c4ba80be27ceb94de924a7ba75bf0ade90613743078cd9107a15c6da67ef6",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as5710-as5712-ds-r09.pdf": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+    "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as5712-pages.json": "77850b847d33b76c07251cc55fa542d71164018382011eb30c11b0f63f6f9e87",
+    "research/batches/discovery-2026-10-12/qct-compatibility-facts/candidate.json": "9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd",
+    "research/batches/discovery-2026-10-12/review/qct-compatibility-facts-review.md": "32752842d07b3b25325b92132fef23b6e3a28e5865174aa53030d5f211d3170c",
+    "research/batches/discovery-2026-10-12/qct-compatibility-facts/snapshots/qct-d52bq-ccl.html": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+    "research/batches/discovery-2026-10-12/qct-compatibility-facts/snapshots/parent-product.html": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455"
+  },
+  "copy_plan": [
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/candidate.json",
+      "dest": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/candidate.json",
+      "sha256": "687da4d58027a507cce2f2f4d31225548d3a57fd73ec6a12be5605c4fe5de86b",
+      "type": "candidate"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/oracle7420-specifications.html",
+      "dest": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/oracle7420-specifications.html",
+      "sha256": "9e4c532efbb0a19ecf67d35a925b8c65ddfa7de857c26c16ec66e497b0a4b37b",
+      "type": "snapshot"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as6700-quick-start.pdf",
+      "dest": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as6700-quick-start.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "type": "snapshot"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as6700-pages.json",
+      "dest": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as6700-pages.json",
+      "sha256": "fd8c4ba80be27ceb94de924a7ba75bf0ade90613743078cd9107a15c6da67ef6",
+      "type": "text_sidecar"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as6700-quick-start.pdf",
+      "dest": "data/raw/wave5-2026-10-12-as6700-quick-start.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "type": "reference_sibling"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as6700-pages.json",
+      "dest": "data/raw/wave5-2026-10-12-as6700-pages.json",
+      "sha256": "fd8c4ba80be27ceb94de924a7ba75bf0ade90613743078cd9107a15c6da67ef6",
+      "type": "reference_sibling"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as5710-as5712-ds-r09.pdf",
+      "dest": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as5710-as5712-ds-r09.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "type": "snapshot"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as5712-pages.json",
+      "dest": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as5712-pages.json",
+      "sha256": "77850b847d33b76c07251cc55fa542d71164018382011eb30c11b0f63f6f9e87",
+      "type": "text_sidecar"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as5710-as5712-ds-r09.pdf",
+      "dest": "data/raw/wave5-2026-10-12-as5710-as5712-ds-r09.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "type": "reference_sibling"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as5712-pages.json",
+      "dest": "data/raw/wave5-2026-10-12-as5712-pages.json",
+      "sha256": "77850b847d33b76c07251cc55fa542d71164018382011eb30c11b0f63f6f9e87",
+      "type": "reference_sibling"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/qct-compatibility-facts/candidate.json",
+      "dest": "data/raw/qct-compatibility-facts-wave5-2026-10-12/candidate.json",
+      "sha256": "9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd",
+      "type": "candidate"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/qct-compatibility-facts/snapshots/qct-d52bq-ccl.html",
+      "dest": "data/raw/qct-compatibility-facts-wave5-2026-10-12/snapshots/qct-d52bq-ccl.html",
+      "sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+      "type": "snapshot"
+    },
+    {
+      "source": "research/batches/discovery-2026-10-12/qct-compatibility-facts/snapshots/parent-product.html",
+      "dest": "data/raw/qct-compatibility-facts-wave5-2026-10-12/snapshots/parent-product.html",
+      "sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+      "type": "evidence_dependency"
+    }
+  ],
+  "auxiliary_evidence_dependencies_verified": [
+    {
+      "path": "snapshots/parent-product.html",
+      "sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+      "purpose": "Already imported parent product page; exact identity/href routing anchor only, no new source fact"
+    }
+  ],
+  "frozen_code_files_verified": 209,
+  "pure_preparation_groups": 2,
+  "records": 41,
+  "facts": 235,
+  "new_ids": [
+    "04f5c56b5c1985351f26",
+    "08a0f559dc5af3e24b40",
+    "1ebd1cd2598ddadad6e3",
+    "21873472c81c944c9df6",
+    "231eeff85744d934cea2",
+    "23ccc708658cefb19a26",
+    "2b2c44570c92d2d16e24",
+    "2cd6dfb48a023a6d14a9",
+    "3719baf0b00d80f95ff8",
+    "390f623967c4fee0b646",
+    "44f0ca58ded282045866",
+    "48993c8fc9c6694189fa",
+    "496dc3a3706786d912ed",
+    "56b963686796ffac603f",
+    "5a3591cccf733c88ef7f",
+    "6a0dba56630450957fb1",
+    "6bf2a677bd5dd6a4ce2a",
+    "7e4e381e353f3b078281",
+    "867b79979cf04ffa2a3f",
+    "87c547be91cf18eb20a8",
+    "88cdce10c67d8f0ef007",
+    "93c480209b98b842ebda",
+    "9464249ce43575ce3e42",
+    "9ad330c98a8e9fdd28c7",
+    "a90e1deddd809c7b46ea",
+    "ab688960f3232380c462",
+    "b7dba8f887630041a2c6",
+    "b847c4d7a4d0b2e2eeb5",
+    "c27ab904eaebe9f4248d",
+    "c5707720e0049ec8e51e",
+    "cdaeda4be70e17346dcf",
+    "d143721d230bae19b22a",
+    "d2eca82cfef35e5059fe",
+    "ea8f3e365695318cf670",
+    "fde6987d5b9630355f08"
+  ],
+  "existing_ids": [
+    "30f1e4348b216588a7fd",
+    "8c2dd1e5f3d650f6683b",
+    "9e56d1f1423b9d6ef6ad",
+    "c15cbf498b7bd8b8da21",
+    "df4d521920cd17049b73",
+    "f65a474568c484317fc5"
+  ],
+  "roles": {
+    "('Oracle Corporation', 'documentation_vendor')": 1,
+    "('Edgecore Networks Corporation', 'documentation_vendor')": 39,
+    "('Quanta Cloud Technology', 'documentation_vendor')": 1
+  },
+  "expected_counts": {
+    "devices": 5157,
+    "records": 7302,
+    "facts": 74837,
+    "sources": 2121,
+    "documents": 72,
+    "document_pages": 3804
+  },
+  "bundle": {
+    "old_entries": 59,
+    "new_entries": 61,
+    "old_pages": 3724,
+    "new_pages": 3730
+  },
+  "manifest_expected_jobs": 152,
+  "manifest_expected_inputs": 3984,
+  "new_pins": [
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/candidate.json",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as5710-as5712-ds-r09.pdf",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as5712-pages.json",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as6700-pages.json",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as6700-quick-start.pdf",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/oracle7420-specifications.html",
+    "raw/qct-compatibility-facts-wave5-2026-10-12/candidate.json",
+    "raw/qct-compatibility-facts-wave5-2026-10-12/snapshots/parent-product.html",
+    "raw/qct-compatibility-facts-wave5-2026-10-12/snapshots/qct-d52bq-ccl.html",
+    "raw/reference-documents-with-wave5-2026-10-12.json",
+    "raw/wave5-2026-10-12-as5710-as5712-ds-r09.pdf",
+    "raw/wave5-2026-10-12-as5712-pages.json",
+    "raw/wave5-2026-10-12-as6700-pages.json",
+    "raw/wave5-2026-10-12-as6700-quick-start.pdf"
+  ],
+  "live_pair_unchanged": {
+    "devices.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "import-manifest.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562"
+  },
+  "limits": "Static helper+accepted input review/pure preparation only; no stage/import/temp DB/bundle/manifest creation, network, code or shared writes."
+}

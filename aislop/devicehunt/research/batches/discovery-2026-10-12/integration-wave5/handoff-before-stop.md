@@ -1,0 +1,3 @@
+# wave5 and QCT — preparation only
+
+Root owns integration. Not staged or promoted; wave4 remains live. Proposed inputs are40ordering/base records227facts and oneQCTrecord8facts. QCTcandidate independentlyaccepted; wave5candidate reviewpending. Stage helper deliberately rejects missing reviewhash. Full61referencebundle willretain59oldentries; sourceevidence_dependencies explicitlycopied/pinned, includingQCTauxiliaryparentHTML. Expected5157identities7302records74837facts2121sources72PDFs3804pages; actual staging/rebuild/review required. Realproduction209freeze remainsunchanged; grouping implementation runs in privateoverlayonly.

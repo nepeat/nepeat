@@ -1,0 +1,72 @@
+12                                                                                                         PFE1500 Series
+                                                           PSU 1 PDU                           PSU 1 PDU
+                                                  3.3V                                 3.3V
+
+                                                                                                PWOK
+                                             VSB_SEL
+
+
+
+
+                                                                                               PSU 2
+                                                           PSU 2
+                                                                                       3.3V
+                                                  3.3V
+                                                                                                PWOK
+                                             VSB_SEL
+
+
+
+
+                                                         Figure 10. Interconnection of Signal Pins
+
+
+     8.3 FRONT LEDS
+
+         There will be 2 separate LED indicators, one green and one amber to indicate the power supply status. There will be a (slow)
+         blinking green POWER LED (OK) to indicate that AC is applied to the PSU and the Standby Voltage is available. This same LED
+         shall go steady to indicate that all the Power Outputs are available. This same LED or separate one will blink (slow) or be solid
+         ON amber to indicate that the power supply has failed or reached a warning status and therefore a replacement of the unit
+         is/maybe necessary. The LED are visible on the power supply’s exterior face. The LED location meets ESD Requirements.
+
+     POWER SUPPLY CONDITION                                                      GREEN (OK) LED STATUS        AMBER (FAIL) LED STATUS
+     No AC power to all power supplies                                                          OFF                     OFF
+     Power Supply Failure (includes over voltage, over current, over
+                                                                                                OFF                      ON
+     temperature and fan failure)
+     Power Supply Warning events where the power supply continues to
+                                                                                                OFF                   Blinking
+     operate (high temperature, high power and slow fan)
+     AC Present/ 12VSB on (PSU OFF)                                                           Blinking                  OFF
+     Power Supply ON and OK                                                                     ON                      OFF
+
+                                                                       Table 3. LED Status
+
+     8.4 PRESENT_L
+
+         This signaling pin is recessed within the connector and will contact only once all other connector contacts are closed. This
+         active-low pin is used to indicate to a power distribution unit controller that a supply is plugged in. The maximum current on
+         PRESENT_L pin should not exceed 10 mA.
+                                                                      PFE          PDU
+
+                                                                    V1
+                                                                   VSB
+                                                                         0V
+
+                                                             PRESENT_L
+
+
+
+
+                                                             Figure 11. PRESENT_L signal pin
+     8.5 PSKILL_H INPUT
+
+         The PSKILL_H input is active-high and is located on a recessed pin on the connector and is used to disconnect the main output
+         as soon as the power supply is being plugged out. This pin should be connected to SGND in the power distribution unit. The
+         standby output will remain on regardless of the PSKILL_H input state.
+
+
+
+
+                                                                                                             tech.support@psbel.com
+

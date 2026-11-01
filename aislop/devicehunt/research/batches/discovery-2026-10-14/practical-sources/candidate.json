@@ -1,0 +1,1563 @@
+{
+  "sources": [
+    {
+      "id": "celestica-sd4100-datasheet-2026-10-14",
+      "url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+      "tier": "vendor",
+      "license": "Public factual vendor documentation; original upstream rights retained; local research only.",
+      "coverage": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities. No chassis weight, AC frequency/current, exact PSU/fan FRU number or measured appliance consumption printed in this two-page datasheet. No assumption that R4086-F9001-01 is equivalent to every SD4100 configuration or any marketplace unit. No publication/manufacturing date inferred from footer 121224 or PDF metadata.",
+      "snapshot": "sd4100-known_captured_target_checked.pdf",
+      "original_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+      "captured_at_utc": "2026-10-15T05:39:25.941112+00:00",
+      "text_sidecar": "sd4100-pages.json",
+      "extraction_metadata": {
+        "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+        "extractor_version": "26.06.0",
+        "pdfinfo_version": "26.06.0",
+        "pdf_page_count": 2,
+        "extraction_options": {
+          "layout": true,
+          "encoding": "UTF-8",
+          "eol": "unix",
+          "remove_hyphens": "none",
+          "page_selection": "individual",
+          "page_breaks": false
+        }
+      }
+    },
+    {
+      "id": "oracle-zfs-storage-zs3-2-internal-components-2026-10-14",
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+      "tier": "vendor",
+      "license": "Public factual vendor documentation; original upstream rights retained; local research only.",
+      "coverage": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities. No explicit PSU wattage/model/input frequency/current, chassis dimensions/weight, fan-module count or airflow specification in captured article. No claim that legend 12 Power supplies means twelve supplies or legend 9 Fan modules means nine fans. CPU Descriptions table title contrasts with DIMM-placement content; its second Capacity cell is literal dot, not an inferred capacity.",
+      "snapshot": "zs3-2-internal-components.html",
+      "original_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+      "captured_at_utc": "2026-10-15T05:39:36.219448+00:00"
+    },
+    {
+      "id": "oracle-zfs-storage-zs3-4-internal-components-2026-10-14",
+      "url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+      "tier": "vendor",
+      "license": "Public factual vendor documentation; original upstream rights retained; local research only.",
+      "coverage": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities. Full Oracle ZFS Storage ZS3-4 scope remains distinct from registry ZS3-4 pending routing review. No explicit PSU wattage/model/input frequency/current, chassis dimensions/weight, fan-module count or airflow specification in captured article. No remote figures or linked slot/software requirements were fetched. Fan power board count two does not establish fan-module count.",
+      "snapshot": "zs3-4-internal-components.html",
+      "original_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+      "captured_at_utc": "2026-10-15T05:39:43.251285+00:00"
+    }
+  ],
+  "devices": [
+    {
+      "source": "celestica-sd4100-datasheet-2026-10-14",
+      "key": "SD4100",
+      "brand": "Celestica",
+      "model": "SD4100",
+      "title": "Celestica SD4100",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Celestica Inc.",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "physical_description",
+          "2U enclosure for fitment in standard 19\u201d wide racks [PDF p. 1; Enclosure/rack fitment; no exact unit condition claim.]"
+        ],
+        [
+          "service_constraint_as_printed",
+          "Cable management assembly (CMA) not required [PDF p. 1; Source installation statement only.]"
+        ],
+        [
+          "storage_drive_capacity_as_printed",
+          "Up to 12 3.5\u201d form factor drives [PDF p. 1; Capacity limit, not installed drive count.]"
+        ],
+        [
+          "system_uplink_as_printed",
+          "SAS-4 system uplink [PDF p. 1; System uplink distinct from drive interfaces.]"
+        ],
+        [
+          "drive_interfaces_as_printed",
+          "SAS-3 or SATA-3 connectivity to drives [PDF p. 1; Drive interface statement; no drive SKU fitment inference.]"
+        ],
+        [
+          "power_description",
+          "13W max. power per drive bay @ 35\u00b0C [PDF p. 1; Per-drive-bay maximum at stated temperature; not chassis draw.]"
+        ],
+        [
+          "module_configuration_as_printed",
+          "Two hot-swappable expansion SAS modules (ESM) [PDF p. 1; ESMs only; do not apply hot-swap qualifier to other components.]"
+        ],
+        [
+          "module_ports_as_printed",
+          "Four 24G SAS-4 mini-SAS HD ports per ESM [PDF p. 1; Per ESM; no expanded total required.]"
+        ],
+        [
+          "module_console_as_printed",
+          "One UART via USB-C [PDF p. 1; Nested ESM feature in visible layout; preserve module scope.]"
+        ],
+        [
+          "power_description",
+          "Two power efficient 800W CRPS PSUs [PDF p. 1; Printed PSU number/rating; no actual appliance draw or PSU part number. Adjacent visible Lot-9 claim recorded separately because two-column extraction interleaves left prose.]"
+        ],
+        [
+          "power_compliance_as_printed",
+          "(Lot-9 Compliant) [PDF p. 1; Visually follows the two 800W CRPS PSUs in the same row; source compliance claim only.]"
+        ],
+        [
+          "power_description",
+          "100-127,200-240V AC input [PDF p. 1; Keep both disjoint printed input ranges; frequency/current absent.]"
+        ],
+        [
+          "cooling_description",
+          "Three 40mm dual-rotor fans per ESM [PDF p. 1; Per ESM; do not interpret as three fans per chassis.]"
+        ],
+        [
+          "physical_description",
+          "Height: 87 mm (2U) [PDF p. 1; Printed height.]"
+        ],
+        [
+          "physical_description",
+          "Width: 446 mm [PDF p. 1; Printed width.]"
+        ],
+        [
+          "physical_description",
+          "Depth: 545 mm [PDF p. 1; Printed depth.]"
+        ],
+        [
+          "environmental_limits_as_printed",
+          "Operating Temperature: 5\u00b0C to 35\u00b0C [PDF p. 1; Operating range distinct from non-operating range.]"
+        ],
+        [
+          "environmental_limits_as_printed",
+          "Non-operating Temperature: -40\u00b0C to 60\u00b0C [PDF p. 1; Non-operating range only.]"
+        ],
+        [
+          "environmental_limits_as_printed",
+          "Humidity: 8% to 80% RH [PDF p. 1; No non-condensing qualifier printed in this row.]"
+        ],
+        [
+          "environmental_limits_as_printed",
+          "Altitude: 0 to 950 m (De-rate temperature 1\u00b0C per 300 m above 950 m) [PDF p. 1; Preserve entire derating clause; no inferred upper altitude.]"
+        ],
+        [
+          "acoustic_statement_as_printed",
+          "Sound Power: (23+/-2\u00b0C) <7.6Bel [PDF p. 1; Sound power with printed condition and unit; not sound pressure.]"
+        ],
+        [
+          "ordering_row_as_printed",
+          "R4086-F9001-01: [PDF p. 2; Literal order code heading for the following visible JBOD bundle under SD4100; no identity merge or inferred alias.]"
+        ],
+        [
+          "ordering_bundle_as_printed",
+          "JBOD system (chassis, PSUs, SAS-4 I/O modules, fan modules) 12x drive carriers 6x dummy drive carriers Rail kit set [PDF p. 2; One literal order-information bundle under R4086-F9001-01; no PSU/FAN FRU code, drive count reinterpretation or inferred drive inclusion. The 12x carrier and 6x dummy carrier rows are retained independently as printed.]"
+        ],
+        [
+          "specification_change_note_as_printed",
+          "All specifications and figures are subject to change without prior notice. [PDF p. 2; Applies to the datasheet specifications/order information.]"
+        ],
+        [
+          "copyright_statement_as_printed",
+          "Copyright Celestica Inc. 2024. [PDF p. 2; Copyright year only; not manufacturing or publication date.]"
+        ],
+        [
+          "document_footer_token_as_printed",
+          "121224 [PDF p. 2; Printed footer token; no inferred revision/date decoding. PDF title separately contains this token.]"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_index": 0,
+          "fact_name": "physical_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "2U enclosure for fitment in standard 19\u201d wide racks",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              6
+            ],
+            "raw_lines": [
+              "                                                               2U enclosure for fitment in standard 19\u201d wide racks"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-01",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 1,
+          "fact_name": "service_constraint_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Cable management assembly (CMA) not required",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              7
+            ],
+            "raw_lines": [
+              "                                                               Cable management assembly (CMA) not required"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-02",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 2,
+          "fact_name": "storage_drive_capacity_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Up to 12 3.5\u201d form factor drives",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              8
+            ],
+            "raw_lines": [
+              "                                                               Up to 12 3.5\u201d form factor drives"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-03",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 3,
+          "fact_name": "system_uplink_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "SAS-4 system uplink",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              9
+            ],
+            "raw_lines": [
+              "                                                               SAS-4 system uplink"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-04",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 4,
+          "fact_name": "drive_interfaces_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "SAS-3 or SATA-3 connectivity to drives",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              10
+            ],
+            "raw_lines": [
+              "                                                               SAS-3 or SATA-3 connectivity to drives"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-05",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 5,
+          "fact_name": "power_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "13W max. power per drive bay @ 35\u00b0C",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              11
+            ],
+            "raw_lines": [
+              "                                                               13W max. power per drive bay @ 35\u00b0C"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-06",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 6,
+          "fact_name": "module_configuration_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Two hot-swappable expansion SAS modules (ESM)",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              12
+            ],
+            "raw_lines": [
+              "                                                               Two hot-swappable expansion SAS modules (ESM)"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-07",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 7,
+          "fact_name": "module_ports_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Four 24G SAS-4 mini-SAS HD ports per ESM",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              13
+            ],
+            "raw_lines": [
+              "                                                                  \u2022 Four 24G SAS-4 mini-SAS HD ports per ESM"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-08",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 8,
+          "fact_name": "module_console_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "One UART via USB-C",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              14
+            ],
+            "raw_lines": [
+              "                                                                  \u2022 One UART via USB-C"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-09",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 9,
+          "fact_name": "power_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Two power efficient 800W CRPS PSUs",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              16
+            ],
+            "raw_lines": [
+              "bay enterprise-class SAS-4storage                              Two power efficient 800W CRPS PSUs"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-10",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 10,
+          "fact_name": "power_compliance_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "(Lot-9 Compliant)",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              17
+            ],
+            "raw_lines": [
+              "expansion platform with redundant                              (Lot-9 Compliant)"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-11",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 11,
+          "fact_name": "power_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "100-127,200-240V AC input",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              18
+            ],
+            "raw_lines": [
+              "architecture for greater data availability.                    100-127,200-240V AC input"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-12",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 12,
+          "fact_name": "cooling_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Three 40mm dual-rotor fans per ESM",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              20
+            ],
+            "raw_lines": [
+              "It offers flexible, easy deployment, ideal                     Three 40mm dual-rotor fans per ESM"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-13",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 13,
+          "fact_name": "physical_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Height: 87 mm (2U)",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              24
+            ],
+            "raw_lines": [
+              "enterprises that require a high level of                       Height: 87 mm (2U)"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-14",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 14,
+          "fact_name": "physical_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Width: 446 mm",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              26
+            ],
+            "raw_lines": [
+              "efficiency and performance.                                    Width: 446 mm"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-15",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 15,
+          "fact_name": "physical_description",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Depth: 545 mm",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              27
+            ],
+            "raw_lines": [
+              "                                                               Depth: 545 mm"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-16",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 16,
+          "fact_name": "environmental_limits_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Operating Temperature: 5\u00b0C to 35\u00b0C",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              31
+            ],
+            "raw_lines": [
+              "\u2022 Backup and Recovery                                          Operating Temperature: 5\u00b0C to 35\u00b0C"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-17",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 17,
+          "fact_name": "environmental_limits_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Non-operating Temperature: -40\u00b0C to 60\u00b0C",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              33
+            ],
+            "raw_lines": [
+              "\u2022 Data Replication                                             Non-operating Temperature: -40\u00b0C to 60\u00b0C"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-18",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 18,
+          "fact_name": "environmental_limits_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Humidity: 8% to 80% RH",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              35
+            ],
+            "raw_lines": [
+              "\u2022 Scalable Software-Defined-Storage                            Humidity: 8% to 80% RH"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-19",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 19,
+          "fact_name": "environmental_limits_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Altitude: 0 to 950 m (De-rate temperature 1\u00b0C per 300 m above 950 m)",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              37,
+              38
+            ],
+            "raw_lines": [
+              "\u2022 Archive Storage                                              Altitude: 0 to 950 m (De-rate temperature 1\u00b0C per",
+              "                                                               300 m above 950 m)"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-20",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 20,
+          "fact_name": "acoustic_statement_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Sound Power: (23+/-2\u00b0C) <7.6Bel",
+          "locator": {
+            "pdf_page": 1,
+            "lines_1based": [
+              39
+            ],
+            "raw_lines": [
+              "                                                               Sound Power: (23+/-2\u00b0C) <7.6Bel"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-21",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1.png",
+          "visual_sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+        },
+        {
+          "fact_index": 21,
+          "fact_name": "ordering_row_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "R4086-F9001-01:",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              10
+            ],
+            "raw_lines": [
+              "  Safety: IEC/EN/UL/CSA 62368-1, GB4943                                                     R4086-F9001-01:"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-22",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        },
+        {
+          "fact_index": 22,
+          "fact_name": "ordering_bundle_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "JBOD system (chassis, PSUs, SAS-4 I/O modules, fan modules) 12x drive carriers 6x dummy drive carriers Rail kit set",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "raw_lines": [
+              "  Environment: RoHS, REACH, WEEE, ERP Lot 9                                                 JBOD system (chassis, PSUs,",
+              "                                                                                            SAS-4 I/O modules, fan modules)",
+              "                                                                                            12x drive carriers",
+              "                                                                                            6x dummy drive carriers",
+              "                                                                                            Rail kit set"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-23",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        },
+        {
+          "fact_index": 23,
+          "fact_name": "specification_change_note_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "All specifications and figures are subject to change without prior notice.",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              20,
+              21
+            ],
+            "raw_lines": [
+              "                                                                                        Note: All specifications and figures are subject to change",
+              "                                                                                        without prior notice."
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-24",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        },
+        {
+          "fact_index": 24,
+          "fact_name": "copyright_statement_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "Copyright Celestica Inc. 2024.",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              26
+            ],
+            "raw_lines": [
+              "                  \u00a9 Copyright Celestica Inc. 2024. All rights reserved. \u2122CELESTICA & Design and SD4100 are existing, pending or registered trademarks                121224"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-25",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        },
+        {
+          "fact_index": 25,
+          "fact_name": "document_footer_token_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "121224",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              26
+            ],
+            "raw_lines": [
+              "                  \u00a9 Copyright Celestica Inc. 2024. All rights reserved. \u2122CELESTICA & Design and SD4100 are existing, pending or registered trademarks                121224"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "sd4100-26",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        }
+      ],
+      "record_scope": "Named model source-local statements only; no identities merged.",
+      "scope_limitations": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities.",
+      "source_absences": [
+        "No chassis weight, AC frequency/current, exact PSU/fan FRU number or measured appliance consumption printed in this two-page datasheet.",
+        "No assumption that R4086-F9001-01 is equivalent to every SD4100 configuration or any marketplace unit.",
+        "No publication/manufacturing date inferred from footer 121224 or PDF metadata."
+      ]
+    },
+    {
+      "source": "oracle-zfs-storage-zs3-2-internal-components-2026-10-14",
+      "key": "Oracle ZFS Storage ZS3-2",
+      "brand": "Oracle",
+      "model": "Oracle ZFS Storage ZS3-2",
+      "title": "Oracle ZFS Storage ZS3-2",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Oracle Corporation",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "service_constraint_as_printed",
+          "The Oracle ZFS Storage ZS3-2 chassis has the following field-replaceable units (FRUs). FRUs are not customer-serviceable and must be replaced by trained Oracle service technicians. [HTML lines 68-68; FRU service restriction; not permission or recommendation for customer replacement.]"
+        ],
+        [
+          "pcie_riser_configuration_as_printed",
+          "PCIe Risers - There are three risers per system, each attached to the rear of the motherboard. Each riser supports two PCIe cards (which are customer-replaceable units (CRUs)). [HTML lines 72-73; Explicit three risers per system and two CRU PCIe cards per riser; legend labels below are not counts.]"
+        ],
+        [
+          "power_description",
+          "Motherboard - The motherboard includes CPU modules, slots for 16 DIMMs, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off. [HTML lines 78-85; Motherboard/SP context: 3.3V standby rail whenever AC supplied, even while off; not external input rating.]"
+        ],
+        [
+          "power_description",
+          "Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the controller. It is directly connected to the connector break out board and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock kill switch. The power supplies connect directly to the power distribution board. [HTML lines 90-96; Main 12V distribution, direct PSU-to-PDB connection and top-cover interlock; not AC input or PSU output rating.]"
+        ],
+        [
+          "drive_backplane_description_as_printed",
+          "Storage Drive Backplane - The storage drive backplane includes the connectors for the storage drives, as well as the interconnect for the I/O board, power and locator buttons, and system/component status LEDs. The system has an 8-disk backplane. Each drive has an LED indicator for Power/Activity, Fault, and Locate. [HTML lines 101-107; Explicit eight-disk backplane; component LEDs remain source-local.]"
+        ],
+        [
+          "memory_configuration_as_printed",
+          "Oracle ZFS Storage ZS3-2 CPU and Memory - The Oracle ZFS Storage ZS3-2 controller motherboard has 16 slots in two groups that hold industry-standard DDR3 low voltage (LV) DIMMS. [HTML lines 198-199; Sixteen DDR3 LV DIMM slots in two groups; no installed capacity inference.]"
+        ],
+        [
+          "memory_population_constraint_as_printed",
+          "Note: All sockets must be occupied by identical DDR3 DIMMs. [HTML lines 201-205; All sockets must be occupied by identical DDR3 DIMMs; retain alongside the literal component table.]"
+        ],
+        [
+          "service_constraint_as_printed",
+          "Oracle ZFS Storage ZS3-2 Storage, Power, and Fan Components - The Oracle ZFS Storage ZS3-2 controller's internal storage, power, and cooling components are described in the following figure and legend. A component identified as a field-replaceable unit (FRU) must be replaced by trained Oracle service technicians. [HTML lines 348-349; Storage/power/cooling figure legend only; FRU service restriction explicit.]"
+        ],
+        [
+          "service_constraint_as_printed",
+          "Oracle ZFS Storage ZS3-2 Internal Cables - The Oracle ZFS Storage ZS3-2 controller contains the following field-replaceable unit (FRU) internal cables. FRUs are not customer-serviceable, and must be replaced by trained Oracle service technicians. [HTML lines 437-438; Internal cables are FRUs and not customer-serviceable; no individual cable part numbers printed.]"
+        ],
+        [
+          "memory_population_table_row_as_printed",
+          "Capacity: 256GB | CPU 0: D0, D2, D5, D7 (blue) | CPU 1: D0, D2, D5, D7 (blue) [HTML lines 223-239; Exact source-local parent table row; no component identity, parent alias, manufacturer role or actual installed inventory. Preserve literal Capacity dot; table title is CPU Descriptions despite DIMM-slot content.]"
+        ],
+        [
+          "memory_population_table_row_as_printed",
+          "Capacity: . | CPU 0: D1, D3, D4, D6 (white) | CPU 1: D1, D3, D4, D6 (white) [HTML lines 240-254; Exact source-local parent table row; no component identity, parent alias, manufacturer role or actual installed inventory. Preserve literal Capacity dot; table title is CPU Descriptions despite DIMM-slot content.]"
+        ],
+        [
+          "replaceable_component_row_as_printed",
+          "Component: CPU | Description: Intel E5-2658, 2.1G, 8-core | FRU/CRU: FRU | Part Number: 7019701 [HTML lines 279-300; Exact CPU/memory service-reference row on Oracle ZFS Storage ZS3-2 parent; FRU/CRU stays literal, no standalone component identity or manufacturer inference.]"
+        ],
+        [
+          "replaceable_component_row_as_printed",
+          "Component: Memory | Description: DIMM, 16GB,DDR3,1600,2Rx4,1.35V | FRU/CRU: CRU | Part Number: 7041603 [HTML lines 301-322; Exact CPU/memory service-reference row on Oracle ZFS Storage ZS3-2 parent; FRU/CRU stays literal, no standalone component identity or manufacturer inference.]"
+        ],
+        [
+          "replaceable_component_row_as_printed",
+          "Component: Memory | Description: DIMM, 32GB,DDR3,1066,4Rx4,1.35V | FRU/CRU: CRU | Part Number: 7055964 [HTML lines 323-344; Exact CPU/memory service-reference row on Oracle ZFS Storage ZS3-2 parent; FRU/CRU stays literal, no standalone component identity or manufacturer inference.]"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_index": 0,
+          "fact_name": "service_constraint_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "The Oracle ZFS Storage ZS3-2 chassis has the following field-replaceable units (FRUs). FRUs are not customer-serviceable and must be replaced by trained Oracle service technicians.",
+          "locator": {
+            "html_start_line": 68,
+            "html_end_line": 68
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-68"
+        },
+        {
+          "fact_index": 1,
+          "fact_name": "pcie_riser_configuration_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "PCIe Risers - There are three risers per system, each attached to the rear of the motherboard. Each riser supports two PCIe cards (which are customer-replaceable units (CRUs)).",
+          "locator": {
+            "html_start_line": 72,
+            "html_end_line": 73
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-72"
+        },
+        {
+          "fact_index": 2,
+          "fact_name": "power_description",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Motherboard - The motherboard includes CPU modules, slots for 16 DIMMs, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off.",
+          "locator": {
+            "html_start_line": 78,
+            "html_end_line": 85
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-78"
+        },
+        {
+          "fact_index": 3,
+          "fact_name": "power_description",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the controller. It is directly connected to the connector break out board and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock kill switch. The power supplies connect directly to the power distribution board.",
+          "locator": {
+            "html_start_line": 90,
+            "html_end_line": 96
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-90"
+        },
+        {
+          "fact_index": 4,
+          "fact_name": "drive_backplane_description_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Storage Drive Backplane - The storage drive backplane includes the connectors for the storage drives, as well as the interconnect for the I/O board, power and locator buttons, and system/component status LEDs. The system has an 8-disk backplane. Each drive has an LED indicator for Power/Activity, Fault, and Locate.",
+          "locator": {
+            "html_start_line": 101,
+            "html_end_line": 107
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-101"
+        },
+        {
+          "fact_index": 5,
+          "fact_name": "memory_configuration_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Oracle ZFS Storage ZS3-2 CPU and Memory - The Oracle ZFS Storage ZS3-2 controller motherboard has 16 slots in two groups that hold industry-standard DDR3 low voltage (LV) DIMMS.",
+          "locator": {
+            "html_start_line": 198,
+            "html_end_line": 199
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-198"
+        },
+        {
+          "fact_index": 6,
+          "fact_name": "memory_population_constraint_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Note: All sockets must be occupied by identical DDR3 DIMMs.",
+          "locator": {
+            "html_start_line": 201,
+            "html_end_line": 205
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-201"
+        },
+        {
+          "fact_index": 7,
+          "fact_name": "service_constraint_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Oracle ZFS Storage ZS3-2 Storage, Power, and Fan Components - The Oracle ZFS Storage ZS3-2 controller's internal storage, power, and cooling components are described in the following figure and legend. A component identified as a field-replaceable unit (FRU) must be replaced by trained Oracle service technicians.",
+          "locator": {
+            "html_start_line": 348,
+            "html_end_line": 349
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-348"
+        },
+        {
+          "fact_index": 8,
+          "fact_name": "service_constraint_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Oracle ZFS Storage ZS3-2 Internal Cables - The Oracle ZFS Storage ZS3-2 controller contains the following field-replaceable unit (FRU) internal cables. FRUs are not customer-serviceable, and must be replaced by trained Oracle service technicians.",
+          "locator": {
+            "html_start_line": 437,
+            "html_end_line": 438
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-2-html-437"
+        },
+        {
+          "fact_index": 9,
+          "fact_name": "memory_population_table_row_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "256GB D0, D2, D5, D7 (blue) D0, D2, D5, D7 (blue)",
+          "locator": {
+            "html_start_line": 223,
+            "html_end_line": 239,
+            "table_start_line": 208,
+            "table_title": "Oracle ZFS Storage ZS3-2 Controller CPU Descriptions",
+            "headers": [
+              "Capacity",
+              "CPU 0",
+              "CPU 1"
+            ],
+            "literal_cells": [
+              "256GB",
+              "D0, D2, D5, D7 (blue)",
+              "D0, D2, D5, D7 (blue)"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal table cells tagged by their original column headers, with explicit scope note"
+        },
+        {
+          "fact_index": 10,
+          "fact_name": "memory_population_table_row_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": ". D1, D3, D4, D6 (white) D1, D3, D4, D6 (white)",
+          "locator": {
+            "html_start_line": 240,
+            "html_end_line": 254,
+            "table_start_line": 208,
+            "table_title": "Oracle ZFS Storage ZS3-2 Controller CPU Descriptions",
+            "headers": [
+              "Capacity",
+              "CPU 0",
+              "CPU 1"
+            ],
+            "literal_cells": [
+              ".",
+              "D1, D3, D4, D6 (white)",
+              "D1, D3, D4, D6 (white)"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal table cells tagged by their original column headers, with explicit scope note"
+        },
+        {
+          "fact_index": 11,
+          "fact_name": "replaceable_component_row_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "CPU Intel E5-2658, 2.1G, 8-core FRU 7019701",
+          "locator": {
+            "html_start_line": 279,
+            "html_end_line": 300,
+            "table_start_line": 261,
+            "table_title": "Oracle ZFS Storage ZS3-2 Controller Replaceable Memory Components",
+            "headers": [
+              "Component",
+              "Description",
+              "FRU/CRU",
+              "Part Number"
+            ],
+            "literal_cells": [
+              "CPU",
+              "Intel E5-2658, 2.1G, 8-core",
+              "FRU",
+              "7019701"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal table cells tagged by their original column headers, with explicit scope note"
+        },
+        {
+          "fact_index": 12,
+          "fact_name": "replaceable_component_row_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Memory DIMM, 16GB,DDR3,1600,2Rx4,1.35V CRU 7041603",
+          "locator": {
+            "html_start_line": 301,
+            "html_end_line": 322,
+            "table_start_line": 261,
+            "table_title": "Oracle ZFS Storage ZS3-2 Controller Replaceable Memory Components",
+            "headers": [
+              "Component",
+              "Description",
+              "FRU/CRU",
+              "Part Number"
+            ],
+            "literal_cells": [
+              "Memory",
+              "DIMM, 16GB,DDR3,1600,2Rx4,1.35V",
+              "CRU",
+              "7041603"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal table cells tagged by their original column headers, with explicit scope note"
+        },
+        {
+          "fact_index": 13,
+          "fact_name": "replaceable_component_row_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-2-internal-components.html",
+          "capture_sha256": "cafa86fa34e14d2586d77e34b27a5eb2258670d59a54755f487670195f1513f1",
+          "literal_quote": "Memory DIMM, 32GB,DDR3,1066,4Rx4,1.35V CRU 7055964",
+          "locator": {
+            "html_start_line": 323,
+            "html_end_line": 344,
+            "table_start_line": 261,
+            "table_title": "Oracle ZFS Storage ZS3-2 Controller Replaceable Memory Components",
+            "headers": [
+              "Component",
+              "Description",
+              "FRU/CRU",
+              "Part Number"
+            ],
+            "literal_cells": [
+              "Memory",
+              "DIMM, 32GB,DDR3,1066,4Rx4,1.35V",
+              "CRU",
+              "7055964"
+            ]
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal table cells tagged by their original column headers, with explicit scope note"
+        }
+      ],
+      "record_scope": "Named model source-local statements only; no identities merged.",
+      "scope_limitations": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities.",
+      "source_absences": [
+        "No explicit PSU wattage/model/input frequency/current, chassis dimensions/weight, fan-module count or airflow specification in captured article.",
+        "No claim that legend 12 Power supplies means twelve supplies or legend 9 Fan modules means nine fans.",
+        "CPU Descriptions table title contrasts with DIMM-placement content; its second Capacity cell is literal dot, not an inferred capacity."
+      ]
+    },
+    {
+      "source": "oracle-zfs-storage-zs3-4-internal-components-2026-10-14",
+      "key": "Oracle ZFS Storage ZS3-4",
+      "brand": "Oracle",
+      "model": "Oracle ZFS Storage ZS3-4",
+      "title": "Oracle ZFS Storage ZS3-4",
+      "kind": "storage controller",
+      "affiliations": [
+        [
+          "Oracle Corporation",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "service_constraint_as_printed",
+          "Oracle ZFS Storage ZS3-4 Internal Boards - The Oracle ZFS Storage ZS3-4 controller chassis contains the following field-replaceable units (FRUs). FRUs are not customer-serviceable, and should only be replaced by trained Oracle service technicians. [HTML lines 154-155; Internal board FRUs not customer-serviceable; service-platform name is not merged with registry ZS3-4.]"
+        ],
+        [
+          "power_description",
+          "Motherboard - The motherboard includes CPU modules, slots for eight DIMM risers, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host's 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off. [HTML lines 159-166; Eight DIMM-riser slots and SP 3.3V standby rail; not external input rating.]"
+        ],
+        [
+          "power_description",
+          "Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the system. It is directly connected to the Vertical PDB card, and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock (\"kill\") switch. In the controller, the power supplies connect to the power supply backplane which connects to the power distribution board. [HTML lines 171-178; Main 12V distribution, Vertical PDB interconnect, bus bar/ribbon and top-cover interlock; PSUs connect via PSU backplane (unlike ZS3-2 text).]"
+        ],
+        [
+          "power_distribution_interconnect_as_printed",
+          "Vertical PDB Card - The vertical power distribution board, or Paddle Card serves as the interconnect between the power distribution board and the fan power boards, hard drive backplane, and I/O board. [HTML lines 183-188; Source-local vertical PDB/Paddle Card description; not a new standalone part identity.]"
+        ],
+        [
+          "power_description",
+          "Power Supply Backplane Card - This board connects the power distribution board to power supplies 0 and 1. [HTML lines 193-196; Power supplies 0 and 1 are explicit labels, not a wattage/redundancy specification.]"
+        ],
+        [
+          "cooling_description",
+          "Fan Power Boards - The two fan power boards are FRUs and carry power to the controller fan modules. In addition, they contain fan module status LEDs and transfer I2C data for the fan modules. [HTML lines 201-205; Explicit two fan power boards, FRU service scope, module LEDs/I2C; no fan-module count inferred.]"
+        ],
+        [
+          "drive_backplane_description_as_printed",
+          "Drive Backplane - The six-drive backplane includes the connectors for the drives, as well as the interconnect for the I/O board, Power and Locator buttons, and system/component status LEDs. Each drive has an LED indicator for Power/Activity, Fault, and Locate. [HTML lines 210-215; Explicit six-drive backplane; not installed drive count.]"
+        ],
+        [
+          "storage_configuration_as_printed",
+          "Oracle ZFS Storage ZS3-4 System Drives - The Oracle ZFS Storage ZS3-4 controller has two system boot drives in slots 0 and 1, configured as a mirrored pair. Read-optimized cache devices can be installed in controller slots 2 through 5, or installed in Oracle Storage Drive Enclosure DE2-24 disk shelf slots. [HTML lines 219-220; Two mirrored boot drives in slots 0/1; read-cache choices remain conditional and constrained by following note.]"
+        ],
+        [
+          "read_cache_configuration_constraint_as_printed",
+          "Note: Read cache devices must be installed in either the controller or an Oracle Storage Drive Enclosure DE2-24 disk shelf. Read cache devices cannot be installed in both controller and disk shelf slots at the same time. For software requirements and slot configuration rules, see Disk Shelf Configurations. [HTML lines 221-223; Read cache must be in either controller or DE2-24 shelf, never both simultaneously; linked software/slot rules not collected.]"
+        ],
+        [
+          "hba_connectivity_as_printed",
+          "Oracle ZFS Storage ZS3-4 4x4 SAS-2 HBA - The 4x4 SAS-2 HBA, installed in the Oracle ZFS Storage ZS3-4 controller, provides connectivity to external Oracle Storage Drive Enclosure DE2 and Sun Disk Shelves. The HBA logical ports are numbered 3-0, top to bottom: [HTML lines 252-253; Source-local 4x4 SAS-2 HBA connectivity and logical port numbering 3-0; not a new HBA part code.]"
+        ],
+        [
+          "memory_configuration_as_printed",
+          "Oracle ZFS Storage ZS3-4 CPU and Memory - The Oracle ZFS Storage ZS3-4 controller supports 16GB DDR3 DIMMs installed on all eight risers, accommodating 1TB of memory. [HTML lines 257-258; Source statement supports 16GB DDR3 on all eight risers, accommodating 1TB; no unit configuration claim.]"
+        ],
+        [
+          "memory_population_constraint_as_printed",
+          "Refer to the service label on the cover for DIMM placement information. On every memory riser, slots D0, D2, D4, and D6 must be populated; optionally, slots D1, D3, D5, and D7 may be populated as a group on all installed memory risers. All DIMMs in the system must be identical. [HTML lines 260-266; D0/D2/D4/D6 required on every riser; optional D1/D3/D5/D7 as a group on all installed risers; identical DIMMs.]"
+        ],
+        [
+          "fan_fault_indicator_as_printed",
+          "The following LEDs are lit when a fan module fault is detected: [HTML lines 273-273; Fan-fault introduction; the following three LED blocks belong to this condition.]"
+        ],
+        [
+          "fan_fault_indicator_as_printed",
+          "Front and rear Service Action Required LEDs [HTML lines 277-277; Fan-fault indication: front and rear Service Action Required LEDs.]"
+        ],
+        [
+          "fan_fault_indicator_as_printed",
+          "Fan Module Service Action Required (TOP) LED on the front of the controller [HTML lines 282-283; Fan-fault indication: front Fan Module Service Action Required TOP LED.]"
+        ],
+        [
+          "fan_fault_indicator_as_printed",
+          "Fan Fault LED on or adjacent to the faulty fan module [HTML lines 288-288; Fan-fault indication: Fan Fault LED on or adjacent to faulty module.]"
+        ],
+        [
+          "fan_overtemperature_note_as_printed",
+          "The system Overtemp LED might light if a fan fault causes an increase in system operating temperature. [HTML lines 292-293; Overtemp LED might light if fan fault raises system operating temperature; conditional, not guaranteed.]"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_index": 0,
+          "fact_name": "service_constraint_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Oracle ZFS Storage ZS3-4 Internal Boards - The Oracle ZFS Storage ZS3-4 controller chassis contains the following field-replaceable units (FRUs). FRUs are not customer-serviceable, and should only be replaced by trained Oracle service technicians.",
+          "locator": {
+            "html_start_line": 154,
+            "html_end_line": 155
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-154"
+        },
+        {
+          "fact_index": 1,
+          "fact_name": "power_description",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Motherboard - The motherboard includes CPU modules, slots for eight DIMM risers, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host's 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off.",
+          "locator": {
+            "html_start_line": 159,
+            "html_end_line": 166
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-159"
+        },
+        {
+          "fact_index": 2,
+          "fact_name": "power_description",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the system. It is directly connected to the Vertical PDB card, and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock (\"kill\") switch. In the controller, the power supplies connect to the power supply backplane which connects to the power distribution board.",
+          "locator": {
+            "html_start_line": 171,
+            "html_end_line": 178
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-171"
+        },
+        {
+          "fact_index": 3,
+          "fact_name": "power_distribution_interconnect_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Vertical PDB Card - The vertical power distribution board, or Paddle Card serves as the interconnect between the power distribution board and the fan power boards, hard drive backplane, and I/O board.",
+          "locator": {
+            "html_start_line": 183,
+            "html_end_line": 188
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-183"
+        },
+        {
+          "fact_index": 4,
+          "fact_name": "power_description",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Power Supply Backplane Card - This board connects the power distribution board to power supplies 0 and 1.",
+          "locator": {
+            "html_start_line": 193,
+            "html_end_line": 196
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-193"
+        },
+        {
+          "fact_index": 5,
+          "fact_name": "cooling_description",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Fan Power Boards - The two fan power boards are FRUs and carry power to the controller fan modules. In addition, they contain fan module status LEDs and transfer I2C data for the fan modules.",
+          "locator": {
+            "html_start_line": 201,
+            "html_end_line": 205
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-201"
+        },
+        {
+          "fact_index": 6,
+          "fact_name": "drive_backplane_description_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Drive Backplane - The six-drive backplane includes the connectors for the drives, as well as the interconnect for the I/O board, Power and Locator buttons, and system/component status LEDs. Each drive has an LED indicator for Power/Activity, Fault, and Locate.",
+          "locator": {
+            "html_start_line": 210,
+            "html_end_line": 215
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-210"
+        },
+        {
+          "fact_index": 7,
+          "fact_name": "storage_configuration_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Oracle ZFS Storage ZS3-4 System Drives - The Oracle ZFS Storage ZS3-4 controller has two system boot drives in slots 0 and 1, configured as a mirrored pair. Read-optimized cache devices can be installed in controller slots 2 through 5, or installed in Oracle Storage Drive Enclosure DE2-24 disk shelf slots.",
+          "locator": {
+            "html_start_line": 219,
+            "html_end_line": 220
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-219"
+        },
+        {
+          "fact_index": 8,
+          "fact_name": "read_cache_configuration_constraint_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Note: Read cache devices must be installed in either the controller or an Oracle Storage Drive Enclosure DE2-24 disk shelf. Read cache devices cannot be installed in both controller and disk shelf slots at the same time. For software requirements and slot configuration rules, see Disk Shelf Configurations.",
+          "locator": {
+            "html_start_line": 221,
+            "html_end_line": 223
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-221"
+        },
+        {
+          "fact_index": 9,
+          "fact_name": "hba_connectivity_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Oracle ZFS Storage ZS3-4 4x4 SAS-2 HBA - The 4x4 SAS-2 HBA, installed in the Oracle ZFS Storage ZS3-4 controller, provides connectivity to external Oracle Storage Drive Enclosure DE2 and Sun Disk Shelves. The HBA logical ports are numbered 3-0, top to bottom:",
+          "locator": {
+            "html_start_line": 252,
+            "html_end_line": 253
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-252"
+        },
+        {
+          "fact_index": 10,
+          "fact_name": "memory_configuration_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Oracle ZFS Storage ZS3-4 CPU and Memory - The Oracle ZFS Storage ZS3-4 controller supports 16GB DDR3 DIMMs installed on all eight risers, accommodating 1TB of memory.",
+          "locator": {
+            "html_start_line": 257,
+            "html_end_line": 258
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-257"
+        },
+        {
+          "fact_index": 11,
+          "fact_name": "memory_population_constraint_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Refer to the service label on the cover for DIMM placement information. On every memory riser, slots D0, D2, D4, and D6 must be populated; optionally, slots D1, D3, D5, and D7 may be populated as a group on all installed memory risers. All DIMMs in the system must be identical.",
+          "locator": {
+            "html_start_line": 260,
+            "html_end_line": 266
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-260"
+        },
+        {
+          "fact_index": 12,
+          "fact_name": "fan_fault_indicator_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "The following LEDs are lit when a fan module fault is detected:",
+          "locator": {
+            "html_start_line": 273,
+            "html_end_line": 273
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-273"
+        },
+        {
+          "fact_index": 13,
+          "fact_name": "fan_fault_indicator_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Front and rear Service Action Required LEDs",
+          "locator": {
+            "html_start_line": 277,
+            "html_end_line": 277
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-277"
+        },
+        {
+          "fact_index": 14,
+          "fact_name": "fan_fault_indicator_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Fan Module Service Action Required (TOP) LED on the front of the controller",
+          "locator": {
+            "html_start_line": 282,
+            "html_end_line": 283
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-282"
+        },
+        {
+          "fact_index": 15,
+          "fact_name": "fan_fault_indicator_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "Fan Fault LED on or adjacent to the faulty fan module",
+          "locator": {
+            "html_start_line": 288,
+            "html_end_line": 288
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-288"
+        },
+        {
+          "fact_index": 16,
+          "fact_name": "fan_overtemperature_note_as_printed",
+          "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/oracle-zfs-storage-zs3-4-internal-components.html",
+          "capture_sha256": "9b4cbdcbc1aac1f5b6e360b5779fb1cfdd9280869833604785a623e5ff36e6f4",
+          "literal_quote": "The system Overtemp LED might light if a fan fault causes an increase in system operating temperature.",
+          "locator": {
+            "html_start_line": 292,
+            "html_end_line": 293
+          },
+          "selected_scope": "Named model source-local statements only; no identities merged.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "original_observation_id": "zs3-4-html-292"
+        }
+      ],
+      "record_scope": "Named model source-local statements only; no identities merged.",
+      "scope_limitations": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities.",
+      "source_absences": [
+        "Full Oracle ZFS Storage ZS3-4 scope remains distinct from registry ZS3-4 pending routing review.",
+        "No explicit PSU wattage/model/input frequency/current, chassis dimensions/weight, fan-module count or airflow specification in captured article.",
+        "No remote figures or linked slot/software requirements were fetched. Fan power board count two does not establish fan-module count."
+      ]
+    },
+    {
+      "source": "celestica-sd4100-datasheet-2026-10-14",
+      "key": "R4086-F9001-01",
+      "brand": "Celestica",
+      "model": "R4086-F9001-01",
+      "title": "Celestica R4086-F9001-01",
+      "kind": "storage enclosure order configuration",
+      "affiliations": [
+        [
+          "Celestica Inc.",
+          "documentation_vendor"
+        ]
+      ],
+      "identifiers": [
+        [
+          "part_number",
+          "R4086-F9001-01"
+        ]
+      ],
+      "hyperscaler": [],
+      "facts": [
+        [
+          "ordering_row_as_printed",
+          "R4086-F9001-01: [PDF p. 2; Own literal order-code heading; no alias merge with SD4100.]"
+        ],
+        [
+          "base_model_heading_as_printed",
+          "SD4100 2U 12 HDD SAS-4 Storage Expansion System [PDF p. 2; Explicit document heading context only; base power/cooling/dimensions are not copied to this order identity.]"
+        ],
+        [
+          "ordering_bundle_as_printed",
+          "JBOD system (chassis, PSUs, SAS-4 I/O modules, fan modules) 12x drive carriers 6x dummy drive carriers Rail kit set [PDF p. 2; One visible R4086-F9001-01 order block; retain carrier/dummy carrier rows literally, no inferred drives or fan/PSU rating.]"
+        ]
+      ],
+      "evidence": [
+        {
+          "fact_index": 0,
+          "fact_name": "ordering_row_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "R4086-F9001-01:",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              10
+            ],
+            "raw_lines": [
+              "  Safety: IEC/EN/UL/CSA 62368-1, GB4943                                                     R4086-F9001-01:"
+            ]
+          },
+          "selected_scope": "Own exact printed order block and explicit SD4100 heading context only; no base-specification inheritance.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        },
+        {
+          "fact_index": 1,
+          "fact_name": "base_model_heading_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "SD4100 2U 12 HDD SAS-4 Storage Expansion System",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              1
+            ],
+            "raw_lines": [
+              "SD4100 2U 12 HDD SAS-4 Storage Expansion System"
+            ]
+          },
+          "selected_scope": "Own exact printed order block and explicit SD4100 heading context only; no base-specification inheritance.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        },
+        {
+          "fact_index": 2,
+          "fact_name": "ordering_bundle_as_printed",
+          "source_url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-expansion/cls_branded_datasheet_SD4100.pdf",
+          "capture_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+          "literal_quote": "JBOD system (chassis, PSUs, SAS-4 I/O modules, fan modules) 12x drive carriers 6x dummy drive carriers Rail kit set",
+          "locator": {
+            "pdf_page": 2,
+            "lines_1based": [
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "raw_lines": [
+              "  Environment: RoHS, REACH, WEEE, ERP Lot 9                                                 JBOD system (chassis, PSUs,",
+              "                                                                                            SAS-4 I/O modules, fan modules)",
+              "                                                                                            12x drive carriers",
+              "                                                                                            6x dummy drive carriers",
+              "                                                                                            Rail kit set"
+            ]
+          },
+          "selected_scope": "Own exact printed order block and explicit SD4100 heading context only; no base-specification inheritance.",
+          "value_method": "Literal source-local statement with explicit scope note",
+          "complete_sidecar_sha256": "a6652b55733744e2cef8f0697c0ce3ea34e0426c47a569bfce39f8c556445c79",
+          "visual_original": "research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2.png",
+          "visual_sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+        }
+      ],
+      "record_scope": "Own exact printed order block and explicit SD4100 heading context only; no base-specification inheritance.",
+      "scope_limitations": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities.",
+      "source_absences": [
+        "No chassis weight, AC frequency/current, exact PSU/fan FRU number or measured appliance consumption printed in this two-page datasheet.",
+        "No assumption that R4086-F9001-01 is equivalent to every SD4100 configuration or any marketplace unit.",
+        "No publication/manufacturing date inferred from footer 121224 or PDF metadata."
+      ]
+    }
+  ],
+  "status": "Local curated candidate; coordinator-requested after discovery; independent review required; no import",
+  "scope_limitations": "Historical source-local documentation statements only; documentation_vendor role only. No manufacturer, factory, OEM, deployment, current support/stock/entitlement, individual-unit configuration or universal component fitment inference. Exact printed names and order codes remain separate identities; no prefix stripping, alias, suffix expansion or merge. Internal 3.3V standby/12V distribution rails are not external AC input ratings. Figure legend numbers are labels, not installed quantities. Component references stay on the named parent; no standalone Intel-generic-name or memory/PSU/fan identities.",
+  "complete_document_scope": "SD4100 complete 2-page PDF and complete text sidecar; both saved Oracle article texts and all seven literal HTML tables retained.",
+  "routing_decisions": [
+    "Existing exact Celestica SD4100 and Oracle Oracle ZFS Storage ZS3-2 identities receive new source records.",
+    "New Celestica R4086-F9001-01 is the one explicitly printed order code; own bundle facts only, no inherited base specifications.",
+    "Full printed Oracle ZFS Storage ZS3-4 remains a distinct exact name from registry ZS3-4; no equivalence claimed.",
+    "Oracle CPU/memory codes7019701/7041603/7055964 remain parent source-scoped table references, without standalone identities."
+  ]
+}

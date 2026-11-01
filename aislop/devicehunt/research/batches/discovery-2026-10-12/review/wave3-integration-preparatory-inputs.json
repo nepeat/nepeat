@@ -1,0 +1,31 @@
+{
+  "status": "PREPARATORY ONLY; final suite/rebuild/proof outcomes intentionally not evaluated",
+  "read_at_utc": "2026-10-13T04:36:54.832457+00:00",
+  "input_sha256": {
+    "research/batches/discovery-2026-10-12/integration-wave3/stage-r2.py": "dc34b67c303399f597835456e368c7af923f01524186d1cdf6b8dd3abe773537",
+    "research/batches/discovery-2026-10-12/integration-wave3/stage-report.json": "16bb5a658c486e407d3d2d71e8b002066380fad90883be641a0814ccb1853bfd",
+    "research/batches/discovery-2026-10-12/integration-wave3/handoff.md": "f616c5cba9e2e0b27c81815880d402fb31c1aad111bd67e5532c6efc2c924f2e",
+    "research/batches/discovery-2026-10-12/integration-wave3/promote.py": "5cc7ece3ee58abbfa9f97bcd3248659e5ccae0bb286ec97da157fd1dfb0c065c",
+    "research/batches/discovery-2026-10-12/integration-wave3/refresh_exports.py": "f61f37f440aefb725aed6b28021fa08616bf9d202d5f0d70cf7ec57197abd702",
+    "research/batches/discovery-2026-10-12/integration-wave3/check_queries.py": "2093de522e45ec7033f4e0be56ff7060d0dfd0c2c4bfa8ab1693832987dbaaf5",
+    "research/batches/discovery-2026-10-12/integration-wave3/code-under-test.json": "77da1729417e4e94ad9c5f856228f76e24e4ce284dffbee274d397d3637b8bb1",
+    "research/batches/discovery-2026-10-12/review/wave3-stage-review.md": "1f965adf415b865fa17cff0aa3ae99fa6ee54af4704252aacfe637f894ffa8d0",
+    "research/batches/discovery-2026-10-12/review/shopping-query-fix-review.md": "6f8fbcf698ee32cc3291cd02447e9a0c82bb98b415304dbbd34c4a7c1ec2fa42",
+    "PROGRESS.md": "2ced0349151d36d260268dfd90d1af90e28865310edd8fcc3afc3530e0560f8d",
+    "README.md": "15426ebe770d12121106f95e04c391229198db7143def64e19ca6a41e3cf3f9b",
+    "scripts/compare_rebuild.py": "ff6998303f6a88ab24f998c8d5b7775e20fb128611610a08a63d186b7f38ac1d",
+    "devicehunt/reference_documents.py": "6ce3f85bf293a5efa9440070b130f871bb63c22db4a3004f7a741f01dd1ccc75",
+    "devicehunt/rebuild.py": "de905f09365b6bd2ea980b1c1c2aa09e9c91ead0f3696b9bcaa13d9166fc5543",
+    "devicehunt/buying.py": "ff39454f9d3e8edc2fe4cb34a2db2eff89345a707996ca624935d7e0356d3496",
+    "research/batches/discovery-2026-10-12/integration-wave3/promote-before-proof-guards.py": "8cb1b477d7e405b60f5b0495f4d9bceb06e79c37482f75b05800b093c55a97fe"
+  },
+  "production_test_dependency_freeze_entries": 209,
+  "root_running_handles_reported": {
+    "suite": 43695,
+    "rebuild": 82624
+  },
+  "saved_model_query_check_sha256": "da8a70b0ba11d5ab1223c821895cfd3143adcdaabaab6a280c8e7d025f3fa3cf",
+  "stage_reference": "review/wave3-stage-review.md ACCEPT STAGE ONLY",
+  "review_limit": "No helper execution, imports, rebuild/suite/network/shared writes; final results and acceptance pending explicit follow-up.",
+  "superseded_promote_sha256": "8cb1b477d7e405b60f5b0495f4d9bceb06e79c37482f75b05800b093c55a97fe"
+}

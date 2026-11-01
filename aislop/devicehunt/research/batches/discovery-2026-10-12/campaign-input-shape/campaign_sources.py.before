@@ -1,0 +1,175 @@
+"""Saved-input campaign adapters for the RRA/ISED pilot (c2).
+
+Each adapter wraps the established source validator and returns exact raw
+occurrences. Snapshot ordinals are occurrence selectors, never claim identities.
+Nothing here imports into the catalog, reads the network or guesses aliases.
+"""
+from __future__ import annotations
+import csv
+from pathlib import Path, PurePosixPath
+
+from .artifacts import canonical, digest
+
+# Validator failures that describe the saved bytes. Other exceptions (adapter
+# bugs, I/O) stop the run with the job pending instead of becoming source outcomes.
+INPUT_ERRORS = (ValueError, csv.Error)
+
+
+def logical(value):
+    return digest(canonical(value))
+
+
+class SavedAdapter:
+    source = None
+    version = '1'
+    modules = ()
+
+    def records(self, manifest, relative):
+        raise NotImplementedError
+
+    def compare(self, output, expectations):
+        """Pinned c0 expectations are checks, never inputs to the derivation."""
+        if not expectations:
+            return dict(status='not_pinned', mismatches=[])
+        mismatches = [key for key, actual in self.pinned_values(output).items()
+                      if key in expectations and expectations[key] != actual]
+        return dict(status='matches_pinned' if not mismatches else 'differs_from_pinned', mismatches=sorted(mismatches))
+
+
+class RraSavedAdapter(SavedAdapter):
+    source = 'rra'
+    modules = ('devicehunt/campaign_sources.py', 'devicehunt/rra.py', 'devicehunt/rra_company_names.py',
+               'devicehunt/catalog.py')
+
+    def records(self, manifest, relative):
+        from . import rra, rra_company_names
+        data, ready = rra.validate(manifest)
+        reviewed = rra_company_names.load(manifest.parent, data.get('company_evidence'))
+        claims = rra.composite_claims(manifest.parent, data, ready)
+        originals, occurrences = [], []
+        for n, (cells, entry, row) in enumerate(ready, 1):
+            original = {'csv_cells': cells, 'detail_entry': entry, 'labelled_fields': row}
+            originals.append(original)
+            eligible = bool(rra.claim_target(row, reviewed, claims))
+            keys = [row['certificate_number'] + ':' + model for _, model in rra.models(row)] if eligible else []
+            occurrences.append(dict(
+                kind='rra-certificate-row', ordinal=n, certificate=row['certificate_number'],
+                selector=dict(csv_row=n, detail_path=str(PurePosixPath(relative).parent / entry['path'])),
+                logical_sha256=logical(original), projected_source_keys=keys, eligible_manufacturer=eligible,
+                manufacturer=row['manufacturer'], applicant=row['applicant']))
+        return dict(
+            outcome='explicit_zero' if not ready else 'validated_nonempty',
+            scope=dict(exact_query=data['query'], comparison_mode=data.get('csv_comparison', 'byte_identical')),
+            zero_proof=data.get('empty_result'),
+            query_records=len(ready), upstream_total=None,
+            stats=dict(csv_rows_before=len(ready), csv_rows_after=len(ready), detail_pages=len(ready),
+                       eligible_manufacturer_rows=sum(o['eligible_manufacturer'] for o in occurrences),
+                       model_assertions=sum(len(o['projected_source_keys']) for o in occurrences)),
+            record_sets=dict(validated_original_records_sha256=logical(originals)),
+            occurrences=occurrences)
+
+    def pinned_values(self, output):
+        return dict(output['stats'], comparison_mode=output['scope']['comparison_mode'],
+                    validated_original_records_sha256=output['record_sets']['validated_original_records_sha256'],
+                    occurrences=[dict(certificate=o['certificate'], detail_path=o['selector']['detail_path'],
+                                      logical_sha256=o['logical_sha256'], ordinal=o['ordinal'],
+                                      projected_source_keys=o['projected_source_keys'])
+                                 for o in output['occurrences']])
+
+
+class IsedSavedAdapter(SavedAdapter):
+    source = 'ised'
+    modules = ('devicehunt/campaign_sources.py', 'devicehunt/ised.py', 'devicehunt/catalog.py')
+
+    def records(self, manifest, relative):
+        import json
+        from . import ised
+        from .catalog import target_for
+        data = json.loads(manifest.read_text())
+        if data.get('schema_version') == 1:
+            number, company, exported = ised.validate_capture(manifest)
+            rows = []
+            for entry in data['responses']:
+                text = (manifest.parent / entry['path']).read_text(encoding='utf-8-sig')
+                if 'id="equipmentSearchResultTable"' in text:
+                    _, _, labelled = ised.html_rows(text)
+                    rows = [{'group_number': number, 'company': company, 'cells': cells} for cells in labelled]
+                    break
+            query = data['company_query']
+            stats = {'query_records': len(rows), 'csv_rows': len(exported),
+                     'html_without_exact_csv': 0, 'unmatched_csv_rows': 0}
+            comparison = 'exact_html_csv_identity_multiset'
+            matched = set(range(1, len(exported) + 1))
+        else:
+            query, rows, exported, stats = ised.validate_paged_capture(manifest)
+            comparison = 'contiguous_html_ranges_stable_totals_exact_csv_matches_only'
+            matched = {m['row_number'] for row in rows for m in row['csv_matches']}
+        target = target_for(data['company_query'])
+        occurrences = [dict(kind='ised-html-row', ordinal=n, certificate=row['cells'][4], hvin=row['cells'][0],
+                            selector=dict(html_row=n), logical_sha256=logical(row), company=row['company'],
+                            target_company=target_for(row['company']) == target,
+                            exact_csv_ordinals=[m['row_number'] for m in row.get('csv_matches', [])]
+                            if data['schema_version'] == 2 else None)
+                       for n, row in enumerate(rows, 1)]
+        occurrences += [dict(kind='ised-csv-row', ordinal=n, certificate=row[7], hvin=row[2],
+                             selector=dict(csv_row=n), logical_sha256=logical(row), matches_html_identity=n in matched)
+                        for n, row in enumerate(exported, 1)]
+        return dict(
+            outcome='explicit_zero' if not rows else 'validated_nonempty',
+            scope=dict(exact_company_query=query, comparison_mode=comparison,
+                       saved_session_context='unknown legacy session; offline replay only'),
+            zero_proof=data.get('result_pages') if not rows else None,
+            query_records=stats['query_records'], upstream_total=None,
+            stats=stats,
+            record_sets=dict(validated_html_records_sha256=logical(rows), validated_csv_records_sha256=logical(exported)),
+            occurrences=occurrences)
+
+    def pinned_values(self, output):
+        html = [o for o in output['occurrences'] if o['kind'] == 'ised-html-row']
+        rows = [o for o in output['occurrences'] if o['kind'] == 'ised-csv-row']
+        return dict(output['stats'], comparison_mode=output['scope']['comparison_mode'], **output['record_sets'],
+                    html_occurrences_logical=[o['logical_sha256'] for o in html],
+                    csv_occurrences_logical=[o['logical_sha256'] for o in rows])
+
+    def compare(self, output, expectations):
+        if expectations and 'html_occurrences' in expectations:
+            expectations = dict(expectations,
+                                html_occurrences_logical=[o['logical_sha256'] for o in expectations['html_occurrences']],
+                                csv_occurrences_logical=[o['logical_sha256'] for o in expectations['csv_occurrences']])
+        return super().compare(output, expectations)
+
+
+ADAPTERS = {adapter.source: adapter for adapter in (RraSavedAdapter(), IsedSavedAdapter())}
+
+
+def module_closure(names):
+    """Package modules reachable through local imports from `names` (sorted paths)."""
+    import ast
+    base = Path(__file__).resolve().parents[1]
+    seen, todo = set(), list(names)
+    while todo:
+        name = todo.pop()
+        if name in seen:
+            continue
+        seen.add(name)
+        tree = ast.parse((base / name).read_text(), name)
+        for node in ast.walk(tree):
+            modules = []
+            if isinstance(node, ast.ImportFrom) and node.level == 1:
+                modules = [node.module] if node.module else [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom) and (node.module or '').startswith('devicehunt'):
+                modules = [node.module.split('.', 1)[1]] if '.' in node.module else [a.name for a in node.names]
+            elif isinstance(node, ast.Import):
+                modules = [a.name.split('.', 1)[1] for a in node.names if a.name.startswith('devicehunt.')]
+            for module in modules:
+                path = 'devicehunt/' + module.split('.')[0] + '.py'
+                if (base / path).is_file():
+                    todo.append(path)
+    return sorted(seen)
+
+
+def module_hashes(names):
+    """Installed code identity for the full local import closure of `names`."""
+    from .artifacts import file_digest
+    base = Path(__file__).resolve().parents[1]
+    return {name: file_digest(base / name) for name in module_closure(names)}

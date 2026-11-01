@@ -1,0 +1,20 @@
+{
+  "sequence": 6,
+  "url": "https://docs.oracle.com/cd/F24632_01/index.html",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:50:05.131510+00:00",
+  "policy": {
+    "path": "research/batches/discovery-2026-10-14/practical-sources/robots-oracle.txt",
+    "sha256": "40bfc5a2ef02ae1a03b2805ba1416ff9da1d74367f3dc8f0acaa7ac16de0e9c0",
+    "url": "https://docs.oracle.com/robots.txt",
+    "agent": "devicehunt-public-research/1.0",
+    "allowed": true,
+    "crawl_delay": null
+  },
+  "path": "oracle-older-m-series.html",
+  "redirect_followed": false,
+  "state": "error",
+  "error": "URLError: <urlopen error [Errno -3] Temporary failure in name resolution>",
+  "finished_utc": "2026-10-15T05:50:05.149140+00:00"
+}

@@ -1,0 +1,1191 @@
+{
+  "local_pdfs": [
+    {
+      "path": "data/raw/accton-b4010-compliance-2026-10-04.pdf",
+      "sha256": "1f0a0588426b88d6d691bc42686ea86ecaea6338f01ec975f0024b199359e5ce",
+      "bytes": 830297
+    },
+    {
+      "path": "data/raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838
+    },
+    {
+      "path": "data/raw/as8000-sc6100-facts-r2-wave4-2026-10-12/snapshots/sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920
+    },
+    {
+      "path": "data/raw/aws-cubscout-declaration.pdf",
+      "sha256": "e258c61b4536296561ae26fdbd070726f8b88522a6b3179365a0abea9a2651fe",
+      "bytes": 366987
+    },
+    {
+      "path": "data/raw/aws-monitron-ethernet-eu-guide.pdf",
+      "sha256": "a88209624a7147c5c9f2ed33cb57bc255e5c2f03b008090d2514baf97361dfe9",
+      "bytes": 714156
+    },
+    {
+      "path": "data/raw/aws-monitron-ethernet-guide.pdf",
+      "sha256": "4eb1eceacafece63f4960018df9965ca3e8eb627fe2748b63f207be01dd250dc",
+      "bytes": 640006
+    },
+    {
+      "path": "data/raw/aws-monitron-ex-sensor-guide.pdf",
+      "sha256": "92f3e9c5e330a801392df706ab4454c8a81d7cdfb6b127fb92935fa356b466dc",
+      "bytes": 778123
+    },
+    {
+      "path": "data/raw/aws-monitron-sensor-guide.pdf",
+      "sha256": "9b82344bafed90505a8ebd0ba1c490e2f0bd75b7c0e6d34444e7bd1e8dec1294",
+      "bytes": 465250
+    },
+    {
+      "path": "data/raw/aws-monitron-wifi-eu-guide.pdf",
+      "sha256": "e3bebd6f7414965b5ab98df924d9f9840acef3b29b6f85463620c71d6b602925",
+      "bytes": 270616
+    },
+    {
+      "path": "data/raw/aws-monitron-wifi-guide.pdf",
+      "sha256": "c661317b2e078d0f3462b9b3eb186fb72a1c4d55df945ea2c7b7d7d93a907f5b",
+      "bytes": 76153
+    },
+    {
+      "path": "data/raw/aws-panorama-safety.pdf",
+      "sha256": "d8c04a0bd82a912c925c9e1a66c5404e1529a286115bf62dac6de52830559293",
+      "bytes": 558458
+    },
+    {
+      "path": "data/raw/aws-scout-declaration.pdf",
+      "sha256": "6e5407e727678a793a5a471692d755bb8614325d8a5863aec6148827c6e3aa6b",
+      "bytes": 373887
+    },
+    {
+      "path": "data/raw/aws-snow-eu-2022-safety.pdf",
+      "sha256": "c9145c31a888847d9dfb5f2cedd943c5c29d96c5d62efcd5516fa908fdb2b15f",
+      "bytes": 273692
+    },
+    {
+      "path": "data/raw/aws-snowcone-it-safety.pdf",
+      "sha256": "6485ca4ed7482eaf7d2c7005f769be9bd908294885e9a8d4b2b6a348d47b30ca",
+      "bytes": 1727564
+    },
+    {
+      "path": "data/raw/aws-thin-client-eu.pdf",
+      "sha256": "423c1ccac53b7504f72d98324ab6aba8781d427eb31f519f2db7e0f83b9082bb",
+      "bytes": 128001
+    },
+    {
+      "path": "data/raw/aws-thin-client-safety.pdf",
+      "sha256": "798d2cedfe05102d0c1d2681a133e6f082d32b7e3943dfee11c60bff64a302cd",
+      "bytes": 146550
+    },
+    {
+      "path": "data/raw/bytedance-inspur-2026-10-04/accton-b4010-compliance.pdf",
+      "sha256": "1f0a0588426b88d6d691bc42686ea86ecaea6338f01ec975f0024b199359e5ce",
+      "bytes": 830297
+    },
+    {
+      "path": "data/raw/bytedance-inspur-2026-10-04/inspur-i24-whitepaper.pdf",
+      "sha256": "75849e77d63a0ee89d600049e2b861d768f47768930ba2ad55eee3b3c3e042ec",
+      "bytes": 1997361
+    },
+    {
+      "path": "data/raw/celestica-2025-catalog.pdf",
+      "sha256": "01766330de9b4b344e14dd401e5ae343f10c3e31d41f535ac87de5d3697a2e82",
+      "bytes": 5319909
+    },
+    {
+      "path": "data/raw/celestica-ds4000-installation-guide.pdf",
+      "sha256": "f15763a8a33018bbe8fb27e4f6303c891c0b17d0ac1a22462c026ba60c3ccfb2",
+      "bytes": 2996406
+    },
+    {
+      "path": "data/raw/cisco-ncs-cb-certificates.pdf",
+      "sha256": "ff989cee3acd7cdd3a7d048ca11fa23be6d8225f9424c214d6620d276e3d0d50",
+      "bytes": 888074
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-family-evidence/quanta-affiliates-2026-organize26en.pdf",
+      "sha256": "068ff9f95c68bf07f562942cbb525cd4bc97a546d5ea5361dfedbbfb2ad4aa04",
+      "bytes": 861028
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/ar2020-full-inspur.com.pdf",
+      "sha256": "20c55aff4ac5c7e3a7ec103bc2d55ecacc343d131bdff1e784df052a0a9ce83b",
+      "bytes": 157915
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/ar2020-szse.pdf",
+      "sha256": "906df4d0053335ef98fb96ce1cad225b8e8c2f89636665f8869d78a598fc0e11",
+      "bytes": 304062
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/ar2022-xueqiu-mirror.pdf",
+      "sha256": "ae60343839dd35fc0cbbaab4f8d6d7c265be43f0053988f833f5f2db7bb5a51f",
+      "bytes": 5173190
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/ar2023-cninfo-1219703600.pdf",
+      "sha256": "e5bad17b88b37d765f9f72f4bace5b5472e389361f88cc2ed5142af258a30c60",
+      "bytes": 5249390
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/ar2024-1222950880.pdf",
+      "sha256": "c2f5bfe90b96425989a62dadf565b1286b7f6befb36d3e47dcb1df1e38b95429",
+      "bytes": 5034527
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/ar2024-1222950898.pdf",
+      "sha256": "b2d6239f0fb826b00fbd87e515fad4622dfa00bbe9c2694a601a636c94c6b04f",
+      "bytes": 365030
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/articles-2023-08-szse.pdf",
+      "sha256": "d09a9a602aa108427908bf3ccc4505cf6e84ac0f1adfd5333c8b11321d9ea912",
+      "bytes": 544036
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/articles-2025-12-szse.pdf",
+      "sha256": "26af8bc797d3dbb94a187a67ee47be03b1721d81fe420c2d92e84f75991978c2",
+      "bytes": 635798
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/szse-2022-04-30-8de1a048.pdf",
+      "sha256": "4f9d1ac7b7298df3da328501b67cb0fbff95613a36631f6694f8101721884805",
+      "bytes": 134862
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/szse-2023-04-11-2a6a6101.pdf",
+      "sha256": "5877e5252aac5ffdb5df8b6ed90eb4516953558f7347fd1a41de6b7c9619b7f5",
+      "bytes": 152218
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/szse-2023-04-11-9ea976d5.pdf",
+      "sha256": "314c864c0f9938a7f8db492ebd9a7ec4fb8659b9b349ef00880f49c96d905acd",
+      "bytes": 348897
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/szse-2023-04-12-290d5b0c.pdf",
+      "sha256": "3664f4005e2ddcbb385aae351126104519b3ebca2405f9845190914650bbba07",
+      "bytes": 229333
+    },
+    {
+      "path": "data/raw/discovery-2026-10-11-ieit-source/szse-2023-04-12-c06f170d.pdf",
+      "sha256": "e0faf246256d023a1d57e326834c4e01b7ed1941d71caf080f0a60554f751713",
+      "bytes": 173634
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_coverletters_4843968_e0467458a9.pdf",
+      "sha256": "040d6304509633a9358bf8eac449c195144640dbdbc6edd58a402293c51937bb",
+      "bytes": 272909
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_externalphotos_4843973_c6f718269f.pdf",
+      "sha256": "7eefb4ea5ab5290edb6af96b22c7a885a84e894b66495c3f24fea687d5210d6c",
+      "bytes": 283229
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_externalphotos_4843974_f42d107bdd.pdf",
+      "sha256": "daf33d656f08417deda6ea97cc91c532a31237fec9aa1f575ed61c068705ffbb",
+      "bytes": 262824
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_idlabellocationinfo_4843977_d45d86db8c.pdf",
+      "sha256": "866511bc53240e36c09ef297a6f3bb8273389fd0425901132d58f74b884b7957",
+      "bytes": 235267
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_internalphotos_4843975_7ae9da4c9e.pdf",
+      "sha256": "3cd0857568f19110e9f52701fafc3c1a6411282991f6fec51270925768410602",
+      "bytes": 330708
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_internalphotos_4843976_5b2f7a5576.pdf",
+      "sha256": "b8b87c4d5f0f38243780c6f736fe532ad0aebbad1cec4e1694242ffd2dd94f53",
+      "bytes": 350259
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_rfexposureinfo_4843967_9c7ae7d462.pdf",
+      "sha256": "917956f195f4207417669c568020a4524ed50ce138f9eda452f4b3bfa1a8aa5a",
+      "bytes": 741595
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testreport_4843964_7839e8b400.pdf",
+      "sha256": "29a99eea257155148f31b6668f797a55e0244e5336362d5e97bdb8479575aed8",
+      "bytes": 2116290
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testreport_4843966_90fb396dec.pdf",
+      "sha256": "6cf9e600e56fe2956350b0637b84bf1f3f4906913533959a4dd7bf2046176dd8",
+      "bytes": 1050202
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testsetupphotos_4843963_323741fcce.pdf",
+      "sha256": "07e38611fa136adaf81ed3936b0fc2c25e445f3ea9bc98adc9e5114fee5cc0e1",
+      "bytes": 815520
+    },
+    {
+      "path": "data/raw/fcc-documents/2avpl_te1a001_testsetupphotos_4843965_79b9b9ecd4.pdf",
+      "sha256": "af489c477bf9ebd98977fdc3a8881aa00f848a4f500f7b1c6763a43367e96626",
+      "bytes": 612199
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/as7712-as7716-32x-onie-ds-r03-20160707.pdf",
+      "sha256": "21d08cb53dec11a53134af8835bf531c1ca67100636d6da2c17fa42511e144dc",
+      "bytes": 234068
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/dcs203-as7326-56x-ds-r10.pdf",
+      "sha256": "23267a41b66743e5d81b1697fc4c88f2602fcbb122fac1afa78af6023c18d364",
+      "bytes": 2008259
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/dcs204-as7726-32x-ds-r09.pdf",
+      "sha256": "c15ce7bf73e9202358e450ed8f7d745de9e8b07220e223c545f45c7c22208ec2",
+      "bytes": 1912717
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/dcs208-as5812-54x-ds-r15.pdf",
+      "sha256": "701cfa826b6ad291f0674b29b4843a4702e5d424d84861967c2e758365a87f2c",
+      "bytes": 466868
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/dcs500-as7816-64x-ds-r15.pdf",
+      "sha256": "0f768fc126651d01ea6821a55abe8ee61a26040d40704952ddbfe710d1f57c43",
+      "bytes": 2526454
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-edgecore/eps202-as4630-54pe-ds.pdf",
+      "sha256": "70749f11eb79d596e0a9e473f87ec439f865439edb803afffd2aea36b05160da",
+      "bytes": 2029203
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-oracle/oracle-hardware-systems-support-policies-2026-08-07.pdf",
+      "sha256": "dcf0e34512998674358e5233fd735d9fa1769dd85ebfb4f8e0eb05ad8db1e542",
+      "bytes": 474831
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-oracle/pca-3.0-hardware-maintenance-F87242-05.pdf",
+      "sha256": "7da847f05b5a0ceec9215581a300c23f26249167ad6d9986320517522dee8b75",
+      "bytes": 6703389
+    },
+    {
+      "path": "data/raw/hunt-2026-10-10-oracle/pca-3.0-release-notes-F74805-44.pdf",
+      "sha256": "a698f4c679e516b0e28726beeff9b166a2da8e95de2664fa6462a67ee505457e",
+      "bytes": 723385
+    },
+    {
+      "path": "data/raw/hyve-hercules-2026-2026-10-04.pdf",
+      "sha256": "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03",
+      "bytes": 1111606
+    },
+    {
+      "path": "data/raw/hyve-jbof-2026-2026-10-04.pdf",
+      "sha256": "77b9c9b5bfc75dbf90749bbf9dccbb8a910356676fea938077efb35297eade02",
+      "bytes": 7827715
+    },
+    {
+      "path": "data/raw/icasa-2025.pdf",
+      "sha256": "c9b0585f1a3d7c61c6238bcb91748401db352c69555a8e2d35cb9e2fa0099be0",
+      "bytes": 3989280
+    },
+    {
+      "path": "data/raw/ingrasys-es2000-es2100-bom-removed-2026-10-04.pdf",
+      "sha256": "4973720e3dac6ff31d6a24fcc87b5edbf491e7a7fdfab561ea11fcf0e3c926f1",
+      "bytes": 1017041
+    },
+    {
+      "path": "data/raw/ingrasys-servers-reconstructed-2026-10-04.pdf",
+      "sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+      "bytes": 4226715
+    },
+    {
+      "path": "data/raw/inspur-2018-inventec-2026-10-04/inspur-products-2018.pdf",
+      "sha256": "ed6030f0b1d2381e1cfdbe7aa906cbb515ad11eec45119ca554618e798d69e35",
+      "bytes": 11568131
+    },
+    {
+      "path": "data/raw/inspur-2018-inventec-2026-10-04/inventec-artemis-ii-rack.pdf",
+      "sha256": "49c13762f3c508a5cef5748a4da5b3359ba14b1838a5e05a30eb988d5dece115",
+      "bytes": 880485
+    },
+    {
+      "path": "data/raw/inspur-2018-inventec-2026-10-04/inventec-x680m.pdf",
+      "sha256": "26be2d61d7322935652f95caa2313ec950245d2f5a537d21cc42827174fcc662",
+      "bytes": 391762
+    },
+    {
+      "path": "data/raw/inspur-i24-whitepaper-2026-10-04.pdf",
+      "sha256": "75849e77d63a0ee89d600049e2b861d768f47768930ba2ad55eee3b3c3e042ec",
+      "bytes": 1997361
+    },
+    {
+      "path": "data/raw/inspur-incloud-rail-compatibility-2026-10-04.pdf",
+      "sha256": "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150",
+      "bytes": 851128
+    },
+    {
+      "path": "data/raw/inspur-nf5280m5-whitepaper-2026-10-04.pdf",
+      "sha256": "b5924c6b10133ba06fa1e02eb12813f0737c1b6fb1807ec7dd246d35908f5bf5",
+      "bytes": 1836153
+    },
+    {
+      "path": "data/raw/inspur-products-2018-2026-10-04.pdf",
+      "sha256": "ed6030f0b1d2381e1cfdbe7aa906cbb515ad11eec45119ca554618e798d69e35",
+      "bytes": 11568131
+    },
+    {
+      "path": "data/raw/inspur-rail-2026-10-04/inspur-incloud-rail-compatibility.pdf",
+      "sha256": "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150",
+      "bytes": 851128
+    },
+    {
+      "path": "data/raw/inventec-artemis-ii-rack-2026-10-04.pdf",
+      "sha256": "49c13762f3c508a5cef5748a4da5b3359ba14b1838a5e05a30eb988d5dece115",
+      "bytes": 880485
+    },
+    {
+      "path": "data/raw/inventec-e850g4-brief-2026-10-04.pdf",
+      "sha256": "57f37f88885c8c465f67ee044e5847a209765ea9417a2a9fff2b2c441b917fe6",
+      "bytes": 1829165
+    },
+    {
+      "path": "data/raw/inventec-fpga-ipu-c5020x-en-2021.pdf",
+      "sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+      "bytes": 554573
+    },
+    {
+      "path": "data/raw/inventec-fpga-smartnic-c5020x-cn-2021.pdf",
+      "sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+      "bytes": 972912
+    },
+    {
+      "path": "data/raw/inventec-golduck-v3-2020.pdf",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "bytes": 515103
+    },
+    {
+      "path": "data/raw/inventec-practical-2026-10-04/golduck/inventec-golduck-v3-2020.pdf",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "bytes": 515103
+    },
+    {
+      "path": "data/raw/inventec-qct-2026-10-04/qct-qxvdi-2020.pdf",
+      "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+      "bytes": 3471706
+    },
+    {
+      "path": "data/raw/inventec-qct-2026-10-04/qct-wssd.pdf",
+      "sha256": "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407",
+      "bytes": 4844819
+    },
+    {
+      "path": "data/raw/inventec-qct-2026-10-04/quanta-affiliates-2025.pdf",
+      "sha256": "903230cfc536a79701083360fa116698a9ce2096efee45c7ce6d20184e746ea6",
+      "bytes": 858015
+    },
+    {
+      "path": "data/raw/inventec-x680m-2026-10-04.pdf",
+      "sha256": "26be2d61d7322935652f95caa2313ec950245d2f5a537d21cc42827174fcc662",
+      "bytes": 391762
+    },
+    {
+      "path": "data/raw/kenya-approved-2026-08.pdf",
+      "sha256": "874900238c0cdde2ca3beeac372fd29928b38dfba31f84831678b8d8cf574e19",
+      "bytes": 1721705
+    },
+    {
+      "path": "data/raw/meta-minipack2-spec.pdf",
+      "sha256": "7f71b13da4039fee1f4f24c2dc63f91301a9c83d37f89e4e470fed9109b96842",
+      "bytes": 1281779
+    },
+    {
+      "path": "data/raw/nics-wiwynn-hyve-2026-10-04/hyve-hercules-2026.pdf",
+      "sha256": "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03",
+      "bytes": 1111606
+    },
+    {
+      "path": "data/raw/nics-wiwynn-hyve-2026-10-04/hyve-jbof-2026.pdf",
+      "sha256": "77b9c9b5bfc75dbf90749bbf9dccbb8a910356676fea938077efb35297eade02",
+      "bytes": 7827715
+    },
+    {
+      "path": "data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-st7000g2.pdf",
+      "sha256": "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1",
+      "bytes": 2712044
+    },
+    {
+      "path": "data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7100g2.pdf",
+      "sha256": "079a515d8a1d6b86021912f2d9eabe4427bde46a680bb50962438b8c3377899e",
+      "bytes": 1896893
+    },
+    {
+      "path": "data/raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7220g3.pdf",
+      "sha256": "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783",
+      "bytes": 1643672
+    },
+    {
+      "path": "data/raw/ntra-2022-12.pdf",
+      "sha256": "da373d0fdd2f804f10e14570771896e4fbd4aa6ef582aa740cb06b7cc276dc3c",
+      "bytes": 12874426
+    },
+    {
+      "path": "data/raw/ntra-2026-01.pdf",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+      "bytes": 6914628
+    },
+    {
+      "path": "data/raw/odm-hyve-jade-2026-2026-10-04.pdf",
+      "sha256": "265022432d27e3ca5efadf4306bb2148df1b303df9916c515fcc2aaf64745b9e",
+      "bytes": 682527
+    },
+    {
+      "path": "data/raw/odm-models-2026-10-04/hyve-jade-2026.pdf",
+      "sha256": "265022432d27e3ca5efadf4306bb2148df1b303df9916c515fcc2aaf64745b9e",
+      "bytes": 682527
+    },
+    {
+      "path": "data/raw/odm-models-2026-10-04/wiwynn-sv7100g4.pdf",
+      "sha256": "6a6f0ef15a7f4552bcf08f589c8b98bcf8801ccb870f4cf1c11582d8c6413ded",
+      "bytes": 2648168
+    },
+    {
+      "path": "data/raw/odm-wiwynn-sv7100g4-2026-10-04.pdf",
+      "sha256": "6a6f0ef15a7f4552bcf08f589c8b98bcf8801ccb870f4cf1c11582d8c6413ded",
+      "bytes": 2648168
+    },
+    {
+      "path": "data/raw/oracle-x10m-ecodesign.pdf",
+      "sha256": "50e3873d18341dd742e730843c4b6f2ac5756cf2687dd9a1376a57088ad2c31a",
+      "bytes": 153099
+    },
+    {
+      "path": "data/raw/oracle-x11m-ecodesign.pdf",
+      "sha256": "5839b8a7f1f6d1dcda3660e7674aed13a194c48397172070b982550d0e183f40",
+      "bytes": 190878
+    },
+    {
+      "path": "data/raw/oracle-x9-2-ecodesign.pdf",
+      "sha256": "535f09d0de89b74fd44618ea1bee9ef86c72a8ba781595ff722602cf1f0a2533",
+      "bytes": 265702
+    },
+    {
+      "path": "data/raw/oracle-x9-2l-ecodesign.pdf",
+      "sha256": "d720fe5eec5a5250ff32736258c996e87b91eda263bc6f53baf1d089885cb80b",
+      "bytes": 271351
+    },
+    {
+      "path": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as5710-as5712-ds-r09.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "bytes": 201945
+    },
+    {
+      "path": "data/raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as6700-quick-start.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "bytes": 886779
+    },
+    {
+      "path": "data/raw/psu-2026-10-12-bel-pfe1100-series.pdf",
+      "sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "bytes": 1234296
+    },
+    {
+      "path": "data/raw/psu-2026-10-12-bel-pfe1500-csa.pdf",
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "bytes": 224731
+    },
+    {
+      "path": "data/raw/psu-2026-10-12-bel-pfe1500-nemko.pdf",
+      "sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "bytes": 221876
+    },
+    {
+      "path": "data/raw/psu-2026-10-12-bel-pfe1500-series.pdf",
+      "sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "bytes": 1561064
+    },
+    {
+      "path": "data/raw/psu-2026-10-12-fsp550-29fm.pdf",
+      "sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "bytes": 585174
+    },
+    {
+      "path": "data/raw/psu-edge-facts-wave3-2026-10-12/snapshots/sd6200-datasheet.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "bytes": 642770
+    },
+    {
+      "path": "data/raw/psu-edge-facts-wave3-2026-10-12/snapshots/wedge100-32x-r04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "bytes": 281885
+    },
+    {
+      "path": "data/raw/psu-facts-2026-10-12/snapshots/bel-pfe1100-series.pdf",
+      "sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "bytes": 1234296
+    },
+    {
+      "path": "data/raw/psu-facts-2026-10-12/snapshots/bel-pfe1500-csa.pdf",
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "bytes": 224731
+    },
+    {
+      "path": "data/raw/psu-facts-2026-10-12/snapshots/bel-pfe1500-nemko.pdf",
+      "sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "bytes": 221876
+    },
+    {
+      "path": "data/raw/psu-facts-2026-10-12/snapshots/bel-pfe1500-series.pdf",
+      "sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "bytes": 1561064
+    },
+    {
+      "path": "data/raw/psu-facts-2026-10-12/snapshots/fsp550-29fm.pdf",
+      "sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "bytes": 585174
+    },
+    {
+      "path": "data/raw/qct-d51b-datasheet-mirror-2017.pdf",
+      "sha256": "68418af147f05d4afa468a5fce8a5fad1026168fa90f37b9277b6b8e559ecf7e",
+      "bytes": 530964
+    },
+    {
+      "path": "data/raw/qct-product-portfolio-v14-2023.pdf",
+      "sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+      "bytes": 11012939
+    },
+    {
+      "path": "data/raw/qct-qxvdi-2020-2026-10-04.pdf",
+      "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+      "bytes": 3471706
+    },
+    {
+      "path": "data/raw/qct-wssd-2026-10-04.pdf",
+      "sha256": "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407",
+      "bytes": 4844819
+    },
+    {
+      "path": "data/raw/quanta-affiliates-2025-2026-10-04.pdf",
+      "sha256": "903230cfc536a79701083360fa116698a9ce2096efee45c7ce6d20184e746ea6",
+      "bytes": 858015
+    },
+    {
+      "path": "data/raw/server-evidence-ingrasys-2026-10-04/server-second-span-eof-derivative.pdf",
+      "sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+      "bytes": 4226715
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-ipu-c5020x-en-2021.pdf",
+      "sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+      "bytes": 554573
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/smartnic/inventec-fpga-smartnic-c5020x-cn-2021.pdf",
+      "sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+      "bytes": 972912
+    },
+    {
+      "path": "data/raw/smartnic-qct-2026-10-04/t42s/qct-product-portfolio-v14-2023.pdf",
+      "sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+      "bytes": 11012939
+    },
+    {
+      "path": "data/raw/storage-inspur-2026-10-04/inspur-nf5280m5-whitepaper.pdf",
+      "sha256": "b5924c6b10133ba06fa1e02eb12813f0737c1b6fb1807ec7dd246d35908f5bf5",
+      "bytes": 1836153
+    },
+    {
+      "path": "data/raw/storage-inspur-2026-10-04/inventec-e850g4-brief.pdf",
+      "sha256": "57f37f88885c8c465f67ee044e5847a209765ea9417a2a9fff2b2c441b917fe6",
+      "bytes": 1829165
+    },
+    {
+      "path": "data/raw/vendor-discovery-qct-2026-10-04/d51b-datasheet.pdf",
+      "sha256": "68418af147f05d4afa468a5fce8a5fad1026168fa90f37b9277b6b8e559ecf7e",
+      "bytes": 530964
+    },
+    {
+      "path": "data/raw/vendor-discovery-qct-2026-10-04/t41s-reseller-datasheet.pdf",
+      "sha256": "4c17cf320cf48f983d049b001c6f8f3161ee33a980428b881f85c8ba15c67ae5",
+      "bytes": 560488
+    },
+    {
+      "path": "data/raw/wave3-2026-10-12-sd6200-datasheet.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "bytes": 642770
+    },
+    {
+      "path": "data/raw/wave3-2026-10-12-wedge100-32x-r04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "bytes": 281885
+    },
+    {
+      "path": "data/raw/wave4-2026-10-12-as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838
+    },
+    {
+      "path": "data/raw/wave4-2026-10-12-sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920
+    },
+    {
+      "path": "data/raw/wave5-2026-10-12-as5710-as5712-ds-r09.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "bytes": 201945
+    },
+    {
+      "path": "data/raw/wave5-2026-10-12-as6700-quick-start.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "bytes": 886779
+    },
+    {
+      "path": "data/raw/wiwynn-st7000g2-2026-10-04.pdf",
+      "sha256": "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1",
+      "bytes": 2712044
+    },
+    {
+      "path": "data/raw/wiwynn-sv7100g2-2026-10-04.pdf",
+      "sha256": "079a515d8a1d6b86021912f2d9eabe4427bde46a680bb50962438b8c3377899e",
+      "bytes": 1896893
+    },
+    {
+      "path": "data/raw/wiwynn-sv7220g3-2026-10-04.pdf",
+      "sha256": "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783",
+      "bytes": 1643672
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/sd6200-datasheet.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "bytes": 642770
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge/wedge100-32x-r04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "bytes": 281885
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge-facts/snapshots/sd6200-datasheet.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "bytes": 642770
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave3/psu-edge-facts/snapshots/wedge100-32x-r04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "bytes": 281885
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/snapshots/as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts/snapshots/sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100-facts-r2/snapshots/sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "bytes": 201945
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-quick-start.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "bytes": 886779
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as5710-as5712-ds-r09.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "bytes": 201945
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/original-vendor-wave5-facts/snapshots/as6700-quick-start.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "bytes": 886779
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/pdf-runtime/bel-pfe1500-csa-demo.pdf",
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "bytes": 224731
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+      "sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "bytes": 1234296
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "bytes": 224731
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+      "sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "bytes": 221876
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+      "sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "bytes": 1561064
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+      "sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "bytes": 585174
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu-facts/snapshots/bel-pfe1100-series.pdf",
+      "sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "bytes": 1234296
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu-facts/snapshots/bel-pfe1500-csa.pdf",
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "bytes": 224731
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu-facts/snapshots/bel-pfe1500-nemko.pdf",
+      "sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "bytes": 221876
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu-facts/snapshots/bel-pfe1500-series.pdf",
+      "sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "bytes": 1561064
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/psu-facts/snapshots/fsp550-29fm.pdf",
+      "sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "bytes": 585174
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-review/raw/redirect-nvidia-ngc-ready.pdf",
+      "sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+      "bytes": 72825
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/amd-instinct-catalog.pdf",
+      "sha256": "8436689a7a45614e4b4078e2bd13ad6aba0403d0407d5d4f79f4b557203c2d5c",
+      "bytes": 365195
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/nvidia-ngc-ready.pdf",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/odm-source-expansion/redirect-nvidia-ngc-ready.pdf",
+      "sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+      "bytes": 72825
+    },
+    {
+      "path": "research/batches/discovery-2026-10-14/practical-sources/sd4100-known_captured_target_checked.pdf",
+      "sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+      "bytes": 630229
+    },
+    {
+      "path": "research/batches/inventec-practical-2026-10-04/review/pdf-prepare-1/inventec-golduck-v3-2020.pdf",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "bytes": 515103
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/review/smartnic-english-reference-pdf-proposal/inventec-fpga-ipu-c5020x-en-2021.pdf",
+      "sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+      "bytes": 554573
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/review/smartnic-reference-pdf-proposal/inventec-fpga-smartnic-c5020x-cn-2021.pdf",
+      "sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+      "bytes": 972912
+    },
+    {
+      "path": "research/batches/smartnic-qct-2026-10-04/review/t42s-reference-pdf-proposal/qct-product-portfolio-v14-2023.pdf",
+      "sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+      "bytes": 11012939
+    }
+  ],
+  "catalog_reference_documents": [
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_coverletters_4843968_e0467458a9.pdf",
+      "sha256": "040d6304509633a9358bf8eac449c195144640dbdbc6edd58a402293c51937bb",
+      "title": "2avpl Coverletters"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_externalphotos_4843973_c6f718269f.pdf",
+      "sha256": "7eefb4ea5ab5290edb6af96b22c7a885a84e894b66495c3f24fea687d5210d6c",
+      "title": "2avpl Externalphotos"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_externalphotos_4843974_f42d107bdd.pdf",
+      "sha256": "daf33d656f08417deda6ea97cc91c532a31237fec9aa1f575ed61c068705ffbb",
+      "title": "2avpl Externalphotos"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_idlabellocationinfo_4843977_d45d86db8c.pdf",
+      "sha256": "866511bc53240e36c09ef297a6f3bb8273389fd0425901132d58f74b884b7957",
+      "title": "2avpl Idlabellocationinfo"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_internalphotos_4843975_7ae9da4c9e.pdf",
+      "sha256": "3cd0857568f19110e9f52701fafc3c1a6411282991f6fec51270925768410602",
+      "title": "2avpl Internalphotos"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_internalphotos_4843976_5b2f7a5576.pdf",
+      "sha256": "b8b87c4d5f0f38243780c6f736fe532ad0aebbad1cec4e1694242ffd2dd94f53",
+      "title": "2avpl Internalphotos"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_rfexposureinfo_4843967_9c7ae7d462.pdf",
+      "sha256": "917956f195f4207417669c568020a4524ed50ce138f9eda452f4b3bfa1a8aa5a",
+      "title": "2avpl Rfexposureinfo"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_testreport_4843964_7839e8b400.pdf",
+      "sha256": "29a99eea257155148f31b6668f797a55e0244e5336362d5e97bdb8479575aed8",
+      "title": "2avpl Testreport"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_testreport_4843966_90fb396dec.pdf",
+      "sha256": "6cf9e600e56fe2956350b0637b84bf1f3f4906913533959a4dd7bf2046176dd8",
+      "title": "2avpl Testreport"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_testsetupphotos_4843963_323741fcce.pdf",
+      "sha256": "07e38611fa136adaf81ed3936b0fc2c25e445f3ea9bc98adc9e5114fee5cc0e1",
+      "title": "2avpl Testsetupphotos"
+    },
+    {
+      "url": "https://fccid.co/api/files/s1/2avpl_te1a001_testsetupphotos_4843965_79b9b9ecd4.pdf",
+      "sha256": "af489c477bf9ebd98977fdc3a8881aa00f848a4f500f7b1c6763a43367e96626",
+      "title": "2avpl Testsetupphotos"
+    },
+    {
+      "url": "https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_CubScout_Final-en_us.pdf",
+      "sha256": "e258c61b4536296561ae26fdbd070726f8b88522a6b3179365a0abea9a2651fe",
+      "title": "AWS Outposts CubScout declaration"
+    },
+    {
+      "url": "https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/amazon-monitron-gateway-tg1a-002-safety-guide-eu-Een.pdf",
+      "sha256": "a88209624a7147c5c9f2ed33cb57bc255e5c2f03b008090d2514baf97361dfe9",
+      "title": "Amazon Monitron ethernet-eu safety guide"
+    },
+    {
+      "url": "https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/Amazon%20Monitron%20Sensor%20TG1A002%20Safety-Guide-USA-English.pdf",
+      "sha256": "4eb1eceacafece63f4960018df9965ca3e8eb627fe2748b63f207be01dd250dc",
+      "title": "Amazon Monitron ethernet US safety guide"
+    },
+    {
+      "url": "https://d1.awsstatic.com/legal/Amazon%20Monitron/TE1Ax9z-SM-monitron-sensor-ex-safety-guide.pdf",
+      "sha256": "92f3e9c5e330a801392df706ab4454c8a81d7cdfb6b127fb92935fa356b466dc",
+      "title": "Amazon Monitron ex-sensor safety guide"
+    },
+    {
+      "url": "https://d1.awsstatic.com/legal/Amazon%20Monitron/TE1Ax0z-SM-monitron-sensor-safety-guide_v0.2.pdf",
+      "sha256": "9b82344bafed90505a8ebd0ba1c490e2f0bd75b7c0e6d34444e7bd1e8dec1294",
+      "title": "Amazon Monitron sensor safety guide"
+    },
+    {
+      "url": "https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/Amazon%20Monitron%20Gateway%20TG1A001%20Safety-Guide-EU-UK.pdf",
+      "sha256": "e3bebd6f7414965b5ab98df924d9f9840acef3b29b6f85463620c71d6b602925",
+      "title": "Amazon Monitron wifi-eu safety guide"
+    },
+    {
+      "url": "https://d1.awsstatic.com/legal/Amazon%20Monitron/new-safety-guides/Amazon%20Monitron%20Gateway%20TG1A001%20Safety-Guide-USA.pdf",
+      "sha256": "c661317b2e078d0f3462b9b3eb186fb72a1c4d55df945ea2c7b7d7d93a907f5b",
+      "title": "Amazon Monitron wifi US safety guide"
+    },
+    {
+      "url": "https://d1.awsstatic.com/product-marketing/panorama/1_MHT_Safety_ComplianceManual_ENGLISHv3.pdf",
+      "sha256": "d8c04a0bd82a912c925c9e1a66c5404e1529a286115bf62dac6de52830559293",
+      "title": "AWS Panorama Appliance safety and compliance"
+    },
+    {
+      "url": "https://d1.awsstatic.com/product-marketing/Outposts/safety-compliance/CE%20Declaration%20of%20Conformity_Scout_Final-English.pdf",
+      "sha256": "6e5407e727678a793a5a471692d755bb8614325d8a5863aec6148827c6e3aa6b",
+      "title": "AWS Outposts SCOUT declaration"
+    },
+    {
+      "url": "https://d1.awsstatic.com/English-Guide-for-Snowball-and-Snowcone_Final_Sep2022.pdf",
+      "sha256": "c9145c31a888847d9dfb5f2cedd943c5c29d96c5d62efcd5516fa908fdb2b15f",
+      "title": "AWS Snowball and Snowcone September 2022 safety guide"
+    },
+    {
+      "url": "https://d1.awsstatic.com/Digital%20Marketing/House/Hero/products/Snow/16%20Compliance%20Notice_Snowcone_EU_Italian_it-IT_locked.pdf",
+      "sha256": "6485ca4ed7482eaf7d2c7005f769be9bd908294885e9a8d4b2b6a348d47b30ca",
+      "title": "AWS Snowcone Italian safety guide with English declarations"
+    },
+    {
+      "url": "https://www.celestica.com/uploadedFiles/artifact/OSS_2025_Catalog.pdf",
+      "sha256": "01766330de9b4b344e14dd401e5ae343f10c3e31d41f535ac87de5d3697a2e82",
+      "title": "Celestica 2025 portfolio catalog"
+    },
+    {
+      "url": "https://www.cisco.com/web/dofc/21435998.pdf",
+      "sha256": "ff989cee3acd7cdd3a7d048ca11fa23be6d8225f9424c214d6620d276e3d0d50",
+      "title": "Cisco NCS1004 and NCS1014 CB certificates"
+    },
+    {
+      "url": "https://www.icasa.org.za/uploads/files/List-of-Type-Approved-Equipment-2025.pdf",
+      "sha256": "c9b0585f1a3d7c61c6238bcb91748401db352c69555a8e2d35cb9e2fa0099be0",
+      "title": "ICASA 2025 type-approved equipment register"
+    },
+    {
+      "url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf",
+      "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a",
+      "title": "NTRA equipment register, January 2026 file"
+    },
+    {
+      "url": "https://d1.awsstatic.com/reInvent/reinvent-2023/pdp/thin-client/EU%20DoC%20-%20Amazon%20WorkSpaces%20Thin%20Client.pdf",
+      "sha256": "423c1ccac53b7504f72d98324ab6aba8781d427eb31f519f2db7e0f83b9082bb",
+      "title": "AWS WorkSpaces Thin Client EU declaration"
+    },
+    {
+      "url": "https://d1.awsstatic.com/reInvent/reinvent-2023/pdp/thin-client/safety-and-compliance-information-for-amazon-workspaces-thin-client-device-march-2025-update.pdf",
+      "sha256": "798d2cedfe05102d0c1d2681a133e6f082d32b7e3943dfee11c60bff64a302cd",
+      "title": "AWS WorkSpaces Thin Client safety and compliance guide, March 2025 URL"
+    },
+    {
+      "url": "https://www.tra.gov.eg/wp-content/uploads/2022/12/Type-Approved-List-December-2022-%D9%90.pdf",
+      "sha256": "da373d0fdd2f804f10e14570771896e4fbd4aa6ef582aa740cb06b7cc276dc3c",
+      "title": "NTRA equipment register, December 4, 2022"
+    },
+    {
+      "url": "https://www.oracle.com/a/otn/docs/WH1CL_X9-2_EcoDesignReportingInfo.pdf",
+      "sha256": "535f09d0de89b74fd44618ea1bee9ef86c72a8ba781595ff722602cf1f0a2533",
+      "title": "Oracle X9-2 EcoDesign technical documentation"
+    },
+    {
+      "url": "https://www.oracle.com/a/otn/docs/WH2CL_X9-2L_EcoDesignReportingInfo.pdf",
+      "sha256": "d720fe5eec5a5250ff32736258c996e87b91eda263bc6f53baf1d089885cb80b",
+      "title": "Oracle X9-2L EcoDesign technical documentation"
+    },
+    {
+      "url": "https://www.oracle.com/a/otn/docs/x10m_2u_zu2xl_ecodesignreportinginfo.pdf",
+      "sha256": "50e3873d18341dd742e730843c4b6f2ac5756cf2687dd9a1376a57088ad2c31a",
+      "title": "Oracle X10M EcoDesign technical documentation"
+    },
+    {
+      "url": "https://www.oracle.com/a/otn/docs/X11M_2U_ZU2XL_EcoDesignReportingInfo.pdf",
+      "sha256": "5839b8a7f1f6d1dcda3660e7674aed13a194c48397172070b982550d0e183f40",
+      "title": "Oracle X11M EcoDesign technical documentation"
+    },
+    {
+      "url": "https://www.ca.go.ke/sites/default/files/2026-09/List%20of%20Type%20Approved%20Equipment%20August%202026.pdf",
+      "sha256": "874900238c0cdde2ca3beeac372fd29928b38dfba31f84831678b8d8cf574e19",
+      "title": "Kenya CA type approved equipment August 2026"
+    },
+    {
+      "url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/celestica-documentation-portal/DS4000_Installation_Guide.pdf",
+      "sha256": "f15763a8a33018bbe8fb27e4f6303c891c0b17d0ac1a22462c026ba60c3ccfb2",
+      "title": "Celestica DS4000/DS4001 installation guide"
+    },
+    {
+      "url": "https://www.opencompute.org/documents/minipack2-generic-ocp-specification-rev1-0-pdf",
+      "sha256": "7f71b13da4039fee1f4f24c2dc63f91301a9c83d37f89e4e470fed9109b96842",
+      "title": "Meta Minipack2 generic system specification Rev 1.0 (2021-09-16)"
+    },
+    {
+      "url": "https://www.wiwynn.com/hubfs/Datasheet%20-%20SV7100G4_210917_internal.pdf",
+      "sha256": "6a6f0ef15a7f4552bcf08f589c8b98bcf8801ccb870f4cf1c11582d8c6413ded",
+      "title": "Wiwynn SV7100G4 and SV7100G4-C datasheet v1.0"
+    },
+    {
+      "url": "https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ec237474bffbedb6ffcd_Hyve%20-%20Jade_RGB_Rev1_050126.pdf",
+      "sha256": "265022432d27e3ca5efadf4306bb2148df1b303df9916c515fcc2aaf64745b9e",
+      "title": "Hyve Jade datasheet May 2026 Rev0.050126"
+    },
+    {
+      "url": "https://www.accton.com.cn/wp-content/uploads/B4010-2302C014-CER_FCCISED.pdf",
+      "sha256": "1f0a0588426b88d6d691bc42686ea86ecaea6338f01ec975f0024b199359e5ce",
+      "title": "BTL B4010 compliance statements; Accton applicant, brand N/A"
+    },
+    {
+      "url": "https://www.inspur.com/eportal/fileDir/defaultCurSite/resource/cms/2020/08/2020081316525840458.pdf",
+      "sha256": "75849e77d63a0ee89d600049e2b861d768f47768930ba2ad55eee3b3c3e042ec",
+      "title": "Inspur i24 Product Technical White Paper, revision 3.0, 2020-01"
+    },
+    {
+      "url": "https://www.ingrasys.com/docs-detail/es2000-es2100/",
+      "sha256": "4973720e3dac6ff31d6a24fcc87b5edbf491e7a7fdfab561ea11fcf0e3c926f1",
+      "title": "Ingrasys ES2000 / ES2100 storage datasheet (2024 footer)"
+    },
+    {
+      "url": "https://www.quantatw.com/quanta/english/about/organize25en.pdf",
+      "sha256": "903230cfc536a79701083360fa116698a9ce2096efee45c7ce6d20184e746ea6",
+      "title": "Quanta Computer summaries of affiliated companies 2025"
+    },
+    {
+      "url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf",
+      "sha256": "c5fcf858554df0ecd97933782e39391d47932e3d0530b5581b34b89e697ce407",
+      "title": "QCT Windows Server Software Defined solutions (2018 footer)"
+    },
+    {
+      "url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf",
+      "sha256": "32fcf545dc4fc67b8182bd0ae54138ce48cb4c7130e40d3315b914718ea4baed",
+      "title": "QCT QxStack QxVDI OA HC reference architecture version 2.0"
+    },
+    {
+      "url": "https://en.inspur.com/eportal/fileDir/defaultCurSite/resource/cms/2020/04/2020040710453910867.pdf",
+      "sha256": "b5924c6b10133ba06fa1e02eb12813f0737c1b6fb1807ec7dd246d35908f5bf5",
+      "title": "Inspur NF5280M5 product technical white paper revision 5.0, 2019-12-22"
+    },
+    {
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/80?note=",
+      "sha256": "57f37f88885c8c465f67ee044e5847a209765ea9417a2a9fff2b2c441b917fe6",
+      "title": "Inventec E850G4 MEC Server product brief, copyright 2021"
+    },
+    {
+      "url": "https://partner.inspur.com/eportal/fileDir/lcjtww/resource/cms/2024/03/2024032014450874883.pdf",
+      "sha256": "9f340f567f5603150a9c82781e1fc34656c3f2177e68b3f259ba842a32d16150",
+      "title": "Inspur InCloud Rail compatibility list, printed December 2023"
+    },
+    {
+      "url": "https://en.inspur.com/eportal/fileDir/lcjtww/resource/cms/article/2448179/2448543/2019032710162840541.pdf",
+      "sha256": "ed6030f0b1d2381e1cfdbe7aa906cbb515ad11eec45119ca554618e798d69e35",
+      "title": "Inspur Chinese product catalog, copyright 2018"
+    },
+    {
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/206?note=",
+      "sha256": "49c13762f3c508a5cef5748a4da5b3359ba14b1838a5e05a30eb988d5dece115",
+      "title": "Inventec Artemis II Rack brochure, copyright 2025"
+    },
+    {
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/136?note=",
+      "sha256": "26be2d61d7322935652f95caa2313ec950245d2f5a537d21cc42827174fcc662",
+      "title": "Inventec X680m CXL Memory Accelerator brochure, copyright 2024"
+    },
+    {
+      "url": "https://www.wiwynn.com/hubfs/Datasheet-SV7100G2_181119.pdf",
+      "sha256": "079a515d8a1d6b86021912f2d9eabe4427bde46a680bb50962438b8c3377899e",
+      "title": "wiwynn-sv7100g2 vendor datasheet"
+    },
+    {
+      "url": "https://www.wiwynn.com/hubfs/Datasheet%20-%20SV7220G3_200430_internal-1.pdf",
+      "sha256": "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783",
+      "title": "wiwynn-sv7220g3 vendor datasheet"
+    },
+    {
+      "url": "https://www.wiwynn.com/hubfs/Datasheet-ST7000G2_171222-1.pdf",
+      "sha256": "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1",
+      "title": "wiwynn-st7000g2 vendor datasheet"
+    },
+    {
+      "url": "https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ec07a827785533ca84e5_Hercules_RGB_Rev1_050126.pdf",
+      "sha256": "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03",
+      "title": "hyve-hercules-2026 vendor datasheet"
+    },
+    {
+      "url": "https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ecbeb6ef0bc0d959c6ca_JBOF_RGB_Rev1_050126.pdf",
+      "sha256": "77b9c9b5bfc75dbf90749bbf9dccbb8a910356676fea938077efb35297eade02",
+      "title": "hyve-jbof-2026 vendor datasheet"
+    },
+    {
+      "url": "https://artofserver.com/downloads/QCT.io/D51B-2U/D51B-2U_DS_v03062017.pdf",
+      "sha256": "68418af147f05d4afa468a5fce8a5fad1026168fa90f37b9277b6b8e559ecf7e",
+      "title": "QCT QuantaGrid D51B-2U vendor-authored datasheet from public mirror"
+    },
+    {
+      "url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+      "title": "Ingrasys server catalog recovered pages (explicit EOF reconstruction)"
+    },
+    {
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/65/Inventec_Golduck_EN_PB_v3_2020?note=",
+      "sha256": "0488cdc161f08d86f3207b315fd087896c2f84871a2bf7b105f2a79edbc828dd",
+      "title": "Inventec Golduck product brief v3 2020"
+    },
+    {
+      "url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+      "sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+      "title": "Inventec FPGA SmartNIC C5020X Chinese product brief 2021"
+    },
+    {
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/83/Inventec%20FPGA%20IPU%20C5020X%20_EN_P?note=",
+      "sha256": "e5122c1eb92c7ccb2971ed2e3d51873195350c18ab4a0ae8739b51c6a8414311",
+      "title": "Inventec FPGA IPU C5020X English product brief 2021"
+    },
+    {
+      "url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+      "sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a",
+      "title": "QCT Product Portfolio v14 2023 January0331"
+    },
+    {
+      "url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1100-12-054xa.pdf",
+      "sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "title": "bel-pfe1100-series — complete captured PSU document"
+    },
+    {
+      "url": "https://www.belfuse.com/media/datasheets/products/power-supplies/ds-bps-pfe1500-series.pdf",
+      "sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "title": "bel-pfe1500-series — complete captured PSU document"
+    },
+    {
+      "url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-EN-62368-1-3rd-nemko-cert-456320.pdf",
+      "sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "title": "bel-pfe1500-nemko — complete captured PSU document"
+    },
+    {
+      "url": "https://www.belfuse.com/media/safety-certificates/products/power-supplies/cert-BPS-PFE1500-AC-Series-CSA-62368-1-3rd-COFC_80111077_EN.pdf",
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "title": "bel-pfe1500-csa — complete captured PSU document"
+    },
+    {
+      "url": "https://www.fsp-group.com/download/pro/FSP550-29FM_Datasheet.pdf",
+      "sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "title": "fsp550-29fm — complete captured PSU document"
+    },
+    {
+      "url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SD6200.pdf",
+      "sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "title": "wave3-2026-10-12-sd6200-datasheet — complete captured vendor document"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/Wedge-100-32X-R04.pdf",
+      "sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "title": "wave3-2026-10-12-wedge100-32x-r04 — complete captured vendor document"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2023/08/AS8000-Quick-Start-Guide-R02.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "title": "wave4-2026-10-12-as8000-r02-qsg — complete captured vendor document"
+    },
+    {
+      "url": "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SC6100.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "title": "wave4-2026-10-12-sc6100-datasheet — complete captured vendor document"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/AS6700-32X-Quick-Start-Guide.pdf",
+      "sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "title": "wave5-2026-10-12-as6700-quick-start — complete captured vendor document"
+    },
+    {
+      "url": "https://www.edge-core.com/wp-content/uploads/2024/01/AS5710_AS5712-54X-DS-R09-1.pdf",
+      "sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "title": "wave5-2026-10-12-as5710-as5712-ds-r09 — complete captured vendor document"
+    }
+  ]
+}

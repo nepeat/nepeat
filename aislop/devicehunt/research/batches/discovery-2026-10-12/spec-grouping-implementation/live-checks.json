@@ -1,0 +1,53 @@
+{
+  "observed_utc": "2026-10-13T05:22:15.933625+00:00",
+  "database": "/home/erin/nepeat/aislop/devicehunt/data/devices.sqlite",
+  "sha256_before": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "sha256_after": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "module_paths": {
+    "devicehunt": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation/overlay/devicehunt/__init__.py",
+    "devicehunt.specifications": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation/overlay/devicehunt/specifications.py",
+    "devicehunt.__main__": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/spec-grouping-implementation/overlay/devicehunt/__main__.py"
+  },
+  "cases": [
+    {
+      "query": "NF5280M7",
+      "exact_model": true,
+      "flat_rows": 11,
+      "groups": 7,
+      "evidence_rows": 11,
+      "default_parity": true,
+      "complete_raw_multiset_equal": true,
+      "limit1_complete": true
+    },
+    {
+      "query": "NF5280",
+      "exact_model": false,
+      "flat_rows": 207,
+      "groups": 79,
+      "evidence_rows": 207,
+      "default_parity": true,
+      "complete_raw_multiset_equal": true,
+      "limit1_complete": true
+    },
+    {
+      "query": "AS7326-56X",
+      "exact_model": true,
+      "flat_rows": 14,
+      "groups": 14,
+      "evidence_rows": 14,
+      "default_parity": true,
+      "complete_raw_multiset_equal": true,
+      "limit1_complete": true
+    },
+    {
+      "query": "Sun ZFS Storage 7420",
+      "exact_model": true,
+      "flat_rows": 9,
+      "groups": 9,
+      "evidence_rows": 9,
+      "default_parity": true,
+      "complete_raw_multiset_equal": true,
+      "limit1_complete": true
+    }
+  ]
+}

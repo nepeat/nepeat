@@ -1,0 +1,850 @@
+{
+  "status": "PASS independent actual-stage checks; rebuild and final acceptance pending",
+  "checked_utc": "2026-10-15T05:39:04.990624+00:00",
+  "hashes": {
+    "data/devices.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/import-manifest.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562",
+    "data/devices-candidate-wave5-2026-10-12.sqlite": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+    "data/import-manifest-candidate-wave5-2026-10-12.json": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b",
+    "research/batches/discovery-2026-10-12/integration-wave5/stage-report.json": "8e4978f551179b7187bb1b33fcd60729b2702847eafaf960354b88537ee97d59",
+    "research/batches/discovery-2026-10-12/integration-wave5/stage.py": "ec9ebc10d4f7bebab2875467ff7fdc70ce9fbb94ca02d3f56c6f09734007418e",
+    "research/batches/discovery-2026-10-12/integration-wave5/promote.py": "5e86dfc397af3cd988160721217d80f70ff3d1864093f07179f0d6207ed17a56",
+    "research/batches/discovery-2026-10-12/integration-wave5/refresh_exports.py": "d02d7884631fc2b4b19329dcef67b06e191a1482daeb1c84555f986016269078",
+    "research/batches/discovery-2026-10-12/integration-wave5/check_queries.py": "fe06eea7cb7295970ce35be24c842b7064369f1843172c64cfeccd0172bcb2a8",
+    "research/batches/discovery-2026-10-12/integration-wave5/check_inventory.py": "933086d5d9991ea96d1b83bd6bf88a6c6290745a4ea39e3e38c427d4015dd7bc",
+    "research/batches/discovery-2026-10-12/integration-wave5/code-under-test.json": "77da1729417e4e94ad9c5f856228f76e24e4ce284dffbee274d397d3637b8bb1",
+    "research/batches/discovery-2026-10-12/review/original-vendor-wave5-facts-review.md": "b92a9e6d11600ec962f8d9c81f48c6441729824cd71ebe5a3d16e0ea34d81ac0",
+    "research/batches/discovery-2026-10-12/review/qct-compatibility-facts-review.md": "32752842d07b3b25325b92132fef23b6e3a28e5865174aa53030d5f211d3170c",
+    "research/batches/discovery-2026-10-12/review/wave5-stage-helper-review.md": "a6968ffe57f4b32a7509f6c76ebc668dd5c484812c39ce4c8c93899a56aaf002"
+  },
+  "code_files_verified": 209,
+  "manifest_jobs": 152,
+  "manifest_pins": 3984,
+  "new_pins": [
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/candidate.json",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as5710-as5712-ds-r09.pdf",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as5712-pages.json",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as6700-pages.json",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/as6700-quick-start.pdf",
+    "raw/original-vendor-wave5-facts-wave5-2026-10-12/snapshots/oracle7420-specifications.html",
+    "raw/qct-compatibility-facts-wave5-2026-10-12/candidate.json",
+    "raw/qct-compatibility-facts-wave5-2026-10-12/snapshots/parent-product.html",
+    "raw/qct-compatibility-facts-wave5-2026-10-12/snapshots/qct-d52bq-ccl.html",
+    "raw/reference-documents-with-wave5-2026-10-12.json",
+    "raw/wave5-2026-10-12-as5710-as5712-ds-r09.pdf",
+    "raw/wave5-2026-10-12-as5712-pages.json",
+    "raw/wave5-2026-10-12-as6700-pages.json",
+    "raw/wave5-2026-10-12-as6700-quick-start.pdf"
+  ],
+  "complete_bundle_entries": 61,
+  "complete_bundle_pages": 3730,
+  "counts": {
+    "devices": 5157,
+    "records": 7302,
+    "facts": 74837,
+    "sources": 2121,
+    "documents": 72,
+    "document_pages": 3804
+  },
+  "preservation": {
+    "sources": {
+      "old_rows": 2115,
+      "missing_rows": 0
+    },
+    "devices": {
+      "old_rows": 5122,
+      "missing_rows": 0
+    },
+    "records": {
+      "old_rows": 7261,
+      "missing_rows": 0
+    },
+    "affiliations": {
+      "old_rows": 10599,
+      "missing_rows": 0
+    },
+    "identifiers": {
+      "old_rows": 6856,
+      "missing_rows": 0
+    },
+    "facts": {
+      "old_rows": 74602,
+      "missing_rows": 0
+    },
+    "hyperscaler_evidence": {
+      "old_rows": 22,
+      "missing_rows": 0
+    },
+    "fcc_applications": {
+      "old_rows": 2,
+      "missing_rows": 0
+    },
+    "fcc_exhibits": {
+      "old_rows": 32,
+      "missing_rows": 0
+    },
+    "fcc_grantees": {
+      "old_rows": 50153,
+      "missing_rows": 0
+    },
+    "equipment_register": {
+      "old_rows": 26258,
+      "missing_rows": 0
+    },
+    "ntra_equipment": {
+      "old_rows": 76510,
+      "missing_rows": 0
+    },
+    "bsmi_certificates": {
+      "old_rows": 105732,
+      "missing_rows": 0
+    },
+    "bsmi_product_certificates": {
+      "old_rows": 17797,
+      "missing_rows": 0
+    },
+    "bsmi_voluntary_certificates": {
+      "old_rows": 1818,
+      "missing_rows": 0
+    },
+    "bsmi_declarations": {
+      "old_rows": 564,
+      "missing_rows": 0
+    },
+    "ncc_equipment": {
+      "old_rows": 110957,
+      "missing_rows": 0
+    },
+    "tec_equipment": {
+      "old_rows": 2331,
+      "missing_rows": 0
+    },
+    "ieee_assignments": {
+      "old_rows": 58639,
+      "missing_rows": 0
+    },
+    "pci_entries": {
+      "old_rows": 42438,
+      "missing_rows": 0
+    },
+    "fcc_id_index": {
+      "old_rows": 344,
+      "missing_rows": 0
+    },
+    "fcc_detail_pages": {
+      "old_rows": 174,
+      "missing_rows": 0
+    },
+    "fcc_detail_links": {
+      "old_rows": 1493,
+      "missing_rows": 0
+    },
+    "fcc_text_excerpts": {
+      "old_rows": 1092,
+      "missing_rows": 0
+    },
+    "documents": {
+      "old_rows": 70,
+      "missing_rows": 0
+    },
+    "document_pages": {
+      "old_rows": 3798,
+      "missing_rows": 0
+    },
+    "bahrain_equipment": {
+      "old_rows": 10169,
+      "missing_rows": 0
+    },
+    "anatel_equipment": {
+      "old_rows": 190852,
+      "missing_rows": 0
+    },
+    "rra_equipment": {
+      "old_rows": 1081,
+      "missing_rows": 0
+    },
+    "energystar_servers": {
+      "old_rows": 495,
+      "missing_rows": 0
+    },
+    "energystar_server_archives": {
+      "old_rows": 873,
+      "missing_rows": 0
+    },
+    "energystar_datacenter": {
+      "old_rows": 452,
+      "missing_rows": 0
+    },
+    "ised_equipment": {
+      "old_rows": 628,
+      "missing_rows": 0
+    },
+    "nigeria_equipment": {
+      "old_rows": 8517,
+      "missing_rows": 0
+    },
+    "ghana_equipment": {
+      "old_rows": 1153,
+      "missing_rows": 0
+    },
+    "public_equipment_rows": {
+      "old_rows": 4985,
+      "missing_rows": 0
+    },
+    "japan_equipment": {
+      "old_rows": 346,
+      "missing_rows": 0
+    },
+    "fcc_company_rows": {
+      "old_rows": 237,
+      "missing_rows": 0
+    },
+    "fcc_sitemap_pages": {
+      "old_rows": 48,
+      "missing_rows": 0
+    },
+    "fcc_sitemap_urls": {
+      "old_rows": 231962,
+      "missing_rows": 0
+    },
+    "inspur_support_entries": {
+      "old_rows": 1064,
+      "missing_rows": 0
+    },
+    "archive_releases": {
+      "old_rows": 1,
+      "missing_rows": 0
+    },
+    "archive_artifacts": {
+      "old_rows": 146,
+      "missing_rows": 0
+    },
+    "archive_release_artifacts": {
+      "old_rows": 148,
+      "missing_rows": 0
+    },
+    "archive_receipts": {
+      "old_rows": 374,
+      "missing_rows": 0
+    },
+    "archive_release_receipts": {
+      "old_rows": 374,
+      "missing_rows": 0
+    },
+    "evidence_statements": {
+      "old_rows": 4,
+      "missing_rows": 0
+    },
+    "evidence_reviews": {
+      "old_rows": 4,
+      "missing_rows": 0
+    },
+    "evidence_links": {
+      "old_rows": 4,
+      "missing_rows": 0
+    },
+    "archive_release_statements": {
+      "old_rows": 4,
+      "missing_rows": 0
+    }
+  },
+  "source_hash_changes": [
+    {
+      "id": "reference-pdf-accton-b4010-compliance",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-cubscout",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-ethernet-eu",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-ethernet-us",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-ex-sensor",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-sensor",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-wifi-eu",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-wifi-us",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-panorama",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-scout",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-snow-family-2022",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-snowcone-it",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-thin-client-eu",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-aws-thin-client-safety",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-celestica-2025",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-celestica-ds4000-guide",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-celestica-sc6100-datasheet-practical-facts-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-celestica-sd6200-datasheet-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-cisco-ncs-certificates",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-edgecore-as8000-r02-practical-facts-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-edgecore-wedge100-32x-r04-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-hyve-hercules-2026",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-hyve-jbof-2026",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-icasa-2025",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-ingrasys-es2000-es2100",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-ingrasys-servers-reconstructed-2026-10-04",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inspur-i24-whitepaper",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inspur-incloud-rail-compatibility",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inspur-nf5280m5-whitepaper",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inspur-products-2018",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inventec-artemis-ii-rack",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inventec-e850g4-brief",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inventec-fpga-ipu-c5020x-en-brief-2021",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inventec-fpga-smartnic-c5020x-cn-brief-2021",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inventec-golduck-product-brief-v3-2020",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-inventec-x680m",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-kenya-2026-08",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-meta-minipack2-spec",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-ntra-2022-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-ntra-2026-01",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-odm-hyve-jade-2026",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-odm-wiwynn-sv7100g4",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-oracle-x10m-ecodesign",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-oracle-x11m-ecodesign",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-oracle-x9-2-ecodesign",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-oracle-x9-2l-ecodesign",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-psu-bel-pfe1100-series-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-psu-bel-pfe1500-csa-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-psu-bel-pfe1500-nemko-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-psu-bel-pfe1500-series-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-psu-fsp550-29fm-2026-10-12",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-qct-d51b-datasheet-mirror-2017",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-qct-product-portfolio-v14-2023",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-qct-qxvdi-2020",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-qct-wssd",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-quanta-affiliates-2025",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-wiwynn-st7000g2",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-wiwynn-sv7100g2",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    },
+    {
+      "id": "reference-pdf-wiwynn-sv7220g3",
+      "old_sha256": "081238122ef0a59e1a76b6ea3a9c046946920d7fd31c9a7413689ea33e221106",
+      "new_sha256": "96f7464fa95fff8481214ca958b7a507875d4b5c4dfca51978c9c3778cec19ea"
+    }
+  ],
+  "imported_records": [
+    {
+      "source": "oracle-sun-zfs-storage-7420-specifications-2026-10-12",
+      "key": "Sun ZFS Storage 7420",
+      "device_id": "c15cbf498b7bd8b8da21",
+      "model": "Sun ZFS Storage 7420",
+      "facts": 10
+    },
+    {
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "key": "AS6700-32X",
+      "device_id": "df4d521920cd17049b73",
+      "model": "AS6700-32X",
+      "facts": 18
+    },
+    {
+      "source": "edgecore-as6700-as6701-qsg-2026-10-12",
+      "key": "AS6701-32X",
+      "device_id": "8c2dd1e5f3d650f6683b",
+      "model": "AS6701-32X",
+      "facts": 18
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "AS5710-54X",
+      "device_id": "9e56d1f1423b9d6ef6ad",
+      "model": "AS5710-54X",
+      "facts": 7
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "AS5712-54X",
+      "device_id": "30f1e4348b216588a7fd",
+      "model": "AS5712-54X",
+      "facts": 8
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-US",
+      "device_id": "7e4e381e353f3b078281",
+      "model": "5710-54X-O-AC-F-US",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-US",
+      "device_id": "3719baf0b00d80f95ff8",
+      "model": "5710-54X-O-AC-B-US",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-EU",
+      "device_id": "c27ab904eaebe9f4248d",
+      "model": "5710-54X-O-AC-F-EU",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-EU",
+      "device_id": "6bf2a677bd5dd6a4ce2a",
+      "model": "5710-54X-O-AC-B-EU",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-UK",
+      "device_id": "9ad330c98a8e9fdd28c7",
+      "model": "5710-54X-O-AC-F-UK",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-UK",
+      "device_id": "9464249ce43575ce3e42",
+      "model": "5710-54X-O-AC-B-UK",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-F-JP",
+      "device_id": "21873472c81c944c9df6",
+      "model": "5710-54X-O-AC-F-JP",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-AC-B-JP",
+      "device_id": "48993c8fc9c6694189fa",
+      "model": "5710-54X-O-AC-B-JP",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-48V-F",
+      "device_id": "2cd6dfb48a023a6d14a9",
+      "model": "5710-54X-O-48V-F",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-48V-B",
+      "device_id": "ab688960f3232380c462",
+      "model": "5710-54X-O-48V-B",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-12V-F",
+      "device_id": "231eeff85744d934cea2",
+      "model": "5710-54X-O-12V-F",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5710-54X-O-12V-B",
+      "device_id": "88cdce10c67d8f0ef007",
+      "model": "5710-54X-O-12V-B",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-US",
+      "device_id": "b7dba8f887630041a2c6",
+      "model": "5712-54X-O-AC-F-US",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-US",
+      "device_id": "fde6987d5b9630355f08",
+      "model": "5712-54X-O-AC-B-US",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-EU",
+      "device_id": "56b963686796ffac603f",
+      "model": "5712-54X-O-AC-F-EU",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-EU",
+      "device_id": "6a0dba56630450957fb1",
+      "model": "5712-54X-O-AC-B-EU",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-UK",
+      "device_id": "04f5c56b5c1985351f26",
+      "model": "5712-54X-O-AC-F-UK",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-UK",
+      "device_id": "5a3591cccf733c88ef7f",
+      "model": "5712-54X-O-AC-B-UK",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-F-JP",
+      "device_id": "ea8f3e365695318cf670",
+      "model": "5712-54X-O-AC-F-JP",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-AC-B-JP",
+      "device_id": "08a0f559dc5af3e24b40",
+      "model": "5712-54X-O-AC-B-JP",
+      "facts": 6
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-48V-F",
+      "device_id": "496dc3a3706786d912ed",
+      "model": "5712-54X-O-48V-F",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-48V-B",
+      "device_id": "44f0ca58ded282045866",
+      "model": "5712-54X-O-48V-B",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-12V-F",
+      "device_id": "cdaeda4be70e17346dcf",
+      "model": "5712-54X-O-12V-F",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "5712-54X-O-12V-B",
+      "device_id": "87c547be91cf18eb20a8",
+      "model": "5712-54X-O-12V-B",
+      "facts": 5
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-AC-400-F",
+      "device_id": "23ccc708658cefb19a26",
+      "model": "PSU-AC-400-F",
+      "facts": 4
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-AC-400-B",
+      "device_id": "d2eca82cfef35e5059fe",
+      "model": "PSU-AC-400-B",
+      "facts": 4
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-48V-400-F",
+      "device_id": "b847c4d7a4d0b2e2eeb5",
+      "model": "PSU-48V-400-F",
+      "facts": 4
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-48V-400-B",
+      "device_id": "a90e1deddd809c7b46ea",
+      "model": "PSU-48V-400-B",
+      "facts": 4
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "PSU-12V-400-1",
+      "device_id": "2b2c44570c92d2d16e24",
+      "model": "PSU-12V-400-1",
+      "facts": 2
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "RKIT-85-6712",
+      "device_id": "93c480209b98b842ebda",
+      "model": "RKIT-85-6712",
+      "facts": 2
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "ORSA-1U",
+      "device_id": "c5707720e0049ec8e51e",
+      "model": "ORSA-1U",
+      "facts": 2
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-US",
+      "device_id": "1ebd1cd2598ddadad6e3",
+      "model": "CBL-PWR-US",
+      "facts": 2
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-EU",
+      "device_id": "390f623967c4fee0b646",
+      "model": "CBL-PWR-EU",
+      "facts": 2
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-UK",
+      "device_id": "867b79979cf04ffa2a3f",
+      "model": "CBL-PWR-UK",
+      "facts": 2
+    },
+    {
+      "source": "edgecore-as5710-as5712-ds-r09-2026-10-12",
+      "key": "CBL-PWR-JP",
+      "device_id": "d143721d230bae19b22a",
+      "model": "CBL-PWR-JP",
+      "facts": 2
+    },
+    {
+      "source": "qct-d52bq-2u-psu-ccl-2026-10-12",
+      "key": "QuantaGrid D52BQ-2U:PSU-CCL",
+      "device_id": "f65a474568c484317fc5",
+      "model": "QuantaGrid D52BQ-2U",
+      "facts": 8
+    }
+  ],
+  "roles": {
+    "documentation_vendor": 41
+  },
+  "integrity": "ok",
+  "foreign_key_violations": 0,
+  "owned_baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "campaign_gates": "inputs and projections pass",
+  "unchanged_read_only_inputs": true,
+  "limits": "No network, imports, shared writes, rebuild, query/inventory helper execution, promotion or export execution."
+}

@@ -1,0 +1,89 @@
+16
+                                                                                                                PFE1100-12-054xA
+                                                tof   tLOW            tHIGH                  tLOW                                    tr
+
+                SCL
+
+                           tSUSTA      tHDSTA                                       tHDDAT tSUDAT                                         tSUSTO    tBUF
+
+
+                SDA
+
+                                                               Figure 34. I2C / SMBus Timing
+
+
+
+     8.13       ADDRESS / PROTOCOL SELECTION (APS)
+       The APS pin provides the possibility to select the communication protocol and address by connecting a resistor to V1 return
+       (0 V). A fixed addressing offset exists between the Controller and the EEPROM.
+
+       NOTES:
+       If the APS pin is left open, the supply will operate with the PSMI protocol at controller / EEPROM addresses 0xB6/0xA6.
+       The ASP pin is only read at start-up of the power supply. Therefore, it is not possible to change the communication protocol
+       and address dynamically.
+
+                                                             I2C Address 2)
+                RAPS (Ω) 1)          Protocol                                                                                         3.3V
+                                                      Controller           EEPROM
+                   820                                  0xB0                 0xA0
+                                      Power
+                   2700                                 0xB2                 0xA2                                                             12k
+                                    Management
+                   5600                                 0xB4                 0xA4                                                                     APS
+                                       Bus
+                   8200
+                  15000
+                                                        0xB6
+                                                        0xB0
+                                                                             0xA6
+                                                                             0xA0
+                                                                                                                          ADC
+                  27000                                 0xB2                 0xA2                                                                           RAPS
+                                      PSMI
+                  56000                                 0xB4                 0xA4
+                  180000                                0xB6                 0xA6
+        1)
+             E12 resistor values, use max 5% resistors, see also Figure 35.
+        2) The LSB of the address byte is the R/W bit.
+
+                                                                                                                     Figure 35. I2C address and protocol setting
+                       Table 6. Address and protocol encoding
+
+
+     8.14       CONTROLLER AND EEPROM ACCESS
+       The controller and the EEPROM in the power supply share the same I2C bus physical layer (see Figure 36). An I2C driver
+       device assures logic level shifting (3.3/5 V) and a glitch-free clock stretching. The driver also pulls the SDA/SCL line to nearly
+       0 V when driven low by the DSP or the EEPROM providing maximum flexibility when additional external bus repeaters are
+       needed. Such repeaters usually encode the low state with different voltage levels depending on the transmission direction.
+       The DSP will automatically set the I2C address of the EEPROM with the necessary offset when its own address is changed /
+       set. In order to write to the EEPROM, first the write protection needs to be disabled by sending the appropriate command to
+       the DSP. By default the write protection is on.
+       The EEPROM provides 256 bytes of user memory. None of the bytes are used for the operation of the power supply.
+
+                                                                APS                   Address & Protocol Selection
+
+
+
+                                                                                                SDAi
+
+                                                                                    Driver
+                                                        SDA
+                                                                                                SCLi          DSP
+                                                         SCL
+
+
+                                                                                                       WP
+                                                                                             EEPROM
+                                                                       Protection
+                                                                                                       Addr
+
+
+
+
+                                                       Figure 36. I2C Bus to DSP and EEPROM
+
+
+
+
+                                                                                                                                 tech.support@psbel.com
+

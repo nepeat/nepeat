@@ -1,0 +1,78 @@
+{
+  "owner": "/root/practical_sources",
+  "created_at_utc": "2026-10-15T05:48:30.517108+00:00",
+  "status": "authorized finite bulk discovery; no imports",
+  "dataset_cap": 4,
+  "search_queries_used": 6,
+  "search_query_cap": 8,
+  "HTTP_cap_including_policies_redirects": 12,
+  "resource_routes": [
+    {
+      "key": "nvidia-certified",
+      "dataset": "nvidia-certified-systems",
+      "url": "https://docs.nvidia.com/certification-programs/latest/nvidia-certified-systems.html",
+      "output": "nvidia-certified.html",
+      "basis": "web search first-party result; List of NVIDIA-Certified Systems; search query2 of6"
+    },
+    {
+      "key": "nvidia-ngc",
+      "dataset": "nvidia-ngc-ready",
+      "url": "https://docs.nvidia.com/certification-programs/pdf/ngc-ready-systems.pdf",
+      "output": "nvidia-ngc-ready.pdf",
+      "basis": "web search first-party result; historical NGC-Ready Systems bulk PDF; search query2 of6"
+    },
+    {
+      "key": "amd-instinct",
+      "dataset": "amd-instinct-qualified-servers",
+      "url": "https://www.amd.com/content/dam/amd/en/documents/products/accelerators/instinct/amd-instinct-solution-catalog.pdf",
+      "output": "amd-instinct-catalog.pdf",
+      "basis": "web search first-party result; AMD Instinct GPU-Powered Servers solution catalog; query1 of6"
+    },
+    {
+      "key": "mitac-general",
+      "dataset": "mitac-product-indexes",
+      "url": "https://www.mitaccomputing.com/products/general-purpose-servers",
+      "output": "mitac-general.html",
+      "basis": "web search first-party category result; query5 of6"
+    },
+    {
+      "key": "mitac-ai",
+      "dataset": "mitac-product-indexes",
+      "url": "https://www.mitaccomputing.com/products/ai-servers",
+      "output": "mitac-ai.html",
+      "basis": "web search first-party category result; query5 of6"
+    },
+    {
+      "key": "mitac-multi",
+      "dataset": "mitac-product-indexes",
+      "url": "https://www.mitaccomputing.com/products/multi-node-servers",
+      "output": "mitac-multi.html",
+      "basis": "web search first-party category result; query5 of6"
+    }
+  ],
+  "planned_policies": [
+    "https://docs.nvidia.com/robots.txt",
+    "https://www.amd.com/robots.txt",
+    "https://www.mitaccomputing.com/robots.txt"
+  ],
+  "expected_base_exchanges": 9,
+  "redirect_budget": 3,
+  "boundaries": [
+    "no per-device datasheet/support deep dives",
+    "no remote figures/assets/API/forms/search after source set selected",
+    "one literal same-origin redirect per resource at most, constrained by cap; no route/copy retry on denial",
+    "fresh policies; source-host stop on robots failure/denial,402/403/login,one404/timeout; whole-run stop429",
+    "raw partner/model strings and links are discovery only; no role/identity/fitment/alias/entitlement inference",
+    "production code/catalog/manifest/export read-only"
+  ],
+  "exclusions": [
+    {
+      "dataset": "OCP product index",
+      "reason": "research/ocp-product-evidence.md explicitly records direct index HTTP403; no retry or alternate route attempted"
+    },
+    {
+      "dataset": "previous hardware/platform datasets",
+      "reason": "ONIE/ONL/SONiC/PDDF/Stratum/DENT/OpenBMC/entity-manager/MetaOpenBMC/coreboot/LinuxDMI/NetBox/SPEC/Ubuntu/RedHat/EnergyStar already reviewed; not reacquired"
+    }
+  ]
+}

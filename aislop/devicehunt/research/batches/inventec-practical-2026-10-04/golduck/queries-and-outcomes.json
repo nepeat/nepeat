@@ -1,0 +1,22 @@
+{
+  "queries": [
+    {
+      "query": "Inventec Golduck server specifications",
+      "tool": "web search_query",
+      "outcome": "Original primary product brief and original release article surfaced; only product brief captured. Secondary flipbuilder mirror and unrelated models excluded."
+    }
+  ],
+  "saved_review": [
+    "data/raw/storage-inspur-2026-10-04/inventec-download-index.html",
+    "data/raw/inspur-rail-2026-10-04/inventec-download-page-2.html",
+    "data/raw/inspur-rail-2026-10-04/inventec-download-page-3.html",
+    "data/raw/inventec-dongguan-2020-2026-10-04.html"
+  ],
+  "outcome": "Saved indexes reviewed had no Golduck match. Manufacturer article names Horsea/Golduck together as AMD EPYC 7002 2U&1U, so shared form factor is not assigned to Golduck alone. New exact brief resolves 1U.",
+  "search_only_exclusions": [
+    "https://ebg.inventec.com/en/news/Press%20Release/2020/35: search text says up to 4.0 TB per processor; not captured or imported, do not mix with brief total 4TB",
+    "secondary flipbuilder catalog mirror not captured",
+    "Other Inventec platform names/specifications not Golduck aliases"
+  ],
+  "remaining_budget": "2 queries unspent; own capture budget exhausted; stop"
+}

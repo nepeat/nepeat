@@ -1,0 +1,78 @@
+PFE1100-12-054xA                                                                                                                             21
+
+
+
+
+   10.1        IMMUNITY
+
+        NOTE: Most of the immunity requirements are derived from EN 55024: 2010 + A1:2015.
+
+  PARAMETER                           DESCRIPTION / CONDITION                                                                CRITERION
+                                      IEC / EN 61000-4-2, ±8 kV, 25+25 discharges per test point
+  ESD Contact Discharge                                                                                                              B
+                                      (metallic case, LEDs, connector body)
+                                      IEC / EN 61000-4-2, ±15 kV, 25+25 discharges per test point
+  ESD Air Discharge                                                                                                                  B
+                                      (non-metallic user accessible surfaces)
+                                      IEC / EN 61000-4-3, 10 V/m, 1 kHz/80% Amplitude Modulation,
+  Radiated Electromagnetic Field                                                                                                     A
+                                      1 µs Pulse Modulation, 10 kHz…2 GHz
+                                      IEC / EN 61000-4-4, level 3
+  Burst                               AC port ±2 kV, 1 minute                                                                        B
+                                      DC port ±1 kV, 1 minute
+                                      IEC / EN 61000-4-5
+  Surge                               Line to earth: level 3, ±2 kV                                                           VSB: A; V1: B1
+                                      Line to line: level 2, ±1 kV                                                                  A
+  RF Conducted Immunity                IEC/EN 61000-4-6, Level 3, 10 Vrms, CW, 0.1 … 80 MHz                                          A
+                                      IEC/EN 61000-4-11
+                                      1: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration 10 ms                                   A
+  Voltage Dips and Interruptions
+                                      2: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration 20 ms                             VSB: A; V1: B
+                                      3: Vi 230 V, 100% Load, Phase 0 °, Dip 100%, Duration >20 ms                             VSB, V1: B
+
+
+   10.2        EMISSION
+  PARAMETER                           DESCRIPTION / CONDITION                                                                 CRITERION
+                                      EN 55032 / CISPR 22: 0.15 … 30 MHz, QP and AVG,                                            Class A
+                                      single unit                                                                              6 dB margin
+  Conducted Emission
+                                      EN 55032 / CISPR 22: 0.15 … 30 MHz, QP and AVG,                                            Class A
+                                      2 units in rack system                                                                   6 dB margin
+                                      EN 55032 / CISPR 22: 30 MHz … 1 GHz, QP,                                                   Class A
+                                      single unit                                                                              6 dB margin
+  Radiated Emission
+                                      EN 55032 / CISPR 22: 30 MHz … 1 GHz, QP,                                                   Class A
+                                      2 units in rack system                                                                   6 dB margin
+  Harmonic Emissions                  IEC 61000-3-2, Vin = 115 VAC / 60 Hz, & Vin = 230VAC/ 50 Hz, 100% Load                       Class A
+  Acoustical Noise                    46 dBA at 1 meter, 25°C, 50% Load                                                               -
+  AC Flicker                          IEC 61000-3-3, Vin = 230 VAC / 60 Hz, 100% Load                                               Pass
+
+
+
+
+          Maximum electric strength testing is performed in the factory according to EN/IEC 62368-1, and UL/CSA 62368-1.
+          Input-to-output electric strength tests should not be repeated in the field. Bel Power Solutions will not honor any warranty
+          claims resulting from electric strength field tests.
+
+  PARAMETER                           DESCRIPTION / CONDITION                                               MIN        NOM         MAX       UNIT
+                                      Approved to latest edition of the following standards:
+           Agency Approvals
+                                      UL/CSA 62368-1 and EN/IEC 62368-1
+                                      Input (L/N) to case (PE)                                                          Basic
+           Isolation Strength         Input (L/N) to output                                                           Reinforced
+                                      Output to case (PE)                                                             Functional
+                                      Primary (L/N) to protective earth (PE)
+   dC      Creepage / Clearance
+                                      Primary to secondary
+                                      Input to case                                                          2500                              VDC
+           Electrical Strength Test
+                                      Input to output (tested by manufacturer only)                          4000                              VDC
+
+
+
+
+                                                                        Asia-Pacific       Europe, Middle East               North America
+                                                                 +86 755 298 85888               +353 61 49 8941           +1 866 513 2839
+
+                                                                                               © 2023 Bel Fuse Inc.           BCD.00012_AP
+

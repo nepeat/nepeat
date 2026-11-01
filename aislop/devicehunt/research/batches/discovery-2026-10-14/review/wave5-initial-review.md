@@ -1,0 +1,9 @@
+# wave5 resumed staged-data/helper review
+
+reviewer `/root/wave5_review`, 2026-10-14. **actual staged-data review passes; no blocking finding. final integration acceptance remains pending the fresh rebuild/comparison.**
+
+the root-authorized pending-path [actual stage review](../../discovery-2026-10-12/review/wave5-stage-review.md) contains the complete evidence boundaries, current hashes, actual checks and helper assessment. it was newly created on resumption, preserving all historical artifacts. the [independent checker](wave5-stage-independent-check.py) and [actual results](wave5-stage-independent-check.json) record the repeatable read-only audit.
+
+all 1,060,700 old logical rows across 50 non-FTS tables survive with multiplicities; exactly 59 old full-bundle source hashes change as intended. all 41 new records/235 facts match their accepted raw JSON/roles/identifiers; documentation vendor is the only new role. all 3,984 pins verify, the 61-entry complete PDF bundle retains the original 59 entries exactly, and integrity/FK, owned 10/10, campaign gates and the 209-file production freeze pass. candidate DB SHA `0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853`, manifest SHA `86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b`.
+
+the frozen promotion/export helpers are suitable subject to final acceptance and root's sole-writer condition. their sequential pair replacement has journal/backups for interruption recovery; exports need actual completion/hash verification. root should include the inventory helper/result and this independent checker/result as extra final receipt proof hashes. no promotion or export was run or accepted. root's fresh rebuild is in progress; inspect actual comparison and independently accept integration before proceeding.

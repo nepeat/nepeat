@@ -1,0 +1,98 @@
+{
+  "sources": [
+    {
+      "id": "accton-b4010-compliance",
+      "url": "https://www.accton.com.cn/wp-content/uploads/B4010-2302C014-CER_FCCISED.pdf",
+      "tier": "certification_body",
+      "license": "BTL factual compliance statements; upstream rights retained",
+      "snapshot": "raw/bytedance-inspur-2026-10-04/accton-b4010-compliance.pdf",
+      "coverage": "Two original BTL statements hosted by Accton. Both name B4010, brand N/A, and Accton Technology Corporation as applicant. No manufacturer, FCC ID, ByteDance brand or deployment assertion. Report identifier is not an equipment authorization ID."
+    },
+    {
+      "id": "inspur-i24-whitepaper-2020",
+      "url": "https://www.inspur.com/eportal/fileDir/defaultCurSite/resource/cms/2020/08/2020081316525840458.pdf",
+      "tier": "vendor",
+      "license": "Inspur factual product names; upstream rights retained",
+      "snapshot": "raw/bytedance-inspur-2026-10-04/inspur-i24-whitepaper.pdf",
+      "coverage": "Original public 34-page i24 technical white paper. Cover gives revision 3.0 and 2020-01 release date; product headers and company copyright footer support the Inspur / Inspur Electronic Information Industry Co., Ltd. platform-vendor association. No physical manufacturer, installed configuration, alias expansion or operator deployment inferred."
+    }
+  ],
+  "devices": [
+    {
+      "source": "accton-b4010-compliance",
+      "key": "B4010",
+      "brand": "N/A",
+      "model": "B4010",
+      "title": "B4010 Ethernet Switch — BTL compliance statements, brand N/A",
+      "kind": "switch",
+      "affiliations": [
+        [
+          "Accton Technology Corporation",
+          "applicant"
+        ],
+        [
+          "BTL INC.",
+          "certification_body"
+        ]
+      ],
+      "facts": [
+        [
+          "source_pages",
+          "1-2"
+        ],
+        [
+          "brand_as_printed",
+          "N/A"
+        ],
+        [
+          "report_number",
+          "BTL-FICE-1-2302C014"
+        ],
+        [
+          "fcc_standard",
+          "47 CFR Part 15 Subpart B; test statement, not FCC equipment authorization"
+        ],
+        [
+          "ised_standard",
+          "ICES-003 Issue 7:October 2020"
+        ],
+        [
+          "identity_limit",
+          "No ByteDance association in this document; cannot independently validate the ByteDance B4010 example."
+        ]
+      ]
+    },
+    {
+      "source": "inspur-i24-whitepaper-2020",
+      "key": "i24",
+      "brand": "Inspur",
+      "model": "i24",
+      "title": "Inspur Yingxin Server i24",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur Electronic Information Industry Co.,Ltd",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "document_revision",
+          "3.0"
+        ],
+        [
+          "document_release_date",
+          "2020-01"
+        ],
+        [
+          "identity_scope",
+          "i24 platform as printed on cover and page headers; no automatic M5/node-model alias."
+        ]
+      ]
+    }
+  ]
+}

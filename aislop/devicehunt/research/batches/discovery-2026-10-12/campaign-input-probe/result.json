@@ -1,0 +1,9 @@
+{
+  "scope": "Isolated temporary workspace using saved RRA explicit-zero unit; no network or live writes",
+  "unit": "rra-official-query-78fc6b2e95f6",
+  "mutation": "remove required form key from the saved bundle before fixture hashes are pinned",
+  "exception": {
+    "type": "KeyError",
+    "message": "'form'"
+  }
+}

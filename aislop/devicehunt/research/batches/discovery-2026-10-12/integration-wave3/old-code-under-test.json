@@ -1,0 +1,15 @@
+{
+  "hashes": {
+    "devicehunt/importers.py": "99e5051a5c09c0abee1606e2127bea88e7539ca65b704f503b44ccb7d3ba7d51",
+    "devicehunt/catalog.py": "2c5731c8a1fbac7f7c6f3d57284cb0ae3448cd26277c5e1446e83f054192c8ef"
+  },
+  "design_profile": {
+    "at_utc": "2026-10-13T04:11:25.772926+00:00",
+    "files": {
+      "devicehunt/importers.py": "99e5051a5c09c0abee1606e2127bea88e7539ca65b704f503b44ccb7d3ba7d51",
+      "devicehunt/catalog.py": "2c5731c8a1fbac7f7c6f3d57284cb0ae3448cd26277c5e1446e83f054192c8ef",
+      "devicehunt/pipeline.py": "85e91e3f78375ac2b749e0588279b59406a20b83d17c21c1219a40d3dc62ef28"
+    },
+    "scope": "read-only production code identity; design task edited none of these files"
+  }
+}

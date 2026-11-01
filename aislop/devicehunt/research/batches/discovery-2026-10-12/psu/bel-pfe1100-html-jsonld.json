@@ -1,0 +1,267 @@
+{
+  "source_file": "bel-pfe1100-series.html",
+  "source_sha256": "a2ef4636e4d3c062078621b281f2d3e668b4ed06c0cff13038270439012b4f27",
+  "extraction_method": "Python stdlib re + json, JSON-LD script blocks only",
+  "blocks": [
+    {
+      "@context": "https://schema.org/",
+      "@type": "ProductGroup",
+      "@id": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054xa-series#productgroup",
+      "name": "PFE1100-12-054xA Series",
+      "alternateName": "PFE1100 (AC-DC) Series | Bel",
+      "productGroupID": "pfe1100-12-054xa-series",
+      "description": "The PFE1100-12-054xA is a 1100 Watt AC to DC power-factorcorrected (PFC) power supply that converts standard AC mains power into a main output of 12 VDC for powering intermediate bus architectures (IBA) in high performance and reliability servers, routers, and network switches.",
+      "brand": {
+        "@type": "Brand",
+        "name": "Bel Fuse"
+      },
+      "url": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054xa-series",
+      "image": [
+        "https://www.belfuse.com/media/images/products/power-supplies/img-bps-pfe1100-series.jpg"
+      ],
+      "category": "Front End",
+      "hasVariant": [
+        {
+          "@type": "Product",
+          "@id": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054na#product",
+          "name": "PFE1100-12-054NA",
+          "sku": "PFE1100-12-054NA",
+          "mpn": "PFE1100-12-054NA",
+          "url": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054na",
+          "brand": {
+            "@type": "Brand",
+            "name": "Bel Fuse"
+          },
+          "isVariantOf": {
+            "@type": "ProductGroup",
+            "@id": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054xa-series#productgroup",
+            "name": "PFE1100-12-054xA Series",
+            "productGroupID": "pfe1100-12-054xa-series",
+            "url": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054xa-series"
+          },
+          "inProductGroupWithID": "pfe1100-12-054xa-series",
+          "image": [
+            "https://www.belfuse.com/media/images/products/power-supplies/img-bps-pfe1100-series.jpg"
+          ],
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "name": "Safety Approvals",
+              "value": "BIS, BSMI, CB, CCC, CE, CSA, EAC, Nemko"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Package",
+              "value": "Enclosed"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Cooling Type",
+              "value": "Fan"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Connector",
+              "value": "IEC 60320-C14 type"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Market",
+              "value": "Networking & Data Centers"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Options",
+              "value": "Normal Airflow"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "80 PLUS Rating",
+              "value": "Platinum"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Standby Output Voltage (VDC)",
+              "value": "Programmable 3.3/5"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Mounting Type",
+              "value": "Rack Mount"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "RoHS Compliant",
+              "value": "Yes"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Operating Temperature Range (\u00baC)",
+              "value": "0 ~ +45"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Number of Outputs",
+              "value": "1"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Output Voltage (VDC)",
+              "value": "12"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Dimensions L x W x H (in)",
+              "value": "12.65 x 2.14 x 1.57"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Output Current (A)",
+              "value": "90"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Input Voltage Range (VAC)",
+              "value": "90 ~ 264"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Dimensions L x W x H (mm)",
+              "value": "321.5 x 54.5 x 40"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Power (W)",
+              "value": "1100"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Safety Standards",
+              "value": "62368"
+            }
+          ]
+        },
+        {
+          "@type": "Product",
+          "@id": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054ra#product",
+          "name": "PFE1100-12-054RA",
+          "sku": "PFE1100-12-054RA",
+          "mpn": "PFE1100-12-054RA",
+          "url": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054ra",
+          "brand": {
+            "@type": "Brand",
+            "name": "Bel Fuse"
+          },
+          "isVariantOf": {
+            "@type": "ProductGroup",
+            "@id": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054xa-series#productgroup",
+            "name": "PFE1100-12-054xA Series",
+            "productGroupID": "pfe1100-12-054xa-series",
+            "url": "https://www.belfuse.com/products/power-supplies/ac-dc-converters/front-end/pfe1100-12-054xa-series"
+          },
+          "inProductGroupWithID": "pfe1100-12-054xa-series",
+          "image": [
+            "https://www.belfuse.com/media/images/products/power-supplies/img-bps-pfe1100-series.jpg"
+          ],
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "name": "Safety Approvals",
+              "value": "BIS, BSMI, CB, CCC, CE, CSA, EAC, Nemko"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Package",
+              "value": "Enclosed"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Cooling Type",
+              "value": "Fan"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Connector",
+              "value": "IEC 60320-C14 type"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Market",
+              "value": "Networking & Data Centers"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "80 PLUS Rating",
+              "value": "Platinum"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Standby Output Voltage (VDC)",
+              "value": "Programmable 3.3/5"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Mounting Type",
+              "value": "Rack Mount"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Options",
+              "value": "Reverse Airflow"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "RoHS Compliant",
+              "value": "Yes"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Operating Temperature Range (\u00baC)",
+              "value": "0 ~ +45"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Number of Outputs",
+              "value": "1"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Output Voltage (VDC)",
+              "value": "12"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Dimensions L x W x H (in)",
+              "value": "12.65 x 2.14 x 1.57"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Output Current (A)",
+              "value": "90"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Input Voltage Range (VAC)",
+              "value": "90 ~ 264"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Dimensions L x W x H (mm)",
+              "value": "321.5 x 54.5 x 40"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Power (W)",
+              "value": "1100"
+            },
+            {
+              "@type": "PropertyValue",
+              "name": "Safety Standards",
+              "value": "62368"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

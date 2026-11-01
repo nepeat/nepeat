@@ -1,0 +1,8 @@
+{
+  "result": "reference_documents.prepare passed",
+  "documents": 1,
+  "pages": 2,
+  "pdf_sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870",
+  "facts": 17,
+  "proofs": 12
+}

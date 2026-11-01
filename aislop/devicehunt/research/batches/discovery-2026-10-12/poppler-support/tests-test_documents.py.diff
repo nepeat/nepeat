@@ -1,0 +1,39 @@
+--- before/tests/test_documents.py
++++ tests/test_documents.py
+@@ -9,6 +9,7 @@
+ from devicehunt import documents, lookup
+ from devicehunt.__main__ import main
+ from devicehunt.catalog import Catalog, digest
++from tests.test_pdf_extraction import poppler_capture
+ 
+ 
+ class DocumentTests(unittest.TestCase):
+@@ -74,6 +75,28 @@
+         data['index']['path'] = '../escape.html'; path.write_text(json.dumps(data))
+         with self.assertRaises(ValueError): documents.import_bundle(self.c, path)
+ 
++    def test_poppler_method_comes_from_sidecar_and_invalid_refresh_preserves_snapshot(self):
++        path = self.bundle()
++        data = json.loads(path.read_text())
++        entry = data['documents']['4843964']
++        side = self.root / 'pages.json'
++        capture = poppler_capture(entry['pdf']['sha256'])
++        side.write_text(json.dumps(capture))
++        entry['text']['sha256'] = digest(side.read_bytes())
++        entry['extraction_method'] = 'manifest method must not be trusted'
++        path.write_text(json.dumps(data))
++        documents.import_bundle(self.c, path)
++        self.assertEqual(self.c.db.execute('SELECT extraction_method FROM documents').fetchone()[0],
++                         documents.POPPLER_METHOD)
++        before = [tuple(row) for row in self.c.db.execute('SELECT * FROM document_pages')]
++        capture['pdfinfo_version'] = '26.05.0'
++        side.write_text(json.dumps(capture))
++        entry['text']['sha256'] = digest(side.read_bytes())
++        path.write_text(json.dumps(data))
++        with self.assertRaisesRegex(ValueError, 'metadata'):
++            documents.import_bundle(self.c, path)
++        self.assertEqual(before, [tuple(row) for row in self.c.db.execute('SELECT * FROM document_pages')])
++
+     def test_source_association_page_order_and_complete_index_required(self):
+         path = self.bundle(); data = json.loads(path.read_text())
+         side = self.root / 'pages.json'; capture = json.loads(side.read_text())

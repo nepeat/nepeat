@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "collection": "public-device-references-v1",
+  "documents": [
+    {
+      "id": "qct-product-portfolio-v14-2023",
+      "pdf": {
+        "path": "qct-product-portfolio-v14-2023.pdf",
+        "sha256": "f6506bba15899678bac2b676a3599fb3fd81391d6b80b57ded12c78695d7910a"
+      },
+      "text": {
+        "path": "qct-product-portfolio-v14-2023.pages.json",
+        "sha256": "f9a7bc46e384ee84776dc02a441029fdc8395d5db0f5bfc58bf825510c1cb7ef"
+      },
+      "url": "https://go.qct.io/wp-content/uploads/2023/04/QCT-Product-Portfolio_v14_2023_January0331.pdf",
+      "title": "QCT Product Portfolio v14 2023 January0331",
+      "category": "product portfolio",
+      "tier": "vendor",
+      "scope": "Complete 49-page vendor PDF archived; curated extraction restricted to exact T42S-2U table on PDF 43/printed 42. Not a complete bundle replacement.",
+      "page_count": 49
+    }
+  ]
+}

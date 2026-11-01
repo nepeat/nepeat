@@ -1,0 +1,276 @@
+{
+  "model": "E4-2C",
+  "exact_match": {
+    "id": "b5decfa477ec728d6252",
+    "brand": "Oracle",
+    "model": "Oracle Server E4-2C",
+    "revision": "",
+    "title": "Oracle Server E4-2C",
+    "kind": "server platform"
+  },
+  "scope": "saved captures only; no imports or network",
+  "records": [
+    {
+      "id": "86f9ea91a2a9ed89732d4962",
+      "device_id": "b5decfa477ec728d6252",
+      "source_id": "nist-4506",
+      "source_key": "Oracle Server E4-2C",
+      "source_url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "cache_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/nist-4506.html",
+      "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+      "fetched_at": "2026-09-26T21:27:12.503039+00:00",
+      "facts_already_imported": [
+        {
+          "name": "cmvp_certificate",
+          "value": "4506"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership"
+        }
+      ],
+      "capture_verification": "hash matches source registry",
+      "captures": [
+        {
+          "path": "data/raw/nist-4506.html",
+          "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+          "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506"
+        }
+      ]
+    },
+    {
+      "id": "e9e52b0180cbdc94eb4012d6",
+      "device_id": "b5decfa477ec728d6252",
+      "source_id": "broadcom-servers",
+      "source_key": "53494",
+      "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+      "observed_at": "2026-10-04T11:26:13+00:00",
+      "cache_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/broadcom-servers-bundle.json",
+      "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+      "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+      "facts_already_imported": [
+        {
+          "name": "compatibility_cpu_series",
+          "value": "AMD EPYC 7003/7003X Series"
+        },
+        {
+          "name": "compatibility_cpu_series_max_cores_per_socket",
+          "value": "64"
+        },
+        {
+          "name": "compatibility_notes",
+          "value": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: If your server boot device is SD/USB flash media, please refer to KB 85685 for best practice and support considerations. For build information see KB 2143832 ESXi 6.7u3 support starts at 6.7.p03."
+        },
+        {
+          "name": "compatibility_releases",
+          "value": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1"
+        },
+        {
+          "name": "compatibility_sockets",
+          "value": "2"
+        },
+        {
+          "name": "compatibility_system_type",
+          "value": "Rackmount"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement"
+        }
+      ],
+      "capture_verification": "hash matches source registry",
+      "captures": [
+        {
+          "path": "data/raw/broadcom-servers-bundle.json",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live"
+        },
+        {
+          "path": "data/raw/broadcom-servers-detail-53494.json",
+          "sha256": "f35e35619a510bf4e32b41bb7405ce7786e3fe523bc5306db21f646c5fc3a6ac",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "field_ref": "$.data.details"
+        }
+      ]
+    }
+  ],
+  "positive_statements": [
+    {
+      "category": "identity_and_source_scoped_facts",
+      "status": "already imported",
+      "record_id": "86f9ea91a2a9ed89732d4962",
+      "source_id": "nist-4506",
+      "capture_refs": [
+        {
+          "path": "data/raw/nist-4506.html",
+          "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+          "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506"
+        }
+      ],
+      "facts": [
+        {
+          "name": "cmvp_certificate",
+          "value": "4506"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Server used in a tested software-module configuration; not hardware certification, firmware support, or prior ownership"
+        }
+      ],
+      "field_ref": "source heading/tested configuration or model-specific section; exact fact names above"
+    },
+    {
+      "category": "boot_firmware",
+      "status": "newly reviewed unimported structured fact (already preserved in raw record JSON)",
+      "record_id": "e9e52b0180cbdc94eb4012d6",
+      "source_id": "broadcom-servers",
+      "capture": {
+        "path": "data/raw/broadcom-servers-detail-53494.json",
+        "sha256": "f35e35619a510bf4e32b41bb7405ce7786e3fe523bc5306db21f646c5fc3a6ac",
+        "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+        "field_ref": "$.data.details"
+      },
+      "field_ref": "$.data.details[1].subsections[1].fieldValues",
+      "statement": "Submitted certification BIOS rows, with no inferred BIOS/release pairing or firmware availability",
+      "rows": [
+        {
+          "_id": "6ab7c1f48f730d03ea350f4b",
+          "bios": "American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8768890
+        },
+        {
+          "_id": "6ab7c1f48f730d03ea350f4b",
+          "bios": "American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9144834
+        },
+        {
+          "_id": "6ab7c1f48f730d03ea350f4b",
+          "bios": "American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9164102
+        }
+      ]
+    },
+    {
+      "category": "identity_and_source_scoped_facts",
+      "status": "already imported",
+      "record_id": "e9e52b0180cbdc94eb4012d6",
+      "source_id": "broadcom-servers",
+      "capture_refs": [
+        {
+          "path": "data/raw/broadcom-servers-bundle.json",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live"
+        },
+        {
+          "path": "data/raw/broadcom-servers-detail-53494.json",
+          "sha256": "f35e35619a510bf4e32b41bb7405ce7786e3fe523bc5306db21f646c5fc3a6ac",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=53494&persona=live",
+          "field_ref": "$.data.details"
+        }
+      ],
+      "facts": [
+        {
+          "name": "compatibility_cpu_series",
+          "value": "AMD EPYC 7003/7003X Series"
+        },
+        {
+          "name": "compatibility_cpu_series_max_cores_per_socket",
+          "value": "64"
+        },
+        {
+          "name": "compatibility_notes",
+          "value": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: If your server boot device is SD/USB flash media, please refer to KB 85685 for best practice and support considerations. For build information see KB 2143832 ESXi 6.7u3 support starts at 6.7.p03."
+        },
+        {
+          "name": "compatibility_releases",
+          "value": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1"
+        },
+        {
+          "name": "compatibility_sockets",
+          "value": "2"
+        },
+        {
+          "name": "compatibility_system_type",
+          "value": "Rackmount"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement"
+        }
+      ],
+      "field_ref": "source heading/tested configuration or model-specific section; exact fact names above"
+    },
+    {
+      "category": "boot_firmware",
+      "status": "newly reviewed unimported structured facts",
+      "source_id": "nist-4506",
+      "record_id": "86f9ea91a2a9ed89732d4962",
+      "capture": {
+        "path": "data/raw/nist-4506.html",
+        "sha256": "47bf103fab0e61eb214ac5ad17bae892951663a320d2bed427e8bf22e5455064",
+        "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4506"
+      },
+      "field_ref": "Tested Configuration(s); Software Versions; Validation History",
+      "statement": [
+        "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 with PAA",
+        "Windows Server 2022 running on Oracle E4-2C server with AMD EPYC 7J13 without PAA (single-user mode)"
+      ],
+      "limits": "software cryptographic-module tested configurations only; not general/current OS compatibility or unit boot proof"
+    }
+  ],
+  "unknowns": {
+    "power": [
+      "PSU part numbers, count, input AC/DC range, connectors and derating",
+      "measured idle/load draw"
+    ],
+    "cooling": [
+      "airflow direction, fan dependencies, acoustic output and thermal limits"
+    ],
+    "chassis": [
+      "exact owned-unit chassis variant, rails and rack depth",
+      "disk backplane, risers and proprietary cabling dependencies"
+    ],
+    "boot_firmware": [
+      "owned-unit BIOS/ILOM version, credentials and locks",
+      "installable firmware access and supported flash/recovery procedure",
+      "standalone OS bootability of the particular liquidated unit"
+    ],
+    "licensing": [
+      "resale software entitlement, support transfer and activation conditions"
+    ]
+  },
+  "excluded_near_models": [
+    "Oracle Server X7-2",
+    "Oracle Server E5-2L",
+    "unmapped Oracle EcoDesign regulatory codes",
+    "E4-2c 1U/2U and Enclave/Blockstore suffix variants",
+    "E5-2c 1U/Enclave suffix variants"
+  ],
+  "finite_next_leads": [
+    "one exact-model service/installation manual or label-backed Oracle part-number mapping to resolve PSU, fans, rails and chassis",
+    "one exact-model BIOS/ILOM release/readme and public download-access evidence, without gated/private requests",
+    "one official licensing/support-transfer statement applicable to a secondhand unit"
+  ]
+}

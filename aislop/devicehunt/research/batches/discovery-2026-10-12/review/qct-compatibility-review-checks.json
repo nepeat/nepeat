@@ -1,0 +1,218 @@
+{
+  "checked_utc": "2026-10-13T05:06:40.743546+00:00",
+  "verdict": "ACCEPT discovery only",
+  "handoff_sha256": "896c61de2dd8cbc3593a99bc048fa97224a64fdb3dc6350a72ac8f8665254123",
+  "artifact_hashes_verified": 12,
+  "source_sha256": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+  "observations_sha256": "437bebc720b1e71bf74646166b245d8addc33c43feeb390975c5fc3e98d2d2e9",
+  "HTTP": 2,
+  "statuses": {
+    "200": 2
+  },
+  "policy_sha256": "3cae06309b0823f56f465ac59f249a15844f17ba45496e0f90f35cbcde81dae3",
+  "exact_path_allowed": true,
+  "delay_seconds": 0,
+  "prior_failures_excluded": [
+    "d51b-product",
+    "t41s-product"
+  ],
+  "plan_basis_sha256": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455",
+  "tables": 15,
+  "rows": 892,
+  "selected_table_1based": 12,
+  "selected_PSU_rows": 8,
+  "selected_cells": 72,
+  "headers": [
+    "Power Capacity",
+    "Type",
+    "Efficiency",
+    "Dimension(mm)",
+    "240VDC",
+    "Cold redundancy",
+    "QuantaPN",
+    "VendorPN",
+    "Note"
+  ],
+  "PSU_rows": [
+    {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Titanium",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800C00002",
+      "VendorPN": "MC800B6-3-4R-02",
+      "Note": ""
+    },
+    {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Titanium",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800C00030",
+      "VendorPN": "MPS8146",
+      "Note": ""
+    },
+    {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800B00009",
+      "VendorPN": "MC800B4-3-4R-02",
+      "Note": ""
+    },
+    {
+      "Power Capacity": "800W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AF800B00019",
+      "VendorPN": "MC800B4-3-5R-02",
+      "Note": ""
+    },
+    {
+      "Power Capacity": "1200W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFC00F00019",
+      "VendorPN": "MC1200B4-3-4R-02",
+      "Note": ""
+    },
+    {
+      "Power Capacity": "1200W",
+      "Type": "Redundant",
+      "Efficiency": "Platinum",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFC00B00032",
+      "VendorPN": "PS-2122-7Q",
+      "Note": ""
+    },
+    {
+      "Power Capacity": "1100W",
+      "Type": "Redundant",
+      "Efficiency": "Gold",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "Yes",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFB00E00003",
+      "VendorPN": "FSF048-930G",
+      "Note": "Regulatory only for USA/EU. Taiwan/China/Russia will implement on end of Q2 2018 ."
+    },
+    {
+      "Power Capacity": "1100W",
+      "Type": "Redundant",
+      "Efficiency": "Gold",
+      "Dimension(mm)": "86*196*40",
+      "240VDC": "No",
+      "Cold redundancy": "Yes",
+      "QuantaPN": "AFB00E00005",
+      "VendorPN": "FSF048-931G",
+      "Note": ""
+    }
+  ],
+  "table_footnote": [
+    "*Grayed-out items: to be EOL soon or already EOL"
+  ],
+  "CCL_disclaimer": [
+    "D52BQ-2U QCT provides the Compatible Components List (CCL) for channel partners and systems integrators to ensure compatibility when selecting components for full system integration. QCT has spent reasonable efforts to ensure the listed components have passed extensive testing with QCT hardware. QCT is not able to guarantee the quality and reliability of the third-party components. This compatibility list is provided for reference only and not to replace the full QCT hardware certification program."
+  ],
+  "raw_tables_attributes_cells_text_fragments_lines_equal": true,
+  "current_catalog_sha256_before": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "current_catalog_sha256_after": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "current_source_exact_URL_matches": [],
+  "parent_identities": [
+    {
+      "id": "f65a474568c484317fc5",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "revision": ""
+    },
+    {
+      "id": "0f3c305cd28ca9b6f7f3",
+      "brand": "Quanta",
+      "model": "QuantaGrid D52BQ-2U",
+      "revision": ""
+    }
+  ],
+  "readonly_catalog_query_cases": 3,
+  "scope": "review only; no network/import/candidate/code/shared-data mutation; other fourteen tables not selected as evidence",
+  "parent_records": [
+    {
+      "id": "f65a474568c484317fc5",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "qct-d52bq-public-product-2026",
+      "source_url": "https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U"
+    },
+    {
+      "id": "f65a474568c484317fc5",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "qct-quanta-portfolio-2020",
+      "source_url": "https://go.qct.io/wp-content/uploads/2020/05/QxStack-QxVDI-OAHC-High-Density-Optimized-SKU-Reference-Architecture-EN.pdf"
+    },
+    {
+      "id": "f65a474568c484317fc5",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "qct-wssd-models",
+      "source_url": "https://go.qct.io/wp-content/uploads/2020/11/QCT-Window-Server-2019-Datasheet.pdf"
+    },
+    {
+      "id": "0f3c305cd28ca9b6f7f3",
+      "brand": "Quanta",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "redhat-cert-6633",
+      "source_url": "https://catalog.redhat.com/en/hardware/system/detail/6633"
+    },
+    {
+      "id": "0f3c305cd28ca9b6f7f3",
+      "brand": "Quanta",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "redhat-cert-detail-6633",
+      "source_url": "https://catalog.redhat.com/en/hardware/system/detail/6633"
+    },
+    {
+      "id": "0f3c305cd28ca9b6f7f3",
+      "brand": "Quanta",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "spec-power_ssj2008-20170926-00784",
+      "source_url": "https://www.spec.org/power_ssj2008/results/res2017q4/power_ssj2008-20170926-00784.txt"
+    },
+    {
+      "id": "0f3c305cd28ca9b6f7f3",
+      "brand": "Quanta",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "spec-power_ssj2008-20181031-00865",
+      "source_url": "https://www.spec.org/power_ssj2008/results/res2018q4/power_ssj2008-20181031-00865.txt"
+    },
+    {
+      "id": "0f3c305cd28ca9b6f7f3",
+      "brand": "Quanta",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "spec-power_ssj2008-20190313-00938",
+      "source_url": "https://www.spec.org/power_ssj2008/results/res2019q2/power_ssj2008-20190313-00938.txt"
+    },
+    {
+      "id": "0f3c305cd28ca9b6f7f3",
+      "brand": "Quanta",
+      "model": "QuantaGrid D52BQ-2U",
+      "source_id": "ubuntu-cert-201808-26436",
+      "source_url": "https://ubuntu.com/certified/201808-26436"
+    }
+  ],
+  "parent_record_query_utc": "2026-10-13T05:08:01.178428+00:00"
+}

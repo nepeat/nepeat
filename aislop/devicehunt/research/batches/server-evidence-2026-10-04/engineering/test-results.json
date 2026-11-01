@@ -1,0 +1,28 @@
+[
+  {
+    "name": "focused",
+    "command": [
+      "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "tests.test_buying",
+      "-v"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "full-suite",
+    "command": [
+      "/Users/nep/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "returncode": 0
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "id": "qct-d51b-datasheet-mirror-2017",
+  "pdf": {
+    "path": "qct-d51b-datasheet-mirror-2017.pdf",
+    "sha256": "68418af147f05d4afa468a5fce8a5fad1026168fa90f37b9277b6b8e559ecf7e"
+  },
+  "text": {
+    "path": "qct-d51b-datasheet-mirror-2017-text.json",
+    "sha256": "40e67c4e8157d79ffce4d73d8e21f687570acb25947a8225462ce2dc4a1787a9"
+  },
+  "url": "https://artofserver.com/downloads/QCT.io/D51B-2U/D51B-2U_DS_v03062017.pdf",
+  "title": "QCT QuantaGrid D51B-2U vendor-authored datasheet from public mirror",
+  "category": "server platform datasheet",
+  "tier": "vendor",
+  "scope": "QCT-branded vendor-authored two-page datasheet captured from independent Art of Server public mirror; original QCT-hosted byte equality unverified. Page 2 specifications manually visually reviewed. Embedded font text is garbled in places; full specifications require visual page 2 review. Embedded text only; no OCR. Platform options do not establish auction configuration, physical manufacture, deployment or entitlement.",
+  "page_count": 2
+}

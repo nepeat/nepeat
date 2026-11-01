@@ -1,0 +1,3075 @@
+{
+  "tables": {
+    "devices": {
+      "previous": 4083,
+      "current": 4083,
+      "missing": 0
+    },
+    "affiliations": {
+      "previous": 9118,
+      "current": 9118,
+      "missing": 0
+    },
+    "identifiers": {
+      "previous": 4971,
+      "current": 4971,
+      "missing": 0
+    },
+    "facts": {
+      "previous": 44664,
+      "current": 44690,
+      "missing": 0
+    },
+    "hyperscaler_evidence": {
+      "previous": 22,
+      "current": 22,
+      "missing": 0
+    },
+    "fcc_applications": {
+      "previous": 2,
+      "current": 2,
+      "missing": 0
+    },
+    "fcc_exhibits": {
+      "previous": 32,
+      "current": 32,
+      "missing": 0
+    },
+    "fcc_grantees": {
+      "previous": 50153,
+      "current": 50153,
+      "missing": 0
+    },
+    "equipment_register": {
+      "previous": 26258,
+      "current": 26258,
+      "missing": 0
+    },
+    "ntra_equipment": {
+      "previous": 76510,
+      "current": 76510,
+      "missing": 0
+    },
+    "bsmi_certificates": {
+      "previous": 105732,
+      "current": 105732,
+      "missing": 0
+    },
+    "bsmi_product_certificates": {
+      "previous": 17797,
+      "current": 17797,
+      "missing": 0
+    },
+    "bsmi_voluntary_certificates": {
+      "previous": 1818,
+      "current": 1818,
+      "missing": 0
+    },
+    "bsmi_declarations": {
+      "previous": 564,
+      "current": 564,
+      "missing": 0
+    },
+    "ncc_equipment": {
+      "previous": 110957,
+      "current": 110957,
+      "missing": 0
+    },
+    "tec_equipment": {
+      "previous": 2331,
+      "current": 2331,
+      "missing": 0
+    },
+    "ieee_assignments": {
+      "previous": 58639,
+      "current": 58639,
+      "missing": 0
+    },
+    "pci_entries": {
+      "previous": 42438,
+      "current": 42438,
+      "missing": 0
+    },
+    "fcc_id_index": {
+      "previous": 344,
+      "current": 344,
+      "missing": 0
+    },
+    "fcc_detail_pages": {
+      "previous": 174,
+      "current": 174,
+      "missing": 0
+    },
+    "fcc_detail_links": {
+      "previous": 1493,
+      "current": 1493,
+      "missing": 0
+    },
+    "fcc_text_excerpts": {
+      "previous": 1092,
+      "current": 1092,
+      "missing": 0
+    },
+    "documents": {
+      "previous": 55,
+      "current": 55,
+      "missing": 0
+    },
+    "document_pages": {
+      "previous": 3649,
+      "current": 3649,
+      "missing": 0
+    },
+    "bahrain_equipment": {
+      "previous": 10169,
+      "current": 10169,
+      "missing": 0
+    },
+    "anatel_equipment": {
+      "previous": 190852,
+      "current": 190852,
+      "missing": 0
+    },
+    "rra_equipment": {
+      "previous": 1081,
+      "current": 1081,
+      "missing": 0
+    },
+    "energystar_servers": {
+      "previous": 495,
+      "current": 495,
+      "missing": 0
+    },
+    "energystar_server_archives": {
+      "previous": 873,
+      "current": 873,
+      "missing": 0
+    },
+    "energystar_datacenter": {
+      "previous": 452,
+      "current": 452,
+      "missing": 0
+    },
+    "ised_equipment": {
+      "previous": 628,
+      "current": 628,
+      "missing": 0
+    },
+    "nigeria_equipment": {
+      "previous": 8517,
+      "current": 8517,
+      "missing": 0
+    },
+    "ghana_equipment": {
+      "previous": 1153,
+      "current": 1153,
+      "missing": 0
+    },
+    "public_equipment_rows": {
+      "previous": 4985,
+      "current": 4985,
+      "missing": 0
+    },
+    "japan_equipment": {
+      "previous": 346,
+      "current": 346,
+      "missing": 0
+    },
+    "fcc_company_rows": {
+      "previous": 237,
+      "current": 237,
+      "missing": 0
+    },
+    "fcc_sitemap_pages": {
+      "previous": 48,
+      "current": 48,
+      "missing": 0
+    },
+    "fcc_sitemap_urls": {
+      "previous": 231962,
+      "current": 231962,
+      "missing": 0
+    },
+    "inspur_support_entries": {
+      "previous": 1064,
+      "current": 1064,
+      "missing": 0
+    }
+  },
+  "source_changes": {
+    "edgecore-7760-label": {
+      "coverage": {
+        "before": "Visually reviewed original user-supplied photograph, attributed by the user to eBay item 389108536363. Printed Edge-corE label explicitly pairs Model No. 7760-32X-A-AC-F with Supplier Sku AS7760-32X; the adjacent compliance label repeats AS7760-32X. This is physical-label evidence, not independent manufacturer-site scraping or seller-description text. The image is locally archived and hashed; its exact match to the live listing gallery was not independently checked. Label firmware, hardware and revision are observations of this photographed unit, not every unit. Brand association only; no inferred physical manufacturer, global interchangeability, operator deployment, current firmware, approval validity or ownership of this photographed unit. Serial and MAC remain in the original image but are not transcribed into searchable fields.",
+        "after": "Visually reviewed original user-supplied photograph, attributed by the user to eBay item 389108536363. Printed Edge-corE label explicitly pairs Model No. 7760-32X-A-AC-F with Supplier Sku AS7760-32X; the adjacent compliance label repeats AS7760-32X. This is physical-label evidence, not independent manufacturer-site scraping or seller-description text. The image is locally archived and hashed; its exact match to the live listing gallery was not independently checked. Label firmware, hardware and revision are observations of this photographed unit, not every unit. Brand association only; no inferred physical manufacturer, global interchangeability, operator deployment, current firmware, approval validity or ownership of this photographed unit. Serial and MAC remain in the original image but are not transcribed into searchable fields. Input marking 100-240~, 50 - 60Hz, 6A Max is transcribed from the adjacent AS7760-32X compliance label in the same photograph and applies only to the photographed marking. It does not establish measured draw, installed PSU inventory or wattage, or a universal input requirement for this ordering code or model family."
+      }
+    }
+  },
+  "bios_literal_rows": [
+    {
+      "record_id": "01e80892e43eb9ea87d05b13",
+      "raw_json_sha256": "664d4891384fce3e23302825affd9ba59d4430af745f2ed8cba2a96aceb4477f",
+      "rows": [
+        {
+          "_id": "6ab7c1f78f730d03ea351214",
+          "bios": "American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8766638
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea351214",
+          "bios": "American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9143224
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea351214",
+          "bios": "American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9162492
+        }
+      ]
+    },
+    {
+      "record_id": "2789470a284023dc187a33eb",
+      "raw_json_sha256": "bf20a77698d109d8a97f1c1352cbd2eea860ef458d9bf55970f469ee395db8a1",
+      "rows": [
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905892
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328646
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561739
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7996914
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905895
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328649
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561742
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3504b0",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7996915
+        }
+      ]
+    },
+    {
+      "record_id": "2e79af1c224bbab543c46435",
+      "raw_json_sha256": "4271d824db36976ecd8f8a1fce8510832877000228bddabdfb1d855f9ab9a805",
+      "rows": [
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8445741
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8445742
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8536817
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8772881
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9147983
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9167251
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6950376
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7334195
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7566370
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093c",
+          "bios": "American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7981508
+        }
+      ]
+    },
+    {
+      "record_id": "352058504dbf0da991fe0a0e",
+      "raw_json_sha256": "5169387e7726f5a0c42ac0ef32720e24bef81a1cf0b2ea7ed118a28b6d64ccab",
+      "rows": [
+        {
+          "_id": "6ab7c1ee8f730d03ea350c0c",
+          "bios": "American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7151373
+        },
+        {
+          "_id": "6ab7c1ee8f730d03ea350c0c",
+          "bios": "American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7340353
+        },
+        {
+          "_id": "6ab7c1ee8f730d03ea350c0c",
+          "bios": "American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7570043
+        },
+        {
+          "_id": "6ab7c1ee8f730d03ea350c0c",
+          "bios": "American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7984155
+        }
+      ]
+    },
+    {
+      "record_id": "3e172194054630e9ddd4f65c",
+      "raw_json_sha256": "597632c85cbb6676d636d0d2764ace951e6961debcb22aa5364e69b9eac083eb",
+      "rows": [
+        {
+          "_id": "6ab7c1fc8f730d03ea35182b",
+          "bios": "American Megatrends International, LLC. 79011700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9067201
+        },
+        {
+          "_id": "6ab7c1fc8f730d03ea35182b",
+          "bios": "American Megatrends International, LLC. 79011700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9101150
+        },
+        {
+          "_id": "6ab7c1fc8f730d03ea35182b",
+          "bios": "American Megatrends International, LLC. 79011200 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9039512
+        }
+      ]
+    },
+    {
+      "record_id": "584fa9f535e8c7d1565ea6b0",
+      "raw_json_sha256": "dbce2ff9fc2e499bfc2d22b4374a9ee0133ba492d18ecbf20e19c1d997c7241d",
+      "rows": [
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905891
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328645
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561738
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974826
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905894
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328648
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561741
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350448",
+          "bios": "American Megatrends Inc. 39030000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974827
+        }
+      ]
+    },
+    {
+      "record_id": "59982ddb99ac0f58e4d05e30",
+      "raw_json_sha256": "21f817a5d0d19357414f8c0350eaeb520949404c4588a1eb58a2c0f08f055f72",
+      "rows": [
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905960
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328711
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561804
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974832
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905962
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328713
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561806
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350375",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974834
+        }
+      ]
+    },
+    {
+      "record_id": "5cb6407f126a57a7e34a2072",
+      "raw_json_sha256": "2cebf146525acce6eb7a0bbd88d86d0b41b6851ea1998245e6444713e05efc28",
+      "rows": [
+        {
+          "_id": "6ab7c1fb8f730d03ea351787",
+          "bios": "American Megatrends International, LLC. 89010700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9028206
+        },
+        {
+          "_id": "6ab7c1fb8f730d03ea351787",
+          "bios": "American Megatrends International, LLC. 89010700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9085646
+        },
+        {
+          "_id": "6ab7c1fb8f730d03ea351787",
+          "bios": "American Megatrends International, LLC. 89010700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9100793
+        }
+      ]
+    },
+    {
+      "record_id": "5efd220952d64a237e9f1527",
+      "raw_json_sha256": "7b72f4f4cbd4fe1f0d70ac4abf926e35e930fd787001437ddef2d848452ec5dd",
+      "rows": [
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8443522
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8443523
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8535148
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8770685
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9146020
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9165288
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7109566
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7337377
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7569107
+        },
+        {
+          "_id": "6ab7c1ef8f730d03ea350c9f",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7983564
+        }
+      ]
+    },
+    {
+      "record_id": "67c25489911aea099213fe97",
+      "raw_json_sha256": "e3fd4a7e0eb94edece965e3f7e091b734763260b7dab80c21836fd086aa07fc7",
+      "rows": [
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6906004
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328752
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561845
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974848
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905965
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328716
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561809
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea350328",
+          "bios": "American Megatrends Inc. 31130100",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974835
+        }
+      ]
+    },
+    {
+      "record_id": "6c9a1f310f75e468102d72f3",
+      "raw_json_sha256": "43bed3824bb3636142bcebfb15004463e1e6247a746dd13018656a91e9617dec",
+      "rows": [
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8356696
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8431476
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8533645
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8768917
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9144861
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9164129
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62040700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8194111
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2e",
+          "bios": "American Megatrends International, LLC. 62040700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8194110
+        }
+      ]
+    },
+    {
+      "record_id": "9238b1f81f5166a70a28e525",
+      "raw_json_sha256": "786028c4677e64f4db18da0160987fd0748b390396528e75338a90a517fdbf6c",
+      "rows": [
+        {
+          "_id": "6ab7c1f38f730d03ea350ead",
+          "bios": "American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8768918
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350ead",
+          "bios": "American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9144862
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350ead",
+          "bios": "American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9164130
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350ead",
+          "bios": "American Megatrends International, LLC. 66060102 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8359829
+        }
+      ]
+    },
+    {
+      "record_id": "a1617f94f2ce41b3d005a11f",
+      "raw_json_sha256": "96adca8e82d09d103abbdb0f8c5b06eba25d1e43075d7ab3615a582cfc67c684",
+      "rows": [
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905888
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328642
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561735
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000 UEFI Mode",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974825
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905882
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328636
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561729
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea350442",
+          "bios": "American Megatrends Inc. 38080000",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974824
+        }
+      ]
+    },
+    {
+      "record_id": "a86e25a52b95f8f2cfd1ed6b",
+      "raw_json_sha256": "748b138579f52f4387f3d25316061308e6eabb0f7009ce69895890f16bd5514b",
+      "rows": [
+        {
+          "_id": "6ab7c1e58f730d03ea35088f",
+          "bios": "American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6903697
+        },
+        {
+          "_id": "6ab7c1e58f730d03ea35088f",
+          "bios": "American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7327729
+        },
+        {
+          "_id": "6ab7c1e58f730d03ea35088f",
+          "bios": "American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7560829
+        },
+        {
+          "_id": "6ab7c1e58f730d03ea35088f",
+          "bios": "American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7977576
+        }
+      ]
+    },
+    {
+      "record_id": "aaf15c4cb88e3507b29effa2",
+      "raw_json_sha256": "8e4ce0822eb414947111646138ca12248802e9032c01712e84edf07fc536f98b",
+      "rows": [
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905959
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328710
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561803
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974831
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6905961
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328712
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7561805
+        },
+        {
+          "_id": "6ab7c1dd8f730d03ea35032a",
+          "bios": "American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7974833
+        }
+      ]
+    },
+    {
+      "record_id": "c8db44843d277e811f707053",
+      "raw_json_sha256": "b44d377ce72668c1d2af9adeaf6f2c4c0d14cbd33ede2c0e58598766e84f21f1",
+      "rows": [
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8500210
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8500211
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8500212
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8500213
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8487446
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8487447
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8538028
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8774600
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "KB428874",
+              "redirectTo": "static",
+              "url": "https://knowledge.broadcom.com/external/article/428874"
+            }
+          ],
+          "certId": 9233272
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "KB428874",
+              "redirectTo": "static",
+              "url": "https://knowledge.broadcom.com/external/article/428874"
+            }
+          ],
+          "certId": 9237371
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8356698
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8356699
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8356700
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8356701
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8364605
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8431635
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8537964
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8774536
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "KB428874",
+              "redirectTo": "static",
+              "url": "https://knowledge.broadcom.com/external/article/428874"
+            }
+          ],
+          "certId": 9233208
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "KB428874",
+              "redirectTo": "static",
+              "url": "https://knowledge.broadcom.com/external/article/428874"
+            }
+          ],
+          "certId": 9237307
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8293922
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8293923
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8293924
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8293925
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8186516
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8186517
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8186518
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8186519
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7934750
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7934751
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7934752
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7989755
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521511
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521517
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521608
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976584
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7442354
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7442355
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521607
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976583
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7378946
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7378947
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521606
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976582
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7292102
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7350121
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521604
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976581
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7152506
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7340384
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521602
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976580
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6927348
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7332111
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521573
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976578
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6906910
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7329487
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521557
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976577
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6906104
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7328824
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7521520
+        },
+        {
+          "_id": "6ab7c1e28f730d03ea350648",
+          "bios": "American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7976576
+        }
+      ]
+    },
+    {
+      "record_id": "ca6d8d3f7a4a9bf37e7394ab",
+      "raw_json_sha256": "f524d11c2b90f5e2fdacb4e7877b5ffb550e7ab021d74cb7e5ef495a2378d388",
+      "rows": [
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8443520
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8443521
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8536808
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8772874
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9147976
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9167244
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6950375
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7334194
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7566369
+        },
+        {
+          "_id": "6ab7c1e68f730d03ea35093b",
+          "bios": "American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7981507
+        }
+      ]
+    },
+    {
+      "record_id": "d5b9422460cb8b03e601622d",
+      "raw_json_sha256": "9afe16a8583c0a860c690be927ba4a7e3d726f8e05116264cb08e08eca600059",
+      "rows": [
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6906911
+        },
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7329488
+        },
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7562566
+        },
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7978506
+        },
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 6906507
+        },
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7329157
+        },
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7562244
+        },
+        {
+          "_id": "6ab7c1e18f730d03ea35062f",
+          "bios": "American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7978277
+        }
+      ]
+    },
+    {
+      "record_id": "d714992a059b821c72e982a4",
+      "raw_json_sha256": "b6792e879cdfcfeb8425d1034ed35ba1a974ac38de1ed586b79aed83368d8e39",
+      "rows": [
+        {
+          "_id": "6ab7c1f08f730d03ea350da0",
+          "bios": "American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7381272
+        },
+        {
+          "_id": "6ab7c1f08f730d03ea350da0",
+          "bios": "American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7381273
+        },
+        {
+          "_id": "6ab7c1f08f730d03ea350da0",
+          "bios": "American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7572766
+        },
+        {
+          "_id": "6ab7c1f08f730d03ea350da0",
+          "bios": "American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7991559
+        }
+      ]
+    },
+    {
+      "record_id": "dab003a1abaa70756570c82a",
+      "raw_json_sha256": "e41c7ec34928e306048bc35ff7df010748170a4e3ceef60ce9a4c9c375305871",
+      "rows": [
+        {
+          "_id": "6ab7c1f78f730d03ea35125e",
+          "bios": "American Megatrends International, LLC. 83002900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8766843
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea35125e",
+          "bios": "American Megatrends International, LLC. 83002900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9143367
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea35125e",
+          "bios": "American Megatrends International, LLC. 83002900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9162635
+        }
+      ]
+    },
+    {
+      "record_id": "de6515497a76b18e0298a532",
+      "raw_json_sha256": "756ffa576e3beba7ec4244e1cce5c33726cc2de177990b349ed7ead764356b8b",
+      "rows": [
+        {
+          "_id": "6ab7c1de8f730d03ea3503cc",
+          "bios": "American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7233296
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3503cc",
+          "bios": "American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7344684
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3503cc",
+          "bios": "American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7570833
+        },
+        {
+          "_id": "6ab7c1de8f730d03ea3503cc",
+          "bios": "American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 7975866
+        }
+      ]
+    },
+    {
+      "record_id": "e34664dd82056965106c8c1f",
+      "raw_json_sha256": "6393d73e9537254184c8b786ecd4b377717ddfcde528ca3a4c5849a95c0fbdc5",
+      "rows": [
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 66060102 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8369191
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8364603
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8431634
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8533647
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8768919
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9144863
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9164131
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61040700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8194107
+        },
+        {
+          "_id": "6ab7c1f38f730d03ea350f2d",
+          "bios": "American Megatrends International, LLC. 61040700 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8194106
+        }
+      ]
+    },
+    {
+      "record_id": "e9e52b0180cbdc94eb4012d6",
+      "raw_json_sha256": "0d1085849bf96a1f54ac63115e840f967cc3a06266930568463be1733d6c1e05",
+      "rows": [
+        {
+          "_id": "6ab7c1f48f730d03ea350f4b",
+          "bios": "American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8768890
+        },
+        {
+          "_id": "6ab7c1f48f730d03ea350f4b",
+          "bios": "American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9144834
+        },
+        {
+          "_id": "6ab7c1f48f730d03ea350f4b",
+          "bios": "American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9164102
+        }
+      ]
+    },
+    {
+      "record_id": "f57721e3469872876a121928",
+      "raw_json_sha256": "9c75fa1804817bbd124b7ca10df39afce00e14ab19ee74cfe0225d801341d217",
+      "rows": [
+        {
+          "_id": "6ab7c1f78f730d03ea351212",
+          "bios": "American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8766543
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea351212",
+          "bios": "American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9143147
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea351212",
+          "bios": "American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9162415
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea351212",
+          "bios": "American Megatrends International, LLC. 66060102 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8359828
+        }
+      ]
+    }
+  ],
+  "json_each_sql": "SELECT r.source_key,count(*) AS rows FROM facts f JOIN records r ON r.id=f.record_id JOIN json_each(f.value) j WHERE f.name='compatibility_bios_certification_rows' GROUP BY r.source_key ORDER BY r.source_key",
+  "json_each_result": [
+    {
+      "source_key": "38452",
+      "rows": 8
+    },
+    {
+      "source_key": "38607",
+      "rows": 8
+    },
+    {
+      "source_key": "39650",
+      "rows": 8
+    },
+    {
+      "source_key": "40431",
+      "rows": 4
+    },
+    {
+      "source_key": "41056",
+      "rows": 8
+    },
+    {
+      "source_key": "41093",
+      "rows": 8
+    },
+    {
+      "source_key": "41638",
+      "rows": 8
+    },
+    {
+      "source_key": "44418",
+      "rows": 8
+    },
+    {
+      "source_key": "44537",
+      "rows": 64
+    },
+    {
+      "source_key": "46842",
+      "rows": 4
+    },
+    {
+      "source_key": "47665",
+      "rows": 10
+    },
+    {
+      "source_key": "47666",
+      "rows": 10
+    },
+    {
+      "source_key": "49318",
+      "rows": 4
+    },
+    {
+      "source_key": "49963",
+      "rows": 10
+    },
+    {
+      "source_key": "51173",
+      "rows": 4
+    },
+    {
+      "source_key": "52764",
+      "rows": 4
+    },
+    {
+      "source_key": "53342",
+      "rows": 9
+    },
+    {
+      "source_key": "53344",
+      "rows": 8
+    },
+    {
+      "source_key": "53494",
+      "rows": 3
+    },
+    {
+      "source_key": "57086",
+      "rows": 4
+    },
+    {
+      "source_key": "57094",
+      "rows": 3
+    },
+    {
+      "source_key": "57328",
+      "rows": 3
+    },
+    {
+      "source_key": "61504",
+      "rows": 3
+    },
+    {
+      "source_key": "62311",
+      "rows": 3
+    }
+  ],
+  "new_facts": [
+    [
+      "67c25489911aea099213fe97",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6906004}, {\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328752}, {\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561845}, {\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974848}, {\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905965}, {\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328716}, {\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561809}, {\"_id\": \"6ab7c1dd8f730d03ea350328\", \"bios\": \"American Megatrends Inc. 31130100\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974835}]"
+    ],
+    [
+      "aaf15c4cb88e3507b29effa2",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905959}, {\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328710}, {\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561803}, {\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974831}, {\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905961}, {\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328712}, {\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561805}, {\"_id\": \"6ab7c1dd8f730d03ea35032a\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974833}]"
+    ],
+    [
+      "59982ddb99ac0f58e4d05e30",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905960}, {\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328711}, {\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561804}, {\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974832}, {\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905962}, {\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328713}, {\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561806}, {\"_id\": \"6ab7c1dd8f730d03ea350375\", \"bios\": \"American Megatrends Inc. 30130100 (Boot Mode:Legacy BIOS)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974834}]"
+    ],
+    [
+      "de6515497a76b18e0298a532",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1de8f730d03ea3503cc\", \"bios\": \"American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7233296}, {\"_id\": \"6ab7c1de8f730d03ea3503cc\", \"bios\": \"American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7344684}, {\"_id\": \"6ab7c1de8f730d03ea3503cc\", \"bios\": \"American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7570833}, {\"_id\": \"6ab7c1de8f730d03ea3503cc\", \"bios\": \"American Megatrends Inc. 37070400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7975866}]"
+    ],
+    [
+      "a1617f94f2ce41b3d005a11f",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905888}, {\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328642}, {\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561735}, {\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974825}, {\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905882}, {\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328636}, {\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561729}, {\"_id\": \"6ab7c1de8f730d03ea350442\", \"bios\": \"American Megatrends Inc. 38080000\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974824}]"
+    ],
+    [
+      "584fa9f535e8c7d1565ea6b0",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905891}, {\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328645}, {\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561738}, {\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974826}, {\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905894}, {\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328648}, {\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561741}, {\"_id\": \"6ab7c1de8f730d03ea350448\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7974827}]"
+    ],
+    [
+      "2789470a284023dc187a33eb",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905892}, {\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328646}, {\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561739}, {\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc.39080000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7996914}, {\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6905895}, {\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328649}, {\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7561742}, {\"_id\": \"6ab7c1de8f730d03ea3504b0\", \"bios\": \"American Megatrends Inc. 39030000 UEFI Mode\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7996915}]"
+    ],
+    [
+      "d5b9422460cb8b03e601622d",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6906911}, {\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7329488}, {\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7562566}, {\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7978506}, {\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6906507}, {\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7329157}, {\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7562244}, {\"_id\": \"6ab7c1e18f730d03ea35062f\", \"bios\": \"American Megatrends Inc. 41017100 UEFi Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7978277}]"
+    ],
+    [
+      "c8db44843d277e811f707053",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8500210}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8500211}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8500212}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8500213}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8487446}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8487447}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8538028}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8774600}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"KB428874\", \"redirectTo\": \"static\", \"url\": \"https://knowledge.broadcom.com/external/article/428874\"}], \"certId\": 9233272}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42630500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"KB428874\", \"redirectTo\": \"static\", \"url\": \"https://knowledge.broadcom.com/external/article/428874\"}], \"certId\": 9237371}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8356698}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8356699}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8356700}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8356701}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8364605}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8431635}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8537964}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8774536}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"KB428874\", \"redirectTo\": \"static\", \"url\": \"https://knowledge.broadcom.com/external/article/428874\"}], \"certId\": 9233208}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"KB428874\", \"redirectTo\": \"static\", \"url\": \"https://knowledge.broadcom.com/external/article/428874\"}], \"certId\": 9237307}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8293922}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8293923}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8293924}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42620100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8293925}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8186516}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8186517}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8186518}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42610100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8186519}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7934750}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7934751}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7934752}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42600500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7989755}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521511}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521517}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521608}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42590300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976584}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7442354}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7442355}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521607}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976583}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7378946}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7378947}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521606}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000_58.10 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976582}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7292102}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7350121}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521604}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42581000 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976581}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7152506}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7340384}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521602}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976580}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6927348}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7332111}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521573}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42060600 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976578}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6906910}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7329487}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521557}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42020700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976577}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6906104}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7328824}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7521520}, {\"_id\": \"6ab7c1e28f730d03ea350648\", \"bios\": \"American Megatrends Inc. 42017100 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7976576}]"
+    ],
+    [
+      "a86e25a52b95f8f2cfd1ed6b",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1e58f730d03ea35088f\", \"bios\": \"American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6903697}, {\"_id\": \"6ab7c1e58f730d03ea35088f\", \"bios\": \"American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7327729}, {\"_id\": \"6ab7c1e58f730d03ea35088f\", \"bios\": \"American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7560829}, {\"_id\": \"6ab7c1e58f730d03ea35088f\", \"bios\": \"American Megatrends Inc. 41030700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7977576}]"
+    ],
+    [
+      "ca6d8d3f7a4a9bf37e7394ab",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8443520}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8443521}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8536808}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8772874}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9147976}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9167244}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6950375}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7334194}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7566369}, {\"_id\": \"6ab7c1e68f730d03ea35093b\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7981507}]"
+    ],
+    [
+      "2e79af1c224bbab543c46435",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8445741}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8445742}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8536817}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8772881}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9147983}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9167251}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 6950376}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7334195}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7566370}, {\"_id\": \"6ab7c1e68f730d03ea35093c\", \"bios\": \"American Megatrends Inc. 52010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7981508}]"
+    ],
+    [
+      "352058504dbf0da991fe0a0e",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1ee8f730d03ea350c0c\", \"bios\": \"American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7151373}, {\"_id\": \"6ab7c1ee8f730d03ea350c0c\", \"bios\": \"American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7340353}, {\"_id\": \"6ab7c1ee8f730d03ea350c0c\", \"bios\": \"American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7570043}, {\"_id\": \"6ab7c1ee8f730d03ea350c0c\", \"bios\": \"American Megatrends Inc. 57020300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7984155}]"
+    ],
+    [
+      "5efd220952d64a237e9f1527",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8443522}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8443523}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8535148}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8770685}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9146020}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51090300 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9165288}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7109566}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7337377}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7569107}, {\"_id\": \"6ab7c1ef8f730d03ea350c9f\", \"bios\": \"American Megatrends Inc. 51010400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7983564}]"
+    ],
+    [
+      "d714992a059b821c72e982a4",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f08f730d03ea350da0\", \"bios\": \"American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7381272}, {\"_id\": \"6ab7c1f08f730d03ea350da0\", \"bios\": \"American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7381273}, {\"_id\": \"6ab7c1f08f730d03ea350da0\", \"bios\": \"American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7572766}, {\"_id\": \"6ab7c1f08f730d03ea350da0\", \"bios\": \"American Megatrends Inc. 47080900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 7991559}]"
+    ],
+    [
+      "9238b1f81f5166a70a28e525",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f38f730d03ea350ead\", \"bios\": \"American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8768918}, {\"_id\": \"6ab7c1f38f730d03ea350ead\", \"bios\": \"American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9144862}, {\"_id\": \"6ab7c1f38f730d03ea350ead\", \"bios\": \"American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9164130}, {\"_id\": \"6ab7c1f38f730d03ea350ead\", \"bios\": \"American Megatrends International, LLC. 66060102 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8359829}]"
+    ],
+    [
+      "e34664dd82056965106c8c1f",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 66060102 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8369191}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8364603}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8431634}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8533647}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8768919}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9144863}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9164131}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61040700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8194107}, {\"_id\": \"6ab7c1f38f730d03ea350f2d\", \"bios\": \"American Megatrends International, LLC. 61040700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8194106}]"
+    ],
+    [
+      "6c9a1f310f75e468102d72f3",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8356696}, {\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8431476}, {\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8533645}, {\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8768917}, {\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9144861}, {\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62080500 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9164129}, {\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62040700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8194111}, {\"_id\": \"6ab7c1f38f730d03ea350f2e\", \"bios\": \"American Megatrends International, LLC. 62040700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8194110}]"
+    ],
+    [
+      "e9e52b0180cbdc94eb4012d6",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8768890}, {\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9144834}, {\"_id\": \"6ab7c1f48f730d03ea350f4b\", \"bios\": \"American Megatrends International, LLC. 78014900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9164102}]"
+    ],
+    [
+      "f57721e3469872876a121928",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f78f730d03ea351212\", \"bios\": \"American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8766543}, {\"_id\": \"6ab7c1f78f730d03ea351212\", \"bios\": \"American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9143147}, {\"_id\": \"6ab7c1f78f730d03ea351212\", \"bios\": \"American Megatrends International, LLC. 66080400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9162415}, {\"_id\": \"6ab7c1f78f730d03ea351212\", \"bios\": \"American Megatrends International, LLC. 66060102 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8359828}]"
+    ],
+    [
+      "01e80892e43eb9ea87d05b13",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f78f730d03ea351214\", \"bios\": \"American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8766638}, {\"_id\": \"6ab7c1f78f730d03ea351214\", \"bios\": \"American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9143224}, {\"_id\": \"6ab7c1f78f730d03ea351214\", \"bios\": \"American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9162492}]"
+    ],
+    [
+      "dab003a1abaa70756570c82a",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1f78f730d03ea35125e\", \"bios\": \"American Megatrends International, LLC. 83002900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 8766843}, {\"_id\": \"6ab7c1f78f730d03ea35125e\", \"bios\": \"American Megatrends International, LLC. 83002900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9143367}, {\"_id\": \"6ab7c1f78f730d03ea35125e\", \"bios\": \"American Megatrends International, LLC. 83002900 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9162635}]"
+    ],
+    [
+      "5cb6407f126a57a7e34a2072",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1fb8f730d03ea351787\", \"bios\": \"American Megatrends International, LLC. 89010700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9028206}, {\"_id\": \"6ab7c1fb8f730d03ea351787\", \"bios\": \"American Megatrends International, LLC. 89010700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9085646}, {\"_id\": \"6ab7c1fb8f730d03ea351787\", \"bios\": \"American Megatrends International, LLC. 89010700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9100793}]"
+    ],
+    [
+      "3e172194054630e9ddd4f65c",
+      "compatibility_bios_certification_rows",
+      "[{\"_id\": \"6ab7c1fc8f730d03ea35182b\", \"bios\": \"American Megatrends International, LLC. 79011700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9067201}, {\"_id\": \"6ab7c1fc8f730d03ea35182b\", \"bios\": \"American Megatrends International, LLC. 79011700 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9101150}, {\"_id\": \"6ab7c1fc8f730d03ea35182b\", \"bios\": \"American Megatrends International, LLC. 79011200 UEFI Mode (Boot Mode:UEFI)\", \"vcfSupportedConfirmWvendor\": [{\"name\": \"\", \"redirectTo\": \"static\", \"url\": \"\"}], \"certId\": 9039512}]"
+    ],
+    [
+      "6a11f24a97497e97e9a9587e",
+      "label_observed_input_voltage_range",
+      "100-240~, 50 - 60Hz, 6A Max"
+    ],
+    [
+      "6a11f24a97497e97e9a9587e",
+      "label_observed_input_voltage_range_reference",
+      "Adjacent compliance label in the same photograph, Model AS7760-32X, Input Voltage Range line."
+    ]
+  ],
+  "database_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "previous_sha256": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "checks": {
+    "owned": {
+      "total": 10,
+      "hits": 10,
+      "gaps": 0
+    },
+    "owned_evidence": {
+      "document_snapshot_hits": 9,
+      "label_photo_only_hits": 1,
+      "unresolved_identity_gaps": 0
+    },
+    "bytedance": {
+      "total": 2,
+      "hits": 0,
+      "gaps": 2
+    }
+  }
+}

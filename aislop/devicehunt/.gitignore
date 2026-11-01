@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+data/raw/
+data/*.sqlite*
+data/exports/
+.DS_Store
+
+# Local evidence stores, recovery snapshots and scratch rendering outputs.
+# Keep these on disk; code, curated inputs and research notes live in git.
+*.sqlite*
+/data/archive/
+/data/archive-registry-backup-*/
+/data/history/
+/tmp/
+
+# Batch directories contain saved upstream documents and generated reviews.
+# Retain their scripts, notes and acceptance metadata in version control.
+/research/batches/**/*.html
+/research/batches/**/*.xhtml
+/research/batches/**/*.pdf
+/research/batches/**/*.png
+/research/batches/**/*.svg
+/research/batches/**/*.response
+/research/batches/**/*.body

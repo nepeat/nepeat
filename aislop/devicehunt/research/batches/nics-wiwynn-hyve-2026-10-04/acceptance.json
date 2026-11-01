@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-04",
+  "accepted_inputs": {
+    "data/curated-inspur-nics-2026-10-04.json": "8f3da5d987e699fbce8888c9015061431340fd6da7831f37b31c639be12d4e51",
+    "data/curated-wiwynn-hyve-2026-10-04.json": "378a37307403fe9046f9cb078ef319ba2cb77824bccf9087eb0a4bd5bbe2a2aa"
+  },
+  "review": "research/batches/nics-wiwynn-hyve-2026-10-04/review.md",
+  "review_sha256": "54057c71bb6f930d17d56048d464e9da49b54ffbfd816712b96ac0312c011a1f",
+  "code_checkpoint": "research/batches/nics-wiwynn-hyve-2026-10-04/stable-code-checkpoint.json",
+  "exclusive_integrator": "batch_integration",
+  "worker_model": "gpt-6.1-sol",
+  "shared_mutations_authorized": true,
+  "scope": "Only the reviewed NIC/Wiwynn/Hyve batch; no new collection or source expansion"
+}

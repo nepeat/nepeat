@@ -1,0 +1,218 @@
+{
+  "schema": 1,
+  "consulted_date": "2026-10-04",
+  "scope": "docs-only qualification of UN Comtrade, US Census international trade API, ImportYeti",
+  "authorization": "coordinator assignment following user-approved campaign plan; no collection/import",
+  "limits": {
+    "search_queries": 3,
+    "page_opens": 12,
+    "tool_return_utf8_bytes": 200000,
+    "shipment_downloads": 0,
+    "company_queries": 0,
+    "credential_or_signup_actions": 0
+  },
+  "measurement": "UTF-8 JSON serialization of returned web tool content; upstream HTTP bytes not exposed/unknown. Counts include repeated document views and failed opens. No direct downloads.",
+  "preflight": {
+    "searched": "saved research/docs markdown and matching research JSON filenames",
+    "known_denied_resource": "https://www.eximpedia.app/companies/accton-technology-co-limited/10894156",
+    "known_outcome": "HTTP 402; no request or alternate route",
+    "source_note": "research/bytedance-inspur-2026-10-04.md:52-59",
+    "closed_provider": "Datadory paid path",
+    "named_publisher_prior_failure": "none found in searched saved research; not proof of unrestricted access"
+  },
+  "ledger": [
+    {
+      "id": "search-1",
+      "kind": "search",
+      "query_count": 3,
+      "args": {
+        "search_query": [
+          {
+            "q": "site.comtrade.un.org API free access terms of use data availability monthly annual limits"
+          },
+          {
+            "q": "site.census.gov international trade API documentation data key limits"
+          },
+          {
+            "q": "site.importyeti.com FAQ terms API free data downloads"
+          }
+        ],
+        "response_length": "long"
+      },
+      "tool_return_utf8_bytes": 35000,
+      "artifact": "search-1.tool-response.json",
+      "outcome": "returned; snippets are leads only; initial post-return local save had TextEncoder error, result recovered from session store without another web request"
+    },
+    {
+      "id": "open-1",
+      "kind": "open",
+      "page_count": 3,
+      "args": {
+        "open": [
+          {
+            "ref_id": "https://comtrade.un.org/"
+          },
+          {
+            "ref_id": "https://www.census.gov/data/developers/data-sets/international-trade.html"
+          },
+          {
+            "ref_id": "https://www.importyeti.com/faqs"
+          }
+        ],
+        "response_length": "long"
+      },
+      "tool_return_utf8_bytes": 18351,
+      "artifact": "open-1.tool-response.json"
+    },
+    {
+      "id": "open-2",
+      "kind": "open_and_click",
+      "page_count": 6,
+      "args": {
+        "open": [
+          {
+            "ref_id": "https://comtrade.un.org/licenseagreement.html"
+          },
+          {
+            "ref_id": "https://comtrade.un.org/data/MethodologyGuideforComtradePlus.pdf"
+          },
+          {
+            "ref_id": "https://www.census.gov/foreign-trade/reference/guides/Guide_to_International_Trade_Datasets.pdf"
+          },
+          {
+            "ref_id": "https://www.census.gov/data/developers/guidance/api-user-guide.Query_Limits.html"
+          },
+          {
+            "ref_id": "https://docs.importyeti.com/docs/getting-started"
+          }
+        ],
+        "click": [
+          {
+            "ref_id": "turn1view1",
+            "id": 3
+          }
+        ],
+        "response_length": "long"
+      },
+      "tool_return_utf8_bytes": 34919,
+      "artifact": "open-2.tool-response.json"
+    },
+    {
+      "id": "open-3",
+      "kind": "open",
+      "page_count": 3,
+      "args": {
+        "open": [
+          {
+            "ref_id": "https://www.importyeti.com/pricing"
+          },
+          {
+            "ref_id": "https://www.importyeti.com/about"
+          },
+          {
+            "ref_id": "turn2view5",
+            "lineno": 96
+          }
+        ],
+        "response_length": "long"
+      },
+      "tool_return_utf8_bytes": 20853,
+      "artifact": "open-3.tool-response.json",
+      "note": "last bounded document views; no more Comtrade requests after restrictive license observed"
+    }
+  ],
+  "page_attempts": [
+    {
+      "id": "p01",
+      "url": "https://comtrade.un.org/",
+      "outcome": "zero extracted lines; no access validation",
+      "reported_http_status": null
+    },
+    {
+      "id": "p02",
+      "url": "https://www.census.gov/data/developers/data-sets/international-trade.html",
+      "outcome": "body extracted/reviewed",
+      "reported_http_status": null
+    },
+    {
+      "id": "p03",
+      "url": "https://www.importyeti.com/faqs",
+      "outcome": "questions only; no answers extracted",
+      "reported_http_status": null
+    },
+    {
+      "id": "p04",
+      "url": "https://comtrade.un.org/licenseagreement.html",
+      "outcome": "body reviewed; 2012 agreement; current applicability unknown",
+      "reported_http_status": null
+    },
+    {
+      "id": "p05",
+      "url": "https://comtrade.un.org/data/MethodologyGuideforComtradePlus.pdf",
+      "outcome": "partial text reviewed; 2019 guide; PDF original not downloaded",
+      "reported_http_status": null
+    },
+    {
+      "id": "p06",
+      "url": "https://www.census.gov/foreign-trade/reference/guides/Guide_to_International_Trade_Datasets.pdf",
+      "outcome": "metadata only in returned output; body not reviewed",
+      "reported_http_status": null
+    },
+    {
+      "id": "p07",
+      "url": "https://www.census.gov/data/developers/guidance/api-user-guide.Query_Limits.html",
+      "outcome": "metadata only in returned output; numerical limits unknown",
+      "reported_http_status": null
+    },
+    {
+      "id": "p08",
+      "url": "https://docs.importyeti.com/docs/getting-started",
+      "outcome": "metadata only in returned open output; search extraction remains a lead",
+      "reported_http_status": null
+    },
+    {
+      "id": "p09",
+      "url": "https://www.census.gov/data/developers/about/terms-of-service.html",
+      "outcome": "click; metadata only in returned output",
+      "reported_http_status": null
+    },
+    {
+      "id": "p10",
+      "url": "https://www.importyeti.com/pricing",
+      "outcome": "reported HTTP 404; no retry",
+      "reported_http_status": 404
+    },
+    {
+      "id": "p11",
+      "url": "https://www.importyeti.com/about",
+      "outcome": "body extracted/reviewed",
+      "reported_http_status": null
+    },
+    {
+      "id": "p12",
+      "url": "https://www.census.gov/data/developers/about/terms-of-service.html",
+      "outcome": "second view via prior ref/line 96; body extracted/reviewed",
+      "reported_http_status": null
+    }
+  ],
+  "totals": {
+    "web_tool_invocations": 4,
+    "search_queries": 3,
+    "page_opens": 12,
+    "distinct_page_urls": 11,
+    "tool_return_utf8_bytes": 109123,
+    "upstream_http_bytes": null,
+    "company_queries": 0,
+    "api_data_calls": 0,
+    "shipment_downloads": 0,
+    "signup_or_key_actions": 0,
+    "saved_tool_response_file_bytes": 109127
+  },
+  "stops": {
+    "comtrade": "no requests after dated restriction observed; agreement and methodology requested in the same earlier batch",
+    "importyeti_pricing": "404 not retried; no alternative route",
+    "overall": "search/page-open caps reached; no broadening"
+  },
+  "status": "complete documentation checkpoint; no source API or data access validated",
+  "serialization_difference": "saved JSON representations have one trailing newline each; four files add four bytes over metered JSON.stringify payloads"
+}

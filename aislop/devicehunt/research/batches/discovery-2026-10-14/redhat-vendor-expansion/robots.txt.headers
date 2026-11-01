@@ -1,0 +1,19 @@
+HTTP/1.1 200 OK
+x-lightrail-platform-release: 2.4.5
+x-lightrail-deployed-on: 2026-10-08T14:18:22+00:00
+x-lightrail-app-release: 7f44325f
+x-lightrail-app-code: CATA-003
+Last-Modified: Thu, 08 Oct 2026 14:19:26 GMT
+ETag: W/"47-1a11be21db0-gzip"
+Content-Type: text/plain; charset=UTF-8
+Cache-Control: public, max-age=0
+Expires: Thu, 15 Oct 2026 05:54:52 GMT
+Date: Thu, 15 Oct 2026 05:54:52 GMT
+Content-Length: 71
+Connection: keep-alive
+x-rh-edge-alb-dc: prod_catalog_mpp_aws_us_west_2
+x-rh-edge-request-id: 61a58af7
+x-rh-edge-reference-id: 0.cf0e2017.1792043692.61a58af7
+x-rh-edge-cache-status: Hit from child
+Strict-Transport-Security: max-age=86400 ; includeSubDomains
+

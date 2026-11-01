@@ -1,0 +1,14 @@
+HTTP/2 200 
+cache-control: public
+content-type: text/plain
+expires: Fri, 15 Oct 2027 05:38:44 GMT
+last-modified: Thu, 21 May 2026 16:00:45 GMT
+accept-ranges: bytes
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000
+date: Thu, 15 Oct 2026 05:38:43 GMT
+content-length: 1136
+

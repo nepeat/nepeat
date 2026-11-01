@@ -1,0 +1,38 @@
+{
+  "account": "c4-smoke-2026-10-11a",
+  "account_state": {
+    "boot": "e4c6fa43-e8b6-4d8e-bca0-8e86027154cb",
+    "byte_limit": 1000001,
+    "deadline": null,
+    "definition_hash": "0f095a42de8acbdac6a58480cdf3e9552fb404c1b969a29cc5d85ea3b05e02d4",
+    "id": "c4-smoke-2026-10-11a",
+    "policy_hash": "rra-refresh/c4-2026-10-10",
+    "request_limit": 1,
+    "spent_bytes": 1000001,
+    "spent_requests": 1,
+    "start_mono": 577003.703355896,
+    "start_wall": 1791737947.0881436,
+    "stopped": null,
+    "window": 1800.0
+  },
+  "archive_after": {
+    "head_sequence": 4400,
+    "index_bytes": 15237120,
+    "object_bytes": 43788863,
+    "receipt_bytes": 5163447,
+    "receipts": 4774
+  },
+  "archive_before": {
+    "head_sequence": 4398,
+    "index_bytes": 15228928,
+    "object_bytes": 43788863,
+    "receipt_bytes": 5160949,
+    "receipts": 4772
+  },
+  "artifact_sha256": "210348ab1eb4b284f92b590de30ca375e2c5fa0607aedab0d521c80e28babc1e",
+  "error": null,
+  "outcome": "success",
+  "phase": "smoke",
+  "seconds": 16.896,
+  "status": 200
+}

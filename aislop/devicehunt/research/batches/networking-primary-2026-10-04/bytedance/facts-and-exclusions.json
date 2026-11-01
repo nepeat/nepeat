@@ -1,0 +1,31 @@
+{
+  "qualifying_facts": [],
+  "secondary_visual_observations": [
+    {
+      "source": "diagram.jpeg",
+      "observation": "Image displays Core-pod, Spine-block1/2, ToR Group1/4, 512GPU/Group, SC/SS/ST switch labels, 64*400GE, 32*400GE, 64*200GE and 200GE NIC link labels. Watermark: 公众号·西贝吹风. No B4020/B4010/ByteDance printed identification.",
+      "method": "visual inspection of original JPEG; not OCR"
+    }
+  ],
+  "excluded_claims": [
+    "ByteDance affiliation from Tencent/CSDN metadata namespace",
+    "B4020 64*400GE as primary specification",
+    "B4010 ByteDance affiliation from Accton applicant",
+    "Physical manufacture or deployment from trade previews",
+    "Diagram provenance from same topology terms or switch speed"
+  ],
+  "next_leads": [
+    {
+      "kind": "visible image creator watermark",
+      "name": "西贝吹风",
+      "scope": "Original credited author publication can be sought in a later bounded public-only pass; no contact/login/paywall authorized."
+    },
+    {
+      "kind": "conference search preview only",
+      "title": "Insights From Production: Scheduled Ethernet Fabric in Large AI Training Clusters",
+      "speakers": "Pengfei Huo (Sr. Network Architect) - Bytedance; Xiguang - Henry Wu (Product Marketing) - Broadcom",
+      "event": "2024 OCP Global Summit",
+      "scope": "Agenda original denied 403; no alternate route to denied item. No verified model label or diagram relationship."
+    }
+  ]
+}

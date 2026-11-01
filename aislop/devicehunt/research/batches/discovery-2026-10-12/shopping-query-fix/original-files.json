@@ -1,0 +1,27 @@
+{
+  "saved_at_utc": "2026-10-13T04:28:10.394410+00:00",
+  "files": [
+    {
+      "path": "devicehunt/__main__.py",
+      "existed": true,
+      "sha256": "540f7b1d4f118e2b42b2bbf2a84a9a0ccb17ce4c0be1d33f101ebf81a17f73e6",
+      "snapshot": "research/batches/discovery-2026-10-12/shopping-query-fix/before/devicehunt/__main__.py"
+    },
+    {
+      "path": "devicehunt/report.html",
+      "existed": true,
+      "sha256": "b05db38547daed0cdaf34d2ff5d1b793b27db9726a2fb4149a5fbab675b7c6e4",
+      "snapshot": "research/batches/discovery-2026-10-12/shopping-query-fix/before/devicehunt/report.html"
+    },
+    {
+      "path": "tests/report.test.cjs",
+      "existed": true,
+      "sha256": "2eb1b8f76309f2613052873b449e3e2d87f24a79825beb69475abc9c621834e8",
+      "snapshot": "research/batches/discovery-2026-10-12/shopping-query-fix/before/tests/report.test.cjs"
+    },
+    {
+      "path": "tests/test_shopping.py",
+      "existed": false
+    }
+  ]
+}

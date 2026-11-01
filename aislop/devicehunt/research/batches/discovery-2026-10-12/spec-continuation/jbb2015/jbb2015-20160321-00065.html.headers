@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Date: Tue, 13 Oct 2026 04:26:20 GMT
+Server: Apache
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+Accept-Ranges: bytes
+Content-Length: 46545
+Content-Type: text/html; charset=UTF-8
+

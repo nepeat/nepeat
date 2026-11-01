@@ -1,0 +1,116 @@
+import contextlib
+import io
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from urllib.parse import parse_qs, quote_plus, urlsplit
+
+from devicehunt.__main__ import main, report, shopping_links
+from devicehunt.catalog import Catalog
+
+
+def detail(title='Vendor MODEL-1', model='MODEL-1', brand='Vendor', kind='switch', identifiers=()):
+    return dict(title=title, model=model, brand=brand, kind=kind, identifiers=list(identifiers))
+
+
+class ShoppingLinkTests(unittest.TestCase):
+    def test_legal_title_and_all_existing_identifier_queries_keep_exact_url_bytes(self):
+        title = 'Inspur Electronic Information Industry Co., Ltd. (IEI) Inspur NF5280A7'
+        kinds = ('fcc_id', 'part_number', 'manufacturer_model', 'model_search', 'alias', 'onie_platform')
+        identifiers = [{'kind': k, 'value': k + '-value'} for k in kinds]
+        d = detail(title, 'Inspur NF5280A7', 'Inspur Electronic Information Industry Co., Ltd. (IEI)',
+                   'server', identifiers + [{'kind': 'reported_motherboard', 'value': 'NOT-A-QUERY'}])
+        d['facts'] = [{'name': 'power_description', 'value': 'PSU-UNVERIFIED'}]
+        d['brand_family'] = 'Invented short brand'
+        got = shopping_links(d)
+        self.assertEqual([r['query'] for r in got], sorted([title, 'Inspur NF5280A7'] +
+                                                         [i['value'] for i in identifiers]))
+        for row in got:
+            self.assertEqual(list(row), ['query', 'ebay', 'web'])
+            self.assertEqual(row['ebay'], 'https://www.ebay.com/sch/i.html?_nkw=' + quote_plus(row['query']))
+            self.assertEqual(row['web'], 'https://www.google.com/search?q=' +
+                             quote_plus('"' + row['query'] + '" used surplus'))
+        self.assertNotIn('NF5280A7', [r['query'] for r in got])  # Preserve printed Inspur prefix.
+
+    def test_exact_duplicates_blank_values_and_nonblank_spacing(self):
+        identifiers = [{'kind': 'alias', 'value': v} for v in ('MODEL-1', '', ' \t', None, ' MODEL-1 ')]
+        got = shopping_links(detail('MODEL-1', 'MODEL-1', identifiers=identifiers))
+        self.assertEqual([r['query'] for r in got], [' MODEL-1 ', 'MODEL-1'])
+        self.assertEqual(shopping_links(detail(' \n', '\t', identifiers=identifiers[1:4])), [])
+        self.assertEqual(shopping_links({'title': 'Legacy title', 'identifiers': []})[0]['query'],
+                         'Legacy title')
+
+    def test_full_suffix_case_and_punctuation_survive_url_encoding(self):
+        d = detail('Vendor SV7220G3-V+', 'SV7220G3-V+', identifiers=[
+            {'kind': 'part_number', 'value': 'A/B, R2'}, {'kind': 'alias', 'value': 'sv7220g3-v+'}])
+        got = shopping_links(d)
+        self.assertEqual([r['query'] for r in got], ['A/B, R2', 'SV7220G3-V+',
+                                                   'Vendor SV7220G3-V+', 'sv7220g3-v+'])
+        for row in got:
+            self.assertEqual(parse_qs(urlsplit(row['ebay']).query)['_nkw'], [row['query']])
+            self.assertEqual(parse_qs(urlsplit(row['web']).query)['q'], ['"' + row['query'] + '" used surplus'])
+        self.assertIn('%2B', got[1]['ebay'])
+
+    def test_existing_classifier_suppresses_branded_or_kind_only_software(self):
+        for brand, kind in [('Meta OpenBMC platform', ''), ('SONiC platform', 'server'),
+                            ('Unknown Project', 'host firmware definition')]:
+            with self.subTest(brand=brand, kind=kind):
+                self.assertEqual(shopping_links(detail('software title', 'wedge', brand, kind,
+                    [{'kind': 'part_number', 'value': 'PSU-123'}])), [])
+        for model in ('wedge', 'Switch', 'S1'):
+            with self.subTest(model=model):
+                self.assertIn(model, [r['query'] for r in shopping_links(
+                    detail('Accton ' + model, model, 'Accton', 'network platform'))])
+
+
+class ShoppingSurfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.path = self.root / 'catalog.sqlite'
+        c = Catalog(self.path)
+        c.source('fixture', 'https://example.org/source', 'vendor', 'test', 'test')
+        self.hardware = c.add('fixture', 'hardware', 'https://example.org/source',
+                              'IEIT SYSTEMS Co.,Ltd.', 'NF5280M6', 'IEIT SYSTEMS Co.,Ltd. NF5280M6',
+                              'server', {}, [('IEIT SYSTEMS Co.,Ltd.', 'documentation_vendor')])
+        self.software = c.add('fixture', 'software', 'https://example.org/source',
+                              'Meta OpenBMC platform', 'wedge', 'Meta OpenBMC platform wedge',
+                              'software reference', {}, [])
+        c.finish('fixture', 2)
+        c.db.close()
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def call(self, did):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            status = main(['--db', str(self.path), 'shopping', did])
+        self.assertEqual((status, err.getvalue()), (0, ''))
+        return out.getvalue()
+
+    def test_actual_cli_retains_table_and_explains_software_without_writes(self):
+        before = self.path.read_bytes()
+        rows = self.call(self.hardware).splitlines()
+        self.assertEqual(rows[0], 'query\tebay\tweb')
+        self.assertEqual([r.split('\t')[0] for r in rows[1:]],
+                         ['IEIT SYSTEMS Co.,Ltd. NF5280M6', 'NF5280M6'])
+        self.assertEqual(self.call(self.software), 'Software reference; no hardware shopping links.\n')
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_actual_report_embeds_empty_software_array_and_literal_model_query(self):
+        before = self.path.read_bytes()
+        c = Catalog(self.path, read_only=True)
+        try:
+            output = self.root / 'report.html'
+            report(c, output)
+        finally:
+            c.db.close()
+        text = output.read_text()
+        payload = text.split('<script id="data" type="application/json">', 1)[1].split('</script>', 1)[0]
+        rows = {d['id']: d for d in json.loads(payload)}
+        self.assertEqual(rows[self.software]['shopping'], [])
+        self.assertEqual([r['query'] for r in rows[self.hardware]['shopping']],
+                         ['IEIT SYSTEMS Co.,Ltd. NF5280M6', 'NF5280M6'])
+        self.assertEqual(self.path.read_bytes(), before)

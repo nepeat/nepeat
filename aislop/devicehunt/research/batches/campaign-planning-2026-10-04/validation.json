@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "checks": [
+    "current-document local links resolve",
+    "both CLI consultations succeeded with requested Fable model",
+    "no CLI tool permission denials or web searches",
+    "submitted plan/review snapshot hashes match",
+    "live catalog hash matches accepted checkpoint",
+    "pilot manifest job counts verified"
+  ],
+  "current_document_sha256": {
+    "docs/campaign-plan.md": "b00472f621e62787683661730cdbb8474e72b83ec2d8a5b2778818e004731969",
+    "PROGRESS.md": "90b2bfdea12e4d45e532fe6b349c75109432c1c68b539bd6dc721dad3b1e936f",
+    "research/campaign-planning-2026-10-04.md": "913b17773f19358b146e3f87a419451416a88ea564792a4f0b4e44d22dd36c12",
+    "research/batches/campaign-planning-2026-10-04/astra-review.md": "5f3895a10fc4488e9150e964d76c584e720d036ecc27925ec4e789e5f685c94e"
+  },
+  "live_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "pilot_jobs": {
+    "rra": 7,
+    "ised": 5
+  },
+  "scope": "planning only; no implementation tests, collection, import, or promotion run"
+}

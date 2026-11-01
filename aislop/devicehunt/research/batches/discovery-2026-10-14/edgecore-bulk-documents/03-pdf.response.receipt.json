@@ -1,0 +1,46 @@
+{
+  "sequence": 10,
+  "url": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-043-AIS800-32O_AIS800-32D-DS-R03-20260709.pdf",
+  "method": "GET",
+  "purpose": "published_same_origin_redirect",
+  "basis": {
+    "redirect_receipt": "03-download.response.receipt.json",
+    "redirect_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "location_raw": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-043-AIS800-32O_AIS800-32D-DS-R03-20260709.pdf"
+  },
+  "body_path": "03-pdf.response",
+  "started_utc": "2026-10-15T06:04:29.044924+00:00",
+  "request_headers": {
+    "User-Agent": "devicehunt-public-research/1.0",
+    "Accept": "*/*"
+  },
+  "automatic_redirects": false,
+  "timeout_seconds": 30,
+  "maximum_body_bytes": 20000000,
+  "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "exact_path_allowed": true,
+  "status": 200,
+  "response_url": "https://www.edge-core.com/wp-content/uploads/2026/07/2026-043-AIS800-32O_AIS800-32D-DS-R03-20260709.pdf",
+  "headers": {
+    "Date": "Thu, 15 Oct 2026 06:04:29 GMT",
+    "Content-Type": "application/pdf",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-frame-options": "SAMEORIGIN",
+    "x-content-type-options": "nosniff",
+    "last-modified": "Fri, 18 Sep 2026 08:25:55 GMT",
+    "cf-cache-status": "HIT",
+    "vary": "Accept-Encoding",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "microphone=(),fullscreen=()",
+    "x-xss-protection": "1;mode=block",
+    "Server": "cloudflare",
+    "CF-RAY": "a4aca06a184fca15-SEA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "state": "completed",
+  "bytes": 5098865,
+  "sha256": "30a674d4af1d7e39d57d3b06500fe10f9af45c0dda7abd2fa6695c547a60c76b",
+  "finished_utc": "2026-10-15T06:04:29.377234+00:00"
+}

@@ -1,0 +1,3361 @@
+{
+  "status": "PASS all227 facts/source scopes/ordering rows/routing; candidate only",
+  "checked_utc": "2026-10-13T05:17:00.067072+00:00",
+  "candidate_sha256": "687da4d58027a507cce2f2f4d31225548d3a57fd73ec6a12be5605c4fe5de86b",
+  "counts": {
+    "base_records": 5,
+    "base_facts": 61,
+    "evidence": 227,
+    "ordering_records": 35,
+    "ordering_facts": 166
+  },
+  "observations_verified": 36,
+  "ordering_rows_accepted": 35,
+  "ordering_rows_excluded": 3,
+  "original_artifacts_verified": 50,
+  "copies_verified": 5,
+  "complete_pdf_pages": 6,
+  "all_six_original_PDF_pages_visually_inspected_by_reviewer": true,
+  "routing": [
+    {
+      "path": "data/devices.sqlite",
+      "existing": 5,
+      "new": 35,
+      "other_namespaces_kept_separate": [
+        {
+          "model": "AS6700-32X",
+          "other_namespaces": [
+            {
+              "id": "25c041b85d0e71e419d5",
+              "brand": "Accton",
+              "model": "AS6700-32X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "AS6701-32X",
+          "other_namespaces": [
+            {
+              "id": "9e898c82329d410d5842",
+              "brand": "Accton",
+              "model": "AS6701-32X",
+              "kind": "network platform"
+            }
+          ]
+        },
+        {
+          "model": "AS5710-54X",
+          "other_namespaces": [
+            {
+              "id": "69d53d231c3086628a06",
+              "brand": "Accton",
+              "model": "AS5710-54X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "AS5712-54X",
+          "other_namespaces": [
+            {
+              "id": "1cbdf06ff02b387f45fb",
+              "brand": "Accton",
+              "model": "AS5712-54X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "PSU-AC-400-F",
+          "other_namespaces": [
+            {
+              "id": "ef278540efd13b859b1a",
+              "brand": "Unattributed accessory",
+              "model": "PSU-AC-400-F",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-AC-400-B",
+          "other_namespaces": [
+            {
+              "id": "330321a30f5684f86e71",
+              "brand": "Unattributed accessory",
+              "model": "PSU-AC-400-B",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-48V-400-F",
+          "other_namespaces": [
+            {
+              "id": "43649de56b608fc8a686",
+              "brand": "Unattributed accessory",
+              "model": "PSU-48V-400-F",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-48V-400-B",
+          "other_namespaces": [
+            {
+              "id": "5d444ceec48c728829bf",
+              "brand": "Unattributed accessory",
+              "model": "PSU-48V-400-B",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-12V-400-1",
+          "other_namespaces": [
+            {
+              "id": "2e34a84da67d711b3199",
+              "brand": "Unattributed accessory",
+              "model": "PSU-12V-400-1",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "ORSA-1U",
+          "other_namespaces": [
+            {
+              "id": "4cf17ecb7ae42b2db8b0",
+              "brand": "Unattributed accessory",
+              "model": "ORSA-1U",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-US",
+          "other_namespaces": [
+            {
+              "id": "99d5d2fc1704e0926551",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-US",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-EU",
+          "other_namespaces": [
+            {
+              "id": "861fa73aed477d502901",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-EU",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-UK",
+          "other_namespaces": [
+            {
+              "id": "e62408736a7a514fbb33",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-UK",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-JP",
+          "other_namespaces": [
+            {
+              "id": "096442ae4447f0acbbda",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-JP",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "data/devices-candidate-wave4-2026-10-12.sqlite",
+      "existing": 5,
+      "new": 35,
+      "other_namespaces_kept_separate": [
+        {
+          "model": "AS6700-32X",
+          "other_namespaces": [
+            {
+              "id": "25c041b85d0e71e419d5",
+              "brand": "Accton",
+              "model": "AS6700-32X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "AS6701-32X",
+          "other_namespaces": [
+            {
+              "id": "9e898c82329d410d5842",
+              "brand": "Accton",
+              "model": "AS6701-32X",
+              "kind": "network platform"
+            }
+          ]
+        },
+        {
+          "model": "AS5710-54X",
+          "other_namespaces": [
+            {
+              "id": "69d53d231c3086628a06",
+              "brand": "Accton",
+              "model": "AS5710-54X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "AS5712-54X",
+          "other_namespaces": [
+            {
+              "id": "1cbdf06ff02b387f45fb",
+              "brand": "Accton",
+              "model": "AS5712-54X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "PSU-AC-400-F",
+          "other_namespaces": [
+            {
+              "id": "ef278540efd13b859b1a",
+              "brand": "Unattributed accessory",
+              "model": "PSU-AC-400-F",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-AC-400-B",
+          "other_namespaces": [
+            {
+              "id": "330321a30f5684f86e71",
+              "brand": "Unattributed accessory",
+              "model": "PSU-AC-400-B",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-48V-400-F",
+          "other_namespaces": [
+            {
+              "id": "43649de56b608fc8a686",
+              "brand": "Unattributed accessory",
+              "model": "PSU-48V-400-F",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-48V-400-B",
+          "other_namespaces": [
+            {
+              "id": "5d444ceec48c728829bf",
+              "brand": "Unattributed accessory",
+              "model": "PSU-48V-400-B",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-12V-400-1",
+          "other_namespaces": [
+            {
+              "id": "2e34a84da67d711b3199",
+              "brand": "Unattributed accessory",
+              "model": "PSU-12V-400-1",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "ORSA-1U",
+          "other_namespaces": [
+            {
+              "id": "4cf17ecb7ae42b2db8b0",
+              "brand": "Unattributed accessory",
+              "model": "ORSA-1U",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-US",
+          "other_namespaces": [
+            {
+              "id": "99d5d2fc1704e0926551",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-US",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-EU",
+          "other_namespaces": [
+            {
+              "id": "861fa73aed477d502901",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-EU",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-UK",
+          "other_namespaces": [
+            {
+              "id": "e62408736a7a514fbb33",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-UK",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-JP",
+          "other_namespaces": [
+            {
+              "id": "096442ae4447f0acbbda",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-JP",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "data/devices-candidate-wave3-2026-10-12.sqlite",
+      "existing": 5,
+      "new": 35,
+      "other_namespaces_kept_separate": [
+        {
+          "model": "AS6700-32X",
+          "other_namespaces": [
+            {
+              "id": "25c041b85d0e71e419d5",
+              "brand": "Accton",
+              "model": "AS6700-32X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "AS6701-32X",
+          "other_namespaces": [
+            {
+              "id": "9e898c82329d410d5842",
+              "brand": "Accton",
+              "model": "AS6701-32X",
+              "kind": "network platform"
+            }
+          ]
+        },
+        {
+          "model": "AS5710-54X",
+          "other_namespaces": [
+            {
+              "id": "69d53d231c3086628a06",
+              "brand": "Accton",
+              "model": "AS5710-54X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "AS5712-54X",
+          "other_namespaces": [
+            {
+              "id": "1cbdf06ff02b387f45fb",
+              "brand": "Accton",
+              "model": "AS5712-54X",
+              "kind": "switch"
+            }
+          ]
+        },
+        {
+          "model": "PSU-AC-400-F",
+          "other_namespaces": [
+            {
+              "id": "ef278540efd13b859b1a",
+              "brand": "Unattributed accessory",
+              "model": "PSU-AC-400-F",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-AC-400-B",
+          "other_namespaces": [
+            {
+              "id": "330321a30f5684f86e71",
+              "brand": "Unattributed accessory",
+              "model": "PSU-AC-400-B",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-48V-400-F",
+          "other_namespaces": [
+            {
+              "id": "43649de56b608fc8a686",
+              "brand": "Unattributed accessory",
+              "model": "PSU-48V-400-F",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-48V-400-B",
+          "other_namespaces": [
+            {
+              "id": "5d444ceec48c728829bf",
+              "brand": "Unattributed accessory",
+              "model": "PSU-48V-400-B",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "PSU-12V-400-1",
+          "other_namespaces": [
+            {
+              "id": "2e34a84da67d711b3199",
+              "brand": "Unattributed accessory",
+              "model": "PSU-12V-400-1",
+              "kind": "Power Supply FRU"
+            }
+          ]
+        },
+        {
+          "model": "ORSA-1U",
+          "other_namespaces": [
+            {
+              "id": "4cf17ecb7ae42b2db8b0",
+              "brand": "Unattributed accessory",
+              "model": "ORSA-1U",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-US",
+          "other_namespaces": [
+            {
+              "id": "99d5d2fc1704e0926551",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-US",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-EU",
+          "other_namespaces": [
+            {
+              "id": "861fa73aed477d502901",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-EU",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-UK",
+          "other_namespaces": [
+            {
+              "id": "e62408736a7a514fbb33",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-UK",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        },
+        {
+          "model": "CBL-PWR-JP",
+          "other_namespaces": [
+            {
+              "id": "096442ae4447f0acbbda",
+              "brand": "Unattributed accessory",
+              "model": "CBL-PWR-JP",
+              "kind": "ordering item (type not printed)"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "all227locators": [
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 0,
+      "fact_name": "physical_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 1,
+        "tag": "p",
+        "text_phrase": "The 3U chassis"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 1,
+      "fact_name": "physical_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 8,
+        "tag": "tr",
+        "text_phrase": "Height 13.3 cm/5.25 in"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 2,
+      "fact_name": "physical_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 13,
+        "tag": "tr",
+        "text_phrase": "Width 43.7 cm/17.19 in"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 17,
+        "tag": "p",
+        "text_phrase": "Nominal frequencies: 50/60Hz"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 4,
+      "fact_name": "power_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 19,
+        "tag": "p",
+        "text_phrase": "AC operating range:"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 5,
+      "fact_name": "power_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 21,
+        "tag": "p",
+        "text_phrase": "Maximum current AC RMS:"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 6,
+      "fact_name": "power_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 24,
+        "tag": "p",
+        "text_phrase": "Max power consumption:"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 7,
+      "fact_name": "power_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 26,
+        "tag": "p",
+        "text_phrase": "Max heat output:"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 8,
+      "fact_name": "power_description",
+      "locator": {
+        "article_block_ordinal_zero_based": 28,
+        "tag": "p",
+        "text_phrase": "Volt-Ampere rating:"
+      }
+    },
+    {
+      "model": "Sun ZFS Storage 7420",
+      "fact_index": 9,
+      "fact_name": "power_rating_scope_note_as_printed",
+      "locator": {
+        "article_text_exact_phrase": "The power dissipation numbers listed are the maximum rated for the power supply and are not a rating of the actual power consumption of the appliance."
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 0,
+      "fact_name": "model_heading_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          3
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 1,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          11,
+          12
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 2,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          28,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 3,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          31,
+          32,
+          33,
+          34,
+          35
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          38,
+          39,
+          40,
+          41,
+          42,
+          43
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 5,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          44,
+          45,
+          46
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 6,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          62,
+          63,
+          64
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 7,
+      "fact_name": "service_constraint_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          26,
+          27
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 8,
+      "fact_name": "document_revision_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          66,
+          67
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 9,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          35
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 10,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          36,
+          37
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 11,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          39,
+          40
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 12,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          42
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 13,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          46
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 14,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          49
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 15,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          26,
+          27
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 16,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          44,
+          45,
+          46,
+          47,
+          48
+        ]
+      }
+    },
+    {
+      "model": "AS6700-32X",
+      "fact_index": 17,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          53,
+          54
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 0,
+      "fact_name": "model_heading_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          3
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 1,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          11,
+          12
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 2,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          28,
+          29,
+          30
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 3,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          31,
+          32,
+          33,
+          34,
+          35
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          38,
+          39,
+          40,
+          41,
+          42,
+          43
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 5,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          44,
+          45,
+          46
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 6,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          62,
+          63,
+          64
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 7,
+      "fact_name": "service_constraint_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          26,
+          27
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 8,
+      "fact_name": "document_revision_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          66,
+          67
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 9,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          35
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 10,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          36,
+          37
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 11,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          39,
+          40
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 12,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          42
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 13,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          46
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 14,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          49
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 15,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          26,
+          27
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 16,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          44,
+          45,
+          46,
+          47,
+          48
+        ]
+      }
+    },
+    {
+      "model": "AS6701-32X",
+      "fact_index": 17,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          53,
+          54
+        ]
+      }
+    },
+    {
+      "model": "AS5710-54X",
+      "fact_index": 0,
+      "fact_name": "model_heading_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          5
+        ]
+      }
+    },
+    {
+      "model": "AS5710-54X",
+      "fact_index": 1,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          40
+        ]
+      }
+    },
+    {
+      "model": "AS5710-54X",
+      "fact_index": 2,
+      "fact_name": "model_configuration_as_printed",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          18,
+          19,
+          20,
+          21,
+          22
+        ],
+        "column_scope": "left model-specific CPU/memory/storage group"
+      }
+    },
+    {
+      "model": "AS5710-54X",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ]
+      }
+    },
+    {
+      "model": "AS5710-54X",
+      "fact_index": 4,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          60,
+          61,
+          62,
+          63,
+          64,
+          65
+        ]
+      }
+    },
+    {
+      "model": "AS5710-54X",
+      "fact_index": 5,
+      "fact_name": "company_context_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          49,
+          50
+        ]
+      }
+    },
+    {
+      "model": "AS5710-54X",
+      "fact_index": 6,
+      "fact_name": "document_revision_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          55
+        ]
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 0,
+      "fact_name": "model_heading_as_printed",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          5
+        ]
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 1,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          40
+        ]
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 2,
+      "fact_name": "software_installation_description",
+      "locator": {
+        "pdf_page": 1,
+        "lines_1based": [
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65
+        ]
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 3,
+      "fact_name": "model_configuration_as_printed",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "column_scope": "left model-specific CPU/memory/storage group"
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 4,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ]
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 5,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 2,
+        "lines_1based": [
+          60,
+          61,
+          62,
+          63,
+          64,
+          65
+        ]
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 6,
+      "fact_name": "company_context_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          49,
+          50
+        ]
+      }
+    },
+    {
+      "model": "AS5712-54X",
+      "fact_index": 7,
+      "fact_name": "document_revision_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          55
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-US",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          9
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-US",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-US",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          9
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-US",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          9
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-US",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          9
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-US",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          9
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-US",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          11
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-US",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-US",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          11
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-US",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          11
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-US",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          11
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-US",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          11
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-EU",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          13
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-EU",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-EU",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          13
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-EU",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          13
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-EU",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          13
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-EU",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          13
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-EU",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          15
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-EU",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-EU",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          15
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-EU",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          15
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-EU",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          15
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-EU",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          15
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-UK",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          17
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-UK",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-UK",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          17
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-UK",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          17
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-UK",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          17
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-UK",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          17
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-UK",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          19
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-UK",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-UK",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          19
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-UK",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          19
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-UK",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          19
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-UK",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          19
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-JP",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          21
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-JP",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-JP",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          21
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-JP",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          21
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-JP",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          21
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-F-JP",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          21
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-JP",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          23
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-JP",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-JP",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          23
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-JP",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          23
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-JP",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          23
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-AC-B-JP",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          23
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-F",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          25
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-F",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-F",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          25
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-F",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          25
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-F",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          25
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-B",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          27
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-B",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-B",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          27
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-B",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          27
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-48V-B",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          27
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-F",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          29
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-F",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-F",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          29
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-F",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          29
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-F",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          29
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-B",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          31
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-B",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          6
+        ]
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-B",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          31
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-B",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          31
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5710-54X-O-12V-B",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          31
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-US",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          36
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-US",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-US",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          36
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-US",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          36
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-US",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          36
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-US",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          36
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-US",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          38
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-US",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-US",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          38
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-US",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          38
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-US",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          38
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-US",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          38
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-EU",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          40
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-EU",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-EU",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          40
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-EU",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          40
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-EU",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          40
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-EU",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          40
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-EU",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          42
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-EU",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-EU",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          42
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-EU",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          42
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-EU",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          42
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-EU",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          42
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-UK",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          44
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-UK",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-UK",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          44
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-UK",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          44
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-UK",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          44
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-UK",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          44
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-UK",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          46
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-UK",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-UK",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          46
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-UK",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          46
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-UK",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          46
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-UK",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          46
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-JP",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          48
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-JP",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-JP",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          48
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-JP",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          48
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-JP",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          48
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-F-JP",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          48
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-JP",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          50
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-JP",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-JP",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          50
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-JP",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          50
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-JP",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          50
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-AC-B-JP",
+      "fact_index": 5,
+      "fact_name": "power_cord_region_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          50
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-F",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          52
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-F",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-F",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          52
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-F",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          52
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-F",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          52
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-B",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          54
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-B",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-B",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          54
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-B",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          54
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-48V-B",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          54
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-F",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          56
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-F",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-F",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          56
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-F",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          56
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-F",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          56
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-B",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          58
+        ],
+        "row_scope": "family_configuration_order_row"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-B",
+      "fact_index": 1,
+      "fact_name": "base_model_heading_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          33
+        ]
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-B",
+      "fact_index": 2,
+      "fact_name": "cpu_module_as_printed",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          58
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "CPU Module"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-B",
+      "fact_index": 3,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          58
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "5712-54X-O-12V-B",
+      "fact_index": 4,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 3,
+        "lines_1based": [
+          58
+        ],
+        "row_scope": "family_configuration_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "PSU-AC-400-F",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          8
+        ],
+        "row_scope": "PSU_fan_FRU_order_row"
+      }
+    },
+    {
+      "model": "PSU-AC-400-F",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          8
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "PSU-AC-400-F",
+      "fact_index": 2,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          8
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "PSU-AC-400-F",
+      "fact_index": 3,
+      "fact_name": "power_cord_scope_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          8
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "PSU-AC-400-B",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          10
+        ],
+        "row_scope": "PSU_fan_FRU_order_row"
+      }
+    },
+    {
+      "model": "PSU-AC-400-B",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          10
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "PSU-AC-400-B",
+      "fact_index": 2,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          10
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "PSU-AC-400-B",
+      "fact_index": 3,
+      "fact_name": "power_cord_scope_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          10
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "PSU-48V-400-F",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          12
+        ],
+        "row_scope": "PSU_fan_FRU_order_row"
+      }
+    },
+    {
+      "model": "PSU-48V-400-F",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          12
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "PSU-48V-400-F",
+      "fact_index": 2,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          12
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "PSU-48V-400-F",
+      "fact_index": 3,
+      "fact_name": "power_cord_scope_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          12
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "PSU-48V-400-B",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          14
+        ],
+        "row_scope": "PSU_fan_FRU_order_row"
+      }
+    },
+    {
+      "model": "PSU-48V-400-B",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          14
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "PSU-48V-400-B",
+      "fact_index": 2,
+      "fact_name": "cooling_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          14
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Airflow"
+      }
+    },
+    {
+      "model": "PSU-48V-400-B",
+      "fact_index": 3,
+      "fact_name": "power_cord_scope_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          14
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "Region (power cord)"
+      }
+    },
+    {
+      "model": "PSU-12V-400-1",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          16
+        ],
+        "row_scope": "PSU_fan_FRU_order_row"
+      }
+    },
+    {
+      "model": "PSU-12V-400-1",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          16
+        ],
+        "row_scope": "PSU_fan_FRU_order_row",
+        "column": "PSU"
+      }
+    },
+    {
+      "model": "RKIT-85-6712",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          26
+        ],
+        "row_scope": "service_mounting_cable_order_row"
+      }
+    },
+    {
+      "model": "RKIT-85-6712",
+      "fact_index": 1,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          26
+        ],
+        "row_scope": "service_mounting_cable_order_row",
+        "column": "Description"
+      }
+    },
+    {
+      "model": "ORSA-1U",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          28
+        ],
+        "row_scope": "service_mounting_cable_order_row"
+      }
+    },
+    {
+      "model": "ORSA-1U",
+      "fact_index": 1,
+      "fact_name": "physical_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          28
+        ],
+        "row_scope": "service_mounting_cable_order_row",
+        "column": "Description"
+      }
+    },
+    {
+      "model": "CBL-PWR-US",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          30
+        ],
+        "row_scope": "service_mounting_cable_order_row"
+      }
+    },
+    {
+      "model": "CBL-PWR-US",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          30
+        ],
+        "row_scope": "service_mounting_cable_order_row",
+        "column": "Description"
+      }
+    },
+    {
+      "model": "CBL-PWR-EU",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          32
+        ],
+        "row_scope": "service_mounting_cable_order_row"
+      }
+    },
+    {
+      "model": "CBL-PWR-EU",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          32
+        ],
+        "row_scope": "service_mounting_cable_order_row",
+        "column": "Description"
+      }
+    },
+    {
+      "model": "CBL-PWR-UK",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          34
+        ],
+        "row_scope": "service_mounting_cable_order_row"
+      }
+    },
+    {
+      "model": "CBL-PWR-UK",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          34
+        ],
+        "row_scope": "service_mounting_cable_order_row",
+        "column": "Description"
+      }
+    },
+    {
+      "model": "CBL-PWR-JP",
+      "fact_index": 0,
+      "fact_name": "ordering_row_as_printed",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          36
+        ],
+        "row_scope": "service_mounting_cable_order_row"
+      }
+    },
+    {
+      "model": "CBL-PWR-JP",
+      "fact_index": 1,
+      "fact_name": "power_description",
+      "locator": {
+        "pdf_page": 4,
+        "lines_1based": [
+          36
+        ],
+        "row_scope": "service_mounting_cable_order_row",
+        "column": "Description"
+      }
+    }
+  ],
+  "candidate_file_hashes": {
+    "checks.json": "aef86b1af0a604ef9456d801b970a48b3043f46f1368f19eb99ca50dae119b7b",
+    "provenance.json": "bfde0fd7068eaa1c67b6029ae2254f3ca50d137c8370311a46eaef68a9c70fee",
+    "routing.json": "fe276e1f9ce6fd603b303daa2432326daea0772c484133acd20e6ddfb56eaf6d",
+    "candidate.json": "687da4d58027a507cce2f2f4d31225548d3a57fd73ec6a12be5605c4fe5de86b",
+    "SHA256SUMS": "96b3bf6ca4fd49a4f776ea30670b1d91e280655fbec530a7478a4541f47619c0",
+    "handoff.md": "d069e1999997402b65c72999b281117983480433dacdf28284e9d238f8742694",
+    "wave3-routing.json": "a7764383c202fece436a0122f139d6bb3106ce79eea369d172d57f7021859a6e",
+    "check_candidate.py": "32d094ebbe96f046c72c7afd490d4d06416afdb956dd88a8f072fd335007203b",
+    "build_candidate.py": "ef5ba67ab4f94d8e65b22b6e7a8e90a2cf43dd147ca860306e57811bb6cbf198",
+    "mapping.json": "1a1bf5e9b26024c0e3ddab76683769df05b83700ee63e4ce082ae0855624a557",
+    "snapshots/as6700-pages.json": "fd8c4ba80be27ceb94de924a7ba75bf0ade90613743078cd9107a15c6da67ef6",
+    "snapshots/as5712-pages.json": "77850b847d33b76c07251cc55fa542d71164018382011eb30c11b0f63f6f9e87",
+    "snapshots/as6700-quick-start.pdf": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+    "snapshots/oracle7420-specifications.html": "9e4c532efbb0a19ecf67d35a925b8c65ddfa7de857c26c16ec66e497b0a4b37b",
+    "snapshots/as5710-as5712-ds-r09.pdf": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f"
+  },
+  "readonly_database_hashes_unchanged": {
+    "data/devices.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/devices-candidate-wave4-2026-10-12.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/devices-candidate-wave3-2026-10-12.sqlite": "4ae2cd0d6a614d582cf6fc47e6ba0e022521ac2b5e73bb268fcfa0dcb87c03ea"
+  },
+  "builder_check": {
+    "returncode": 0,
+    "stdout": "PASS 3 sources / 40 records / 227 facts; no import\n",
+    "stderr": "",
+    "candidate_tree_unchanged": true
+  },
+  "limits": "No import/temp DB/network/extraction/render/code/shared writes; saved original images inspected only."
+}

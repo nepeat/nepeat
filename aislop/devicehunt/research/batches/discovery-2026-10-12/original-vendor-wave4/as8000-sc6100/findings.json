@@ -1,0 +1,224 @@
+{
+  "status": "bounded discovery; not importer candidate",
+  "sources": [
+    {
+      "model_as_printed": "Minipack-AS8000",
+      "pdf": "as8000-r02-qsg.pdf",
+      "pdf_sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "facts": [
+        {
+          "name": "model_revision",
+          "value": "128-Port 100G Chassis Switch; Minipack-AS8000. Footer E082019-CS-R02 and 150200002142A are literal document identifiers, not inferred unit manufacture/firmware dates.",
+          "pdf_page": 1,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "rack_rails",
+          "value": "4RU chassis requires separately ordered L-shaped rack-rails in a 19-inch rack; screw-type/tool-less rail methods and adapters for 29-inch-deep racks are described. No rail order code is supplied.",
+          "pdf_page": 1,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "installation_restrictions",
+          "value": "Document warns to use provided accessories/screws; top of enclosure is a hot surface; install in a restricted-access location. These are published restrictions, not a fresh endorsement of safe standalone use.",
+          "pdf_page": 1,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "chassis_mounting_and_air_baffles",
+          "value": "Use four lifting handles, secure chassis with four #12-24-16L screws; install air baffles between chassis units and secure baffle to front of rack-rails with two M4 screws.",
+          "pdf_page": 2,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "psu_quantity_and_redundancy",
+          "value": "Up to four universal AC PSUs; source says whole chassis can operate with two installed PSUs and three or four provide redundancy. Published system statement, not bootability/configuration of an empty chassis, SCM or auction unit.",
+          "pdf_page": 2,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "power_circuit_constraint",
+          "value": "Connect PSU AC sockets to at least two separate AC power circuits for redundancy; use retention clips for power cords. No per-PSU manufacturer/model or rated output supplied here.",
+          "pdf_page": 2,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "management_module_scope",
+          "value": "1000BASE-T RJ45 management port belongs to System Controller Module (SCM); Port Interface Module (PIM) is separately named. Chassis/module names are not ordering-code aliases.",
+          "pdf_page": 2,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "module_service_constraint",
+          "value": "Disconnect all network connections before PIM removal; use ESD wrist strap at chassis ESD point. SCM/PIM removal/installation use module release lever/backplane engagement and latching steps.",
+          "pdf_page": 3,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "fan_tray_service",
+          "value": "Document says system ships with eight fan trays; hot-swappable without powering switch off. Do not leave an empty fan-tray slot; replace failed trays as soon as possible. Shipping specification, not installed-unit count.",
+          "pdf_page": 3,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "failed_psu_service_limit",
+          "value": "With four-PSU system and a failed PSU, source says operation continues with three PSUs installed; replace PSU within 10 minutes. Keep this service limit separate from general two-PSU operation statement.",
+          "pdf_page": 3,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "dimensions_configured_weight",
+          "value": "W x D x H 440.4 x 755.5 x 176.2 mm (17.34 x 29.74 x 6.94 in), 4RU. 55 kg (121.25 lb) specifically with one SCM, eight PIMs, eight fan trays and four PSUs; not bare-chassis weight.",
+          "pdf_page": 4,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "environmental_conditions",
+          "value": "Operating0 to45 C, storage-40 to70 C; operating humidity5% to85% non-condensing. Operating altitude up to1829 m (6000 ft) at0 to35 C, not entire0 to45 C range.",
+          "pdf_page": 4,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "maximum_power_consumption",
+          "value": "3000 Watts maximum power consumption is printed for switch chassis; not PSU output or measured draw of an auction unit.",
+          "pdf_page": 4,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        },
+        {
+          "name": "system_input_rating_lines",
+          "value": "100–120 VAC,50/60Hz,10A per PS x4;200–240 VAC,50/60Hz,7A per PS x4;200–277 VAC,50/60Hz,9A per PS x4, with explicit exception for Bel Fuse and Murata power supply. Preserve all three conditioned lines; no universal277V fitment or sum of currents implied.",
+          "pdf_page": 4,
+          "scope_as_printed": "Minipack-AS8000 chassis/system, English R02 quick-start section",
+          "visually_reviewed": true
+        }
+      ],
+      "absences": [
+        "No full ordering-code table, standalone chassis/SCM/PIM/rail/PSU/fan part codes, exact PSU model/rated output or airflow direction in selected English operating pages.",
+        "No explicit available NOS/recovery procedure/firmware access or installed-unit bootability established."
+      ],
+      "scope_limits": [
+        "English PDF pages1–4 visually reviewed; selected observations are chassis/system/service statements. Pages5–8 parallel Chinese section not visually reviewed or transcribed into facts.",
+        "PDF pages9–12 safety/compliance context retained completely; no new safety/cord/regulatory findings selected without further page QA.",
+        "Do not transfer complete-system ratings/weight to separately listed chassis, SCM, PIM, FAN or order-code identities."
+      ],
+      "extraction_quality": [
+        "Page12 restricted-substance table embedded text has garbled font mappings/control characters. Preserved verbatim, no OCR or repaired text, not selected as factual evidence.",
+        "Page5 Chinese warning embedded text says Minipack-AS80000 whereas headings say Minipack-AS8000. No alias inferred; no Chinese-page claim is promoted in this six-render pass."
+      ]
+    },
+    {
+      "model_as_printed": "SC6100",
+      "pdf": "sc6100-datasheet.pdf",
+      "pdf_sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "facts": [
+        {
+          "name": "model_chassis_nodes",
+          "value": "SC6100:2U24 SSD High Availability All-Flash PCIe Gen5 Storage Controller;2U chassis fits19-inch rack; two hot-swap computing nodes. Do not turn the computing-node description into a separately identified model.",
+          "pdf_page": 1,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "storage_capacity_scope",
+          "value": "Supports up to24 dual-port U.2 PCIe Gen5 SSDs. Platform description powered by two AMD EPYC9004 series processors, Zen4; NODE FEATURES separately describes a built-in socket for EPYC9004 and12 DDR5 DIMMs. Not installed CPU/DIMM/SSD inventory.",
+          "pdf_page": 1,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "node_management_interfaces",
+          "value": "NODE FEATURES: BMC ASPEED AST2600;2x10GbE RJ45 plus1x1GbE RJ45 for BMC;1xUSB3.0 and1xService Port USB Type-C. Interface declarations do not establish downloadable firmware or installed software.",
+          "pdf_page": 1,
+          "scope_as_printed": "SC6100 NODE FEATURES",
+          "visually_reviewed": true
+        },
+        {
+          "name": "bbu_option",
+          "value": "BBU available for node power in event of AC power loss; optional feature statement, not installed battery or runtime guarantee.",
+          "pdf_page": 1,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "psu_configuration",
+          "value": "Two2400W Titanium80+ efficiency CRPS power supply units;200–240Vac47–63Hz;1+1 redundant/hot-swappable. Keep input range and redundancy scope; do not sum into4800W continuous system capacity.",
+          "pdf_page": 1,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "fan_module_condition",
+          "value": "14 fans,40mm x56mm, hot-swapped with compute nodes, seven per node; not a claim that each fan can be removed independently while a node remains installed.",
+          "pdf_page": 1,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "physical_dimensions",
+          "value": "Height87mm(3.43in),width446mm(17.56in),depth874mm(34.41in). No weight supplied.",
+          "pdf_page": 1,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "operating_environment",
+          "value": "Operating5 to35 C;humidity8% to80%RH;altitude0 to950m with temperature derating1 C per300m above950m.",
+          "pdf_page": 2,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "non_operating_environment",
+          "value": "Non-operating-40 to60 C;humidity8% to95%RH;altitude0 to12000m. Do not transfer these to operating limits.",
+          "pdf_page": 2,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "sound_power",
+          "value": "At23+/-2 C sound power<=8.6 Bels, not sound pressure at a listener position.",
+          "pdf_page": 2,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        },
+        {
+          "name": "application_capacity_condition",
+          "value": "Application topology says737.28TB using30.72TB NVMe SSD x24. Published populated-drive example, not guaranteed installed or formatted/usable capacity.",
+          "pdf_page": 2,
+          "scope_as_printed": "SC6100 APPLICATION TOPOLOGY",
+          "visually_reviewed": true
+        },
+        {
+          "name": "revision",
+          "value": "CopyrightCelesticaInc.2024 and literal footer092724; no current support/stock or unit manufacturing date inferred.",
+          "pdf_page": 2,
+          "scope_as_printed": "SC6100 platform unless specifically noted per node",
+          "visually_reviewed": true
+        }
+      ],
+      "absences": [
+        "No weight, airflow direction, exact PSU manufacturer/model or chassis/node/drive ordering codes supplied."
+      ],
+      "scope_limits": [
+        "Chassis, computing nodes, per-node DIMM/interface declarations and optional BBU remain distinct; no separate node identity/alias or current hardware/software support inferred."
+      ],
+      "conflicts": [
+        "FEATURES top-level slot wording says2xPCIeGen5(x16) low-profile slots per node plus2PCIeGen5(x8) slot; NODE FEATURES/ApplicationTopology say4standardHHHL slots/2xGen5x16+2xGen5x8. Preserve original scopes; no slot/low-profile-versus-HHHL configuration claim selected to resolve the wording."
+      ]
+    }
+  ],
+  "global_limits": "Vendor documents only; no per-model manufacturing/factory/deployment role proposed, no current support/stock/certification, individual-unit provenance/components, safe standalone wiring or exact identity routing. Preserve printed model suffixes, source conditions and version differences."
+}

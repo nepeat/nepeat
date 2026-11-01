@@ -1,0 +1,80 @@
+PFE1500 Series                                                                                                                                                13
+
+
+
+  8.6 AC TURN-ON / DROP-OUTS / ACOK_H
+            The power supply will automatically turn-on when connected to the AC line under the condition that the PSON_L signal is
+            pulled low and the AC line is within range. The ACOK_H signal is active-high. The timing diagram is shown in Figure and
+            referenced in Table 4.
+
+
+  OPERATING CONDITION                                  MIN   MAX    UNIT
+  tAC VSB          AC Line to 90% VVSB                        2     sec
+  tAC V1           AC Line to 90% V1                          2     sec        AC
+  tACOK_H on1      ACOK_H signal on delay (start-up)         2000   ms       Input
+
+  tACOK_H on2      ACOK_H signal on delay (dips)             100    ms
+  tACOK_H off      ACOK_H signal off delay                    5     ms
+                                                                              VSB                                                                tV1 rise
+  tVSB V1 del      VSB to V1 delay                     10    500    ms
+  tV1 holdup       Effective V1 holdup time            10           ms                           tAC VSB                 tVSB rise
+  tVSB holdup      Effective VSB holdup time           20           ms         V1                                         tVSB V1 del
+
+  tACOK_H V1       ACOK_H to V1 holdup                  7           ms
+                                                                                                                     tAC V1
+                                                                           PSON_L
+  tACOK_H VSB      ACOK_H to VSB holdup                15           ms
+  tV1 off          Minimum V1 off time                  1     2     sec                     tACOK_H on1
+                                                                           ACOK_H
+  tVSB off         Minimum VSB off time                 1     2     sec                                                            tPWOK_H del
+                                                                           PWOK_H
+   NOTE: AC short dips means below 10 ms;
+         AC long dips means 10 ms to 100 ms
+
+                          Table 4. AC Turn-on / Dip Timing                                  Figure 12. AC turn-on timing
+
+
+                                                                                AC
+                                                                              Input
+
+
+
+                                                                                                      tVSB holdup             tVSB off
+                                                                               VSB
+
+
+                                                                                                     tV1 holdup                   tV1 off
+                                                                                V1
+                                                                                       tACOK_H V1
+                                                                                       tACOK_H off
+                                                                            PSON_L
+                                                                                                         tACOK_H VSB
+                                                                            ACOK_H
+                                                                                                                    tPWOK_H warn
+                                                                           PWOK_H
+
+
+                            Figure 13. AC short dips                                            Figure 14. AC long dips
+
+
+
+  8.7 PSON_L INPUT
+
+   The PSON_L is an internally pulled-up (3.3 V) input signal to enable/disable the main output V1 of the front-end. This active-low
+   pin is also used to clear any latched fault condition. The timing diagram is given in Figure 13 and the parameters in Table 5.
+
+  OPERATING CONDITION                                                                                                    MIN                MAX             UNIT
+  tPSON_L V1on          PSON_L to V1 delay (on)                                                                               2              20             ms
+  tPSON_L V1off         PSON_L to V1 delay (off)                                                                              2              20             ms
+  tPSON_L H min         PSON_L minimum High time                                                                          10                                ms
+
+                                                              Table 5. PSON_L timing
+
+
+
+
+                                                                           Asia-Pacific          Europe, Middle East                          North America
+                                                                     +86 755 298 85888               +353 61 49 8941                         +1 866 513 2839
+
+                                                                                                     © 2024 Bel Fuse Inc.                           BCD.00733_J
+

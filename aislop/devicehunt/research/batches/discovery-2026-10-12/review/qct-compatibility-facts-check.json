@@ -1,0 +1,11 @@
+{
+  "candidate_sha256": "9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd",
+  "records": 1,
+  "facts": 8,
+  "all_72_cells_and_raw_rows_equal": true,
+  "blank_notes": 7,
+  "copies_match": true,
+  "current_route_exists_source_absent": true,
+  "database_sha256_unchanged": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+  "mandatory_auxiliary_pin": "snapshots/parent-product.html"
+}

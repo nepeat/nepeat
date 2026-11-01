@@ -1,0 +1,67 @@
+6                                                                                                            PFE1500 Series
+
+
+           General Condition: Ta = 0… 45°C unless otherwise specified.
+
+
+Main Output V1
+    V1 nom       Nominal Output Voltage                                                                        12.0              VDC
+                 Output Setpoint           0.5 ∙I1 nom, Tamb = 25 °C
+    V1 set                                                                                            -0.5              +0.5    % V1 nom
+                 Accuracy
+    dV1 tot      Total Regulation          Vi min to Vi max, 0 to 100% I1 nom, Ta min to Ta max        -2               +2      % V1 nom
+                                           264 VAC > Vin ≥ 180 VAC, V1 = 12 VDC
+    P1 nom       Nominal Output Power                                                                          1,500               W
+                                           400 VDC > Vin ≥180 VDC, V1 = 12 VDC
+                 Refer to Figure 7 for
+                                           180 VAC > Vin ≥ 90 VAC, V1 = 12 VDC                                 1,200               W
+                 derating curve
+                                           264 VAC > Vin ≥180 VAC, V1 = 12 VDC
+    I1 nom       Nominal Output Current                                                                        125               ADC
+                                           400 VDC > Vin ≥180 VDC, V1 = 12 VDC
+                                           180 VAC > Vin ≥ 90 VAC, V1 = 12 VDC                                 100               ADC
+    v1 pp        Output Ripple Voltage     V1 nom, I1 nom, 20 MHz BW (See Section 5.1)                                  150      mVpp
+    dV1 Load     Load Regulation           Vi = Vi nom, 0 - 100 % I1 nom                                        80                mV
+    dV1 Line     Line Regulation           Vi =Vi min…Vi max                                                    40                mV
+    dIshare      Current Sharing           Deviation from I1 tot / N, I1 > 10%                         -3               +3         A
+                                           ΔI1 = 50% I1 nom, I1 = 5 … 100% I1 nom,
+    dVdyn        Dynamic Load Regulation                                                              -0.6              0.6        V
+                                           dI1/dt = 1A/μs
+                                           ΔI1 = 50% I1 nom, I1 = 5 … 100% I1 nom,
+    Trec         Recovery Time                                                                                           1        ms
+                                           dI1/dt = 1A/μs, recovery within 1% of V1 nom
+    tAC V1       Start-up Time from AC                                                                                   2        sec
+    tV1 rise     Rise Time                 V1 = 10…90% V1 nom                                         0.5               10        ms
+    CLoad        Capacitive Loading        Ta = 25°C                                                                   30,000     μF
+
+
+3.3/5 VSB Standby Output
+    VSB nom      Nominal Output Voltage                                             VSB_SEL = 1                 3.3              VDC
+                 Output Setpoint           0.5 ∙ISB nom, Tamb = 25°C                VSB_SEL = 0                 5.0              VDC
+    VSB set
+                 Accuracy                                                           VSB_SEL = 0 / 1   -0.5              +0.5    %V1nom
+    dVSB tot     Total Regulation          Vi min to Vi max, 0 to 100% ISB nom, Ta min to Ta max       -3               +3      %VSBnom
+                                           VSB = 3.3 VDC,                                                      16.5
+    PSB nom      Nominal Output Power                                                                                              W
+                                           VSB = 5.0 VDC,                                                      16.5
+                                           VSB = 3.3 VDC,                                                       5
+    ISB nom      Nominal Output Current                                                                                          ADC
+                                           VSB = 5.0 VDC,                                                       3.3
+    VSB pp       Output Ripple Voltage     VSB nom, ISB nom, 20 MHz BW (See Section 5.1)                                100      mVpp
+                                                                                    VSB_SEL = 1                 67
+    dVSB         Droop                     0 - 100 % ISB nom                                                                      mV
+                                                                                    VSB_SEL = 0                 44
+                                           VSB_SEL = 1,                                               5.25               6
+    ISB max      Current Limitation                                                                                              ADC
+                                           VSB_SEL = 0,                                               3.45              4.3
+    dVSBdyn      Dynamic Load Regulation   ΔISB = 50% ISB nom, ISB = 5 … 100% ISB nom,                 -3                3      %VSBnom
+    Trec         Recovery Time             dIo/dt = 0.5 A/μs, recovery within 1% of V1 nom                              250       μs
+    tAC VSB      Start-up Time from AC     VSB = 90% VSB nom                                                             2        sec
+    tVSB rise    Rise Time                 VSB = 10…90% VSB nom                                       0.5               30        ms
+    CLoad        Capacitive Loading        Tamb = 25°C                                                                 10,000     μF
+
+
+
+
+                                                                                                               tech.support@psbel.com
+

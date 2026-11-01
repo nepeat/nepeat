@@ -1,0 +1,18 @@
+# redhat_certified handoff — wave 5 supplement (2026-10-11, Claude Sonnet 5.5)
+
+## wave 5 supplement
+The accepted candidate (`redhat-cert-facts-2026-10-11.json`, sha256 `aab86169...e3fc`) and its captures/manifest were not touched.
+
+**Fetch:** detail pages for the 161 listing-only Quanta (53), Inspur (67) and IEIT (41) System products, plain `curl`, `https://catalog.redhat.com/en/hardware/system/detail/<id>`, robots reused (saved `catalog.redhat.com/robots.txt`, `Allow: /`), one UA, 2.2 s sleep before each request, no retries. **161 new requests of the 170 cap** (total across both runs: 195 + 161 = 356). All 161 HTTP 200; no 403/429/5xx. Not fetched: 21 `Inspur Power Commercial Systems` listing-only products (outside this wave's vendor list; they would exceed the cap).
+- Files: `data/raw/discovery-2026-10-11-redhat-cert/detail-wave5/<id>.html` (161, 8.6 MB); manifest `capture-manifest-wave5.json` sha256 `c4d14e83996895fbd2fbfa0d0099904d15e195bb9ac54b9048d038380e88d69f` (url, status, UTC, sha256, bytes, redirect_url).
+- 158 pages carry detail data. **3 pages (ids 6378, 6548, 6592, Quanta) are HTTP 200 but their embedded data block is empty** (`id`/`name` undefined, no certifications), the same three products whose listing records also have no certification level/versions/architectures. They get no supplement source (absent, not zero); their listing-only sources stay as they are.
+
+**Supplement candidate:** `redhat-cert-detail-supplement-2026-10-11.json` sha256 `33cc6cc23569c6489a4a696a923ea31fe8ae9dfdfb944c7a9a8f909ee6d5745b`: 158 sources `redhat-cert-detail-<id>` (tier `certification_body`, snapshot `detail-wave5/<id>.html`) and 158 devices. Each device reuses the accepted candidate's exact brand, model, title, kind, affiliation and `redhat_certified_product` identifier (full printed name) for the same catalog id, so the per-vendor model rule is inherited, not re-derived; the page's `name`/`companyName` were asserted equal to the accepted candidate's facts (0 differences). Facts are detail-page only: `redhat_cert_catalog_id, supplements_source` (`redhat-cert-<id>`), `product_name_as_printed, detail_form_factors, detail_company_name, detail_platforms, certifications` (`certId|product|start-end|arch|publishedOn|level`, capped, empty segment for null), `certification_count, cpu_certifications, detail_file` (path+sha256). Coverage states it supplements the listing-only `redhat-cert-<id>` source and that listing facts stay there.
+
+## Temp import
+Scratchpad COPY of `data/devices-candidate-discovery-2026-10-11-b.sqlite` (contains the accepted candidate; file unchanged), curated import returned 158. Before -> after: **devices 5015 -> 5015 (0 new devices; all 158 attach to existing identities)**, sources 1477 -> 1635 (+158), records 6626 -> 6784 (+158), identifiers 6175 -> 6333 (+158), facts 63703 -> 65190 (+1487), affiliations 9991 -> 10149 (+158). integrity_check ok, foreign_key_check empty; all old rows in all six tables unchanged (0 differences). vendor-inventory (`--limit 0`) before -> after: Quanta all 170 -> 170, manufacturer 41 -> 41; Inspur all 220 -> 220, manufacturer 3 -> 3 (IEIT is unassigned and not in any target inventory). Manufacturer scope unchanged.
+
+## Gaps / notes
+- Detail still absent for: the 3 empty-data Quanta pages, 21 Inspur Power listing-only products, and nothing else among Quanta/Inspur/IEIT (all 83/95/66 now have a detail capture; 3 unusable).
+- Owned-model check over all 161 new pages and the supplement (CS8200, CS8210, AZ4444, 7760, DMC-12, AS7772, SV1120/1121/2121/2221, ByteDance, B4020, B4010, case-insensitive): 0 hits.
+- Scripts in scratchpad `redhat-cert/{fetch5,build5,imp5}.py`.

@@ -1,0 +1,658 @@
+{
+  "sources": [
+    {
+      "id": "wiwynn-product-index",
+      "url": "https://www.wiwynn.com/products",
+      "tier": "vendor",
+      "license": "Wiwynn public product facts; upstream presentation rights retained",
+      "snapshot": "raw/odm-primary-2026-10-04/wiwynn-products.html",
+      "coverage": "Original public product-index HTML captured 2026-10-04. Twelve explicit front-facing product-card headings, preserved as printed. EP100G2 has a conflicting reverse heading EP200G2; ST7000G4 links to an SV7000G4 slug. These discrepancies are flagged and no equivalence or corrected model is inferred. Exact printed models and linked pages only; linked details were not fetched. Brand/platform-vendor association, not legal manufacturer, factory, operator deployment, commercial ordering-code equivalence or complete historical product coverage."
+    },
+    {
+      "id": "hyve-hercules-2023",
+      "url": "https://ir.tdsynnex.com/news/news-details/2023/Hyve-Solutions-Announces-Ultra-High-Density-Mass-Storage-Platform/default.aspx",
+      "tier": "vendor",
+      "license": "TD SYNNEX public product facts; upstream presentation rights retained",
+      "snapshot": "raw/odm-primary-2026-10-04/hyve-hercules.html",
+      "coverage": "Original TD SYNNEX announcement dated 2023-10-17, captured 2026-10-04. Hyve product/platform association with a separately dated TD SYNNEX parent/subsidiary-portfolio role. No physical manufacturer, factory, named hyperscaler deployment, full ordering SKU, current availability, installed drive count or present parent ownership inferred. Announced drive/CPU support is a historical platform claim, not a specific auction-unit configuration."
+    }
+  ],
+  "devices": [
+    {
+      "source": "wiwynn-product-index",
+      "key": "EP100G2",
+      "brand": "Wiwynn",
+      "model": "EP100G2",
+      "title": "Wiwynn EP100G2",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/ep100g2",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "EP200G2 AIO 5G Platform for CU/DU/5GC/MEC"
+        ],
+        [
+          "front_card_model",
+          "EP100G2"
+        ],
+        [
+          "reverse_card_heading",
+          "EP200G2"
+        ],
+        [
+          "card_heading_status",
+          "Front/reverse card headings disagree; reverse text is not an alias or second model assertion."
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "ES100G2",
+      "brand": "Wiwynn",
+      "model": "ES100G2",
+      "title": "Wiwynn ES100G2",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/es100g2",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "ES100G2 The 1U Platform for Edge AI and vRAN/NFV"
+        ],
+        [
+          "front_card_model",
+          "ES100G2"
+        ],
+        [
+          "reverse_card_heading",
+          "ES100G2"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "ES200G2",
+      "brand": "Wiwynn",
+      "model": "ES200G2",
+      "title": "Wiwynn ES200G2",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/es200g2",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "ES200G2 The 2U Platform for AI Inference"
+        ],
+        [
+          "front_card_model",
+          "ES200G2"
+        ],
+        [
+          "reverse_card_heading",
+          "ES200G2"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "ST5100",
+      "brand": "Wiwynn",
+      "model": "ST5100",
+      "title": "Wiwynn ST5100",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/st5100",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "ST5100 High density 1U JBOFs"
+        ],
+        [
+          "front_card_model",
+          "ST5100"
+        ],
+        [
+          "reverse_card_heading",
+          "ST5100"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "ST7000G4",
+      "brand": "Wiwynn",
+      "model": "ST7000G4",
+      "title": "Wiwynn ST7000G4",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/21-inch/sv7000g4",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "ST7000G4 Innovative solutions with high capacity and scalability"
+        ],
+        [
+          "front_card_model",
+          "ST7000G4"
+        ],
+        [
+          "reverse_card_heading",
+          "ST7000G4"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "Printed model and linked URL slug disagree; no alias or correction inferred."
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "ST7200",
+      "brand": "Wiwynn",
+      "model": "ST7200",
+      "title": "Wiwynn ST7200",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/21-inch/st7200/",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "ST7200 The leading All-Flash NVMe Storage"
+        ],
+        [
+          "front_card_model",
+          "ST7200"
+        ],
+        [
+          "reverse_card_heading",
+          "ST7200"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "SV302A",
+      "brand": "Wiwynn",
+      "model": "SV302A",
+      "title": "Wiwynn SV302A",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/sv302a",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "SV302A Powering the Most Impactful Cloud Computing"
+        ],
+        [
+          "front_card_model",
+          "SV302A"
+        ],
+        [
+          "reverse_card_heading",
+          "SV302A"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "SV305A",
+      "brand": "Wiwynn",
+      "model": "SV305A",
+      "title": "Wiwynn SV305A",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/sv305a",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "SV305A Powering the Most Impactful Web Services"
+        ],
+        [
+          "front_card_model",
+          "SV305A"
+        ],
+        [
+          "reverse_card_heading",
+          "SV305A"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "SV310G4",
+      "brand": "Wiwynn",
+      "model": "SV310G4",
+      "title": "Wiwynn SV310G4",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/sv310g4",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "SV310G4 Modern Cloud Server with Performance"
+        ],
+        [
+          "front_card_model",
+          "SV310G4"
+        ],
+        [
+          "reverse_card_heading",
+          "SV310G4"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "SV328R",
+      "brand": "Wiwynn",
+      "model": "SV328R",
+      "title": "Wiwynn SV328R",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/19-inch/sv328r",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "SV328R ARM-based Server with 160 Cores"
+        ],
+        [
+          "front_card_model",
+          "SV328R"
+        ],
+        [
+          "reverse_card_heading",
+          "SV328R"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "SV7000G4",
+      "brand": "Wiwynn",
+      "model": "SV7000G4",
+      "title": "Wiwynn SV7000G4",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/21-inch/sv7000g4",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "SV7000G4 Innovative solutions with high capacity and scalability"
+        ],
+        [
+          "front_card_model",
+          "SV7000G4"
+        ],
+        [
+          "reverse_card_heading",
+          "SV7000G4"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-product-index",
+      "key": "SV7100G4",
+      "brand": "Wiwynn",
+      "model": "SV7100G4",
+      "title": "Wiwynn SV7100G4",
+      "kind": "hardware platform",
+      "url": "https://www.wiwynn.com/products/21-inch/sv7100g4",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "index_url",
+          "https://www.wiwynn.com/products"
+        ],
+        [
+          "product_card_description",
+          "SV7100G4 Highly Modularized Multi-node Platform"
+        ],
+        [
+          "front_card_model",
+          "SV7100G4"
+        ],
+        [
+          "reverse_card_heading",
+          "SV7100G4"
+        ],
+        [
+          "card_heading_status",
+          "consistent"
+        ],
+        [
+          "source_scope",
+          "Original index card; linked detail not captured. No manufacturer or hyperscaler deployment inferred."
+        ],
+        [
+          "link_label_status",
+          "consistent"
+        ]
+      ]
+    },
+    {
+      "source": "hyve-hercules-2023",
+      "key": "Hercules 9120",
+      "brand": "Hyve",
+      "model": "Hercules 9120",
+      "title": "Hyve Hercules 9120",
+      "kind": "storage platform",
+      "affiliations": [
+        [
+          "Hyve Solutions Corporation",
+          "platform_vendor"
+        ],
+        [
+          "Hyve",
+          "brand"
+        ],
+        [
+          "TD SYNNEX Corporation",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "published_date",
+          "2023-10-17"
+        ],
+        [
+          "chassis_height",
+          "5U"
+        ],
+        [
+          "storage_bays",
+          "96 hard drives per 5U system (announced design capacity, not installed drives)"
+        ],
+        [
+          "rack_configuration",
+          "Eight 5U chassis, 768 hard drives per rack as announced"
+        ],
+        [
+          "host_interface",
+          "PCIe 5.0 support as announced"
+        ],
+        [
+          "corporate_relationship",
+          "Release names Hyve Solutions Corporation as wholly owned subsidiary of TD SYNNEX Corporation on 2023-10-17; this is a dated parent association, not parent manufacturing."
+        ]
+      ]
+    }
+  ]
+}

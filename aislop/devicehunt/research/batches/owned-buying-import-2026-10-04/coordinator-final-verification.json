@@ -1,0 +1,42 @@
+{
+  "outcome": "pass",
+  "live_sha256": "1e7a877f46b0140c62993de0ebc48b0378773db30c0e889cdfb67244371d7074",
+  "old_backup_unchanged": true,
+  "previous_buying_snapshot_unchanged": true,
+  "current_export_audit_hashes_match": true,
+  "manifest_change": "Only label job path + one new file hash; old input hashes and expected counts unchanged",
+  "all_accepted_input_code_test_review_hashes_match": true,
+  "logical_rebuild_tables_equal": 43,
+  "buying_reports_checked": 10,
+  "documented_bios_sql_rows": 206,
+  "label_power_tier": "physical_label_photo",
+  "owned_oracle_bios_rows": {
+    "E4-2C": 3,
+    "E5-2C": 3,
+    "X10-2C": 3,
+    "X7-2C": 0
+  },
+  "doc_links_checked": 81,
+  "archived_handoff_hashes_match": true,
+  "doc_sha256": {
+    "GOAL.md": "9c1a1e66bae767c4463143a26b3dcc51cfd32adf80ad24744d00f4eeaa718323",
+    "AGENTS.md": "ed7864f4ecd6ea1d72139783bcaad345d969debcf582146a553eeda0e19d7cf7",
+    "PROGRESS.md": "a7bc625f01e8b1959d9d8f21f7d8c4ca09b2893534f997dac3ce8e4592bc692b",
+    "README.md": "6e57a9f36952555f2b2f853a121de5ebfbaaa0866c26a1949bb938fbb464e281",
+    "docs/buying-reports.md": "a669c911cee7943acc5d42f497408f4a96d61651ace6d7e8002fd8f067aa7f7f",
+    "docs/history/README.md": "66d5c7e8adcbed8aa1a9f620b5f8fced241b8843e8b4ddf269afbb6f3746c7de",
+    "research/owned-buying-import-batch-2026-10-04.md": "d103f94a006ab0b46234505025a332443b0a7b9b6cd7eb4008dbdb8ebca8d5da",
+    "research/broadcom-server-evidence.md": "f58ece1ebd1237b5446e88fd7764473105eeafd73b4dc87765dc0958ab8033ca",
+    "research/edgecore-7760-label.md": "b499237de274405d0839ba5429ba62445c605a571dc94e74f92fb78ad0755d4e",
+    "research/owned-networking-buying-2026-10-04.md": "a8e52f602dd812a2e3c6f46374034380207a18d42f77f93c0b9d12b15fb30501",
+    "research/owned-oracle-buying-2026-10-04.md": "e594d45f5c70c917c86c61e11617e907f5d1e674f0f96e29b799e46f260c5ccf",
+    "research/batches/owned-buying-import-2026-10-04/docs-review.md": "9b0384e3bc8e1be7047ac3de448bbd63085d9cce5db7f5c8f109f0a3d5a74115"
+  },
+  "final_documentation_review": {
+    "outcome": "pass",
+    "path": "research/batches/owned-buying-import-2026-10-04/docs-review.md",
+    "sha256": "9b0384e3bc8e1be7047ac3de448bbd63085d9cce5db7f5c8f109f0a3d5a74115",
+    "findings": 0,
+    "post_review_edits": "Completion status and review link only; links, whitespace and unchanged frozen hashes verified."
+  }
+}

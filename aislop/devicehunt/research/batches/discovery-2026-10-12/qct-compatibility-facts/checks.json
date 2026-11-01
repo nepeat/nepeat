@@ -1,0 +1,44 @@
+{
+  "checked_at_utc": "2026-10-13T05:12:48.146627+00:00",
+  "status": "AUTHOR CHECKS PASS; staged candidate awaiting independent review, no import",
+  "sources": 1,
+  "records": 1,
+  "new_devices": 0,
+  "existing_identity": "f65a474568c484317fc5",
+  "facts": 8,
+  "categories": {
+    "power_description": 8
+  },
+  "identifiers": 0,
+  "affiliations": [
+    [
+      "Quanta Cloud Technology",
+      "documentation_vendor"
+    ]
+  ],
+  "mapped_rows": 8,
+  "mapped_cells": 72,
+  "blank_notes": 7,
+  "all_nine_labels_values_and_raw_attrs_preserved": true,
+  "byte_identical_snapshots": true,
+  "builder_command": "python3 -B research/batches/discovery-2026-10-12/qct-compatibility-facts/build_candidate.py --check",
+  "builder_exit_code": 0,
+  "builder_readonly": true,
+  "auxiliary_parent_dependency_requires_explicit_manifest_pin": true,
+  "manifest_written": false,
+  "imports": 0,
+  "temp_databases": 0,
+  "network": 0,
+  "production_edits": 0,
+  "artifact_sha256": {
+    "candidate.json": "9f2f76cfb228e18298bd24c5c33d87b588a17e556b424a5ef41a8ee95aacebfd",
+    "provenance.json": "8b225ba5d489cfad085ed0b9a3b5bf2e3adc252e313820d6dfcee0312226bec4",
+    "row-mapping.json": "7e63ba0420607e897d997d418337e98421a1364ebff4859cd2dcbd93477f2d12",
+    "catalog-context.json": "9c7f34271cec55d37a924ea02a2f74a608ae7156baa31453f0c0beb370567da4",
+    "build_candidate.py": "ecc09c5fd5ee91d4cb4ae46cbc0d107b3598c69731f0d1e2b8da8f32db9b9565",
+    "builder-check.log": "39a7b8445ff57df8837813c3ea30f01cbe96c178a7b6ceb31482559e7fbcd776",
+    "snapshots/qct-d52bq-ccl.html": "9c377013ee3bde686ae7372eb45aeadef00361b1ebe1f81a67bd872b5379d8b8",
+    "snapshots/parent-product.html": "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455"
+  },
+  "scope": "Only new qct-compatibility-facts artifacts; original captures/catalog/code/manifest/export/archive/current docs untouched"
+}

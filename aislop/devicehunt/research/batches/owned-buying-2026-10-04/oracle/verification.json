@@ -1,0 +1,13 @@
+{
+  "models": 4,
+  "database_sha256_before": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "database_sha256_after": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "all_registered_capture_hashes_match": true,
+  "broadcom_detail_matches_raw_record": true,
+  "network_requests": 0,
+  "imports": 0,
+  "limitations": [
+    "VPAT original URL missing",
+    "benchmark capture absent; excluded from positive review"
+  ]
+}

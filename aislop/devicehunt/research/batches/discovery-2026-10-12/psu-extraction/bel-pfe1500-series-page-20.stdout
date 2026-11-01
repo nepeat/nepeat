@@ -1,0 +1,105 @@
+20                                                                                                                                                                                                                                                                                                                                                                                         PFE1500 Series
+
+
+
+
+                                                                                                                                                                                                                                          Figure 12. Monitoring dialog of the I2C Utility
+
+
+
+
+     To achieve best cooling results sufficient airflow through the supply must be ensured. Do not block or obstruct the airflow at the
+     rear of the supply by placing large objects directly at the output connector. The PFE1500-12-054NA, PFE1500-12-054NAC,
+     PFE1500-12-054NAH and PFE1500-12NA/NAC/NAHS412 are provided with normal airflow, which means the air enters through
+     the DC-output of the supply and leaves at the AC-inlet. The PFE1500-12-054RA, PFE1500-12-054RAC ,PFE1500-12-054RAH and
+     PFE1500-12RAS412 are provided with reversed airflow, which means the air enters through the AC-inlet of the supply and leaves
+     at the DC-output. Power supplies have been designed for horizontal operation.
+     The fan inside of the supply is controlled by a microprocessor. The RPM of the fan is adjusted to ensure optimal supply cooling and
+     is a function of output power and the inlet temperature.
+     For the normal airflow version additional constraints apply because of the AC-connector. In a normal airflow unit, the hot air is exiting
+     the power supply unit at the AC-inlet. NOTE: It is the responsibility of the end user to check the front temperature in such cases and
+     derate the input power if needed to meet the mating connector temperature rating. The unit is not limiting its power automatically to
+     meet such a temperature limitation.
+
+
+
+                             Normal Airflow                                                                                                                                                                                                                                                                                                 Normal Airflow
+
+
+
+                            Reverse Airflow                                                                                                                                                                                                                                                                                                 Reverse Airflow
+
+
+
+                                                                                                                                                                                                                                                Figure 24. Airflow direction
+
+
+
+
+                                                                                                                                                                        form is not permitted without written authority from Power-One.
+
+
+
+
+                                                                                                                                                            from in any
+                                                                                                                                           issue to third parties
+
+
+
+
+                                                                                                                                 withoutorwritten
+                                                                                              rights  strictly reserved. Reproduction
+
+
+
+
+                             All rights strictly reserved. Reproduction or issue to third All
+                                                                                         parties  in any   form is not permitted                  authority       Power-One.
+                                                                                                                                                                                                                                                             For additional information use other data files, or ask.
+                                                                                                                                                                                                                                                             All materials used, and finished product, must meet the requirements of the current RoHS directive 2002/95/EC.
+                                                                                                                                                                                                                                                             Material                                     Finish                                    Tolerances unless otherwise stated:
+                                                                                                                                                                                                                                                                                                                                                    0.5-30: ±0.1   >30-120: ±0.15   >120-400: ±0.2
+                                                                                                                                                                                                                                                                                                                                                    Issued                  2009-09-17 WH
+                                                                                                                                                                                                                                                             Title                                                                                  Modified                2009-11-10 WH
+
+                                                                                                                                                                                                                                                             SNP Family Product GA                                                                  Mech. Eng. approved
+                                                                                                                                                                                                                                                                                                                                                    Elec. Eng. approved
+                                                                                                                                                                                                                                                                                                                                                                            -
+                                                                                                                                                                                                                                                                                                                                                                            -
+                                                                                                                                                                                                                                                                                                                                                                                         -
+                                                                                                                                                                                                                                                                                                                                                                                         -
+                                                                                                                                                                                                                                                                                                                                                    Mfg. approved           -            -
+                                                                                                                                                                                                                                                                                                           Size     Scale     Dim. in mm    Sheet   Drawing No.                            Revision
+                                                                                                                                                                                                                                                                                   www.power-one.com
+                                                                                                                                                                                                                                                                                                          A3                                5/5 SNP1100-12G_GA                             003
+                                                                                                                                                                                                                                                                                                                                                                            Supersedes:
+
+
+
+                                                                                                                                                                                                                                                             For additional information use other data files, or ask.
+                                                                                                                                                                                                                                                             All materials used, and finished product, must meet the requirements of the current RoHS directive 2002/95/EC.
+                                                                                                                                                                                                                                                             Material
+
+
+
+                                                                                                                                                                                                                                                             Title
+                                                                                                                                                                                                                                                                                                           Finish                                   Tolerances unless otherwise stated:
+                                                                                                                                                                                                                                                                                                                                                    0.5-30: ±0.1
+                                                                                                                                                                                                                                                                                                                                                    Issued
+                                                                                                                                                                                                                                                                                                                                                    Modified
+                                                                                                                                                                                                                                                                                                                                                                   >30-120: ±0.15   >120-400: ±0.2
+                                                                                                                                                                                                                                                                                                                                                                            2009-09-17 WH
+                                                                                                                                                                                                                                                                                                                                                                            2009-11-10 WH
+                                                                                                                                                                                                                                                                                                                                                                                                      tech.support@psbel.com
+                                                                                                                                                                                                                                                             SNP Family Product GA                                                                  Mech. Eng. approved
+                                                                                                                                                                                                                                                                                                                                                    Elec. Eng. approved
+                                                                                                                                                                                                                                                                                                                                                                            -
+                                                                                                                                                                                                                                                                                                                                                                            -
+                                                                                                                                                                                                                                                                                                                                                                                         -
+                                                                                                                                                                                                                                                                                                                                                                                         -
+                                                                                                                                                                                                                                                                                                                                                    Mfg. approved           -            -
+                                                                                                                                                                                                                                                                                                           Size     Scale      Dim. in mm   Sheet   Drawing No.                            Revision
+                                                                                                                                                                                                                                                                                   www.power-one.com
+                                                                                                                                                                                                                                                                                                           A3                               5/5 SNP1100-12G_GA                             003
+                                                                                                                                                                                                                                                                                                                                                                             Supersedes:
+

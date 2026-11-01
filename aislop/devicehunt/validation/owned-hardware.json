@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "description": "User-provided hardware identifiers for coverage validation, including the original six owned eBay-auction devices and four appended Oracle identifiers. These are validation expectations, never catalog source evidence. A miss against collected external data is a coverage gap.",
+  "reported_on": "2026-09-26",
+  "updated_on": "2026-09-27",
+  "devices": [
+    {"identifier": "CS8200-32X-UN-00", "vendor": "Celestica", "claimed_operator": "AWS"},
+    {"identifier": "CS8210-32x-un-00", "vendor": "Celestica", "claimed_operator": "AWS"},
+    {"identifier": "DMC-12-48R-AS0", "vendor": "Edge-Core", "claimed_operator": "AWS"},
+    {"identifier": "7760-32X-A-AC-F", "vendor": "Edge-Core", "claimed_operator": "AWS"},
+    {"identifier": "AZ4444-52X-DC-10", "vendor": "Edge-Core", "claimed_operator": "AWS", "previously_reported_as": "AZ4444-52X", "clarification": "Owner confirmed the full device name; the earlier label was shortened."},
+    {"identifier": "AS7772-32X", "vendor": "Edge-Core", "claimed_operator": "AWS"},
+    {"identifier": "E4-2C", "vendor": "Oracle"},
+    {"identifier": "E5-2C", "vendor": "Oracle"},
+    {"identifier": "X7-2C", "vendor": "Oracle"},
+    {"identifier": "X10-2C", "vendor": "Oracle"}
+  ]
+}

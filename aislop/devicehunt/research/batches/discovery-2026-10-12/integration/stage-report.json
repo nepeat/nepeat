@@ -1,0 +1,363 @@
+{
+  "counts": {
+    "devices": 5115,
+    "records": 7236,
+    "facts": 74171,
+    "sources": 2087,
+    "documents": 66,
+    "document_pages": 3779
+  },
+  "preservation_missing_rows": {
+    "sources": 0,
+    "devices": 0,
+    "records": 0,
+    "affiliations": 0,
+    "identifiers": 0,
+    "facts": 0,
+    "hyperscaler_evidence": 0,
+    "fcc_applications": 0,
+    "fcc_exhibits": 0,
+    "fcc_grantees": 0,
+    "equipment_register": 0,
+    "ntra_equipment": 0,
+    "bsmi_certificates": 0,
+    "bsmi_product_certificates": 0,
+    "bsmi_voluntary_certificates": 0,
+    "bsmi_declarations": 0,
+    "ncc_equipment": 0,
+    "tec_equipment": 0,
+    "ieee_assignments": 0,
+    "pci_entries": 0,
+    "fcc_id_index": 0,
+    "fcc_detail_pages": 0,
+    "fcc_detail_links": 0,
+    "fcc_text_excerpts": 0,
+    "documents": 0,
+    "document_pages": 0,
+    "bahrain_equipment": 0,
+    "anatel_equipment": 0,
+    "rra_equipment": 0,
+    "energystar_servers": 0,
+    "energystar_server_archives": 0,
+    "energystar_datacenter": 0,
+    "ised_equipment": 0,
+    "nigeria_equipment": 0,
+    "ghana_equipment": 0,
+    "public_equipment_rows": 0,
+    "japan_equipment": 0,
+    "fcc_company_rows": 0,
+    "fcc_sitemap_pages": 0,
+    "fcc_sitemap_urls": 0,
+    "inspur_support_entries": 0,
+    "archive_releases": 0,
+    "archive_artifacts": 0,
+    "archive_release_artifacts": 0,
+    "archive_receipts": 0,
+    "archive_release_receipts": 0,
+    "evidence_statements": 0,
+    "evidence_reviews": 0,
+    "evidence_links": 0,
+    "archive_release_statements": 0
+  },
+  "preservation_excludes": [
+    "observed_at",
+    "fetched_at",
+    "cache_path",
+    "FTS internal tables"
+  ],
+  "expected_complete_bundle_source_hash_changes": [
+    {
+      "id": "reference-pdf-accton-b4010-compliance",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-cubscout",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-ethernet-eu",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-ethernet-us",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-ex-sensor",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-sensor",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-wifi-eu",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-monitron-wifi-us",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-panorama",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-scout",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-snow-family-2022",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-snowcone-it",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-thin-client-eu",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-aws-thin-client-safety",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-celestica-2025",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-celestica-ds4000-guide",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-cisco-ncs-certificates",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-hyve-hercules-2026",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-hyve-jbof-2026",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-icasa-2025",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-ingrasys-es2000-es2100",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-ingrasys-servers-reconstructed-2026-10-04",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inspur-i24-whitepaper",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inspur-incloud-rail-compatibility",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inspur-nf5280m5-whitepaper",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inspur-products-2018",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inventec-artemis-ii-rack",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inventec-e850g4-brief",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inventec-fpga-ipu-c5020x-en-brief-2021",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inventec-fpga-smartnic-c5020x-cn-brief-2021",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inventec-golduck-product-brief-v3-2020",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-inventec-x680m",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-kenya-2026-08",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-meta-minipack2-spec",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-ntra-2022-12",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-ntra-2026-01",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-odm-hyve-jade-2026",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-odm-wiwynn-sv7100g4",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-oracle-x10m-ecodesign",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-oracle-x11m-ecodesign",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-oracle-x9-2-ecodesign",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-oracle-x9-2l-ecodesign",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-qct-d51b-datasheet-mirror-2017",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-qct-product-portfolio-v14-2023",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-qct-qxvdi-2020",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-qct-wssd",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-quanta-affiliates-2025",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-wiwynn-st7000g2",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-wiwynn-sv7100g2",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    },
+    {
+      "id": "reference-pdf-wiwynn-sv7220g3",
+      "old_sha256": "1fe76c94ef947f3f7b08ccf4299129015130cbff2a94fbf10b48817795f1a678",
+      "new_sha256": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29"
+    }
+  ],
+  "integrity": [
+    "ok"
+  ],
+  "foreign_key_violations": 0,
+  "baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "complete_reference_entries": 55,
+  "original_entries_unchanged": true,
+  "campaign_gate": "inputs and projections pass",
+  "manifest_jobs": 146,
+  "manifest_inputs": 3928,
+  "live_unchanged": {
+    "devices.sqlite": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+    "import-manifest.json": "14c2a1f177051b6e62c8e04dabbd9621a3d4baf6b759d2db25a722ba8efc9195"
+  },
+  "candidate_manifest_sha256": "6ab359e22929bdb6a55e47c2a816c2c78fc3e5d0f90c8b252129f8fafea3aac5",
+  "candidate_database_sha256": "53a9a0eabaef5656b38ad922f96d963b76839eeda2da3b28a18b22359d857dee",
+  "new_input_hashes": {
+    "raw/psu-facts-2026-10-12/candidate.json": "2c55934a430e423c861f04e107e121ff801e9a36e32985daa032308eab4ef756",
+    "raw/reference-documents-with-psu-2026-10-12.json": "23b0a010896326f43be6e6cc50c77f5e57e40f68ba4b8c0f2545ca34dde10b29",
+    "raw/psu-facts-2026-10-12/snapshots/bel-pfe1100-series.pdf": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+    "raw/psu-facts-2026-10-12/snapshots/bel-pfe1100-series.html": "a2ef4636e4d3c062078621b281f2d3e668b4ed06c0cff13038270439012b4f27",
+    "raw/psu-facts-2026-10-12/snapshots/bel-pfe1500-series.pdf": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+    "raw/psu-facts-2026-10-12/snapshots/bel-pfe1500-nemko.pdf": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+    "raw/psu-facts-2026-10-12/snapshots/bel-pfe1500-csa.pdf": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+    "raw/psu-facts-2026-10-12/snapshots/fsp550-29fm.pdf": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+    "raw/psu-2026-10-12-bel-pfe1100-series.pdf": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+    "raw/psu-2026-10-12-bel-pfe1100-series-text.json": "d5e00382ec78d9915bb73516bde597acc1c7b78047d3871a17a9bf47bbe9d43e",
+    "raw/psu-2026-10-12-bel-pfe1500-series.pdf": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+    "raw/psu-2026-10-12-bel-pfe1500-series-text.json": "9d424522085eaefd89016bec6a5accd9182f35ff9d7f82c22b0658b722b317ba",
+    "raw/psu-2026-10-12-bel-pfe1500-nemko.pdf": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+    "raw/psu-2026-10-12-bel-pfe1500-nemko-text.json": "ed8fb99c4ae92cfbd1de7d49cc57dc66c1db397d166271256fd76f0de17bd6bc",
+    "raw/psu-2026-10-12-bel-pfe1500-csa.pdf": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+    "raw/psu-2026-10-12-bel-pfe1500-csa-text.json": "acad44f51d54fa4fbf20a142b696da5c908dc84944f34a20837a739bcf943f83",
+    "raw/psu-2026-10-12-fsp550-29fm.pdf": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+    "raw/psu-2026-10-12-fsp550-29fm-text.json": "ba93e1b40997e698dfe2e69c9f3aa4e9f8c9e129d659e0ffb56382188d48a8ff"
+  },
+  "recovery": "stage.py imported isolated candidate, then ATTACH failed on URI-disabled Catalog connection; finalize_stage.py read-only URI audit completed without re-import or catalog writes",
+  "failed_script_sha256": "ba2fd43eb795f642c592e9f1eacf8d513e6f65c5c32efaa8002c164f64254e7e",
+  "finalizer_sha256": "1c5c119bc48e02812d2cfbc9162eed060a0e0f9bd7869f0254e86d03c0b1bfeb"
+}

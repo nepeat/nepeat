@@ -1,0 +1,638 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "data/bytedance-inspur-candidate-2026-10-04.sqlite",
+      "size": 362491904,
+      "allocated": 84742656
+    },
+    {
+      "path": "data/candidate-with-inventec-practical-2026-10-04.sqlite",
+      "size": 371552256,
+      "allocated": 90989056
+    },
+    {
+      "path": "data/candidate-with-server-evidence-2026-10-04.sqlite",
+      "size": 371552256,
+      "allocated": 90706432
+    },
+    {
+      "path": "data/devices-before-bytedance-inspur-2026-10-04.sqlite",
+      "size": 367136768,
+      "allocated": 88027648
+    },
+    {
+      "path": "data/devices-before-ingrasys-2026-10-04.sqlite",
+      "size": 362491904,
+      "allocated": 84742656
+    },
+    {
+      "path": "data/devices-before-inspur-2018-inventec-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89846272
+    },
+    {
+      "path": "data/devices-before-inspur-rail-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89772544
+    },
+    {
+      "path": "data/devices-before-inventec-practical-2026-10-04.sqlite",
+      "size": 371552256,
+      "allocated": 90706432
+    },
+    {
+      "path": "data/devices-before-inventec-qct-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89264640
+    },
+    {
+      "path": "data/devices-before-networking-primary-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 90968576
+    },
+    {
+      "path": "data/devices-before-nics-wiwynn-hyve-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 90542592
+    },
+    {
+      "path": "data/devices-before-odm-2026-10-04.sqlite",
+      "size": 354578432,
+      "allocated": 83313152
+    },
+    {
+      "path": "data/devices-before-odm-models-2026-10-04.sqlite",
+      "size": 361070592,
+      "allocated": 84333056
+    },
+    {
+      "path": "data/devices-before-owned-buying-import-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 91005440
+    },
+    {
+      "path": "data/devices-before-server-evidence-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 90870272
+    },
+    {
+      "path": "data/devices-before-storage-inspur-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89387520
+    },
+    {
+      "path": "data/devices-before-vendor-discovery-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 90952192
+    },
+    {
+      "path": "data/devices.sqlite",
+      "size": 371552256,
+      "allocated": 90989056
+    },
+    {
+      "path": "data/ingrasys-candidate-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89264640
+    },
+    {
+      "path": "data/inspur-2018-inventec-candidate-2026-10-04-v2.sqlite",
+      "size": 371490816,
+      "allocated": 90542592
+    },
+    {
+      "path": "data/inspur-2018-inventec-candidate-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89846272
+    },
+    {
+      "path": "data/inspur-rail-candidate-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89854464
+    },
+    {
+      "path": "data/inventec-qct-before-manufacturer-review-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89645568
+    },
+    {
+      "path": "data/inventec-qct-candidate-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89379328
+    },
+    {
+      "path": "data/networking-primary-candidate-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 90870272
+    },
+    {
+      "path": "data/nics-wiwynn-hyve-candidate-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 91005440
+    },
+    {
+      "path": "data/odm-expanded-candidate-2026-10-04.sqlite",
+      "size": 361070592,
+      "allocated": 84333056
+    },
+    {
+      "path": "data/odm-model-candidate-2026-10-04.sqlite",
+      "size": 367136768,
+      "allocated": 88027648
+    },
+    {
+      "path": "data/owned-buying-import-candidate-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 90952192
+    },
+    {
+      "path": "data/rebuilt-with-7760-label.sqlite",
+      "size": 299851776,
+      "allocated": 73134592
+    },
+    {
+      "path": "data/rebuilt-with-accton-company.sqlite",
+      "size": 266129408,
+      "allocated": 69026304
+    },
+    {
+      "path": "data/rebuilt-with-accton-fcc-company.sqlite",
+      "size": 299851776,
+      "allocated": 73150976
+    },
+    {
+      "path": "data/rebuilt-with-accton-joy.sqlite",
+      "size": 299839488,
+      "allocated": 73220608
+    },
+    {
+      "path": "data/rebuilt-with-anatel.sqlite",
+      "size": 111218688,
+      "allocated": 27337216
+    },
+    {
+      "path": "data/rebuilt-with-bahrain.sqlite",
+      "size": 27992064,
+      "allocated": 8995328
+    },
+    {
+      "path": "data/rebuilt-with-broadcom.sqlite",
+      "size": 28925952,
+      "allocated": 9245184
+    },
+    {
+      "path": "data/rebuilt-with-bsmi-additional.sqlite",
+      "size": 258088960,
+      "allocated": 66228736
+    },
+    {
+      "path": "data/rebuilt-with-bsmi.sqlite",
+      "size": 249176064,
+      "allocated": 63824384
+    },
+    {
+      "path": "data/rebuilt-with-bytedance-inspur-2026-10-04.sqlite",
+      "size": 362491904,
+      "allocated": 84693504
+    },
+    {
+      "path": "data/rebuilt-with-cb-certificates.sqlite",
+      "size": 146976768,
+      "allocated": 36700672
+    },
+    {
+      "path": "data/rebuilt-with-celestica-catalog.sqlite",
+      "size": 142675968,
+      "allocated": 35947008
+    },
+    {
+      "path": "data/rebuilt-with-celestica-historical.sqlite",
+      "size": 289767424,
+      "allocated": 70627840
+    },
+    {
+      "path": "data/rebuilt-with-celestica-networking.sqlite",
+      "size": 257478656,
+      "allocated": 66036224
+    },
+    {
+      "path": "data/rebuilt-with-celestica-skus.sqlite",
+      "size": 299106304,
+      "allocated": 73024000
+    },
+    {
+      "path": "data/rebuilt-with-cubscout-components.sqlite",
+      "size": 299843584,
+      "allocated": 73196032
+    },
+    {
+      "path": "data/rebuilt-with-edgecore-taiwan.sqlite",
+      "size": 258711552,
+      "allocated": 66281984
+    },
+    {
+      "path": "data/rebuilt-with-energystar-archive.sqlite",
+      "size": 283054080,
+      "allocated": 70029824
+    },
+    {
+      "path": "data/rebuilt-with-energystar-datacenter.sqlite",
+      "size": 289177600,
+      "allocated": 70558208
+    },
+    {
+      "path": "data/rebuilt-with-energystar.sqlite",
+      "size": 273281024,
+      "allocated": 69906944
+    },
+    {
+      "path": "data/rebuilt-with-fcc-cover-models.sqlite",
+      "size": 145072128,
+      "allocated": 36303360
+    },
+    {
+      "path": "data/rebuilt-with-fcc-details.sqlite",
+      "size": 144216064,
+      "allocated": 35897856
+    },
+    {
+      "path": "data/rebuilt-with-fcc-documents.sqlite",
+      "size": 141352960,
+      "allocated": 35582464
+    },
+    {
+      "path": "data/rebuilt-with-fcc-gap-probes.sqlite",
+      "size": 299106304,
+      "allocated": 72991232
+    },
+    {
+      "path": "data/rebuilt-with-fcc-index.sqlite",
+      "size": 141012992,
+      "allocated": 35504640
+    },
+    {
+      "path": "data/rebuilt-with-fcc-mrf.sqlite",
+      "size": 252018688,
+      "allocated": 64754176
+    },
+    {
+      "path": "data/rebuilt-with-fcc-sitemaps.sqlite",
+      "size": 354652160,
+      "allocated": 81949184
+    },
+    {
+      "path": "data/rebuilt-with-fcc-sporton.sqlite",
+      "size": 298967040,
+      "allocated": 73339392
+    },
+    {
+      "path": "data/rebuilt-with-ghana.sqlite",
+      "size": 294502400,
+      "allocated": 71393792
+    },
+    {
+      "path": "data/rebuilt-with-grantees.sqlite",
+      "size": 17432576,
+      "allocated": 6517248
+    },
+    {
+      "path": "data/rebuilt-with-ieee-stable-search.sqlite",
+      "size": 140947456,
+      "allocated": 35541504
+    },
+    {
+      "path": "data/rebuilt-with-ieee.sqlite",
+      "size": 140972032,
+      "allocated": 35197440
+    },
+    {
+      "path": "data/rebuilt-with-ingrasys-2026-10-04.sqlite",
+      "size": 364888064,
+      "allocated": 85537280
+    },
+    {
+      "path": "data/rebuilt-with-inspur-2018-inventec-2026-10-04.sqlite",
+      "size": 366149632,
+      "allocated": 85877248
+    },
+    {
+      "path": "data/rebuilt-with-inspur-rail-2026-10-04.sqlite",
+      "size": 365559808,
+      "allocated": 85987840
+    },
+    {
+      "path": "data/rebuilt-with-inventec-practical-2026-10-04.sqlite",
+      "size": 366006272,
+      "allocated": 86188544
+    },
+    {
+      "path": "data/rebuilt-with-inventec-qct-2026-10-04.sqlite",
+      "size": 365252608,
+      "allocated": 86090240
+    },
+    {
+      "path": "data/rebuilt-with-ised-expanded.sqlite",
+      "size": 112226304,
+      "allocated": 27722240
+    },
+    {
+      "path": "data/rebuilt-with-ised-raw.sqlite",
+      "size": 289611776,
+      "allocated": 70574592
+    },
+    {
+      "path": "data/rebuilt-with-ised.sqlite",
+      "size": 111218688,
+      "allocated": 27390464
+    },
+    {
+      "path": "data/rebuilt-with-japan-names.sqlite",
+      "size": 299114496,
+      "allocated": 72876544
+    },
+    {
+      "path": "data/rebuilt-with-japan.sqlite",
+      "size": 299114496,
+      "allocated": 72950272
+    },
+    {
+      "path": "data/rebuilt-with-kenya.sqlite",
+      "size": 297369600,
+      "allocated": 72614400
+    },
+    {
+      "path": "data/rebuilt-with-meta-networking.sqlite",
+      "size": 112783360,
+      "allocated": 27955712
+    },
+    {
+      "path": "data/rebuilt-with-metrolinq.sqlite",
+      "size": 299106304,
+      "allocated": 73007616
+    },
+    {
+      "path": "data/rebuilt-with-minipack2-reference.sqlite",
+      "size": 299237376,
+      "allocated": 73007616
+    },
+    {
+      "path": "data/rebuilt-with-minipack3-fabric-role.sqlite",
+      "size": 299855872,
+      "allocated": 73056768
+    },
+    {
+      "path": "data/rebuilt-with-monitron-links.sqlite",
+      "size": 299839488,
+      "allocated": 73269760
+    },
+    {
+      "path": "data/rebuilt-with-monitron.sqlite",
+      "size": 142635008,
+      "allocated": 35844608
+    },
+    {
+      "path": "data/rebuilt-with-ncc.sqlite",
+      "size": 221196288,
+      "allocated": 57119232
+    },
+    {
+      "path": "data/rebuilt-with-networking-primary-2026-10-04.sqlite",
+      "size": 365981696,
+      "allocated": 86159872
+    },
+    {
+      "path": "data/rebuilt-with-nics-wiwynn-hyve-2026-10-04.sqlite",
+      "size": 366211072,
+      "allocated": 86110720
+    },
+    {
+      "path": "data/rebuilt-with-nigeria.sqlite",
+      "size": 293789696,
+      "allocated": 71254528
+    },
+    {
+      "path": "data/rebuilt-with-ntra-historical.sqlite",
+      "size": 185417728,
+      "allocated": 46920192
+    },
+    {
+      "path": "data/rebuilt-with-ntra-register.sqlite",
+      "size": 126992384,
+      "allocated": 30851584
+    },
+    {
+      "path": "data/rebuilt-with-ocnos.sqlite",
+      "size": 145252352,
+      "allocated": 36250112
+    },
+    {
+      "path": "data/rebuilt-with-ocp.sqlite",
+      "size": 112783360,
+      "allocated": 27992576
+    },
+    {
+      "path": "data/rebuilt-with-odm-models-2026-10-04.sqlite",
+      "size": 361123840,
+      "allocated": 84324864
+    },
+    {
+      "path": "data/rebuilt-with-odm-targets-2026-10-04.sqlite",
+      "size": 361070592,
+      "allocated": 84333056
+    },
+    {
+      "path": "data/rebuilt-with-oracle-components.sqlite",
+      "size": 185479168,
+      "allocated": 46748160
+    },
+    {
+      "path": "data/rebuilt-with-oracle-ecodesign.sqlite",
+      "size": 252018688,
+      "allocated": 64754176
+    },
+    {
+      "path": "data/rebuilt-with-outposts.sqlite",
+      "size": 28925952,
+      "allocated": 9331200
+    },
+    {
+      "path": "data/rebuilt-with-owned-buying-import-2026-10-04.sqlite",
+      "size": 365948928,
+      "allocated": 86024704
+    },
+    {
+      "path": "data/rebuilt-with-panorama.sqlite",
+      "size": 147222528,
+      "allocated": 36700672
+    },
+    {
+      "path": "data/rebuilt-with-pci.sqlite",
+      "size": 172056576,
+      "allocated": 43872768
+    },
+    {
+      "path": "data/rebuilt-with-picos.sqlite",
+      "size": 266129408,
+      "allocated": 68989440
+    },
+    {
+      "path": "data/rebuilt-with-public-registers.sqlite",
+      "size": 298975232,
+      "allocated": 73052672
+    },
+    {
+      "path": "data/rebuilt-with-reference-documents.sqlite",
+      "size": 161153024,
+      "allocated": 41771520
+    },
+    {
+      "path": "data/rebuilt-with-registers.sqlite",
+      "size": 26144768,
+      "allocated": 8339968
+    },
+    {
+      "path": "data/rebuilt-with-rra-companies.sqlite",
+      "size": 264396800,
+      "allocated": 68301312
+    },
+    {
+      "path": "data/rebuilt-with-rra-main-models.sqlite",
+      "size": 294760448,
+      "allocated": 71578112
+    },
+    {
+      "path": "data/rebuilt-with-rra-manufacturer-lists.sqlite",
+      "size": 295501824,
+      "allocated": 71750144
+    },
+    {
+      "path": "data/rebuilt-with-rra-official.sqlite",
+      "size": 258732032,
+      "allocated": 66310656
+    },
+    {
+      "path": "data/rebuilt-with-rra-reviewed.sqlite",
+      "size": 258719744,
+      "allocated": 66204160
+    },
+    {
+      "path": "data/rebuilt-with-rra-spellings.sqlite",
+      "size": 265994240,
+      "allocated": 69059072
+    },
+    {
+      "path": "data/rebuilt-with-rra-targets.sqlite",
+      "size": 264192000,
+      "allocated": 68235776
+    },
+    {
+      "path": "data/rebuilt-with-server-evidence-2026-10-04.sqlite",
+      "size": 365989888,
+      "allocated": 85787136
+    },
+    {
+      "path": "data/rebuilt-with-snowcone.sqlite",
+      "size": 161177600,
+      "allocated": 41804288
+    },
+    {
+      "path": "data/rebuilt-with-specifications.sqlite",
+      "size": 26660864,
+      "allocated": 8520192
+    },
+    {
+      "path": "data/rebuilt-with-storage-inspur-2026-10-04.sqlite",
+      "size": 365502464,
+      "allocated": 85926400
+    },
+    {
+      "path": "data/rebuilt-with-storage-manufacturer.sqlite",
+      "size": 299114496,
+      "allocated": 72905216
+    },
+    {
+      "path": "data/rebuilt-with-sun.sqlite",
+      "size": 266129408,
+      "allocated": 69124608
+    },
+    {
+      "path": "data/rebuilt-with-taiwan-targets.sqlite",
+      "size": 250855424,
+      "allocated": 64270848
+    },
+    {
+      "path": "data/rebuilt-with-tec-register.sqlite",
+      "size": 146944000,
+      "allocated": 36811264
+    },
+    {
+      "path": "data/rebuilt-with-thin-client-documents.sqlite",
+      "size": 172097536,
+      "allocated": 43864576
+    },
+    {
+      "path": "data/rebuilt-with-ul-accton-extended.sqlite",
+      "size": 162787328,
+      "allocated": 42275328
+    },
+    {
+      "path": "data/rebuilt-with-ul-accton.sqlite",
+      "size": 112676864,
+      "allocated": 27963904
+    },
+    {
+      "path": "data/rebuilt-with-ul-amazon.sqlite",
+      "size": 265994240,
+      "allocated": 68977152
+    },
+    {
+      "path": "data/rebuilt-with-ul-celestica.sqlite",
+      "size": 162152448,
+      "allocated": 42152448
+    },
+    {
+      "path": "data/rebuilt-with-ul-commercial.sqlite",
+      "size": 147202048,
+      "allocated": 36700672
+    },
+    {
+      "path": "data/rebuilt-with-vendor-discovery-2026-10-04.sqlite",
+      "size": 365981696,
+      "allocated": 86303232
+    },
+    {
+      "path": "data/rebuilt-with-wedge100.sqlite",
+      "size": 299114496,
+      "allocated": 72917504
+    },
+    {
+      "path": "data/rebuilt.sqlite",
+      "size": 7061504,
+      "allocated": 1610240
+    },
+    {
+      "path": "data/storage-inspur-candidate-2026-10-04.sqlite",
+      "size": 370425856,
+      "allocated": 89772544
+    },
+    {
+      "path": "data/vendor-discovery-candidate-2026-10-04.sqlite",
+      "size": 371490816,
+      "allocated": 90968576
+    }
+  ],
+  "logical_bytes": 33168826368,
+  "allocated_bytes": 8121968640,
+  "sample": {
+    "method": "first 1MiB of each file; not full-archive estimate",
+    "logical_bytes": 130023424,
+    "unique_chunks": 110,
+    "compressed_unique_bytes": 30374501
+  },
+  "recommended_keep": [
+    "data/devices.sqlite",
+    "data/rebuilt-with-inventec-practical-2026-10-04.sqlite",
+    "data/devices-before-inventec-practical-2026-10-04.sqlite"
+  ]
+}

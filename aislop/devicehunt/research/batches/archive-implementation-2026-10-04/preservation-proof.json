@@ -1,0 +1,237 @@
+{
+  "old_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "candidate_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "legacy_tables": {
+    "sources": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 290
+    },
+    "devices": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 4090
+    },
+    "records": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 5319
+    },
+    "affiliations": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 9151
+    },
+    "identifiers": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 4971
+    },
+    "facts": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 45017
+    },
+    "hyperscaler_evidence": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 22
+    },
+    "fcc_applications": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 2
+    },
+    "fcc_exhibits": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 32
+    },
+    "fcc_grantees": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 50153
+    },
+    "equipment_register": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 26258
+    },
+    "ntra_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 76510
+    },
+    "bsmi_certificates": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 105732
+    },
+    "bsmi_product_certificates": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 17797
+    },
+    "bsmi_voluntary_certificates": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 1818
+    },
+    "bsmi_declarations": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 564
+    },
+    "ncc_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 110957
+    },
+    "tec_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 2331
+    },
+    "ieee_assignments": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 58639
+    },
+    "pci_entries": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 42438
+    },
+    "fcc_id_index": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 344
+    },
+    "fcc_detail_pages": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 174
+    },
+    "fcc_detail_links": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 1493
+    },
+    "fcc_text_excerpts": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 1092
+    },
+    "documents": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 58
+    },
+    "document_pages": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 3663
+    },
+    "document_search": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 3663
+    },
+    "bahrain_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 10169
+    },
+    "anatel_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 190852
+    },
+    "search_index": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 4090
+    },
+    "rra_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 1081
+    },
+    "energystar_servers": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 495
+    },
+    "energystar_server_archives": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 873
+    },
+    "energystar_datacenter": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 452
+    },
+    "ised_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 628
+    },
+    "nigeria_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 8517
+    },
+    "ghana_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 1153
+    },
+    "public_equipment_rows": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 4985
+    },
+    "japan_equipment": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 346
+    },
+    "fcc_company_rows": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 237
+    },
+    "fcc_sitemap_pages": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 48
+    },
+    "fcc_sitemap_urls": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 231962
+    },
+    "inspur_support_entries": {
+      "missing": 0,
+      "extra": 0,
+      "rows": 1064
+    }
+  },
+  "excluded_columns": [
+    "sources.cache_path (285 verified relocation updates)"
+  ],
+  "owned": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "bytedance": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "evidence_claims": 4,
+  "integrity": "ok",
+  "foreign_keys": []
+}

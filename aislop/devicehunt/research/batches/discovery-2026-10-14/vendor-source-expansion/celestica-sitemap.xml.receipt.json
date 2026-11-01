@@ -1,0 +1,37 @@
+{
+  "sequence": 1,
+  "url": "https://www.celestica.com/sitemap.xml",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:48:20.793220+00:00",
+  "policy": {
+    "path": "research/batches/discovery-2026-10-14/practical-sources/robots-celestica-escalated.txt",
+    "sha256": "b60e9385e9f08f0913c050aa40c41cb10b292d0210d3d8dda9459195da928f34",
+    "url": "https://www.celestica.com/robots.txt",
+    "agent": "devicehunt-public-research/1.0",
+    "allowed": true,
+    "crawl_delay": null
+  },
+  "path": "celestica-sitemap.xml",
+  "redirect_followed": false,
+  "status": 200,
+  "headers": {
+    "Cache-Control": "public",
+    "Content-Type": "text/xml",
+    "Expires": "Fri, 15 Oct 2027 05:48:21 GMT",
+    "Last-Modified": "Wed, 03 Jun 2026 17:13:55 GMT",
+    "Accept-Ranges": "bytes",
+    "X-Frame-Options": "SAMEORIGIN",
+    "X-Content-Type-Options": "nosniff",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Strict-Transport-Security": "max-age=31536000",
+    "Date": "Thu, 15 Oct 2026 05:48:20 GMT",
+    "Connection": "close",
+    "Content-Length": "17209"
+  },
+  "bytes": 17209,
+  "sha256": "7a3d0ba5d1199011abec9402c01a8e037b7a85d8142ff516fce9e870295fe2af",
+  "state": "completed",
+  "finished_utc": "2026-10-15T05:48:21.188360+00:00"
+}

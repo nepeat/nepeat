@@ -1,0 +1,52 @@
+{
+  "sequence": 15,
+  "url": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/?wpdmdl=1380&refresh=6ad06cef7b2791792044271",
+  "method": "GET",
+  "purpose": "published_download",
+  "basis": {
+    "selection_number": 5,
+    "landing_path": "05-landing.html",
+    "landing_sha256": "8d6d36f2165968f4b9cb98f02fdd1d42354eb1612e0e8ba76cd21a8be707a65e",
+    "fresh_heading": "CSR440 (AS7535-28XB) DS R05",
+    "published_download_url": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/?wpdmdl=1380&refresh=6ad06cef7b2791792044271",
+    "expected_wpdmdl_values": [
+      "1380"
+    ],
+    "stale_graph_tokens_used": false
+  },
+  "body_path": "05-download.response",
+  "started_utc": "2026-10-15T06:04:31.707150+00:00",
+  "request_headers": {
+    "User-Agent": "devicehunt-public-research/1.0",
+    "Accept": "*/*"
+  },
+  "automatic_redirects": false,
+  "timeout_seconds": 30,
+  "maximum_body_bytes": 20000000,
+  "policy_sha256": "055ba6f6e008ba3c9bf807f8e461882a5a37076fb31ce03c749dc0801c1b43e2",
+  "exact_path_allowed": true,
+  "status": 302,
+  "response_url": "https://www.edge-core.com/download/csr440-as7535-28xb-ds-r05/?wpdmdl=1380&refresh=6ad06cef7b2791792044271",
+  "headers": {
+    "Date": "Thu, 15 Oct 2026 06:04:31 GMT",
+    "Content-Type": "text/html; charset=UTF-8",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "x-frame-options": "SAMEORIGIN",
+    "x-content-type-options": "nosniff",
+    "location": "https://www.edge-core.com/wp-content/uploads/2024/08/2024-073-CSR440_AS7535-28XB-DS-R05-20240828.pdf",
+    "vary": "Accept-Encoding",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "microphone=(),fullscreen=()",
+    "x-xss-protection": "1;mode=block",
+    "Server": "cloudflare",
+    "cf-cache-status": "DYNAMIC",
+    "CF-RAY": "a4aca07ab8d09366-SEA",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "state": "completed",
+  "bytes": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "finished_utc": "2026-10-15T06:04:32.006868+00:00"
+}

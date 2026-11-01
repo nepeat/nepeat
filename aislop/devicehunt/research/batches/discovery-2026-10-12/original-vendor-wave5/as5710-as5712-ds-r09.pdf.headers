@@ -1,0 +1,17 @@
+HTTP/2 200 
+date: Tue, 13 Oct 2026 04:47:00 GMT
+content-type: application/pdf
+strict-transport-security: max-age=31536000; includeSubdomains; preload
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+last-modified: Fri, 18 Sep 2026 08:25:35 GMT
+vary: Accept-Encoding
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: microphone=(),fullscreen=()
+x-xss-protection: 1;mode=block
+server: cloudflare
+age: 278333
+cf-cache-status: HIT
+cf-ray: a49bb42e5b4f76d0-SEA
+alt-svc: h3=":443"; ma=86400
+

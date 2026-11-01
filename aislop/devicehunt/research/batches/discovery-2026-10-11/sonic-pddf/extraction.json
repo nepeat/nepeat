@@ -1,0 +1,915 @@
+{
+ "conflicts": [],
+ "platforms": {
+  "x86_64-accton_as4630_54pe-r0": {
+   "vendor": "accton",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "accton"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "3 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "1 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "54 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "3 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"AS4630 - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:11)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:312-313), PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:363-364)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (num_fantrays=3) (pddf/pddf-device.json:227-231)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: Temp_1 [TEMP1] (pddf/pddf-device.json:138), Temp_CPU [TEMP2] (pddf/pddf-device.json:183), Temp_Fan [TEMP3] (pddf/pddf-device.json:201)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 3"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: SYS_LED (pddf/pddf-device.json:253), PSU_LED (pddf/pddf-device.json:270), PSU_LED (pddf/pddf-device.json:284), FAN_LED (pddf/pddf-device.json:298)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_mfr_id (pddf/pddf-device.json:333), psu_fan_dir (pddf/pddf-device.json:334), psu_v_out (pddf/pddf-device.json:335), psu_i_out (pddf/pddf-device.json:336), psu_p_out (pddf/pddf-device.json:337), psu_fan1_speed_rpm (pddf/pddf-device.json:338), psu_temp1_input (pddf/pddf-device.json:339), psu_present (pddf/pddf-device.json:352), psu_model_name (pddf/pddf-device.json:353), psu_power_good (pddf/pddf-device.json:354), psu_serial_num (pddf/pddf-device.json:355)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:40)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[F2B]='EXHAUST' (pddf/pd-plugin.json:36), PSU.psu_fan_dir.i2c.valmap[B2F]='INTAKE' (pddf/pd-plugin.json:36), FAN.direction.i2c.valmap[1]='EXHAUST' (pddf/pd-plugin.json:49), FAN.direction.i2c.valmap[0]='INTAKE' (pddf/pd-plugin.json:49)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-accton_as7326_56x-r0": {
+   "vendor": "accton",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "accton"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "6 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "58 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "4 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"AS7326-56X - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:11)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:182-183), PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:231-232)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (num_fantrays=5) (pddf/pddf-device.json:365-369)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: MB_RearMAC_temp(0x48) [TEMP1] (pddf/pddf-device.json:306), MB_FrontMAC_temp(0x49) [TEMP2] (pddf/pddf-device.json:321), MB_LeftCenter_temp(0x4A) [TEMP3] (pddf/pddf-device.json:336), CB_temp(0x4B) [TEMP4] (pddf/pddf-device.json:351)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 4"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: LOC_LED (pddf/pddf-device.json:2913), DIAG_LED (pddf/pddf-device.json:2931)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device.json:202), psu_power_good (pddf/pddf-device.json:203), psu_mfr_id (pddf/pddf-device.json:204), psu_fan_dir (pddf/pddf-device.json:205), psu_v_out (pddf/pddf-device.json:206), psu_i_out (pddf/pddf-device.json:207), psu_p_out (pddf/pddf-device.json:208), psu_fan1_speed_rpm (pddf/pddf-device.json:209), psu_temp1_input (pddf/pddf-device.json:210), psu_model_name (pddf/pddf-device.json:223), psu_serial_num (pddf/pddf-device.json:224)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:41)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[F2B]='EXHAUST' (pddf/pd-plugin.json:37), PSU.psu_fan_dir.i2c.valmap[B2F]='INTAKE' (pddf/pd-plugin.json:37), FAN.direction.i2c.valmap[1]='INTAKE' (pddf/pd-plugin.json:50), FAN.direction.i2c.valmap[0]='EXHAUST' (pddf/pd-plugin.json:50)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-accton_as7712_32x-r0": {
+   "vendor": "accton",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "accton"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "6 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "32 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "4 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"AS7712 - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:11)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:327-328), PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:364-365)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (num_fantrays=6) (pddf/pddf-device.json:151-155)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: Temp_1 [TEMP1] (pddf/pddf-device.json:213), Temp_2 [TEMP2] (pddf/pddf-device.json:229), Temp_3 [TEMP3] (pddf/pddf-device.json:245), Temp_CPU [TEMP4] (pddf/pddf-device.json:261)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 4"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: LOC_LED (pddf/pddf-device.json:485), DIAG_LED (pddf/pddf-device.json:498)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device.json:347), psu_model_name (pddf/pddf-device.json:348), psu_power_good (pddf/pddf-device.json:349), psu_mfr_id (pddf/pddf-device.json:350), psu_serial_num (pddf/pddf-device.json:351), psu_fan_dir (pddf/pddf-device.json:352), psu_v_out (pddf/pddf-device.json:353), psu_i_out (pddf/pddf-device.json:354), psu_p_out (pddf/pddf-device.json:355), psu_fan1_speed_rpm (pddf/pddf-device.json:356), psu_temp1_input (pddf/pddf-device.json:357)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:28)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[F2B]='EXHAUST' (pddf/pd-plugin.json:24), PSU.psu_fan_dir.i2c.valmap[B2F]='INTAKE' (pddf/pd-plugin.json:24), FAN.direction.i2c.valmap[1]='EXHAUST' (pddf/pd-plugin.json:37), FAN.direction.i2c.valmap[0]='INTAKE' (pddf/pd-plugin.json:37)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-accton_as7726_32x-r0": {
+   "vendor": "accton",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "accton"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "6 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "34 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "5 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"AS7726 - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:11)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:1632-1633), PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:1680-1681)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (num_fantrays=6) (pddf/pddf-device.json:1727-1731)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: FB_temp(0x4C) [TEMP1] (pddf/pddf-device.json:1792), MB_RearMAC_temp(0x48) [TEMP2] (pddf/pddf-device.json:1808), MB_FrontMAC_temp(0x49) [TEMP3] (pddf/pddf-device.json:1824), MB_LeftCenter_temp(0x4A) [TEMP4] (pddf/pddf-device.json:1840), CB_temp(0x4B) [TEMP5] (pddf/pddf-device.json:1856)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 5"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: LOC_LED (pddf/pddf-device.json:1892), DIAG_LED (pddf/pddf-device.json:1905)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device.json:1652), psu_power_good (pddf/pddf-device.json:1653), psu_mfr_id (pddf/pddf-device.json:1654), psu_fan_dir (pddf/pddf-device.json:1655), psu_v_out (pddf/pddf-device.json:1656), psu_i_out (pddf/pddf-device.json:1657), psu_p_out (pddf/pddf-device.json:1658), psu_fan1_speed_rpm (pddf/pddf-device.json:1659), psu_temp1_input (pddf/pddf-device.json:1660), psu_model_name (pddf/pddf-device.json:1672), psu_serial_num (pddf/pddf-device.json:1673)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=25500 (pddf/pd-plugin.json:41)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[F2B]='EXHAUST' (pddf/pd-plugin.json:37), PSU.psu_fan_dir.i2c.valmap[B2F]='INTAKE' (pddf/pd-plugin.json:37), FAN.direction.i2c.valmap[1]='EXHAUST' (pddf/pd-plugin.json:50), FAN.direction.i2c.valmap[0]='INTAKE' (pddf/pd-plugin.json:50)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-accton_as7816_64x-r0": {
+   "vendor": "accton",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "accton"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "4 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "64 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "6 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"AS7816-64X - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:11)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:151-152), PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:200-201)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (num_fantrays=4) (pddf/pddf-device.json:272-276)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: FB_1_temp(0x4D) [TEMP1] (pddf/pddf-device.json:322), FB_2_temp(0x4E) [TEMP2] (pddf/pddf-device.json:337), MB_MAC_temp(0x48) [TEMP3] (pddf/pddf-device.json:352), MB_RearCenter_temp(0x49) [TEMP4] (pddf/pddf-device.json:367), MB_RightCenter_temp(0x4A) [TEMP5] (pddf/pddf-device.json:382), CpuBoard_temp(0x4B) [TEMP6] (pddf/pddf-device.json:397)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 6"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: LOC_LED (pddf/pddf-device.json:3180), DIAG_LED (pddf/pddf-device.json:3193)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device.json:171), psu_model_name (pddf/pddf-device.json:172), psu_power_good (pddf/pddf-device.json:173), psu_mfr_id (pddf/pddf-device.json:174), psu_fan_dir (pddf/pddf-device.json:175), psu_v_out (pddf/pddf-device.json:176), psu_i_out (pddf/pddf-device.json:177), psu_p_out (pddf/pddf-device.json:178), psu_fan1_speed_rpm (pddf/pddf-device.json:179), psu_temp1_input (pddf/pddf-device.json:180), psu_serial_num (pddf/pddf-device.json:193)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:39)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[F2B]='EXHAUST' (pddf/pd-plugin.json:35), PSU.psu_fan_dir.i2c.valmap[B2F]='INTAKE' (pddf/pd-plugin.json:35), FAN.direction.i2c.valmap[1]='INTAKE' (pddf/pd-plugin.json:48), FAN.direction.i2c.valmap[0]='EXHAUST' (pddf/pd-plugin.json:48)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-accton_as9716_32d-r0": {
+   "vendor": "accton",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "accton"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "6 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "34 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "7 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"AS9716 - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:11)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:147-148), PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:196-197)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (num_fantrays=6) (pddf/pddf-device.json:268-272)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: Temp_1 [TEMP1] (pddf/pddf-device.json:329), Temp_2 [TEMP2] (pddf/pddf-device.json:345), Temp_3 [TEMP3] (pddf/pddf-device.json:361), Temp_4 [TEMP4] (pddf/pddf-device.json:377), Temp_5 [TEMP5] (pddf/pddf-device.json:393), Temp_6 [TEMP6] (pddf/pddf-device.json:409), Temp_7 [TEMP7] (pddf/pddf-device.json:425)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 7"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: LOC_LED (pddf/pddf-device.json:1922), DIAG_LED (pddf/pddf-device.json:1936)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device.json:167), psu_model_name (pddf/pddf-device.json:168), psu_power_good (pddf/pddf-device.json:169), psu_mfr_id (pddf/pddf-device.json:170), psu_fan_dir (pddf/pddf-device.json:171), psu_v_out (pddf/pddf-device.json:172), psu_i_out (pddf/pddf-device.json:173), psu_p_out (pddf/pddf-device.json:174), psu_fan1_speed_rpm (pddf/pddf-device.json:175), psu_temp1_input (pddf/pddf-device.json:176), psu_serial_num (pddf/pddf-device.json:189)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:40)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[F2B]='EXHAUST' (pddf/pd-plugin.json:36), PSU.psu_fan_dir.i2c.valmap[B2F]='INTAKE' (pddf/pd-plugin.json:36), FAN.direction.i2c.valmap[1]='INTAKE' (pddf/pd-plugin.json:49), FAN.direction.i2c.valmap[0]='EXHAUST' (pddf/pd-plugin.json:49)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-alphanetworks_bes2348t-r0": {
+   "vendor": "alphanetworks",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "alphanetworks"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "4 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "1 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "52 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "5 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"BES2348T - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:11)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:134-135), PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:178-179)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (pddf/pddf-device.json:448)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: TMP75#2_Temp [TEMP5] (pddf/pddf-device.json:253), TMP75#0_Temp [TEMP1] (pddf/pddf-device.json:479), TMP75#1_Temp [TEMP2] (pddf/pddf-device.json:496), TMP435#L_Temp [TEMP3] (pddf/pddf-device.json:512), TMP435#R_Temp [TEMP4] (pddf/pddf-device.json:528)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 5"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: SYS_LED (pddf/pddf-device.json:541), FAN_LED (pddf/pddf-device.json:553)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_model_name (pddf/pddf-device.json:162), psu_mfr_id (pddf/pddf-device.json:163), psu_serial_num (pddf/pddf-device.json:164), psu_v_in (pddf/pddf-device.json:165), psu_i_in (pddf/pddf-device.json:166), psu_v_out (pddf/pddf-device.json:167), psu_i_out (pddf/pddf-device.json:168), psu_p_out (pddf/pddf-device.json:169), psu_fan1_speed_rpm (pddf/pddf-device.json:170), psu_temp1_input (pddf/pddf-device.json:171)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:39)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[F2B]='INTAKE' (pddf/pd-plugin.json:35), PSU.psu_fan_dir.i2c.valmap[B2F]='EXHAUST' (pddf/pd-plugin.json:35), FAN.direction.bmc.valmap[1]='EXHAUST' (pddf/pd-plugin.json:48), FAN.direction.bmc.valmap[0]='INTAKE' (pddf/pd-plugin.json:48)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-cel_ds1000-r0": {
+   "vendor": "celestica",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "celestica"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "3 (pddf/pddf-device.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "1 (pddf/pddf-device.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "56 (pddf/pddf-device.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "4 (pddf/pddf-device.json:8)"
+    ],
+    [
+     "pddf_num_components",
+     "1 (pddf/pddf-device.json:9)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"DS1000 - Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device.json:12)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device.json: PSU 1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device.json:155-156), PSU 2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device.json:191-192)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device.json: FAN-CTRL (num_fantrays=3) (pddf/pddf-device.json:615-619)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device.json: Front Left Temp [TEMP1] (pddf/pddf-device.json:228), Front Right Temp [TEMP2] (pddf/pddf-device.json:243), Rear Right Temp [TEMP3] (pddf/pddf-device.json:258), ASIC External Temp [TEMP4] (pddf/pddf-device.json:273)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device.json: 4"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device.json: SYS_LED (pddf/pddf-device.json:636), FANTRAY_LED (pddf/pddf-device.json:649), FANTRAY_LED (pddf/pddf-device.json:661), FANTRAY_LED (pddf/pddf-device.json:673)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device.json:173), psu_power_good (pddf/pddf-device.json:174), psu_model_name (pddf/pddf-device.json:175), psu_mfr_id (pddf/pddf-device.json:176), psu_serial_num (pddf/pddf-device.json:177), psu_v_in (pddf/pddf-device.json:178), psu_i_in (pddf/pddf-device.json:179), psu_v_out (pddf/pddf-device.json:180), psu_i_out (pddf/pddf-device.json:181), psu_p_out (pddf/pddf-device.json:182), psu_fan_dir (pddf/pddf-device.json:183), psu_fan1_speed_rpm (pddf/pddf-device.json:184), psu_temp1_input (pddf/pddf-device.json:185)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:35)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.i2c.valmap[0]='intake' (pddf/pd-plugin.json:32), PSU.psu_fan_dir.i2c.valmap[1]='exhaust' (pddf/pd-plugin.json:32), FAN.direction.i2c.valmap[1]='exhaust' (pddf/pd-plugin.json:43), FAN.direction.i2c.valmap[0]='intake' (pddf/pd-plugin.json:43)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-cel_ds2000-r0": {
+   "vendor": "celestica",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "celestica"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device-bmc.json\", \"pddf-device-nonbmc.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device-bmc.json:4); 2 (pddf/pddf-device-nonbmc.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "4 (pddf/pddf-device-bmc.json:5); 4 (pddf/pddf-device-nonbmc.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device-bmc.json:6); 2 (pddf/pddf-device-nonbmc.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "56 (pddf/pddf-device-bmc.json:7); 56 (pddf/pddf-device-nonbmc.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "9 (pddf/pddf-device-bmc.json:8); 8 (pddf/pddf-device-nonbmc.json:8)"
+    ],
+    [
+     "pddf_num_components",
+     "10 (pddf/pddf-device-bmc.json:10); 7 (pddf/pddf-device-nonbmc.json:10)"
+    ],
+    [
+     "pddf_bmc_present",
+     "True (pddf/pddf-device-bmc.json:9); False (pddf/pddf-device-nonbmc.json:9)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"- Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device-bmc.json:13)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device-bmc.json: PSU1 [object key; no device_name printed] (dev_idx=1, num_psu_fans=1) (pddf/pddf-device-bmc.json:2546-2549), PSU2 [object key; no device_name printed] (dev_idx=2, num_psu_fans=1) (pddf/pddf-device-bmc.json:2574-2577) | pddf-device-nonbmc.json: PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device-nonbmc.json:2574-2575), PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device-nonbmc.json:2618-2619)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device-bmc.json: FAN-CTRL (pddf/pddf-device-bmc.json:2602) | pddf-device-nonbmc.json: FAN-CTRL (num_fantrays=4) (pddf/pddf-device-nonbmc.json:2662-2665)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device-bmc.json: CPU Internal Temp [TEMP1] (pddf/pddf-device-bmc.json:2649), Baseboard Left Temp [TEMP2] (pddf/pddf-device-bmc.json:2664), Baseboard Right Temp [TEMP3] (pddf/pddf-device-bmc.json:2678), ASIC External Front Temp [TEMP4] (pddf/pddf-device-bmc.json:2693), ASIC External Rear Temp [TEMP5] (pddf/pddf-device-bmc.json:2708), Switchboard Left Temp [TEMP6] (pddf/pddf-device-bmc.json:2722), Switchboard Right Temp [TEMP7] (pddf/pddf-device-bmc.json:2739), VDD CORE Temp [TEMP8] (pddf/pddf-device-bmc.json:2755), VDD ANLG Temp [TEMP9] (pddf/pddf-device-bmc.json:2770) | pddf-device-nonbmc.json: Base_Temp_U5 [TEMP1] (pddf/pddf-device-nonbmc.json:2707), Base_Temp_U56 [TEMP2] (pddf/pddf-device-nonbmc.json:2722), Switch_Temp_U31 [TEMP3] (pddf/pddf-device-nonbmc.json:2737), Switch_Temp_U30 [TEMP4] (pddf/pddf-device-nonbmc.json:2752), Switch_Temp_U28 [TEMP5] (pddf/pddf-device-nonbmc.json:2767), Switch_Temp_U29 [TEMP6] (pddf/pddf-device-nonbmc.json:2782), VDD_CORE_Temp [TEMP7] (pddf/pddf-device-nonbmc.json:2797), VDD_ANLG_Temp [TEMP8] (pddf/pddf-device-nonbmc.json:2812)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device-bmc.json: 9 | pddf-device-nonbmc.json: 8"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device-bmc.json: SYS_LED (pddf/pddf-device-bmc.json:2783), ALARM_LED (pddf/pddf-device-bmc.json:2804), FANTRAY1_LED (pddf/pddf-device-bmc.json:2825), FANTRAY2_LED (pddf/pddf-device-bmc.json:2840), FANTRAY3_LED (pddf/pddf-device-bmc.json:2855), FANTRAY4_LED (pddf/pddf-device-bmc.json:2870) | pddf-device-nonbmc.json: SYS_LED (pddf/pddf-device-nonbmc.json:2826), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2840), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2853), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2866), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2879)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device-nonbmc.json:2594), psu_power_good (pddf/pddf-device-nonbmc.json:2595), psu_model_name (pddf/pddf-device-nonbmc.json:2596), psu_serial_num (pddf/pddf-device-nonbmc.json:2597), psu_mfr_id (pddf/pddf-device-nonbmc.json:2598), psu_fan_dir (pddf/pddf-device-nonbmc.json:2599), psu_p_out (pddf/pddf-device-nonbmc.json:2600), psu_v_out (pddf/pddf-device-nonbmc.json:2601), psu_i_out (pddf/pddf-device-nonbmc.json:2602), psu_p_in (pddf/pddf-device-nonbmc.json:2603), psu_v_in (pddf/pddf-device-nonbmc.json:2604), psu_i_in (pddf/pddf-device-nonbmc.json:2605), psu_fan1_speed_rpm (pddf/pddf-device-nonbmc.json:2606), psu_temp1_input (pddf/pddf-device-nonbmc.json:2607), psu_temp1_high_threshold (pddf/pddf-device-nonbmc.json:2608), psu_v_out_max (pddf/pddf-device-nonbmc.json:2609), psu_v_out_min (pddf/pddf-device-nonbmc.json:2610), psu_p_out_max (pddf/pddf-device-nonbmc.json:2611)"
+    ],
+    [
+     "pddf_plugin_psu_names",
+     "1='PSU 1' (pddf/pd-plugin.json:6), 2='PSU 2' (pddf/pd-plugin.json:7)"
+    ],
+    [
+     "pddf_plugin_psu_fan_names",
+     "1.1='PSU 1 Fan 1' (pddf/pd-plugin.json:13), 2.1='PSU 2 Fan 1' (pddf/pd-plugin.json:17)"
+    ],
+    [
+     "pddf_plugin_psu_thermal_names",
+     "1='PSU 1 Temp1' (pddf/pd-plugin.json:22), 2='PSU 2 Temp1' (pddf/pd-plugin.json:23)"
+    ],
+    [
+     "pddf_plugin_fan_drawer_names",
+     "1='Fantray 1' (pddf/pd-plugin.json:86), 2='Fantray 2' (pddf/pd-plugin.json:87), 3='Fantray 3' (pddf/pd-plugin.json:88), 4='Fantray 4' (pddf/pd-plugin.json:89)"
+    ],
+    [
+     "pddf_plugin_fan_names",
+     "1.1='Fan 1 Front' (pddf/pd-plugin.json:95), 1.2='Fan 1 Rear' (pddf/pd-plugin.json:96), 2.1='Fan 2 Front' (pddf/pd-plugin.json:100), 2.2='Fan 2 Rear' (pddf/pd-plugin.json:101), 3.1='Fan 3 Front' (pddf/pd-plugin.json:105), 3.2='Fan 3 Rear' (pddf/pd-plugin.json:106), 4.1='Fan 4 Front' (pddf/pd-plugin.json:110), 4.2='Fan 4 Rear' (pddf/pd-plugin.json:111)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:68), FAN.FAN_MAX_RPM_SPEED.Front=23300 (pddf/pd-plugin.json:141), FAN.FAN_MAX_RPM_SPEED.Rear=20300 (pddf/pd-plugin.json:142)"
+    ],
+    [
+     "pddf_plugin_psu_model_keys_in_fan_dir_map",
+     "'FSP550-29FM'->'INTAKE' (pddf/pd-plugin.json:58), 'FSP550-20FM'->'EXHAUST' (pddf/pd-plugin.json:58) (keys of the plugin's PSU.psu_fan_dir.i2c.valmap lookup table, as printed: PSU model strings the plugin can map to an airflow label; a lookup table in the plugin, NOT a statement about an installed or shipped PSU; not interpreted)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.bmc.valmap[B2F]='INTAKE' (pddf/pd-plugin.json:54), PSU.psu_fan_dir.bmc.valmap[F2B]='EXHAUST' (pddf/pd-plugin.json:54), FAN.direction.bmc.valmap[1]='INTAKE' (pddf/pd-plugin.json:77), FAN.direction.bmc.valmap[0]='EXHAUST' (pddf/pd-plugin.json:77), FAN.direction.i2c.valmap[1]='INTAKE' (pddf/pd-plugin.json:81), FAN.direction.i2c.valmap[0]='EXHAUST' (pddf/pd-plugin.json:81)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-cel_ds3000-r0": {
+   "vendor": "celestica",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "celestica"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device-bmc.json\", \"pddf-device-nonbmc.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device-bmc.json:4); 2 (pddf/pddf-device-nonbmc.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "4 (pddf/pddf-device-bmc.json:5); 4 (pddf/pddf-device-nonbmc.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device-bmc.json:6); 2 (pddf/pddf-device-nonbmc.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "33 (pddf/pddf-device-bmc.json:7); 33 (pddf/pddf-device-nonbmc.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "11 (pddf/pddf-device-bmc.json:8); 6 (pddf/pddf-device-nonbmc.json:8)"
+    ],
+    [
+     "pddf_num_components",
+     "10 (pddf/pddf-device-bmc.json:9); 8 (pddf/pddf-device-nonbmc.json:9)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"- Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device-bmc.json:12)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device-bmc.json: PSU 1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device-bmc.json:1769-1770), PSU 2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device-bmc.json:1796-1797) | pddf-device-nonbmc.json: PSU 1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device-nonbmc.json:1950-1951), PSU 2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device-nonbmc.json:2004-2005)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device-bmc.json: FAN-CTRL (pddf/pddf-device-bmc.json:1821) | pddf-device-nonbmc.json: FAN-CTRL (num_fantrays=4) (pddf/pddf-device-nonbmc.json:2107-2111)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device-bmc.json: CPU Internal Temp [TEMP1] (pddf/pddf-device-bmc.json:1868), Baseboard Left Temp [TEMP2] (pddf/pddf-device-bmc.json:1883), Baseboard Right Temp [TEMP3] (pddf/pddf-device-bmc.json:1897), ASIC External Front Temp [TEMP4] (pddf/pddf-device-bmc.json:1911), ASIC External Rear Temp [TEMP5] (pddf/pddf-device-bmc.json:1924), Switchboard Left Temp [TEMP6] (pddf/pddf-device-bmc.json:1937), Switchboard Right Temp [TEMP7] (pddf/pddf-device-bmc.json:1950), MP2975 VDD CORE Temp [TEMP8] (pddf/pddf-device-bmc.json:1963), MP2975 VDD ANLG Temp [TEMP9] (pddf/pddf-device-bmc.json:1977), PSU 1 Temp2 [TEMP10] (pddf/pddf-device-bmc.json:1991), PSU 2 Temp2 [TEMP11] (pddf/pddf-device-bmc.json:2005) | pddf-device-nonbmc.json: Base_Temp_U5 [TEMP1] (pddf/pddf-device-nonbmc.json:259), Base_Temp_U56 [TEMP2] (pddf/pddf-device-nonbmc.json:274), Switch_Temp_U17 [TEMP3] (pddf/pddf-device-nonbmc.json:289), Switch_Temp_U18 [TEMP4] (pddf/pddf-device-nonbmc.json:304), Switch_Temp_U28 [TEMP5] (pddf/pddf-device-nonbmc.json:319), Switch_Temp_U29 [TEMP6] (pddf/pddf-device-nonbmc.json:334)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device-bmc.json: 11 | pddf-device-nonbmc.json: 6"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device-bmc.json: SYS_LED (pddf/pddf-device-bmc.json:2018), ALARM_LED (pddf/pddf-device-bmc.json:2040), FANTRAY1_LED (pddf/pddf-device-bmc.json:2060), FANTRAY2_LED (pddf/pddf-device-bmc.json:2076), FANTRAY3_LED (pddf/pddf-device-bmc.json:2092), FANTRAY4_LED (pddf/pddf-device-bmc.json:2108) | pddf-device-nonbmc.json: FANTRAY_LED (pddf/pddf-device-nonbmc.json:2152), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2165), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2178), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2191), PSU_LED (pddf/pddf-device-nonbmc.json:2205)"
+    ],
+    [
+     "pddf_component_names",
+     "pddf-device-bmc.json: COMPONENT1=BIOS (pddf/pddf-device-bmc.json:77), COMPONENT2=BMC (pddf/pddf-device-bmc.json:86), COMPONENT3=CPLD BASE (pddf/pddf-device-bmc.json:94), COMPONENT4=CPLD SW1 (pddf/pddf-device-bmc.json:103), COMPONENT5=CPLD SW2 (pddf/pddf-device-bmc.json:111), COMPONENT6=CPLD COMe (pddf/pddf-device-bmc.json:119), COMPONENT7=FPGA (pddf/pddf-device-bmc.json:127), COMPONENT8=PCIe (pddf/pddf-device-bmc.json:136), COMPONENT9=SSD (pddf/pddf-device-bmc.json:144) | pddf-device-nonbmc.json: COMPONENT1=BIOS (pddf/pddf-device-nonbmc.json:82), COMPONENT2=CPLD BASE (pddf/pddf-device-nonbmc.json:91), COMPONENT3=CPLD SW1 (pddf/pddf-device-nonbmc.json:100), COMPONENT4=CPLD SW2 (pddf/pddf-device-nonbmc.json:108), COMPONENT5=CPLD COMe (pddf/pddf-device-nonbmc.json:116), COMPONENT6=FPGA (pddf/pddf-device-nonbmc.json:124), COMPONENT7=PCIe (pddf/pddf-device-nonbmc.json:133), COMPONENT8=SSD (pddf/pddf-device-nonbmc.json:141)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device-nonbmc.json:1968), psu_power_good (pddf/pddf-device-nonbmc.json:1969), psu_model_name (pddf/pddf-device-nonbmc.json:1970), psu_serial_num (pddf/pddf-device-nonbmc.json:1971), psu_mfr_id (pddf/pddf-device-nonbmc.json:1972), psu_fan_dir (pddf/pddf-device-nonbmc.json:1973), psu_p_out (pddf/pddf-device-nonbmc.json:1974), psu_v_out (pddf/pddf-device-nonbmc.json:1975), psu_i_out (pddf/pddf-device-nonbmc.json:1976), psu_p_in (pddf/pddf-device-nonbmc.json:1977), psu_v_in (pddf/pddf-device-nonbmc.json:1978), psu_i_in (pddf/pddf-device-nonbmc.json:1979), psu_fan1_speed_rpm (pddf/pddf-device-nonbmc.json:1980), psu_temp1_input (pddf/pddf-device-nonbmc.json:1981), psu_temp1_high_threshold (pddf/pddf-device-nonbmc.json:1982), psu_v_out_max (pddf/pddf-device-nonbmc.json:1983), psu_v_out_min (pddf/pddf-device-nonbmc.json:1984), psu_p_out_max (pddf/pddf-device-nonbmc.json:1985)"
+    ],
+    [
+     "pddf_plugin_psu_names",
+     "1='PSU 1' (pddf/pd-plugin.json:6), 2='PSU 2' (pddf/pd-plugin.json:7)"
+    ],
+    [
+     "pddf_plugin_psu_fan_names",
+     "1.1='PSU 1 Fan 1' (pddf/pd-plugin.json:13), 2.1='PSU 2 Fan 1' (pddf/pd-plugin.json:17)"
+    ],
+    [
+     "pddf_plugin_psu_thermal_names",
+     "1='PSU 1 Temp1' (pddf/pd-plugin.json:22), 2='PSU 2 Temp1' (pddf/pd-plugin.json:23)"
+    ],
+    [
+     "pddf_plugin_fan_drawer_names",
+     "1='Fantray 1' (pddf/pd-plugin.json:73), 2='Fantray 2' (pddf/pd-plugin.json:74), 3='Fantray 3' (pddf/pd-plugin.json:75), 4='Fantray 4' (pddf/pd-plugin.json:76)"
+    ],
+    [
+     "pddf_plugin_fan_names",
+     "1.1='Fan 1 Front' (pddf/pd-plugin.json:82), 1.2='Fan 1 Rear' (pddf/pd-plugin.json:83), 2.1='Fan 2 Front' (pddf/pd-plugin.json:87), 2.2='Fan 2 Rear' (pddf/pd-plugin.json:88), 3.1='Fan 3 Front' (pddf/pd-plugin.json:92), 3.2='Fan 3 Rear' (pddf/pd-plugin.json:93), 4.1='Fan 4 Front' (pddf/pd-plugin.json:97), 4.2='Fan 4 Rear' (pddf/pd-plugin.json:98)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=18000 (pddf/pd-plugin.json:66), FAN.FRONT_FAN_MAX_RPM_SPEED=24000 (pddf/pd-plugin.json:134), FAN.REAR_FAN_MAX_RPM_SPEED=21000 (pddf/pd-plugin.json:135)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.bmc.valmap[1]='INTAKE' (pddf/pd-plugin.json:53), PSU.psu_fan_dir.bmc.valmap[0]='EXHAUST' (pddf/pd-plugin.json:53), PSU.psu_fan_dir.i2c.valmap[0]='INTAKE' (pddf/pd-plugin.json:57), PSU.psu_fan_dir.i2c.valmap[1]='EXHAUST' (pddf/pd-plugin.json:57), FAN.direction.bmc.valmap[1]='INTAKE' (pddf/pd-plugin.json:105), FAN.direction.bmc.valmap[0]='EXHAUST' (pddf/pd-plugin.json:105), FAN.direction.i2c.valmap[1]='INTAKE' (pddf/pd-plugin.json:109), FAN.direction.i2c.valmap[0]='EXHAUST' (pddf/pd-plugin.json:109)"
+    ]
+   ],
+   "in_old_candidate": true
+  },
+  "x86_64-cel_silverstone_v2-r0": {
+   "vendor": "celestica",
+   "facts": [
+    [
+     "pddf_commit",
+     "c431b65bf2905ce88d14578a03c68338413b353b"
+    ],
+    [
+     "pddf_vendor_dir_as_printed",
+     "celestica"
+    ],
+    [
+     "pddf_files",
+     "[\"pddf-device-bmc.json\", \"pddf-device-nonbmc.json\", \"pd-plugin.json\"]"
+    ],
+    [
+     "pddf_num_psus",
+     "2 (pddf/pddf-device-bmc.json:4); 2 (pddf/pddf-device-nonbmc.json:4)"
+    ],
+    [
+     "pddf_num_fantrays",
+     "7 (pddf/pddf-device-bmc.json:5); 7 (pddf/pddf-device-nonbmc.json:5)"
+    ],
+    [
+     "pddf_num_fans_pertray",
+     "2 (pddf/pddf-device-bmc.json:6); 2 (pddf/pddf-device-nonbmc.json:6)"
+    ],
+    [
+     "pddf_num_ports",
+     "34 (pddf/pddf-device-bmc.json:7); 34 (pddf/pddf-device-nonbmc.json:7)"
+    ],
+    [
+     "pddf_num_temps",
+     "14 (pddf/pddf-device-bmc.json:8); 6 (pddf/pddf-device-nonbmc.json:8)"
+    ],
+    [
+     "pddf_num_components",
+     "11 (pddf/pddf-device-bmc.json:9); 8 (pddf/pddf-device-nonbmc.json:9)"
+    ],
+    [
+     "pddf_bmc_present",
+     "True (pddf/pddf-device-bmc.json:10); False (pddf/pddf-device-nonbmc.json:10)"
+    ],
+    [
+     "pddf_dev_types_description",
+     "\"- Below is the list of supported PDDF device types (chip names) for various components. If any component uses some other driver, we will create the client using 'echo <dev-address> <dev-type> > <path>/new_device' method\" (pddf/pddf-device-bmc.json:13)"
+    ],
+    [
+     "pddf_psu_devices",
+     "pddf-device-bmc.json: PSU1 [object key; no device_name printed] (dev_idx=0, num_psu_fans=1) (pddf/pddf-device-bmc.json:1642-1645), PSU2 [object key; no device_name printed] (dev_idx=1, num_psu_fans=1) (pddf/pddf-device-bmc.json:1673-1676) | pddf-device-nonbmc.json: PSU1 (dev_idx=1, num_psu_fans=1) (pddf/pddf-device-nonbmc.json:1712-1713), PSU2 (dev_idx=2, num_psu_fans=1) (pddf/pddf-device-nonbmc.json:1756-1757)"
+    ],
+    [
+     "pddf_fan_ctrl_devices",
+     "pddf-device-bmc.json: FAN-CTRL (pddf/pddf-device-bmc.json:1704) | pddf-device-nonbmc.json: FAN-CTRL (num_fantrays=7) (pddf/pddf-device-nonbmc.json:1800-1804)"
+    ],
+    [
+     "pddf_temp_sensor_display_names",
+     "pddf-device-bmc.json: PSU 1 Temp2 [TEMP1] (pddf/pddf-device-bmc.json:1775), PSU 1 Temp3 [TEMP2] (pddf/pddf-device-bmc.json:1789), PSU 2 Temp2 [TEMP3] (pddf/pddf-device-bmc.json:1803), PSU 2 Temp3 [TEMP4] (pddf/pddf-device-bmc.json:1817), CPU Internal Temp [TEMP5] (pddf/pddf-device-bmc.json:1831), ASIC Internal Temp [TEMP6] (pddf/pddf-device-bmc.json:1845), Fanboard Right Temp [TEMP7] (pddf/pddf-device-bmc.json:1859), Switchboard Right Temp [TEMP8] (pddf/pddf-device-bmc.json:1872), MP2975 3.3v Chip Right Temp [TEMP9] (pddf/pddf-device-bmc.json:1886), MP2975 3.3v Chip Left Temp [TEMP10] (pddf/pddf-device-bmc.json:1900), TPS536C7 Chip Temp [TEMP11] (pddf/pddf-device-bmc.json:1914), MP2975 0.8v Chip Temp [TEMP12] (pddf/pddf-device-bmc.json:1928), Fanboard Center Temp [TEMP13] (pddf/pddf-device-bmc.json:1942), Switchboard Left Temp [TEMP14] (pddf/pddf-device-bmc.json:1955) | pddf-device-nonbmc.json: VDD_CORE_Temp [TEMP1] (pddf/pddf-device-nonbmc.json:1870), XP3R3V_L_Temp [TEMP2] (pddf/pddf-device-nonbmc.json:1885), XP3R3V_R_Temp [TEMP3] (pddf/pddf-device-nonbmc.json:1900), XP0R8V_Temp [TEMP4] (pddf/pddf-device-nonbmc.json:1915), TEMP_SW_U16 [TEMP5] (pddf/pddf-device-nonbmc.json:1930), TEMP_FB_U17 [TEMP6] (pddf/pddf-device-nonbmc.json:1945)"
+    ],
+    [
+     "pddf_temp_sensor_declared_count",
+     "pddf-device-bmc.json: 14 | pddf-device-nonbmc.json: 6"
+    ],
+    [
+     "pddf_led_device_names",
+     "pddf-device-bmc.json: SYS_LED (pddf/pddf-device-bmc.json:1967), ALARM_LED (pddf/pddf-device-bmc.json:1988), FANTRAY1_LED (pddf/pddf-device-bmc.json:2009), FANTRAY2_LED (pddf/pddf-device-bmc.json:2024), FANTRAY3_LED (pddf/pddf-device-bmc.json:2039), FANTRAY4_LED (pddf/pddf-device-bmc.json:2054), FANTRAY5_LED (pddf/pddf-device-bmc.json:2069), FANTRAY6_LED (pddf/pddf-device-bmc.json:2084), FANTRAY7_LED (pddf/pddf-device-bmc.json:2099) | pddf-device-nonbmc.json: SYS_LED (pddf/pddf-device-nonbmc.json:1961), FANTRAY_LED (pddf/pddf-device-nonbmc.json:1975), FANTRAY_LED (pddf/pddf-device-nonbmc.json:1987), FANTRAY_LED (pddf/pddf-device-nonbmc.json:1999), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2011), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2023), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2035), FANTRAY_LED (pddf/pddf-device-nonbmc.json:2047)"
+    ],
+    [
+     "pddf_psu_declared_attr_names",
+     "attr names only, register map not recorded: psu_present (pddf/pddf-device-nonbmc.json:1732), psu_power_good (pddf/pddf-device-nonbmc.json:1733), psu_model_name (pddf/pddf-device-nonbmc.json:1734), psu_serial_num (pddf/pddf-device-nonbmc.json:1735), psu_mfr_id (pddf/pddf-device-nonbmc.json:1736), psu_fan_dir (pddf/pddf-device-nonbmc.json:1737), psu_p_out (pddf/pddf-device-nonbmc.json:1738), psu_v_out (pddf/pddf-device-nonbmc.json:1739), psu_i_out (pddf/pddf-device-nonbmc.json:1740), psu_p_in (pddf/pddf-device-nonbmc.json:1741), psu_v_in (pddf/pddf-device-nonbmc.json:1742), psu_i_in (pddf/pddf-device-nonbmc.json:1743), psu_fan1_speed_rpm (pddf/pddf-device-nonbmc.json:1744), psu_temp1_input (pddf/pddf-device-nonbmc.json:1745), psu_temp1_high_threshold (pddf/pddf-device-nonbmc.json:1746), psu_v_out_max (pddf/pddf-device-nonbmc.json:1747), psu_v_out_min (pddf/pddf-device-nonbmc.json:1748), psu_p_out_max (pddf/pddf-device-nonbmc.json:1749)"
+    ],
+    [
+     "pddf_plugin_psu_names",
+     "1='PSU 1' (pddf/pd-plugin.json:17), 2='PSU 2' (pddf/pd-plugin.json:18)"
+    ],
+    [
+     "pddf_plugin_psu_fan_names",
+     "1.1='PSU 1 Fan 1' (pddf/pd-plugin.json:24), 2.1='PSU 2 Fan 1' (pddf/pd-plugin.json:28)"
+    ],
+    [
+     "pddf_plugin_psu_thermal_names",
+     "1='PSU 1 Temp1' (pddf/pd-plugin.json:34), 2='PSU 2 Temp1' (pddf/pd-plugin.json:35)"
+    ],
+    [
+     "pddf_plugin_fan_drawer_names",
+     "1='Drawer 1' (pddf/pd-plugin.json:91), 2='Drawer 2' (pddf/pd-plugin.json:92), 3='Drawer 3' (pddf/pd-plugin.json:93), 4='Drawer 4' (pddf/pd-plugin.json:94), 5='Drawer 5' (pddf/pd-plugin.json:95), 6='Drawer 6' (pddf/pd-plugin.json:96), 7='Drawer 7' (pddf/pd-plugin.json:97)"
+    ],
+    [
+     "pddf_plugin_fan_names",
+     "1.1='Fan 1 Front' (pddf/pd-plugin.json:103), 1.2='Fan 1 Rear' (pddf/pd-plugin.json:104), 2.1='Fan 2 Front' (pddf/pd-plugin.json:108), 2.2='Fan 2 Rear' (pddf/pd-plugin.json:109), 3.1='Fan 3 Front' (pddf/pd-plugin.json:113), 3.2='Fan 3 Rear' (pddf/pd-plugin.json:114), 4.1='Fan 4 Front' (pddf/pd-plugin.json:118), 4.2='Fan 4 Rear' (pddf/pd-plugin.json:119), 5.1='Fan 5 Front' (pddf/pd-plugin.json:123), 5.2='Fan 5 Rear' (pddf/pd-plugin.json:124), 6.1='Fan 6 Front' (pddf/pd-plugin.json:128), 6.2='Fan 6 Rear' (pddf/pd-plugin.json:129), 7.1='Fan 7 Front' (pddf/pd-plugin.json:133), 7.2='Fan 7 Rear' (pddf/pd-plugin.json:134)"
+    ],
+    [
+     "pddf_plugin_max_speed_limits",
+     "PSU.PSU_FAN_MAX_SPEED=29000 (pddf/pd-plugin.json:84), FAN.FAN_MAX_RPM_SPEED.INTAKE.0=32000 (pddf/pd-plugin.json:164), FAN.FAN_MAX_RPM_SPEED.INTAKE.1=28000 (pddf/pd-plugin.json:164), FAN.FAN_MAX_RPM_SPEED.EXHAUST.0=32000 (pddf/pd-plugin.json:165), FAN.FAN_MAX_RPM_SPEED.EXHAUST.1=30200 (pddf/pd-plugin.json:165)"
+    ],
+    [
+     "pddf_plugin_psu_model_keys_in_fan_dir_map",
+     "'TDPS-1500AB-A 6'->'EXHAUST' (pddf/pd-plugin.json:58), 'SAC1500D12AA'->'EXHAUST' (pddf/pd-plugin.json:59), 'TDPS-1500AB-6 B'->'EXHAUST' (pddf/pd-plugin.json:60), 'TDPS-1500AB-6 D'->'EXHAUST' (pddf/pd-plugin.json:61), 'TDPS-1500AB-6 E'->'EXHAUST' (pddf/pd-plugin.json:62), 'SAC1500D12RA'->'INTAKE' (pddf/pd-plugin.json:63), 'TDPS-1500AB-6 C'->'INTAKE' (pddf/pd-plugin.json:64), 'TDPS-1500AB-7 C'->'INTAKE' (pddf/pd-plugin.json:65) (keys of the plugin's PSU.psu_fan_dir.i2c.valmap lookup table, as printed: PSU model strings the plugin can map to an airflow label; a lookup table in the plugin, NOT a statement about an installed or shipped PSU; not interpreted)"
+    ],
+    [
+     "pddf_plugin_airflow_valmaps",
+     "PSU.psu_fan_dir.bmc.valmap[1]='INTAKE' (pddf/pd-plugin.json:52), PSU.psu_fan_dir.bmc.valmap[0]='EXHAUST' (pddf/pd-plugin.json:52), FAN.direction.bmc.valmap[1]='INTAKE' (pddf/pd-plugin.json:141), FAN.direction.bmc.valmap[0]='EXHAUST' (pddf/pd-plugin.json:141), FAN.direction.i2c.valmap[0]='INTAKE' (pddf/pd-plugin.json:145), FAN.direction.i2c.valmap[1]='EXHAUST' (pddf/pd-plugin.json:145)"
+    ]
+   ],
+   "in_old_candidate": true
+  }
+ }
+}

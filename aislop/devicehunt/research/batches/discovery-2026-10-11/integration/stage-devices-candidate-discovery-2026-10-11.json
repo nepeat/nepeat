@@ -1,0 +1,28 @@
+{
+  "candidate": "data/devices-candidate-discovery-2026-10-11.sqlite",
+  "candidate_manifest": "data/import-manifest-candidate-discovery-2026-10-11.json",
+  "counts": {
+    "devices": 4650,
+    "records": 5925,
+    "sources": 776
+  },
+  "foreign_key_violations": 0,
+  "growth": {
+    "devices": 289,
+    "facts": 4946,
+    "identifiers": 300,
+    "records": 300,
+    "sources": 286
+  },
+  "imported": {
+    "raw/discovery-2026-10-11-entity-manager/entity-manager-config-facts-2026-10-11.json": 183,
+    "raw/discovery-2026-10-11-fb-openbmc/fb-openbmc-platform-facts-2026-10-11.json": 19,
+    "raw/discovery-2026-10-11-linux-dts/linux-bmc-dts-facts-2026-10-11.json": 12,
+    "raw/discovery-2026-10-11-onie/onie-machine-facts-2026-10-11.json": 61,
+    "raw/discovery-2026-10-11-openbmc/openbmc-machine-facts-2026-10-11.json": 14,
+    "raw/discovery-2026-10-11-sonic-pddf/sonic-pddf-facts-2026-10-11.json": 11
+  },
+  "integrity": "ok",
+  "live_sha256": "0646f4f575e37f9c937ed6aa46e29d15ff4fba2c4331e5142cee08ac3e47c8f0",
+  "tables_with_lost_live_rows": {}
+}

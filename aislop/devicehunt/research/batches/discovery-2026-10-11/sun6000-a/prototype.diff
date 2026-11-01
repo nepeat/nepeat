@@ -1,0 +1,278 @@
+--- a/devicehunt/rra.py
++++ b/devicehunt/rra.py
+@@ -1,6 +1,7 @@
+ """Official Korean approval detail snapshots; raw company cells stay unsplit."""
+ import csv
+ import datetime as dt
++import hashlib
+ import io
+ import json
+ import re
+@@ -33,6 +34,44 @@
+     return target_for(name) or (reviewed or {}).get(normalize(name), {}).get('target')
+ 
+ 
++def composite_claims(root, data, ready):
++    """{certificate: reviewed composite entry} for rows whose manufacturer cell an entry names exactly.
++
++    Guard: certificate + exact cell text hash + detail page hash must all match; an entry that
++    matches no row of this capture is refused, so drift is loud rather than silently dropped.
++    """
++    composites = rra_company_names.load_composites(root, data.get('company_evidence'))
++    if not composites:
++        return {}
++    reviewed = rra_company_names.load(root, data.get('company_evidence'))
++    claims = {}
++    for _, entry, row in ready:
++        item = composites.get((row['certificate_number'], digest(row['manufacturer'].encode())))
++        if item is None:
++            continue
++        if (entry['sha256'] != item['detail_sha256'] or entry['url'] != item['detail_url']
++                or row['manufacturer'] != item['cell']['text'] or item['query_maker'] != data['query']['maker']
++                or company_target(row['manufacturer'], reviewed)):
++            raise ValueError('Composite manufacturer cell evidence does not match its detail page')
++        raw = item['cell']['raw_html_cell_bytes']
++        body = dependency(root, entry)  # checked against the pinned detail hash
++        if hashlib.sha256(body[raw['offset']:raw['offset'] + raw['length']]).hexdigest() != raw['sha256']:
++            raise ValueError('Composite manufacturer cell raw bytes differ from the saved detail page')
++        claims[row['certificate_number']] = item
++    if len(claims) != len(composites):
++        raise ValueError('Composite manufacturer cell evidence matched no row of this capture')
++    return claims
++
++
++def claim_target(row, reviewed, claims):
++    """Whole-cell target, else the target of this row's reviewed composite entry."""
++    target = company_target(row['manufacturer'], reviewed)
++    claim = claims.get(row['certificate_number'])
++    if target or not claim:
++        return target
++    return next((p['target'] for p in claim['parts'] if p['target']), None)  # first mapped part
++
++
+ def csv_rows(body, allow_empty=False):
+     rows = [r for r in csv.reader(io.StringIO(body.decode('cp949')), strict=True) if r]
+     if not rows or [c.strip() for c in rows[0]] != HEADER:
+@@ -164,12 +203,14 @@
+         if query['maker'].casefold() not in parsed['manufacturer'].casefold():
+             raise ValueError('RRA detail manufacturer does not match the captured query')
+         ready.append((row, entry, parsed))
++    composite_claims(path.parent, data, ready)  # refuse entries that no longer match their row
+     return data, ready
+ 
+ 
+ def import_bundle(c, path):
+     data, ready = validate(path)
+     reviewed = rra_company_names.load(Path(path).resolve().parent, data.get('company_evidence'))
++    claims = composite_claims(Path(path).resolve().parent, data, ready)
+     sid = 'rra-official-query-' + digest(json.dumps(data['query'], sort_keys=True).encode())[:12]
+     c.source(sid, FORM, 'regulatory', 'RRA public factual approval data; source rights retained',
+              'Official manufacturer search ' + json.dumps(data['query'], ensure_ascii=False, sort_keys=True) +
+@@ -180,40 +221,61 @@
+               'are preserved; every row has checked original detail HTML. ') +
+              'Completeness is limited to this returned query, not all historical Korean approvals. '
+              'CSV intermediate cells contain unquoted commas and remain uninterpreted. Labelled detail '
+-             'fields supply identities. Composite company cells stay unsplit; only exact known target '
++             'fields supply identities. Composite company cells stay unsplit' + (' except reviewed certificate entries' if claims else '') + '; only exact known target '
+              'manufacturer cells create catalog claims. Catalog brand is a manufacturer namespace. '
+              'Simple comma-separated main and derived model entries remain distinct literal identities, '
+              'not aliases or proven distinct physical products. Main lists containing annotations or '
+              'empty entries stay raw in full. No prefix/suffix is propagated between entries. Raw dates, statuses '
+              'and countries do not prove present validity, a factory or operator deployment.' +
+              rra_company_names.coverage(reviewed) +
++             rra_company_names.composite_coverage(rra_company_names.load_composites(
++                 Path(path).resolve().parent, data.get('company_evidence'))) +
+              (' This query returned zero rows: a separately hashed original result page '
+               'explicitly reports no matching information. This is a dated query-level '
+               'observation, not company-wide absence or proof of database completeness.'
+               if not ready else ''), path)
+     c.db.execute('DELETE FROM rra_equipment WHERE source_id=?', (sid,))
+     assertions = 0
++    claimed_keys = {}
+     for n, (cells, entry, row) in enumerate(ready, 1):
+         c.db.execute('INSERT INTO rra_equipment VALUES (' + ','.join('?' for _ in range(14)) + ')',
+                      (sid, n, *[row[k] for k,_ in FIELDS], json.dumps(cells, ensure_ascii=False), entry['url'], entry['sha256']))
+-        target = company_target(row['manufacturer'], reviewed)
++        target = claim_target(row, reviewed, claims)
+         if target is None:
+             continue
++        claim = claims.get(row['certificate_number'])
+         company_facts = []
+         for field in ('manufacturer', 'applicant'):
+             evidence = reviewed.get(normalize(row[field])) if company_target(row[field], reviewed) else None
+             if evidence:
+                 company_facts.extend((field + '_company_' + key, value) for key, value in evidence.items())
++        manufacturers = [(row['manufacturer'], 'registry_manufacturer')]
++        if claim:
++            # Parts replace the whole cell as affiliations; the unlabelled parenthetical is a fact only.
++            manufacturers = [(p['text'], p['role']) for p in claim['parts'] if p['role']]
++            company_facts += [('rra_manufacturer_as_printed', row['manufacturer']),
++                             ('manufacturer_cell_basis', 'reviewed certificate-scoped exact cell; ' + claim['evidence_basis']),
++                             ('manufacturer_cell_unlabelled_text', claim['unlabelled_parenthetical']['text']),
++                             ('manufacturer_cell_review', json.dumps(
++                                 dict(cell_text_sha256=claim['cell']['text_sha256'], detail_sha256=claim['detail_sha256'],
++                                      evidence_sha256=claim['source_sha256'], reviewed_on=claim['reviewed_on'],
++                                      limits=claim['limits']), ensure_ascii=False, sort_keys=True))]
++            company_facts += [('manufacturer_cell_part', json.dumps(
++                dict(text=p['text'], role=p['role'], target=p['target'], name_evidence=p['name_evidence'],
++                     name_basis=p['name_basis'], company_evidence=reviewed.get(normalize(p['text']))),
++                ensure_ascii=False, sort_keys=True)) for p in claim['parts']]
+         for role, model in models(row):
+             c.add(sid, row['certificate_number'] + ':' + model, entry['url'], target, model,
+                   target + ' ' + model, row['equipment_name'], row,
+-                  [(row['manufacturer'], 'registry_manufacturer'), (row['applicant'], 'regulatory_applicant')],
++                  manufacturers + [(row['applicant'], 'regulatory_applicant')],
+                   [('rra_certificate_id', row['certificate_number'])],
+                   [('rra_model_role', role), ('rra_main_model', row['main_model']),
+                    ('country_raw', row['country_raw']), ('approval_date_raw', row['approval_date_raw']),
+                    ('other_raw', row['other_raw']), ('detail_sha256', entry['sha256']),
+                    *company_facts])
+             assertions += 1
++            if claim:
++                claimed_keys.setdefault(row['certificate_number'], []).append(row['certificate_number'] + ':' + model)
+     # Catalog.add applies general normalization. Preserve the raw affiliation
+     # while enforcing the same whole-cell match for applicants in this source.
+     companies = {row[key] for _, _, row in ready for key in ('manufacturer', 'applicant')}
+@@ -221,5 +283,12 @@
+         c.db.execute('UPDATE affiliations SET target=? WHERE company=? AND record_id IN '
+                      '(SELECT id FROM records WHERE source_id=?)',
+                      (company_target(company, reviewed), company, sid))
++    # After the whole-cell loop above: that loop would otherwise reset a part named like another row's cell.
++    for certificate, claim in claims.items():
++        for part in (p for p in claim['parts'] if p['role']):
++            for key in claimed_keys[certificate]:
++                c.db.execute('UPDATE affiliations SET target=? WHERE company=? AND role=? AND record_id IN '
++                             '(SELECT id FROM records WHERE source_id=? AND source_key=?)',
++                             (part['target'], part['text'], part['role'], sid, key))
+     c.finish(sid, len(ready))
+     return dict(registry_rows=len(ready), model_assertions=assertions)
+--- a/devicehunt/rra_company_names.py
++++ b/devicehunt/rra_company_names.py
+@@ -5,6 +5,7 @@
+ not parent ownership at the approval date or a physical manufacturing factory.
+ """
+ import datetime as dt
++import hashlib
+ import json
+ 
+ from .catalog import normalize
+@@ -60,10 +61,29 @@
+         scope='Accton-named manufacturer namespace; parent ownership at approval date unverified')}
+ 
+ 
++COMPOSITE_KIND = 'rra-composite-manufacturer-cells'
++COMPOSITE_ROLES = frozenset({'registry_manufacturer'})
++BASE_KIND = 'celestica-historical-company-names'
++
++
++def _composite_wrapper(root, entry):
++    """The composite-cell wrapper, or None when `entry` is any other company evidence."""
++    data = json.loads(dependency(root, entry))
++    return data if data.get('kind') == COMPOSITE_KIND else None
++
++
+ def load(root, entry):
+     if entry is None:
+         return {}
+     data = json.loads(dependency(root, entry))
++    if data.get('kind') == COMPOSITE_KIND:
++        # The wrapper adds certificate-scoped entries only; whole-company names come from its
++        # base, which must be the historical Celestica bundle (never another wrapper).
++        base = data.get('base')
++        if (not isinstance(base, dict) or set(base) != {'path', 'sha256'}
++                or json.loads(dependency(root, base)).get('kind') != BASE_KIND):
++            raise ValueError('Composite manufacturer cells require the historical Celestica base')
++        return load(root, base)
+     if data.get('kind') == 'celestica-historical-company-names':
+         from . import rra_celestica_historical
+         return rra_celestica_historical.load(root, data)
+@@ -87,6 +107,17 @@
+             for spelling, legal_name, basis in REVIEWED}
+ 
+ 
++def composite_coverage(composites):
++    if not composites:
++        return ''
++    return (' Exception to unsplit composite cells: ' + str(len(composites)) + ' reviewed certificate-scoped entr'
++            + ('y' if len(composites) == 1 else 'ies') + ' (' + ', '.join(sorted(k[0] for k in composites)) +
++            '): each names the exact manufacturer cell text and hash and its split parts as registry_manufacturer; '
++            'a trailing unlabelled parenthetical is not a role. Part names without reviewed legal-name '
++            'evidence are scoped to that certificate only. No factory, per-factory country or sole-'
++            'manufacturer claim is made, and the same cell under another query gets no claim.')
++
++
+ def coverage(reviewed):
+     if not reviewed:
+         return ''
+@@ -110,3 +141,55 @@
+             'web-tool extract of Celestica 2025 Exhibit 21.1, not original filing HTML. '
+             'Reviewed Ltd/Limited abbreviations are explicit company-name interpretations. '
+             'The later filing does not establish parent ownership at historical approval dates.')
++
++
++def load_composites(root, entry):
++    """{(certificate, cell text sha256): reviewed entry} from a composite-cell wrapper, else {}.
++
++    Exact-cell only: an entry's parts joined by its separator plus the unlabelled parenthetical
++    must reproduce the cell text byte for byte. Nothing here splits a cell by pattern.
++    """
++    if entry is None:
++        return {}
++    data = _composite_wrapper(root, entry)
++    if data is None:
++        return {}
++    reviewed = load(root, entry)
++    if (data.get('schema_version') != 1 or not isinstance(data.get('entries'), list) or not data['entries']):
++        raise ValueError('Unrecognized composite manufacturer cell evidence')
++    dt.date.fromisoformat(data['reviewed_on'])
++    result = {}
++    for item in data['entries']:
++        cell, parts, paren = item.get('cell'), item.get('parts'), item.get('unlabelled_parenthetical')
++        if (not isinstance(cell, dict) or cell.get('field') != 'manufacturer' or not isinstance(cell.get('text'), str)
++                or not isinstance(parts, list) or len(parts) < 2 or not isinstance(paren, dict)
++                or paren.get('role') is not None or not isinstance(paren.get('text'), str)
++                or item.get('separator') != ',' or not isinstance(item.get('certificate_number'), str)
++                or not all(isinstance(v, str) for v in (item.get('detail_sha256'), item.get('query_maker')))):
++            raise ValueError('Malformed composite manufacturer cell entry')
++        text = cell['text']
++        if hashlib.sha256(text.encode()).hexdigest() != cell.get('text_sha256'):
++            raise ValueError('Composite cell text does not match its hash')
++        if ','.join(p.get('text', '') for p in parts) + ' ' + paren['text'] != text:
++            raise ValueError('Composite cell parts do not reproduce the exact cell')
++        mapped = 0
++        for part in parts:
++            known = normalize(part.get('text', '')) in reviewed
++            if part.get('role') is None:
++                # Unmapped literal context: no role, no target, no affiliation; must not be mappable already.
++                if part.get('target') is not None or part.get('name_evidence') != 'unmapped_context' or known:
++                    raise ValueError('Composite cell context part is not unmapped: ' + str(part.get('text')))
++                continue
++            mapped += 1
++            if (part['role'] not in COMPOSITE_ROLES or part.get('target') != 'Celestica'
++                    or part.get('name_evidence') != 'base' or not known
++                    or reviewed[normalize(part['text'])]['target'] != part['target']):
++                raise ValueError('Composite cell part is not backed as declared: ' + str(part.get('text')))
++        if not mapped:
++            raise ValueError('Composite cell entry maps no part')
++        key = (item['certificate_number'], cell['text_sha256'])
++        if key in result:
++            raise ValueError('Duplicate composite cell entry')
++        result[key] = dict(item, parts=[dict(p) for p in parts], source_sha256=entry['sha256'],
++                           reviewed_on=data['reviewed_on'])
++    return result
+--- a/devicehunt/campaign_sources.py
++++ b/devicehunt/campaign_sources.py
+@@ -45,11 +45,12 @@
+         from . import rra, rra_company_names
+         data, ready = rra.validate(manifest)
+         reviewed = rra_company_names.load(manifest.parent, data.get('company_evidence'))
++        claims = rra.composite_claims(manifest.parent, data, ready)
+         originals, occurrences = [], []
+         for n, (cells, entry, row) in enumerate(ready, 1):
+             original = {'csv_cells': cells, 'detail_entry': entry, 'labelled_fields': row}
+             originals.append(original)
+-            eligible = bool(rra.company_target(row['manufacturer'], reviewed))
++            eligible = bool(rra.claim_target(row, reviewed, claims))
+             keys = [row['certificate_number'] + ':' + model for _, model in rra.models(row)] if eligible else []
+             occurrences.append(dict(
+                 kind='rra-certificate-row', ordinal=n, certificate=row['certificate_number'],

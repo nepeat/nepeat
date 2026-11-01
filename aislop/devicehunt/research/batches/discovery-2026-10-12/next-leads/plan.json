@@ -1,0 +1,129 @@
+{
+  "status": "offline planning only; no fetch or evidence import",
+  "created_date": "2026-10-12",
+  "owner": "/root/psu",
+  "leads": [
+    {
+      "priority": 1,
+      "vendor": "Celestica",
+      "model": "SD6200",
+      "basis": "data/raw/celestica-storage-manufacturer/sd6200.html",
+      "basis_url": "https://cls.celestica.com/hardware-platforms/sd6200/",
+      "links": [
+        "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SD6200.pdf"
+      ],
+      "coverage": "17 current facts; 2025 portfolio 4U / 90 HDD / SAS-4 and product-page manufacturer statement; no categorized power/cooling or dimensions found.",
+      "gap": "Read exact PSU/input requirements, depth/weight, cooling and host/storage cabling if the datasheet supplies them; retain all conditions.",
+      "request_cap": 1,
+      "basis_sha256": "d7916c9f54392bb4c572233c341b7db0595aac2af1490d8e6aad0f349ee78189",
+      "resolved_links": [
+        "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SD6200.pdf"
+      ],
+      "novelty_check": "Linked exact document absent from current sources and three relevant vendor capture ledgers; no corresponding PDF/HTML capture identified in local coverage. This is a bounded negative check, not exhaustive proof over every historical artifact.",
+      "availability": "not requested; public link provenance only; current response/content unknown"
+    },
+    {
+      "priority": 2,
+      "vendor": "Edge-Core",
+      "model": "WEDGE100-32X",
+      "basis": "data/raw/edgecore/product-wedge100-32x.html",
+      "basis_url": "https://www.edge-core.com/product/wedge100-32x/",
+      "links": [
+        "https://www.edge-core.com/download/wedge-100-32x-r04/?wpdmdl=3223&refresh=6ab83011525d21790455825"
+      ],
+      "first_fetch": "https://www.edge-core.com/download/wedge-100-32x-r04/",
+      "coverage": "7 current facts; product page states 1RU, AC or 12 V DC redundant PSU, 4+1 fans, front(port)-to-back(power) airflow and ONIE.",
+      "gap": "R04 datasheet: complete order codes and revision, exact AC/DC input conditions, dimensions/rail requirement and PSU/FRU distinctions if printed. Existing broad option statements do not identify an auction unit.",
+      "request_cap": 3,
+      "basis_sha256": "28b58ce6cf776ed84ace6a10240008195d177e5172886a30acb9c81294ed8f14",
+      "resolved_links": [
+        "https://www.edge-core.com/download/wedge-100-32x-r04/?wpdmdl=3223&refresh=6ab83011525d21790455825"
+      ],
+      "novelty_check": "Linked exact document absent from current sources and three relevant vendor capture ledgers; no corresponding PDF/HTML capture identified in local coverage. This is a bounded negative check, not exhaustive proof over every historical artifact.",
+      "availability": "not requested; public link provenance only; current response/content unknown"
+    },
+    {
+      "priority": 3,
+      "vendor": "Oracle",
+      "model": "7420 (printed service-page platform; do not equate namespace spellings without review)",
+      "basis": "data/raw/oracle-zfs-components/sun-zfs-storage-7420.html",
+      "basis_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-pcie-io-cards.html",
+      "links": [
+        "sun-zfs-storage-7420-internal-components.html",
+        "sun-zfs-storage-7420-attached-storage.html"
+      ],
+      "coverage": "Captured 7420 PCIe options page has nine marketing/manufacturing part mappings; component assertions attach to component models. Oracle identities ZFS STORAGE 7420 and S7420 separately exist; the former has registry NETWORK STORAGE description only.",
+      "gap": "First internal-components page: platform-scoped internal topology, PSU/fan quantities and exact service part names if printed. Second attached-storage page: shelf/controller/cable limits if printed. Do not transfer to S7420 or use numeric model similarity as equivalence.",
+      "request_cap": 2,
+      "basis_sha256": "d0e6fb8ab728d0a12fa1cd8b6e77d4bebda4df121fa0b7da06ab040d8a95361a",
+      "resolved_links": [
+        "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+        "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html"
+      ],
+      "novelty_check": "Linked exact document absent from current sources and three relevant vendor capture ledgers; no corresponding PDF/HTML capture identified in local coverage. This is a bounded negative check, not exhaustive proof over every historical artifact.",
+      "availability": "not requested; public link provenance only; current response/content unknown"
+    },
+    {
+      "priority": 4,
+      "vendor": "Edge-Core",
+      "model": "MINIPACK AS8000 OPEN MODULAR PLATFORM / printed document identity to verify",
+      "basis": "data/raw/edgecore/product-minipack-as8000-open-modular-platform.html",
+      "basis_url": "https://www.edge-core.com/product/minipack-as8000-open-modular-platform/",
+      "links": [
+        "https://www.edge-core.com/download/as8000-quick-start-guide-r02/?wpdmdl=632&refresh=6ab8300e25a801790455822"
+      ],
+      "first_fetch": "https://www.edge-core.com/download/as8000-quick-start-guide-r02/",
+      "coverage": "Product-page AC redundancy, rear PSUs/fans and ONIE already captured. Separate Minipack-AS8000-O-AC-F / Chassis / FAN / RAIL KIT identities have retirement-notice facts; that notice supplies no operating ratings.",
+      "gap": "R02 quick-start: power input/connectors, assembly module requirements, rail/rack clearance, service airflow and installation restrictions. Do not turn a chassis or SCM order code into a working complete system or decoder for other suffixes.",
+      "request_cap": 3,
+      "basis_sha256": "804afbdb3da9fdb9330b7a0dfdc1f0da01c8869d5307f3dabe726a2ffe26461e",
+      "resolved_links": [
+        "https://www.edge-core.com/download/as8000-quick-start-guide-r02/?wpdmdl=632&refresh=6ab8300e25a801790455822"
+      ],
+      "novelty_check": "Linked exact document absent from current sources and three relevant vendor capture ledgers; no corresponding PDF/HTML capture identified in local coverage. This is a bounded negative check, not exhaustive proof over every historical artifact.",
+      "availability": "not requested; public link provenance only; current response/content unknown"
+    },
+    {
+      "priority": 5,
+      "vendor": "Celestica",
+      "model": "SC6100",
+      "basis": "data/raw/celestica-storage-manufacturer/sc6100.html",
+      "basis_url": "https://cls.celestica.com/hardware-platforms/sc6100/",
+      "links": [
+        "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SC6100.pdf"
+      ],
+      "coverage": "17 current facts; 2U / 24 SSD / high-availability / PCIe Gen5 description and source manufacturer statement. No categorized power/cooling or dimension facts found.",
+      "gap": "Datasheet exact power/input, chassis depth/weight, cooling and controller/drive/host conditions if present. Published capacity is not installed-drive count.",
+      "request_cap": 1,
+      "basis_sha256": "fa7fced2791e4b3e94ea7946879607b04f76db899cb54fabc2f6b0cba7958782",
+      "resolved_links": [
+        "https://www.celestica.com/uploadedFiles/Site/our-expertise/hardware-platform-solutions/storage/storage-list/cls_datasheet_SC6100.pdf"
+      ],
+      "novelty_check": "Linked exact document absent from current sources and three relevant vendor capture ledgers; no corresponding PDF/HTML capture identified in local coverage. This is a bounded negative check, not exhaustive proof over every historical artifact.",
+      "availability": "not requested; public link provenance only; current response/content unknown"
+    }
+  ],
+  "suggested_first_wave_priorities": [
+    1,
+    2,
+    3
+  ],
+  "budget": {
+    "search_queries": 0,
+    "full_set_document_requests": 8,
+    "redirect_allowance": 3,
+    "robots_or_policy_allowance": 3,
+    "all_HTTP_requests_cap": 14,
+    "remote_screenshots": 0,
+    "local_pdf_renders_cap": 6,
+    "first_wave_cap": 10
+  },
+  "stop_rules": [
+    "Stop affected source immediately on 402/403/login/robots prohibition; no alternate host/copy/route or retry of denied item.",
+    "Stop overall acquisition on throttling (429); checkpoint outcomes.",
+    "Stop URL after one 404/timeout; no guessed filename revisions.",
+    "Edge-Core: one canonical download landing then only one newly published same-origin PDF/download link; stale refresh tokens are provenance, not an instruction to reuse them. Count redirects within total cap.",
+    "No product-page/index recapture needed. Save bytes, requested/final URLs, UTC/status/SHA-256 including negative outcomes; exact requests retained.",
+    "If captured page lacks sought facts, retain bounded negative finding; do not expand crawl or transfer neighboring-model claims."
+  ]
+}

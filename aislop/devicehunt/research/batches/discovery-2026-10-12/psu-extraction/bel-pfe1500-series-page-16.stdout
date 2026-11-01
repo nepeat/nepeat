@@ -1,0 +1,58 @@
+16                                                                                                            PFE1500 Series
+             The SMB_ALERT_L signal indicates that the power supply is experiencing a problem that the system agent should investigate.
+             This is a logical OR of the Shutdown and Warning events. The power supply responds to a read command on the general
+             SMB_ALERT_L call address 25(0x19) by sending its status register.
+             Communication to the DSP or the EEPROM will be possible as long as the input AC voltage is provided. If no AC is present,
+             communication to the unit is possible as long as it is connected to a life V1 output (provided e.g. by the redundant unit). If only
+             VSB is provided, communication is not possible.
+
+
+ PARAMETER              DESCRIPTION / CONDITION                                                      MIN        NOM               MAX         UNIT
+ ViL                    Input low voltage                                                            -0.5                          1.0         V
+ ViH                    Input high voltage                                                              2.3                        5.5         V
+ Vhys                   Input hysteresis                                                             0.15                                      V
+ VoL                    Output low voltage                               3 mA sink current              0                          0.4         V
+                        Rise time for SDA and SCL                        0.65V to 2.25V
+ tr                                                                                                20+0.1Cb3                      1000         ns
+                        (ViLmax-0.15V to ViHmin+0.15V)                   fSCL ≤ 100 kHz
+                        Output fall time                                 2.25V to 0.65V
+ tof                                                                                               20+0.1Cb3                       300         ns
+                        (ViHmin+0.15V to ViLmax-0.15V)                   fSCL ≤ 100 kHz
+ Ii                     Input current SCL/SDA                            0.1 VDD < Vi < 0.9 VDD         -10                        10         μA
+ Ci                     Internal Capacitance for each SCL/SDA                                                                      50          pF
+ fSCL                   SCL clock frequency                                                             0                          100        kHz
+ Rpu                    External pull-up resistor                        fSCL ≤ 100 kHz                                        1000 ns / Cb    Ω
+ tHDSTA                 Hold time (repeated) START                       fSCL ≤ 100 kHz                 4.0                                    μs
+ tLOW                   Low period of the SCL clock                      fSCL ≤ 100 kHz                 4.7                                    μs
+ tHIGH                  High period of the SCL clock                     fSCL ≤ 100 kHz                 4.0                                    μs
+ tSUSTA                 Setup time for a repeated START                  fSCL ≤ 100 kHz                 4.7                                    μs
+ tHDDAT                 Data hold time                                   fSCL ≤ 100 kHz                 0                         3.45         μs
+ tSUDAT                 Data setup time                                  fSCL ≤ 100 kHz                 250                                    ns
+ tSUSTO                 Setup time for STOP condition                    fSCL ≤ 100 kHz                 4.0                                    μs
+ tBUF                   Bus free time between STOP and START             fSCL ≤ 100 kHz                 5                                     ms
+
+
+                                                                   Table 7. I2C / SMBus Specification
+                                                      tof   tLOW       tHIGH        tLOW                         tr
+
+                     SCL
+
+                              tSUSTA         tHDSTA                             tHDDAT tSUDAT                         tSUSTO      tBUF
+
+
+                     SDA
+
+
+                                                                   Figure 20. I2C / SMBus Timing
+
+
+
+
+         3
+             Cb = Capacitance of bus line in pF, typically in the range of 10…400 pF
+
+
+
+
+                                                                                                                tech.support@psbel.com
+

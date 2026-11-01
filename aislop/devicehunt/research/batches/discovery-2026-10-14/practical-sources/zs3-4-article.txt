@@ -1,0 +1,37 @@
+html lines 65-65: Oracle ZFS Storage ZS3-4 Internal Components
+html lines 68-68: The components of the Oracle ZFS Storage ZS3-4 controller are shown in the following figure and identified in the legend.
+html lines 76-77: 1 Motherboard
+html lines 82-83: 7 CPUs and heatsinks
+html lines 90-91: 2 Low-profile PCIe cards
+html lines 96-97: 8 Memory risers
+html lines 104-105: 3 Power supplies
+html lines 110-111: 9 Fan board
+html lines 118-119: 4 Power supply backplane
+html lines 124-125: 10 Fan modules
+html lines 132-133: 5 Drive backplane
+html lines 138-139: 11 Boot drives and SSDs
+html lines 146-147: 6 System lithium battery
+html lines 154-155: Oracle ZFS Storage ZS3-4 Internal Boards - The Oracle ZFS Storage ZS3-4 controller chassis contains the following field-replaceable units (FRUs). FRUs are not customer-serviceable, and should only be replaced by trained Oracle service technicians.
+html lines 159-166: Motherboard - The motherboard includes CPU modules, slots for eight DIMM risers, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host's 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off.
+html lines 171-178: Power Distribution Board - The power distribution board distributes main 12V power from the power supplies to the rest of the system. It is directly connected to the Vertical PDB card, and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock ("kill") switch. In the controller, the power supplies connect to the power supply backplane which connects to the power distribution board.
+html lines 183-188: Vertical PDB Card - The vertical power distribution board, or Paddle Card serves as the interconnect between the power distribution board and the fan power boards, hard drive backplane, and I/O board.
+html lines 193-196: Power Supply Backplane Card - This board connects the power distribution board to power supplies 0 and 1.
+html lines 201-205: Fan Power Boards - The two fan power boards are FRUs and carry power to the controller fan modules. In addition, they contain fan module status LEDs and transfer I2C data for the fan modules.
+html lines 210-215: Drive Backplane - The six-drive backplane includes the connectors for the drives, as well as the interconnect for the I/O board, Power and Locator buttons, and system/component status LEDs. Each drive has an LED indicator for Power/Activity, Fault, and Locate.
+html lines 219-220: Oracle ZFS Storage ZS3-4 System Drives - The Oracle ZFS Storage ZS3-4 controller has two system boot drives in slots 0 and 1, configured as a mirrored pair. Read-optimized cache devices can be installed in controller slots 2 through 5, or installed in Oracle Storage Drive Enclosure DE2-24 disk shelf slots.
+html lines 222-222: Note:
+html lines 221-223: Note: Read cache devices must be installed in either the controller or an Oracle Storage Drive Enclosure DE2-24 disk shelf. Read cache devices cannot be installed in both controller and disk shelf slots at the same time. For software requirements and slot configuration rules, see Disk Shelf Configurations.
+html lines 232-233: 1 Ready to remove (blue)
+html lines 238-239: 2 Service action required (amber)
+html lines 244-245: 3 OK/Activity (green)
+html lines 252-253: Oracle ZFS Storage ZS3-4 4x4 SAS-2 HBA - The 4x4 SAS-2 HBA, installed in the Oracle ZFS Storage ZS3-4 controller, provides connectivity to external Oracle Storage Drive Enclosure DE2 and Sun Disk Shelves. The HBA logical ports are numbered 3-0, top to bottom:
+html lines 255-256: See Oracle ZFS Storage ZS3-4 PCIe I/O Cards for slot placement.
+html lines 257-258: Oracle ZFS Storage ZS3-4 CPU and Memory - The Oracle ZFS Storage ZS3-4 controller supports 16GB DDR3 DIMMs installed on all eight risers, accommodating 1TB of memory.
+html lines 260-266: Refer to the service label on the cover for DIMM placement information. On every memory riser, slots D0, D2, D4, and D6 must be populated; optionally, slots D1, D3, D5, and D7 may be populated as a group on all installed memory risers. All DIMMs in the system must be identical.
+html lines 268-269: DIMM names in appliance logs and the Maintenance: Hardware view are displayed with the full name, such as /SYS/MB/P0/D7.
+html lines 270-271: Oracle ZFS Storage ZS3-4 Fan Modules - The Fan Modules and Fan Module LEDs of the Oracle ZFS Storage ZS3-4 controller are shown in the following figure.
+html lines 273-273: The following LEDs are lit when a fan module fault is detected:
+html lines 277-277: Front and rear Service Action Required LEDs
+html lines 282-283: Fan Module Service Action Required (TOP) LED on the front of the controller
+html lines 288-288: Fan Fault LED on or adjacent to the faulty fan module
+html lines 292-293: The system Overtemp LED might light if a fan fault causes an increase in system operating temperature.

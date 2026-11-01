@@ -1,0 +1,54 @@
+8                                                                                                              PFE1500 Series
+
+PARAMETER                                              DESCRIPTION / CONDITION                         MIN          NOM         MAX          UNIT
+    F            Input Fuse (L)                        Not user accessible, quick-acting (F)                         16                        A
+    V1 OV        OV Threshold V1                                                                        13.3                     14.5         VDC
+    tOV V1       OV Latch Off Time V1                                                                                             1           ms
+    VSB OV       OV Threshold VSB                                                                       110                      120         % VSB
+    tOV VSB      OV Latch Off Time VSB                                                                                            1           ms
+                                                       Vi > 180 VAC, Ta < 45°C                          128                      140
+    IV1 lim      Over Current Limitation V1                                                                                                    A
+                                                       Vi > 90 VAC, Ta < 45°C                           93                       110
+    IVSB lim     Over Current Limitation VSB           Ta < 45°C for 12 VSB                             3.3                      3.6           A
+                                                       Ta < 45°C for 5 VSB                              3.45                      4.5          A
+                                                       Ta < 45°C for 3.3 VSB                            5.25                      6.2          A
+    tV1 SC       Short Circuit Regulation Time         V1 < 3 V, time until IV1 is limited to < 200A                              2           ms
+    TSD          Over Temperature on Heat Sinks        Automatic shut-down                                           115         120           °C
+
+
+
+
+          6.1 OVERVOLTAGE PROTECTION
+               The PFE front-ends provide a fixed threshold overvoltage (OV) protection implemented with a HW comparator. Once an OV
+               condition has been triggered, the supply will shut down and latch the fault condition. The latch can be unlocked by
+               disconnecting the supply from the AC mains or by toggling the PSON_L input.
+
+          6.2 VSB UNDERVOLTAGE DETECTION
+               Both main and standby outputs are monitored.
+
+               3.3 / 5 VSB
+               LED and PWOK_H pin signal if the output voltage exceeds ±5% of its nominal voltage. Output under voltage protection is
+               provided on the standby output only. When VSB falls below 75% of its nominal voltage, the main output V1 is inhibited.
+
+
+               12 VSB
+               LED and PWOK_L pin signal if the output voltage exceeds ±7% of its nominal voltage. Output under voltage protection is
+               provided on both outputs. When either V1 or VSB falls below 93% of its nominal voltage, the output is inhibited.
+
+
+          6.3 CURRENT LIMITATION
+               6.3.1 MAIN OUTPUT
+               When main output runs in current limitation mode its output will turn OFF below 2 V but will retry to recover every 1 s interval.
+               If current limitation mode is still present after the unit retry, output will continuously perform this routine until current is below
+               the current limitation point. The supply will go through soft start every time it retries from current limitation mode.
+
+
+
+
+                                                      Figure 6. Current Limitation on V1 (Vi = 230 VAC)
+
+
+
+
+                                                                                                                   tech.support@psbel.com
+

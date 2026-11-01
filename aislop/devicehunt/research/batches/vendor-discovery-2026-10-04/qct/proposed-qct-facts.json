@@ -1,0 +1,214 @@
+{
+  "sources": [
+    {
+      "id": "qct-d51b-datasheet-mirror-2017",
+      "url": "https://artofserver.com/downloads/QCT.io/D51B-2U/D51B-2U_DS_v03062017.pdf",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/vendor-discovery-qct-2026-10-04/d51b-datasheet.pdf",
+      "coverage": "QCT-branded datasheet held on Art of Server public mirror. Page 2 visually reviewed; original QCT-hosted byte equality unverified. Source-backed platform capacity/option statements only, no manufacturer or deployment role. No voltage inferred."
+    },
+    {
+      "id": "qct-d52bq-public-product-2026",
+      "url": "https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/vendor-discovery-qct-2026-10-04/d52bq-product.html",
+      "coverage": "Original QCT public HTML captured 2026-10-04. Specifications describe alternatives and optional capacities; full exact QuantaGrid name retained. Literal dimension and fan text retained; input voltage absent. Download registration boundary respected. No manufacturer, Quanta alias, deployment or auction contents claim."
+    }
+  ],
+  "devices": [
+    {
+      "source": "qct-d51b-datasheet-mirror-2017",
+      "key": "QuantaGrid D51B-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D51B-2U",
+      "title": "QCT QuantaGrid D51B-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_scope",
+          "Page 2 specification table; printed full prefix/model visually checked."
+        ],
+        [
+          "source_sha256",
+          "68418af147f05d4afa468a5fce8a5fad1026168fa90f37b9277b6b8e559ecf7e"
+        ],
+        [
+          "model_source_url",
+          "https://artofserver.com/downloads/QCT.io/D51B-2U/D51B-2U_DS_v03062017.pdf"
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid prefix retained; not a Quanta company alias or automatically merged with a bare model code."
+        ],
+        [
+          "configuration_limit",
+          "Published platform options/capacities; no installed auction-unit configuration, manufacturer, operator, deployment, current availability or software entitlement inferred."
+        ],
+        [
+          "source_pages",
+          "2"
+        ],
+        [
+          "source_date_limit",
+          "Footer copyright 2014-2017; mirror filename D51B-2U_DS_v03062017.pdf. No product release date selected."
+        ],
+        [
+          "source_provenance",
+          "QCT-branded vendor-authored datasheet captured from independent public Art of Server mirror. Original QCT-hosted byte equality unverified; blank QCT authorized partner box. Not a live QCT support/download availability assertion."
+        ],
+        [
+          "processor",
+          "Intel Xeon processor E5-2600 v3, v4 product family; 2 processors; max TDP support 145W; interconnect 6.4 / 8.0 / 9.6 GT/s; L3 cache up to 45MB."
+        ],
+        [
+          "memory",
+          "24 slots; up to 768GB RDIMM or 1536GB LRDIMM; (24) 2133/2400 MHz DDR4 RDIMM/LRDIMM. Printed sizes: 32GB,16GB,8GB RDIMM;64GB,32GB LRDIMM."
+        ],
+        [
+          "physical_description",
+          "2U Rack Mount; W x H x D (inch): 17.6 x 3.44 x 29.33; W x H x D (mm): 447 x 87.5 x 745. Weight (Max. Configuration): 24.92 kg / 54.94 lbs."
+        ],
+        [
+          "storage",
+          "Option 1: (24) 2.5-inch hot-plug; Option 2: (12) 3.5-inch hot-plug. Each lists (2) optional rear 2.5-inch hot-plug SATA/SAS and (2) optional rear 2.5-inch hot-plug PCIe SSD. Platform choices, not simultaneously installed front options."
+        ],
+        [
+          "storage_controller",
+          "Intel 610: (10) SATA 6Gb/s ports; SATA RAID 0,1,10; support (2) SATADOM."
+        ],
+        [
+          "power_description",
+          "Alternative redundant AC PSUs, all printed 86 mm: 1200W Platinum;800W Platinum;750W Gold;500W Platinum;470W Gold. Input voltage/frequency/derating not stated in page 2."
+        ],
+        [
+          "power_statement_as_printed",
+          "1200W AC, Redundant, 86 mm (Platinum)\n800W AC, Redundant, 86 mm (Platinum)\n750W AC, Redundant, 86 mm (Gold)\n500W AC, Redundant, 86 mm (Platinum)\n470W AC, Redundant, 86 mm (Gold)"
+        ],
+        [
+          "cooling_description",
+          "(4) dual rotor fans (7+1 redundant)."
+        ],
+        [
+          "management",
+          "IPMI v2.0 Compliant; onboard KVM over IP; Quanta System Manager (QSM)/Quanta DataCenter Manager (QDCM) optional support; dedicated 1 GbE management port in both LOM options; integrated AST2400 with 8MB DDR3 video memory."
+        ],
+        [
+          "network_interfaces",
+          "LOM alternative Intel I350 dual-port 1 GbE or Intel X540 dual-port 10GbE BASE-T, each with dedicated 1 GbE management port."
+        ],
+        [
+          "environment",
+          "Operating 5°C to 40°C (41°F to 104°F); non-operating -40°C to 65°C; operating RH20%-85%; non-operating RH10%-90%."
+        ]
+      ]
+    },
+    {
+      "source": "qct-d52bq-public-product-2026",
+      "key": "QuantaGrid D52BQ-2U",
+      "brand": "QCT",
+      "model": "QuantaGrid D52BQ-2U",
+      "title": "QCT QuantaGrid D52BQ-2U",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "QCT",
+          "brand"
+        ],
+        [
+          "QCT",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_scope",
+          "Public QCT product HTML Specifications tables: Processor, Form Factor, Dimensions, Storage SKU #1-#5, Memory, Power Supply, Fan, System Management, Operating Environment."
+        ],
+        [
+          "source_sha256",
+          "d5b0fd941c02b83842157ce5e9a4ad8e188fe5abe4bd6e9e07a57fe927061455"
+        ],
+        [
+          "model_source_url",
+          "https://www.qct.io/product/index/Server/rackmount-server/2U-Rackmount-Server/QuantaGrid-D52BQ-2U"
+        ],
+        [
+          "identity_limit",
+          "Full printed QuantaGrid prefix retained; not a Quanta company alias or automatically merged with a bare model code."
+        ],
+        [
+          "configuration_limit",
+          "Published platform options/capacities; no installed auction-unit configuration, manufacturer, operator, deployment, current availability or software entitlement inferred."
+        ],
+        [
+          "source_provenance",
+          "Original QCT-hosted public product HTML; detailed download registration form present. Gated downloads not requested; no mirror or alternate acquisition of those items."
+        ],
+        [
+          "source_date_limit",
+          "Observed 2026-10-04. Dynamic public page lists DDR4/DCPMM options; not a verified release date or assertion of original launch configuration."
+        ],
+        [
+          "processor",
+          "Intel Xeon Processor Scalable Family; 2 Processors; Max. TDP Support 205W (Refer to CCL); Internal Interconnect 9.6/10.4 GT/s; Intel C621/C624 chipset."
+        ],
+        [
+          "memory",
+          "24 slots; up to 3TB (128Gx24) RDIMM/LRDIMM; up to 7.68TB (512G*12 DCPMM + 128G*12 RDIMM/LRDIMM). Printed types: 2666 MHz DDR4 RDIMM;2933Mhz DDR4 RDIMM/LRDIMM;up to (12) 2666Mhz Intel Optane DC Persistent Memory (DCPMM). Refer to CCL; options not verified for every CPU/SKU."
+        ],
+        [
+          "physical_description",
+          "Form Factor 2U. W x H x D (inch): 17.3 x 3.4 x 30.7; W x H x D (mm): 440 x 87.5 x 780. Weight (Max. Configuration): 35 KG. Literal values retained; not reconciled to inches or other documents."
+        ],
+        [
+          "storage",
+          "SKU #1 [12x LFF SATA/SAS SKU]: front (12)3.5/2.5-inch SATA/SAS, rear (2)2.5-inch NVMe/SATA/SAS optional. SKU #2 [12x LFF Tiered SKU]: front (8)3.5/2.5-inch SATA/SAS+(4)2.5-inch NVMe/SATA/SAS SSD, rear (2)2.5-inch SATA/SAS optional. SKU #3 [24x SFF PtP SKU]: front (16)2.5-inch SATA/SAS+(8)2.5-inch NVMe SSD, rear (2)2.5-inch SATA optional. SKU #4 [24x SFF SAS3224 Paddle SKU]: front (24)2.5-inch SATA/SAS w/SAS3224, rear (2)2.5-inch NVMe/SATA optional. SKU #5 [24x SFF Expander SKU]: both options front (24)2.5-inch SATA/SAS; option1 rear (2)2.5-inch NVMe optional; option2 rear (2)2.5-inch SATA/SAS optional. All drives described hot-plug. Printed descriptive SKU labels, not full commercial order codes."
+        ],
+        [
+          "storage_controller",
+          "Intel 621/624:14x SATA6Gb/s ports;SATA RAID0,1,10. Optional Quanta LSI3216 SAS mezzanine, LSI3516 SAS mezzanine (RAID0,1,5,6,10,50,60), Intel VROC Upgrade Module; (2)PCIe M.2 or (2)SATA M.2 support with adapter for boot optimization, optional; (2)SATADOM optional."
+        ],
+        [
+          "power_description",
+          "1+1 high efficiency redundant hot-plug Platinum/Titanium 800W/1200W PSU; detailed options refer to ordering info or CCL. Input voltage/frequency/derating not stated in public Specifications table."
+        ],
+        [
+          "power_statement_as_printed",
+          "1+1 High efficiency redundant hot-plug Platinum/Titanium 800W/1200W PSU\n(detailed PSU options please refer to \"ordering info\" or \"CCL\")"
+        ],
+        [
+          "cooling_description",
+          "(6) dual rotor fans (11+1 redundant). Literal source statement; no silently corrected rotor/fan count."
+        ],
+        [
+          "management",
+          "Redfish v1.1; IPMI v2.0 Compliant; onboard KVM over IP; QCT System Manager (QSM) v1.8 Optional. Dedicated (1)GbE management port; ASPEED AST2500 with8MB DDR4 video memory."
+        ],
+        [
+          "environment",
+          "Operating5°C to40°C (can support45°C under certain situation); non-operating -40°C to70°C; operating RH20%-85%; non-operating RH10%-95%. Unspecified45°C condition retained, not a universal45°C operating guarantee."
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,265 @@
+{
+  "model": "X10-2C",
+  "exact_match": {
+    "id": "dab58302b281d31e1438",
+    "brand": "Oracle",
+    "model": "Oracle Server X10-2c",
+    "revision": "",
+    "title": "Oracle Server X10-2c",
+    "kind": "server platform"
+  },
+  "scope": "saved captures only; no imports or network",
+  "records": [
+    {
+      "id": "f528b460dd0073172c59b3cd",
+      "device_id": "dab58302b281d31e1438",
+      "source_id": "oracle-x10-license",
+      "source_key": "Oracle Server X10-2c",
+      "source_url": "https://docs.oracle.com/en/engineered-systems/private-cloud-appliance/3.0-latest/licensing-3.0-latest/licensing-component-x10-2c-license.html",
+      "observed_at": "2026-10-04T11:26:11+00:00",
+      "cache_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/oracle-x10-2c-license.html",
+      "sha256": "2add0ff62f5e8b70ad9b5ef9a313f2eab616b6b0696bed2f7e618bee54c12d14",
+      "fetched_at": "2026-09-26T21:26:33.260490+00:00",
+      "facts_already_imported": [
+        {
+          "name": "product_integration",
+          "value": "May be included in Oracle Private Cloud Appliance"
+        }
+      ],
+      "capture_verification": "hash matches source registry",
+      "captures": [
+        {
+          "path": "data/raw/oracle-x10-2c-license.html",
+          "sha256": "2add0ff62f5e8b70ad9b5ef9a313f2eab616b6b0696bed2f7e618bee54c12d14",
+          "url": "https://docs.oracle.com/en/engineered-systems/private-cloud-appliance/3.0-latest/licensing-3.0-latest/licensing-component-x10-2c-license.html"
+        }
+      ]
+    },
+    {
+      "id": "01e80892e43eb9ea87d05b13",
+      "device_id": "dab58302b281d31e1438",
+      "source_id": "broadcom-servers",
+      "source_key": "57094",
+      "source_url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57094&persona=live",
+      "observed_at": "2026-10-04T11:26:13+00:00",
+      "cache_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/broadcom-servers-bundle.json",
+      "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+      "fetched_at": "2026-09-26T22:19:12.220146+00:00",
+      "facts_already_imported": [
+        {
+          "name": "compatibility_cpu_series",
+          "value": "Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series"
+        },
+        {
+          "name": "compatibility_cpu_series_max_cores_per_socket",
+          "value": "60"
+        },
+        {
+          "name": "compatibility_notes",
+          "value": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: Boot from SD/USB flash media is not supported. For build information see KB 2143832 ESXi 7.0 U3 support starts at ESXi 7.0 Update 3i. vSAN 2-socket support starts at ESXi 7.0 Update 3j. vSAN 4-socket support starts at ESXi 7.0 Update 3l."
+        },
+        {
+          "name": "compatibility_releases",
+          "value": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1"
+        },
+        {
+          "name": "compatibility_sockets",
+          "value": "2"
+        },
+        {
+          "name": "compatibility_system_type",
+          "value": "Rackmount"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement"
+        }
+      ],
+      "capture_verification": "hash matches source registry",
+      "captures": [
+        {
+          "path": "data/raw/broadcom-servers-bundle.json",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57094&persona=live"
+        },
+        {
+          "path": "data/raw/broadcom-servers-detail-57094.json",
+          "sha256": "6f6bef03ecfd68e0c03a8951de9cdda43e15dba8dead09bdde243305cd656b5a",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57094&persona=live",
+          "field_ref": "$.data.details"
+        }
+      ]
+    }
+  ],
+  "positive_statements": [
+    {
+      "category": "identity_and_source_scoped_facts",
+      "status": "already imported",
+      "record_id": "f528b460dd0073172c59b3cd",
+      "source_id": "oracle-x10-license",
+      "capture_refs": [
+        {
+          "path": "data/raw/oracle-x10-2c-license.html",
+          "sha256": "2add0ff62f5e8b70ad9b5ef9a313f2eab616b6b0696bed2f7e618bee54c12d14",
+          "url": "https://docs.oracle.com/en/engineered-systems/private-cloud-appliance/3.0-latest/licensing-3.0-latest/licensing-component-x10-2c-license.html"
+        }
+      ],
+      "facts": [
+        {
+          "name": "product_integration",
+          "value": "May be included in Oracle Private Cloud Appliance"
+        }
+      ],
+      "field_ref": "source heading/tested configuration or model-specific section; exact fact names above"
+    },
+    {
+      "category": "boot_firmware",
+      "status": "newly reviewed unimported structured fact (already preserved in raw record JSON)",
+      "record_id": "01e80892e43eb9ea87d05b13",
+      "source_id": "broadcom-servers",
+      "capture": {
+        "path": "data/raw/broadcom-servers-detail-57094.json",
+        "sha256": "6f6bef03ecfd68e0c03a8951de9cdda43e15dba8dead09bdde243305cd656b5a",
+        "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57094&persona=live",
+        "field_ref": "$.data.details"
+      },
+      "field_ref": "$.data.details[1].subsections[1].fieldValues",
+      "statement": "Submitted certification BIOS rows, with no inferred BIOS/release pairing or firmware availability",
+      "rows": [
+        {
+          "_id": "6ab7c1f78f730d03ea351214",
+          "bios": "American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 8766638
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea351214",
+          "bios": "American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9143224
+        },
+        {
+          "_id": "6ab7c1f78f730d03ea351214",
+          "bios": "American Megatrends International, LLC. 79006400 UEFI Mode (Boot Mode:UEFI)",
+          "vcfSupportedConfirmWvendor": [
+            {
+              "name": "",
+              "redirectTo": "static",
+              "url": ""
+            }
+          ],
+          "certId": 9162492
+        }
+      ]
+    },
+    {
+      "category": "identity_and_source_scoped_facts",
+      "status": "already imported",
+      "record_id": "01e80892e43eb9ea87d05b13",
+      "source_id": "broadcom-servers",
+      "capture_refs": [
+        {
+          "path": "data/raw/broadcom-servers-bundle.json",
+          "sha256": "a1180f91454ba1c45a7dd765ee2a73aebe1de38bef44ebf889a302aafe334ce8",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57094&persona=live"
+        },
+        {
+          "path": "data/raw/broadcom-servers-detail-57094.json",
+          "sha256": "6f6bef03ecfd68e0c03a8951de9cdda43e15dba8dead09bdde243305cd656b5a",
+          "url": "https://compatibilityguide.broadcom.com/detail?program=server&productId=57094&persona=live",
+          "field_ref": "$.data.details"
+        }
+      ],
+      "facts": [
+        {
+          "name": "compatibility_cpu_series",
+          "value": "Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series"
+        },
+        {
+          "name": "compatibility_cpu_series_max_cores_per_socket",
+          "value": "60"
+        },
+        {
+          "name": "compatibility_notes",
+          "value": "This page lists the specific configurations for which the server vendor has submitted certification test results to VMware, including BIOS version. These are not the only supported or recommended configurations. Best practice is generally to use the latest BIOS version available for the server, even if it is newer than listed here. For further details about BIOS, server product configurations, and best practices, please contact the server vendor. Modern CPUs are capable of supporting SMP-FT. To check the capability of a specific CPU, visit https://compatibilityguide.broadcom.com/search?program=cpu&persona=live. vSphere 8.0 certified servers can support SMP-FT. Refer to VMware Docs for Fault Tolerance requirements, limits, and licensing. CPU Notes: Boot from SD/USB flash media is not supported. For build information see KB 2143832 ESXi 7.0 U3 support starts at ESXi 7.0 Update 3i. vSAN 2-socket support starts at ESXi 7.0 Update 3j. vSAN 4-socket support starts at ESXi 7.0 Update 3l."
+        },
+        {
+          "name": "compatibility_releases",
+          "value": "ESXi 8.0 U3, ESXi 9.0, ESXi 9.1"
+        },
+        {
+          "name": "compatibility_sockets",
+          "value": "2"
+        },
+        {
+          "name": "compatibility_system_type",
+          "value": "Rackmount"
+        },
+        {
+          "name": "evidence_scope",
+          "value": "Submitted server compatibility configurations; not physical OEM, unit specifications, firmware access or software entitlement"
+        }
+      ],
+      "field_ref": "source heading/tested configuration or model-specific section; exact fact names above"
+    },
+    {
+      "category": "licensing_notices",
+      "status": "newly reviewed unimported structured fact",
+      "source_id": "oracle-x10-license",
+      "record_id": "f528b460dd0073172c59b3cd",
+      "capture": {
+        "path": "data/raw/oracle-x10-2c-license.html",
+        "sha256": "2add0ff62f5e8b70ad9b5ef9a313f2eab616b6b0696bed2f7e618bee54c12d14",
+        "url": "https://docs.oracle.com/en/engineered-systems/private-cloud-appliance/3.0-latest/licensing-3.0-latest/licensing-component-x10-2c-license.html"
+      },
+      "field_ref": "Oracle Technology Notices and Licenses; Third Party Notices and Licenses, Provider/Component(s)/Licensing Information table",
+      "statement": "Notices identify edk2-stable202208 and BSD-2-Clause-Patent; page links ILOM and Hardware Management Pack notices as technologies that may be included or distributed.",
+      "limits": "bundled component copyright/license notice does not establish installable BIOS source, firmware availability, current support or resale entitlement"
+    }
+  ],
+  "unknowns": {
+    "power": [
+      "PSU part numbers, count, input AC/DC range, connectors and derating",
+      "measured idle/load draw"
+    ],
+    "cooling": [
+      "airflow direction, fan dependencies, acoustic output and thermal limits"
+    ],
+    "chassis": [
+      "exact owned-unit chassis variant, rails and rack depth",
+      "disk backplane, risers and proprietary cabling dependencies"
+    ],
+    "boot_firmware": [
+      "owned-unit BIOS/ILOM version, credentials and locks",
+      "installable firmware access and supported flash/recovery procedure",
+      "standalone OS bootability of the particular liquidated unit"
+    ],
+    "licensing": [
+      "resale software entitlement, support transfer and activation conditions"
+    ]
+  },
+  "excluded_near_models": [
+    "Oracle Server X7-2",
+    "Oracle Server E5-2L",
+    "unmapped Oracle EcoDesign regulatory codes",
+    "E4-2c 1U/2U and Enclave/Blockstore suffix variants",
+    "E5-2c 1U/Enclave suffix variants"
+  ],
+  "finite_next_leads": [
+    "one exact-model service/installation manual or label-backed Oracle part-number mapping to resolve PSU, fans, rails and chassis",
+    "one exact-model BIOS/ILOM release/readme and public download-access evidence, without gated/private requests",
+    "one official licensing/support-transfer statement applicable to a secondhand unit"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "artifacts": [
+    {
+      "path": "research/batches/discovery-2026-10-12/next-leads/handoff.md",
+      "sha256": "c5d9f1b468289eb1438597f500c6ded4411038f2546ffa564441e3137c6a453c",
+      "bytes": 6618
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/next-leads/local-proof.json",
+      "sha256": "0aab56a486b0833e362b39e116082a428b74ce631e0367cc5493e85335d58a33",
+      "bytes": 21713
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/next-leads/plan.json",
+      "sha256": "4e37b4a342a3e7ecc1cd7eb608227647cbf9d955577eb15e7d634d2785424db7",
+      "bytes": 9099
+    }
+  ],
+  "checks": "JSON parse, 5 leads, saved source hashes stable, zero network, per-lead HTTP caps sum 10 plus policy allowance; shared state read-only"
+}

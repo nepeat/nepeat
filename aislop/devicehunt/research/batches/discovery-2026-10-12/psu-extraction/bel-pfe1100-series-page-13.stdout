@@ -1,0 +1,82 @@
+PFE1100-12-054xA                                                                                                                                                                             13
+
+
+
+
+             AC                                                                                                 AC
+           Input                                                                                              Input
+
+
+
+                                                                                                                                        tVSB holdup            tVSB off
+            VSB                            tV1 holdup                                                          VSB
+
+
+                                                                        tV1 off                                                        tV1 holdup                tV1 off
+             V1                       tACOK_H on2                                                               V1
+                                                                                                                       tACOK_H V1
+                             tACOK_H off                                                                                 tACOK_H off
+       PSON_L                                                                                               PSON_L
+                                                                                                                                           tACOK_H VSB
+       ACOK_H                                                                                               ACOK_H
+                                                                  tPWOK_H warn                                                                        tPWOK_H warn
+       PWOK_H                                                                                           PWOK_H
+
+
+                           Figure 27. AC short dips                                                                             Figure 28. AC long dips
+
+  8.7 PSON_L INPUT
+     The PSON_L is an internally pulled-up (3.3 V) input signal to enable/disable the main output V1 of the front-end. This active-
+     low pin is also used to clear any latched fault condition. The timing diagram is given Figure 29 and the parameters in Table 5.
+
+
+                                                        OPERATING CONDITION                                     MIN           MAX               UNIT
+                                     tPSON_L V1on                 PSON_L to V1 delay (on)                        2              20                  ms
+                                     tPSON_L V1off                PSON_L to V1 delay (off)                       2              20                  ms
+                                     tPSON_L H min                   PSON_L minimum High time                    10                                 ms
+
+                                                                                  Table 3. AC Turn-on / Dip Timing
+
+
+  8.8 PWOK_H SIGNAL
+     The PWOK_H is an open drain output with an internal pull-up to 3.3 V indicating whether both VSB and V1 outputs are within
+     regulation. This pin is active-low. The timing diagram is shown in Figure 26 / Figure 29 and referenced in the Table 6.
+
+                                                                                              OPERATING CONDITION                                                         MIN MAX       UNIT
+
+            AC                                                                                tPWOK_H del     PWOK_H to V1 delay (on)                                     100     500   ms
+          Input
+                                                                                                              PWOK_H to V1 delay (off) caused by:
+                                                                                                              PSKILL_H                                                     0       1    ms
+           VSB
+                                                                                                              PSON_L, ACOK_H, OT, Fan Failure                              1      2.5   ms
+                      tPSON_L V1on           tV1 rise        tPSON_L V1off
+                                                                                              tPWOK_H warn* UV and OV on VSB                                               1       30   ms
+             V1
+                                                                                                              OC on V1 (Software trigger)                                  -11     0    ms
+                                             tPSON_L H min                                                    OC on V1 (Hardware trigger)                                   -1     0    ms
+       PSON_L
+
+       ACOK_H
+                                                                                                              OV on V1                                                     -3      0    ms
+                             tPWOK_H del                                     tPWOK_H warn     * A positive value means a warning time, a negative value a delay
+       PWOK_H
+                                                                                              (after fact).
+                  Figure 29. PSON_L turn-on/off timing                                                                Table 4. PWOK_H timing
+
+
+  8.9 CURRENT SHARE
+     The PFE front-ends have an active current share scheme implemented for V1. All the ISHARE current share pins need to be
+     interconnected in order to activate the sharing function. If a supply has an internal fault or is not turned on, it will disconnect
+     its ISHARE pin from the share bus. This will prevent dragging the output down (or up) in such cases.
+     The current share function uses a digital bi-directional data exchange on a recessive bus configuration to transmit and receive
+     current share information. The controller implements a Master/Slave current share function. The power supply providing the
+
+
+
+
+                                                                                                 Asia-Pacific            Europe, Middle East                                     North America
+                                                                                            +86 755 298 85888                   +353 61 49 8941                                +1 866 513 2839
+
+                                                                                                                            © 2023 Bel Fuse Inc.                                 BCD.00012_AP
+

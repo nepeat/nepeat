@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-04",
+  "purpose": "Handoff immediately before accepted artifact release and storage finalization; original project-root link base retained.",
+  "files": [
+    {
+      "original_path": "PROGRESS.md",
+      "snapshot": "PROGRESS.md",
+      "sha256": "b23052e63cedfc61cbbc708b0892e9835f17c49d44b3cb3044774d4d9157f4f9"
+    }
+  ]
+}

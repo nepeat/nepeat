@@ -1,0 +1,2130 @@
+{
+  "started_at": "2026-10-13T03:08:36.887668+00:00",
+  "extraction_method": "poppler pdftotext -layout embedded text; no OCR",
+  "input_limit": 5,
+  "production_import_support": false,
+  "commands": [
+    {
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout_file": "pdftotext-version.stdout",
+      "stderr_file": "pdftotext-version.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "37957604adcac02142c53d9d889553ab70549c3bccccce6aae64a1acf4713b23"
+    }
+  ],
+  "inputs": [
+    {
+      "source": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+      "source_file": "bel-pfe1100-series.pdf",
+      "commands": [
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-pdfinfo.stdout",
+          "stderr_file": "bel-pfe1100-series-pdfinfo.stderr",
+          "stdout_sha256": "9db835ca7e0ec6150903a971f061a89ea73d4f41b642f8eb6d91197e4b09a7ee",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "1",
+            "-l",
+            "1",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-1.stdout",
+          "stderr_file": "bel-pfe1100-series-page-1.stderr",
+          "stdout_sha256": "86505eaa9d2009777bea648359ad354058351c79d790c77499d5cdba81e96f4e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "2",
+            "-l",
+            "2",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-2.stdout",
+          "stderr_file": "bel-pfe1100-series-page-2.stderr",
+          "stdout_sha256": "19cb6dd8e576efe09d10ff91a815a1f3f67dba7ca71492ba59d4382eafbdd918",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "3",
+            "-l",
+            "3",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-3.stdout",
+          "stderr_file": "bel-pfe1100-series-page-3.stderr",
+          "stdout_sha256": "85b36f60d70edc102219a65e54638f175352a9dfaae4d16bd98051c232c8b359",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "4",
+            "-l",
+            "4",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-4.stdout",
+          "stderr_file": "bel-pfe1100-series-page-4.stderr",
+          "stdout_sha256": "4d085368ced0c0d130b24e443efc7576ba89491468c362b7e07a3c75dfd035d5",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "5",
+            "-l",
+            "5",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-5.stdout",
+          "stderr_file": "bel-pfe1100-series-page-5.stderr",
+          "stdout_sha256": "e32eb8082685e296200bd24e36af099d0b78675d8c7437947189de8bba5c4943",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "6",
+            "-l",
+            "6",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-6.stdout",
+          "stderr_file": "bel-pfe1100-series-page-6.stderr",
+          "stdout_sha256": "9c34ededb76b75cc72dcbea71adcc8c9bc2dee4603efb07246d7206a1271152f",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "7",
+            "-l",
+            "7",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-7.stdout",
+          "stderr_file": "bel-pfe1100-series-page-7.stderr",
+          "stdout_sha256": "025bee5799650e137567e5dc405607fb9c57945f17ed0fb6125a03ee935cd5d2",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "8",
+            "-l",
+            "8",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-8.stdout",
+          "stderr_file": "bel-pfe1100-series-page-8.stderr",
+          "stdout_sha256": "b9dd171d39431cc48e9594dc5761c867f055814e76de56e24818cf8d549470b2",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "9",
+            "-l",
+            "9",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-9.stdout",
+          "stderr_file": "bel-pfe1100-series-page-9.stderr",
+          "stdout_sha256": "7c2be6987e245c55d9688477ba09c02a9857ce7618c12ed8021499e8a8239f54",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "10",
+            "-l",
+            "10",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-10.stdout",
+          "stderr_file": "bel-pfe1100-series-page-10.stderr",
+          "stdout_sha256": "d03091e516e2e25706c5dc8dbf67f80517ab660d14c5fe87b450e5d202e2a98e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "11",
+            "-l",
+            "11",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-11.stdout",
+          "stderr_file": "bel-pfe1100-series-page-11.stderr",
+          "stdout_sha256": "3a6340fb8db12b5e27f6772605201bbca226439fc8a97699aa9614a305aa5207",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "12",
+            "-l",
+            "12",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-12.stdout",
+          "stderr_file": "bel-pfe1100-series-page-12.stderr",
+          "stdout_sha256": "a9d7c3d69b20be4f2a39faad637d6beec228e0d63c6d44854084bc8f67c4919e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "13",
+            "-l",
+            "13",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-13.stdout",
+          "stderr_file": "bel-pfe1100-series-page-13.stderr",
+          "stdout_sha256": "e57422304ef488e919251d4832f285173b40103c75c370a357ee54caa93d9b47",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "14",
+            "-l",
+            "14",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-14.stdout",
+          "stderr_file": "bel-pfe1100-series-page-14.stderr",
+          "stdout_sha256": "6253ffdaa67727ec9ba21d7312f21f05fdfe1fa81a1c995e2680b3b3a39ab7fd",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "15",
+            "-l",
+            "15",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-15.stdout",
+          "stderr_file": "bel-pfe1100-series-page-15.stderr",
+          "stdout_sha256": "5f40b3ae853e1104ce1aacecc43c1cc0f49eb3a223f34df7fda504c544e821b8",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "16",
+            "-l",
+            "16",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-16.stdout",
+          "stderr_file": "bel-pfe1100-series-page-16.stderr",
+          "stdout_sha256": "0a6332ab73cf7795c8d76afa31ea01ed32a36b9c801872364a41bc191a3645ef",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "17",
+            "-l",
+            "17",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-17.stdout",
+          "stderr_file": "bel-pfe1100-series-page-17.stderr",
+          "stdout_sha256": "6b93b5507c0e3839c3b3ca2f986cfc52f499be748eb98b57a506f95eaf281272",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "18",
+            "-l",
+            "18",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-18.stdout",
+          "stderr_file": "bel-pfe1100-series-page-18.stderr",
+          "stdout_sha256": "41d334c835f6625a735cfa0fc17738ecc5982a9d922307732b9a3b1b9cb794eb",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "19",
+            "-l",
+            "19",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-19.stdout",
+          "stderr_file": "bel-pfe1100-series-page-19.stderr",
+          "stdout_sha256": "b0c542a3863eea2b87ba69baa2c207a1a43b2d3d6dc33e0933c1e00a823cfc90",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "20",
+            "-l",
+            "20",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-20.stdout",
+          "stderr_file": "bel-pfe1100-series-page-20.stderr",
+          "stdout_sha256": "eb4336a838ab89178228e81279bf4dc99ea0325e1df7381b1bc7835395215de7",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "21",
+            "-l",
+            "21",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-21.stdout",
+          "stderr_file": "bel-pfe1100-series-page-21.stderr",
+          "stdout_sha256": "9dff1251dcd536931f28fd28fa2e619b228d1b6da14c5eceeea3c45fc1429fde",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "22",
+            "-l",
+            "22",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-22.stdout",
+          "stderr_file": "bel-pfe1100-series-page-22.stderr",
+          "stdout_sha256": "3c8bdbdccc0d9acb9eb922ebc3553bac883bfb565bbb07c6fbff79d077ed662e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "23",
+            "-l",
+            "23",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-23.stdout",
+          "stderr_file": "bel-pfe1100-series-page-23.stderr",
+          "stdout_sha256": "85689b97c5a684c621bae9233e39769aceb1319ec5f0f4ff3d88a6ea06900c84",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "24",
+            "-l",
+            "24",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-24.stdout",
+          "stderr_file": "bel-pfe1100-series-page-24.stderr",
+          "stdout_sha256": "05f884c7fc1af79d020da4c8a8fcdc0f2d483fd3f1cbdb545297ddde080f46fc",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "25",
+            "-l",
+            "25",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1100-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1100-series-page-25.stdout",
+          "stderr_file": "bel-pfe1100-series-page-25.stderr",
+          "stdout_sha256": "991d0e3a397e04ede6fd8db91ebfd144681ad1c71520608dfeff1b615213cf58",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        }
+      ],
+      "source_sha256_before": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "page_count": 25,
+      "source_sha256_after": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "outcome": "extracted",
+      "envelope_file": "bel-pfe1100-series-text.json",
+      "envelope_sha256": "62f945eeee4c3a9378187299c9cf15a4a277389dfd0f6d83be52d0bab0144493",
+      "blank_text_pages": [],
+      "pages_with_stderr": []
+    },
+    {
+      "source": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+      "source_file": "bel-pfe1500-series.pdf",
+      "commands": [
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-pdfinfo.stdout",
+          "stderr_file": "bel-pfe1500-series-pdfinfo.stderr",
+          "stdout_sha256": "51920c681dd14754e3948d30389680ed0284ac43ba6da2b07da4fa77591ccbea",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "1",
+            "-l",
+            "1",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-1.stdout",
+          "stderr_file": "bel-pfe1500-series-page-1.stderr",
+          "stdout_sha256": "4cdabf17ea69cdae9ff684e4f36eb7711017de4c008153803d5979d51d0349dd",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "2",
+            "-l",
+            "2",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-2.stdout",
+          "stderr_file": "bel-pfe1500-series-page-2.stderr",
+          "stdout_sha256": "6040c0938e0b0f99938cf0f8d6c693d6b12053e5a2a709bbe7e9cf4f9f72ae01",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "3",
+            "-l",
+            "3",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-3.stdout",
+          "stderr_file": "bel-pfe1500-series-page-3.stderr",
+          "stdout_sha256": "0cf584d5740ac53390ce853cc15c7796fcf0e67fbcd57b77e0668d7fe33b40ec",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "4",
+            "-l",
+            "4",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-4.stdout",
+          "stderr_file": "bel-pfe1500-series-page-4.stderr",
+          "stdout_sha256": "1cbba3aa4c2389019483671fd0f21f156bf6701bdb696b12e8d0c1195c87dcfa",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "5",
+            "-l",
+            "5",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-5.stdout",
+          "stderr_file": "bel-pfe1500-series-page-5.stderr",
+          "stdout_sha256": "6262c01ebe10b0f7115fc15f4e12ffbad6f5913c38656300b1bac10885cda442",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "6",
+            "-l",
+            "6",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-6.stdout",
+          "stderr_file": "bel-pfe1500-series-page-6.stderr",
+          "stdout_sha256": "8b26423aba4be376856debabffcf6772f76fafbbfba452be067031d3f29829a2",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "7",
+            "-l",
+            "7",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-7.stdout",
+          "stderr_file": "bel-pfe1500-series-page-7.stderr",
+          "stdout_sha256": "21c84f8b4a10769682b19ca672c3c1e15a61afd3814a348e398ed3998bdd8895",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "8",
+            "-l",
+            "8",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-8.stdout",
+          "stderr_file": "bel-pfe1500-series-page-8.stderr",
+          "stdout_sha256": "2e4df9c2e28b0d5960dd673be2108440083cc04bbfa39cec211a852c7a65116a",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "9",
+            "-l",
+            "9",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-9.stdout",
+          "stderr_file": "bel-pfe1500-series-page-9.stderr",
+          "stdout_sha256": "4a06901b11c14640e905ad32723a9a58f8335575e6526ca511b63dca3322bc4e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "10",
+            "-l",
+            "10",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-10.stdout",
+          "stderr_file": "bel-pfe1500-series-page-10.stderr",
+          "stdout_sha256": "e5150bb65e3778fc70194bd8a40abbc7d216385161d1f08f092fbbd8c6bcfd2d",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "11",
+            "-l",
+            "11",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-11.stdout",
+          "stderr_file": "bel-pfe1500-series-page-11.stderr",
+          "stdout_sha256": "16f41bf2899d61b37790215f5f56bf57146b2bc228ada09de954b2068950c6f7",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "12",
+            "-l",
+            "12",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-12.stdout",
+          "stderr_file": "bel-pfe1500-series-page-12.stderr",
+          "stdout_sha256": "a6558ec8ab8c28baa4d37e172cdb7f5dc720da3fe6e037e39c8d91607b58cf14",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "13",
+            "-l",
+            "13",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-13.stdout",
+          "stderr_file": "bel-pfe1500-series-page-13.stderr",
+          "stdout_sha256": "aa96b500fa186332ef2a19546d9294f851d74b3b8575611d8aa48edb1dc55e6e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "14",
+            "-l",
+            "14",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-14.stdout",
+          "stderr_file": "bel-pfe1500-series-page-14.stderr",
+          "stdout_sha256": "08d030b1736af8f38521bb78b5e6bd73b49730ed27904df6d2d78cf7d8bd27e5",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "15",
+            "-l",
+            "15",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-15.stdout",
+          "stderr_file": "bel-pfe1500-series-page-15.stderr",
+          "stdout_sha256": "ba387ec7728e1298121fb58a7bd0c054143cb062bd839ee316e3973b3f8e4f74",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "16",
+            "-l",
+            "16",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-16.stdout",
+          "stderr_file": "bel-pfe1500-series-page-16.stderr",
+          "stdout_sha256": "66374f360014cec8ebf09ce210a61776beee01c90c68103f6ef2b7442c7a3540",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "17",
+            "-l",
+            "17",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-17.stdout",
+          "stderr_file": "bel-pfe1500-series-page-17.stderr",
+          "stdout_sha256": "926ad779d5c4d21e107daf8816bb0e2b9b97dd2f11373c0c1040f881bfc76ae5",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "18",
+            "-l",
+            "18",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-18.stdout",
+          "stderr_file": "bel-pfe1500-series-page-18.stderr",
+          "stdout_sha256": "14d83f64137ef0d1c3c86028c7f64e8be604b3d5fcd05fa5b3c28fea389845bd",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "19",
+            "-l",
+            "19",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-19.stdout",
+          "stderr_file": "bel-pfe1500-series-page-19.stderr",
+          "stdout_sha256": "12bfaffff0103c2b103bbb0659aaf661fbbf199eae07a283dde098a6bc641aa5",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "20",
+            "-l",
+            "20",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-20.stdout",
+          "stderr_file": "bel-pfe1500-series-page-20.stderr",
+          "stdout_sha256": "ca9535f442875d2e913278f6d23accb654cd2778c00da4e0a5a5052dafe29b79",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "21",
+            "-l",
+            "21",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-21.stdout",
+          "stderr_file": "bel-pfe1500-series-page-21.stderr",
+          "stdout_sha256": "9a03bd2ff41f58538dc7d88e174e50b101c1e0d51e77db76e6fed714428206b3",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "22",
+            "-l",
+            "22",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-22.stdout",
+          "stderr_file": "bel-pfe1500-series-page-22.stderr",
+          "stdout_sha256": "bc1e170be7bd4cb8aa8cc98c544392913908adcd92903d3e7b10668065d5018e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "23",
+            "-l",
+            "23",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-23.stdout",
+          "stderr_file": "bel-pfe1500-series-page-23.stderr",
+          "stdout_sha256": "fbcb6d4afab940f9731b650a696b5361020cda848b0134c980c7d52697935a1a",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "24",
+            "-l",
+            "24",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-24.stdout",
+          "stderr_file": "bel-pfe1500-series-page-24.stderr",
+          "stdout_sha256": "dc579f6902c8ab4519a618c39745f787d42eb0c9d7fac0f51b25581959774552",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "25",
+            "-l",
+            "25",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-25.stdout",
+          "stderr_file": "bel-pfe1500-series-page-25.stderr",
+          "stdout_sha256": "bf40490bf788ffe5ffb224641cd91eb4237fccc67f87816113a2183a662d62f1",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "26",
+            "-l",
+            "26",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-26.stdout",
+          "stderr_file": "bel-pfe1500-series-page-26.stderr",
+          "stdout_sha256": "fcbf408bd4395ab095be6bf7f68492a83be87c34374263c0e33c7c918f74af87",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "27",
+            "-l",
+            "27",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-series.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-series-page-27.stdout",
+          "stderr_file": "bel-pfe1500-series-page-27.stderr",
+          "stdout_sha256": "fafa85cd6a98d25bd948997adc6310061dc0aef07906e5e1ad5f7999cb58db84",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        }
+      ],
+      "source_sha256_before": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "page_count": 27,
+      "source_sha256_after": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "outcome": "extracted",
+      "envelope_file": "bel-pfe1500-series-text.json",
+      "envelope_sha256": "b33273ccbcb5e47e0b2584e9113a356241e3f5b3ed67ebbdd661700cfd016af6",
+      "blank_text_pages": [],
+      "pages_with_stderr": []
+    },
+    {
+      "source": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+      "source_file": "bel-pfe1500-nemko.pdf",
+      "commands": [
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-nemko-pdfinfo.stdout",
+          "stderr_file": "bel-pfe1500-nemko-pdfinfo.stderr",
+          "stdout_sha256": "182230efd690f71a6d8ba9f85b1f14edebb601e34134eb4928246820a30c8a94",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "1",
+            "-l",
+            "1",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-nemko-page-1.stdout",
+          "stderr_file": "bel-pfe1500-nemko-page-1.stderr",
+          "stdout_sha256": "59ebf9ff395e9b84c88d737f921f42abe75ab9edaa0697831701d5ac213dae35",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "2",
+            "-l",
+            "2",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-nemko.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-nemko-page-2.stdout",
+          "stderr_file": "bel-pfe1500-nemko-page-2.stderr",
+          "stdout_sha256": "38af6ca92ec62e57148097e1f6fb9c26372390858e59218cc794d6572aa8717e",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        }
+      ],
+      "source_sha256_before": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "page_count": 2,
+      "source_sha256_after": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "outcome": "extracted",
+      "envelope_file": "bel-pfe1500-nemko-text.json",
+      "envelope_sha256": "3bc727551654a91041d9548014fb9d94de99847d0a2c947273ea0800b54fed86",
+      "blank_text_pages": [],
+      "pages_with_stderr": []
+    },
+    {
+      "source": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+      "source_file": "bel-pfe1500-csa.pdf",
+      "commands": [
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-pdfinfo.stdout",
+          "stderr_file": "bel-pfe1500-csa-pdfinfo.stderr",
+          "stdout_sha256": "d5f20196de22a14b50b599ebab5255752191225fe0a8d6b023550d46b751d3ca",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "1",
+            "-l",
+            "1",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-page-1.stdout",
+          "stderr_file": "bel-pfe1500-csa-page-1.stderr",
+          "stdout_sha256": "eaa841098bb5289a1f0bde175e644d2edab4bd5202e63310acbb151e97af3cb1",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "2",
+            "-l",
+            "2",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-page-2.stdout",
+          "stderr_file": "bel-pfe1500-csa-page-2.stderr",
+          "stdout_sha256": "2207d40d91b8a4ef7f966d815b151dad7bd284014c331fe8c326740f09b89eb7",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "3",
+            "-l",
+            "3",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-page-3.stdout",
+          "stderr_file": "bel-pfe1500-csa-page-3.stderr",
+          "stdout_sha256": "59cd8f6e04790cc1021841feddab1575a202acc7827c08e286bebf93d2940bf4",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "4",
+            "-l",
+            "4",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-page-4.stdout",
+          "stderr_file": "bel-pfe1500-csa-page-4.stderr",
+          "stdout_sha256": "4d0cb55df9d14a1ea8f05641a7b2d998ce8d0863e2ba34f18bd79804b1c3fb5f",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "5",
+            "-l",
+            "5",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-page-5.stdout",
+          "stderr_file": "bel-pfe1500-csa-page-5.stderr",
+          "stdout_sha256": "f165d8a2245fa0a672c3bd66866a8ef9d6232e6800b888b8de4dc7b76d5db5ca",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "6",
+            "-l",
+            "6",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-page-6.stdout",
+          "stderr_file": "bel-pfe1500-csa-page-6.stderr",
+          "stdout_sha256": "f4951da8b82a7509626e3c8b9c41b9b497c5eafee8c209fc33c09055eb9bf3d2",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "7",
+            "-l",
+            "7",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/bel-pfe1500-csa.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "bel-pfe1500-csa-page-7.stdout",
+          "stderr_file": "bel-pfe1500-csa-page-7.stderr",
+          "stdout_sha256": "044131ee035888b87711f5af3ef23a263d47ddec1866fff2567466784d7cc6aa",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        }
+      ],
+      "source_sha256_before": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "page_count": 7,
+      "source_sha256_after": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "outcome": "extracted",
+      "envelope_file": "bel-pfe1500-csa-text.json",
+      "envelope_sha256": "a5fe25f971809ab50b722890b3982575bcf4465b9455384cd1069c351cc01471",
+      "blank_text_pages": [],
+      "pages_with_stderr": []
+    },
+    {
+      "source": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+      "source_file": "fsp550-29fm.pdf",
+      "commands": [
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf"
+          ],
+          "returncode": 0,
+          "stdout_file": "fsp550-29fm-pdfinfo.stdout",
+          "stderr_file": "fsp550-29fm-pdfinfo.stderr",
+          "stdout_sha256": "7a4af7d5b13d5210aac9f6e976d7c3f73c02c5e754c3bbaba17b88776d47642a",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "1",
+            "-l",
+            "1",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "fsp550-29fm-page-1.stdout",
+          "stderr_file": "fsp550-29fm-page-1.stderr",
+          "stdout_sha256": "414b5bcbc5355d3eb6fe511412bdf6166750d9cb10e228b0509039278b6ad5b4",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        },
+        {
+          "argv": [
+            "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+            "-f",
+            "2",
+            "-l",
+            "2",
+            "-layout",
+            "-enc",
+            "UTF-8",
+            "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+            "-"
+          ],
+          "returncode": 0,
+          "stdout_file": "fsp550-29fm-page-2.stdout",
+          "stderr_file": "fsp550-29fm-page-2.stderr",
+          "stdout_sha256": "b271823dc1eb64f95fa377ef8a325f8b8b8286328f800242c630fef6e61e1e27",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "removed_one_final_form_feed": true
+        }
+      ],
+      "source_sha256_before": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "page_count": 2,
+      "source_sha256_after": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "outcome": "extracted",
+      "envelope_file": "fsp550-29fm-text.json",
+      "envelope_sha256": "b7425c91ab668c920920dc0b787d1a31e917c7cba8440c5ec01e07f3b5c723a3",
+      "blank_text_pages": [],
+      "pages_with_stderr": []
+    }
+  ],
+  "extractor_version": "26.06.0",
+  "completed_at": "2026-10-13T03:08:37.565594+00:00",
+  "artifacts": [
+    {
+      "file": "bel-pfe1100-series-page-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-1.stdout",
+      "bytes": 1568,
+      "sha256": "86505eaa9d2009777bea648359ad354058351c79d790c77499d5cdba81e96f4e"
+    },
+    {
+      "file": "bel-pfe1100-series-page-10.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-10.stdout",
+      "bytes": 4991,
+      "sha256": "d03091e516e2e25706c5dc8dbf67f80517ab660d14c5fe87b450e5d202e2a98e"
+    },
+    {
+      "file": "bel-pfe1100-series-page-11.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-11.stdout",
+      "bytes": 4160,
+      "sha256": "3a6340fb8db12b5e27f6772605201bbca226439fc8a97699aa9614a305aa5207"
+    },
+    {
+      "file": "bel-pfe1100-series-page-12.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-12.stdout",
+      "bytes": 3420,
+      "sha256": "a9d7c3d69b20be4f2a39faad637d6beec228e0d63c6d44854084bc8f67c4919e"
+    },
+    {
+      "file": "bel-pfe1100-series-page-13.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-13.stdout",
+      "bytes": 6801,
+      "sha256": "e57422304ef488e919251d4832f285173b40103c75c370a357ee54caa93d9b47"
+    },
+    {
+      "file": "bel-pfe1100-series-page-14.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-14.stdout",
+      "bytes": 5523,
+      "sha256": "6253ffdaa67727ec9ba21d7312f21f05fdfe1fa81a1c995e2680b3b3a39ab7fd"
+    },
+    {
+      "file": "bel-pfe1100-series-page-15.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-15.stdout",
+      "bytes": 5745,
+      "sha256": "5f40b3ae853e1104ce1aacecc43c1cc0f49eb3a223f34df7fda504c544e821b8"
+    },
+    {
+      "file": "bel-pfe1100-series-page-16.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-16.stdout",
+      "bytes": 5342,
+      "sha256": "0a6332ab73cf7795c8d76afa31ea01ed32a36b9c801872364a41bc191a3645ef"
+    },
+    {
+      "file": "bel-pfe1100-series-page-17.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-17.stdout",
+      "bytes": 3877,
+      "sha256": "6b93b5507c0e3839c3b3ca2f986cfc52f499be748eb98b57a506f95eaf281272"
+    },
+    {
+      "file": "bel-pfe1100-series-page-18.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-18.stdout",
+      "bytes": 2769,
+      "sha256": "41d334c835f6625a735cfa0fc17738ecc5982a9d922307732b9a3b1b9cb794eb"
+    },
+    {
+      "file": "bel-pfe1100-series-page-19.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-19.stdout",
+      "bytes": 2002,
+      "sha256": "b0c542a3863eea2b87ba69baa2c207a1a43b2d3d6dc33e0933c1e00a823cfc90"
+    },
+    {
+      "file": "bel-pfe1100-series-page-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-2.stdout",
+      "bytes": 5253,
+      "sha256": "19cb6dd8e576efe09d10ff91a815a1f3f67dba7ca71492ba59d4382eafbdd918"
+    },
+    {
+      "file": "bel-pfe1100-series-page-20.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-20.stdout",
+      "bytes": 5737,
+      "sha256": "eb4336a838ab89178228e81279bf4dc99ea0325e1df7381b1bc7835395215de7"
+    },
+    {
+      "file": "bel-pfe1100-series-page-21.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-21.stdout",
+      "bytes": 6268,
+      "sha256": "9dff1251dcd536931f28fd28fa2e619b228d1b6da14c5eceeea3c45fc1429fde"
+    },
+    {
+      "file": "bel-pfe1100-series-page-22.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-22.stdout",
+      "bytes": 2446,
+      "sha256": "3c8bdbdccc0d9acb9eb922ebc3553bac883bfb565bbb07c6fbff79d077ed662e"
+    },
+    {
+      "file": "bel-pfe1100-series-page-23.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-23.stdout",
+      "bytes": 475,
+      "sha256": "85689b97c5a684c621bae9233e39769aceb1319ec5f0f4ff3d88a6ea06900c84"
+    },
+    {
+      "file": "bel-pfe1100-series-page-24.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-24.stdout",
+      "bytes": 3009,
+      "sha256": "05f884c7fc1af79d020da4c8a8fcdc0f2d483fd3f1cbdb545297ddde080f46fc"
+    },
+    {
+      "file": "bel-pfe1100-series-page-25.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-25.stdout",
+      "bytes": 2354,
+      "sha256": "991d0e3a397e04ede6fd8db91ebfd144681ad1c71520608dfeff1b615213cf58"
+    },
+    {
+      "file": "bel-pfe1100-series-page-3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-3.stdout",
+      "bytes": 5517,
+      "sha256": "85b36f60d70edc102219a65e54638f175352a9dfaae4d16bd98051c232c8b359"
+    },
+    {
+      "file": "bel-pfe1100-series-page-4.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-4.stdout",
+      "bytes": 4285,
+      "sha256": "4d085368ced0c0d130b24e443efc7576ba89491468c362b7e07a3c75dfd035d5"
+    },
+    {
+      "file": "bel-pfe1100-series-page-5.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-5.stdout",
+      "bytes": 6595,
+      "sha256": "e32eb8082685e296200bd24e36af099d0b78675d8c7437947189de8bba5c4943"
+    },
+    {
+      "file": "bel-pfe1100-series-page-6.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-6.stdout",
+      "bytes": 3249,
+      "sha256": "9c34ededb76b75cc72dcbea71adcc8c9bc2dee4603efb07246d7206a1271152f"
+    },
+    {
+      "file": "bel-pfe1100-series-page-7.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-7.stdout",
+      "bytes": 1491,
+      "sha256": "025bee5799650e137567e5dc405607fb9c57945f17ed0fb6125a03ee935cd5d2"
+    },
+    {
+      "file": "bel-pfe1100-series-page-8.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-8.stdout",
+      "bytes": 4015,
+      "sha256": "b9dd171d39431cc48e9594dc5761c867f055814e76de56e24818cf8d549470b2"
+    },
+    {
+      "file": "bel-pfe1100-series-page-9.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-page-9.stdout",
+      "bytes": 11639,
+      "sha256": "7c2be6987e245c55d9688477ba09c02a9857ce7618c12ed8021499e8a8239f54"
+    },
+    {
+      "file": "bel-pfe1100-series-pdfinfo.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1100-series-pdfinfo.stdout",
+      "bytes": 538,
+      "sha256": "9db835ca7e0ec6150903a971f061a89ea73d4f41b642f8eb6d91197e4b09a7ee"
+    },
+    {
+      "file": "bel-pfe1100-series-text.json",
+      "bytes": 111486,
+      "sha256": "62f945eeee4c3a9378187299c9cf15a4a277389dfd0f6d83be52d0bab0144493"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-1.stdout",
+      "bytes": 1853,
+      "sha256": "eaa841098bb5289a1f0bde175e644d2edab4bd5202e63310acbb151e97af3cb1"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-2.stdout",
+      "bytes": 3005,
+      "sha256": "2207d40d91b8a4ef7f966d815b151dad7bd284014c331fe8c326740f09b89eb7"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-3.stdout",
+      "bytes": 3331,
+      "sha256": "59cd8f6e04790cc1021841feddab1575a202acc7827c08e286bebf93d2940bf4"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-4.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-4.stdout",
+      "bytes": 3171,
+      "sha256": "4d0cb55df9d14a1ea8f05641a7b2d998ce8d0863e2ba34f18bd79804b1c3fb5f"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-5.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-5.stdout",
+      "bytes": 2812,
+      "sha256": "f165d8a2245fa0a672c3bd66866a8ef9d6232e6800b888b8de4dc7b76d5db5ca"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-6.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-6.stdout",
+      "bytes": 523,
+      "sha256": "f4951da8b82a7509626e3c8b9c41b9b497c5eafee8c209fc33c09055eb9bf3d2"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-7.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-page-7.stdout",
+      "bytes": 1907,
+      "sha256": "044131ee035888b87711f5af3ef23a263d47ddec1866fff2567466784d7cc6aa"
+    },
+    {
+      "file": "bel-pfe1500-csa-pdfinfo.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-csa-pdfinfo.stdout",
+      "bytes": 483,
+      "sha256": "d5f20196de22a14b50b599ebab5255752191225fe0a8d6b023550d46b751d3ca"
+    },
+    {
+      "file": "bel-pfe1500-csa-text.json",
+      "bytes": 17449,
+      "sha256": "a5fe25f971809ab50b722890b3982575bcf4465b9455384cd1069c351cc01471"
+    },
+    {
+      "file": "bel-pfe1500-nemko-page-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-nemko-page-1.stdout",
+      "bytes": 3783,
+      "sha256": "59ebf9ff395e9b84c88d737f921f42abe75ab9edaa0697831701d5ac213dae35"
+    },
+    {
+      "file": "bel-pfe1500-nemko-page-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-nemko-page-2.stdout",
+      "bytes": 4145,
+      "sha256": "38af6ca92ec62e57148097e1f6fb9c26372390858e59218cc794d6572aa8717e"
+    },
+    {
+      "file": "bel-pfe1500-nemko-pdfinfo.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-nemko-pdfinfo.stdout",
+      "bytes": 442,
+      "sha256": "182230efd690f71a6d8ba9f85b1f14edebb601e34134eb4928246820a30c8a94"
+    },
+    {
+      "file": "bel-pfe1500-nemko-text.json",
+      "bytes": 8378,
+      "sha256": "3bc727551654a91041d9548014fb9d94de99847d0a2c947273ea0800b54fed86"
+    },
+    {
+      "file": "bel-pfe1500-series-page-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-1.stdout",
+      "bytes": 1712,
+      "sha256": "4cdabf17ea69cdae9ff684e4f36eb7711017de4c008153803d5979d51d0349dd"
+    },
+    {
+      "file": "bel-pfe1500-series-page-10.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-10.stdout",
+      "bytes": 4238,
+      "sha256": "e5150bb65e3778fc70194bd8a40abbc7d216385161d1f08f092fbbd8c6bcfd2d"
+    },
+    {
+      "file": "bel-pfe1500-series-page-11.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-11.stdout",
+      "bytes": 4621,
+      "sha256": "16f41bf2899d61b37790215f5f56bf57146b2bc228ada09de954b2068950c6f7"
+    },
+    {
+      "file": "bel-pfe1500-series-page-12.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-12.stdout",
+      "bytes": 4138,
+      "sha256": "a6558ec8ab8c28baa4d37e172cdb7f5dc720da3fe6e037e39c8d91607b58cf14"
+    },
+    {
+      "file": "bel-pfe1500-series-page-13.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-13.stdout",
+      "bytes": 5331,
+      "sha256": "aa96b500fa186332ef2a19546d9294f851d74b3b8575611d8aa48edb1dc55e6e"
+    },
+    {
+      "file": "bel-pfe1500-series-page-14.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-14.stdout",
+      "bytes": 6153,
+      "sha256": "08d030b1736af8f38521bb78b5e6bd73b49730ed27904df6d2d78cf7d8bd27e5"
+    },
+    {
+      "file": "bel-pfe1500-series-page-15.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-15.stdout",
+      "bytes": 2950,
+      "sha256": "ba387ec7728e1298121fb58a7bd0c054143cb062bd839ee316e3973b3f8e4f74"
+    },
+    {
+      "file": "bel-pfe1500-series-page-16.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-16.stdout",
+      "bytes": 4713,
+      "sha256": "66374f360014cec8ebf09ce210a61776beee01c90c68103f6ef2b7442c7a3540"
+    },
+    {
+      "file": "bel-pfe1500-series-page-17.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-17.stdout",
+      "bytes": 4458,
+      "sha256": "926ad779d5c4d21e107daf8816bb0e2b9b97dd2f11373c0c1040f881bfc76ae5"
+    },
+    {
+      "file": "bel-pfe1500-series-page-18.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-18.stdout",
+      "bytes": 3924,
+      "sha256": "14d83f64137ef0d1c3c86028c7f64e8be604b3d5fcd05fa5b3c28fea389845bd"
+    },
+    {
+      "file": "bel-pfe1500-series-page-19.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-19.stdout",
+      "bytes": 4137,
+      "sha256": "12bfaffff0103c2b103bbb0659aaf661fbbf199eae07a283dde098a6bc641aa5"
+    },
+    {
+      "file": "bel-pfe1500-series-page-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-2.stdout",
+      "bytes": 3583,
+      "sha256": "6040c0938e0b0f99938cf0f8d6c693d6b12053e5a2a709bbe7e9cf4f9f72ae01"
+    },
+    {
+      "file": "bel-pfe1500-series-page-20.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-20.stdout",
+      "bytes": 18605,
+      "sha256": "ca9535f442875d2e913278f6d23accb654cd2778c00da4e0a5a5052dafe29b79"
+    },
+    {
+      "file": "bel-pfe1500-series-page-21.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-21.stdout",
+      "bytes": 2680,
+      "sha256": "9a03bd2ff41f58538dc7d88e174e50b101c1e0d51e77db76e6fed714428206b3"
+    },
+    {
+      "file": "bel-pfe1500-series-page-22.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-22.stdout",
+      "bytes": 5916,
+      "sha256": "bc1e170be7bd4cb8aa8cc98c544392913908adcd92903d3e7b10668065d5018e"
+    },
+    {
+      "file": "bel-pfe1500-series-page-23.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-23.stdout",
+      "bytes": 1069,
+      "sha256": "fbcb6d4afab940f9731b650a696b5361020cda848b0134c980c7d52697935a1a"
+    },
+    {
+      "file": "bel-pfe1500-series-page-24.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-24.stdout",
+      "bytes": 778,
+      "sha256": "dc579f6902c8ab4519a618c39745f787d42eb0c9d7fac0f51b25581959774552"
+    },
+    {
+      "file": "bel-pfe1500-series-page-25.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-25.stdout",
+      "bytes": 1086,
+      "sha256": "bf40490bf788ffe5ffb224641cd91eb4237fccc67f87816113a2183a662d62f1"
+    },
+    {
+      "file": "bel-pfe1500-series-page-26.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-26.stdout",
+      "bytes": 3538,
+      "sha256": "fcbf408bd4395ab095be6bf7f68492a83be87c34374263c0e33c7c918f74af87"
+    },
+    {
+      "file": "bel-pfe1500-series-page-27.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-27.stdout",
+      "bytes": 1758,
+      "sha256": "fafa85cd6a98d25bd948997adc6310061dc0aef07906e5e1ad5f7999cb58db84"
+    },
+    {
+      "file": "bel-pfe1500-series-page-3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-3.stdout",
+      "bytes": 2598,
+      "sha256": "0cf584d5740ac53390ce853cc15c7796fcf0e67fbcd57b77e0668d7fe33b40ec"
+    },
+    {
+      "file": "bel-pfe1500-series-page-4.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-4.stdout",
+      "bytes": 4871,
+      "sha256": "1cbba3aa4c2389019483671fd0f21f156bf6701bdb696b12e8d0c1195c87dcfa"
+    },
+    {
+      "file": "bel-pfe1500-series-page-5.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-5.stdout",
+      "bytes": 1879,
+      "sha256": "6262c01ebe10b0f7115fc15f4e12ffbad6f5913c38656300b1bac10885cda442"
+    },
+    {
+      "file": "bel-pfe1500-series-page-6.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-6.stdout",
+      "bytes": 6180,
+      "sha256": "8b26423aba4be376856debabffcf6772f76fafbbfba452be067031d3f29829a2"
+    },
+    {
+      "file": "bel-pfe1500-series-page-7.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-7.stdout",
+      "bytes": 5195,
+      "sha256": "21c84f8b4a10769682b19ca672c3c1e15a61afd3814a348e398ed3998bdd8895"
+    },
+    {
+      "file": "bel-pfe1500-series-page-8.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-8.stdout",
+      "bytes": 3975,
+      "sha256": "2e4df9c2e28b0d5960dd673be2108440083cc04bbfa39cec211a852c7a65116a"
+    },
+    {
+      "file": "bel-pfe1500-series-page-9.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-page-9.stdout",
+      "bytes": 2449,
+      "sha256": "4a06901b11c14640e905ad32723a9a58f8335575e6526ca511b63dca3322bc4e"
+    },
+    {
+      "file": "bel-pfe1500-series-pdfinfo.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "bel-pfe1500-series-pdfinfo.stdout",
+      "bytes": 581,
+      "sha256": "51920c681dd14754e3948d30389680ed0284ac43ba6da2b07da4fa77591ccbea"
+    },
+    {
+      "file": "bel-pfe1500-series-text.json",
+      "bytes": 115562,
+      "sha256": "b33273ccbcb5e47e0b2584e9113a356241e3f5b3ed67ebbdd661700cfd016af6"
+    },
+    {
+      "file": "extract.py",
+      "bytes": 6449,
+      "sha256": "dad99c9886363df26679456779a3aff569849b1cec8b3c39efc04928cf6e0530"
+    },
+    {
+      "file": "fsp550-29fm-page-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "fsp550-29fm-page-1.stdout",
+      "bytes": 4011,
+      "sha256": "414b5bcbc5355d3eb6fe511412bdf6166750d9cb10e228b0509039278b6ad5b4"
+    },
+    {
+      "file": "fsp550-29fm-page-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "fsp550-29fm-page-2.stdout",
+      "bytes": 436,
+      "sha256": "b271823dc1eb64f95fa377ef8a325f8b8b8286328f800242c630fef6e61e1e27"
+    },
+    {
+      "file": "fsp550-29fm-pdfinfo.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "fsp550-29fm-pdfinfo.stdout",
+      "bytes": 593,
+      "sha256": "7a4af7d5b13d5210aac9f6e976d7c3f73c02c5e754c3bbaba17b88776d47642a"
+    },
+    {
+      "file": "fsp550-29fm-text.json",
+      "bytes": 4858,
+      "sha256": "b7425c91ab668c920920dc0b787d1a31e917c7cba8440c5ec01e07f3b5c723a3"
+    },
+    {
+      "file": "pdftotext-version.stderr",
+      "bytes": 145,
+      "sha256": "37957604adcac02142c53d9d889553ab70549c3bccccce6aae64a1acf4713b23"
+    },
+    {
+      "file": "pdftotext-version.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

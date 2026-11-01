@@ -1,0 +1,11 @@
+{
+  "selection_number": 2,
+  "landing_path": "02-landing.html",
+  "landing_sha256": "db541266218caa40f1a5c206afa5aa7dab4ca25b2b50fcdcc2b1d393bf1992fa",
+  "fresh_heading": "AGS8200 Datasheet R01",
+  "published_download_url": "https://www.edge-core.com/download/ags8200-datasheet-r01/?wpdmdl=5123&refresh=6ad06ceaa5cd91792044266",
+  "expected_wpdmdl_values": [
+    "5123"
+  ],
+  "stale_graph_tokens_used": false
+}

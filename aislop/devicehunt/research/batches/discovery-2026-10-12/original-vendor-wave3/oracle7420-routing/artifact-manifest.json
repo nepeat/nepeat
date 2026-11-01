@@ -1,0 +1,17 @@
+{
+  "artifacts": [
+    {
+      "path": "handoff.md",
+      "sha256": "37e0bd43e24361ef6946648498b0d8f80f95566bd1268f87715b2049cb6d3f20",
+      "bytes": 6340
+    },
+    {
+      "path": "routing.json",
+      "sha256": "0299c705c5d3ee18019fca8ee1e9833d4ff9f61c386ae358e4bfd16a0721e241",
+      "bytes": 21217
+    }
+  ],
+  "network_requests": 0,
+  "candidate_created": false,
+  "checks": "two existing platform identities, no exact identifier bridge, twelve claim routes, one explicit M2-only observation, database bytes unchanged"
+}

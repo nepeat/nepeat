@@ -1,0 +1,71 @@
+18                                                                                                            PFE1500 Series
+     8.15     EEPROM PROTOCOL
+        The EEPROM follows the industry communication protocols used for this type of device. Even though page write / read
+        commands are defined, it is recommended to use the single byte write / read commands.
+        WRITE
+        The write command follows the SMBus 1.1 Write Byte protocol. After the device address with the write bit cleared a first byte
+        with the data address to write to is sent followed by the data byte and the STOP condition. A new START condition on the bus
+        should only occur after 5ms of the last STOP condition to allow the EEPROM to write the data into its memory.
+                                            S Address W A          Data Address    A         Data         A   P
+
+        READ
+        The read command follows the SMBus 1.1 Read Byte protocol. After the device address with the write bit cleared the data
+        address byte is sent followed by a repeated start, the device address and the read bit set. The EEPROM will respond with the
+        data byte at the specified location.
+                                                         S Address W A        Data Address   A
+
+
+
+                                                         S Address R   A           Data      nA P
+
+
+
+
+     8.16     POWER MANAGEMENT BUS PROTOCOL
+        The Power Management Bus is an open standard protocol that defines means of communicating with power conversion and
+        other devices. For more information, please see the System Management Interface Forum web site at www.powerSIG.org.
+        Power Management Bus command codes are not register addresses. They describe a specific command to be executed.
+        The PFE1500 supply supports the following basic command structures:
+        •    Clock stretching limited to 1 ms
+        •    SCL low time-out of >25 ms with recovery within 10 ms
+        •    Recognized any time Start/Stop bus conditions
+        WRITE
+        The write protocol is the SMBus 1.1 Write Byte/Word protocol. Note that the write protocol may end after the command byte
+        or after the first data byte (Byte command) or then after sending 2 data bytes (Word command).
+                                                    S Address W A              Command           A
+
+
+
+                                                   Data Low Byte1) A         Data High Byte1) A       P
+                                                   1)
+                                                        Optional
+
+        In addition, Block write commands are supported with a total maximum length of 255 bytes. See PFE Programming Manual
+        for further information.
+                                            S Address W A           Command        A       Byte Count     A
+
+
+
+                                               Byte 1         A                              Byte N       A   P
+
+        READ
+        The read protocol is the SMBus 1.1 Read Byte/Word protocol. Note that the read protocol may request a single byte or word.
+                                            S Address W A           Command        A       Byte Count     A
+
+
+
+                                               Byte 1         A                              Byte N       A   P
+
+        In addition, Block read commands are supported with a total maximum length of 255 bytes. See PFE Programming Manual
+        BCA.00006 for further information.
+                                            S Address W A           Command        A      S Address R     A
+
+
+
+                                             Byte Count       A     Byte 1     A              Byte N      nA P
+
+
+
+
+                                                                                                                  tech.support@psbel.com
+

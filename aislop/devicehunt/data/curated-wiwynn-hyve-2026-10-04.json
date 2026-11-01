@@ -1,0 +1,1439 @@
+{
+  "sources": [
+    {
+      "id": "wiwynn-sv7100g2-product-page-2026-10-04",
+      "url": "https://www.wiwynn.com/products/21-inch/sv7100g2",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7100g2.html",
+      "coverage": "Captured 2026-10-04; reviewed original HTML product page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "bcd5775b3492af4e50396560b2a2db637130c00c24ad5ea56113178e7e6039f3"
+    },
+    {
+      "id": "wiwynn-sv7220g3-product-page-2026-10-04",
+      "url": "https://www.wiwynn.com/products/21-inch/sv7220g3",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7220g3.html",
+      "coverage": "Captured 2026-10-04; reviewed original HTML product page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "23a08a89d05c36503c7862823e05e259772aa29637c2179f6ad55dbb932b7473"
+    },
+    {
+      "id": "wiwynn-st7000g2-product-page-2026-10-04",
+      "url": "https://www.wiwynn.com/products/21-inch/st7000g2",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/wiwynn-st7000g2.html",
+      "coverage": "Captured 2026-10-04; reviewed original HTML product page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "4befdd2ab27ac4541e1b39ef94fc9a99398631d7113293bfa5fabc2f8687b6cb"
+    },
+    {
+      "id": "wiwynn-sv7000g2-product-page-2026-10-04",
+      "url": "https://www.wiwynn.com/products/21-inch/sv7000g2",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7000g2.html",
+      "coverage": "Captured 2026-10-04; reviewed original HTML product page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "bbefa9bd0b584d2ff100ebd54748249b7a57e4db4d3deb38f080e179a8013cc2"
+    },
+    {
+      "id": "wiwynn-sv7100g2-datasheet-reviewed-2026-10-04",
+      "url": "https://www.wiwynn.com/hubfs/Datasheet-SV7100G2_181119.pdf",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7100g2.pdf",
+      "coverage": "Captured 2026-10-04; reviewed original PDF, including every rendered page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "079a515d8a1d6b86021912f2d9eabe4427bde46a680bb50962438b8c3377899e"
+    },
+    {
+      "id": "wiwynn-sv7220g3-datasheet-reviewed-2026-10-04",
+      "url": "https://www.wiwynn.com/hubfs/Datasheet%20-%20SV7220G3_200430_internal-1.pdf",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/wiwynn-sv7220g3.pdf",
+      "coverage": "Captured 2026-10-04; reviewed original PDF, including every rendered page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783"
+    },
+    {
+      "id": "wiwynn-st7000g2-datasheet-reviewed-2026-10-04",
+      "url": "https://www.wiwynn.com/hubfs/Datasheet-ST7000G2_171222-1.pdf",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/wiwynn-st7000g2.pdf",
+      "coverage": "Captured 2026-10-04; reviewed original PDF, including every rendered page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1"
+    },
+    {
+      "id": "hyve-hercules-2026-datasheet-reviewed-2026-10-04",
+      "url": "https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ec07a827785533ca84e5_Hercules_RGB_Rev1_050126.pdf",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/hyve-hercules-2026.pdf",
+      "coverage": "Captured 2026-10-04; reviewed original PDF, including every rendered page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03"
+    },
+    {
+      "id": "hyve-jbof-2026-datasheet-reviewed-2026-10-04",
+      "url": "https://cdn.prod.website-files.com/697d7e6ffbb0348d6224a85d/69f8ecbeb6ef0bc0d959c6ca_JBOF_RGB_Rev1_050126.pdf",
+      "tier": "vendor",
+      "license": "Original vendor document/presentation rights retained; local factual research",
+      "snapshot": "raw/nics-wiwynn-hyve-2026-10-04/hyve-jbof-2026.pdf",
+      "coverage": "Captured 2026-10-04; reviewed original PDF, including every rendered page. Exact brand/platform facts, source-scoped configurations and unresolved conflicts; no legal manufacturer, factory, named operator, installed auction-unit configuration or market availability assertion. Separate nodes, families, platforms and motherboard identities; no inferred aliases.",
+      "sha256": "77b9c9b5bfc75dbf90749bbf9dccbb8a910356676fea938077efb35297eade02"
+    }
+  ],
+  "devices": [
+    {
+      "source": "wiwynn-sv7100g2-datasheet-reviewed-2026-10-04",
+      "key": "SV7100G2",
+      "brand": "Wiwynn",
+      "model": "SV7100G2",
+      "title": "Wiwynn SV7100G2",
+      "kind": "multi-node server platform",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "079a515d8a1d6b86021912f2d9eabe4427bde46a680bb50962438b8c3377899e"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "identity_scope",
+          "4U16N platform; unnamed server cards, tray/drawer and vCubby chassis are not aliases or separately invented model IDs"
+        ],
+        [
+          "physical_description",
+          "4U vCubby, 189 (H) x 537 (W) x 803.3 (D) as printed; units absent in PDF dimension row; 80kg platform weight"
+        ],
+        [
+          "node_relationship",
+          "16 SoC nodes per 4U platform; up to four 1S server cards in a tray; Open Rack v2 compatibility claimed"
+        ],
+        [
+          "processor",
+          "Intel Xeon D (Skylake-D) SoC"
+        ],
+        [
+          "memory",
+          "512GB DDR4; up to 2666 MT/s; 8 DIMM slots per node"
+        ],
+        [
+          "storage",
+          "48 M.2 modules total; 3 per node"
+        ],
+        [
+          "expansion",
+          "4 OCP Mezzanine x16, one per drawer"
+        ],
+        [
+          "management",
+          "IPMI v2.0 Compliant, iKVM, Wiwynn Cluster Manager (option)"
+        ],
+        [
+          "network",
+          "Page 1 states each of four servers can connect to a 50G or 100G multi-host NIC; retain wording alongside 16-node platform description"
+        ],
+        [
+          "power_description",
+          "12.5V DC bus bar; CPU TDP 85W (not complete-system consumption)"
+        ],
+        [
+          "serviceability",
+          "Vendor claims hot-service with sled pulled out while servers operate and front-access I/O"
+        ],
+        [
+          "os_support_as_printed",
+          "CentOS 7.4 (historical vendor claim)"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-sv7100g2-product-page-2026-10-04",
+      "key": "SV7100G2",
+      "brand": "Wiwynn",
+      "model": "SV7100G2",
+      "title": "Wiwynn SV7100G2",
+      "kind": "multi-node server platform",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "bcd5775b3492af4e50396560b2a2db637130c00c24ad5ea56113178e7e6039f3"
+        ],
+        [
+          "source_location",
+          "HTML product features and Tech Spec tables"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "physical_description",
+          "HTML form-factor row: 1OU, one third width of OCP vCubby chassis; separate chassis row: 4U vCubby, 189 (H) x 537 (W) x 803.3 (D); 80 kg"
+        ],
+        [
+          "identity_scope",
+          "HTML combines card/node form-factor and complete chassis specs under SV7100G2; do not assign chassis weight or 48-module total to an individual sled"
+        ],
+        [
+          "node_relationship",
+          "16 SoC nodes per 4U platform; up to four 1S server cards in a tray; Open Rack v2 compatibility claimed"
+        ],
+        [
+          "processor",
+          "Intel Xeon D (Skylake-D) SoC"
+        ],
+        [
+          "memory",
+          "512GB DDR4; up to 2666 MT/s; 8 DIMM slots per node"
+        ],
+        [
+          "storage",
+          "48 M.2 modules total; 3 per node"
+        ],
+        [
+          "expansion",
+          "4 OCP Mezzanine x16, one per drawer"
+        ],
+        [
+          "power_description",
+          "12.5V DC bus bar; no standalone AC PSU asserted"
+        ],
+        [
+          "network",
+          "HTML feature prose states each of four servers can connect to a 50G or 100G multi-host NIC; retain wording alongside 16-node platform description"
+        ],
+        [
+          "datasheet_release_date_as_printed",
+          "2018/11/19; download metadata, not established product introduction date"
+        ],
+        [
+          "scope_conflict",
+          "HTML 1OU/one-third-width row and PDF 4U vCubby row have different scopes; retain without silently reconciling"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-sv7220g3-datasheet-reviewed-2026-10-04",
+      "key": "SV7220G3",
+      "brand": "Wiwynn",
+      "model": "SV7220G3",
+      "title": "Wiwynn SV7220G3",
+      "kind": "server family",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "identity_scope",
+          "Family/platform heading SV7220G3 Series; V, V+ and S are distinct server-node variants"
+        ],
+        [
+          "physical_description",
+          "Three SV7220G3 servers in a 2OU Open Rack space; page 1 calls architecture 2U3Node"
+        ],
+        [
+          "node_variants",
+          "SV7220G3-V; SV7220G3-V+; SV7220G3-S"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable / Next Generation Intel Xeon Scalable; page 1 specifies 2nd Generation"
+        ],
+        [
+          "memory",
+          "Up to 3TB; DDR4 up to 2933MT/s; 12 DIMM slots per node"
+        ],
+        [
+          "power_description",
+          "Centralized OCP Power Shelf (page 2 node table); no independent chassis power specification"
+        ],
+        [
+          "deployment_scope",
+          "Generic hyper-scale datacenter architecture wording gives no named operator or provenance of an auction unit"
+        ],
+        [
+          "document_revision",
+          "v2.0"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-sv7220g3-datasheet-reviewed-2026-10-04",
+      "key": "SV7220G3-V",
+      "brand": "Wiwynn",
+      "model": "SV7220G3-V",
+      "title": "Wiwynn SV7220G3-V",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable / Next Generation Intel Xeon Scalable; page 1 specifies 2nd Generation"
+        ],
+        [
+          "processor_sockets",
+          "Two per node; three server nodes in a 2 OU shelf"
+        ],
+        [
+          "memory",
+          "Up to 3TB; DDR4 up to 2933MT/s; 12 DIMM slots per node"
+        ],
+        [
+          "chipset",
+          "Intel C621 series; TPM 2.0"
+        ],
+        [
+          "system_bus",
+          "Intel UltraPath Interconnect; 10.4GT/s"
+        ],
+        [
+          "physical_description",
+          "Node Specification table: 2U, Half width; 2OU (Open Rack), 174 (W) x 880 (D) x 89 (H) mm; 6.9–7.3 kg. Half-width wording retained alongside three nodes per shelf"
+        ],
+        [
+          "power_description",
+          "Centralized OCP Power Shelf; node table Powers: 108W (Idle), 330W (Max); not a standalone AC PSU claim"
+        ],
+        [
+          "management",
+          "ASPEED AST2500 with VGA; IPMI v2.0 Compliant, iKVM, Wiwynn Cluster Manager"
+        ],
+        [
+          "network",
+          "One GbE dedicated BMC port; one PCIe x16 OCP Mezzanine with optional single/dual 10GbE DA/SFP+, 25GbE SFP28 or 40GbE QSFP"
+        ],
+        [
+          "os_support_as_printed",
+          "RedHat Enterprise Linux 7.4; Ubuntu 18.0 (historical claims)"
+        ],
+        [
+          "source_conflict",
+          "HTML family page instead lists optional 100GbE QSFP, a multi-host 100GbE OCP 3.0 NIC shared by four nodes, OpenBMC/IPMI partial support and Cluster Manager optional; PDF lists 40GbE and three nodes per shelf. Variant assignments from PDF retained; HTML claims not propagated to variants"
+        ],
+        [
+          "document_revision",
+          "v2.0"
+        ],
+        [
+          "identity_scope",
+          "Distinct named server node of SV7220G3 Series, not a family/chassis alias"
+        ],
+        [
+          "storage",
+          "Four SAS/SATA HDD bays per node; page 1 V-series prose describes 2.5-inch trays; common row: one M.2 SSD Module optional on carrier card; RAID 0/1/10"
+        ],
+        [
+          "expansion",
+          "Two PCIe x16 HHHL slots; common PCIe x16 OCP Mezzanine option"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-sv7220g3-datasheet-reviewed-2026-10-04",
+      "key": "SV7220G3-V+",
+      "brand": "Wiwynn",
+      "model": "SV7220G3-V+",
+      "title": "Wiwynn SV7220G3-V+",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable / Next Generation Intel Xeon Scalable; page 1 specifies 2nd Generation"
+        ],
+        [
+          "processor_sockets",
+          "Two per node; three server nodes in a 2 OU shelf"
+        ],
+        [
+          "memory",
+          "Up to 3TB; DDR4 up to 2933MT/s; 12 DIMM slots per node"
+        ],
+        [
+          "chipset",
+          "Intel C621 series; TPM 2.0"
+        ],
+        [
+          "system_bus",
+          "Intel UltraPath Interconnect; 10.4GT/s"
+        ],
+        [
+          "physical_description",
+          "Node Specification table: 2U, Half width; 2OU (Open Rack), 174 (W) x 880 (D) x 89 (H) mm; 6.9–7.3 kg. Half-width wording retained alongside three nodes per shelf"
+        ],
+        [
+          "power_description",
+          "Centralized OCP Power Shelf; node table Powers: 108W (Idle), 330W (Max); not a standalone AC PSU claim"
+        ],
+        [
+          "management",
+          "ASPEED AST2500 with VGA; IPMI v2.0 Compliant, iKVM, Wiwynn Cluster Manager"
+        ],
+        [
+          "network",
+          "One GbE dedicated BMC port; one PCIe x16 OCP Mezzanine with optional single/dual 10GbE DA/SFP+, 25GbE SFP28 or 40GbE QSFP"
+        ],
+        [
+          "os_support_as_printed",
+          "RedHat Enterprise Linux 7.4; Ubuntu 18.0 (historical claims)"
+        ],
+        [
+          "source_conflict",
+          "HTML family page instead lists optional 100GbE QSFP, a multi-host 100GbE OCP 3.0 NIC shared by four nodes, OpenBMC/IPMI partial support and Cluster Manager optional; PDF lists 40GbE and three nodes per shelf. Variant assignments from PDF retained; HTML claims not propagated to variants"
+        ],
+        [
+          "document_revision",
+          "v2.0"
+        ],
+        [
+          "identity_scope",
+          "Distinct named server node of SV7220G3 Series, not a family/chassis alias"
+        ],
+        [
+          "storage",
+          "Two SAS/SATA HDD bays per node; page 1 V-series prose describes 2.5-inch trays; common row: one M.2 SSD Module optional on carrier card; RAID 0/1/10"
+        ],
+        [
+          "expansion",
+          "One PCIe x16 HHHL and two PCIe x8 HHHL slots; common PCIe x16 OCP Mezzanine option"
+        ],
+        [
+          "identifier_layout",
+          "Superscript plus visually attached to middle-column SV7220G3-V on PDF page 2; detached plus in extracted text is not dropped"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-sv7220g3-datasheet-reviewed-2026-10-04",
+      "key": "SV7220G3-S",
+      "brand": "Wiwynn",
+      "model": "SV7220G3-S",
+      "title": "Wiwynn SV7220G3-S",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "703f19b6b8814c146d8c332221381836f0c285c6dc4de6e0ef583bd5d5546783"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable / Next Generation Intel Xeon Scalable; page 1 specifies 2nd Generation"
+        ],
+        [
+          "processor_sockets",
+          "Two per node; three server nodes in a 2 OU shelf"
+        ],
+        [
+          "memory",
+          "Up to 3TB; DDR4 up to 2933MT/s; 12 DIMM slots per node"
+        ],
+        [
+          "chipset",
+          "Intel C621 series; TPM 2.0"
+        ],
+        [
+          "system_bus",
+          "Intel UltraPath Interconnect; 10.4GT/s"
+        ],
+        [
+          "physical_description",
+          "Node Specification table: 2U, Half width; 2OU (Open Rack), 174 (W) x 880 (D) x 89 (H) mm; 6.9–7.3 kg. Half-width wording retained alongside three nodes per shelf"
+        ],
+        [
+          "power_description",
+          "Centralized OCP Power Shelf; node table Powers: 108W (Idle), 330W (Max); not a standalone AC PSU claim"
+        ],
+        [
+          "management",
+          "ASPEED AST2500 with VGA; IPMI v2.0 Compliant, iKVM, Wiwynn Cluster Manager"
+        ],
+        [
+          "network",
+          "One GbE dedicated BMC port; one PCIe x16 OCP Mezzanine with optional single/dual 10GbE DA/SFP+, 25GbE SFP28 or 40GbE QSFP"
+        ],
+        [
+          "os_support_as_printed",
+          "RedHat Enterprise Linux 7.4; Ubuntu 18.0 (historical claims)"
+        ],
+        [
+          "source_conflict",
+          "HTML family page instead lists optional 100GbE QSFP, a multi-host 100GbE OCP 3.0 NIC shared by four nodes, OpenBMC/IPMI partial support and Cluster Manager optional; PDF lists 40GbE and three nodes per shelf. Variant assignments from PDF retained; HTML claims not propagated to variants"
+        ],
+        [
+          "document_revision",
+          "v2.0"
+        ],
+        [
+          "identity_scope",
+          "Distinct named server node of SV7220G3 Series, not a family/chassis alias"
+        ],
+        [
+          "storage",
+          "One 3.5-inch SAS/SATA HDD bay per node; common row: one M.2 SSD Module optional on carrier card; RAID 0/1/10"
+        ],
+        [
+          "expansion",
+          "Two PCIe x16 FHHL slots; common PCIe x16 OCP Mezzanine option"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-sv7220g3-product-page-2026-10-04",
+      "key": "SV7220G3",
+      "brand": "Wiwynn",
+      "model": "SV7220G3",
+      "title": "Wiwynn SV7220G3",
+      "kind": "server family",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "23a08a89d05c36503c7862823e05e259772aa29637c2179f6ad55dbb932b7473"
+        ],
+        [
+          "source_location",
+          "HTML product features and Tech Spec tables"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "identity_scope",
+          "Family product page; generic specs are not assigned to V, V+ or S"
+        ],
+        [
+          "physical_description",
+          "2OU Open Rack; 174 (W) x 880 (D) x 89 (H) mm; 6.9–7.3 kg per node"
+        ],
+        [
+          "processor",
+          "Intel Xeon Scalable / Next Generation Intel Xeon Scalable; page 1 specifies 2nd Generation"
+        ],
+        [
+          "memory",
+          "Up to 3TB; DDR4 up to 2933MT/s; 12 DIMM slots per node"
+        ],
+        [
+          "storage",
+          "One 3.5-inch SAS/SATA hot-plug bay per node; one M.2 SSD optional on carrier card; prose separately names V with four 2.5-inch trays"
+        ],
+        [
+          "expansion",
+          "Two PCIe x16 FHHL slots; PCIe x16 OCP Mezzanine with optional single/dual 10GbE DA/SFP+, 25GbE SFP28 or 100GbE QSFP"
+        ],
+        [
+          "network",
+          "Multi-host 100GbE OCP 3.0 NIC card shared by four nodes; one GbE dedicated BMC port"
+        ],
+        [
+          "management",
+          "ASPEED AST2500 with VGA; OpenBMC, IPMI partial support iKVM, Wiwynn Cluster Manager (option)"
+        ],
+        [
+          "power_description",
+          "Centralized OCP Power Shelf; centralized 12.5V DC bus bar; 108W idle, 330W max"
+        ],
+        [
+          "source_conflict",
+          "HTML family page instead lists optional 100GbE QSFP, a multi-host 100GbE OCP 3.0 NIC shared by four nodes, OpenBMC/IPMI partial support and Cluster Manager optional; PDF lists 40GbE and three nodes per shelf. Variant assignments from PDF retained; HTML claims not propagated to variants"
+        ],
+        [
+          "download_label_conflict",
+          "Download label SV7200G3 Datasheet on SV7220G3 page; captured linked PDF says SV7220G3 Series. No SV7200G3 identity or alias inferred"
+        ],
+        [
+          "datasheet_release_date_as_printed",
+          "2020/04/30; download metadata"
+        ],
+        [
+          "design_context",
+          "HTML claims OCP Project Olympus server-board lineage; no named deployment/operator proof"
+        ],
+        [
+          "os_support_as_printed",
+          "RedHat Enterprise Linux 7.4; Ubuntu 18.0 (historical claims)"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-st7000g2-datasheet-reviewed-2026-10-04",
+      "key": "SV7000G2",
+      "brand": "Wiwynn",
+      "model": "SV7000G2",
+      "title": "Wiwynn SV7000G2",
+      "kind": "storage server",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "expander",
+          "SAS12G expander"
+        ],
+        [
+          "storage",
+          "72 3.5-inch hot-plug drive bays; page 1 specifies 12Gb SAS/6Gb SATA"
+        ],
+        [
+          "physical_description",
+          "4 OU Rack; 4U; 185 (H) x 537 (W) x 879 (D) as printed (PDF row supplies no dimension unit)"
+        ],
+        [
+          "power_description",
+          "Centralized 12.5 V DC bus bar; no independent AC PSU asserted"
+        ],
+        [
+          "cooling_description",
+          "Page 1 ST7000G2 Series prose: hot-pluggable fans and redundant cooling; series-level statement"
+        ],
+        [
+          "serviceability",
+          "Tool-less latch drive retention without carriers, described for ST7000G2 Series"
+        ],
+        [
+          "source_conflict",
+          "HTML ST7000G2 and SV7000G2 tables use 190(H) x 538(W) x 879(D), differing from PDF 185(H) x 537(W) x 879(D); handle depths also differ by HTML product. Preserve source-specific values"
+        ],
+        [
+          "identity_scope",
+          "Storage server with 2 micro server(s); distinct from ST7000G2 enclosure and other server variant"
+        ],
+        [
+          "micro_servers",
+          "2"
+        ],
+        [
+          "processor",
+          "Intel Xeon Broadwell-DE"
+        ],
+        [
+          "memory",
+          "DDR4 x 8 (4 per server), up to 2400MT/s"
+        ],
+        [
+          "boot_drive",
+          "2 x M.2 (1 per server)"
+        ],
+        [
+          "io_modules",
+          "2"
+        ],
+        [
+          "ocp_mezzanine",
+          "2 (1 per server)"
+        ],
+        [
+          "expansion_ports",
+          "N/A"
+        ],
+        [
+          "management",
+          "IPMI v2.0 Compliant, iKVM, Wiwynn Cluster Manager (merged PDF cell across SV7000G2 and SV7000G2-L)"
+        ],
+        [
+          "os_support_as_printed",
+          "CentOS 7.2 (merged PDF row over server variants; historical claim)"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-st7000g2-datasheet-reviewed-2026-10-04",
+      "key": "SV7000G2-L",
+      "brand": "Wiwynn",
+      "model": "SV7000G2-L",
+      "title": "Wiwynn SV7000G2-L",
+      "kind": "storage server",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "expander",
+          "SAS12G expander"
+        ],
+        [
+          "storage",
+          "72 3.5-inch hot-plug drive bays; page 1 specifies 12Gb SAS/6Gb SATA"
+        ],
+        [
+          "physical_description",
+          "4 OU Rack; 4U; 185 (H) x 537 (W) x 879 (D) as printed (PDF row supplies no dimension unit)"
+        ],
+        [
+          "power_description",
+          "Centralized 12.5 V DC bus bar; no independent AC PSU asserted"
+        ],
+        [
+          "cooling_description",
+          "Page 1 ST7000G2 Series prose: hot-pluggable fans and redundant cooling; series-level statement"
+        ],
+        [
+          "serviceability",
+          "Tool-less latch drive retention without carriers, described for ST7000G2 Series"
+        ],
+        [
+          "source_conflict",
+          "HTML ST7000G2 and SV7000G2 tables use 190(H) x 538(W) x 879(D), differing from PDF 185(H) x 537(W) x 879(D); handle depths also differ by HTML product. Preserve source-specific values"
+        ],
+        [
+          "identity_scope",
+          "Storage server with 1 micro server(s); distinct from ST7000G2 enclosure and other server variant"
+        ],
+        [
+          "micro_servers",
+          "1"
+        ],
+        [
+          "processor",
+          "Intel Xeon Broadwell-DE"
+        ],
+        [
+          "memory",
+          "DDR4 x 4, up to 2400MT/s"
+        ],
+        [
+          "boot_drive",
+          "1 x M.2"
+        ],
+        [
+          "io_modules",
+          "1"
+        ],
+        [
+          "ocp_mezzanine",
+          "1"
+        ],
+        [
+          "expansion_ports",
+          "Two EXT mini-SAS 12G HD ports (SASx4)"
+        ],
+        [
+          "management",
+          "IPMI v2.0 Compliant, iKVM, Wiwynn Cluster Manager (merged PDF cell across SV7000G2 and SV7000G2-L)"
+        ],
+        [
+          "os_support_as_printed",
+          "CentOS 7.2 (merged PDF row over server variants; historical claim)"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-st7000g2-datasheet-reviewed-2026-10-04",
+      "key": "ST7000G2",
+      "brand": "Wiwynn",
+      "model": "ST7000G2",
+      "title": "Wiwynn ST7000G2",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "4bbf3cba70869fff52ebed7b28aa397e46e0c5960d0553f76dc331984b7363f1"
+        ],
+        [
+          "source_location",
+          "PDF pages 1–2"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "expander",
+          "SAS12G expander"
+        ],
+        [
+          "storage",
+          "72 3.5-inch hot-plug drive bays; page 1 specifies 12Gb SAS/6Gb SATA"
+        ],
+        [
+          "physical_description",
+          "4 OU Rack; 4U; 185 (H) x 537 (W) x 879 (D) as printed (PDF row supplies no dimension unit)"
+        ],
+        [
+          "power_description",
+          "Centralized 12.5 V DC bus bar; no independent AC PSU asserted"
+        ],
+        [
+          "cooling_description",
+          "Page 1 ST7000G2 Series prose: hot-pluggable fans and redundant cooling; series-level statement"
+        ],
+        [
+          "serviceability",
+          "Tool-less latch drive retention without carriers, described for ST7000G2 Series"
+        ],
+        [
+          "source_conflict",
+          "HTML ST7000G2 and SV7000G2 tables use 190(H) x 538(W) x 879(D), differing from PDF 185(H) x 537(W) x 879(D); handle depths also differ by HTML product. Preserve source-specific values"
+        ],
+        [
+          "identity_scope",
+          "Disaggregated storage enclosure; processor/memory/micro-server/boot-drive/IOM/mezzanine cells grey/unpopulated, not inherited from server columns"
+        ],
+        [
+          "expansion_ports",
+          "Two EXT mini-SAS 12G HD ports (SASx4)"
+        ],
+        [
+          "management",
+          "SES, SMP"
+        ],
+        [
+          "conversion_relationship",
+          "Page 1 says ST7000G2 can be converted to SV7000G2 by integrating Intel Xeon Broadwell-DE processors; separate product identities, not aliases"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-st7000g2-product-page-2026-10-04",
+      "key": "ST7000G2",
+      "brand": "Wiwynn",
+      "model": "ST7000G2",
+      "title": "Wiwynn ST7000G2",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "4befdd2ab27ac4541e1b39ef94fc9a99398631d7113293bfa5fabc2f8687b6cb"
+        ],
+        [
+          "source_location",
+          "HTML product features and Tech Spec tables"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "identity_scope",
+          "Complete storage enclosure; no alias between ST and SV"
+        ],
+        [
+          "storage",
+          "72 3.5-inch hot-plug drive bays"
+        ],
+        [
+          "cooling_description",
+          "HTML ST7000G2/SV7000G2 Series prose: hot-pluggable fans and redundant cooling"
+        ],
+        [
+          "power_description",
+          "Centralized 12.5 V DC bus bar"
+        ],
+        [
+          "source_conflict",
+          "HTML ST7000G2 and SV7000G2 tables use 190(H) x 538(W) x 879(D), differing from PDF 185(H) x 537(W) x 879(D); handle depths also differ by HTML product. Preserve source-specific values"
+        ],
+        [
+          "conversion_relationship",
+          "ST7000G2 can be converted to SV7000G2 by integrating Intel Xeon Broadwell-DE processors; no equivalence alias"
+        ],
+        [
+          "expander",
+          "SAS12G expander"
+        ],
+        [
+          "expansion_ports",
+          "Two EXT mini-SAS 12G (SASx4) HD ports"
+        ],
+        [
+          "management",
+          "SES, SMP"
+        ],
+        [
+          "physical_description",
+          "4 OU Rack; 4U; 190(H) x 538(W) x 879(D) mm (without front handlers) 190(H) x 538(W) x 1004(D) mm (with front handlers)"
+        ],
+        [
+          "datasheet_release_date_as_printed",
+          "2018/09/26; download metadata"
+        ]
+      ]
+    },
+    {
+      "source": "wiwynn-sv7000g2-product-page-2026-10-04",
+      "key": "SV7000G2",
+      "brand": "Wiwynn",
+      "model": "SV7000G2",
+      "title": "Wiwynn SV7000G2",
+      "kind": "storage server",
+      "affiliations": [
+        [
+          "Wiwynn",
+          "brand"
+        ],
+        [
+          "Wiwynn",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "bbefa9bd0b584d2ff100ebd54748249b7a57e4db4d3deb38f080e179a8013cc2"
+        ],
+        [
+          "source_location",
+          "HTML product features and Tech Spec tables"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "identity_scope",
+          "Complete storage server with two micro servers; no alias between ST and SV"
+        ],
+        [
+          "storage",
+          "72 3.5-inch hot-plug drive bays; HTML feature prose specifies 12Gb SAS/6Gb SATA"
+        ],
+        [
+          "cooling_description",
+          "HTML ST7000G2/SV7000G2 Series prose: hot-pluggable fans and redundant cooling"
+        ],
+        [
+          "power_description",
+          "Centralized 12.5 V DC bus bar"
+        ],
+        [
+          "source_conflict",
+          "HTML ST7000G2 and SV7000G2 tables use 190(H) x 538(W) x 879(D), differing from PDF 185(H) x 537(W) x 879(D); handle depths also differ by HTML product. Preserve source-specific values"
+        ],
+        [
+          "conversion_relationship",
+          "ST7000G2 can be converted to SV7000G2 by integrating Intel Xeon Broadwell-DE processors; no equivalence alias"
+        ],
+        [
+          "processor",
+          "Intel® Xeon® Broadwell-DE"
+        ],
+        [
+          "memory",
+          "DDR4 x 8 (4 per Server), up to 2400MT/s"
+        ],
+        [
+          "micro_servers",
+          "2"
+        ],
+        [
+          "io_modules",
+          "2"
+        ],
+        [
+          "boot_drive",
+          "2 x M.2 (1 per micro server)"
+        ],
+        [
+          "management",
+          "IPMI v2.0 Compliant, iKVM, Wiwynn Cluster Manager"
+        ],
+        [
+          "physical_description",
+          "4U; 190 (H) x 538 (W) x 879 (D) (without front handlers) 190 (H) x 538 (W) x 940 (D) (with front handlers)"
+        ],
+        [
+          "os_support_as_printed",
+          "CentOS 7.2"
+        ],
+        [
+          "datasheet_release_date_as_printed",
+          "2017/12/22; download metadata"
+        ]
+      ]
+    },
+    {
+      "source": "hyve-hercules-2026-datasheet-reviewed-2026-10-04",
+      "key": "Hercules",
+      "brand": "Hyve",
+      "model": "Hercules",
+      "title": "Hyve Hercules",
+      "kind": "storage server",
+      "affiliations": [
+        [
+          "Hyve",
+          "brand"
+        ],
+        [
+          "Hyve Solutions Corporation",
+          "platform_vendor"
+        ],
+        [
+          "TD SYNNEX Corporation",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03"
+        ],
+        [
+          "source_location",
+          "PDF page 1"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "document_date_as_printed",
+          "May 2026"
+        ],
+        [
+          "document_revision",
+          "Rev0.050126"
+        ],
+        [
+          "identity_scope",
+          "Named Hercules platform; no numeric commercial SKU; separate from prior Hercules 9120, Orion and HS9124 motherboard"
+        ],
+        [
+          "physical_description",
+          "19-inch 5-RU; W435 x H220 x D1030 mm; 315lbs fully populated"
+        ],
+        [
+          "processor",
+          "Single Intel Xeon 6, 6700-series; socket E2, LGA-4710; System on Chip"
+        ],
+        [
+          "motherboard",
+          "Hyve designed MB HS9124, Intel Xeon 6 1S, M-SDNO A305 as printed; HS9124 separately curated"
+        ],
+        [
+          "memory",
+          "16x RDIMM 6400MT/s DDR5, 64GB, 2DPC supported; preserve wording without resolving per-module/total capacity"
+        ],
+        [
+          "storage",
+          "112 x 3.5 SAS/SATA3 HDDs; backplane 4x 28 bays 3.5-inch supported"
+        ],
+        [
+          "power_description",
+          "2x 12V 3600W/ 2x 12V 3200W CRPS; key features call Titanium PSUs; slash options retained, no input-voltage claim"
+        ],
+        [
+          "cooling_description",
+          "Air cooled; 7x 4046 FANs, 8x 8056 FANs"
+        ],
+        [
+          "management",
+          "DC-MHS Aspeed AST 2600; LAN row literally 1x 1G R45 for management"
+        ],
+        [
+          "security",
+          "TPM2.0 SLB 9672 SPI I/F"
+        ],
+        [
+          "operation_properties",
+          "5 ~ 40 degree C, 8 – 90% non-condensing; 28C max wet bulb"
+        ],
+        [
+          "source_conflict",
+          "Intro paragraph names Hyve Orion: 10U GPU platform, HGX B200/B300, JBOG or monolithic, air or direct liquid cooling, Intel/AMD head-node and PCIe Gen5. Conflicts with Hercules 5U storage heading/features/table. Retain as conflicting source prose; no Orion/GPU alias or Hercules GPU support asserted"
+        ],
+        [
+          "parent_portfolio_context",
+          "May 2026 footer: Hyve Solutions Corporation, a wholly owned subsidiary of TD SYNNEX Corporation; dated parent-portfolio relationship, not physical manufacturer or operator"
+        ]
+      ]
+    },
+    {
+      "source": "hyve-hercules-2026-datasheet-reviewed-2026-10-04",
+      "key": "HS9124",
+      "brand": "Hyve",
+      "model": "HS9124",
+      "title": "Hyve HS9124",
+      "kind": "motherboard",
+      "affiliations": [
+        [
+          "Hyve",
+          "brand"
+        ],
+        [
+          "Hyve Solutions Corporation",
+          "platform_vendor"
+        ],
+        [
+          "Hyve Solutions Corporation",
+          "designer"
+        ],
+        [
+          "TD SYNNEX Corporation",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "cbdb1dc60eab08e1ec15d70cb5e9373769156efd58bae942934acd108828cf03"
+        ],
+        [
+          "source_location",
+          "PDF page 1"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "document_date_as_printed",
+          "May 2026"
+        ],
+        [
+          "document_revision",
+          "Rev0.050126"
+        ],
+        [
+          "identity_scope",
+          "Explicit separately named Hyve-designed motherboard in Hercules Motherboard row; no chassis alias or separate commercial order code inferred"
+        ],
+        [
+          "design_statement",
+          "Hyve designed MB HS9124, Intel Xeon 6 1S, M-SDNO A305"
+        ],
+        [
+          "platform_relationship",
+          "Motherboard named in Hercules May 2026 system table; chassis drive/power/fan/dimension specifications are not motherboard specifications"
+        ],
+        [
+          "parent_portfolio_context",
+          "May 2026 footer: Hyve Solutions Corporation, a wholly owned subsidiary of TD SYNNEX Corporation; dated parent-portfolio relationship, not physical manufacturer or operator"
+        ]
+      ]
+    },
+    {
+      "source": "hyve-jbof-2026-datasheet-reviewed-2026-10-04",
+      "key": "JBOF",
+      "brand": "Hyve",
+      "model": "JBOF",
+      "title": "Hyve JBOF",
+      "kind": "storage enclosure",
+      "affiliations": [
+        [
+          "Hyve",
+          "brand"
+        ],
+        [
+          "Hyve Solutions Corporation",
+          "platform_vendor"
+        ],
+        [
+          "TD SYNNEX Corporation",
+          "historical_subsidiary_portfolio"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_sha256",
+          "77b9c9b5bfc75dbf90749bbf9dccbb8a910356676fea938077efb35297eade02"
+        ],
+        [
+          "source_location",
+          "PDF page 1"
+        ],
+        [
+          "configuration_limit",
+          "Source-supported platform options, not installed auction-unit contents, electrical interchangeability, current support or firmware entitlement"
+        ],
+        [
+          "document_date_as_printed",
+          "May 2026"
+        ],
+        [
+          "document_revision",
+          "Rev0.050126"
+        ],
+        [
+          "identity_scope",
+          "Named JBOF platform; no numeric ordering SKU printed"
+        ],
+        [
+          "physical_description",
+          "2U DC-MHS 19-inch rack-ready; W438 x H87 x D770 mm"
+        ],
+        [
+          "storage",
+          "24 front hot-swappable U.2/U.3 NVMe drives; internal 3x 8-Bay U.2/U.3 Backplane"
+        ],
+        [
+          "chipset",
+          "System on Chip (PEX89144 PCIE Switch); features describe Astera Labs/Broadcom PCIe Gen5 switch options"
+        ],
+        [
+          "host_interface",
+          "PCIe direct connect or NVMe-oF DPU options"
+        ],
+        [
+          "network",
+          "1 x NVIDIA BlueField-3 DPU; management LAN ports named"
+        ],
+        [
+          "expansion",
+          "2x additional PCIe Gen5 x16 expansion slots"
+        ],
+        [
+          "gpu_as_printed",
+          "N/A"
+        ],
+        [
+          "management",
+          "Hyve DC-SCM 2.1 Solution; Aspeed AST2600 Management + AST1060 Rot Solutions (wording as printed)"
+        ],
+        [
+          "security",
+          "TPM2.0 optional in system table; key features say TPM 2.0 module; installed entitlement/configuration unasserted"
+        ],
+        [
+          "power_description",
+          "Literal: 12V @ 11-220VAC; 1+1 1600W Redundant Titanium Power Supplies CRPS/MCRPS Supported. The 11-220VAC input range is suspicious source text, not verified electrical guidance; not silently corrected to 110V"
+        ],
+        [
+          "cooling_description",
+          "Air Cooled; Hot-swappable FANs 6x 6056"
+        ],
+        [
+          "operation_properties",
+          "10 ~ 35 degree C"
+        ],
+        [
+          "parent_portfolio_context",
+          "May 2026 footer: Hyve Solutions Corporation, a wholly owned subsidiary of TD SYNNEX Corporation; dated parent-portfolio relationship, not physical manufacturer or operator"
+        ]
+      ]
+    }
+  ]
+}

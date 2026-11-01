@@ -1,0 +1,342 @@
+{
+  "status": "PASS final independent pre-promotion integration audit",
+  "checked_utc": "2026-10-15T05:42:16.607145+00:00",
+  "hashes": {
+    "data/devices-candidate-wave5-2026-10-12.sqlite": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+    "data/rebuilt-wave5-2026-10-12.sqlite": "915f9f33d968f8ed5774b348dcd25ce6533358b300227701d0e01281abb0574f",
+    "data/import-manifest-candidate-wave5-2026-10-12.json": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b",
+    "data/devices.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/import-manifest.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562",
+    "data/exports/wave5-2026-10-12-comparison.json": "ff2c1df60098f47bff63053eb7bdfa1ee8ab4a91406da7a31830b2e7dddcd372",
+    "data/exports/wave5-2026-10-12-validation.json": "7319fdee58b9fb6e22a343940d01eebd8c44dcbcbd0f507f1f0c67288eb09ebf",
+    "research/batches/campaign-c2-2026-10-05/acceptance/discovery-2026-10-12-curated-wave3-suite-result.json": "984ce136f22355fec7d92e4fb22cd4166151f8a6204c1090085ad35b7727702c",
+    "scripts/compare_rebuild.py": "ff6998303f6a88ab24f998c8d5b7775e20fb128611610a08a63d186b7f38ac1d",
+    "research/batches/discovery-2026-10-12/review/wave5-stage-review.md": "d61fb9ea61778a84ca3d2696e1989bc9a1fdb62450f2608dc27ea588c2f7469c",
+    "research/batches/discovery-2026-10-14/review/wave5-stage-independent-check.py": "fcb0598bbbc301ffbb079270bf42d498c466660b240b82595910a65426bbb528",
+    "research/batches/discovery-2026-10-14/review/wave5-stage-independent-check.json": "02a40eaa507e12578442fd7df5b6990e0cbf132a83d5c814f52095e70ef78145",
+    "research/batches/discovery-2026-10-14/review/wave5-initial-review.md": "032e23b46cde19cc8bf54665cc0ee36d37cfb10ce89e2a9ed09e084b00d1da0f",
+    "research/batches/discovery-2026-10-14/review/wave5-final-independent-check.py": "968ecbbd9109b9a2ec94418d8b6e54c46a6f1ef0a2f16261efd3a74953310f35",
+    "research/batches/discovery-2026-10-12/integration-wave5/stage-report.json": "8e4978f551179b7187bb1b33fcd60729b2702847eafaf960354b88537ee97d59",
+    "research/batches/discovery-2026-10-12/integration-wave5/stage.py": "ec9ebc10d4f7bebab2875467ff7fdc70ce9fbb94ca02d3f56c6f09734007418e",
+    "research/batches/discovery-2026-10-12/integration-wave5/promote.py": "5e86dfc397af3cd988160721217d80f70ff3d1864093f07179f0d6207ed17a56",
+    "research/batches/discovery-2026-10-12/integration-wave5/refresh_exports.py": "d02d7884631fc2b4b19329dcef67b06e191a1482daeb1c84555f986016269078",
+    "research/batches/discovery-2026-10-12/integration-wave5/code-under-test.json": "77da1729417e4e94ad9c5f856228f76e24e4ce284dffbee274d397d3637b8bb1",
+    "research/batches/discovery-2026-10-12/integration-wave5/check_queries.py": "fe06eea7cb7295970ce35be24c842b7064369f1843172c64cfeccd0172bcb2a8",
+    "research/batches/discovery-2026-10-12/integration-wave5/check_inventory.py": "933086d5d9991ea96d1b83bd6bf88a6c6290745a4ea39e3e38c427d4015dd7bc",
+    "research/batches/discovery-2026-10-12/integration-wave5/model-query-check.json": "688ff566f19624264d5ed08d61ec1c344a800924f9d1ba29d6150c9f25682473",
+    "research/batches/discovery-2026-10-12/integration-wave5/inventory-check.json": "5503a90c3b39d1b9b94bab7ce5a0b39175443ed2d71261147a701ce0d4b2ac74",
+    "research/batches/discovery-2026-10-12/integration-wave5/rebuild.log": "75d50e6ffb1df17efb0a7498699e074de3047d650038e090d43b0a2085058a35",
+    "research/batches/discovery-2026-10-12/integration-wave5/compare.log": "9b5b95e2f30668f3cb165ff522c7241b584c6f9fbcb872af36baa661c64548fd"
+  },
+  "logical_tables": {
+    "affiliations": {
+      "rows": 10640,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "anatel_equipment": {
+      "rows": 190852,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "archive_artifacts": {
+      "rows": 146,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "archive_receipts": {
+      "rows": 374,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "archive_release_artifacts": {
+      "rows": 148,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "archive_release_receipts": {
+      "rows": 374,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "archive_release_statements": {
+      "rows": 4,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "archive_releases": {
+      "rows": 1,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "bahrain_equipment": {
+      "rows": 10169,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "bsmi_certificates": {
+      "rows": 105732,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "bsmi_declarations": {
+      "rows": 564,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "bsmi_product_certificates": {
+      "rows": 17797,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "bsmi_voluntary_certificates": {
+      "rows": 1818,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "devices": {
+      "rows": 5157,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "document_pages": {
+      "rows": 3804,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "document_search": {
+      "rows": 3804,
+      "multiplicities_equal": true,
+      "rowid_compared": true
+    },
+    "documents": {
+      "rows": 72,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "energystar_datacenter": {
+      "rows": 452,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "energystar_server_archives": {
+      "rows": 873,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "energystar_servers": {
+      "rows": 495,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "equipment_register": {
+      "rows": 26258,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "evidence_links": {
+      "rows": 4,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "evidence_reviews": {
+      "rows": 4,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "evidence_statements": {
+      "rows": 4,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "facts": {
+      "rows": 74837,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_applications": {
+      "rows": 2,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_company_rows": {
+      "rows": 237,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_detail_links": {
+      "rows": 1493,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_detail_pages": {
+      "rows": 174,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_exhibits": {
+      "rows": 32,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_grantees": {
+      "rows": 50153,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_id_index": {
+      "rows": 344,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_sitemap_pages": {
+      "rows": 48,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_sitemap_urls": {
+      "rows": 231962,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "fcc_text_excerpts": {
+      "rows": 1092,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "ghana_equipment": {
+      "rows": 1153,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "hyperscaler_evidence": {
+      "rows": 22,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "identifiers": {
+      "rows": 6891,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "ieee_assignments": {
+      "rows": 58639,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "inspur_support_entries": {
+      "rows": 1064,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "ised_equipment": {
+      "rows": 628,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "japan_equipment": {
+      "rows": 346,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "ncc_equipment": {
+      "rows": 110957,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "nigeria_equipment": {
+      "rows": 8517,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "ntra_equipment": {
+      "rows": 76510,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "pci_entries": {
+      "rows": 42438,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "public_equipment_rows": {
+      "rows": 4985,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "records": {
+      "rows": 7302,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "rra_equipment": {
+      "rows": 1081,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "search_index": {
+      "rows": 5157,
+      "multiplicities_equal": true,
+      "rowid_compared": true
+    },
+    "sources": {
+      "rows": 2121,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    },
+    "tec_equipment": {
+      "rows": 2331,
+      "multiplicities_equal": true,
+      "rowid_compared": false
+    }
+  },
+  "integrity": {
+    "candidate": [
+      "ok"
+    ],
+    "rebuilt": [
+      "ok"
+    ]
+  },
+  "foreign_key_violations": {
+    "candidate": 0,
+    "rebuilt": 0
+  },
+  "owned_baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "owned_results_and_search_equal": true,
+  "manifest_jobs": 152,
+  "manifest_pins": 3984,
+  "frozen_code_files": 209,
+  "accepted_suite": {
+    "tests": 791,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 783.32,
+    "blocked_network_or_external_process_calls": 0,
+    "passed": true,
+    "scope": "full suite with network/external subprocess entrypoints guarded"
+  },
+  "suite_rerun": false,
+  "campaign_gate": "inputs and rebuilt projections pass",
+  "counts": {
+    "devices": 5157,
+    "records": 7302,
+    "facts": 74837,
+    "sources": 2121,
+    "documents": 72,
+    "document_pages": 3804
+  },
+  "query_records": 41,
+  "query_facts": 235,
+  "useful_model_queries": 10,
+  "manufacturer_pairs": 2147,
+  "all_target_pairs": 4629,
+  "all_target_identities": 4486,
+  "unchanged_read_only_inputs": true,
+  "limits": "No network, imports, shared writes, promotion/export execution or post-promotion acceptance."
+}

@@ -1,0 +1,1296 @@
+{
+  "query": "SV2221A",
+  "vendor": null,
+  "match_status": "exact_records_found",
+  "matched_records": [
+    {
+      "record_id": "28fc566f7838733744f7714e",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-sv2221a-page",
+      "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+      "observed_at": "2026-10-04T11:48:28+00:00",
+      "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+      "tier": "vendor",
+      "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+      "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+      "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "SV2221A"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "cooling_description",
+          "value": "Liquid cooling"
+        },
+        {
+          "name": "expansion",
+          "value": "Two PCIe 5.0 x16 FHHL slots; eight PCIe 5.0 x16 LP/HHHL slots with riser cards."
+        },
+        {
+          "name": "identity_limit",
+          "value": "Suffix retained; no equivalence to unsuffixed SV2221 asserted."
+        },
+        {
+          "name": "memory",
+          "value": "24 DDR5 RDIMM slots; 12 channels; up to 6000 MT/s at 1DPC"
+        },
+        {
+          "name": "physical_description",
+          "value": "2 OU"
+        },
+        {
+          "name": "power_description",
+          "value": "Centralized 48 V busbar with power distribution board (PDB)."
+        },
+        {
+          "name": "processor",
+          "value": "Two fifth-generation AMD EPYC server processors"
+        },
+        {
+          "name": "source_observed_date",
+          "value": "2026-10-04"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "SV2221A"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "association_limit",
+          "value": "Portfolio association only; not manufacturer or hyperscaler deployment."
+        },
+        {
+          "name": "association_method",
+          "value": "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship."
+        },
+        {
+          "name": "corporate_source_sha256",
+          "value": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556"
+        },
+        {
+          "name": "corporate_source_url",
+          "value": "https://www.ingrasys.com/company/about/"
+        },
+        {
+          "name": "model_source_id",
+          "value": "ingrasys-sv2221a-page"
+        },
+        {
+          "name": "model_source_sha256",
+          "value": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780"
+        },
+        {
+          "name": "model_source_url",
+          "value": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/"
+        },
+        {
+          "name": "parent_name_as_printed",
+          "value": "Foxconn Technology Group"
+        },
+        {
+          "name": "relationship_observed_date",
+          "value": "2026-10-04"
+        },
+        {
+          "name": "subsidiary_name_as_printed",
+          "value": "Ingrasys"
+        }
+      ],
+      "claim_status": "source_statement"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "matched_identifiers": [
+        {
+          "kind": "literal_model",
+          "value": "SV2221A"
+        }
+      ],
+      "context_facts": [
+        {
+          "name": "chassis_dimensions",
+          "value": "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm"
+        },
+        {
+          "name": "cooling_description",
+          "value": "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)"
+        },
+        {
+          "name": "document_footer_year",
+          "value": "2025"
+        },
+        {
+          "name": "document_page",
+          "value": "9"
+        },
+        {
+          "name": "expansion_slots",
+          "value": "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots"
+        },
+        {
+          "name": "hpm_motherboard",
+          "value": "AMD Platform"
+        },
+        {
+          "name": "identity_limit",
+          "value": "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted."
+        },
+        {
+          "name": "io_ports",
+          "value": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED"
+        },
+        {
+          "name": "memory",
+          "value": "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 6000 MT/s at 1DPC"
+        },
+        {
+          "name": "physical_description",
+          "value": "2 OU"
+        },
+        {
+          "name": "power_description",
+          "value": "Centralized 48V Bus Bar with PDB"
+        },
+        {
+          "name": "processor",
+          "value": "2 x 5th Gen AMD EPYC™ Processors"
+        },
+        {
+          "name": "security_management",
+          "value": "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)"
+        },
+        {
+          "name": "source_derivative_sha256",
+          "value": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e"
+        },
+        {
+          "name": "source_scope",
+          "value": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only."
+        }
+      ],
+      "claim_status": "source_statement"
+    }
+  ],
+  "categories": {
+    "power": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "28fc566f7838733744f7714e",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-sv2221a-page",
+          "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "observed_at": "2026-10-04T11:48:28+00:00",
+          "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "tier": "vendor",
+          "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+          "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+          "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "power_description",
+          "statement": "Centralized 48 V busbar with power distribution board (PDB).",
+          "context_record_id": "28fc566f7838733744f7714e"
+        },
+        {
+          "record_id": "f294bcb98407c9093a70a2ef",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+          "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "observed_at": "2026-10-04T23:43:24+00:00",
+          "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "tier": "vendor",
+          "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+          "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+          "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "power_description",
+          "statement": "Centralized 48V Bus Bar with PDB",
+          "context_record_id": "f294bcb98407c9093a70a2ef"
+        }
+      ]
+    },
+    "cooling": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "28fc566f7838733744f7714e",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-sv2221a-page",
+          "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "observed_at": "2026-10-04T11:48:28+00:00",
+          "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "tier": "vendor",
+          "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+          "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+          "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "cooling_description",
+          "statement": "Liquid cooling",
+          "context_record_id": "28fc566f7838733744f7714e"
+        },
+        {
+          "record_id": "f294bcb98407c9093a70a2ef",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+          "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "observed_at": "2026-10-04T23:43:24+00:00",
+          "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "tier": "vendor",
+          "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+          "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+          "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "cooling_description",
+          "statement": "Air: CPU Remote Heatsink, 5 x 8056 Dual Rotor System Fans (N+1 Redundant); Liquid: CPU Cold-Plates to Rack Quick-Disconnects, 4 x 8056 Dual Rotor System Fans (N+1 Redundant)",
+          "context_record_id": "f294bcb98407c9093a70a2ef"
+        }
+      ]
+    },
+    "chassis_physical": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "28fc566f7838733744f7714e",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-sv2221a-page",
+          "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "observed_at": "2026-10-04T11:48:28+00:00",
+          "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "tier": "vendor",
+          "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+          "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+          "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "physical_description",
+          "statement": "2 OU",
+          "context_record_id": "28fc566f7838733744f7714e"
+        },
+        {
+          "record_id": "f294bcb98407c9093a70a2ef",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+          "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "observed_at": "2026-10-04T23:43:24+00:00",
+          "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "tier": "vendor",
+          "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+          "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+          "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "physical_description",
+          "statement": "2 OU",
+          "context_record_id": "f294bcb98407c9093a70a2ef"
+        }
+      ]
+    },
+    "firmware_boot_software": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "licensing": {
+      "status": "not_collected",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": []
+    },
+    "compute_network_storage": {
+      "status": "collected_source_statements",
+      "status_scope": "reviewed fact-name mapping only; inspect unclassified_facts and captures",
+      "statements": [
+        {
+          "record_id": "28fc566f7838733744f7714e",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-sv2221a-page",
+          "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "observed_at": "2026-10-04T11:48:28+00:00",
+          "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "tier": "vendor",
+          "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+          "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+          "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "expansion",
+          "statement": "Two PCIe 5.0 x16 FHHL slots; eight PCIe 5.0 x16 LP/HHHL slots with riser cards.",
+          "context_record_id": "28fc566f7838733744f7714e"
+        },
+        {
+          "record_id": "28fc566f7838733744f7714e",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-sv2221a-page",
+          "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "observed_at": "2026-10-04T11:48:28+00:00",
+          "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "tier": "vendor",
+          "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+          "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+          "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory",
+          "statement": "24 DDR5 RDIMM slots; 12 channels; up to 6000 MT/s at 1DPC",
+          "context_record_id": "28fc566f7838733744f7714e"
+        },
+        {
+          "record_id": "28fc566f7838733744f7714e",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-sv2221a-page",
+          "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "observed_at": "2026-10-04T11:48:28+00:00",
+          "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+          "tier": "vendor",
+          "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+          "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+          "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "processor",
+          "statement": "Two fifth-generation AMD EPYC server processors",
+          "context_record_id": "28fc566f7838733744f7714e"
+        },
+        {
+          "record_id": "f294bcb98407c9093a70a2ef",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+          "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "observed_at": "2026-10-04T23:43:24+00:00",
+          "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "tier": "vendor",
+          "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+          "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+          "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "memory",
+          "statement": "24 x DDR5 RDIMMs, 12-Channel per CPU, up to 6000 MT/s at 1DPC",
+          "context_record_id": "f294bcb98407c9093a70a2ef"
+        },
+        {
+          "record_id": "f294bcb98407c9093a70a2ef",
+          "device_id": "3bdcdcd3ac6465bf1fd5",
+          "brand": "Ingrasys",
+          "model": "SV2221A",
+          "revision": "",
+          "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+          "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "observed_at": "2026-10-04T23:43:24+00:00",
+          "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+          "tier": "vendor",
+          "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+          "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+          "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+          "upstream_revision": null,
+          "company_roles": [
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "brand"
+            },
+            {
+              "company": "Ingrasys",
+              "target": null,
+              "role": "platform_vendor"
+            }
+          ],
+          "claim_status": "source_statement",
+          "fact_name": "processor",
+          "statement": "2 x 5th Gen AMD EPYC™ Processors",
+          "context_record_id": "f294bcb98407c9093a70a2ef"
+        }
+      ]
+    }
+  },
+  "unclassified_facts": [
+    {
+      "record_id": "28fc566f7838733744f7714e",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-sv2221a-page",
+      "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+      "observed_at": "2026-10-04T11:48:28+00:00",
+      "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+      "tier": "vendor",
+      "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+      "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+      "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "identity_limit",
+      "statement": "Suffix retained; no equivalence to unsuffixed SV2221 asserted.",
+      "context_record_id": "28fc566f7838733744f7714e"
+    },
+    {
+      "record_id": "28fc566f7838733744f7714e",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-sv2221a-page",
+      "source_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+      "observed_at": "2026-10-04T11:48:28+00:00",
+      "source_home_url": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+      "tier": "vendor",
+      "sha256": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+      "coverage": "Original current Ingrasys product page captured 2026-10-04. Exact suffixed model and vendor-reported platform specifications only; not a release date, installed auction configuration, legal manufacturer, FCC ID or named operator deployment.",
+      "fetched_at": "2026-10-04T11:44:20.216348+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_observed_date",
+      "statement": "2026-10-04",
+      "context_record_id": "28fc566f7838733744f7714e"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "association_limit",
+      "statement": "Portfolio association only; not manufacturer or hyperscaler deployment.",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "association_method",
+      "statement": "Cross-source inference: Ingrasys model evidence plus separately documented parent relationship.",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "corporate_source_sha256",
+      "statement": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "corporate_source_url",
+      "statement": "https://www.ingrasys.com/company/about/",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_source_id",
+      "statement": "ingrasys-sv2221a-page",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_source_sha256",
+      "statement": "f9851b8eae1bf9ea9620b22bb4c805eb9e176b9835217deeec8682eab81b6780",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "model_source_url",
+      "statement": "https://www.ingrasys.com/solutions/amd/amd-epyc-processor-solution/",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "parent_name_as_printed",
+      "statement": "Foxconn Technology Group",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "relationship_observed_date",
+      "statement": "2026-10-04",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "2ade026533186fc06965b0c6",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-foxconn-portfolio-2026-10-04",
+      "source_url": "https://www.ingrasys.com/company/about/",
+      "observed_at": "2026-10-04T11:48:29+00:00",
+      "source_home_url": "https://www.ingrasys.com/company/about/",
+      "tier": "vendor",
+      "sha256": "4425681dc8edde30e4f4c5bc8b06bbdefc9ca0473804bc707ddb08fe7814e556",
+      "coverage": "Reviewed cross-source association as observed 2026-10-04: current Ingrasys company page calls Ingrasys a subsidiary of Foxconn Technology Group; separate vendor model sources identify each listed Ingrasys platform. Foxconn is the canonical portfolio search label, with raw parent name retained in facts. The company page does not name these models. This is a parent-company portfolio inference only, not a manufacturer, factory, operator, historical ownership-start date or product-release claim. Ingrasys is not added to Foxconn global company aliases. Product and corporate hashes retained per record.",
+      "fetched_at": "2026-10-04T11:43:04.659386+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Foxconn",
+          "target": "Foxconn",
+          "role": "parent_company_portfolio"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "subsidiary_name_as_printed",
+      "statement": "Ingrasys",
+      "context_record_id": "2ade026533186fc06965b0c6"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "chassis_dimensions",
+      "statement": "H x W x D: 3.68” x 21.14” x 31.76” / 93.5mm x 537.0mm x 806.7mm",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "document_footer_year",
+      "statement": "2025",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "document_page",
+      "statement": "9",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "expansion_slots",
+      "statement": "2 x PCIe 5.0 x16 FHHL Slots; 8 x PCIe 5.0 x16 LP/HHHL with Riser Card Slots",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "hpm_motherboard",
+      "statement": "AMD Platform",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "identity_limit",
+      "statement": "No equivalence to unsuffixed SV2221 or other suffixes. No installed configuration, deployment, manufacturer, firmware access or AC input rating asserted.",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "io_ports",
+      "statement": "1 x 1GbE/RJ45 Management Port; 1 x USB 2.0; 1 x Mini Display Port; 1 x Reset Button; 1 x Power Button with LED; 1 x UID Button with LED",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "security_management",
+      "statement": "DC-SCM 2.0 (Root of Trust, TPM, AST2600 BMC)",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_derivative_sha256",
+      "statement": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    },
+    {
+      "record_id": "f294bcb98407c9093a70a2ef",
+      "device_id": "3bdcdcd3ac6465bf1fd5",
+      "brand": "Ingrasys",
+      "model": "SV2221A",
+      "revision": "",
+      "source_id": "ingrasys-server-catalog-recovered-pages-2026-10-04",
+      "source_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "observed_at": "2026-10-04T23:43:24+00:00",
+      "source_home_url": "https://www.ingrasys.com/docs-detail/sv1120-sv1121-sv2121-sv2221/",
+      "tier": "vendor",
+      "sha256": "23adb350023b4674ccdac355127ef52961084fe3503f296d56204ebb8818a8b8",
+      "coverage": "Eight exact suffixed identities, SV1120A/I, SV1121A/I, SV2121A/I, SV2221A/I, pages 3-10. Explicit reconstructed PDF: second source byte span [4128654,8355366), append EOF bytes 46 0d 0a only. Ten declared image-only pages strictly parse and render; original malformed response is not a complete valid document. Manual visual transcription; footer years vary 2022/2023/2025, index Oct/2023 not release/document date. SKU scope and unusual printed FHAHL preserved. No unsuffixed specs or aliases.",
+      "fetched_at": "2026-10-04T23:29:46.004190+00:00",
+      "upstream_revision": null,
+      "company_roles": [
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "brand"
+        },
+        {
+          "company": "Ingrasys",
+          "target": null,
+          "role": "platform_vendor"
+        }
+      ],
+      "claim_status": "source_statement",
+      "fact_name": "source_scope",
+      "statement": "Manual visual transcription of exact suffixed model page from explicit reconstructed derivative; original malformed/truncated body retained. Vendor platform specifications only.",
+      "context_record_id": "f294bcb98407c9093a70a2ef"
+    }
+  ],
+  "limitations": [
+    "Statements describe their own source record, not the configuration or condition of an auction unit.",
+    "Seller statements remain seller claims; photographed firmware is an observation of that unit.",
+    "Historical compatibility and source-code/document indexes do not establish bootability, download access, current support or license entitlement.",
+    "Not collected means no statements from the reviewed fact-name mapping; inspect unclassified facts and source captures. It does not mean evidence is absent from all collected fields or that the unit cannot operate. No suffix decoding or family fallback is used.",
+    "A collected category is not a complete buying assessment or readiness check."
+  ]
+}

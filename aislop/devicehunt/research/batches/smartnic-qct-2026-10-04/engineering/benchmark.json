@@ -1,0 +1,9 @@
+{
+  "reports": 98,
+  "before_seconds": 176.17120020800002,
+  "after_seconds": 13.811420083000002,
+  "speedup": 12.755473307545184,
+  "exact_equal": true,
+  "max_rss": 177684480,
+  "database_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16"
+}

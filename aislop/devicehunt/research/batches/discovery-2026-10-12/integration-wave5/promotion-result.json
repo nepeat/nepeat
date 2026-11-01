@@ -1,0 +1,17 @@
+{
+  "promoted": true,
+  "old": {
+    "devices.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "import-manifest.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562"
+  },
+  "new": {
+    "devices.sqlite": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+    "import-manifest.json": "86f6179ff8dd490739936d5ab416e39e606380acf547ac009b1dc5b269dca81b"
+  },
+  "backups": {
+    "data/devices-before-wave5-2026-10-12.sqlite": "fc88dca7e8b6f23aa8078134be767c22fed902303c2880ee923ad1d55952e3bf",
+    "data/import-manifest-before-wave5-2026-10-12.json": "43e9fdf88703d979b13eef475410d6f138be90833b1fe67de72bf99abe741562"
+  },
+  "review_sha256": "e55b6344e7e56291158259d2f30d8f55a18ddec8287a323a91385145e9835767",
+  "suite_sha256": "984ce136f22355fec7d92e4fb22cd4166151f8a6204c1090085ad35b7727702c"
+}

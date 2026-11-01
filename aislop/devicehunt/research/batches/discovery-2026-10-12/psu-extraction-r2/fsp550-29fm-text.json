@@ -1,0 +1,116 @@
+{
+  "pdf_sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+  "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+  "extractor_version": "26.06.0",
+  "pdfinfo_version": "26.06.0",
+  "pdf_page_count": 2,
+  "extraction_options": {
+    "layout": true,
+    "encoding": "UTF-8",
+    "eol": "unix",
+    "remove_hyphens": "none",
+    "page_selection": "individual",
+    "page_breaks": false
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "                                TECHNICAL DATASHEET\n\n                                550W CRPS Module\n                                FSP550-29FM\n\n\n\n                                                                            FSP550-29FM\n                                                                             FEATURES\n                                                                              • Certified CB 62368-1 & CB 60950-1\n                                                                              • Meet 80 Plus Platinum\n                                                                              • Meet CRPS 2.0\n                                                                              • Meet PMBus 1.2\n                                                                              • Design for 5,000 Meter above sea level\n                                                                              • High Reliability\n                                                                              • Low Ripple & Noise\n                                                                              • Over Current Protection\n                                                                              • Over Temperature Protection\n                                                                              • Over Voltage Protection\n\n\n                                                                                 SAFETY STANDARD APPROVAL\n\n\n\n\nDESCRIPTION\n\nFSP550-29FM is a redundant power supply module base on CRPS 2.0 standard. The power supply comes to offer the total power\ncapacity up to 550 Watts, and provides PMbus features, which makes it to be able communicate with motherboard. In addition, the\npower supply is ideally the best choice for datacenter, workstation, communication or any other automation applications to use. The\nproduct also complies with the latest safety and EMC standards, which is perfectly to meet various regulations worldwide.\n\nGENERAL SPECIFICATIONS\n\nDimension (L x W x H):       185 x 73.5 x 39 (mm)                Environment\n                             7.28 x 2.89 x 1.53 (inch)            Working temperature:     0°C to 55°C\n                                                                  Storage temperature:     -20°C to + 80°C\nEfficiency:                  80 Plus Platinum                     Working humidity:        5% to 90% RH non-condensing\n                                                                  Storage humidity:        5% to 95% RH non-condensing\nHold-up time at 100%:        12V = 11ms\nLoading                      12Vsb = 70ms                        MTBF (SR-332 Issue 2): 500,000 hours of continuous operation at 55°C, 100% output load\n\nOperating altitude:          5,000 meters above sea level        Applications:             Storage System , Workstation, Industry Controller\n\n\n\nINPUT SPECIFICATIONS\n\nInput voltage:                     90-264Vac\nInput frequency:                   47-63Hz\nInput current:                     115Vac @ 8A, 230Vac @ 4A\n\n\nOUTPUT RATING\n\n               Outputs             Input          Min.       Max.            CLST Peak                 CLST Peak                  Pmax Peak\n                                  Voltage        Current    Current       20 Sec. duration          10m Sec. duration          100μ Sec. duration\n\n               +12V             100~240V           1.0A       45.8A          Rated +3.0A               Rated +15.0A               Rated +22.5A\n\n               +12Vsb           100~240V           0.0A       2.1A                 >4.0A                     NA                          NA\n\n               Note: 100Vac to 240Vac, rating current is 45.8A\n\n\n\n\n              © 2019 FSP Group. All Rights Reserved. All trademarks are registered to their respective owners.\n    1         2020.05 spec\n                                                                                                                           www.fsp-group.com.tw\n"
+    },
+    {
+      "page": 2,
+      "text": "                          TECHNICAL DATASHEET\n\n                          550W CRPS Module\n                          FSP550-20FM\n\n\n\n\nMECHANICAL SPECIFICATIONS\nUNIT: mm\n\n\n\n\n           © 2019 FSP Group. All Rights Reserved. All trademarks are registered to their respective owners.\n   2       2020.05 spec\n                                                                                                              www.fsp-group.com.tw\n"
+    }
+  ],
+  "provenance": {
+    "source_filename": "fsp550-29fm.pdf",
+    "extracted_at_utc": "2026-10-13T03:24:00.582858+00:00",
+    "tool_directory": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin",
+    "pdfinfo_stdout": "Title:           Product Sheet_Adapter_FSP192-AHA(B)N3\nAuthor:          儲定權 Tc Chu/FSP\nCreator:         Microsoft® PowerPoint® 2016\nProducer:        Microsoft® PowerPoint® 2016\nCreationDate:    Mon Mar 15 19:45:52 2021 PDT\nModDate:         Mon Mar 15 19:45:52 2021 PDT\nCustom Metadata: no\nMetadata Stream: no\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           2\nEncrypted:       no\nPage size:       594.96 x 842.04 pts (A4)\nPage rot:        0\nFile size:       585174 bytes\nOptimized:       no\nPDF version:     1.5\n",
+    "version_outputs": {
+      "pdftotext": {
+        "stdout": "",
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      },
+      "pdfinfo": {
+        "stdout": "",
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n"
+      }
+    },
+    "commands": [
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdftotext version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "pdfinfo version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdfinfo",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "7a4af7d5b13d5210aac9f6e976d7c3f73c02c5e754c3bbaba17b88776d47642a"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "1",
+          "-l",
+          "1",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "654775d6620a6912f16b693ac3e23b142d2cf4ae37a5111ff50d12034c2eba41"
+      },
+      {
+        "argv": [
+          "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftotext",
+          "-f",
+          "2",
+          "-l",
+          "2",
+          "-layout",
+          "-enc",
+          "UTF-8",
+          "-eol",
+          "unix",
+          "-remove-hyphens",
+          "none",
+          "-nopgbrk",
+          "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-12/psu/fsp550-29fm.pdf",
+          "-"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout_sha256": "8916bd84667e0269df6f83677dba730fecaf57d97aeb25fcd774139bca8ff10b"
+      }
+    ],
+    "timeout_seconds": 30,
+    "locale": "C"
+  }
+}

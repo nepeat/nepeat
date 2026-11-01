@@ -1,0 +1,15 @@
+{
+  "helper_pins": {
+    "promote.py": "3298b904d0d56fd82bd21a9220d8d893b6702814e48a4a5863c45571b46a356a",
+    "check_queries.py": "b670a35b69e0245cc12944bbd6c7485daa8637a6390bfbe68006f779ff699649",
+    "refresh_exports.py": "3942040b7a90b0d7c5beeaac909141f3bf5f1bea185ff37eaab6807694ef00c3",
+    "stage.py": "e795eac0ec21a9315adfc13d0f18d45515ffdd9764a558a127747627ad86e6cc",
+    "accepted-inputs.json": "d486dba2b9de90c32b3a497015e2b5c103de32a10721f483dc0813c4d2e38627"
+  },
+  "revised_promotion_change": "AST identical to accepted previous revision except required proof set, which adds check_queries.py and query-helper-review.md",
+  "checker_review": "read-only raw JSON/fact/role/identifier per-record checks plus unchanged manufacturer/hyperscaler counters; future execution results pending",
+  "helpers_executed": false,
+  "staging_executed": false,
+  "shutdown_requested": true,
+  "live_handles": []
+}

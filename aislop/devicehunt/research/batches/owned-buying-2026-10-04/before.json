@@ -1,0 +1,13 @@
+{
+  "database": "data/devices.sqlite",
+  "sha256": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "counts": {
+    "devices": 4083,
+    "records": 5298,
+    "sources": 278,
+    "facts": 44664,
+    "documents": 55,
+    "document_pages": 3649
+  },
+  "scope": "before owned buying reports; read-only"
+}

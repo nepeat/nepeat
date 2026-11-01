@@ -1,0 +1,26 @@
+{
+  "phase": "promotion_and_exports",
+  "integrator": "inventec_integration",
+  "old_live_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "candidate_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "rebuild_sha256": "463cc53ccaff1fab68c10ffbca72cb57885884f16bd63b957ab11a6f99e8bccd",
+  "manifest_sha256": "3eefe9fcb79e17e1c0f0e724c53472e523decef37fbe603d1e0ff69fb3906277",
+  "staging_ready_sha256": "ae25900a0a1eaa41b43cd3f8d39f572605ee3a1fb3440ee596aa7e8469279932",
+  "accepted_proof_hashes": {
+    "research/batches/inventec-practical-2026-10-04/candidate-review.md": "7ac16a483499a131f2bd32b246b722cb01097d416bcb6a47f475d45ed0039292",
+    "research/batches/inventec-practical-2026-10-04/review/candidate-independent.json": "1a8b24662c66f240645e7f705c02d2c1d22f9e53120c79a08665834e843ca454",
+    "research/batches/inventec-practical-2026-10-04/review/candidate-review-freeze.json": "549de0949ce776e166a83fe51f0b3e6ba1f9d6a6d9d59e1c1bf0c23b3cfa27d3",
+    "research/batches/inventec-practical-2026-10-04/integration/staging-ready.json": "ae25900a0a1eaa41b43cd3f8d39f572605ee3a1fb3440ee596aa7e8469279932",
+    "research/batches/inventec-practical-2026-10-04/integration/final-hashes.json": "5c58414734ea6046ce04418d3303df0f9d44f8f4b1a822b8d44dda4b77e1a93f",
+    "research/batches/inventec-practical-2026-10-04/acceptance.json": "519caef3ae2e07e851f7a66151132690389b8b4c4a25614145aed93e6528f3c5",
+    "research/batches/inventec-practical-2026-10-04/root-prepromotion-check.json": "1375757ccfe306db3e43bb653369de7260f2c9f00bceaec82a640196e6c64586"
+  },
+  "required": [
+    "Promote exact accepted candidate bytes; preserve old-live backup.",
+    "Refresh standard HTML/CSV/JSON inventories/targets/validation,98eligible savedlookup reports,collection/FCC/hyperscaler exports and generic rebuild comparison.",
+    "Create data/exports/inventec-practical-2026-10-04-buying-reports.json from two unfiltered exact Entei/Golduck queries with full source contexts and vendor=null.",
+    "Final HTML DOM checks exact models/new sources/practical fields/separate source roles,owned9+1,Byte0/2.",
+    "Verify all58PDFhashes and archivednew2pages, no missing prior evidence. Bind allcommands to terminalsuccess, live hash unchanged after read-only checks, output/code/source hashes.",
+    "Preserve failed helper logs. Record elapsed command times if convenient. No further acquisition/codechange/rebuild/fullsuite. Root owns current docs."
+  ]
+}

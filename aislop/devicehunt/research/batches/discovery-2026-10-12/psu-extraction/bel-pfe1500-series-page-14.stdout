@@ -1,0 +1,74 @@
+14                                                                                                                   PFE1500 Series
+
+     8.8 PWOK_H SIGNAL
+
+        The PWOK_H is an open drain output with an internal pull-up to 3.3 V indicating whether both VSB and V1 outputs are within
+        regulation. This pin is active-low. The timing diagram is shown in Figure and referenced in the Table 6.
+
+                                                                                        OPERATING CONDITION                                      MIN MAX UNIT
+              AC                                                                        tPWOK_H del     PWOK_H to V1 delay (on)                  100 500 ms
+            Input
+                                                                                                        PWOK_H to V1 delay (off) caused by:
+                                                                                                        PSKILL_H                                   0     1  ms
+             VSB                                                                                        PSON_L, OT, Fan Failure
+                                                                                                                                                 0.5    2.5 ms
+                                                                                                        ACOK_H (time change with loading
+                                                                                                                                                 0.5 100 ms
+                       tPSON_L V1on      tV1 rise        tPSON_L V1off                  tPWOK_H warn* condition)
+              V1
+                                                                                                        UV and OV on VSB                           1    30  ms
+                                         tPSON_L H min                                                  OC on V1 (Software trigger)              -11     0  ms
+        PSON_L
+                                                                                                        OC on V1 (Hardware trigger)               -1     0  ms
+        ACOK_H                                                                                          OV on V1                                  -3     0  ms
+                               tPWOK_H
+                                                                         tPWOK_H warn   * A positive value means a warning time, a negative value a delay
+       PWOK_H                     del
+
+                                                                                          (after fact).
+
+        Figure 15. PSON_L and PWOK_H turn-on/off timing                                                      Table 6. PWOK_H timing
+
+
+     8.9 CURRENT SHARE
+
+        The PFE front-ends have an active current share scheme implemented for V1. All the ISHARE current share pins need to be
+        interconnected in order to activate the sharing function. If a supply has an internal fault or is not turned on, it will disconnect
+        its ISHARE pin from the share bus. This will prevent dragging the output down (or up) in such cases.
+        The current share function uses a digital bi-directional data exchange on a recessive bus configuration to transmit and receive
+        current share information. The controller implements a Master/Slave current share function. The power supply providing the
+        largest current among the group is automatically the Master. The other supplies will operate as Slaves and increase their output
+        current to a value close to the Master by slightly increasing their output voltage. The voltage increase is limited to +250 mV.
+        The standby output uses a passive current share method (droop output voltage characteristic).
+
+
+
+     8.10           SENSE INPUTS
+
+        Both main and standby outputs have sense lines implemented to compensate for voltage drop on load wires (no sense lines
+        for 12VSB). The maximum allowed voltage drop is 200 mV on the positive rail and 100 mV on the PGND rail.
+        With open sense inputs the main output voltage will rise by 270 mV and the standby output by 50 mV. Therefore, if not used,
+        these inputs should be connected to the power output and PGND close to the power supply connector. The sense inputs are
+        protected against short circuit. In this case the power supply will shut down.
+
+
+     8.11           HOT-STANDBY OPERATION
+
+        The hot-standby operation is an operating mode allowing to further increase efficiency at light load conditions in a redundant
+        power supply system. Under specific conditions one of the power supplies is allowed to disable its DC/DC stage. This will save
+        the power losses associated with this power supply and at the same time the other power supply will operate in a load range
+        having a better efficiency. In order to enable the hot standby operation, the HOTSTANDBYEN_H and the ISHARE pins need to
+        be interconnected. A power supply will only be allowed to enter the hot-standby mode, when the HOTSTANDBYEN_H pin is
+        high, the load current is low (see Figure 7) and the supply was allowed to enter the hot-standby mode by the system controller
+        via the appropriate I2C command (by default disabled). The system controller needs to ensure that only one of the power
+        supplies is allowed to enter the hot-standby mode.
+        If a power supply is in a fault condition, it will pull low its active-high HOTSTANDBYEN_H pin which indicates to the other
+        power supply that it is not allowed to enter the hot-standby mode or that it needs to return to normal operation should it already
+        have been in the hot-standby mode.
+        NOTE: The system controller needs to ensure that only one of the power supplies is allowed to enter the hot-standby model.
+
+
+
+
+                                                                                                                            tech.support@psbel.com
+

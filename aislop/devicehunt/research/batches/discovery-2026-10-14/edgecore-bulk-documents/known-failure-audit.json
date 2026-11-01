@@ -1,0 +1,85 @@
+{
+  "audited_ledgers": 54,
+  "prior_edgecore_failures": [
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS203_AS7326-56X_DS_R09_20230717.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS203_AS7326-56X_DS_R09_20230717.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS510_AS9716-32D_DS_R09_20230717.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/DCS510_AS9716-32D_DS_R09_20230717.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2021-135-AS7312-54X-DS-R02-20211203.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2021-135-AS7312-54X-DS-R02-20211203.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2023-028-EPS203_AS4630-54NPE_DS_R04_20230309.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    },
+    {
+      "url": "https://www.edge-core.com/_upload/images/2023-028-EPS203_AS4630-54NPE_DS_R04_20230309.pdf",
+      "status": "404",
+      "error": null,
+      "ledger": "data/raw/hunt-2026-10-10-edgecore/capture-ledger.json"
+    }
+  ],
+  "notes": [
+    {
+      "path": "docs/evidence-policy.md",
+      "sha256": "688c4e932a6dc6e8951f10699e35dc62625e42466133b831c9c146b95a00357f"
+    },
+    {
+      "path": "research/owned-hardware-gaps.md",
+      "sha256": "21914bea61834a08de626ccb72e414d76c2804ea4134b67ef4dab165bf4ca973"
+    },
+    {
+      "path": "research/as7760-certificate-lead.md",
+      "sha256": "18d7f2b4ee6d9720dceab543526b4e30d84f3735868fc3a456d175edc74b9aad"
+    },
+    {
+      "path": "research/batches/hunt-2026-10-10/edgecore/handoff.md",
+      "sha256": "17dc8bf2b65d91e85b0c02c77915ffd1f93e839d3661440c9b06ea444dfecab4"
+    },
+    {
+      "path": "research/batches/discovery-2026-10-12/next-leads/handoff.md",
+      "sha256": "c5d9f1b468289eb1438597f500c6ded4411038f2546ffa564441e3137c6a453c"
+    }
+  ],
+  "excluded_patterns": [
+    "AS7710/AS7760/AS7761 quick-start and certificate families",
+    "DCS203 R09",
+    "DCS510/AS9716 R09 (entire model family avoided here)",
+    "AS7312 R02 (entire model family avoided here)",
+    "AS4630-54NPE R04 (entire model family avoided here)",
+    "all graph quarantine flags or revision-label/URL disagreements",
+    "any already captured landing/download/PDF route; all prior local PDF hashes"
+  ],
+  "selected_route_overlap_with_audited_urls": 0
+}

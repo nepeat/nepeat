@@ -1,0 +1,621 @@
+{
+  "adapter": "bisdn-html-hcl-v1",
+  "url": "https://www.bisdn.de/en/linux/compatibility/",
+  "body_sha256": "281d4717ae1003e3843ab4bd0eb1ccc0564f5bc729d1ab9d4b1095a6fda1635f",
+  "table_number": 1,
+  "headers": [
+    "Vendor",
+    "Platform",
+    "ASIC",
+    "Architecture",
+    "Release"
+  ],
+  "row_count": 11,
+  "rows": [
+    {
+      "row_number": 1,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Celestica",
+        "Platform": "Questone 2 D3030 (Questone 2A)",
+        "ASIC": "Broadcom Trident 3",
+        "Architecture": "x86-64",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Celestica"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "Questone 2 D3030 (Questone 2A)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Trident 3"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "x86-64"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=Questone+2+D3030+%28Questone+2A%29",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=Questone+2+D3030+%28Questone+2A%29"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=Questone+2+D3030+%28Questone+2A%29",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 2,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Delta",
+        "Platform": "AG5648",
+        "ASIC": "Broadcom Tomahawk (+)",
+        "Architecture": "x86-64",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Delta"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "AG5648"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Tomahawk (+)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "x86-64"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=AG5648",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=AG5648"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=AG5648",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 3,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Delta",
+        "Platform": "AG7648",
+        "ASIC": "Broadcom Trident 2+",
+        "Architecture": "x86-64",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Delta"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "AG7648"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Trident 2+"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "x86-64"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=AG7648",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=AG7648"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=AG7648",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 4,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "AS4610-30T",
+        "ASIC": "Broadcom Helix 4",
+        "Architecture": "ARM (iproc)",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "AS4610-30T"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Helix 4"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "ARM (iproc)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=AS4610-30T",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-30T"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-30T",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 5,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "AS4610-30P",
+        "ASIC": "Broadcom Helix 4",
+        "Architecture": "ARM (iproc)",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "AS4610-30P"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Helix 4"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "ARM (iproc)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=AS4610-30P",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-30P"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-30P",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 6,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "AS4610-54T",
+        "ASIC": "Broadcom Helix 4",
+        "Architecture": "ARM (iproc)",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "AS4610-54T"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Helix 4"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "ARM (iproc)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=AS4610-54T",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-54T"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-54T",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 7,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "AS4610-54P",
+        "ASIC": "Broadcom Helix 4",
+        "Architecture": "ARM (iproc)",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "AS4610-54P"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Helix 4"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "ARM (iproc)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=AS4610-54P",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-54P"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=AS4610-54P",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 8,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "EPS201 (AS4630-54TE)",
+        "ASIC": "Broadcom Trident 3",
+        "Architecture": "x86-64",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "EPS201 (AS4630-54TE)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Trident 3"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "x86-64"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=EPS201+%28AS4630-54TE%29",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=EPS201+%28AS4630-54TE%29"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=EPS201+%28AS4630-54TE%29",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 9,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "EPS202 (AS4630-54PE)",
+        "ASIC": "Broadcom Trident 3",
+        "Architecture": "x86-64",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "EPS202 (AS4630-54PE)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Trident 3"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "x86-64"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=EPS202+%28AS4630-54PE%29",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=EPS202+%28AS4630-54PE%29"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=EPS202+%28AS4630-54PE%29",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 10,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "DCS201 (AS5835-54X)",
+        "ASIC": "Broadcom Trident 3",
+        "Architecture": "x86-64",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "DCS201 (AS5835-54X)"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Trident 3"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "x86-64"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=DCS201+%28AS5835-54X%29",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=DCS201+%28AS5835-54X%29"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=DCS201+%28AS5835-54X%29",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    },
+    {
+      "row_number": 11,
+      "html_line": 9,
+      "cells": {
+        "Vendor": "Edgecore",
+        "Platform": "AS7726-32X",
+        "ASIC": "Broadcom Trident 3",
+        "Architecture": "x86-64",
+        "Release": "6.0.0"
+      },
+      "cell_details": [
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Edgecore"
+        },
+        {
+          "tag": "th",
+          "attrs": {
+            "scope": "row"
+          },
+          "links": [],
+          "text": "AS7726-32X"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "Broadcom Trident 3"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [],
+          "text": "x86-64"
+        },
+        {
+          "tag": "td",
+          "attrs": {},
+          "links": [
+            {
+              "href_as_printed": "/en/linux/download/?platform=AS7726-32X",
+              "url": "https://www.bisdn.de/en/linux/download/?platform=AS7726-32X"
+            }
+          ],
+          "text": "6.0.0"
+        }
+      ],
+      "download_url": "https://www.bisdn.de/en/linux/download/?platform=AS7726-32X",
+      "section_headings_as_printed": {
+        "1": "Does BISDN Linux run on your switch hardware?"
+      },
+      "listing_scope": "listed in captured BISDN HCL; no current/retired label inferred"
+    }
+  ]
+}

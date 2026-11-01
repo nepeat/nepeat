@@ -1,0 +1,41 @@
+{
+  "artifacts": [
+    {
+      "path": "build_candidate.py",
+      "sha256": "061bd21decaf04d8db0ddaccf75af58c03635dd5ae87641c68f524269e31c6f0",
+      "bytes": 9998
+    },
+    {
+      "path": "candidate.json",
+      "sha256": "a82e27385459ddafbe54d510d73959c237bad98b743a7cbd4c97f32032c5b25c",
+      "bytes": 19737
+    },
+    {
+      "path": "checks.json",
+      "sha256": "535e8739de7a505d0c7ddd66f7a418378e94fb2a4852251b3e06faa263831825",
+      "bytes": 1221
+    },
+    {
+      "path": "handoff.md",
+      "sha256": "2a065111c392fde448d23e48cdba0fdcf3572abb420b81dd95d580c3cb7fcf66",
+      "bytes": 5499
+    },
+    {
+      "path": "provenance.json",
+      "sha256": "de6380aa12913c98f7052ce8e12acf2af397a526accd6f3f221b728c27b741e1",
+      "bytes": 1714
+    },
+    {
+      "path": "snapshots/attached-storage.html",
+      "sha256": "f3772553049f0e1a6671cb0579043be928550976129b2ea8e104f1ca3c4e6642",
+      "bytes": 5682
+    },
+    {
+      "path": "snapshots/internal-components.html",
+      "sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "bytes": 20339
+    }
+  ],
+  "candidate_sha256": "a82e27385459ddafbe54d510d73959c237bad98b743a7cbd4c97f32032c5b25c",
+  "candidate_status": "staged; independent review pending"
+}

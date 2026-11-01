@@ -1,0 +1,24 @@
+{
+  "sequence": 3,
+  "url": "https://www.nvidia.com/en-eu/networking/ethernet-switching/hcl/",
+  "method": "GET",
+  "user_agent": "devicehunt-public-research/1.0",
+  "started_utc": "2026-10-15T05:49:13.943404+00:00",
+  "automatic_redirects": false,
+  "retries": 0,
+  "policy": {
+    "receipt": "raw/02-nvidia-policy.json",
+    "sha256": "5069f0e6713ea599a59d48d5fb160ac859af14dcce9ec2a87fb9f554fe0f7125",
+    "allowed": true,
+    "crawl_delay_seconds": 0
+  },
+  "status": 200,
+  "location": null,
+  "content_type": "text/html; charset=UTF-8",
+  "body_path": "raw/03-cumulus-hcl.body",
+  "body_bytes": 512465,
+  "body_sha256": "e4216c1b2b979e23d6f95f9a57fda0d76abd2327e6a7984bfcb562467bc899df",
+  "headers_path": "raw/03-cumulus-hcl.headers",
+  "headers_sha256": "a140913e43dde0fd8163c373334f8e28f902a06f72eb32f46988f57afd19fd79",
+  "finished_utc": "2026-10-15T05:49:14.416650+00:00"
+}

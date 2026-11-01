@@ -1,0 +1,84 @@
+20
+                                                                                                                                         PFE1100-12-054xA
+
+     To achieve best cooling results sufficient airflow through the supply must be ensured. Do not block or obstruct the airflow
+     at the rear of the supply by placing large objects directly at the output connector. The PFE1100-12-054NA is provided with
+     a normal airflow, which means the air enters through the rear of the supply and leaves at the front. The PFE1100-12-054RA
+     is provided with a reverse airflow, which means the air enters through the front of the supply and leaves at the rear. PFE
+     supplies have been designed for horizontal operation.
+     The fan inside of the supply is controlled by a microprocessor. The rpm of the fan is adjusted to ensure optimal supply
+     cooling and is a function of output power and the inlet temperature.
+     For the normal airflow version additional constraints apply because of the AC-connector. In a normal airflow unit, the hot
+     air is exiting the power supply unit at the AC-inlet.
+     The IEC connector on the unit is rated 105°C. If 70°C mating connector is used then end user must derate the input power
+     to meet a maximum 70°C temperature at the front, see Figure 42.
+
+     NOTE:
+     It is the responsibility of the user to check the front temperature in such cases. The unit is not limiting its power automati
+     cally to meet such a temperature limitation.
+
+
+
+
+                                                                                  Figure 37. Airflow direction
+
+                              25                                                                                            25
+
+                                                 High Line fan curve                                                                           High Line fan curve
+                              20                 Low Line fan curve                                                         20
+
+
+
+
+     Fan Speed [1000xRPM]
+                                                                                                                                               Low Line fan curve
+
+
+
+
+                                                                                                   Fan Speed [1000xRPM]
+                                                 Min speed at ISB > 3A                                                                         Min speed at ISB > 3A
+
+                              15                                                                                            15
+
+
+                              10                                                                                            10
+
+
+                               5                                                                                             5
+
+
+                               0                                                                                             0
+                                   0        20           40         60         80          100                                   0        20           40         60         80        100
+                                                     Main Output Current [A]                                                                       Main Output Current [A]
+
+                                   Figure 38. Fan speed vs. main output load for                                                 Figure 39. Fan speed vs. main output load for
+                                               PFE1100-12-054NA                                                                              PFE1100-12-054RA
+
+
+                              1000                                                                                          1000
+
+
+
+
+      Main Output Power [W]                                                                         Main Output Power [W]
+                               800                                                                                           800
+
+
+                               600                                                                                           600
+                                                             Vi > 90VAC
+                               400                           Vi > 103VAC                                                     400                            Vi > 90VAC
+                                                             Vi > 115VAC                                                                                    Vi > 145VAC
+                               200                           Vin = 90VAC                                                     200                            Vi > 180VAC
+                                                             Vin = 115VAC
+                                   0                                                                                             0
+                                       0   10        20      30     40       50       60                                             0   10        20      30     40       50     60
+                                                    Ambient Temperature [°C]                                                                      Ambient Temperature [°C]
+
+                              Figure 40. Thermal derating for PFE1100-12-054NA                                              Figure 41. Thermal derating for PFE1100-12-054RA
+
+
+
+
+                                                                                                                                                           tech.support@psbel.com
+

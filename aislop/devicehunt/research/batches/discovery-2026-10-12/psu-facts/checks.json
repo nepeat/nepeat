@@ -1,0 +1,137 @@
+{
+  "scope": "pure JSON/provenance checks and read-only identity inventory; zero imports",
+  "passed": true,
+  "sources": 6,
+  "records": 6,
+  "identities": 3,
+  "facts": 42,
+  "source_checks": [
+    {
+      "source": "psu-bel-pfe1100-series-2026-10-12",
+      "snapshot": "snapshots/bel-pfe1100-series.pdf",
+      "model": "PFE1100-12-054NA",
+      "sha256": "245c1e7a503c2f21cedcf1d180fb62623476d9589dfae09a27be38913a95f17e",
+      "facts": 11,
+      "pages": [
+        1,
+        2,
+        5,
+        9
+      ],
+      "affiliations": [
+        [
+          "Bel Fuse Inc.",
+          "documentation_vendor"
+        ]
+      ]
+    },
+    {
+      "source": "psu-bel-pfe1100-series-html-2026-10-12",
+      "snapshot": "snapshots/bel-pfe1100-series.html",
+      "model": "PFE1100-12-054NA",
+      "sha256": "a2ef4636e4d3c062078621b281f2d3e668b4ed06c0cff13038270439012b4f27",
+      "facts": 2,
+      "pages": [],
+      "affiliations": [
+        [
+          "Bel Fuse",
+          "documentation_vendor"
+        ]
+      ]
+    },
+    {
+      "source": "psu-bel-pfe1500-series-2026-10-12",
+      "snapshot": "snapshots/bel-pfe1500-series.pdf",
+      "model": "PFE1500-12-054NAC",
+      "sha256": "4a2b9359de8fcbc8ab96b7f25ed78ce289797cf343a5394fdaf5d62a8b719693",
+      "facts": 4,
+      "pages": [
+        2
+      ],
+      "affiliations": [
+        [
+          "Bel Fuse Inc.",
+          "documentation_vendor"
+        ]
+      ]
+    },
+    {
+      "source": "psu-bel-pfe1500-nemko-2026-10-12",
+      "snapshot": "snapshots/bel-pfe1500-nemko.pdf",
+      "model": "PFE1500-12-054NAC",
+      "sha256": "2449a20c026afacce8ab7b04e5f48342b5c214680878979dd7feb2d16e4cbfd2",
+      "facts": 9,
+      "pages": [
+        1
+      ],
+      "affiliations": [
+        [
+          "Bel Fuse Inc.",
+          "manufacturer"
+        ],
+        [
+          "BPS Asia Pacific Electronics (Shenzhen) Co., Ltd.",
+          "listed_factory"
+        ]
+      ]
+    },
+    {
+      "source": "psu-bel-pfe1500-csa-2026-10-12",
+      "snapshot": "snapshots/bel-pfe1500-csa.pdf",
+      "model": "PFE1500-12-054NAC",
+      "sha256": "c7d1e731170257bfbddb3989b43beb49e04dbc95bbddf76cfa9b2acb333fdc60",
+      "facts": 7,
+      "pages": [
+        4
+      ],
+      "affiliations": [
+        [
+          "Bel Fuse Inc.",
+          "documentation_vendor"
+        ]
+      ]
+    },
+    {
+      "source": "psu-fsp550-29fm-2026-10-12",
+      "snapshot": "snapshots/fsp550-29fm.pdf",
+      "model": "FSP550-29FM",
+      "sha256": "772797d5f26e9de64d129a7de2468fb781ce51be1ef445cdefbd4557d6c36f45",
+      "facts": 9,
+      "pages": [
+        1,
+        2
+      ],
+      "affiliations": [
+        [
+          "FSP",
+          "documentation_vendor"
+        ]
+      ]
+    }
+  ],
+  "existing_identity_context": [
+    {
+      "namespace": "Bel Fuse Inc.",
+      "model": "PFE1100-12-054NA",
+      "existing_exact_model_namespaces": []
+    },
+    {
+      "namespace": "Bel Fuse Inc.",
+      "model": "PFE1500-12-054NAC",
+      "existing_exact_model_namespaces": []
+    },
+    {
+      "namespace": "FSP",
+      "model": "FSP550-29FM",
+      "existing_exact_model_namespaces": []
+    }
+  ],
+  "candidate_sha256": "2c55934a430e423c861f04e107e121ff801e9a36e32985daa032308eab4ef756",
+  "live_sha256": {
+    "data/devices.sqlite": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+    "data/import-manifest.json": "14c2a1f177051b6e62c8e04dabbd9621a3d4baf6b759d2db25a722ba8efc9195"
+  },
+  "coverage_common_prefix_occurrences_per_source": 1,
+  "cosmetic_revision": "deduplicate common source-coverage paragraph; all device rows/facts unchanged",
+  "prior_reviewed_hash_reconstructed_by_coverage_duplication": "c5f72b43ab6ddfbb6aedf238db533c742848e80b3f150cb5423bd0c86cbc53af"
+}

@@ -1,0 +1,9 @@
+{
+  "requests": 1,
+  "outcomes": [
+    {
+      "stopped": "policy unavailable",
+      "status": 403
+    }
+  ]
+}

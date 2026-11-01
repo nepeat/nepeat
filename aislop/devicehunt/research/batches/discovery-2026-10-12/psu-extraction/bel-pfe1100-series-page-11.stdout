@@ -1,0 +1,71 @@
+PFE1100-12-054xA                                                                                                                     11
+
+
+
+
+  8.2 INTERFACING WITH SIGNALS
+
+    All signal pins have protection diodes implemented to protect internal circuits. When the power supply is not powered, the
+    protection devices start clamping at signal pin voltages exceeding ±0.5 V. Therefore, all input signals should be driven only
+    by an open collector/drain to prevent back feeding inputs when the power supply is switched off.
+    If interconnecting of signal pins of several power supplies is required, then this should be done by decoupling with small
+    signal schottky diodes as shown in examples in Figure 24 (Except for SMB_ALERT_L, ISHARE and I2C pins). This will ensure
+    the pin voltage is not affected by an unpowered power supply.
+    SMB_ALERT_L pins can be interconnected without decoupling diodes, since these pins have no internal pull up resistor and
+    use a 15 V zener diode as protection device against positive voltage on pins.
+    ISHARE pins must be interconnected without any additional components. This in-/output also has a 15 V zener diode as a
+    protection device and is disconnected from internal circuits when the power supply is switched off.
+
+                                                    PSU 1 PDU                             PSU 1 PDU
+                                            3.3V                                  3.3V
+
+                                                                                           PWOK
+                                      VSB_SEL
+
+
+
+
+                                                                                          PSU 2
+                                                    PSU 2
+                                                                                  3.3V
+                                            3.3V
+                                                                                           PWOK
+                                      VSB_SEL
+
+
+
+
+                                                   Figure 24. Interconnection of Signal Pins
+
+  8.3 FRONT LEDS
+    The front-end has 2 front LEDs showing the status of the supply. LED number one is green and indicates AC power is on or
+    off, while LED number two is bi-colored: green and yellow, and indicates DC power presence or fault situations. For the position
+    of the LEDs see Table 1 lists the different LED status.
+
+            OPERATING CONDITION                                                          LED SIGNALING
+            AC LED
+            AC Line within range                                                         Solid Green
+            AC Line UV condition                                                         Off
+            DC LED 1
+            PSON_L High                                                                  Blinking Yellow (1:1)
+            Hot-Standby Mode                                                             Blinking Yellow/Green (1:2)
+            V1 or VSB out of regulation
+            Over temperature shutdown
+            Output over voltage shutdown (V1 or VSB)                                     Solid Yellow
+            Output over current shutdown (V1 or VSB)
+            Fan error (>15%)
+            Over temperature warning                                                     Blinking Yellow/Green (2:1)
+            Minor fan regulation error (>5%, <15%)                                       Blinking Yellow/Green (1:1)
+
+            1)   The order of the criteria in the table corresponds to the testing precedence in the controller.
+
+                                                                Table 1. LED Status
+
+
+
+
+                                                                          Asia-Pacific         Europe, Middle East        North America
+                                                                    +86 755 298 85888               +353 61 49 8941      +1 866 513 2839
+
+                                                                                                  © 2023 Bel Fuse Inc.     BCD.00012_AP
+

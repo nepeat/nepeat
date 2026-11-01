@@ -1,0 +1,79 @@
+{
+  "artifact_type": "capture_and_outcome_manifest",
+  "recorded_at_utc": "2026-10-13T02:58:34.843914+00:00",
+  "local_research_date": "2026-10-12",
+  "request_observation_window_utc": {
+    "started": "2026-10-13 02:56:28 UTC",
+    "completed_by": "2026-10-13 02:57:30 UTC",
+    "individual_request_timestamps_available": false
+  },
+  "capture_method": "web.run search_query, tool response serialization; no raw upstream content fetched",
+  "queries": [
+    "\"西贝吹风\" \"B4020\"",
+    "\"西贝吹风\" 字节 智算 网络 架构",
+    "\"B4010\" \"2302C014\"",
+    "\"B4020\" FCCISED compliance",
+    "\"西贝吹风\" \"字节\" 网络 架构",
+    "\"西贝吹风\" \"智算中心整体网络架构\"",
+    "\"B4010\" \"BTL\" -site:accton.com.cn",
+    "\"B4020\" \"Accton Technology Corporation\"",
+    "\"COREB-TH4-B4020\"",
+    "\"B4010\" site:accton.com",
+    "\"B4020\" site:accton.com",
+    "\"西贝吹风\" \"智算\" site:mp.weixin.qq.com"
+  ],
+  "search_queries_used": 12,
+  "search_query_limit": 12,
+  "primary_page_fetches_used": 0,
+  "primary_page_fetch_limit": 15,
+  "secondary_page_fetches_used": 0,
+  "fetches": [],
+  "outcome": "No new primary model affiliation or practical facts; existing certificate resurfaced; distinct exact-code discovery leads retained.",
+  "stop_reason": "12-query cap reached; no new qualifying primary-page candidate to fetch",
+  "upstream_original_bytes_saved": false,
+  "raw_page_status": "not_requested (not unavailable or empty)",
+  "new_denials_or_throttles_observed": false,
+  "known_denied_not_requested": [
+    "https://www.eximpedia.app/companies/accton-technology-co-limited/10894156",
+    "https://www.opencompute.org/events/past-events/2024-ocp-global-summit"
+  ],
+  "artifacts": [
+    {
+      "path": "facts-and-exclusions.json",
+      "artifact_type": "researcher_assertion_review",
+      "bytes": 4982,
+      "sha256": "e12f4995715901cea1866ba446ba06f14d5dedae845b5751fa0758f801f2f01a"
+    },
+    {
+      "path": "search-batch-1.json",
+      "artifact_type": "web_tool_response_serialization",
+      "bytes": 27095,
+      "sha256": "5cafccbf821987613c3b266eed4626796f7b0428adee7be2a81cb8d6a679f75c"
+    },
+    {
+      "path": "search-batch-2.json",
+      "artifact_type": "web_tool_response_serialization",
+      "bytes": 20427,
+      "sha256": "48fc5991b81dcf8456a27c9b67afa4ac3f2efbe730906723366405ff4533d89c"
+    },
+    {
+      "path": "search-batch-3.json",
+      "artifact_type": "web_tool_response_serialization",
+      "bytes": 23556,
+      "sha256": "48a683913e5a50e3fa405233a57766d8145abe29bb01920247d0f10b60d644cd"
+    }
+  ],
+  "existing_read_only_pdf": {
+    "path": "data/raw/bytedance-inspur-2026-10-04/accton-b4010-compliance.pdf",
+    "bytes": 830297,
+    "sha256": "1f0a0588426b88d6d691bc42686ea86ecaea6338f01ec975f0024b199359e5ce",
+    "note": "Existing original bytes only hashed locally; prior reviewed source note used; not newly fetched or newly visually reviewed."
+  },
+  "checks": {
+    "json_artifacts_parsed": 4,
+    "queries_within_cap": true,
+    "queries_unique": true,
+    "catalog_mutated": false,
+    "tests_run": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "requests": 3,
+  "cap": 3,
+  "redirects": 0,
+  "searches": 0,
+  "screenshots": 0,
+  "raw_snapshots": 3,
+  "raw_hash_mismatches": 0,
+  "derived_claims": 12,
+  "claim_selectors_checked": true,
+  "identity_routing": "none",
+  "basis_sha256": "d0e6fb8ab728d0a12fa1cd8b6e77d4bebda4df121fa0b7da06ab040d8a95361a"
+}

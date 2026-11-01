@@ -1,0 +1,80 @@
+{
+  "utc": "2026-10-13T04:11:59.746452+00:00",
+  "HTTP_requests": 4,
+  "HTTP_cap": 7,
+  "robots_reused": 2,
+  "automatic_redirects": false,
+  "searches": 0,
+  "remote_screenshots": 0,
+  "render_pages": 6,
+  "selected_observations": 26,
+  "pdf_checks": [
+    {
+      "pdf": "as8000-r02-qsg.pdf",
+      "sha256": "0cc5631b82ffd5e57c2750baea33f4203a1714d633bcccb73f6ebd4ff473fdcd",
+      "bytes": 2637838,
+      "text_sidecar": "as8000-pages.json",
+      "text_sidecar_sha256": "d826784d7e402dc7f9e74df449d26231cd4373a5ceae11421d2f24d79a936d4b",
+      "pages": 12,
+      "extraction_metadata": {
+        "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+        "extractor_version": "26.06.0",
+        "pdfinfo_version": "26.06.0",
+        "pdf_page_count": 12,
+        "extraction_options": {
+          "layout": true,
+          "encoding": "UTF-8",
+          "eol": "unix",
+          "remove_hyphens": "none",
+          "page_selection": "individual",
+          "page_breaks": false
+        }
+      }
+    },
+    {
+      "pdf": "sc6100-datasheet.pdf",
+      "sha256": "5dc67c8d2976c3dfe36ef813b919d0000f0b5f6bf1eb034d04040cae3254ddba",
+      "bytes": 618920,
+      "text_sidecar": "sc6100-pages.json",
+      "text_sidecar_sha256": "973cb631b49945513bca216f0de25aa48e65728023078a03fa6410acff1c2271",
+      "pages": 2,
+      "extraction_metadata": {
+        "extraction_method": "Poppler pdftotext -layout embedded text; no OCR",
+        "extractor_version": "26.06.0",
+        "pdfinfo_version": "26.06.0",
+        "pdf_page_count": 2,
+        "extraction_options": {
+          "layout": true,
+          "encoding": "UTF-8",
+          "eol": "unix",
+          "remove_hyphens": "none",
+          "page_selection": "individual",
+          "page_breaks": false
+        }
+      }
+    }
+  ],
+  "extractor_script_sha256": "b657512ff584715df4d8f2d90cc8ba489d896df7196a6bb2ca11c88c080feb38",
+  "extraction_invocations": [
+    [
+      "python3",
+      "scripts/extract_pdf_pages.py",
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-r02-qsg.pdf",
+      "--output",
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/as8000-pages.json",
+      "--tool-directory",
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin"
+    ],
+    [
+      "python3",
+      "scripts/extract_pdf_pages.py",
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-datasheet.pdf",
+      "--output",
+      "research/batches/discovery-2026-10-12/original-vendor-wave4/as8000-sc6100/sc6100-pages.json",
+      "--tool-directory",
+      "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin"
+    ]
+  ],
+  "source_bytes_match_ledger": true,
+  "sidecars_validated_with_read_capture": true
+}

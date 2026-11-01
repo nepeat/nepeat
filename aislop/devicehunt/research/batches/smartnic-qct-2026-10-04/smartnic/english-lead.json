@@ -1,0 +1,12 @@
+{
+  "capture": "data/raw/inspur-rail-2026-10-04/inventec-download-page-3.html",
+  "lines": [
+    782,
+    795
+  ],
+  "product_model_as_printed": "Inventec FPGA IPU C5020X",
+  "title_as_printed": "Inventec FPGA IPU C5020X _EN_P",
+  "date_as_printed": "2021/06/16",
+  "download_url": "https://ebg.inventec.com/en/tool-download/product_files/file/83?note=",
+  "status": "lead only; not fetched; no SmartNIC/IPU alias inferred"
+}

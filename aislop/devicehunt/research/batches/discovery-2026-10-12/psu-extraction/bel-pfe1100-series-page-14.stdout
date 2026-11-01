@@ -1,0 +1,79 @@
+14
+                                                                                                               PFE1100-12-054xA
+        largest current among the group is automatically the Master. The other supplies will operate as Slaves and increase their output
+        current to a value close to the Master by slightly increasing their output voltage. The voltage increase is limited to +250 mV.
+        The standby output uses a passive current share method (droop output voltage characteristic).
+
+
+
+     8.10       SENSE INPUTS
+        Both main and standby outputs have sense lines implemented to compensate for voltage drop on load wires. The maximum
+        allowed voltage drop is 200 mV on the positive rail and 100 mV on the PGND rail.
+        With open sense inputs the main output voltage will rise by 270 mV and the standby output by 50 mV. Therefore, if not used,
+        these inputs should be connected to the power output and PGND close to the power supply connector. The sense inputs are
+        protected against short circuit. In this case the power supply will shut down.
+
+
+     8.11       HOT-STANDBY OPERATION
+        The hot-standby operation is an operating mode allowing to further increase efficiency at light load conditions in a redundant
+        power supply system. Under specific conditions one of the power supplies is allowed to disable its DC/DC stage. This will save
+        the power losses associated with this power supply and at the same time the other power supply will operate in a load range
+        having a better efficiency. In order to enable the hot standby operation, the HOTSTANDBYEN_H and the ISHARE pins need to
+        be interconnected. A power supply will only be allowed to enter the hot-standby mode, when the HOTSTANDBYEN_H pin is
+        high, the load current is low (see Figure 30) and the supply was allowed to enter the hot-standby mode by the system controller
+        via the appropriate I2C command (by default disabled). The system controller needs to ensure that only one of the power
+        supplies is allowed to enter the hot-standby mode.
+        If a power supply is in a fault condition, it will pull low its active-high HOTSTANDBYEN_H pin which indicates to the other
+        power supply that it is not allowed to enter the hot-standby mode or that it needs to return to normal operation should it already
+        have been in the hot-standby mode.
+
+        NOTE:
+        The system controller needs to ensure that only one of the power supplies is allowed to enter the hot-standby model.
+        Figure 33 shows the achievable power loss savings when using the hot-standby mode operation. A total power loss reduction
+        of 45% is achievable.
+
+                                                                                                          60
+
+                                                                                                          50
+
+
+
+
+                                                                                   Total Power Loss [W]
+            2 PSU on                                                                                      40
+
+                                                                                                          30
+
+            1 PSU on                                                                                      20
+                                                                      Total                                                                Hot-Standby Disabled
+                                                                     System                               10
+                                                                                                                                           Hot-Standby Enabled
+                                  10A   25A               50A        Current
+                                                                                                          0
+                                                                                                               0    100   200   300    400     500   600    700   800
+                                                                                                                                      Po [W]
+
+              Figure 30. Hot-standby enable/disable current thresholds                              Figure 31. PSU power losses with/without hot-
+                                                                                                                 standby mode
+                                                      PSU 1                                               PSU 2
+
+                                                                      3 x 3k3
+                                                   VSB                                                             VSB
+
+
+                                                    CS                                                             CS
+
+
+                                        HOTSTANDBYEN                                                               HOTSTANDBYEN
+
+                                            PRESENT_L                                                              PRESENT_L
+
+
+
+                                              Figure 32. Recommended hot-standby configuration
+
+
+
+
+                                                                                                                                 tech.support@psbel.com
+

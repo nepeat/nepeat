@@ -1,0 +1,18 @@
+{
+  "artifacts": 1117,
+  "counts": {
+    "blocked": 0,
+    "budget_exhausted": 0,
+    "declared": 12,
+    "explicit_zero": 2,
+    "failed": 0,
+    "inputs_registered": 12,
+    "not_reached": 0,
+    "observed": 12,
+    "unknown": 0,
+    "validated_complete": 12
+  },
+  "manifest_id": "coverage-fc6fe1ca0a7844d057a1c38abcf0df62bfcaf50e915e62304e87d8ddd19d0eda",
+  "path": "data/coverage/rra-ised-saved-2026-10-04/coverage-fc6fe1ca0a7844d057a1c38abcf0df62bfcaf50e915e62304e87d8ddd19d0eda.json",
+  "receipts": 36
+}

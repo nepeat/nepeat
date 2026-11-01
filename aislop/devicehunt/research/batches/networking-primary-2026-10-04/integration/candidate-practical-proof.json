@@ -1,0 +1,36 @@
+{
+  "database_sha256": "7019d5858161a9cf71b8f8040e013fc23124a87e65e8343892d3265ac6320fd2",
+  "reports": [
+    {
+      "query": "AS7772-32X",
+      "file": "as7772-cli-report.json",
+      "sha256": "bbadcf68ba3d98793aab42bad74b907263266e3de1b79e62320e139c99d3de55",
+      "context_facts": 10,
+      "source_id": "community-as7772-dtb-gist-2026-10-04",
+      "category_counts": {
+        "power": 0,
+        "cooling": 0,
+        "chassis_physical": 0,
+        "firmware_boot_software": 4,
+        "licensing": 0,
+        "compute_network_storage": 0
+      }
+    },
+    {
+      "query": "Oracle Server X7-2C",
+      "file": "oracle-cli-report.json",
+      "sha256": "ad72359b03a42fc1f2d8601d5cff578b4b2945d2603aa50af74a0aa571895d1d",
+      "context_facts": 25,
+      "source_id": "oracle-x7-2c-vpat-t2-6972-2017",
+      "category_counts": {
+        "power": 0,
+        "cooling": 0,
+        "chassis_physical": 2,
+        "firmware_boot_software": 1,
+        "licensing": 0,
+        "compute_network_storage": 8
+      }
+    }
+  ],
+  "readonly_hash_unchanged": true
+}

@@ -1,0 +1,17 @@
+HTTP/2 302 
+date: Tue, 13 Oct 2026 04:46:44 GMT
+content-type: text/html; charset=UTF-8
+location: https://www.edge-core.com/wp-content/uploads/2024/01/AS6700-32X-Quick-Start-Guide.pdf
+set-cookie: __wpdm_client=f7cd845ccd047d595d310c82abcb30cc; path=/; domain=www.edge-core.com; secure; HttpOnly
+strict-transport-security: max-age=31536000; includeSubdomains; preload
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+vary: Accept-Encoding
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: microphone=(),fullscreen=()
+x-xss-protection: 1;mode=block
+server: cloudflare
+cf-cache-status: DYNAMIC
+cf-ray: a49bb3c53c0fe477-SEA
+alt-svc: h3=":443"; ma=86400
+

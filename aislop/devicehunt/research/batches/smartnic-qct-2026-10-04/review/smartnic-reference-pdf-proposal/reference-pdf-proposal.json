@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "collection": "public-device-references-v1",
+  "documents": [
+    {
+      "id": "inventec-fpga-smartnic-c5020x-cn-brief-2021",
+      "pdf": {
+        "path": "inventec-fpga-smartnic-c5020x-cn-2021.pdf",
+        "sha256": "b909da767979ff460c9fb4666eaae7a3f08e16a896fbef0d1feb4a7e01665870"
+      },
+      "text": {
+        "path": "inventec-fpga-smartnic-c5020x-cn-2021.pages.json",
+        "sha256": "c590aa1f78ff4b03590d455156d833b512adc66a3e3d2beac5299a99701ac420"
+      },
+      "url": "https://ebg.inventec.com/cn/tool-download/product_cn_files/file/25/Inventec%20FPGA%20SmartNIC%20C5020X?note=",
+      "title": "Inventec FPGA SmartNIC C5020X Chinese product brief 2021",
+      "category": "product brief",
+      "tier": "vendor",
+      "scope": "Historical exact FPGA SmartNIC C5020X vendor brief; Chinese version explicitly reference-only with English governing. No English-version equivalence, IPU alias, C5000X alias, installed configuration, current support, firmware access, host OS compatibility, operator, physical factory, measured consumption or auxiliary power requirement inferred. TDP is a vendor rating, not PSU specification or measured draw.",
+      "page_count": 2
+    }
+  ]
+}

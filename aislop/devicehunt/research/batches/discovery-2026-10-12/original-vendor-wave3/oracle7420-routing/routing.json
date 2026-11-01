@@ -1,0 +1,461 @@
+{
+  "scope": "two assigned service pages, saved PCIe parent/manual metadata, relevant catalog records only",
+  "utc": "2026-10-13T03:45:56.412318+00:00",
+  "input_hashes": {
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/internal-components.html": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/attached-storage.html": "f3772553049f0e1a6671cb0579043be928550976129b2ea8e104f1ca3c4e6642",
+    "research/batches/discovery-2026-10-12/original-vendor-wave3/oracle7420/findings.json": "fda5b86d5e017b2b71fd520f9a16b9e17942819b4e6e6b3e1659c886efa62a13",
+    "data/raw/oracle-zfs-components/sun-zfs-storage-7420.html": "d0e6fb8ab728d0a12fa1cd8b6e77d4bebda4df121fa0b7da06ab040d8a95361a",
+    "data/raw/oracle-zfs-components/bundle.json": "2d1fbf3fac89691749173ae0cc7ff1be519fb379f63cdf72956accc80b4af688"
+  },
+  "catalog_sha256_before": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e",
+  "existing_platform_records": [
+    {
+      "device": {
+        "id": "737b374150e34090ee08",
+        "brand": "Oracle",
+        "model": "ZFS STORAGE 7420",
+        "revision": "",
+        "title": "ORACLE ZFS STORAGE 7420",
+        "kind": "network storage"
+      },
+      "records": [
+        {
+          "record": {
+            "id": "e2671d3abd65386845b1d86d",
+            "device_id": "737b374150e34090ee08",
+            "source_id": "ntra-2026-01",
+            "source_key": "33211",
+            "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=523",
+            "observed_at": "2026-10-04T11:26:10+00:00",
+            "raw_json": "{\"page\": 523, \"cells\": [\"33211\", \"NETWORK STORAGE\", \"ORACLE\", \"ZFS STORAGE 7420\", \"\"], \"target\": \"Oracle\"}"
+          },
+          "facts": [
+            {
+              "record_id": "e2671d3abd65386845b1d86d",
+              "name": "pdf_page",
+              "value": "523"
+            },
+            {
+              "record_id": "e2671d3abd65386845b1d86d",
+              "name": "registry_brand",
+              "value": "ORACLE"
+            },
+            {
+              "record_id": "e2671d3abd65386845b1d86d",
+              "name": "registry_product_description",
+              "value": "NETWORK STORAGE"
+            },
+            {
+              "record_id": "e2671d3abd65386845b1d86d",
+              "name": "registry_row",
+              "value": "33211"
+            }
+          ],
+          "identifiers": [],
+          "affiliations": [
+            {
+              "record_id": "e2671d3abd65386845b1d86d",
+              "company": "Oracle",
+              "target": "Oracle",
+              "role": "registry_brand"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "device": {
+        "id": "b67822022258cb9d46f5",
+        "brand": "Oracle",
+        "model": "S7420",
+        "revision": "",
+        "title": "Oracle S7420",
+        "kind": "Server/Storage"
+      },
+      "records": [
+        {
+          "record": {
+            "id": "7c30505642f76a265a6beea5",
+            "device_id": "b67822022258cb9d46f5",
+            "source_id": "rra-official-query-73009f906e4e",
+            "source_key": "SUN-CALI3:S7420",
+            "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=SUN-CALI3",
+            "observed_at": "2026-10-04T11:26:39+00:00",
+            "raw_json": "{\"applicant\": \"ORACLE AMERICA. Inc\", \"equipment_name\": \"Server/Storage\", \"main_model\": \"CALI3\", \"derived_models\": \"Oracle Exalytics In-Memory Machine X2-4,Oracle Exalytics In-Memory Machine X3-4,S7420,Sun Fire X4470 and Sun Storage 7240,Sun Server X2-4,Sun Server X3-4,X4470 M2,ZS3-4\", \"certificate_number\": \"SUN-CALI3\", \"manufacturer\": \"ORACLE AMERICA. Inc\", \"country_raw\": \"미국\", \"approval_date_raw\": \"2010-04-12\", \"other_raw\": \"\"}"
+          },
+          "facts": [
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "name": "approval_date_raw",
+              "value": "2010-04-12"
+            },
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "name": "country_raw",
+              "value": "미국"
+            },
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "name": "detail_sha256",
+              "value": "e9fe2cfc7e4a2a6166abebc08f31acf586d43fdf72db2bd14160a269d054c64c"
+            },
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "name": "rra_main_model",
+              "value": "CALI3"
+            },
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "name": "rra_model_role",
+              "value": "derived"
+            }
+          ],
+          "identifiers": [
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "kind": "rra_certificate_id",
+              "value": "SUN-CALI3"
+            }
+          ],
+          "affiliations": [
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "company": "ORACLE AMERICA. Inc",
+              "target": "Oracle",
+              "role": "registry_manufacturer"
+            },
+            {
+              "record_id": "7c30505642f76a265a6beea5",
+              "company": "ORACLE AMERICA. Inc",
+              "target": "Oracle",
+              "role": "regulatory_applicant"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "component_context_records": [
+    {
+      "brand": "Oracle",
+      "model": "SGX-SAS6-INT-Z",
+      "id": "ef8d4214e41bd344467768f3",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "SG-XPCIE2FC-QF8-Z",
+      "id": "7ddc82c276040b670f235038",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "SG-XPCIESAS-GEN2-Z",
+      "id": "399822b0e586355ccae01727",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "7105394",
+      "id": "74a3c0de72af596a2e0b71f1",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "X4446A-Z-N",
+      "id": "71d401f335d944365ed43688",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "X4242A",
+      "id": "f86048ba4811d13d6cfcdca0",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "X1109A-Z",
+      "id": "27b45b31e1f2469f01716278",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "X2129A",
+      "id": "c4a29871d3f1e94ecb8e357f",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    },
+    {
+      "brand": "Oracle",
+      "model": "X5562A-Z",
+      "id": "73fc2cbf8e68ade6cfad6eca",
+      "source_id": "oracle-components-sun-zfs-storage-7420",
+      "value": "Sun ZFS Storage 7420"
+    }
+  ],
+  "exact_identity_identifier_matches": [],
+  "existing_models_absent": [
+    "7420",
+    "7420 M2",
+    "7420M2",
+    "Sun ZFS Storage 7420",
+    "Sun ZFS Storage 7420 M2"
+  ],
+  "source_claim_routes": [
+    {
+      "claim_name": "component_legend",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ]
+      },
+      "source_text": [
+        "1 Motherboard",
+        "7 CPUs and heatsinks",
+        "2 Low-profile PCIe cards",
+        "8 Memory risers",
+        "3 Power supplies",
+        "9 Fan board",
+        "4 Power supply backplane",
+        "10 Fan modules",
+        "5 Drive backplane",
+        "11 Boot drives and SSDs",
+        "6 System lithium battery"
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "fru_service_restriction",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          14
+        ]
+      },
+      "source_text": [
+        "Sun ZFS Storage 7420 Internal Boards - The Sun ZFS Storage 7420 controller chassis has the following boards installed. Field-replaceable units (FRUs) should only be replaced by trained Oracle service technicians."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "service_processor_power",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          15
+        ]
+      },
+      "source_text": [
+        "Motherboard: The motherboard is a FRU and includes CPU modules, slots for eight DIMM risers, memory control subsystems, and the service processor (SP) subsystem. The SP subsystem controls the host power and monitors host system events (power and environmental). The SP controller draws power from the host's 3.3V standby supply rail, which is available whenever the system is receiving AC input power, even when the system is turned off."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "power_distribution_topology",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          16
+        ]
+      },
+      "source_text": [
+        "Power Distribution Board: The power distribution board is a FRU and distributes main 12V power from the power supplies to the rest of the system. It is directly connected to the Vertical PDB card, and to the motherboard through a bus bar and ribbon cable. It also supports a top cover interlock (\"kill\") switch. In the storage controller, the power supplies connect to the power supply backplane which connects to the power distribution board."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "vertical_pdb_service_name",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          17
+        ]
+      },
+      "source_text": [
+        "Vertical PDB Card: The vertical power distribution board, or Paddle Card is a FRU and serves as the interconnect between the power distribution board and the fan power boards, hard drive backplane, and I/O board."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "power_supply_connection_positions",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          18
+        ]
+      },
+      "source_text": [
+        "Power Supply Backplane Card: This board connects the power distribution board to power supplies 0 and 1."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "fan_power_boards",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          19
+        ]
+      },
+      "source_text": [
+        "Fan Power Boards: The two fan power boards are FRUs and carry power to the storage controller fan modules. In addition, they contain fan module status LEDs and transfer I2C data for the fan modules."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "drive_backplane_service_name",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          20
+        ]
+      },
+      "source_text": [
+        "Drive Backplane: The six-drive backplane is a FRU and includes the connectors for the drives, as well as the interconnect for the I/O board, Power and Locator buttons, and system/component status LEDs. Each drive has an LED indicator for Power/Activity, Fault, and Locate."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "m2_system_drive_and_cache_rule",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          21
+        ]
+      },
+      "source_text": [
+        "Sun ZFS Storage 7420 System Drives - The Sun ZFS Storage 7420 M2 controller has two system boot drives in slots 0 and 1, configured as a mirrored pair. Up to four read-optimized cache solid state drives (SSDs) may fill slots 2 through 5, in order. In a Sun ZFS Storage 7420 M2 clustered configuration, the number of SSDs installed in each controller can vary."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420 M2",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "7420_system_drive_and_cache_rule",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          22
+        ]
+      },
+      "source_text": [
+        "Sun ZFS Storage 7420 controllers have two system boot drives in slots 0 and 1, configured as a mirrored pair. Up to four read-optimized cache SSDs, may fill slots 2 through 5, in order. In a Sun ZFS Storage 7420 clustered configuration, the number of SSDs installed in both controllers must match."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "fan_fault_indicators",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-internal-components.html",
+      "source_sha256": "9bbfce09f2b51a8e0bad158e764bf307e53cb5b2c84b258b6c82ff903eb80a83",
+      "selector": {
+        "section_id": "ZFSRE-GUID-23D9E421-97EA-4692-B197-0F5E78A142A3",
+        "article_p_ordinals": [
+          37,
+          39,
+          40,
+          41,
+          42
+        ]
+      },
+      "source_text": [
+        "Sun ZFS Storage 7420 Fan Modules - The Fan Modules and Fan Module LEDs of the Sun ZFS Storage 7420 controller are shown in the following figure. The following LEDs are lit when a fan module fault is detected:",
+        "Front and rear Service Action Required LEDs",
+        "Fan Module Service Action Required (TOP) LED on the front of the controller",
+        "Fan Fault LED on or adjacent to the faulty fan module",
+        "The system Overtemp LED might light if a fan fault causes an increase in system operating temperature."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    },
+    {
+      "claim_name": "attached_storage_chain_and_shelf_limits",
+      "source_url": "https://docs.oracle.com/en/storage/zfs-storage/zfs-appliance/os8-8-x/service-manual/sun-zfs-storage-7420-attached-storage.html",
+      "source_sha256": "f3772553049f0e1a6671cb0579043be928550976129b2ea8e104f1ca3c4e6642",
+      "selector": {
+        "section_id": "ZFSRE-GUID-6D3F47EA-7D39-46CC-B484-3CC3BF6671DB",
+        "article_p_ordinals": [
+          1
+        ]
+      },
+      "source_text": [
+        "Primary storage for Sun ZFS Storage 7420 controllers is provided by one to six chains of attached storage. Each chain consists of up to six HDD-only or SSD-capable disk shelves, combined in any order. For more information, see Connecting to Attached Storage . See also Disk Shelf Hardware Overview for component specifications and diagrams."
+      ],
+      "proposed_literal_model": "Sun ZFS Storage 7420",
+      "proposed_identity_namespace": "Oracle (documentation namespace only; no brand/manufacturer role inferred)",
+      "existing_identity_attachment": "unsupported in bounded corpus; omit attachment",
+      "aliases_or_merges": []
+    }
+  ],
+  "network_requests": 0,
+  "candidate_created": false,
+  "catalog_sha256_after": "63d3ac788833473f08c716836b528531a4ff7f0df60f270035071fe36243081e"
+}

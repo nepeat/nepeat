@@ -1,0 +1,146 @@
+{
+  "scope": "read-only adapters, all 12 saved pinned units; no live archive operations",
+  "units": [
+    {
+      "unit": "ised-rel-25869",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/ised-amazon-export/capture.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 2889,
+      "extra_reads": 0,
+      "extra_bytes": 0
+    },
+    {
+      "unit": "ised-rel-query-accton",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/ised-accton-paged/capture.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 6669,
+      "extra_reads": 0,
+      "extra_bytes": 0
+    },
+    {
+      "unit": "ised-rel-query-celestica",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/ised-celestica/capture-paged.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 1689,
+      "extra_reads": 0,
+      "extra_bytes": 0
+    },
+    {
+      "unit": "ised-rel-query-edgecore",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/ised-edgecore-paged/capture.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 2925,
+      "extra_reads": 0,
+      "extra_bytes": 0
+    },
+    {
+      "unit": "ised-rel-query-oracle",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/ised-oracle/capture-paged.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 2923,
+      "extra_reads": 0,
+      "extra_bytes": 0
+    },
+    {
+      "unit": "rra-official-query-33f7d154085d",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/rra-amazon-data-services-official/bundle.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 15707,
+      "extra_reads": 1,
+      "extra_bytes": 15707
+    },
+    {
+      "unit": "rra-official-query-41e4ca912b33",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/rra-celestica-official/bundle-composite-cells.json",
+        "data/raw/rra-celestica-official/rra-composite-manufacturer-cells-2026-10-11.json",
+        "data/raw/rra-celestica-official/celestica-historical-companies.json",
+        "data/raw/rra-celestica-official/celestica-subsidiaries-2025.json",
+        "data/raw/rra-celestica-official/celestica-sec-8.1-reviewed.json",
+        "data/raw/rra-celestica-official/celestica-archived-21.1-reviewed.json"
+      ],
+      "preflight_reads": 6,
+      "preflight_bytes": 49039,
+      "extra_reads": 6,
+      "extra_bytes": 49039
+    },
+    {
+      "unit": "rra-official-query-5827f2fe7092",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/rra-edge-core-hyphen-official/bundle.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 2699,
+      "extra_reads": 1,
+      "extra_bytes": 2699
+    },
+    {
+      "unit": "rra-official-query-63cb0b9098c7",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/rra-edgecore-official/bundle.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 30490,
+      "extra_reads": 1,
+      "extra_bytes": 30490
+    },
+    {
+      "unit": "rra-official-query-73009f906e4e",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/rra-oracle-official/bundle.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 134216,
+      "extra_reads": 1,
+      "extra_bytes": 134216
+    },
+    {
+      "unit": "rra-official-query-78fc6b2e95f6",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/rra-edge-core-space-official/bundle.json"
+      ],
+      "preflight_reads": 1,
+      "preflight_bytes": 1015,
+      "extra_reads": 1,
+      "extra_bytes": 1015
+    },
+    {
+      "unit": "rra-official-query-e5984834207f",
+      "status": "matches_pinned",
+      "paths": [
+        "data/raw/rra-accton-official/bundle.json",
+        "data/raw/rra-accton-official/accton-singapore-2013.json"
+      ],
+      "preflight_reads": 2,
+      "preflight_bytes": 54000,
+      "extra_reads": 2,
+      "extra_bytes": 54000
+    }
+  ],
+  "preflight_reads_total": 18,
+  "extra_reads_total": 13,
+  "extra_bytes_total": 287166
+}

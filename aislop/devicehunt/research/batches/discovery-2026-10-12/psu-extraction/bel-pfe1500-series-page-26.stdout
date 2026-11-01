@@ -1,0 +1,57 @@
+26                                                                                                 PFE1500 Series
+
+     AC INPUT CONNECTOR:
+
+     PFE1500-12-054NA/RA,PFE1500-12NA/RAS412: Power supplier connector: IEC320 C14 type
+     PFE1500-12-054NAC/RAC,PFE1500-12NACS412: Power supplier connector: IEC320 C16 type
+     PFE1500-12-054NAH/RAH,PFE1500-12NAHS412: Power supplier connector: RongFeng P/N RF-203-D-1.0
+     Mating connector:
+            BizLink, type: BC-326, http://www.bizlinktech.com/
+            LongWell, type: LS-26, http://www.longwell.com/cn/
+
+
+     DC OUTPUT CONNECTOR:
+
+
+
+
+     Power Supply Connector: Tyco Electronics P/N 1926736-3 or FCI connector 10133129-002LF or equivalent
+                             (NOTE: Column 5 is recessed (short pins))
+     Mating Connector:       Tyco Electronics P/N 2-1926739-5 or FCI 10108888-R10253SLF
+
+        PIN                 NAME                    DESCRIPTION
+        Output
+        6, 7, 8, 9, 10     V1                       +12 VDC main output
+        1, 2, 3, 4, 5      PGND                     Power ground (return)
+        Control Pins
+        A1                 VSB                      Standby positive output (+3.3/5 VSB or 12 VSB)
+        B1                 VSB                      Standby positive output (+3.3/5 VSB or 12 VSB)
+        C1                 VSB                      Standby positive output (+3.3/5 VSB or 12 VSB)
+        D1                 VSB                      Standby positive output (+3.3/5 VSB or 12 VSB)
+        E1                 VSB                      Standby positive output (+3.3/5 VSB or 12 VSB)
+        A2                 SGND                     Signal ground (return)
+        B2                 SGND                     Signal ground (return)
+        C2                 HOTSTANDBYEN_H           Hot standby enable signal: active-high
+        D2                 VSB_SENSE_R              Standby output negative sense (Not used for 12 VSB model)
+        E2                 VSB_SENSE                Standby output positive sense (Not used for 12 VSB model)
+        A3                 APS                      I2C address and protocol selection (select by a pull down resistor)
+        B3                 N/C                      Reserved
+        C3                 SDA                      I2C data signal line
+        D3                 V1_SENSE_R               Main output negative sense
+        E3                 V1_SENSE                 Main output positive sense
+        A4                 SCL                      I2C clock signal line
+        B4                 PSON_L                   Power supply on input (connect to A2/B2 to turn unit on): active-low
+        C4                 SMB_ALERT_L              SMB Alert signal output: active-low
+        D4                 N/C                      Reserved
+        E4                 ACOK_H                   AC input OK signal: active-high
+        A5                 PSKILL_H                 Power supply kill (lagging pin): active-high
+        B5                 ISHARE                   Current share bus (lagging pin)
+        C5                 PWOK_H                   Power OK signal output (lagging pin): active-high
+        D5                 VSB_SEL                  Standby voltage selection (lagging pin) (Not used for 12 VSB model)
+        E5                 PRESENT_L                Power supply present (lagging pin): active-low
+
+
+
+
+                                                                                                        tech.support@psbel.com
+

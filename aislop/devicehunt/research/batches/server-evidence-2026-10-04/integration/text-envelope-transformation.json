@@ -1,0 +1,15 @@
+{
+  "authorization": "root explicit scoped formatting correction after staging failure",
+  "original_text_sha256": "c25f627270c5b16a241c77cf7fa70c443427585baef8a20b2933a44fd12c4345",
+  "new_envelope_sha256": "ccdc6ba6172b5f4264dd15355ecae983340147f2f346e60926358a8d2c8b1905",
+  "exact_added_metadata": {
+    "pdf_sha256": "83cb825a5ff3a087fd2f0706297f640f1b1778fc4ec72d6daf0ac3876465131e",
+    "extraction_method": "pypdf embedded text; no OCR"
+  },
+  "original_pages_identical": true,
+  "strict_pypdf_pages_equal": true,
+  "complete_bundle_original45entries_identical": true,
+  "added_entry_diff_only_text_path_and_sha256": true,
+  "original_source_proposal_sha256": "34caba1972f0bf2fea1ae64485dec0f42c652c63b9e35122e0023813eb33148a",
+  "failure_proof": "staging-failure.json"
+}

@@ -1,0 +1,90 @@
+{
+  "closed_at_utc": "2026-10-15T05:49:34.555339+00:00",
+  "actual_HTTP_exchanges": 10,
+  "cap": 12,
+  "search_queries_used": 6,
+  "search_cap": 8,
+  "status": "all6planned resources processed; collection closed; no extra requests from remaining budget",
+  "outcomes": [
+    {
+      "sequence": 1,
+      "key": "nvidia-certified",
+      "status": 200,
+      "body_path": "robots-docs.nvidia.com.txt",
+      "body_sha256": "40023dc772d7c169f4125e750b925c3b77ee9ef745226699f746b7d0d4129978",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 2,
+      "key": "nvidia-certified",
+      "status": 200,
+      "body_path": "nvidia-certified.html",
+      "body_sha256": "7704086f4984d21634814f6b75146ee278bc0863d3848d476d501270d4000f25",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 3,
+      "key": "nvidia-ngc",
+      "status": 301,
+      "body_path": "nvidia-ngc-ready.pdf",
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "location_not_followed": "https://docs.nvidia.com/certification-programs/latest/ngc-ready-systems.html"
+    },
+    {
+      "sequence": 4,
+      "key": "nvidia-ngc",
+      "status": 200,
+      "body_path": "redirect-nvidia-ngc-ready.pdf",
+      "body_sha256": "ad29b7e9933d8bb45d971ae0dcdf8582b784afc464a16d1df9959a903b7c93fd",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 5,
+      "key": "amd-instinct",
+      "status": 200,
+      "body_path": "robots-www.amd.com.txt",
+      "body_sha256": "0b1fd3de47d303a51102f2e720c1f447a3666b80cbf9f36bacc4a184cb186194",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 6,
+      "key": "amd-instinct",
+      "status": 200,
+      "body_path": "amd-instinct-catalog.pdf",
+      "body_sha256": "8436689a7a45614e4b4078e2bd13ad6aba0403d0407d5d4f79f4b557203c2d5c",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 7,
+      "key": "mitac-general",
+      "status": 200,
+      "body_path": "robots-www.mitaccomputing.com.txt",
+      "body_sha256": "1fa5f9c8004ad0f603dee61878dad6ae8dc7789cca58dbac914cc7f729c67e88",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 8,
+      "key": "mitac-general",
+      "status": 200,
+      "body_path": "mitac-general.html",
+      "body_sha256": "9e2c8e54bfa1450c6e0df37ecd210702048bdf4e105a96293ebcaadabc6f7a8f",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 9,
+      "key": "mitac-ai",
+      "status": 200,
+      "body_path": "mitac-ai.html",
+      "body_sha256": "60de50260bcb2cb78ad085e15d78b2df54826244ad88613d5e0e005abf5eed3d",
+      "location_not_followed": null
+    },
+    {
+      "sequence": 10,
+      "key": "mitac-multi",
+      "status": 200,
+      "body_path": "mitac-multi.html",
+      "body_sha256": "a2ed71449f6bf9c7aef8a78004c2e3ec737e11b6564b6da19c048785060f4222",
+      "location_not_followed": null
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-10-05T04:26:53.544113+00:00",
+  "verified_files": 1549,
+  "archive_membership_unchanged": true,
+  "all_protected_bytes_unchanged": true,
+  "baseline_full_suite": {
+    "tests": 514,
+    "seconds": 327.693,
+    "exit_code": 0,
+    "log": "full-suite-c1a.log",
+    "scope": "initial frozen c1a snapshot before final two P1 regression fixes; final combined suite still required",
+    "warnings": "ResourceWarning for unclosed SQLite connections appeared in existing catalog/importer test paths; no test failures"
+  },
+  "final_affected_tests": 42,
+  "network_or_live_migration": false
+}

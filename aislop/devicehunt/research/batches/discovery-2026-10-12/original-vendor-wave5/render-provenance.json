@@ -1,0 +1,122 @@
+{
+  "at_utc": "2026-10-13T04:48:08.133450+00:00",
+  "tool": "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+  "version_stdout": "",
+  "version_stderr": "pdftoppm version 26.06.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\n",
+  "version_argv": [
+    "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+    "-v"
+  ],
+  "local_rendered_pages": 7,
+  "local_render_cap": 8,
+  "remote_screenshots": 0,
+  "OCR": false,
+  "renders": [
+    {
+      "source": "as6700-quick-start.pdf",
+      "pdf_sha256": "75cab411d59d1f9ee6c8a3f555e582a34b11f4800e1851746cae6e1756042d0b",
+      "pages": [
+        1,
+        2
+      ],
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "1",
+        "-l",
+        "2",
+        "-r",
+        "150",
+        "-png",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as6700-quick-start.pdf",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as6700"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "",
+      "images": [
+        {
+          "path": "as6700-1.png",
+          "sha256": "68448199d947b6b2ff1a27296f402111b2af5793931f15421d6dbcdf7cd46250"
+        },
+        {
+          "path": "as6700-2.png",
+          "sha256": "64dfe660eca2e834e0587c972de56f43e91b1c2f3c2504d40b9fa6c831529ee5"
+        }
+      ]
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "1",
+        "-l",
+        "4",
+        "-r",
+        "150",
+        "-png",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as5712"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "",
+      "images": [
+        {
+          "path": "as5712-1.png",
+          "sha256": "ea95353248c7e13e0b81eaf194319395c87dfd8bc6b53cb9ba01108fcfa51805"
+        },
+        {
+          "path": "as5712-2.png",
+          "sha256": "e77bae8adb8af548b0a6aae9e68994bee9afadbd649964c008d56b0f32284d30"
+        },
+        {
+          "path": "as5712-3.png",
+          "sha256": "d66f8114513f12d1ea7f698ee9a176650167f02e3a5a06901a4993b463fc7bc6"
+        },
+        {
+          "path": "as5712-4.png",
+          "sha256": "694ba35e72ede4753fa0e4d442232ab4637f5fc2c8890752fb360c30c63647c0"
+        }
+      ]
+    },
+    {
+      "source": "as5710-as5712-ds-r09.pdf",
+      "pdf_sha256": "1cfb1bab2446e44a46f2976ef03e192c4c88a60000dad7c96edace510e5bc69f",
+      "pages": [
+        4
+      ],
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "4",
+        "-l",
+        "4",
+        "-r",
+        "240",
+        "-png",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as5710-as5712-ds-r09.pdf",
+        "research/batches/discovery-2026-10-12/original-vendor-wave5/as5712-reread4"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "",
+      "purpose": "leading fan-code character discrepancy between embedded text and rendered table",
+      "images": [
+        {
+          "path": "as5712-reread4-4.png",
+          "sha256": "d70ad610c925fb0cfcd823b285ebd582ba5569ce9e8b2eca94f187dc7f203fd0"
+        }
+      ]
+    }
+  ],
+  "last_render_utc": "2026-10-13T04:49:07.695649+00:00"
+}

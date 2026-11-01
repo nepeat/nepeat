@@ -1,0 +1,52 @@
+{
+  "pdf": "sd4100-known_captured_target_checked.pdf",
+  "pdf_sha256": "7d8694a1b311ff65ca654c41d3c5da7d85661c7911a3b49b3e115eaec9d82385",
+  "local_render_count": 2,
+  "cap": 6,
+  "renders": [
+    {
+      "page": 1,
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "1",
+        "-l",
+        "1",
+        "-r",
+        "150",
+        "-png",
+        "-singlefile",
+        "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/practical-sources/sd4100-known_captured_target_checked.pdf",
+        "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page1"
+      ],
+      "started_utc": "2026-10-15T05:40:05.428881+00:00",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "sd4100-render-page1.png",
+      "sha256": "fbaac860ec522ea4bf1ff5a5ebf2a876f1f98a5fb79ebf4623eed1b0f5da6f91"
+    },
+    {
+      "page": 2,
+      "argv": [
+        "/nix/store/wb8486c5l68f1shsbc217b7m4hbgrw3s-poppler-utils-26.06.0/bin/pdftoppm",
+        "-f",
+        "2",
+        "-l",
+        "2",
+        "-r",
+        "150",
+        "-png",
+        "-singlefile",
+        "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/practical-sources/sd4100-known_captured_target_checked.pdf",
+        "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/practical-sources/sd4100-render-page2"
+      ],
+      "started_utc": "2026-10-15T05:40:05.703815+00:00",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "output": "sd4100-render-page2.png",
+      "sha256": "3afe254c963b47e0f8e4c7bf64eb3d3b3c9618bcb9aac9c7b57d47a912bcecfa"
+    }
+  ]
+}

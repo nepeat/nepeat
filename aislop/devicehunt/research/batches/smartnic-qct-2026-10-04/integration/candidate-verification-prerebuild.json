@@ -1,0 +1,358 @@
+{
+  "phase": "candidate/rebuild audited; not promoted",
+  "integrator": "/root-claude",
+  "preservation": {
+    "fcc_sitemap_pages": {
+      "old": 48,
+      "new": 48,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_sitemap_urls": {
+      "old": 231962,
+      "new": 231962,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_company_rows": {
+      "old": 237,
+      "new": 237,
+      "missing_old_multiplicity": 0
+    },
+    "japan_equipment": {
+      "old": 346,
+      "new": 346,
+      "missing_old_multiplicity": 0
+    },
+    "public_equipment_rows": {
+      "old": 4985,
+      "new": 4985,
+      "missing_old_multiplicity": 0
+    },
+    "ghana_equipment": {
+      "old": 1153,
+      "new": 1153,
+      "missing_old_multiplicity": 0
+    },
+    "nigeria_equipment": {
+      "old": 8517,
+      "new": 8517,
+      "missing_old_multiplicity": 0
+    },
+    "ised_equipment": {
+      "old": 628,
+      "new": 628,
+      "missing_old_multiplicity": 0
+    },
+    "energystar_datacenter": {
+      "old": 452,
+      "new": 452,
+      "missing_old_multiplicity": 0
+    },
+    "energystar_server_archives": {
+      "old": 873,
+      "new": 873,
+      "missing_old_multiplicity": 0
+    },
+    "energystar_servers": {
+      "old": 495,
+      "new": 495,
+      "missing_old_multiplicity": 0
+    },
+    "sources": {
+      "old": 290,
+      "preserved": 290,
+      "new": 7,
+      "allowed_reference_metadata_changes": 47
+    },
+    "devices": {
+      "old": 4090,
+      "new": 4091,
+      "missing_old_multiplicity": 0
+    },
+    "records": {
+      "old": 5319,
+      "new": 5323,
+      "missing_old_multiplicity": 0
+    },
+    "affiliations": {
+      "old": 9151,
+      "new": 9159,
+      "missing_old_multiplicity": 0
+    },
+    "identifiers": {
+      "old": 4971,
+      "new": 4971,
+      "missing_old_multiplicity": 0
+    },
+    "facts": {
+      "old": 45017,
+      "new": 45073,
+      "missing_old_multiplicity": 0
+    },
+    "hyperscaler_evidence": {
+      "old": 22,
+      "new": 22,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_applications": {
+      "old": 2,
+      "new": 2,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_exhibits": {
+      "old": 32,
+      "new": 32,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_grantees": {
+      "old": 50153,
+      "new": 50153,
+      "missing_old_multiplicity": 0
+    },
+    "equipment_register": {
+      "old": 26258,
+      "new": 26258,
+      "missing_old_multiplicity": 0
+    },
+    "bahrain_equipment": {
+      "old": 10169,
+      "new": 10169,
+      "missing_old_multiplicity": 0
+    },
+    "anatel_equipment": {
+      "old": 190852,
+      "new": 190852,
+      "missing_old_multiplicity": 0
+    },
+    "ntra_equipment": {
+      "old": 76510,
+      "new": 76510,
+      "missing_old_multiplicity": 0
+    },
+    "tec_equipment": {
+      "old": 2331,
+      "new": 2331,
+      "missing_old_multiplicity": 0
+    },
+    "ieee_assignments": {
+      "old": 58639,
+      "new": 58639,
+      "missing_old_multiplicity": 0
+    },
+    "pci_entries": {
+      "old": 42438,
+      "new": 42438,
+      "missing_old_multiplicity": 0
+    },
+    "bsmi_certificates": {
+      "old": 105732,
+      "new": 105732,
+      "missing_old_multiplicity": 0
+    },
+    "bsmi_product_certificates": {
+      "old": 17797,
+      "new": 17797,
+      "missing_old_multiplicity": 0
+    },
+    "bsmi_voluntary_certificates": {
+      "old": 1818,
+      "new": 1818,
+      "missing_old_multiplicity": 0
+    },
+    "bsmi_declarations": {
+      "old": 564,
+      "new": 564,
+      "missing_old_multiplicity": 0
+    },
+    "rra_equipment": {
+      "old": 1081,
+      "new": 1081,
+      "missing_old_multiplicity": 0
+    },
+    "ncc_equipment": {
+      "old": 110957,
+      "new": 110957,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_id_index": {
+      "old": 344,
+      "new": 344,
+      "missing_old_multiplicity": 0
+    },
+    "documents": {
+      "old": 58,
+      "new": 61,
+      "missing_old_multiplicity": 0
+    },
+    "document_pages": {
+      "old": 3663,
+      "new": 3716,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_detail_pages": {
+      "old": 174,
+      "new": 174,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_detail_links": {
+      "old": 1493,
+      "new": 1493,
+      "missing_old_multiplicity": 0
+    },
+    "fcc_text_excerpts": {
+      "old": 1092,
+      "new": 1092,
+      "missing_old_multiplicity": 0
+    },
+    "search_index": {
+      "old_device_keys_preserved": 4090,
+      "new_keys": 1
+    },
+    "document_search": {
+      "old": 3663,
+      "new": 3716,
+      "missing_old_multiplicity": 0
+    },
+    "inspur_support_entries": {
+      "old": 1064,
+      "new": 1064,
+      "missing_old_multiplicity": 0
+    },
+    "archive_releases": {
+      "old": 1,
+      "new": 1,
+      "missing_old_multiplicity": 0
+    },
+    "archive_artifacts": {
+      "old": 146,
+      "new": 146,
+      "missing_old_multiplicity": 0
+    },
+    "archive_release_artifacts": {
+      "old": 148,
+      "new": 148,
+      "missing_old_multiplicity": 0
+    },
+    "archive_receipts": {
+      "old": 374,
+      "new": 374,
+      "missing_old_multiplicity": 0
+    },
+    "archive_release_receipts": {
+      "old": 374,
+      "new": 374,
+      "missing_old_multiplicity": 0
+    },
+    "evidence_statements": {
+      "old": 4,
+      "new": 4,
+      "missing_old_multiplicity": 0
+    },
+    "evidence_reviews": {
+      "old": 4,
+      "new": 4,
+      "missing_old_multiplicity": 0
+    },
+    "evidence_links": {
+      "old": 4,
+      "new": 4,
+      "missing_old_multiplicity": 0
+    },
+    "archive_release_statements": {
+      "old": 4,
+      "new": 4,
+      "missing_old_multiplicity": 0
+    }
+  },
+  "duplicate_sensitive_table_comparison": "rebuild pending",
+  "tables_compared": 52,
+  "fts": {
+    "old": {
+      "device_search_reconstructs": true,
+      "document_search_reconstructs": true
+    },
+    "candidate": {
+      "device_search_reconstructs": true,
+      "document_search_reconstructs": true
+    }
+  },
+  "intentionally_changed_old_device_fts": [
+    [
+      "Inventec",
+      "FPGA SmartNIC C5020X"
+    ],
+    [
+      "QCT",
+      "QuantaPlex T42S-2U"
+    ]
+  ],
+  "new_identities": [
+    [
+      "Inventec",
+      "FPGA IPU C5020X"
+    ]
+  ],
+  "source_rows_literal_proof": {
+    "inventec-fpga-smartnic-c5020x-cn-brief-2021": {
+      "records": 1,
+      "literal_raw_facts_roles_equal": true
+    },
+    "inventec-fpga-ipu-c5020x-en-brief-2021": {
+      "records": 1,
+      "literal_raw_facts_roles_equal": true
+    },
+    "qct-t42s-portfolio-specifications-2023": {
+      "records": 1,
+      "literal_raw_facts_roles_equal": true
+    },
+    "qct-t42s-qxvdi-solution-specifications-2020": {
+      "records": 1,
+      "literal_raw_facts_roles_equal": true
+    }
+  },
+  "new_facts": 56,
+  "english_ipu_tpm_rows_literal": [
+    "TPM 75W ",
+    "Exact printed FPGA IPU C5020X vendor brief; separate identity from FPGA SmartNIC C5020X. Matching C5020X token/specifications/photos do not establish an alias or the governing English version for Chinese SmartNIC brief. English page 2 last row literally reads TPM 75W; preserve without relabeling as TDP or interpreting TPM capability. No physical manufacture, factory, installed configuration, measured power, host compatibility, current support or firmware entitlement inferred."
+  ],
+  "c5000x_catalog_matches": 1,
+  "owned_baseline": {
+    "total": 10,
+    "hits": 10,
+    "gaps": 0
+  },
+  "bytedance_examples": {
+    "total": 2,
+    "hits": 0,
+    "gaps": 2
+  },
+  "inventory": {
+    "manufacturer": {
+      "before": [
+        2142,
+        2141
+      ],
+      "after": [
+        2142,
+        2141
+      ]
+    },
+    "all": {
+      "before": [
+        4227,
+        4089
+      ],
+      "after": [
+        4228,
+        4090
+      ]
+    }
+  },
+  "hyperscaler_assertions": 22,
+  "integrity_and_foreign_keys": "pass",
+  "lookup_single_vs_batch_probes": 40,
+  "candidate_sha256": "b66dc555ef7a38e2d942a4ba3534a71f442bc073c431c55308c413eb59bbf88e",
+  "rebuild_sha256": null,
+  "live_sha256": "62ab16eb8ab562ebbd6eaf6951987800fa8f4482879007d1713d0b8529ce0e4a",
+  "live_manifest_sha256": "27ff5fc4a6a0d170dfb1128e17c1a452aa6bdc725c3d3c7060584ca165bd3540",
+  "staged_manifest_sha256": "984624e6e9d77927326b0000d75dc22a5eec13c90a81c2ce4cbd587cc86c17fc"
+}

@@ -1,0 +1,282 @@
+{
+  "model": "X7-2C",
+  "exact_match": {
+    "id": "bc48b3df0d0606266074",
+    "brand": "Oracle",
+    "model": "Oracle Server X7-2C",
+    "revision": "",
+    "title": "Oracle Server X7-2C",
+    "kind": "server platform"
+  },
+  "scope": "saved captures only; no imports or network",
+  "records": [
+    {
+      "id": "9690c65d568095810894db23",
+      "device_id": "bc48b3df0d0606266074",
+      "source_id": "oracle-oss",
+      "source_key": "Oracle Server X7-2C",
+      "source_url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html",
+      "observed_at": "2026-10-04T11:26:10+00:00",
+      "cache_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/oracle-oss-x86.html",
+      "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+      "fetched_at": "2026-09-26T21:26:32.692019+00:00",
+      "facts_already_imported": [
+        {
+          "name": "software_evidence",
+          "value": "Public source-code archive links only; not installable firmware or a current support guarantee"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.0.21"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.0.30"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.2.20.b"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.2.29"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121579.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121770.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r123532.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r124016.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_heading",
+          "value": "Oracle Server X7-2C"
+        }
+      ],
+      "capture_verification": "hash matches source registry",
+      "captures": [
+        {
+          "path": "data/raw/oracle-oss-x86.html",
+          "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+          "url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html"
+        }
+      ]
+    },
+    {
+      "id": "b8768c1ffa5a51c99da86b88",
+      "device_id": "bc48b3df0d0606266074",
+      "source_id": "rra-official-query-73009f906e4e",
+      "source_key": "MSIP-REM-SUN-X72c2U:Oracle Server X7-2c",
+      "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+      "observed_at": "2026-10-04T11:26:39+00:00",
+      "cache_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-oracle-official/bundle.json",
+      "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+      "fetched_at": "2026-09-27T05:02:52.299279+00:00",
+      "facts_already_imported": [
+        {
+          "name": "approval_date_raw",
+          "value": "2017-09-28"
+        },
+        {
+          "name": "country_raw",
+          "value": "미국"
+        },
+        {
+          "name": "detail_sha256",
+          "value": "4e463ee8fb26c586aaaef6c0f1f75838dc97299c4950655fe10c8f608bb26b50"
+        },
+        {
+          "name": "rra_main_model",
+          "value": "X72c2U"
+        },
+        {
+          "name": "rra_model_role",
+          "value": "derived"
+        }
+      ],
+      "capture_verification": "hash matches source registry",
+      "captures": [
+        {
+          "path": "data/raw/rra-oracle-official/bundle.json",
+          "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+          "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U"
+        },
+        {
+          "path": "data/raw/rra-oracle-official/detail-031.html",
+          "sha256": "4e463ee8fb26c586aaaef6c0f1f75838dc97299c4950655fe10c8f608bb26b50",
+          "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+          "field_ref": "main model / derived models / manufacturer fields"
+        }
+      ]
+    }
+  ],
+  "positive_statements": [
+    {
+      "category": "identity_and_source_scoped_facts",
+      "status": "already imported",
+      "record_id": "9690c65d568095810894db23",
+      "source_id": "oracle-oss",
+      "capture_refs": [
+        {
+          "path": "data/raw/oracle-oss-x86.html",
+          "sha256": "c38044b23bd7a0e93703c155694ae2d3ee2bd21de2d571eb1852c3cb9bf16a72",
+          "url": "https://www.oracle.com/downloads/opensource/x86-servers-source-code-downloads.html"
+        }
+      ],
+      "facts": [
+        {
+          "name": "software_evidence",
+          "value": "Public source-code archive links only; not installable firmware or a current support guarantee"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.0.21"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.0.30"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.2.20.b"
+        },
+        {
+          "name": "source_archive_label",
+          "value": "ILOM-4.0.2.29"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121579.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/r121770.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r123532.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_archive_url",
+          "value": "https://download.oracle.com/otn-pub/oss/ilom/4.0/x7-2c_r124016.gpl_src.tar.bz2"
+        },
+        {
+          "name": "source_heading",
+          "value": "Oracle Server X7-2C"
+        }
+      ],
+      "field_ref": "source heading/tested configuration or model-specific section; exact fact names above"
+    },
+    {
+      "category": "identity_and_source_scoped_facts",
+      "status": "already imported",
+      "record_id": "b8768c1ffa5a51c99da86b88",
+      "source_id": "rra-official-query-73009f906e4e",
+      "capture_refs": [
+        {
+          "path": "data/raw/rra-oracle-official/bundle.json",
+          "sha256": "9ee58ff71684f0228e53605b0fac36c2f9111c5e0b413916b41e9d8f6f7a28f5",
+          "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U"
+        },
+        {
+          "path": "data/raw/rra-oracle-official/detail-031.html",
+          "sha256": "4e463ee8fb26c586aaaef6c0f1f75838dc97299c4950655fe10c8f608bb26b50",
+          "url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-SUN-X72c2U",
+          "field_ref": "main model / derived models / manufacturer fields"
+        }
+      ],
+      "facts": [
+        {
+          "name": "approval_date_raw",
+          "value": "2017-09-28"
+        },
+        {
+          "name": "country_raw",
+          "value": "미국"
+        },
+        {
+          "name": "detail_sha256",
+          "value": "4e463ee8fb26c586aaaef6c0f1f75838dc97299c4950655fe10c8f608bb26b50"
+        },
+        {
+          "name": "rra_main_model",
+          "value": "X72c2U"
+        },
+        {
+          "name": "rra_model_role",
+          "value": "derived"
+        }
+      ],
+      "field_ref": "source heading/tested configuration or model-specific section; exact fact names above"
+    },
+    {
+      "category": "chassis_variant_and_software",
+      "status": "newly reviewed unimported; provenance incomplete, not import-ready",
+      "source_id": null,
+      "record_id": null,
+      "capture": {
+        "path": "data/raw/oracle-x7-2c-vpat.html",
+        "sha256": "171c447c850db4a57f6f151db20fac52911280ded6d97a9145d33f850ce71fc6",
+        "url": null,
+        "url_status": "capture URL not recorded in available registry/bundles/notes; do not invent"
+      },
+      "field_ref": "Name of Product; Product Description; Date; Dependent Products",
+      "date": "23-Aug-2017",
+      "variants": [
+        {
+          "variant": "Oracle Server X7-2c SM 1U",
+          "literal_product_description": "Oracle Server X7-2c SM 1U with the following components: - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers * Six (6) Memory Channels per Socket, 2 sockets per channel *DDR4 interface (2666 MT/s) * 3 UPI Ports: two up to 10.4 GT/s links per processor * 150W Max - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - One (1) PCIe Gen3 Low Profile slot * One 1x 16-lane slot, low profile half height, half length - front external * 48 PCIe Gen3 lanes per CPU - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Hard Drive Options *Two (2) 2.5-inch SFF bays supporting NVMe SATA SFF SSDs or SATA SSDs "
+        },
+        {
+          "variant": "Oracle Server X7-2c SM 2U",
+          "literal_product_description": "Oracle Server X7-2c SM 2U with the following components: \" - Intel® Xeon® Processor Scalable Family (Skylake) - Intel® Xeon® C620 Chipset (Lewisburg) - Two (2) Socket-R3 supporting Intel “Skylake” processors * 14nm (Tock) * Dual-Thread * Six (6) Integrated Memory Controllers per Socket * Six (6) Memory Channels per Socket * Two (2) DIMMs per Channel * 3 UPI Ports * Two (2) up to 10.4 GT/s links per processor * 205W Max / 165W Max for GPU - Twenty four (24) DDR4 DIMM slots * Up to 2666 MHz - Up to Five (5) PCIe Gen3 Low profile slots * Three (3) front external x16 lane slots - low profile half height, half length option * Two (2) front external x8 lane slots - low profile half height, half length option - Two (2) 10 GbE Serial RJ-45 ports - Pilot4 Service Processor on Motherboard * Management Port – 10/100/1000 RJ-45 port * Serial management Port - One (1) USB 3.0 Ports (internal) - 2x 10/25 GbE SFP28 port or 2x 10 GbE RJ45, 1 GbE - Host GbE - Hard Drive Options with SATA3 HDDs, SAS3 HDD and NVMe SSD support * Four (4) 2.5-inch SFF bays supporting NVMe SFF SSDs, SATA3 and SAS3 HDDs\" "
+        }
+      ],
+      "dependent_products_literal": "Dependent Products This product interacts with or is built with the other Oracle products listedin this section. Click below to view information about the accessibility ofthese dependent products. Products listed are the versions available at thetime of publication of this document; newer documents may be available that supersedethese versions. Integrated Lights Out Manager (ILOM) 4.0.0 Oracle Hardware Management Pack 2.4 Oracle x86 Product Documentation 1.0 Oracle Solaris 11.3 (updated) System BIOS for Oracle X86 Servers Oracle Linux Fault Management Architecture 2.3.0.0.0 (Updated) Oracle VTS 8.2.1.0 Hardware with No User Interface (updated) Oracle VM Server for x86 (Updated) 3.4 Oracle Linux (OL) 7 ",
+      "limits": "dated accessibility product description; variants stay separate; watt values describe CPU limits, not PSU ratings or wall draw; dependency list is not OS compatibility/entitlement; source memory-channel wording preserved literally"
+    }
+  ],
+  "unknowns": {
+    "power": [
+      "PSU part numbers, count, input AC/DC range, connectors and derating",
+      "measured idle/load draw"
+    ],
+    "cooling": [
+      "airflow direction, fan dependencies, acoustic output and thermal limits"
+    ],
+    "chassis": [
+      "exact owned-unit chassis variant, rails and rack depth",
+      "disk backplane, risers and proprietary cabling dependencies"
+    ],
+    "boot_firmware": [
+      "owned-unit BIOS/ILOM version, credentials and locks",
+      "installable firmware access and supported flash/recovery procedure",
+      "standalone OS bootability of the particular liquidated unit"
+    ],
+    "licensing": [
+      "resale software entitlement, support transfer and activation conditions"
+    ]
+  },
+  "excluded_near_models": [
+    "Oracle Server X7-2",
+    "Oracle Server E5-2L",
+    "unmapped Oracle EcoDesign regulatory codes",
+    "E4-2c 1U/2U and Enclave/Blockstore suffix variants",
+    "E5-2c 1U/Enclave suffix variants"
+  ],
+  "finite_next_leads": [
+    "recover original URL/capture metadata for existing VPAT from acquisition provenance before considering import",
+    "one exact-model service/installation manual or label-backed Oracle part-number mapping to resolve PSU, fans, rails and chassis",
+    "one exact-model BIOS/ILOM release/readme and public download-access evidence, without gated/private requests",
+    "one official licensing/support-transfer statement applicable to a secondhand unit"
+  ]
+}

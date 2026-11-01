@@ -1,0 +1,40 @@
+{
+  "bisdn": {
+    "availability": "complete captured matrix",
+    "receipt": "raw/05-bisdn-hcl.json",
+    "parsed": "bisdn-matrix.json",
+    "rows": 11,
+    "vendors_as_printed": {
+      "Celestica": 1,
+      "Delta": 2,
+      "Edgecore": 8
+    },
+    "current_retired_scope": "no current/retired label inferred; captured listing only",
+    "download_links_fetched": false
+  },
+  "cumulus": {
+    "availability": "unavailable actual matrix; not an empty matrix",
+    "shell_receipt": "raw/03-cumulus-hcl.json",
+    "current_rows": null,
+    "retired_rows": null,
+    "api_policy_receipts": [
+      "raw/06-cumulus-api-policy.json",
+      "raw/07-cumulus-api-policy.json"
+    ],
+    "literal_newer_matrix_link": "https://support.cumulusnetworks.com/hc/en-us/articles/360038231814",
+    "literal_newer_link_policy_receipt": "raw/08-cumulus-support-policy.json",
+    "reason": "API hostname and linked support hostname fail external DNS; no API or support article request made; no retry after full-access support DNS failure",
+    "authorization_header_used": false
+  },
+  "budget": {
+    "web_search_queries_used": 6,
+    "web_search_cap": 6,
+    "acquisition_attempts": 8,
+    "actual_http_exchanges": 4,
+    "http_exchange_cap": 10,
+    "remaining_http_exchanges": 6,
+    "collection_stopped": true
+  },
+  "no_shared_writes": true,
+  "production_integration": "proposal only; independent review pending"
+}

@@ -1,0 +1,10 @@
+{
+  "stage": "root pre-promotion check; candidate review pending",
+  "checked_hash_bindings": 244,
+  "expected_counts_match": true,
+  "live_sha256": "bc4aa49abd97e1a20b1f0d1830457eb2086ddaa968946df9ba53524d191c49c0",
+  "candidate_sha256": "a098c390431efd77d25f162acb039d2ddd938ff5effeffd7e93fa9b0bc34ff16",
+  "manifest_sha256": "3eefe9fcb79e17e1c0f0e724c53472e523decef37fbe603d1e0ff69fb3906277",
+  "staging_ready_sha256": "ae25900a0a1eaa41b43cd3f8d39f572605ee3a1fb3440ee596aa7e8469279932",
+  "frozen_inputs_unchanged": true
+}

@@ -1,0 +1,4572 @@
+{
+  "reviewed_on": "2026-10-04",
+  "sources": [
+    {
+      "id": "inspur-products-2018-reviewed",
+      "url": "https://en.inspur.com/eportal/fileDir/lcjtww/resource/cms/article/2448179/2448543/2019032710162840541.pdf",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/inspur-2018-inventec-2026-10-04/inspur-products-2018.pdf",
+      "coverage": "Selected named hardware in the 2018 Chinese product catalog. Software, unnamed nodes, third-party components and inferred suffix expansions are excluded. Model tables and product headings are reviewed manually. One source-scoped AGX-2 alias is explicitly paired with NF5288M5. SR-AI joint development with Baidu is design lineage only. Historical vendor product facts. Brand/platform association only; no physical-manufacturer, factory, FCC-ID or auction-unit provenance assertion. Specifications are catalog options, not the configuration or firmware/license availability of a particular surplus unit. English descriptions translate or paraphrase the cited original pages. Conflicting facts remain explicit."
+    },
+    {
+      "id": "inventec-artemis-ii-rack-2025",
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/206?note=",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/inspur-2018-inventec-2026-10-04/inventec-artemis-ii-rack.pdf",
+      "coverage": "Two-page original product brochure; exact product name and selected specifications reviewed. Historical vendor product facts. Brand/platform association only; no physical-manufacturer, factory, FCC-ID or auction-unit provenance assertion. Specifications are catalog options, not the configuration or firmware/license availability of a particular surplus unit. English descriptions translate or paraphrase the cited original pages. Conflicting facts remain explicit."
+    },
+    {
+      "id": "inventec-x680m-2024",
+      "url": "https://ebg.inventec.com/en/tool-download/product_files/file/136?note=",
+      "tier": "vendor",
+      "license": "Public vendor product facts; original document rights retained",
+      "snapshot": "raw/inspur-2018-inventec-2026-10-04/inventec-x680m.pdf",
+      "coverage": "Two-page original product brochure; exact product name and selected specifications reviewed. Historical vendor product facts. Brand/platform association only; no physical-manufacturer, factory, FCC-ID or auction-unit provenance assertion. Specifications are catalog options, not the configuration or firmware/license availability of a particular surplus unit. English descriptions translate or paraphrase the cited original pages. Conflicting facts remain explicit."
+    }
+  ],
+  "devices": [
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5180M5",
+      "brand": "Inspur",
+      "model": "NF5180M5",
+      "title": "Inspur NF5180M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "5 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "435 x 43 x 750 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Up to 1300W PSUs, 1+1 redundancy"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "24 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5280M5",
+      "brand": "Inspur",
+      "model": "NF5280M5",
+      "title": "Inspur NF5280M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "6 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "435 x 87 x 780 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Up to 1600W PSUs, 1+1 redundancy"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "24 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5270M5",
+      "brand": "Inspur",
+      "model": "NF5270M5",
+      "title": "Inspur NF5270M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "6 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "447 x 87 x 720 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "500W/800W/1300W platinum PSUs, 1+1 redundancy"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors, up to 150W"
+        ],
+        [
+          "memory",
+          "16 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF8480M5",
+      "brand": "Inspur",
+      "model": "NF8480M5",
+      "title": "Inspur NF8480M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "7 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "448 x 175.5 x 812 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Up to 1600W PSUs; 1+1/2+1/2+2/3+1 redundancy options"
+        ],
+        [
+          "processor",
+          "Two or four Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "48 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF8260M5",
+      "brand": "Inspur",
+      "model": "NF8260M5",
+      "title": "Inspur NF8260M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "7 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "446 x 87 x 779.8 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Up to 1600W PSUs, 1+1 redundancy"
+        ],
+        [
+          "processor",
+          "Two or four Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "48 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5486M5",
+      "brand": "Inspur",
+      "model": "NF5486M5",
+      "title": "Inspur NF5486M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U; 447 x 175 x 995 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "2000W PSUs, 1+1 redundancy"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors, TDP 165W"
+        ],
+        [
+          "memory",
+          "16 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5466M5",
+      "brand": "Inspur",
+      "model": "NF5466M5",
+      "title": "Inspur NF5466M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "10 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U; 448 x 175.5 x 815 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Up to 1600W PSUs, 1+1 redundancy"
+        ],
+        [
+          "processor",
+          "Table lists two or four Intel Xeon Scalable processors; highlights describe two 165W CPUs"
+        ],
+        [
+          "memory",
+          "24 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NP5570M5",
+      "brand": "Inspur",
+      "model": "NP5570M5",
+      "title": "Inspur NP5570M5",
+      "kind": "server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "14 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "Tower; 220 x 435 x 610 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Two 500W PSUs with 1+1 redundancy, or one 500W/800W PSU"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "16 DIMMs, up to 2666MT/s"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "天梭 M13",
+      "brand": "Inspur",
+      "model": "天梭 M13",
+      "title": "Inspur 天梭 M13",
+      "kind": "enterprise server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "3 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "483 x 528 x 919 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Six 3000W PSUs; N+N redundancy (N: 2 or 3)"
+        ],
+        [
+          "memory_as_printed",
+          "Page 3 introduction: up to 48TB; specification table: maximum 24T DDR4-2400"
+        ],
+        [
+          "specification_conflict",
+          "Memory claims conflict on the same page; no single capacity selected"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "天梭 TS860G3",
+      "brand": "Inspur",
+      "model": "天梭 TS860G3",
+      "title": "Inspur 天梭 TS860G3",
+      "kind": "enterprise server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "4 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "444 x 352 x 830 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Up to eight 800W PSUs; N+M/N+N redundancy"
+        ],
+        [
+          "processor",
+          "Up to eight Intel Xeon E7-4800/8800 v3/v4 processors"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "天梭 TS860M5",
+      "brand": "Inspur",
+      "model": "天梭 TS860M5",
+      "title": "Inspur 天梭 TS860M5",
+      "kind": "enterprise server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "4 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U; 448 x 175.5 x 800 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Up to four 800/1300/1600 CRPS PSUs as printed; 2+2/3+1 redundancy"
+        ],
+        [
+          "processor",
+          "Eight Intel Xeon 6100/8100 series scalable processors"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "i48",
+      "brand": "Inspur",
+      "model": "i48",
+      "title": "Inspur i48",
+      "kind": "server chassis",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "8 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U chassis; 448 x 175.5 x 898.2 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Four 800W/1300W/1600W/2000W 80Plus platinum PSUs; 2+2 redundancy"
+        ],
+        [
+          "node_models",
+          "NS5488M5; NS5484M5; NS5482M5; NS5482JD"
+        ],
+        [
+          "identity_scope",
+          "Chassis and its separately named compute/storage/JBOD nodes are not aliases"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NS5488M5",
+      "brand": "Inspur",
+      "model": "NS5488M5",
+      "title": "Inspur NS5488M5",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "8 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "i48"
+        ],
+        [
+          "physical_description",
+          "4U8-node configuration in the i48 chassis"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors per node"
+        ],
+        [
+          "memory",
+          "16 DDR4 DIMMs per node"
+        ],
+        [
+          "storage",
+          "Four front 2.5-inch SATA/SAS/SSD/NVMe drives"
+        ],
+        [
+          "identity_scope",
+          "Node for the separately named i48 chassis; not an independent AC-powered server assertion"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NS5484M5",
+      "brand": "Inspur",
+      "model": "NS5484M5",
+      "title": "Inspur NS5484M5",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "8 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "i48"
+        ],
+        [
+          "physical_description",
+          "4U4-node configuration in the i48 chassis"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors per node"
+        ],
+        [
+          "memory",
+          "16 DDR4 DIMMs per node"
+        ],
+        [
+          "storage",
+          "Two front 2.5-inch drives plus twelve internal 3.5/2.5-inch drives"
+        ],
+        [
+          "identity_scope",
+          "Node for the separately named i48 chassis; not an independent AC-powered server assertion"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NS5482M5",
+      "brand": "Inspur",
+      "model": "NS5482M5",
+      "title": "Inspur NS5482M5",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "8 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "i48"
+        ],
+        [
+          "physical_description",
+          "4U2-node configuration in the i48 chassis"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors per node"
+        ],
+        [
+          "memory",
+          "16 DDR4 DIMMs per node"
+        ],
+        [
+          "storage",
+          "Two front 2.5-inch drives plus thirty-six internal 3.5/2.5-inch drives"
+        ],
+        [
+          "identity_scope",
+          "Node for the separately named i48 chassis; not an independent AC-powered server assertion"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NS5482JD",
+      "brand": "Inspur",
+      "model": "NS5482JD",
+      "title": "Inspur NS5482JD",
+      "kind": "JBOD node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "8 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "i48"
+        ],
+        [
+          "storage",
+          "36 internal 3.5-inch hot-swap drives"
+        ],
+        [
+          "required_components",
+          "Catalog explicitly requires pairing with another compute node; describes a 4U1-node 72-drive configuration"
+        ],
+        [
+          "physical_description",
+          "JBOD node listed separately from the i48 chassis and compute nodes"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "i24",
+      "brand": "Inspur",
+      "model": "i24",
+      "title": "Inspur i24",
+      "kind": "server platform",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U chassis for four NS5162M5 nodes; 446 x 87.5 x 805 mm (2.5-inch chassis) or 845 mm depth (3.5-inch chassis)"
+        ],
+        [
+          "power_description",
+          "Two 2000W 80Plus platinum PSUs; 1+1 redundancy"
+        ],
+        [
+          "cooling_description",
+          "Air- or water-cooling options described"
+        ],
+        [
+          "compute_node_model",
+          "NS5162M5"
+        ],
+        [
+          "storage_constraint",
+          "Chassis drives are divided equally among nodes; no cross-node use"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NS5162M5",
+      "brand": "Inspur",
+      "model": "NS5162M5",
+      "title": "Inspur NS5162M5",
+      "kind": "compute node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "9 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "i24"
+        ],
+        [
+          "physical_description",
+          "Four nodes in the separately identified i24 2U chassis"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors per node"
+        ],
+        [
+          "memory",
+          "16 DDR4 DIMMs per node"
+        ],
+        [
+          "storage",
+          "Up to six 2.5-inch or three 3.5-inch drives per node"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "I9000",
+      "brand": "Inspur",
+      "model": "I9000",
+      "title": "Inspur I9000",
+      "kind": "blade chassis",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "10, 11 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "12U; up to sixteen half-width or eight full-width blades"
+        ],
+        [
+          "power_description",
+          "Page 11 chassis table: 3000W 100-240V AC hot-swap modules, N+N or N+M redundancy"
+        ],
+        [
+          "cooling_description",
+          "Up to ten chassis fan modules"
+        ],
+        [
+          "node_models",
+          "NX8480M4; NX8880M4; NX5460M5; NX8280M4"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NX8480M4",
+      "brand": "Inspur",
+      "model": "NX8480M4",
+      "title": "Inspur NX8480M4",
+      "kind": "blade server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "11 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "I9000"
+        ],
+        [
+          "identity_scope",
+          "Named node in I9000 section; chassis, I/O boxes and unnamed expansion nodes remain separate"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NX8880M4",
+      "brand": "Inspur",
+      "model": "NX8880M4",
+      "title": "Inspur NX8880M4",
+      "kind": "blade server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "11 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "I9000"
+        ],
+        [
+          "identity_scope",
+          "Named node in I9000 section; chassis, I/O boxes and unnamed expansion nodes remain separate"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NX5460M5",
+      "brand": "Inspur",
+      "model": "NX5460M5",
+      "title": "Inspur NX5460M5",
+      "kind": "blade server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "11 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "I9000"
+        ],
+        [
+          "identity_scope",
+          "Named node in I9000 section; chassis, I/O boxes and unnamed expansion nodes remain separate"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NX8280M4",
+      "brand": "Inspur",
+      "model": "NX8280M4",
+      "title": "Inspur NX8280M4",
+      "kind": "blade server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "11 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "I9000"
+        ],
+        [
+          "identity_scope",
+          "Named node in I9000 section; chassis, I/O boxes and unnamed expansion nodes remain separate"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SR4200",
+      "brand": "Inspur",
+      "model": "SR4200",
+      "title": "Inspur SR4200",
+      "kind": "integrated rack",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "600 mm wide x 1200 mm deep; 2100 mm rolling height; usable 42U; inner width 538 mm, each U 46.5 mm as printed"
+        ],
+        [
+          "power_description",
+          "Centralized N+N supplies; 220V AC/240V DC; individual PSU rating 2000W-2500W; power modules at U21-U23"
+        ],
+        [
+          "cooling_description",
+          "Front intake, rear exhaust; rear centralized fan wall"
+        ],
+        [
+          "node_models",
+          "SN5160M4; SN5150M4; SN6116M5; SN5161M5; SN5171M5; SN3116M4S; SN3116J4"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN5160M4",
+      "brand": "Inspur",
+      "model": "SN5160M4",
+      "title": "Inspur SN5160M4",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_section",
+          "SR integrated rack"
+        ],
+        [
+          "physical_description",
+          "1U1N as printed"
+        ],
+        [
+          "identity_scope",
+          "Node in the SR rack section; no standalone mains-input assumption"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN5150M4",
+      "brand": "Inspur",
+      "model": "SN5150M4",
+      "title": "Inspur SN5150M4",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_section",
+          "SR integrated rack"
+        ],
+        [
+          "physical_description",
+          "1U2N as printed"
+        ],
+        [
+          "identity_scope",
+          "Node in the SR rack section; no standalone mains-input assumption"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN6116M5",
+      "brand": "Inspur",
+      "model": "SN6116M5",
+      "title": "Inspur SN6116M5",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_section",
+          "SR integrated rack"
+        ],
+        [
+          "physical_description",
+          "1U1N as printed"
+        ],
+        [
+          "identity_scope",
+          "Node in the SR rack section; no standalone mains-input assumption"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN5161M5",
+      "brand": "Inspur",
+      "model": "SN5161M5",
+      "title": "Inspur SN5161M5",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "12 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_section",
+          "SR integrated rack"
+        ],
+        [
+          "physical_description",
+          "1U1N as printed"
+        ],
+        [
+          "identity_scope",
+          "Node in the SR rack section; no standalone mains-input assumption"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN5171M5",
+      "brand": "Inspur",
+      "model": "SN5171M5",
+      "title": "Inspur SN5171M5",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "13 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_section",
+          "SR integrated rack"
+        ],
+        [
+          "physical_description",
+          "1U1N as printed"
+        ],
+        [
+          "identity_scope",
+          "Node in the SR rack section; no standalone mains-input assumption"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN3116M4S",
+      "brand": "Inspur",
+      "model": "SN3116M4S",
+      "title": "Inspur SN3116M4S",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "13 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_section",
+          "SR integrated rack"
+        ],
+        [
+          "physical_description",
+          "1U1N as printed"
+        ],
+        [
+          "identity_scope",
+          "Node in the SR rack section; no standalone mains-input assumption"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN3116J4",
+      "brand": "Inspur",
+      "model": "SN3116J4",
+      "title": "Inspur SN3116J4",
+      "kind": "JBOD node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "13 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U1 node JBOD"
+        ],
+        [
+          "power_description",
+          "12V DC through a power clip"
+        ],
+        [
+          "storage",
+          "20 hot-swap 3.5/2.5-inch SATA/SAS drives or SSDs"
+        ],
+        [
+          "interfaces",
+          "Four MiniSAS HD; 12G SAS / 6G SATA; 100M management port"
+        ],
+        [
+          "identity_scope",
+          "Separate from the adjacent unnamed SAS switch"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "InCloudRack",
+      "brand": "Inspur",
+      "model": "InCloudRack",
+      "title": "Inspur InCloudRack",
+      "kind": "integrated rack",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "13 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "42U standard rack; up to 48 nodes, configuration-dependent"
+        ],
+        [
+          "power_description",
+          "18 x 3000W platinum PSUs with 9+9 redundancy; table states 240V DC and two 380V/32A industrial connectors"
+        ],
+        [
+          "cooling_description",
+          "24 fan modules, four per tray with 3+1 redundancy"
+        ],
+        [
+          "node_models",
+          "NX5460M4; NX8280M4; NX8480M4; NX8880M4"
+        ],
+        [
+          "identity_scope",
+          "NX5460M4 in this table is not silently substituted with NX5460M5 from the I9000 table"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NX5460M4",
+      "brand": "Inspur",
+      "model": "NX5460M4",
+      "title": "Inspur NX5460M4",
+      "kind": "server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "13 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_model",
+          "InCloudRack"
+        ],
+        [
+          "physical_description",
+          "Two-socket half-width node; up to 48 in the stated rack configuration"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "ON5263M5",
+      "brand": "Inspur",
+      "model": "ON5263M5",
+      "title": "Inspur ON5263M5",
+      "kind": "compute node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "14 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "174.5 x 91.1 x 731.4 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Centralized rack bus-bar power"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Scalable processors"
+        ],
+        [
+          "memory",
+          "16 DIMMs"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "OB5161M4",
+      "brand": "Inspur",
+      "model": "OB5161M4",
+      "title": "Inspur OB5161M4",
+      "kind": "Open19 server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "15 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U full-width storage server node"
+        ],
+        [
+          "power_description",
+          "Open19 power shelf"
+        ],
+        [
+          "required_components",
+          "Open19 switch and power components form the complete server system; standardized network and power cabling described"
+        ],
+        [
+          "identity_scope",
+          "Node is distinct from the Open19 cage, switch and power shelf"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "OB5162M5",
+      "brand": "Inspur",
+      "model": "OB5162M5",
+      "title": "Inspur OB5162M5",
+      "kind": "Open19 server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "15 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U half-width compute server node; 212 x 41.5 x 907 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "Open19 power shelf"
+        ],
+        [
+          "required_components",
+          "Open19 switch and power components form the complete server system; standardized network and power cabling described"
+        ],
+        [
+          "identity_scope",
+          "Node is distinct from the Open19 cage, switch and power shelf"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5288M5",
+      "brand": "Inspur",
+      "model": "NF5288M5",
+      "title": "Inspur NF5288M5",
+      "kind": "GPU server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "16, 33 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "model_as_printed",
+          "NF5288M5 (AGX-2)"
+        ],
+        [
+          "physical_description",
+          "2U server with eight GPUs; dual Intel Xeon Skylake Gold/Platinum processors"
+        ],
+        [
+          "power_description",
+          "PDF p16: two 3000W platinum modules. PDF p33: high-efficiency titanium redundant dual supplies"
+        ],
+        [
+          "specification_conflict",
+          "The two pages differ on PSU efficiency description; retained independently without resolving a unit configuration"
+        ],
+        [
+          "cooling_description",
+          "Water cooling supported as a catalog option"
+        ]
+      ],
+      "identifiers": [
+        [
+          "alias",
+          "AGX-2"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5468M5",
+      "brand": "Inspur",
+      "model": "NF5468M5",
+      "title": "Inspur NF5468M5",
+      "kind": "GPU server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "17 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U; eight V100/P100/P40 or sixteen P4 GPUs as catalog options"
+        ],
+        [
+          "power_description",
+          "Four 1600W/2000W/2200W 80Plus platinum PSU modules; 2+2 redundancy"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "GX4",
+      "brand": "Inspur",
+      "model": "GX4",
+      "title": "Inspur GX4",
+      "kind": "GPU expansion enclosure",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "18 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U GPU box; four GPU cards"
+        ],
+        [
+          "power_description",
+          "1600W supplies, 1+1 redundancy"
+        ],
+        [
+          "required_components",
+          "Used with a dual-CPU head node; four GX4 boxes can form a sixteen-GPU system"
+        ],
+        [
+          "identity_scope",
+          "GPU expansion enclosure; not a standalone CPU server"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NF5280M5-V",
+      "brand": "Inspur",
+      "model": "NF5280M5-V",
+      "title": "Inspur NF5280M5-V",
+      "kind": "GPU server",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "18 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U dual-socket server; eight P4 GPUs"
+        ],
+        [
+          "power_description",
+          "High-efficiency titanium redundant dual supplies"
+        ],
+        [
+          "identity_scope",
+          "Full -V suffix retained; not an alias of NF5280M5"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SR-AI整机柜",
+      "brand": "Inspur",
+      "model": "SR-AI整机柜",
+      "title": "Inspur SR-AI整机柜 (SR-AI rack)",
+      "kind": "integrated GPU rack",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ],
+        [
+          "Baidu",
+          "platform_designer"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "19 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "model_as_printed",
+          "Heading: SR-AI整机柜; model table: SR AI 整机柜"
+        ],
+        [
+          "head_node_as_printed",
+          "SN 5160M4"
+        ],
+        [
+          "gpu_box_model",
+          "SN3410G4"
+        ],
+        [
+          "design_statement",
+          "Inspur and Baidu jointly developed the SR-AI rack; historical product design, not deployment or auction-unit provenance"
+        ],
+        [
+          "physical_description",
+          "Rack architecture separates CPU head node and GPU box; the table names a 1U head node and 4U GPU box"
+        ]
+      ],
+      "hyperscaler": [
+        [
+          "Baidu",
+          "documented_design_lineage",
+          "The 2018 Inspur catalog, PDF p19, explicitly describes joint development of the SR-AI rack with Baidu. No operator deployment or individual-unit provenance asserted."
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SN3410G4",
+      "brand": "Inspur",
+      "model": "SN3410G4",
+      "title": "Inspur SN3410G4",
+      "kind": "GPU expansion enclosure",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "19 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "rack_model",
+          "SR-AI整机柜"
+        ],
+        [
+          "physical_description",
+          "4U GPU box; sixteen double-width PCIe 3.0 expansion slots"
+        ],
+        [
+          "identity_scope",
+          "Separately named GPU box; no independent Baidu deployment assertion"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "F10A",
+      "brand": "Inspur",
+      "model": "F10A",
+      "title": "Inspur F10A",
+      "kind": "FPGA accelerator",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "19 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "Half-height, half-length PCIe Gen3 x8 board"
+        ],
+        [
+          "power_description",
+          "12V from PCIe 3.0 slot; no external power; 45W peak / 35W average as printed"
+        ],
+        [
+          "interfaces",
+          "Two SFP+ GE/10GE ports"
+        ],
+        [
+          "memory",
+          "Two DDR4 SODIMMs, 4-16GB each, 2133Mbps, 72-bit with ECC"
+        ],
+        [
+          "controller",
+          "Intel Arria 10 GX1150"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS1300G2",
+      "brand": "Inspur",
+      "model": "AS1300G2",
+      "title": "Inspur AS1300G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "23 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U12 bays"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS1500G2",
+      "brand": "Inspur",
+      "model": "AS1500G2",
+      "title": "Inspur AS1500G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "23 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U24 bays"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS1600G2",
+      "brand": "Inspur",
+      "model": "AS1600G2",
+      "title": "Inspur AS1600G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "23 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U36 bays"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS2200G2",
+      "brand": "Inspur",
+      "model": "AS2200G2",
+      "title": "Inspur AS2200G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "23 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U12 or 2U25 controller enclosure"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS2600G2",
+      "brand": "Inspur",
+      "model": "AS2600G2",
+      "title": "Inspur AS2600G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "23 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U12, 2U25 or 3U48 controller enclosure"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5300G2",
+      "brand": "Inspur",
+      "model": "AS5300G2",
+      "title": "Inspur AS5300G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "24 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U12, 2U25 or 3U48 controller enclosure"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5500G2",
+      "brand": "Inspur",
+      "model": "AS5500G2",
+      "title": "Inspur AS5500G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "24 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U12, 2U25 or 3U48 controller enclosure"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5600",
+      "brand": "Inspur",
+      "model": "AS5600",
+      "title": "Inspur AS5600",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "25 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "482 x 805 x 133 mm, dimensions printed as length x width x height"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5600G2",
+      "brand": "Inspur",
+      "model": "AS5600G2",
+      "title": "Inspur AS5600G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "25 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U controller enclosure"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5800G2",
+      "brand": "Inspur",
+      "model": "AS5800G2",
+      "title": "Inspur AS5800G2",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "25 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U controller enclosure"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS18000",
+      "brand": "Inspur",
+      "model": "AS18000",
+      "title": "Inspur AS18000",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "26 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "Multi-controller storage with separately described controller, switch and expansion enclosures"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS13000-M1/M3/M5/Rack",
+      "brand": "Inspur",
+      "model": "AS13000-M1/M3/M5/Rack",
+      "title": "Inspur AS13000-M1/M3/M5/Rack",
+      "kind": "storage system family",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "26 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "Grouped hardware family: 2U12, 2U25, 4U36 and 42U (1U12) configurations"
+        ],
+        [
+          "identity_scope",
+          "Printed grouped name retained; no inferred AS13000 suffix expansion or SKU equivalence"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "HF5000-H",
+      "brand": "Inspur",
+      "model": "HF5000-H",
+      "title": "Inspur HF5000-H",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "27 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "3U16"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "HF5000-F",
+      "brand": "Inspur",
+      "model": "HF5000-F",
+      "title": "Inspur HF5000-F",
+      "kind": "storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "27 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U48"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS2600G2-F",
+      "brand": "Inspur",
+      "model": "AS2600G2-F",
+      "title": "Inspur AS2600G2-F",
+      "kind": "flash storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "27 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U25 integrated controller/drives"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5300G2-F",
+      "brand": "Inspur",
+      "model": "AS5300G2-F",
+      "title": "Inspur AS5300G2-F",
+      "kind": "flash storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "27 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U25 integrated controller/drives"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5500G2-F",
+      "brand": "Inspur",
+      "model": "AS5500G2-F",
+      "title": "Inspur AS5500G2-F",
+      "kind": "flash storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "27 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U25 integrated controller/drives"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5600G2-F",
+      "brand": "Inspur",
+      "model": "AS5600G2-F",
+      "title": "Inspur AS5600G2-F",
+      "kind": "flash storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "27 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U; separate controller/drives"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "AS5800G2-F",
+      "brand": "Inspur",
+      "model": "AS5800G2-F",
+      "title": "Inspur AS5800G2-F",
+      "kind": "flash storage system",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "27 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "4U; separate controller/drives"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "TL1000",
+      "brand": "Inspur",
+      "model": "TL1000",
+      "title": "Inspur TL1000",
+      "kind": "tape library",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "28 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "drive_support",
+          "Two half-height or one full-height drive; LTO5/6/7 as catalog options"
+        ],
+        [
+          "tape_slots",
+          "24"
+        ],
+        [
+          "interfaces",
+          "FC or SAS; source prose lists 8Gb FC and 6Gb SAS"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "TL2000",
+      "brand": "Inspur",
+      "model": "TL2000",
+      "title": "Inspur TL2000",
+      "kind": "tape library",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "28 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "drive_support",
+          "Four half-height or two full-height drives; LTO5/6/7 as catalog options"
+        ],
+        [
+          "tape_slots",
+          "48"
+        ],
+        [
+          "interfaces",
+          "FC or SAS; source prose lists 8Gb FC and 6Gb SAS"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "DP1000-M1",
+      "brand": "Inspur",
+      "model": "DP1000-M1",
+      "title": "Inspur DP1000-M1",
+      "kind": "backup appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "28 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "storage",
+          "12 internal disks, expandable to 144; NL-SAS/SAS"
+        ],
+        [
+          "memory",
+          "16GB standard, up to 384GB"
+        ],
+        [
+          "identity_scope",
+          "Named physical backup appliance; DPS backup software remains separate"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "FS5900",
+      "brand": "Inspur",
+      "model": "FS5900",
+      "title": "Inspur FS5900",
+      "kind": "Fibre Channel switch",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "30 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U; 43 x 429 x 307 mm (H x W x D); 4.2kg without SFP/SFP+"
+        ],
+        [
+          "power_description",
+          "AC 85-264V, 1A-0.5A; 48W typical, up to 57W with 24 x 8Gb ports"
+        ],
+        [
+          "interfaces",
+          "8 to 24 Fibre Channel ports in increments of eight; 2/4/8Gbps"
+        ],
+        [
+          "software_installation_description",
+          "Catalog describes incremental port expansion and trial licenses for selected plug-in functions; actual unit entitlements unverified"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "FS6500/6600",
+      "brand": "Inspur",
+      "model": "FS6500/6600",
+      "title": "Inspur FS6500/6600",
+      "kind": "Fibre Channel switch family",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "31 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U; 43 x 438 x 443 mm (H x W x D); 9.16kg with dual supplies, without optics"
+        ],
+        [
+          "power_description",
+          "AC 85-264V, 5A-2.5A; 6500: 60W typical/80W maximum as described; 6600: 72W typical/110W maximum"
+        ],
+        [
+          "interfaces",
+          "2/4/8/16Gbps; 6500: 12 to 24 ports; 6600: 24 to 48 ports, in increments of twelve"
+        ],
+        [
+          "identity_scope",
+          "Printed FS6500/6600 grouping retained; full separate order codes not inferred"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "FS6800",
+      "brand": "Inspur",
+      "model": "FS6800",
+      "title": "Inspur FS6800",
+      "kind": "Fibre Channel switch",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "31 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U"
+        ],
+        [
+          "interfaces",
+          "48 to 96 ports, 4/8/16Gbps; 24-port expansion increments"
+        ],
+        [
+          "software_installation_description",
+          "Catalog lists licensed Fabric Vision, ISL Trunking, Extended Fabric and routing options; availability on a surplus unit unverified"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "FS9510",
+      "brand": "Inspur",
+      "model": "FS9510",
+      "title": "Inspur FS9510",
+      "kind": "Fibre Channel director",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "32 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "interfaces",
+          "Up to 256 x 16Gbps FC ports"
+        ],
+        [
+          "required_components",
+          "Up to four horizontal port blades; 32/48/64-port blade options as printed"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "FS9520",
+      "brand": "Inspur",
+      "model": "FS9520",
+      "title": "Inspur FS9520",
+      "kind": "Fibre Channel director",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "32 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "interfaces",
+          "Up to 512 x 16Gbps FC ports"
+        ],
+        [
+          "required_components",
+          "Up to eight vertical port blades; 32/48/64-port blade options as printed"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "I8020",
+      "brand": "Inspur",
+      "model": "I8020",
+      "title": "Inspur I8020",
+      "kind": "blade chassis",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "33 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "8U chassis for twenty compute blades"
+        ],
+        [
+          "power_description",
+          "Up to eight hot-swap 2200W PSU modules; N+M redundancy"
+        ],
+        [
+          "compute_node_model",
+          "NX5440M5"
+        ],
+        [
+          "interfaces",
+          "100Gb/s EDR IB or Omni-Path options; Ethernet modules also described"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "NX5440M5",
+      "brand": "Inspur",
+      "model": "NX5440M5",
+      "title": "Inspur NX5440M5",
+      "kind": "blade server node",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "33 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "chassis_model",
+          "I8020"
+        ],
+        [
+          "processor",
+          "Two Intel Xeon Skylake Gold/Platinum processors"
+        ],
+        [
+          "memory",
+          "16 DDR4 ECC DIMM slots"
+        ],
+        [
+          "storage",
+          "Three 2.5-inch SATA drives (two may be NVMe) plus one M.2 SATA/NVMe SSD"
+        ],
+        [
+          "identity_scope",
+          "Blade node distinct from its I8020 chassis"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "G100",
+      "brand": "Inspur",
+      "model": "G100",
+      "title": "Inspur G100",
+      "kind": "genomics appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "36 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "product_family",
+          "GeneEngine M2"
+        ],
+        [
+          "physical_description",
+          "Desktop appliance"
+        ],
+        [
+          "identity_scope",
+          "Two named hardware configurations under the GeneEngine M2 family; family name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "G1000",
+      "brand": "Inspur",
+      "model": "G1000",
+      "title": "Inspur G1000",
+      "kind": "genomics appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "36 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "product_family",
+          "GeneEngine M2"
+        ],
+        [
+          "physical_description",
+          "Central compute appliance"
+        ],
+        [
+          "identity_scope",
+          "Two named hardware configurations under the GeneEngine M2 family; family name is not an alias"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSA1900",
+      "brand": "Inspur",
+      "model": "SSA1900",
+      "title": "Inspur SSA1900",
+      "kind": "application delivery appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "41 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "Single PSU"
+        ],
+        [
+          "interface_requirement",
+          "Six onboard gigabit copper ports"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSA2000",
+      "brand": "Inspur",
+      "model": "SSA2000",
+      "title": "Inspur SSA2000",
+      "kind": "application delivery appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "41 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "Single PSU"
+        ],
+        [
+          "interface_requirement",
+          "SSA1900 has six onboard gigabit copper ports; other SSA models require at least one optional network-card module"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSA3000",
+      "brand": "Inspur",
+      "model": "SSA3000",
+      "title": "Inspur SSA3000",
+      "kind": "application delivery appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "41 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "interface_requirement",
+          "SSA1900 has six onboard gigabit copper ports; other SSA models require at least one optional network-card module"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSA4000",
+      "brand": "Inspur",
+      "model": "SSA4000",
+      "title": "Inspur SSA4000",
+      "kind": "application delivery appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "41 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "interface_requirement",
+          "SSA1900 has six onboard gigabit copper ports; other SSA models require at least one optional network-card module"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSA5000",
+      "brand": "Inspur",
+      "model": "SSA5000",
+      "title": "Inspur SSA5000",
+      "kind": "application delivery appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "41 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "interface_requirement",
+          "SSA1900 has six onboard gigabit copper ports; other SSA models require at least one optional network-card module"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSA6000",
+      "brand": "Inspur",
+      "model": "SSA6000",
+      "title": "Inspur SSA6000",
+      "kind": "application delivery appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "41 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "interface_requirement",
+          "SSA1900 has six onboard gigabit copper ports; other SSA models require at least one optional network-card module"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSA7000",
+      "brand": "Inspur",
+      "model": "SSA7000",
+      "title": "Inspur SSA7000",
+      "kind": "application delivery appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "41 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "2U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "interface_requirement",
+          "SSA1900 has six onboard gigabit copper ports; other SSA models require at least one optional network-card module"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSC 1900",
+      "brand": "Inspur",
+      "model": "SSC 1900",
+      "title": "Inspur SSC 1900",
+      "kind": "operations security appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "42 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "identity_scope",
+          "Space in printed model preserved; separate from SSA models"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSC 2900",
+      "brand": "Inspur",
+      "model": "SSC 2900",
+      "title": "Inspur SSC 2900",
+      "kind": "operations security appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "42 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "identity_scope",
+          "Space in printed model preserved; separate from SSA models"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SSC 3900",
+      "brand": "Inspur",
+      "model": "SSC 3900",
+      "title": "Inspur SSC 3900",
+      "kind": "operations security appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "42 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "Redundant PSUs"
+        ],
+        [
+          "identity_scope",
+          "Space in printed model preserved; separate from SSA models"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SDP1000",
+      "brand": "Inspur",
+      "model": "SDP1000",
+      "title": "Inspur SDP1000",
+      "kind": "database security appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "43 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "80Plus gold PSU"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SDP2000",
+      "brand": "Inspur",
+      "model": "SDP2000",
+      "title": "Inspur SDP2000",
+      "kind": "database security appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "43 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "80Plus gold redundant PSUs"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "SDP3000",
+      "brand": "Inspur",
+      "model": "SDP3000",
+      "title": "Inspur SDP3000",
+      "kind": "database security appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "43 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "physical_description",
+          "1U"
+        ],
+        [
+          "power_description",
+          "80Plus gold redundant PSUs"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "1010S",
+      "brand": "Inspur",
+      "model": "1010S",
+      "title": "Inspur 1010S",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "47 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "product_family",
+          "InCloud Rail 1000 Series"
+        ],
+        [
+          "physical_description",
+          "2U1 node; 447 x 87 x 720 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "550W or above, 1+1 redundancy; table input: AC 110-240V / DC -40V to -60V, 180-400V"
+        ],
+        [
+          "power_configuration_limit",
+          "Alternative catalog configurations; this does not identify the PSU fitted to any particular unit"
+        ],
+        [
+          "identity_scope",
+          "Full 2018 model as printed; no inferred equivalence to later -M5 codes or server-node models"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "1010E",
+      "brand": "Inspur",
+      "model": "1010E",
+      "title": "Inspur 1010E",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "47 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "product_family",
+          "InCloud Rail 1000 Series"
+        ],
+        [
+          "physical_description",
+          "2U1 node; 447 x 87 x 720 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "550W or above, 1+1 redundancy; table input: AC 110-240V / DC -40V to -60V, 180-400V"
+        ],
+        [
+          "power_configuration_limit",
+          "Alternative catalog configurations; this does not identify the PSU fitted to any particular unit"
+        ],
+        [
+          "identity_scope",
+          "Full 2018 model as printed; no inferred equivalence to later -M5 codes or server-node models"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "1020S",
+      "brand": "Inspur",
+      "model": "1020S",
+      "title": "Inspur 1020S",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "47 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "product_family",
+          "InCloud Rail 1000 Series"
+        ],
+        [
+          "physical_description",
+          "2U4 nodes; 430 x 88 x 730 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "2000W or above, 1+1 redundancy; table input: 200-240V, 50-60Hz"
+        ],
+        [
+          "power_configuration_limit",
+          "Alternative catalog configurations; this does not identify the PSU fitted to any particular unit"
+        ],
+        [
+          "identity_scope",
+          "Full 2018 model as printed; no inferred equivalence to later -M5 codes or server-node models"
+        ]
+      ]
+    },
+    {
+      "source": "inspur-products-2018-reviewed",
+      "key": "1020E",
+      "brand": "Inspur",
+      "model": "1020E",
+      "title": "Inspur 1020E",
+      "kind": "hyperconverged appliance",
+      "affiliations": [
+        [
+          "Inspur",
+          "brand"
+        ],
+        [
+          "Inspur",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2018; PDF metadata 2018-08-07; not a product release date"
+        ],
+        [
+          "source_pages",
+          "47 (PDF page numbers; each spread may contain two printed pages)"
+        ],
+        [
+          "configuration_limit",
+          "Historical catalog options; actual unit contents, firmware access and transferable software licenses unverified"
+        ],
+        [
+          "product_family",
+          "InCloud Rail 1000 Series"
+        ],
+        [
+          "physical_description",
+          "2U4 nodes; 430 x 88 x 730 mm (W x H x D)"
+        ],
+        [
+          "power_description",
+          "2000W or above, 1+1 redundancy; table input: 200-240V, 50-60Hz"
+        ],
+        [
+          "power_configuration_limit",
+          "Alternative catalog configurations; this does not identify the PSU fitted to any particular unit"
+        ],
+        [
+          "identity_scope",
+          "Full 2018 model as printed; no inferred equivalence to later -M5 codes or server-node models"
+        ]
+      ]
+    },
+    {
+      "source": "inventec-artemis-ii-rack-2025",
+      "key": "Artemis II Rack",
+      "brand": "Inventec",
+      "model": "Artemis II Rack",
+      "title": "Inventec Artemis II Rack",
+      "kind": "integrated GPU rack",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_pages",
+          "1, 2 (PDF page numbers)"
+        ],
+        [
+          "configuration_limit",
+          "Historical platform options, not an actual unit configuration, manufacturer or operator claim"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2025; PDF metadata 2025-08-15; not an independently established release date"
+        ],
+        [
+          "physical_description",
+          "48RU MGX rack; 600 x 2236 x 1068 mm (W x H x D); rolling height 2230 mm"
+        ],
+        [
+          "compute_configuration",
+          "NVIDIA GB300 NVL72; 36 Grace CPUs and 72 Blackwell GPUs; 18 x 1RU compute trays, 9 x 1RU NVLink switch trays"
+        ],
+        [
+          "power_description",
+          "Page 1 states maximum 136kW for GB300 NVL72 building blocks. Page 2 diagram labels two groups of 3 x 1RU 33kW power shelves"
+        ],
+        [
+          "power_configuration_limit",
+          "No aggregate power capacity, redundancy mode or input voltage inferred from the diagram"
+        ],
+        [
+          "cooling_description",
+          "Liquid cooling: row-based L2L or sidecar L2A; blind-mate manifold; rack-mounted CDU and leakage detection described"
+        ],
+        [
+          "identity_scope",
+          "Inventec rack platform; NVIDIA components are not new Inventec device models"
+        ]
+      ]
+    },
+    {
+      "source": "inventec-x680m-2024",
+      "key": "X680m",
+      "brand": "Inventec",
+      "model": "X680m",
+      "title": "Inventec X680m",
+      "kind": "CXL memory accelerator",
+      "affiliations": [
+        [
+          "Inventec",
+          "brand"
+        ],
+        [
+          "Inventec",
+          "platform_vendor"
+        ]
+      ],
+      "facts": [
+        [
+          "source_observed_date",
+          "2026-10-04"
+        ],
+        [
+          "source_pages",
+          "1, 2 (PDF page numbers)"
+        ],
+        [
+          "configuration_limit",
+          "Historical platform options, not an actual unit configuration, manufacturer or operator claim"
+        ],
+        [
+          "document_date_context",
+          "Copyright 2024; PDF metadata 2024-05-15; not an independently established release date"
+        ],
+        [
+          "model_as_printed",
+          "Page 2 Model Name: Inventec X680m; page 1 prose also uses X680m"
+        ],
+        [
+          "physical_description",
+          "Single-width, full-height, three-quarter-length PCIe Gen5 x16 CEM card"
+        ],
+        [
+          "controller",
+          "Altera Agilex 7 I-series FPGA; quad-core ARM-A72"
+        ],
+        [
+          "memory_page_1_as_printed",
+          "2 ch DDR4 64GB"
+        ],
+        [
+          "memory_page_2_as_printed",
+          "2 channel 8GB(64 + 8bits)Width"
+        ],
+        [
+          "specification_conflict",
+          "Memory statements differ between the two pages; no reconciled capacity asserted"
+        ],
+        [
+          "arm_hps_dram",
+          "Separate page 2 ARM HPS row: DDR4-3200, 1 channel 8GB (64 + 8bits) width"
+        ],
+        [
+          "storage",
+          "Two M.2 22110 slots, up to 4TB as printed; per-drive versus aggregate capacity unspecified"
+        ],
+        [
+          "interfaces",
+          "One 100Gbps QSFP-DD; RJ45 HPS debug; Micro USB TTY"
+        ],
+        [
+          "boot_media",
+          "FPGA qSPI; ARM eMMC 32GB"
+        ]
+      ]
+    }
+  ]
+}

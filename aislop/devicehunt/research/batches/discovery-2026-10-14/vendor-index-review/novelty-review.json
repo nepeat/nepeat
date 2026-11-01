@@ -1,0 +1,16 @@
+{
+  "result": "pass",
+  "rows_independently_compared": 889,
+  "raw_urls_absent": 869,
+  "endpoint_keys_absent": 727,
+  "document_index_rows": 700,
+  "document_index_endpoint_keys": 548,
+  "document_index_endpoint_keys_absent": 540,
+  "whole_label_model_match_rows": 22,
+  "whole_label_identifier_match_rows": 4,
+  "catalog_sha256_before": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "catalog_sha256_after": "0879a77f5d2cdf4edfdce3a88ab03034504c02f99b4645537f43af5db5c32853",
+  "nonempty_wal": false,
+  "snapshot_transaction": "BEGIN + query_only + mode=ro",
+  "limits": "query-free endpoints are comparison keys; label equality is whitespace-normalized/casefolded; token hits remain heuristic leads; no aliases or hardware claims"
+}

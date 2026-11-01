@@ -1,0 +1,18 @@
+{
+  "module_paths": {
+    "devicehunt": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/normal-layout/devicehunt/__init__.py",
+    "devicehunt.specifications": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/normal-layout/devicehunt/specifications.py",
+    "devicehunt.__main__": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/normal-layout/devicehunt/__main__.py"
+  },
+  "cwd": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/normal-layout",
+  "pythonpath": "/home/erin/nepeat/aislop/devicehunt/research/batches/discovery-2026-10-14/grouping-fix/normal-layout",
+  "private_overlay_and_originals_absent": true,
+  "default_data_absent": true,
+  "tests": 49,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "blocked_calls": [],
+  "elapsed_seconds": 49.76316860597581,
+  "applied_patch_files_match_reviewed_bytes": true
+}

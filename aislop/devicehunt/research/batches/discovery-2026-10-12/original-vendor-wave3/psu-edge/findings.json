@@ -1,0 +1,189 @@
+{
+  "status": "discovery only; not importer input",
+  "sources": [
+    {
+      "model_scope": "SD6200",
+      "pdf": "sd6200-datasheet.pdf",
+      "pdf_sha256": "3a92bffdaafff4b4428c5ac1d4b6514c347154ca828b65639217837c4efa2f54",
+      "facts": [
+        {
+          "name": "model_heading",
+          "value": "SD6200 — 4U 90 HDD Dense Storage SAS-4 Expansion System",
+          "pdf_page": 1,
+          "visually_reviewed": true
+        },
+        {
+          "name": "drive_and_power_scope",
+          "value": "Up to 90 12G SAS or 6G SATA 3.5-inch or 2.5-inch drives; 13 W maximum drive power at 35 C.",
+          "pdf_page": 1,
+          "visually_reviewed": true
+        },
+        {
+          "name": "esm_configuration",
+          "value": "Dual redundant hot-swappable ESMs; single ESM configuration supported; ESM = Expansion SAS Module.",
+          "pdf_page": 1,
+          "visually_reviewed": true
+        },
+        {
+          "name": "esm_ports",
+          "value": "Four 24G SAS4-capable mini-SAS HD ports per ESM; one RJ45 management port; one UART via 3.5 mm jack.",
+          "pdf_page": 1,
+          "visually_reviewed": true
+        },
+        {
+          "name": "psu_redundancy_as_printed",
+          "value": "1300W 80 plus Platinum PSU, 2+2 (200-240V) or 3+1 (100-240V) redundant, hot swap.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "input_voltage_as_printed",
+          "value": "100-127,200-240V AC input, auto ranging, 47~63Hz. These are printed separated voltage bands, not silently a continuous 100-240 V range.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "fan_description",
+          "value": "5 x 80 mm dual-rotor fans, hot-pluggable from the top.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "dimensions",
+          "value": "Height 175.3 mm (6.9 in), width 448 mm (17.64 in), depth 1070 mm (42.12 in) w/CMA.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "environmental_conditions",
+          "value": "Operating 5 C to 35 C; non-operating -40 C to 60 C; humidity 8% to 80% RH; altitude 0 to 950 m, de-rate temperature 1 C per 300 m above 950 m.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "sound_power_as_printed",
+          "value": "At (23+/-2 C), sound power <7.6 Bel; do not re-label as sound pressure or listening-position noise.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "revision_and_heading_conflict",
+          "value": "Copyright Celestica Inc. 2024; literal token 091024. Footer calls DS6200 a trademark although both headings say SD6200; no alias inferred.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        }
+      ],
+      "absences": [
+        "No full chassis ordering/SKU table, exact PSU manufacturer/model or weight supplied.",
+        "No airflow direction, safe standalone wiring instruction or installed-drive configuration supplied."
+      ],
+      "conflicts": [
+        "Redundancy line 3+1 (100-240V) differs in range expression from input line 100-127,200-240V; preserve both.",
+        "DS6200 trademark footer differs from SD6200 headings."
+      ]
+    },
+    {
+      "model_scope": "Wedge 100-32X (heading); Wedge100-32X-* codes as printed",
+      "pdf": "wedge100-32x-r04.pdf",
+      "pdf_sha256": "66368b4e16367b335f27d53c6819d884e15e53390dbcc8e6528c39024fda4269",
+      "facts": [
+        {
+          "name": "psu_and_input",
+          "value": "2 redundant, load-sharing, hot-swappable AC or -54 VDC PSUs; input voltage 120 to 240 VAC at 50-60 Hz and 40 to 72 VDC, as separately printed.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "power_input_option",
+          "value": "Separate power input option: 12 VDC; not merged into the -54 VDC PSU line or assumed wired the same way.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "typical_power_consumption",
+          "value": "Typical power consumption 436 W, document statement with no test/load condition supplied in this section; not PSU output or maximum draw.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "dimensions_and_weight",
+          "value": "Dimensions W x D x H: 44 x 50.7 x 4.4 cm (17.32 x 19.97 x 1.732 in); weight 8.8 kg (19.56 lb).",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "fan_airflow",
+          "value": "4+1 redundant, hot-swappable fans; front (port) to back (power) airflow direction.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "environmental",
+          "value": "Operating temperature 0 C to 45 C; storage -40 C to 70 C; operating/storage humidity 10% to 90% non-condensing.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "software_as_printed",
+          "value": "Switch is loaded with OpenBMC and Diagnostics. Listed compatibility: FBOSS Agent, Open Network Linux, SnapRoute FlexSwitch, Cumulus Linux 3.4 and later. Historical vendor statements, not current support or installed software on an auction unit.",
+          "pdf_page": 2,
+          "visually_reviewed": true
+        },
+        {
+          "name": "revision",
+          "value": "Ordering-page footer EC-DS-0617-04; page-2 copyright 2016. Download filename R04 and uploaded path 2024/01 are not revision/publication dates by themselves.",
+          "pdf_page": 3,
+          "visually_reviewed": true
+        }
+      ],
+      "ordering_rows": [
+        {
+          "code": "Wedge100-32X-O-12V-F",
+          "description": "12V power supply",
+          "pdf_page": 3,
+          "visually_reviewed": true
+        },
+        {
+          "code": "Wedge100-32X-O-AC-F-US",
+          "description": "US SKU power cord of Wedge",
+          "pdf_page": 3,
+          "visually_reviewed": true
+        },
+        {
+          "code": "Wedge100-32X-O-AC-F-EU",
+          "description": "EU SKU power cord of Wedge",
+          "pdf_page": 3,
+          "visually_reviewed": true
+        },
+        {
+          "code": "Wedge100-32X-O-AC-F-UK",
+          "description": "UK SKU power cord of Wedge",
+          "pdf_page": 3,
+          "visually_reviewed": true
+        },
+        {
+          "code": "Wedge100-32X-O-AC-F-JP",
+          "description": "JP SKU power cord of Wedge",
+          "pdf_page": 3,
+          "visually_reviewed": true
+        },
+        {
+          "code": "ORSA-1U",
+          "description": "Open Rack Switch Adapter for Open Rack installation",
+          "pdf_page": 3,
+          "visually_reviewed": true
+        }
+      ],
+      "absences": [
+        "No exact PSU manufacturer/FRU model or electrical connector type supplied.",
+        "No general suffix decoder or individual-order-code dimension/airflow allocation supplied."
+      ],
+      "conflicts": [
+        "Page1/previous HTML describes AC or 12 V DC PSUs; p2 separately has AC or -54 VDC PSUs and power input option 12 VDC. Preserve option distinctions; no automatic resolution."
+      ],
+      "roles_observation": "Page2 about-company paragraph calls Edgecore subsidiary of Accton Technology Corporation and says Edgecore Data Center switches are developed/manufactured by Accton. Generic class/vendor claim, not independent factory or auction-unit provenance. Page1 Facebook/Wedge100 relationship prose is extracted but not visually inspected in this four-render pass; do not turn it into an unreviewed deployment assertion. No automatic new per-model manufacturer affiliation; role review remains separate.",
+      "ordering_row_classification_limit": "Wedge100-32X-O-12V-F short description 12V power supply does not establish standalone PSU FRU classification; keep full ordering code without inferred component kind."
+    }
+  ],
+  "limits": "Exact printed identities/suffixes/revisions and source conditions preserved; no current support, availability, unit provenance/configuration, safe wiring advice or platform equivalence. No target expansion."
+}

@@ -1,0 +1,30 @@
+{
+  "previous_review_artifacts_unchanged": true,
+  "artifacts": [
+    {
+      "path": "reviewed-promote.py",
+      "sha256": "d7b46c9baca8bea22397ca89f2f5d3a440da4338e73f8ba6ffeaffd7552c1695",
+      "bytes": 5792
+    },
+    {
+      "path": "reviewed-refresh_exports.py",
+      "sha256": "3942040b7a90b0d7c5beeaac909141f3bf5f1bea185ff37eaab6807694ef00c3",
+      "bytes": 2551
+    },
+    {
+      "path": "probe_promotion_helpers.py",
+      "sha256": "ece91e6712cdd279fdbb8395da1f8d1989d83e84f03cbae81c075c5519af179c",
+      "bytes": 6534
+    },
+    {
+      "path": "promotion-helper-probes.json",
+      "sha256": "f59fd0c42871fc61712a1f3a85461d67140a8e6cfc9ad58d6828ddb9e795eedc",
+      "bytes": 1848
+    },
+    {
+      "path": "promotion-helper-review.md",
+      "sha256": "429c55064ecd0fc47fab55f67c065d115b3674a07ee924d03c28cde1223ca191",
+      "bytes": 5669
+    }
+  ]
+}

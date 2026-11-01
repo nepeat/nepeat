@@ -1,0 +1,2544 @@
+{
+  "review_date": "2026-10-04",
+  "scope": "six owned networking identifiers, finite existing captures only; no network/import/database writes",
+  "database_sha256_before_and_after": "ea7d121849c34cac801c178d48be80ea5f3af09958b526228b6b6f536d0662d8",
+  "method": "read-only SQLite provenance discovery, then original saved HTML/ZIP CSV/JSON or saved PDF text review; direct image review separately. Referenced captures SHA-256 checked against source metadata. Unknowns are collected-evidence gaps.",
+  "models": [
+    {
+      "owned_query": "CS8200-32X-UN-00",
+      "exact_catalog_matches": [
+        {
+          "id": "77acd4d1fd66d5464b25",
+          "brand": "Celestica",
+          "model": "CS8200-32X-UN-00",
+          "revision": "",
+          "title": "Celestica CS8200-32X-UN-00",
+          "kind": "listed ICT equipment",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "anatel-products",
+                "record_id": "d11f487717b1294bf155c9f2",
+                "source_key": "61886",
+                "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-bundle.json",
+                  "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710"
+                },
+                "field_reference": "Produtos_Homologados_Anatel.csv data record 61886, Modelo / Nome do Fabricante",
+                "review_method": "read original saved ZIP CSV as UTF-8 BOM and semicolon-separated rows",
+                "archive_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-products.zip",
+                  "sha256": "91f09ca0795d0833f2749dbcb6d3a1569fe2bc2c14c5cb1d7a8482833b33157f"
+                }
+              },
+              "imported_raw_fields": {
+                "approval_date": "09/11/2020",
+                "approval_number": "143732011923",
+                "applicant": "ITC - INTELIGENT TELECOM CERTIFICATION LTDA",
+                "applicant_cnpj": "23786165000136",
+                "certificate_number": "UL-BR 20.1471",
+                "certificate_date": "20/10/2020",
+                "certificate_expiry": "",
+                "certificate_status_code": "2",
+                "certificate_status": "Preenchimento Concluído",
+                "application_status_code": "6",
+                "application_status": "Homologação Emitida",
+                "manufacturer": "Celestica Technology Consultancy (Shanghai) Co.,",
+                "model": "CS8200-32X-UN-00",
+                "commercial_name": "",
+                "product_category": "3",
+                "product_type": "Equipamento de Rede de Dados",
+                "antenna_flag": "N",
+                "active_flag": "S",
+                "manufacturer_country": "China",
+                "country_itu": "CHN",
+                "country_iso": "CHN"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "anatel_approval_id",
+                  "value": "143732011923"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Celestica Technology Consultancy (Shanghai) Co.,",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "ITC - INTELIGENT TELECOM CERTIFICATION LTDA",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "active_flag",
+                  "value": "S"
+                },
+                {
+                  "name": "antenna_flag",
+                  "value": "N"
+                },
+                {
+                  "name": "applicant",
+                  "value": "ITC - INTELIGENT TELECOM CERTIFICATION LTDA"
+                },
+                {
+                  "name": "applicant_cnpj",
+                  "value": "23786165000136"
+                },
+                {
+                  "name": "application_status",
+                  "value": "Homologação Emitida"
+                },
+                {
+                  "name": "application_status_code",
+                  "value": "6"
+                },
+                {
+                  "name": "approval_date",
+                  "value": "09/11/2020"
+                },
+                {
+                  "name": "approval_number",
+                  "value": "143732011923"
+                },
+                {
+                  "name": "certificate_date",
+                  "value": "20/10/2020"
+                },
+                {
+                  "name": "certificate_number",
+                  "value": "UL-BR 20.1471"
+                },
+                {
+                  "name": "certificate_status",
+                  "value": "Preenchimento Concluído"
+                },
+                {
+                  "name": "certificate_status_code",
+                  "value": "2"
+                },
+                {
+                  "name": "country_iso",
+                  "value": "CHN"
+                },
+                {
+                  "name": "country_itu",
+                  "value": "CHN"
+                },
+                {
+                  "name": "csv_record_number",
+                  "value": "61886"
+                },
+                {
+                  "name": "evidence_scope",
+                  "value": "Registry manufacturer/model assertion; commercial-name cells are unparsed facts, not model aliases. Raw dates and statuses do not imply present validity or unit provenance."
+                },
+                {
+                  "name": "manufacturer_country",
+                  "value": "China"
+                },
+                {
+                  "name": "product_category",
+                  "value": "3"
+                },
+                {
+                  "name": "product_type",
+                  "value": "Equipamento de Rede de Dados"
+                },
+                {
+                  "name": "registry_manufacturer",
+                  "value": "Celestica Technology Consultancy (Shanghai) Co.,"
+                }
+              ],
+              "reviewed_saved_material": {
+                "Data da Homologação": "09/11/2020",
+                "Número de Homologação": "143732011923",
+                "Nome do Solicitante": "ITC - INTELIGENT TELECOM CERTIFICATION LTDA",
+                "CNPJ do Solicitante": "23786165000136",
+                "Certificado de Conformidade Técnica": "UL-BR 20.1471",
+                "Data do Certificado de Conformidade Técnica": "20/10/2020",
+                "Data de Validade do Certificado": "",
+                "Código de Situação do Certificado": "2",
+                "Situação do Certificado": "Preenchimento Concluído",
+                "Código de Situação do Requerimento": "6",
+                "Situação do Requerimento": "Homologação Emitida",
+                "Nome do Fabricante": "Celestica Technology Consultancy (Shanghai) Co.,",
+                "Modelo": "CS8200-32X-UN-00",
+                "Nome Comercial": "",
+                "Categoria do Produto": "3",
+                "Tipo do Produto": "Equipamento de Rede de Dados",
+                "IC_ANTENA": "N",
+                "IC_ATIVO": "S",
+                "País do Fabricante": "China",
+                "CodUIT": "CHN",
+                "CodISO": "CHN"
+              }
+            },
+            {
+              "reference": {
+                "source_id": "rra-official-query-41e4ca912b33",
+                "record_id": "6d8b454ddaba66db7fa5e56a",
+                "source_key": "R-R-ZZR-CS8200-32X-UN:CS8200-32X-UN-00",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8200-32X-UN",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-celestica-official/bundle.json",
+                  "sha256": "6aacf7a8ac57988c4f68a81b406c31e7300e7eb19a248a3577d910f0b7c37022"
+                },
+                "field_reference": "labelled 모델명 / 파생모델명 / 제조자 / 기타 cells",
+                "review_method": "read original saved detail HTML; strip tags and collapse whitespace; compare labelled fields to imported raw_json",
+                "detail_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-celestica-official/detail-032.html",
+                  "sha256": "58539cfb4f53f08d4b6cb98e60de94663b34468eb79d1fbd3ed3452571c3c10e"
+                }
+              },
+              "imported_raw_fields": {
+                "applicant": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+                "equipment_name": "Switch",
+                "main_model": "CS8200-32X-UN-00",
+                "derived_models": "CS8201-32X-UN-00",
+                "certificate_number": "R-R-ZZR-CS8200-32X-UN",
+                "manufacturer": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+                "country_raw": "중국",
+                "approval_date_raw": "2019-10-16",
+                "other_raw": "Switching Power Supply - FSJ021 / Acbel Polytech Inc.(R-R-API-FSJ021)"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "rra_certificate_id",
+                  "value": "R-R-ZZR-CS8200-32X-UN"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "approval_date_raw",
+                  "value": "2019-10-16"
+                },
+                {
+                  "name": "country_raw",
+                  "value": "중국"
+                },
+                {
+                  "name": "detail_sha256",
+                  "value": "58539cfb4f53f08d4b6cb98e60de94663b34468eb79d1fbd3ed3452571c3c10e"
+                },
+                {
+                  "name": "other_raw",
+                  "value": "Switching Power Supply - FSJ021 / Acbel Polytech Inc.(R-R-API-FSJ021)"
+                },
+                {
+                  "name": "rra_main_model",
+                  "value": "CS8200-32X-UN-00"
+                },
+                {
+                  "name": "rra_model_role",
+                  "value": "main"
+                }
+              ],
+              "reviewed_saved_material": "상호, 기기명칭, 모델명, 파생모델명, 인증번호, 제조자, 제조국가, 인증연월일, 기타의 정보로 제공합니다. 상호 CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD 기기명칭 Switch 모델명 CS8200-32X-UN-00 파생모델명 CS8201-32X-UN-00 인증번호 R-R-ZZR-CS8200-32X-UN 제조자 CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD 제조국가 중국 인증연월일 2019-10-16 기타 Switching Power Supply - FSJ021 / Acbel Polytech Inc.(R-R-API-FSJ021) "
+            },
+            {
+              "reference": {
+                "source_id": "tec-mtcte",
+                "record_id": "60271dcb56e73a49942fc0b3",
+                "source_key": "967|CS8200-32X-UN-00",
+                "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/tec-equipment.html",
+                  "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3"
+                },
+                "field_reference": "HTML table S.No. 967, Product Model Name / OEM Name",
+                "review_method": "standard-library HTMLParser table cell extraction; compare literal model and row"
+              },
+              "imported_raw_fields": {
+                "cells": {
+                  "S.No.": "967",
+                  "Company Name": "Omega QMS Private Limited",
+                  "Product Name": "LAN Switch",
+                  "Product Variant": "L2 LAN Switch",
+                  "OEM Name": "Celestica Thailand Limited",
+                  "Product Model Name": "CS8200-32X-UN-00",
+                  "Product Model No.": "",
+                  "Category": "Mandatory",
+                  "Certificate Type": "Regular",
+                  "Issue Date": "20231117 17/11/2023",
+                  "Valid Upto": "20331116 16/11/2033",
+                  "Certificate ID": "379401371"
+                },
+                "model_column": "Product Model Name"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "tec_certificate_id",
+                  "value": "379401371"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Celestica Thailand Limited",
+                  "role": "declared_oem"
+                },
+                {
+                  "company": "Omega QMS Private Limited",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "certificate_category",
+                  "value": "Mandatory"
+                },
+                {
+                  "name": "certificate_date_scope",
+                  "value": "Historical register assertion; not current status or vendor support deadline"
+                },
+                {
+                  "name": "certificate_issue_date",
+                  "value": "2023-11-17"
+                },
+                {
+                  "name": "certificate_type",
+                  "value": "Regular"
+                },
+                {
+                  "name": "certificate_valid_upto",
+                  "value": "2033-11-16"
+                },
+                {
+                  "name": "model_column",
+                  "value": "Product Model Name"
+                },
+                {
+                  "name": "product_variant",
+                  "value": "L2 LAN Switch"
+                },
+                {
+                  "name": "registry_row",
+                  "value": "967"
+                }
+              ],
+              "reviewed_saved_material": [
+                "967",
+                "Omega QMS Private Limited",
+                "LAN Switch",
+                "L2 LAN Switch",
+                "Celestica Thailand Limited",
+                "CS8200-32X-UN-00",
+                "",
+                "Mandatory",
+                "Regular",
+                "20231117 17/11/2023",
+                "20331116 16/11/2033",
+                "379401371"
+              ]
+            },
+            {
+              "reference": {
+                "source_id": "ul-celestica-cs",
+                "record_id": "13e31f700b85f21e624d2562",
+                "source_key": "CS8200-32X-UN-00",
+                "source_url": "https://productiq.ulprospector.com/zh-cn/profile/2858121/azot.e362364?page=23&term=AZOT",
+                "source_tier": "certification_body",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ul-celestica-models.json",
+                  "sha256": "fdef09fe800b4e3b4b5354e3e1f229fbd6ae37dd7945b25a4ec6b91d2e9ddc83"
+                },
+                "field_reference": "structured web-tool extract $.models and $.listing_holder",
+                "review_method": "read immutable structured web-tool extract; original HTML unavailable; no completeness assumption"
+              },
+              "imported_raw_fields": {
+                "model": "CS8200-32X-UN-00",
+                "document": "AZOT.E362364",
+                "listing_holder": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+                "capture_format": "web_tool_model_extract",
+                "retrieved_at": "2026-09-26 21:17:03 UTC"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "ul_document",
+                  "value": "AZOT.E362364"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Celestica",
+                  "role": "listing_holder"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "capture_format",
+                  "value": "web_tool_model_extract"
+                },
+                {
+                  "name": "listing_holder_name",
+                  "value": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD"
+                },
+                {
+                  "name": "retrieved_at",
+                  "value": "2026-09-26 21:17:03 UTC"
+                },
+                {
+                  "name": "source_scope",
+                  "value": "Selected CS-series models from a public abridged listing; may include products or components"
+                }
+              ],
+              "reviewed_saved_material": {
+                "Models": [
+                  "CS8000-32X-DC-11",
+                  "CS8000-32X-UN-00",
+                  "CS8001-32X-DC-11",
+                  "CS8001-32X-UN-00",
+                  "CS8200-32X-DC-11",
+                  "CS8200-32X-UN-00",
+                  "CS8201-32X-DC-11",
+                  "CS8201-32X-UN-00",
+                  "CS8210-32X-DC-11",
+                  "CS8210-32X-UN-00",
+                  "CS8211-32X-DC-11",
+                  "CS8211-32X-UN-00",
+                  "CS8260-32X-DC-11",
+                  "CS8260-32X-UN-00",
+                  "CS8261-32X-DC-11",
+                  "CS8261-32X-UN-00",
+                  "CS8264-32X-DC-11",
+                  "CS8265-32X-DC-11",
+                  "CS8270-32X-DC-11",
+                  "CS8271-32X-DC-11",
+                  "CS8274-32X-DC-11",
+                  "CS8274-32X-DC-42",
+                  "CS8275-32X-DC-11",
+                  "CS8320-16X-UN-00",
+                  "CS8321-16X-UN-00"
+                ],
+                "listing_holder": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD"
+              }
+            }
+          ]
+        }
+      ],
+      "already_imported_statements": [
+        {
+          "category": "power",
+          "statement": "Switching Power Supply - FSJ021 / Acbel Polytech Inc.(R-R-API-FSJ021)",
+          "limits": "RRA other_raw associates this named switching power supply with this approval record. No input voltage, wattage, connector, installed count, airflow or exclusive PSU requirement is specified.",
+          "reference": {
+            "source_id": "rra-official-query-41e4ca912b33",
+            "record_id": "6d8b454ddaba66db7fa5e56a",
+            "source_key": "R-R-ZZR-CS8200-32X-UN:CS8200-32X-UN-00",
+            "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-ZZR-CS8200-32X-UN",
+            "source_tier": "regulatory",
+            "capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-celestica-official/bundle.json",
+              "sha256": "6aacf7a8ac57988c4f68a81b406c31e7300e7eb19a248a3577d910f0b7c37022"
+            },
+            "field_reference": "labelled 모델명 / 파생모델명 / 제조자 / 기타 cells",
+            "review_method": "read original saved detail HTML; strip tags and collapse whitespace; compare labelled fields to imported raw_json",
+            "detail_capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-celestica-official/detail-032.html",
+              "sha256": "58539cfb4f53f08d4b6cb98e60de94663b34468eb79d1fbd3ed3452571c3c10e"
+            }
+          }
+        }
+      ],
+      "newly_reviewed_unimported_statements": [],
+      "unknowns": [
+        {
+          "category": "power",
+          "statement": "FSJ021 association is present; exact input voltage, PSU wattage/count, connector and operational dependencies remain absent.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "cooling",
+          "statement": "No exact-model airflow direction, fan configuration and operational cooling requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "chassis",
+          "statement": "No exact-model rack form factor, mounting/rail requirements and any chassis/node dependency established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "firmware_boot_software",
+          "statement": "No exact-model boot loader, console/recovery procedure, exact supported NOS/image and installation requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "licensing",
+          "statement": "No exact-model download access, license entitlement and transfer conditions established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        }
+      ],
+      "excluded_near_models": [
+        "CS8200-32X-DC-11",
+        "CS8201-32X-UN-00"
+      ]
+    },
+    {
+      "owned_query": "CS8210-32x-un-00",
+      "exact_catalog_matches": [
+        {
+          "id": "06c15e01a3726fbdec15",
+          "brand": "Celestica",
+          "model": "CS8210-32X-UN-00",
+          "revision": "",
+          "title": "Celestica CS8210-32X-UN-00",
+          "kind": "listed ICT equipment",
+          "case_match": "case-insensitive only; source printed case retained",
+          "records": [
+            {
+              "reference": {
+                "source_id": "ul-celestica-cs",
+                "record_id": "96be4466a72a6089d941cf13",
+                "source_key": "CS8210-32X-UN-00",
+                "source_url": "https://productiq.ulprospector.com/zh-cn/profile/2858121/azot.e362364?page=23&term=AZOT",
+                "source_tier": "certification_body",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ul-celestica-models.json",
+                  "sha256": "fdef09fe800b4e3b4b5354e3e1f229fbd6ae37dd7945b25a4ec6b91d2e9ddc83"
+                },
+                "field_reference": "structured web-tool extract $.models and $.listing_holder",
+                "review_method": "read immutable structured web-tool extract; original HTML unavailable; no completeness assumption"
+              },
+              "imported_raw_fields": {
+                "model": "CS8210-32X-UN-00",
+                "document": "AZOT.E362364",
+                "listing_holder": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD",
+                "capture_format": "web_tool_model_extract",
+                "retrieved_at": "2026-09-26 21:17:03 UTC"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "ul_document",
+                  "value": "AZOT.E362364"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Celestica",
+                  "role": "listing_holder"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "capture_format",
+                  "value": "web_tool_model_extract"
+                },
+                {
+                  "name": "listing_holder_name",
+                  "value": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD"
+                },
+                {
+                  "name": "retrieved_at",
+                  "value": "2026-09-26 21:17:03 UTC"
+                },
+                {
+                  "name": "source_scope",
+                  "value": "Selected CS-series models from a public abridged listing; may include products or components"
+                }
+              ],
+              "reviewed_saved_material": {
+                "Models": [
+                  "CS8000-32X-DC-11",
+                  "CS8000-32X-UN-00",
+                  "CS8001-32X-DC-11",
+                  "CS8001-32X-UN-00",
+                  "CS8200-32X-DC-11",
+                  "CS8200-32X-UN-00",
+                  "CS8201-32X-DC-11",
+                  "CS8201-32X-UN-00",
+                  "CS8210-32X-DC-11",
+                  "CS8210-32X-UN-00",
+                  "CS8211-32X-DC-11",
+                  "CS8211-32X-UN-00",
+                  "CS8260-32X-DC-11",
+                  "CS8260-32X-UN-00",
+                  "CS8261-32X-DC-11",
+                  "CS8261-32X-UN-00",
+                  "CS8264-32X-DC-11",
+                  "CS8265-32X-DC-11",
+                  "CS8270-32X-DC-11",
+                  "CS8271-32X-DC-11",
+                  "CS8274-32X-DC-11",
+                  "CS8274-32X-DC-42",
+                  "CS8275-32X-DC-11",
+                  "CS8320-16X-UN-00",
+                  "CS8321-16X-UN-00"
+                ],
+                "listing_holder": "CELESTICA TECHNOLOGY CONSULTANCY (SHANGHAI) CO LTD"
+              }
+            }
+          ]
+        }
+      ],
+      "already_imported_statements": [],
+      "newly_reviewed_unimported_statements": [],
+      "unknowns": [
+        {
+          "category": "power",
+          "statement": "No exact-model input voltage, PSU configuration/rating, connector and power-on dependencies established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "cooling",
+          "statement": "No exact-model airflow direction, fan configuration and operational cooling requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "chassis",
+          "statement": "No exact-model rack form factor, mounting/rail requirements and any chassis/node dependency established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "firmware_boot_software",
+          "statement": "No exact-model boot loader, console/recovery procedure, exact supported NOS/image and installation requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "licensing",
+          "statement": "No exact-model download access, license entitlement and transfer conditions established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        }
+      ],
+      "excluded_near_models": [
+        "CS8210-32X-DC-11",
+        "CS8211-32X-UN-00"
+      ]
+    },
+    {
+      "owned_query": "DMC-12-48R-AS0",
+      "exact_catalog_matches": [
+        {
+          "id": "696ee704ed9c5735e43a",
+          "brand": "Edge-Core",
+          "model": "DMC-12-48R-AS0",
+          "revision": "",
+          "title": "EDGE-CORE DMC-12-48R-AS0",
+          "kind": "server",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "anatel-products",
+                "record_id": "47af236cdd22a3095cc9e955",
+                "source_key": "61174",
+                "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-bundle.json",
+                  "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710"
+                },
+                "field_reference": "Produtos_Homologados_Anatel.csv data record 61174, Modelo / Nome do Fabricante",
+                "review_method": "read original saved ZIP CSV as UTF-8 BOM and semicolon-separated rows",
+                "archive_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-products.zip",
+                  "sha256": "91f09ca0795d0833f2749dbcb6d3a1569fe2bc2c14c5cb1d7a8482833b33157f"
+                }
+              },
+              "imported_raw_fields": {
+                "approval_date": "06/08/2020",
+                "approval_number": "058971907643",
+                "applicant": "OPENGLOBE TECNOLOGIA LTDA",
+                "applicant_cnpj": "24603617000160",
+                "certificate_number": "UL-BR 19.1108",
+                "certificate_date": "02/08/2019",
+                "certificate_expiry": "",
+                "certificate_status_code": "2",
+                "certificate_status": "Preenchimento Concluído",
+                "application_status_code": "6",
+                "application_status": "Homologação Emitida",
+                "manufacturer": "EdgeCore Networks Corporation",
+                "model": "DMC-12-48R-AS0",
+                "commercial_name": "",
+                "product_category": "3",
+                "product_type": "Equipamento de Rede de Dados",
+                "antenna_flag": "N",
+                "active_flag": "S",
+                "manufacturer_country": "Taiwan",
+                "country_itu": "TWN",
+                "country_iso": "TWN"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "anatel_approval_id",
+                  "value": "058971907643"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "EdgeCore Networks Corporation",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "OPENGLOBE TECNOLOGIA LTDA",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "active_flag",
+                  "value": "S"
+                },
+                {
+                  "name": "antenna_flag",
+                  "value": "N"
+                },
+                {
+                  "name": "applicant",
+                  "value": "OPENGLOBE TECNOLOGIA LTDA"
+                },
+                {
+                  "name": "applicant_cnpj",
+                  "value": "24603617000160"
+                },
+                {
+                  "name": "application_status",
+                  "value": "Homologação Emitida"
+                },
+                {
+                  "name": "application_status_code",
+                  "value": "6"
+                },
+                {
+                  "name": "approval_date",
+                  "value": "06/08/2020"
+                },
+                {
+                  "name": "approval_number",
+                  "value": "058971907643"
+                },
+                {
+                  "name": "certificate_date",
+                  "value": "02/08/2019"
+                },
+                {
+                  "name": "certificate_number",
+                  "value": "UL-BR 19.1108"
+                },
+                {
+                  "name": "certificate_status",
+                  "value": "Preenchimento Concluído"
+                },
+                {
+                  "name": "certificate_status_code",
+                  "value": "2"
+                },
+                {
+                  "name": "country_iso",
+                  "value": "TWN"
+                },
+                {
+                  "name": "country_itu",
+                  "value": "TWN"
+                },
+                {
+                  "name": "csv_record_number",
+                  "value": "61174"
+                },
+                {
+                  "name": "evidence_scope",
+                  "value": "Registry manufacturer/model assertion; commercial-name cells are unparsed facts, not model aliases. Raw dates and statuses do not imply present validity or unit provenance."
+                },
+                {
+                  "name": "manufacturer_country",
+                  "value": "Taiwan"
+                },
+                {
+                  "name": "product_category",
+                  "value": "3"
+                },
+                {
+                  "name": "product_type",
+                  "value": "Equipamento de Rede de Dados"
+                },
+                {
+                  "name": "registry_manufacturer",
+                  "value": "EdgeCore Networks Corporation"
+                }
+              ],
+              "reviewed_saved_material": {
+                "Data da Homologação": "06/08/2020",
+                "Número de Homologação": "058971907643",
+                "Nome do Solicitante": "OPENGLOBE TECNOLOGIA LTDA",
+                "CNPJ do Solicitante": "24603617000160",
+                "Certificado de Conformidade Técnica": "UL-BR 19.1108",
+                "Data do Certificado de Conformidade Técnica": "02/08/2019",
+                "Data de Validade do Certificado": "",
+                "Código de Situação do Certificado": "2",
+                "Situação do Certificado": "Preenchimento Concluído",
+                "Código de Situação do Requerimento": "6",
+                "Situação do Requerimento": "Homologação Emitida",
+                "Nome do Fabricante": "EdgeCore Networks Corporation",
+                "Modelo": "DMC-12-48R-AS0",
+                "Nome Comercial": "",
+                "Categoria do Produto": "3",
+                "Tipo do Produto": "Equipamento de Rede de Dados",
+                "IC_ANTENA": "N",
+                "IC_ATIVO": "S",
+                "País do Fabricante": "Taiwan",
+                "CodUIT": "TWN",
+                "CodISO": "TWN"
+              }
+            },
+            {
+              "reference": {
+                "source_id": "ntra-2026-01",
+                "record_id": "edd5fe3b759647e543380694",
+                "source_key": "11955",
+                "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ntra-2026-01.pdf",
+                  "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a"
+                },
+                "field_reference": "PDF physical page 189, row 11955, Brand / Model",
+                "review_method": "read saved embedded-text page and row; collapse extraction whitespace only for identity check",
+                "text_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ntra-2026-01-text.json",
+                  "sha256": "22e891b7891d1259b73f77490d794fe427bb859e981fa19849937fbd64b2df89"
+                }
+              },
+              "imported_raw_fields": {
+                "page": 189,
+                "cells": [
+                  "11955",
+                  "SERVER",
+                  "EDGE-CORE",
+                  "DMC-12-48R-AS0",
+                  ""
+                ],
+                "target": "Edge-Core"
+              },
+              "same_record_identifiers": [],
+              "company_roles": [
+                {
+                  "company": "Edge-Core",
+                  "role": "registry_brand"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "pdf_page",
+                  "value": "189"
+                },
+                {
+                  "name": "registry_brand",
+                  "value": "EDGE-CORE"
+                },
+                {
+                  "name": "registry_product_description",
+                  "value": "SERVER"
+                },
+                {
+                  "name": "registry_row",
+                  "value": "11955"
+                }
+              ],
+              "reviewed_saved_material": "11955 SERVER EDGE-CORE DMC- 12-48R-AS0"
+            }
+          ]
+        },
+        {
+          "id": "ed4db25fbdd5f809ae4c",
+          "brand": "Accton",
+          "model": "DMC-12-48R-AS0",
+          "revision": "",
+          "title": "DMC-12-48R-AS0",
+          "kind": "listed ICT equipment",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "rra-official-query-e5984834207f",
+                "record_id": "a6cca2261756b55bb65976c9",
+                "source_key": "R-R-PBJ-DMC-12-48R-AS0:DMC-12-48R-AS0",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-PBJ-DMC-12-48R-AS0",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-accton-official/bundle.json",
+                  "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e"
+                },
+                "field_reference": "labelled 모델명 / 파생모델명 / 제조자 / 기타 cells",
+                "review_method": "read original saved detail HTML; strip tags and collapse whitespace; compare labelled fields to imported raw_json",
+                "detail_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-accton-official/detail-024.html",
+                  "sha256": "15a07403d837c4d27fd1c9bea59ce68a2096bf7bd28dce75cf531e1403f0e315"
+                }
+              },
+              "imported_raw_fields": {
+                "applicant": "ACCTON TECHNOLOGY CORPORATION",
+                "equipment_name": "Console Terminal Server",
+                "main_model": "DMC-12-48R-AS0",
+                "derived_models": "DMC-12-48C-AS0",
+                "certificate_number": "R-R-PBJ-DMC-12-48R-AS0",
+                "manufacturer": "ACCTON TECHNOLOGY CORPORATION",
+                "country_raw": "대만",
+                "approval_date_raw": "2019-07-30",
+                "other_raw": ""
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "rra_certificate_id",
+                  "value": "R-R-PBJ-DMC-12-48R-AS0"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "approval_date_raw",
+                  "value": "2019-07-30"
+                },
+                {
+                  "name": "country_raw",
+                  "value": "대만"
+                },
+                {
+                  "name": "detail_sha256",
+                  "value": "15a07403d837c4d27fd1c9bea59ce68a2096bf7bd28dce75cf531e1403f0e315"
+                },
+                {
+                  "name": "rra_main_model",
+                  "value": "DMC-12-48R-AS0"
+                },
+                {
+                  "name": "rra_model_role",
+                  "value": "main"
+                }
+              ],
+              "reviewed_saved_material": "상호, 기기명칭, 모델명, 파생모델명, 인증번호, 제조자, 제조국가, 인증연월일, 기타의 정보로 제공합니다. 상호 ACCTON TECHNOLOGY CORPORATION 기기명칭 Console Terminal Server 모델명 DMC-12-48R-AS0 파생모델명 DMC-12-48C-AS0 인증번호 R-R-PBJ-DMC-12-48R-AS0 제조자 ACCTON TECHNOLOGY CORPORATION 제조국가 대만 인증연월일 2019-07-30 기타 "
+            },
+            {
+              "reference": {
+                "source_id": "ul-accton-platforms",
+                "record_id": "09a83200ab5c2bd15543398c",
+                "source_key": "DMC-12-48R-AS0",
+                "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+                "source_tier": "certification_body",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ul-accton-platforms.json",
+                  "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b"
+                },
+                "field_reference": "$.model_section_text offsets [[1172, 1186]]",
+                "review_method": "read immutable structured web-tool extract; original HTML unavailable; no completeness assumption"
+              },
+              "imported_raw_fields": {
+                "model": "DMC-12-48R-AS0",
+                "document": "AZOT7.E141136",
+                "listing_holder": "ACCTON TECHNOLOGY CORPORATION",
+                "model_section_spans": [
+                  [
+                    1172,
+                    1186
+                  ]
+                ],
+                "capture_format": "web_tool_models_section",
+                "extraction_scope": "accton-platform-identifiers-v1",
+                "adjacent_annotations": [],
+                "retrieved_at": "2026-09-26 22:57:28 UTC"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "ul_document",
+                  "value": "AZOT7.E141136"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "listing_holder"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "capture_format",
+                  "value": "web_tool_models_section"
+                },
+                {
+                  "name": "identity_namespace",
+                  "value": "Accton listing holder; product brand not established by this record"
+                },
+                {
+                  "name": "listing_holder_name",
+                  "value": "ACCTON TECHNOLOGY CORPORATION"
+                },
+                {
+                  "name": "retrieved_at",
+                  "value": "2026-09-26 22:57:28 UTC"
+                },
+                {
+                  "name": "source_scope",
+                  "value": "Selected identifiers from an abridged listing; may describe products or components"
+                }
+              ],
+              "reviewed_saved_material": {
+                "matched_spans": [
+                  [
+                    1172,
+                    1186
+                  ]
+                ],
+                "listing_holder": "ACCTON TECHNOLOGY CORPORATION"
+              }
+            }
+          ]
+        }
+      ],
+      "already_imported_statements": [],
+      "newly_reviewed_unimported_statements": [],
+      "unknowns": [
+        {
+          "category": "power",
+          "statement": "No exact-model input voltage, PSU configuration/rating, connector and power-on dependencies established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "cooling",
+          "statement": "No exact-model airflow direction, fan configuration and operational cooling requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "chassis",
+          "statement": "No exact-model rack form factor, mounting/rail requirements and any chassis/node dependency established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "firmware_boot_software",
+          "statement": "No exact-model boot loader, console/recovery procedure, exact supported NOS/image and installation requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "licensing",
+          "statement": "No exact-model download access, license entitlement and transfer conditions established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        }
+      ],
+      "excluded_near_models": [
+        "DMC-12-48R-AS0 48V",
+        "DMC-12-48C-AS0",
+        "DMC-12-48C-AS0 48V"
+      ]
+    },
+    {
+      "owned_query": "7760-32X-A-AC-F",
+      "exact_catalog_matches": [
+        {
+          "id": "fa989f63133b3fb248d8",
+          "brand": "Edge-Core",
+          "model": "7760-32X-A-AC-F",
+          "revision": "",
+          "title": "Edge-Core 7760-32X-A-AC-F",
+          "kind": "seller-listed hardware",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "ecrunch-I610661",
+                "record_id": "b6dab80755ae5603580a01a1",
+                "source_key": "I610661",
+                "source_url": "https://www.ecrunch.com/edge-core-7760-32x-a-ac-f-as7760-32-100g-ethernet-data-center-spine-switch-red-i610661.html",
+                "source_tier": "marketplace",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ecrunch-7760.html",
+                  "sha256": "735fc03a670fa9d1c44782cba68d459dc32cb3e3bff3e2b876f04bacd301547f"
+                },
+                "field_reference": "product heading / SKU / Details paragraph",
+                "review_method": "read saved seller HTML product Details paragraph; exclude Related Products"
+              },
+              "imported_raw_fields": {
+                "heading": "EDGE-CORE 7760-32X-A-AC-F AS7760 32 100G ETHERNET DATA CENTER SPINE SWITCH ~ RED",
+                "sku": "I610661"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "seller_sku",
+                  "value": "I610661"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Edge-Core",
+                  "role": "seller_reported_brand"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "evidence_scope",
+                  "value": "Seller heading identifies this ordering code; technical specifications and prior ownership unverified"
+                }
+              ],
+              "reviewed_saved_material": "Details I powered this on as shown in the pictures. Red handles on power supplies and fans. Switch hardware is guaranteed; however, as this switch is re-programmable, software is not guaranteed. Pulled from production due to a change in process. Must be paid with confirmed bank method. "
+            },
+            {
+              "reference": {
+                "source_id": "edgecore-7760-label",
+                "record_id": "6a11f24a97497e97e9a9587e",
+                "source_key": "7760-32X-A-AC-F-label",
+                "source_url": "https://www.ebay.com/itm/389108536363",
+                "source_tier": "physical_label_photo",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/edgecore-7760-label.png",
+                  "sha256": "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5"
+                },
+                "field_reference": "left label Model No. / Supplier Sku / F/W / H/W / Rev.; adjacent label Model / Input Voltage Range",
+                "review_method": "direct visual review via view_image, 2026-10-04; no serial/MAC transcription"
+              },
+              "imported_raw_fields": {
+                "source": "edgecore-7760-label",
+                "key": "7760-32X-A-AC-F-label",
+                "brand": "Edge-Core",
+                "model": "7760-32X-A-AC-F",
+                "title": "Edge-Core 7760-32X-A-AC-F",
+                "kind": "switch",
+                "affiliations": [
+                  [
+                    "Edge-Core",
+                    "brand"
+                  ]
+                ],
+                "identifiers": [
+                  [
+                    "part_number",
+                    "AS7760-32X"
+                  ]
+                ],
+                "facts": [
+                  [
+                    "supplier_sku",
+                    "AS7760-32X"
+                  ],
+                  [
+                    "identity_mapping_basis",
+                    "Model No. and Supplier Sku printed together on the same photographed label; no suffix stripping or cross-brand identity merge."
+                  ],
+                  [
+                    "label_observed_firmware",
+                    "V2015.02.00.30"
+                  ],
+                  [
+                    "label_observed_hardware",
+                    "R011"
+                  ],
+                  [
+                    "label_observed_revision",
+                    "R20"
+                  ],
+                  [
+                    "capture_method",
+                    "User-supplied original photo; visually reviewed label transcription"
+                  ],
+                  [
+                    "image_sha256",
+                    "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5"
+                  ],
+                  [
+                    "image_listing_attribution",
+                    "User attributed this photo to eBay item 389108536363; exact live-gallery match not independently verified."
+                  ],
+                  [
+                    "observation_scope",
+                    "Photographed unit only; serial and MAC not transcribed. No AWS deployment claim."
+                  ]
+                ]
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "part_number",
+                  "value": "AS7760-32X"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Edge-Core",
+                  "role": "brand"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "capture_method",
+                  "value": "User-supplied original photo; visually reviewed label transcription"
+                },
+                {
+                  "name": "identity_mapping_basis",
+                  "value": "Model No. and Supplier Sku printed together on the same photographed label; no suffix stripping or cross-brand identity merge."
+                },
+                {
+                  "name": "image_listing_attribution",
+                  "value": "User attributed this photo to eBay item 389108536363; exact live-gallery match not independently verified."
+                },
+                {
+                  "name": "image_sha256",
+                  "value": "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5"
+                },
+                {
+                  "name": "label_observed_firmware",
+                  "value": "V2015.02.00.30"
+                },
+                {
+                  "name": "label_observed_hardware",
+                  "value": "R011"
+                },
+                {
+                  "name": "label_observed_revision",
+                  "value": "R20"
+                },
+                {
+                  "name": "observation_scope",
+                  "value": "Photographed unit only; serial and MAC not transcribed. No AWS deployment claim."
+                },
+                {
+                  "name": "supplier_sku",
+                  "value": "AS7760-32X"
+                }
+              ],
+              "reviewed_saved_material": {
+                "Model No.": "7760-32X-A-AC-F",
+                "Supplier Sku": "AS7760-32X",
+                "F/W": "V2015.02.00.30",
+                "H/W": "R011",
+                "Rev.": "R20",
+                "adjacent Model": "AS7760-32X",
+                "adjacent Input Voltage Range": "100-240~, 50 - 60Hz, 6A Max"
+              }
+            }
+          ]
+        }
+      ],
+      "already_imported_statements": [
+        {
+          "category": "firmware",
+          "statement": "F/W V2015.02.00.30; H/W R011; Rev. R20 on photographed unit only. No bootability, downloadable image, license or current installed state is established.",
+          "reference": {
+            "source_id": "edgecore-7760-label",
+            "record_id": "6a11f24a97497e97e9a9587e",
+            "source_key": "7760-32X-A-AC-F-label",
+            "source_url": "https://www.ebay.com/itm/389108536363",
+            "source_tier": "physical_label_photo",
+            "capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/edgecore-7760-label.png",
+              "sha256": "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5"
+            },
+            "field_reference": "left label Model No. / Supplier Sku / F/W / H/W / Rev.; adjacent label Model / Input Voltage Range",
+            "review_method": "direct visual review via view_image, 2026-10-04; no serial/MAC transcription"
+          }
+        },
+        {
+          "category": "identity_mapping",
+          "statement": "Model No. 7760-32X-A-AC-F and Supplier Sku AS7760-32X occur on the same label; adjacent compliance label repeats AS7760-32X. Mapping stays on this record.",
+          "reference": {
+            "source_id": "edgecore-7760-label",
+            "record_id": "6a11f24a97497e97e9a9587e",
+            "source_key": "7760-32X-A-AC-F-label",
+            "source_url": "https://www.ebay.com/itm/389108536363",
+            "source_tier": "physical_label_photo",
+            "capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/edgecore-7760-label.png",
+              "sha256": "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5"
+            },
+            "field_reference": "left label Model No. / Supplier Sku / F/W / H/W / Rev.; adjacent label Model / Input Voltage Range",
+            "review_method": "direct visual review via view_image, 2026-10-04; no serial/MAC transcription"
+          }
+        }
+      ],
+      "newly_reviewed_unimported_statements": [
+        {
+          "category": "power",
+          "proposed_fact_name": "seller_power_on_claim",
+          "value": "I powered this on as shown in the pictures.",
+          "statement": "Historical seller claim in saved listing only; not independently verified, not current availability, no airflow inference from red handles, and no evidence about the owned or photographed eBay unit.",
+          "reference": {
+            "source_id": "ecrunch-I610661",
+            "record_id": "b6dab80755ae5603580a01a1",
+            "source_key": "I610661",
+            "source_url": "https://www.ecrunch.com/edge-core-7760-32x-a-ac-f-as7760-32-100g-ethernet-data-center-spine-switch-red-i610661.html",
+            "source_tier": "marketplace",
+            "capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ecrunch-7760.html",
+              "sha256": "735fc03a670fa9d1c44782cba68d459dc32cb3e3bff3e2b876f04bacd301547f"
+            },
+            "field_reference": "product heading / SKU / Details paragraph",
+            "review_method": "read saved seller HTML product Details paragraph; exclude Related Products"
+          }
+        },
+        {
+          "category": "cooling",
+          "proposed_fact_name": "seller_component_handle_claim",
+          "value": "Red handles on power supplies and fans.",
+          "statement": "Historical seller claim in saved listing only; not independently verified, not current availability, no airflow inference from red handles, and no evidence about the owned or photographed eBay unit.",
+          "reference": {
+            "source_id": "ecrunch-I610661",
+            "record_id": "b6dab80755ae5603580a01a1",
+            "source_key": "I610661",
+            "source_url": "https://www.ecrunch.com/edge-core-7760-32x-a-ac-f-as7760-32-100g-ethernet-data-center-spine-switch-red-i610661.html",
+            "source_tier": "marketplace",
+            "capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ecrunch-7760.html",
+              "sha256": "735fc03a670fa9d1c44782cba68d459dc32cb3e3bff3e2b876f04bacd301547f"
+            },
+            "field_reference": "product heading / SKU / Details paragraph",
+            "review_method": "read saved seller HTML product Details paragraph; exclude Related Products"
+          }
+        },
+        {
+          "category": "software",
+          "proposed_fact_name": "seller_software_guarantee_statement",
+          "value": "Switch hardware is guaranteed; however, as this switch is re-programmable, software is not guaranteed.",
+          "statement": "Historical seller claim in saved listing only; not independently verified, not current availability, no airflow inference from red handles, and no evidence about the owned or photographed eBay unit.",
+          "reference": {
+            "source_id": "ecrunch-I610661",
+            "record_id": "b6dab80755ae5603580a01a1",
+            "source_key": "I610661",
+            "source_url": "https://www.ecrunch.com/edge-core-7760-32x-a-ac-f-as7760-32-100g-ethernet-data-center-spine-switch-red-i610661.html",
+            "source_tier": "marketplace",
+            "capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ecrunch-7760.html",
+              "sha256": "735fc03a670fa9d1c44782cba68d459dc32cb3e3bff3e2b876f04bacd301547f"
+            },
+            "field_reference": "product heading / SKU / Details paragraph",
+            "review_method": "read saved seller HTML product Details paragraph; exclude Related Products"
+          }
+        },
+        {
+          "category": "power",
+          "proposed_fact_name": "label_observed_input_voltage_range",
+          "value": "100-240~, 50 - 60Hz, 6A Max",
+          "statement": "Adjacent AS7760-32X compliance label in the same photograph has this input marking. Photographed-unit label observation; not measured draw, a PSU inventory, or an assertion for every AS7760/full-code unit.",
+          "reference": {
+            "source_id": "edgecore-7760-label",
+            "record_id": "6a11f24a97497e97e9a9587e",
+            "source_key": "7760-32X-A-AC-F-label",
+            "source_url": "https://www.ebay.com/itm/389108536363",
+            "source_tier": "physical_label_photo",
+            "capture": {
+              "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/edgecore-7760-label.png",
+              "sha256": "3c85ec72cf8e8c69283c562a87a579a519f2a4a0ae1fa7072bdddac78e8082b5"
+            },
+            "field_reference": "left label Model No. / Supplier Sku / F/W / H/W / Rev.; adjacent label Model / Input Voltage Range",
+            "review_method": "direct visual review via view_image, 2026-10-04; no serial/MAC transcription"
+          }
+        }
+      ],
+      "unknowns": [
+        {
+          "category": "power",
+          "statement": "Photographed compliance label gives input range; installed PSU types/counts, connectors and actual owned-unit power dependencies remain absent.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "cooling",
+          "statement": "No exact-model airflow direction, fan configuration and operational cooling requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "chassis",
+          "statement": "No exact-model rack form factor, mounting/rail requirements and any chassis/node dependency established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "firmware_boot_software",
+          "statement": "Photo firmware version and seller disclaimer are present; boot loader, supported/current NOS image, console/recovery and installation requirements remain absent.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "licensing",
+          "statement": "No exact-model download access, license entitlement and transfer conditions established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        }
+      ],
+      "excluded_near_models": [
+        "AS7760-32X family records outside photographed-label record",
+        "AS7710-32X"
+      ]
+    },
+    {
+      "owned_query": "AZ4444-52X-DC-10",
+      "exact_catalog_matches": [
+        {
+          "id": "6ebe569ff1954dd2e2f4",
+          "brand": "Accton",
+          "model": "AZ4444-52X-DC-10",
+          "revision": "",
+          "title": "Accton AZ4444-52X-DC-10",
+          "kind": "lan switch",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "bahrain-tra",
+                "record_id": "fda544d7ddad610f13c06f55",
+                "source_key": "DLM/1921/15259|AZ4444-52X-DC-10",
+                "source_url": "https://etra.tra.org.bh/approved-equipment?search=DLM/1921/15259",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/bahrain-bundle.json",
+                  "sha256": "6c07c2771d9da1166fef625fd803478b2edafb04c15cbb333a4923b3a003d94a"
+                },
+                "field_reference": "API authority_ref DLM/1921/15259",
+                "review_method": "read original saved JSON response row",
+                "response_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/bahrain-equipment.json",
+                  "sha256": "970f1cb9f48f2a09de405554198260c8b966129d24c7f0cd966e336669dfdb81"
+                }
+              },
+              "imported_raw_fields": {
+                "authority_ref": "DLM/1921/15259",
+                "marketing_name": null,
+                "model_number": "AZ4444-52X-DC-10",
+                "manufacturer": "ACCTON TECHNOLOGY CORP",
+                "authority_remark": null,
+                "device_description": "Ethernet Switch",
+                "expiry": "11-11-2026",
+                "device_remark": null,
+                "status_code": "RNW"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "bahrain_authority_ref",
+                  "value": "DLM/1921/15259"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "ACCTON TECHNOLOGY CORP",
+                  "role": "registry_manufacturer"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "device_description",
+                  "value": "Ethernet Switch"
+                },
+                {
+                  "name": "evidence_scope",
+                  "value": "Regulatory manufacturer/model assertion; no factory, physical configuration, current approval or prior ownership inference"
+                },
+                {
+                  "name": "raw_model_cell",
+                  "value": "AZ4444-52X-DC-10"
+                },
+                {
+                  "name": "registry_expiry_date",
+                  "value": "2026-11-11"
+                },
+                {
+                  "name": "registry_manufacturer",
+                  "value": "ACCTON TECHNOLOGY CORP"
+                },
+                {
+                  "name": "registry_status_code",
+                  "value": "RNW"
+                }
+              ],
+              "reviewed_saved_material": {
+                "authority_ref": "DLM/1921/15259",
+                "marketing_name": null,
+                "model_number": "AZ4444-52X-DC-10",
+                "manufacturer": "ACCTON TECHNOLOGY CORP",
+                "authority_remark": null,
+                "device_description": "Ethernet Switch",
+                "expiry": "11-11-2026",
+                "device_remark": null,
+                "status_code": "RNW"
+              }
+            },
+            {
+              "reference": {
+                "source_id": "rra-official-query-e5984834207f",
+                "record_id": "e30bf9aaf87b8875f39b77c8",
+                "source_key": "R-R-PBJ-AZ4444-52X-10:AZ4444-52X-DC-10",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=R-R-PBJ-AZ4444-52X-10",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-accton-official/bundle.json",
+                  "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e"
+                },
+                "field_reference": "labelled 모델명 / 파생모델명 / 제조자 / 기타 cells",
+                "review_method": "read original saved detail HTML; strip tags and collapse whitespace; compare labelled fields to imported raw_json",
+                "detail_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-accton-official/detail-011.html",
+                  "sha256": "2110985109264f223c85230f9041f68ecd3b4294d343363b54c9e3333fd0da75"
+                }
+              },
+              "imported_raw_fields": {
+                "applicant": "ACCTON TECHNOLOGY CORPORATION",
+                "equipment_name": "Ethernet Switch",
+                "main_model": "AZ4444-52X-DC-10",
+                "derived_models": "",
+                "certificate_number": "R-R-PBJ-AZ4444-52X-10",
+                "manufacturer": "ACCTON TECHNOLOGY CORPORATION",
+                "country_raw": "대만",
+                "approval_date_raw": "2024-03-22",
+                "other_raw": ""
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "rra_certificate_id",
+                  "value": "R-R-PBJ-AZ4444-52X-10"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "approval_date_raw",
+                  "value": "2024-03-22"
+                },
+                {
+                  "name": "country_raw",
+                  "value": "대만"
+                },
+                {
+                  "name": "detail_sha256",
+                  "value": "2110985109264f223c85230f9041f68ecd3b4294d343363b54c9e3333fd0da75"
+                },
+                {
+                  "name": "rra_main_model",
+                  "value": "AZ4444-52X-DC-10"
+                },
+                {
+                  "name": "rra_model_role",
+                  "value": "main"
+                }
+              ],
+              "reviewed_saved_material": "상호, 기기명칭, 모델명, 파생모델명, 인증번호, 제조자, 제조국가, 인증연월일, 기타의 정보로 제공합니다. 상호 ACCTON TECHNOLOGY CORPORATION 기기명칭 Ethernet Switch 모델명 AZ4444-52X-DC-10 파생모델명 인증번호 R-R-PBJ-AZ4444-52X-10 제조자 ACCTON TECHNOLOGY CORPORATION 제조국가 대만 인증연월일 2024-03-22 기타 "
+            },
+            {
+              "reference": {
+                "source_id": "tec-mtcte",
+                "record_id": "b90c6855452d973383831212",
+                "source_key": "793|AZ4444-52X-DC-10",
+                "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/tec-equipment.html",
+                  "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3"
+                },
+                "field_reference": "HTML table S.No. 793, Product Model Name / OEM Name",
+                "review_method": "standard-library HTMLParser table cell extraction; compare literal model and row"
+              },
+              "imported_raw_fields": {
+                "cells": {
+                  "S.No.": "793",
+                  "Company Name": "Omega QMS Private Limited",
+                  "Product Name": "LAN Switch",
+                  "Product Variant": "L2 LAN Switch",
+                  "OEM Name": "Accton Technology Corporation",
+                  "Product Model Name": "AZ4444-52X-DC-10",
+                  "Product Model No.": "",
+                  "Category": "Mandatory",
+                  "Certificate Type": "Regular",
+                  "Issue Date": "20240104 04/01/2024",
+                  "Valid Upto": "20330826 26/08/2033",
+                  "Certificate ID": "379401544"
+                },
+                "model_column": "Product Model Name"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "tec_certificate_id",
+                  "value": "379401544"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Accton Technology Corporation",
+                  "role": "declared_oem"
+                },
+                {
+                  "company": "Omega QMS Private Limited",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "certificate_category",
+                  "value": "Mandatory"
+                },
+                {
+                  "name": "certificate_date_scope",
+                  "value": "Historical register assertion; not current status or vendor support deadline"
+                },
+                {
+                  "name": "certificate_issue_date",
+                  "value": "2024-01-04"
+                },
+                {
+                  "name": "certificate_type",
+                  "value": "Regular"
+                },
+                {
+                  "name": "certificate_valid_upto",
+                  "value": "2033-08-26"
+                },
+                {
+                  "name": "model_column",
+                  "value": "Product Model Name"
+                },
+                {
+                  "name": "product_variant",
+                  "value": "L2 LAN Switch"
+                },
+                {
+                  "name": "registry_row",
+                  "value": "793"
+                }
+              ],
+              "reviewed_saved_material": [
+                "793",
+                "Omega QMS Private Limited",
+                "LAN Switch",
+                "L2 LAN Switch",
+                "Accton Technology Corporation",
+                "AZ4444-52X-DC-10",
+                "",
+                "Mandatory",
+                "Regular",
+                "20240104 04/01/2024",
+                "20330826 26/08/2033",
+                "379401544"
+              ]
+            },
+            {
+              "reference": {
+                "source_id": "ul-accton-platforms",
+                "record_id": "122d725910137f78bb655144",
+                "source_key": "AZ4444-52X-DC-10",
+                "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+                "source_tier": "certification_body",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ul-accton-platforms.json",
+                  "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b"
+                },
+                "field_reference": "$.model_section_text offsets [[6500, 6516]]",
+                "review_method": "read immutable structured web-tool extract; original HTML unavailable; no completeness assumption"
+              },
+              "imported_raw_fields": {
+                "model": "AZ4444-52X-DC-10",
+                "document": "AZOT7.E141136",
+                "listing_holder": "ACCTON TECHNOLOGY CORPORATION",
+                "model_section_spans": [
+                  [
+                    6500,
+                    6516
+                  ]
+                ],
+                "capture_format": "web_tool_models_section",
+                "extraction_scope": "accton-platform-identifiers-v1",
+                "adjacent_annotations": [],
+                "retrieved_at": "2026-09-26 22:57:28 UTC"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "ul_document",
+                  "value": "AZOT7.E141136"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "listing_holder"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "capture_format",
+                  "value": "web_tool_models_section"
+                },
+                {
+                  "name": "identity_namespace",
+                  "value": "Accton listing holder; product brand not established by this record"
+                },
+                {
+                  "name": "listing_holder_name",
+                  "value": "ACCTON TECHNOLOGY CORPORATION"
+                },
+                {
+                  "name": "retrieved_at",
+                  "value": "2026-09-26 22:57:28 UTC"
+                },
+                {
+                  "name": "source_scope",
+                  "value": "Selected identifiers from an abridged listing; may describe products or components"
+                }
+              ],
+              "reviewed_saved_material": {
+                "matched_spans": [
+                  [
+                    6500,
+                    6516
+                  ]
+                ],
+                "listing_holder": "ACCTON TECHNOLOGY CORPORATION"
+              }
+            }
+          ]
+        },
+        {
+          "id": "e98b788f599e6f918e82",
+          "brand": "Edge-Core",
+          "model": "AZ4444-52X-DC-10",
+          "revision": "",
+          "title": "Edge-Core AZ4444-52X-DC-10",
+          "kind": "Equipamento de Rede de Dados",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "anatel-products",
+                "record_id": "7c05d28ac8cc8bbc3ec05c38",
+                "source_key": "123670",
+                "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-bundle.json",
+                  "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710"
+                },
+                "field_reference": "Produtos_Homologados_Anatel.csv data record 123670, Modelo / Nome do Fabricante",
+                "review_method": "read original saved ZIP CSV as UTF-8 BOM and semicolon-separated rows",
+                "archive_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-products.zip",
+                  "sha256": "91f09ca0795d0833f2749dbcb6d3a1569fe2bc2c14c5cb1d7a8482833b33157f"
+                }
+              },
+              "imported_raw_fields": {
+                "approval_date": "11/10/2024",
+                "approval_number": "225812303459",
+                "applicant": "OPENGLOBE TECNOLOGIA LTDA",
+                "applicant_cnpj": "24603617000160",
+                "certificate_number": "UL-BR 23.2040",
+                "certificate_date": "28/12/2023",
+                "certificate_expiry": "2026-12-27 00:00:00.000000",
+                "certificate_status_code": "2",
+                "certificate_status": "Preenchimento Concluído",
+                "application_status_code": "6",
+                "application_status": "Homologação Emitida",
+                "manufacturer": "EdgeCore Networks Corporation",
+                "model": "AZ4444-52X-DC-10",
+                "commercial_name": "",
+                "product_category": "3",
+                "product_type": "Equipamento de Rede de Dados",
+                "antenna_flag": "N",
+                "active_flag": "S",
+                "manufacturer_country": "Taiwan",
+                "country_itu": "TWN",
+                "country_iso": "TWN"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "anatel_approval_id",
+                  "value": "225812303459"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "EdgeCore Networks Corporation",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "OPENGLOBE TECNOLOGIA LTDA",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "active_flag",
+                  "value": "S"
+                },
+                {
+                  "name": "antenna_flag",
+                  "value": "N"
+                },
+                {
+                  "name": "applicant",
+                  "value": "OPENGLOBE TECNOLOGIA LTDA"
+                },
+                {
+                  "name": "applicant_cnpj",
+                  "value": "24603617000160"
+                },
+                {
+                  "name": "application_status",
+                  "value": "Homologação Emitida"
+                },
+                {
+                  "name": "application_status_code",
+                  "value": "6"
+                },
+                {
+                  "name": "approval_date",
+                  "value": "11/10/2024"
+                },
+                {
+                  "name": "approval_number",
+                  "value": "225812303459"
+                },
+                {
+                  "name": "certificate_date",
+                  "value": "28/12/2023"
+                },
+                {
+                  "name": "certificate_expiry",
+                  "value": "2026-12-27 00:00:00.000000"
+                },
+                {
+                  "name": "certificate_number",
+                  "value": "UL-BR 23.2040"
+                },
+                {
+                  "name": "certificate_status",
+                  "value": "Preenchimento Concluído"
+                },
+                {
+                  "name": "certificate_status_code",
+                  "value": "2"
+                },
+                {
+                  "name": "country_iso",
+                  "value": "TWN"
+                },
+                {
+                  "name": "country_itu",
+                  "value": "TWN"
+                },
+                {
+                  "name": "csv_record_number",
+                  "value": "123670"
+                },
+                {
+                  "name": "evidence_scope",
+                  "value": "Registry manufacturer/model assertion; commercial-name cells are unparsed facts, not model aliases. Raw dates and statuses do not imply present validity or unit provenance."
+                },
+                {
+                  "name": "manufacturer_country",
+                  "value": "Taiwan"
+                },
+                {
+                  "name": "product_category",
+                  "value": "3"
+                },
+                {
+                  "name": "product_type",
+                  "value": "Equipamento de Rede de Dados"
+                },
+                {
+                  "name": "registry_manufacturer",
+                  "value": "EdgeCore Networks Corporation"
+                }
+              ],
+              "reviewed_saved_material": {
+                "Data da Homologação": "11/10/2024",
+                "Número de Homologação": "225812303459",
+                "Nome do Solicitante": "OPENGLOBE TECNOLOGIA LTDA",
+                "CNPJ do Solicitante": "24603617000160",
+                "Certificado de Conformidade Técnica": "UL-BR 23.2040",
+                "Data do Certificado de Conformidade Técnica": "28/12/2023",
+                "Data de Validade do Certificado": "2026-12-27 00:00:00.000000",
+                "Código de Situação do Certificado": "2",
+                "Situação do Certificado": "Preenchimento Concluído",
+                "Código de Situação do Requerimento": "6",
+                "Situação do Requerimento": "Homologação Emitida",
+                "Nome do Fabricante": "EdgeCore Networks Corporation",
+                "Modelo": "AZ4444-52X-DC-10",
+                "Nome Comercial": "",
+                "Categoria do Produto": "3",
+                "Tipo do Produto": "Equipamento de Rede de Dados",
+                "IC_ANTENA": "N",
+                "IC_ATIVO": "S",
+                "País do Fabricante": "Taiwan",
+                "CodUIT": "TWN",
+                "CodISO": "TWN"
+              }
+            }
+          ]
+        }
+      ],
+      "already_imported_statements": [],
+      "newly_reviewed_unimported_statements": [],
+      "unknowns": [
+        {
+          "category": "power",
+          "statement": "No exact-model input voltage, PSU configuration/rating, connector and power-on dependencies established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "cooling",
+          "statement": "No exact-model airflow direction, fan configuration and operational cooling requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "chassis",
+          "statement": "No exact-model rack form factor, mounting/rail requirements and any chassis/node dependency established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "firmware_boot_software",
+          "statement": "No exact-model boot loader, console/recovery procedure, exact supported NOS/image and installation requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "licensing",
+          "statement": "No exact-model download access, license entitlement and transfer conditions established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        }
+      ],
+      "excluded_near_models": [
+        "AZ4444-52X-AC-00",
+        "AZ4444-52X-DC-42",
+        "AZ4444-52X",
+        "AZ4444-52X-MAIN",
+        "AZ4444-52X-CPU"
+      ]
+    },
+    {
+      "owned_query": "AS7772-32X",
+      "exact_catalog_matches": [
+        {
+          "id": "2a47ae32d8a5f3fb5ef9",
+          "brand": "Edge-Core",
+          "model": "AS7772-32X",
+          "revision": "",
+          "title": "EDGE-CORE AS7772-32X",
+          "kind": "switch",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "anatel-products",
+                "record_id": "8a2b11935bb85c28c245f825",
+                "source_key": "37300",
+                "source_url": "https://informacoes.anatel.gov.br/paineis/certificacao-de-produtos/consulta-de-produtos",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-bundle.json",
+                  "sha256": "f6a05780f7dff616f82ae3889f2bf73acb769a4c383756dd63729ac4e7a34710"
+                },
+                "field_reference": "Produtos_Homologados_Anatel.csv data record 37300, Modelo / Nome do Fabricante",
+                "review_method": "read original saved ZIP CSV as UTF-8 BOM and semicolon-separated rows",
+                "archive_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/anatel-products.zip",
+                  "sha256": "91f09ca0795d0833f2749dbcb6d3a1569fe2bc2c14c5cb1d7a8482833b33157f"
+                }
+              },
+              "imported_raw_fields": {
+                "approval_date": "12/04/2020",
+                "approval_number": "030911807643",
+                "applicant": "OPENGLOBE TECNOLOGIA LTDA",
+                "applicant_cnpj": "24603617000160",
+                "certificate_number": "UL-BR 18.0183",
+                "certificate_date": "10/05/2018",
+                "certificate_expiry": "",
+                "certificate_status_code": "2",
+                "certificate_status": "Preenchimento Concluído",
+                "application_status_code": "6",
+                "application_status": "Homologação Emitida",
+                "manufacturer": "EdgeCore Networks Corporation",
+                "model": "AS7772-32X",
+                "commercial_name": "",
+                "product_category": "3",
+                "product_type": "Equipamento de Rede de Dados",
+                "antenna_flag": "N",
+                "active_flag": "S",
+                "manufacturer_country": "Taiwan",
+                "country_itu": "TWN",
+                "country_iso": "TWN"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "anatel_approval_id",
+                  "value": "030911807643"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "EdgeCore Networks Corporation",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "OPENGLOBE TECNOLOGIA LTDA",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "active_flag",
+                  "value": "S"
+                },
+                {
+                  "name": "antenna_flag",
+                  "value": "N"
+                },
+                {
+                  "name": "applicant",
+                  "value": "OPENGLOBE TECNOLOGIA LTDA"
+                },
+                {
+                  "name": "applicant_cnpj",
+                  "value": "24603617000160"
+                },
+                {
+                  "name": "application_status",
+                  "value": "Homologação Emitida"
+                },
+                {
+                  "name": "application_status_code",
+                  "value": "6"
+                },
+                {
+                  "name": "approval_date",
+                  "value": "12/04/2020"
+                },
+                {
+                  "name": "approval_number",
+                  "value": "030911807643"
+                },
+                {
+                  "name": "certificate_date",
+                  "value": "10/05/2018"
+                },
+                {
+                  "name": "certificate_number",
+                  "value": "UL-BR 18.0183"
+                },
+                {
+                  "name": "certificate_status",
+                  "value": "Preenchimento Concluído"
+                },
+                {
+                  "name": "certificate_status_code",
+                  "value": "2"
+                },
+                {
+                  "name": "country_iso",
+                  "value": "TWN"
+                },
+                {
+                  "name": "country_itu",
+                  "value": "TWN"
+                },
+                {
+                  "name": "csv_record_number",
+                  "value": "37300"
+                },
+                {
+                  "name": "evidence_scope",
+                  "value": "Registry manufacturer/model assertion; commercial-name cells are unparsed facts, not model aliases. Raw dates and statuses do not imply present validity or unit provenance."
+                },
+                {
+                  "name": "manufacturer_country",
+                  "value": "Taiwan"
+                },
+                {
+                  "name": "product_category",
+                  "value": "3"
+                },
+                {
+                  "name": "product_type",
+                  "value": "Equipamento de Rede de Dados"
+                },
+                {
+                  "name": "registry_manufacturer",
+                  "value": "EdgeCore Networks Corporation"
+                }
+              ],
+              "reviewed_saved_material": {
+                "Data da Homologação": "12/04/2020",
+                "Número de Homologação": "030911807643",
+                "Nome do Solicitante": "OPENGLOBE TECNOLOGIA LTDA",
+                "CNPJ do Solicitante": "24603617000160",
+                "Certificado de Conformidade Técnica": "UL-BR 18.0183",
+                "Data do Certificado de Conformidade Técnica": "10/05/2018",
+                "Data de Validade do Certificado": "",
+                "Código de Situação do Certificado": "2",
+                "Situação do Certificado": "Preenchimento Concluído",
+                "Código de Situação do Requerimento": "6",
+                "Situação do Requerimento": "Homologação Emitida",
+                "Nome do Fabricante": "EdgeCore Networks Corporation",
+                "Modelo": "AS7772-32X",
+                "Nome Comercial": "",
+                "Categoria do Produto": "3",
+                "Tipo do Produto": "Equipamento de Rede de Dados",
+                "IC_ANTENA": "N",
+                "IC_ATIVO": "S",
+                "País do Fabricante": "Taiwan",
+                "CodUIT": "TWN",
+                "CodISO": "TWN"
+              }
+            },
+            {
+              "reference": {
+                "source_id": "ntra-2026-01",
+                "record_id": "3cd458914e3561b284315aa1",
+                "source_key": "11963",
+                "source_url": "https://www.tra.gov.eg/wp-content/uploads/2026/01/Type-Approved-List-3.pdf#page=189",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ntra-2026-01.pdf",
+                  "sha256": "72f63661db38c56d1d78fdf97dfe5f8268d5ada85a538c7d6911abe8965bb54a"
+                },
+                "field_reference": "PDF physical page 189, row 11963, Brand / Model",
+                "review_method": "read saved embedded-text page and row; collapse extraction whitespace only for identity check",
+                "text_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ntra-2026-01-text.json",
+                  "sha256": "22e891b7891d1259b73f77490d794fe427bb859e981fa19849937fbd64b2df89"
+                }
+              },
+              "imported_raw_fields": {
+                "page": 189,
+                "cells": [
+                  "11963",
+                  "SWITCH",
+                  "EDGE-CORE",
+                  "AS7772-32X",
+                  ""
+                ],
+                "target": "Edge-Core"
+              },
+              "same_record_identifiers": [],
+              "company_roles": [
+                {
+                  "company": "Edge-Core",
+                  "role": "registry_brand"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "pdf_page",
+                  "value": "189"
+                },
+                {
+                  "name": "registry_brand",
+                  "value": "EDGE-CORE"
+                },
+                {
+                  "name": "registry_product_description",
+                  "value": "SWITCH"
+                },
+                {
+                  "name": "registry_row",
+                  "value": "11963"
+                }
+              ],
+              "reviewed_saved_material": "11963 SWITCH EDGE-CORE AS 7772-32X"
+            },
+            {
+              "reference": {
+                "source_id": "rra-official-query-63cb0b9098c7",
+                "record_id": "aeeefd7d8e4c6d5943d32e1e",
+                "source_key": "MSIP-REI-in4-AS7712-32X:AS7772-32X",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REI-in4-AS7712-32X",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-edgecore-official/bundle.json",
+                  "sha256": "faa845eb914915c019b3066f0f9ae2aa1183a1f7246d05e30d9facd8076c39a2"
+                },
+                "field_reference": "labelled 모델명 / 파생모델명 / 제조자 / 기타 cells",
+                "review_method": "read original saved detail HTML; strip tags and collapse whitespace; compare labelled fields to imported raw_json",
+                "detail_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-edgecore-official/detail-079.html",
+                  "sha256": "c6db62fae25121bb575515fea6d3ddec3992f88c5a757c6fbb40ca68f1fb0cf4"
+                }
+              },
+              "imported_raw_fields": {
+                "applicant": "(주) 인포에이",
+                "equipment_name": "100GbE Data Center Switch",
+                "main_model": "AS7712-32X",
+                "derived_models": "AS7772-32X",
+                "certificate_number": "MSIP-REI-in4-AS7712-32X",
+                "manufacturer": "Edgecore Networks Corporation",
+                "country_raw": "중국",
+                "approval_date_raw": "2017-10-31",
+                "other_raw": ""
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "rra_certificate_id",
+                  "value": "MSIP-REI-in4-AS7712-32X"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "(주) 인포에이",
+                  "role": "regulatory_applicant"
+                },
+                {
+                  "company": "Edgecore Networks Corporation",
+                  "role": "registry_manufacturer"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "approval_date_raw",
+                  "value": "2017-10-31"
+                },
+                {
+                  "name": "country_raw",
+                  "value": "중국"
+                },
+                {
+                  "name": "detail_sha256",
+                  "value": "c6db62fae25121bb575515fea6d3ddec3992f88c5a757c6fbb40ca68f1fb0cf4"
+                },
+                {
+                  "name": "rra_main_model",
+                  "value": "AS7712-32X"
+                },
+                {
+                  "name": "rra_model_role",
+                  "value": "derived"
+                }
+              ],
+              "reviewed_saved_material": "상호, 기기명칭, 모델명, 파생모델명, 인증번호, 제조자, 제조국가, 인증연월일, 기타의 정보로 제공합니다. 상호 (주) 인포에이 기기명칭 100GbE Data Center Switch 모델명 AS7712-32X 파생모델명 AS7772-32X 인증번호 MSIP-REI-in4-AS7712-32X 제조자 Edgecore Networks Corporation 제조국가 중국 인증연월일 2017-10-31 기타 "
+            }
+          ]
+        },
+        {
+          "id": "3f0edec15c7dec98a1d4",
+          "brand": "Accton",
+          "model": "AS7772-32X",
+          "revision": "",
+          "title": "Accton AS7772-32X",
+          "kind": "lan switch",
+          "case_match": "literal",
+          "records": [
+            {
+              "reference": {
+                "source_id": "rra-official-query-e5984834207f",
+                "record_id": "af279284a305947ac341c1f3",
+                "source_key": "MSIP-REM-PBJ-AS7762-32X:AS7772-32X",
+                "source_url": "https://www.rra.go.kr/ko/license/A_b_popup_keyno.do?key_no=MSIP-REM-PBJ-AS7762-32X",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-accton-official/bundle.json",
+                  "sha256": "97a8c879df97ce94e6c4e7aade36000f9668656d3498bc70243cab1513f4937e"
+                },
+                "field_reference": "labelled 모델명 / 파생모델명 / 제조자 / 기타 cells",
+                "review_method": "read original saved detail HTML; strip tags and collapse whitespace; compare labelled fields to imported raw_json",
+                "detail_capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/rra-accton-official/detail-028.html",
+                  "sha256": "1fda9564ee0a4d6b2513f604eeb93783568d3ed1358605f2708efc6e2e4f4df5"
+                }
+              },
+              "imported_raw_fields": {
+                "applicant": "ACCTON TECHNOLOGY CORPORATION",
+                "equipment_name": "Switch",
+                "main_model": "AS7762-32X",
+                "derived_models": "AS7772-32X",
+                "certificate_number": "MSIP-REM-PBJ-AS7762-32X",
+                "manufacturer": "ACCTON TECHNOLOGY CORPORATION",
+                "country_raw": "대만",
+                "approval_date_raw": "2016-11-29",
+                "other_raw": ""
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "rra_certificate_id",
+                  "value": "MSIP-REM-PBJ-AS7762-32X"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "registry_manufacturer"
+                },
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "approval_date_raw",
+                  "value": "2016-11-29"
+                },
+                {
+                  "name": "country_raw",
+                  "value": "대만"
+                },
+                {
+                  "name": "detail_sha256",
+                  "value": "1fda9564ee0a4d6b2513f604eeb93783568d3ed1358605f2708efc6e2e4f4df5"
+                },
+                {
+                  "name": "rra_main_model",
+                  "value": "AS7762-32X"
+                },
+                {
+                  "name": "rra_model_role",
+                  "value": "derived"
+                }
+              ],
+              "reviewed_saved_material": "상호, 기기명칭, 모델명, 파생모델명, 인증번호, 제조자, 제조국가, 인증연월일, 기타의 정보로 제공합니다. 상호 ACCTON TECHNOLOGY CORPORATION 기기명칭 Switch 모델명 AS7762-32X 파생모델명 AS7772-32X 인증번호 MSIP-REM-PBJ-AS7762-32X 제조자 ACCTON TECHNOLOGY CORPORATION 제조국가 대만 인증연월일 2016-11-29 기타 "
+            },
+            {
+              "reference": {
+                "source_id": "tec-mtcte",
+                "record_id": "bb98186553826e233079dd44",
+                "source_key": "1518|AS7772-32X",
+                "source_url": "https://www.tec.gov.in/equipment-certified-under-mtcte",
+                "source_tier": "regulatory",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/tec-equipment.html",
+                  "sha256": "94e24d6903e9ae49282811dab33c12796b335aea205f3ab8f18918a7c0a985b3"
+                },
+                "field_reference": "HTML table S.No. 1518, Product Model Name / OEM Name",
+                "review_method": "standard-library HTMLParser table cell extraction; compare literal model and row"
+              },
+              "imported_raw_fields": {
+                "cells": {
+                  "S.No.": "1518",
+                  "Company Name": "Omega QMS Private Limited",
+                  "Product Name": "LAN Switch",
+                  "Product Variant": "L2 LAN Switch",
+                  "OEM Name": "Accton Technology Corporation",
+                  "Product Model Name": "AS7772-32X",
+                  "Product Model No.": "",
+                  "Category": "Mandatory",
+                  "Certificate Type": "Regular",
+                  "Issue Date": "20230609 09/06/2023",
+                  "Valid Upto": "20330608 08/06/2033",
+                  "Certificate ID": "379400825"
+                },
+                "model_column": "Product Model Name"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "tec_certificate_id",
+                  "value": "379400825"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "Accton Technology Corporation",
+                  "role": "declared_oem"
+                },
+                {
+                  "company": "Omega QMS Private Limited",
+                  "role": "regulatory_applicant"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "certificate_category",
+                  "value": "Mandatory"
+                },
+                {
+                  "name": "certificate_date_scope",
+                  "value": "Historical register assertion; not current status or vendor support deadline"
+                },
+                {
+                  "name": "certificate_issue_date",
+                  "value": "2023-06-09"
+                },
+                {
+                  "name": "certificate_type",
+                  "value": "Regular"
+                },
+                {
+                  "name": "certificate_valid_upto",
+                  "value": "2033-06-08"
+                },
+                {
+                  "name": "model_column",
+                  "value": "Product Model Name"
+                },
+                {
+                  "name": "product_variant",
+                  "value": "L2 LAN Switch"
+                },
+                {
+                  "name": "registry_row",
+                  "value": "1518"
+                }
+              ],
+              "reviewed_saved_material": [
+                "1518",
+                "Omega QMS Private Limited",
+                "LAN Switch",
+                "L2 LAN Switch",
+                "Accton Technology Corporation",
+                "AS7772-32X",
+                "",
+                "Mandatory",
+                "Regular",
+                "20230609 09/06/2023",
+                "20330608 08/06/2033",
+                "379400825"
+              ]
+            },
+            {
+              "reference": {
+                "source_id": "ul-accton-platforms",
+                "record_id": "e18ea3940f4e0b1312ba8adf",
+                "source_key": "AS7772-32X",
+                "source_url": "https://productiq.ulprospector.com/en/profile/2858881/azot7.e141136?term=e141136",
+                "source_tier": "certification_body",
+                "capture": {
+                  "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ul-accton-platforms.json",
+                  "sha256": "29cd08423d4a627e3e33b8b4327ed90e5d296fdfba96aaf3ad17b1022abbd77b"
+                },
+                "field_reference": "$.model_section_text offsets [[1249, 1259]]",
+                "review_method": "read immutable structured web-tool extract; original HTML unavailable; no completeness assumption"
+              },
+              "imported_raw_fields": {
+                "model": "AS7772-32X",
+                "document": "AZOT7.E141136",
+                "listing_holder": "ACCTON TECHNOLOGY CORPORATION",
+                "model_section_spans": [
+                  [
+                    1249,
+                    1259
+                  ]
+                ],
+                "capture_format": "web_tool_models_section",
+                "extraction_scope": "accton-platform-identifiers-v1",
+                "adjacent_annotations": [],
+                "retrieved_at": "2026-09-26 22:57:28 UTC"
+              },
+              "same_record_identifiers": [
+                {
+                  "kind": "ul_document",
+                  "value": "AZOT7.E141136"
+                }
+              ],
+              "company_roles": [
+                {
+                  "company": "ACCTON TECHNOLOGY CORPORATION",
+                  "role": "listing_holder"
+                }
+              ],
+              "imported_facts": [
+                {
+                  "name": "capture_format",
+                  "value": "web_tool_models_section"
+                },
+                {
+                  "name": "identity_namespace",
+                  "value": "Accton listing holder; product brand not established by this record"
+                },
+                {
+                  "name": "listing_holder_name",
+                  "value": "ACCTON TECHNOLOGY CORPORATION"
+                },
+                {
+                  "name": "retrieved_at",
+                  "value": "2026-09-26 22:57:28 UTC"
+                },
+                {
+                  "name": "source_scope",
+                  "value": "Selected identifiers from an abridged listing; may describe products or components"
+                }
+              ],
+              "reviewed_saved_material": {
+                "matched_spans": [
+                  [
+                    1249,
+                    1259
+                  ]
+                ],
+                "listing_holder": "ACCTON TECHNOLOGY CORPORATION"
+              }
+            }
+          ]
+        }
+      ],
+      "already_imported_statements": [],
+      "newly_reviewed_unimported_statements": [],
+      "unknowns": [
+        {
+          "category": "power",
+          "statement": "No exact-model input voltage, PSU configuration/rating, connector and power-on dependencies established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "cooling",
+          "statement": "No exact-model airflow direction, fan configuration and operational cooling requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "chassis",
+          "statement": "No exact-model rack form factor, mounting/rail requirements and any chassis/node dependency established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "firmware_boot_software",
+          "statement": "No exact-model boot loader, console/recovery procedure, exact supported NOS/image and installation requirements established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        },
+        {
+          "category": "licensing",
+          "statement": "No exact-model download access, license entitlement and transfer conditions established by the reviewed collected evidence.",
+          "scope": "absence in this finite saved set; not an impossibility, unsupported-hardware or safety conclusion"
+        }
+      ],
+      "excluded_near_models": [
+        "AS7772-32X-12V",
+        "AS7762-32X",
+        "AS7712-32X"
+      ],
+      "alias_limit": "RRA main/derived co-listing is not a software/hardware interchangeability alias."
+    }
+  ],
+  "newly_reviewed_unimported_count": 4,
+  "next_finite_leads": [
+    "For CS8200 investigate an exact UN-00 vendor hardware/installation document or FSJ021 document without lending DC-11 specs.",
+    "For CS8210 investigate an exact UN-00 hardware/installation document; current UL capture gives identity only and original UL HTML had a recorded 403.",
+    "For DMC-12-48R-AS0 investigate exact unsuffixed manual; 48V is separately printed and excluded.",
+    "For full 7760 identifier investigate official installation/software guidance explicitly identifying this full configuration; do not transfer AS7760 family claims through photo mapping.",
+    "For AZ4444-52X-DC-10 investigate exact full-code power/connector manual, without decoding DC-10.",
+    "For AS7772-32X investigate exact unsuffixed manual/support table, excluding -12V."
+  ],
+  "additional_reviewed_captures": [
+    {
+      "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ul-celestica-platforms.json",
+      "sha256": "7793146932ad35ad9f10aad02868b37abd6eb75db65ef740085d5bdb9ad2a1cb",
+      "review_scope": "models section; exact CS8200/CS8210 identifiers, no practical facts"
+    },
+    {
+      "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/icasa-2025-text.json",
+      "sha256": "17b29f11aa1f910c0baec3d61fb20c72f1d89a6592a36cdfc4a312a4cf5bd0de",
+      "review_scope": "physical pages 153/224; exact DMC/AZ4444 identifiers and distinct 48V variant"
+    },
+    {
+      "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/ntra-2022-12-text.json",
+      "sha256": "616e7bc019b0556e806c423025fdb89c7a91b46e32e0e82d8340264bf7aa69fd",
+      "review_scope": "physical pages 391/460; exact DMC/AS7772 identities only"
+    },
+    {
+      "local_path": "/Users/nep/nocloud/git/nepeat/aislop/fcc_shenanigans/data/raw/picos45/edgecore-accton.html",
+      "sha256": "b8034eb37d013e6c4908d986028092f2f636140c556a1c5b859728ffe72ba37f",
+      "review_scope": "hardware table exact-identifier check; none of these six"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "selection_number": 9,
+  "landing_path": "09-landing.html",
+  "landing_sha256": "e77a7b238d63863e3bf9dd3321e273080d559e086645f2d6718f4204e04b12c0",
+  "fresh_heading": "SAF4100I DS R03",
+  "published_download_url": "https://www.edge-core.com/download/saf4100i-ds-r03/?wpdmdl=3456&refresh=6ad06cf5169671792044277",
+  "expected_wpdmdl_values": [
+    "3456"
+  ],
+  "stale_graph_tokens_used": false
+}

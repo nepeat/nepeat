@@ -1,0 +1,17 @@
+HTTP/2 302 
+date: Tue, 13 Oct 2026 04:46:54 GMT
+content-type: text/html; charset=UTF-8
+location: https://www.edge-core.com/wp-content/uploads/2024/01/AS5710_AS5712-54X-DS-R09-1.pdf
+set-cookie: __wpdm_client=fab8423f14c2e58ff5bfb5a38f72c7a2; path=/; domain=www.edge-core.com; secure; HttpOnly
+strict-transport-security: max-age=31536000; includeSubdomains; preload
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+vary: Accept-Encoding
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: microphone=(),fullscreen=()
+x-xss-protection: 1;mode=block
+server: cloudflare
+cf-cache-status: DYNAMIC
+cf-ray: a49bb4067c3db89e-SEA
+alt-svc: h3=":443"; ma=86400
+

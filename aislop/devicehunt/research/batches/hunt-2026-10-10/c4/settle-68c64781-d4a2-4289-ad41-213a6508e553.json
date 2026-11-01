@@ -1,0 +1,23 @@
+{
+  "account": "c4-rra-official-query-78fc6b2e95f6-2026-10-10c",
+  "account_state": {
+    "boot": "e4c6fa43-e8b6-4d8e-bca0-8e86027154cb",
+    "byte_limit": 4000004,
+    "deadline": null,
+    "definition_hash": "0f095a42de8acbdac6a58480cdf3e9552fb404c1b969a29cc5d85ea3b05e02d4",
+    "id": "c4-rra-official-query-78fc6b2e95f6-2026-10-10c",
+    "policy_hash": "rra-refresh/c4-2026-10-10",
+    "request_limit": 4,
+    "spent_bytes": 2000002,
+    "spent_requests": 2,
+    "start_mono": 467889.675984626,
+    "start_wall": 1791628833.0607724,
+    "stopped": "response/transport failure",
+    "window": 1800.0
+  },
+  "decision": "c4 2026-10-10: csv-before POST timed out at the 30 s client bound before any response header (result receipt 82d1c08b, outcome timeout, status null). Charge kept, account c4-rra-official-query-78fc6b2e95f6-2026-10-10c stays stopped; a distinct new account with a 120 s bound may follow (settle review ACCEPT).",
+  "phase": "settle",
+  "reservation": "68c64781-d4a2-4289-ad41-213a6508e553",
+  "state": "uncertain",
+  "url": "https://www.rra.go.kr/ko/license/csv_down.do"
+}

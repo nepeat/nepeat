@@ -1,0 +1,53 @@
+      Certificate: 80005631                                                                 Master Contract: 170351
+      Project: 80111077                                                                      Date Issued: 2022-01-10
+
+
+
+    For SPABRCD-16, SPABRCD-17:
+     Vin\ambient                             45°C                             60°C
+     200-380Vdc                              125A                             104A
+
+    For PPC33 A022:
+     Vin\ambient                             45°C                              60°C
+     100-240Vac,200-380Vdc                   70A                               69A
+
+
+    APPLICABLE REQUIREMENTS
+
+    CAN/CSA-C22.2 No. 62368-1:19             -      Audio/video, information and communication
+                                                    technology equipment – Part 1: Safety requirements
+    ANSI/UL 62368-1, 3rd Ed.                 -      Audio/video, information and communication
+                                                    technology equipment – Part 1: Safety requirements
+
+
+    CONDITIONS OF ACCEPTABILITY
+
+    1.        Equipment shall be installed only trained service personal, according to manufacturer installation
+              instructions.
+    2.        The detachable power supply cord connector for detachable power supply core is considered the main
+              disconnect device.
+    3.        Suitability of the equipment enclosure as a Fire, Mechanical and Electrical Enclosure is to be determined
+              in the end use installation. Front and sides panels have been evaluated and meet fire, electrical and
+              mechanical enclosure.
+    4.        The Power supply unit (PSU) has been evaluated for use in Class I equipment, Reliable connection to
+              Protective Earth shall be provided in the end use installation.
+    5.        The Clearance values of PSU have been evaluated for an altitude of 3048 m, under IEC60664-1:1992
+              Table A.2 (altitude correction factor is 1.15)
+    6.        The Creepage values of PSU have been evaluated for material group IIIb.
+    7.        The PSU was tested on a listed 20A branch circuit. If use on branch circuit greater than this, additional
+              testing may be necessary
+    8.        Safety isolating transformers T603, T604 employ an insulation system designated Class F, T400/T607 is
+              employs Class B, evaluated to UL 1446. Safety isolating transformer T601, T605 are Class A.
+    9.        The output connector is not suitable for field connection; only intended for connection to a mating
+              connector inside the end system. The connector was evaluated and may be used for hot swap operation.
+              Current Interruptions Test (200 cycles) was performed.
+    10.       The maximum output rating of unit varies with input voltage and ambient as below
+              For PFE1500-12-054NAH, PFE1500-12NAHS412 operating at Canada and United States of America,
+              and PFE1500-12-054RAH operating at worldwide. the main output V1: 12.0V derate linearly when
+              ambient increase from 45°C to 60°C and input voltage decrease from 200Vac to 100Vac as table below:
+
+
+
+
+DQD 507 Rev. 2019-04-30                          © 2018 CSA Group. All rights reserved.                            Page 3
+

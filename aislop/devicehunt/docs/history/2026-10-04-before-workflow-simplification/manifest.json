@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-04",
+  "kind": "byte-identical documentation snapshots before simplification",
+  "files": [
+    {
+      "original_path": "AGENTS.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/AGENTS.snapshot.md",
+      "sha256": "1d11f9541e416ae72cc2d627ed54c51c81fd85e3ad75bc3c59c1715aef1b90d3",
+      "lines": 109
+    },
+    {
+      "original_path": "GOAL.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/GOAL.md",
+      "sha256": "c2c4681b7f7faf56605551285ae72e2e019cfb86bb6b5a9ce6c3b8164225512c",
+      "lines": 3526
+    },
+    {
+      "original_path": "PROGRESS.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/PROGRESS.md",
+      "sha256": "0250d2f85b30febefbef692d7b1e7d22e125c1ad271312f0cdb1a319cf8bb692",
+      "lines": 904
+    },
+    {
+      "original_path": "README.md",
+      "snapshot": "docs/history/2026-10-04-before-workflow-simplification/README.md",
+      "sha256": "cb39d9673db38119d4c73ed30b673712852029915f1ef86205b1fa6094a95344",
+      "lines": 1080
+    }
+  ]
+}
