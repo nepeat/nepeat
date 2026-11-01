@@ -25,6 +25,7 @@
     ./disko.nix
     ./nfs.nix
     ./tftp.nix
+    ./m2c-channels.nix
   ];
 
   networking = {

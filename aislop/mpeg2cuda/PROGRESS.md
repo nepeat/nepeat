@@ -374,6 +374,58 @@ scope (`systemd-run --user --scope --unit=m2c-channels`). Separate, smaller:
 the mezz channels log `Invalid DTS ... replacing by guess` once per loop wrap
 (DTS 2.002 s past PTS at the discontinuity); ffmpeg repairs it, not fatal.
 
+## 2026-10-18 — senders down since Oct 17 13:35 (global OOM), restarted
+All 9 senders (900-908) stopped at the same second after 17 h 20 m, no error in
+their logs. Cause: a global OOM (no swap; nix-daemon CUDA/rust builds) killed
+`user@1001.service`, and the `systemd-run --user --scope` scope went with it;
+the user manager stayed failed. EQAM untouched (`eqam_channels.py` dry run:
+0 changes; slots 5/6/9/10/13/14/17/18/21 still UDP://10.60.2.208:5900-5908).
+Restarted in a SYSTEM scope, out of reach of the user manager and the IDE
+service's cgroup:
+`sudo systemd-run --scope --unit=m2c-channels --uid=erin --gid=users --setenv=HOME=/home/erin --setenv=PATH="$PATH" -- env PORT_BASE=5900 scripts/channels.sh start 10.60.30.47`
+(stop: `scripts/channels.sh stop`). All 9 up at ~1.0x, eno1 ~125 Mb/s, EQAM
+per-slot Max 16.5 / 10.3 / 8.3 Mb/s. Old logs: `out/channels/died-2026-10-17/`.
+A global OOM can still pick the senders; capping nix-daemon memory/jobs would
+prevent it.
+
+## 2026-10-20 — stream destination renumbered
+Per Erin, the EQAM GigE destination is now `10.158.117.47` (previously
+`10.60.30.47`). Restarted all 9 senders (900-908), retaining UDP ports
+5900-5908 and the existing encoding/pacing settings. They now run in the
+transient SYSTEM service `m2c-channels.service`: the scope launch exited
+with the command session, so systemd now launches the senders directly.
+Restart command (stop the service first if already running):
+`sudo systemd-run --unit=m2c-channels --property=Type=forking --property=RemainAfterExit=yes --uid=erin --gid=users --setenv=HOME=/home/erin --setenv=PATH="$PATH" -- env PORT_BASE=5900 /home/erin/nepeat/aislop/mpeg2cuda/scripts/channels.sh start 10.158.117.47`
+Stop: `sudo systemctl stop m2c-channels.service`. This transient service
+does not persist across reboots. All 9 processes are up and target the new
+address; sender source remains `10.60.2.208` via eno1. The EQAM management
+address `10.158.117.10` is unreachable (`No route to host`), so receiver-side
+status could not be checked.
+
+## 2026-10-21 — senders under systemd, restart forever
+The Oct 20 senders (to 10.158.117.47) all exited after 1 h 33 m with
+`Network is unreachable`: ffmpeg's UDP output gives up on a send error, and
+nothing restarted them. Now each channel is its own system service:
+`nix/nixos/machine/sea420-desktop/m2c-channels.nix` defines
+`m2c-channel-900` .. `-908` (+ `m2c-channels.target`, wanted by
+multi-user), User=erin, Restart=always, RestartSec=5,
+StartLimitIntervalSec=0 (never gives up), OOMScoreAdjust=-500,
+RequiresMountsFor the checkout. ExecStart is the new
+`scripts/channels.sh run CH DEST`: one sender in the foreground (exec), same
+pipeline/pacing as `start` (shared `setup`/`output`/`sender` functions); the
+previous run's log is kept as `<tag>.log.prev`. `start`/`stop` refuse while
+the target is active. Tested: SIGKILL of 902 -> back in 5 s (NRestarts=1).
+DEPLOY STATE: not switched. The running system came from an uncommitted
+lock (nixpkgs 5dc9e3b); HEAD and the working tree both differ in other
+inputs, so a switch would ship more than this change. The unit files were
+built from HEAD + this change with nixpkgs pinned to 5dc9e3b and copied into
+`/run/systemd/system/` (+ `m2c-channels.target.wants/`): identical units,
+lost on reboot. After the next `just switch`:
+`sudo rm -r /run/systemd/system/m2c-*` then `sudo systemctl daemon-reload`.
+Control: `sudo systemctl {stop,start,restart} m2c-channels.target` or one
+`m2c-channel-NNN`; `scripts/channels.sh status` still reports speed.
+Old transient `m2c-channels.service` (Oct 20) stopped.
+
 ## Side quest: CPU mpeg2video (not part of the journey)
 See `sidequest/cpu/README.md`: where software mpeg2video stands on the 7950X,
 what limits it (motion estimation, field ME ~40%), and `field_me_thresh`
