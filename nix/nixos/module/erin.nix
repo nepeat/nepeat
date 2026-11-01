@@ -34,6 +34,10 @@
     ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVk9i7FG7dc9r4ixwAJT7uPLH3UuqbwIgeZ7Ytmnpvv erin-laptop"
+      # https://git.en0.io/alyx.keys, pinned as fetched on 2026-10-21
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAaPEawc2g21G7CbfZRAxXoE3GSDlmzmmCQPYEa/usus Alyx (git.en0.io)"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICx7J7iNNLqnFRiVFyP8dvIQPpP0y2YnYi0f5dArtirp Alyx (git.en0.io)"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGlUrfQAoUe2Q9LqOOuA5rkjztUORa/sNR9DzaezVwOa Alyx (git.en0.io)"
     ];
     hashedPassword = "!";
   };

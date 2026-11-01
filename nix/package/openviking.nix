@@ -34,7 +34,7 @@ let
   # Hashes of the vendored dependency trees.  These change whenever
   # openviking-src moves; `just update-openviking` rewrites both lines in
   # place, so keep them on one line each in `name = "sha256-...";` form.
-  cargoHash = "sha256-hVugRWUTV+JSgahiSLAaNfyUXSYPGritnPOiV+vccDo=";
+  cargoHash = "sha256-rBBqmA5XxxieG/SEJhLBnoncTH4k9MViKqlpleuonB8=";
   npmDepsHash = "sha256-xvE34Nw6NW7nUeOumzM1jBAXCVW9ibvO3hv8KW35raQ=";
 
   # One vendored cargo tree covers the whole workspace, so both ov_cli and
@@ -111,6 +111,21 @@ let
       pythonImportsCheck = [ module ];
     };
 
+  # OpenViking requires >=2.9.1; nixpkgs still carries 2.9.0. Keep this local
+  # to avoid rebuilding unrelated packages that use CairoSVG in their tests.
+  cairosvg = python.pkgs.cairosvg.overridePythonAttrs (old: rec {
+    version = "2.9.1";
+    src = fetchFromGitHub {
+      owner = "Kozea";
+      repo = "CairoSVG";
+      tag = version;
+      hash = "sha256-yIUuhBmq15xwHznEq8l5z8QSkhQQc3GjTbJw5L2ZX+I=";
+    };
+    meta = old.meta // {
+      changelog = "https://github.com/Kozea/CairoSVG/releases/tag/${version}";
+    };
+  });
+
   python = python3.override {
     self = python;
     packageOverrides = final: prev: {
@@ -125,13 +140,13 @@ let
 
       openviking-sdk = final.buildPythonPackage rec {
         pname = "openviking-sdk";
-        version = "0.1.9";
+        version = "0.1.15";
         pyproject = true;
 
         src = fetchPypi {
           pname = "openviking_sdk";
           inherit version;
-          hash = "sha256-pOZs1TzXF50CMy//+5EW/C/qpDGwu9Hrk8aQZ1EGjio=";
+          hash = "sha256-UVhjSTKRgNZl/58zYTqioz7/R9bz45DwAHcgSsE5YS0=";
         };
 
         build-system = with final; [
@@ -383,8 +398,11 @@ python.pkgs.buildPythonApplication {
       firecrawl-anydoc
       openviking-sdk
       volcengine
+      aiohttp
       apscheduler
       argon2-cffi
+      async-timeout
+      cairosvg
       charset-normalizer
       cryptography
       defusedxml
@@ -403,6 +421,8 @@ python.pkgs.buildPythonApplication {
       olefile
       openai
       openpyxl
+      orjson
+      packaging
       pathspec
       pdfminer-six
       pdfplumber

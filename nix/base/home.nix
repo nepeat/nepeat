@@ -119,6 +119,7 @@
     ## cloud providers
     oci-cli
     google-cloud-sdk
+    vastai
 
     ## k8s
     kubectl
