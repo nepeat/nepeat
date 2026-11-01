@@ -6,6 +6,7 @@
 # the org's pinned glances package), and `gitops` (comin, driven off the
 # megarepo's vars/machines.nix -- and it was already `enable = false`).
 {
+  config,
   pkgs,
   ...
 }:
@@ -45,12 +46,14 @@
   };
   boot.kernelParams = [ "systemd.machine_id=30b7aad6952aeda770f149286983149d" ];
 
-  # ZFS 2.4.4 supports kernels through 7.2. Linux 7.3 changed iops->create(),
-  # so forcing an experimental build cannot make that module compatible.
-  # Keep the host's current kernel series while taking its patch updates.
+  # Linux 7.3 needs the ZFS 2.4.4 compatibility backports carried by Ubuntu.
+  # Keep userspace on 2.4.4 and apply only the kernel API fixes to the module.
   boot = {
-    kernelPackages = pkgs.linuxPackages_7_2;
+    kernelPackages = pkgs.linuxPackages_7_3;
     zfs.package = pkgs.zfs_unstable;
+    zfs.modulePackage = pkgs.callPackage ../../../package/zfs-linux-7.3.nix {
+      zfs = config.boot.kernelPackages.zfs_unstable;
+    };
   };
 
   # Enable impermanence via /persist:

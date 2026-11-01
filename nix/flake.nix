@@ -199,6 +199,10 @@
           .callPackage ./package/openviking.nix { src = inputs.openviking-src; };
       });
 
+    checks.x86_64-linux.zfs-linux-7-3 = import ./tests/zfs-linux-7.3.nix {
+      pkgs = import nixpkgs { system = "x86_64-linux"; };
+    };
+
     overlays = {
         openviking = final: prev: {
           openviking = final.callPackage ./package/openviking.nix {
