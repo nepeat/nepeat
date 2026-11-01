@@ -31,9 +31,6 @@
       kernelModules = [
         "dm-snapshot"
       ];
-      systemd = {
-        enable = true;
-      };
     };
 
     loader = {

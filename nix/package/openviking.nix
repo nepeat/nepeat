@@ -34,8 +34,8 @@ let
   # Hashes of the vendored dependency trees.  These change whenever
   # openviking-src moves; `just update-openviking` rewrites both lines in
   # place, so keep them on one line each in `name = "sha256-...";` form.
-  cargoHash = "sha256-rBBqmA5XxxieG/SEJhLBnoncTH4k9MViKqlpleuonB8=";
-  npmDepsHash = "sha256-xvE34Nw6NW7nUeOumzM1jBAXCVW9ibvO3hv8KW35raQ=";
+  cargoHash = "sha256-Cw/TXG8NP3jdEXz5H2at+GyBAe8AckyypmIncPNpnSc=";
+  npmDepsHash = "sha256-bQ8RlJ6Lir/0GkbeNnjzXzdwFOlrr9B1UyM0lN+IXqU=";
 
   # One vendored cargo tree covers the whole workspace, so both ov_cli and
   # ragfs-python share it.
@@ -140,13 +140,13 @@ let
 
       openviking-sdk = final.buildPythonPackage rec {
         pname = "openviking-sdk";
-        version = "0.1.15";
+        version = "0.1.17";
         pyproject = true;
 
         src = fetchPypi {
           pname = "openviking_sdk";
           inherit version;
-          hash = "sha256-UVhjSTKRgNZl/58zYTqioz7/R9bz45DwAHcgSsE5YS0=";
+          hash = "sha256-nzZeAqeArQTkVzGAkk5a++cfhDQpVjVq/B5oNLIpF1E=";
         };
 
         build-system = with final; [
@@ -157,6 +157,43 @@ let
 
         doCheck = false;
         pythonImportsCheck = [ "openviking_sdk" ];
+      };
+
+      # OpenViking uses the MCP 1.x FastMCP/auth APIs; nixpkgs now carries 2.x.
+      mcp = final.buildPythonPackage rec {
+        pname = "mcp";
+        version = "1.27.0";
+        pyproject = true;
+
+        src = fetchPypi {
+          inherit pname version;
+          hash = "sha256-09w1p+7A1FjB2kl2pI+YIJfdqrh+J4xVEdWkpW6FK4M=";
+        };
+
+        build-system = with final; [ hatchling uv-dynamic-versioning ];
+        dependencies = with final; [
+          anyio
+          httpx
+          httpx-sse
+          jsonschema
+          pydantic
+          pydantic-settings
+          pyjwt
+          python-multipart
+          sse-starlette
+          starlette
+          typing-extensions
+          typing-inspection
+          uvicorn
+        ] ++ final.pyjwt.optional-dependencies.crypto;
+        optional-dependencies = {
+          cli = with final; [ python-dotenv typer ];
+          rich = [ final.rich ];
+          ws = [ final.websockets ];
+        };
+
+        doCheck = false;
+        pythonImportsCheck = [ "mcp" "mcp.server.fastmcp" ];
       };
 
       volcengine = final.buildPythonPackage rec {
@@ -426,6 +463,7 @@ python.pkgs.buildPythonApplication {
       pathspec
       pdfminer-six
       pdfplumber
+      prometheus-client
       protobuf
       pydantic
       python-docx
@@ -493,6 +531,7 @@ python.pkgs.buildPythonApplication {
   pythonImportsCheck = [
     "openviking"
     "openviking_cli"
+    "openviking.server.mcp_endpoint"
   ];
 
   passthru = {
