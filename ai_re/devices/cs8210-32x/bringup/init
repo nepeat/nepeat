@@ -1,0 +1,17 @@
+#!/bin/busybox sh
+export PATH=/bin
+mount -t devtmpfs devtmpfs /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t tmpfs tmpfs /tmp
+echo "CS8210 experimental Linux 7 serial initramfs"
+echo "No board control, storage, network, or flash drivers in this build."
+echo "Fan safety and watchdog state must be established BEFORE this boot."
+uname -a
+cat /proc/cmdline
+cat /proc/meminfo
+while true; do
+    /bin/busybox sh </dev/console >/dev/console 2>&1
+    echo "Shell exited; starting another shell."
+    sleep 1
+done

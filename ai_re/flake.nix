@@ -55,6 +55,13 @@
             hexyl # friendly hex viewer
             file
             ripgrep
+            # CS8210-32X SSD acquisition and read-only ext filesystem analysis.
+            zstd
+            smartmontools
+            e2fsprogs
+            # CS8210 boot-image packaging and offline ARM64 smoke tests.
+            ubootTools
+            qemu
 
             # Password / hash cracking (Raritan PX3 root $5$ hash — see
             # devices/raritan-px3-5475v). john has OpenCL/Metal on Apple silicon.

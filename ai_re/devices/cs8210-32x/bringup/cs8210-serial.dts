@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: GPL-2.0
+/* Offline serial-only candidate. NOT hardware tested.
+ * Includes Linux 7.2.11 SoC description; no Celestica board drivers.
+ * Confirm live memory and firmware reservations before booting.
+ */
+#include "amazon/alpine-v3.dtsi"
+
+/ {
+    model = "Celestica CS8210-32X (experimental serial bring-up)";
+    compatible = "celestica,cs8210", "amazon,al-alpine-v3";
+
+    aliases { serial0 = &uart0; };
+    chosen {
+        stdout-path = "serial0:115200n8";
+        bootargs = "console=ttyS0,115200n8 earlycon=uart8250,mmio32,0xfd883000,115200n8 ignore_loglevel keep_bootcon panic=0 rdinit=/init";
+    };
+    /* Conservative placeholder from packaged vendor DT, NOT measured RAM. */
+    memory@0 { device_type = "memory"; reg = <0 0 0 0x40000000>; };
+};
+
+&uart0 {
+    /* Vendor DT + historical boot log: SB clock 500 MHz. */
+    clock-frequency = <500000000>;
+    status = "okay";
+};
+
+&{/soc/pcie@fbd00000} { status = "disabled"; };
+&msix {
+    interrupt-controller;
+    #interrupt-cells = <1>;
+    /* Preserve vendor allocation for later PCI experiments. */
+    al,msi-base-spi = <160>;
+    al,msi-num-spis = <800>;
+    status = "disabled";
+};

@@ -1,0 +1,26 @@
+{
+  "objective": "Find newer compatible firmware for EQAM-400B-4-48, currently 2.0.16B Prerelease 3",
+  "result": "incomplete; no newer compatible release verified",
+  "stock_number": "6520B-4-48",
+  "catalog_source": "https://www.accu-tech.com/hubfs/2013_Catalog_lores1.pdf",
+  "firmware_landing_page": "https://www.blondertongue.com/support/firmware-updates/",
+  "public_archive_checked": true,
+  "archive_entry_count": 1216,
+  "archive_eqam_families": [
+    "EQAM-420A_Stk# 6522A",
+    "EQAM-420B_Stk# 6522B"
+  ],
+  "archive_eqam_400_or_6520_entries": [],
+  "readmes_checked": {
+    "EQAM-420A": "v1_0_16",
+    "EQAM-420B": "v1.1.13"
+  },
+  "compatibility_evidence_for_420_on_400B": null,
+  "legacy_ftp_result": "ftp1.blondertongue.com timed out on FTP and HTTPS",
+  "wayback_cdx_result": "Final CDX query for ftp1.blondertongue.com/ftproot/* filtered for eqam or 6520 returned HTTP 200 with []; availability endpoint returned HTTP 429",
+  "manufacturer_older_model_guidance": "Contact support with unit serial number for correct model and firmware file",
+  "support_url": "https://www.blondertongue.com/support/",
+  "support_phone": "732-313-4217",
+  "support_contacted": false,
+  "next_needed_evidence": "Manufacturer release package and compatibility confirmation for stock 6520B-4-48 and its serial number; direct upgrade path from 2.0.16B Prerelease 3"
+}

@@ -1,0 +1,10 @@
+*.zip
+*.dav
+*.bin
+*.rom
+*.img
+firmware/
+extracted/
+captures/
+private/
+__pycache__/
