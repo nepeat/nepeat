@@ -6,7 +6,6 @@
 # the org's pinned glances package), and `gitops` (comin, driven off the
 # megarepo's vars/machines.nix -- and it was already `enable = false`).
 {
-  config,
   pkgs,
   ...
 }:
@@ -46,24 +45,13 @@
   };
   boot.kernelParams = [ "systemd.machine_id=30b7aad6952aeda770f149286983149d" ];
 
-  # Latest kernel for hardware support; build the zfs_unstable kernel module
-  # against it even when newer than ZFS officially supports. The `broken` gate
-  # is on the module (not userland), so we override modulePackage. Note: the
-  # intended `.override { enableUnsupportedExperimentalKernel = true; }` is
-  # silently dropped here (unstable.nix swallows it via `...`@args), so patch
-  # the derivation directly: add the configure flag and clear `broken`.
+  # ZFS 2.4.4 supports kernels through 7.2. Linux 7.3 changed iops->create(),
+  # so forcing an experimental build cannot make that module compatible.
+  # Keep the host's current kernel series while taking its patch updates.
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_7_2;
     zfs.package = pkgs.zfs_unstable;
-    zfs.modulePackage = config.boot.kernelPackages.zfs_unstable.overrideAttrs (old: {
-      configureFlags = (old.configureFlags or [ ]) ++ [ "--enable-linux-experimental" ];
-      meta = old.meta // {
-        broken = false;
-      };
-    });
   };
-
-  nixpkgs.config.problems.handlers.zfs.broken = "ignore";
 
   # Enable impermanence via /persist:
   impermanence.enable = true;
