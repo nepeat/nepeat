@@ -34,6 +34,9 @@
         cuda_sanitizer_api = withCudaPatchelf cudaPrev.cuda_sanitizer_api;
         tensorrt = withCudaPatchelf cudaPrev.tensorrt;
       });
+      # The binary-tool workaround should not invalidate ONNX Runtime's
+      # cached CUDA build. Its runtime uses the stock CUDA dependency set.
+      onnxruntime = prev.onnxruntime.override { cudaPackages = prev.cudaPackages; };
     })
   ];
   hardware.graphics.enable = true;
