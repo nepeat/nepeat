@@ -10,7 +10,9 @@
   cmake,
   buildNpmPackage,
   pkg-config,
+  zstd,
   openssl,
+  sqlite,
 }:
 
 let
@@ -34,8 +36,8 @@ let
   # Hashes of the vendored dependency trees.  These change whenever
   # openviking-src moves; `just update-openviking` rewrites both lines in
   # place, so keep them on one line each in `name = "sha256-...";` form.
-  cargoHash = "sha256-Cw/TXG8NP3jdEXz5H2at+GyBAe8AckyypmIncPNpnSc=";
-  npmDepsHash = "sha256-bQ8RlJ6Lir/0GkbeNnjzXzdwFOlrr9B1UyM0lN+IXqU=";
+  cargoHash = "sha256-uApNeWoPSZ35r7YGDq6KO7btOSeuV9ZXc0q5tJeEvOA=";
+  npmDepsHash = "sha256-HI9MnfF2VoBkQqleXTI9mA5LFs9VZCaiv7ILvdTa/sY=";
 
   # One vendored cargo tree covers the whole workspace, so both ov_cli and
   # ragfs-python share it.
@@ -52,6 +54,10 @@ let
 
     buildAndTestSubdir = "crates/ov_cli";
     env.OPENVIKING_VERSION = pep440Version;
+
+    # zstd-sys probes libzstd through pkg-config.
+    nativeBuildInputs = [ pkg-config ];
+    buildInputs = [ zstd ];
 
     # reqwest is built with rustls and default-features off, so there is no
     # openssl to wire up.
@@ -129,6 +135,46 @@ let
   python = python3.override {
     self = python;
     packageOverrides = final: prev: {
+      # OpenViking's process engine uses PackConfig and process(), which are
+      # absent from nixpkgs' older Python implementation.
+      tree-sitter-language-pack = final.buildPythonPackage rec {
+        pname = "tree-sitter-language-pack";
+        version = "1.13.3";
+        pyproject = true;
+
+        # The PyPI sdist omits workspace crates from its Cargo.lock.
+        src = fetchFromGitHub {
+          owner = "xberg-io";
+          repo = "tree-sitter-language-pack";
+          tag = "v${version}";
+          hash = "sha256-1IhLsN1HgkSnYPaK9RaFRZbXn9DSzx5hGnyVSV03E6M=";
+        };
+
+        buildAndTestSubdir = "packages/python";
+        cargoDeps = rustPlatform.fetchCargoVendor {
+          inherit src;
+          hash = "sha256-dwtJ9/dLrX15qeRq14Nr0exEzqum3toWy9Enppbmtuo=";
+        };
+
+        nativeBuildInputs = [
+          rustPlatform.cargoSetupHook
+          rustPlatform.maturinBuildHook
+          cargo
+          rustc
+          pkg-config
+        ];
+        buildInputs = [
+          openssl
+          zstd
+        ];
+        # Grammars load on demand at runtime, as in upstream's wheels.
+        # Do not fetch parser sources inside the Nix build sandbox.
+        env.TSLP_OFFLINE = "1";
+        dependencies = [ final.tree-sitter ];
+        doCheck = false;
+        pythonImportsCheck = [ "tree_sitter_language_pack" ];
+      };
+
       # nixpkgs master: pandas-stubs' test suite trips
       # PytestRemovedIn10Warning under pytest 9, which breaks pdfplumber's
       # build.  Unrelated to openviking; drop when nixpkgs catches up.
@@ -363,7 +409,10 @@ let
           rustc
           pkg-config
         ];
-        buildInputs = [ openssl ];
+        buildInputs = [
+          openssl
+          sqlite
+        ];
 
         # The s3 feature drags in openssl-sys, which would otherwise vendor
         # OpenSSL from source (and need perl the sandbox lacks).
@@ -506,9 +555,6 @@ python.pkgs.buildPythonApplication {
     ++ volcengine-python-sdk.optional-dependencies.ark
     ++ [ volcengine-python-sdk ];
 
-  # nixpkgs carries tree-sitter-language-pack 1.4.1; openviking asks for >=1.12
-  # but never imports it directly (only grep-ast does, against the stable API).
-  #
   # litellm is capped at <1.91.2 upstream while nixpkgs is on 1.97; openviking
   # only touches the stable surface (completion/embedding + their async twins,
   # drop_params, suppress_debug_info), so the cap is dropped rather than
@@ -517,7 +563,6 @@ python.pkgs.buildPythonApplication {
     "litellm"
     # Allow nixpkgs' newer patch release of the C# grammar.
     "tree-sitter-c-sharp"
-    "tree-sitter-language-pack"
   ];
 
   postInstall = ''
