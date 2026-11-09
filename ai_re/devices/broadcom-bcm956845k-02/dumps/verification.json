@@ -1,0 +1,37 @@
+[
+  {
+    "file": "flash2-repeat-start.bin",
+    "address": "0xf8000000",
+    "bytes": 4096,
+    "matches_full_dump": true,
+    "sha256": "806af6362fc94122b163cb28a18fef155538782291e54975c7914e91b2efae20"
+  },
+  {
+    "file": "flash2-repeat-image.bin",
+    "address": "0xf9000000",
+    "bytes": 65536,
+    "matches_full_dump": true,
+    "sha256": "ffa6581fbb31726e7dd465e75dd00bab190351acbf1aa306050be15972c697f0"
+  },
+  {
+    "file": "flash2-repeat-boot.bin",
+    "address": "0xfff00000",
+    "bytes": 65536,
+    "matches_full_dump": true,
+    "sha256": "8a621304b059def53258662d2ff3eac4ecc2c862400c9d0bd5aa7494014606f6"
+  },
+  {
+    "file": "flash3-repeat-start.bin",
+    "address": "0xf0000000",
+    "bytes": 4096,
+    "matches_full_dump": true,
+    "sha256": "f47a8ec3e9aff2318d896942282ad4fe37d6391c82914f54a5da8a37de1300c6"
+  },
+  {
+    "file": "flash3-repeat-boot.bin",
+    "address": "0xf7f00000",
+    "bytes": 65536,
+    "matches_full_dump": true,
+    "sha256": "8a621304b059def53258662d2ff3eac4ecc2c862400c9d0bd5aa7494014606f6"
+  }
+]

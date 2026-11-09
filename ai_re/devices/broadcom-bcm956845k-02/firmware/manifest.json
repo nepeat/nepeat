@@ -1,0 +1,32 @@
+[
+  {
+    "file": "bcm.gto.gz",
+    "bytes": 5943148,
+    "sha256": "e01bbc09357957e771ca980c905c9e8f105dd0116358e3b782e9786941ef883f"
+  },
+  {
+    "file": "rc.soc",
+    "bytes": 62104,
+    "sha256": "1c521217ffe7838a1de339a330c9075e4e0d46952d3128ddc0dd86b2970785f4"
+  },
+  {
+    "file": "config.bcm",
+    "bytes": 1265,
+    "sha256": "0e4c80e03a3ec42bbdce313ef95df4d7997023674ae5ff80abd356d8536df1c6"
+  },
+  {
+    "file": "tdsanity.soc",
+    "bytes": 57417,
+    "sha256": "7c5fc1fd083808eb2103704707b6fbb5cb09d246f08e6cdd7e2b2123eed027f3"
+  },
+  {
+    "file": "gsanity.soc",
+    "bytes": 5392,
+    "sha256": "3a24b9a5e3223feebe1d600837f84ec33ae067c2c5dc0d5fc03c7cd52b99d0bb"
+  },
+  {
+    "file": "uImage.gto-2_6",
+    "bytes": 11401844,
+    "sha256": "442a3557525e9007eca2c3d5fe920b3b6d65a5dddd372fcd9fcc254f44c3e940"
+  }
+]

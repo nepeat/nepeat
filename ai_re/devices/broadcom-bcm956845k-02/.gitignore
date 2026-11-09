@@ -1,0 +1,18 @@
+__pycache__/
+openwrt/work/
+openwrt/artifacts/
+dumps/*.bin
+dumps/*.partial
+*.pcap
+firmware/*
+!firmware/manifest.json
+!firmware/config.bcm
+!firmware/rc.soc
+!firmware/tdsanity.soc
+!firmware/gsanity.soc
+
+# The monorepo root ignores any `target/` (Rust/Java build dirs). The OpenWrt
+# board overlay legitimately has one; re-include it.
+!openwrt/overlay/target/
+# Likewise the root `lib/` pattern must not hide rootfs overlay files.
+!openwrt/files/usr/lib/

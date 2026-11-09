@@ -1,0 +1,377 @@
+CFE-NTSW-5.1.2 for BCM98548XMC (32bit,SP,BE,PPC)
+Build Date: Tue Dec  1 08:04:52 PST 2009 (sdkrel@lc-sj1-3183)
+Copyright (C) 2000-2008 Broadcom Corporation.
+
+Initializing Arena.
+Initializing PCI. [normal]
+PCI[0] bus 0 slot 0/0: unknown vendor 0x1057 product 0x0013 (PowerPC processor, rev 0x21)
+PCI[1] bus 0 slot 0/0: unknown vendor 0x1957 product 0x0013 (PowerPC processor, rev 0x21)
+PCI[1] bus 2 slot 0/0: Broadcom product 0xb845 (ethernet network, rev 0x04)
+Initializing Devices.
+CORE clock: 997MHz
+CCB clock: 399MHz
+BCM98548XMC Board Id: 0x51
+CPU type 0x80210022: 998MHz
+Total memory: 0x20000000 bytes (512MB)
+
+Total memory used by CFE:  0x1FF38300 - 0x1FFFFF30 (818224)
+Initialized Data:          0x1FF79C40 - 0x1FF7CAB0 (11888)
+BSS Area:                  0x1FF7CAB0 - 0x1FF7DF30 (5248)
+Local Heap:                0x1FF7DF30 - 0x1FFFDF30 (524288)
+Stack Area:                0x1FFFDF30 - 0x1FFFFF30 (8192)
+Text (code) segment:       0x1FF38300 - 0x1FF7867F (263039)
+Boot area (physical):      0x00000000 - 0x00000000
+Relocation Factor:         I:20038300 - D:20038300
+
+Automatic startup canceled via Ctrl-C
+CFE> ^C
+CFE> help
+Available commands:
+
+ptable save         Save flash partition table.
+ptable clear        Clear flash partition table.
+ptable del          Delete flash partition table.
+ptable add          Delete flash partition.
+ptable show         Show flash partition table.
+@                   Boot VxWorks
+c                   Change the VxWorks boot string
+p                   Parse and display VxWorks boot string
+M                   Show or set Ethernet MAC address
+reset               Reset the system.
+import nvram        Import env variabled to Vxworks NVRAM
+pcicw               Write PCI config space 
+pcicr               Read PCI config space 
+pciw                Write PCI memory 
+pcir                Read PCI memory 
+phy set             Set the value of a PHY register
+phy dump            Dump the registers on the PHY
+write msr           write MSR register.
+write hid0          write HID0 register.
+read msr            read MSR register.
+read hid0           read HID0 register.
+crash               cause an exception
+test timer          Test the timer
+set date            Set current date
+set time            Set current time
+set console         Change the active console device
+sleep               Wait for some period of time
+loop                Loop a command
+flash               Update a flash memory device
+memtest             Test memory.
+f                   Fill contents of memory.
+e                   Modify contents of memory.
+d                   Dump memory.
+u                   Disassemble instructions.
+pci dump            Dump PCI configuration space.
+reserve             Mark a region of memory as reserved
+autoboot            Automatic system bootstrap.
+batch               Load a batch file into memory and execute it
+go                  Start a previously loaded program.
+boot                Load an executable file into memory and execute it
+load                Load an executable file into memory without executing it
+save                Save a region of memory to a remote file via TFTP
+ping                Ping a remote IP host.
+arp                 Display or modify the ARP Table
+ifconfig            Configure the Ethernet interface
+show flash          Display information about a flash device.
+show time           Display current time according to RTC
+show pci            Display information about PCI buses and devices
+show heap           Display information about CFE's heap
+show memory         Display the system physical memory map.
+show devices        Display information about the installed devices.
+sizeenv             Get environment space size information.
+clearenv            Clear environment variables.
+unsetenv            Delete an environment variable.
+printenv            Display the environment variables
+setenv              Set an environment variable.
+help                Obtain help for CFE commands
+
+For more information about a command, enter 'help command-name'
+*** command status = 0
+CFE> show devices
+Device Name          Description
+-------------------  ---------------------------------------------------------
+uart0                NS16550 UART at 0xE0004500
+uart1                NS16550 UART at 0xE0004600
+flash0.os            New CFI flash at F8000000 offset 00000000 size 130048KB
+flash0.boot          New CFI flash at F8000000 offset 07F00000 size 1024KB
+flash1.os            New CFI flash at F0000000 offset 00000000 size 130048KB
+flash1.boot          New CFI flash at F0000000 offset 07F00000 size 1024KB
+flash2               New CFI flash at F8000000 size 131072KB
+flash3               New CFI flash at F0000000 size 131072KB
+BoardId0             PCF8574 on SMBus channel 1 dev 0x27
+eeprom0              Microchip 24LC128 EEPROM on SMBus channel 1 dev 0x50
+clock0               ST M41T81 RTC on SMBus channel 0 dev 0x68
+eth0                 MPC854X TSEC0 at 0xE0024000 PHYBASE 0xE0024000
+eth1                 MPC854X TSEC1 at 0xE0025000 PHYBASE 0xE0024000
+eth2                 MPC854X TSEC2 at 0xE0026000 PHYBASE 0xE0024000
+eth3                 MPC854X TSEC3 at 0xE0027000 PHYBASE 0xE0024000
+*** command status = 0
+CFE> prihelp save
+Invalid command: "prihelp"
+Available commands: ptable, @, c, p, M, reset, import, pcicw, pcicr, pciw, pcir, phy, write, read, crash, test, set, sleep, loop, flash, memtest, f, e, d, u, pci, reserve, autoboot, batch, go, boot, load, save, ping, arp, ifconfig, show, sizeenv, clearenv, unsetenv, printenv, setenv, help
+
+*** command status = -1
+CFE> help dump
+No help available for 'dump'.
+
+Type 'help' for a list of commands.
+*** command status = -1
+CFE> help ifconfig
+
+  SUMMARY
+
+     Configure the Ethernet interface
+
+  USAGE
+
+     ifconfig device [options..]
+     
+     Activates and configures the specified Ethernet interface and sets its
+     IP address, netmask, and other parameters.  The -auto switch can be used
+     to set this information via DHCP.
+
+  OPTIONS
+
+     -auto        Configure interface automatically via DHCP
+     -off         Deactivate the specified interface
+     -addr=*      Specifies the IP address of the interface
+     -mask=*      Specifies the subnet mask for the interface
+     -gw=*        Specifies the gateway address for the interface
+     -dns=*       Specifies the name server address for the interface
+     -domain=*    Specifies the default domain for name service queries
+     -speed=*     Sets the interface speed (auto,10fdx,10hdx,100fdx,
+                  100hdx,1000fdx,1000hdx)
+     -loopback=*  Sets the loopback mode (off,internal,external)  External
+                  loopback causes the phy to be placed in loopback mode
+     -hwaddr=*    Sets the hardware address (overrides environment)
+
+*** command status = 0
+CFE> help save
+
+  SUMMARY
+
+     Save a region of memory to a remote file via TFTP
+
+  USAGE
+
+     save [-options] host:filename startaddr length
+     
+
+*** command status = 0
+CFE> ptable show
+Partition Name          Offset          Size
+--------------------------------------------
+*** command status = 0
+CFE> help show flash
+
+  SUMMARY
+
+     Display information about a flash device.
+
+  USAGE
+
+     show flash [-sectors]
+
+  OPTIONS
+
+     -sectors     Display sector information
+
+*** command status = 0
+CFE> ifconfig eth0 -auto
+1000BaseT FDX
+Speed: 1000, full duplex
+Device eth0:  hwaddr 00-10-18-48-FB-2C, ipaddr 10.60.20.203, mask 255.255.255.0
+        gateway 10.60.20.1, nameserver 10.60.20.1
+*** command status = 0
+CFE> show flash
+
+     show flash [-sectors]
+
+     -sectors     Display sector information
+
+*** command status = -2
+CFE> ping 10.60.2.208
+10.60.2.208 (10.60.2.208) is alive
+10.60.2.208 (10.60.2.208): 1 packets sent, 1 received
+*** command status = 0
+CFE> show flash flash2
+FLASH: Base FFFFFFFFF8000000 size 08000000 type 03(Flash) flags 00000001
+NVRAM: Not supported by this flash
+*** command status = 0
+CFE> help d
+
+  SUMMARY
+
+     Dump memory.
+
+  USAGE
+
+     d [-b|-h|-w|-q] [addr [length]]
+     
+     This command displays data from memory as bytes, halfwords, words,
+     or quadwords.  ASCII text, if present, will appear to the right of
+     the hex data.  The dump command remembers the previous word size,
+     dump length and last displayed address, so you can enter 'd' again
+     to continue a previous dump request.
+
+  OPTIONS
+
+     -b           Dump memory as bytes
+     -h           Dump memory as halfwords (16-bits)
+     -w           Dump memory as words (32-bits)
+     -q           Dump memory as quadwords (64-bits)
+     -p           Address is an uncached physical address
+     -v           Address is a kernel virtual address
+
+*** command status = 0
+CFE> d -b 0xf8000000 0x40
+F8000000: EB 3E 90 56 58 44 4F 53 31 36 00 00 02 04 01 00  .>.VXDOS16......
+F8000010: 02 00 02 00 00 F8 FE 00 01 00 40 00 00 00 00 00  ..........@.....
+F8000020: 01 F8 03 00 80 00 29 FF FF 8A 01 20 20 20 20 20  ......)....     
+F8000030: 20 20 20 20 20 20 46 41 54 31 36 20 20 20 00 00        FAT16   ..
+*** command status = 0
+CFE> d -b 0xf0000000 0x40
+F0000000: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF  ................
+F0000010: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF  ................
+F0000020: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF  ................
+F0000030: FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF  ................
+*** command status = 0
+CFE> save 10.60.2.208:flash2-sample.bin 0xf8000000 0x1000
+TFTP write error 2: Access violation
+1428 bytes written to 10.60.2.208:flash2-sample.bin
+*** command status = 0
+CFE> save 10.60.2.208:bcm956845-acquire-20261108/sample.bin 0xf8000000 0x1000
+4096 bytes written to 10.60.2.208:bcm956845-acquire-20261108/sample.bin
+*** command status = 0
+CFE> d -b 0xf8000594 0x40
+F8000594: CB 01 CC 01 CD 01 CE 01 CF 01 D0 01 D1 01 D2 01  ................
+F80005A4: D3 01 D4 01 D5 01 D6 01 D7 01 D8 01 D9 01 DA 01  ................
+F80005B4: DB 01 DC 01 DD 01 DE 01 DF 01 E0 01 E1 01 E2 01  ................
+F80005C4: E3 01 E4 01 E5 01 E6 01 E7 01 E8 01 E9 01 EA 01  ................
+*** command status = 0
+CFE> ifconfig eth0 -auto
+eth0: 17 sent, 1849 received, 276519862 interrupts rx_alloc_err 0
+  17 tx interrupts, 1823 rx interrupts tx_err 0 rx_err 0
+1000BaseT FDX
+Speed: 1000, full duplex
+Device eth0:  hwaddr 00-10-18-48-FB-2C, ipaddr 10.60.2.203, mask 255.255.255.0
+        gateway 10.60.2.1, nameserver 10.60.2.1
+*** command status = 0
+CFE> save 10.60.2.208:bcm956845-acquire-20261108/sample-lab.bin 0xf8000000 0x1000
+4096 bytes written to 10.60.2.208:bcm956845-acquire-20261108/sample-lab.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-sample-fixed.bin 0xf8000000 0x1000
+4096 bytes written to 10.60.2.208:flash2-sample-fixed.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-f8000000.bin 0xf8000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-f8000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-f8800000.bin 0xf8800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-f8800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-f9000000.bin 0xf9000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-f9000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-f9800000.bin 0xf9800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-f9800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fa000000.bin 0xfa000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fa000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fa800000.bin 0xfa800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fa800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fb000000.bin 0xfb000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fb000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fb800000.bin 0xfb800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fb800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fc000000.bin 0xfc000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fc000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fc800000.bin 0xfc800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fc800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fd000000.bin 0xfd000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fd000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fd800000.bin 0xfd800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fd800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fe000000.bin 0xfe000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fe000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-fe800000.bin 0xfe800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-fe800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-ff000000.bin 0xff000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-ff000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-ff800000.bin 0xff800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash2-ff800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f0000000.bin 0xf0000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f0000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f0800000.bin 0xf0800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f0800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f1000000.bin 0xf1000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f1000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f1800000.bin 0xf1800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f1800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f2000000.bin 0xf2000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f2000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f2800000.bin 0xf2800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f2800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f3000000.bin 0xf3000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f3000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f3800000.bin 0xf3800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f3800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f4000000.bin 0xf4000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f4000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f4800000.bin 0xf4800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f4800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f5000000.bin 0xf5000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f5000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f5800000.bin 0xf5800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f5800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f6000000.bin 0xf6000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f6000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f6800000.bin 0xf6800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f6800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f7000000.bin 0xf7000000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f7000000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-f7800000.bin 0xf7800000 0x00800000
+8388608 bytes written to 10.60.2.208:flash3-f7800000.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-repeat-start.bin 0xf8000000 0x1000
+4096 bytes written to 10.60.2.208:flash2-repeat-start.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-repeat-image.bin 0xf9000000 0x10000
+65536 bytes written to 10.60.2.208:flash2-repeat-image.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash2-repeat-boot.bin 0xfff00000 0x10000
+65536 bytes written to 10.60.2.208:flash2-repeat-boot.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-repeat-start.bin 0xf0000000 0x1000
+4096 bytes written to 10.60.2.208:flash3-repeat-start.bin
+*** command status = 0
+CFE> save 10.60.2.208:flash3-repeat-boot.bin 0xf7f00000 0x10000
+65536 bytes written to 10.60.2.208:flash3-repeat-boot.bin
+*** command status = 0

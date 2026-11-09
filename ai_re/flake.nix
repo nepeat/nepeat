@@ -62,6 +62,7 @@
             hexyl # friendly hex viewer
             file
             ripgrep
+            atftp # TFTP client/server for read-only CFE firmware acquisition
             # CS8210-32X SSD acquisition and read-only ext filesystem analysis.
             zstd
             smartmontools
