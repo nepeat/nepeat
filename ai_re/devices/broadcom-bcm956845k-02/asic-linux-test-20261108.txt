@@ -1,0 +1,398 @@
+CFE> setenv LINUX_CMDLINE "console=ttyS0,9600 root=/dev/ram ramdisk_size=65536 rd_start=0x1000000 rd_size=14495817 rdinit=/bin/sh"
+*** command status = 0
+CFE> boot -uboot -fatfs flash0.os:uImage.gto-2_6
+Loader:uboot Filesys:fat Dev:flash0.os File:uImage.gto-2_6 Options:(null)
+Loading: .... 11401844 bytes read
+Unpacking U-Boot image at 0x00000000 (11401780) .... RamDisk copy 9720364 @ 0X1000000 ... Done
+3563776 bytes
+Entry at 0x00000000
+Closing network.
+eth0: 6 sent, 237 received, 83012347 interrupts rx_alloc_err 0
+  6 tx interrupts, 235 rx interrupts tx_err 0 rx_err 0
+Starting program at 0x00000000
+
+OF-device-tree at 0x00ffc000
+Using BCM98548 XMC machine description
+Memory CAM mapping: CAM0=256Mb, CAM1=256Mb, CAM2=0Mb residual: 0Mb
+Linux version 2.6.21.7-hrt1-WR2.0bl_standard (root@lc-sj1-1232) (gcc version 4.1.2 (Wind River Linux Sourcery G++ 4.1-84)) #3 PREEMPT Wed Jun 17 09:08:06 PDT 2009
+Found initrd at 0xc1000000:0xc194522c
+Adding PCI host bridge /soc8548@e0000000/pci@8000
+Found MPC85xx PCI host bridge at 0x00000000e0008000. Firmware bus number: 0->127
+ ->Hose at 0xc0389000, cfg_addr=0xfdfff000,cfg_data=0xfdfff004
+Adding PCI host bridge /soc8548@e0000000/pcie@a000
+Found MPC85xx PCI host bridge at 0x00000000e000a000. Firmware bus number: 128->255
+ ->Hose at 0xc038f000, cfg_addr=0xfcffd000,cfg_data=0xfcffd004
+Zone PFN ranges:
+  DMA             0 ->   131072
+  Normal     131072 ->   131072
+early_node_map[1] active PFN ranges
+    0:        0 ->   131072
+Built 1 zonelists.  Total pages: 130048
+Kernel command line: console=ttyS0,9600 root=/dev/ram ramdisk_size=65536 rd_start=0x1000000 rd_size=9720364 rdinit=/bin/sh
+mpic: Setting up MPIC " OpenPIC  " version 1.2 at e0040000, max 1 CPUs
+mpic: ISU size: 4, shift: 2, mask: 3
+mpic: Initializing for 60 sources
+PID hash table entries: 2048 (order: 11, 8192 bytes)
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Memory: 506112k/524288k available (3332k kernel code, 17700k reserved, 100k data, 133k bss, 144k init)
+Security Framework v1.0.0 initialized
+Capability LSM initialized
+Mount-cache hash table entries: 512
+Initializing container subsys cpuacct
+Initializing container subsys debug
+NET: Registered protocol family 16
+PCI: Probing PCI hardware
+PCI: 0001:01:00.0: class b20 doesn't match header type 01. Ignoring class.
+PCI: Transparent bridge - 0001:01:00.0
+Generic PHY: Registered new driver
+NET: Registered protocol family 2
+IP route cache hash table entries: 16384 (order: 4, 65536 bytes)
+TCP established hash table entries: 65536 (order: 7, 524288 bytes)
+TCP bind hash table entries: 65536 (order: 6, 262144 bytes)
+TCP: Hash tables configured (established 65536 bind 65536)
+TCP reno registered
+checking if image is initramfs... it is
+Freeing initrd memory: 9492k freed
+JFS: nTxBlock = 4031, nTxLock = 32255
+Time: timebase clocksource has been installed.
+Switched to high resolution mode on CPU 0
+Registering unionfs 2.1.6 (for 2.6.21.7)
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered (default)
+LTT : ltt-facilities init
+LTT : ltt-relay init
+Generic RTC Driver v1.07
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing enabled
+serial8250.0: ttyS0 at MMIO map 0xe0004500 mem 0xe1000500 (irq = 26) is a 16550A
+serial8250.0: ttyS1 at MMIO map 0xe0004600 mem 0xe1002600 (irq = 26) is a 16550A
+RAMDISK driver initialized: 16 RAM disks of 65536K size 1024 blocksize
+Gianfar MII Bus: probed
+eth0: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2c 
+eth0: Running with NAPI disabled
+eth0: 64/64 RX/TX BD ring size
+eth1: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2d 
+eth1: Running with NAPI disabled
+eth1: 64/64 RX/TX BD ring size
+eth2: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2e 
+eth2: Running with NAPI disabled
+eth2: 64/64 RX/TX BD ring size
+eth3: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2f 
+eth3: Running with NAPI disabled
+eth3: 64/64 RX/TX BD ring size
+netconsole: not configured, aborting
+i2c /dev entries driver
+MPC98548XMC Boot flash (128 MiB at f8000000)
+Boot flash: Found 1 x16 devices at 0x0 in 16-bit bank
+ Amd/Fujitsu Extended Query Table at 0x0040
+Boot flash: CFI does not contain boot bank location. Assuming top.
+number of CFI chips: 1
+cfi_cmdset_0002: Disabling erase-suspend-program due to code brokenness.
+No valid flash partition table found - using default mapping
+Creating 2 MTD partitions on "Boot flash":
+0x07f00000-0x08000000 : "Boot flash cfe"
+mtd: Giving out device 0 to Boot flash cfe
+0x00000000-0x07f00000 : "Boot flash os"
+mtd: Giving out device 1 to Boot flash os
+MPC98548XMC PLCC boot flash (128 MiB at f0000000)
+PLCC boot flash: Found 1 x16 devices at 0x0 in 16-bit bank
+ Amd/Fujitsu Extended Query Table at 0x0040
+PLCC boot flash: CFI does not contain boot bank location. Assuming top.
+number of CFI chips: 1
+cfi_cmdset_0002: Disabling erase-suspend-program due to code brokenness.
+No valid flash partition table found - using default mapping
+Creating 2 MTD partitions on "PLCC boot flash":
+0x07f00000-0x08000000 : "PLCC flash cfe"
+mtd: Giving out device 2 to PLCC flash cfe
+0x00000000-0x07f00000 : "PLCC flash os"
+mtd: Giving out device 3 to PLCC flash os
+TCP cubic registered
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+Freeing unused kernel memory: 144k init
+
+
+BusyBox v1.4.1 (2008-07-22 15:02:38 PDT) Built-in shell (msh)
+Enter 'help' for a list of built-in commands.
+
+# mount -t proc proc /proc; mount -t sysfs sysfs /sys; ifconfig eth0 10.60.2.203 netmask 255.255.255.0 up; ping -c 2 10.60.2.208
+PING 10.60.2.208 (10.60.2.208): 56 data bytes
+64 bytes from 10.60.2.208: icmp_seq=0 ttl=64 time=0.5 ms
+PHY: e0024520:01 - Link is Up - 1000/Full
+
+--- 10.60.2.208 ping statistics ---
+2 packets transmitted, 1 packets received, 50% packet loss
+round-trip min/avg/max = 0.5/0.5/0.5 ms
+# mount -t vfat -o ro /dev/mtdblock1 /mnt; mkdir /tmp/asic-test; cp /mnt/config.bcm /mnt/rc.soc /tmp/asic-test/; cat /proc/mounts; cat /proc/modules
+rootfs / rootfs rw 0 0
+proc /proc proc rw 0 0
+sysfs /sys sysfs rw 0 0
+/dev/mtdblock1 /mnt vfat ro,fmask=0022,dmask=0022,codepage=cp437,iocharset=iso8859-1 0 0
+nls_iso8859_1 3712 1 - Live 0xe126a000
+nls_cp437 5376 1 - Live 0xe1267000
+# insmod /broadcom/linux-kernel-bde.ko; insmod /broadcom/linux-user-bde.ko; cat /proc/modules; ls -l /dev/*blinux_kernel_bde: module license 'Proprietary' taints kernel.
+de*
+linux_user_bde 17412 0 - Live 0xe9281000 (P)
+linux_kernel_bde 30940 1 linux_user_bde, Live 0xe1277000 (P)
+nls_iso8859_1 3712 1 - Live 0xe126a000
+nls_cp437 5376 1 - Live 0xe1267000
+crw-r--r--    1 root     root     127,   0 Jan  1  1970 /dev/linux-kernel-bde
+crw-r--r--    1 root     root     126,   0 Jan  1  1970 /dev/linux-user-bde
+# cd /tmp/asic-test; export BCM_CONFIG_FILE=/tmp/asic-test/config.bcm; /broadcom/bcm.user
+Broadcom Command Monitor: Copyright (c) 1998-2010 Broadcom Corporation
+Release: sdk-xgs-robo-5.9.1 built 20101216 (Thu Dec 16 19:01:59 2010)
+From sdkrel@lc-sj1-3535:/projects/ntsw_sw_build/ecloud-sdk-5.9.1-builds/sdk_esw
+Platform: GTO_MPC8548
+OS: Unix (Posix)
+PCI unit 0: Dev 0xb845, Rev 0x04, Chip BCM56845_A3, Driver BCM56840_A0
+SOC unit 0 attached to PCI device BCM56845_A3
+rc: unit 0 device BCM56845_A3
+rc: MMU initialized
+84740 init u=0 port=1 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=2 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=3 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=4 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=5 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=6 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=7 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=8 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=9 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=10 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=11 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=12 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=13 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=14 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=15 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=16 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=17 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=18 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=19 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=20 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=21 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=22 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=23 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=24 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=25 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=26 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=27 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=28 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=29 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=30 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=31 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=32 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=33 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=34 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=35 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=36 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=37 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=38 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=39 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=40 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=41 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=42 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=43 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=44 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=45 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=46 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=47 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=48 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=49 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=50 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=51 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=52 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=53 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=54 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=55 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=56 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=57 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=58 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=59 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=60 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=61 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=62 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=63 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=64 rom code ver. 0xd00c: SPI-ROM boot
+rc: BCM driver initialized
+rc: L2 Table shadowing enabled
+rc: Port modes initialized
+BCM.0> version
+Broadcom Command Monitor: Copyright (c) 1998-2010 Broadcom Corporation
+Release: sdk-xgs-robo-5.9.1 built 20101216 (Thu Dec 16 19:01:59 2010)
+From sdkrel@lc-sj1-3535:/projects/ntsw_sw_build/ecloud-sdk-5.9.1-builds/sdk_esw
+Platform: GTO_MPC8548
+OS: Unix (Posix)
+Chips: BCM5690_A0, BCM5670_A0, BCM5673_A0, BCM5674_A0,
+       BCM5665_A0, BCM5665_B0, BCM5650_C0, BCM5695_A0,
+       BCM5675_A0, BCM56601_A0, BCM56601_B0, BCM56601_C0,
+       BCM56602_A0, BCM56602_B0, BCM56602_C0, BCM56504_A0,
+       BCM56504_B0, BCM56304_B0, BCM56314_A0, BCM56102_A0,
+       BCM56112_A0, BCM56800_A0, BCM56218_A0, BCM56514_A0,
+       BCM56624_A0, BCM56624_B0, BCM56680_A0, BCM56680_B0,
+       BCM56224_A0, BCM56224_B0, BCM56820_A0, BCM56725_A0,
+       BCM53314_A0, BCM53324_A0, BCM56634_A0, BCM56634_B0,
+       BCM56524_A0, BCM56524_B0, BCM56685_A0, BCM56685_B0,
+       BCM56334_A0, BCM56334_B0,
+       BCM56840_A0, BCM56840_B0, BCM56142_A0,
+PHYs:  BCM5218, BCM5220/21, BCM5226, BCM5228,
+       BCM5238, BCM5248, BCM5324/FE, BCM5348/FE,
+       BCM53242/FE, BCM53262/FE, BCM53101/FE, BCM53280/FE,
+       BCM5400, BCM5401, BCM5402, BCM5404,
+       BCM5424/34, BCM5411, BCM5461, BCM5464,
+       BCM5466, BCM5478, BCM5488, BCM54980,
+       BCM54980, BCM54980, BCM54980, BCM53314,
+       BCM5482/801x, BCM54684, BCM54640, BCM54682E,
+       BCM54684E, BCM54685, BCM54616, BCM5421S,
+       BCM54680, BCM53324, BCM53125, BCM53128,
+       BCM54880, BCM54881, BCM54810, BCM54640E,
+       BCM54880E, BCM54680E, BCM52681E, BCM8703,
+       BCM8704, BCM8705/24/25, BCM8706/8726, BCM8727,
+       BCM8728/8747, BCM8072, BCM8073, BCM8074,
+       BCM8040, BCM8481X, BCM84812, BCM84821,
+       BCM84822, BCM84823, BCM8750, BCM8752
+BCM.0> show unit
+Unit 0 chip BCM56845_A3 (current)
+BCM.0> ps
+           ena/  speed/ link auto    STP                  lrn  inter   max  loop
+      port link  duplex scan neg?   state   pause  discrd ops   face frame  back
+       xe0  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe1  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe2  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe3  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe4  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe5  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe6  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe7  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe8  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+       xe9  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe10  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe11  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe12  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe13  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe14  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe15  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe16  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe17  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe18  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe19  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe20  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe21  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe22  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe23  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe24  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe25  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe26  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe27  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe28  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe29  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe30  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe31  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe32  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe33  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe34  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe35  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe36  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe37  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe38  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe39  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe40  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe41  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe42  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe43  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe44  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe45  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe46  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe47  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe48  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe49  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe50  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe51  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe52  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe53  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe54  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe55  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe56  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe57  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe58  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe59  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe60  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe61  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe62  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+      xe63  down   1G FD   SW  Yes  Forward  TX RX   None   FA  XGMII 16356 
+BCM.0> tr 17 c=5
+rc: unit 0 device BCM56845_A3
+84740 init u=0 port=1 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=2 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=3 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=4 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=5 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=6 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=7 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=8 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=9 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=10 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=11 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=12 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=13 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=14 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=15 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=16 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=17 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=18 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=19 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=20 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=21 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=22 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=23 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=24 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=25 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=26 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=27 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=28 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=29 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=30 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=31 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=32 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=33 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=34 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=35 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=36 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=37 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=38 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=39 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=40 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=41 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=42 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=43 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=44 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=45 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=46 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=47 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=48 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=49 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=50 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=51 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=52 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=53 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=54 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=55 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=56 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=57 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=58 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=59 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=60 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=61 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=62 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=63 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=64 rom code ver. 0xd00c: SPI-ROM boot
+LB: total 73440 pkt (9 len * 34 chain * 4 COS * 1 port * 5 count * 12 chan)
+LB: xmit 69499 pkt (94%, 13899 pkt/s, 14721 KB/s avg), recv 69499 pkt (5 sec)
+LB: xmit 73440 pkt (100%, 14688 pkt/s, 15606 KB/s avg), recv 73440 pkt (5 sec)
+BCM.0> tl 17
+U/A/S|Test|            Test           |Loop | Run |Pass |Fail |  Arguments
+     | #  |            Name           |Count|Count|Count|Count|
+-----+----+---------------------------+-----+-----+-----+-----+-----------
+   S |  17| CPU Loopback              |    1|    1|    1|    0| (none)
+BCM.0> 
