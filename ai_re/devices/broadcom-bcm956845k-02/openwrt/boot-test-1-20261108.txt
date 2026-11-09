@@ -1,0 +1,28 @@
+CFE> ifconfig eth0 -addr=10.60.2.203 -mask=255.255.255.0 -gw=10.60.2.1
+1000BaseT FDX
+Speed: 1000, full duplex
+Device eth0:  hwaddr 00-10-18-48-FB-2C, ipaddr 10.60.2.203, mask 255.255.255.0
+        gateway 10.60.2.1, nameserver not set
+*** command status = 0
+CFE> d -w -p 0xe0024500 0x10
+E0024500: 0000000F 00007207 40605060 00A1F037  ......r.@`P`...7
+*** command status = 0
+CFE> load -raw -addr=0x08000000 -max=0x10000 -tftp 10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb
+Loader:raw Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb Options:(null)
+Loading: .. 1933 bytes read
+Entry at 0x08000000
+*** command status = 0
+CFE> setenv LINUX_CMDLINE "console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500,9600n8"
+*** command status = 0
+CFE> boot -uboot -extdtb -dtbaddr=0x08000000 -tftp 10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage
+Loader:uboot Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage Options:(null)
+Loading: ... 7288607 bytes read
+Unpacking U-Boot image at 0x00000000 (7288543) .... 28162364 bytes
+Entry at 0x00000000
+Closing network.
+eth0: 5114 sent, 5216 received, 50114637 interrupts rx_alloc_err 0
+  5113 tx interrupts, 5214 rx interrupts tx_err 0 rx_err 0
+Starting program at 0x00000000
+
+external DTB in memory at 8000000
+

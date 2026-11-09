@@ -1,0 +1,86 @@
+CFE> load -raw -addr=0x08000000 -max=0x10000 -tftp 10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb
+Loader:raw Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb Options:(null)
+Loading: .. 1929 bytes read
+Entry at 0x08000000
+*** command status = 0
+CFE> setenv LINUX_CMDLINE "console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500"
+*** command status = 0
+CFE> boot -uboot -extdtb -dtbaddr=0x08000000 -tftp 10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage
+Loader:uboot Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage Options:(null)
+Loading: ... 7289341 bytes read
+Unpacking U-Boot image at 0x00000000 (7289277) .... 28162376 bytes
+Entry at 0x00000000
+Closing network.
+eth0: 5126 sent, 5893 received, 138483974 interrupts rx_alloc_err 0
+  5125 tx interrupts, 5881 rx interrupts tx_err 0 rx_err 0
+Starting program at 0x00000000
+
+external DTB in memory at 8000000
+[    0.000000] printk: legacy bootconsole [udbg0] enabled
+[    0.000000] BUG: Unable to handle kernel data access on read at 0xc8000000
+[    0.000000] Faulting instruction address: 0xc05e03c4
+[    0.000000] Thread overran stack, or stack corrupted
+[    0.000000] ------------[ cut here ]------------
+[    0.000000] WARNING: CPU: 0 PID: 0 at arch/powerpc/include/asm/machdep.h:227 die+0x64/0x1fc
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.12.74 #0
+[    0.000000] NIP:  c00091b8 LR: c00091a8 CTR: c000fa3c
+[    0.000000] REGS: c1abfd30 TRAP: 0700   Not tainted  (6.12.74)
+[    0.000000] MSR:  00021000 <CE,ME>  CR: 24008222  XER: 20000000
+[    0.000000] 
+[    0.000000] GPR00: c0009184 c1abfe20 c1a381a0 00000001 c1abfe60 0000000b c1abfce8 00000004 
+[    0.000000] GPR08: 00000001 00000000 c1ae0000 ffffefff 44008222 1ff38300 1ff7df60 1ff8124a 
+[    0.000000] GPR16: 79ff3bfb 1ff81155 dff5f97f 1ff7bb48 c0000000 00000010 080005fc 00000000 
+[    0.000000] GPR24: 00000000 00000000 00002380 00021000 c06a4ec4 c1abfe60 0000000b c1ae0000 
+[    0.000000] NIP [c00091b8] die+0x64/0x1fc
+[    0.000000] LR [c00091a8] die+0x54/0x1fc
+[    0.000000] Call Trace:
+[    0.000000] [c1abfe20] [c0009184] die+0x30/0x1fc (unreliable)
+[    0.000000] [c1abfe50] [c00008dc] DataStorage+0x15c/0x180
+[    0.000000] --- interrupt: 300 at fdt_check_header+0xc/0x274
+[    0.000000] NIP:  c05e03c4 LR: c101b62c CTR: c000fa3c
+[    0.000000] REGS: c1abfe60 TRAP: 0300   Not tainted  (6.12.74)
+[    0.000000] MSR:  00021000 <CE,ME>  CR: 24008222  XER: 20000000
+[    0.000000] DEAR: c8000000 ESR: 00000000 
+[    0.000000] GPR00: c1004320 c1abff50 c1a381a0 c8000000 08000000 0000004c 4082004c 00000000 
+[    0.000000] GPR08: fc00004c 00000000 00000000 ffffefff 44008222 1ff38300 1ff7df60 1ff8124a 
+[    0.000000] GPR16: 79ff3bfb 1ff81155 dff5f97f 1ff7bb48 c0000000 00000010 080005fc 00000000 
+[    0.000000] GPR24: 00000000 00000000 00002380 00000789 08000000 08000789 08000000 c8000000 
+[    0.000000] NIP [c05e03c4] fdt_check_header+0xc/0x274
+[    0.000000] LR [c101b62c] early_init_dt_verify+0x28/0xa0
+[    0.000000] --- interrupt: 300
+[    0.000000] [c1abff50] [05003000] 0x5003000 (unreliable)
+[    0.000000] [c1abff60] [00000000] 0x0
+[    0.000000] [c1abff80] [c1004320] early_init_devtree+0x18/0x358
+[    0.000000] [c1abffc0] [c1004ecc] machine_init+0x78/0x94
+[    0.000000] [c1abfff0] [c0000398] set_ivor+0x114/0x154
+[    0.000000] Code: 7c000146 3fe0c1ae 813ff054 39290001 913ff054 48063d75 38600001 482e2b75 3d20c1ae 8129c054 2c090000 40820008 <0fe00000> 3d20c1ae 3c60c06a 80c9f050 
+[    0.000000] ---[ end trace 0000000000000000 ]---
+[    0.000000] Oops: Kernel access of bad area, sig: 11 [#1]
+[    0.000000] BE PAGE_SIZE=4K 
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0 UID: 0 PID: 0 Comm: swapper Tainted: G        W          6.12.74 #0
+[    0.000000] Tainted: [W]=WARN
+[    0.000000] NIP:  c05e03c4 LR: c101b62c CTR: c000fa3c
+[    0.000000] REGS: c1abfe60 TRAP: 0300   Tainted: G        W           (6.12.74)
+[    0.000000] MSR:  00021000 <CE,ME>  CR: 24008222  XER: 20000000
+[    0.000000] DEAR: c8000000 ESR: 00000000 
+[    0.000000] GPR00: c1004320 c1abff50 c1a381a0 c8000000 08000000 0000004c 4082004c 00000000 
+[    0.000000] GPR08: fc00004c 00000000 00000000 ffffefff 44008222 1ff38300 1ff7df60 1ff8124a 
+[    0.000000] GPR16: 79ff3bfb 1ff81155 dff5f97f 1ff7bb48 c0000000 00000010 080005fc 00000000 
+[    0.000000] GPR24: 00000000 00000000 00002380 00000789 08000000 08000789 08000000 c8000000 
+[    0.000000] NIP [c05e03c4] fdt_check_header+0xc/0x274
+[    0.000000] LR [c101b62c] early_init_dt_verify+0x28/0xa0
+[    0.000000] Call Trace:
+[    0.000000] [c1abff50] [05003000] 0x5003000 (unreliable)
+[    0.000000] [c1abff60] [00000000] 0x0
+[    0.000000] [c1abff80] [c1004320] early_init_devtree+0x18/0x358
+[    0.000000] [c1abffc0] [c1004ecc] machine_init+0x78/0x94
+[    0.000000] [c1abfff0] [c0000398] set_ivor+0x114/0x154
+[    0.000000] Code: 4081ff88 3860fff6 4bffff94 3860fff7 4bffff8c 3860ffed 4bffff84 3860fff9 4bffff7c 706a0007 9421fff0 40820264 <88a30000> 3d40d00d 89030001 6147feed 
+[    0.000000] ---[ end trace 0000000000000000 ]---
+[    0.000000] 
+[    0.000000] Kernel panic - not syncing: Fatal exception
+[    0.000000] Rebooting in 1 seconds..
+[    0.000000] System Halted, OK to turn off power
+

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Native GCC LTO objects need the matching plugin when indexing archives.
+: "${OPENWRT_HOST_LTO_PLUGIN:?enter openwrt-build-shell first}"
+exec /usr/bin/nm --plugin="$OPENWRT_HOST_LTO_PLUGIN" "$@"

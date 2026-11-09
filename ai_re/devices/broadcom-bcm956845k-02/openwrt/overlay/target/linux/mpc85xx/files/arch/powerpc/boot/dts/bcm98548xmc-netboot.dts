@@ -1,0 +1,124 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/* Register/IRQ/clock values recovered from CFE's live DTB on this board.
+ * Deliberately omit flash and PCI/ASIC nodes for the first RAM-only boot.
+ */
+/dts-v1/;
+
+/ {
+	model = "Broadcom BCM98548XMC (emma’s version)";
+	compatible = "brcm,bcm98548xmc";
+	#address-cells = <1>;
+	#size-cells = <1>;
+	interrupt-parent = <&mpic>;
+
+	aliases {
+		serial0 = &serial0;
+		ethernet0 = &enet0;
+	};
+	chosen {
+		stdout-path = "serial0:9600n8";
+		/* Preserve CFE's divisor: the UART clock is 399 MHz, not 1.8432 MHz. */
+		bootargs = "console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500";
+	};
+	memory@0 {
+		device_type = "memory";
+		reg = <0 0x20000000>;
+	};
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		bde_dma: dma-pool@1c000000 {
+			compatible = "emma,bcm56845-dma-pool";
+			reg = <0x1c000000 0x02000000>;
+			no-map;
+		};
+	};
+	/* PCI windows/IRQ wiring from CFE; root placement uses modern bindings. */
+	pcie@e000a000 {
+		device_type = "pci";
+		compatible = "fsl,mpc8548-pcie";
+		reg = <0xe000a000 0x1000>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		#interrupt-cells = <1>;
+		bus-range = <0 0xff>;
+		clock-frequency = <33333333>;
+		interrupts = <26 2 0 0>;
+		interrupt-map-mask = <0 0 0 7>;
+		/* CFE external IRQ 48 is hardware MPIC external IRQ 0. */
+		interrupt-map = <0 0 0 1 &mpic 0 1 0 0
+		                 0 0 0 2 &mpic 0 1 0 0
+		                 0 0 0 3 &mpic 0 1 0 0
+		                 0 0 0 4 &mpic 0 1 0 0>;
+		ranges = <0x02000000 0 0x60000000 0x60000000 0 0x10000000
+		          0x01000000 0 0 0xe8000000 0 0x00100000>;
+		dma-ranges = <0x02000000 0 0 0 0 0x20000000>;
+	};
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "PowerPC,8548";
+			reg = <0>;
+			d-cache-line-size = <32>;
+			i-cache-line-size = <32>;
+			d-cache-size = <32768>;
+			i-cache-size = <32768>;
+			clock-frequency = <997500000>;
+			bus-frequency = <399000000>;
+			timebase-frequency = <49875000>;
+		};
+	};
+	soc@e0000000 {
+		device_type = "soc";
+		compatible = "fsl,mpc8548-immr", "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0xe0000000 0x100000>;
+		reg = <0xe0000000 0x100000>;
+		bus-frequency = <399000000>;
+
+		mpic: interrupt-controller@40000 {
+			compatible = "fsl,mpic", "chrp,open-pic";
+			device_type = "open-pic";
+			reg = <0x40000 0x40000>;
+			interrupt-controller;
+			#address-cells = <0>;
+			#interrupt-cells = <4>;
+			big-endian;
+			single-cpu-affinity;
+		};
+		serial0: serial@4500 {
+			device_type = "serial";
+			compatible = "ns16550";
+			reg = <0x4500 0x100>;
+			clock-frequency = <399000000>;
+			current-speed = <9600>;
+			/* Modern MPIC binding: old CFE internal IRQ 26 + 16. */
+			interrupts = <42 2 0 0>;
+		};
+		mdio@24520 {
+			compatible = "fsl,gianfar-mdio";
+			reg = <0x24520 0x20>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			phy0: ethernet-phy@1 {
+				reg = <1>;
+			};
+		};
+		enet0: ethernet@24000 {
+			device_type = "network";
+			model = "eTSEC";
+			compatible = "gianfar";
+			reg = <0x24000 0x1000>;
+			/* Modern MPIC binding adds 16 to CFE's internal IRQs. */
+			interrupts = <29 2 0 0 30 2 0 0 34 2 0 0>;
+			phy-handle = <&phy0>;
+			/* RGMII delay mode still needs live link validation. */
+			phy-connection-type = "rgmii-id";
+			local-mac-address = [00 10 18 48 fb 2c];
+		};
+	};
+};

@@ -1,0 +1,26 @@
+--- a/arch/powerpc/platforms/85xx/Kconfig
++++ b/arch/powerpc/platforms/85xx/Kconfig
+@@ -16,6 +16,13 @@ if FSL_SOC_BOOKE
+ 
+ if PPC32
+ 
++config BCM98548XMC
++	bool "Broadcom BCM98548XMC RAM netboot prototype"
++	select DEFAULT_UIMAGE
++	select DMA_DECLARE_COHERENT
++	help
++	  Minimal serial and management-Ethernet control-plane bring-up.
++
+ config BSC9131_RDB
+ 	bool "Freescale BSC9131RDB"
+ 	select DEFAULT_UIMAGE
+--- a/arch/powerpc/platforms/85xx/Makefile
++++ b/arch/powerpc/platforms/85xx/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_SMP) += mpc85xx_pm_ops.o
+ endif
+ 
+ obj-y += common.o
++obj-$(CONFIG_BCM98548XMC) += bcm98548xmc.o
+ 
+ obj-$(CONFIG_BSC9131_RDB) += bsc913x_rdb.o
+ obj-$(CONFIG_BSC9132_QDS) += bsc913x_qds.o

@@ -10,6 +10,24 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        # OpenWrt's host tools and downloaded cross-toolchains expect an FHS
+        # layout. Keep that environment reproducible inside the RE devshell.
+        openwrtBuildShell = pkgs.buildFHSEnv {
+          name = "openwrt-build-shell";
+          targetPkgs = p: with p; [
+            bash coreutils findutils diffutils gnugrep gnused gawk getopt
+            gcc gnumake binutils glibc glibc.dev zlib zlib.dev
+            ncurses ncurses.dev openssl openssl.dev
+            git curl wget cacert patch perl python3 python3Packages.setuptools
+            rsync unzip zip gnutar gzip bzip2 xz zstd file which util-linux
+            bison flex gettext pkg-config time cpio swig
+          ];
+          profile = ''
+            export OPENWRT_FHS=1
+            export OPENWRT_HOST_LTO_PLUGIN="${pkgs.gcc.cc}/libexec/gcc/${pkgs.stdenv.hostPlatform.config}/${pkgs.gcc.cc.version}/liblto_plugin.so"
+          '';
+          runScript = "bash";
+        };
       in
       {
         devShells.default = pkgs.mkShell {
@@ -17,7 +35,7 @@
 
           # Add tools here as RE tasks require them. Note the reason in the
           # commit that adds a package.
-          packages = with pkgs; [
+          packages = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [ openwrtBuildShell ] ++ (with pkgs; [
             # Home Assistant outlet control; credentials stay in the environment.
             (writeShellApplication {
               name = "lab-power";
@@ -104,7 +122,7 @@
             flex
             openssl
             perl
-          ];
+          ]);
 
           shellHook = ''
             echo "ai_re devshell — hardware RE"

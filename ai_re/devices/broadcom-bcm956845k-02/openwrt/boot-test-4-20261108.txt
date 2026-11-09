@@ -1,0 +1,459 @@
+CFE> load -raw -addr=0x03000000 -max=0x10000 -tftp 10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb
+Loader:raw Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb Options:(null)
+Loading: .. 1993 bytes read
+Entry at 0x03000000
+*** command status = 0
+CFE> setenv LINUX_CMDLINE "console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500"
+*** command status = 0
+CFE> boot -uboot -extdtb -dtbaddr=0x03000000 -tftp 10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage
+Loader:uboot Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage Options:(null)
+Loading: ... 7289369 bytes read
+Unpacking U-Boot image at 0x00000000 (7289305) .... 28162376 bytes
+Entry at 0x00000000
+Closing network.
+eth0: 5114 sent, 5688 received, 105222449 interrupts rx_alloc_err 0
+  5113 tx interrupts, 5682 rx interrupts tx_err 0 rx_err 0
+Starting program at 0x00000000
+
+external DTB in memory at 3000000
+[    0.000000] printk: legacy bootconsole [udbg0] enabled
+[    0.000000] ioremap() called early from setup_earlycon+0x2cc/0x378. Use early_ioremap() instead
+[    0.000000] earlycon: uart8250 at MMIO 0xe0004500 (options '')
+[    0.000000] printk: legacy bootconsole [uart8250] enabled
+[    0.000000] printk: legacy bootconsole [udbg0] enabled
+[    0.000000] ioremap() called early from setup_earlycon+0x2cc/0x378. Use early_ioremap() instead
+[    0.000000] earlycon: uart8250 at MMIO 0xe0004500 (options '')
+[    0.000000] printk: legacy bootconsole [uart8250] enabled
+[    0.000000] Memory CAM mapping: 16/16/16/16/64/64/64/256 Mb, residual: 0Mb
+[    0.000000] Memory CAM mapping: 16/16/16/16/64/64/64/256 Mb, residual: 0Mb
+[    0.000000] Activating Kernel Userspace Access Protection
+[    0.000000] Activating Kernel Userspace Access Protection
+[    0.000000] Activating Kernel Userspace Execution Prevention
+[    0.000000] Activating Kernel Userspace Execution Prevention
+[    0.000000] Linux version 6.12.74 (erin@sea420-desktop) (powerpc-openwrt-linux-musl-gcc.bin (OpenWrt GCC 14.3.0 r32768-b21cfa8f8c) 14.3.0, GNU ld (GNU Binutils) 2.44) #0 Tue Mar 17 01:31:57 2026
+[    0.000000] Linux version 6.12.74 (erin@sea420-desktop) (powerpc-openwrt-linux-musl-gcc.bin (OpenWrt GCC 14.3.0 r32768-b21cfa8f8c) 14.3.0, GNU ld (GNU Binutils) 2.44) #0 Tue Mar 17 01:31:57 2026
+[    0.000000] OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+[    0.000000] OF: reserved mem: Reserved memory: No reserved-memory node in the DT
+[    0.000000] Hardware name: Broadcom BCM98548XMC (emma’s version) e500v2 0x80210022 Broadcom BCM98548XMC (netboot)
+[    0.000000] Hardware name: Broadcom BCM98548XMC (emma’s version) e500v2 0x80210022 Broadcom BCM98548XMC (netboot)
+[    0.000000] Found legacy serial port 0 for /soc@e0000000/serial@4500
+[    0.000000] Found legacy serial port 0 for /soc@e0000000/serial@4500
+[    0.000000]   mem=e0004500, taddr=e0004500, irq=0, clk=399000000, speed=9600
+[    0.000000]   mem=e0004500, taddr=e0004500, irq=0, clk=399000000, speed=9600
+[    0.000000] -----------------------------------------------------
+[    0.000000] -----------------------------------------------------
+[    0.000000] phys_mem_size     = 0x20000000
+[    0.000000] phys_mem_size     = 0x20000000
+[    0.000000] dcache_bsize      = 0x20
+[    0.000000] dcache_bsize      = 0x20
+[    0.000000] icache_bsize      = 0x20
+[    0.000000] icache_bsize      = 0x20
+[    0.000000] cpu_features      = 0x0000000010010108
+[    0.000000] cpu_features      = 0x0000000010010108
+[    0.000000]   possible        = 0x0000000010010108
+[    0.000000]   possible        = 0x0000000010010108
+[    0.000000]   always          = 0x0000000010010108
+[    0.000000]   always          = 0x0000000010010108
+[    0.000000] cpu_user_features = 0x84e08000 0x08000000
+[    0.000000] cpu_user_features = 0x84e08000 0x08000000
+[    0.000000] mmu_features      = 0x00020210
+[    0.000000] mmu_features      = 0x00020210
+[    0.000000] -----------------------------------------------------
+[    0.000000] -----------------------------------------------------
+[    0.000000] barrier-nospec: using isync; sync as speculation barrier
+[    0.000000] barrier-nospec: using isync; sync as speculation barrier
+[    0.000000] barrier-nospec: patched 0 locations
+[    0.000000] barrier-nospec: patched 0 locations
+[    0.000000] Top of RAM: 0x20000000, Total RAM: 0x20000000
+[    0.000000] Top of RAM: 0x20000000, Total RAM: 0x20000000
+[    0.000000] Memory hole size: 0MB
+[    0.000000] Memory hole size: 0MB
+[    0.000000] Zone ranges:
+[    0.000000] Zone ranges:
+[    0.000000]   Normal   [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000]   Normal   [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000]   node   0: [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000] MMU: Allocated 1088 bytes of context maps for 255 contexts
+[    0.000000] MMU: Allocated 1088 bytes of context maps for 255 contexts
+[    0.000000] pcpu-alloc: s0 r0 d32768 u32768 alloc=1*32768
+[    0.000000] pcpu-alloc: s0 r0 d32768 u32768 alloc=1*32768
+[    0.000000] pcpu-alloc: [0] 0 
+[    0.000000] pcpu-alloc: [0] 0 
+[    0.000000] Kernel command line: console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500
+[    0.000000] Kernel command line: console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500
+[    0.000000] Dentry cache hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.000000] Dentry cache hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 32768 (order: 5, 131072 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 32768 (order: 5, 131072 bytes, linear)
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 131072
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 131072
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] Kernel virtual memory layout:
+[    0.000000] Kernel virtual memory layout:
+[    0.000000]   * 0xffbdf000..0xfffff000  : fixmap
+[    0.000000]   * 0xffbdf000..0xfffff000  : fixmap
+[    0.000000]   * 0xe1000000..0xffbdf000  : vmalloc & ioremap
+[    0.000000]   * 0xe1000000..0xffbdf000  : vmalloc & ioremap
+[    0.000000] SLUB: HWalign=32, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] SLUB: HWalign=32, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=1.
+[    0.000000] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=1.
+[    0.000000] NR_IRQS: 512, nr_irqs: 512, preallocated irqs: 16
+[    0.000000] NR_IRQS: 512, nr_irqs: 512, preallocated irqs: 16
+[    0.000000] mpic: Resetting
+[    0.000000] mpic: Resetting
+[    0.000000] mpic: Setting up MPIC "BCM98548XMC MPIC" version 1.2 at e0040000, max 1 CPUs
+[    0.000000] mpic: Setting up MPIC "BCM98548XMC MPIC" version 1.2 at e0040000, max 1 CPUs
+[    0.000000] mpic: ISU size: 256, shift: 8, mask: ff
+[    0.000000] mpic: ISU size: 256, shift: 8, mask: ff
+[    0.000000] mpic: Initializing for 256 sources
+[    0.000000] mpic: Initializing for 256 sources
+[    0.000000] time_init: decrementer frequency = 49.875000 MHz
+[    0.000000] time_init: decrementer frequency = 49.875000 MHz
+[    0.000000] time_init: processor frequency   = 997.500000 MHz
+[    0.000000] time_init: processor frequency   = 997.500000 MHz
+[    0.000007] clocksource: timebase: mask: 0xffffffffffffffff max_cycles: 0xb80b12003, max_idle_ns: 440795202467 ns
+[    0.000007] clocksource: timebase: mask: 0xffffffffffffffff max_cycles: 0xb80b12003, max_idle_ns: 440795202467 ns
+[    0.246565] clocksource: timebase mult[140cd503] shift[24] registered
+[    0.246565] clocksource: timebase mult[140cd503] shift[24] registered
+[    0.401197] clockevent: decrementer mult[cc49ba6] shift[32] cpu[0]
+[    0.401197] clockevent: decrementer mult[cc49ba6] shift[32] cpu[0]
+[    0.549658] pid_max: default: 32768 minimum: 301
+[    0.549658] pid_max: default: 32768 minimum: 301
+[    0.666598] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.666598] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.842148] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.842148] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    1.035304] Memory: 490636K/524288K available (6228K kernel code, 656K rwdata, 10156K rodata, 10464K init, 231K bss, 32816K reserved, 0K cma-reserved)
+[    1.035304] Memory: 490636K/524288K available (6228K kernel code, 656K rwdata, 10156K rodata, 10464K init, 231K bss, 32816K reserved, 0K cma-reserved)
+[    1.360736] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    1.360736] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    1.596895] futex hash table entries: 256 (order: 0, 3072 bytes, linear)
+[    1.596895] futex hash table entries: 256 (order: 0, 3072 bytes, linear)
+[    1.764292] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    1.764292] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+             
+[    1.947171] EDAC MC: Ver: 3.0.0
+[    1.947171] EDAC MC: Ver: 3.0.0
+[    2.024118] clocksource: Switched to clocksource timebase
+[    2.024118] clocksource: Switched to clocksource timebase
+[    2.161233] NET: Registered PF_INET protocol family
+[    2.161233] NET: Registered PF_INET protocol family
+[    2.278519] IP idents hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    2.278519] IP idents hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    2.452997] tcp_listen_portaddr_hash hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    2.452997] tcp_listen_portaddr_hash hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    2.655749] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    2.655749] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    2.842433] TCP established hash table entries: 4096 (order: 2, 16384 bytes, linear)
+[    2.842433] TCP established hash table entries: 4096 (order: 2, 16384 bytes, linear)
+[    3.028494] TCP bind hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    3.028494] TCP bind hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    3.199929] TCP: Hash tables configured (established 4096 bind 4096)
+[    3.199929] TCP: Hash tables configured (established 4096 bind 4096)
+[    3.353049] MPTCP token hash table entries: 512 (order: 1, 6144 bytes, linear)
+[    3.353049] MPTCP token hash table entries: 512 (order: 1, 6144 bytes, linear)
+[    3.526723] UDP hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    3.526723] UDP hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    3.683501] UDP-Lite hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    3.683501] UDP-Lite hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    3.851260] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    3.851260] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    4.024489] workingset: timestamp_bits=14 max_order=17 bucket_order=3
+[    4.024489] workingset: timestamp_bits=14 max_order=17 bucket_order=3
+[    4.180243] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    4.180243] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    4.436206] Serial: 8250/16550 driver, 2 ports, IRQ sharing enabled
+[    4.436206] Serial: 8250/16550 driver, 2 ports, IRQ sharing enabled
+[    4.587602] printk: legacy console [ttyS0] disabled
+[    4.587602] printk: legacy console [ttyS0] disabled
+[    4.705048] serial8250.0: ttyS0 at MMIO 0xe0004500 (irq = 42, base_baud = 24937500) is a 16550A
+[    4.705048] serial8250.0: ttyS0 at MMIO 0xe0004500 (irq = 42, base_baud = 24937500) is a 16550A
+[    4.914089] printk: legacy console [ttyS0] enabled
+[    4.914089] printk: legacy console [ttyS0] enabled
+[    4.914089] printk: legacy console [ttyS0] enabled
+[    5.086461] printk: legacy bootconsole [udbg0] disabled
+[    5.086461] printk: legacy bootconsole [udbg0] disabled
+[    5.086461] printk: legacy bootconsole [udbg0] disabled
+[    5.278613] printk: legacy bootconsole [uart8250] disabled
+[    5.278613] printk: legacy bootconsole [uart8250] disabled
+[    5.411025] printk: legacy console [ttyS0] disabled
+[    5.471198] printk: legacy console [ttyS0] enabled
+[    5.557656] fsl-gianfar e0024000.ethernet: enabled errata workarounds, flags: 0x6
+[    5.657864] fsl-gianfar e0024000.ethernet eth0: mac: 00:10:18:48:fb:2c
+[    5.736101] fsl-gianfar e0024000.ethernet eth0: Running with NAPI enabled
+[    5.817439] fsl-gianfar e0024000.ethernet eth0: RX BD ring size for Q[0]: 256
+[    5.902938] fsl-gianfar e0024000.ethernet eth0: TX BD ring size for Q[0]: 256
+[    5.988554] ucc_geth_driver: QE UCC Gigabit Ethernet Controller
+[    6.059624] Freescale(R) MPC85xx EDAC driver, (C) 2006 Montavista Software
+[    6.143079] NET: Registered PF_INET6 protocol family
+[    6.207248] Segment Routing with IPv6
+[    6.251191] In-situ OAM (IOAM) with IPv6
+[    6.298243] NET: Registered PF_PACKET protocol family
+[    6.358791] 8021q: 802.1Q VLAN Support v1.8
+[    6.445664] Freeing unused kernel image (initmem) memory: 10464K
+[    6.517657] Run /init as init process
+[    6.561469]   with arguments:
+[    6.596926]     /init
+[    6.624050]   with environment:
+[    6.661593]     HOME=/
+[    6.689764]     TERM=linux
+[    7.038027] init: Console is alive
+[    7.089068] kmodloader: loading kernel modules from /etc/modules-boot.d/*
+[    7.172496] kmodloader: done loading kernel modules from /etc/modules-boot.d/*
+[    7.269598] init: - preinit -
+Press the [f] key and hit [enter] to enter failsafe mode
+Press the [1], [2], [3] or [4] key and hit [enter] to select the debug level
+[   11.654807] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+[   11.860684] fsl-gianfar e0024000.ethernet eth0: Link is Down
+[   12.019264] procd: - early -
+[   12.053771] random: procd: uninitialized urandom read (4 bytes read)
+[   12.652031] procd: - ubus -
+[   13.444154] random: crng init done
+[   13.492194] procd: - init -
+Please press Enter to activate this console.
+[   14.053835] kmodloader: loading kernel modules from /etc/modules.d/*
+[   14.334427] kmodloader: done loading kernel modules from /etc/modules.d/*
+[   15.073221] urngd: v1.0.2 started.
+[   20.640123] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+
+
+
+BusyBox v1.37.0 (2026-03-17 01:31:57 UTC) built-in shell (ash)
+
+  _______                     ________        __
+ |       |.-----.-----.-----.|  |  |  |.----.|  |_
+ |   -   ||  _  |  -__|     ||  |  |  ||   _||   _|
+ |_______||   __|_____|__|__||________||__|  |____|
+          |__| W I R E L E S S   F R E E D O M
+ -----------------------------------------------------
+ OpenWrt 25.12.1, (emma’s version) Dave's Guitar
+ -----------------------------------------------------
+
+ === WARNING! =====================================
+ There is no root password defined on this device!
+ Use the "passwd" command to set up a new password
+ in order to prevent unauthorized SSH logins.
+ --------------------------------------------------
+
+
+ OpenWrt recently switched to the "apk" package manager!
+
+ OPKG Command           APK Equivalent      Description
+ ------------------------------------------------------------------
+ opkg install <pkg>     apk add <pkg>       Install a package
+ opkg remove <pkg>      apk del <pkg>       Remove a package
+ opkg upgrade           apk upgrade         Upgrade all packages
+ opkg files <pkg>       apk info -L <pkg>   List package contents
+ opkg list-installed    apk info            List installed packages
+ opkg update            apk update          Update package lists
+ opkg search <pkg>      apk search <pkg>    Search for packages
+ ------------------------------------------------------------------
+
+For more information visit:
+https://openwrt.org/docs/guide-user/additional-software/opkg-to-apk-cheatsheet
+
+root@OpenWrt:~# ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host proto kernel_lo 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:10:18:48:fb:2c brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::210:18ff:fe48:fb2c/64 scope link proto kernel_ll 
+       valid_lft forever preferred_lft forever
+root@OpenWrt:~# uname -a; cat /etc/emma-build.json; ip -br addr; ubus call netwo
+rk.interface.management status
+Linux OpenWrt 6.12.74 #0 Tue Mar 17 01:31:57 2026 ppc GNU/Linux
+{
+  "distribution": "OpenWrt",
+  "version": "25.12.1",
+  "label": "(emma’s version)",
+  "source_commit": "d6115e42127481645ae7210c9d8ca1bd14313473",
+  "board": "BCM98548XMC / BCM956845K-02",
+  "boot_mode": "TFTP -> RAM initramfs; no persistent install image",
+  "toolchain_sha256": "b8c806c7f18c976625886db482eebe279445f55d91c92c355ba9571f7c58423a",
+  "asic_support": "not enabled; first control-plane boot prototype"
+}
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eth0             UP             10.60.2.203/24 fe80::210:18ff:fe48:fb2c/64 
+{
+	"up": true,
+	"pending": false,
+	"available": true,
+	"autostart": true,
+	"dynamic": false,
+	"uptime": 1,
+	"l3_device": "eth0",
+	"proto": "dhcp",
+	"device": "eth0",
+	"updated": [
+		"addresses",
+		"routes",
+		"data"
+	],
+	"metric": 0,
+	"dns_metric": 0,
+	"delegation": true,
+	"ipv4-address": [
+		{
+			"address": "10.60.2.203",
+			"mask": 24
+		}
+	],
+	"ipv6-address": [
+		
+	],
+	"ipv6-prefix": [
+		
+	],
+	"ipv6-prefix-assignment": [
+		
+	],
+	"route": [
+		{
+			"target": "0.0.0.0",
+			"mask": 0,
+			"nexthop": "10.60.2.1",
+			"source": "10.60.2.203/32"
+		}
+	],
+	"dns-server": [
+		"10.60.2.1"
+	],
+	"dns-search": [
+		
+	],
+	"neighbors": [
+		
+	],
+	"inactive": {
+		"ipv4-address": [
+			
+		],
+		"ipv6-address": [
+			
+		],
+		"route": [
+			
+		],
+		"dns-server": [
+			
+		],
+		"dns-search": [
+			
+		],
+		"neighbors": [
+			
+		]
+	},
+	"data": {
+		"dhcpserver": "10.60.2.1",
+		"hostname": "OpenWrt",
+		"leasetime": 86400,
+		"ntpserver": "10.60.20.177"
+	}
+}
+root@OpenWrt:~# 
+root@OpenWrt:~# ping -c 5 10.60.2.208
+PING 10.60.2.208 (10.60.2.208): 56 data bytes
+64 bytes from 10.60.2.208: seq=0 ttl=64 time=0.438 ms
+64 bytes from 10.60.2.208: seq=1 ttl=64 time=0.276 ms
+64 bytes from 10.60.2.208: seq=2 ttl=64 time=0.309 ms
+64 bytes from 10.60.2.208: seq=3 ttl=64 time=0.354 ms
+64 bytes from 10.60.2.208: seq=4 ttl=64 time=0.310 ms
+
+--- 10.60.2.208 ping statistics ---
+5 packets transmitted, 5 packets received, 0% packet loss
+round-trip min/avg/max = 0.276/0.337/0.438 ms
+root@OpenWrt:~# ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host proto kernel_lo 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:10:18:48:fb:2c brd ff:ff:ff:ff:ff:ff
+    inet 10.60.2.203/24 brd 10.60.2.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::210:18ff:fe48:fb2c/64 scope link proto kernel_ll 
+       valid_lft forever preferred_lft forever
+root@OpenWrt:~# cat /proc/interrupts
+           CPU0       
+ 29:         65  BCM98548XMC MPIC  29 Level     eth0_g0_tx
+ 30:       1226  BCM98548XMC MPIC  30 Level     eth0_g0_rx
+ 34:          0  BCM98548XMC MPIC  34 Level     eth0_g0_er
+ 42:       5912  BCM98548XMC MPIC  42 Level     ttyS0
+LOC:      26857   Local timer interrupts for timer event device
+BCT:          0   Broadcast timer interrupts for timer event device
+LOC:          0   Local timer interrupts for others
+SPU:          0   Spurious interrupts
+PMI:          0   Performance monitoring interrupts
+MCE:          0   Machine check exceptions
+NMI:          0   System Reset interrupts
+root@OpenWrt:~# free -m; cat /proc/mounts
+              total        used        free      shared  buff/cache   available
+Mem:         501936       14348      475796       11344       11792      451444
+Swap:             0           0           0
+tmpfs / tmpfs rw,relatime 0 0
+proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0
+sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0
+cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate 0 0
+tmpfs /tmp tmpfs rw,nosuid,nodev,noatime 0 0
+tmpfs /dev tmpfs rw,nosuid,noexec,noatime,size=512k,mode=755 0 0
+devpts /dev/pts devpts rw,nosuid,noexec,noatime,mode=600,ptmxmode=000 0 0
+debugfs /sys/kernel/debug debugfs rw,nosuid,nodev,noexec,noatime 0 0
+bpffs /sys/fs/bpf bpf rw,nosuid,nodev,noexec,noatime,mode=700 0 0
+root@OpenWrt:~# dmesg | tail -12
+[    7.269598] init: - preinit -
+[   11.654807] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+[   11.860684] fsl-gianfar e0024000.ethernet eth0: Link is Down
+[   12.019264] procd: - early -
+[   12.053771] random: procd: uninitialized urandom read (4 bytes read)
+[   12.652031] procd: - ubus -
+[   13.444154] random: crng init done
+[   13.492194] procd: - init -
+[   14.053835] kmodloader: loading kernel modules from /etc/modules.d/*
+[   14.334427] kmodloader: done loading kernel modules from /etc/modules.d/*
+[   15.073221] urngd: v1.0.2 started.
+[   20.640123] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+root@OpenWrt:~# ls /dev/mtd* /sys/bus/pci
+ls: /dev/mtd*: No such file or directory
+ls: /sys/bus/pci: No such file or directory
+root@OpenWrt:~# ubus call system board
+{
+	"kernel": "6.12.74",
+	"hostname": "OpenWrt",
+	"system": "e500v2",
+	"model": "Broadcom BCM98548XMC (emma’s version)",
+	"board_name": "brcm,bcm98548xmc",
+	"rootfs_type": "initramfs",
+	"release": {
+		"distribution": "OpenWrt",
+		"version": "25.12.1",
+		"firmware_url": "https://downloads.openwrt.org/",
+		"revision": "r32768-b21cfa8f8c",
+		"target": "mpc85xx/bcm98548",
+		"description": "OpenWrt 25.12.1 (emma’s version)",
+		"builddate": "1773711117"
+	}
+}
+root@OpenWrt:~# ip -s link show eth0
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:10:18:48:fb:2c brd ff:ff:ff:ff:ff:ff
+    RX:  bytes packets errors dropped  missed   mcast           
+        154977    2004      0       0       0       0 
+    TX:  bytes packets errors dropped carrier collsns           
+          9706     106      0       5       0       0 
+root@OpenWrt:~# 

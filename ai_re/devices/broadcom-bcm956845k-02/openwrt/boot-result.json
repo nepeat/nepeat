@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-08",
+  "status": "hardware RAM boot passed",
+  "files": {
+    "emma-openwrt-netboot.uImage": {
+      "bytes": 7289369,
+      "sha256": "0acff120fd29ba29496fcd70667a203e360241e7f013bb1c6eb0d1d98a949ae2"
+    },
+    "bcm98548xmc-netboot.dtb": {
+      "bytes": 1993,
+      "sha256": "bf32af23c4a3c9e38f4df34fdfd73945022c2561b9b6b9aec0a884c833d37622"
+    }
+  },
+  "dtb_address": "0x03000000",
+  "serial_root_shell": true,
+  "runtime_branding_verified": true,
+  "management_dhcp_address": "10.60.2.203/24",
+  "management_link": "1 Gb/s full duplex",
+  "ping_to_host": {
+    "sent": 5,
+    "received": 5,
+    "loss_percent": 0
+  },
+  "flash_written": false,
+  "openwrt_asic_support": false,
+  "factory_linux_asic_test": "CPU Loopback: Run 1, Pass 1, Fail 0; 73440 TX/RX packets",
+  "transcript": "boot-test-4-20261108.txt"
+}

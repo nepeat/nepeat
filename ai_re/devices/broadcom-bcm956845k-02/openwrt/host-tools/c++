@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/g++ -isystem /usr/include "$@" -L/usr/lib
