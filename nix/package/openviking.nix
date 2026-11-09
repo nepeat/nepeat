@@ -75,6 +75,14 @@ let
     src = "${src}/web-studio";
     inherit npmDepsHash;
 
+    # CodeMirror's jsdom tests take a little over Vitest's 5s default on a
+    # loaded Nix builder.  Keep the upstream prebuild test suite enabled, but
+    # give those tests enough headroom to finish.
+    postPatch = ''
+      substituteInPlace vite.config.ts \
+        --replace-fail "test: {" "test: { testTimeout: 15000,"
+    '';
+
     # Matches the `--base=/studio/` upstream passes.
     npmBuildFlags = [
       "--"
@@ -454,6 +462,9 @@ python.pkgs.buildPythonApplication {
     substituteInPlace pyproject.toml \
       --replace-fail '"cmake>=3.15",' "" \
       --replace-fail '"maturin>=1.0,<2.0",' ""
+    substituteInPlace setup.py \
+      --replace-fail 'CMAKE_OSX_DEPLOYMENT_TARGET=10.15' \
+      'CMAKE_OSX_DEPLOYMENT_TARGET=11.0'
   '';
 
   env = {
