@@ -1,0 +1,62 @@
+{
+  "date_utc": "2026-11-09T08:37:47.222250+00:00",
+  "base_image": {
+    "label": "(emma’s version)",
+    "status": "compiled; hardware boot not implied",
+    "openwrt_version": "25.12.1",
+    "board": "BCM98548XMC",
+    "boot": "TFTP/RAM initramfs",
+    "flash_drivers": false,
+    "dtb_address": "0x03000000",
+    "unpacked_image_bytes": 27376268,
+    "asic_support": "experimental legacy SDK/BDE integration",
+    "default_lane_profile": "16x40G",
+    "luci": true,
+    "packet_interface": "SDK packet API/TAP; factory KNET APIs are disabled",
+    "files": {
+      "emma-openwrt-netboot.uImage": {
+        "bytes": 13682052,
+        "sha256": "08f7e3d9e96691f0cc9d423d75de6ade85e7f83763c8e00a2b79f97bb0c237b5"
+      },
+      "bcm98548xmc-netboot.dtb": {
+        "bytes": 2702,
+        "sha256": "7f767590b6040748aeb5c3bedf8b0a4fc7ac34a9541544e7fa82e85aa86957df"
+      }
+    }
+  },
+  "test": "ASIC IPv4 LPM route with Linux forwarding disabled",
+  "before_routes": "l3 defip show\r\r\nUnit 0, Total Number of DEFIP entries: 16385\r\n#     VRF     Net addr             Next Hop Mac        INTF MODID PORT PRIO CLASS HIT VLAN\r\n",
+  "before_interfaces": "l3 intf show\r\r\nFree L3INTF entries: 4095\r\n",
+  "before_vlans": "vlan show\r\r\nvlan 1\tports cpu,xe (0x00000000000000000001ffff), untagged xe (0x00000000000000000001fffe) MCAST_FLOOD_UNKNOWN\r\n",
+  "setup": "cint /tmp/l3-setup.cint\r\r\n** error: identifier 'offload_egr' redeclared\r\n** error: identifier 'offload_previous_mode' redeclared\r\nold egress mode: 0, status 0\r\negress mode: 0\r\ningress RIF: 0\r\negress RIF: 0\r\nnext hop: 0, id 100002\r\nroute: 0\r\negress capture entry: 0\r\ncapture field group: 0\r\ncapture field entry: 0\r\ncapture ingress-port qualifier: 0\r\ncapture CPU action: 0\r\ncapture drop action: 0\r\ncapture install: 0\r\nOFFLOAD_SETUP_OK\r\nint $$ = 0 (0x0)\r\n",
+  "linux_forwarding_during_test": "0",
+  "linux_routes_during_test": "[{\"dst\":\"default\",\"gateway\":\"10.60.2.1\",\"dev\":\"eth0\",\"protocol\":\"static\",\"prefsrc\":\"10.60.2.203\",\"flags\":[]},{\"dst\":\"10.60.2.0/24\",\"dev\":\"eth0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"10.60.2.203\",\"flags\":[]},{\"type\":\"local\",\"dst\":\"10.60.2.203\",\"dev\":\"eth0\",\"table\":\"local\",\"protocol\":\"kernel\",\"scope\":\"host\",\"prefsrc\":\"10.60.2.203\",\"flags\":[]},{\"type\":\"broadcast\",\"dst\":\"10.60.2.255\",\"dev\":\"eth0\",\"table\":\"local\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"10.60.2.203\",\"flags\":[]},{\"type\":\"local\",\"dst\":\"127.0.0.0/8\",\"dev\":\"lo\",\"table\":\"local\",\"protocol\":\"kernel\",\"scope\":\"host\",\"prefsrc\":\"127.0.0.1\",\"flags\":[]},{\"type\":\"local\",\"dst\":\"127.0.0.1\",\"dev\":\"lo\",\"table\":\"local\",\"protocol\":\"kernel\",\"scope\":\"host\",\"prefsrc\":\"127.0.0.1\",\"flags\":[]},{\"type\":\"broadcast\",\"dst\":\"127.255.255.255\",\"dev\":\"lo\",\"table\":\"local\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"127.0.0.1\",\"flags\":[]}]\n",
+  "linux_addresses_during_test": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.60.2.203\",\"prefixlen\":24,\"broadcast\":\"10.60.2.255\",\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+  "hardware_route": "l3 defip show\r\r\nUnit 0, Total Number of DEFIP entries: 16385\r\n#     VRF     Net addr             Next Hop Mac        INTF MODID PORT PRIO CLASS HIT VLAN\r\n0     0        198.19.2.0/24        00:00:00:00:00:00 100002    0     0     0    0 n\r\n",
+  "hardware_egress": "l3 egress show\r\r\nEntry  Mac                 Vlan INTF PORT MOD MPLS_LABEL ToCpu Drop\r\n100000  00:00:00:00:00:00    0 4095     0    0         0   no  yes\r\n100002  02:10:18:bb:02:02 4002 4002    16    0         0   no   no\r\n",
+  "packet_test": {
+    "exit_code": 0,
+    "stdout": "20/20 exact ASIC-routed IPv4 frames: next-hop MAC rewrite, egress RIF source MAC, TTL 64->63, valid IPv4 checksum\n",
+    "stderr": ""
+  },
+  "hardware_route_after_packets": "l3 defip show\r\r\nUnit 0, Total Number of DEFIP entries: 16385\r\n#     VRF     Net addr             Next Hop Mac        INTF MODID PORT PRIO CLASS HIT VLAN\r\n0     0        198.19.2.0/24        00:00:00:00:00:00 100002    0     0     0    0 y\r\n",
+  "ingress_counters": "show c xe0\r\r\nRIPC4.xe0\t\t:\t\t     21 \t\t+20\t\t 15/s\r\nRUC.xe0 \t\t:\t\t     63 \t\t+20\t\t 15/s\r\nRDBGC0.xe0\t\t:\t\t     40 \t\t +6\r\nR127.xe0\t\t:\t\t     43 \t\t+23\t\t 15/s\r\nR255.xe0\t\t:\t\t     62 \t\t +4\r\nRPKT.xe0\t\t:\t\t    109 \t\t+27\t\t 15/s\r\nRUCA.xe0\t\t:\t\t     63 \t\t+20\t\t 15/s\r\nRMCA.xe0\t\t:\t\t     44 \t\t +7\r\nRPRM.xe0\t\t:\t\t     63 \t\t+20\t\t 15/s\r\nRPOK.xe0\t\t:\t\t    109 \t\t+27\t\t 15/s\r\nRBYT.xe0\t\t:\t\t 12,246 \t     +2,374\t      1,139/s\r\nT127.xe0\t\t:\t\t     43 \t\t+23\t\t 15/s\r\nT255.xe0\t\t:\t\t     62 \t\t +4\r\nTPOK.xe0\t\t:\t\t    109 \t\t+27\t\t 15/s\r\nTPKT.xe0\t\t:\t\t    109 \t\t+27\t\t 15/s\r\nTUCA.xe0\t\t:\t\t     63 \t\t+20\t\t 15/s\r\nTMCA.xe0\t\t:\t\t     44 \t\t +7\r\nTBYT.xe0\t\t:\t\t 12,246 \t     +2,374\t      1,139/s\r\nPERQ_PKT(0).xe0 \t:\t\t    109 \t\t+27\t\t 15/s\r\nPERQ_BYTE(0).xe0\t:\t\t 12,246 \t     +2,374\t      1,139/s\r\n",
+  "egress_counters": "show c xe15\r\r\nRUC.xe15\t\t:\t\t     61 \t\t+20\t\t 15/s\r\nRDBGC0.xe15\t\t:\t\t     46 \t\t+27\t\t 15/s\r\nTDBGC4.xe15\t\t:\t\t     21 \t\t+20\t\t 15/s\r\nR127.xe15\t\t:\t\t     35 \t\t+23\t\t 15/s\r\nR255.xe15\t\t:\t\t     54 \t\t +4\r\nRPKT.xe15\t\t:\t\t     89 \t\t+27\t\t 15/s\r\nRUCA.xe15\t\t:\t\t     61 \t\t+20\t\t 15/s\r\nRMCA.xe15\t\t:\t\t     28 \t\t +7\r\nRPRM.xe15\t\t:\t\t     61 \t\t+20\t\t 15/s\r\nRPOK.xe15\t\t:\t\t     89 \t\t+27\t\t 15/s\r\nRBYT.xe15\t\t:\t\t 10,134 \t     +2,374\t      1,139/s\r\nT127.xe15\t\t:\t\t     35 \t\t+23\t\t 15/s\r\nT255.xe15\t\t:\t\t     54 \t\t +4\r\nTPOK.xe15\t\t:\t\t     89 \t\t+27\t\t 15/s\r\nTPKT.xe15\t\t:\t\t     89 \t\t+27\t\t 15/s\r\nTUCA.xe15\t\t:\t\t     61 \t\t+20\t\t 15/s\r\nTMCA.xe15\t\t:\t\t     28 \t\t +7\r\nTBYT.xe15\t\t:\t\t 10,134 \t     +2,374\t      1,139/s\r\nPERQ_PKT(0).xe15\t:\t\t     89 \t\t+27\t\t 15/s\r\nPERQ_BYTE(0).xe15\t:\t\t 10,134 \t     +2,374\t      1,139/s\r\n",
+  "withdraw": "l3 defip destroy VRF=0 IP=198.19.2.0 MaSk=255.255.255.0\r\r\n",
+  "negative_control": {
+    "exit_code": 0,
+    "stdout": "PASS route withdrawal: no routed packet reached swp16\n",
+    "stderr": ""
+  },
+  "passed": true,
+  "cleanup": "cint /tmp/l3-cleanup.cint\r\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\nint $$ = -7 (0xfffffff9)\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\n",
+  "restore_ports_vlans": {
+    "ok": true,
+    "message": "ASIC port and VLAN configuration applied",
+    "timestamp": 1794213487
+  },
+  "final_routes": "l3 defip show\r\r\nUnit 0, Total Number of DEFIP entries: 16385\r\n#     VRF     Net addr             Next Hop Mac        INTF MODID PORT PRIO CLASS HIT VLAN\r\n",
+  "final_interfaces": "l3 intf show\r\r\nFree L3INTF entries: 4095\r\n",
+  "dynamic_mac_cleanup": "cint /tmp/cleanup-route-mac.cint\r\r\nint $$ = 0 (0x0)\r\n",
+  "final_l2": "l2 show\r\r\nmac=02:10:18:56:00:0d vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:03 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:0e vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:fe:01 vlan=1 modid=0 port=16/xe15 Hit\r\nmac=02:10:18:56:00:09 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:04 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:07 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:fe:02 vlan=1 modid=0 port=1/xe0 Hit\r\nmac=02:10:18:56:00:0a vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:05 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:08 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:0b vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:06 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:10 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:01 vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:0c vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:0f vlan=1 modid=0 port=0/cpu0 Static CPU\r\nmac=02:10:18:56:00:02 vlan=1 modid=0 port=0/cpu0 Static CPU\r\n"
+}

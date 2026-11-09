@@ -1,0 +1,23 @@
+int offload_cleanup() {
+    bcm_l3_route_t route;
+    bcm_l3_intf_t rif;
+    bcm_mac_t peer_mac = {0x02,0x10,0x18,0xbb,0x02,0x02};
+    bcm_mac_t test_source = {0x02,0x10,0x18,0xcc,0x01,0x02};
+    if(offload_capture_entry>=0) print bcm_field_entry_destroy(0,offload_capture_entry);
+    if(offload_capture_group>=0) print bcm_field_group_destroy(0,offload_capture_group);
+    print bcm_l2_addr_delete(0,test_source,4001);
+    bcm_l3_route_t_init(&route);
+    route.l3a_subnet=0xc6130200;
+    route.l3a_ip_mask=0xffffff00;
+    print bcm_l3_route_delete(0,&route);
+    if(offload_egr>=0) print bcm_l3_egress_destroy(0,offload_egr);
+    bcm_l3_intf_t_init(&rif);
+    rif.l3a_intf_id=4001;
+    print bcm_l3_intf_delete(0,&rif);
+    rif.l3a_intf_id=4002;
+    print bcm_l3_intf_delete(0,&rif);
+    print bcm_l2_addr_delete(0,peer_mac,4002);
+    print bcm_switch_control_set(0,bcmSwitchL3EgressMode,offload_previous_mode);
+    return 0;
+}
+print offload_cleanup();
