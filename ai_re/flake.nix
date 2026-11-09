@@ -18,6 +18,13 @@
           # Add tools here as RE tasks require them. Note the reason in the
           # commit that adds a package.
           packages = with pkgs; [
+            # Home Assistant outlet control; credentials stay in the environment.
+            (writeShellApplication {
+              name = "lab-power";
+              runtimeInputs = [ python3 ];
+              text = ''exec python3 ${./tools/lab_power.py} "$@"'';
+            })
+
             # Terminal multiplexing for persistent serial sessions
             tmux
 

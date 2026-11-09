@@ -11,3 +11,6 @@ extracted/
 extract/
 *.jpg_original
 *.bin
+
+# local secrets sourced by .envrc (direnv source_env_if_exists)
+.envrc.local
