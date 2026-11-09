@@ -1,0 +1,64 @@
+# cat /proc/partitions
+major minor  #blocks  name
+
+  31     0       1024 mtdblock0
+  31     1     130048 mtdblock1
+  31     2       1024 mtdblock2
+  31     3     130048 mtdblock3
+# cat /proc/mtd
+dev:    size   erasesize  name
+mtd0: 00100000 00020000 "Boot flash cfe"
+mtd1: 07f00000 00020000 "Boot flash os"
+mtd2: 00100000 00020000 "PLCC flash cfe"
+mtd3: 07f00000 00020000 "PLCC flash os"
+# ls /sys/block
+mtdblock0  mtdblock3  ram10      ram13      ram2       ram5       ram8
+mtdblock1  ram0       ram11      ram14      ram3       ram6       ram9
+mtdblock2  ram1       ram12      ram15      ram4       ram7
+# ls /sys/class/mtd
+mtd0    mtd0ro  mtd1    mtd1ro  mtd2    mtd2ro  mtd3    mtd3ro
+# ls /sys/bus
+i2c          mdio_bus     of_platform  pci          pci_express  platform
+# ls -l /sys/class/mtd/mtd0
+-r--r--r--    1 root     root         4096 Jan 12 16:22 dev
+lrwxrwxrwx    1 root     root            0 Jan 12 16:22 subsystem -> ../../../class/mtd
+--w-------    1 root     root         4096 Jan 12 16:22 uevent
+# ls -l /sys/class/mtd/mtd1/
+-r--r--r--    1 root     root         4096 Jan 12 16:22 dev
+lrwxrwxrwx    1 root     root            0 Jan 12 16:22 subsystem -> ../../../class/mtd
+--w-------    1 root     root         4096 Jan 12 16:22 uevent
+# cat /proc/iomem
+50000000-5fffffff : /soc8548@e0000000/pci@8000
+60000000-6fffffff : /soc8548@e0000000/pcie@a000
+  60000000-6fffffff : PCI Bus #02
+    60000000-6003ffff : 0001:02:00.0
+e0003000-e00030ff : i2c
+e0003100-e00031ff : i2c
+e0004500-e0004507 : serial
+e0004600-e0004607 : serial
+e0024000-e0024fff : ethernet
+  e0024520-e002453f : mdio
+e0025000-e0025fff : ethernet
+e0026000-e0026fff : ethernet
+e0027000-e0027fff : ethernet
+# for d in /sys/bus/pci/devices/*; do echo "$d"; cat "$d/class" "$d/vendor" "$d/ device"; done
+/sys/bus/pci/devices/0000:00:00.0
+0x0b2000
+0x1057
+0x0013
+/sys/bus/pci/devices/0001:01:00.0
+0x000000
+0x1957
+0x0013
+/sys/bus/pci/devices/0001:02:00.0
+0x020000
+0x14e4
+0xb845
+# ls /sys/bus/platform/devices /sys/bus/of_platform/devices
+/sys/bus/of_platform/devices:
+
+/sys/bus/platform/devices:
+fsl-gianfar.0        fsl-gianfar_mdio.37  serial8250
+fsl-gianfar.1        fsl-i2c.0            serial8250.0
+fsl-gianfar.2        fsl-i2c.1
+fsl-gianfar.3        m41t00

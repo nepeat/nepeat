@@ -1,0 +1,118 @@
+CFE> boot -uboot -fatfs flash0.os:uImage.gto-2_6
+Loader:uboot Filesys:fat Dev:flash0.os File:uImage.gto-2_6 Options:(null)
+Loading: .... 11401844 bytes read
+Unpacking U-Boot image at 0x00000000 (11401780) .... RamDisk copy 9720364 @ 0X1000000 ... Done
+3563776 bytes
+Entry at 0x00000000
+Closing network.
+eth0: 188210 sent, 193501 received, 981963952 interrupts rx_alloc_err 0
+  188210 tx interrupts, 193320 rx interrupts tx_err 0 rx_err 0
+Starting program at 0x00000000
+
+OF-device-tree at 0x00ffc000
+Using BCM98548 XMC machine description
+Memory CAM mapping: CAM0=256Mb, CAM1=256Mb, CAM2=0Mb residual: 0Mb
+Linux version 2.6.21.7-hrt1-WR2.0bl_standard (root@lc-sj1-1232) (gcc version 4.1.2 (Wind River Linux Sourcery G++ 4.1-84)) #3 PREEMPT Wed Jun 17 09:08:06 PDT 2009
+Found initrd at 0xc1000000:0xc194522c
+Adding PCI host bridge /soc8548@e0000000/pci@8000
+Found MPC85xx PCI host bridge at 0x00000000e0008000. Firmware bus number: 0->127
+ ->Hose at 0xc0389000, cfg_addr=0xfdfff000,cfg_data=0xfdfff004
+Adding PCI host bridge /soc8548@e0000000/pcie@a000
+Found MPC85xx PCI host bridge at 0x00000000e000a000. Firmware bus number: 128->255
+ ->Hose at 0xc038f000, cfg_addr=0xfcffd000,cfg_data=0xfcffd004
+Zone PFN ranges:
+  DMA             0 ->   131072
+  Normal     131072 ->   131072
+early_node_map[1] active PFN ranges
+    0:        0 ->   131072
+Built 1 zonelists.  Total pages: 130048
+Kernel command line: console=ttyS0,9600 root=/dev/ram ramdisk_size=65536 rd_start=0x1000000 rd_size=9720364 rdinit=/bin/sh
+mpic: Setting up MPIC " OpenPIC  " version 1.2 at e0040000, max 1 CPUs
+mpic: ISU size: 4, shift: 2, mask: 3
+mpic: Initializing for 60 sources
+PID hash table entries: 2048 (order: 11, 8192 bytes)
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Memory: 506112k/524288k available (3332k kernel code, 17700k reserved, 100k data, 133k bss, 144k init)
+Security Framework v1.0.0 initialized
+Capability LSM initialized
+Mount-cache hash table entries: 512
+Initializing container subsys cpuacct
+Initializing container subsys debug
+NET: Registered protocol family 16
+PCI: Probing PCI hardware
+PCI: 0001:01:00.0: class b20 doesn't match header type 01. Ignoring class.
+PCI: Transparent bridge - 0001:01:00.0
+Generic PHY: Registered new driver
+NET: Registered protocol family 2
+IP route cache hash table entries: 16384 (order: 4, 65536 bytes)
+TCP established hash table entries: 65536 (order: 7, 524288 bytes)
+TCP bind hash table entries: 65536 (order: 6, 262144 bytes)
+TCP: Hash tables configured (established 65536 bind 65536)
+TCP reno registered
+checking if image is initramfs... it is
+Freeing initrd memory: 9492k freed
+JFS: nTxBlock = 4031, nTxLock = 32255
+Time: timebase clocksource has been installed.
+Switched to high resolution mode on CPU 0
+Registering unionfs 2.1.6 (for 2.6.21.7)
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered (default)
+LTT : ltt-facilities init
+LTT : ltt-relay init
+Generic RTC Driver v1.07
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing enabled
+serial8250.0: ttyS0 at MMIO map 0xe0004500 mem 0xe1000500 (irq = 26) is a 16550A
+serial8250.0: ttyS1 at MMIO map 0xe0004600 mem 0xe1002600 (irq = 26) is a 16550A
+RAMDISK driver initialized: 16 RAM disks of 65536K size 1024 blocksize
+Gianfar MII Bus: probed
+eth0: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2c 
+eth0: Running with NAPI disabled
+eth0: 64/64 RX/TX BD ring size
+eth1: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2d 
+eth1: Running with NAPI disabled
+eth1: 64/64 RX/TX BD ring size
+eth2: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2e 
+eth2: Running with NAPI disabled
+eth2: 64/64 RX/TX BD ring size
+eth3: Gianfar Ethernet Controller Version 1.2, 00:10:18:48:fb:2f 
+eth3: Running with NAPI disabled
+eth3: 64/64 RX/TX BD ring size
+netconsole: not configured, aborting
+i2c /dev entries driver
+MPC98548XMC Boot flash (128 MiB at f8000000)
+Boot flash: Found 1 x16 devices at 0x0 in 16-bit bank
+ Amd/Fujitsu Extended Query Table at 0x0040
+Boot flash: CFI does not contain boot bank location. Assuming top.
+number of CFI chips: 1
+cfi_cmdset_0002: Disabling erase-suspend-program due to code brokenness.
+No valid flash partition table found - using default mapping
+Creating 2 MTD partitions on "Boot flash":
+0x07f00000-0x08000000 : "Boot flash cfe"
+mtd: Giving out device 0 to Boot flash cfe
+0x00000000-0x07f00000 : "Boot flash os"
+mtd: Giving out device 1 to Boot flash os
+MPC98548XMC PLCC boot flash (128 MiB at f0000000)
+PLCC boot flash: Found 1 x16 devices at 0x0 in 16-bit bank
+ Amd/Fujitsu Extended Query Table at 0x0040
+PLCC boot flash: CFI does not contain boot bank location. Assuming top.
+number of CFI chips: 1
+cfi_cmdset_0002: Disabling erase-suspend-program due to code brokenness.
+No valid flash partition table found - using default mapping
+Creating 2 MTD partitions on "PLCC boot flash":
+0x07f00000-0x08000000 : "PLCC flash cfe"
+mtd: Giving out device 2 to PLCC flash cfe
+0x00000000-0x07f00000 : "PLCC flash os"
+mtd: Giving out device 3 to PLCC flash os
+TCP cubic registered
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+Freeing unused kernel memory: 144k init
+
+
+BusyBox v1.4.1 (2008-07-22 15:02:38 PDT) Built-in shell (msh)
+Enter 'help' for a list of built-in commands.
+
