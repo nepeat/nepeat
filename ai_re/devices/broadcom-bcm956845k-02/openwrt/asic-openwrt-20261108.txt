@@ -1,0 +1,16 @@
+Broadcom Command Monitor: Copyright (c) 1998-2010 Broadcom Corporation
+Release: sdk-xgs-robo-5.9.1 built 20101216 (Thu Dec 16 19:01:59 2010)
+From sdkrel@lc-sj1-3535:/projects/ntsw_sw_build/ecloud-sdk-5.9.1-builds/sdk_esw
+Platform: GTO_MPC8548
+OS: Unix (Posix)
+PCI unit 0: Dev 0xb845, Rev 0x04, Chip BCM56845_A3, Driver BCM56840_A0
+SOC unit 0 attached to PCI device BCM56845_A3
+rc: unit 0 device BCM56845_A3
+LCPLL 0 not locked on unit 0 status = 0x00000000
+_soc_xgs3_mem_slam: CPU_COS_MAP_ONLY.ipipe0 interrupt timeout
+_soc_xgs3_mem_slam: Abort Failed
+soc_mem_write_range: write CPU_COS_MAP_ONLY.ipipe0[0-127] failed: Operation timed out
+INIT: Unable to initialize misc for device 0: Operation timed out
+Error: file ./rc.soc: line 203 (error code -9): script terminated
+ERROR loading rc script on unit 0
+BCM.0> Connection to 10.60.2.203 closed.

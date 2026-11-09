@@ -1,0 +1,7 @@
+{
+  "luci-app-bcm-switch": {
+    "description": "Configure BCM56845 ASIC ports and VLANs",
+    "read": { "ubus": { "bcm_switch": ["status"] }, "uci": ["bcm_switch"] },
+    "write": { "ubus": { "bcm_switch": ["apply"] }, "uci": ["bcm_switch"] }
+  }
+}

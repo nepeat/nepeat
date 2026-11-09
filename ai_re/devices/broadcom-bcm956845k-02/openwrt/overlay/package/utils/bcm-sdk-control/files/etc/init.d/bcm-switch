@@ -1,0 +1,39 @@
+#!/bin/sh /etc/rc.common
+START=95
+STOP=10
+USE_PROCD=1
+
+start_service() {
+    if [ ! -c /dev/linux-user-bde ] || [ ! -c /dev/bcm ]; then
+        modprobe bcm-bde-compat || return 1
+    fi
+    test -c /dev/linux-user-bde && test -c /dev/bcm || return 1
+    modprobe tun || return 1
+    mkdir -p /tmp/bcm-sdk
+    rm -f /tmp/bcm-sdk/last-apply.json /var/run/bcm-sdk.ready
+    local profile
+    profile="$(uci -q get bcm_switch.core.profile)"
+    case "$profile" in 40g|10g) ;; *) return 1;; esac
+    cp "/usr/lib/bcm-sdk/config-$profile.bcm" /tmp/bcm-sdk/config.bcm
+    cp /usr/lib/bcm-sdk/rc.soc /tmp/bcm-sdk/
+    echo "$profile" > /tmp/bcm-sdk/active-profile
+    procd_open_instance
+    procd_set_param command /usr/sbin/bcmd /usr/lib/bcm-sdk/bcm.user /tmp/bcm-sdk
+    procd_set_param env BCM_CONFIG_FILE=/tmp/bcm-sdk/config.bcm
+    procd_set_param respawn 3600 5 3
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_close_instance
+}
+
+reload_service() {
+    if [ "$(uci -q get bcm_switch.core.profile)" != "$(cat /tmp/bcm-sdk/active-profile 2>/dev/null)" ]; then
+        restart
+        return
+    fi
+    /usr/libexec/bcm-switch apply
+}
+
+service_triggers() {
+    procd_add_reload_trigger bcm_switch
+}

@@ -1,0 +1,8 @@
+{
+  "admin/network/bcm_switch": {
+    "title": "Broadcom ASIC",
+    "order": 30,
+    "action": { "type": "view", "path": "bcm_switch/config" },
+    "depends": { "acl": ["luci-app-bcm-switch"] }
+  }
+}

@@ -1,0 +1,175 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-only
+set -f
+. /lib/functions.sh
+. /usr/share/libubox/jshn.sh
+
+state=/tmp/bcm-sdk
+lock=/var/lock/bcm-switch-apply
+mkdir -p "$state" /var/lock
+
+result() {
+    json_init
+    json_add_boolean ok "$1"
+    json_add_string message "$2"
+    json_add_int timestamp "$(date +%s)"
+    json_dump > "$state/last-apply.json.new"
+    mv "$state/last-apply.json.new" "$state/last-apply.json"
+    cat "$state/last-apply.json"
+}
+
+valid_number() {
+    case "$1" in ''|*[!0-9]*|0[0-9]*) return 1;; esac
+    [ "${#1}" -le 4 ] && [ "$1" -ge "$2" ] && [ "$1" -le "$3" ]
+}
+
+valid_port() {
+    case "$1" in xe[0-9]|xe[1-5][0-9]|xe6[0-3]) return 0;; esac
+    return 1
+}
+
+read_port() {
+    local name="$1" enabled speed autoneg pvid
+    valid_port "$name" || { bad="invalid physical port: $name"; return; }
+    config_get enabled "$name" enabled 1
+    config_get speed "$name" speed 10000
+    config_get autoneg "$name" autoneg 0
+    config_get pvid "$name" pvid 1
+    case "$enabled:$autoneg" in 0:0|0:1|1:0|1:1) ;; *) bad="invalid enable/autoneg value for $name"; return;; esac
+    if [ "${name#xe}" -ge "$port_count" ]; then
+        [ "$enabled" = 0 ] || bad="$name is inactive in the $profile profile"
+        return
+    fi
+    case "$speed" in 0|1000|10000) ;; 40000) [ "$profile" = 40g ] || { bad="40G needs the 40G lane profile"; return; };; *) bad="unsupported speed for $name"; return;; esac
+    valid_number "$pvid" 1 4094 || { bad="invalid PVID for $name"; return; }
+    printf '%s|%s|%s|%s|%s\n' "$name" "$enabled" "$speed" "$autoneg" "$pvid" >> "$plan/ports"
+}
+
+read_vlan() {
+    local section="$1" vid tagged untagged member members='' untagged_csv=''
+    config_get vid "$section" vid
+    config_get tagged "$section" tagged
+    config_get untagged "$section" untagged
+    valid_number "$vid" 1 4094 || { bad="invalid VLAN ID in $section"; return; }
+    grep -q "^$vid|" "$plan/vlans" && { bad="duplicate VLAN $vid"; return; }
+    for member in $tagged $untagged; do
+        [ "$member" = cpu ] || valid_port "$member" || { bad="invalid member of VLAN $vid"; return; }
+        if [ "$member" != cpu ] && [ "${member#xe}" -ge "$port_count" ]; then
+            bad="$member is inactive in the $profile profile"; return
+        fi
+        case ",$members," in *",$member,"*) bad="duplicate/tagged-and-untagged member in VLAN $vid"; return;; esac
+        members="${members:+$members,}$member"
+        printf '%s %s\n' "$vid" "$member" >> "$plan/membership"
+    done
+    [ -n "$members" ] || { bad="VLAN $vid needs at least one member"; return; }
+    for member in $untagged; do
+        grep -q " $member$" "$plan/untagged" && { bad="$member is untagged in multiple VLANs"; return; }
+        printf '%s %s\n' "$vid" "$member" >> "$plan/untagged"
+        untagged_csv="${untagged_csv:+$untagged_csv,}$member"
+    done
+    printf '%s|%s|%s\n' "$vid" "$members" "${untagged_csv:-0}" >> "$plan/vlans"
+}
+
+sdk() {
+    if ! bcmctl "$1" > "$plan/reply" 2>&1; then
+        result 0 "ASIC rejected '$1': $(cat "$plan/reply")"
+        return 1
+    fi
+}
+
+apply_config() {
+    [ "$(cat /var/run/bcm-sdk.ready 2>/dev/null)" = ready ] || { result 0 'ASIC has not initialized'; return 1; }
+    if ! mkdir "$lock" 2>/dev/null; then
+        local owner
+        owner="$(cat "$lock/pid" 2>/dev/null)"
+        if [ -n "$owner" ] && ! kill -0 "$owner" 2>/dev/null; then
+            rm -f "$lock/pid"
+            rmdir "$lock" 2>/dev/null
+            mkdir "$lock" 2>/dev/null || { result 0 'another apply is running'; return 1; }
+        else
+            result 0 'another apply is running'; return 1
+        fi
+    fi
+    echo $$ > "$lock/pid"
+    plan="$(mktemp -d /tmp/bcm-plan.XXXXXX)" || return 1
+    trap 'rm -rf "$plan"; rm -f "$lock/pid"; rmdir "$lock" 2>/dev/null' EXIT
+    trap 'exit 1' INT TERM HUP
+    touch "$plan/ports" "$plan/vlans" "$plan/membership" "$plan/untagged"
+    local bad='' enabled name admin speed autoneg pvid vid members untagged enabled_ports='' profile port_count
+    config_load bcm_switch
+    config_get profile core profile 40g
+    case "$profile" in 40g) port_count=16;; 10g) port_count=64;; *) result 0 'invalid lane profile'; return 1;; esac
+    [ "$profile" = "$(cat "$state/active-profile" 2>/dev/null)" ] || { result 0 'restart the ASIC service to change lane profile'; return 1; }
+    config_get enabled core enabled 1
+    case "$enabled" in 0|1) ;; *) result 0 'invalid global enable value'; return 1;; esac
+    config_foreach read_port port
+    config_foreach read_vlan vlan
+    [ -z "$bad" ] || { result 0 "$bad"; return 1; }
+    while IFS='|' read -r name admin speed autoneg pvid; do
+        if [ "$admin" = 1 ]; then
+            grep -q "^$pvid $name$" "$plan/membership" || { result 0 "$name must belong to its PVID $pvid"; return 1; }
+        fi
+    done < "$plan/ports"
+    # Validate the complete snapshot before touching hardware. Keep ports off
+    # while rebuilding membership; a failed apply never enables a partial plan.
+    sdk 'port xe enable=false' || return 1
+    if [ "$enabled" = 0 ]; then result 1 'ASIC front-panel ports administratively disabled'; return 0; fi
+    sdk 'vlan show' || return 1
+    awk '$1 == "vlan" && $2 ~ /^[0-9]+$/ { print $2 }' "$plan/reply" > "$plan/existing"
+    while read -r vid; do
+        [ "$vid" = 1 ] && continue
+        valid_number "$vid" 2 4094 || { result 0 'unexpected VLAN table response'; return 1; }
+        sdk "vlan destroy $vid" || return 1
+    done < "$plan/existing"
+    sdk 'vlan remove 1 pbm=all' || return 1
+    while IFS='|' read -r vid members untagged; do
+        if [ "$vid" = 1 ]; then
+            sdk "vlan add 1 pbm=$members ubm=$untagged" || return 1
+        else
+            sdk "vlan create $vid pbm=$members ubm=$untagged" || return 1
+        fi
+    done < "$plan/vlans"
+    sdk 'port xe vlanfilter=3' || return 1
+    while IFS='|' read -r name admin speed autoneg pvid; do
+        [ "$autoneg" = 1 ] && autoneg=true || autoneg=false
+        sdk "port $name autoneg=$autoneg speed=$speed" || return 1
+        if grep -q "^$pvid $name$" "$plan/membership"; then
+            sdk "pvlan set $name $pvid" || return 1
+        fi
+        if [ "$admin" = 1 ]; then enabled_ports="${enabled_ports:+$enabled_ports,}$name"; fi
+    done < "$plan/ports"
+    sdk 'stg stp 1 xe forward' || return 1
+    [ -z "$enabled_ports" ] || sdk "port $enabled_ports enable=true" || return 1
+    result 1 'ASIC port and VLAN configuration applied'
+}
+
+status() {
+    local running=0 initialized=0 applying=0 ports='' message='not applied yet' okay=0
+    [ -S /var/run/bcm-sdk.sock ] && running=1
+    [ "$(cat /var/run/bcm-sdk.ready 2>/dev/null)" = ready ] && initialized=1
+    [ -d "$lock" ] && applying=1
+    if [ "$initialized:$applying" = 1:0 ]; then
+        ports="$(bcmctl ps 2>/dev/null)"
+    fi
+    if [ -s "$state/last-apply.json" ]; then
+        json_load "$(cat "$state/last-apply.json")"
+        json_get_var message message
+        json_get_var okay ok
+    fi
+    json_init
+    json_add_boolean running "$running"
+    json_add_boolean initialized "$initialized"
+    json_add_boolean applying "$applying"
+    json_add_boolean last_apply_ok "$okay"
+    json_add_string last_apply "$message"
+    json_add_string chip BCM56845_A3
+    json_add_string profile "$(cat "$state/active-profile" 2>/dev/null)"
+    json_add_string ports "$ports"
+    json_dump
+}
+
+case "${1:-}" in
+    apply) apply_config;;
+    status) status;;
+    *) echo 'usage: bcm-switch {status|apply}' >&2; exit 2;;
+esac

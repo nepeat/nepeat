@@ -1,0 +1,49 @@
+{
+  "tested_at_utc": "2026-11-09T07:30:12.616058+00:00",
+  "result": "passed: cold RAM netboot, automatic ASIC init/apply, native 40G, UCI configuration, CPU DMA and LuCI Save & Apply",
+  "manifest": {
+    "label": "(emma’s version)",
+    "status": "compiled; hardware boot not implied",
+    "openwrt_version": "25.12.1",
+    "board": "BCM98548XMC",
+    "boot": "TFTP/RAM initramfs",
+    "flash_drivers": false,
+    "dtb_address": "0x03000000",
+    "unpacked_image_bytes": 27343500,
+    "asic_support": "experimental legacy SDK/BDE integration",
+    "default_lane_profile": "16x40G",
+    "luci": true,
+    "files": {
+      "emma-openwrt-netboot.uImage": {
+        "bytes": 13652209,
+        "sha256": "d6b299905a7dd93127c009f464b03ba0a31322fb6270541507144917da76e4fc"
+      },
+      "bcm98548xmc-netboot.dtb": {
+        "bytes": 2702,
+        "sha256": "7f767590b6040748aeb5c3bedf8b0a4fc7ac34a9541544e7fa82e85aa86957df"
+      }
+    }
+  },
+  "runtime_status": {
+    "running": true,
+    "initialized": true,
+    "applying": false,
+    "last_apply_ok": true,
+    "last_apply": "ASIC port and VLAN configuration applied",
+    "chip": "BCM56845_A3",
+    "profile": "40g",
+    "ports": "ps\r\r\n           ena/  speed/ link auto    STP                  lrn  inter   max  loop\r\n      port link  duplex scan neg?   state   pause  discrd ops   face frame  back\r\n       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe1  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe2  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe3  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe4  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe5  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe6  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe7  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe8  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe9  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe10  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe11  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe12  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe13  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe14  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe15  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r"
+  },
+  "runtime_identity": "Linux OpenWrt 6.12.74 #0 Tue Mar 17 01:31:57 2026 ppc GNU/Linux\n{\n  \"distribution\": \"OpenWrt\",\n  \"version\": \"25.12.1\",\n  \"label\": \"(emma’s version)\",\n  \"source_commit\": \"d6115e42127481645ae7210c9d8ca1bd14313473\",\n  \"board\": \"BCM98548XMC / BCM956845K-02\",\n  \"boot_mode\": \"TFTP -> RAM initramfs; no persistent install image\",\n  \"toolchain_sha256\": \"b8c806c7f18c976625886db482eebe279445f55d91c92c355ba9571f7c58423a\",\n  \"asic_support\": \"experimental BCM56845 BDE compatibility; see hardware test records\"\n}\n",
+  "cpu_loopback_evidence": "asic-40g-loopback-20261108.json",
+  "configuration_evidence": "configuration-test-20261108.json",
+  "browser_evidence": "luci-test-20261108.json",
+  "boot_evidence": "boot-asic-20261108.txt",
+  "limitations": [
+    "external 40G link and external forwarding not tested",
+    "polled SDK IRQ mode",
+    "RAM configuration does not survive power cycle",
+    "no Linux switchdev/DSA or routed ASIC offload"
+  ],
+  "flash_written": false
+}

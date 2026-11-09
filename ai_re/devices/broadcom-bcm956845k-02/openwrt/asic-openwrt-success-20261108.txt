@@ -1,0 +1,394 @@
+Broadcom Command Monitor: Copyright (c) 1998-2010 Broadcom Corporation
+Release: sdk-xgs-robo-5.9.1 built 20101216 (Thu Dec 16 19:01:59 2010)
+From sdkrel@lc-sj1-3535:/projects/ntsw_sw_build/ecloud-sdk-5.9.1-builds/sdk_esw
+Platform: GTO_MPC8548
+OS: Unix (Posix)
+PCI unit 0: Dev 0xb845, Rev 0x04, Chip BCM56845_A3, Driver BCM56840_A0
+SOC unit 0 attached to PCI device BCM56845_A3
+rc: unit 0 device BCM56845_A3
+rc: MMU initialized
+84740 init u=0 port=1 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=2 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=3 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=4 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=5 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=6 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=7 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=8 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=9 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=10 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=11 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=12 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=13 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=14 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=15 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=16 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=17 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=18 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=19 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=20 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=21 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=22 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=23 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=24 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=25 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=26 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=27 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=28 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=29 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=30 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=31 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=32 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=33 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=34 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=35 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=36 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=37 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=38 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=39 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=40 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=41 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=42 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=43 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=44 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=45 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=46 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=47 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=48 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=49 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=50 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=51 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=52 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=53 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=54 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=55 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=56 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=57 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=58 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=59 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=60 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=61 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=62 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=63 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=64 rom code ver. 0xd00c: SPI-ROM boot
+rc: BCM driver initialized
+rc: L2 Table shadowing enabled
+rc: Port modes initialized
+BCM.0> show unit
+Unit 0 chip BCM56845_A3 (current)
+BCM.0> tr 17 c=5
+rc: unit 0 device BCM56845_A3
+84740 init u=0 port=1 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=2 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=3 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=4 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=5 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=6 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=7 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=8 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=9 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=10 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=11 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=12 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=13 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=14 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=15 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=16 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=17 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=18 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=19 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=20 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=21 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=22 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=23 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=24 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=25 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=26 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=27 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=28 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=29 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=30 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=31 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=32 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=33 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=34 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=35 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=36 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=37 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=38 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=39 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=40 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=41 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=42 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=43 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=44 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=45 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=46 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=47 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=48 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=49 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=50 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=51 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=52 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=53 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=54 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=55 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=56 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=57 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=58 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=59 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=60 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=61 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=62 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=63 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=64 rom code ver. 0xd00c: SPI-ROM boot
+LB: total 73440 pkt (9 len * 34 chain * 4 COS * 1 port * 5 count * 12 chan)
+LB: xmit 36704 pkt (49%, 7340 pkt/s, 7796 KB/s avg), recv 36704 pkt (5 sec)
+LB: xmit 73440 pkt (100%, 8160 pkt/s, 8670 KB/s avg), recv 73440 pkt (9 sec)
+BCM.0> tl 17
+U/A/S|Test|            Test           |Loop | Run |Pass |Fail |  Arguments
+     | #  |            Name           |Count|Count|Count|Count|
+-----+----+---------------------------+-----+-----+-----+-----+-----------
+   S |  17| CPU Loopback              |    1|    1|    1|    0| (none)
+BCM.0> echo __RE_STATUS__ $?
+__RE_STATUS__ 0
+BCM.0> help port
+Usage (PORT): Parameters: <pbmp> [[ENCap=IEEE|HIGIG|B5632|HIGIG2]
+	[AutoNeg=on|off] [ADVert=<portmode>]
+	[LinkScan=on|off|hw|sw] [SPeed=10|100|1000] [FullDuplex=true|false]
+	[TxPAUse=on|off] [RxPAUse=on|off] [STationADdr=<macaddr>]
+	[LeaRN=<learnmode>] [DIScard=none|untag|all] [VlanFilter=<value>]
+	[PRIOrity=<0-7>] [PortFilterMode=<value>]
+	[PHymaster=<Master|Slave|Auto|None>] [Enable=<true|false>]
+	[FrameMax=<value>]
+	[MDIX=Auto|ForcedAuto|ForcedNormal|ForcedXover]
+	[LoopBack=NONE|MAC|PHY]]
+	| [[EEE] [ENable=<enable|disable>|TxIDleTime=<0-2560>|TxWakeTime=<0-2560>|STats=<get>]]
+	If only <ports> is specified, characteristics for that port are
+	displayed. <ports> is a standard port bitmap (see "help pbmp").
+	If AutoNeg is on, SPeed and DUPlex are the ADVERTISED MAX values.
+	If AutoNeg is off, SPeed and DUPlex are the FORCED values.
+	SPeed of zero indicates maximum speed.
+	LinkScan enables automatic scanning for link changes with updating
+	of MAC registers, and EPC_LINK (or equivalent)
+	PAUse enables send/receive of pause frames in full duplex mode.
+	<learnmode> is a numeric value controlling source lookup failure
+	packets; it may include bit 0 to enable hardware L2 learn, bit 1
+	to copy SLF packets to CPU, bit 2 to forward SLF packets.
+	VlanFilter drops input packets that not tagged with a valid VLAN
+	that contains the port. For XGS3, VlanFilter takes a value 0/1/2/3 where
+	bit 0 turns on/off ingress filter and bit 1 turns on/off egress filter.
+	PRIOrity sets the priority for untagged packets coming on this port.
+	PortFilterMode takes a value 0/1/2 for mode A/B/C (see register manual).
+	EEE: Energy Efficient Ethernet.
+BCM.0> help vlan
+Usage (VLAN): Usages:
+	  vlan create <id> [PortBitMap=<pbmp> UntagBitMap=<pbmp>]
+	                                       - Create a VLAN
+	  vlan destroy <id>                    - Destroy a VLAN
+	  vlan clear                           - Destroy all VLANs
+	  vlan add <id> [PortBitMap=<pbmp> UntagBitMap=<pbmp>
+	                                       - Add port(s) to a VLAN
+	  vlan remove <id> [PortBitMap=<pbmp>] - Remove ports from a VLAN
+	  vlan gport add <id> [GportPortID=<port_id>
+	                                       - Add gport to a VLAN
+	  vlan gport delete <id> [GportPortID=<port_id>
+	                                       - Delete gport from a VLAN
+	  vlan gport get <id> [GportPortID=<port_id>
+	                                       - Check if gport belongs to a VLAN
+	  vlan gport clear <id>
+	                                       - Delete all ports from a VLAN
+	  vlan gport show <id>
+	                                       - Show all ports in a VLAN
+	  vlan MulticastFlood <id>  [Mode]     - Multicast flood setting
+	  vlan show                            - Display all VLANs
+	  vlan default [<id>]                  - Show or set the default VLAN
+	  vlan protocol add PortBitMap=<pbmp> Frame=<N> Ether=<N>
+	        VLan=<vlanid> Prio=<prio>
+	  vlan protocol delete PortBitMap=<pbmp> Frame=<N> Ether=<N>
+	  vlan protocol clear PortBitMap=<pbmp>
+	  vlan mac add MACaddress=<address> VLan=<vlanid> Prio=<prio>
+	        Cng=<cng>
+	  vlan mac delete MACaddress=<address>
+	  vlan mac clear
+	  vlan translate [On|Off]
+	  vlan translate add Port=<port> OldVLan=<vlanid> NewVLan=<vlanid>
+	        Prio=<prio> Cng=<cng>
+	  vlan translate get Port=<port> OldVLan=<vlanid> 
+	  vlan translate show              - Shows all vlan translations 
+	  vlan translate delete Port=<port> OldVLan=<vlanid>
+	  vlan translate clear
+	  vlan translate egress add Port=<port> OldVLan=<vlanid> NewVLan=<vlanid>
+	        Prio=<prio> Cng=<cng>
+	  vlan translate egress get Port=<port> OldVLan=<vlanid> 
+	  vlan translate egress show  - Shows all vlan egress translations 
+	  vlan translate egress delete Port=<port> OldVLan=<vlanid>
+	  vlan translate egress clear
+	  vlan translate dtag add Port=<port> OldVLan=<vlanid> NewVLan=<vlanid>
+	        Prio=<prio> Cng=<cng>
+	  vlan translate dtag get Port=<port> OldVLan=<vlanid> 
+	  vlan translate dtag show     - Shows all double tagged vlans 
+	  vlan translate range add Port=<port> OldVLanHi=<vlanid> 
+	        OldVlanLo=<vlanid> NewVLan=<vlanid> Prio=<prio> Cng=<cng>
+	  vlan translate range get Port=<port> OldVLanHi=<vlanid>
+	        OldVlanLo=<vlanid>
+	  vlan translate range delete Port=<port> OldVLanHi=<vlanid>
+	        OldVlanLo=<vlanid>
+	  vlan translate range clear
+	  vlan translate range show
+	  vlan ip4 add IPaddr=<ip-address> NetMask=<ip-addr> VLan=<vlanid>
+	        Prio=<prio> Cng=<cng>
+	  vlan ip4 delete IPaddr=<ip-address> NetMask=<ip-addr>
+	  vlan ip4 clear
+	  vlan ip6 add IPaddr=<ip-address> prefiX=<prefix> VLan=<vlanid>
+	        Prio=<prio>
+	  vlan ip6 delete IPaddr=<ip-address> prefiX=<prefix>
+	  vlan ip6 clear
+	  vlan control <name> <value>
+	  vlan port <port> <value>
+	  vlan innertag <port> Priority=<priority> CFI=<cfi> VLan=<vlanid>
+	  vlan <id> <name>=<vlaue>         - Set/Get per VLAN property
+	  vlan action port default add Port=<port> OuterVlan=<vlanid>
+	        InnerVlan=<vlanid> Prio=<prio> DtOuter=<action>
+	        DtOuterPrio=<action> DtInner=<action> DtInnerPrio=<action>
+	        OtOuter=<action> OtOuterPrio=<action> OtInner=<action>
+	        OtOuter=<action> ItOuter=<action> ItInner=<action>
+	        ItInnerPrio=<action> UtOuter=<action> UtInner=<action>
+	        - Add port default VLAN tag with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action port default get Port=<port>
+	        - Get port default VLAN tag actions
+	  vlan action port egress default add Port=<port> OuterVlan=<vlanid>
+	        InnerVlan=<vlanid> Prio=<prio> DtOuter=<action>
+	        DtOuterPrio=<action> DtInner=<action> DtInnerPrio=<action>
+	        OtOuter=<action> OtOuterPrio=<action> OtInner=<action>
+	        OtOuter=<action> ItOuter=<action> ItInner=<action>
+	        ItInnerPrio=<action> UtOuter=<action> UtInner=<action>
+	        - Add port egress VLAN tag with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action port egress default get Port=<port>
+	        - Get port egress VLAN tag actions
+	  vlan action mac add MACaddress=<address> OuterVlan=<vlanid>
+	        InnerVlan=<vlanid> Prio=<prio> DtOuter=<action>
+	        DtOuterPrio=<action> DtInner=<action> DtInnerPrio=<action>
+	        OtOuter=<action> OtOuterPrio=<action> OtInner=<action>
+	        OtOuter=<action> ItOuter=<action> ItInner=<action>
+	        ItInnerPrio=<action> UtOuter=<action> UtInner=<action>
+	        - Add MAC-based VLAN tag with actions
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action mac get MACaddress=<address>
+	        - Get MAC-based VLAN tag actions
+	  vlan action mac delete MACaddress=<address>
+	        - Delete MAC-based VLAN tag actions
+	  vlan action mac clear
+	        - Delete all MAC-based VLAN tag actions
+	  vlan action protocol add PortBitMap=<pbmp> Frame=<N> Ether=<N>
+	        OuterVlan=<vlanid> InnerVlan=<vlanid> Prio=<prio> 
+	        DtOuter=<action> DtOuterPrio=<action> DtInner=<action> 
+	        DtInnerPrio=<action> OtOuter=<action> OtOuterPrio=<action>
+	        OtInner=<action> OtOuter=<action> ItOuter=<action>
+	        ItInner=<action> ItInnerPrio=<action> UtOuter=<action> 
+	        UtInner=<action>
+	        - Add protocol-based VLAN tag with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action ip4 add IPaddr=<ip-address> NetMask=<ip-addr>
+	        OuterVlan=<vlanid> InnerVlan=<vlanid> Prio=<prio> 
+	        DtOuter=<action> DtOuterPrio=<action> DtInner=<action> 
+	        DtInnerPrio=<action> OtOuter=<action> OtOuterPrio=<action>
+	        OtInner=<action> OtOuter=<action> ItOuter=<action>
+	        ItInner=<action> ItInnerPrio=<action> UtOuter=<action> 
+	        UtInner=<action>
+	        - Add IP4-based VLAN tag with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action ip6 add IPaddr=<ip-address> prefiX=<prefix>
+	        OuterVlan=<vlanid> InnerVlan=<vlanid> Prio=<prio> 
+	        DtOuter=<action> DtOuterPrio=<action> DtInner=<action> 
+	        DtInnerPrio=<action> OtOuter=<action> OtOuterPrio=<action>
+	        OtInner=<action> OtOuter=<action> ItOuter=<action>
+	        ItInner=<action> ItInnerPrio=<action> UtOuter=<action> 
+	        UtInner=<action>
+	        - Add IP6-based VLAN tag with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action translate add Port=<port> KeyType=<key> 
+	        OldOuterVlan=<vlanid> OldInnerVlan=<vlanid> DtOuter=<action>
+	        OuterVlan=<vlanid> InnerVlan=<vlanid> Prio=<prio> 
+	        DtOuter=<action> DtOuterPrio=<action> DtInner=<action>
+	        DtInnerPrio=<action> OtOuter=<action> OtOuterPrio=<action>
+	        OtInner=<action> OtOuter=<action> ItOuter=<action>
+	        ItInner=<action> ItInnerPrio=<action> UtOuter=<action>
+	        UtInner=<action>
+	        - Add VLAN tag translation with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	          Valid key types are { Double, Outer, Inner, OuterTag, 
+	          InnerTag, PortDouble, PortOuter }
+	  vlan action translate delete Port=<port> KeyType=<key> 
+	        OldOuterVlan=<vlanid> OldInnerVlan=<vlanid>
+	        - Delete VLAN tag translation actions.
+	  vlan action translate get Port=<port> KeyType=<key> 
+	        OldOuterVlan=<vlanid> OldInnerVlan=<vlanid>
+	        - Get VLAN tag translation actions.
+	  vlan action translate show
+	        - Show all VLAN tag translation actions.
+	  vlan action translate range add Port=<port> 
+	        OuterVlanLo=<vlanid> OuterVlanHi=<vlanid> 
+	        InnerVlanLo=<vlanid> InnerVlanHi=<vlanid>
+	        OuterVlan=<vlanid> InnerVlan=<vlanid> Prio=<prio> 
+	        DtOuter=<action> DtOuterPrio=<action> DtInner=<action>
+	        DtInnerPrio=<action> OtOuter=<action> OtOuterPrio=<action>
+	        OtInner=<action> OtOuter=<action> ItOuter=<action>
+	        ItInner=<action> ItInnerPrio=<action> UtOuter=<action>
+	        UtInner=<action>
+	        - Add VLAN tag range translation with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action translate range delete Port=<port> 
+	        OuterVlanLo=<vlanid> OuterVlanHi=<vlanid> 
+	        InnerVlanLo=<vlanid> InnerVlanHi=<vlanid>
+	        - Delete VLAN tag translation range actions.
+	  vlan action translate range get Port=<port> 
+	        OuterVlanLo=<vlanid> OuterVlanHi=<vlanid> 
+	        InnerVlanLo=<vlanid> InnerVlanHi=<vlanid>
+	        - Get VLAN tag translation range actions.
+	  vlan action translate range clear
+	        - Delete all VLAN tag translation range actions.
+	  vlan action translate range show
+	        - Show all VLAN tag translation range actions.
+	  vlan action translate egress add PortClass=<class> 
+	        OldOuterVlan=<vlanid> OldInnerVlan=<vlanid> DtOuter=<action>
+	        OuterVlan=<vlanid> InnerVlan=<vlanid> Prio=<prio> 
+	        DtOuter=<action> DtOuterPrio=<action> DtInner=<action>
+	        DtInnerPrio=<action> OtOuter=<action> OtOuterPrio=<action>
+	        OtInner=<action> OtOuter=<action> ItOuter=<action>
+	        ItInner=<action> ItInnerPrio=<action> UtOuter=<action>
+	        UtInner=<action>
+	        - Add VLAN tag egress translation with actions.
+	          Valid actions are { Add, Delete, Replace, None }
+	  vlan action translate egress delete PortClass=<class> 
+	        OldOuterVlan=<vlanid> OldInnerVlan=<vlanid>
+	        - Delete VLAN tag egress translation actions.
+	  vlan action translate egress get PortClass=<class> 
+	        OldOuterVlan=<vlanid> OldInnerVlan=<vlanid>
+	        - Get VLAN tag egress translation actions.
+	  vlan action translate egress show
+BCM.0> port xe0 enable=false
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     DISABLED LS(SW) Auto(no link) Ability (fd = 1000MB,10GB hd =  intf = xgmii medium = fiber pause = pause_tx,pause_rx,pause_asymm lb = none,MAC,PHY flags = autoneg )Local (fd = 1000MB hd =  intf = medium =  pause = pause_tx,pause_rx lb =  flags =  )STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XGMII) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) 
+BCM.0> port xe0 enable=true autoneg=false speed=10000
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(10GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XGMII) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> vlan create 4079 pbm=xe0,xe1 ubm=xe0
+BCM.0> vlan show
+vlan 1	ports cpu,xe (0x00000001ffffffffffffffff), untagged xe (0x00000001fffffffffffffffe) MCAST_FLOOD_UNKNOWN
+vlan 4079	ports xe0-xe1 (0x000000000000000000000006), untagged xe0 (0x000000000000000000000002) MCAST_FLOOD_UNKNOWN
+BCM.0> vlan destroy 4079
+BCM.0> help pvlan
+Usage (PVlan): Usages:
+	  pvlan show <pbmp>
+	        - Show PVLAN info for these ports.
+	  pvlan set <pbmp> <vid>
+	        - Set default VLAN tag for port(s)
+	          Port bitmaps are read from the VTABLE entry for the VID.
+	          <vid> must have been created and all ports in <pbmp> must
+	          belong to that VLAN.
+BCM.0> 

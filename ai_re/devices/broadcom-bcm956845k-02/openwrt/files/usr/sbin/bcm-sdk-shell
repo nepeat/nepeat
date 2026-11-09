@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+if [ ! -c /dev/linux-user-bde ] || [ ! -c /dev/bcm ]; then
+    modprobe bcm-bde-compat
+fi
+test -c /dev/linux-user-bde
+test -c /dev/bcm
+mkdir -p /tmp/bcm-sdk
+for name in config.bcm rc.soc; do
+    if [ ! -f "/tmp/bcm-sdk/$name" ]; then
+        cp "/usr/lib/bcm-sdk/$name" "/tmp/bcm-sdk/$name"
+    fi
+done
+export BCM_CONFIG_FILE=/tmp/bcm-sdk/config.bcm
+cd /tmp/bcm-sdk
+exec /usr/lib/bcm-sdk/bcm.user "$@"

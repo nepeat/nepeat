@@ -1,0 +1,55 @@
+Broadcom Command Monitor: Copyright (c) 1998-2010 Broadcom Corporation
+Release: sdk-xgs-robo-5.9.1 built 20101216 (Thu Dec 16 19:01:59 2010)
+From sdkrel@lc-sj1-3535:/projects/ntsw_sw_build/ecloud-sdk-5.9.1-builds/sdk_esw
+Platform: GTO_MPC8548
+OS: Unix (Posix)
+PCI unit 0: Dev 0xb845, Rev 0x04, Chip BCM56845_A3, Driver BCM56840_A0
+SOC unit 0 attached to PCI device BCM56845_A3
+rc: unit 0 device BCM56845_A3
+rc: MMU initialized
+84740 init u=0 port=1 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=2 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=3 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=4 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=5 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=6 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=7 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=8 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=9 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=10 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=11 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=12 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=13 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=14 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=15 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=16 rom code ver. 0xd00c: SPI-ROM boot
+rc: BCM driver initialized
+rc: L2 Table shadowing enabled
+rc: Port modes initialized
+BCM.0> port xe0 autoneg=false speed=40000 enable=true
+echo __40G_SET__ $?
+BCM.0> echo __40G_SET__ $?
+__40G_SET__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> ps
+           ena/  speed/ link auto    STP                  lrn  inter   max  loop
+      port link  duplex scan neg?   state   pause  discrd ops   face frame  back
+       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe1  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe2  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe3  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe4  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe5  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe6  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe7  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe8  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe9  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe10  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe11  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe12  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe13  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe14  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe15  !ena  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+BCM.0> 

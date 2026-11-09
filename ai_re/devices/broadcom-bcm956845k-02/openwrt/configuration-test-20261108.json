@@ -1,0 +1,47 @@
+{
+  "disable_apply": {
+    "ok": true,
+    "message": "ASIC port and VLAN configuration applied",
+    "timestamp": 1794209135
+  },
+  "disabled": {
+    "ok": true,
+    "status": 0,
+    "output": "port xe0\r\r\nPORT: Status (* indicates PHY link up)\r\n  xe0     DISABLED LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) \r\n"
+  },
+  "vlan_apply": {
+    "ok": true,
+    "message": "ASIC port and VLAN configuration applied",
+    "timestamp": 1794209141
+  },
+  "vlans": {
+    "ok": true,
+    "status": 0,
+    "output": "vlan show\r\r\nvlan 1\tports cpu,xe1-xe15 (0x00000000000000000001fffd), untagged xe1-xe15 (0x00000000000000000001fffc) MCAST_FLOOD_UNKNOWN\r\nvlan 4079\tports xe0-xe1 (0x000000000000000000000006), untagged xe0 (0x000000000000000000000002) MCAST_FLOOD_UNKNOWN\r\n"
+  },
+  "pvid": {
+    "ok": true,
+    "status": 0,
+    "output": "pvlan show xe0\r\r\nPort xe0 default VLAN is 4079\r\n"
+  },
+  "40g": {
+    "ok": true,
+    "status": 0,
+    "output": "port xe0\r\r\nPORT: Status (* indicates PHY link up)\r\n  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) \r\n"
+  },
+  "invalid_config": {
+    "ok": false,
+    "message": "unsupported speed for xe0",
+    "timestamp": 1794209142
+  },
+  "after_rejection": {
+    "ok": true,
+    "status": 0,
+    "output": "port xe0\r\r\nPORT: Status (* indicates PHY link up)\r\n  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) \r\n"
+  },
+  "restore": {
+    "ok": true,
+    "message": "ASIC port and VLAN configuration applied",
+    "timestamp": 1794209149
+  }
+}

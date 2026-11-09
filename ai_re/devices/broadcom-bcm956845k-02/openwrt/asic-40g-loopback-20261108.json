@@ -1,0 +1,17 @@
+{
+  "cpu_loopback": {
+    "ok": true,
+    "status": 0,
+    "output": "tr 17 c=5\r\r\nrc: unit 0 device BCM56845_A3\r\n84740 init u=0 port=1 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=2 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=3 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=4 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=5 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=6 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=7 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=8 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=9 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=10 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=11 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=12 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=13 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=14 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=15 rom code ver. 0xd00c: SPI-ROM boot\r\n84740 init u=0 port=16 rom code ver. 0xd00c: SPI-ROM boot\r\nLB: total 73440 pkt (9 len * 34 chain * 4 COS * 1 port * 5 count * 12 chan)\r\nLB: xmit 36432 pkt (49%, 7286 pkt/s, 7692 KB/s avg), recv 36432 pkt (5 sec)\r\nLB: xmit 73440 pkt (100%, 8160 pkt/s, 8670 KB/s avg), recv 73440 pkt (9 sec)\r\n"
+  },
+  "test_list": {
+    "ok": true,
+    "status": 0,
+    "output": "tl 17\r\r\nU/A/S|Test|            Test           |Loop | Run |Pass |Fail |  Arguments\r\n     | #  |            Name           |Count|Count|Count|Count|\r\n-----+----+---------------------------+-----+-----+-----+-----+-----------\r\n   S |  17| CPU Loopback              |    1|    1|    1|    0| (none)\r\n"
+  },
+  "restore": {
+    "ok": true,
+    "message": "ASIC port and VLAN configuration applied",
+    "timestamp": 1794209388
+  }
+}

@@ -1,0 +1,10 @@
+#!/bin/sh
+case "$1" in
+    list) echo '{"status":{},"apply":{}}';;
+    call)
+        read -r request || :
+        case "$2" in
+            status|apply) exec /usr/libexec/bcm-switch "$2";;
+            *) echo '{"ok":false,"message":"unknown method"}';;
+        esac;;
+esac

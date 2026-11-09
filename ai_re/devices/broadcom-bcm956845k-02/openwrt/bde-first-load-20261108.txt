@@ -1,0 +1,20 @@
+[   13.726945] init: Console is alive
+[   13.782130] kmodloader: loading kernel modules from /etc/modules-boot.d/*
+[   13.865592] kmodloader: done loading kernel modules from /etc/modules-boot.d/*
+[   13.962667] init: - preinit -
+[   18.359696] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+[   18.555503] fsl-gianfar e0024000.ethernet eth0: Link is Down
+[   18.716084] procd: - early -
+[   18.750604] random: procd: uninitialized urandom read (4 bytes read)
+[   19.355232] procd: - ubus -
+[   20.149029] random: crng init done
+[   20.197644] procd: - init -
+[   20.787092] kmodloader: loading kernel modules from /etc/modules.d/*
+[   20.996670] xt_time: kernel timezone is -0000
+[   21.219765] kmodloader: done loading kernel modules from /etc/modules.d/*
+[   21.875596] urngd: v1.0.2 started.
+[   35.730250] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+[  285.499517] bcm_bde_compat: loading out-of-tree module taints kernel.
+[  285.598560] bcm-bde-compat 1000:01:00.0: legacy BDE: BAR 0x60000000, DMA 0x1c000000 (16777216 bytes), IRQ 16
+crw-------    1 root     root       10, 257 Nov  9 06:37 /dev/bcm
+crw-------    1 root     root       10, 256 Nov  9 06:37 /dev/linux-user-bde
