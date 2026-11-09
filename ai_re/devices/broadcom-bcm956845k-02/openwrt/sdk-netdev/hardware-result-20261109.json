@@ -1,0 +1,1314 @@
+{
+  "tested_at_utc": "2026-11-09T08:20:46.412725+00:00",
+  "manifest": {
+    "label": "(emma’s version)",
+    "status": "compiled; hardware boot not implied",
+    "openwrt_version": "25.12.1",
+    "board": "BCM98548XMC",
+    "boot": "TFTP/RAM initramfs",
+    "flash_drivers": false,
+    "dtb_address": "0x03000000",
+    "unpacked_image_bytes": 27376268,
+    "asic_support": "experimental legacy SDK/BDE integration",
+    "default_lane_profile": "16x40G",
+    "luci": true,
+    "packet_interface": "SDK packet API/TAP; factory KNET APIs are disabled",
+    "files": {
+      "emma-openwrt-netboot.uImage": {
+        "bytes": 13682052,
+        "sha256": "08f7e3d9e96691f0cc9d423d75de6ade85e7f83763c8e00a2b79f97bb0c237b5"
+      },
+      "bcm98548xmc-netboot.dtb": {
+        "bytes": 2702,
+        "sha256": "7f767590b6040748aeb5c3bedf8b0a4fc7ac34a9541544e7fa82e85aa86957df"
+      }
+    }
+  },
+  "backend": "SDK packet API/TAP; not Broadcom KNET",
+  "initial_status": {
+    "running": true,
+    "initialized": true,
+    "applying": false,
+    "last_apply_ok": true,
+    "last_apply": "ASIC port and VLAN configuration applied",
+    "chip": "BCM56845_A3",
+    "profile": "40g",
+    "ports": "ps\r\r\n           ena/  speed/ link auto    STP                  lrn  inter   max  loop\r\n      port link  duplex scan neg?   state   pause  discrd ops   face frame  back\r\n       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe1  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe2  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe3  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe4  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe5  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe6  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe7  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe8  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe9  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe10  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe11  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe12  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe13  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe14  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe15  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r"
+  },
+  "initial_devices": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "loopback",
+      "address": "00:00:00:00:00:00",
+      "broadcast": "00:00:00:00:00:00",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 0,
+      "max_mtu": 0,
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 524280,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "00:10:18:48:fb:2c",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 50,
+      "max_mtu": 9586,
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536,
+      "parentbus": "platform",
+      "parentdev": "e0024000.ethernet"
+    },
+    {
+      "ifindex": 3,
+      "ifname": "swp1",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:01",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 4,
+      "ifname": "swp2",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:02",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 5,
+      "ifname": "swp3",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:03",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 6,
+      "ifname": "swp4",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:04",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 7,
+      "ifname": "swp5",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:05",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 8,
+      "ifname": "swp6",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:06",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 9,
+      "ifname": "swp7",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:07",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 10,
+      "ifname": "swp8",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:08",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 11,
+      "ifname": "swp9",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:09",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 12,
+      "ifname": "swp10",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0a",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 13,
+      "ifname": "swp11",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0b",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 14,
+      "ifname": "swp12",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0c",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 15,
+      "ifname": "swp13",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0d",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 16,
+      "ifname": "swp14",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0e",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 17,
+      "ifname": "swp15",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0f",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    },
+    {
+      "ifindex": 18,
+      "ifname": "swp16",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:10",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "promiscuity": 0,
+      "allmulti": 0,
+      "min_mtu": 68,
+      "max_mtu": 65521,
+      "linkinfo": {
+        "info_kind": "tun",
+        "info_data": {
+          "type": "tap",
+          "pi": false,
+          "vnet_hdr": false,
+          "multi_queue": false,
+          "persist": false
+        }
+      },
+      "inet6_addr_gen_mode": "eui64",
+      "num_tx_queues": 1,
+      "gso_max_size": 65536,
+      "gso_max_segs": 65535,
+      "tso_max_size": 65536,
+      "tso_max_segs": 65535,
+      "gro_max_size": 65536,
+      "gso_ipv4_max_size": 65536,
+      "gro_ipv4_max_size": 65536
+    }
+  ],
+  "initial_speed": "40000",
+  "linux_admin_down": "port xe0\r\r\nPORT: Status (* indicates PHY link up)\r\n  xe0     DISABLED LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) \r\n",
+  "linux_admin_up": "port xe0\r\r\nPORT: Status (* indicates PHY link up)\r\n  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) \r\n",
+  "packet_tests": {
+    "swp1": "swp1: 20/20 exact Ethernet frames passed Linux TAP -> SDK DMA -> ASIC MAC loopback -> SDK RX -> Linux TAP\n",
+    "swp16": "swp16: 20/20 exact Ethernet frames passed Linux TAP -> SDK DMA -> ASIC MAC loopback -> SDK RX -> Linux TAP\n"
+  },
+  "netifd": {
+    "up": true,
+    "pending": false,
+    "available": true,
+    "autostart": true,
+    "dynamic": false,
+    "uptime": 0,
+    "l3_device": "swp1",
+    "proto": "static",
+    "device": "swp1",
+    "updated": [
+      "addresses"
+    ],
+    "metric": 0,
+    "dns_metric": 0,
+    "delegation": true,
+    "ipv4-address": [
+      {
+        "address": "198.18.0.1",
+        "mask": 30
+      }
+    ],
+    "ipv6-address": [],
+    "ipv6-prefix": [],
+    "ipv6-prefix-assignment": [],
+    "route": [],
+    "dns-server": [],
+    "dns-search": [],
+    "neighbors": [],
+    "inactive": {
+      "ipv4-address": [],
+      "ipv6-address": [],
+      "route": [],
+      "dns-server": [],
+      "dns-search": [],
+      "neighbors": []
+    },
+    "data": {}
+  },
+  "arp": "swp1: PASS Linux IPv4 stack generated ARP reply for 198.18.0.1 after request traversed SDK/ASIC MAC loopback (packet type 4)\n",
+  "luci": {
+    "title": "OpenWrt | Interfaces",
+    "hasMap": true,
+    "has40G": false,
+    "hasVLAN": false,
+    "hasNativePort": true,
+    "text": "Status\nOverview\nRouting\nSystem Log\nProcesses\nRealtime Graphs\nSystem\nSystem\nAdministration\nSoftware\nStartup\nScheduled Tasks\nBackup / Flash Firmware\nReboot\nNetwork\nInterfaces\nBroadcom ASIC\nRouting\nDiagnostics\nLog out\nREFRESHING\nSystem running in recovery (initramfs) mode.\n\nNo changes to settings will be stored and are lost after rebooting. This mode should only be used to install a firmware upgrade\n\nGo to firmware upgrade...\nInterfaces\nDevices\nGlobal network options\nInterfaces\nmanagement\nType: Ethernet Adapter\nDevice: eth0\nConnected: yes\nMAC: 00:10:18:48:FB:2C\nRX: 1.88 MB (6035 Pkts.)\nTX: 1.88 MB (3254 Pkts.)\n\neth0\n\t\nProtocol: DHCP client\nCarrier: Present\nUptime: 0h 4m 40s\nMAC: 00:10:18:48:FB:2C\nRX: 1.88 MB (6035 Pkts.)\nTX: 1.88 MB (3254 Pkts.)\nIPv4: 10.60.2.203/24\n\n\t\nRestart\nStop\nEdit\nDelete\n\n\nsdk_test\nType: Ethernet Adapter\nDevice: swp1\nConnected: yes\nMAC: 02:10:18:56:00:01\nRX: 5.58 KB (46 Pkts.)\nTX: 8.65 KB (74 Pkts.)\n\nswp1\n\t\nProtocol: Static address\nCarrier: Present\nUptime: 0h 0m 3s\nMAC: 02:10:18:56:00:01\nRX: 5.58 KB (46 Pkts.)\nTX: 8.65 KB (74 Pkts.)\nIPv4: 198.18.0.1/30\n\n\t\nRestart\nStop\nEdit\nDelete\nAdd new interface...\nDevices\nDevice\tType\tMAC Address\tMTU\t\n\nType: Ethernet Adapter\nDevice: eth0\nConnected: yes\nMAC: 00:10:18:48:FB:2C\nRX: 1.88 MB (6035 Pkts.)\nTX: 1.88 MB (3254 Pkts.)\neth0\tNetwork device\t00:10:18:48:FB:2C\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp1\nConnected: yes\nMAC: 02:10:18:56:00:01\nRX: 5.58 KB (46 Pkts.)\nTX: 8.65 KB (74 Pkts.)\nswp1\tNetwork device\t02:10:18:56:00:01\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp2\nConnected: yes\nMAC: 02:10:18:56:00:02\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp2\tNetwork device\t02:10:18:56:00:02\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp3\nConnected: yes\nMAC: 02:10:18:56:00:03\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp3\tNetwork device\t02:10:18:56:00:03\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp4\nConnected: yes\nMAC: 02:10:18:56:00:04\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp4\tNetwork device\t02:10:18:56:00:04\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp5\nConnected: yes\nMAC: 02:10:18:56:00:05\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp5\tNetwork device\t02:10:18:56:00:05\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp6\nConnected: yes\nMAC: 02:10:18:56:00:06\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp6\tNetwork device\t02:10:18:56:00:06\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp7\nConnected: yes\nMAC: 02:10:18:56:00:07\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp7\tNetwork device\t02:10:18:56:00:07\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp8\nConnected: yes\nMAC: 02:10:18:56:00:08\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp8\tNetwork device\t02:10:18:56:00:08\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp9\nConnected: yes\nMAC: 02:10:18:56:00:09\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp9\tNetwork device\t02:10:18:56:00:09\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp10\nConnected: yes\nMAC: 02:10:18:56:00:0A\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp10\tNetwork device\t02:10:18:56:00:0A\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp11\nConnected: yes\nMAC: 02:10:18:56:00:0B\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp11\tNetwork device\t02:10:18:56:00:0B\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp12\nConnected: yes\nMAC: 02:10:18:56:00:0C\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp12\tNetwork device\t02:10:18:56:00:0C\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp13\nConnected: yes\nMAC: 02:10:18:56:00:0D\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp13\tNetwork device\t02:10:18:56:00:0D\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp14\nConnected: yes\nMAC: 02:10:18:56:00:0E\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp14\tNetwork device\t02:10:18:56:00:0E\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp15\nConnected: yes\nMAC: 02:10:18:56:00:0F\nRX: 0 B (0 Pkts.)\nTX: 0 B (0 Pkts.)\nswp15\tNetwork device\t02:10:18:56:00:0F\t1500\t\nConfigure…\nUnconfigure\n\n\nType: Ethernet Adapter\nDevice: swp16\nConnected: yes\nMAC: 02:10:18:56:00:10\nRX: 5.29 KB (42 Pkts.)\nTX: 6.65 KB (54 Pkts.)\nswp16\tNetwork device\t02:10:18:56:00:10\t1500\t\nConfigure…\nUnconfigure\nAdd device configuration…\nGlobal network options\nThis section contains no values yet\nSave & Apply\n▾\n Save Reset\nPowered by LuCI (HEAD detached at 6efa8ae5) branch (26.075.80566~6efa8ae) / OpenWrt 25.12.1 (r32768-b21cfa8f8c)",
+    "exceptions": [],
+    "loginExceptions": [
+      "RPCError: RPC call to uci/get failed with error -32002: Access denied\n  at ClassConstructor.handleCallReply (https://10.60.2.203/luci-static/resources/rpc.js?v=26.075.80566~6efa8ae-3:11:3)\n    at ClassConstructor.raise (https://10.60.2.203/luci-static/resources/luci.js?v=26.075.80566~6efa8ae-3:148:3)\n    at ClassConstructor.handleCallReply (https://10.60.2.203/luci-static/resources/rpc.js?v=26.075.80566~6efa8ae-3:11:3)"
+    ]
+  },
+  "netdev_status": {
+    "backend": "sdk-tap",
+    "knet": false,
+    "ports": [
+      {
+        "device": "swp1",
+        "sdk_port": 1,
+        "tx": 74,
+        "rx": 46,
+        "errors": 0
+      },
+      {
+        "device": "swp2",
+        "sdk_port": 2,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp3",
+        "sdk_port": 3,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp4",
+        "sdk_port": 4,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp5",
+        "sdk_port": 5,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp6",
+        "sdk_port": 6,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp7",
+        "sdk_port": 7,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp8",
+        "sdk_port": 8,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp9",
+        "sdk_port": 9,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp10",
+        "sdk_port": 10,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp11",
+        "sdk_port": 11,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp12",
+        "sdk_port": 12,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp13",
+        "sdk_port": 13,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp14",
+        "sdk_port": 14,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp15",
+        "sdk_port": 15,
+        "tx": 0,
+        "rx": 0,
+        "errors": 0
+      },
+      {
+        "device": "swp16",
+        "sdk_port": 16,
+        "tx": 54,
+        "rx": 42,
+        "errors": 0
+      }
+    ]
+  },
+  "passed": true,
+  "restore": {
+    "ok": true,
+    "message": "ASIC port and VLAN configuration applied",
+    "timestamp": 1794212469
+  },
+  "final_status": {
+    "running": true,
+    "initialized": true,
+    "applying": false,
+    "last_apply_ok": true,
+    "last_apply": "ASIC port and VLAN configuration applied",
+    "chip": "BCM56845_A3",
+    "profile": "40g",
+    "ports": "ps\r\r\n           ena/  speed/ link auto    STP                  lrn  inter   max  loop\r\n      port link  duplex scan neg?   state   pause  discrd ops   face frame  back\r\n       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe1  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe2  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe3  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe4  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe5  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe6  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe7  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe8  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n       xe9  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe10  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe11  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe12  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe13  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe14  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r\n      xe15  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 \r"
+  },
+  "final_devices": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "loopback",
+      "address": "00:00:00:00:00:00",
+      "broadcast": "00:00:00:00:00:00"
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "00:10:18:48:fb:2c",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 3,
+      "ifname": "swp1",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:01",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 4,
+      "ifname": "swp2",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:02",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 5,
+      "ifname": "swp3",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:03",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 6,
+      "ifname": "swp4",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:04",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 7,
+      "ifname": "swp5",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:05",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 8,
+      "ifname": "swp6",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:06",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 9,
+      "ifname": "swp7",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:07",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 10,
+      "ifname": "swp8",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:08",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 11,
+      "ifname": "swp9",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:09",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 12,
+      "ifname": "swp10",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0a",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 13,
+      "ifname": "swp11",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0b",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 14,
+      "ifname": "swp12",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0c",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 15,
+      "ifname": "swp13",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0d",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 16,
+      "ifname": "swp14",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0e",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 17,
+      "ifname": "swp15",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:0f",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    },
+    {
+      "ifindex": 18,
+      "ifname": "swp16",
+      "flags": [
+        "NO-CARRIER",
+        "BROADCAST",
+        "MULTICAST",
+        "UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "DOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:10:18:56:00:10",
+      "broadcast": "ff:ff:ff:ff:ff:ff"
+    }
+  ],
+  "final_speed": "40000"
+}

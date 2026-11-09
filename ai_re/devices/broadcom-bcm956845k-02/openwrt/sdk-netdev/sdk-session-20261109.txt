@@ -1,0 +1,564 @@
+Broadcom Command Monitor: Copyright (c) 1998-2010 Broadcom Corporation
+Release: sdk-xgs-robo-5.9.1 built 20101216 (Thu Dec 16 19:01:59 2010)
+From sdkrel@lc-sj1-3535:/projects/ntsw_sw_build/ecloud-sdk-5.9.1-builds/sdk_esw
+Platform: GTO_MPC8548
+OS: Unix (Posix)
+PCI unit 0: Dev 0xb845, Rev 0x04, Chip BCM56845_A3, Driver BCM56840_A0
+SOC unit 0 attached to PCI device BCM56845_A3
+rc: unit 0 device BCM56845_A3
+rc: MMU initialized
+84740 init u=0 port=1 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=2 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=3 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=4 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=5 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=6 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=7 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=8 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=9 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=10 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=11 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=12 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=13 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=14 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=15 rom code ver. 0xd00c: SPI-ROM boot
+84740 init u=0 port=16 rom code ver. 0xd00c: SPI-ROM boot
+rc: BCM driver initialized
+rc: L2 Table shadowing enabled
+rc: Port modes initialized
+SDK TAP: started 16 swp interfaces (not KNET)
+int $$ = 0 (0x0)
+int $$ = 0 (0x0)
+int $$ = 0 (0x0)
+int $$ = 0 (0x0)
+int $$ = 0 (0x0)
+BCM.0> port xe enable=false
+BCM.0> echo __BCM_DONE_1353_1__ $?
+__BCM_DONE_1353_1__ 0
+BCM.0> vlan show
+vlan 1	ports cpu,xe (0x00000000000000000001ffff), untagged xe (0x00000000000000000001fffe) MCAST_FLOOD_UNKNOWN
+BCM.0> echo __BCM_DONE_1353_2__ $?
+__BCM_DONE_1353_2__ 0
+BCM.0> vlan remove 1 pbm=all
+BCM.0> echo __BCM_DONE_1353_3__ $?
+__BCM_DONE_1353_3__ 0
+BCM.0> vlan add 1 pbm=cpu,xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15 ubm=xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15
+BCM.0> echo __BCM_DONE_1353_4__ $?
+__BCM_DONE_1353_4__ 0
+BCM.0> port xe vlanfilter=3
+BCM.0> echo __BCM_DONE_1353_5__ $?
+__BCM_DONE_1353_5__ 0
+BCM.0> port xe0 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_6__ $?
+__BCM_DONE_1353_6__ 0
+BCM.0> pvlan set xe0 1
+BCM.0> echo __BCM_DONE_1353_7__ $?
+__BCM_DONE_1353_7__ 0
+BCM.0> port xe1 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_8__ $?
+__BCM_DONE_1353_8__ 0
+BCM.0> pvlan set xe1 1
+BCM.0> echo __BCM_DONE_1353_9__ $?
+__BCM_DONE_1353_9__ 0
+BCM.0> port xe2 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_10__ $?
+__BCM_DONE_1353_10__ 0
+BCM.0> pvlan set xe2 1
+BCM.0> echo __BCM_DONE_1353_11__ $?
+__BCM_DONE_1353_11__ 0
+BCM.0> port xe3 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_12__ $?
+__BCM_DONE_1353_12__ 0
+BCM.0> pvlan set xe3 1
+BCM.0> echo __BCM_DONE_1353_13__ $?
+__BCM_DONE_1353_13__ 0
+BCM.0> port xe4 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_14__ $?
+__BCM_DONE_1353_14__ 0
+BCM.0> pvlan set xe4 1
+BCM.0> echo __BCM_DONE_1353_15__ $?
+__BCM_DONE_1353_15__ 0
+BCM.0> port xe5 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_16__ $?
+__BCM_DONE_1353_16__ 0
+BCM.0> pvlan set xe5 1
+BCM.0> echo __BCM_DONE_1353_17__ $?
+__BCM_DONE_1353_17__ 0
+BCM.0> port xe6 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_18__ $?
+__BCM_DONE_1353_18__ 0
+BCM.0> pvlan set xe6 1
+BCM.0> echo __BCM_DONE_1353_19__ $?
+__BCM_DONE_1353_19__ 0
+BCM.0> port xe7 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_20__ $?
+__BCM_DONE_1353_20__ 0
+BCM.0> pvlan set xe7 1
+BCM.0> echo __BCM_DONE_1353_21__ $?
+__BCM_DONE_1353_21__ 0
+BCM.0> port xe8 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_22__ $?
+__BCM_DONE_1353_22__ 0
+BCM.0> pvlan set xe8 1
+BCM.0> echo __BCM_DONE_1353_23__ $?
+__BCM_DONE_1353_23__ 0
+BCM.0> port xe9 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_24__ $?
+__BCM_DONE_1353_24__ 0
+BCM.0> pvlan set xe9 1
+BCM.0> echo __BCM_DONE_1353_25__ $?
+__BCM_DONE_1353_25__ 0
+BCM.0> port xe10 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_26__ $?
+__BCM_DONE_1353_26__ 0
+BCM.0> pvlan set xe10 1
+BCM.0> echo __BCM_DONE_1353_27__ $?
+__BCM_DONE_1353_27__ 0
+BCM.0> port xe11 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_28__ $?
+__BCM_DONE_1353_28__ 0
+BCM.0> pvlan set xe11 1
+BCM.0> echo __BCM_DONE_1353_29__ $?
+__BCM_DONE_1353_29__ 0
+BCM.0> port xe12 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_30__ $?
+__BCM_DONE_1353_30__ 0
+BCM.0> pvlan set xe12 1
+BCM.0> echo __BCM_DONE_1353_31__ $?
+__BCM_DONE_1353_31__ 0
+BCM.0> port xe13 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_32__ $?
+__BCM_DONE_1353_32__ 0
+BCM.0> pvlan set xe13 1
+BCM.0> echo __BCM_DONE_1353_33__ $?
+__BCM_DONE_1353_33__ 0
+BCM.0> port xe14 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_34__ $?
+__BCM_DONE_1353_34__ 0
+BCM.0> pvlan set xe14 1
+BCM.0> echo __BCM_DONE_1353_35__ $?
+__BCM_DONE_1353_35__ 0
+BCM.0> port xe15 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_36__ $?
+__BCM_DONE_1353_36__ 0
+BCM.0> pvlan set xe15 1
+BCM.0> echo __BCM_DONE_1353_37__ $?
+__BCM_DONE_1353_37__ 0
+BCM.0> stg stp 1 xe forward
+BCM.0> echo __BCM_DONE_1353_38__ $?
+__BCM_DONE_1353_38__ 0
+BCM.0> port xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15 enable=true
+BCM.0> echo __BCM_DONE_1353_39__ $?
+__BCM_DONE_1353_39__ 0
+BCM.0> SDK TAP: RX registration/start 0; 16 Linux interfaces
+ps
+           ena/  speed/ link auto    STP                  lrn  inter   max  loop
+      port link  duplex scan neg?   state   pause  discrd ops   face frame  back
+       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe1  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe2  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe3  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe4  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe5  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe6  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe7  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe8  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe9  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe10  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe11  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe12  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe13  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe14  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe15  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+BCM.0> echo __BCM_DONE_1353_40__ $?
+__BCM_DONE_1353_40__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> echo __BCM_DONE_1353_41__ $?
+__BCM_DONE_1353_41__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     DISABLED LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> echo __BCM_DONE_1353_42__ $?
+__BCM_DONE_1353_42__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     DISABLED LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> echo __BCM_DONE_1353_43__ $?
+__BCM_DONE_1353_43__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     DISABLED LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> echo __BCM_DONE_1353_44__ $?
+__BCM_DONE_1353_44__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> echo __BCM_DONE_1353_45__ $?
+__BCM_DONE_1353_45__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(Local) 
+BCM.0> echo __BCM_DONE_1353_46__ $?
+__BCM_DONE_1353_46__ 0
+BCM.0> port xe0 loopback=mac
+BCM.0> echo __BCM_DONE_1353_47__ $?
+__BCM_DONE_1353_47__ 0
+BCM.0> port xe15 loopback=mac
+BCM.0> echo __BCM_DONE_1353_48__ $?
+__BCM_DONE_1353_48__ 0
+BCM.0> port xe15 loopback=none
+BCM.0> echo __BCM_DONE_1353_49__ $?
+__BCM_DONE_1353_49__ 0
+BCM.0> port xe0 loopback=none
+BCM.0> echo __BCM_DONE_1353_50__ $?
+__BCM_DONE_1353_50__ 0
+BCM.0> port xe15 loopback=none
+BCM.0> echo __BCM_DONE_1353_51__ $?
+__BCM_DONE_1353_51__ 0
+BCM.0> port xe enable=false
+BCM.0> echo __BCM_DONE_1353_52__ $?
+__BCM_DONE_1353_52__ 0
+BCM.0> vlan show
+vlan 1	ports cpu,xe (0x00000000000000000001ffff), untagged xe (0x00000000000000000001fffe) MCAST_FLOOD_UNKNOWN
+BCM.0> echo __BCM_DONE_1353_53__ $?
+__BCM_DONE_1353_53__ 0
+BCM.0> vlan remove 1 pbm=all
+BCM.0> echo __BCM_DONE_1353_54__ $?
+__BCM_DONE_1353_54__ 0
+BCM.0> vlan add 1 pbm=cpu,xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15 ubm=xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15
+BCM.0> echo __BCM_DONE_1353_55__ $?
+__BCM_DONE_1353_55__ 0
+BCM.0> port xe vlanfilter=3
+BCM.0> echo __BCM_DONE_1353_56__ $?
+__BCM_DONE_1353_56__ 0
+BCM.0> port xe0 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_57__ $?
+__BCM_DONE_1353_57__ 0
+BCM.0> pvlan set xe0 1
+BCM.0> echo __BCM_DONE_1353_58__ $?
+__BCM_DONE_1353_58__ 0
+BCM.0> port xe1 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_59__ $?
+__BCM_DONE_1353_59__ 0
+BCM.0> pvlan set xe1 1
+BCM.0> echo __BCM_DONE_1353_60__ $?
+__BCM_DONE_1353_60__ 0
+BCM.0> port xe2 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_61__ $?
+__BCM_DONE_1353_61__ 0
+BCM.0> pvlan set xe2 1
+BCM.0> echo __BCM_DONE_1353_62__ $?
+__BCM_DONE_1353_62__ 0
+BCM.0> port xe3 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_63__ $?
+__BCM_DONE_1353_63__ 0
+BCM.0> pvlan set xe3 1
+BCM.0> echo __BCM_DONE_1353_64__ $?
+__BCM_DONE_1353_64__ 0
+BCM.0> port xe4 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_65__ $?
+__BCM_DONE_1353_65__ 0
+BCM.0> pvlan set xe4 1
+BCM.0> echo __BCM_DONE_1353_66__ $?
+__BCM_DONE_1353_66__ 0
+BCM.0> port xe5 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_67__ $?
+__BCM_DONE_1353_67__ 0
+BCM.0> pvlan set xe5 1
+BCM.0> echo __BCM_DONE_1353_68__ $?
+__BCM_DONE_1353_68__ 0
+BCM.0> port xe6 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_69__ $?
+__BCM_DONE_1353_69__ 0
+BCM.0> pvlan set xe6 1
+BCM.0> echo __BCM_DONE_1353_70__ $?
+__BCM_DONE_1353_70__ 0
+BCM.0> port xe7 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_71__ $?
+__BCM_DONE_1353_71__ 0
+BCM.0> pvlan set xe7 1
+BCM.0> echo __BCM_DONE_1353_72__ $?
+__BCM_DONE_1353_72__ 0
+BCM.0> port xe8 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_73__ $?
+__BCM_DONE_1353_73__ 0
+BCM.0> pvlan set xe8 1
+BCM.0> echo __BCM_DONE_1353_74__ $?
+__BCM_DONE_1353_74__ 0
+BCM.0> port xe9 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_75__ $?
+__BCM_DONE_1353_75__ 0
+BCM.0> pvlan set xe9 1
+BCM.0> echo __BCM_DONE_1353_76__ $?
+__BCM_DONE_1353_76__ 0
+BCM.0> port xe10 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_77__ $?
+__BCM_DONE_1353_77__ 0
+BCM.0> pvlan set xe10 1
+BCM.0> echo __BCM_DONE_1353_78__ $?
+__BCM_DONE_1353_78__ 0
+BCM.0> port xe11 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_79__ $?
+__BCM_DONE_1353_79__ 0
+BCM.0> pvlan set xe11 1
+BCM.0> echo __BCM_DONE_1353_80__ $?
+__BCM_DONE_1353_80__ 0
+BCM.0> port xe12 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_81__ $?
+__BCM_DONE_1353_81__ 0
+BCM.0> pvlan set xe12 1
+BCM.0> echo __BCM_DONE_1353_82__ $?
+__BCM_DONE_1353_82__ 0
+BCM.0> port xe13 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_83__ $?
+__BCM_DONE_1353_83__ 0
+BCM.0> pvlan set xe13 1
+BCM.0> echo __BCM_DONE_1353_84__ $?
+__BCM_DONE_1353_84__ 0
+BCM.0> port xe14 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_85__ $?
+__BCM_DONE_1353_85__ 0
+BCM.0> pvlan set xe14 1
+BCM.0> echo __BCM_DONE_1353_86__ $?
+__BCM_DONE_1353_86__ 0
+BCM.0> port xe15 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_87__ $?
+__BCM_DONE_1353_87__ 0
+BCM.0> pvlan set xe15 1
+BCM.0> echo __BCM_DONE_1353_88__ $?
+__BCM_DONE_1353_88__ 0
+BCM.0> stg stp 1 xe forward
+BCM.0> echo __BCM_DONE_1353_89__ $?
+__BCM_DONE_1353_89__ 0
+BCM.0> port xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15 enable=true
+BCM.0> echo __BCM_DONE_1353_90__ $?
+__BCM_DONE_1353_90__ 0
+BCM.0> ps
+           ena/  speed/ link auto    STP                  lrn  inter   max  loop
+      port link  duplex scan neg?   state   pause  discrd ops   face frame  back
+       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe1  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe2  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe3  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe4  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe5  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe6  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe7  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe8  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe9  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe10  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe11  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe12  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe13  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe14  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe15  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+BCM.0> echo __BCM_DONE_1353_91__ $?
+__BCM_DONE_1353_91__ 0
+BCM.0> ps
+           ena/  speed/ link auto    STP                  lrn  inter   max  loop
+      port link  duplex scan neg?   state   pause  discrd ops   face frame  back
+       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe1  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe2  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe3  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe4  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe5  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe6  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe7  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe8  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe9  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe10  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe11  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe12  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe13  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe14  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe15  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+BCM.0> echo __BCM_DONE_1353_92__ $?
+__BCM_DONE_1353_92__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) 
+BCM.0> echo __BCM_DONE_1353_93__ $?
+__BCM_DONE_1353_93__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) 
+BCM.0> echo __BCM_DONE_1353_94__ $?
+__BCM_DONE_1353_94__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     DISABLED LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) 
+BCM.0> echo __BCM_DONE_1353_95__ $?
+__BCM_DONE_1353_95__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     DISABLED LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) 
+BCM.0> echo __BCM_DONE_1353_96__ $?
+__BCM_DONE_1353_96__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) 
+BCM.0> echo __BCM_DONE_1353_97__ $?
+__BCM_DONE_1353_97__ 0
+BCM.0> port xe0
+PORT: Status (* indicates PHY link up)
+  xe0     LS(SW) Forced(40GFD,pause) STP(Forward) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(16356) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) 
+BCM.0> echo __BCM_DONE_1353_98__ $?
+__BCM_DONE_1353_98__ 0
+BCM.0> port xe0 loopback=mac
+BCM.0> echo __BCM_DONE_1353_99__ $?
+__BCM_DONE_1353_99__ 0
+BCM.0> port xe15 loopback=mac
+BCM.0> echo __BCM_DONE_1353_100__ $?
+__BCM_DONE_1353_100__ 0
+BCM.0> port xe15 loopback=none
+BCM.0> echo __BCM_DONE_1353_101__ $?
+__BCM_DONE_1353_101__ 0
+BCM.0> port xe0 loopback=none
+BCM.0> echo __BCM_DONE_1353_102__ $?
+__BCM_DONE_1353_102__ 0
+BCM.0> port xe15 loopback=none
+BCM.0> echo __BCM_DONE_1353_103__ $?
+__BCM_DONE_1353_103__ 0
+BCM.0> port xe enable=false
+BCM.0> echo __BCM_DONE_1353_104__ $?
+__BCM_DONE_1353_104__ 0
+BCM.0> vlan show
+vlan 1	ports cpu,xe (0x00000000000000000001ffff), untagged xe (0x00000000000000000001fffe) MCAST_FLOOD_UNKNOWN
+BCM.0> echo __BCM_DONE_1353_105__ $?
+__BCM_DONE_1353_105__ 0
+BCM.0> vlan remove 1 pbm=all
+BCM.0> echo __BCM_DONE_1353_106__ $?
+__BCM_DONE_1353_106__ 0
+BCM.0> vlan add 1 pbm=cpu,xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15 ubm=xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15
+BCM.0> echo __BCM_DONE_1353_107__ $?
+__BCM_DONE_1353_107__ 0
+BCM.0> port xe vlanfilter=3
+BCM.0> echo __BCM_DONE_1353_108__ $?
+__BCM_DONE_1353_108__ 0
+BCM.0> port xe0 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_109__ $?
+__BCM_DONE_1353_109__ 0
+BCM.0> pvlan set xe0 1
+BCM.0> echo __BCM_DONE_1353_110__ $?
+__BCM_DONE_1353_110__ 0
+BCM.0> port xe1 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_111__ $?
+__BCM_DONE_1353_111__ 0
+BCM.0> pvlan set xe1 1
+BCM.0> echo __BCM_DONE_1353_112__ $?
+__BCM_DONE_1353_112__ 0
+BCM.0> port xe2 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_113__ $?
+__BCM_DONE_1353_113__ 0
+BCM.0> pvlan set xe2 1
+BCM.0> echo __BCM_DONE_1353_114__ $?
+__BCM_DONE_1353_114__ 0
+BCM.0> port xe3 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_115__ $?
+__BCM_DONE_1353_115__ 0
+BCM.0> pvlan set xe3 1
+BCM.0> echo __BCM_DONE_1353_116__ $?
+__BCM_DONE_1353_116__ 0
+BCM.0> port xe4 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_117__ $?
+__BCM_DONE_1353_117__ 0
+BCM.0> pvlan set xe4 1
+BCM.0> echo __BCM_DONE_1353_118__ $?
+__BCM_DONE_1353_118__ 0
+BCM.0> port xe5 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_119__ $?
+__BCM_DONE_1353_119__ 0
+BCM.0> pvlan set xe5 1
+BCM.0> echo __BCM_DONE_1353_120__ $?
+__BCM_DONE_1353_120__ 0
+BCM.0> port xe6 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_121__ $?
+__BCM_DONE_1353_121__ 0
+BCM.0> pvlan set xe6 1
+BCM.0> echo __BCM_DONE_1353_122__ $?
+__BCM_DONE_1353_122__ 0
+BCM.0> port xe7 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_123__ $?
+__BCM_DONE_1353_123__ 0
+BCM.0> pvlan set xe7 1
+BCM.0> echo __BCM_DONE_1353_124__ $?
+__BCM_DONE_1353_124__ 0
+BCM.0> port xe8 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_125__ $?
+__BCM_DONE_1353_125__ 0
+BCM.0> pvlan set xe8 1
+BCM.0> echo __BCM_DONE_1353_126__ $?
+__BCM_DONE_1353_126__ 0
+BCM.0> port xe9 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_127__ $?
+__BCM_DONE_1353_127__ 0
+BCM.0> pvlan set xe9 1
+BCM.0> echo __BCM_DONE_1353_128__ $?
+__BCM_DONE_1353_128__ 0
+BCM.0> port xe10 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_129__ $?
+__BCM_DONE_1353_129__ 0
+BCM.0> pvlan set xe10 1
+BCM.0> echo __BCM_DONE_1353_130__ $?
+__BCM_DONE_1353_130__ 0
+BCM.0> port xe11 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_131__ $?
+__BCM_DONE_1353_131__ 0
+BCM.0> pvlan set xe11 1
+BCM.0> echo __BCM_DONE_1353_132__ $?
+__BCM_DONE_1353_132__ 0
+BCM.0> port xe12 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_133__ $?
+__BCM_DONE_1353_133__ 0
+BCM.0> pvlan set xe12 1
+BCM.0> echo __BCM_DONE_1353_134__ $?
+__BCM_DONE_1353_134__ 0
+BCM.0> port xe13 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_135__ $?
+__BCM_DONE_1353_135__ 0
+BCM.0> pvlan set xe13 1
+BCM.0> echo __BCM_DONE_1353_136__ $?
+__BCM_DONE_1353_136__ 0
+BCM.0> port xe14 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_137__ $?
+__BCM_DONE_1353_137__ 0
+BCM.0> pvlan set xe14 1
+BCM.0> echo __BCM_DONE_1353_138__ $?
+__BCM_DONE_1353_138__ 0
+BCM.0> port xe15 autoneg=false speed=0
+BCM.0> echo __BCM_DONE_1353_139__ $?
+__BCM_DONE_1353_139__ 0
+BCM.0> pvlan set xe15 1
+BCM.0> echo __BCM_DONE_1353_140__ $?
+__BCM_DONE_1353_140__ 0
+BCM.0> stg stp 1 xe forward
+BCM.0> echo __BCM_DONE_1353_141__ $?
+__BCM_DONE_1353_141__ 0
+BCM.0> port xe0,xe1,xe2,xe3,xe4,xe5,xe6,xe7,xe8,xe9,xe10,xe11,xe12,xe13,xe14,xe15 enable=true
+BCM.0> echo __BCM_DONE_1353_142__ $?
+__BCM_DONE_1353_142__ 0
+BCM.0> ps
+           ena/  speed/ link auto    STP                  lrn  inter   max  loop
+      port link  duplex scan neg?   state   pause  discrd ops   face frame  back
+       xe0  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe1  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe2  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe3  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe4  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe5  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe6  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe7  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe8  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+       xe9  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe10  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe11  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe12  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe13  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe14  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+      xe15  down  40G FD   SW  No   Forward  TX RX   None   FA  XLAUI 16356 
+BCM.0> echo __BCM_DONE_1353_143__ $?
+__BCM_DONE_1353_143__ 0
+BCM.0> 
