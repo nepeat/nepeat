@@ -1,0 +1,597 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Celestica CS8210-32X ("Briggs"), Annapurna Labs Alpine v3 K2X-N CPU card.
+ *
+ * Mainline alpine-v3.dtsi plus what the board needs, rebuilt from the live
+ * device tree U-Boot 2018.05-alpine_db-v3.65.1.015 hands to the stock ONIE
+ * kernel (captured 2026-11-09). Vendor-only bindings (al_eth board-cfg,
+ * SerDes complexes, IOFIC, CCU, EDAC) are deliberately not carried over.
+ */
+
+/dts-v1/;
+
+#include "alpine-v3.dtsi"
+
+/ {
+	model = "Celestica CS8210-32X";
+	compatible = "celestica,cs8210", "amazon,al-alpine-v3";
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	/*
+	 * 8 GiB (2 x 4 GiB DIMM). Same four banks stock U-Boot writes into the
+	 * vendor tree; it rewrites this node again on boot.
+	 */
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x00000000 0x0 0x80000000>,
+		      <0x0 0x80000000 0x0 0x40000000>,
+		      <0x1 0x00000000 0x1 0x00000000>,
+		      <0x2 0x00000000 0x0 0x40000000>;
+	};
+
+	/* South-bridge clock: UART, I2C and SPI input. 500 MHz in the live tree. */
+	sbclk: sbclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <500000000>;
+	};
+
+	/*
+	 * Board mux on the auxiliary SPI bus. State bit 0 drives PBS52, bit 1
+	 * PBS54: state 1 = flash, state 2 = TPM. States 0 and 3 are unused. No
+	 * idle-state on purpose: tpm_tis_spi keeps CS asserted across messages,
+	 * so the mux must stay where the last transfer left it.
+	 */
+	spi_aux_mux: mux-controller {
+		compatible = "gpio-mux";
+		#mux-control-cells = <0>;
+		mux-gpios = <&gpio6 4 0>, <&gpio6 6 0>;
+	};
+
+	/*
+	 * External PCIe ports. The vendor "alpine-external-pcie" nodes become
+	 * mainline pcie-al nodes: config = ECAM, controller = AL glue,
+	 * dbi = controller + 0x10000 (the vendor cfg-space-offset).
+	 *
+	 *   port 0: Innovium switch ASIC 1d98:1b58       (Gen3 x4)
+	 *   port 1: FPGA 1d0f:8571, I2C accelerator      (Gen2 x1)
+	 *   port 4: FPGA 1d0f:ec30, MDIO to the MACsec PHYs (Gen1 x1)
+	 */
+	pcie_external0: pcie@fb600000 {
+		compatible = "amazon,al-alpine-v3-pcie";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		#interrupt-cells = <1>;
+		reg = <0x0 0xfb600000 0x0 0x00100000>,
+		      <0x0 0xfd800000 0x0 0x00010000>,
+		      <0x0 0xfd810000 0x0 0x00001000>;
+		reg-names = "config", "controller", "dbi";
+		bus-range = <0x00 0xff>;
+		linux,pci-domain = <1>;
+		interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-map-mask = <0x00 0 0 7>;
+		interrupt-map = <0x0000 0 0 1 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 2 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 3 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 4 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+		ranges = <0x02000000 0x0 0xc0010000 0x0 0xc0010000 0x0 0x07ff0000>;
+		msi-parent = <&msix>;
+	};
+
+	pcie_external1: pcie@fb700000 {
+		compatible = "amazon,al-alpine-v3-pcie";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		#interrupt-cells = <1>;
+		reg = <0x0 0xfb700000 0x0 0x00100000>,
+		      <0x0 0xfd820000 0x0 0x00010000>,
+		      <0x0 0xfd830000 0x0 0x00001000>;
+		reg-names = "config", "controller", "dbi";
+		bus-range = <0x00 0xff>;
+		linux,pci-domain = <2>;
+		interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-map-mask = <0x00 0 0 7>;
+		interrupt-map = <0x0000 0 0 1 &gic GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 2 &gic GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 3 &gic GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 4 &gic GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
+		ranges = <0x02000000 0x0 0xc8010000 0x0 0xc8010000 0x0 0x07ff0000>;
+		msi-parent = <&msix>;
+	};
+
+	pcie_external4: pcie@fba00000 {
+		compatible = "amazon,al-alpine-v3-pcie";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		#interrupt-cells = <1>;
+		reg = <0x0 0xfba00000 0x0 0x00100000>,
+		      <0x0 0xfd920000 0x0 0x00010000>,
+		      <0x0 0xfd930000 0x0 0x00001000>;
+		reg-names = "config", "controller", "dbi";
+		bus-range = <0x00 0xff>;
+		linux,pci-domain = <4>;
+		interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-map-mask = <0x00 0 0 7>;
+		interrupt-map = <0x0000 0 0 1 &gic GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 2 &gic GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 3 &gic GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 4 &gic GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
+		ranges = <0x02000000 0x0 0xe0010000 0x0 0xe0010000 0x0 0x03ff0000>;
+		msi-parent = <&msix>;
+	};
+};
+
+/*
+ * Vendor no-map regions from the live tree, next to mainline's secmon@0.
+ * The channel-1 poison address really is unaligned in the vendor tree; the
+ * kernel rounds the reservation out to whole pages.
+ */
+&{/reserved-memory} {
+	ecc-poison-ch0@1e0000 {
+		reg = <0x0 0x001e0000 0x0 0x1000>;
+		no-map;
+	};
+
+	ecc-poison-ch1@1e1100 {
+		reg = <0x0 0x001e1100 0x0 0x1000>;
+		no-map;
+	};
+
+	apcea@b0000000 {
+		reg = <0x0 0xb0000000 0x0 0x10000000>;
+		no-map;
+	};
+};
+
+/* Stock kernel ran the architected timer at 75 MHz from this property. */
+&{/timer} {
+	clock-frequency = <75000000>;
+};
+
+&uart0 {
+	clock-frequency = <500000000>;
+	status = "okay";
+};
+
+/*
+ * of_irq_init() skips nodes without interrupt-controller, so the mainline
+ * node never reaches alpine_msix_init(). SPI range is the live vendor one.
+ */
+&msix {
+	interrupt-controller;
+	#interrupt-cells = <1>;
+	al,msi-base-spi = <160>;
+	al,msi-num-spis = <800>;
+};
+
+&{/soc/io-bus@fc000000} {
+	/* "i2c-pld": the board management bus. */
+	i2c_pld: i2c@1880000 {
+		compatible = "snps,designware-i2c";
+		reg = <0x1880000 0x1000>;
+		interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-frequency = <400000>;
+		i2c-sda-hold-time-ns = <380>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/* CPU card EEPROM. Blank (all 0xff) on this unit. */
+		eeprom@57 {
+			compatible = "atmel,24c64";
+			reg = <0x57>;
+			read-only;
+		};
+
+		i2c-mux@70 {
+			compatible = "nxp,pca9546";
+			reg = <0x70>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			i2c-mux-idle-disconnect;
+
+			i2c@2 {
+				reg = <2>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				i2c-mux@74 {
+					compatible = "nxp,pca9548";
+					reg = <0x74>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					i2c-mux-idle-disconnect;
+
+					/* switch board */
+					i2c@0 {
+						reg = <0>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						i2c-mux@71 {
+							compatible = "nxp,pca9548";
+							reg = <0x71>;
+							#address-cells = <1>;
+							#size-cells = <0>;
+							i2c-mux-idle-disconnect;
+
+							/* i2cfpga card */
+							i2c@0 {
+								reg = <0>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+
+								temperature-sensor@48 {
+									compatible = "nxp,lm75b";
+									reg = <0x48>;
+									label = "i2cfpga-card";
+								};
+
+								/* IPMI FRU of the i2cfpga card */
+								eeprom@56 {
+									compatible = "atmel,24c64";
+									reg = <0x56>;
+									read-only;
+								};
+							};
+
+							i2c@1 {
+								reg = <1>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+
+								temperature-sensor@48 {
+									compatible = "nxp,lm75b";
+									reg = <0x48>;
+									label = "switchboard-left";
+								};
+
+								temperature-sensor@4b {
+									compatible = "nxp,lm75b";
+									reg = <0x4b>;
+									label = "switchboard-center";
+								};
+							};
+
+							/* system CPLD at 0x60 (cs8210-tools, raw i2c-dev) */
+							i2c@2 {
+								reg = <2>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+							};
+
+							/* switch LED CPLD at 0x64 */
+							i2c@5 {
+								reg = <5>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+							};
+
+							/* ONIE TlvInfo system EEPROM (what U-Boot's sys_eeprom shows) */
+							i2c@7 {
+								reg = <7>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+
+								eeprom@56 {
+									compatible = "atmel,24c64";
+									reg = <0x56>;
+									read-only;
+								};
+							};
+						};
+
+						i2c-mux@72 {
+							compatible = "nxp,pca9548";
+							reg = <0x72>;
+							#address-cells = <1>;
+							#size-cells = <0>;
+							i2c-mux-idle-disconnect;
+
+							i2c@7 {
+								reg = <7>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+
+								temperature-sensor@49 {
+									compatible = "nxp,lm75b";
+									reg = <0x49>;
+									label = "switchboard-right";
+								};
+							};
+						};
+					};
+
+					/* MACsec card */
+					i2c@1 {
+						reg = <1>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						i2c-mux@73 {
+							compatible = "nxp,pca9548";
+							reg = <0x73>;
+							#address-cells = <1>;
+							#size-cells = <0>;
+							i2c-mux-idle-disconnect;
+
+							/* MACsec LED CPLD at 0x63 */
+							i2c@0 {
+								reg = <0>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+							};
+
+							i2c@5 {
+								reg = <5>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+
+								temperature-sensor@49 {
+									compatible = "nxp,lm75b";
+									reg = <0x49>;
+									label = "macsec-card-left";
+								};
+
+								temperature-sensor@4a {
+									compatible = "nxp,lm75b";
+									reg = <0x4a>;
+									label = "macsec-card-center";
+								};
+
+								temperature-sensor@4c {
+									compatible = "nxp,lm75b";
+									reg = <0x4c>;
+									label = "macsec-card-right";
+								};
+							};
+						};
+					};
+
+					/* top fan board: fan CPLD at 0x66 (cs8210-tools), sensors behind 0x73 */
+					i2c@2 {
+						reg = <2>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						i2c-mux@73 {
+							compatible = "nxp,pca9548";
+							reg = <0x73>;
+							#address-cells = <1>;
+							#size-cells = <0>;
+							i2c-mux-idle-disconnect;
+
+							i2c@0 {
+								reg = <0>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+
+								temperature-sensor@4d {
+									compatible = "nxp,lm75b";
+									reg = <0x4d>;
+									label = "top-fanboard-right";
+								};
+
+								temperature-sensor@4e {
+									compatible = "nxp,lm75b";
+									reg = <0x4e>;
+									label = "top-fanboard-center";
+								};
+
+								temperature-sensor@4f {
+									compatible = "nxp,lm75b";
+									reg = <0x4f>;
+									label = "top-fanboard-left";
+								};
+							};
+						};
+					};
+
+					/* bottom fan board: fan CPLD at 0x66 (cs8210-tools), sensors behind 0x73 */
+					i2c@3 {
+						reg = <3>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						i2c-mux@73 {
+							compatible = "nxp,pca9548";
+							reg = <0x73>;
+							#address-cells = <1>;
+							#size-cells = <0>;
+							i2c-mux-idle-disconnect;
+
+							i2c@0 {
+								reg = <0>;
+								#address-cells = <1>;
+								#size-cells = <0>;
+
+								temperature-sensor@4d {
+									compatible = "nxp,lm75b";
+									reg = <0x4d>;
+									label = "bottom-fanboard-right";
+								};
+
+								temperature-sensor@4e {
+									compatible = "nxp,lm75b";
+									reg = <0x4e>;
+									label = "bottom-fanboard-center";
+								};
+
+								temperature-sensor@4f {
+									compatible = "nxp,lm75b";
+									reg = <0x4f>;
+									label = "bottom-fanboard-left";
+								};
+							};
+						};
+					};
+				};
+			};
+
+			i2c@3 {
+				reg = <3>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				rtc@68 {
+					compatible = "dallas,ds1339";
+					reg = <0x68>;
+					trickle-resistor-ohms = <2000>;
+				};
+			};
+		};
+	};
+
+	/* "i2c-gen" */
+	i2c_gen: i2c@1894000 {
+		compatible = "snps,designware-i2c";
+		reg = <0x1894000 0x1000>;
+		interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-frequency = <100000>;
+		i2c-sda-hold-time-ns = <300>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+
+	/* Boot flash. Everything but the U-Boot environment is read-only here. */
+	spi0: spi@1882000 {
+		compatible = "amazon,alpine-dw-apb-ssi", "snps,dw-apb-ssi";
+		reg = <0x1882000 0x1000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		num-cs = <4>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		flash@0 {
+			compatible = "jedec,spi-nor";
+			reg = <0>;
+			spi-max-frequency = <25000000>;
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				partition@0 {
+					label = "uboot";
+					reg = <0x0000000 0x380000>;
+					read-only;
+				};
+
+				partition@380000 {
+					label = "uboot-env";
+					reg = <0x0380000 0x040000>;
+				};
+
+				partition@3c0000 {
+					label = "unused";
+					reg = <0x03c0000 0x040000>;
+					read-only;
+				};
+
+				partition@400000 {
+					label = "board_eeprom";
+					reg = <0x0400000 0x010000>;
+					read-only;
+				};
+
+				partition@410000 {
+					label = "onie";
+					reg = <0x0410000 0x1bf0000>;
+					read-only;
+				};
+			};
+		};
+	};
+
+	/* PBS GPIO 48..55. Bits 4 and 6 (PBS52 / PBS54) steer the aux SPI bus. */
+	gpio6: gpio@1898000 {
+		compatible = "arm,pl061", "arm,primecell";
+		reg = <0x1898000 0x1000>;
+		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-names = "apb_pclk";
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	/*
+	 * Auxiliary SPI: TPM 2.0 + the I2C-FPGA configuration flash.
+	 *
+	 * Both devices hang off the controller's SS0 behind a board mux that
+	 * two SoC GPIOs steer: PBS52=1/PBS54=0 selects the flash, PBS52=0/
+	 * PBS54=1 the TPM. The vendor 4.9 kernel hides this inside
+	 * dw_spi_set_cs() (it strcmp()s the SPI modalias, sets the two GPIOs
+	 * and forces chip select 0), which is why the vendor tree's "tpm@0,
+	 * spiflash@1" under a plain controller cannot work on mainline. U-Boot
+	 * leaves the mux on the flash at every OS handoff. Here it is described
+	 * as what it is: a gpio-mux behind spi-mux. Found by disassembling the
+	 * vendor kernel; see ai_re .../reviews/2026-11-09-tpm-aux-spi.md.
+	 *
+	 * The vendor tree gives this controller no usable interrupt (it polls);
+	 * mainline needs kernel/patches/spi-dw-mmio-allow-irqless.patch for that.
+	 */
+	spi1: spi@18be100 {
+		compatible = "amazon,alpine-dw-apb-ssi", "snps,dw-apb-ssi";
+		reg = <0x18be100 0x1000>;
+		clocks = <&sbclk>;
+		num-cs = <4>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		spi-mux@0 {
+			compatible = "spi-mux";
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spi-max-frequency = <3000000>;
+			mux-controls = <&spi_aux_mux>;
+
+			/*
+			 * mux state 1: PBS52=1 PBS54=0. Disabled for now: in this
+			 * state the n25q256a does not answer a JEDEC ID read on
+			 * mainline (all ones, also when driven by hand), although
+			 * the vendor kernel reads it. Something else gates the
+			 * flash; not found yet.
+			 */
+			flash@1 {
+				compatible = "jedec,spi-nor";
+				reg = <1>;
+				spi-max-frequency = <3000000>;
+				status = "disabled";
+
+				partitions {
+					compatible = "fixed-partitions";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					partition@0 {
+						label = "i2cfpga";
+						reg = <0x0 0x2000000>;
+						read-only;
+					};
+				};
+			};
+
+			/* mux state 2: PBS52=0 PBS54=1 */
+			tpm@2 {
+				compatible = "infineon,slb9670", "tcg,tpm_tis-spi";
+				reg = <2>;
+				spi-max-frequency = <700000>;
+			};
+		};
+	};
+};

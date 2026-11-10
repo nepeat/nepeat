@@ -1,0 +1,19 @@
+spi: dw-mmio: fall back to polling when the controller has no interrupt
+
+--- a/drivers/spi/spi-dw-mmio.c	2026-11-09 18:42:24.230313173 -0800
++++ b/drivers/spi/spi-dw-mmio.c	2026-11-09 18:42:24.244313376 -0800
+@@ -333,9 +333,11 @@
+ 
+ 	dws->paddr = mem->start;
+ 
+-	dws->irq = platform_get_irq(pdev, 0);
+-	if (dws->irq < 0)
+-		return dws->irq; /* -ENXIO */
++	dws->irq = platform_get_irq_optional(pdev, 0);
++	if (dws->irq == -ENXIO)
++		dws->irq = IRQ_NOTCONNECTED; /* DW core polls */
++	else if (dws->irq < 0)
++		return dws->irq;
+ 
+ 	dwsmmio->clk = devm_clk_get_enabled(&pdev->dev, NULL);
+ 	if (IS_ERR(dwsmmio->clk))
