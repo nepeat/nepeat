@@ -1,0 +1,53 @@
+diff --git a/Makefile b/Makefile
+index 0771e10..cb2a4ca 100644
+--- a/Makefile
++++ b/Makefile
+@@ -29,6 +29,7 @@ $(TARGET)-objs = inno_ldh_v0.o inno_ldh_v2.o inno_ldh_v3.o inno_ldh_v4.o inno_de
+ 
+ obj-m += $(TARGET).o
+ ccflags-y += $(IPD_CFLAGS)
++ccflags-y += -include $(src)/ipd_compat.h
+ 
+ MODULE_SOURCE=${PWD}
+ 
+diff --git a/ipd_compat.h b/ipd_compat.h
+new file mode 100644
+index 0000000..0d0da9c
+--- /dev/null
++++ b/ipd_compat.h
+@@ -0,0 +1,35 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Kernel API drift shims for building ipd on kernels newer than the ones the
++ * upstream source has #ifdefs for (it stops at 6.4). Force-included from the
++ * Makefile so the driver sources stay untouched.
++ */
++#ifndef __IPD_COMPAT_H__
++#define __IPD_COMPAT_H__
++
++#ifdef __KERNEL__
++#include <linux/version.h>
++#include <linux/types.h>
++#include <linux/string.h>
++
++/*
++ * strncpy() was removed from the kernel. The driver's uses want exactly the
++ * old semantics (copy up to n bytes, zero-pad, no forced terminator).
++ */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
++static inline char *ipd_strncpy(char *dst, const char *src, size_t n)
++{
++	size_t i;
++
++	for (i = 0; i < n && src[i]; i++)
++		dst[i] = src[i];
++	for (; i < n; i++)
++		dst[i] = '\0';
++	return dst;
++}
++#undef strncpy
++#define strncpy ipd_strncpy
++#endif
++
++#endif /* __KERNEL__ */
++#endif /* __IPD_COMPAT_H__ */

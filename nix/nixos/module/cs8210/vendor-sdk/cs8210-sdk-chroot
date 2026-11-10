@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Run a command inside the vendor SDK userland on the CS8210.
+#
+# The Innovium/Teralynx SDK and the Credo PHY tools are 2020-21 aarch64
+# binaries built against glibc 2.25 with their own python2, so they run in a
+# chroot of the vendor's ONIE root filesystem, kept (not in the nix store, it
+# is not redistributable) under $CS8210_SDK_ROOT. See vendor-sdk/default.nix
+# for how to populate it.
+#
+# Inside a private mount namespace this provides:
+#   * /dev, /proc, /sys from the host; /tmp and /var/run shared between
+#     invocations (under /run/cs8210-sdk)
+#   * our libMdio.so bound over the vendor one in every SDK's c-phy/, so the
+#     Credo tools drive the MDIO FPGA from userspace
+#   * /sys/bus/mdio_bus/devices/mdio-N:XX/mdc_freq as plain files, which is
+#     how the vendor command files tell that library the MDC clock
+set -euo pipefail
+
+ROOT=${CS8210_SDK_ROOT:-/var/lib/cs8210-sdk/root}
+LIBMDIO=@libmdio@
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "cs8210-sdk-chroot: must run as root" >&2
+  exit 1
+fi
+if [ ! -x "$ROOT/bin/sh" ]; then
+  echo "cs8210-sdk-chroot: no vendor userland at $ROOT (see nixos/module/cs8210/vendor-sdk)" >&2
+  exit 1
+fi
+if [ $# -eq 0 ]; then
+  set -- /bin/bash
+fi
+
+export ROOT LIBMDIO
+exec unshare --mount -- bash -euo pipefail -c '
+  mount --make-rprivate /
+  mount --rbind /dev "$ROOT/dev"
+  mount -t proc proc "$ROOT/proc"
+  mount --rbind /sys "$ROOT/sys"
+  # /tmp and /var/run are shared by every invocation (the SDK daemons and
+  # their control tools talk through fifos and pid files there) and live on
+  # the host tmpfs, so they are gone after a reboot like on the stock system.
+  mkdir -p /run/cs8210-sdk/tmp /run/cs8210-sdk/run "$ROOT/var/run"
+  chmod 1777 /run/cs8210-sdk/tmp
+  mount --bind /run/cs8210-sdk/tmp "$ROOT/tmp"
+  mount --bind /run/cs8210-sdk/run "$ROOT/var/run"
+  for lib in "$ROOT"/root/sdk/*/c-phy/libMdio.so; do
+    [ -e "$lib" ] && mount --bind "$LIBMDIO" "$lib"
+  done
+  if [ -d "$ROOT/sys/bus/mdio_bus/devices" ]; then
+    mount -t tmpfs tmpfs "$ROOT/sys/bus/mdio_bus/devices"
+    for n in $(seq 1 16); do
+      d=$(printf "%s/sys/bus/mdio_bus/devices/mdio-%d:%02x" "$ROOT" "$n" "$((n + 1))")
+      mkdir -p "$d"
+      echo 1000000 > "$d/mdc_freq"
+    done
+  fi
+  exec chroot "$ROOT" /usr/bin/env -i \
+    PATH=/usr/sbin:/usr/bin:/sbin:/bin HOME=/root TERM="${TERM:-dumb}" "$@"
+' cs8210-sdk-chroot "$@"

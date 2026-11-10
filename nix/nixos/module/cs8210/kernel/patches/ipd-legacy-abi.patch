@@ -1,0 +1,687 @@
+--- a/inno_ioctl_legacy.h
++++ b/inno_ioctl_legacy.h
+@@ -0,0 +1,169 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Legacy ioctl argument layouts of ipd 0.12.x (SDK "R3181-J0001-01 V0.1.x",
++ * libifcs built 2020/2021).  Layouts were recovered from the DWARF of the
++ * vendor ipd.ko 0.12.41.1.0.1; ioctl numbers are unchanged.
++ * Selected with the module parameter legacy_abi=1.
++ */
++#ifndef __IPD_IOCTL_LEGACY_H__
++#define __IPD_IOCTL_LEGACY_H__
++
++#include "inno_ioctl.h"
++
++#define IPD_V0_RUPT_WORDS 8
++#define IPD_V0_LDH_SIZE   24
++#define IPD_V0_IFNAMSIZ   16
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t serial_num;
++    uint64_t bar0;
++    uint64_t bar0_size;
++    uint64_t pool_baddr;
++    uint16_t vendor_id;
++    uint16_t device_id;
++    uint8_t  rev_id;
++    uint8_t  bus_num;
++    uint8_t  dev_num;
++    uint8_t  fn_num;
++    uint32_t pool_size;
++    uint32_t rupt_wb_size;
++    uint32_t rupt_wb_offset;
++    uint32_t sync_blk_size;
++    uint32_t sync_blk_offset;
++    uint32_t sync_wb_size;
++    uint32_t sync_wb_offset;
++    uint32_t dma_cache_align;
++    uint8_t  version[VERSION_SIZE];
++} inno_ioctl_query_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint16_t vector;
++    uint32_t mask[IPD_V0_RUPT_WORDS];
++} inno_ioctl_rupt_mask_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t timeout;
++    uint64_t remaining_time;
++    uint32_t vector;
++    uint32_t rupts[IPD_V0_RUPT_WORDS];
++} inno_ioctl_rupt_wait_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t ring;
++    uint64_t wb;
++    uint16_t count;
++    uint16_t vector;
++    uint32_t flags;
++    uint8_t  num;
++    uint32_t idx_offset;
++    uint16_t cidx;
++    uint16_t pidx;
++} inno_ioctl_ring_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t hrr;
++    uint16_t size;
++    uint16_t count;
++    uint16_t descriptors;
++    uint32_t hrr_pidx_offset;
++} inno_ioctl_hrr_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t learn_ba;
++    uint64_t wb_ba;
++    uint16_t count;
++    uint32_t pidx_offset;
++    uint16_t cidx;
++    uint16_t pidx;
++} inno_ioctl_learn_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t wb_ba;
++    uint32_t count;
++} inno_ioctl_pic_st_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t buf;
++    uint8_t  ring_num;
++    uint32_t buf_len;
++    uint16_t start_pidx;
++    uint16_t last_pidx;
++    uint8_t  ldh[IPD_V0_LDH_SIZE];
++    uint8_t  num_ldh;
++    uint32_t flags;
++} inno_ioctl_tx_send_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint16_t sysport;
++    struct sockaddr ethaddr;
++    uint32_t flag;
++    char     intf_name[IPD_V0_IFNAMSIZ];
++} inno_ioctl_netdev_v0_t;
++
++typedef struct __attribute__((__packed__)) {
++    inno_ioctl_hdr_t hdr;
++    uint16_t id;
++    uint16_t sysport;
++    union {
++        struct {
++            uint8_t syshdr1[24];
++            uint8_t syshdr1_cnt;
++            uint8_t syshdr1_abp[24];
++            uint8_t syshdr2[12];
++        } ldh;
++        struct {
++            uint32_t type;
++            uint32_t num;
++            uint64_t packets;
++            uint64_t bytes;
++        } ring;
++        struct sockaddr ethaddr;
++        char     intf_name[IPD_V0_IFNAMSIZ];
++        uint16_t vtag;
++        uint16_t ifstate;
++        uint16_t linkstate;
++        uint16_t mtu;
++        uint8_t  raw[64];
++    } u;
++} inno_ioctl_netdev_info_v0_t;
++
++typedef struct {
++    inno_ioctl_hdr_t hdr;
++    uint64_t buf_ba;
++    uint32_t ring_type;
++    uint8_t  ring_num;
++    uint32_t idx;
++} inno_ioctl_ring_page_alloc_v0_t;
++
++#ifdef __KERNEL__
++#include <linux/build_bug.h>
++#define IPD_V0_SIZE(t, n) static_assert(sizeof(t) == (n))
++IPD_V0_SIZE(inno_ioctl_query_v0_t, 112);
++IPD_V0_SIZE(inno_ioctl_rupt_mask_v0_t, 44);
++IPD_V0_SIZE(inno_ioctl_rupt_wait_v0_t, 64);
++IPD_V0_SIZE(inno_ioctl_ring_v0_t, 48);
++IPD_V0_SIZE(inno_ioctl_hrr_v0_t, 32);
++IPD_V0_SIZE(inno_ioctl_learn_v0_t, 40);
++IPD_V0_SIZE(inno_ioctl_pic_st_v0_t, 24);
++IPD_V0_SIZE(inno_ioctl_tx_send_v0_t, 64);
++IPD_V0_SIZE(inno_ioctl_netdev_v0_t, 48);
++IPD_V0_SIZE(inno_ioctl_netdev_info_v0_t, 76);
++IPD_V0_SIZE(inno_ioctl_ring_page_alloc_v0_t, 32);
++static_assert(offsetof(inno_ioctl_query_v0_t, pool_baddr) == 0x20);
++static_assert(offsetof(inno_ioctl_query_v0_t, dma_cache_align) == 0x4c);
++static_assert(offsetof(inno_ioctl_ring_v0_t, idx_offset) == 0x24);
++static_assert(offsetof(inno_ioctl_tx_send_v0_t, flags) == 0x38);
++static_assert(offsetof(inno_ioctl_netdev_info_v0_t, u.ldh.syshdr2) == 0x3d);
++static_assert(offsetof(inno_ioctl_ring_page_alloc_v0_t, idx) == 0x18);
++#endif
++
++#endif /* __IPD_IOCTL_LEGACY_H__ */
+--- a/ipd_main.c
++++ b/ipd_main.c
+@@ -47,6 +47,7 @@ disclaimer.
+ #include "pci_common_ipd.h"
+ #include "ipd.h"
+ #include "inno_ioctl.h"
++#include "inno_ioctl_legacy.h"
+ #include "inno_ldh.h"
+ #include "inno_enet.h"
+ #include "ipd_version.h"
+@@ -80,6 +81,19 @@ uint32_t ipd_boottype = IPD_BOOTTYPE_COL
+ module_param_named(boottype, ipd_boottype, uint, 0644);
+ MODULE_PARM_DESC(boottype, "boot type(0-1)");
+ 
++/* Serve userspace built against ipd 0.12.x (SDK 0.1.x): old ioctl layouts,
++ * hardware init at open(), /dev/ipd device node. */
++static bool ipd_legacy_abi;
++module_param_named(legacy_abi, ipd_legacy_abi, bool, 0444);
++MODULE_PARM_DESC(legacy_abi, "1 = ipd 0.12.x userspace ABI (default 0)");
++
++/* 0.12.x libifcs refuses to attach unless major.minor.patch of the version
++ * string returned by IPD_QUERY_NODE equal its own (ifcs_get_version()); the
++ * default is what the vendor ipd.ko shipped with that SDK reported. */
++static char *ipd_legacy_version = "0.12.41.1.0.1";
++module_param_named(legacy_version, ipd_legacy_version, charp, 0444);
++MODULE_PARM_DESC(legacy_version, "driver version reported to legacy_abi userspace");
++
+ 
+ 
+ extern void inno_sysfs_init(inno_device_t  *idev, int max_device);
+@@ -3166,6 +3180,412 @@ inno_reset(inno_device_t *idev)
+  *
+  *  @return ERRNO
+  */
++/*
++ * Legacy (ipd 0.12.x) ioctl ABI.  Same ioctl numbers, older and smaller
++ * argument structures.  Each case converts to the current structure, calls
++ * the normal helper and converts back.  Returns 1 if the command has no
++ * legacy difference and must be handled by the normal switch.
++ */
++#define IPD_V0_IN(v)                                                    \
++    do {                                                                \
++        if (copy_from_user(&(v), (void __user *)arg, sizeof(v)))        \
++            return -EACCES;                                             \
++        if ((v).hdr.instance > inno_num_devices)                        \
++            return -EINVAL;                                             \
++        if ((v).hdr.version != IFCS_PCIE_IOCTL_VERSION)                 \
++            return -EINVAL;                                             \
++    } while (0)
++
++#define IPD_V0_OUT(v)                                                   \
++    do {                                                                \
++        if (copy_to_user((void __user *)arg, &(v), sizeof(v)))          \
++            return -EACCES;                                             \
++    } while (0)
++
++static void
++inno_ring_from_v0(inno_ioctl_ring_t *n, const inno_ioctl_ring_v0_t *o)
++{
++    memset(n, 0, sizeof(*n));
++    n->hdr = o->hdr;
++    n->ring = o->ring;
++    n->wb = o->wb;
++    n->count = o->count;
++    n->vector = o->vector;
++    n->flags = o->flags;
++    n->num = o->num;
++    n->idx_offset = o->idx_offset;
++    n->cidx = o->cidx;
++    n->pidx = o->pidx;
++}
++
++static void
++inno_ring_to_v0(inno_ioctl_ring_v0_t *o, const inno_ioctl_ring_t *n)
++{
++    o->ring = n->ring;
++    o->wb = n->wb;
++    o->count = n->count;
++    o->vector = n->vector;
++    o->flags = n->flags;
++    o->num = n->num;
++    o->idx_offset = n->idx_offset;
++    o->cidx = n->cidx;
++    o->pidx = n->pidx;
++}
++
++static void
++inno_ninfo_from_v0(inno_ioctl_netdev_info_t *n,
++                   const inno_ioctl_netdev_info_v0_t *o)
++{
++    memset(n, 0, sizeof(*n));
++    n->hdr = o->hdr;
++    n->id = o->id;
++    n->sysport = o->sysport;
++    if (o->id == INNO_ND_SYSHDR) {
++        memcpy(n->u.ldh.syshdr1, o->u.ldh.syshdr1, sizeof(o->u.ldh.syshdr1));
++        n->u.ldh.syshdr1_cnt = o->u.ldh.syshdr1_cnt;
++        memcpy(n->u.ldh.syshdr1_abp, o->u.ldh.syshdr1_abp,
++               sizeof(o->u.ldh.syshdr1_abp));
++        memcpy(n->u.ldh.syshdr2, o->u.ldh.syshdr2, sizeof(o->u.ldh.syshdr2));
++    } else {
++        /* ring, ethaddr, intf_name and the u16 members start at the same
++         * offset in both layouts */
++        memcpy(&n->u, &o->u, sizeof(o->u.ring));
++    }
++}
++
++static long
++inno_ioctl_legacy(inno_device_t *idev, unsigned int cmd, unsigned long arg)
++{
++    int ret;
++
++    switch (_IOC_NR(cmd)) {
++    case _IOC_NR(IPD_INFO_NODES): {
++        inno_ioctl_nodes_t nodes;
++        int i;
++
++        if (copy_from_user(&nodes, (void __user *)arg, sizeof(nodes)))
++            return -EACCES;
++        if (nodes.hdr.version != IFCS_PCIE_IOCTL_VERSION)
++            return -EINVAL;
++        /* 0.12.x reported every probed device and their count */
++        nodes.num_nodes = inno_num_devices;
++        for (i = 0; i < inno_num_devices && i < MAX_INNO_DEVICES; i++) {
++            nodes.node_info[i].vendor_id = inno_instances[i].vendor_id;
++            nodes.node_info[i].device_id = inno_instances[i].device_id;
++            nodes.node_info[i].rev_id = inno_instances[i].rev_id;
++            nodes.node_info[i].bus_num = inno_instances[i].bus_num;
++            nodes.node_info[i].dev_num = inno_instances[i].dev_num;
++            nodes.node_info[i].fn_num = inno_instances[i].fn_num;
++        }
++        IPD_V0_OUT(nodes);
++        return 0;
++    }
++
++    case _IOC_NR(IPD_QUERY_NODE): {
++        inno_ioctl_query_v0_t q;
++        inno_device_t *qdev = NULL;
++        int i;
++
++        IPD_V0_IN(q);
++        if (q.serial_num == 0 || q.device_id == 0) {
++            if (q.hdr.instance >= MAX_INNO_DEVICES)
++                return -EINVAL;
++            qdev = &inno_instances[q.hdr.instance];
++        } else {
++            for (i = 0; i < MAX_INNO_DEVICES; i++) {
++                if (inno_instances[i].serial_num == q.serial_num &&
++                    inno_instances[i].vendor_id == q.vendor_id &&
++                    inno_instances[i].device_id == q.device_id) {
++                    qdev = &inno_instances[i];
++                    q.hdr.instance = i;
++                    break;
++                }
++            }
++            if (qdev == NULL)
++                return -EINVAL;
++        }
++        idev = qdev;            /* the POOL_* macros use idev */
++        q.vendor_id = idev->vendor_id;
++        q.device_id = idev->device_id;
++        q.rev_id = idev->rev_id;
++        q.serial_num = idev->serial_num;
++        q.bus_num = idev->bus_num;
++        q.dev_num = idev->dev_num;
++        q.fn_num = idev->fn_num;
++        q.bar0 = (off_t)idev->bar0_ba;
++        q.bar0_size = idev->bar0_size;
++        /* 0.12.x has one address per buffer and uses it both as the mmap
++         * offset and as the DMA address; inno_open() refuses legacy mode
++         * when the two can differ (IOMMU) */
++        q.pool_baddr = (off_t)idev->pool_ba;
++        q.pool_size = POOL_SIZE;
++        q.sync_blk_offset = POOL_IAC_BLK_OFFSET;
++        q.sync_blk_size = 4096;
++        q.sync_wb_offset = POOL_IAC_WB_OFFSET;
++        q.sync_wb_size = SYNC_WB_SIZE;
++        q.rupt_wb_offset = POOL_RUPT_OFFSET;
++        q.rupt_wb_size = 256 >> 3;
++        q.dma_cache_align = idev->cache_align;
++        strscpy_pad(q.version, ipd_legacy_version, VERSION_SIZE);
++        IPD_V0_OUT(q);
++        return 0;
++    }
++
++    case _IOC_NR(IPD_RUPT_MASK): {
++        inno_ioctl_rupt_mask_v0_t o;
++        inno_ioctl_rupt_mask_t n;
++
++        IPD_V0_IN(o);
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.vector = o.vector;
++        memcpy(n.mask, o.mask, sizeof(o.mask));
++        return inno_rupt_mask(idev, &n);
++    }
++
++    case _IOC_NR(IPD_RUPT_WAIT): {
++        inno_ioctl_rupt_wait_v0_t o;
++        inno_ioctl_rupt_wait_t n;
++
++        IPD_V0_IN(o);
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.timeout = o.timeout;
++        n.remaining_time = o.remaining_time;
++        n.vector = o.vector;
++        ret = inno_rupt_wait(idev, &n);
++        if (ret)
++            return ret;
++        o.remaining_time = n.remaining_time;
++        memcpy(o.rupts, n.rupts, sizeof(o.rupts));
++        IPD_V0_OUT(o);
++        return 0;
++    }
++
++    case _IOC_NR(IPD_RING_ALLOC):
++    case _IOC_NR(IPD_RING_FREE):
++    case _IOC_NR(IPD_RING_ENABLE):
++    case _IOC_NR(IPD_RING_DISABLE): {
++        inno_ioctl_ring_v0_t o;
++        inno_ioctl_ring_t n;
++        int tx;
++
++        IPD_V0_IN(o);
++        inno_ring_from_v0(&n, &o);
++        tx = n.flags & INNO_RING_TX;
++        switch (_IOC_NR(cmd)) {
++        case _IOC_NR(IPD_RING_ALLOC):
++            ret = inno_alloc_ring(idev, &n);
++            break;
++        case _IOC_NR(IPD_RING_FREE):
++            ret = inno_free_ring(idev, tx, n.num);
++            break;
++        case _IOC_NR(IPD_RING_ENABLE):
++            ret = tx ? inno_enable_queue_tx(idev, n.num)
++                     : inno_enable_queue_rx(idev, n.num);
++            break;
++        default:
++            ret = tx ? inno_disable_queue_tx(idev, n.num)
++                     : inno_disable_queue_rx(idev, n.num);
++            break;
++        }
++        if (ret)
++            return ret;
++        inno_ring_to_v0(&o, &n);
++        IPD_V0_OUT(o);
++        return 0;
++    }
++
++    case _IOC_NR(IPD_HRR_ALLOC):
++    case _IOC_NR(IPD_HRR_FREE): {
++        inno_ioctl_hrr_v0_t o;
++        inno_ioctl_hrr_t n;
++
++        IPD_V0_IN(o);
++        if (_IOC_NR(cmd) == _IOC_NR(IPD_HRR_FREE)) {
++            ret = inno_free_hrr(idev);
++            if (ret)
++                return ret;
++            IPD_V0_OUT(o);
++            return 0;
++        }
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.hrr = o.hrr;
++        n.size = o.size;
++        n.count = o.count;
++        n.descriptors = o.descriptors;
++        n.hrr_pidx_offset = o.hrr_pidx_offset;
++        ret = inno_alloc_hrr(idev, &n);
++        if (ret)
++            return ret;
++        o.hrr = n.hrr;
++        o.size = n.size;
++        o.count = n.count;
++        o.descriptors = n.descriptors;
++        o.hrr_pidx_offset = n.hrr_pidx_offset;
++        IPD_V0_OUT(o);
++        return 0;
++    }
++
++    case _IOC_NR(IPD_LEARN_ALLOC):
++    case _IOC_NR(IPD_LEARN_FREE): {
++        inno_ioctl_learn_v0_t o;
++        inno_ioctl_learn_t n;
++
++        IPD_V0_IN(o);
++        if (_IOC_NR(cmd) == _IOC_NR(IPD_LEARN_FREE)) {
++            ret = inno_free_learn(idev);
++            if (ret)
++                return ret;
++            IPD_V0_OUT(o);
++            return 0;
++        }
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.learn_ba = o.learn_ba;
++        n.wb_ba = o.wb_ba;
++        n.count = o.count;
++        n.pidx_offset = o.pidx_offset;
++        n.cidx = o.cidx;
++        n.pidx = o.pidx;
++        ret = inno_alloc_learn(idev, &n);
++        if (ret)
++            return ret;
++        o.learn_ba = n.learn_ba;
++        o.wb_ba = n.wb_ba;
++        o.count = n.count;
++        o.pidx_offset = n.pidx_offset;
++        o.cidx = n.cidx;
++        o.pidx = n.pidx;
++        IPD_V0_OUT(o);
++        return 0;
++    }
++
++    case _IOC_NR(IPD_TX_SEND): {
++        inno_ioctl_tx_send_v0_t o;
++        inno_ioctl_tx_send_t n;
++
++        IPD_V0_IN(o);
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.buf = o.buf;
++        n.ring_num = o.ring_num;
++        n.buf_len = o.buf_len;
++        memcpy(n.ldh, o.ldh, sizeof(o.ldh));
++        n.num_ldh = o.num_ldh;
++        n.flags = o.flags;
++        ret = inno_tx_send(idev, &n);
++        if (ret)
++            return ret;
++        o.start_pidx = n.start_pidx;
++        o.last_pidx = n.last_pidx;
++        IPD_V0_OUT(o);
++        return 0;
++    }
++
++    case _IOC_NR(IPD_CREATE_NETDEV):
++    case _IOC_NR(IPD_DELETE_NETDEV): {
++        inno_ioctl_netdev_v0_t o;
++        inno_ioctl_netdev_t n;
++
++        IPD_V0_IN(o);
++        if (_IOC_NR(cmd) == _IOC_NR(IPD_DELETE_NETDEV)) {
++            ret = inno_netdev_delete(idev, o.sysport);
++            if (ret)
++                return ret;
++            idev->inno_netdev.num_interfaces--;
++            return 0;
++        }
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.sysport = o.sysport;
++        n.ethaddr = o.ethaddr;
++        n.flag = o.flag;
++        memcpy(n.intf_name, o.intf_name, sizeof(o.intf_name));
++        ret = inno_netdev_create(idev, &n);
++        if (ret)
++            return ret;
++        idev->inno_netdev.num_interfaces++;
++        return 0;
++    }
++
++    case _IOC_NR(IPD_SET_NETDEV):
++    case _IOC_NR(IPD_GET_NETDEV): {
++        inno_ioctl_netdev_info_v0_t o;
++        inno_ioctl_netdev_info_t n;
++
++        IPD_V0_IN(o);
++        if (o.id > INNO_ND_RING)
++            return -1;
++        inno_ninfo_from_v0(&n, &o);
++        if (_IOC_NR(cmd) == _IOC_NR(IPD_SET_NETDEV))
++            return inno_netdev_set(idev, n);
++        ret = inno_netdev_get(idev, &n);
++        if (ret)
++            return ret;
++        if (o.id != INNO_ND_SYSHDR)
++            memcpy(&o.u, &n.u, sizeof(o.u.ring));
++        IPD_V0_OUT(o);
++        return 0;
++    }
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
++    case _IOC_NR(IPD_RING_PAGE_ALLOC):
++    case _IOC_NR(IPD_RING_PAGE_FREE): {
++        inno_ioctl_ring_page_alloc_v0_t o;
++        inno_ioctl_ring_page_alloc_t n;
++
++        IPD_V0_IN(o);
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.buf_ba = o.buf_ba;
++        n.ring_type = o.ring_type;
++        n.ring_num = o.ring_num;
++        n.idx = o.idx;
++        if (_IOC_NR(cmd) == _IOC_NR(IPD_RING_PAGE_FREE))
++            return inno_ring_page_free(idev, &n);
++        ret = inno_ring_page_alloc(idev, &n);
++        if (ret)
++            return ret;
++        o.buf_ba = n.buf_ba;
++        IPD_V0_OUT(o);
++        return 0;
++    }
++#endif
++
++    case _IOC_NR(IPD_PIC_STATUS_ALLOC):
++    case _IOC_NR(IPD_PIC_STATUS_FREE):
++    case _IOC_NR(IPD_PIC_STATUS_DUMP): {
++        inno_ioctl_pic_st_v0_t o;
++        inno_ioctl_pic_st_t n;
++
++        IPD_V0_IN(o);
++        memset(&n, 0, sizeof(n));
++        n.hdr = o.hdr;
++        n.wb_ba = o.wb_ba;
++        n.count = o.count;
++        if (_IOC_NR(cmd) == _IOC_NR(IPD_PIC_STATUS_ALLOC))
++            ret = inno_pic_st_alloc(idev, &n);
++        else if (_IOC_NR(cmd) == _IOC_NR(IPD_PIC_STATUS_FREE))
++            ret = inno_pic_st_free(idev);
++        else
++            ret = inno_pic_st_dump(idev);
++        if (ret)
++            return ret;
++        o.wb_ba = n.wb_ba;
++        o.count = n.count;
++        IPD_V0_OUT(o);
++        return 0;
++    }
++
++    default:
++        /* IPD_READ_MEM, IPD_WRITE_MEM, IPD_UNPIN_PAGE: unchanged layout.
++         * Everything above nr 26 did not exist in 0.12.x. */
++        return 1;
++    }
++}
++
+ #if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 18)
+ static int
+ inno_ioctl(struct inode  *inode,
+@@ -3210,6 +3630,13 @@ inno_ioctl(struct file   *f,
+ 
+     ipd_verbose("Ioctl $%p %x %p %p\n", (void *)IPD_INFO_NODES, cmd, (void *) arg, f);
+ 
++    if (ipd_legacy_abi) {
++        long lret = inno_ioctl_legacy(idev, cmd, arg);
++
++        if (lret != 1)
++            return lret;
++    }
++
+     switch (_IOC_NR(cmd)) {
+     case _IOC_NR(IPD_INFO_NODES):
+         if (copy_from_user(&ioctl_nodes, (inno_ioctl_nodes_t *)arg,
+@@ -4430,7 +4857,11 @@ inno_probe(struct pci_dev             *p
+     }
+     ipd_trace("%s: cdev: %p minor: %d\n", __FUNCTION__, &idev->cdev, idev->id);
+ 
+-    idev->dev_node = device_create(inno_cl, &pdev->dev, devno, NULL, IPD_DRIVER_NAME "%d", minor);
++    if (ipd_legacy_abi && minor == 0)
++        /* 0.12.x userspace opens the fixed path /dev/ipd */
++        idev->dev_node = device_create(inno_cl, &pdev->dev, devno, NULL, IPD_DRIVER_NAME);
++    else
++        idev->dev_node = device_create(inno_cl, &pdev->dev, devno, NULL, IPD_DRIVER_NAME "%d", minor);
+     if(IS_ERR(idev->dev_node)) {
+        ipd_err("Unable to create ipd device for instance: %u\n", idev->instance);
+        rc = PTR_ERR(idev->dev_node);
+@@ -5142,6 +5573,25 @@ inno_open(struct inode *inode,
+         /* Opened for read - just for IOCTL probe */
+         return 0;
+     }
++    if (ipd_legacy_abi) {
++        /* 0.12.x initialised the device in open(); its userspace never
++         * issues IPD_HW_INIT / IPD_DMA_INIT */
++        int rc;
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
++        if (device_iommu_mapped(&idev->pdev->dev)) {
++            ipd_err("legacy_abi needs bus address == physical address (no IOMMU)\n");
++            return -EOPNOTSUPP;
++        }
++#endif
++        rc = inno_hw_init(idev);
++        if (rc == 0)
++            rc = inno_dma_init(idev);
++        if (rc) {
++            ipd_err("legacy_abi: hardware init at open failed: %d\n", rc);
++            return rc;
++        }
++    }
+     idev->dev_opened = 1;
+     printk("%s opened successfully\n", inno_driver_name);
+     return 0;
+@@ -5413,10 +5863,14 @@ inno_hw_init (inno_device_t *idev)
+ 
+     ipd_debug("inno hw init");
+     ipd_debug("***** HS_ADR_3: 0x%x", REG32(SYNC_HSN_ADR_LO_3));
+-    rc = inno_cpu_block_init(idev);
+-    if (rc != 0) {
+-        ipd_err("inno_cpu_block_init failed with rc: %d", rc);
+-        return rc;
++    /* 0.12.x never touched the CPU block from the kernel; its userspace
++     * does that itself */
++    if (!ipd_legacy_abi) {
++        rc = inno_cpu_block_init(idev);
++        if (rc != 0) {
++            ipd_err("inno_cpu_block_init failed with rc: %d", rc);
++            return rc;
++        }
+     }
+ 
+     if (idev->hw_init_done == 1) {

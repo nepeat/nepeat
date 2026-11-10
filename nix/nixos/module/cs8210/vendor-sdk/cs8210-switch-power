@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Put the switch data plane to sleep or wake it, leaving the control plane
+# (CPU card, management port, sensors, fans) running.
+#
+#   cs8210-switch-power status
+#   cs8210-switch-power off      stop the SDK and hold the 8 Credo PHYs in reset
+#   cs8210-switch-power off --reset-asic
+#                                also detach the Teralynx ASIC from PCI and pulse
+#                                its reset (saves ~10 W more; see note below)
+#   cs8210-switch-power on       release both, rescan PCIe (no reboot needed)
+#                                and, with --start, run cs8210-switch-up
+#
+# "off" is reset, not unpowered: there is no rail enable for the ASIC in the
+# CPLDs, and the CPLD's asic_reset is a pulse (the bit returns to 1 within a
+# few seconds), so the ASIC cannot be held in reset either. Measured on
+# 2026-11-10, steady state: wall 696 -> 631 W, Credo rails 165 -> 123 W,
+# ASIC core 128 -> 118 W, ASIC SerDes rails unchanged (the ASIC's ~240 W is
+# mostly leakage). The ASIC is unbound and removed from the PCI tree before
+# the reset pulse, because any access to a device whose link dropped panics
+# this SoC; it stays detached (idle, no driver) until "on".
+set -euo pipefail
+
+ASIC=0001:01:00.0
+SYS_CPLD=0x60
+ASIC_RESET_REG=0x03   # bit 5, active low (vendor sys_cpld.ko asic_reset)
+
+sys_bus() {
+  local p
+  p=$(readlink -f /sys/bus/platform/devices/fd880000.i2c/i2c-*/*-0070/channel-2/*-0074/channel-0/*-0071/channel-2)
+  echo "${p##*/i2c-}"
+}
+
+
+psu_watts() {
+  local b p v e m
+  # PMBus READ_PIN (LINEAR11) of every PSU that answers.
+  for p in "*-0072/channel-0" "*-0072/channel-1" "*-0071/channel-3" "*-0071/channel-4"; do
+    b=$(readlink -f /sys/bus/platform/devices/fd880000.i2c/i2c-*/*-0070/channel-2/*-0074/channel-0/$p)
+    v=$(i2cget -y "${b##*/i2c-}" 0x59 0x97 w 2>/dev/null) || continue
+    v=$(( v )); e=$(( v >> 11 )); [ $e -gt 15 ] && e=$(( e - 32 ))
+    m=$(( v & 0x7ff )); [ $m -gt 1023 ] && m=$(( m - 2048 ))
+    awk -v m=$m -v e=$e 'BEGIN { s = m * 2 ^ e; if (s > 0) printf "%.0f\n", s }'
+  done | awk '{ t += $1 } END { printf "%d W (all PSUs, input)\n", t }'
+}
+
+require_root() { [ "$(id -u)" -eq 0 ] || { echo "cs8210-switch-power: must run as root" >&2; exit 1; }; }
+
+status() {
+  echo "switch SDK:    $(systemctl is-active cs8210-switch 2>/dev/null || true)"
+  if [ -e /sys/bus/pci/devices/$ASIC ]; then echo "ASIC:          attached (PCI $ASIC)"; else echo "ASIC:          detached from PCI, idle"; fi
+  echo "credo chips:   $(cs8210-credo-reset status | awk '{print $NF}' | sort | uniq -c | awk '{printf "%s%d %s", (NR>1?", ":""), $1, $2}')"
+  echo "power:         $(psu_watts)"
+}
+
+case "${1:-status}" in
+  status)
+    require_root; status ;;
+  off)
+    require_root
+    systemctl stop cs8210-switch || true
+    sync
+    cs8210-credo-reset reset >/dev/null
+    if [ "${2:-}" = "--reset-asic" ]; then
+      # Only on request: the one SError panic seen so far (2026-11-10) came
+      # ~25 min after a boot in which the ASIC had been reset this way three
+      # times, and the pulse saves only ~10 W.
+      if [ -e /sys/bus/pci/devices/$ASIC/driver ]; then
+        echo $ASIC > /sys/bus/pci/devices/$ASIC/driver/unbind
+      fi
+      if [ -e /sys/bus/pci/devices/$ASIC ]; then
+        echo 1 > /sys/bus/pci/devices/$ASIC/remove
+      fi
+      sync
+      b=$(sys_bus); v=$(i2cget -y "$b" $SYS_CPLD $ASIC_RESET_REG)
+      i2cset -y "$b" $SYS_CPLD $ASIC_RESET_REG $(( v & ~0x20 & 0xff ))   # pulse, self-clears
+      sleep 6
+    fi
+    status ;;
+  on)
+    require_root
+    b=$(sys_bus); v=$(i2cget -y "$b" $SYS_CPLD $ASIC_RESET_REG)
+    i2cset -y "$b" $SYS_CPLD $ASIC_RESET_REG $(( v | 0x20 ))   # normally already back at 1
+    sleep 2
+    sync
+    [ -e /sys/bus/pci/devices/$ASIC ] || echo 1 > /sys/bus/pci/rescan
+    for _ in $(seq 1 20); do [ -c /dev/ipd ] && break; sleep 0.5; done
+    cs8210-credo-reset release >/dev/null
+    if [ "${2:-}" = "--start" ]; then
+      systemctl start cs8210-switch
+    fi
+    status ;;
+  *)
+    echo "usage: cs8210-switch-power {status|off [--reset-asic]|on [--start]}" >&2; exit 2 ;;
+esac

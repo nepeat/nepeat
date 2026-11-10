@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Bring the CS8210 switch ASIC and the Credo PHYs up with the vendor SDK, the
+# way the vendor's integrator_mode does it for knet mode, but with the PHYs in
+# MACsec bypass instead of the vendor's fixed test key.
+#
+#   cs8210-switch-up [port-mode]      default port mode: 32x400
+#   cs8210-switch-down
+#
+# Result: innovium.user and phy_server running inside the SDK chroot, and
+# front-panel netdevs fpp1..fpp32 (CPU path only; forwarding is whatever the
+# SDK was told, nothing is offloaded from Linux).
+#
+# Port modes are the vendor's: 32x400 32x200 64x100 128x100 32x100 32x40
+# 128x25 128x10. Ports 1-16 sit behind Credo CMS50216 PHYs and get "copper"
+# (host link training) on the ASIC side, as integrator_mode does.
+set -euo pipefail
+
+SDK=${CS8210_SDK_DIR:-/root/sdk/R3181-J0001-01_V0.1.7_Briggs_SDK}
+MACSEC=${CS8210_MACSEC:-macsecbypass}
+
+if [ "${1:-}" = "--down" ]; then
+  cs8210-sdk-chroot /bin/bash -c "cd $SDK && ./c-phy/auto_load_user.sh -r; ./cls_shell exit" || true
+  for _ in $(seq 1 20); do
+    pgrep -x innovium.user >/dev/null || pgrep -x phy_server >/dev/null || exit 0
+    sleep 1
+  done
+  pkill -x innovium.user || true
+  pkill -x phy_server || true
+  sleep 2
+  exit 0
+fi
+
+MODE=${1:-32x400}
+
+case "$MODE" in
+  32x400) media=1x400G ;;
+  32x200) media=1x200G ;;
+  64x100) media=2x100G ;;
+  128x100) media=4x100G ;;
+  32x100) media=1x100G ;;
+  32x40) media=1x40G ;;
+  128x25) media=4x25G ;;
+  128x10) media=4x10G ;;
+  *) echo "unknown port mode $MODE" >&2; exit 2 ;;
+esac
+innv="1-16:copper_${media}:fec-def;17-32:optics_${media}:fec-def"
+credo="1-32:optics_${media}:fec-def"
+
+if [ ! -c /dev/ipd ]; then
+  echo "cs8210-switch-up: /dev/ipd missing (ipd module not loaded with legacy_abi=1?)" >&2
+  exit 1
+fi
+if pgrep -x innovium.user >/dev/null; then
+  echo "cs8210-switch-up: innovium.user is already running (cs8210-switch-down first)" >&2
+  exit 1
+fi
+
+# Base MAC from the ONIE TlvInfo, first byte +2, as the vendor script does.
+base=$(cs8210-show eeprom 2>/dev/null | sed -n 's/^MAC#1Base: //p')
+if [[ "$base" =~ ^[0-9a-fA-F]{12}$ ]]; then
+  first=$(( (0x${base:0:2} + 2) % 256 ))
+  mac=$(printf '%02X:%s:%s:%s:%s:%s' "$first" "${base:2:2}" "${base:4:2}" "${base:6:2}" "${base:8:2}" "${base:10:2}")
+  macarg="-a $mac"
+else
+  macarg=""
+fi
+
+sync
+# One chroot invocation for both daemons: they share its /tmp (fifos, logs).
+exec cs8210-sdk-chroot /bin/bash -c "
+  set -e
+  cd $SDK
+  ./auto_load_user.sh -m '$innv' -k $macarg -d
+  ./c-phy/auto_load_user.sh -m '$credo' -e $MACSEC -l
+  # devport 129: the 10G AUX lane wired to the CPU card's second NIC
+  # (enp0s3). The vendor config defines it but leaves it disabled.
+  ./cls_shell 'port enable 129' >/dev/null
+"
