@@ -79,6 +79,54 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (k) — FPGA layers 6 and 7: the 32 I2C channels re-rolled into one module, channel logic decoded
+
+Offline only (switch, serial and outlet untouched). Reports
+[fpga/i2cfpga/LAYER6.md](fpga/i2cfpga/LAYER6.md) (method, numbers, limits)
+and [fpga/i2cfpga/CHANNEL.md](fpga/i2cfpga/CHANNEL.md) (plain-language
+explanation); views `fpga/i2cfpga/mtd5/i2c_channel_{A,B}.v`.
+- **Layer 6 (`modules.py`), lossless.** The 32 channel copies are factored
+  into one module `i2c_channel` with two templates (family A 921 elements,
+  family B 1,279; 776 correspond) + 32 instances (placement, port bindings,
+  packing choices, routing, explicit deviations) + the non-channel
+  remainder. LUT INITs, FF/control/carry lines and BRAM/IOB site features
+  are regenerated from the template (48,647 of 133,986 cell lines; 19,556
+  per-instance packing lines; 7,577 raw deviation lines; the rest is
+  non-channel). Per instance 69-96% is pure template (median A 76%, B 86%).
+- **Byte identity, fresh run in this session**: `fpga/i2cfpga/roundtrip6.sh`
+  (layers 1-5 from the image, then template + instances + remainder ->
+  netlist -> FASM -> frames -> image) gives `BYTE-IDENTICAL (layer 6)` for
+  the 32 MiB flash dump (golden and update image both through layer 6;
+  netlist, FASM and frames equal at every stage); `cmp` re-run by hand, SHA-256
+  `fa559a02...` on both. The vendor 8 MiB file was not run through layer 6.
+- **Layer 7 (`channelrtl.py`), a readable view.** Decoded from the logic:
+  - register offsets (BDD of the write enables with the address bits as
+    variables): `cb+0x00` = three 8-bit profile codes, `0x08` = 2-bit
+    select, `0x0C` bit 0 master reset and bit 31 soft-reset pulse, `0x50`/
+    `0x54` and a second pair `0x58`/`0x5C` with "go" flags on bit 31 of
+    `0x54`/`0x5C` (V); simulation of the template writes 0x00660918 as
+    profile 1/2/3 = 0x18/0x09/0x66 (power-up 0x66/0x17/0x08).
+  - **driver channel of every instance** (from its decoded register page):
+    all 32 distinct, 0..31; pad-pair ch21 = driver channel 17, ch25 = 0, ...
+    (`mtd5/update.channel-map.txt`). This answers the open "ch -> port"
+    question offline.
+  - SCL divider: 16-bit down-counter reloaded with the selected code, a tick
+    every code+1 clocks, held while SCL is stretched (V); bit-level FSM: a
+    6-bit phase register, 6 ticks per bit, 11 for START (V); its four
+    commands identified in simulation as START / STOP / bit-1 / bit-0 (I).
+    Simulated SCL at 62.5 MHz: code 0x18 -> 386 kHz, 0x09 -> 868 kHz,
+    0x66 -> 98.9 kHz (I; 6x(code+1)+12..14 clocks per bit, not 4x(code+1)).
+  - The **two families** are the same engine with a different cut (V for
+    the parts compared): family B decodes its own register page, family A
+    receives finished register strobes from the core and has part of its
+    divider/profile logic outside its block. Families: A = driver channels
+    0-9, 21, 27-31; B = 10-20, 22-26.
+- Not done / failed: a full transaction simulation through the shared PCIe
+  core (the strobe timing of the core was not reproduced; the engine was
+  driven at the bit-command level instead); the byte sequencer and
+  transaction controller are not tabulated; family A's register map is
+  partial; sideband / register-file / PCIe-BRAM re-rolling not started.
+
 ### 2026-11-10 (j) — FPGA layers 4 and 5: lossless netlist, 32 I2C channel engines
 
 Offline only (switch and outlet untouched). Work in [fpga/](fpga/README.md);
