@@ -88,6 +88,12 @@
             # CS8210 boot-image packaging and offline ARM64 smoke tests.
             ubootTools
             qemu
+            # CS8210 I2C FPGA: simulate the netlist recovered from the
+            # bitstream (verilator: the whole 52k-primitive design per cycle
+            # is too slow in Python); yosys for a planned equivalence check of
+            # the two channel templates (not run yet). See devices/cs8210-32x/fpga.
+            verilator
+            yosys
 
             # Password / hash cracking (Raritan PX3 root $5$ hash — see
             # devices/raritan-px3-5475v). john has OpenCL/Metal on Apple silicon.
