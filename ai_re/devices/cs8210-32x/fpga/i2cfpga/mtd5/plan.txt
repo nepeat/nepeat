@@ -1,0 +1,2418 @@
+# xc7frames packing plan (see xc7frames.py docstring for the grammar)
+# part: work/src/prjxray-db/artix7/xc7a100tfgg484-2/part.json
+# golden: 9448 frames stored (9448 of 9448 valid addresses, 4011 via MFW); 227 FDRI writes; 5492 non-zero frames
+# update: 9448 frames stored (9448 of 9448 valid addresses, 4502 via MFW); 185 FDRI writes; 4976 non-zero frames
+fill 0xff 32
+raw 000000bb11220044ffffffffffffffff
+sync
+noop
+w1 BSPI 0000000b
+w1 CMD BSPI_READ
+noop
+w1 TIMER 426bf8d7
+w1 WBSTAR 00400000
+w1 CMD IPROG
+noop
+w1 CMD RCRC
+noop 2
+w1 RBCRC_SW 00000000
+w1 COR0 02003fe5
+w1 COR1 00000000
+w1 IDCODE 03632093
+w1 CMD SWITCH
+noop
+w1 MASK 00000001
+w1 CTL0 00000101
+w1 MASK 00001000
+w1 CTL1 00001000
+noop 8
+w1 FAR 00000000
+w1 CMD WCFG
+noop
+image golden
+fdri 15  # CLB_IO_CLK/top/r0/c0/m0 .. CLB_IO_CLK/top/r0/c0/m13 (14 stored)
+w1 CMD MFW
+noop 12
+mfw 0000000e 0000001a..0000001b 00000022..00000025 00000028..00000029 00000081 0000008a 0000008e 00000090..0000009a 0000009c..00000101 00000109..0000010a 0000010f..00000181 00000183 00000186 00000189..0000018b 0000018d..000001a3 00000209 0000020e 00000210..00000223 00000310..0000031b 00000480..00000481 00000485 00000490..0000049b 00000600..000008a3 00000910..0000091d 00000f90..00000f99 00001190..0000119b 0000131a 0000161a 00001810..0000181b 00001980..00001981 00001990..0000199b 00001c00 00001c10..00001c19 00001c1c..00001c1d 00001c89 00001c8e 00001c9a..00001c9b 00001ca2..00001ca5 00001ca8..00001ca9
+w1 CMD WCFG
+noop
+w1 FAR 0000000f
+noop
+fdri 12  # CLB_IO_CLK/top/r0/c0/m15 .. CLB_IO_CLK/top/r0/c0/m25 (11 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000001c
+noop
+fdri 7  # CLB_IO_CLK/top/r0/c0/m28 .. CLB_IO_CLK/top/r0/c0/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000026
+noop
+fdri 3  # CLB_IO_CLK/top/r0/c0/m38 .. CLB_IO_CLK/top/r0/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000080
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c1/m0 .. CLB_IO_CLK/top/r0/c1/m0 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000082
+noop
+fdri 9  # CLB_IO_CLK/top/r0/c1/m2 .. CLB_IO_CLK/top/r0/c1/m9 (8 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000008b
+noop
+fdri 4  # CLB_IO_CLK/top/r0/c1/m11 .. CLB_IO_CLK/top/r0/c1/m13 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000008f
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c1/m15 .. CLB_IO_CLK/top/r0/c1/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000009b
+noop
+fdri 1  # CLB_IO_CLK/top/r0/c1/m27 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0000009b 00001c1a..00001c1b
+w1 CMD WCFG
+noop
+w1 FAR 00000102
+noop
+fdri 8  # CLB_IO_CLK/top/r0/c2/m2 .. CLB_IO_CLK/top/r0/c2/m8 (7 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000010b
+noop
+fdri 1  # CLB_IO_CLK/top/r0/c2/m11 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0000010b 0000010e
+w1 CMD WCFG
+noop
+w1 FAR 0000010c
+noop
+fdri 3  # CLB_IO_CLK/top/r0/c2/m12 .. CLB_IO_CLK/top/r0/c2/m13 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000182
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c3/m2 .. CLB_IO_CLK/top/r0/c3/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000184
+noop
+fdri 3  # CLB_IO_CLK/top/r0/c3/m4 .. CLB_IO_CLK/top/r0/c3/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000187
+noop
+fdri 3  # CLB_IO_CLK/top/r0/c3/m7 .. CLB_IO_CLK/top/r0/c3/m8 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000018c
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c3/m12 .. CLB_IO_CLK/top/r0/c3/m12 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000200
+noop
+fdri 1  # CLB_IO_CLK/top/r0/c4/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00000200 00000900
+w1 CMD WCFG
+noop
+w1 FAR 00000201
+noop
+fdri 9  # CLB_IO_CLK/top/r0/c4/m1 .. CLB_IO_CLK/top/r0/c4/m8 (8 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000020a
+noop
+fdri 5  # CLB_IO_CLK/top/r0/c4/m10 .. CLB_IO_CLK/top/r0/c4/m13 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000020f
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c4/m15 .. CLB_IO_CLK/top/r0/c4/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000280
+noop
+fdri 4  # CLB_IO_CLK/top/r0/c5/m0 .. CLB_IO_CLK/top/r0/c5/m2 (3 stored)
+w1 CMD MFW
+noop 12
+mfw 00000283 00000483
+w1 CMD WCFG
+noop
+w1 FAR 00000284
+noop
+fdri 49  # CLB_IO_CLK/top/r0/c5/m4 .. CLB_IO_CLK/top/r0/c6/m15 (48 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000380
+noop
+fdri 73  # CLB_IO_CLK/top/r0/c7/m0 .. CLB_IO_CLK/top/r0/c8/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000482
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c9/m2 .. CLB_IO_CLK/top/r0/c9/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000484
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c9/m4 .. CLB_IO_CLK/top/r0/c9/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000486
+noop
+fdri 11  # CLB_IO_CLK/top/r0/c9/m6 .. CLB_IO_CLK/top/r0/c9/m15 (10 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000500
+noop
+fdri 73  # CLB_IO_CLK/top/r0/c10/m0 .. CLB_IO_CLK/top/r0/c11/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000901
+noop
+fdri 16  # CLB_IO_CLK/top/r0/c18/m1 .. CLB_IO_CLK/top/r0/c18/m15 (15 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000980
+noop
+fdri 449  # CLB_IO_CLK/top/r0/c19/m0 .. CLB_IO_CLK/top/r0/c31/m15 (448 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000f9a
+noop
+fdri 129  # CLB_IO_CLK/top/r0/c31/m26 .. CLB_IO_CLK/top/r0/c35/m15 (128 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001200
+noop
+fdri 99  # CLB_IO_CLK/top/r0/c36/m0 .. CLB_IO_CLK/top/r0/c38/m25 (98 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000131b
+noop
+fdri 208  # CLB_IO_CLK/top/r0/c38/m27 .. CLB_IO_CLK/top/r0/c44/m25 (207 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000161b
+noop
+fdri 126  # CLB_IO_CLK/top/r0/c44/m27 .. CLB_IO_CLK/top/r0/c48/m15 (125 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001880
+noop
+fdri 73  # CLB_IO_CLK/top/r0/c49/m0 .. CLB_IO_CLK/top/r0/c50/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001982
+noop
+fdri 15  # CLB_IO_CLK/top/r0/c51/m2 .. CLB_IO_CLK/top/r0/c51/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001a00
+noop
+fdri 145  # CLB_IO_CLK/top/r0/c52/m0 .. CLB_IO_CLK/top/r0/c55/m35 (144 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c01
+noop
+fdri 16  # CLB_IO_CLK/top/r0/c56/m1 .. CLB_IO_CLK/top/r0/c56/m15 (15 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c80
+noop
+fdri 10  # CLB_IO_CLK/top/r0/c57/m0 .. CLB_IO_CLK/top/r0/c57/m8 (9 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c8a
+noop
+fdri 5  # CLB_IO_CLK/top/r0/c57/m10 .. CLB_IO_CLK/top/r0/c57/m13 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c8f
+noop
+fdri 12  # CLB_IO_CLK/top/r0/c57/m15 .. CLB_IO_CLK/top/r0/c57/m25 (11 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c9c
+noop
+fdri 7  # CLB_IO_CLK/top/r0/c57/m28 .. CLB_IO_CLK/top/r0/c57/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001ca6
+noop
+fdri 3  # CLB_IO_CLK/top/r0/c57/m38 .. CLB_IO_CLK/top/r0/c57/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020000
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c0/m0 .. CLB_IO_CLK/top/r1/c0/m2 (3 stored)
+w1 CMD MFW
+noop 12
+mfw 00020003 0002000e 0002001a..0002001b 00020022..00020025 00020028..00020081 00020083 0002008e 00020090..00020101 00020103..00020104 00020106 0002010a 0002010e..00020181 00020183 00020186 00020189..0002018c 0002018e 00020190..00020200 00020208..0002020a 0002020c 0002020e..00020281 00020284 00020288..00020301 00020308..00020381 00020383..00020386 00020388..00020401 00020406 00020408..00020481 00020488..00020501 00020508 0002050a..0002050c 0002050e..00020581 00020583 00020586 00020588..00020601 00020604 00020608..00020681 00020684 00020686 00020688..000206a3 00020703 00020708..00020781 00020783..00020786 00020788..00020801 00020804 00020806 00020808..00020881 00020886 00020888..00020901 00020908..00020981 00020983 00020986 00020988..0002098a 0002098c 0002098e..00020a01 00020a04 00020a06 00020a08..00020a81 00020a84 00020a88..00020b01 00020b05 00020b08..00020b81 00020b83 00020b86 00020b88..00020c01 00020c03 00020c05..00020c06 00020c08..00020c81 00020c84..00020c85 00020c88..00020d01 00020d03 00020d08..00020d81 00020d83..00020d86 00020d88..00020e01 00020e03..00020e06 00020e08..00020e81 00020e83..00020e86 00020e88..00020f01 00020f03..00020f06 00020f08..00020f80 00020f83..00020f86 00020f88..00020f99 00021000..0002110a 0002110c..0002110e 00021110..00021180 00021182..00021187 00021189..0002118a 0002118c 0002118e 00021190..0002119b 0002131a 0002149e..00021501 00021506 0002150a 0002150f..00021583 00021585..00021586 0002158e 00021590..000215a3 00021810..0002181b
+w1 CMD WCFG
+noop
+w1 FAR 00020004
+noop
+fdri 11  # CLB_IO_CLK/top/r1/c0/m4 .. CLB_IO_CLK/top/r1/c0/m13 (10 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002000f
+noop
+fdri 12  # CLB_IO_CLK/top/r1/c0/m15 .. CLB_IO_CLK/top/r1/c0/m25 (11 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002001c
+noop
+fdri 7  # CLB_IO_CLK/top/r1/c0/m28 .. CLB_IO_CLK/top/r1/c0/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020026
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c0/m38 .. CLB_IO_CLK/top/r1/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020082
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c1/m2 .. CLB_IO_CLK/top/r1/c1/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020084
+noop
+fdri 11  # CLB_IO_CLK/top/r1/c1/m4 .. CLB_IO_CLK/top/r1/c1/m13 (10 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002008f
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c1/m15 .. CLB_IO_CLK/top/r1/c1/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020102
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c2/m2 .. CLB_IO_CLK/top/r1/c2/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020105
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c2/m5 .. CLB_IO_CLK/top/r1/c2/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020107
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c2/m7 .. CLB_IO_CLK/top/r1/c2/m9 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002010b
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c2/m11 .. CLB_IO_CLK/top/r1/c2/m13 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020182
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c3/m2 .. CLB_IO_CLK/top/r1/c3/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020184
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c3/m4 .. CLB_IO_CLK/top/r1/c3/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020187
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c3/m7 .. CLB_IO_CLK/top/r1/c3/m8 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002018d
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c3/m13 .. CLB_IO_CLK/top/r1/c3/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002018f
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c3/m15 .. CLB_IO_CLK/top/r1/c3/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020201
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c4/m1 .. CLB_IO_CLK/top/r1/c4/m2 (2 stored)
+w1 CMD MFW
+noop 12
+mfw 00020203 00020403 00020803 00020a03
+w1 CMD WCFG
+noop
+w1 FAR 00020204
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c4/m4 .. CLB_IO_CLK/top/r1/c4/m5 (2 stored)
+w1 CMD MFW
+noop 12
+mfw 00020206 00020685 00020a85 00020c86
+w1 CMD WCFG
+noop
+w1 FAR 00020207
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c4/m7 .. CLB_IO_CLK/top/r1/c4/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002020b
+noop
+fdri 1  # CLB_IO_CLK/top/r1/c4/m11 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0002020b 0002020d
+w1 CMD WCFG
+noop
+w1 FAR 00020282
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c5/m2 .. CLB_IO_CLK/top/r1/c5/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020285
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c5/m5 .. CLB_IO_CLK/top/r1/c5/m7 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020302
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c6/m2 .. CLB_IO_CLK/top/r1/c6/m4 (3 stored)
+w1 CMD MFW
+noop 12
+mfw 00020305 00020506
+w1 CMD WCFG
+noop
+w1 FAR 00020306
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c6/m6 .. CLB_IO_CLK/top/r1/c6/m7 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020382
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c7/m2 .. CLB_IO_CLK/top/r1/c7/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020387
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c7/m7 .. CLB_IO_CLK/top/r1/c7/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020402
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c8/m2 .. CLB_IO_CLK/top/r1/c8/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020404
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c8/m4 .. CLB_IO_CLK/top/r1/c8/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020407
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c8/m7 .. CLB_IO_CLK/top/r1/c8/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020482
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c9/m2 .. CLB_IO_CLK/top/r1/c9/m2 (1 stored)
+w1 CMD MFW
+noop 12
+mfw 00020483 00020683 00020883 00020c83
+w1 CMD WCFG
+noop
+w1 FAR 00020484
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c9/m4 .. CLB_IO_CLK/top/r1/c9/m7 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020502
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c10/m2 .. CLB_IO_CLK/top/r1/c10/m5 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020507
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c10/m7 .. CLB_IO_CLK/top/r1/c10/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020509
+noop
+fdri 1  # CLB_IO_CLK/top/r1/c10/m9 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00020509 0002050d
+w1 CMD WCFG
+noop
+w1 FAR 00020582
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c11/m2 .. CLB_IO_CLK/top/r1/c11/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020584
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c11/m4 .. CLB_IO_CLK/top/r1/c11/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020587
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c11/m7 .. CLB_IO_CLK/top/r1/c11/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020602
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c12/m2 .. CLB_IO_CLK/top/r1/c12/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020605
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c12/m5 .. CLB_IO_CLK/top/r1/c12/m7 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020682
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c13/m2 .. CLB_IO_CLK/top/r1/c13/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020687
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c13/m7 .. CLB_IO_CLK/top/r1/c13/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020700
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c14/m0 .. CLB_IO_CLK/top/r1/c14/m2 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020704
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c14/m4 .. CLB_IO_CLK/top/r1/c14/m7 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020782
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c15/m2 .. CLB_IO_CLK/top/r1/c15/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020787
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c15/m7 .. CLB_IO_CLK/top/r1/c15/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020802
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c16/m2 .. CLB_IO_CLK/top/r1/c16/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020805
+noop
+fdri 1  # CLB_IO_CLK/top/r1/c16/m5 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00020805 00020a05
+w1 CMD WCFG
+noop
+w1 FAR 00020807
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c16/m7 .. CLB_IO_CLK/top/r1/c16/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020882
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c17/m2 .. CLB_IO_CLK/top/r1/c17/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020884
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c17/m4 .. CLB_IO_CLK/top/r1/c17/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020887
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c17/m7 .. CLB_IO_CLK/top/r1/c17/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020902
+noop
+fdri 7  # CLB_IO_CLK/top/r1/c18/m2 .. CLB_IO_CLK/top/r1/c18/m7 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020982
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c19/m2 .. CLB_IO_CLK/top/r1/c19/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020984
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c19/m4 .. CLB_IO_CLK/top/r1/c19/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020987
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c19/m7 .. CLB_IO_CLK/top/r1/c19/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002098b
+noop
+fdri 1  # CLB_IO_CLK/top/r1/c19/m11 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0002098b 0002098d
+w1 CMD WCFG
+noop
+w1 FAR 00020a02
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c20/m2 .. CLB_IO_CLK/top/r1/c20/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020a07
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c20/m7 .. CLB_IO_CLK/top/r1/c20/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020a82
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c21/m2 .. CLB_IO_CLK/top/r1/c21/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020a86
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c21/m6 .. CLB_IO_CLK/top/r1/c21/m7 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020b02
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c22/m2 .. CLB_IO_CLK/top/r1/c22/m4 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020b06
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c22/m6 .. CLB_IO_CLK/top/r1/c22/m7 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020b82
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c23/m2 .. CLB_IO_CLK/top/r1/c23/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020b84
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c23/m4 .. CLB_IO_CLK/top/r1/c23/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020b87
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c23/m7 .. CLB_IO_CLK/top/r1/c23/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020c02
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c24/m2 .. CLB_IO_CLK/top/r1/c24/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020c04
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c24/m4 .. CLB_IO_CLK/top/r1/c24/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020c07
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c24/m7 .. CLB_IO_CLK/top/r1/c24/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020c82
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c25/m2 .. CLB_IO_CLK/top/r1/c25/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020c87
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c25/m7 .. CLB_IO_CLK/top/r1/c25/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020d02
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c26/m2 .. CLB_IO_CLK/top/r1/c26/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020d04
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c26/m4 .. CLB_IO_CLK/top/r1/c26/m7 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020d82
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c27/m2 .. CLB_IO_CLK/top/r1/c27/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020d87
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c27/m7 .. CLB_IO_CLK/top/r1/c27/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020e02
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c28/m2 .. CLB_IO_CLK/top/r1/c28/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020e07
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c28/m7 .. CLB_IO_CLK/top/r1/c28/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020e82
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c29/m2 .. CLB_IO_CLK/top/r1/c29/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020e87
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c29/m7 .. CLB_IO_CLK/top/r1/c29/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020f02
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c30/m2 .. CLB_IO_CLK/top/r1/c30/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020f07
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c30/m7 .. CLB_IO_CLK/top/r1/c30/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020f81
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c31/m1 .. CLB_IO_CLK/top/r1/c31/m2 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020f87
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c31/m7 .. CLB_IO_CLK/top/r1/c31/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020f9a
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c31/m26 .. CLB_IO_CLK/top/r1/c31/m29 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002110b
+noop
+fdri 1  # CLB_IO_CLK/top/r1/c34/m11 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0002110b 0002110f
+w1 CMD WCFG
+noop
+w1 FAR 00021181
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c35/m1 .. CLB_IO_CLK/top/r1/c35/m1 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021188
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c35/m8 .. CLB_IO_CLK/top/r1/c35/m8 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002118b
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c35/m11 .. CLB_IO_CLK/top/r1/c35/m11 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002118d
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c35/m13 .. CLB_IO_CLK/top/r1/c35/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002118f
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c35/m15 .. CLB_IO_CLK/top/r1/c35/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021200
+noop
+fdri 99  # CLB_IO_CLK/top/r1/c36/m0 .. CLB_IO_CLK/top/r1/c38/m25 (98 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002131b
+noop
+fdri 29  # CLB_IO_CLK/top/r1/c38/m27 .. CLB_IO_CLK/top/r1/c39/m26 (28 stored)
+w1 CMD MFW
+noop 12
+mfw 0002139b..0002139c
+w1 CMD WCFG
+noop
+w1 FAR 0002139d
+noop
+fdri 74  # CLB_IO_CLK/top/r1/c39/m29 .. CLB_IO_CLK/top/r1/c41/m29 (73 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021502
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c42/m2 .. CLB_IO_CLK/top/r1/c42/m5 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021507
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c42/m7 .. CLB_IO_CLK/top/r1/c42/m9 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002150b
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c42/m11 .. CLB_IO_CLK/top/r1/c42/m14 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021584
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c43/m4 .. CLB_IO_CLK/top/r1/c43/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021587
+noop
+fdri 8  # CLB_IO_CLK/top/r1/c43/m7 .. CLB_IO_CLK/top/r1/c43/m13 (7 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002158f
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c43/m15 .. CLB_IO_CLK/top/r1/c43/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021600
+noop
+fdri 153  # CLB_IO_CLK/top/r1/c44/m0 .. CLB_IO_CLK/top/r1/c48/m15 (152 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021880
+noop
+fdri 115  # CLB_IO_CLK/top/r1/c49/m0 .. CLB_IO_CLK/bot/r0/c0/m7 (114 stored, 2 pad)
+w1 CMD MFW
+noop 12
+mfw 00400008..00400009 0040000b 0040000d..0040000f 00400011 00400013..00400015 00400017 0040001a..0040001b 0040001e 00400022..00400025 00400028..00400029 0040008a 0040008c 0040008e 00400090..00400093 00400480 00400490..0040049b 00400600..004008a3 00400910..00400913 00400916..00400917 0040091c..0040091d 00400f90 00400f92 00400f94..00400f95 00400f97 00400f9d 00401190..0040119b 0040131a 0040161a 00401810..0040181b 00401980..00401981 00401990..0040199b 00401c01 00401c10..00401c1a 00401c1c..00401c1d 00401c89 00401c9a..00401c9b 00401ca2..00401ca5 00401ca8..00401ca9
+w1 CMD WCFG
+noop
+w1 FAR 0040000a
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c0/m10 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0040000a 0040000c
+w1 CMD WCFG
+noop
+w1 FAR 00400010
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c0/m16 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00400010 00400016 00400019
+w1 CMD WCFG
+noop
+w1 FAR 00400012
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c0/m18 .. CLB_IO_CLK/bot/r0/c0/m18 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400018
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c0/m24 .. CLB_IO_CLK/bot/r0/c0/m24 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040001c
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c0/m28 .. CLB_IO_CLK/bot/r0/c0/m29 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040001f
+noop
+fdri 4  # CLB_IO_CLK/bot/r0/c0/m31 .. CLB_IO_CLK/bot/r0/c0/m33 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400026
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c0/m38 .. CLB_IO_CLK/bot/r0/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400080
+noop
+fdri 11  # CLB_IO_CLK/bot/r0/c1/m0 .. CLB_IO_CLK/bot/r0/c1/m9 (10 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040008b
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c1/m11 .. CLB_IO_CLK/bot/r0/c1/m11 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040008d
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c1/m13 .. CLB_IO_CLK/bot/r0/c1/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040008f
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c1/m15 .. CLB_IO_CLK/bot/r0/c1/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400094
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c1/m20 .. CLB_IO_CLK/bot/r0/c1/m20 (1 stored)
+w1 CMD MFW
+noop 12
+mfw 00400095 00400099
+w1 CMD WCFG
+noop
+w1 FAR 00400096
+noop
+fdri 4  # CLB_IO_CLK/bot/r0/c1/m22 .. CLB_IO_CLK/bot/r0/c1/m24 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040009a
+noop
+fdri 249  # CLB_IO_CLK/bot/r0/c1/m26 .. CLB_IO_CLK/bot/r0/c8/m35 (248 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400481
+noop
+fdri 16  # CLB_IO_CLK/bot/r0/c9/m1 .. CLB_IO_CLK/bot/r0/c9/m15 (15 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400500
+noop
+fdri 73  # CLB_IO_CLK/bot/r0/c10/m0 .. CLB_IO_CLK/bot/r0/c11/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400900
+noop
+fdri 17  # CLB_IO_CLK/bot/r0/c18/m0 .. CLB_IO_CLK/bot/r0/c18/m15 (16 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400914
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c18/m20 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00400914 00400918
+w1 CMD WCFG
+noop
+w1 FAR 00400915
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c18/m21 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00400915 00400919
+w1 CMD WCFG
+noop
+w1 FAR 0040091a
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c18/m26 .. CLB_IO_CLK/bot/r0/c18/m27 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400980
+noop
+fdri 449  # CLB_IO_CLK/bot/r0/c19/m0 .. CLB_IO_CLK/bot/r0/c31/m15 (448 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400f91
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c31/m17 .. CLB_IO_CLK/bot/r0/c31/m17 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400f93
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c31/m19 .. CLB_IO_CLK/bot/r0/c31/m19 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400f96
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c31/m22 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00400f96 00400f98..00400f99
+w1 CMD WCFG
+noop
+w1 FAR 00400f9a
+noop
+fdri 4  # CLB_IO_CLK/bot/r0/c31/m26 .. CLB_IO_CLK/bot/r0/c31/m28 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401000
+noop
+fdri 125  # CLB_IO_CLK/bot/r0/c32/m0 .. CLB_IO_CLK/bot/r0/c35/m15 (124 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401200
+noop
+fdri 99  # CLB_IO_CLK/bot/r0/c36/m0 .. CLB_IO_CLK/bot/r0/c38/m25 (98 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040131b
+noop
+fdri 208  # CLB_IO_CLK/bot/r0/c38/m27 .. CLB_IO_CLK/bot/r0/c44/m25 (207 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040161b
+noop
+fdri 126  # CLB_IO_CLK/bot/r0/c44/m27 .. CLB_IO_CLK/bot/r0/c48/m15 (125 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401880
+noop
+fdri 73  # CLB_IO_CLK/bot/r0/c49/m0 .. CLB_IO_CLK/bot/r0/c50/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401982
+noop
+fdri 15  # CLB_IO_CLK/bot/r0/c51/m2 .. CLB_IO_CLK/bot/r0/c51/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401a00
+noop
+fdri 146  # CLB_IO_CLK/bot/r0/c52/m0 .. CLB_IO_CLK/bot/r0/c56/m0 (145 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c02
+noop
+fdri 15  # CLB_IO_CLK/bot/r0/c56/m2 .. CLB_IO_CLK/bot/r0/c56/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c1b
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c56/m27 .. CLB_IO_CLK/bot/r0/c56/m27 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c80
+noop
+fdri 10  # CLB_IO_CLK/bot/r0/c57/m0 .. CLB_IO_CLK/bot/r0/c57/m8 (9 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c8a
+noop
+fdri 17  # CLB_IO_CLK/bot/r0/c57/m10 .. CLB_IO_CLK/bot/r0/c57/m25 (16 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c9c
+noop
+fdri 7  # CLB_IO_CLK/bot/r0/c57/m28 .. CLB_IO_CLK/bot/r0/c57/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401ca6
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c57/m38 .. CLB_IO_CLK/bot/r0/c57/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420000
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c0/m0 .. CLB_IO_CLK/bot/r1/c0/m1 (2 stored)
+w1 CMD MFW
+noop 12
+mfw 00420002..00420003 00420005 00420008..00420009 0042000b 0042000d..0042000e 00420013 0042001a..0042001b 00420022..00420025 00420028..00420081 00420083..00420086 0042008b 0042008e..0042009a 0042009c..00420101 00420104 00420108..00420109 0042010e..00420182 00420184 00420186..00420201 00420204 00420206 00420208..00420282 00420284 00420287..0042028a 0042028c..0042028e 00420290..004202a3 00420306 00420310..0042031b 00420384 00420480..00420481 00420490..0042049b 00420910..0042091d 00420f90..00420f99 00420f9d 00421190..0042119b 00421801..00421802 00421810..0042181b 00421882 00421980..00421981 00421983 00421985 00421990..0042199f
+w1 CMD WCFG
+noop
+w1 FAR 00420004
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c0/m4 .. CLB_IO_CLK/bot/r1/c0/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420006
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c0/m6 .. CLB_IO_CLK/bot/r1/c0/m7 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042000a
+noop
+fdri 1  # CLB_IO_CLK/bot/r1/c0/m10 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0042000a 0042000f
+w1 CMD WCFG
+noop
+w1 FAR 0042000c
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c0/m12 .. CLB_IO_CLK/bot/r1/c0/m12 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420010
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c0/m16 .. CLB_IO_CLK/bot/r1/c0/m18 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420014
+noop
+fdri 7  # CLB_IO_CLK/bot/r1/c0/m20 .. CLB_IO_CLK/bot/r1/c0/m25 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042001c
+noop
+fdri 7  # CLB_IO_CLK/bot/r1/c0/m28 .. CLB_IO_CLK/bot/r1/c0/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420026
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c0/m38 .. CLB_IO_CLK/bot/r1/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420082
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c1/m2 .. CLB_IO_CLK/bot/r1/c1/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420087
+noop
+fdri 5  # CLB_IO_CLK/bot/r1/c1/m7 .. CLB_IO_CLK/bot/r1/c1/m10 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042008c
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c1/m12 .. CLB_IO_CLK/bot/r1/c1/m13 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042009b
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c1/m27 .. CLB_IO_CLK/bot/r1/c1/m27 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420102
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c2/m2 .. CLB_IO_CLK/bot/r1/c2/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420105
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c2/m5 .. CLB_IO_CLK/bot/r1/c2/m7 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042010a
+noop
+fdri 1  # CLB_IO_CLK/bot/r1/c2/m10 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0042010a 0042010c
+w1 CMD WCFG
+noop
+w1 FAR 0042010b
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c2/m11 .. CLB_IO_CLK/bot/r1/c2/m11 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042010d
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c2/m13 .. CLB_IO_CLK/bot/r1/c2/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420183
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c3/m3 .. CLB_IO_CLK/bot/r1/c3/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420185
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c3/m5 .. CLB_IO_CLK/bot/r1/c3/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420202
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c4/m2 .. CLB_IO_CLK/bot/r1/c4/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420205
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c4/m5 .. CLB_IO_CLK/bot/r1/c4/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420207
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c4/m7 .. CLB_IO_CLK/bot/r1/c4/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420283
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c5/m3 .. CLB_IO_CLK/bot/r1/c5/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420285
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c5/m5 .. CLB_IO_CLK/bot/r1/c5/m6 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042028b
+noop
+fdri 1  # CLB_IO_CLK/bot/r1/c5/m11 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0042028b 0042028f
+w1 CMD WCFG
+noop
+w1 FAR 00420300
+noop
+fdri 7  # CLB_IO_CLK/bot/r1/c6/m0 .. CLB_IO_CLK/bot/r1/c6/m5 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420307
+noop
+fdri 10  # CLB_IO_CLK/bot/r1/c6/m7 .. CLB_IO_CLK/bot/r1/c6/m15 (9 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420380
+noop
+fdri 5  # CLB_IO_CLK/bot/r1/c7/m0 .. CLB_IO_CLK/bot/r1/c7/m3 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420385
+noop
+fdri 68  # CLB_IO_CLK/bot/r1/c7/m5 .. CLB_IO_CLK/bot/r1/c8/m35 (67 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420482
+noop
+fdri 15  # CLB_IO_CLK/bot/r1/c9/m2 .. CLB_IO_CLK/bot/r1/c9/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420500
+noop
+fdri 305  # CLB_IO_CLK/bot/r1/c10/m0 .. CLB_IO_CLK/bot/r1/c18/m15 (304 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420980
+noop
+fdri 449  # CLB_IO_CLK/bot/r1/c19/m0 .. CLB_IO_CLK/bot/r1/c31/m15 (448 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420f9a
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c31/m26 .. CLB_IO_CLK/bot/r1/c31/m28 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421000
+noop
+fdri 125  # CLB_IO_CLK/bot/r1/c32/m0 .. CLB_IO_CLK/bot/r1/c35/m15 (124 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421200
+noop
+fdri 418  # CLB_IO_CLK/bot/r1/c36/m0 .. CLB_IO_CLK/bot/r1/c48/m0 (417 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421803
+noop
+fdri 14  # CLB_IO_CLK/bot/r1/c48/m3 .. CLB_IO_CLK/bot/r1/c48/m15 (13 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421880
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c49/m0 .. CLB_IO_CLK/bot/r1/c49/m1 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421883
+noop
+fdri 70  # CLB_IO_CLK/bot/r1/c49/m3 .. CLB_IO_CLK/bot/r1/c50/m35 (69 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421982
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c51/m2 .. CLB_IO_CLK/bot/r1/c51/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421984
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c51/m4 .. CLB_IO_CLK/bot/r1/c51/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421986
+noop
+fdri 11  # CLB_IO_CLK/bot/r1/c51/m6 .. CLB_IO_CLK/bot/r1/c51/m15 (10 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00800000
+noop
+fdri 1  # BLOCK_RAM/top/r0/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00800000..008001ff
+w1 CMD WCFG
+noop
+w1 FAR 00820000
+noop
+fdri 1  # BLOCK_RAM/top/r1/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00820000..0082017f
+w1 CMD WCFG
+noop
+w1 FAR 00c00000
+noop
+fdri 1  # BLOCK_RAM/bot/r0/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00c00000..00c001ff
+w1 CMD WCFG
+noop
+w1 FAR 00c20000
+noop
+fdri 1  # BLOCK_RAM/bot/r1/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00c20000..00c2017f
+crc
+noop 2
+w1 CMD GRESTORE
+noop
+w1 CMD LFRM
+w1 MASK 00001000
+w1 CTL1 00000000
+noop 100
+w1 CMD START
+noop
+w1 FAR 03be0000
+w1 MASK 00000101
+w1 CTL0 00000101
+crc
+noop 2
+w1 CMD DESYNC
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 200000002000000020000000
+fill 0xff 1767764
+raw 000000bb11220044ffffffffffffffff
+sync
+noop 3
+w1 TIMER 40004000
+noop 2
+fill 0xff 40
+raw 000000bb11220044ffffffffffffffff
+sync
+noop
+w1 BSPI 0000000b
+w1 CMD BSPI_READ
+noop
+w1 TIMER 426bf8d7
+w1 WBSTAR 00000000
+w1 CMD NULL
+noop
+w1 CMD RCRC
+noop 2
+w1 RBCRC_SW 00000000
+w1 COR0 02003fe5
+w1 COR1 00000000
+w1 IDCODE 03632093
+w1 CMD SWITCH
+noop
+w1 MASK 00000001
+w1 CTL0 00000101
+w1 MASK 00001000
+w1 CTL1 00001000
+noop 8
+w1 FAR 00000000
+w1 CMD WCFG
+noop
+image update
+fdri 15  # CLB_IO_CLK/top/r0/c0/m0 .. CLB_IO_CLK/top/r0/c0/m13 (14 stored)
+w1 CMD MFW
+noop 12
+mfw 0000000e 0000001a..0000001b 00000022..00000025 00000028..00000029 00000090..0000009a 0000009c..0000009d 0000031a 00000480..00000481 00000490..0000049b 00000600..000008a3 00000901 00000910..0000091d 00000f90..00000f99 00001190..0000119b 0000161a 00001810..0000181b 00001981 00001990..0000199b 00001c00..00001c01 00001c10..00001c19 00001c1c..00001c1d 00001c96 00001c9a..00001c9b 00001ca2..00001ca5 00001ca8..00001ca9
+w1 CMD WCFG
+noop
+w1 FAR 0000000f
+noop
+fdri 12  # CLB_IO_CLK/top/r0/c0/m15 .. CLB_IO_CLK/top/r0/c0/m25 (11 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000001c
+noop
+fdri 7  # CLB_IO_CLK/top/r0/c0/m28 .. CLB_IO_CLK/top/r0/c0/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000026
+noop
+fdri 3  # CLB_IO_CLK/top/r0/c0/m38 .. CLB_IO_CLK/top/r0/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000080
+noop
+fdri 17  # CLB_IO_CLK/top/r0/c1/m0 .. CLB_IO_CLK/top/r0/c1/m15 (16 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000009b
+noop
+fdri 1  # CLB_IO_CLK/top/r0/c1/m27 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 0000009b 00001c1a..00001c1b
+w1 CMD WCFG
+noop
+w1 FAR 00000100
+noop
+fdri 171  # CLB_IO_CLK/top/r0/c2/m0 .. CLB_IO_CLK/top/r0/c6/m25 (170 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000031b
+noop
+fdri 74  # CLB_IO_CLK/top/r0/c6/m27 .. CLB_IO_CLK/top/r0/c8/m35 (73 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000482
+noop
+fdri 15  # CLB_IO_CLK/top/r0/c9/m2 .. CLB_IO_CLK/top/r0/c9/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000500
+noop
+fdri 73  # CLB_IO_CLK/top/r0/c10/m0 .. CLB_IO_CLK/top/r0/c11/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000900
+noop
+fdri 2  # CLB_IO_CLK/top/r0/c18/m0 .. CLB_IO_CLK/top/r0/c18/m0 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000902
+noop
+fdri 15  # CLB_IO_CLK/top/r0/c18/m2 .. CLB_IO_CLK/top/r0/c18/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000980
+noop
+fdri 449  # CLB_IO_CLK/top/r0/c19/m0 .. CLB_IO_CLK/top/r0/c31/m15 (448 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00000f9a
+noop
+fdri 129  # CLB_IO_CLK/top/r0/c31/m26 .. CLB_IO_CLK/top/r0/c35/m15 (128 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001200
+noop
+fdri 307  # CLB_IO_CLK/top/r0/c36/m0 .. CLB_IO_CLK/top/r0/c44/m25 (306 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0000161b
+noop
+fdri 126  # CLB_IO_CLK/top/r0/c44/m27 .. CLB_IO_CLK/top/r0/c48/m15 (125 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001880
+noop
+fdri 74  # CLB_IO_CLK/top/r0/c49/m0 .. CLB_IO_CLK/top/r0/c51/m0 (73 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001982
+noop
+fdri 15  # CLB_IO_CLK/top/r0/c51/m2 .. CLB_IO_CLK/top/r0/c51/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001a00
+noop
+fdri 145  # CLB_IO_CLK/top/r0/c52/m0 .. CLB_IO_CLK/top/r0/c55/m35 (144 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c02
+noop
+fdri 15  # CLB_IO_CLK/top/r0/c56/m2 .. CLB_IO_CLK/top/r0/c56/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c80
+noop
+fdri 23  # CLB_IO_CLK/top/r0/c57/m0 .. CLB_IO_CLK/top/r0/c57/m21 (22 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c97
+noop
+fdri 4  # CLB_IO_CLK/top/r0/c57/m23 .. CLB_IO_CLK/top/r0/c57/m25 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001c9c
+noop
+fdri 7  # CLB_IO_CLK/top/r0/c57/m28 .. CLB_IO_CLK/top/r0/c57/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00001ca6
+noop
+fdri 3  # CLB_IO_CLK/top/r0/c57/m38 .. CLB_IO_CLK/top/r0/c57/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020000
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c0/m0 .. CLB_IO_CLK/top/r1/c0/m2 (3 stored)
+w1 CMD MFW
+noop 12
+mfw 00020003..00020004 00020009 0002000e 0002001a..0002001b 00020022..00020025 00020028..00020083 00020085 0002008e 00020090..0002009a 0002009c..00020100 00020106 0002010e..00020181 00020183..00020186 0002018a..0002018c 0002018e 00020190..00020201 00020208 0002020a 0002020c 0002020e..00020281 00020284 00020288 0002028a..0002028c 0002028e..00020301 00020308..00020381 00020383..00020386 00020388..000203a3 00020480..00020481 00020490..0002049b 00020901 00020910..0002091d 00020f80..00020f81 00020f90..00020f99 00021180 00021190..0002119b 0002131a 00021506 0002150a 0002151a..0002151d 00021580..00021581 00021590..000215a3 00021810..0002181b
+w1 CMD WCFG
+noop
+w1 FAR 00020005
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c0/m5 .. CLB_IO_CLK/top/r1/c0/m8 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002000a
+noop
+fdri 5  # CLB_IO_CLK/top/r1/c0/m10 .. CLB_IO_CLK/top/r1/c0/m13 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002000f
+noop
+fdri 12  # CLB_IO_CLK/top/r1/c0/m15 .. CLB_IO_CLK/top/r1/c0/m25 (11 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002001c
+noop
+fdri 7  # CLB_IO_CLK/top/r1/c0/m28 .. CLB_IO_CLK/top/r1/c0/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020026
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c0/m38 .. CLB_IO_CLK/top/r1/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020084
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c1/m4 .. CLB_IO_CLK/top/r1/c1/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020086
+noop
+fdri 9  # CLB_IO_CLK/top/r1/c1/m6 .. CLB_IO_CLK/top/r1/c1/m13 (8 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002008f
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c1/m15 .. CLB_IO_CLK/top/r1/c1/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002009b
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c1/m27 .. CLB_IO_CLK/top/r1/c1/m27 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020101
+noop
+fdri 6  # CLB_IO_CLK/top/r1/c2/m1 .. CLB_IO_CLK/top/r1/c2/m5 (5 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020107
+noop
+fdri 8  # CLB_IO_CLK/top/r1/c2/m7 .. CLB_IO_CLK/top/r1/c2/m13 (7 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020182
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c3/m2 .. CLB_IO_CLK/top/r1/c3/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020187
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c3/m7 .. CLB_IO_CLK/top/r1/c3/m9 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002018d
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c3/m13 .. CLB_IO_CLK/top/r1/c3/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002018f
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c3/m15 .. CLB_IO_CLK/top/r1/c3/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020202
+noop
+fdri 7  # CLB_IO_CLK/top/r1/c4/m2 .. CLB_IO_CLK/top/r1/c4/m7 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020209
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c4/m9 .. CLB_IO_CLK/top/r1/c4/m9 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002020b
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c4/m11 .. CLB_IO_CLK/top/r1/c4/m11 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002020d
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c4/m13 .. CLB_IO_CLK/top/r1/c4/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020282
+noop
+fdri 3  # CLB_IO_CLK/top/r1/c5/m2 .. CLB_IO_CLK/top/r1/c5/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020285
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c5/m5 .. CLB_IO_CLK/top/r1/c5/m7 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020289
+noop
+fdri 1  # CLB_IO_CLK/top/r1/c5/m9 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00020289 0002028d
+w1 CMD WCFG
+noop
+w1 FAR 00020302
+noop
+fdri 7  # CLB_IO_CLK/top/r1/c6/m2 .. CLB_IO_CLK/top/r1/c6/m7 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020382
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c7/m2 .. CLB_IO_CLK/top/r1/c7/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020387
+noop
+fdri 2  # CLB_IO_CLK/top/r1/c7/m7 .. CLB_IO_CLK/top/r1/c7/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020400
+noop
+fdri 37  # CLB_IO_CLK/top/r1/c8/m0 .. CLB_IO_CLK/top/r1/c8/m35 (36 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020482
+noop
+fdri 15  # CLB_IO_CLK/top/r1/c9/m2 .. CLB_IO_CLK/top/r1/c9/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020500
+noop
+fdri 290  # CLB_IO_CLK/top/r1/c10/m0 .. CLB_IO_CLK/top/r1/c18/m0 (289 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020902
+noop
+fdri 15  # CLB_IO_CLK/top/r1/c18/m2 .. CLB_IO_CLK/top/r1/c18/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020980
+noop
+fdri 433  # CLB_IO_CLK/top/r1/c19/m0 .. CLB_IO_CLK/top/r1/c30/m35 (432 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020f82
+noop
+fdri 15  # CLB_IO_CLK/top/r1/c31/m2 .. CLB_IO_CLK/top/r1/c31/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00020f9a
+noop
+fdri 113  # CLB_IO_CLK/top/r1/c31/m26 .. CLB_IO_CLK/top/r1/c34/m35 (112 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021181
+noop
+fdri 16  # CLB_IO_CLK/top/r1/c35/m1 .. CLB_IO_CLK/top/r1/c35/m15 (15 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021200
+noop
+fdri 99  # CLB_IO_CLK/top/r1/c36/m0 .. CLB_IO_CLK/top/r1/c38/m25 (98 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002131b
+noop
+fdri 116  # CLB_IO_CLK/top/r1/c38/m27 .. CLB_IO_CLK/top/r1/c42/m5 (115 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021507
+noop
+fdri 4  # CLB_IO_CLK/top/r1/c42/m7 .. CLB_IO_CLK/top/r1/c42/m9 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002150b
+noop
+fdri 16  # CLB_IO_CLK/top/r1/c42/m11 .. CLB_IO_CLK/top/r1/c42/m25 (15 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0002151e
+noop
+fdri 7  # CLB_IO_CLK/top/r1/c42/m30 .. CLB_IO_CLK/top/r1/c42/m35 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021582
+noop
+fdri 15  # CLB_IO_CLK/top/r1/c43/m2 .. CLB_IO_CLK/top/r1/c43/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021600
+noop
+fdri 153  # CLB_IO_CLK/top/r1/c44/m0 .. CLB_IO_CLK/top/r1/c48/m15 (152 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00021880
+noop
+fdri 107  # CLB_IO_CLK/top/r1/c49/m0 .. pad (106 stored, 2 pad)
+w1 CMD MFW
+noop 12
+mfw 00400000..00400003 00400005 00400008..0040000f 00400011 00400013..00400015 00400017 0040001a..0040001b 0040001e 00400022..00400025 00400028..00400029 00400083 00400085 0040008a 0040008c 0040008f..00400093 00400104 00400184 00400310..0040031b 00400480..00400481 00400490..0040049b 00400600..004008a3 00400910..00400913 00400916..00400917 0040091c..0040091d 00400f90..00400f91 00400f94 00400f9d 00401190..0040119b 00401610..0040161b 00401810..0040181b 00401980..00401981 00401990..0040199b 00401c00..00401c01 00401c03 00401c05..00401c06 00401c0e 00401c10..00401c1a 00401c1c..00401c1d 00401c8e 00401c9a..00401c9b 00401ca2..00401ca5 00401ca8..00401ca9
+w1 CMD WCFG
+noop
+w1 FAR 00400004
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c0/m4 .. CLB_IO_CLK/bot/r0/c0/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400006
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c0/m6 .. CLB_IO_CLK/bot/r0/c0/m7 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400010
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c0/m16 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00400010 00400016 00400019
+w1 CMD WCFG
+noop
+w1 FAR 00400012
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c0/m18 .. CLB_IO_CLK/bot/r0/c0/m18 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400018
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c0/m24 .. CLB_IO_CLK/bot/r0/c0/m24 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040001c
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c0/m28 .. CLB_IO_CLK/bot/r0/c0/m29 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040001f
+noop
+fdri 4  # CLB_IO_CLK/bot/r0/c0/m31 .. CLB_IO_CLK/bot/r0/c0/m33 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400026
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c0/m38 .. CLB_IO_CLK/bot/r0/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400080
+noop
+fdri 4  # CLB_IO_CLK/bot/r0/c1/m0 .. CLB_IO_CLK/bot/r0/c1/m2 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400084
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c1/m4 .. CLB_IO_CLK/bot/r0/c1/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400086
+noop
+fdri 5  # CLB_IO_CLK/bot/r0/c1/m6 .. CLB_IO_CLK/bot/r0/c1/m9 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040008b
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c1/m11 .. CLB_IO_CLK/bot/r0/c1/m11 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040008d
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c1/m13 .. CLB_IO_CLK/bot/r0/c1/m14 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400094
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c1/m20 .. CLB_IO_CLK/bot/r0/c1/m20 (1 stored)
+w1 CMD MFW
+noop 12
+mfw 00400095 00400099
+w1 CMD WCFG
+noop
+w1 FAR 00400096
+noop
+fdri 4  # CLB_IO_CLK/bot/r0/c1/m22 .. CLB_IO_CLK/bot/r0/c1/m24 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0040009a
+noop
+fdri 9  # CLB_IO_CLK/bot/r0/c1/m26 .. CLB_IO_CLK/bot/r0/c2/m3 (8 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400105
+noop
+fdri 30  # CLB_IO_CLK/bot/r0/c2/m5 .. CLB_IO_CLK/bot/r0/c2/m33 (29 stored)
+w1 CMD MFW
+noop 12
+mfw 00400122..00400123
+w1 CMD WCFG
+noop
+w1 FAR 00400180
+noop
+fdri 5  # CLB_IO_CLK/bot/r0/c3/m0 .. CLB_IO_CLK/bot/r0/c3/m3 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400185
+noop
+fdri 120  # CLB_IO_CLK/bot/r0/c3/m5 .. CLB_IO_CLK/bot/r0/c6/m15 (119 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400380
+noop
+fdri 73  # CLB_IO_CLK/bot/r0/c7/m0 .. CLB_IO_CLK/bot/r0/c8/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400482
+noop
+fdri 15  # CLB_IO_CLK/bot/r0/c9/m2 .. CLB_IO_CLK/bot/r0/c9/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400500
+noop
+fdri 73  # CLB_IO_CLK/bot/r0/c10/m0 .. CLB_IO_CLK/bot/r0/c11/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400900
+noop
+fdri 17  # CLB_IO_CLK/bot/r0/c18/m0 .. CLB_IO_CLK/bot/r0/c18/m15 (16 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400914
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c18/m20 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00400914 00400918
+w1 CMD WCFG
+noop
+w1 FAR 00400915
+noop
+fdri 1  # CLB_IO_CLK/bot/r0/c18/m21 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00400915 00400919
+w1 CMD WCFG
+noop
+w1 FAR 0040091a
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c18/m26 .. CLB_IO_CLK/bot/r0/c18/m27 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400980
+noop
+fdri 449  # CLB_IO_CLK/bot/r0/c19/m0 .. CLB_IO_CLK/bot/r0/c31/m15 (448 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400f92
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c31/m18 .. CLB_IO_CLK/bot/r0/c31/m19 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00400f95
+noop
+fdri 9  # CLB_IO_CLK/bot/r0/c31/m21 .. CLB_IO_CLK/bot/r0/c31/m28 (8 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401000
+noop
+fdri 125  # CLB_IO_CLK/bot/r0/c32/m0 .. CLB_IO_CLK/bot/r0/c35/m15 (124 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401200
+noop
+fdri 297  # CLB_IO_CLK/bot/r0/c36/m0 .. CLB_IO_CLK/bot/r0/c44/m15 (296 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401680
+noop
+fdri 125  # CLB_IO_CLK/bot/r0/c45/m0 .. CLB_IO_CLK/bot/r0/c48/m15 (124 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401880
+noop
+fdri 73  # CLB_IO_CLK/bot/r0/c49/m0 .. CLB_IO_CLK/bot/r0/c50/m35 (72 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401982
+noop
+fdri 15  # CLB_IO_CLK/bot/r0/c51/m2 .. CLB_IO_CLK/bot/r0/c51/m15 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401a00
+noop
+fdri 145  # CLB_IO_CLK/bot/r0/c52/m0 .. CLB_IO_CLK/bot/r0/c55/m35 (144 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c02
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c56/m2 .. CLB_IO_CLK/bot/r0/c56/m2 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c04
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c56/m4 .. CLB_IO_CLK/bot/r0/c56/m4 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c07
+noop
+fdri 8  # CLB_IO_CLK/bot/r0/c56/m7 .. CLB_IO_CLK/bot/r0/c56/m13 (7 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c0f
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c56/m15 .. CLB_IO_CLK/bot/r0/c56/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c1b
+noop
+fdri 2  # CLB_IO_CLK/bot/r0/c56/m27 .. CLB_IO_CLK/bot/r0/c56/m27 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c80
+noop
+fdri 15  # CLB_IO_CLK/bot/r0/c57/m0 .. CLB_IO_CLK/bot/r0/c57/m13 (14 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c8f
+noop
+fdri 12  # CLB_IO_CLK/bot/r0/c57/m15 .. CLB_IO_CLK/bot/r0/c57/m25 (11 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401c9c
+noop
+fdri 7  # CLB_IO_CLK/bot/r0/c57/m28 .. CLB_IO_CLK/bot/r0/c57/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00401ca6
+noop
+fdri 3  # CLB_IO_CLK/bot/r0/c57/m38 .. CLB_IO_CLK/bot/r0/c57/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420000
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c0/m0 .. CLB_IO_CLK/bot/r1/c0/m2 (3 stored)
+w1 CMD MFW
+noop 12
+mfw 00420003 00421003
+w1 CMD WCFG
+noop
+w1 FAR 00420004
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c0/m4 .. CLB_IO_CLK/bot/r1/c0/m4 (1 stored)
+w1 CMD MFW
+noop 12
+mfw 00420005 0042000a 0042000e..0042000f 00420015 0042001a..0042001b 00420022..00420025 00420028..00420081 00420084 00420090..00420102 00420104 00420107 0042010b 0042010e 00420110..00420182 00420184 00420188..0042018c 0042018e 00420190..00420202 00420204 00420206..00420282 00420284 00420287..0042028a 0042028c 0042028e..004202a3 00420302 00420306..00420382 00420386..00420402 00420406..00420482 00420484 00420486..00420501 00420508..00420581 00420584..00420585 00420588..0042058c 0042058e..00420602 00420606..00420682 00420686..00420702 00420704 00420706..00420782 00420784 00420786..00420802 00420804 00420807..00420882 00420884 00420886..00420902 00420904 00420907..00420982 00420984 00420986..00420a02 00420a04 00420a06..00420a82 00420a84 00420a86..00420b82 00420b84 00420b86..00420c02 00420c04 00420c06..00420c83 00420c86..00420d02 00420d04 00420d06..00420d82 00420d84 00420d86..00420e04 00420e06..00420e82 00420e84 00420e86..00420f02 00420f04 00420f06..00421002 00421004 00421006..0042199f
+w1 CMD WCFG
+noop
+w1 FAR 00420006
+noop
+fdri 5  # CLB_IO_CLK/bot/r1/c0/m6 .. CLB_IO_CLK/bot/r1/c0/m9 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042000b
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c0/m11 .. CLB_IO_CLK/bot/r1/c0/m13 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420010
+noop
+fdri 6  # CLB_IO_CLK/bot/r1/c0/m16 .. CLB_IO_CLK/bot/r1/c0/m20 (5 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420016
+noop
+fdri 5  # CLB_IO_CLK/bot/r1/c0/m22 .. CLB_IO_CLK/bot/r1/c0/m25 (4 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042001c
+noop
+fdri 7  # CLB_IO_CLK/bot/r1/c0/m28 .. CLB_IO_CLK/bot/r1/c0/m33 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420026
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c0/m38 .. CLB_IO_CLK/bot/r1/c0/m39 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420082
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c1/m2 .. CLB_IO_CLK/bot/r1/c1/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420085
+noop
+fdri 7  # CLB_IO_CLK/bot/r1/c1/m5 .. CLB_IO_CLK/bot/r1/c1/m10 (6 stored)
+w1 CMD MFW
+noop 12
+mfw 0042008b 0042008f
+w1 CMD WCFG
+noop
+w1 FAR 0042008c
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c1/m12 .. CLB_IO_CLK/bot/r1/c1/m14 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420103
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c2/m3 .. CLB_IO_CLK/bot/r1/c2/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420105
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c2/m5 .. CLB_IO_CLK/bot/r1/c2/m6 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420108
+noop
+fdri 1  # CLB_IO_CLK/bot/r1/c2/m8 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00420108 0042010f
+w1 CMD WCFG
+noop
+w1 FAR 00420109
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c2/m9 .. CLB_IO_CLK/bot/r1/c2/m10 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042010c
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c2/m12 .. CLB_IO_CLK/bot/r1/c2/m13 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420183
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c3/m3 .. CLB_IO_CLK/bot/r1/c3/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420185
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c3/m5 .. CLB_IO_CLK/bot/r1/c3/m5 (1 stored)
+w1 CMD MFW
+noop 12
+mfw 00420186 00420384
+w1 CMD WCFG
+noop
+w1 FAR 00420187
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c3/m7 .. CLB_IO_CLK/bot/r1/c3/m7 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042018d
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c3/m13 .. CLB_IO_CLK/bot/r1/c3/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042018f
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c3/m15 .. CLB_IO_CLK/bot/r1/c3/m15 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420203
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c4/m3 .. CLB_IO_CLK/bot/r1/c4/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420205
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c4/m5 .. CLB_IO_CLK/bot/r1/c4/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420283
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c5/m3 .. CLB_IO_CLK/bot/r1/c5/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420285
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c5/m5 .. CLB_IO_CLK/bot/r1/c5/m6 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042028b
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c5/m11 .. CLB_IO_CLK/bot/r1/c5/m11 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042028d
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c5/m13 .. CLB_IO_CLK/bot/r1/c5/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420300
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c6/m0 .. CLB_IO_CLK/bot/r1/c6/m1 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420303
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c6/m3 .. CLB_IO_CLK/bot/r1/c6/m5 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420383
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c7/m3 .. CLB_IO_CLK/bot/r1/c7/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420385
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c7/m5 .. CLB_IO_CLK/bot/r1/c7/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420403
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c8/m3 .. CLB_IO_CLK/bot/r1/c8/m5 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420483
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c9/m3 .. CLB_IO_CLK/bot/r1/c9/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420485
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c9/m5 .. CLB_IO_CLK/bot/r1/c9/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420502
+noop
+fdri 7  # CLB_IO_CLK/bot/r1/c10/m2 .. CLB_IO_CLK/bot/r1/c10/m7 (6 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420582
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c11/m2 .. CLB_IO_CLK/bot/r1/c11/m3 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420586
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c11/m6 .. CLB_IO_CLK/bot/r1/c11/m7 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 0042058d
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c11/m13 .. CLB_IO_CLK/bot/r1/c11/m13 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420603
+noop
+fdri 4  # CLB_IO_CLK/bot/r1/c12/m3 .. CLB_IO_CLK/bot/r1/c12/m5 (3 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420683
+noop
+fdri 1  # CLB_IO_CLK/bot/r1/c13/m3 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00420683 00420c84
+w1 CMD WCFG
+noop
+w1 FAR 00420684
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c13/m4 .. CLB_IO_CLK/bot/r1/c13/m5 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420703
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c14/m3 .. CLB_IO_CLK/bot/r1/c14/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420705
+noop
+fdri 1  # CLB_IO_CLK/bot/r1/c14/m5 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00420705 00420906
+w1 CMD WCFG
+noop
+w1 FAR 00420783
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c15/m3 .. CLB_IO_CLK/bot/r1/c15/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420785
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c15/m5 .. CLB_IO_CLK/bot/r1/c15/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420803
+noop
+fdri 1  # CLB_IO_CLK/bot/r1/c16/m3 (buffer only)
+w1 CMD MFW
+noop 12
+mfw 00420803 00420a03
+w1 CMD WCFG
+noop
+w1 FAR 00420805
+noop
+fdri 3  # CLB_IO_CLK/bot/r1/c16/m5 .. CLB_IO_CLK/bot/r1/c16/m6 (2 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420883
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c17/m3 .. CLB_IO_CLK/bot/r1/c17/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420885
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c17/m5 .. CLB_IO_CLK/bot/r1/c17/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420903
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c18/m3 .. CLB_IO_CLK/bot/r1/c18/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420905
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c18/m5 .. CLB_IO_CLK/bot/r1/c18/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420983
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c19/m3 .. CLB_IO_CLK/bot/r1/c19/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420985
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c19/m5 .. CLB_IO_CLK/bot/r1/c19/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420a05
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c20/m5 .. CLB_IO_CLK/bot/r1/c20/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420a83
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c21/m3 .. CLB_IO_CLK/bot/r1/c21/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420a85
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c21/m5 .. CLB_IO_CLK/bot/r1/c21/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420b83
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c23/m3 .. CLB_IO_CLK/bot/r1/c23/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420b85
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c23/m5 .. CLB_IO_CLK/bot/r1/c23/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420c03
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c24/m3 .. CLB_IO_CLK/bot/r1/c24/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420c05
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c24/m5 .. CLB_IO_CLK/bot/r1/c24/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420c85
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c25/m5 .. CLB_IO_CLK/bot/r1/c25/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420d03
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c26/m3 .. CLB_IO_CLK/bot/r1/c26/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420d05
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c26/m5 .. CLB_IO_CLK/bot/r1/c26/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420d83
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c27/m3 .. CLB_IO_CLK/bot/r1/c27/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420d85
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c27/m5 .. CLB_IO_CLK/bot/r1/c27/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420e05
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c28/m5 .. CLB_IO_CLK/bot/r1/c28/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420e83
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c29/m3 .. CLB_IO_CLK/bot/r1/c29/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420e85
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c29/m5 .. CLB_IO_CLK/bot/r1/c29/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420f03
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c30/m3 .. CLB_IO_CLK/bot/r1/c30/m3 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00420f05
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c30/m5 .. CLB_IO_CLK/bot/r1/c30/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00421005
+noop
+fdri 2  # CLB_IO_CLK/bot/r1/c32/m5 .. CLB_IO_CLK/bot/r1/c32/m5 (1 stored)
+w1 CMD WCFG
+noop
+w1 FAR 00800000
+noop
+fdri 1  # BLOCK_RAM/top/r0/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00800000..008001ff
+w1 CMD WCFG
+noop
+w1 FAR 00820000
+noop
+fdri 1  # BLOCK_RAM/top/r1/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00820000..0082017f
+w1 CMD WCFG
+noop
+w1 FAR 00c00000
+noop
+fdri 1  # BLOCK_RAM/bot/r0/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00c00000..00c001ff
+w1 CMD WCFG
+noop
+w1 FAR 00c20000
+noop
+fdri 1  # BLOCK_RAM/bot/r1/c0/m0 (buffer only)
+w1 CMD MFW
+noop 12
+mfw gap=2 00c20000..00c2017f
+crc
+noop 2
+w1 CMD GRESTORE
+noop
+w1 CMD LFRM
+w1 MASK 00001000
+w1 CTL1 00000000
+noop 100
+w1 CMD START
+noop
+w1 FAR 03be0000
+w1 MASK 00000101
+w1 CTL0 00000101
+crc
+noop 2
+w1 CMD DESYNC
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 2000000020000000200000002000000020000000200000002000000020000000
+raw 200000002000000020000000
+fill 0xff 1971168
+raw 000000bb11220044ffffffffffffffff
+sync
+noop 3
+w1 TIMER 40000001
+noop 2
+raw ffffffffffffffff
+fill 0x00 4036
+fill 0xff 25161728
