@@ -1,0 +1,43 @@
+== layer 1: packets (/home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin)
+19768 listing lines, 7397 blobs
+== layer 2: frames + packing plan
+image0: 9448 frames stored (9448 of 9448 valid addresses, 3856 via MFW); 195 FDRI writes; 5640 non-zero frames
+image1: 9448 frames stored (9448 of 9448 valid addresses, 3182 via MFW); 164 FDRI writes; 6305 non-zero frames
+== layer 3: FASM + unknown bits, and back (images: image0 image1 )
+   image0: {'set_bits': 1865477, 'fasm_bits': 1865474, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 524481}
+   image0: frames(FASM+unknown) == frames
+   image1: {'set_bits': 1860514, 'fasm_bits': 1860511, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 522556}
+   image1: frames(FASM+unknown) == frames
+== rebuild: frames' + plan -> packets -> image
+19768 listing lines, 7397 blobs
+8388668 bytes
+BYTE-IDENTICAL: /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin == ../work/rt4-vendor/rebuilt.bin (8388668 bytes)
+== layer 4: image0 FASM -> netlist (lossless check)
+lines in FASM: 524481, owned: 524481 (cells 151625, nets 372856, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: image0 logical view + blocks
+== split by block -> merge -> FASM: image0
+wrote 58 block files to ../work/rt4-vendor/l5/image0.split
+merged 9807 cells, 56272 nets, 0 unassigned
+netlists IDENTICAL
+   image0: FASM(per-block netlist) == FASM
+   image0: frames(per-block netlist) == frames
+== layer 4: image1 FASM -> netlist (lossless check)
+lines in FASM: 522556, owned: 522556 (cells 151164, nets 371392, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: image1 logical view + blocks
+== split by block -> merge -> FASM: image1
+wrote 58 block files to ../work/rt4-vendor/l5/image1.split
+merged 9751 cells, 56224 nets, 0 unassigned
+netlists IDENTICAL
+   image1: FASM(per-block netlist) == FASM
+   image1: frames(per-block netlist) == frames
+== rebuild image from the per-block netlists
+19768 listing lines, 7397 blobs
+8388668 bytes
+BYTE-IDENTICAL (layer 4/5): /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin == ../work/rt4-vendor/rebuilt4.bin (8388668 bytes)
+exit=0

@@ -1,0 +1,56 @@
+# IO ring (update); package pins assume FGG484 (see LAYER2.md)
+
+class (prim, I-driver, T-driver, input used, drive): count
+
+- IBUF I=- T=- O=used                                72
+- IOBUF I=GND T=FDPE O=used I12_I8                   64
+- OBUF I=LUT6_2 T=- O=- I12_I16                      64
+- IOB_CFG_ONLY I=- T=- O=-                           34
+- OBUF I=VCC T=- O=- I12_I16                         1
+- IOBUF I=LUT6_2 T=FDSE O=used I12_I16               1
+- OBUF I=FDPE T=- O=- I12_I16                        1
+- OBUF I=FDCE T=- O=- I12_I16                        1
+
+per bank: class counts
+
+- bank 13: {'IOBUF I=GND': 7, 'OBUF I=LUT6_2': 6, 'IBUF I=-': 12, 'IOB_CFG_ONLY I=-': 4}
+- bank 14: {'IBUF I=-': 3, 'IOB_CFG_ONLY I=-': 13, 'OBUF I=FDPE': 1, 'OBUF I=FDCE': 1}
+- bank 15: {'IOBUF I=GND': 17, 'OBUF I=LUT6_2': 2, 'IBUF I=-': 9, 'IOB_CFG_ONLY I=-': 12, 'OBUF I=VCC': 1, 'IOBUF I=LUT6_2': 1}
+- bank 16: {'IOBUF I=GND': 21, 'OBUF I=LUT6_2': 27, 'IBUF I=-': 2}
+- bank 34: {'IOBUF I=GND': 17, 'OBUF I=LUT6_2': 18, 'IBUF I=-': 13, 'IOB_CFG_ONLY I=-': 1}
+- bank 35: {'IOBUF I=GND': 2, 'OBUF I=LUT6_2': 11, 'IBUF I=-': 33, 'IOB_CFG_ONLY I=-': 4}
+
+channel pad pairs (channel index = order of this list, not the driver port number)
+
+- ch00: IOB_X0Y100 (M17, bank 15) + IOB_X0Y101 (M16, bank 15)
+- ch01: IOB_X0Y102 (M15, bank 15) + IOB_X0Y105 (L15, bank 15)
+- ch02: IOB_X0Y113 (M20, bank 15) + IOB_X0Y114 (N20, bank 15)
+- ch03: IOB_X0Y116 (N18, bank 15) + IOB_X0Y135 (H22, bank 15)
+- ch04: IOB_X0Y119 (M22, bank 15) + IOB_X0Y129 (L21, bank 15)
+- ch05: IOB_X0Y120 (N22, bank 15) + IOB_X0Y130 (M21, bank 15)
+- ch06: IOB_X0Y127 (J21, bank 15) + IOB_X0Y136 (J22, bank 15)
+- ch07: IOB_X0Y131 (K22, bank 15) + IOB_X0Y132 (K21, bank 15)
+- ch08: IOB_X0Y145 (G16, bank 15) + IOB_X0Y199 (F15, bank 16)
+- ch09: IOB_X0Y151 (G22, bank 16) + IOB_X0Y152 (G21, bank 16)
+- ch10: IOB_X0Y153 (D21, bank 16) + IOB_X0Y160 (C22, bank 16)
+- ch11: IOB_X0Y154 (E21, bank 16) + IOB_X0Y156 (E22, bank 16)
+- ch12: IOB_X0Y155 (D22, bank 16) + IOB_X0Y159 (B22, bank 16)
+- ch13: IOB_X0Y157 (A21, bank 16) + IOB_X0Y158 (B21, bank 16)
+- ch14: IOB_X0Y165 (A19, bank 16) + IOB_X0Y177 (B18, bank 16)
+- ch15: IOB_X0Y166 (A18, bank 16) + IOB_X0Y185 (B16, bank 16)
+- ch16: IOB_X0Y167 (A20, bank 16) + IOB_X0Y168 (B20, bank 16)
+- ch17: IOB_X0Y17 (W16, bank 13) + IOB_X0Y49 (Y17, bank 13)
+- ch18: IOB_X0Y179 (A14, bank 16) + IOB_X0Y182 (A15, bank 16)
+- ch19: IOB_X0Y181 (A16, bank 16) + IOB_X0Y186 (B15, bank 16)
+- ch20: IOB_X0Y23 (V14, bank 13) + IOB_X0Y24 (V13, bank 13)
+- ch21: IOB_X0Y34 (AA9, bank 13) + IOB_X1Y51 (Y9, bank 34)
+- ch22: IOB_X0Y38 (W14, bank 13) + IOB_X0Y40 (Y13, bank 13)
+- ch23: IOB_X1Y106 (P2, bank 35) + IOB_X1Y110 (R1, bank 35)
+- ch24: IOB_X1Y52 (W9, bank 34) + IOB_X1Y57 (V8, bank 34)
+- ch25: IOB_X1Y55 (AB8, bank 34) + IOB_X1Y56 (AA8, bank 34)
+- ch26: IOB_X1Y59 (AB6, bank 34) + IOB_X1Y60 (AB7, bank 34)
+- ch27: IOB_X1Y65 (T6, bank 34) + IOB_X1Y72 (T5, bank 34)
+- ch28: IOB_X1Y67 (V5, bank 34) + IOB_X1Y68 (U6, bank 34)
+- ch29: IOB_X1Y85 (AB1, bank 34) + IOB_X1Y86 (AA1, bank 34)
+- ch30: IOB_X1Y89 (Y1, bank 34) + IOB_X1Y91 (Y2, bank 34)
+- ch31: IOB_X1Y96 (U2, bank 34) + IOB_X1Y97 (U1, bank 34)

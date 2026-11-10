@@ -31,9 +31,24 @@ Layers, each verified to rebuild the exact bytes before the next:
    unexplained bits carried separately. **Done**, byte-identical end to end
    (`i2cfpga/roundtrip.sh`, report `i2cfpga/LAYER2.md`): 9448 frames on the
    xc7a100t fabric, ~458k FASM lines, 3 bits not explained by the database.
-3. **netlist + annotation** — gates/FFs/routing -> named, grouped design
-   using the register map known from the vendor driver
-   (`../reviews/2026-11-10-i2c-fpga-protocol.md`). Not started.
+   (Layers 2 and 3 share that report.)
+3. **FASM + unknown bits** — part of the layer-2 report: prjxray FASM, with
+   the 3 bits the database does not explain kept separately. **Done.**
+4. **netlist** — `i2cfpga/fasmnet.py`: FASM <-> cells (sites with their
+   FASM lines) + nets (driver pin -> sink pins with the pips that realise
+   them) + an `unassigned` bucket (empty here); routing graph from
+   prjxray-db (`i2cfpga/xc7graph.py`); logical UNISIM-like view and
+   structural Verilog (`i2cfpga/xc7bels.py`). **Done**, lossless:
+   netlist -> FASM is identical and the image rebuilds byte for byte
+   (`i2cfpga/roundtrip4.sh`, report `i2cfpga/LAYER4.md`).
+5. **blocks** — `i2cfpga/blocks.py`: every cell/net/primitive annotated
+   with a block path (`pcie/*`, `clock/*`, `i2c/chNN`, `sideband/io`,
+   `core/*`, `io/*`), with V/I evidence; the netlist split per block
+   rebuilds the image byte for byte. Report `i2cfpga/BLOCKS.md`, small
+   outputs in `i2cfpga/mtd5/`. **First pass done**: PCIe block + pipe
+   clock matched to the Xilinx 7-series PCIe IP, 32 replicated I2C channel
+   engines found (two structural families of 16), register addresses not
+   yet tied to logic.
 
 Large outputs go in `work/` (git-ignored).
 

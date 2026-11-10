@@ -1,0 +1,42 @@
+== layer 1: packets (/home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../../images/spi-2026-11-09/mtd5-i2cfpga.bin)
+22974 listing lines, 8925 blobs
+== layer 2: frames + packing plan
+golden: 9448 frames stored (9448 of 9448 valid addresses, 4011 via MFW); 227 FDRI writes; 5492 non-zero frames
+update: 9448 frames stored (9448 of 9448 valid addresses, 4502 via MFW); 185 FDRI writes; 4976 non-zero frames
+== layer 3: FASM + unknown bits, and back (images: golden update )
+   golden: {'set_bits': 1626375, 'fasm_bits': 1626372, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 458269}
+   golden: frames(FASM+unknown) == frames
+   update: {'set_bits': 1626234, 'fasm_bits': 1626231, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 458693}
+   update: frames(FASM+unknown) == frames
+== rebuild: frames' + plan -> packets -> image
+22974 listing lines, 8925 blobs
+33554432 bytes
+BYTE-IDENTICAL: /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../../images/spi-2026-11-09/mtd5-i2cfpga.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt4-mtd5-i2cfpga/rebuilt.bin (33554432 bytes)
+== layer 4: golden FASM -> netlist (lossless check)
+lines in FASM: 458269, owned: 458269 (cells 134563, nets 323706, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: golden logical view + blocks
+== split by block -> merge -> FASM: golden
+wrote 57 block files to /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt4-mtd5-i2cfpga/l5/golden.split
+merged 8817 cells, 49880 nets, 0 unassigned
+netlists IDENTICAL
+   golden: FASM(per-block netlist) == FASM
+   golden: frames(per-block netlist) == frames
+== layer 4: update FASM -> netlist (lossless check)
+lines in FASM: 458693, owned: 458693 (cells 133986, nets 324707, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: update logical view + blocks
+== split by block -> merge -> FASM: update
+wrote 58 block files to /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt4-mtd5-i2cfpga/l5/update.split
+merged 8652 cells, 49793 nets, 0 unassigned
+netlists IDENTICAL
+   update: FASM(per-block netlist) == FASM
+   update: frames(per-block netlist) == frames
+== rebuild image from the per-block netlists
+22974 listing lines, 8925 blobs
+33554432 bytes
+BYTE-IDENTICAL (layer 4/5): /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../../images/spi-2026-11-09/mtd5-i2cfpga.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt4-mtd5-i2cfpga/rebuilt4.bin (33554432 bytes)

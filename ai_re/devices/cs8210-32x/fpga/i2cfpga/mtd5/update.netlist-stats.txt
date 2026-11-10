@@ -1,0 +1,15 @@
+cells                                         8652
+cells by type                                 {'SLICEL': 5329, 'SLICEM': 2387, 'IDELAYE2': 224, 'ILOGICE3': 224, 'OLOGICE3': 132, 'IOB33S': 114, 'IOB33M': 114, 'FIFO18E1': 31, 'RAMB18E1': 31, 'BRAM_L_TILE': 31, 'BUFHCE': 11, 'IOB33': 10, 'BUFGCTRL': 5, 'IPAD': 4, 'GTPE2_CHANNEL': 1, 'GTPE2_COMMON': 1, 'IBUFDS_GTE2': 1, 'MMCME2_ADV': 1, 'PCIE_2_1': 1}
+implicit cells (no FASM lines of their own)   4
+nets                                          49793
+nets with driver pin + >=1 sink               49473
+constant nets (TIEOFF / default VCC)          320
+undriven nets                                 0
+nets without sinks                            2
+FASM lines owned by cells                     133986
+FASM lines owned by nets                      324707
+FASM lines unassigned                         0
+ppips used by nets (derived, not FASM)        495496
+fanout histogram (33 = >32)                   {1: 28115, 2: 9128, 3: 3728, 4: 2004, 5: 1905, 6: 1064, 7: 578, 8: 388, 9: 236, 10: 200, 11: 164, 12: 162, 13: 132, 14: 127, 15: 122, 16: 107, 17: 91, 18: 66, 19: 57, 20: 54, 21: 67, 22: 77, 23: 65, 24: 59, 25: 40, 26: 29, 27: 18, 28: 20, 29: 18, 30: 31, 31: 15, 32: 21, 33: 585}
+notes                                         {'node with >1 always-ppip driver reaching a used site pin': 1, 'input pins fed only by a dedicated wire from an unused site': 760, 'cell input pins whose only possible drivers are db-unknown pips': 1556}
+unassigned reasons                            {}

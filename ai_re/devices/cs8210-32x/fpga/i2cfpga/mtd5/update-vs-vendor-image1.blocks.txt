@@ -1,0 +1,27 @@
+block-level comparison: update vs image1
+labels = multiset of primitive labels (LUT function up to input order, FF type/INIT/CE/SR);
+"diff" = labels added + removed relative to update
+
+block                  update                         image1                        
+clock/pipe_clock       LUT     0 FF     0 other   1   LUT     0 FF     0 other   1    diff +0/-0
+clock/tree             LUT     0 FF     0 other  16   LUT     0 FF     0 other  18    diff +2/-0
+core/i2c_glue          LUT  1991 FF   974 other  32   LUT  1711 FF   830 other  16    diff +1136/-1688
+core/pcie_glue         LUT    99 FF    20 other   0   LUT    90 FF    19 other   0    diff +5/-21
+core/shared            LUT  4210 FF  4407 other  25   LUT  9244 FF  8477 other 164    diff +12274/-1736
+core/sideband_regs     LUT   107 FF   121 other   0   LUT   180 FF   112 other   0    diff +139/-70
+i2c/chNN               LUT 17892 FF 14802 other 261   LUT 16435 FF 13316 other 271    diff +9791/-13554
+io/i2c_pads            LUT     0 FF     0 other  64   LUT     0 FF     0 other  64    diff +0/-0
+io/inputs              LUT     0 FF     0 other  72   LUT     0 FF     0 other  78    diff +6/-0
+io/misc                LUT     0 FF     0 other  79   LUT     0 FF     0 other  85    diff +6/-0
+io/pads                LUT     0 FF     0 other  38   LUT     0 FF     0 other  32    diff +1/-7
+io/sideband_out        LUT     0 FF     0 other  64   LUT     0 FF     0 other  64    diff +0/-0
+mem/bram               LUT     0 FF     0 other   1   LUT     0 FF     0 other   3    diff +2/-0
+pcie/bram              LUT     0 FF     0 other  16   LUT     0 FF     0 other  16    diff +0/-0
+pcie/gtp               LUT     0 FF     0 other   7   LUT     0 FF     0 other   7    diff +0/-0
+pcie/hard_block        LUT     0 FF     0 other   1   LUT     0 FF     0 other   1    diff +0/-0
+pcie/pipe_wrapper      LUT   310 FF   478 other  11   LUT   299 FF   478 other  11    diff +0/-14
+pcie/user_if           LUT   117 FF   226 other   1   LUT   103 FF   226 other   0    diff +3/-26
+sideband/io            LUT   511 FF   537 other   0   LUT   652 FF   923 other   0    diff +861/-385
+
+update: channel families {'0': 15, '1': 1, '2': 16}; per-channel matched [741, 551, 706, 1140, 638, 618, 679, 1129, 1114, 653, 712, 1132, 1114, 1114, 645, 1136, 1104, 675, 1155, 651, 1128, 1165, 662, 1076, 1124, 741, 712, 1093, 1119, 1146, 689, 658]
+image1: channel families {'0': 12, '1': 16, '2': 3, '3': 1}; per-channel matched [245, 254, 1404, 214, 244, 254, 255, 1352, 1364, 1371, 1399, 1400, 1336, 1367, 243, 1384, 212, 825, 1374, 800, 1344, 1393, 211, 1396, 1366, 227, 255, 494, 1370, 1367, 777, 255]

@@ -1,0 +1,249 @@
+# PCIE_2_1 neighbourhood (update)
+
+- CFGVENDID tied to 0x1d0f (16 bits tied, all from TIEOFF/const nets)
+- CFGDEVID tied to 0x8571 (16 bits tied, all from TIEOFF/const nets)
+- CFGREVID tied to 0x01 (8 bits tied, all from TIEOFF/const nets)
+- CFGSUBSYSVENDID tied to 0x0000 (16 bits tied, all from TIEOFF/const nets)
+- CFGSUBSYSID tied to 0x0000 (16 bits tied, all from TIEOFF/const nets)
+
+port group: connections (by block)
+
+- CFGAERINTERRUPTMSGNUM        {'GND': 5}
+- CFGDEVID                     {'VCC': 7, 'GND': 9}
+- CFGDSBUSNUMBER               {'GND': 8}
+- CFGDSDEVICENUMBER            {'GND': 5}
+- CFGDSFUNCTIONNUMBER          {'GND': 3}
+- CFGDSN                       {'GND': 64}
+- CFGERRACSN                   {'VCC': 1}
+- CFGERRAERHEADERLOG           {'GND': 128}
+- CFGERRATOMICEGRESSBLOCKEDN   {'VCC': 1}
+- CFGERRCORN                   {'VCC': 1}
+- CFGERRCPLABORTN              {'VCC': 1}
+- CFGERRCPLTIMEOUTN            {'VCC': 1}
+- CFGERRCPLUNEXPECTN           {'VCC': 1}
+- CFGERRECRCN                  {'VCC': 1}
+- CFGERRINTERNALCORN           {'VCC': 1}
+- CFGERRINTERNALUNCORN         {'VCC': 1}
+- CFGERRLOCKEDN                {'VCC': 1}
+- CFGERRMALFORMEDN             {'VCC': 1}
+- CFGERRMCBLOCKEDN             {'VCC': 1}
+- CFGERRNORECOVERYN            {'VCC': 1}
+- CFGERRPOISONEDN              {'VCC': 1}
+- CFGERRPOSTEDN                {'VCC': 1}
+- CFGERRTLPCPLHEADER           {'GND': 48}
+- CFGERRURN                    {'VCC': 1}
+- CFGFORCECOMMONCLOCKOFF       {'GND': 1}
+- CFGFORCEEXTENDEDSYNCON       {'GND': 1}
+- CFGFORCEMPS                  {'GND': 3}
+- CFGINTERRUPTASSERTN          {'<- pcie/user_if': 1}
+- CFGINTERRUPTDI               {'<- pcie/user_if': 4, 'GND': 4}
+- CFGINTERRUPTN                {'<- pcie/user_if': 1}
+- CFGINTERRUPTSTATN            {'VCC': 1}
+- CFGMGMTBYTEENN               {'VCC': 4}
+- CFGMGMTDI                    {'GND': 32}
+- CFGMGMTDWADDR                {'GND': 10}
+- CFGMGMTRDENN                 {'VCC': 1}
+- CFGMGMTWRENN                 {'VCC': 1}
+- CFGMGMTWRREADONLYN           {'VCC': 1}
+- CFGMGMTWRRW1CASRWN           {'VCC': 1}
+- CFGPCIECAPINTERRUPTMSGNUM    {'GND': 5}
+- CFGPCIELINKSTATE             {'-> pcie/user_if': 9}
+- CFGPMFORCESTATE              {'GND': 2}
+- CFGPMFORCESTATEENN           {'VCC': 1}
+- CFGPMHALTASPML0SN            {'VCC': 1}
+- CFGPMHALTASPML1N             {'VCC': 1}
+- CFGPMSENDPMETON              {'VCC': 1}
+- CFGPMTURNOFFOKN              {'<- pcie/user_if': 1}
+- CFGPMWAKEN                   {'VCC': 1}
+- CFGPORTNUMBER                {'GND': 8}
+- CFGREVID                     {'VCC': 1, 'GND': 7}
+- CFGSUBSYSID                  {'GND': 16}
+- CFGSUBSYSVENDID              {'GND': 16}
+- CFGTRNPENDINGN               {'VCC': 1}
+- CFGVENDID                    {'VCC': 8, 'GND': 8}
+- CMRSTN                       {'VCC': 1}
+- CMSTICKYRSTN                 {'VCC': 1}
+- DBGMODE                      {'GND': 2}
+- DBGSUBMODE                   {'GND': 1}
+- DLRSTN                       {'VCC': 1}
+- DRPADDR                      {'GND': 9}
+- DRPCLK                       {'VCC': 1}
+- DRPDI                        {'GND': 16}
+- DRPEN                        {'GND': 1}
+- DRPWE                        {'GND': 1}
+- FUNCLVLRSTN                  {'VCC': 1}
+- LL2SENDASREQL                {'GND': 1}
+- LL2SENDENTERL                {'GND': 2}
+- LL2SENDPMACK                 {'GND': 1}
+- LL2SUSPENDNOW                {'GND': 1}
+- LL2TLPRCV                    {'GND': 1}
+- MIMRXRADDR                   {'-> pcie/bram': 88}
+- MIMRXRDATA                   {'<- pcie/bram': 68}
+- MIMRXREN                     {'-> pcie/bram': 8}
+- MIMRXWADDR                   {'-> pcie/bram': 88}
+- MIMRXWDATA                   {'-> pcie/bram': 68}
+- MIMRXWEN                     {'-> pcie/bram': 8}
+- MIMTXRADDR                   {'-> pcie/bram': 88}
+- MIMTXRDATA                   {'<- pcie/bram': 69}
+- MIMTXREN                     {'-> pcie/bram': 8}
+- MIMTXWADDR                   {'-> pcie/bram': 88}
+- MIMTXWDATA                   {'-> pcie/bram': 69}
+- MIMTXWEN                     {'-> pcie/bram': 8}
+- PIPECLK                      {'<- clock/tree': 1}
+- PIPERX0CHANISALIGNED         {'<- pcie/pipe_wrapper': 1}
+- PIPERX0CHARISK               {'<- pcie/pipe_wrapper': 2}
+- PIPERX0DATA                  {'<- pcie/pipe_wrapper': 16}
+- PIPERX0ELECIDLE              {'<- pcie/pipe_wrapper': 1}
+- PIPERX0PHYSTATUS             {'<- pcie/pipe_wrapper': 1}
+- PIPERX0POLARITY              {'-> pcie/pipe_wrapper': 1}
+- PIPERX0STATUS                {'<- pcie/pipe_wrapper': 3}
+- PIPERX0VALID                 {'<- pcie/pipe_wrapper': 1}
+- PIPERX1CHANISALIGNED         {'GND': 1}
+- PIPERX1CHARISK               {'GND': 2}
+- PIPERX1DATA                  {'GND': 16}
+- PIPERX1ELECIDLE              {'VCC': 1}
+- PIPERX1PHYSTATUS             {'GND': 1}
+- PIPERX1STATUS                {'GND': 3}
+- PIPERX1VALID                 {'GND': 1}
+- PIPERX2CHANISALIGNED         {'GND': 1}
+- PIPERX2CHARISK               {'GND': 2}
+- PIPERX2DATA                  {'GND': 16}
+- PIPERX2ELECIDLE              {'VCC': 1}
+- PIPERX2PHYSTATUS             {'GND': 1}
+- PIPERX2STATUS                {'GND': 3}
+- PIPERX2VALID                 {'GND': 1}
+- PIPERX3CHANISALIGNED         {'GND': 1}
+- PIPERX3CHARISK               {'GND': 2}
+- PIPERX3DATA                  {'GND': 16}
+- PIPERX3ELECIDLE              {'VCC': 1}
+- PIPERX3PHYSTATUS             {'GND': 1}
+- PIPERX3STATUS                {'GND': 3}
+- PIPERX3VALID                 {'GND': 1}
+- PIPERX4CHANISALIGNED         {'GND': 1}
+- PIPERX4CHARISK               {'GND': 2}
+- PIPERX4DATA                  {'GND': 16}
+- PIPERX4ELECIDLE              {'VCC': 1}
+- PIPERX4PHYSTATUS             {'GND': 1}
+- PIPERX4STATUS                {'GND': 3}
+- PIPERX4VALID                 {'GND': 1}
+- PIPERX5CHANISALIGNED         {'GND': 1}
+- PIPERX5CHARISK               {'GND': 2}
+- PIPERX5DATA                  {'GND': 16}
+- PIPERX5ELECIDLE              {'VCC': 1}
+- PIPERX5PHYSTATUS             {'GND': 1}
+- PIPERX5STATUS                {'GND': 3}
+- PIPERX5VALID                 {'GND': 1}
+- PIPERX6CHANISALIGNED         {'GND': 1}
+- PIPERX6CHARISK               {'GND': 2}
+- PIPERX6DATA                  {'GND': 16}
+- PIPERX6ELECIDLE              {'VCC': 1}
+- PIPERX6PHYSTATUS             {'GND': 1}
+- PIPERX6STATUS                {'GND': 3}
+- PIPERX6VALID                 {'GND': 1}
+- PIPERX7CHANISALIGNED         {'GND': 1}
+- PIPERX7CHARISK               {'GND': 2}
+- PIPERX7DATA                  {'GND': 16}
+- PIPERX7ELECIDLE              {'VCC': 1}
+- PIPERX7PHYSTATUS             {'GND': 1}
+- PIPERX7STATUS                {'GND': 3}
+- PIPERX7VALID                 {'GND': 1}
+- PIPETX0CHARISK               {'-> pcie/pipe_wrapper': 2}
+- PIPETX0COMPLIANCE            {'-> pcie/pipe_wrapper': 1}
+- PIPETX0DATA                  {'-> pcie/pipe_wrapper': 16}
+- PIPETX0ELECIDLE              {'-> pcie/pipe_wrapper': 1}
+- PIPETX0POWERDOWN             {'-> pcie/pipe_wrapper': 2}
+- PIPETXDEEMPH                 {'-> i2c/chNN': 1}
+- PIPETXMARGIN                 {'-> pcie/pipe_wrapper': 3}
+- PIPETXRATE                   {'-> pcie/pipe_wrapper': 1}
+- PIPETXRCVRDET                {'-> i2c/chNN': 1}
+- PL2DIRECTEDLSTATE            {'GND': 5}
+- PLDBGMODE                    {'GND': 3}
+- PLDIRECTEDLINKAUTON          {'GND': 1}
+- PLDIRECTEDLINKCHANGE         {'GND': 2}
+- PLDIRECTEDLINKSPEED          {'VCC': 1}
+- PLDIRECTEDLINKWIDTH          {'GND': 2}
+- PLDIRECTEDLTSSMNEW           {'GND': 6}
+- PLDIRECTEDLTSSMNEWVLD        {'GND': 1}
+- PLDIRECTEDLTSSMSTALL         {'GND': 1}
+- PLDOWNSTREAMDEEMPHSOURCE     {'GND': 1}
+- PLLINKGEN2CAP                {'-> pcie/user_if': 1}
+- PLLTSSMSTATE                 {'-> pcie/user_if': 12, '-> pcie/pipe_wrapper': 9}
+- PLPHYLNKUPN                  {'-> pcie/user_if': 1}
+- PLRECEIVEDHOTRST             {'-> pcie/user_if': 1}
+- PLRSTN                       {'VCC': 1}
+- PLSELLNKRATE                 {'-> pcie/user_if': 1}
+- PLSELLNKWIDTH                {'-> pcie/user_if': 2}
+- PLTRANSMITHOTRST             {'GND': 1}
+- PLUPSTREAMPREFERDEEMPH       {'<- pcie/user_if': 1}
+- SYSRSTN                      {'<- pcie/user_if': 1}
+- TL2ASPMSUSPENDCREDITCHECK    {'GND': 1}
+- TL2PPMSUSPENDREQ             {'GND': 1}
+- TLRSTN                       {'VCC': 1}
+- TRNFCSEL                     {'GND': 3}
+- TRNLNKUP                     {'-> pcie/user_if': 1}
+- TRNRBARHIT                   {'-> pcie/user_if': 8}
+- TRNRD                        {'-> pcie/user_if': 128}
+- TRNRDSTRDY                   {'<- pcie/user_if': 1}
+- TRNREOF                      {'-> pcie/user_if': 4}
+- TRNRFCPRET                   {'VCC': 1}
+- TRNRNPOK                     {'VCC': 1}
+- TRNRNPREQ                    {'VCC': 1}
+- TRNRSOF                      {'-> pcie/user_if': 3}
+- TRNRSRCDSC                   {'-> pcie/user_if': 4}
+- TRNRSRCRDY                   {'-> pcie/user_if': 2}
+- TRNTBUFAV                    {'-> pcie/user_if': 18}
+- TRNTCFGGNT                   {'<- pcie/user_if': 1}
+- TRNTCFGREQ                   {'-> pcie/user_if': 6}
+- TRNTD                        {'<- pcie/user_if': 64, 'GND': 64}
+- TRNTDLLPDATA                 {'GND': 32}
+- TRNTDLLPSRCRDY               {'GND': 1}
+- TRNTDSTRDY                   {'-> pcie/user_if': 5}
+- TRNTECRCGEN                  {'GND': 1}
+- TRNTEOF                      {'<- pcie/user_if': 1}
+- TRNTERRFWD                   {'GND': 1}
+- TRNTREM                      {'<- pcie/user_if': 1, 'GND': 1}
+- TRNTSOF                      {'<- pcie/user_if': 1}
+- TRNTSRCDSC                   {'GND': 1}
+- TRNTSRCRDY                   {'<- pcie/user_if': 1}
+- TRNTSTR                      {'GND': 1}
+- USERCLK                      {'<- clock/tree': 2}
+- USERRSTN                     {'-> pcie/user_if': 1}
+
+MMCME2_ADV features:
+
+- CLKFBOUT_CLKOUT1_HIGH_TIME = 5
+- CLKFBOUT_CLKOUT1_LOW_TIME = 5
+- CLKFBOUT_CLKOUT1_OUTPUT_ENABLE = 1
+- CLKOUT0_CLKOUT1_HIGH_TIME = 4
+- CLKOUT0_CLKOUT1_LOW_TIME = 4
+- CLKOUT0_CLKOUT1_OUTPUT_ENABLE = 1
+- CLKOUT1_CLKOUT1_HIGH_TIME = 2
+- CLKOUT1_CLKOUT1_LOW_TIME = 2
+- CLKOUT1_CLKOUT1_OUTPUT_ENABLE = 1
+- CLKOUT2_CLKOUT1_HIGH_TIME = 8
+- CLKOUT2_CLKOUT1_LOW_TIME = 8
+- CLKOUT2_CLKOUT1_OUTPUT_ENABLE = 1
+- CLKOUT3_CLKOUT1_HIGH_TIME = 8
+- CLKOUT3_CLKOUT1_LOW_TIME = 8
+- CLKOUT4_CLKOUT1_HIGH_TIME = 10
+- CLKOUT4_CLKOUT1_LOW_TIME = 10
+- CLKOUT5_CLKOUT1_HIGH_TIME = 1
+- CLKOUT5_CLKOUT1_LOW_TIME = 1
+- CLKOUT5_CLKOUT2_FRACTIONAL_NO_COUNT = 1
+- CLKOUT6_CLKOUT1_HIGH_TIME = 1
+- CLKOUT6_CLKOUT1_LOW_TIME = 1
+- CLKOUT6_CLKOUT2_FRACTIONAL_NO_COUNT = 1
+- COMP.Z_ZHOLD = 1
+- DIVCLK_DIVCLK_HIGH_TIME = 1
+- DIVCLK_DIVCLK_LOW_TIME = 1
+- DIVCLK_DIVCLK_NO_COUNT = 1
+- FILTREG1_RESERVED = 8
+- IN_USE = 1
+- LKTABLE = 993187046401
+- LOCKREG3_RESERVED = 1
+- POWER_REG_POWER_REG_POWER_REG = 256
+- TABLE = 980
+- ZINV_PSEN = 1
+- ZINV_PSINCDEC = 1
+- ZINV_PWRDWN = 1
+- ZINV_RST = 1
