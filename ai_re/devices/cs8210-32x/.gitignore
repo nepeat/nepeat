@@ -3,3 +3,4 @@
 /photos/
 /analysis/
 __pycache__/
+/serial-*.txt
