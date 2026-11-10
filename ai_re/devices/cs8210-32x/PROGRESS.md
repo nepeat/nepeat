@@ -79,6 +79,54 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (j) — FPGA layers 4 and 5: lossless netlist, 32 I2C channel engines
+
+Offline only (switch and outlet untouched). Work in [fpga/](fpga/README.md);
+reports [fpga/i2cfpga/LAYER4.md](fpga/i2cfpga/LAYER4.md) and
+[fpga/i2cfpga/BLOCKS.md](fpga/i2cfpga/BLOCKS.md).
+- **Layer 4 (netlist) done, lossless.** `fasmnet.py` turns the FASM into
+  cells (sites with their FASM lines), nets (driver pin -> sinks, with the
+  pips) and an `unassigned` bucket, using a routing graph built from
+  prjxray-db (`xc7graph.py`, ppips handled: `always` followed, `default` =
+  IMUX VCC tie, `hint` left to the site model). Flash update image: 458,693
+  FASM lines, each owned exactly once (cells 133,986, nets 324,707,
+  unassigned 0); 8,652 cells, 49,792 nets.
+- **Byte identity re-verified in this session**: `fpga/i2cfpga/roundtrip4.sh` (image -> layers 1-3 -> netlist
+  -> split into one file per block -> merge -> FASM -> frames -> image) gives
+  `cmp`-identical images for the 32 MiB flash dump (golden + update) and the
+  8 MiB vendor file (image0 + image1); netlist -> FASM is identical for all
+  four images, 0 unassigned lines.
+- Logical view `xc7bels.py`: 47,491 UNISIM-like primitives (25,237 LUTs,
+  21,565 FFs, 270 CARRY4, 48 RAMB18, ...), no unconsumed SLICE feature;
+  structural Verilog in `fpga/work/l4/update.v`.
+- Bug found and fixed on the way: prjxray's `IOB_Y0` is the *upper* site of
+  an IO tile. With the naive mapping the pad pairs were swapped, which looked
+  like dead I2C pads; with the fasm2bels rule the IO ring is uniform.
+- **Layer 5 (blocks), first pass.** Every cell/net/primitive gets a block
+  path. Strongest results:
+  - PCIe: PCIE_2_1 gen2 x1 with a 64-bit TRN interface; vendor/device
+    `1d0f:8571`, rev 01, subsystem 0000:0000 are fabric ties (V); 2 x 8
+    RAMB18 on the MIM ports = TX retry / RX buffers (V); MMCM + BUFGCTRL
+    pclk mux + DCLK BUFG + /16 user clock = Xilinx `pipe_clock` topology
+    (V topology, I name); all user logic on one 62.5 MHz clock.
+  - IO: 64 open-drain IOBUF (T from FDPE INIT 1), 64 LUT-driven OBUF, 72
+    IBUF (V); the 64 open-drain pads pair into exactly 32 mutual-best pairs
+    (V).
+  - Channels: lockstep structural matching from the 32 pad pairs matched
+    28,720 logic nodes; every channel has one RAMB18 (SDP x36, 8 address
+    bits from the channel; fits the 512 B + 512 B windows, I). Surprise:
+    the channels come in **two structural families of 16** (about 390 vs
+    540 FFs per channel); cause unknown.
+  - Not achieved: tying register addresses (0x140..0x178, 0x1000+ch*0x100)
+    to decode logic. Write-enable cones are 49-61 FFs deep with tens of
+    cubes; no address constant could be read off. Channel numbers are
+    therefore pad-pair order, not driver ports.
+- fasm2bels cross-check: chipsalliance f4pga-xc-fasm2bels runs after two
+  import stubs and one runtime patch; with assertions on it stops on the GTP
+  refclk BUFG input having two sources (the same node our netlist flags),
+  with `-O` it finishes, and its primitive counts match ours up to
+  explained modelling differences (`LAYER4.md`).
+
 ### 2026-11-10 (i) — SError panic analysis, PCIe all-ones mode, enp0s3 up, FPGA round trip
 
 - **Panic at 01:22** (boot uptime 3175 s), captured on serial: `SError Interrupt on
