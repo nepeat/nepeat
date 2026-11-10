@@ -1,0 +1,19 @@
+lldpd: add __s128/__u128 to the bundled linux/types.h
+
+The bundled header shadows the system one. Current arm64 kernel headers use
+__u128 in asm/sigcontext.h, so the build fails on aarch64 without it.
+
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -8,6 +8,11 @@
+ 
+ #include <linux/posix_types.h>
+ 
++#ifdef __SIZEOF_INT128__
++typedef __signed__ __int128 __s128 __attribute__((aligned(16)));
++typedef unsigned __int128 __u128 __attribute__((aligned(16)));
++#endif
++
+ 
+ /*
+  * Below are truly Linux-specific types that should never collide with

@@ -106,6 +106,8 @@
       {
         sea420-desktop = mkNixos "sea420-desktop" [ ./nixos/machine/sea420-desktop ];
         chickennugget = mkNixos "chickennugget" [ ./nixos/machine/chickennugget ];
+        # Celestica CS8210-32X switch (aarch64, Alpine v3); see nixos/module/cs8210.
+        cs8210 = mkNixos "cs8210" [ ./nixos/machine/cs8210 ];
       };
 
     # home-manager

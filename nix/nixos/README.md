@@ -1,11 +1,12 @@
 # NixOS hosts
 
-Two machines, both on `base.nix`:
+Three machines, all on `base.nix`:
 
 | host | what it is | root |
 | --- | --- | --- |
 | `sea420-desktop` | the big AMD desktop | ZFS-on-LUKS, local SATA SSD, impermanence via `/persist` |
 | `chickennugget` | the mini desktop thin client (UM350) | XFS on an iSCSI LUN, attached in stage 1 from iBFT |
+| `cs8210` | Celestica CS8210-32X switch (aarch64, Annapurna Alpine v3) | ext4 on the M.2 SATA SSD, written as a raw image |
 
 `chickennugget`'s console shows a glances dashboard rather than a login prompt
 (`services.glancesTty`). It runs on **tty7**, not the megarepo's tty5: logind
@@ -26,8 +27,32 @@ nixos/
     iscsi-xfs.nix             disko: ESP + XFS root on that LUN
     remote-builders.nix       offload builds to 10g.warc.zip / dreamflasher
     vault-agent.nix           AppRole vault-agent (verbatim from the megarepo)
+  module/cs8210/              CS8210-32X hardware profile (kernel, DTS, al_eth, U-Boot menu, fan + tools)
   machine/<name>/             per-host, `default.nix` is the entrypoint
 ```
+
+## cs8210
+
+A 32x400G switch whose CPU card runs NixOS on mainline Linux. `module/cs8210`
+is adapted from [dmc12-nixos](https://codeberg.org/dma/dmc12-nixos); the
+reverse-engineering journal is `ai_re/devices/cs8210-32x/PROGRESS.md`.
+
+```
+# first install / reinstall: raw image, dd'd onto /dev/sda from ONIE
+nix build .#nixosConfigurations.cs8210.config.system.build.sdImage
+
+# afterwards, over the management port
+nixos-rebuild switch --flake .#cs8210 --target-host root@<addr>
+```
+
+- The kernel and `al_eth` are cross-compiled from x86
+  (`hardware.cs8210.kernelBuildSystem`); everything else is native aarch64 from
+  the binary cache.
+- U-Boot boots it through `nos_bootcmd`
+  (`config.hardware.cs8210.boot.nosBootcmd`); ONIE in SPI flash stays the
+  fallback. Stop autoboot with `123<Enter>`.
+- Root autologin on the serial console is on while this is a bring-up box.
+- On the box: `cs8210-show`, `cs8210-fan`, `systemctl status cs8210-fancontrol`.
 
 Deploy:
 
