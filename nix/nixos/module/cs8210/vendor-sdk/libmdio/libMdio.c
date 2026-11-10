@@ -283,6 +283,33 @@ static int phy_to_master(uint8_t phy)
 	return (master >= 1 && master <= NUM_MASTERS) ? master : -1;
 }
 
+/*
+ * Optional access trace, for comparing against other PHY stacks: if
+ * TRACE_PATH exists when the process makes its first access, every
+ * transfer is appended to it as "t_ns R|W phy reg val ret". Create the
+ * file to enable, delete it (and restart phy_server) to disable. Called
+ * with the lock held.
+ */
+#define TRACE_PATH "/tmp/cs8210-mdio-trace.txt"
+static int trace_fd = -2;
+
+static void trace(uint8_t phy, uint16_t reg, uint16_t val, int is_read, int ret)
+{
+	char buf[64];
+	int n;
+
+	if (trace_fd == -2)
+		trace_fd = open(TRACE_PATH, O_WRONLY | O_APPEND | O_CLOEXEC);
+	if (trace_fd < 0)
+		return;
+	n = snprintf(buf, sizeof(buf), "%lld %c %02x %04x %04x %d\n", now_ns(),
+		     is_read ? 'R' : 'W', phy, reg, val, ret);
+	if (write(trace_fd, buf, n) != n) {
+		close(trace_fd);
+		trace_fd = -1;
+	}
+}
+
 static int c45_xfer(uint8_t phy, uint16_t reg, uint16_t *val, int is_read)
 {
 	int master = phy_to_master(phy);
@@ -315,6 +342,7 @@ static int c45_xfer(uint8_t phy, uint16_t reg, uint16_t *val, int is_read)
 	} else if (is_read) {
 		*val = r16(m + M_DATA);
 	}
+	trace(phy, reg, *val, is_read, ret);
 	pthread_mutex_unlock(&lock);
 	return ret;
 }
