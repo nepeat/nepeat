@@ -79,6 +79,60 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (l) — FPGA: full-design simulation, controller tables, families equivalent, sideband pins, vendor file
+
+Offline only (no switch, serial or outlet). Reports
+[fpga/i2cfpga/SIM.md](fpga/i2cfpga/SIM.md) (new),
+[fpga/i2cfpga/LAYER6.md](fpga/i2cfpga/LAYER6.md),
+[fpga/i2cfpga/CHANNEL.md](fpga/i2cfpga/CHANNEL.md). `ai_re/flake.nix` gained
+`verilator` and `yosys` (simulation of the recovered netlist; yosys was
+added for an equivalence check that in the end was not run).
+- **Byte identity, re-verified with `cmp` in this session:**
+  - vendor `i2c_fpga_v01.02.0E_20200604.bin` through layers 1-6 (fresh
+    run, image0 + image1): `BYTE-IDENTICAL (layer 6)`, 8,388,668 bytes,
+    SHA-256 `3b8c6c73...` on both files;
+  - flash dump with the new layer-6 membership growth (`REUSE=1
+    roundtrip6.sh`, layers 1-5 from the fresh run of entry (k)):
+    `BYTE-IDENTICAL (layer 6)`, SHA-256 `fa559a02...`.
+- **Full-design simulation** (`simnet.py`, `simtb.py`, `simrun.sh`):
+  the recovered user logic (21k FFs, 31k LUTs, PCIe core included) runs in
+  Verilator with PCIe TLPs in and an I2C device model on one cage. A
+  driver-style read of 4 bytes runs end to end (`S A0 10 Sr A1 B5 B4 B7 B6
+  P`, ACKs/NACK as expected, busy bit, status, read window in host order);
+  writes, address NACK, the second command pair and a bus-clear command too.
+  SCL measured on real transfers: 162 / 72 / 632 clocks = **386 kHz / 868 kHz
+  / 98.9 kHz** for codes 0x18 / 0x09 / 0x66, confirming layer 7; bytes back to
+  back. Model assumptions (TRN conventions, synchronous resets, ideal device)
+  are I (SIM.md).
+- **Status and command bits (simulation):** `0x60` bit 0 = slot 0 done,
+  bit 1 = slot 0 NACK (the driver's -ENXIO), bits 4/5 = slot 1; cleared by
+  the next start and write-1-to-clear. `0x54` bit 31 = busy. Command bit 28
+  read, 15:8 address, 7:0 length (0 on a write does not stop), bit 29 on a
+  write = bus clear (9 clocks + STOP), bits 23:16/31 no visible effect.
+  After the `0x0C` bit-31 reset the channel wipes its BRAM for ~512 clocks
+  and drops window writes meanwhile.
+- **State tables** of the transaction controller (one-hot, 8 states +
+  slot pointer), the byte sequencer (address / write / read / stop phases)
+  and the bit sequencer: `fpga/i2cfpga/mtd5/i2c_channel_fsm.txt`, also in
+  `i2c_channel_B.v`.
+- **Families A and B are functionally equivalent by co-simulation:** a
+  family-A channel (driver ch 1) and a family-B channel (driver ch 17), same
+  15 directed + 10 random sequences, logs identical cycle for cycle in all
+  25 runs. **Formal equivalence was not done.** Layer-6 membership growth
+  (604 core nodes) raised the common template part from 776 to 813 elements
+  but does not make the two templates cover the same element set.
+- **Sideband per port** (`fpga/i2cfpga/mtd5/update.port-pins.txt`): all 32
+  presence, IntL, LPMode and ResetL pins located through `0x140/0x160/
+  0x170/0x178` bit k = port k+1; LPMode and IntL act only while the module
+  is present; input N15 halts the PCIe core while low (reset-like). With the
+  I2C channel map every port's six FPGA pins are known.
+- Failures: asynchronous resets do not settle in Verilator (modelled at the
+  clock edge, I); several testbench bugs on the way (logged in SIM.md); the
+  vendor file's channel map/family split could not be decoded (its family
+  split 7/25 and 4/28 is a layer-5 matching artefact, not the flash's 16/16);
+  growth renumbers template element ids (docs use current ids + physical
+  BELs); register-file slices and PCIe BRAM groups not re-rolled.
+
 ### 2026-11-10 (k) — FPGA layers 6 and 7: the 32 I2C channels re-rolled into one module, channel logic decoded
 
 Offline only (switch, serial and outlet untouched). Reports
