@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# CS8210-32X fan control through the two fan CPLDs.
+#
+# The CPLDs power up with every fan at PWM 0xff (full speed) and a 60 s fan
+# watchdog armed. Nothing in U-Boot changes that. The vendor's own
+# /usr/bin/disable_fcs.sh in ONIE quiets the box by disabling the watchdog and
+# writing PWM 127; `cs8210-fan quiet` does the same thing over i2c-dev.
+set -euo pipefail
+. "$(dirname "$(readlink -f "$0")")/../share/cs8210/cs8210-lib.sh"
+
+usage() {
+  cat <<USAGE
+Usage: cs8210-fan <command>
+
+  status            PWM, tach and watchdog state of both fan boards
+  set <0-100>%      set every fan to a duty cycle in percent (e.g. 60%)
+  set <0-255>       set every fan to a raw PWM value
+  quiet             vendor quiet preset: watchdog off, PWM 127 (~50%)
+  max               PWM 255 on every fan
+  watchdog on|off   arm / disarm the CPLD fan watchdog (reg 0x0c bit 0)
+
+Tach RPM is shown as raw x 100. That scale is an assumption (it fits the
+vendor's test limits and matches the DMC12 CPLD); the raw value is printed too.
+USAGE
+}
+
+boards() { echo "top:$(bus_fan_top)"; echo "bottom:$(bus_fan_bottom)"; }
+
+status() {
+  local b name bus slot n wdt
+  for b in $(boards); do
+    name=${b%%:*}; bus=${b##*:}
+    wdt=$(( $(rd "$bus" $FAN_CPLD $FAN_REG_WDT) ))
+    printf '%s fan board (i2c-%s): CPLD v%d, watchdog %s, timeout %ds\n' \
+      "$name" "$bus" "$(( $(rd "$bus" $FAN_CPLD $FAN_REG_VERSION) ))" \
+      "$([ $((wdt & 1)) -eq 1 ] && echo armed || echo off)" "$(( (wdt >> 1) * 5 ))"
+    n=1
+    for slot in $FAN_SLOTS; do
+      local front rear pwm
+      front=$(( $(rd "$bus" $FAN_CPLD $((slot))) ))
+      rear=$((  $(rd "$bus" $FAN_CPLD $((slot + 1))) ))
+      pwm=$((   $(rd "$bus" $FAN_CPLD $((slot + 2))) ))
+      printf '  fan%d: pwm %3d (%3d%%)  front %5d rpm (raw %3d)  rear %5d rpm (raw %3d)\n' \
+        "$n" "$pwm" "$(( pwm * 100 / 255 ))" "$(( front * 100 ))" "$front" "$(( rear * 100 ))" "$rear"
+      n=$((n + 1))
+    done
+  done
+}
+
+set_pwm() {
+  local pwm=$1 b bus slot
+  for b in $(boards); do
+    bus=${b##*:}
+    for slot in $FAN_SLOTS; do
+      wr "$bus" $FAN_CPLD $((slot + 2)) "$pwm"
+    done
+  done
+}
+
+watchdog() {
+  local b bus cur
+  for b in $(boards); do
+    bus=${b##*:}
+    cur=$(( $(rd "$bus" $FAN_CPLD $FAN_REG_WDT) ))
+    case "$1" in
+      on)  wr "$bus" $FAN_CPLD $FAN_REG_WDT $(( cur | 1 )) ;;
+      off) wr "$bus" $FAN_CPLD $FAN_REG_WDT $(( cur & ~1 & 0xff )) ;;
+      *) usage; exit 2 ;;
+    esac
+  done
+}
+
+case "${1:-}" in
+  status) require_root; status ;;
+  set)
+    require_root
+    v=${2:-}
+    if [[ "$v" =~ ^([0-9]+)%$ ]] && [ "${BASH_REMATCH[1]}" -le 100 ]; then
+      set_pwm $(( BASH_REMATCH[1] * 255 / 100 ))
+    elif [[ "$v" =~ ^[0-9]+$ ]] && [ "$v" -le 255 ]; then
+      set_pwm "$v"
+    else
+      usage; exit 2
+    fi
+    ;;
+  quiet) require_root; watchdog off; set_pwm 127 ;;
+  max)   require_root; set_pwm 255 ;;
+  watchdog) require_root; watchdog "${2:-}" ;;
+  *) usage; [ -n "${1:-}" ] && exit 2 || exit 0 ;;
+esac

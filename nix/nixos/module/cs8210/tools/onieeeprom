@@ -1,0 +1,324 @@
+#!/usr/bin/env python3
+
+# Self contained python module to handle ONIE EEPROM data
+#
+# https://opencomputeproject.github.io/onie/design-spec/hw_requirements.html#non-volatile-board-info
+#
+
+from struct import unpack, pack
+import logging
+import binascii
+import sys
+import tempfile
+
+ID_STR = b'TlvInfo\0'
+VERSION_1 = b'\x01'
+T_CRC = 0xfe
+
+class IDStrMismatch(Exception):
+    def __init__(self, found):
+        self.found = found
+
+class UnsupportedTlvVersion(Exception):
+    def __init__(self, v):
+        self.version = v
+
+class InvalidEepromLength(Exception):
+    def __init__(self, elen):
+        self.elen = elen
+
+class UnexpectedCrcType(Exception):
+    def __init__(self, t):
+        self.t
+class UnexpectedCrcLength(Exception):
+    def __init__(self, l):
+        self.l
+class CrcMismatch(Exception):
+    def __init__(self, c, r):
+        self.c = c
+        self.r = r
+class UnknownNamedType(Exception):
+    def __init__(self, n, v):
+        self.n = n
+        self.v = v
+
+class Reader:
+    """A reader that calculates a CRC32"""
+    def __init__(self, fobj):
+        self.crc = binascii.crc32(b'')
+        self.fobj = fobj
+        self.count = 0
+
+    def read(self, sz):
+        """Read exactly (sz) bytes"""
+        data = b''
+        remaining = sz
+        while remaining > 0:
+            buf = self.fobj.read(remaining)
+            if len(buf) == 0:
+                raise IOError('Unexpected EoF')
+            data += buf
+            remaining -= len(buf)
+        self.count += sz
+        self.crc = binascii.crc32(data, self.crc)
+        return data
+
+    def read_1byte_uint(self):
+        return unpack('B', self.read(1))[0]
+
+    def read_2byte_uint(self):
+        return unpack('>H', self.read(2))[0]
+
+    def read_tlv(self):
+        tlvcode = self.read_1byte_uint()
+        tlvlen = self.read_1byte_uint()
+        tlvdata = self.read(tlvlen)
+        return (tlvcode, tlvdata)
+
+    def read_crc(self):
+        """
+        Read the next TLV as the final CRC in the EEPROM
+
+        The CRC32 includes every byte in the EEPROM up to the CRC value itself
+        including the CRC TLV and length fields. But naturally excluding the CRC in
+        the EEPROM.
+        """
+        tlvcode = self.read_1byte_uint()
+        if tlvcode != T_CRC:
+            raise UnexpectedCrcType(t)
+        tlvlen = self.read_1byte_uint()
+        if tlvlen != 4:
+            raise UnexpectedCrcLength(tlvlen)
+
+        crc_calculated = self.crc
+        crc_value = unpack('>I', self.read(4))[0]
+
+        if crc_value != crc_calculated:
+            raise CrcMismatch(crc_calculated, crc_value)
+
+def read_eeprom_raw(fobj):
+    """
+    Return EEPROM records as a list of tuples (type int, value bytes).
+    These are the raw TLVs read from the EEPROM.
+    """
+    
+    r = Reader(fobj)
+
+    idstr = r.read(8)
+    if idstr != ID_STR:
+        raise IDStrMismatch(idstr)
+
+    version = r.read(1)
+    if version != VERSION_1:
+        raise UnsupportedTlvVersion(version)
+
+    length = r.read_2byte_uint()
+    if length > (2048-1-8):
+        raise InvalidEepromLength(length)
+
+    # reset reader count
+    r.count = 0
+
+    records = []
+
+    while r.count < length-6:
+        rec = r.read_tlv()
+        records.append(rec)
+
+    r.read_crc()
+
+    return records
+
+def decode_ascii(b):
+    return b.decode('ascii')
+def encode_ascii(b):
+    return b.encode('ascii')
+
+def decode_big_endian(b):
+    return int.from_bytes(b, 'big')
+def encode_singlebyte(n):
+    return n.to_bytes(1, 'big')
+def encode_twobyte_bigendian(n):
+    return n.to_bytes(2, 'big')
+def decode_hex(b):
+    """Convert binary string to hex"""
+    return binascii.hexlify(b).decode('ascii')
+def encode_hex(h):
+    """Convert hex string to binary"""
+    return binascii.unhexlify(h)
+
+# A dict from TLV type to tuples (Name, decoder, encoder)
+TYPES = {
+        0x21: ('ProductName', decode_ascii, encode_ascii),
+        0x22: ('PartNumber', decode_ascii, encode_ascii),
+        0x23: ('SerialNumber', decode_ascii, encode_ascii),
+        0x24: ('MAC#1Base', decode_hex, encode_hex),
+        0x25: ('ManufactureData', decode_ascii, encode_ascii),
+        # encoding/decoding converts a single byte to int
+        0x26: ('DeviceVersion', decode_big_endian, encode_singlebyte),
+        0x27: ('LabelRevision', decode_ascii, encode_ascii),
+        0x28: ('PlatformName', decode_ascii, encode_ascii),
+        0x29: ('ONIEVersion', decode_ascii, encode_ascii),
+        0x2a: ('NumMACs', decode_big_endian, encode_twobyte_bigendian),
+        0x2b: ('Manufacturer', decode_ascii, encode_ascii),
+        0x2c: ('CountryCode', decode_ascii, encode_ascii),
+        0x2d: ('Vendor', decode_ascii, encode_ascii),
+        0x2e: ('DiagVersion', decode_ascii, encode_ascii),
+        0x2f: ('ServiceTag', decode_ascii, encode_ascii),
+        0xfd: ('VendorExtension', decode_hex, encode_hex),
+        }
+
+def decode_record(t, v, use_hex=False):
+    """
+    Attempts to decode tlv records into human readable data, failling that, it
+    converts the codes to hex (0x prefixed) and the values into hex strings.
+
+    If use_hex=False use an hex number as name
+    """
+    if not use_hex and t in TYPES:
+        key = TYPES[t][0]
+        val = TYPES[t][1](v)
+        return (key, val)
+    else:
+        t = hex(t)
+        v = binascii.hexlify(v).decode('ascii')
+        return (t, v)
+
+def encode_record(name, value):
+    if name.startswith('0x'):
+        t = int(name, 16)
+        v = binascii.unhexlify(value)
+        return (t, v)
+    else:
+        for t, (tname, _, enc) in TYPES.items():
+            if tname == name:
+                return (t, enc(value))
+        raise UnknownNamedType(name, value)
+
+def decode_raw_dict(d, use_hex=False):
+    """
+    Converts a raw dict to a dict of string:string
+    """
+    out = {}
+    for (k, v) in d.items():
+        k, v = decode_record(k, v, use_hex)
+        out[k] = v
+    return out
+
+def encode_raw_dict(d):
+    out = {}
+    for (k, v) in d.items():
+        k, v = encode_record(k, v)
+        out[k] = v
+    return out
+
+class Writer:
+    def __init__(self, fobj):
+        self.crc = binascii.crc32(b'')
+        self.fobj = fobj
+
+    def _write(self, b):
+        self.fobj.write(b)
+        self.crc = binascii.crc32(b, self.crc)
+
+    def write_eeprom(self, data):
+        self._write(ID_STR)
+        self._write(VERSION_1)
+
+        # Generate full payload
+        payload = b''
+        for t in sorted(data.keys()):
+            v = data[t]
+            payload += pack('B', t)
+            payload += pack('B', len(v))
+            payload += v
+
+        self._write(pack('>H', len(payload)))
+        self._write(payload)
+
+        # Finally write the CRC TLV
+        self._write(pack('B', T_CRC))
+        self._write(pack('B', 4))
+        self._write(pack('>I', self.crc))
+
+def onieeeprom_read(fobj, decode_as_hex=False):
+    """
+    Read EEPROM data from file obj
+
+    Returns a dict of type to value.
+
+    If decode_as_hex is True then all data is encoded as hex:
+
+    - keys are hex strings corresponding to the Type integers
+    - values are hex strings for the binary data
+
+    """
+    d = {}
+    for (k, v) in read_eeprom_raw(fobj):
+        d[k] = v
+    d = decode_raw_dict(d, decode_as_hex)
+    return d
+
+def main():
+    import json
+    import pprint
+    import io
+    import argparse
+
+    def cmd_dump(args):
+        d = onieeeprom_read(open(args.FILE, 'rb'), decode_as_hex=args.hexdata)
+
+        if args.fmt == 'sh':
+            for k,v in d.items():
+                # the eeprom_ prefix makes hex numbers valid var names
+                print('eeprom_{}="{}"'.format(k, v))
+        elif args.fmt == 'show':
+            for k,v in d.items():
+                print('{}: {}'.format(k, v))
+        else:
+            print(json.dumps(d, indent=4))
+
+    def cmd_write(args):
+        d = json.load(open(args.INFILE))
+        d = encode_raw_dict(d)
+
+        b = io.BytesIO()
+        w = Writer(b)
+        w.write_eeprom(d)
+
+        binary = b.getvalue()
+        try:
+            # validate output before writing
+            read_eeprom_raw(io.BytesIO(binary))
+        except Exception as ex:
+            print('BUG: onieeeprom generated invalid ONIE tlv', file=sys.stderr)
+            print(ex, file=sys.stderr)
+            outfile = tempfile.NamedTemporaryFile(suffix='onieeprominfo', delete=False)
+            print('Dumping file in {} for inspection'.format(outfile.name), file=sys.stderr)
+            outfile.write(binary)
+            sys.exit(-1)
+
+        with open(args.OUTFILE, 'wb') as f:
+            f.write(binary)
+
+    parser = argparse.ArgumentParser(description='ONIE EEPROM tool')
+    subparsers = parser.add_subparsers(dest='COMMAND')
+    subparsers.required = True
+
+    c_dump = subparsers.add_parser('dump', help='Dump EEPROM contents')
+    c_dump.add_argument('-F', '--fmt', help='Output format', choices=('json', 'sh', 'show'), default='json')
+    c_dump.add_argument('-X', '--hexdata', help='Store all data as hex', action='store_true')
+    c_dump.add_argument('FILE', help='File holding binary EEPROM data')
+    c_dump.set_defaults(func=cmd_dump)
+
+    c_write = subparsers.add_parser('write', help='Write EEPROM')
+    c_write.add_argument('-F', '--fmt', help='Output format', choices=('json',), default='json')
+    c_write.add_argument('INFILE', help='Input file')
+    c_write.add_argument('OUTFILE', help='Output file')
+    c_write.set_defaults(func=cmd_write)
+
+    args = parser.parse_args()
+    args.func(args)
+
+if __name__ == '__main__':
+    main()

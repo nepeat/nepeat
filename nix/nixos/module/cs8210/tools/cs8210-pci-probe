@@ -1,0 +1,313 @@
+#!/usr/bin/env python3
+"""CS8210-32X: minimal identification probe for the three driverless PCIe
+endpoints under mainline Linux.  Standard library only.  Run as root.
+
+Every MMIO access below is one the vendor 4.9.124 modules perform at the same
+BAR, offset and width (see reviews/2026-11-09-fpga-asic-probe-maps.md).
+
+Default run (no flags) touches NO device register except:
+  * PCI config space through sysfs (vendor/device/revision/command)
+  * mdio-fpga  BAR0+0x000000, 32-bit read   (version; vendor reads it in probe)
+  * i2c fpga   BAR0+0x000000, 32-bit read   (version; vendor sysfs "version")
+
+Opt-in read-only extras:   --misc   --asic-bar
+Opt-in steps that WRITE:   --enable (PCI command register, via sysfs "enable")
+                           --phy-id (MDIO master registers; see WRITE SECTION)
+
+Why the width handling looks fussy: an unacknowledged or odd-sized MMIO access
+on this SoC ends in an asynchronous SError and a panic.  Registers are read
+through memoryview.cast('I'/'H') on the mmap, which CPython implements as a
+fixed-size memcpy (one 32-bit or one 16-bit load).  Do NOT replace this with
+struct.unpack('<I', ...) or with mmap slicing: both read byte by byte.
+"""
+import argparse
+import mmap
+import os
+import sys
+import time
+
+MDIO_FPGA = ("0004:01:00.0", 0x1D0F, 0xEC30)
+I2C_FPGA = ("0002:01:00.0", 0x1D0F, 0x8571)
+ASIC = ("0001:01:00.0", 0x1D98, 0x1B58)
+
+# mdio-fpga BAR0 layout (mdio-fpga.ko resource tables + mdio-lattice.ko)
+MDIO_VERSION = 0x000000          # u32
+MDIO_SCRATCH = 0x000004          # u32
+MDIO_IRQ_STATUS = 0x040000       # u16, bit n = master n+1 transaction done
+MDIO_IRQ_ACK = 0x040004          # u16, write the bits being acknowledged
+MDIO_MISC_BASE = 0x080000        # u32 regs, 8 blocks of 0x20 ("phy misc-N")
+MDIO_MASTER_BASE = 0x0C0000      # u16 regs, 16 blocks of 0x100 ("mdio master-N")
+M_ADDR, M_REG, M_DATA, M_CTRL, M_LEGACY_DONE = 0x0, 0x4, 0x8, 0xC, 0x10
+CTRL_ENABLE, CTRL_START, CTRL_READ, CTRL_ERROR = 0x01, 0x04, 0x08, 0x20
+MDC_DIV_DEFAULT = 0x7D           # what mdio-lattice uses for its bus scan
+
+
+def say(msg):
+    """Print and push to the console before the next access, so that if an
+    access does fault the last line names it."""
+    print(msg, flush=True)
+    try:
+        os.fsync(sys.stdout.fileno())
+    except OSError:
+        pass
+
+
+class Dev:
+    def __init__(self, root, bdf, vendor, device):
+        self.bdf, self.vendor, self.device = bdf, vendor, device
+        self.path = os.path.join(root, bdf)
+        self.fd = self.map = self.v32 = self.v16 = None
+
+    def cfg(self):
+        with open(os.path.join(self.path, "config"), "rb") as f:
+            return f.read(64)
+
+    def check(self, want_enable):
+        """PCI-level checks.  Returns True only if MMIO decode is on."""
+        if not os.path.isdir(self.path):
+            say(f"{self.bdf}: not present, skipping")
+            return False
+        c = self.cfg()
+        ven, dev = int.from_bytes(c[0:2], "little"), int.from_bytes(c[2:4], "little")
+        cmd, rev = int.from_bytes(c[4:6], "little"), c[8]
+        say(f"{self.bdf}: config vendor={ven:04x} device={dev:04x} rev={rev:02x} "
+            f"command={cmd:04x} (mem={'on' if cmd & 2 else 'OFF'}, "
+            f"busmaster={'on' if cmd & 4 else 'off'})")
+        if (ven, dev) != (self.vendor, self.device):
+            say(f"{self.bdf}: unexpected ID, expected "
+                f"{self.vendor:04x}:{self.device:04x}; skipping")
+            return False
+        with open(os.path.join(self.path, "resource")) as f:
+            start, end, _flags = (int(x, 16) for x in f.readline().split())
+        if start == 0:
+            say(f"{self.bdf}: BAR0 is unassigned; skipping")
+            return False
+        self.bar0_len = end - start + 1
+        say(f"{self.bdf}: BAR0 {start:#x}-{end:#x} ({self.bar0_len:#x} bytes)")
+        if not cmd & 2:
+            if not want_enable:
+                say(f"{self.bdf}: memory decode is OFF.  A BAR read now would not "
+                    f"be acknowledged (SError).  Re-run with --enable to do what "
+                    f"the vendor probe does (pci_enable_device).  Skipping.")
+                return False
+            say(f"{self.bdf}: WRITE: echo 1 > enable (sets PCI_COMMAND_MEMORY)")
+            with open(os.path.join(self.path, "enable"), "w") as f:
+                f.write("1")
+            cmd = int.from_bytes(self.cfg()[4:6], "little")
+            say(f"{self.bdf}: command now {cmd:04x}")
+            if not cmd & 2:
+                say(f"{self.bdf}: memory decode still off; skipping")
+                return False
+        return True
+
+    def open(self, writable=False):
+        flags = os.O_RDWR if writable else os.O_RDONLY
+        prot = mmap.PROT_READ | (mmap.PROT_WRITE if writable else 0)
+        self.fd = os.open(os.path.join(self.path, "resource0"), flags | os.O_SYNC)
+        self.map = mmap.mmap(self.fd, self.bar0_len, mmap.MAP_SHARED, prot)
+        mv = memoryview(self.map)
+        self.v32, self.v16 = mv.cast("I"), mv.cast("H")
+
+    def close(self):
+        for v in (self.v32, self.v16):
+            if v is not None:
+                v.release()
+        self.v32 = self.v16 = None
+        if self.map is not None:
+            self.map.close()
+        if self.fd is not None:
+            os.close(self.fd)
+        self.map = self.fd = None
+
+    def _chk(self, off, width):
+        if off % width or off + width > self.bar0_len:
+            raise ValueError(f"bad offset {off:#x} for width {width}")
+
+    def r32(self, off, what):
+        self._chk(off, 4)
+        say(f"{self.bdf}: read32  BAR0+{off:#08x}  ({what}) ...")
+        val = self.v32[off // 4]
+        say(f"{self.bdf}:   = {val:#010x}")
+        return val
+
+    def r16(self, off, what, quiet=False):
+        self._chk(off, 2)
+        if not quiet:
+            say(f"{self.bdf}: read16  BAR0+{off:#08x}  ({what}) ...")
+        val = self.v16[off // 2]
+        if not quiet:
+            say(f"{self.bdf}:   = {val:#06x}")
+        return val
+
+    def w16(self, off, val, what):
+        self._chk(off, 2)
+        say(f"{self.bdf}: WRITE16 BAR0+{off:#08x} <- {val:#06x}  ({what})")
+        self.v16[off // 2] = val
+
+
+# --------------------------------------------------------------------------
+# READ-ONLY steps
+# --------------------------------------------------------------------------
+def mdio_fpga_readonly(d, misc):
+    ver = d.r32(MDIO_VERSION, "mdio-fpga version; stock kernel logged 00001008")
+    say(f"mdio-fpga: Version: {ver:08x}")
+    if not misc:
+        return
+    d.r32(MDIO_SCRATCH, "scratch")
+    for n in range(8):
+        base = MDIO_MISC_BASE + 0x20 * n
+        # same order as phy_update_device(): 0x0, 0xc, 0x4, 0x8
+        rst = d.r32(base + 0x0, f"phy misc-{n + 1} reset reg")
+        gpio = d.r32(base + 0xC, f"phy misc-{n + 1} gpio")
+        irq = d.r32(base + 0x4, f"phy misc-{n + 1} interrupt")
+        msk = d.r32(base + 0x8, f"phy misc-{n + 1} interrupt mask")
+        say(f"mdio-fpga: phy{n + 1}: reset={'ASSERTED' if not rst & 1 else 'released'} "
+            f"gpio[7:0]={gpio & 0xff:#04x} irq={irq & 3:#x} mask={msk & 3:#x}")
+
+
+def i2c_fpga_readonly(d):
+    v = d.r32(0x0, "i2c_accel_fpga version/board word")
+    say(f"i2c-fpga: version={(v >> 8) & 0xffff:#X} board_version={v & 0xff:#X}")
+
+
+def asic_bar_readonly(d):
+    d.r32(0x13808, "Innovium CSI_PCIE_SWAP_STATUS1 (ipd.ko inno_open)")
+    d.r32(0x00058, "Innovium IAC status (ipd.ko isn_read_pen, first access)")
+
+
+# --------------------------------------------------------------------------
+# WRITE SECTION -- disabled unless --phy-id is given.
+#
+# Reading a PHY register is not a read-only operation on the FPGA: the MDIO
+# master has to be released from reset and given an address and a command.
+# This replays exactly what mdio-lattice.ko does (lattice_mdio_reset, then
+# lattice_mdio_read for clause-45 1.0x00cc and 1.0x00cb).  It writes only
+# FPGA registers; it does not write any PHY register.  Risks:
+#   * it changes MDIO-master state the vendor OS would otherwise set itself
+#     (harmless; the stock driver redoes the reset in its own probe);
+#   * the FPGA raises its "done" interrupt.  With no driver bound MSI is off,
+#     so it may assert INTx on PCIe port 4 if DisINTx is clear;
+#   * which completion handshake this FPGA build uses is inferred, not
+#     observed (see the review).  A wrong guess shows up as a timeout, not as
+#     a bus error: every register polled here is one a vendor driver reads.
+# --------------------------------------------------------------------------
+def mdio_c45_read(d, master, phy, devad, reg, legacy, div):
+    m = MDIO_MASTER_BASE + 0x100 * (master - 1)
+    bit = 1 << (master - 1)
+    d.w16(m + M_ADDR, (phy << 5) | devad, f"master-{master} phy={phy:#x} devad={devad}")
+    d.w16(m + M_REG, reg, "register address")
+    d.w16(m + M_CTRL, (div << 8) | CTRL_READ | CTRL_START | CTRL_ENABLE, "start read")
+    deadline = time.monotonic() + 0.5
+    done = False
+    while time.monotonic() < deadline:
+        if legacy:
+            done = d.r16(m + M_LEGACY_DONE, "", quiet=True) == 1
+        else:
+            done = bool(d.r16(MDIO_IRQ_STATUS, "", quiet=True) & bit)
+        if done:
+            break
+        time.sleep(0.0005)
+    if not done:
+        say(f"mdio-fpga: master-{master}: no completion within 500 ms")
+    elif not legacy:
+        d.w16(MDIO_IRQ_ACK, bit, "acknowledge done bit")
+    ctrl = d.r16(m + M_CTRL, "control/status")
+    data = d.r16(m + M_DATA, "read data")
+    if not done:
+        return None
+    if ctrl & CTRL_ERROR:
+        say(f"mdio-fpga: master-{master}: FPGA reports read error (ctrl bit 5)")
+        return None
+    return data
+
+
+def mdio_phy_ids(d, masters, legacy, div):
+    if not legacy:
+        st = d.r16(MDIO_IRQ_STATUS, "pending done bits before starting")
+        if st:
+            d.w16(MDIO_IRQ_ACK, st, "clear stale done bits")
+    for n in masters:
+        m = MDIO_MASTER_BASE + 0x100 * (n - 1)
+        phy = n + 1
+        d.w16(m + M_CTRL, 0x0000, f"master-{n} reset assert")
+        time.sleep(0.001)                       # vendor: udelay(100)
+        d.w16(m + M_CTRL, CTRL_ENABLE, f"master-{n} reset release")
+        time.sleep(0.001)
+        id1 = mdio_c45_read(d, n, phy, 1, 0x00CC, legacy, div)
+        id2 = mdio_c45_read(d, n, phy, 1, 0x00CB, legacy, div)
+        f = lambda v: "----" if v is None else f"{v:04x}"
+        verdict = ""
+        if id1 is not None and id2 is not None:
+            ok = id1 == 0x2161 and (id2 & 0xFFF0) == 0x00A0
+            verdict = "Credo CMS50216" if ok else "UNEXPECTED (want 2161/00ax)"
+        say(f"mdio-fpga: mdio-{n}:{phy:02x}  1.00cc={f(id1)} 1.00cb={f(id2)}  {verdict}")
+
+
+def parse_masters(s):
+    out = []
+    for part in s.split(","):
+        lo, _, hi = part.partition("-")
+        out.extend(range(int(lo), int(hi or lo) + 1))
+    if not out or min(out) < 1 or max(out) > 16:
+        raise argparse.ArgumentTypeError("masters must be within 1-16")
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--sysfs", default="/sys/bus/pci/devices")
+    ap.add_argument("--mdio-bdf", default=MDIO_FPGA[0])
+    ap.add_argument("--i2c-bdf", default=I2C_FPGA[0])
+    ap.add_argument("--asic-bdf", default=ASIC[0])
+    ap.add_argument("--enable", action="store_true",
+                    help="WRITE: turn on PCI memory decode if it is off")
+    ap.add_argument("--misc", action="store_true",
+                    help="also read mdio-fpga scratch and the 8 phy-misc blocks")
+    ap.add_argument("--asic-bar", action="store_true",
+                    help="also read two Innovium BAR0 registers (see review)")
+    ap.add_argument("--phy-id", action="store_true",
+                    help="WRITE: run MDIO transactions to read the PHY IDs")
+    ap.add_argument("--masters", type=parse_masters, default=[1],
+                    help="MDIO masters for --phy-id, e.g. 1 or 1-16 (default 1)")
+    ap.add_argument("--legacy", action="store_true",
+                    help="use the R0A completion handshake (master+0x10)")
+    ap.add_argument("--mdc-div", type=lambda x: int(x, 0), default=MDC_DIV_DEFAULT)
+    a = ap.parse_args()
+
+    say("== mdio-fpga (MACsec MDIO) ==")
+    d = Dev(a.sysfs, a.mdio_bdf, *MDIO_FPGA[1:])
+    if d.check(a.enable):
+        d.open(writable=a.phy_id)
+        try:
+            mdio_fpga_readonly(d, a.misc)
+            if a.phy_id:
+                say("-- WRITE SECTION: MDIO transactions --")
+                mdio_phy_ids(d, a.masters, a.legacy, a.mdc_div & 0xFF)
+        finally:
+            d.close()
+
+    say("== i2c_accel_fpga ==")
+    d = Dev(a.sysfs, a.i2c_bdf, *I2C_FPGA[1:])
+    if d.check(a.enable):
+        d.open()
+        try:
+            i2c_fpga_readonly(d)
+        finally:
+            d.close()
+
+    say("== Innovium ASIC ==")
+    d = Dev(a.sysfs, a.asic_bdf, *ASIC[1:])
+    ok = d.check(a.enable and a.asic_bar)
+    say("asic: identification is the PCI config line above "
+        "(ipd.ko reads nothing else to identify the chip)")
+    if a.asic_bar and ok:
+        d.open()
+        try:
+            asic_bar_readonly(d)
+        finally:
+            d.close()
+
+
+if __name__ == "__main__":
+    main()

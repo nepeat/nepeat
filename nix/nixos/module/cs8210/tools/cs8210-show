@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# CS8210-32X hardware info, in the spirit of dmc12-tools' `show`.
+set -uo pipefail
+. "$(dirname "$(readlink -f "$0")")/../share/cs8210/cs8210-lib.sh"
+
+usage() {
+  cat <<USAGE
+Usage: cs8210-show {cpld | fan | temperature | eeprom | pci | macsec | version}
+
+  cpld         firmware versions of the system, LED and fan CPLDs
+  fan          same as \`cs8210-fan status\`
+  temperature  every hwmon temperature with its board location
+  eeprom       ONIE TlvInfo system EEPROM (switch board, I2C 0x56)
+  pci          the switch ASIC and the two FPGAs on the external PCIe ports
+  macsec       FPGA versions and the PHY ID of all 16 Credo CMS50216 MDIO ports
+  version      kernel, NixOS release, U-Boot/ONIE versions from the environment
+USAGE
+}
+
+case "${1:-}" in
+  c|cpld)
+    require_root
+    printf 'System CPLD       0x%02x\n' "$(( $(rd "$(bus_sys_cpld)" $SYS_CPLD $SYS_REG_VERSION) ))"
+    printf 'Switch LED CPLD   0x%02x\n' "$(( $(rd "$(bus_swled_cpld)" 0x64 0x00) ))"
+    printf 'MACsec LED CPLD   0x%02x\n' "$(( $(rd "$(bus_macled_cpld)" 0x63 0x00) ))"
+    printf 'Top fan CPLD      0x%02x\n' "$(( $(rd "$(bus_fan_top)" $FAN_CPLD $FAN_REG_VERSION) ))"
+    printf 'Bottom fan CPLD   0x%02x\n' "$(( $(rd "$(bus_fan_bottom)" $FAN_CPLD $FAN_REG_VERSION) ))"
+    ;;
+  f|fan)
+    exec "$(dirname "$(readlink -f "$0")")/cs8210-fan" status
+    ;;
+  t|temp|temperature)
+    for h in /sys/class/hwmon/hwmon*; do
+      [ -r "$h/temp1_input" ] || continue
+      label=$(cat "$h/temp1_label" 2>/dev/null || true)
+      [ -n "$label" ] || label="$(cat "$h/name") ($(basename "$(readlink -f "$h/device")"))"
+      awk -v l="$label" -v t="$(cat "$h/temp1_input")" 'BEGIN { printf "%-26s %5.1f C\n", l, t / 1000 }'
+    done | sort
+    if [ "$(id -u)" -eq 0 ] && b=$(_bus '*-0070/channel-2/*-0074/channel-0/*-0072/channel-7' 2>/dev/null); then
+      # MCP3425 on the ASIC thermal diode; conversion from the vendor's check_switch_temp
+      set -- $(i2ctransfer -y "$b" r3@0x68 2>/dev/null)
+      if [ $# -eq 3 ]; then
+        awk -v r=$(( ($1 << 8) | $2 )) 'BEGIN { v = r / 1000; printf "%-26s %5.1f C\n", "switch-core (ASIC)", -124.28*v*v - 422.03*v + 384.62 }'
+      fi
+    fi
+    ;;
+  e|eeprom)
+    require_root
+    b=$(bus_switchboard_eeprom) || exit 1
+    e=/sys/bus/i2c/devices/$b-0056/eeprom
+    [ -r "$e" ] || { echo "system EEPROM not found at $e" >&2; exit 1; }
+    exec onieeeprom dump -F show "$e"
+    ;;
+  p|pci)
+    lspci -nn -d 1d98: ; lspci -nn -d 1d0f:
+    ;;
+  m|macsec)
+    require_root
+    # --enable turns on PCI memory decode (off after U-Boot); --phy-id drives
+    # the FPGA's MDIO masters (FPGA register writes, no PHY register writes).
+    cs8210-pci-probe --enable --phy-id --masters 1-16 2>&1 \
+      | grep -E '^(mdio-fpga|i2c-fpga): |timeout|error'
+    ;;
+  v|version)
+    uname -srm
+    . /etc/os-release && echo "$PRETTY_NAME"
+    if [ "$(id -u)" -eq 0 ]; then
+      fw_printenv ver onie_version onie_platform 2>/dev/null
+    fi
+    ;;
+  *) usage; [ -n "${1:-}" ] && exit 2 || exit 0 ;;
+esac
