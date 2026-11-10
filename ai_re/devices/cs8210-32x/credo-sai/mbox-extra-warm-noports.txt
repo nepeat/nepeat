@@ -1,0 +1,30 @@
+# EXPLORATORY, INVENTED mailbox answers -- NOT from the vendor trace.
+# Format: cmd a723 a71c resp b71c-data count [b723-data]   (fakephy FAKE_MBOX_EXTRA)
+#
+# Purpose: let the warm-boot attach path (owl_slice_init type 2 ->
+# owl_fw_query_port, mailbox 0xa010 + port, ports 0..11) get past
+# allocate_device on the fake, to see what libsai does AFTER it (writes?).
+# The 2021 vendor stack never sends 0xa01x, so the trace has no answer.
+#
+# Justification of the values: owl_fw_query_port treats a port as
+# "not configured" when a 5-bit field ((word >> 6) & 0x1f) of the reply is
+# 0x1f (libowl 0x19f27..0x19f30). All-ones data words make that true
+# whichever reply word carries the field. Response 0x0aff: class
+# (cmd >> 4) & 0x0f00 = 0x0a00 ("done", libowl treats any class but 0x300 as
+# success), low byte all-ones as well.
+#
+# THIS IS NOT WHAT THE REAL PHY WILL ANSWER: on the switch port 0 is a
+# configured 400G retimer port. Results obtained with this file only show
+# the behaviour of the warm path for "no ports configured".
+a010 0000 0000 0aff ffff 0 ffff
+a011 0000 0000 0aff ffff 0 ffff
+a012 0000 0000 0aff ffff 0 ffff
+a013 0000 0000 0aff ffff 0 ffff
+a014 0000 0000 0aff ffff 0 ffff
+a015 0000 0000 0aff ffff 0 ffff
+a016 0000 0000 0aff ffff 0 ffff
+a017 0000 0000 0aff ffff 0 ffff
+a018 0000 0000 0aff ffff 0 ffff
+a019 0000 0000 0aff ffff 0 ffff
+a01a 0000 0000 0aff ffff 0 ffff
+a01b 0000 0000 0aff ffff 0 ffff

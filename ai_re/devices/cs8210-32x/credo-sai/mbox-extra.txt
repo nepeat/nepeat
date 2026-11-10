@@ -1,0 +1,31 @@
+# Mailbox answers NOT seen in the libMdio trace of 2026-11-10, but derived
+# from other evidence. Format (fakephy FAKE_MBOX_EXTRA):
+#   cmd a723 a71c resp b71c-data count [b723-data]
+# Hits are logged as "mbox EXTRA-hit".
+#
+# Source of the values: our own vendor bring-up log
+#   evidence/mainline-sdk-2026-11-10/credo-bringup.log (every slice):
+#   "[Firmware load] Version: 01.92.02 Date Code: 0x4914, Hash Code: 0x2e4303,
+#    CRC Code: 0xa0b3"
+# and the same words in the firmware file header
+#   B52b0.lz4.1.92.2.bin @0x1000: 022e4303 a0b34914 ...
+#
+# Decode (libowl, V from disassembly):
+#   common_fw_hash  0x3e150: cmd 0xf000, hash = (resp << 16 | b71c) & 0xffffff
+#                   -> resp low byte 0x2e, b71c 0x4303
+#   common_fw_crc   0x3e290: cmd 0xf001, crc  = b71c (resp discarded)
+#   common_fw_date  0x3e2d0: cmd 0xf002, date = b71c (resp discarded)
+#   (common_fw_ver  0x3e0a0: cmd 0xf003, ver = (resp << 16 | b71c) & 0xffffff;
+#    the trace answer 0f01/5c02 = 0x015c02 = 01.92.02 confirms the scheme.)
+# Response class: (cmd >> 4) & 0x0f00 = 0x0f00 as for f003 in the trace. The
+# low byte of the f001/f002 responses is unknown and unused (0x00 here).
+#
+# Deliberately NOT provided:
+#   f005/f006 (owl_fw_get_feature): no evidence of what 1.92.2 answers. libowl
+#     only uses features if f005 returns 0xffffff; any other answer = no
+#     features, so the fake's generic MISS answer gives the same result.
+#   a010+port (owl_fw_query_port, warm attach): no evidence; see
+#     mbox-extra-warm-noports.txt (exploratory, invented).
+f000 0000 0000 0f2e 4303 0
+f001 0000 0000 0f00 a0b3 0
+f002 0000 0000 0f00 4914 0
