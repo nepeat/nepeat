@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Layer 7: readable view of the i2c_channel module template (layer 6).
 
-    channelrtl.py analyse L6DIR LOGIC.json OUTDIR [--family B] [--name update]
+    channelrtl.py analyse L6DIR LOGIC.json OUTDIR [--family B] [--blocks BLOCKS.json] [--tables FSM.txt]
 
 Reads the layer-6 template (template.json) and, for context outside the module
 (what drives the ports), the layer-4b logical view.  Writes:
@@ -679,10 +679,17 @@ class Analysis:
         else:
             r = 's:' + net
             if G.nodes[d[0]]['kind'].startswith('FD'):
-                b = C.back(G.nodes[d[0]]['ports'].get('D'), stages=2)
-                t2 = sorted({int(k[5:]) for (k, s) in b if s == 2 and k.startswith('TRNRD') and k[5:].isdigit()})
-                t01 = [k for (k, s) in b if s < 2 and k.startswith('TRNRD') and k[5:].isdigit()]
-                if len(t2) == 2 and t2[1] == t2[0] + 32 and not t01 and 2 <= t2[0] <= 19:
+                # address register bit k: the first TRN bits reached are TRNRD[k] and
+                # TRNRD[k+32] (3DW / 4DW header), at the same stage (2 in the flash
+                # builds, 3 in the vendor v01.02.0E file)
+                b = C.back(G.nodes[d[0]]['ports'].get('D'), stages=3)
+                trn = collections.defaultdict(set)
+                for (k, s) in b:
+                    if k.startswith('TRNRD') and k[5:].isdigit():
+                        trn[s].add(int(k[5:]))
+                first = min(trn) if trn else None
+                t2 = sorted(trn[first]) if first is not None else []
+                if first and first >= 2 and len(t2) == 2 and t2[1] == t2[0] + 32 and 2 <= t2[0] <= 19:
                     r = 'a%02d' % t2[0]
                 else:
                     # a second address register (r[k] <= ... a[k] ... | hold): its
@@ -1039,6 +1046,9 @@ class Analysis:
 
     def tick(self):
         C = self.C
+        self.tickq = None
+        if not getattr(self, 'div', None):
+            return None
         # registered tick FF: a FF whose D aliases the divider reload net
         al = getattr(C, 'alias', {})
         self.tickq = None
@@ -1321,7 +1331,7 @@ def vname(s):
     return s
 
 
-def write_rtl(A, path):
+def write_rtl(A, path, tables=None):
     C = A.C
     E = C.E
     L = []
@@ -1417,6 +1427,10 @@ def write_rtl(A, path):
             w('  //   %-22s %s  (%d ticks)' % (nm(cmd), ' -> '.join(str(s) for s in seq), len(seq) - 1))
         w('  // I: command meaning from the pads in simulation: %s' % ', '.join(
             '%s=%s' % (c.split('.')[0], l) for c, l in A.cmd_labels.items()))
+    if tables and C.F == 'B':
+        w('  // ---------------------------------------------------------------- controller state tables')
+        for l in open(tables).read().splitlines():
+            w('  // ' + l)
     w('')
     # ---- pads
     w('  // ================================================================ pads')
@@ -1485,7 +1499,7 @@ def write_rtl(A, path):
     open(path, 'w').write('\n'.join(L) + '\n')
 
 
-def analyse(l6dir, logic_path, outdir, F, ctrl=None):
+def analyse(l6dir, logic_path, outdir, F, ctrl=None, tables=None):
     C = load(l6dir, logic_path, F)
     port_aliases(C)
     A = Analysis(C)
@@ -1501,7 +1515,7 @@ def analyse(l6dir, logic_path, outdir, F, ctrl=None):
         A.sim_labels()
     A.channel_map(l6dir)
     os.makedirs(outdir, exist_ok=True)
-    write_rtl(A, os.path.join(outdir, 'i2c_channel_%s.v' % F))
+    write_rtl(A, os.path.join(outdir, 'i2c_channel_%s.v' % F), tables)
     res = dict(family=F, reference=C.T['reference'], page_port=A.page_port,
                page_base=A.page_base, port_meaning={p: [m[0], m[1] if not isinstance(m[1], dict) else None]
                                                     for p, m in A.meaning.items()},
@@ -1525,6 +1539,11 @@ def main():
         i = a.index('--family')
         fams = a[i + 1]
         del a[i:i + 2]
+    tables = None
+    if '--tables' in a:
+        i = a.index('--tables')
+        tables = a[i + 1]
+        del a[i:i + 2]
     blocks = None
     if '--blocks' in a:
         i = a.index('--blocks')
@@ -1533,7 +1552,7 @@ def main():
     ctrl = None
     allres = {}
     for F in fams:
-        A, res = analyse(a[1], a[2], a[3], F, ctrl)
+        A, res = analyse(a[1], a[2], a[3], F, ctrl, tables)
         if A.page_port and ctrl is None:
             ctrl = A.ctrl      # the shared address-mux controls, reused for the other family
         print('family %s: page port %s base %s; registers %s; divider %s bits; phase %s; commands %s' % (

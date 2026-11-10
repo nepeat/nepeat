@@ -1,0 +1,54 @@
+# Layer 6: i2c_channel module re-rolled (image1)
+
+cell FASM lines: 151164 total
+  lines default rule                                 696
+  lines generated from template                      40668
+  lines instance deviation (raw)                     11414
+  lines packing (per-instance)                       15775
+  lines remainder (not channel or shared slot)       54559
+  slots generated                                    33668
+  slots instance deviation                           6420
+  slots shared between a channel and other logic     548
+  pip lines (nets: per-instance routing or remainder) 371392
+
+template A: reference ch16, 300 elements {'LUT': 195, 'FF': 102, 'IOBUF': 2, 'RAMB18E1': 1}, 175 input ports (73 global), 89 output nets, members ch03 ch16 ch22 ch25
+
+template B: reference ch24, 1411 elements {'LUT': 843, 'FF': 554, 'CARRY4': 12, 'IOBUF': 2}, 304 input ports (80 global), 162 output nets, members ch00 ch01 ch02 ch04 ch05 ch06 ch07 ch08 ch09 ch10 ch11 ch12 ch13 ch14 ch15 ch17 ch18 ch19 ch20 ch21 ch23 ch24 ch26 ch27 ch28 ch29 ch30 ch31
+
+families: 238 elements correspond between templates A and B (reference ch24 aligned to ch16, same label): {'LUT': 143, 'FF': 93, 'IOBUF': 2}
+  only in B: 1173 {'LUT': 700, 'FF': 461, 'CARRY4': 12}
+  only in A: 62 {'LUT': 52, 'FF': 9, 'RAMB18E1': 1}
+
+ch  fam ref  template  present  pure   pure%  missing function conn  extra replica ties relab  lines pack/raw
+00  B          1411      284   171   12.1%     1127        0  103     37       1    1     0   158/68
+01  B          1411      280   197   14.0%     1130        1   68     50       4    5     1   124/83
+02  B          1411     1407  1306   92.6%        4        0   29    218       2    1     2   790/534
+03  A           300      291   279   93.0%        9        0    7     20       4    2     0   140/40
+04  B          1411      249   180   12.8%     1161        1   62     71       5   34     1   132/110
+05  B          1411      279   203   14.4%     1131        1   67     48       3    4     1   130/74
+06  B          1411      278   203   14.4%     1132        1   66     47       5    3     1   128/76
+07  B          1411     1390  1282   90.9%       21        0   50    223       6    9     0   748/517
+08  B          1411     1390  1264   89.6%       21        0   74    221       6   45     0   769/490
+09  B          1411     1395  1289   91.4%       16        0   54    194       2   42     0   776/484
+10  B          1411     1390  1255   88.9%       21        0   58    224       4   40     0   769/557
+11  B          1411     1405  1331   94.3%        6        0   22    193       4    2     0   797/499
+12  B          1411     1365  1224   86.7%       46        0   73    275       1    3     0   773/565
+13  B          1411     1371  1211   85.8%       40        0   88    255       6   37     0   796/571
+14  B          1411      253   183   13.0%     1157        1   63     59       3   34     1   131/82
+15  B          1411     1399  1237   87.7%       12        0   71    236       4   48     0   788/562
+16  A   *       300      300   296   98.7%        0        0    0     11       0    0     0   136/22
+17  B          1411      839   665   47.1%      554       18  118    226       3    2    18   514/525
+18  B          1411     1370  1221   86.5%       41        0   70    255       3   35     0   770/590
+19  B          1411      848   663   47.0%      546       17  117    246       4    7    17   498/541
+20  B          1411     1333  1169   82.8%       78        0   90    275       4   43     0   760/579
+21  B          1411     1400  1266   89.7%       11        0   55    241       5   41     0   766/566
+22  A           300      279   265   88.3%       21        0   11     24       0    0     0   118/54
+23  B          1411     1408  1314   93.1%        3        0   29    231       5    2     0   792/523
+24  B   *      1411     1411  1354   96.0%        0        0    0    202       0    0     0   794/474
+25  A           300      261   197   65.7%       37        2   17     86       3   33     2   123/170
+26  B          1411      271   197   14.0%     1139        1   62     63       3    3     1   126/100
+27  B          1411      473   304   21.5%      934        4  138    189       3   34     4   268/321
+28  B          1411     1403  1266   89.7%        8        0   53    202      10   41     0   779/509
+29  B          1411     1394  1305   92.5%       17        0   36    207       8    3     0   779/493
+30  B          1411      799   628   44.5%      595       17  110    240       2   13    17   470/538
+31  B          1411      261   185   13.1%     1149        1   68     69       2   33     1   133/97

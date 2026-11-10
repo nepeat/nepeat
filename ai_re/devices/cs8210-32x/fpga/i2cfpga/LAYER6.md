@@ -1,6 +1,7 @@
 # i2cfpga layer 6: the 32 I2C channels re-rolled into one module (lossless)
 
-Date: 2026-11-10. Offline only (no switch, serial or power access). Layers
+Date: 2026-11-10, updated the same day (entry (l): membership growth,
+vendor file, full-design simulation in `SIM.md`). Offline only (no switch, serial or power access). Layers
 1-5 were not changed (`bitasm.py`, `xc7frames.py`, `fasmconv.py`,
 `fasmnet.py`, `xc7bels.py`, `blocks.py` untouched). New tools:
 `modgraph.py` (shared analysis graph), `modules.py` (this layer),
@@ -16,7 +17,9 @@ inference.
 |---|---|
 | layer-4 netlist -> template + 32 instances + remainder -> netlist (`modules.py extract` / `rebuild`, `fasmnet.py same`) | **IDENTICAL** for the golden and the update image |
 | that netlist -> FASM -> frames | `cmp` equal for both images |
-| frames -> packets -> 32 MiB flash image (`roundtrip6.sh`, fresh run of layers 1-6 in this session) | **BYTE-IDENTICAL** to `images/spi-2026-11-09/mtd5-i2cfpga.bin` (see "Verification") |
+| frames -> packets -> 32 MiB flash image (`roundtrip6.sh`, fresh run of layers 1-6) | **BYTE-IDENTICAL** to `images/spi-2026-11-09/mtd5-i2cfpga.bin` (see "Verification") |
+| the same with membership growth (update (l), `REUSE=1 roundtrip6.sh`) | **BYTE-IDENTICAL**, `cmp` equal, SHA-256 `fa559a0276e3...` |
+| vendor `i2c_fpga_v01.02.0E_20200604.bin`, image0 + image1, fresh run of layers 1-6 (update (l)) | **BYTE-IDENTICAL** (8,388,668 bytes, `cmp` equal, SHA-256 `3b8c6c73cb8f...`) |
 
     cd fpga/i2cfpga && ./roundtrip6.sh                # layers 1-5 (roundtrip4.sh), then layer 6; ~15 min
     REUSE=1 ./roundtrip6.sh IMAGE OUTDIR              # reuse OUTDIR/l4, l5 of an earlier roundtrip4.sh
@@ -100,10 +103,15 @@ ppips, sinks) and the binding says which template net each realises.
 
 ## Method
 
-1. **Membership**: layer-5 channel blocks plus the pad pair. Growing into
-   the shared core was tried: once a core node may belong to only one channel,
-   0-18 nodes per channel remain, so the per-channel logic is essentially the
-   layer-5 block (the rest is shared decode, read mux and routing LUTs).
+1. **Membership**: layer-5 channel blocks plus the pad pair, then a growth
+   pass (`Extractor.grow`, on by default, `L6_GROW=0` turns it off): an
+   unowned `core/*` node joins channel i when every neighbour it has through
+   a local net (at most 8 sinks, not a clock, not a net that already touches
+   two channels) belongs to channel i, repeated for 6 rounds. Update image:
+   604 core nodes added (6-49 per channel); golden image 539. A first,
+   looser attempt (any core node matched in an alignment) was rejected: once
+   a core node may belong to only one channel, 0-18 nodes per channel
+   remained and the rest was shared decode, read mux and routing LUTs.
 2. **Pairwise alignment** (`Aligner`): graph matching on the logical
    analysis graph (LUT6_2 halves split; LUT inputs labelled by their orbit
    under the function's input symmetries). Seeded from the pad pair (both
@@ -132,29 +140,36 @@ ppips, sinks) and the binding says which template net each realises.
 
 Full table: `mtd5/update.modules.txt` (golden: `mtd5/golden.modules.txt`).
 
-| | A (16 channels, ref ch26) | B (16 channels, ref ch21) |
+| | A (16 channels, ref ch00) | B (16 channels, ref ch21) |
 |---|---|---|
-| template elements | 921 (520 LUT, 392 FF, 6 CARRY4, 2 IOBUF, 1 RAMB18) | 1,279 (748 LUT, 520 FF, 8 CARRY4, 2 IOBUF, 1 RAMB18) |
-| input ports (of them shared by all channels) | 222 (28) | 141 (54) |
-| template elements present per instance | median 92% (min 76%, ch01) | median 96% (min 91%) |
-| **pure** (present, connections as in the template, every slot regenerated) | median 75.8% (68.5-94.9%) | median 85.5% (78.5-95.7%) |
-| deviations, summed over the 16 instances: missing / function / connection / extra / replica | 1,385 / 83 / 1,036 / 2,495 / 32 | 819 / 42 / 1,058 / 1,951 / 52 |
+| template elements | 946 (534 LUT, 403 FF, 6 CARRY4, 2 IOBUF, 1 RAMB18) | 1,303 (767 LUT, 525 FF, 8 CARRY4, 2 IOBUF, 1 RAMB18) |
+| input ports (of them shared by all channels) | 213 (56) | 122 (55) |
+| template elements present per instance | median 92% (min 74%, ch01) | median 96% (min 92%) |
+| **pure** (present, connections as in the template, every slot regenerated) | median 76.0% (65.5-96.7%) | median 85.8% (79.3-95.7%) |
+| deviations, summed over the 16 instances: missing / function / connection / extra / replica | 1,364 / 121 / 1,081 / 2,371 / 34 | 840 / 52 / 1,159 / 1,895 / 50 |
 
-The reference instance itself is 95% pure: the rest are its own extra nodes
-(below the family threshold) sharing slices with template elements.
+Before growth (the committed first version, 252f109): A 921 elements (ref
+ch26), B 1,279, 776 common, pure medians 75.8% / 85.5%. Template element
+ids are assigned breadth-first from the pads, so **growth renumbers
+elements** (for example the transaction-controller idle FF was B0250 and is
+now B0255); the docs use the current ids together with the reference
+instance's physical BEL.
+
+The reference instance itself is 95-97% pure: the rest are its own extra
+nodes (below the family threshold) sharing slices with template elements.
 
 Lines (133,986 cell FASM lines in the update image):
 
 | bucket | lines |
 |---|---|
-| regenerated from the templates (incl. 543 default-rule lines) | 48,647 |
-| per-instance packing choices (FFMUX/OUTMUX/CY0) | 19,556 |
-| per-instance deviations, raw | 7,577 |
-| remainder (not channel logic, or slots shared with other logic) | 58,206 |
-| pip lines: in instance nets / in the remainder | 179,107 / 145,600 |
+| regenerated from the templates (incl. 543 default-rule lines) | 49,719 |
+| per-instance packing choices (FFMUX/OUTMUX/CY0) | 20,106 |
+| per-instance deviations, raw | 7,440 |
+| remainder (not channel logic, or slots shared with other logic) | 56,721 |
+| pip lines: in instance nets / in the remainder | 185,006 / 139,701 |
 
-Generated slots by kind: LUT 14,554, FF 11,078, OUTMUX 5,623, CTRL 4,268,
-5FF 2,809, SITE 274, CARRY4 214.
+Generated slots by kind (before growth): LUT 14,554, FF 11,078, OUTMUX
+5,623, CTRL 4,268, 5FF 2,809, SITE 274, CARRY4 214.
 
 What the deviations are, as far as checked:
 
@@ -172,9 +187,31 @@ What the deviations are, as far as checked:
 ## The two families
 
 `template.json` maps B elements to A elements (reference ch21 aligned to
-ch26; same label): **776 elements are common** (399 LUT, 370 FF, 4 CARRY4,
-both pads, the BRAM); 503 are only in B (349 LUT, 150 FF, 4 CARRY4), 145
-only in A (121 LUT, 22 FF, 2 CARRY4).
+ch00; same label): **813 elements are common** (422 LUT, 384 FF, 4 CARRY4,
+both pads, the BRAM); 490 are only in B (345 LUT, 141 FF, 4 CARRY4), 133
+only in A (112 LUT, 19 FF, 2 CARRY4). (Before growth: 776 / 503 / 145.)
+
+**Growth did not make the two templates cover the same element set.** What
+B has and A lacks (the in-channel page decode, the profile register and the
+low part of the divider) sits, for A, in core logic that touches several
+channels or nets with more than 8 sinks, which the exclusive growth rule
+deliberately does not take. Pushing further would mean assigning shared
+logic to one channel; that was not done.
+
+**Functional equivalence, checked by co-simulation (I, not formal).** In the
+full-design simulation (`SIM.md`), a family-A channel (ch26, driver channel
+1) and a family-B channel (ch21, driver channel 17) were driven with the
+same TLP sequences through the real shared core: 15 directed scenarios
+(reads at the three speeds, writes, address NACK, NACK then retry, status
+write-1-to-clear, the second slot, bus clear, unused command bits) and 10
+seeded random register-write sequences (40 random operations each over the
+whole register page, then a read-back of all 64 register offsets). The bus
+event logs (every START, byte, ACK bit, STOP with its clock cycle), status
+values, read-window data and register read-backs are **identical, cycle for
+cycle, in all 25 runs**. A formal check (yosys equiv/sat) was not done: the
+two templates have different boundaries, so a meaningful miter needs the
+shared core and an address remapping, i.e. a sequential equivalence check
+of the whole 52k-primitive design, which was not attempted.
 
 What the layer-7 analysis (`CHANNEL.md`) shows about the difference:
 
@@ -224,7 +261,24 @@ the two images in the flash:
     BYTE-IDENTICAL (layer 4/5): .../mtd5-i2cfpga.bin == .../work/rt6-mtd5/rebuilt4.bin (33554432 bytes)
     BYTE-IDENTICAL (layer 6): .../mtd5-i2cfpga.bin == .../work/rt6-mtd5/rebuilt6.bin (33554432 bytes)
 
-Checked again by hand after the run: `cmp images/spi-2026-11-09/mtd5-i2cfpga.bin
+Update (l): with membership growth, `REUSE=1 ./roundtrip6.sh` (layers 1-5
+reused from that fresh run; 5 min 9 s; log `mtd5/roundtrip6-mtd5-grow.txt`):
+both images IDENTICAL as netlists and `cmp` equal as FASM and frames;
+`BYTE-IDENTICAL (layer 6)`, and `cmp images/spi-2026-11-09/mtd5-i2cfpga.bin
+fpga/work/rt6-mtd5/rebuilt6.bin` by hand: equal (SHA-256 `fa559a02...`).
+
+Vendor file (update (l)): `./roundtrip6.sh .../analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin
+../work/rt6-vendor` (fresh layers 1-6, 17 min 47 s, log `mtd5/roundtrip6-vendor.txt`;
+layer 6 ran without the growth pass, which was added afterwards):
+image0 and image1 IDENTICAL as netlists, FASM and frames `cmp` equal,
+`BYTE-IDENTICAL (layer 6)` (8,388,668 bytes); `cmp` by hand equal, SHA-256
+`3b8c6c73cb8f657c7ffba95f...` on both. Its family split does **not** match
+the flash image: image0 splits 7 / 25 channels, image1 4 / 28, and the small
+"family" has only 300-310 template elements, which reflects layer 5's weak
+channel matching on this file (BLOCKS.md) rather than a design family. Its
+channel map could not be decoded (see `SIM.md`, "failures").
+
+Checked again by hand after the first run: `cmp images/spi-2026-11-09/mtd5-i2cfpga.bin
 fpga/work/rt6-mtd5/rebuilt6.bin` prints nothing (exit 0); SHA-256 of both
 `fa559a0276e3a3391c0a...`. The family assignment is the same in both images
 (16 / 16); the golden image's references differ (ch01, ch18) because the
@@ -238,11 +292,12 @@ session.
   instance is stored as explicit deviations, and part of the "extra" logic is
   layer-5 misassignment rather than a real per-instance difference. Lossless
   either way.
-- Family A's template boundary cuts through its divider and profile
-  register (see above); a better membership (grow each family's template
-  into `core/i2c_glue` with the exclusive-claim rule) would make A and B
-  closer.
+- Family A's template boundary still cuts through its divider and profile
+  register after growth (see "The two families"); equivalence of A and B is
+  shown by co-simulation only.
 - Ports are design nets, not yet named signals of the core (layer 7 names
   the ones it understands).
-- Only the I2C channels are re-rolled. Sideband IO, the per-channel slices
-  of the shared register file and the PCIe buffer BRAM groups were not done.
+- Only the I2C channels are re-rolled. The sideband IO was mapped per port by
+  simulation (`mtd5/update.port-pins.txt`, `SIM.md`) but not re-rolled into a
+  template; the register-file slices and the PCIe buffer BRAM groups were not
+  done.

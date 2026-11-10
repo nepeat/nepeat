@@ -1,0 +1,32 @@
+== reusing layers 1-5 in /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/work/rt6-mtd5 (REUSE=1)
+== layer 6: golden netlist -> module template + instances
+  lines generated from template                      49245
+  lines instance deviation (raw)                     7717
+  lines remainder (not channel or shared slot)       31788
+  slots generated                                    39818
+  slots instance deviation                           5616
+  pip lines (nets: per-instance routing or remainder) 323706
+template A: reference ch01, 933 elements {'LUT': 527, 'FF': 397, 'CARRY4': 6, 'IOBUF': 2, 'RAMB18E1': 1}, 199 input ports (50 global), 158 output nets, members 
+template B: reference ch28, 1311 elements {'LUT': 777, 'FF': 523, 'CARRY4': 8, 'IOBUF': 2, 'RAMB18E1': 1}, 107 input ports (47 global), 126 output nets, members
+== layer 6: golden template + instances + remainder -> netlist -> FASM -> frames
+netlists IDENTICAL
+   golden: FASM(layer 6) == FASM
+   golden: frames(layer 6) == frames
+== layer 6: update netlist -> module template + instances
+  lines generated from template                      49176
+  lines instance deviation (raw)                     7440
+  lines remainder (not channel or shared slot)       31960
+  slots generated                                    39797
+  slots instance deviation                           5386
+  pip lines (nets: per-instance routing or remainder) 324707
+template A: reference ch00, 946 elements {'LUT': 534, 'FF': 403, 'CARRY4': 6, 'IOBUF': 2, 'RAMB18E1': 1}, 213 input ports (56 global), 163 output nets, members 
+template B: reference ch21, 1303 elements {'LUT': 767, 'FF': 525, 'CARRY4': 8, 'IOBUF': 2, 'RAMB18E1': 1}, 122 input ports (55 global), 136 output nets, members
+== layer 6: update template + instances + remainder -> netlist -> FASM -> frames
+netlists IDENTICAL
+   update: FASM(layer 6) == FASM
+   update: frames(layer 6) == frames
+== rebuild image from the layer-6 representation
+22974 listing lines, 8925 blobs
+33554432 bytes
+BYTE-IDENTICAL (layer 6): /home/erin/nepeat/ai_re/devices/cs8210-32x/images/spi-2026-11-09/mtd5-i2cfpga.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/work/rt6-mtd5/rebuilt6.bin (33554432 bytes)
+REUSE=1 ./roundtrip6.sh    297.99s user 8.02s system 99% cpu 5:08.73 total

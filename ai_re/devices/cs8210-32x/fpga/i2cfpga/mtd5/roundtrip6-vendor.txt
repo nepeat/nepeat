@@ -1,0 +1,73 @@
+== layer 1: packets (/home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin)
+19768 listing lines, 7397 blobs
+== layer 2: frames + packing plan
+image0: 9448 frames stored (9448 of 9448 valid addresses, 3856 via MFW); 195 FDRI writes; 5640 non-zero frames
+image1: 9448 frames stored (9448 of 9448 valid addresses, 3182 via MFW); 164 FDRI writes; 6305 non-zero frames
+== layer 3: FASM + unknown bits, and back (images: image0 image1 )
+   image0: {'set_bits': 1865477, 'fasm_bits': 1865474, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 524481}
+   image0: frames(FASM+unknown) == frames
+   image1: {'set_bits': 1860514, 'fasm_bits': 1860511, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 522556}
+   image1: frames(FASM+unknown) == frames
+== rebuild: frames' + plan -> packets -> image
+19768 listing lines, 7397 blobs
+8388668 bytes
+BYTE-IDENTICAL: /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/work/rt6-vendor/rebuilt.bin (8388668 bytes)
+== layer 4: image0 FASM -> netlist (lossless check)
+lines in FASM: 524481, owned: 524481 (cells 151625, nets 372856, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: image0 logical view + blocks
+== split by block -> merge -> FASM: image0
+wrote 58 block files to /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/work/rt6-vendor/l5/image0.split
+merged 9807 cells, 56272 nets, 0 unassigned
+netlists IDENTICAL
+   image0: FASM(per-block netlist) == FASM
+   image0: frames(per-block netlist) == frames
+== layer 4: image1 FASM -> netlist (lossless check)
+lines in FASM: 522556, owned: 522556 (cells 151164, nets 371392, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: image1 logical view + blocks
+== split by block -> merge -> FASM: image1
+wrote 58 block files to /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/work/rt6-vendor/l5/image1.split
+merged 9751 cells, 56224 nets, 0 unassigned
+netlists IDENTICAL
+   image1: FASM(per-block netlist) == FASM
+   image1: frames(per-block netlist) == frames
+== rebuild image from the per-block netlists
+19768 listing lines, 7397 blobs
+8388668 bytes
+BYTE-IDENTICAL (layer 4/5): /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/work/rt6-vendor/rebuilt4.bin (8388668 bytes)
+== layer 6: image0 netlist -> module template + instances
+  lines generated from template                      40336
+  lines instance deviation (raw)                     11181
+  lines remainder (not channel or shared slot)       55385
+  slots generated                                    33582
+  slots instance deviation                           6273
+  pip lines (nets: per-instance routing or remainder) 372856
+template A: reference ch31, 310 elements {'LUT': 204, 'FF': 103, 'IOBUF': 2, 'RAMB18E1': 1}, 192 input ports (77 global), 99 output nets, members ch00 ch01 ch05
+template B: reference ch09, 1411 elements {'LUT': 850, 'FF': 547, 'CARRY4': 12, 'IOBUF': 2}, 300 input ports (91 global), 172 output nets, members ch02 ch03 ch0
+== layer 6: image0 template + instances + remainder -> netlist -> FASM -> frames
+netlists IDENTICAL
+   image0: FASM(layer 6) == FASM
+   image0: frames(layer 6) == frames
+== layer 6: image1 netlist -> module template + instances
+  lines generated from template                      40668
+  lines instance deviation (raw)                     11414
+  lines remainder (not channel or shared slot)       54559
+  slots generated                                    33668
+  slots instance deviation                           6420
+  pip lines (nets: per-instance routing or remainder) 371392
+template A: reference ch16, 300 elements {'LUT': 195, 'FF': 102, 'IOBUF': 2, 'RAMB18E1': 1}, 175 input ports (73 global), 89 output nets, members ch03 ch16 ch22
+template B: reference ch24, 1411 elements {'LUT': 843, 'FF': 554, 'CARRY4': 12, 'IOBUF': 2}, 304 input ports (80 global), 162 output nets, members ch00 ch01 ch0
+== layer 6: image1 template + instances + remainder -> netlist -> FASM -> frames
+netlists IDENTICAL
+   image1: FASM(layer 6) == FASM
+   image1: frames(layer 6) == frames
+== rebuild image from the layer-6 representation
+19768 listing lines, 7397 blobs
+8388668 bytes
+BYTE-IDENTICAL (layer 6): /home/erin/nepeat/ai_re/devices/cs8210-32x/analysis/extracted/root/fw/i2c_fpga_v01.02.0E_20200604.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/work/rt6-vendor/rebuilt6.bin (8388668 bytes)
+./roundtrip6.sh    1180.40s user 27.85s system 113% cpu 17:46.52 total

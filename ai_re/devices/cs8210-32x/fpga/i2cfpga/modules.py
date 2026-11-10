@@ -387,6 +387,9 @@ class Extractor:
             self.mem[i].add(a)
             self.mem[i].add(b)
         self.owner = {x: i for i, s in self.mem.items() for x in s}
+        self.grown = collections.Counter()
+        if os.environ.get('L6_GROW', '1') == '1':
+            self.grow()
         touch = collections.defaultdict(set)
         for i, s in self.mem.items():
             for x in s:
@@ -396,6 +399,55 @@ class Extractor:
         self.glob = {n for n, s in touch.items() if len(s) >= 2}
         self.A = Aligner(G, self.mem, self.glob)
         self.cache = {}
+
+    def grow(self, rounds=6, K=8):
+        """Membership growth into the shared core: an unowned core/* node joins
+        channel i when every neighbour it has through a local net (<= K sinks,
+        no clock, not a net touched by two channels) belongs to channel i, and at
+        least one does.  Added for both families alike; the template threshold
+        then keeps only what recurs.  Disable with L6_GROW=0."""
+        G, ann = self.G, self.ann
+        pool = {x for x, nd in G.nodes.items() if ann['prims'].get(nd['prim'], '').startswith('core/')
+                and x not in self.owner}
+        clocknets = {n for n, d in G.net_drv.items() if G.nodes[d[0]]['kind'] in ('BUFGCTRL', 'BUFHCE')}
+        for _ in range(rounds):
+            touch = collections.defaultdict(set)
+            for x, i in self.owner.items():
+                for n in G.nodes[x]['ports'].values():
+                    if n:
+                        touch[n].add(i)
+            moves = {}
+            for y in sorted(pool):
+                insts, foreign = set(), False
+                for port, n in G.nodes[y]['ports'].items():
+                    if n is None or n in ('VCC', 'GND') or n in clocknets:
+                        continue
+                    if len(G.net_snk.get(n, ())) > K or len(touch.get(n, ())) > 1:
+                        continue
+                    d = G.net_drv.get(n)
+                    peers = [s for s, _ in G.net_snk.get(n, ())] + ([d[0]] if d else [])
+                    for z in peers:
+                        if z == y:
+                            continue
+                        o = self.owner.get(z)
+                        if o is None:
+                            if z not in pool and not G.nodes[z]['kind'] in ('IBUF', 'IOBUF'):
+                                foreign = True
+                            elif z in pool:
+                                foreign = True
+                        else:
+                            insts.add(o)
+                if len(insts) == 1 and not foreign:
+                    moves[y] = next(iter(insts))
+            if not moves:
+                break
+            for y, i in moves.items():
+                self.mem[i].add(y)
+                self.owner[y] = i
+                pool.discard(y)
+                self.grown[i] += 1
+        log('grow: %d core nodes added to channels (per channel %s)' % (
+            sum(self.grown.values()), dict(sorted(self.grown.items()))))
 
     # ------------------------------------------------------------ alignment
     def align(self, R, C):

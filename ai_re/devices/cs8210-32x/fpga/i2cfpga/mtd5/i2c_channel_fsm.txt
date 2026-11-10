@@ -1,0 +1,50 @@
+State tables of the channel's controllers (family B template, reference ch21 = driver channel 17).
+Source: full-design simulation (simnet.py + simtb.py, Verilator) of the update image, with the
+real shared PCIe core in the loop; flip-flops identified by their template id (grown layer-6
+template) and the reference instance's physical BEL. The state assignment of the observed
+sequences is from simulation (I); the flip-flops, their enables and next-state equations are
+in the netlist view below (V).
+
+TRANSACTION CONTROLLER (one-hot; one step per clock)
+  state    template  reference BEL          meaning (I)
+  IDLE     B0255     SLICE_X45Y80/B5FF      FDPE INIT 1; waits for a go flag
+  CHECK    B0256     SLICE_X45Y80/BFF       look at slot ptr
+  LOAD     B0253     SLICE_X45Y80/A5FF      load the command of slot ptr into the working register
+  RUN      B0238     SLICE_X44Y80/BFF       bus transaction running (byte sequencer active)
+  DONE     B0240     SLICE_X44Y80/DFF       write status, clear the go flag
+  NEXT1    B0254     SLICE_X45Y80/AFF       scan step
+  NEXT2    B0257     SLICE_X45Y80/CFF       scan step, ptr + 1
+  END      B0237     SLICE_X44Y80/AFF       back to IDLE
+  ptr[1:0] B0251,B0252 SLICE_X45Y79/A5FF,AFF  slot pointer (0 = cb+0x50/0x54, 1 = cb+0x58/0x5C, 2-3 scanned)
+  go0      B0939     SLICE_X47Y83/BFF       cb+0x54 bit 31 (busy), set by the host write, cleared in DONE
+  go1      B0940     SLICE_X47Y83/CFF       cb+0x5C bit 31
+
+  observed (read, slot 0):  IDLE -go0-> CHECK -> LOAD -> RUN (whole bus transfer, ~8,000 clocks at
+  400 kHz) -> DONE -> {CHECK -> NEXT1 -> NEXT2 (ptr = 1, 2, 3)} x 3 -> END -> IDLE.
+  Writing cb+0x5C bit 31 instead runs the same path for slot 1 (status in bits 4/5).
+
+BYTE SEQUENCER (bus phase, one-hot-like; changes at byte boundaries)
+  ADDR     B0089  address byte phase        WR  B0090  master sends (offset / write data)
+  RD       B0088  master receives           STOP B0096 stop phase
+  byte FSM B0050, B0051, B0040 (start-of-byte, 8 data bits, ACK bit), byte-done pulse B0068
+  bit commands to the bit sequencer: cmd_start B0041, cmd_stop B0029, cmd_bit_sda_low B0052,
+  cmd_bit_sda_released B0042
+
+  phase sequence     write  S {ADDR,WR}  {WR} offset  {WR} data x n        {STOP} P
+                     read   S {ADDR,WR}  {WR} offset  Sr {ADDR} {RD} x n    {STOP} P
+                     NACK on the address byte: {ADDR,WR} -> {STOP} P
+  per byte: 8 bits + 1 ACK bit, back to back (a byte is exactly 9 SCL periods; no idle time
+  between bytes); in RD the master ACKs every byte except the last, which it NACKs.
+
+BIT SEQUENCER (6-bit phase register phase[5:0] = B0013..B0018, one step per divider tick)
+  START  0 -> 4 -> 32 -> 36 -> 1 -> 5 -> 33 -> 37 -> 8 -> 12 -> 40 -> 0   (11 ticks)
+  STOP   0 -> 44 -> 9 -> 13 -> 41 -> 45 -> 0                             (6 ticks)
+  bit with SDA released (send 1, ACK slot, read)  0 -> 7 -> 35 -> 39 -> 10 -> 14 -> 0  (6 ticks)
+  bit with SDA low (send 0, master ACK)           0 -> 2 -> 6 -> 34 -> 54 -> 19 -> 0  (6 ticks)
+  (V: from the next-state functions; meaning I/V: confirmed on the wire in simulation)
+
+STATUS cb+0x60 (simulation, V for the decode of the write enables at 0x60 bits 0, 4, 5)
+  bit 0  slot 0 finished OK          bit 1  slot 0 NACK (driver: -ENXIO)
+  bit 4  slot 1 finished OK          bit 5  slot 1 NACK
+  cleared when the next start of that slot is written; also write-1-to-clear (0x02 clears bit 1,
+  0x01 does not clear bit 1)

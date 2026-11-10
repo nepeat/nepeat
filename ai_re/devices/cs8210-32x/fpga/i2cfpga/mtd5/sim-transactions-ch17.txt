@@ -1,0 +1,163 @@
+== rd_sel0
+[2197] read status before 0x00000000
+[2215] started
+[2424] wire: START
+[3875] wire: 0xa0  ACK
+[5333] wire: 0x10  ACK
+[5627] wire: START
+[7078] wire: 0xa1  ACK
+[8536] wire: 0xb5  ACK
+[9994] wire: 0xb4  ACK
+[11452] wire: 0xb7  ACK
+[12910] wire: 0xb6 NACK
+[13154] wire: STOP
+[13501] poll start reg 0x00000010
+[13514] status 0x00000001 (bit1 0)
+[13530] read window[0] 0xb6b7b4b5
+SCL periods (rising to rising, within bytes): n=56 avg=162.00 min=162 max=162
+== rd_sel1
+[2208] read status before 0x00000000
+[2226] started
+[2299] wire: START
+[2960] wire: 0xa0  ACK
+[3608] wire: 0x10  ACK
+[3717] wire: START
+[4378] wire: 0xa1  ACK
+[5026] wire: 0xb5  ACK
+[5674] wire: 0xb4  ACK
+[6322] wire: 0xb7  ACK
+[6970] wire: 0xb6 NACK
+[7079] wire: STOP
+[7356] poll start reg 0x00000010
+[7369] status 0x00000001 (bit1 0)
+[7385] read window[0] 0xb6b7b4b5
+SCL periods (rising to rising, within bytes): n=56 avg=72.00 min=72 max=72
+== rd_sel2
+[2208] read status before 0x00000000
+[2226] started
+[2824] wire: START
+[8708] wire: 0xa0  ACK
+[14396] wire: 0x10  ACK
+[15346] wire: START
+[21230] wire: 0xa1  ACK
+[26918] wire: 0xb5  ACK
+[32606] wire: 0xb4  ACK
+[38294] wire: 0xb7  ACK
+[43982] wire: 0xb6 NACK
+[44932] wire: STOP
+[46512] poll start reg 0x00000010
+[46525] status 0x00000001 (bit1 0)
+[46541] read window[0] 0xb6b7b4b5
+SCL periods (rising to rising, within bytes): n=56 avg=631.96 min=631 max=632
+== nack_addr
+[2197] read status before 0x00000000
+[2215] started
+[2424] wire: START
+[3875] wire: 0xa0 NACK
+[4119] wire: STOP
+[4267] poll start reg 0x00000010
+[4280] status 0x00000002 (bit1 1)
+[4296] read window[0] 0x00000000
+SCL periods (rising to rising, within bytes): n=9 avg=162.00 min=162 max=162
+== nack_then_ok
+[2197] read status before 0x00000000
+[2215] started
+[2424] wire: START
+[3875] wire: 0xa0 NACK
+[4119] wire: STOP
+[4267] poll start reg 0x00000010
+[4280] status 0x00000002 (bit1 1)
+[4296] read window[0] 0x00000000
+[4307] second transaction, device now 0x50
+[4331] status after cmd write, before start 0x00000002
+[4355] status just after start 0x00000000
+[4552] wire: START
+[6003] wire: 0xa0  ACK
+[7461] wire: 0x10  ACK
+[7755] wire: START
+[9206] wire: 0xa1  ACK
+[10664] wire: 0xb5  ACK
+[12122] wire: 0xb4  ACK
+[13580] wire: 0xb7  ACK
+[15038] wire: 0xb6 NACK
+[15282] wire: STOP
+[15654] status after second 0x00000001
+SCL periods (rising to rising, within bytes): n=65 avg=162.00 min=162 max=162
+== w1c
+[2197] read status before 0x00000000
+[2215] started
+[2424] wire: START
+[3875] wire: 0xa0 NACK
+[4119] wire: STOP
+[4267] poll start reg 0x00000010
+[4280] status 0x00000002 (bit1 1)
+[4296] read window[0] 0x00000000
+[4331] status after writing 0x02 to 0x60: 0x00000000
+SCL periods (rising to rising, within bytes): n=9 avg=162.00 min=162 max=162
+== wr3
+[2197] read status before 0x00000000
+[2229] started
+[2424] wire: START
+[3875] wire: 0xa0  ACK
+[5333] wire: 0x20  ACK
+[6791] wire: 0x00  ACK
+[8249] wire: 0x11  ACK
+[9707] wire: 0x22  ACK
+[9951] wire: STOP
+[10437] poll start reg 0x00000020
+[10450] status 0x00000001 (bit1 0)
+[10466] read window[0] 0x00000000
+SCL periods (rising to rising, within bytes): n=40 avg=162.00 min=162 max=162
+== ctx1_rd
+[2197] read status before 0x00000000
+[2215] started
+[2424] wire: START
+[3875] wire: 0xa0  ACK
+[5333] wire: 0x10  ACK
+[5627] wire: START
+[7078] wire: 0xa1  ACK
+[8536] wire: 0xb5  ACK
+[9994] wire: 0xb4  ACK
+[11452] wire: 0xb7  ACK
+[12910] wire: 0xb6 NACK
+[13154] wire: STOP
+[13501] poll start reg 0x00000010
+[13514] status 0x00000010 (bit1 0)
+[13530] read window[0] 0x00000000
+SCL periods (rising to rising, within bytes): n=56 avg=162.00 min=162 max=162
+== busclear
+[2197] read status before 0x00000000
+[2229] started
+[3600] wire: 0xff NACK
+[3844] wire: STOP
+[4281] poll start reg 0x00000010
+[4294] status 0x00000001 (bit1 0)
+[4310] read window[0] 0x00000000
+SCL periods (rising to rising, within bytes): n=0 avg=0.00 min=1073741824 max=0
+== cmdbits
+[2197] read status before 0x00000000
+[2215] started
+[2424] wire: START
+[3875] wire: 0xa0  ACK
+[5333] wire: 0x10  ACK
+[5627] wire: START
+[7078] wire: 0xa1  ACK
+[8536] wire: 0xb5  ACK
+[9994] wire: 0xb4 NACK
+[10238] wire: STOP
+[10423] poll start reg 0x00000010
+[10436] status 0x00000001 (bit1 0)
+[10452] read window[0] 0x0000b4b5
+SCL periods (rising to rising, within bytes): n=40 avg=162.00 min=162 max=162
+== rd_len0
+[2197] read status before 0x00000000
+[2215] started
+[2424] wire: START
+[3875] wire: 0xa0  ACK
+[5333] wire: 0x10  ACK
+[5627] wire: START
+[7078] wire: 0xa1  ACK
+[7322] wire: STOP
+[7345] poll start reg 0x00000010
+[7358] status 0x00000001 (bit1 0)
+SCL periods (rising to rising, within bytes): n=24 avg=162.00 min=162 max=162

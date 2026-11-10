@@ -55,7 +55,9 @@ Layers, each verified to rebuild the exact bytes before the next:
    INITs, FF/control/carry lines and BRAM/IOB site features are regenerated
    from the template; the rebuilt netlist is identical and the image
    rebuilds byte for byte (`i2cfpga/roundtrip6.sh`, report
-   `i2cfpga/LAYER6.md`). **Done.** 69-96% of each instance is pure template.
+   `i2cfpga/LAYER6.md`). **Done.** 66-97% of each instance is pure template
+   (after a membership-growth pass into the shared core). Also rebuilds the
+   vendor `i2c_fpga_v01.02.0E` file byte for byte.
 7. **readable channel** — `i2cfpga/channelrtl.py`: a view (not lossless) of
    the template: register offsets decoded from the logic (`cb+0x00` profile,
    `0x08` select, `0x0C` resets, `0x50..0x5C` command/start, ...), the SCL
@@ -63,8 +65,18 @@ Layers, each verified to rebuild the exact bytes before the next:
    ticks per bit), the bit-level FSM and its four commands, pads, BRAM
    wiring, and the driver channel number of every instance. Pseudo-RTL in
    `i2cfpga/mtd5/i2c_channel_{A,B}.v`; plain-language explanation in
-   `i2cfpga/CHANNEL.md`. **First pass done**; byte sequencer and transaction
-   controller not yet tabulated.
+   `i2cfpga/CHANNEL.md`; controller state tables in
+   `i2cfpga/mtd5/i2c_channel_fsm.txt`. **Done** for family B (family A's
+   register decode partly outside its template).
+
+Simulation (a view on layer 4b, not part of the byte round trip):
+`i2cfpga/simnet.py` + `simtb.py` + `simrun.sh` run the whole recovered
+design in Verilator with PCIe TLPs in and an I2C device model on one cage
+(report `i2cfpga/SIM.md`). Full transactions run end to end (SCL 386 /
+868 / 99 kHz for the three profile codes, NACK and status bits, bus clear);
+a family-A and a family-B channel behave identically in 25 co-simulated
+sequences; the four sideband signals of every port are mapped to pins
+(`i2cfpga/mtd5/update.port-pins.txt`).
 
 Large outputs go in `work/` (git-ignored).
 

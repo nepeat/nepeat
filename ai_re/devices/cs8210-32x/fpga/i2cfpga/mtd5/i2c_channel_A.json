@@ -1,7 +1,7 @@
 {
  "aliases": {
-  "AP085": [
-   "A0088.Q",
+  "AP018": [
+   "A0835.O",
    0
   ]
  },
@@ -9,82 +9,82 @@
   "ch00": {
    "driver_channel": 30,
    "page": 11776,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch01": {
    "driver_channel": 2,
    "page": 4608,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch02": {
    "driver_channel": 29,
    "page": 11520,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch04": {
    "driver_channel": 6,
    "page": 5632,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch05": {
    "driver_channel": 4,
    "page": 5120,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch06": {
    "driver_channel": 3,
    "page": 4864,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch09": {
    "driver_channel": 7,
    "page": 5888,
-   "via": "AP108"
+   "via": "AP036"
   },
   "ch10": {
    "driver_channel": 21,
    "page": 9472,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch14": {
    "driver_channel": 8,
    "page": 6144,
-   "via": "AP108"
+   "via": "AP036"
   },
   "ch17": {
    "driver_channel": 31,
    "page": 12032,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch19": {
    "driver_channel": 28,
    "page": 11264,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch22": {
    "driver_channel": 5,
    "page": 5376,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch25": {
    "driver_channel": 0,
    "page": 4096,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch26": {
    "driver_channel": 1,
    "page": 4352,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch30": {
    "driver_channel": 27,
    "page": 11008,
-   "via": "AP108"
+   "via": "AP117"
   },
   "ch31": {
    "driver_channel": 9,
    "page": 6400,
-   "via": "AP108"
+   "via": "AP036"
   }
  },
  "commands": {},
@@ -92,302 +92,327 @@
  "family": "A",
  "fsm_table": null,
  "names": {
-  "A0513.Q": [
-   "r00[16]",
+  "A0583.Q": [
+   "r5c[31]",
    "V",
-   "captures host data bit 16 on a write to cb+0x00"
+   "captures host data bit 31 on a write to cb+0x5c"
   ],
-  "A0520.Q": [
+  "A0584.Q": [
    "r00[0]",
    "V",
    "captures host data bit 0 on a write to cb+0x00"
   ],
-  "A0541.Q": [
+  "A0585.Q": [
    "r00[8]",
    "V",
    "captures host data bit 8 on a write to cb+0x00"
   ],
-  "A0656.Q": [
-   "r50[28]",
+  "A0586.Q": [
+   "r00[16]",
    "V",
-   "captures host data bit 28 on a write to cb+0x50"
+   "captures host data bit 16 on a write to cb+0x00"
   ],
-  "A0657.Q": [
-   "r58[28]",
-   "V",
-   "captures host data bit 28 on a write to cb+0x58"
-  ],
-  "A0658.Q": [
-   "r58[29]",
-   "V",
-   "captures host data bit 29 on a write to cb+0x58"
-  ],
-  "A0661.Q": [
-   "r54[16]",
-   "V",
-   "captures host data bit 16 on a write to cb+0x54"
-  ],
-  "A0662.Q": [
-   "r5c[16]",
-   "V",
-   "captures host data bit 16 on a write to cb+0x5c"
-  ],
-  "A0663.Q": [
-   "r50[29]",
-   "V",
-   "captures host data bit 29 on a write to cb+0x50"
-  ],
-  "A0664.Q": [
-   "r5c[15]",
-   "V",
-   "captures host data bit 15 on a write to cb+0x5c"
-  ],
-  "A0665.Q": [
-   "r54[0]",
-   "V",
-   "captures host data bit 0 on a write to cb+0x54"
-  ],
-  "A0666.Q": [
-   "r54[4]",
-   "V",
-   "captures host data bit 4 on a write to cb+0x54"
-  ],
-  "A0667.Q": [
-   "r54[12]",
-   "V",
-   "captures host data bit 12 on a write to cb+0x54"
-  ],
-  "A0668.Q": [
-   "r58[0]",
-   "V",
-   "captures host data bit 0 on a write to cb+0x58"
-  ],
-  "A0669.Q": [
-   "r54[15]",
-   "V",
-   "captures host data bit 15 on a write to cb+0x54"
-  ],
-  "A0670.Q": [
-   "r68[0]",
-   "V",
-   "captures host data bit 0 on a write to cb+0x68"
-  ],
-  "A0671.Q": [
-   "r68[1]",
-   "V",
-   "captures host data bit 1 on a write to cb+0x68"
-  ],
-  "A0672.Q": [
-   "r5c[11]",
-   "V",
-   "captures host data bit 11 on a write to cb+0x5c"
-  ],
-  "A0673.Q": [
-   "r5c[1]",
-   "V",
-   "captures host data bit 1 on a write to cb+0x5c"
-  ],
-  "A0674.Q": [
-   "r5c[13]",
-   "V",
-   "captures host data bit 13 on a write to cb+0x5c"
-  ],
-  "A0675.Q": [
-   "r5c[8]",
-   "V",
-   "captures host data bit 8 on a write to cb+0x5c"
-  ],
-  "A0676.Q": [
-   "r5c[14]",
-   "V",
-   "captures host data bit 14 on a write to cb+0x5c"
-  ],
-  "A0677.Q": [
-   "r5c[9]",
-   "V",
-   "captures host data bit 9 on a write to cb+0x5c"
-  ],
-  "A0678.Q": [
+  "A0686.Q": [
    "r5c[10]",
    "V",
    "captures host data bit 10 on a write to cb+0x5c"
   ],
-  "A0679.Q": [
-   "r5c[5]",
-   "V",
-   "captures host data bit 5 on a write to cb+0x5c"
-  ],
-  "A0680.Q": [
-   "r5c[0]",
-   "V",
-   "captures host data bit 0 on a write to cb+0x5c"
-  ],
-  "A0681.Q": [
-   "r5c[6]",
-   "V",
-   "captures host data bit 6 on a write to cb+0x5c"
-  ],
-  "A0682.Q": [
-   "r5c[2]",
-   "V",
-   "captures host data bit 2 on a write to cb+0x5c"
-  ],
-  "A0683.Q": [
-   "r5c[7]",
-   "V",
-   "captures host data bit 7 on a write to cb+0x5c"
-  ],
-  "A0684.Q": [
+  "A0687.Q": [
    "r5c[3]",
    "V",
    "captures host data bit 3 on a write to cb+0x5c"
   ],
-  "A0685.Q": [
+  "A0688.Q": [
    "r5c[12]",
    "V",
    "captures host data bit 12 on a write to cb+0x5c"
   ],
-  "A0686.Q": [
-   "r5c[4]",
-   "V",
-   "captures host data bit 4 on a write to cb+0x5c"
-  ],
-  "A0688.Q": [
-   "r54[9]",
-   "V",
-   "captures host data bit 9 on a write to cb+0x54"
-  ],
   "A0689.Q": [
-   "r54[5]",
+   "r5c[7]",
    "V",
-   "captures host data bit 5 on a write to cb+0x54"
+   "captures host data bit 7 on a write to cb+0x5c"
   ],
   "A0690.Q": [
-   "r54[10]",
+   "r5c[13]",
    "V",
-   "captures host data bit 10 on a write to cb+0x54"
+   "captures host data bit 13 on a write to cb+0x5c"
   ],
   "A0691.Q": [
-   "r54[6]",
+   "r5c[8]",
    "V",
-   "captures host data bit 6 on a write to cb+0x54"
+   "captures host data bit 8 on a write to cb+0x5c"
   ],
   "A0692.Q": [
-   "r54[14]",
+   "r5c[9]",
    "V",
-   "captures host data bit 14 on a write to cb+0x54"
+   "captures host data bit 9 on a write to cb+0x5c"
   ],
   "A0693.Q": [
-   "r54[7]",
+   "r50[10]",
    "V",
-   "captures host data bit 7 on a write to cb+0x54"
+   "captures host data bit 10 on a write to cb+0x50"
   ],
   "A0694.Q": [
-   "r54[8]",
+   "r50[13]",
    "V",
-   "captures host data bit 8 on a write to cb+0x54"
+   "captures host data bit 13 on a write to cb+0x50"
   ],
   "A0695.Q": [
-   "r58[12]",
-   "V",
-   "captures host data bit 12 on a write to cb+0x58"
-  ],
-  "A0696.Q": [
-   "r58[6]",
-   "V",
-   "captures host data bit 6 on a write to cb+0x58"
-  ],
-  "A0697.Q": [
-   "r58[2]",
-   "V",
-   "captures host data bit 2 on a write to cb+0x58"
-  ],
-  "A0698.Q": [
-   "r58[7]",
-   "V",
-   "captures host data bit 7 on a write to cb+0x58"
-  ],
-  "A0699.Q": [
-   "r58[3]",
-   "V",
-   "captures host data bit 3 on a write to cb+0x58"
-  ],
-  "A0701.Q": [
-   "r58[14]",
-   "V",
-   "captures host data bit 14 on a write to cb+0x58"
-  ],
-  "A0702.Q": [
-   "r58[8]",
-   "V",
-   "captures host data bit 8 on a write to cb+0x58"
-  ],
-  "A0703.Q": [
-   "r50[14]",
-   "V",
-   "captures host data bit 14 on a write to cb+0x50"
-  ],
-  "A0704.Q": [
-   "r50[8]",
-   "V",
-   "captures host data bit 8 on a write to cb+0x50"
-  ],
-  "A0705.Q": [
-   "r50[12]",
-   "V",
-   "captures host data bit 12 on a write to cb+0x50"
-  ],
-  "A0706.Q": [
    "r50[7]",
    "V",
    "captures host data bit 7 on a write to cb+0x50"
   ],
-  "A0710.Q": [
+  "A0696.Q": [
+   "r50[9]",
+   "V",
+   "captures host data bit 9 on a write to cb+0x50"
+  ],
+  "A0697.Q": [
+   "r50[8]",
+   "V",
+   "captures host data bit 8 on a write to cb+0x50"
+  ],
+  "A0698.Q": [
+   "r50[14]",
+   "V",
+   "captures host data bit 14 on a write to cb+0x50"
+  ],
+  "A0699.Q": [
    "r50[3]",
    "V",
    "captures host data bit 3 on a write to cb+0x50"
   ],
-  "A0711.Q": [
-   "r50[6]",
+  "A0700.Q": [
+   "r5c[14]",
    "V",
-   "captures host data bit 6 on a write to cb+0x50"
+   "captures host data bit 14 on a write to cb+0x5c"
   ],
-  "A0713.Q": [
-   "r54[1]",
+  "A0701.Q": [
+   "r54[7]",
    "V",
-   "captures host data bit 1 on a write to cb+0x54"
+   "captures host data bit 7 on a write to cb+0x54"
   ],
-  "A0714.Q": [
-   "r54[2]",
+  "A0702.Q": [
+   "r54[8]",
    "V",
-   "captures host data bit 2 on a write to cb+0x54"
+   "captures host data bit 8 on a write to cb+0x54"
   ],
-  "A0715.Q": [
+  "A0703.Q": [
+   "r54[9]",
+   "V",
+   "captures host data bit 9 on a write to cb+0x54"
+  ],
+  "A0704.Q": [
+   "r54[10]",
+   "V",
+   "captures host data bit 10 on a write to cb+0x54"
+  ],
+  "A0705.Q": [
+   "r58[7]",
+   "V",
+   "captures host data bit 7 on a write to cb+0x58"
+  ],
+  "A0706.Q": [
+   "r58[8]",
+   "V",
+   "captures host data bit 8 on a write to cb+0x58"
+  ],
+  "A0707.Q": [
+   "r58[14]",
+   "V",
+   "captures host data bit 14 on a write to cb+0x58"
+  ],
+  "A0708.Q": [
+   "r58[3]",
+   "V",
+   "captures host data bit 3 on a write to cb+0x58"
+  ],
+  "A0709.Q": [
    "r54[3]",
    "V",
    "captures host data bit 3 on a write to cb+0x54"
   ],
+  "A0710.Q": [
+   "r54[14]",
+   "V",
+   "captures host data bit 14 on a write to cb+0x54"
+  ],
+  "A0712.Q": [
+   "r58[12]",
+   "V",
+   "captures host data bit 12 on a write to cb+0x58"
+  ],
+  "A0713.Q": [
+   "r58[6]",
+   "V",
+   "captures host data bit 6 on a write to cb+0x58"
+  ],
+  "A0714.Q": [
+   "r58[0]",
+   "V",
+   "captures host data bit 0 on a write to cb+0x58"
+  ],
+  "A0715.Q": [
+   "r50[11]",
+   "V",
+   "captures host data bit 11 on a write to cb+0x50"
+  ],
   "A0716.Q": [
+   "r50[12]",
+   "V",
+   "captures host data bit 12 on a write to cb+0x50"
+  ],
+  "A0717.Q": [
+   "r5c[11]",
+   "V",
+   "captures host data bit 11 on a write to cb+0x5c"
+  ],
+  "A0718.Q": [
+   "r54[16]",
+   "V",
+   "captures host data bit 16 on a write to cb+0x54"
+  ],
+  "A0719.Q": [
+   "r54[15]",
+   "V",
+   "captures host data bit 15 on a write to cb+0x54"
+  ],
+  "A0720.Q": [
+   "r54[1]",
+   "V",
+   "captures host data bit 1 on a write to cb+0x54"
+  ],
+  "A0721.Q": [
+   "r54[6]",
+   "V",
+   "captures host data bit 6 on a write to cb+0x54"
+  ],
+  "A0722.Q": [
+   "r54[2]",
+   "V",
+   "captures host data bit 2 on a write to cb+0x54"
+  ],
+  "A0723.Q": [
+   "r54[12]",
+   "V",
+   "captures host data bit 12 on a write to cb+0x54"
+  ],
+  "A0724.Q": [
+   "r54[4]",
+   "V",
+   "captures host data bit 4 on a write to cb+0x54"
+  ],
+  "A0725.Q": [
+   "r54[5]",
+   "V",
+   "captures host data bit 5 on a write to cb+0x54"
+  ],
+  "A0726.Q": [
+   "r50[6]",
+   "V",
+   "captures host data bit 6 on a write to cb+0x50"
+  ],
+  "A0727.Q": [
+   "r5c[2]",
+   "V",
+   "captures host data bit 2 on a write to cb+0x5c"
+  ],
+  "A0728.Q": [
+   "r5c[4]",
+   "V",
+   "captures host data bit 4 on a write to cb+0x5c"
+  ],
+  "A0729.Q": [
+   "r5c[5]",
+   "V",
+   "captures host data bit 5 on a write to cb+0x5c"
+  ],
+  "A0730.Q": [
+   "r5c[6]",
+   "V",
+   "captures host data bit 6 on a write to cb+0x5c"
+  ],
+  "A0731.Q": [
+   "r5c[16]",
+   "V",
+   "captures host data bit 16 on a write to cb+0x5c"
+  ],
+  "A0732.Q": [
+   "r5c[15]",
+   "V",
+   "captures host data bit 15 on a write to cb+0x5c"
+  ],
+  "A0733.Q": [
+   "r54[0]",
+   "V",
+   "captures host data bit 0 on a write to cb+0x54"
+  ],
+  "A0734.Q": [
+   "r5c[0]",
+   "V",
+   "captures host data bit 0 on a write to cb+0x5c"
+  ],
+  "A0735.Q": [
+   "r5c[1]",
+   "V",
+   "captures host data bit 1 on a write to cb+0x5c"
+  ],
+  "A0736.Q": [
+   "r68[1]",
+   "V",
+   "captures host data bit 1 on a write to cb+0x68"
+  ],
+  "A0737.Q": [
+   "r68[0]",
+   "V",
+   "captures host data bit 0 on a write to cb+0x68"
+  ],
+  "A0738.Q": [
+   "r50[28]",
+   "V",
+   "captures host data bit 28 on a write to cb+0x50"
+  ],
+  "A0739.Q": [
+   "r50[29]",
+   "V",
+   "captures host data bit 29 on a write to cb+0x50"
+  ],
+  "A0740.Q": [
+   "r58[28]",
+   "V",
+   "captures host data bit 28 on a write to cb+0x58"
+  ],
+  "A0741.Q": [
+   "r58[29]",
+   "V",
+   "captures host data bit 29 on a write to cb+0x58"
+  ],
+  "A0874.Q": [
+   "r58[2]",
+   "V",
+   "captures host data bit 2 on a write to cb+0x58"
+  ],
+  "A0878.Q": [
    "r50[2]",
    "V",
    "captures host data bit 2 on a write to cb+0x50"
   ],
-  "A0898.Q": [
-   "r5c[28]",
-   "V",
-   "captures host data bit 28 on a write to cb+0x5c"
-  ],
-  "A0899.Q": [
+  "A0922.Q": [
    "r54[28]",
    "V",
    "captures host data bit 28 on a write to cb+0x54"
   ],
-  "A0918.Q": [
+  "A0923.Q": [
+   "r5c[28]",
+   "V",
+   "captures host data bit 28 on a write to cb+0x5c"
+  ],
+  "A0942.Q": [
    "r50[16]",
    "V",
    "captures host data bit 16 on a write to cb+0x50"
   ],
-  "A0919.Q": [
+  "A0943.Q": [
    "r58[16]",
    "V",
    "captures host data bit 16 on a write to cb+0x58"
@@ -402,719 +427,739 @@
    "V",
    "address window hit: a[19:9] in ['0x00000']"
   ],
-  "AP008": [
+  "AP006": [
    "sel_win_80",
    "V",
    "address window hit: a[19:9] in ['0x08000']"
+  ],
+  "AP018": [
+   "sel_win_0",
+   "V",
+   "address window hit: a[19:9] in ['0x00000']"
   ],
   "AP019": [
    "sel_win_0",
    "V",
    "address window hit: a[19:9] in ['0x00000']"
   ],
-  "AP024": [
-   "sel_win_800",
+  "AP021": [
+   "wdata[1]",
    "V",
-   "address window hit: a[19:9] in ['0x80000']"
-  ],
-  "AP025": [
-   "sel_win_8",
-   "V",
-   "address window hit: a[19:9] in ['0x00800']"
-  ],
-  "AP027": [
-   "sel_win_2",
-   "V",
-   "address window hit: a[19:9] in ['0x00200']"
-  ],
-  "AP028": [
-   "sel_win_200",
-   "V",
-   "address window hit: a[19:9] in ['0x20000']"
-  ],
-  "AP032": [
-   "sel_win_10",
-   "V",
-   "address window hit: a[19:9] in ['0x01000']"
-  ],
-  "AP034": [
-   "sel_win_20",
-   "V",
-   "address window hit: a[19:9] in ['0x02000']"
+   "mux of TRNRD[25]/TRNRD[57] two register stages back; host bit 1 by the TRN dword byte order (I for the byte order)"
   ],
   "AP036": [
    "sel_page",
    "V",
-   "address a[19:8] == 0x011 (this channel's register page) with the decode-mux controls at 0"
+   "address a[19:8] == 0x02e (this channel's register page) with the decode-mux controls at 0"
   ],
-  "AP043": [
-   "sel_win_400",
-   "V",
-   "address window hit: a[19:9] in ['0x40000']"
-  ],
-  "AP044": [
+  "AP037": [
    "sel_win_4",
    "V",
    "address window hit: a[19:9] in ['0x00400']"
   ],
-  "AP056": [
+  "AP039": [
+   "sel_win_400",
+   "V",
+   "address window hit: a[19:9] in ['0x40000']"
+  ],
+  "AP041": [
+   "sel_win_10",
+   "V",
+   "address window hit: a[19:9] in ['0x01000']"
+  ],
+  "AP043": [
+   "sel_win_2",
+   "V",
+   "address window hit: a[19:9] in ['0x00200']"
+  ],
+  "AP045": [
+   "sel_win_200",
+   "V",
+   "address window hit: a[19:9] in ['0x20000']"
+  ],
+  "AP047": [
+   "sel_win_800",
+   "V",
+   "address window hit: a[19:9] in ['0x80000']"
+  ],
+  "AP048": [
+   "sel_win_8",
+   "V",
+   "address window hit: a[19:9] in ['0x00800']"
+  ],
+  "AP050": [
+   "sel_win_20",
+   "V",
+   "address window hit: a[19:9] in ['0x02000']"
+  ],
+  "AP055": [
    "sel_win_0",
    "V",
    "address window hit: a[19:9] in ['0x00000']"
   ],
-  "AP057": [
-   "wdata[14]",
-   "V",
-   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP058": [
-   "wdata[30]",
-   "V",
-   "mux of TRNRD[6]/TRNRD[38] two register stages back; host bit 30 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP059": [
-   "wdata[10]",
-   "V",
-   "mux of TRNRD[18]/TRNRD[50] two register stages back; host bit 10 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP060": [
-   "wdata[18]",
-   "V",
-   "mux of TRNRD[10]/TRNRD[42] two register stages back; host bit 18 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP061": [
-   "wdata[29]",
-   "V",
-   "mux of TRNRD[5]/TRNRD[37] two register stages back; host bit 29 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP062": [
-   "wdata[3]",
-   "V",
-   "mux of TRNRD[27]/TRNRD[59] two register stages back; host bit 3 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP063": [
-   "wdata[19]",
-   "V",
-   "mux of TRNRD[11]/TRNRD[43] two register stages back; host bit 19 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP064": [
-   "wdata[20]",
-   "V",
-   "mux of TRNRD[12]/TRNRD[44] two register stages back; host bit 20 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP065": [
-   "wdata[13]",
-   "V",
-   "mux of TRNRD[21]/TRNRD[53] two register stages back; host bit 13 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP066": [
+  "AP056": [
    "wdata[22]",
    "V",
    "mux of TRNRD[14]/TRNRD[46] two register stages back; host bit 22 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP067": [
-   "wdata[9]",
+  "AP057": [
+   "wdata[19]",
    "V",
-   "mux of TRNRD[17]/TRNRD[49] two register stages back; host bit 9 by the TRN dword byte order (I for the byte order)"
+   "mux of TRNRD[11]/TRNRD[43] two register stages back; host bit 19 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP068": [
-   "wdata[16]",
-   "V",
-   "mux of TRNRD[8]/TRNRD[40] two register stages back; host bit 16 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP069": [
-   "wdata[8]",
-   "V",
-   "mux of TRNRD[16]/TRNRD[48] two register stages back; host bit 8 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP070": [
-   "wdata[12]",
-   "V",
-   "mux of TRNRD[20]/TRNRD[52] two register stages back; host bit 12 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP071": [
-   "wdata[21]",
-   "V",
-   "mux of TRNRD[13]/TRNRD[45] two register stages back; host bit 21 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP072": [
-   "wdata[28]",
-   "V",
-   "mux of TRNRD[4]/TRNRD[36] two register stages back; host bit 28 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP073": [
-   "wdata[11]",
-   "V",
-   "mux of TRNRD[19]/TRNRD[51] two register stages back; host bit 11 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP074": [
-   "wdata[6]",
-   "V",
-   "mux of TRNRD[30]/TRNRD[62] two register stages back; host bit 6 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP075": [
-   "wdata[24]",
-   "V",
-   "mux of TRNRD[0]/TRNRD[32] two register stages back; host bit 24 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP076": [
-   "wdata[25]",
-   "V",
-   "mux of TRNRD[1]/TRNRD[33] two register stages back; host bit 25 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP077": [
-   "wdata[27]",
-   "V",
-   "mux of TRNRD[3]/TRNRD[35] two register stages back; host bit 27 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP078": [
-   "wdata[26]",
-   "V",
-   "mux of TRNRD[2]/TRNRD[34] two register stages back; host bit 26 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP079": [
-   "sel_win_0",
-   "V",
-   "address window hit: a[19:9] in ['0x00000']"
-  ],
-  "AP080": [
-   "wdata[5]",
-   "V",
-   "mux of TRNRD[29]/TRNRD[61] two register stages back; host bit 5 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP081": [
-   "wdata[0]",
-   "V",
-   "mux of TRNRD[24]/TRNRD[56] two register stages back; host bit 0 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP082": [
-   "wdata[2]",
-   "V",
-   "mux of TRNRD[26]/TRNRD[58] two register stages back; host bit 2 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP083": [
-   "wdata[4]",
-   "V",
-   "mux of TRNRD[28]/TRNRD[60] two register stages back; host bit 4 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP084": [
-   "wdata[1]",
-   "V",
-   "mux of TRNRD[25]/TRNRD[57] two register stages back; host bit 1 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP086": [
-   "sel_r00",
-   "V",
-   "address == cb+0x00 (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP087": [
-   "sel_r00",
-   "V",
-   "address == cb+0x00 (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP088": [
-   "wdata[0]",
-   "V",
-   "mux of TRNRD[24]/TRNRD[56] two register stages back; host bit 0 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP089": [
-   "sel_win_0_10",
-   "V",
-   "address window hit: a[19:9] in ['0x00000', '0x01000']"
-  ],
-  "AP090": [
-   "sel_win_0_10",
-   "V",
-   "address window hit: a[19:9] in ['0x00000', '0x01000']"
-  ],
-  "AP093": [
-   "sel_r00",
-   "V",
-   "address == cb+0x00 (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP094": [
-   "sel_win_10",
-   "V",
-   "address window hit: a[19:9] in ['0x01000']"
-  ],
-  "AP095": [
-   "sel_win_10",
-   "V",
-   "address window hit: a[19:9] in ['0x01000']"
-  ],
-  "AP096": [
-   "sel_win_40",
-   "V",
-   "address window hit: a[19:9] in ['0x04000']"
-  ],
-  "AP097": [
-   "sel_win_40",
-   "V",
-   "address window hit: a[19:9] in ['0x04000']"
-  ],
-  "AP098": [
-   "sel_win_2",
-   "V",
-   "address window hit: a[19:9] in ['0x00200']"
-  ],
-  "AP099": [
-   "sel_win_2",
-   "V",
-   "address window hit: a[19:9] in ['0x00200']"
-  ],
-  "AP100": [
-   "sel_win_4",
-   "V",
-   "address window hit: a[19:9] in ['0x00400']"
-  ],
-  "AP101": [
-   "sel_win_4",
-   "V",
-   "address window hit: a[19:9] in ['0x00400']"
-  ],
-  "AP102": [
-   "sel_win_8",
-   "V",
-   "address window hit: a[19:9] in ['0x00800']"
-  ],
-  "AP103": [
-   "sel_win_8",
-   "V",
-   "address window hit: a[19:9] in ['0x00800']"
-  ],
-  "AP104": [
-   "sel_win_80",
-   "V",
-   "address window hit: a[19:9] in ['0x08000']"
-  ],
-  "AP105": [
-   "sel_win_80",
-   "V",
-   "address window hit: a[19:9] in ['0x08000']"
-  ],
-  "AP106": [
-   "sel_win_800",
-   "V",
-   "address window hit: a[19:9] in ['0x80000']"
-  ],
-  "AP108": [
-   "sel_a4",
-   "V",
-   "sel_page & a[4]"
-  ],
-  "AP109": [
-   "sel_a5",
-   "V",
-   "sel_page & a[5]"
-  ],
-  "AP110": [
-   "sel_a6",
-   "V",
-   "sel_page & a[6]"
-  ],
-  "AP111": [
-   "sel_a3",
-   "V",
-   "sel_page & a[3]"
-  ],
-  "AP112": [
-   "sel_a2",
-   "V",
-   "sel_page & a[2]"
-  ],
-  "AP115": [
-   "sel_win_800",
-   "V",
-   "address window hit: a[19:9] in ['0x80000']"
-  ],
-  "AP116": [
-   "sel_win_800",
-   "V",
-   "address window hit: a[19:9] in ['0x80000']"
-  ],
-  "AP119": [
-   "sel_win_200",
-   "V",
-   "address window hit: a[19:9] in ['0x20000']"
-  ],
-  "AP120": [
-   "sel_win_200",
-   "V",
-   "address window hit: a[19:9] in ['0x20000']"
-  ],
-  "AP121": [
-   "sel_win_400",
-   "V",
-   "address window hit: a[19:9] in ['0x40000']"
-  ],
-  "AP122": [
-   "sel_win_400",
-   "V",
-   "address window hit: a[19:9] in ['0x40000']"
-  ],
-  "AP125": [
-   "sel_win_20",
-   "V",
-   "address window hit: a[19:9] in ['0x02000']"
-  ],
-  "AP126": [
-   "sel_win_20",
-   "V",
-   "address window hit: a[19:9] in ['0x02000']"
-  ],
-  "AP132": [
-   "sel_r50",
-   "V",
-   "address == cb+0x50 (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP133": [
-   "wdata[28]",
-   "V",
-   "mux of TRNRD[4]/TRNRD[36] two register stages back; host bit 28 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP134": [
-   "sel_r58",
-   "V",
-   "address == cb+0x58 (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP135": [
+  "AP058": [
    "wdata[29]",
    "V",
    "mux of TRNRD[5]/TRNRD[37] two register stages back; host bit 29 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP136": [
-   "sel_r54",
+  "AP059": [
+   "wdata[28]",
    "V",
-   "address == cb+0x54 (page 0x011) with the decode-mux controls at 0"
+   "mux of TRNRD[4]/TRNRD[36] two register stages back; host bit 28 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP137": [
-   "sel_r5c",
-   "V",
-   "address == cb+0x5c (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP138": [
-   "sel_r5c",
-   "V",
-   "address == cb+0x5c (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP139": [
-   "wdata[15]",
-   "V",
-   "mux of TRNRD[23]/TRNRD[55] two register stages back; host bit 15 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP140": [
-   "wdata[0]",
-   "V",
-   "mux of TRNRD[24]/TRNRD[56] two register stages back; host bit 0 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP141": [
-   "wdata[4]",
-   "V",
-   "mux of TRNRD[28]/TRNRD[60] two register stages back; host bit 4 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP142": [
-   "wdata[12]",
-   "V",
-   "mux of TRNRD[20]/TRNRD[52] two register stages back; host bit 12 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP143": [
-   "sel_r68",
-   "V",
-   "address == cb+0x68 (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP144": [
-   "wdata[1]",
-   "V",
-   "mux of TRNRD[25]/TRNRD[57] two register stages back; host bit 1 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP145": [
-   "wdata[11]",
-   "V",
-   "mux of TRNRD[19]/TRNRD[51] two register stages back; host bit 11 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP146": [
+  "AP060": [
    "wdata[13]",
    "V",
    "mux of TRNRD[21]/TRNRD[53] two register stages back; host bit 13 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP147": [
-   "wdata[14]",
-   "V",
-   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP148": [
+  "AP061": [
    "wdata[9]",
    "V",
    "mux of TRNRD[17]/TRNRD[49] two register stages back; host bit 9 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP149": [
-   "wdata[10]",
-   "V",
-   "mux of TRNRD[18]/TRNRD[50] two register stages back; host bit 10 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP150": [
-   "wdata[5]",
-   "V",
-   "mux of TRNRD[29]/TRNRD[61] two register stages back; host bit 5 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP151": [
-   "wdata[6]",
-   "V",
-   "mux of TRNRD[30]/TRNRD[62] two register stages back; host bit 6 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP152": [
-   "wdata[7]",
-   "V",
-   "mux of TRNRD[31]/TRNRD[63] two register stages back; host bit 7 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP153": [
-   "wdata[4]",
-   "V",
-   "mux of TRNRD[28]/TRNRD[60] two register stages back; host bit 4 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP154": [
-   "wdata[9]",
-   "V",
-   "mux of TRNRD[17]/TRNRD[49] two register stages back; host bit 9 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP155": [
-   "wdata[5]",
-   "V",
-   "mux of TRNRD[29]/TRNRD[61] two register stages back; host bit 5 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP156": [
-   "wdata[6]",
-   "V",
-   "mux of TRNRD[30]/TRNRD[62] two register stages back; host bit 6 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP157": [
-   "wdata[7]",
-   "V",
-   "mux of TRNRD[31]/TRNRD[63] two register stages back; host bit 7 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP158": [
+  "AP062": [
    "wdata[8]",
    "V",
    "mux of TRNRD[16]/TRNRD[48] two register stages back; host bit 8 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP159": [
-   "wdata[2]",
+  "AP063": [
+   "wdata[12]",
    "V",
-   "mux of TRNRD[26]/TRNRD[58] two register stages back; host bit 2 by the TRN dword byte order (I for the byte order)"
+   "mux of TRNRD[20]/TRNRD[52] two register stages back; host bit 12 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP160": [
-   "wdata[3]",
-   "V",
-   "mux of TRNRD[27]/TRNRD[59] two register stages back; host bit 3 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP161": [
-   "wdata[14]",
-   "V",
-   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP162": [
-   "sel_r50",
-   "V",
-   "address == cb+0x50 (page 0x011) with the decode-mux controls at 0"
-  ],
-  "AP163": [
-   "wdata[14]",
-   "V",
-   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP165": [
-   "wdata[3]",
-   "V",
-   "mux of TRNRD[27]/TRNRD[59] two register stages back; host bit 3 by the TRN dword byte order (I for the byte order)"
-  ],
-  "AP167": [
+  "AP064": [
    "wdata[1]",
    "V",
    "mux of TRNRD[25]/TRNRD[57] two register stages back; host bit 1 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP168": [
+  "AP065": [
    "wdata[3]",
    "V",
    "mux of TRNRD[27]/TRNRD[59] two register stages back; host bit 3 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP169": [
+  "AP066": [
+   "sel_win_0",
+   "V",
+   "address window hit: a[19:9] in ['0x00000']"
+  ],
+  "AP067": [
+   "wdata[0]",
+   "V",
+   "mux of TRNRD[24]/TRNRD[56] two register stages back; host bit 0 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP068": [
+   "wdata[4]",
+   "V",
+   "mux of TRNRD[28]/TRNRD[60] two register stages back; host bit 4 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP069": [
+   "wdata[5]",
+   "V",
+   "mux of TRNRD[29]/TRNRD[61] two register stages back; host bit 5 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP072": [
+   "wdata[10]",
+   "V",
+   "mux of TRNRD[18]/TRNRD[50] two register stages back; host bit 10 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP073": [
+   "wdata[6]",
+   "V",
+   "mux of TRNRD[30]/TRNRD[62] two register stages back; host bit 6 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP074": [
+   "wdata[16]",
+   "V",
+   "mux of TRNRD[8]/TRNRD[40] two register stages back; host bit 16 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP075": [
+   "wdata[26]",
+   "V",
+   "mux of TRNRD[2]/TRNRD[34] two register stages back; host bit 26 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP076": [
+   "wdata[21]",
+   "V",
+   "mux of TRNRD[13]/TRNRD[45] two register stages back; host bit 21 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP077": [
    "wdata[2]",
    "V",
    "mux of TRNRD[26]/TRNRD[58] two register stages back; host bit 2 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP171": [
-   "sel_win_0_180_240_280_440_480_840_880",
+  "AP078": [
+   "wdata[24]",
    "V",
-   "address window hit: a[19:9] in ['0x00000', '0x18000', '0x24000', '0x28000', '0x44000', '0x48000', '0x84000', '0x88000']"
+   "mux of TRNRD[0]/TRNRD[32] two register stages back; host bit 24 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP172": [
-   "sel_win_0_2_182_282_442_482_842_882",
+  "AP079": [
+   "wdata[25]",
    "V",
-   "address window hit: a[19:9] in ['0x00000', '0x00200', '0x18200', '0x28200', '0x44200', '0x48200', '0x84200', '0x88200']"
+   "mux of TRNRD[1]/TRNRD[33] two register stages back; host bit 25 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP173": [
-   "wdata[15]",
+  "AP080": [
+   "wdata[11]",
    "V",
-   "mux of TRNRD[23]/TRNRD[55] two register stages back; host bit 15 by the TRN dword byte order (I for the byte order)"
+   "mux of TRNRD[19]/TRNRD[51] two register stages back; host bit 11 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP174": [
-   "wdata[7]",
+  "AP081": [
+   "wdata[30]",
    "V",
-   "mux of TRNRD[31]/TRNRD[63] two register stages back; host bit 7 by the TRN dword byte order (I for the byte order)"
+   "mux of TRNRD[6]/TRNRD[38] two register stages back; host bit 30 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP175": [
-   "wdata[17]",
+  "AP082": [
+   "wdata[14]",
    "V",
-   "mux of TRNRD[9]/TRNRD[41] two register stages back; host bit 17 by the TRN dword byte order (I for the byte order)"
+   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP176": [
+  "AP083": [
+   "wdata[20]",
+   "V",
+   "mux of TRNRD[12]/TRNRD[44] two register stages back; host bit 20 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP085": [
+   "sel_r00",
+   "V",
+   "address == cb+0x00 (page 0x02e) with the decode-mux controls at 0"
+  ],
+  "AP086": [
+   "wdata[0]",
+   "V",
+   "mux of TRNRD[24]/TRNRD[56] two register stages back; host bit 0 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP087": [
+   "sel_r00",
+   "V",
+   "address == cb+0x00 (page 0x02e) with the decode-mux controls at 0"
+  ],
+  "AP088": [
+   "sel_r00",
+   "V",
+   "address == cb+0x00 (page 0x02e) with the decode-mux controls at 0"
+  ],
+  "AP089": [
+   "wdata[16]",
+   "V",
+   "mux of TRNRD[8]/TRNRD[40] two register stages back; host bit 16 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP090": [
+   "sel_win_800",
+   "V",
+   "address window hit: a[19:9] in ['0x80000']"
+  ],
+  "AP094": [
+   "sel_win_200",
+   "V",
+   "address window hit: a[19:9] in ['0x20000']"
+  ],
+  "AP095": [
+   "sel_win_400",
+   "V",
+   "address window hit: a[19:9] in ['0x40000']"
+  ],
+  "AP096": [
+   "sel_win_2",
+   "V",
+   "address window hit: a[19:9] in ['0x00200']"
+  ],
+  "AP097": [
+   "sel_win_2",
+   "V",
+   "address window hit: a[19:9] in ['0x00200']"
+  ],
+  "AP098": [
+   "sel_win_8",
+   "V",
+   "address window hit: a[19:9] in ['0x00800']"
+  ],
+  "AP099": [
+   "sel_win_8",
+   "V",
+   "address window hit: a[19:9] in ['0x00800']"
+  ],
+  "AP100": [
+   "sel_win_10",
+   "V",
+   "address window hit: a[19:9] in ['0x01000']"
+  ],
+  "AP101": [
+   "sel_win_10",
+   "V",
+   "address window hit: a[19:9] in ['0x01000']"
+  ],
+  "AP102": [
+   "sel_win_800",
+   "V",
+   "address window hit: a[19:9] in ['0x80000']"
+  ],
+  "AP103": [
+   "sel_win_4",
+   "V",
+   "address window hit: a[19:9] in ['0x00400']"
+  ],
+  "AP104": [
+   "sel_win_4",
+   "V",
+   "address window hit: a[19:9] in ['0x00400']"
+  ],
+  "AP105": [
+   "sel_win_20",
+   "V",
+   "address window hit: a[19:9] in ['0x02000']"
+  ],
+  "AP106": [
+   "sel_win_20",
+   "V",
+   "address window hit: a[19:9] in ['0x02000']"
+  ],
+  "AP107": [
+   "sel_win_40",
+   "V",
+   "address window hit: a[19:9] in ['0x04000']"
+  ],
+  "AP108": [
+   "sel_win_40",
+   "V",
+   "address window hit: a[19:9] in ['0x04000']"
+  ],
+  "AP109": [
+   "sel_win_80",
+   "V",
+   "address window hit: a[19:9] in ['0x08000']"
+  ],
+  "AP110": [
+   "sel_win_80",
+   "V",
+   "address window hit: a[19:9] in ['0x08000']"
+  ],
+  "AP114": [
+   "sel_win_0_2_6_e_12e_22e_42e_82e",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x00200', '0x00600', '0x00e00', '0x12e00', '0x22e00', '0x42e00', '0x82e00']"
+  ],
+  "AP115": [
    "wdata[31]",
    "V",
    "mux of TRNRD[7]/TRNRD[39] two register stages back; host bit 31 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP177": [
-   "wdata[23]",
+  "AP116": [
+   "sel_r5c",
    "V",
-   "mux of TRNRD[15]/TRNRD[47] two register stages back; host bit 23 by the TRN dword byte order (I for the byte order)"
+   "address == cb+0x5c (page 0x02e) with the decode-mux controls at 0"
   ],
-  "AP180": [
-   "wdata[16]",
+  "AP117": [
+   "sel_a4",
    "V",
-   "mux of TRNRD[8]/TRNRD[40] two register stages back; host bit 16 by the TRN dword byte order (I for the byte order)"
+   "sel_page & a[4]"
   ],
-  "AP182": [
-   "sel_na07",
+  "AP118": [
+   "sel_a5",
    "V",
-   "sel_page & {'a07': 0}"
+   "sel_page & a[5]"
   ],
-  "AP195": [
-   "sel_win_42_82",
+  "AP119": [
+   "sel_a6",
    "V",
-   "address window hit: a[19:9] in ['0x04200', '0x08200']"
+   "sel_page & a[6]"
   ],
-  "AP196": [
-   "sel_win_42_82",
+  "AP120": [
+   "sel_a2",
    "V",
-   "address window hit: a[19:9] in ['0x04200', '0x08200']"
+   "sel_page & a[2]"
   ],
-  "AP197": [
-   "sel_win_42_82",
+  "AP121": [
+   "sel_a3",
    "V",
-   "address window hit: a[19:9] in ['0x04200', '0x08200']"
+   "sel_page & a[3]"
   ],
-  "AP198": [
-   "sel_win_42_82",
+  "AP122": [
+   "sel_r5c",
    "V",
-   "address window hit: a[19:9] in ['0x04200', '0x08200']"
+   "address == cb+0x5c (page 0x02e) with the decode-mux controls at 0"
   ],
-  "AP199": [
-   "sel_win_42_82",
+  "AP123": [
+   "wdata[10]",
    "V",
-   "address window hit: a[19:9] in ['0x04200', '0x08200']"
+   "mux of TRNRD[18]/TRNRD[50] two register stages back; host bit 10 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP200": [
-   "sel_win_42_82",
+  "AP124": [
+   "wdata[12]",
    "V",
-   "address window hit: a[19:9] in ['0x04200', '0x08200']"
+   "mux of TRNRD[20]/TRNRD[52] two register stages back; host bit 12 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP201": [
-   "sel_win_0",
+  "AP125": [
+   "wdata[7]",
    "V",
-   "address window hit: a[19:9] in ['0x00000']"
+   "mux of TRNRD[31]/TRNRD[63] two register stages back; host bit 7 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP202": [
-   "sel_win_0",
+  "AP126": [
+   "wdata[13]",
    "V",
-   "address window hit: a[19:9] in ['0x00000']"
+   "mux of TRNRD[21]/TRNRD[53] two register stages back; host bit 13 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP203": [
-   "sel_win_42_82",
+  "AP127": [
+   "wdata[9]",
    "V",
-   "address window hit: a[19:9] in ['0x04200', '0x08200']"
+   "mux of TRNRD[17]/TRNRD[49] two register stages back; host bit 9 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP204": [
-   "sel_win_0",
+  "AP128": [
+   "sel_r50",
    "V",
-   "address window hit: a[19:9] in ['0x00000']"
+   "address == cb+0x50 (page 0x02e) with the decode-mux controls at 0"
   ],
-  "AP207": [
-   "sel_win_0_90_110_210_410_810",
+  "AP129": [
+   "wdata[7]",
    "V",
-   "address window hit: a[19:9] in ['0x00000', '0x09000', '0x11000', '0x21000', '0x41000', '0x81000']"
+   "mux of TRNRD[31]/TRNRD[63] two register stages back; host bit 7 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP208": [
-   "sel_win_0_110_210_410_810",
+  "AP130": [
+   "wdata[8]",
    "V",
-   "address window hit: a[19:9] in ['0x00000', '0x11000', '0x21000', '0x41000', '0x81000']"
+   "mux of TRNRD[16]/TRNRD[48] two register stages back; host bit 8 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP209": [
-   "wdata[2]",
+  "AP131": [
+   "wdata[14]",
    "V",
-   "mux of TRNRD[26]/TRNRD[58] two register stages back; host bit 2 by the TRN dword byte order (I for the byte order)"
+   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP210": [
-   "sel_win_82",
+  "AP132": [
+   "wdata[3]",
    "V",
-   "address window hit: a[19:9] in ['0x08200']"
+   "mux of TRNRD[27]/TRNRD[59] two register stages back; host bit 3 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP211": [
-   "sel_win_100_200_400_800",
+  "AP133": [
+   "wdata[7]",
    "V",
-   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+   "mux of TRNRD[31]/TRNRD[63] two register stages back; host bit 7 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP212": [
-   "sel_win_0_180_240_280_440_480_840_880",
+  "AP134": [
+   "wdata[8]",
    "V",
-   "address window hit: a[19:9] in ['0x00000', '0x18000', '0x24000', '0x28000', '0x44000', '0x48000', '0x84000', '0x88000']"
+   "mux of TRNRD[16]/TRNRD[48] two register stages back; host bit 8 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP213": [
-   "sel_win_40_80",
+  "AP135": [
+   "wdata[9]",
    "V",
-   "address window hit: a[19:9] in ['0x04000', '0x08000']"
+   "mux of TRNRD[17]/TRNRD[49] two register stages back; host bit 9 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP214": [
-   "sel_win_100_200_400_800",
+  "AP136": [
+   "wdata[10]",
    "V",
-   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+   "mux of TRNRD[18]/TRNRD[50] two register stages back; host bit 10 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP215": [
-   "sel_win_100_200_400_800",
+  "AP137": [
+   "wdata[14]",
    "V",
-   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP216": [
-   "sel_win_100_200_400_800",
+  "AP138": [
+   "wdata[3]",
    "V",
-   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+   "mux of TRNRD[27]/TRNRD[59] two register stages back; host bit 3 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP217": [
-   "sel_a04na05a06na07",
+  "AP139": [
+   "wdata[3]",
    "V",
-   "sel_page & {'a04': 1, 'a05': 0, 'a06': 1, 'a07': 0}"
+   "mux of TRNRD[27]/TRNRD[59] two register stages back; host bit 3 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP218": [
-   "sel_win_0",
+  "AP140": [
+   "wdata[14]",
    "V",
-   "address window hit: a[19:9] in ['0x00000']"
+   "mux of TRNRD[22]/TRNRD[54] two register stages back; host bit 14 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP219": [
-   "user_rst",
+  "AP141": [
+   "wdata[12]",
    "V",
-   "from PCIE_2_1 USERRSTN"
+   "mux of TRNRD[20]/TRNRD[52] two register stages back; host bit 12 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP220": [
+  "AP142": [
+   "wdata[6]",
+   "V",
+   "mux of TRNRD[30]/TRNRD[62] two register stages back; host bit 6 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP143": [
+   "wdata[0]",
+   "V",
+   "mux of TRNRD[24]/TRNRD[56] two register stages back; host bit 0 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP144": [
+   "wdata[11]",
+   "V",
+   "mux of TRNRD[19]/TRNRD[51] two register stages back; host bit 11 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP145": [
+   "sel_r54",
+   "V",
+   "address == cb+0x54 (page 0x02e) with the decode-mux controls at 0"
+  ],
+  "AP146": [
+   "wdata[15]",
+   "V",
+   "mux of TRNRD[23]/TRNRD[55] two register stages back; host bit 15 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP147": [
    "wdata[1]",
    "V",
    "mux of TRNRD[25]/TRNRD[57] two register stages back; host bit 1 by the TRN dword byte order (I for the byte order)"
   ],
-  "AP221": [
-   "wdata[16]",
+  "AP148": [
+   "wdata[5]",
    "V",
-   "mux of TRNRD[8]/TRNRD[40] two register stages back; host bit 16 by the TRN dword byte order (I for the byte order)"
+   "mux of TRNRD[29]/TRNRD[61] two register stages back; host bit 5 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP149": [
+   "wdata[6]",
+   "V",
+   "mux of TRNRD[30]/TRNRD[62] two register stages back; host bit 6 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP150": [
+   "wdata[2]",
+   "V",
+   "mux of TRNRD[26]/TRNRD[58] two register stages back; host bit 2 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP151": [
+   "wdata[4]",
+   "V",
+   "mux of TRNRD[28]/TRNRD[60] two register stages back; host bit 4 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP152": [
+   "wdata[5]",
+   "V",
+   "mux of TRNRD[29]/TRNRD[61] two register stages back; host bit 5 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP153": [
+   "wdata[15]",
+   "V",
+   "mux of TRNRD[23]/TRNRD[55] two register stages back; host bit 15 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP154": [
+   "wdata[1]",
+   "V",
+   "mux of TRNRD[25]/TRNRD[57] two register stages back; host bit 1 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP155": [
+   "sel_r68",
+   "V",
+   "address == cb+0x68 (page 0x02e) with the decode-mux controls at 0"
+  ],
+  "AP156": [
+   "sel_r50",
+   "V",
+   "address == cb+0x50 (page 0x02e) with the decode-mux controls at 0"
+  ],
+  "AP157": [
+   "wdata[28]",
+   "V",
+   "mux of TRNRD[4]/TRNRD[36] two register stages back; host bit 28 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP158": [
+   "wdata[29]",
+   "V",
+   "mux of TRNRD[5]/TRNRD[37] two register stages back; host bit 29 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP159": [
+   "sel_r58",
+   "V",
+   "address == cb+0x58 (page 0x02e) with the decode-mux controls at 0"
+  ],
+  "AP160": [
+   "wdata[28]",
+   "V",
+   "mux of TRNRD[4]/TRNRD[36] two register stages back; host bit 28 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP161": [
+   "wdata[29]",
+   "V",
+   "mux of TRNRD[5]/TRNRD[37] two register stages back; host bit 29 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP168": [
+   "wdata[27]",
+   "V",
+   "mux of TRNRD[3]/TRNRD[35] two register stages back; host bit 27 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP169": [
+   "sel_win_0_180_240_280_440_480_840_880",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x18000', '0x24000', '0x28000', '0x44000', '0x48000', '0x84000', '0x88000']"
+  ],
+  "AP170": [
+   "sel_win_0_4_c_1c_3c_27c_47c_87c",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x00400', '0x00c00', '0x01c00', '0x03c00', '0x27c00', '0x47c00', '0x87c00']"
+  ],
+  "AP171": [
+   "wdata[18]",
+   "V",
+   "mux of TRNRD[10]/TRNRD[42] two register stages back; host bit 18 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP172": [
+   "wdata[23]",
+   "V",
+   "mux of TRNRD[15]/TRNRD[47] two register stages back; host bit 23 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP174": [
+   "sel_win_0_180_240_280_440_480_840_880",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x18000', '0x24000', '0x28000', '0x44000', '0x48000', '0x84000', '0x88000']"
+  ],
+  "AP181": [
+   "wdata[17]",
+   "V",
+   "mux of TRNRD[9]/TRNRD[41] two register stages back; host bit 17 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP183": [
+   "sel_na07",
+   "V",
+   "sel_page & {'a07': 0}"
+  ],
+  "AP184": [
+   "wdata[8]",
+   "V",
+   "mux of TRNRD[16]/TRNRD[48] two register stages back; host bit 8 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP185": [
+   "sel_win_7c_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x07c00', '0x0bc00']"
+  ],
+  "AP186": [
+   "sel_win_7c_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x07c00', '0x0bc00']"
+  ],
+  "AP187": [
+   "sel_win_7c_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x07c00', '0x0bc00']"
+  ],
+  "AP188": [
+   "sel_win_7c_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x07c00', '0x0bc00']"
+  ],
+  "AP189": [
+   "sel_win_7c_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x07c00', '0x0bc00']"
+  ],
+  "AP190": [
+   "wdata[2]",
+   "V",
+   "mux of TRNRD[26]/TRNRD[58] two register stages back; host bit 2 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP191": [
+   "sel_win_7c_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x07c00', '0x0bc00']"
+  ],
+  "AP192": [
+   "sel_win_7c_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x07c00', '0x0bc00']"
+  ],
+  "AP193": [
+   "sel_win_0",
+   "V",
+   "address window hit: a[19:9] in ['0x00000']"
+  ],
+  "AP194": [
+   "sel_win_0_2_6_e_42e_82e",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x00200', '0x00600', '0x00e00', '0x42e00', '0x82e00']"
+  ],
+  "AP195": [
+   "wdata[4]",
+   "V",
+   "mux of TRNRD[28]/TRNRD[60] two register stages back; host bit 4 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP196": [
+   "sel_win_0_2_6_e_22e_42e_82e",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x00200', '0x00600', '0x00e00', '0x22e00', '0x42e00', '0x82e00']"
+  ],
+  "AP199": [
+   "wdata[28]",
+   "V",
+   "mux of TRNRD[4]/TRNRD[36] two register stages back; host bit 28 by the TRN dword byte order (I for the byte order)"
+  ],
+  "AP200": [
+   "sel_win_100_200_400_800",
+   "V",
+   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+  ],
+  "AP201": [
+   "sel_win_40_80",
+   "V",
+   "address window hit: a[19:9] in ['0x04000', '0x08000']"
+  ],
+  "AP202": [
+   "sel_win_0_180_240_280_440_480_840_880",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x18000', '0x24000', '0x28000', '0x44000', '0x48000', '0x84000', '0x88000']"
+  ],
+  "AP203": [
+   "sel_win_bc",
+   "V",
+   "address window hit: a[19:9] in ['0x0bc00']"
+  ],
+  "AP204": [
+   "sel_win_0_180_240_280_440_480_840_880",
+   "V",
+   "address window hit: a[19:9] in ['0x00000', '0x18000', '0x24000', '0x28000', '0x44000', '0x48000', '0x84000', '0x88000']"
+  ],
+  "AP205": [
+   "sel_win_100_200_400_800",
+   "V",
+   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+  ],
+  "AP206": [
+   "sel_win_100_200_400_800",
+   "V",
+   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+  ],
+  "AP207": [
+   "sel_win_100_200_400_800",
+   "V",
+   "address window hit: a[19:9] in ['0x10000', '0x20000', '0x40000', '0x80000']"
+  ],
+  "AP208": [
+   "sel_a04na05a06na07",
+   "V",
+   "sel_page & {'a04': 1, 'a05': 0, 'a06': 1, 'a07': 0}"
+  ],
+  "AP209": [
+   "sel_win_0",
+   "V",
+   "address window hit: a[19:9] in ['0x00000']"
+  ],
+  "AP210": [
+   "user_rst",
+   "V",
+   "from PCIE_2_1 USERRSTN"
+  ],
+  "AP211": [
+   "clk",
+   "V",
+   "BUFHCE output (user clock, 62.5 MHz)"
+  ],
+  "AP212": [
+   "wdata[30]",
+   "V",
+   "mux of TRNRD[6]/TRNRD[38] two register stages back; host bit 30 by the TRN dword byte order (I for the byte order)"
   ]
  },
  "pads": {},
- "page_base": 4352,
+ "page_base": 11776,
  "page_port": "AP036",
  "phase": null,
  "port_meaning": {
@@ -1124,19 +1169,25 @@
     0
    ]
   ],
-  "AP007": [
+  "AP005": [
    "qual",
    null
   ],
-  "AP008": [
+  "AP006": [
    "window",
    [
     32768
    ]
   ],
-  "AP009": [
+  "AP007": [
    "qual",
    null
+  ],
+  "AP018": [
+   "window",
+   [
+    0
+   ]
   ],
   "AP019": [
    "window",
@@ -1148,103 +1199,103 @@
    "one",
    null
   ],
-  "AP021": [
-   "one",
-   null
-  ],
-  "AP024": [
-   "window",
-   [
-    524288
-   ]
-  ],
-  "AP025": [
-   "window",
-   [
-    2048
-   ]
-  ],
-  "AP026": [
-   "qual",
-   null
-  ],
-  "AP027": [
-   "window",
-   [
-    512
-   ]
-  ],
-  "AP028": [
-   "window",
-   [
-    131072
-   ]
-  ],
-  "AP029": [
-   "qual",
-   null
-  ],
-  "AP030": [
-   "qual",
-   null
-  ],
-  "AP031": [
-   "qual",
-   null
-  ],
-  "AP032": [
-   "window",
-   [
-    4096
-   ]
-  ],
-  "AP033": [
-   "qual",
-   null
-  ],
-  "AP034": [
-   "window",
-   [
-    8192
-   ]
-  ],
-  "AP035": [
-   "qual",
-   null
-  ],
   "AP036": [
    "page",
    null
   ],
-  "AP043": [
-   "window",
-   [
-    262144
-   ]
-  ],
-  "AP044": [
+  "AP037": [
    "window",
    [
     1024
    ]
   ],
-  "AP045": [
+  "AP038": [
    "qual",
    null
   ],
-  "AP056": [
+  "AP039": [
+   "window",
+   [
+    262144
+   ]
+  ],
+  "AP040": [
+   "qual",
+   null
+  ],
+  "AP041": [
+   "window",
+   [
+    4096
+   ]
+  ],
+  "AP042": [
+   "qual",
+   null
+  ],
+  "AP043": [
+   "window",
+   [
+    512
+   ]
+  ],
+  "AP044": [
+   "qual",
+   null
+  ],
+  "AP045": [
+   "window",
+   [
+    131072
+   ]
+  ],
+  "AP046": [
+   "qual",
+   null
+  ],
+  "AP047": [
+   "window",
+   [
+    524288
+   ]
+  ],
+  "AP048": [
+   "window",
+   [
+    2048
+   ]
+  ],
+  "AP049": [
+   "qual",
+   null
+  ],
+  "AP050": [
+   "window",
+   [
+    8192
+   ]
+  ],
+  "AP051": [
+   "qual",
+   null
+  ],
+  "AP055": [
    "window",
    [
     0
    ]
   ],
-  "AP079": [
+  "AP066": [
    "window",
    [
     0
    ]
   ],
-  "AP086": [
+  "AP084": [
+   "one",
+   null
+  ],
+  "AP085": [
    "strobe",
    0
   ],
@@ -1252,223 +1303,200 @@
    "strobe",
    0
   ],
-  "AP089": [
-   "window",
-   [
-    0,
-    4096
-   ]
+  "AP088": [
+   "strobe",
+   0
   ],
   "AP090": [
    "window",
    [
-    0,
-    4096
+    524288
    ]
   ],
+  "AP091": [
+   "qual",
+   null
+  ],
   "AP093": [
-   "strobe",
-   0
+   "qual",
+   null
   ],
   "AP094": [
    "window",
    [
-    4096
+    131072
    ]
   ],
   "AP095": [
    "window",
    [
-    4096
+    262144
    ]
   ],
   "AP096": [
    "window",
    [
-    16384
+    512
    ]
   ],
   "AP097": [
    "window",
    [
-    16384
+    512
    ]
   ],
   "AP098": [
    "window",
    [
-    512
+    2048
    ]
   ],
   "AP099": [
    "window",
    [
-    512
+    2048
    ]
   ],
   "AP100": [
    "window",
    [
-    1024
+    4096
    ]
   ],
   "AP101": [
    "window",
    [
-    1024
+    4096
    ]
   ],
   "AP102": [
    "window",
    [
-    2048
+    524288
    ]
   ],
   "AP103": [
    "window",
    [
-    2048
+    1024
    ]
   ],
   "AP104": [
    "window",
    [
-    32768
+    1024
    ]
   ],
   "AP105": [
    "window",
    [
-    32768
+    8192
    ]
   ],
   "AP106": [
    "window",
    [
-    524288
+    8192
    ]
   ],
   "AP107": [
+   "window",
+   [
+    16384
+   ]
+  ],
+  "AP108": [
+   "window",
+   [
+    16384
+   ]
+  ],
+  "AP109": [
+   "window",
+   [
+    32768
+   ]
+  ],
+  "AP110": [
+   "window",
+   [
+    32768
+   ]
+  ],
+  "AP111": [
    "qual",
    null
   ],
-  "AP108": [
-   "page_a",
-   4
-  ],
-  "AP109": [
-   "page_a",
-   5
-  ],
-  "AP110": [
-   "page_a",
-   6
-  ],
-  "AP111": [
-   "page_a",
-   3
-  ],
   "AP112": [
-   "page_a",
-   2
+   "qual",
+   null
   ],
   "AP113": [
    "qual",
    null
   ],
-  "AP115": [
+  "AP114": [
    "window",
    [
-    524288
+    0,
+    512,
+    1536,
+    3584,
+    77312,
+    142848,
+    273920,
+    536064
    ]
   ],
   "AP116": [
-   "window",
-   [
-    524288
-   ]
+   "strobe",
+   92
   ],
   "AP117": [
-   "qual",
-   null
+   "page_a",
+   4
   ],
   "AP118": [
-   "qual",
-   null
+   "page_a",
+   5
   ],
   "AP119": [
-   "window",
-   [
-    131072
-   ]
+   "page_a",
+   6
   ],
   "AP120": [
-   "window",
-   [
-    131072
-   ]
+   "page_a",
+   2
   ],
   "AP121": [
-   "window",
-   [
-    262144
-   ]
+   "page_a",
+   3
   ],
   "AP122": [
-   "window",
-   [
-    262144
-   ]
-  ],
-  "AP125": [
-   "window",
-   [
-    8192
-   ]
-  ],
-  "AP126": [
-   "window",
-   [
-    8192
-   ]
-  ],
-  "AP127": [
-   "qual",
-   null
+   "strobe",
+   92
   ],
   "AP128": [
-   "qual",
-   null
-  ],
-  "AP132": [
    "strobe",
    80
   ],
-  "AP134": [
-   "strobe",
-   88
-  ],
-  "AP136": [
+  "AP145": [
    "strobe",
    84
   ],
-  "AP137": [
-   "strobe",
-   92
-  ],
-  "AP138": [
-   "strobe",
-   92
-  ],
-  "AP143": [
+  "AP155": [
    "strobe",
    104
   ],
-  "AP162": [
+  "AP156": [
    "strobe",
    80
   ],
-  "AP171": [
+  "AP159": [
+   "strobe",
+   88
+  ],
+  "AP169": [
    "window",
    [
     0,
@@ -1481,130 +1509,127 @@
     557056
    ]
   ],
-  "AP172": [
+  "AP170": [
+   "window",
+   [
+    0,
+    1024,
+    3072,
+    7168,
+    15360,
+    162816,
+    293888,
+    556032
+   ]
+  ],
+  "AP174": [
+   "window",
+   [
+    0,
+    98304,
+    147456,
+    163840,
+    278528,
+    294912,
+    540672,
+    557056
+   ]
+  ],
+  "AP182": [
+   "one",
+   null
+  ],
+  "AP183": [
+   "page_cube",
+   null
+  ],
+  "AP185": [
+   "window",
+   [
+    31744,
+    48128
+   ]
+  ],
+  "AP186": [
+   "window",
+   [
+    31744,
+    48128
+   ]
+  ],
+  "AP187": [
+   "window",
+   [
+    31744,
+    48128
+   ]
+  ],
+  "AP188": [
+   "window",
+   [
+    31744,
+    48128
+   ]
+  ],
+  "AP189": [
+   "window",
+   [
+    31744,
+    48128
+   ]
+  ],
+  "AP191": [
+   "window",
+   [
+    31744,
+    48128
+   ]
+  ],
+  "AP192": [
+   "window",
+   [
+    31744,
+    48128
+   ]
+  ],
+  "AP193": [
+   "window",
+   [
+    0
+   ]
+  ],
+  "AP194": [
    "window",
    [
     0,
     512,
-    98816,
-    164352,
-    279040,
-    295424,
-    541184,
-    557568
-   ]
-  ],
-  "AP181": [
-   "one",
-   null
-  ],
-  "AP182": [
-   "page_cube",
-   null
-  ],
-  "AP195": [
-   "window",
-   [
-    16896,
-    33280
+    1536,
+    3584,
+    273920,
+    536064
    ]
   ],
   "AP196": [
    "window",
    [
-    16896,
-    33280
+    0,
+    512,
+    1536,
+    3584,
+    142848,
+    273920,
+    536064
    ]
   ],
   "AP197": [
-   "window",
-   [
-    16896,
-    33280
-   ]
+   "qual",
+   null
   ],
   "AP198": [
-   "window",
-   [
-    16896,
-    33280
-   ]
-  ],
-  "AP199": [
-   "window",
-   [
-    16896,
-    33280
-   ]
+   "qual",
+   null
   ],
   "AP200": [
-   "window",
-   [
-    16896,
-    33280
-   ]
-  ],
-  "AP201": [
-   "window",
-   [
-    0
-   ]
-  ],
-  "AP202": [
-   "window",
-   [
-    0
-   ]
-  ],
-  "AP203": [
-   "window",
-   [
-    16896,
-    33280
-   ]
-  ],
-  "AP204": [
-   "window",
-   [
-    0
-   ]
-  ],
-  "AP205": [
-   "qual",
-   null
-  ],
-  "AP206": [
-   "qual",
-   null
-  ],
-  "AP207": [
-   "window",
-   [
-    0,
-    36864,
-    69632,
-    135168,
-    266240,
-    528384
-   ]
-  ],
-  "AP208": [
-   "window",
-   [
-    0,
-    69632,
-    135168,
-    266240,
-    528384
-   ]
-  ],
-  "AP210": [
-   "window",
-   [
-    33280
-   ]
-  ],
-  "AP211": [
    "window",
    [
     65536,
@@ -1613,27 +1638,46 @@
     524288
    ]
   ],
-  "AP212": [
-   "window",
-   [
-    0,
-    98304,
-    147456,
-    163840,
-    278528,
-    294912,
-    540672,
-    557056
-   ]
-  ],
-  "AP213": [
+  "AP201": [
    "window",
    [
     16384,
     32768
    ]
   ],
-  "AP214": [
+  "AP202": [
+   "window",
+   [
+    0,
+    98304,
+    147456,
+    163840,
+    278528,
+    294912,
+    540672,
+    557056
+   ]
+  ],
+  "AP203": [
+   "window",
+   [
+    48128
+   ]
+  ],
+  "AP204": [
+   "window",
+   [
+    0,
+    98304,
+    147456,
+    163840,
+    278528,
+    294912,
+    540672,
+    557056
+   ]
+  ],
+  "AP205": [
    "window",
    [
     65536,
@@ -1642,7 +1686,7 @@
     524288
    ]
   ],
-  "AP215": [
+  "AP206": [
    "window",
    [
     65536,
@@ -1651,7 +1695,7 @@
     524288
    ]
   ],
-  "AP216": [
+  "AP207": [
    "window",
    [
     65536,
@@ -1660,209 +1704,224 @@
     524288
    ]
   ],
-  "AP217": [
+  "AP208": [
    "page_cube",
    null
   ],
-  "AP218": [
+  "AP209": [
    "window",
    [
     0
    ]
   ]
  },
- "reference": "ch26",
+ "reference": "ch00",
  "registers": {
   "0x00": {
    "0": [
-    "A0520"
+    "A0584"
    ],
    "16": [
-    "A0513"
+    "A0586"
    ],
    "8": [
-    "A0541"
+    "A0585"
    ]
   },
   "0x50": {
-   "12": [
-    "A0705"
-   ],
-   "14": [
-    "A0703"
-   ],
-   "16": [
-    "A0918"
-   ],
-   "2": [
-    "A0716"
-   ],
-   "28": [
-    "A0656"
-   ],
-   "29": [
-    "A0663"
-   ],
-   "3": [
-    "A0710"
-   ],
-   "6": [
-    "A0711"
-   ],
-   "7": [
-    "A0706"
-   ],
-   "8": [
-    "A0704"
-   ]
-  },
-  "0x54": {
-   "0": [
-    "A0665"
-   ],
-   "1": [
-    "A0713"
-   ],
    "10": [
-    "A0690"
-   ],
-   "12": [
-    "A0667"
-   ],
-   "14": [
-    "A0692"
-   ],
-   "15": [
-    "A0669"
-   ],
-   "16": [
-    "A0661"
-   ],
-   "2": [
-    "A0714"
-   ],
-   "28": [
-    "A0899"
-   ],
-   "3": [
-    "A0715"
-   ],
-   "4": [
-    "A0666"
-   ],
-   "5": [
-    "A0689"
-   ],
-   "6": [
-    "A0691"
-   ],
-   "7": [
     "A0693"
    ],
-   "8": [
-    "A0694"
-   ],
-   "9": [
-    "A0688"
-   ]
-  },
-  "0x58": {
-   "0": [
-    "A0668"
+   "11": [
+    "A0715"
    ],
    "12": [
-    "A0695"
+    "A0716"
+   ],
+   "13": [
+    "A0694"
    ],
    "14": [
-    "A0701"
+    "A0698"
    ],
    "16": [
-    "A0919"
+    "A0942"
    ],
    "2": [
-    "A0697"
+    "A0878"
    ],
    "28": [
-    "A0657"
+    "A0738"
    ],
    "29": [
-    "A0658"
+    "A0739"
    ],
    "3": [
     "A0699"
    ],
    "6": [
-    "A0696"
+    "A0726"
    ],
    "7": [
-    "A0698"
+    "A0695"
+   ],
+   "8": [
+    "A0697"
+   ],
+   "9": [
+    "A0696"
+   ]
+  },
+  "0x54": {
+   "0": [
+    "A0733"
+   ],
+   "1": [
+    "A0720"
+   ],
+   "10": [
+    "A0704"
+   ],
+   "12": [
+    "A0723"
+   ],
+   "14": [
+    "A0710"
+   ],
+   "15": [
+    "A0719"
+   ],
+   "16": [
+    "A0718"
+   ],
+   "2": [
+    "A0722"
+   ],
+   "28": [
+    "A0922"
+   ],
+   "3": [
+    "A0709"
+   ],
+   "4": [
+    "A0724"
+   ],
+   "5": [
+    "A0725"
+   ],
+   "6": [
+    "A0721"
+   ],
+   "7": [
+    "A0701"
    ],
    "8": [
     "A0702"
+   ],
+   "9": [
+    "A0703"
+   ]
+  },
+  "0x58": {
+   "0": [
+    "A0714"
+   ],
+   "12": [
+    "A0712"
+   ],
+   "14": [
+    "A0707"
+   ],
+   "16": [
+    "A0943"
+   ],
+   "2": [
+    "A0874"
+   ],
+   "28": [
+    "A0740"
+   ],
+   "29": [
+    "A0741"
+   ],
+   "3": [
+    "A0708"
+   ],
+   "6": [
+    "A0713"
+   ],
+   "7": [
+    "A0705"
+   ],
+   "8": [
+    "A0706"
    ]
   },
   "0x5c": {
    "0": [
-    "A0680"
+    "A0734"
    ],
    "1": [
-    "A0673"
+    "A0735"
    ],
    "10": [
-    "A0678"
-   ],
-   "11": [
-    "A0672"
-   ],
-   "12": [
-    "A0685"
-   ],
-   "13": [
-    "A0674"
-   ],
-   "14": [
-    "A0676"
-   ],
-   "15": [
-    "A0664"
-   ],
-   "16": [
-    "A0662"
-   ],
-   "2": [
-    "A0682"
-   ],
-   "28": [
-    "A0898"
-   ],
-   "3": [
-    "A0684"
-   ],
-   "4": [
     "A0686"
    ],
+   "11": [
+    "A0717"
+   ],
+   "12": [
+    "A0688"
+   ],
+   "13": [
+    "A0690"
+   ],
+   "14": [
+    "A0700"
+   ],
+   "15": [
+    "A0732"
+   ],
+   "16": [
+    "A0731"
+   ],
+   "2": [
+    "A0727"
+   ],
+   "28": [
+    "A0923"
+   ],
+   "3": [
+    "A0687"
+   ],
+   "31": [
+    "A0583"
+   ],
+   "4": [
+    "A0728"
+   ],
    "5": [
-    "A0679"
+    "A0729"
    ],
    "6": [
-    "A0681"
+    "A0730"
    ],
    "7": [
-    "A0683"
+    "A0689"
    ],
    "8": [
-    "A0675"
+    "A0691"
    ],
    "9": [
-    "A0677"
+    "A0692"
    ]
   },
   "0x68": {
    "0": [
-    "A0670"
+    "A0737"
    ],
    "1": [
-    "A0671"
+    "A0736"
    ]
   }
  },

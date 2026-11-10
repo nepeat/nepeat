@@ -1,0 +1,37 @@
+== netlist + testbenches
+{'ff': 21087, 'lut': 30993, 'carry': 270, 'bram': 32, 'undriven_const0': 184, 'ports_in': 448, 'ports_out': 374}
+SDA IOB_X0Y34 SCL IOB_X1Y51 family B channel ch21
+SDA IOB_X1Y60 SCL IOB_X1Y59 family A channel ch26
+== scenario suite, family A (driver ch 1) vs family B (driver ch 17)
+SAME      rd_sel0  (10 bus events)
+SAME      rd_sel1  (10 bus events)
+SAME      rd_sel2  (10 bus events)
+SAME      rd_len1_off7f  (7 bus events)
+SAME      rd_len0  (6 bus events)
+SAME      nack_addr  (3 bus events)
+SAME      nack_then_ok  (13 bus events)
+SAME      w1c  (3 bus events)
+SAME      wr3  (7 bus events)
+SAME      wr_nack  (3 bus events)
+SAME      wr_sel1  (8 bus events)
+SAME      ctx1_rd  (10 bus events)
+SAME      ctx1_nack  (3 bus events)
+SAME      busclear  (2 bus events)
+SAME      cmdbits  (8 bus events)
+== random co-simulation
+SAME      seed 1  (9 bus events, 66 reads)
+SAME      seed 2  (25 bus events, 68 reads)
+SAME      seed 3  (24 bus events, 68 reads)
+SAME      seed 4  (23 bus events, 66 reads)
+SAME      seed 5  (22 bus events, 67 reads)
+SAME      seed 6  (27 bus events, 67 reads)
+SAME      seed 7  (73 bus events, 64 reads)
+SAME      seed 8  (19 bus events, 68 reads)
+SAME      seed 9  (18 bus events, 69 reads)
+SAME      seed 10  (28 bus events, 65 reads)
+co-simulation: identical 25, different 0
+== sideband mapping
+mapped: present 32, IntL 32, LPMode 32, ResetL 32 of 32
+inputs that stop the PCIe core while low (reset-like): IOB_X0Y50(N15)
+other inputs (no visible effect in this test): IOB_X0Y107(J17), IOB_X0Y21(V15), IOB_X0Y22(U15), IOB_X0Y45(AB17), IOB_X0Y97(R22), IOB_X0Y99(P20), IOB_X1Y69(W5)
+./simrun.sh  1238.15s user 28.87s system 558% cpu 3:46.82 total
