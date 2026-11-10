@@ -1,0 +1,44 @@
+# channel map: pad-pair channel (layer 5 order) -> driver channel
+
+driver channel = (page - 0x1000) / 0x100, page decoded from the net bound to the template's
+page / page&a[k] / strobe port with the address-mux controls quantified (V for the decode;
+port number = driver channel + 1 as in the vendor driver).  Pads: package pins of the pair
+(FGG484 assumed); SDA/SCL role per family from simulation (I).
+
+ch    family  page    driver-ch  port  pads (pins)
+ch00  A       0x2e00  30         31    IOB_X0Y100 + IOB_X0Y101 (M17/M16)
+ch01  A       0x1200   2          3    IOB_X0Y102 + IOB_X0Y105 (M15/L15)
+ch02  A       0x2d00  29         30    IOB_X0Y113 + IOB_X0Y114 (M20/N20)
+ch03  B       0x1c00  12         13    IOB_X0Y116 + IOB_X0Y135 (N18/H22)
+ch04  A       0x1600   6          7    IOB_X0Y119 + IOB_X0Y129 (M22/L21)
+ch05  A       0x1400   4          5    IOB_X0Y120 + IOB_X0Y130 (N22/M21)
+ch06  A       0x1300   3          4    IOB_X0Y127 + IOB_X0Y136 (J21/J22)
+ch07  B       0x2600  22         23    IOB_X0Y131 + IOB_X0Y132 (K22/K21)
+ch08  B       0x2000  16         17    IOB_X0Y145 + IOB_X0Y199 (G16/F15)
+ch09  A       0x1700   7          8    IOB_X0Y151 + IOB_X0Y152 (G22/G21)
+ch10  A       0x2500  21         22    IOB_X0Y153 + IOB_X0Y160 (D21/C22)
+ch11  B       0x2800  24         25    IOB_X0Y154 + IOB_X0Y156 (E21/E22)
+ch12  B       0x2200  18         19    IOB_X0Y155 + IOB_X0Y159 (D22/B22)
+ch13  B       0x2300  19         20    IOB_X0Y157 + IOB_X0Y158 (A21/B21)
+ch14  A       0x1800   8          9    IOB_X0Y165 + IOB_X0Y177 (A19/B18)
+ch15  B       0x1d00  13         14    IOB_X0Y166 + IOB_X0Y185 (A18/B16)
+ch16  B       0x1a00  10         11    IOB_X0Y167 + IOB_X0Y168 (A20/B20)
+ch17  A       0x2f00  31         32    IOB_X0Y17 + IOB_X0Y49 (W16/Y17)
+ch18  B       0x2700  23         24    IOB_X0Y179 + IOB_X0Y182 (A14/A15)
+ch19  A       0x2c00  28         29    IOB_X0Y181 + IOB_X0Y186 (A16/B15)
+ch20  B       0x2400  20         21    IOB_X0Y23 + IOB_X0Y24 (V14/V13)
+ch21  B       0x2100  17         18    IOB_X0Y34 + IOB_X1Y51 (AA9/Y9)
+ch22  A       0x1500   5          6    IOB_X0Y38 + IOB_X0Y40 (W14/Y13)
+ch23  B       0x2900  25         26    IOB_X1Y106 + IOB_X1Y110 (P2/R1)
+ch24  B       0x1f00  15         16    IOB_X1Y52 + IOB_X1Y57 (W9/V8)
+ch25  A       0x1000   0          1    IOB_X1Y55 + IOB_X1Y56 (AB8/AA8)
+ch26  A       0x1100   1          2    IOB_X1Y59 + IOB_X1Y60 (AB6/AB7)
+ch27  B       0x1e00  14         15    IOB_X1Y65 + IOB_X1Y72 (T6/T5)
+ch28  B       0x1b00  11         12    IOB_X1Y67 + IOB_X1Y68 (V5/U6)
+ch29  B       0x2a00  26         27    IOB_X1Y85 + IOB_X1Y86 (AB1/AA1)
+ch30  A       0x2b00  27         28    IOB_X1Y89 + IOB_X1Y91 (Y1/Y2)
+ch31  A       0x1900   9         10    IOB_X1Y96 + IOB_X1Y97 (U2/U1)
+
+decoded 32 of 32; driver channels distinct: True; all of 0..31: True
+family A: driver channels [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 21, 27, 28, 29, 30, 31]
+family B: driver channels [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26]

@@ -1,0 +1,73 @@
+== layer 1: packets (/home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../../images/spi-2026-11-09/mtd5-i2cfpga.bin)
+22974 listing lines, 8925 blobs
+== layer 2: frames + packing plan
+golden: 9448 frames stored (9448 of 9448 valid addresses, 4011 via MFW); 227 FDRI writes; 5492 non-zero frames
+update: 9448 frames stored (9448 of 9448 valid addresses, 4502 via MFW); 185 FDRI writes; 4976 non-zero frames
+== layer 3: FASM + unknown bits, and back (images: golden update )
+   golden: {'set_bits': 1626375, 'fasm_bits': 1626372, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 458269}
+   golden: frames(FASM+unknown) == frames
+   update: {'set_bits': 1626234, 'fasm_bits': 1626231, 'plus': 3, 'minus': 0, 'ecc': 4, 'dynamic_mask_frames': 72, 'features': 458693}
+   update: frames(FASM+unknown) == frames
+== rebuild: frames' + plan -> packets -> image
+22974 listing lines, 8925 blobs
+33554432 bytes
+BYTE-IDENTICAL: /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../../images/spi-2026-11-09/mtd5-i2cfpga.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt6-mtd5/rebuilt.bin (33554432 bytes)
+== layer 4: golden FASM -> netlist (lossless check)
+lines in FASM: 458269, owned: 458269 (cells 134563, nets 323706, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: golden logical view + blocks
+== split by block -> merge -> FASM: golden
+wrote 57 block files to /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt6-mtd5/l5/golden.split
+merged 8817 cells, 49880 nets, 0 unassigned
+netlists IDENTICAL
+   golden: FASM(per-block netlist) == FASM
+   golden: frames(per-block netlist) == frames
+== layer 4: update FASM -> netlist (lossless check)
+lines in FASM: 458693, owned: 458693 (cells 133986, nets 324707, unassigned 0)
+owned twice: 0, not owned: 0, not in source: 0
+netlist -> FASM (merge_and_sort) == input: IDENTICAL
+FASM <-> netlist: LOSSLESS
+== layer 4b/5: update logical view + blocks
+== split by block -> merge -> FASM: update
+wrote 58 block files to /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt6-mtd5/l5/update.split
+merged 8652 cells, 49793 nets, 0 unassigned
+netlists IDENTICAL
+   update: FASM(per-block netlist) == FASM
+   update: frames(per-block netlist) == frames
+== rebuild image from the per-block netlists
+22974 listing lines, 8925 blobs
+33554432 bytes
+BYTE-IDENTICAL (layer 4/5): /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../../images/spi-2026-11-09/mtd5-i2cfpga.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt6-mtd5/rebuilt4.bin (33554432 bytes)
+== layer 6: golden netlist -> module template + instances
+  lines generated from template                      47930
+  lines instance deviation (raw)                     8226
+  lines remainder (not channel or shared slot)       33141
+  slots generated                                    38666
+  slots instance deviation                           6011
+  pip lines (nets: per-instance routing or remainder) 323706
+template A: reference ch01, 902 elements {'LUT': 512, 'FF': 381, 'CARRY4': 6, 'IOBUF': 2, 'RAMB18E1': 1}, 213 input ports (48 global), 155 output nets, members 
+template B: reference ch18, 1277 elements {'LUT': 748, 'FF': 518, 'CARRY4': 8, 'IOBUF': 2, 'RAMB18E1': 1}, 127 input ports (45 global), 136 output nets, members
+== layer 6: golden template + instances + remainder -> netlist -> FASM -> frames
+netlists IDENTICAL
+   golden: FASM(layer 6) == FASM
+   golden: frames(layer 6) == frames
+== layer 6: update netlist -> module template + instances
+  lines generated from template                      48104
+  lines instance deviation (raw)                     7577
+  lines remainder (not channel or shared slot)       33445
+  slots generated                                    38820
+  slots instance deviation                           5521
+  pip lines (nets: per-instance routing or remainder) 324707
+template A: reference ch26, 921 elements {'LUT': 520, 'FF': 392, 'CARRY4': 6, 'IOBUF': 2, 'RAMB18E1': 1}, 222 input ports (28 global), 159 output nets, members 
+template B: reference ch21, 1279 elements {'LUT': 748, 'FF': 520, 'CARRY4': 8, 'IOBUF': 2, 'RAMB18E1': 1}, 141 input ports (54 global), 132 output nets, members
+== layer 6: update template + instances + remainder -> netlist -> FASM -> frames
+netlists IDENTICAL
+   update: FASM(layer 6) == FASM
+   update: frames(layer 6) == frames
+== rebuild image from the layer-6 representation
+22974 listing lines, 8925 blobs
+33554432 bytes
+BYTE-IDENTICAL (layer 6): /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../../images/spi-2026-11-09/mtd5-i2cfpga.bin == /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/rt6-mtd5/rebuilt6.bin (33554432 bytes)
+./roundtrip6.sh "$PWD/../../images/spi-2026-11-09/mtd5-i2cfpga.bin"   1021.41s user 23.95s system 114% cpu 15:15.83 total

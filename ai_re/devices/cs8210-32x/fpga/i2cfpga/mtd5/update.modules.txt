@@ -1,0 +1,54 @@
+# Layer 6: i2c_channel module re-rolled (update)
+
+cell FASM lines: 133986 total
+  lines default rule                                 543
+  lines generated from template                      48104
+  lines instance deviation (raw)                     7577
+  lines packing (per-instance)                       19556
+  lines remainder (not channel or shared slot)       33445
+  slots generated                                    38820
+  slots instance deviation                           5521
+  slots shared between a channel and other logic     753
+  pip lines (nets: per-instance routing or remainder) 324707
+
+template A: reference ch26, 921 elements {'LUT': 520, 'FF': 392, 'CARRY4': 6, 'IOBUF': 2, 'RAMB18E1': 1}, 222 input ports (28 global), 159 output nets, members ch00 ch01 ch02 ch04 ch05 ch06 ch09 ch10 ch14 ch17 ch19 ch22 ch25 ch26 ch30 ch31
+
+template B: reference ch21, 1279 elements {'LUT': 748, 'FF': 520, 'CARRY4': 8, 'IOBUF': 2, 'RAMB18E1': 1}, 141 input ports (54 global), 132 output nets, members ch03 ch07 ch08 ch11 ch12 ch13 ch15 ch16 ch18 ch20 ch21 ch23 ch24 ch27 ch28 ch29
+
+families: 776 elements correspond between templates A and B (reference ch21 aligned to ch26, same label): {'LUT': 399, 'FF': 370, 'CARRY4': 4, 'IOBUF': 2, 'RAMB18E1': 1}
+  only in B: 503 {'LUT': 349, 'FF': 150, 'CARRY4': 4}
+  only in A: 145 {'LUT': 121, 'FF': 22, 'CARRY4': 2}
+
+ch  fam ref  template  present  pure   pure%  missing function conn  extra replica ties relab  lines pack/raw
+00  A           921      888   790   85.8%       24        9   50    159       3    8    10   537/321
+01  A           921      697   631   68.5%      224        0   35     89       1    1     0   435/146
+02  A           921      852   720   78.2%       63        6   83    187       1   40     7   536/267
+03  B          1279     1242  1158   90.5%       37        0   48    108       2    0     0   726/184
+04  A           921      781   659   71.6%      132        8   70    148       2    3     8   477/229
+05  A           921      764   632   68.6%      156        1   75    155       2    3     1   464/223
+06  A           921      871   749   81.3%       50        0   73    177       3   42     0   512/272
+07  B          1279     1174  1034   80.8%       97        8   82    156       5    2     8   708/304
+08  B          1279     1214  1063   83.1%       65        0   92    133       3   34     0   707/229
+09  A           921      777   644   69.9%      136        8   68    175       1    6     8   486/289
+10  A           921      875   750   81.4%       46        0   61    140       4   41     0   521/232
+11  B          1279     1243  1141   89.2%       36        0   49    137       3    0     0   716/235
+12  B          1279     1211  1073   83.9%       68        0   88    128       3   35     0   707/220
+13  B          1279     1220  1072   83.8%       59        0   96     99       3   47     0   710/178
+14  A           921      798   634   68.8%      112       11   88    155       2   51    12   496/252
+15  B          1279     1259  1192   93.2%       20        0   37     92       4    3     0   720/170
+16  B          1279     1162  1006   78.7%      109        8   98    156       1    0     8   693/280
+17  A           921      853   721   78.3%       62        6   88    158       3   45     6   523/228
+18  B          1279     1267  1211   94.7%       12        0   27     93       4    6     0   738/172
+19  A           921      842   671   72.9%       73        6  119    123       2   51     7   490/195
+20  B          1279     1204  1071   83.7%       67        8   59    139       4   14     9   694/271
+21  B   *      1279     1279  1224   95.7%        0        0    0    155       0    0     0   723/339
+22  A           921      772   669   72.6%      140        9   54    186       3    9     9   493/346
+23  B          1279     1178  1004   78.5%       93        8  115     95       4   37     8   706/201
+24  B          1279     1244  1168   91.3%       35        0   41    115       4    0     0   714/206
+25  A           921      899   829   90.0%       22        0   35    170       1   10     0   568/241
+26  A   *       921      921   874   94.9%        0        0    0    154       0    0     0   561/215
+27  B          1279     1221  1072   83.8%       58        0   89     98       2   34     0   704/189
+28  B          1279     1250  1114   87.1%       29        0   76    120       5   35     0   710/218
+29  B          1279     1235  1122   87.7%       34       10   61    127       5    0    11   719/264
+30  A           921      864   745   80.9%       47       10   72    138       3   52    11   543/195
+31  A           921      814   677   73.5%       98        9   65    181       1    8     9   519/266

@@ -47,8 +47,24 @@ Layers, each verified to rebuild the exact bytes before the next:
    rebuilds the image byte for byte. Report `i2cfpga/BLOCKS.md`, small
    outputs in `i2cfpga/mtd5/`. **First pass done**: PCIe block + pipe
    clock matched to the Xilinx 7-series PCIe IP, 32 replicated I2C channel
-   engines found (two structural families of 16), register addresses not
-   yet tied to logic.
+   engines found (two structural families of 16).
+6. **module template** — `i2cfpga/modules.py`: the 32 channels re-rolled
+   into one module (`i2c_channel`, templates for families A and B with a
+   recorded correspondence) + 32 instances (placement, port bindings,
+   packing, routing, explicit deviations) + the non-channel remainder. LUT
+   INITs, FF/control/carry lines and BRAM/IOB site features are regenerated
+   from the template; the rebuilt netlist is identical and the image
+   rebuilds byte for byte (`i2cfpga/roundtrip6.sh`, report
+   `i2cfpga/LAYER6.md`). **Done.** 69-96% of each instance is pure template.
+7. **readable channel** — `i2cfpga/channelrtl.py`: a view (not lossless) of
+   the template: register offsets decoded from the logic (`cb+0x00` profile,
+   `0x08` select, `0x0C` resets, `0x50..0x5C` command/start, ...), the SCL
+   divider (reload = selected profile code, tick every code+1 clocks, 6
+   ticks per bit), the bit-level FSM and its four commands, pads, BRAM
+   wiring, and the driver channel number of every instance. Pseudo-RTL in
+   `i2cfpga/mtd5/i2c_channel_{A,B}.v`; plain-language explanation in
+   `i2cfpga/CHANNEL.md`. **First pass done**; byte sequencer and transaction
+   controller not yet tabulated.
 
 Large outputs go in `work/` (git-ignored).
 

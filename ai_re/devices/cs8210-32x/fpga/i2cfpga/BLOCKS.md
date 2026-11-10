@@ -218,6 +218,14 @@ See `mtd5/golden-vs-update.blocks.txt` (and `mtd5/golden.blocks.md`).
 
 ## Open questions / next steps
 
+Update (same day, layers 6/7, `LAYER6.md`, `CHANNEL.md`): question 1 is
+answered by decoding each instance's register page (`mtd5/update.channel-map.txt`);
+question 2 is answered as "same engine, different cut of the shared
+decode/register logic" (family B decodes its page itself, family A gets
+finished strobes); the clock-code use (divider reload, tick every code+1
+clocks, 6 ticks per bit) and the bit-level commands of question 4 are
+decoded. The points below are kept as written.
+
 1. Map `ch00..31` to driver ports: needs the TLP address register and the
    channel decode (see above), or a hardware test (toggle LPMode for one
    port and see which pad moves, once offline work allows).
