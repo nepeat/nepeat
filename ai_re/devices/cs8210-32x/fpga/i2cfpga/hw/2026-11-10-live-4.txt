@@ -1,0 +1,40 @@
+0002:01:00.0: vendor=1d0f device=8571 command=0002 (mem=on, busmaster=off)
+== test 1: NACK per port, status of all ports after each
+port  1: status=0x00000002 busy=False OK 
+port  2: status=0x00000002 busy=False OK 
+port  3: status=0x00000002 busy=False OK 
+port  4: status=0x00000002 busy=False OK 
+port  5: status=0x00000002 busy=False OK 
+port  6: status=0x00000002 busy=False OK 
+port  7: status=0x00000002 busy=False OK 
+port  8: status=0x00000002 busy=False OK 
+port  9: status=0x00000002 busy=False OK 
+port 10: status=0x00000002 busy=False OK 
+port 11: status=0x00000002 busy=False OK 
+port 12: status=0x00000002 busy=False OK 
+port 13: status=0x00000002 busy=False OK 
+port 14: status=0x00000002 busy=False OK 
+port 15: status=0x00000002 busy=False OK 
+port 16: status=0x00000002 busy=False OK 
+port 17: status=0x00000002 busy=False OK 
+port 18: status=0x00000002 busy=False OK 
+port 19: status=0x00000002 busy=False OK 
+port 20: status=0x00000002 busy=False OK 
+port 21: status=0x00000002 busy=False OK 
+port 22: status=0x00000002 busy=False OK 
+port 23: status=0x00000002 busy=False OK 
+port 24: status=0x00000002 busy=False OK 
+port 25: status=0x00000002 busy=False OK 
+port 26: status=0x00000002 busy=False OK 
+port 27: status=0x00000002 busy=False OK 
+port 28: status=0x00000002 busy=False OK 
+port 29: status=0x00000002 busy=False OK 
+port 30: status=0x00000002 busy=False OK 
+port 31: status=0x00000002 busy=False OK 
+port 32: status=0x00000002 busy=False OK 
+test 1: 32/32 as predicted
+== test 2: busy duration on port 1 per profile (perf_counter_ns, poll loop)
+one poll read ~2920 ns
+sel 0 code 0x18 '400k': median 36.7 us, min 35.5 us, median polls 9.0, final status 0x00000002
+sel 1 code 0x09 '1M': median 19.6 us, min 19.0 us, median polls 4.0, final status 0x00000002
+sel 2 code 0x66 '100k': median 125.3 us, min 122.6 us, median polls 34.0, final status 0x00000002

@@ -1,0 +1,31 @@
+0002:01:00.0: vendor=1d0f device=8571 command=0002 (mem=on, busmaster=off)
+  read32  BAR0+0x00140 present
+          = 0x00000000
+  read32  BAR0+0x00178 reset
+          = 0xffffffff
+port 1: no module present (+0x140 bit 0 = 0)
+port 1: module is held in reset (+0x178 bit set); it will not answer.  Release with --reset 1 0
+  read32  BAR0+0x01000 profile
+          = 0x00660918
+  read32  BAR0+0x01008 profile select
+          = 0x00000000
+  read32  BAR0+0x0100c master reset
+          = 0x00000000
+  read32  BAR0+0x01054 start/busy
+          = 0x00000000
+  read32  BAR0+0x01060 status
+          = 0x00000000
+port 1: profile=0x00660918 sel=0 mreset=0x00000000 start=0x00000000 status=0x00000000 speed=400000
+port 1: +0x100c is not the vendor probe value 0x80000000 (bit 0 set = master in reset?)
+i2c read  port 1 addr 0x50 off 0x00 len 1
+  write32 BAR0+0x01050 <- 0x10005001 cmd (read)
+  write32 BAR0+0x01054 <- 0x80000000 start
+  read32  BAR0+0x01054 poll
+          = 0x00000000
+  read32  BAR0+0x01060 status
+          = 0x00000002
+I2C error: port 1 read addr 0x50 off 0x00 len 1: status 0x00000002 bit 1 set (NACK/error; vendor -ENXIO)
+rc=3
+port bus     present reset lpmode int int_mask pres_chg   profile    sel mreset     start      status     speed
+   1 i2c-101       0     1      0   0        1        0   00660918  0  00000000  00000000  00000002  400000
+   2 i2c-102       0     1      0   0        1        0   00081766  0  00000000  00000000  00000000  100000

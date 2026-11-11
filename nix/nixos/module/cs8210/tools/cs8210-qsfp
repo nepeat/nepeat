@@ -257,9 +257,14 @@ def channel_ready(d, port, force):
            f"status={r['status']:#010x} speed={spd or 'unknown'}")
     say(msg)
     problems = []
-    if r["mreset"] != PROBE_MRESET:
-        problems.append("+0x100c is not the vendor probe value 0x80000000 "
-                        "(bit 0 set = master in reset?)")
+    # The probe writes 0x80000000, but bit 31 is a self-clearing soft-reset
+    # pulse (FPGA layer 7, and on hardware 2026-11-10 it reads back 0), so
+    # only bit 0 (master held in reset) matters here.
+    if r["mreset"] & 1:
+        problems.append("+0x100c bit 0 set: I2C master held in reset")
+    if r["profile"] != PROBE_PROFILE:
+        problems.append("+0x1000 is not the vendor probe value 0x00660918 "
+                        "(channel not initialised; power-up is 0x00081766)")
     if spd is None:
         problems.append("selected clock profile code is not one the vendor knows")
     if r["start"] & START_BUSY:

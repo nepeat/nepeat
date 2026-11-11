@@ -1,0 +1,58 @@
+0002:01:00.0: vendor=1d0f device=8571 command=0002 (mem=on, busmaster=off)
+WRITE init port 1: +0x100c=0x80000000 +0x1008=0 +0x1000=0x00660918
+  write32 BAR0+0x0100c <- 0x80000000 master reset reg
+  write32 BAR0+0x01008 <- 0x00000000 profile select
+  write32 BAR0+0x01000 <- 0x00660918 profile clocks
+  read32  BAR0+0x00000 version
+          = 0x010b0009
+i2c_accel_fpga version=0x0b00 board=0x09 (raw 0x010b0009)
+  read32  BAR0+0x00140 present
+          = 0x00000000
+  read32  BAR0+0x00150 presence change
+          = 0x00000000
+  read32  BAR0+0x00160 interrupt
+          = 0x00000000
+  read32  BAR0+0x00168 interrupt mask
+          = 0xffffffff
+  read32  BAR0+0x00170 lpmode
+          = 0x00000000
+  read32  BAR0+0x00178 reset
+          = 0xffffffff
+raw: present=00000000 pres_chg=00000000 int=00000000 int_mask=ffffffff lpmode=00000000 reset=ffffffff
+port bus     present reset lpmode int int_mask pres_chg
+   1 i2c-101       0     1      0   0        1        0
+   2 i2c-102       0     1      0   0        1        0
+   3 i2c-103       0     1      0   0        1        0
+   4 i2c-104       0     1      0   0        1        0
+   5 i2c-105       0     1      0   0        1        0
+   6 i2c-106       0     1      0   0        1        0
+   7 i2c-107       0     1      0   0        1        0
+   8 i2c-108       0     1      0   0        1        0
+   9 i2c-109       0     1      0   0        1        0
+  10 i2c-110       0     1      0   0        1        0
+  11 i2c-111       0     1      0   0        1        0
+  12 i2c-112       0     1      0   0        1        0
+  13 i2c-113       0     1      0   0        1        0
+  14 i2c-114       0     1      0   0        1        0
+  15 i2c-115       0     1      0   0        1        0
+  16 i2c-116       0     1      0   0        1        0
+  17 i2c-117       0     1      0   0        1        0
+  18 i2c-118       0     1      0   0        1        0
+  19 i2c-119       0     1      0   0        1        0
+  20 i2c-120       0     1      0   0        1        0
+  21 i2c-121       0     1      0   0        1        0
+  22 i2c-122       0     1      0   0        1        0
+  23 i2c-123       0     1      0   0        1        0
+  24 i2c-124       0     1      0   0        1        0
+  25 i2c-125       0     1      0   0        1        0
+  26 i2c-126       0     1      0   0        1        0
+  27 i2c-127       0     1      0   0        1        0
+  28 i2c-128       0     1      0   0        1        0
+  29 i2c-129       0     1      0   0        1        0
+  30 i2c-130       0     1      0   0        1        0
+  31 i2c-131       0     1      0   0        1        0
+  32 i2c-132       0     1      0   0        1        0
+present 1 = module in cage; reset 1 = ResetL asserted (held in reset); lpmode 1 = LPMode asserted (inferred); int: raw bit, polarity unconfirmed
+   1 i2c-101       0     1      0   0        1        0   00660918  0  00000000  00000000  00000000  400000
+   2 i2c-102       0     1      0   0        1        0   00081766  0  00000000  00000000  00000000  100000
+   3 i2c-103       0     1      0   0        1        0   00081766  0  00000000  00000000  00000000  100000
