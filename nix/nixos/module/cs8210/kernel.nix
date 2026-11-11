@@ -39,6 +39,7 @@ let
     ./kernel/patches/ipd-arm64-doorbell-wmb.patch
     # ethtool speed/duplex so 802.3ad bonding can use the fpp ports.
     ./kernel/patches/ipd-ethtool-link-ksettings.patch
+    ./kernel/patches/ipd-rx-gro-napi.patch
   ];
 
   kernel =
