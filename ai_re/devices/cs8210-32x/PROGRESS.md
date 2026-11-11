@@ -79,6 +79,108 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (n) — first live I2C FPGA tests; SDK learn-thread wedge; /run and SSD fixes
+
+**I2C FPGA on hardware, empty cages** ([fpga/i2cfpga/hw/README.md](fpga/i2cfpga/hw/README.md)).
+These are the first transactions through the FPGA on mainline, with
+`cs8210-qsfp` plus a timing script, allowlisted BAR0 accesses only, and no
+errors on the serial console.
+- Power-up `cb+0x00` = `0x00081766` on all 32 channels, as layer 7
+  predicted. `0x100c` reads 0 after the probe writes `0x80000000`, so bit 31
+  self-clears (V). That broke `cs8210-qsfp`'s readiness check; fixed and
+  deployed.
+- A 1-byte read at 0x50 on each of the 32 ports returns status
+  `0x00000002` (NACK), with busy clear, 32/32 (V). The crosstalk check is
+  weak, because `0x60` is not writable in the allowlist.
+- Busy time on port 1 for sel 0/1/2: 36.7 / 19.6 / 125.3 us (median of 300).
+  Least squares on the layer-7 bit model 6(code+1)+13 clocks gives 11.8
+  bit-times + 5.8 us overhead, with residuals <= 0.03 us. For sel 0 that is
+  30.9 us of bus time against the simulation's 30.5 us (entry (m)), which
+  supports the SCL rates of 386/868/99 kHz (I: SCL was not probed).
+
+**SDK learn-thread wedge** ([reviews/2026-11-10-sdk-learn-crash.md](reviews/2026-11-10-sdk-learn-crash.md)).
+- innovium.user wedged twice this boot: 02:36:31 (44 min after start) and
+  11:05:10 (3 h 44 min after start). Both times the kernel logged
+  `ifcs-learn` asking for 34359726080 bytes, then the SDK flooded
+  `Learn WB w/o expected SOP` at ~25 MB/s into its /tmp under /run.
+- That flood filled the 1.9 GB /run tmpfs (RAM): logind failed with ENOSPC
+  from 02:39 to 07:20 and again from ~12:00.
+- Cause, from the disassembly: one read of the learn producer index (BAR0
+  `+0x4860`) returned a non-index value. The count underflows, the NULL from
+  `malloc` goes unchecked, and `while (sw != hw)` can never end (V once the
+  value is in).
+- The bad value was probably all-ones from a PCIe completion timeout (I).
+  The root port 0001:00:00.0 has sticky AER `CmpltTO+ UnxCmplt+`, first
+  error pointer 0x0e, which cannot be dated. It was deliberately left
+  uncleared.
+- With `pcieErrorsAsAllOnes` such a read returns 0xffffffff instead of the
+  SError panic it would have caused before.
+- Live evidence is in `analysis/research/ifcs-log-20261110/live/`.
+- SDK restarted at 16:11 on the patched system: bring-up OK, 32 fpp.
+
+**Fixes (nix, deployed 16:11 and 16:33):**
+- The SDK /tmp is now its own 256M tmpfs, and the `cs8210-sdk-logtrim`
+  service punches holes into any `*.log` over 16 MiB, keeping the first
+  1 MiB and the last 4 MiB. Tested on tmpfs with a 10 MB/s non-append
+  writer.
+- SSD: journald wrote 6-13 MB/min, all mmap writeback (`wchar` 0).
+  `SyncIntervalSec` 15 s -> 5 min alone still left 2.5 MB/min. A burst test
+  (500 messages = +4.5 MB, ~9 KB each, against 2.2 MB/min quiet) showed that
+  the cost scales with the number of writeback windows that contain a
+  message, not with log volume.
+- dhcpcd logged ~4 info lines/min, from two routers announcing the same ULA
+  route. Its unit is now capped at `LogLevelMax=notice`.
+- The remaining trickle is the hand-started `cs8210-powerlog` soak unit
+  (every 30 s), which was left running.
+- Measured over 10 min each:
+
+  | | journald | sda total |
+  |---|---|---|
+  | before | ~13 MB/min | 16.5 MB/min |
+  | 5 min sync | 2.5 MB/min | 3.3 MB/min |
+  | + dhcpcd cap | **1.2 MB/min** (23 messages, 19 of them powerlog) | 2.0 MB/min |
+
+  The rest of sda is jbd2 and the java process.
+
+### 2026-11-10 (m) — FPGA simulation: empty-cage prediction, stretching, NACK, long reads, queue, IRQ, formal check
+
+Offline only; no switch access (main may run a live empty-cage read in
+parallel). Report [fpga/i2cfpga/SIM.md](fpga/i2cfpga/SIM.md) (new sections
+"Hardware comparison", "Further behaviour", "Formal check"); plain language
+in [fpga/i2cfpga/CHANNEL.md](fpga/i2cfpga/CHANNEL.md). `modules.py` and the
+round trip were not changed this round. All results are simulation of the
+recovered netlist (I for the model; see SIM.md).
+- **Empty-cage prediction (for the live test):** read or 1-byte write at
+  0x50 with nobody on the bus: wire `START 0xA0-NACK STOP`, busy clear
+  ~1,910-1,930 clocks (30.5-30.9 us) after the start write, `cb+0x60` =
+  `0x00000002`, `cb+0x54` = offset with bit 31 clear, `cb+0x50` reads back
+  as written, the window untouched (keeps old data). Table with power-up /
+  after-`0x0C` / after-probe values in SIM.md. The simulated version
+  register reads `0x010b0009`, the live unit's value. At power-up `0x178`
+  = `0xFFFFFFFF` (all modules held in reset) and the presence IRQ is masked;
+  a `0x0C` bit-31 write restores the channel's profile defaults (`0x00081766`).
+- **Clock stretching:** the engine waits; a stretch longer than ~63,000
+  clocks (~1.01 ms) aborts with STOP and status bit 1, independent of the
+  profile.
+- **NACK of a written data byte is ignored** (status 0x1, remaining bytes
+  still sent); NACK of the address or offset byte is detected.
+- **Long reads:** 128 bytes land in window bytes 0-127 in bus order; each
+  slot has 128 bytes (slot 0 = 0x000-0x07F, slot 1 = 0x080-0x0FF of both
+  windows); a 255-byte read wraps and overwrites; 128 is the useful maximum.
+- **Queue:** slot 1 started while slot 0 runs waits and runs afterwards
+  (status 0x11); reversed order likewise.
+- **Presence IRQ:** insertion sets `0x140`/`0x150` and raises one MSI
+  request (`CFGINTERRUPTN` pulse, DI = 1) unless masked in `0x158`; `0x150`
+  clears with ones **only while masked** (the vendor handler masks first).
+- **Formal (`equivcheck.py` + yosys):** the shared region of the two
+  templates (pad-driver cone, 132 elements) is proven equivalent by
+  induction under a cut that assumes 124 differing pins equal; keeping 14 of
+  those pins on their own drivers the check fails. Not a channel
+  equivalence proof; a whole-design miter was not attempted (SIM.md says
+  what it would need). The template's family map pairs the pads crosswise
+  (logged; tools now seed by role).
+- Not done: the vendor file's channel map (item 8).
+
 ### 2026-11-10 (l) — FPGA: full-design simulation, controller tables, families equivalent, sideband pins, vendor file
 
 Offline only (no switch, serial or outlet). Reports
