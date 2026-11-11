@@ -169,6 +169,14 @@ kworkers hung in I/O wait, the serial shell stopped executing, and SysRq
 'b' is disabled in this kernel ("This sysrq operation is disabled"). No
 stack trace was captured: the console showed only the lockup/RCU headers,
 and `dmesg > /root/lockup-20261111.txt` never completed. Cause not proven.
+The desktop side of the test (started 01:04 PST) finished only at 03:21
+(V): the ssh session running `systemctl restart cs8210-switch` never
+printed `is-active` and died with "Connection timed out", so the restart
+never returned. The 150 s ping probe of the bond peer timed out (its
+"reachable 152 s" line is the timeout, not a reply). Over the 60 s iperf
+window the client logged 1.76 GB out / 2.74 GB in (290 retransmits), i.e.
+~1.4 / ~2.2 Gb/s during the ~10 s before the restart and nothing after.
+The data path stopped at the restart.
 The likely area is ring free/re-init while TX/RX NAPI is still running
 (Fable already listed "ring free races with a running NAPI" as
 pre-existing; its new tx_reap_lock / second NAPI / page_pool teardown add
