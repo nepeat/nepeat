@@ -80,6 +80,39 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-11 (x) — first traffic through a Credo PHY: cage 2 4x10G LAG in MACsec bypass (double_CRC was the bug)
+
+The user moved the breakout to cage 2. Presence: bit 1 only (matches the
+pin map). fpp2-1/2 came up at 10G full through the Credo PHY. The PHY
+reports host and line PCS up on slice 2 ports 0/1, and the generated
+`c-phy/dynamic_config.txt` has `firmware_configure_port … speed=10000
+mode=MacsecBypass line_fec=NO_FEC host_fec=NO_FEC`. But:
+- ASIC devport 2 received **100% bad frames** (rx_frames_err_crc =
+  rx_frames_all, 320/324, then 335/339, at the normal LLDP/LACP rate and
+  sizes). The PCS error counters stayed frozen at their link-up values, so
+  the lanes were clean. Linux saw 0 frames, so there was no LACP partner
+  and no lease.
+- The loader writes `double_CRC slice_id=S port=P enable=1` for every
+  port, also with `-e macsecbypass`. **`phy_shell "double_CRC slice_id=2
+  port=0|1 enable=0"` fixed it at once (V):** the CRC errors froze at 374,
+  the next 35 frames were OK, and LACP partnered with the Unifi on both
+  legs.
+- **Fix in `cs8210-switch-up`:** in bypass mode, after the Credo loader,
+  turn double_CRC off for every `double_CRC … enable=1` line in
+  dynamic_config.txt (failures logged, not fatal). `sync_bond_macs` now
+  reconfigures every bond with fpp members, not only when a MAC was fixed,
+  because DHCP can fail during the corrupt-frame window too.
+- **Unattended check (V):** deploy → SDK restart → bond reachable 28 s after
+  the SDK was up; devport 2 1,757/1,757 frames OK; LACP 2 ports, partner the
+  Unifi; lease 10.60.30.163.
+- **Throughput through the Credo path (V):** iperf3 -P4: into the switch
+  1.61 Gb/s, out 1.55 Gb/s. Both legs carry traffic (devport 2 and 3), 0
+  CRC errors. That is the same as cage 17 without a PHY, so the CPU path is
+  still the limit.
+- For MACsec proper: double CRC may be required there (MACsec framing on
+  the host side); revisit when the QSFP↔QSFP loop cable arrives. The flag
+  0x0 vs 0x4 in the loader's port log is still not decoded.
+
 ### 2026-11-11 (w) — soak + LACP failover results; LAG moved to cage 2 (Credo PHY, 4x10G, MACsec bypass)
 
 **Soak (stopped by the user at 27.5 min):** iperf3 `--bidir -P4` from the
