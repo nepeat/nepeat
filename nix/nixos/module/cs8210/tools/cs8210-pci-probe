@@ -21,6 +21,7 @@ fixed-size memcpy (one 32-bit or one 16-bit load).  Do NOT replace this with
 struct.unpack('<I', ...) or with mmap slicing: both read byte by byte.
 """
 import argparse
+import fcntl
 import mmap
 import os
 import sys
@@ -104,6 +105,16 @@ class Dev:
         flags = os.O_RDWR if writable else os.O_RDONLY
         prot = mmap.PROT_READ | (mmap.PROT_WRITE if writable else 0)
         self.fd = os.open(os.path.join(self.path, "resource0"), flags | os.O_SYNC)
+        if writable:
+            # Same lock libMdio.so (phy_server) holds on this file. Resetting
+            # the MDIO masters under a running phy_server breaks its transfers.
+            try:
+                fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                os.close(self.fd)
+                self.fd = None
+                sys.exit(f"{self.bdf}: error: in use by another process (phy_server? "
+                         f"cs8210-switch-down first); not writing")
         self.map = mmap.mmap(self.fd, self.bar0_len, mmap.MAP_SHARED, prot)
         mv = memoryview(self.map)
         self.v32, self.v16 = mv.cast("I"), mv.cast("H")
