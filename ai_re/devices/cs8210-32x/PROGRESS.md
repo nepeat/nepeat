@@ -79,6 +79,28 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (o) — first module: QSA + FS 10G DAC in cage 17 reads through the FPGA
+
+The user fitted a QSA in port 17 holding an FS 10G SFP+ passive DAC (3 m).
+- Presence: BAR0 `0x140` = `0x00010000` (bit 16 only), with presence-change
+  bit 16 set. Front-panel 17 = channel 16 = i2c-117, which agrees with
+  the FPGA-derived pin map (V, one port).
+- Released ResetL on 17 (`--reset 17 0`), then `cs8210-qsfp --info 17`.
+  256 bytes of SFF-8472 A0h read back (eight 32-byte transactions). A second
+  read was byte-identical, and both checksums are correct. Decode: SFP+
+  passive cable, 10300 Mb/s, 3 m, vendor "OEM" (FS's generic coding), PN
+  `SFP-H10GB-CU3M`, date 2026-02-07, no DDM. 0x51 ACKs and reads `0xff`.
+- This is the first data transfer through the I2C FPGA on mainline, and no
+  console errors appeared. Details:
+  [fpga/i2cfpga/hw/README.md](fpga/i2cfpga/hw/README.md) row 5. The cable's
+  serial number is masked in the committed capture.
+- `cs8210-qsfp --info` printed a wrong "byte 127 != 0, re-run with --page 0"
+  note for SFPs, and it had no SFF-8472 decode. Both fixed in the nix tree
+  (tested offline on the captured bytes; not deployed yet).
+- Not done yet: link. The far end of the DAC and the SDK port config (port
+  17 is a 400G port behind no Credo PHY; a QSA needs it set to 1x10G) are
+  the next step.
+
 ### 2026-11-10 (n) — first live I2C FPGA tests; SDK learn-thread wedge; /run and SSD fixes
 
 **I2C FPGA on hardware, empty cages** ([fpga/i2cfpga/hw/README.md](fpga/i2cfpga/hw/README.md)).

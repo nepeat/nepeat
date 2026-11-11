@@ -1,0 +1,43 @@
+# 2026-11-10 live 5: first module, port 17, QSA + FS 10G SFP+ passive DAC (3 m)
+# serial number bytes 68..83 masked as 'X' (public repo); checksums were computed on the real bytes
+$ cs8210-qsfp --channels   (before; ports 16-18 shown)
+raw: present=00010000 pres_chg=00010000 int=00000000 int_mask=ffffffff lpmode=00000000 reset=ffffffff
+  17 i2c-117       1     1      0   0        1        1   00660918  0  00000000  00000000  00000002  400000
+$ cs8210-qsfp --reset 17 0 ; cs8210-qsfp --info 17
+WRITE port 17 reset: BAR0+0x178 0xffffffff -> 0xfffeffff
+raw: present=00010000 pres_chg=00010000 int=00000000 int_mask=ffffffff lpmode=00000000 reset=fffeffff
+  17 i2c-117       1     0      0   0        1        1
+0002:01:00.0: vendor=1d0f device=8571 command=0002 (mem=on, busmaster=off)
+port 17: profile=0x00660918 sel=0 mreset=0x00000000 start=0x00000000 status=0x00000002 speed=400000
+i2c read  port 17 addr 0x50 off 0x00 len 32
+i2c read  port 17 addr 0x50 off 0x20 len 32
+i2c read  port 17 addr 0x50 off 0x40 len 32
+i2c read  port 17 addr 0x50 off 0x60 len 32
+i2c read  port 17 addr 0x50 off 0x80 len 32
+i2c read  port 17 addr 0x50 off 0xa0 len 32
+i2c read  port 17 addr 0x50 off 0xc0 len 32
+i2c read  port 17 addr 0x50 off 0xe0 len 32
+00: 03 04 21 00 00 00 00 00 04 00 00 00 67 00 00 00  ..!.........g...
+10: 00 00 03 00 4f 45 4d 20 20 20 20 20 20 20 20 20  ....OEM         
+20: 20 20 20 20 00 00 40 20 53 46 50 2d 48 31 30 47      ..@ SFP-H10G
+30: 42 2d 43 55 33 4d 20 20 52 20 20 20 01 00 00 f7  B-CU3M  R   ....
+40: 00 00 00 00 43 53 43 58 58 58 58 58 58 58 58 58  ....CSCXXXXXXXXX
+50: 58 58 58 20 32 36 30 32 30 37 20 20 00 00 00 d1  XXX 260207  ....
+60: 81 00 11 8a 63 c2 54 2f b3 8c 93 0c 20 f3 da 7e  ....c.T/.... ..~
+70: ee e3 15 00 00 00 00 00 00 00 00 00 86 a3 f6 9d  ................
+80: 43 4f 50 51 41 41 36 4a 41 42 33 37 2d 30 39 36  COPQAA6JAB37-096
+90: 31 2d 30 33 56 30 33 20 01 00 46 00 00 00 00 cf  1-03V03 ..F.....
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+c0: 53 46 50 2d 48 31 30 47 42 2d 43 55 33 4d 20 20  SFP-H10GB-CU3M  
+d0: 20 20 20 20 30 39 00 00 00 00 00 00 00 00 00 b6      09..........
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+wrote 256 bytes to /run/p17-a0.bin
+identifier  0x03 SFP/SFP+
+note: byte 127 != 0, so bytes 128..255 are not upper page 00h; re-run with --page 0
+$ cs8210-qsfp --read 17 0x50 0 256   (second read): cmp against the first = identical
+$ cs8210-qsfp --read 17 0x51 0 16
+00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff   (status ok: something ACKs 0x51; byte 92 = 0 says no DDM)
+# offline SFF-8472 decode (new cs8210-qsfp branch): connector 0x21 copper pigtail, compliance byte 8 = 0x04 SFP+ passive cable,
+# nominal 10300 Mb/s, copper 3 m, vendor 'OEM' OUI 004020, PN 'SFP-H10GB-CU3M' rev 'R', date 2026-02-07, no DDM, CC_BASE f7 ok, CC_EXT d1 ok

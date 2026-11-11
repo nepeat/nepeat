@@ -14,5 +14,13 @@ console showed no kernel errors during the runs. Raw output is in
 | 4a | init all 32, 1-byte read at 0x50 on each port | 32/32: status `0x00000002`, busy clear | every engine answers at its own page. The crosstalk check is weak: statuses stay 2 from earlier runs and `0x60` is not writable in the allowlist |
 | 4b | port 1 busy time from the start write until bit 31 clears, 300 runs per profile | sel 0 (0x18): 36.7 µs, sel 1 (0x09): 19.6 µs, sel 2 (0x66): 125.3 µs (medians; one poll read ≈ 2.9 µs) | linear in the per-bit time. With the layer-7 bit model 6(code+1)+13 clocks at 62.5 MHz it fits **11.8 bit-times + 5.8 µs overhead** (residuals ≤ 0.03 µs), about START + 8 address bits + ACK + STOP. The naive 4(code+1) model would need 17.8 bit-times, too many for an address NACK. So hardware supports 386 kHz / 868 kHz / 99 kHz (I: SCL itself was not probed) |
 
-Not tested: anything with a module present (no cables yet), clock
-stretching, data transfers, presence interrupt/MSI.
+| 5 | **first module**: QSA in cage 17 holding an FS 10G SFP+ passive DAC (3 m). `--reset 17 0`, then `--info 17` (8 × 32-byte reads at 0x50), a second 256-byte read, and 16 bytes at 0x51 ([live-5](2026-11-10-live-5.txt)) | present `0x00010000` (bit 16 only) with `pres_chg` bit 16 set. All reads status OK, busy clear. Both 256-byte reads are identical. SFF-8472 A0h: id 0x03, SFP+ passive cable, 10300 Mb/s, 3 m, PN `SFP-H10GB-CU3M`, CC_BASE and CC_EXT both correct. 0x51 ACKs and reads all `0xff` (byte 92 = 0: no DDM) | front-panel cage 17 = presence bit 16 = I2C engine ch 16 (family B) = bus i2c-117, as in `mtd5/update.port-pins.txt` (**V for this one port**). This is the first data transfer: the read path and 32-byte chunking work on hardware |
+
+ResetL on cage 17 was left released (`reset` = `0xfffeffff`); the vendor
+`sfp_eeprom` flow leaves a present module out of reset too. A QSA probably
+does not pass ResetL through to the SFP, so this test does not show whether
+the reset line reaches the cage.
+
+Not tested: a QSFP module (SFF-8636/CMIS paging), clock stretching by a real
+module, writes to a module, presence interrupt/MSI, cages other than 17
+with a module in them.

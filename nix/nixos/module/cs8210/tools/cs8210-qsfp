@@ -388,6 +388,19 @@ def decode_info(m):
         print(f"vendor      {s(148, 164)!r}  OUI {m[165:168].hex()}")
         print(f"part number {s(168, 184)!r} rev {s(184, 186)!r}")
         print(f"serial      {s(196, 212)!r} date {s(212, 220)!r}")
+    elif ident == 0x03:
+        # SFF-8472 A0h, e.g. an SFP+ behind a QSA adapter. No page select:
+        # bytes 128..255 are vendor area, byte 127 is vendor-specific.
+        cc_base, cc_ext = sum(m[0:63]) & 0xFF, sum(m[64:95]) & 0xFF
+        print(f"connector   {m[2]:#04x}   compliance 3..10 {m[3:11].hex()}  "
+              f"nominal {m[12] * 100} Mb/s  copper {m[18]} m")
+        print(f"vendor      {s(20, 36)!r}  OUI {m[37:40].hex()}")
+        print(f"part number {s(40, 56)!r} rev {s(56, 60)!r}")
+        print(f"serial      {s(68, 84)!r} date {s(84, 92)!r}")
+        print(f"diag type   {m[92]:#04x} ({'DDM at 0x51' if m[92] & 0x40 else 'no DDM'})")
+        print(f"checksums   base {'ok' if cc_base == m[63] else 'BAD'}  "
+              f"ext {'ok' if cc_ext == m[95] else 'BAD'}")
+        return
     if m[127] != 0:
         print("note: byte 127 != 0, so bytes 128..255 are not upper page 00h; "
               "re-run with --page 0")
