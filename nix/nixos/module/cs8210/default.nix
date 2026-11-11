@@ -141,9 +141,13 @@ in
       '';
     };
 
-    # The serial console catches a panic, the disk usually lost the last
-    # minutes before it: sync the journal more often than the 5 min default.
-    services.journald.settings.Journal.SyncIntervalSec = "15s";
+    # SSD wear: journald writes through mmap, and every sync writes back all
+    # the pages a few entries touched (entry, data, hash and array objects
+    # spread over the file) plus an offline/online header cycle. At 15 s
+    # that measured 6-13 MB/min of SSD writes for ~7 messages/min
+    # (2026-11-10, wchar 0, write_bytes only). Back to the 5 min default;
+    # the serial console (logged on the desktop) still catches panics.
+    services.journald.settings.Journal.SyncIntervalSec = "5m";
 
     services.cs8210-fancontrol.enable = lib.mkDefault true;
     services.cs8210-tools.enable = lib.mkDefault true;
