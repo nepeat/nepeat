@@ -56,7 +56,9 @@ if pgrep -x innovium.user >/dev/null; then
 fi
 
 # Base MAC from the ONIE TlvInfo, first byte +2, as the vendor script does.
-base=$(cs8210-show eeprom 2>/dev/null | sed -n 's/^MAC#1Base: //p')
+# `|| true`: with pipefail an unreadable EEPROM would otherwise end the script
+# here, silently, instead of reaching the fallback below.
+base=$(cs8210-show eeprom 2>/dev/null | sed -n 's/^MAC#1Base: //p') || true
 if [[ "$base" =~ ^[0-9a-fA-F]{12}$ ]]; then
   first=$(( (0x${base:0:2} + 2) % 256 ))
   mac=$(printf '%02X:%s:%s:%s:%s:%s' "$first" "${base:2:2}" "${base:4:2}" "${base:6:2}" "${base:8:2}" "${base:10:2}")
