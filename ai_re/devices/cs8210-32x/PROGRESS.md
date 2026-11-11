@@ -80,6 +80,36 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-11 (y) — robustness: wedge watchdog, deploys no longer reset the chip, phy_server busy-loop fixed
+
+- **phy_server at 100% of a core (V, fixed):** strace showed ~29k
+  `read(3, "", 1024) = 0` per second. fd 3 is `/tmp/cls_phy_fifo`
+  (O_RDONLY). Once the last writer closes, a FIFO read returns EOF
+  immediately, so the daemon's command loop never blocks. Fix in
+  `cs8210-switch-up`: after the Credo loader, a `sleep 2147483647` holds a
+  writer open on the FIFO, so read() blocks. phy_shell still works. The
+  first try used `exec -a <name> sleep`, and the chroot's sleep is a
+  busybox symlink, which picks the applet from argv[0] and exited at once.
+  Result: phy_server 0 CPU ticks in 5 s (was 500), sleeping in
+  anon_pipe_read.
+- **Deploys reset the chip (fixed):** the cs8210-switch unit's `path`
+  included `config.system.path`, so any package change altered the unit
+  and `switch-to-configuration` restarted it. Now `path = [ chroot switchUp
+  ]`, and the wrappers get a fixed binPath (procps, sed, coreutils,
+  ethtool, iproute2, systemd, util-linux, bash) plus
+  `/run/current-system/sw/bin` appended at runtime (cs8210-show etc.). The
+  unit's PATH has no system-path any more (V).
+- **Learn-thread wedge watchdog (V):** `cs8210-sdk-watchdog` checks every
+  60 s for a kernel line matching `comm: ifcs-learn` since cs8210-switch's
+  ActiveEnterTimestamp, restarts cs8210-switch, and does at most one
+  restart per 15 min. End-to-end test: a clearly marked fake line was
+  written to /dev/kmsg at 00:55:35 (it says "WATCHDOG TEST (fake, injected
+  by hand)", so ignore it in later wedge analysis). The watchdog restarted
+  the SDK at 00:56:27, the SDK was up at 00:57:49, and bond0 answered ~80 s
+  later (usually ~30 s; maybe the Unifi re-admitting LAG members after
+  back-to-back flaps). This is a stop-gap; the real fix is still the
+  all-ones read shim from the 2026-11-10 crash review.
+
 ### 2026-11-11 (x) — first traffic through a Credo PHY: cage 2 4x10G LAG in MACsec bypass (double_CRC was the bug)
 
 The user moved the breakout to cage 2. Presence: bit 1 only (matches the
