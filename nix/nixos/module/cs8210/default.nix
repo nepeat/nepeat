@@ -148,6 +148,12 @@ in
     # (2026-11-10, wchar 0, write_bytes only). Back to the 5 min default;
     # the serial console (logged on the desktop) still catches panics.
     services.journald.settings.Journal.SyncIntervalSec = "5m";
+    # Each journal entry costs ~30 rewritten pages per writeback window, so
+    # trickle messages are what wears the SSD (2.2 MB/min at ~7 msg/min, 9 KB
+    # per extra message in a burst). The biggest trickle was dhcpcd logging
+    # every IPv6 route-information change at info level (~4/min here, two
+    # routers announcing the same ULA route). Keep notice and above.
+    systemd.services.dhcpcd.serviceConfig.LogLevelMax = "notice";
 
     services.cs8210-fancontrol.enable = lib.mkDefault true;
     services.cs8210-tools.enable = lib.mkDefault true;
