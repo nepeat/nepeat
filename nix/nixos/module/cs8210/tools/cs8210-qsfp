@@ -502,6 +502,12 @@ def main():
     if a.write and (len(a.write) < 4 or not 1 <= a.write[0] <= NCH
                     or any(not 0 <= b <= 0xFF for b in a.write[3:])):
         ap.error("--write P A O BYTE [BYTE...]")
+    # The presence / reset / channel-state checks below run for one port only.
+    if a.read and a.info:
+        ap.error("--read and --info are exclusive")
+    i2c_ports = {x for x in (a.read and a.read[0], a.info, a.write and a.write[0]) if x}
+    if len(i2c_ports) > 1:
+        ap.error("--read/--info and --write must name the same port")
     if not 1 <= a.chunk <= BUF_MAX:
         ap.error(f"--chunk must be 1..{BUF_MAX}")
     if a.page is not None and not 0 <= a.page <= 0xFF:
