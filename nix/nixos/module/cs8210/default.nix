@@ -153,7 +153,9 @@ in
     # per extra message in a burst). The biggest trickle was dhcpcd logging
     # every IPv6 route-information change at info level (~4/min here, two
     # routers announcing the same ULA route). Keep notice and above.
-    systemd.services.dhcpcd.serviceConfig.LogLevelMax = "notice";
+    systemd.services.dhcpcd = lib.mkIf config.networking.dhcpcd.enable {
+      serviceConfig.LogLevelMax = "notice";
+    };
 
     services.cs8210-fancontrol.enable = lib.mkDefault true;
     services.cs8210-tools.enable = lib.mkDefault true;

@@ -1,0 +1,93 @@
+ipd: minimal ethtool ops (full duplex + userspace-set speed) for bonding
+
+The SDK reports only link up/down to ipd, and the netdevs had no ethtool
+ops, so bonding saw no duplex: 802.3ad disabled LACP on every fpp port
+(actor key 0, no LACPDUs) and ad_select=bandwidth rated them 0 Mb/s.
+get_link_ksettings reports full duplex while carrier is up and the speed
+userspace stored with set_link_ksettings (autoneg off, full duplex only),
+which also raises NETDEV_CHANGE so bonding re-reads it. No hardware access.
+
+diff --color -ru b/inno_enet.c c/inno_enet.c
+--- a/inno_enet.c	2026-11-10 22:47:59.218290441 -0800
++++ b/inno_enet.c	2026-11-10 23:10:08.238222340 -0800
+@@ -746,6 +746,52 @@
+     ipd_debug(" Set RX mode called\n");
+ }
+ 
++/*
++ * Minimal ethtool ops. The SDK only reports link up/down to ipd, never the
++ * speed, and without ethtool ops bonding sees no duplex: 802.3ad then
++ * disables LACP on the port and ad_select=bandwidth counts it as 0 Mb/s.
++ * Report full duplex and a per-netdev speed that userspace sets with
++ * "ethtool -s <dev> speed N duplex full autoneg off" (cs8210-switch-up does
++ * this from the port config). Nothing here touches the hardware.
++ */
++static int
++inno_enet_get_link_ksettings(struct net_device *dev,
++                             struct ethtool_link_ksettings *cmd)
++{
++    inno_enet_adapter_t *enet = (inno_enet_adapter_t *) netdev_priv(dev);
++    bool up = netif_carrier_ok(dev);
++
++    ethtool_link_ksettings_zero_link_mode(cmd, supported);
++    ethtool_link_ksettings_zero_link_mode(cmd, advertising);
++    cmd->base.speed   = (up && enet->link_speed) ? enet->link_speed : SPEED_UNKNOWN;
++    cmd->base.duplex  = up ? DUPLEX_FULL : DUPLEX_UNKNOWN;
++    cmd->base.port    = PORT_OTHER;
++    cmd->base.autoneg = AUTONEG_DISABLE;
++    return 0;
++}
++
++static int
++inno_enet_set_link_ksettings(struct net_device *dev,
++                             const struct ethtool_link_ksettings *cmd)
++{
++    inno_enet_adapter_t *enet = (inno_enet_adapter_t *) netdev_priv(dev);
++
++    if (cmd->base.autoneg != AUTONEG_DISABLE ||
++        cmd->base.duplex != DUPLEX_FULL ||
++        cmd->base.speed == 0 || cmd->base.speed == (u32)SPEED_UNKNOWN)
++        return -EINVAL;
++    enet->link_speed = cmd->base.speed;
++    /* rtnl is held by the ethtool core; lets bonding re-read speed/duplex */
++    netdev_state_change(dev);
++    return 0;
++}
++
++static const struct ethtool_ops inno_enet_ethtool_ops = {
++    .get_link           = ethtool_op_get_link,
++    .get_link_ksettings = inno_enet_get_link_ksettings,
++    .set_link_ksettings = inno_enet_set_link_ksettings,
++};
++
+ static const struct net_device_ops inno_enet_netdev_ops =
+ {
+     .ndo_open            = inno_enet_open,
+@@ -1953,6 +1999,7 @@
+ 
+     SET_NETDEV_DEV(idev->ndev, &idev->pdev->dev);
+     idev->ndev->netdev_ops = &inno_enet_netdev_ops;
++    idev->ndev->ethtool_ops = &inno_enet_ethtool_ops;
+ 
+     enet = (inno_enet_adapter_t *) netdev_priv(idev->ndev);
+     enet->idev = idev;
+@@ -2084,6 +2131,8 @@
+                        &idev->pdev->dev);
+     idev->sysport_devs[ioctl->sysport]->netdev_ops =
+         &inno_enet_netdev_ops;
++    idev->sysport_devs[ioctl->sysport]->ethtool_ops =
++        &inno_enet_ethtool_ops;
+ 
+     if(is_valid_ether_addr(ioctl->ethaddr.sa_data)){
+         eth_mac_addr(idev->sysport_devs[ioctl->sysport], (void*)(&(ioctl->ethaddr)));
+diff --color -ru b/inno_enet.h c/inno_enet.h
+--- a/inno_enet.h	2026-11-10 22:47:59.202290240 -0800
++++ b/inno_enet.h	2026-11-10 23:10:08.238222340 -0800
+@@ -97,6 +97,7 @@
+ typedef struct inno_enet_adapter {
+     uint16_t      sysport;          /** Associated netdev num (0-255) */
+     inno_device_t *idev;            /** Associated idevice */
++    uint32_t      link_speed;       /** Mb/s, set via ethtool; 0 = unknown */
+ } inno_enet_adapter_t;
+ 
+ int

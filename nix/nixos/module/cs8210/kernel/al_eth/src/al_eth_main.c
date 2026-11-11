@@ -949,13 +949,29 @@ static int al_eth_hw_init(struct al_eth_adapter *adapter)
 
 	if ((adapter->mac_mode == AL_ETH_MAC_MODE_SGMII) ||
 		(adapter->mac_mode == AL_ETH_MAC_MODE_RGMII && adapter->phy_exist == AL_FALSE)) {
-		netdev_err(adapter->netdev, "link config (0x%x)\n", adapter->mac_mode);
+		int speed = adapter->link_config.active_speed;
+		int duplex = adapter->link_config.active_duplex;
+
+		netdev_dbg(adapter->netdev, "link config (0x%x)\n", adapter->mac_mode);
+
+		/*
+		 * After a close with no cable attached phylib leaves the speed
+		 * at SPEED_UNKNOWN, the HAL rejects it, and the interface could
+		 * not be opened again until reboot (seen when enslaving enp0s1
+		 * to a bond on the CS8210). Program 1G/full as a placeholder;
+		 * al_eth_adjust_link reprograms the MAC once the PHY has a link,
+		 * because active_speed is left unknown here.
+		 */
+		if (speed <= 0) {
+			speed = SPEED_1000;
+			duplex = DUPLEX_FULL;
+		}
 
 		rc = al_eth_mac_link_config(&adapter->hal_adapter,
 			adapter->link_config.force_1000_base_x,
 			adapter->link_config.autoneg,
-			adapter->link_config.active_speed,
-			adapter->link_config.active_duplex);
+			speed,
+			duplex);
 		if (rc) {
 			netdev_err(adapter->netdev,
 				"%s failed to configure link parameters!\n", __func__);

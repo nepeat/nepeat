@@ -37,6 +37,8 @@ let
     ./kernel/patches/ipd-kernel-compat.patch
     # arm64: wmb() before the TX/RX descriptor doorbells (CPU TX stall).
     ./kernel/patches/ipd-arm64-doorbell-wmb.patch
+    # ethtool speed/duplex so 802.3ad bonding can use the fpp ports.
+    ./kernel/patches/ipd-ethtool-link-ksettings.patch
   ];
 
   kernel =

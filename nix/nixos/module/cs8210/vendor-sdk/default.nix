@@ -63,10 +63,10 @@ let
         install -D -m 0755 ${./cs8210-switch-up} $out/libexec/cs8210-switch-up
         patchShebangs $out/libexec
         makeWrapper $out/libexec/cs8210-switch-up $out/bin/cs8210-switch-up \
-          --prefix PATH : ${lib.makeBinPath [ pkgs.procps pkgs.gnused pkgs.coreutils ]}
+          --prefix PATH : ${lib.makeBinPath [ pkgs.procps pkgs.gnused pkgs.coreutils pkgs.ethtool ]}
         makeWrapper $out/libexec/cs8210-switch-up $out/bin/cs8210-switch-down \
           --add-flags --down \
-          --prefix PATH : ${lib.makeBinPath [ pkgs.procps pkgs.gnused pkgs.coreutils ]}
+          --prefix PATH : ${lib.makeBinPath [ pkgs.procps pkgs.gnused pkgs.coreutils pkgs.ethtool ]}
       '';
   # The SDK writes its own log files into its /tmp and never rotates them.
   # On 2026-11-10 a wedged innovium.user logged "Learn WB w/o expected SOP"

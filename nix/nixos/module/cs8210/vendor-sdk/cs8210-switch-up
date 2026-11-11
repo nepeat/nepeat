@@ -72,9 +72,38 @@ else
   macarg=""
 fi
 
+# Tell ipd each front-panel netdev's speed (ipd-ethtool-link-ksettings.patch):
+# the SDK never does, and bonding needs speed + full duplex for 802.3ad.
+# Netdevs are fpp<cage> for one port per cage and fpp<cage>-<k> for breakouts.
+set_speeds() {
+  local entry range mode n g first last c k dev
+  local -a entries
+  IFS=';' read -ra entries <<<"$1"
+  for entry in "${entries[@]}"; do
+    range=${entry%%:*}
+    mode=${entry#*:}; mode=${mode%%:*}; mode=${mode##*_}; mode=${mode,,}; mode=${mode%g}
+    if [[ $mode =~ ^([0-9]+)x([0-9]+)$ ]]; then
+      n=${BASH_REMATCH[1]}; g=${BASH_REMATCH[2]}
+    elif [[ $mode =~ ^([0-9]+)$ ]]; then
+      n=1; g=${BASH_REMATCH[1]}
+    else
+      echo "cs8210-switch-up: cannot parse port mode '$entry' for speeds" >&2; continue
+    fi
+    first=${range%-*}; last=${range#*-}
+    for ((c = first; c <= last; c++)); do
+      for ((k = 1; k <= n; k++)); do
+        if ((n == 1)); then dev=fpp$c; else dev=fpp$c-$k; fi
+        [ -e "/sys/class/net/$dev" ] || continue
+        ethtool -s "$dev" speed $((g * 1000)) duplex full autoneg off ||
+          echo "cs8210-switch-up: could not set speed on $dev" >&2
+      done
+    done
+  done
+}
+
 sync
 # One chroot invocation for both daemons: they share its /tmp (fifos, logs).
-exec cs8210-sdk-chroot /bin/bash -c "
+cs8210-sdk-chroot /bin/bash -c "
   set -e
   cd $SDK
   ./auto_load_user.sh -m '$innv' -k $macarg -d
@@ -83,3 +112,4 @@ exec cs8210-sdk-chroot /bin/bash -c "
   # (enp0s3). The vendor config defines it but leaves it disabled.
   ./cls_shell 'port enable 129' >/dev/null
 "
+set_speeds "$innv"
