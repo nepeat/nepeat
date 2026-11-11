@@ -80,6 +80,46 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-11 (w) — soak + LACP failover results; LAG moved to cage 2 (Credo PHY, 4x10G, MACsec bypass)
+
+**Soak (stopped by the user at 27.5 min):** iperf3 `--bidir -P4` from the
+desktop over bond0 (2 legs, fpp17-1/2, LACP with the Unifi), with the bond
+watched over enp0s1.
+- Switch RX 267 GB (avg **1.39 Gb/s**) and switch TX 164 GB (avg 854 Mb/s)
+  at the same time. 0 iperf errors, ipd RX ring drops unchanged (8), 0 new
+  ifcs/ipd/AER kernel lines, no learn-thread wedge. TX-3 "full" reached
+  146k (backpressure: ipd returns TX_BUSY without stopping the queue).
+- **Bottleneck (V):** `ksoftirqd/0` at ~99%. All ipd work (one MSI vector,
+  one NAPI) runs on CPU 0, and RX starves TX there. RPS on fpp17-* (rps_cpus
+  fffe, live only, not in nix) spread the stack work (10% softirq overall),
+  but CPU 0 stayed pegged. Switch TX is **bimodal**: phases of ~200 Mb/s and
+  ~1.6 Gb/s, both before and after RPS, so RPS did not clearly fix it. Next:
+  batched refill, page recycling, more RX vectors (Fable's list).
+- `phy_server` (Credo) uses ~95% of one core continuously (busy poll).
+  Unrelated to the cage-17 path; worth a look.
+- Hashing is uneven: leg 1 sent 17.1M packets, leg 2 5.7M.
+- **LACP failover (V), under load:**
+
+| event | time | result |
+|---|---|---|
+| pull leg 1 | 00:17:51 | removed from aggregator, bond0 stayed UP, 0 iperf errors |
+| replug leg 1 | 00:20:44.7 → 00:20:45.8 | back in the aggregator in ~1 s (fast LACP) |
+| pull leg 2 | ~00:21:05 | same: bond0 up on leg 1, 0 errors |
+| replug leg 2 | ~00:21:44 | rejoined, 10G full, bond MAC kept |
+
+**Cage 2 LAG (Credo port, MACsec bypass):** the user is moving the breakout
+from cage 17 to cage 2. New option `hardware.cs8210.vendorSdk.credoPorts`
+(env `CS8210_CREDO_PORTS`) overrides the c-phy spec the way innoviumPorts
+does for the ASIC. Machine config:
+- ASIC `1:copper_1x400G;2:copper_4x10G;3-16:copper_1x400G;17-32:optics_1x400G`
+- Credo `1:optics_1x400G;2:copper_4x10G;3-32:optics_1x400G` (`-e macsecbypass`)
+- bond0 members `fpp2 fpp2-*`; cage 17 is back to 1x400G (`fpp17`).
+
+After deploy: 35 eth devports, `fpp2-1..4` enslaved on the bond MAC. The
+Credo log shows slice 2 with 4 ports at 10000, 1 lane each, host FEC 0,
+config flag 0x0 (the 400G ports show 0x4; meaning not decoded). No link
+yet: the cable is not moved.
+
 ### 2026-11-10 (v) — bond survives SDK restarts unattended (member-MAC race fixed)
 
 Test #1 from the list (SDK restart regression) failed first, as expected,
