@@ -104,8 +104,12 @@ insertion did not trigger that wedge.
 - **LLDP (V):** lldpd on fpp17-1 sees chassis `USWProAggregation`
   (USW-Pro-Aggregation 7.5.15), port "Port 7" / "SFP_ 7". That is RX
   through the ASIC, the ipd CPU path and knet. TX counter: 6 packets (our
-  LLDP frames). Whether the Unifi lists us has not been checked from its
-  side. RX: 3,902 packets, of which 3,761 were dropped by the kernel (LAN
+  LLDP frames). Far end (UniFi app, user screenshots): "Disconnected" at
+  22:15, "10 GbE" at 22:16 with 2.7 MB up / 1 KB down. Nothing was changed
+  in between, so this was UI polling lag. Its 1 KB down matches the ASIC's
+  `tx_bytes_ok` of 1,608 (V: TX reaches the far end). PCS counters
+  (block_err 8051, ber 102, sync_header 106) did not move across samples
+  20 s apart, so they are left over from link-up. RX: 3,902 packets, of which 3,761 were dropped by the kernel (LAN
   broadcast/multicast with no host config on the netdev); 0 errors.
 
 ### 2026-11-10 (o) — first module: QSA + FS 10G DAC in cage 17 reads through the FPGA
