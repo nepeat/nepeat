@@ -68,6 +68,47 @@ let
           --add-flags --down \
           --prefix PATH : ${lib.makeBinPath [ pkgs.procps pkgs.gnused pkgs.coreutils ]}
       '';
+  # The SDK writes its own log files into its /tmp and never rotates them.
+  # On 2026-11-10 a wedged innovium.user logged "Learn WB w/o expected SOP"
+  # at ~25 MB/s and filled the 1.9 GB /run tmpfs (RAM) in about a minute.
+  # The SDK /tmp is now its own size-capped tmpfs (below), and this loop keeps
+  # every *.log in it small: past `limit` allocated bytes it punches a hole
+  # over everything except the first MiB (init messages) and the last 4 MiB.
+  # Hole punching, not truncation: the SDK writes without O_APPEND, so a
+  # truncated file just becomes sparse at the old offset anyway, and punching
+  # keeps the start of the log. Readers see NUL bytes where the hole is
+  # (`grep -a`, `tr -d '\0'`). The loop only logs a summary every 10 minutes,
+  # so the journal on the SSD does not inherit the flood.
+  logTrim = pkgs.writeShellScript "cs8210-sdk-logtrim" ''
+    set -u
+    dir=/run/cs8210-sdk/tmp
+    keep_head=$((1 << 20))
+    keep_tail=$((4 << 20))
+    limit=$((16 << 20))
+    trims=0
+    punched=0
+    last=$(date +%s)
+    while sleep 2; do
+      while IFS= read -r -d "" f; do
+        read -r size blocks bsize < <(stat -c '%s %b %B' -- "$f") || continue
+        used=$((blocks * bsize))
+        ((used > limit)) || continue
+        end=$(((size - keep_tail) / 4096 * 4096))
+        ((end > keep_head)) || continue
+        if fallocate --punch-hole --offset "$keep_head" --length $((end - keep_head)) -- "$f"; then
+          trims=$((trims + 1))
+          punched=$((punched + used - keep_head - keep_tail))
+        fi
+      done < <(find "$dir" -xdev -type f -name '*.log' -print0 2>/dev/null)
+      now=$(date +%s)
+      if ((trims > 0 && now - last >= 600)); then
+        echo "trimmed SDK logs $trims times in $(((now - last) / 60)) min, ~$((punched >> 20)) MiB dropped"
+        trims=0
+        punched=0
+        last=$now
+      fi
+    done
+  '';
   pyEnv = pkgs.python3;
   switchPower =
     pkgs.runCommand "cs8210-switch-power"
@@ -136,5 +177,37 @@ in
     services.lldpd.extraArgs = [ "-I" "enp0s1,fpp*" ];
 
     systemd.tmpfiles.rules = [ "d /var/lib/cs8210-sdk 0700 root root - -" ];
+
+    # The chroot's /tmp (fifos, pid files, the SDK's own logs, the libMdio
+    # trace) on its own tmpfs, so nothing the SDK writes there can fill /run
+    # (RAM) or reach the SSD. See logTrim above for the logs. The libMdio
+    # trace (CS8210_MDIO_TRACE) is not trimmed: it stops at this cap.
+    fileSystems."/run/cs8210-sdk/tmp" = {
+      device = "tmpfs";
+      fsType = "tmpfs";
+      options = [
+        "size=256M"
+        "mode=1777"
+        "nosuid"
+        "nodev"
+      ];
+    };
+
+    systemd.services.cs8210-sdk-logtrim = {
+      description = "CS8210: keep the vendor SDK's log files small";
+      wantedBy = [ "multi-user.target" ];
+      unitConfig.RequiresMountsFor = "/run/cs8210-sdk/tmp";
+      path = [
+        pkgs.coreutils
+        pkgs.findutils
+        pkgs.util-linux
+      ];
+      serviceConfig = {
+        ExecStart = logTrim;
+        Restart = "always";
+        RestartSec = 5;
+        Nice = 10;
+      };
+    };
   };
 }

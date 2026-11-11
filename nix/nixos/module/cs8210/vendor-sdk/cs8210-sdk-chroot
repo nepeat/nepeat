@@ -42,6 +42,10 @@ exec unshare --mount -- bash -euo pipefail -c '
   # the host tmpfs, so they are gone after a reboot like on the stock system.
   mkdir -p /run/cs8210-sdk/tmp /run/cs8210-sdk/run "$ROOT/var/run"
   chmod 1777 /run/cs8210-sdk/tmp
+  # Normally its own size-capped tmpfs (fileSystems in default.nix); without
+  # it the SDK logs land on /run itself and can fill it.
+  mountpoint -q /run/cs8210-sdk/tmp ||
+    echo "cs8210-sdk-chroot: warning: /run/cs8210-sdk/tmp is not its own mount" >&2
   mount --bind /run/cs8210-sdk/tmp "$ROOT/tmp"
   mount --bind /run/cs8210-sdk/run "$ROOT/var/run"
   for lib in "$ROOT"/root/sdk/*/c-phy/libMdio.so; do
