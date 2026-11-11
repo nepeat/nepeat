@@ -60,7 +60,11 @@ done
 # MERGE=1: libsai's log goes into access.txt too, interleaved with the accesses
 ERRF=$OUT/stderr.txt
 merge=()
-[[ -n ${MERGE:-} ]] && { ERRF=/dev/stdout; merge=(--setenv LOG_STDERR 1); }
+[[ -n ${MERGE:-} ]] && { ERRF=$OUT/access.txt; merge=(--setenv LOG_STDERR 1); }
+# Both streams are opened in append mode: with MERGE they are the same file,
+# and two plain `>` opens would overwrite each other from offset 0.
+: > "$OUT/access.txt"
+: > "$ERRF"
 set +e
 timeout -k 5 "$TMO" bwrap \
   --unshare-all --die-with-parent --new-session --clearenv \
@@ -78,7 +82,7 @@ timeout -k 5 "$TMO" bwrap \
   --setenv PROFILE_SAI_INIT_CONFIG_FILE /credo/profile.xml \
   --setenv PROFILE_SAI_BOOT_TYPE "${BOOT_TYPE:-cold}" \
   "${fake[@]}" "${merge[@]}" "${stage[@]}" \
-  /credo/fakephy "$@" > "$OUT/access.txt" 2> "$ERRF"
+  /credo/fakephy "$@" >> "$OUT/access.txt" 2>> "$ERRF"
 rc=$?
 set -e
 echo "exit $rc (124 = timeout)" | tee "$OUT/exit.txt"
