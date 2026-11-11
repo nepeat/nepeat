@@ -80,6 +80,60 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (s) — CPU TX stall root-caused to the ipd TX ring, fixed with a doorbell barrier
+
+**Symptom ((r)):** CPU TX on fpp17-1 stops for good under load. Reproducible
+ramp (`iperf3 -R -b`, 5 s steps, switch TX): 20M / 100M / 300M fine
+(Linux tx_packets = devport-17 tx_frames ±2), and **600M stalls**. A port
+bounce and a physical cable cycle do not clear it; an SDK restart (ring
+re-init) does.
+
+**Where (V, read on the stalled box over serial):**
+- `/sys/devices/ipd/ring_stat`: TX-3 (the netdev TX ring) Full =
+  23,305,720 after the first stall; Bypass packets frozen.
+- Debug log line from `inno_enet_tx` (loglevel 6 for 50 ms): `TX ring 3
+  pidx: 0x258 cidx: 0xcc(0xcc)`.
+- Hardware registers via the vendor CLI `pci read`: `TXQ_3_DESC_CIDX` =
+  **0xcc**, `TXQ_3_DESC_PIDX` = 0x2a0, `TXQ_3_DESC_RING` = 0x400,
+  `TXQ_3` = 0x30001, `TXQ_3_CIDX_UPDATE_TMR_CTL` = 0x2. So the ASIC's TX
+  DMA engine itself stopped consuming at descriptor 0xcc. It is not a
+  missed CIDX writeback, and the ASIC egress path is not involved.
+- With the ring stuck, skbs never complete, so a sender blocks on its
+  socket send buffer (ping -c300 hung in sendmsg) before the ring fills.
+- The sysfs `resource0` mmap of the ASIC BAR returns EINVAL (ipd holds the
+  region), so BAR reads have to go through the SDK CLI (`pci read <NAME>`).
+
+**Cause (I, strongly supported):** `inno_enet_tx` writes 3 descriptors per
+packet (LDH header, data, FCS/pad) into the ring with memcpy, then rings
+the doorbell with a raw volatile store `REG32(TXQ_x_DESC_PIDX) = pidx`,
+with no barrier. That is fine on x86. On arm64, nothing orders Normal-memory
+stores before a Device-memory store, so the ASIC can fetch a half-written
+descriptor and the queue halts. The RX refill doorbells have the same gap:
+their `smp_mb()` (dmb ish) sits before the descriptor writes.
+
+**Fix:** `nix/.../kernel/patches/ipd-arm64-doorbell-wmb.patch` puts `wmb()`
+before the TX doorbell and both RX refill doorbells, which is what
+`writel()` would do. It was deployed without a reboot: SDK stopped,
+`rmmod ipd`, then `MODULE_DIR=/run/current-system/kernel-modules/lib/modules
+modprobe ipd` (srcversion C3E17271… → BB200611…, legacy_abi=Y), SDK
+started.
+
+**After the fix (V):**
+| test | result |
+|---|---|
+| ramp -R 300M / 600M / 1G / unlimited, 10 s each | 300 / 600 / 995 / 1050 Mb/s, Linux TX = port-17 TX ±3, ping OK after each |
+| -R unlimited 60 s | 7.45 GB, **1.07 Gb/s**, no stall |
+| -R -P4 20 s | **1.50 Gb/s** sum |
+| forward (switch RX) 30 s | 396 Mb/s (RX ceiling, separate issue) |
+| TX-3 ring after all of it | 11,258,539 packets, 16.5 GB, Full 62 (backpressure, recovered) |
+
+No A/B rerun of the old module after the fix, so "missing barrier" is the
+explanation that fits, not a proven mechanism. The stall was 100%
+reproducible at 600M before, and 11M packets at up to 1.5 Gb/s since show
+none. The temporary iptables rule for 5201 has been removed again. The
+fpp17-1 address is now static (10.60.30.179/24, the same DHCP lease), set
+by hand; the dhcpcd service is running again for enp0s1.
+
 ### 2026-11-10 (r) — iperf3 over fpp17-1: RX 429 Mb/s, then the CPU→port TX path stalls
 
 iperf3 3.21 (aarch64, same nixpkgs pin) was copied over fpp17-1, with
@@ -96,11 +150,13 @@ reaches the switch routed through 10.60.2.1.
     and the ipd TX ring is not full (a full ring returns NETDEV_TX_BUSY
     and would show requeues).
   - ASIC CPU port (devport 0) `rx_frames_all` keeps rising (408,398 →
-    410,228), so the ASIC is still pulling frames off the DMA ring.
+    410,228). **Corrected in (s):** this counter does not count CPU→ASIC
+    frames (it rose ~19k while Linux sent 185k), so it says nothing about
+    the TX ring.
   - devport 17 `tx_frames_all` is frozen at 230,208. Of the 370,941 large
     frames (1519-2047 B, i.e. MTU frames plus the CPU header) that the CPU
     port received, devport 17 sent only 42,990 frames of 1024-1518 B.
-  - So frames are dropped or held inside the ASIC between CPU-port ingress
+  - (Superseded by (s): the TX DMA ring itself stops.) So frames are dropped or held inside the ASIC between CPU-port ingress
     (pipeline bypass, `syshdr` PIPELINE_BYPASS to sysport 17) and devport-17
     egress. devport 17 shows no pause/PFC frames and no drop counters (none
     are non-zero).
