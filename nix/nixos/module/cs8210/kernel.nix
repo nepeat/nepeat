@@ -35,6 +35,8 @@ let
     # parameter the driver behaves as upstream.
     ./kernel/patches/ipd-legacy-abi.patch
     ./kernel/patches/ipd-kernel-compat.patch
+    # arm64: wmb() before the TX/RX descriptor doorbells (CPU TX stall).
+    ./kernel/patches/ipd-arm64-doorbell-wmb.patch
   ];
 
   kernel =

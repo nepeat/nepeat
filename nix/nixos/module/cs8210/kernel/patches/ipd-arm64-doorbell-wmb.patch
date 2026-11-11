@@ -1,0 +1,48 @@
+ipd: order descriptor stores before the queue doorbell on arm64
+
+The netdev TX path writes three descriptors into the DMA ring with plain
+memcpy and then rings the doorbell with a raw volatile store
+(REG32(TXQ_x_DESC_PIDX) = pidx). On x86 stores are not reordered; on arm64
+nothing orders the Normal-memory descriptor stores before the Device-memory
+doorbell store, so the ASIC can fetch a descriptor that is not fully
+written. The RX refill paths have the same gap (their smp_mb() sits before
+the descriptor writes, and smp_mb() is dmb ish, which does not order
+against MMIO anyway). wmb() is what writel() would have provided.
+
+Observed on the CS8210-32X (Alpine v3, 2026-11-10): CPU TX on a 10G port
+above ~300 Mb/s stops forever with the hardware TXQ_3_DESC_CIDX stuck
+(0xcc) while PIDX advances; only re-initialising the ring recovers.
+
+diff -ru a/inno_enet.c b/inno_enet.c
+--- a/inno_enet.c	2026-11-10 22:47:50.502180932 -0800
++++ b/inno_enet.c	2026-11-10 22:47:59.218290441 -0800
+@@ -549,6 +549,8 @@
+     tx_ring->pidx = pidx;
+ 
+     /* Write the new PIDX to kickstart the DMA engine */
++    /* arm64: descriptor stores must be visible before the doorbell */
++    wmb();
+     REG32(TXQ_x_DESC_PIDX(tx_ring->num)) = tx_ring->pidx;
+ 
+     spin_unlock_irqrestore(&idev->lock, lock_flags);
+@@ -1867,6 +1869,8 @@
+                     (uint32_t)(dma->dma_addr & 0x00000000ffffffff);
+                 RING_IDX_INCR(rx->count, rx->pidx);
+                 rxq_pidx.flds.num_f = rx->pidx;
++                /* arm64: descriptor stores must be visible before the doorbell */
++                wmb();
+                 REG32(RXQ_x_DESC_PIDX(ring_num)) = rxq_pidx.data;
+             }
+         }
+diff -ru a/ipd_main.c b/ipd_main.c
+--- a/ipd_main.c	2026-11-10 22:47:50.509181020 -0800
++++ b/ipd_main.c	2026-11-10 22:47:59.219290454 -0800
+@@ -776,6 +776,8 @@
+             }
+             RING_IDX_INCR(rx->count, pidx);
+             rxq_pidx.flds.num_f = pidx;
++            /* arm64: descriptor stores must be visible before the doorbell */
++            wmb();
+             REG32(RXQ_x_DESC_PIDX(ring_num)) = rxq_pidx.data;
+         }
+     }
