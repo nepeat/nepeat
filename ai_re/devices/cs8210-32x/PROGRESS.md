@@ -80,6 +80,49 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (t) — LACP bond over enp0s1 + all front-panel ports (networkd); three blockers fixed
+
+User request: LACP over every front-panel port and the management port.
+- **networkd instead of scripted networking/dhcpcd:** fpp* exist only while
+  the SDK runs and are re-created on every restart, and networkd enslaves
+  them whenever they appear. `bond0`: 802.3ad, lacp_rate fast,
+  ad_select=bandwidth, layer3+4 hashing, miimon 100 ms; members `enp0s1
+  fpp*`. DHCP and RA on bond0, DHCP client id = MAC. inno_* and enp0s3
+  stay unmanaged. wait-online is disabled. The dhcpcd LogLevelMax override
+  is now conditional on dhcpcd being enabled.
+- **Blocker 1, ASIC MAC filtering (V):** with a random bond MAC, DHCP
+  (broadcast) worked but ARP replies and ping did not. The ASIC traps
+  unicast to the CPU only for MACs the SDK programmed: the base MAC
+  `0e:48:c6:7a:55:ce` (ONIE MAC#1Base with first byte + 2) and the per-port
+  fpp MACs. Both the base MAC and fpp17-1's MAC tested OK, so bond0 is
+  pinned to the base MAC. The bond got 10.60.30.179 again on Unifi port 7's
+  VLAN.
+- **Blocker 2, al_eth reopen bug (V, fixed in tree):** enp0s1 could not be
+  opened again after a close with no cable (`bad speed parameter (-1)`,
+  `al_eth_hw_init failed to configure link parameters`), which also
+  happens with a plain `ip link set up`, no bond needed. phylib leaves
+  SPEED_UNKNOWN and the HAL rejects it. `al_eth_hw_init` now programs a
+  1G/full placeholder when the speed is unknown, and adjust_link reprograms
+  the MAC on link-up. The "link config" message went from err to dbg.
+  After an `al_eth` reload, enp0s1 enslaves fine (cable still unplugged).
+- **Blocker 3, no ethtool on ipd (V, fixed):** bonding read no
+  duplex/speed, so 802.3ad disabled LACP on every fpp (actor key 0) and
+  ad_select=bandwidth would rate them 0 Mb/s. New
+  `ipd-ethtool-link-ksettings.patch`: get reports full duplex plus a speed
+  stored by `ethtool -s <dev> speed N duplex full autoneg off`; set raises
+  NETDEV_CHANGE. `cs8210-switch-up` sets every fpp's speed from the same
+  port spec the ASIC got. Result: fpp17-1 Speed 10000 / Full, actor key 15,
+  port state 0x4f (active, fast, aggregatable, in sync, *defaulted*).
+- **Still open:** Partner MAC 00:00:… means no LACPDU from the Unifi yet.
+  Port 7 is not an aggregate on the Unifi side, so the bond runs it as an
+  individual link. Whether LACPDUs (01:80:c2:00:00:02) reach the CPU is
+  untested until the Unifi speaks LACP. The bond's 802.3ad system MAC still
+  shows the random a6:78:… captured at bond creation (cosmetic; it changes
+  when the bond is re-created).
+- Side effect: every activation that changes `system.path` restarts
+  cs8210-switch (its unit PATH includes the system path), so deploys reset
+  the chip. Worth narrowing.
+
 ### 2026-11-10 (s) — CPU TX stall root-caused to the ipd TX ring, fixed with a doorbell barrier
 
 **Symptom ((r)):** CPU TX on fpp17-1 stops for good under load. Reproducible
