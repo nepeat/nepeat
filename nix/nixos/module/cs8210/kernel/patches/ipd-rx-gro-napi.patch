@@ -1,0 +1,69 @@
+ipd: CPU RX throughput: GRO, NAPI weight 64, one CIDX MMIO read per batch
+
+CPU RX (ASIC CPU port -> Linux) tops out around 400-430 Mb/s single stream
+(iperf3 desktop -> switch, 65-69 retransmits) while the box is ~93% idle,
+i.e. one core in softirq is the limit.  TX on the same path does 1.07 Gb/s.
+
+Found by reading inno_rx_ring_poll()/inno_ring_poll() (not yet measured on
+hardware, the switch was unreachable while this was written):
+
+ * Every frame is handed up with netif_receive_skb() as CHECKSUM_NONE.
+   There is no GRO, so each 1500-byte segment takes a full IP/TCP stack
+   traversal and generates its own ACK work.  Use napi_gro_receive(); the
+   skb is already header-linear (<=256 bytes) + page frag, which is what
+   GRO wants.
+ * The NAPI weight is 8.  Each poll invocation carries fixed costs (a
+   REG32(SYNC_MODE) PCIe read, TX ring reap, the refill loop, napi_lock),
+   so they were paid every 8 packets.  Use NAPI_POLL_WEIGHT (64).
+ * The RX loop re-read RXQ_x_DESC_CIDX over PCIe MMIO after every packet.
+   Re-read it only when the previously read batch has been consumed; the
+   value comes from the same register, just less often.
+
+Not changed here: per-descriptor alloc_page + dma_map_page refill with one
+PIDX doorbell per page, single RX interrupt/NAPI context for all rings.
+
+--- a/inno_enet.c
++++ b/inno_enet.c
+@@ -1633,11 +1633,10 @@
+ #endif
+                 }
+                 else {
+-                    ret = netif_receive_skb(skb); /* Send the pkt out the xface */
+-                    if (ret != NET_RX_SUCCESS){
+-                        ndev->stats.rx_dropped++;
+-                        ipd_debug("netif_receive_skb failed wth error %d\n",ret);
+-                    }
++                    /* GRO: the ASIC gives no RX checksum/LRO, so without
++                     * this every MTU frame walks the stack on its own */
++                    (void) ret;
++                    napi_gro_receive(napi, skb);
+                     ndev->stats.rx_packets++;
+                     ndev->stats.rx_bytes += total_len;
+                 }
+@@ -1699,8 +1698,12 @@
+             }
+             need_release = 0;
+         }
+-        /* Update the posted_cidx */
+-        posted_cidx = REG32(RXQ_x_DESC_CIDX(rx->num));
++        /* Update the posted_cidx.  This is a PCIe MMIO read (a full
++         * round trip); only pay for it once the batch already seen is
++         * consumed rather than once per packet. */
++        if (rx->cidx == posted_cidx) {
++            posted_cidx = REG32(RXQ_x_DESC_CIDX(rx->num));
++        }
+     } /* while current cidx != posted cidx */
+ 
+     rxq_cidx.flds.num_f = rx->cidx;
+@@ -2007,9 +2010,9 @@
+ 
+     /* Set up the NAPI polling */
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
+-    netif_napi_add(idev->ndev, &idev->napi, inno_ring_poll, 8);
++    netif_napi_add(idev->ndev, &idev->napi, inno_ring_poll, NAPI_POLL_WEIGHT);
+ #else
+-    netif_napi_add_weight(idev->ndev, &idev->napi, inno_ring_poll, 8);
++    netif_napi_add_weight(idev->ndev, &idev->napi, inno_ring_poll, NAPI_POLL_WEIGHT);
+ #endif
+ 
+     napi_enable(&idev->napi);

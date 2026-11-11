@@ -46,18 +46,15 @@
     '';
   };
 
-  # One LACP bond over the management port and every front-panel port.
-  # systemd-networkd, not scripted networking: fpp* only exist while
-  # cs8210-switch runs (and are re-created on every SDK restart), and
-  # networkd enslaves them whenever they appear. inno_* (SDK-internal) and
-  # enp0s3 (the CPU card's link to ASIC devport 129) stay unmanaged.
-  #
-  # Links that negotiate with the same partner form one aggregator. Links
-  # with different speeds or partners form separate aggregators, and
-  # ad_select=bandwidth keeps the fastest one active. So with the SDK up,
-  # front-panel links carry traffic; with it down (or wedged and its links
-  # dropped), the bond falls back to enp0s1. A link with no LACP partner
-  # still works as an individual one-link aggregator.
+  # Networking with systemd-networkd (fpp* only exist while cs8210-switch
+  # runs and are re-created on every SDK restart; networkd picks them up
+  # whenever they appear, scripted networking/dhcpcd cannot).
+  #   * enp0s1 (management): plain DHCP on its own MAC, as before.
+  #   * bond0: an 802.3ad test LAG over front-panel cage 17 only (fpp17 in
+  #     1-port mode, fpp17-1..4 as a 4x10G breakout; see innoviumPorts).
+  #     A link with no LACP partner still works as an individual link.
+  #   * Every other fpp*, inno_* (SDK-internal) and enp0s3 (the CPU card's
+  #     link to ASIC devport 129) stay unmanaged.
   #
   # Bond MAC: the ASIC only traps unicast to the CPU for MACs the SDK
   # programmed as its own: the base MAC passed to auto_load_user.sh -a (ONIE
@@ -65,17 +62,39 @@
   # fpp MACs (base + n). Unicast to any other MAC (e.g. a random bond MAC) is
   # switched or dropped by the ASIC and never reaches Linux; broadcast and
   # multicast still do, so DHCP looks fine while ARP/ping fail (2026-11-10).
-  # The base MAC works on the front panel (tested) and on enp0s1. ipd's
-  # set_mac is software-only, so the bonding MAC rewrite of fpp* is harmless.
-  # DHCP client id = MAC, so the lease follows this MAC on whichever
-  # aggregator is active.
+  # ipd's set_mac is software-only, so the bonding MAC rewrite of fpp17* is
+  # harmless.
   networking.useDHCP = false;
   networking.useNetworkd = true;
   systemd.network = {
     enable = true;
     # Nothing here should hold up boot for a cable.
     wait-online.enable = false;
-    netdevs."10-bond0" = {
+    networks."10-enp0s1" = {
+      matchConfig.Name = "enp0s1";
+      networkConfig = {
+        DHCP = "yes";
+        IPv6AcceptRA = true;
+      };
+      dhcpV4Config.ClientIdentifier = "mac";
+    };
+    # bond0 lives in its own VRF so the front-panel test path has its own
+    # routing table (its DHCP default route) and is not answered through
+    # enp0s1's default route. tcp/udp_l3mdev_accept (below) lets sshd and
+    # other default-VRF listeners accept connections arriving in the VRF.
+    # Run clients in it with `ip vrf exec vrf-fp <cmd>`.
+    netdevs."15-vrf-fp" = {
+      netdevConfig = {
+        Kind = "vrf";
+        Name = "vrf-fp";
+      };
+      vrfConfig.Table = 100;
+    };
+    networks."15-vrf-fp" = {
+      matchConfig.Name = "vrf-fp";
+      linkConfig.RequiredForOnline = "no";
+    };
+    netdevs."20-bond0" = {
       netdevConfig = {
         Kind = "bond";
         Name = "bond0";
@@ -84,25 +103,34 @@
       bondConfig = {
         Mode = "802.3ad";
         LACPTransmitRate = "fast";
-        AdSelect = "bandwidth";
         TransmitHashPolicy = "layer3+4";
         MIIMonitorSec = "100ms";
       };
     };
     networks."20-bond0-members" = {
-      matchConfig.Name = "enp0s1 fpp*";
+      matchConfig.Name = "fpp17 fpp17-*";
       networkConfig.Bond = "bond0";
+      # Members must carry the bond MAC: replies to it arriving on a member
+      # that kept its own fpp MAC are classed PACKET_OTHERHOST and dropped
+      # before the bond sees them. Bonding did not always rewrite it after an
+      # SDK restart (2026-11-10), so set it here.
+      linkConfig.MACAddress = "0e:48:c6:7a:55:ce";
     };
     networks."30-bond0" = {
       matchConfig.Name = "bond0";
       networkConfig = {
+        VRF = "vrf-fp";
         DHCP = "yes";
         IPv6AcceptRA = true;
         LinkLocalAddressing = "ipv6";
       };
       dhcpV4Config.ClientIdentifier = "mac";
-      linkConfig.RequiredForOnline = "carrier";
     };
+  };
+
+  boot.kernel.sysctl = {
+    "net.ipv4.tcp_l3mdev_accept" = 1;
+    "net.ipv4.udp_l3mdev_accept" = 1;
   };
 
   # Bring-up convenience: the serial console is the only way in until al_eth
