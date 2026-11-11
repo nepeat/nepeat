@@ -40,6 +40,13 @@ let
     # ethtool speed/duplex so 802.3ad bonding can use the fpp ports.
     ./kernel/patches/ipd-ethtool-link-ksettings.patch
     ./kernel/patches/ipd-rx-gro-napi.patch
+    # Round-2 performance patches (Fable, 2026-11-11) are NOT applied:
+    #   ipd-tx-flow-control-napi.patch, ipd-rx-page-pool-refill.patch,
+    #   ipd-tx-sg-gso-optin.patch
+    # They gave 2.2-2.3 Gb/s each way, but an SDK restart under traffic
+    # soft-locked CPU 0 in the SDK's PORT_BRUP thread holding rtnl (hard
+    # power-off needed), most likely the ring teardown/re-init path. Keep
+    # them out until that is understood. See PROGRESS 2026-11-11 (z).
   ];
 
   kernel =
