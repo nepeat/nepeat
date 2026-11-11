@@ -80,6 +80,29 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (q) — management over the front panel: DHCP, ping, ssh via fpp17-1
+
+At ~22:18 the user unplugged the management port (enp0s1 link down), and
+fpp17-1 was configured from the serial console.
+- `dhcpcd -4 -1 fpp17-1` at first only sent the request to the running
+  dhcpcd service, which ignores fpp*. After `systemctl stop dhcpcd`, a
+  standalone one-shot instance leased **10.60.30.179/24** from 10.60.30.1,
+  with a default route via 10.60.30.1 (V). So the CPU path carries
+  broadcast and unicast both ways, not only LLDP.
+- Ping from the switch: gateway 10.60.30.1 0/3 lost, Unifi 10.60.30.52 0/3
+  lost, 1.1.1.1 0/3 lost (~11 ms). ARP resolved for both neighbours.
+- From sea420-desktop (10.60.2.x, routed): ping 0/3 lost (0.19 ms), and
+  **ssh root@10.60.30.179 works** (V). fpp17-1 counters at that point: TX
+  64 packets / 0 errors, RX 19,762 (19,047 dropped by the kernel: LAN
+  broadcast and multicast).
+- The state is hand-made and does not survive a reboot or an SDK restart.
+  The dhcpcd service is stopped, and the one-shot lease (24 h) is not
+  renewed. To go back: `systemctl start dhcpcd` once enp0s1 is plugged in
+  again. To make it permanent, add fpp17-1 to the NixOS network config;
+  but the netdev exists only while cs8210-switch runs, and the SDK learn
+  thread still wedges every 5-10 h, so keep the serial console or enp0s1
+  as the fallback.
+
 ### 2026-11-10 (p) — first link: cage 17 at 10G to the USW Pro Aggregation, LLDP both ways
 
 The far end of the cage-17 DAC is SFP+ port 7 of a Unifi USW Pro Aggregation.
