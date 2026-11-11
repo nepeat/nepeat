@@ -80,6 +80,44 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (u) — LACP narrowed to cage 17 (SFP28 breakout), VRF, I2C on the breakout, RX 4x (Fable patch)
+
+- The user meant LACP on **cage 17 only**: bond0 members are now `fpp17
+  fpp17-*`. enp0s1 is back to plain DHCP on its own MAC (10.60.2.190). The
+  other fpp* are unmanaged again.
+- **VRF:** bond0 is in `vrf-fp` (table 100) so the front-panel path has its
+  own default route, and replies don't go out via enp0s1.
+  `net.ipv4.{tcp,udp}_l3mdev_accept=1` lets sshd and iperf3 in the default
+  VRF answer on bond0. Clients: `ip vrf exec vrf-fp …`.
+- **Cable:** the user swapped to an FS QSFP28→4×SFP28 breakout, with legs 1
+  and 2 to the Unifi. **I2C (V):** present bit 16 only, and `cs8210-qsfp
+  --info 17` decodes SFF-8636: id 0x11 QSFP28, PN `QSFP-4SFP25-CU3M` rev 5,
+  date 2026-06-27, page 0. Only the QSFP head's EEPROM is reachable from
+  our side; each SFP28 leg's EEPROM is read by the Unifi. Legs: fpp17-1
+  and fpp17-2 LOWER_UP, 17-3/4 down (not connected).
+- **LACP with the Unifi (V):** Partner MAC 78:45:58:bd:a4:29 (the Unifi), so
+  LACPDUs reach the CPU and the bond negotiates.
+- **Still broken: member MAC.** After an SDK/ipd restart the fpp17-*
+  members keep their own fpp MACs (…:df/…:e0) instead of the bond MAC, and
+  replies to the bond MAC are then dropped as PACKET_OTHERHOST. The
+  networkd `[Link] MACAddress=` pin in the member .network did *not* fix
+  it. Workaround used: `ip link set fpp17-N address 0e:48:c6:7a:55:ce` by
+  hand. Proper fix TBD (find who resets it: SDK ioctl vs bonding; or set it
+  in cs8210-switch-up after the SDK is up).
+- Unifi side: lane 2 received ~30k frames/s and enp0s1 ~5k pkt/s of
+  flooding while the legs weren't aggregated. ASIC TX on both lanes stayed
+  tiny (490 / 135 frames total), so the switch is not looping anything.
+- **RX throughput (Fable 5.2 patch `ipd-rx-gro-napi.patch`):**
+  `napi_gro_receive` instead of `netif_receive_skb`, NAPI weight 8 → 64,
+  and RXQ CIDX MMIO re-read once per batch instead of once per packet.
+  Deployed with an ipd reload. **desktop → switch: 1.69 Gb/s single
+  stream** (was 396-429 Mb/s), 1.64 Gb/s with -P4; TX 996 Mb/s. RX-0 ring:
+  2.94M packets, 0 drops. No "No vlan tag action" messages. Known side
+  effect: `rx_dropped` is no longer counted on the GRO path.
+- The management port briefly could not ARP its gateway with a static
+  address while networkd was stopped. It got 10.60.2.190 by DHCP once
+  networkd ran with the new config. Not investigated further.
+
 ### 2026-11-10 (t) — LACP bond over enp0s1 + all front-panel ports (networkd); three blockers fixed
 
 User request: LACP over every front-panel port and the management port.
