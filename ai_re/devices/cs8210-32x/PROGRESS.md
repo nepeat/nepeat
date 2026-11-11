@@ -97,6 +97,15 @@ The user fitted a QSA in port 17 holding an FS 10G SFP+ passive DAC (3 m).
 - `cs8210-qsfp --info` printed a wrong "byte 127 != 0, re-run with --page 0"
   note for SFPs, and it had no SFF-8472 decode. Both fixed in the nix tree
   (tested offline on the captured bytes; not deployed yet).
+- **SDK learn thread wedged a third time** at 21:49:51 PST, 5.6 h after the
+  16:11 restart. Same signature: 32 GiB `ifcs-learn` allocation, then
+  "Learn WB w/o expected SOP", with ifcs-learn spinning at ~99% of one core.
+  The containment from (n) held: /run at 1%, SDK tmpfs at 14%, logtrim
+  dropping ~22 MB/s. Root-port AER bits are the same as the earlier capture,
+  so they don't date it. The "timer callback took longer" lags (up to 3.5 s)
+  also occur well before the wedge, so they are not a precursor. Whether the
+  module insertion was near 21:49 is not known; the FPGA keeps no timestamp.
+  Evidence: `analysis/research/ifcs-log-20261110/live/wedge3-2149.txt` (local).
 - Not done yet: link. The far end of the DAC and the SDK port config (port
   17 is a 400G port behind no Credo PHY; a QSA needs it set to 1x10G) are
   the next step.
