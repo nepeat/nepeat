@@ -112,16 +112,18 @@ set_speeds() {
 # fpp*, but the SDK assigns its own per-port MAC ~50 ms *after* the rename
 # (ip monitor, 2026-11-10), overwriting the bond MAC. By the time
 # auto_load_user.sh has returned that is done, so put the bond MAC back.
-# The bond's DHCP client already tried during that window, lost the replies
-# and sits in retry backoff (no lease minutes later), so restart networkd's
-# configuration of each bond we had to fix.
+# The bond's DHCP client already tried during that window (or while the
+# Credo double CRC below still corrupted every received frame), lost the
+# replies and sits in retry backoff (no lease minutes later), so restart
+# networkd's configuration of every bond with fpp members.
 sync_bond_macs() {
   local d dev master want
-  local -A fixed=()
+  local -A fixed=() bonds=()
   for d in /sys/class/net/fpp*; do
     [ -e "$d/master/bonding" ] || continue
     dev=${d##*/}
     master=$(readlink -f "$d/master")
+    bonds[${master##*/}]=1
     want=$(cat "$master/address")
     [ "$(cat "$d/address")" = "$want" ] && continue
     if ip link set dev "$dev" address "$want"; then
@@ -130,9 +132,9 @@ sync_bond_macs() {
       echo "cs8210-switch-up: could not set $dev to bond MAC $want" >&2
     fi
   done
-  if ((${#fixed[@]})) && systemctl -q is-active systemd-networkd; then
-    networkctl reconfigure "${!fixed[@]}" ||
-      echo "cs8210-switch-up: networkctl reconfigure ${!fixed[*]} failed" >&2
+  if ((${#bonds[@]})) && systemctl -q is-active systemd-networkd; then
+    networkctl reconfigure "${!bonds[@]}" ||
+      echo "cs8210-switch-up: networkctl reconfigure ${!bonds[*]} failed" >&2
   fi
 }
 
@@ -143,6 +145,18 @@ cs8210-sdk-chroot /bin/bash -c "
   cd $SDK
   ./auto_load_user.sh -m '$innv' -k $macarg -d
   ./c-phy/auto_load_user.sh -m '$credo' -e $MACSEC -l
+  # The Credo loader writes 'double_CRC ... enable=1' for every port, also in
+  # MACsec bypass. In bypass every frame the PHY passes to the ASIC then
+  # fails the ASIC's FCS check (100% rx_frames_err_crc with a clean PCS;
+  # 10G breakout on cage 2, 2026-11-11), and with it off frames pass. Turn it
+  # off for each port the loader configured. Revisit for real MACsec.
+  if [ '$MACSEC' = macsecbypass ]; then
+    sed -n 's/^double_CRC \(slice_id=[0-9]* port=[0-9]*\) enable=1\$/\1/p' c-phy/dynamic_config.txt |
+      while read -r s p; do
+        (cd c-phy && ./phy_shell \"double_CRC \$s \$p enable=0\" >/dev/null) ||
+          echo \"cs8210-switch-up: double_CRC off failed for \$s \$p\" >&2
+      done
+  fi
   # devport 129: the 10G AUX lane wired to the CPU card's second NIC
   # (enp0s3). The vendor config defines it but leaves it disabled.
   ./cls_shell 'port enable 129' >/dev/null
