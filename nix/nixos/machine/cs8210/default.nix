@@ -29,6 +29,12 @@
 
   image.baseName = "nixos-cs8210";
 
+  # Cage 17 holds a QSA with a 10G SFP+ DAC to the lab aggregation switch
+  # (2026-11-10). 4x10G breakout; the QSA carries lane 1 (the first of the
+  # four logical ports on cage 17). Everything else stays 1x400G.
+  hardware.cs8210.vendorSdk.innoviumPorts =
+    "1-16:copper_1x400G:fec-def;17:copper_4x10G:fec-def;18-32:optics_1x400G:fec-def";
+
   sdImage = {
     compressImage = false;
     firmwareSize = 16;

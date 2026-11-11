@@ -44,6 +44,11 @@ case "$MODE" in
   *) echo "unknown port mode $MODE" >&2; exit 2 ;;
 esac
 innv="1-16:copper_${media}:fec-def;17-32:optics_${media}:fec-def"
+# Per-port override of the ASIC side, in the vendor dynamic_config.sh syntax,
+# e.g. "1-16:copper_1x400G:fec-def;17:copper_4x10G;18-32:optics_1x400G:fec-def"
+# for a QSA + 10G SFP+ DAC in cage 17. Breakouts add logical ports, so the
+# devport (and fpp) numbers after a breakout shift. The Credo side keeps $media.
+innv=${CS8210_INNV_PORTS:-$innv}
 credo="1-32:optics_${media}:fec-def"
 
 if [ ! -c /dev/ipd ]; then
