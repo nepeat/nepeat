@@ -50,7 +50,8 @@ chroot against Marvell's open-source `ipd` driver (legacy-ABI patch), 32
 front-panel netdevs `fpp1`..`fpp32`, Credo MACsec PHYs on ports 1-16 with
 firmware loaded, in MACsec bypass.**
 Fans temperature-controlled including the ASIC die (about 55% at idle).
-Not working / unproven: any link or traffic (no optics yet), Linux offload,
+**First link 2026-11-10: cage 17 (QSA + 10G DAC) up at 10G, LLDP received from the neighbour (entry (p)).**
+Not working / unproven: 400G links, forwarding between ports, TX traffic beyond LLDP, Linux offload,
 real MACsec keying, aux SPI flash, second NIC.
 Config: `nepeat/nix`, flake output `cs8210`. The vendor userland lives only on
 the switch (`/var/lib/cs8210-sdk/root`). ONIE in SPI flash is intact and is
@@ -78,6 +79,34 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-10 (p) — first link: cage 17 at 10G to the USW Pro Aggregation, LLDP both ways
+
+The far end of the cage-17 DAC is SFP+ port 7 of a Unifi USW Pro Aggregation.
+The user plugged it in at about 22:00, after the 21:49 wedge, so module
+insertion did not trigger that wedge.
+- New option `hardware.cs8210.vendorSdk.innoviumPorts` (env
+  `CS8210_INNV_PORTS` for `cs8210-switch-up`). It overrides the uniform
+  ASIC port spec, written in the vendor `dynamic_config.sh` syntax. The
+  machine config sets
+  `1-16:copper_1x400G:fec-def;17:copper_4x10G:fec-def;18-32:optics_1x400G:fec-def`.
+  Before deploying, a dry run of `dynamic_config.sh` in the chroot gave 35
+  eth devports. Cage 17 becomes devports 17-20 (ISG15 lanes 0-3, 10G, FEC
+  NONE, the vendor's NRZ 10G DAC preemphasis table), and cage 18 moves to
+  devport 21. The knet netdevs are named by cage: `fpp17-1`..`fpp17-4`,
+  while `fpp18`..`fpp32` keep their names.
+- Deployed with `switch` (no reboot), which also clears the wedged SDK:
+  cs8210-switch restarted, chip reset, bring-up ~1 min. The same deploy
+  carries the six Fable-review fixes and the SFF-8472 decoder.
+- **`fpp17-1` UP / LOWER_UP right after bring-up (V).** `ifcs show devport
+  17`: speed 10G, link_status UP, oper_state LINK_UP, pcs_status 1, local
+  and remote fault 0, FEC NONE, no AN or link training.
+- **LLDP (V):** lldpd on fpp17-1 sees chassis `USWProAggregation`
+  (USW-Pro-Aggregation 7.5.15), port "Port 7" / "SFP_ 7". That is RX
+  through the ASIC, the ipd CPU path and knet. TX counter: 6 packets (our
+  LLDP frames). Whether the Unifi lists us has not been checked from its
+  side. RX: 3,902 packets, of which 3,761 were dropped by the kernel (LAN
+  broadcast/multicast with no host config on the netdev); 0 errors.
 
 ### 2026-11-10 (o) — first module: QSA + FS 10G DAC in cage 17 reads through the FPGA
 
