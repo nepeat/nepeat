@@ -140,8 +140,9 @@ in
     # Not started at boot on purpose while this is experimental:
     #   systemctl start cs8210-switch
     # Note: once the ASIC is initialised the system CPLD forces the fans to
-    # full speed (reg 0x05 bits 7/5 clear) and there is no ASIC die
-    # temperature reading on mainline yet, so leave that alone.
+    # full speed (reg 0x05 bits 7/5 clear). cs8210-fancontrol sets those
+    # bits again while it has a valid ASIC die temperature (see
+    # ../fan-control/fancontrol.py); without that daemon the fans stay at full.
     systemd.services.cs8210-switch = {
       description = "CS8210 switch ASIC + Credo PHY bring-up (vendor SDK in chroot)";
       after = [ "systemd-modules-load.service" "network-pre.target" ];
