@@ -161,12 +161,29 @@ def main():
             sys_bus.write_byte_data(SYS_CPLD, REG_FAN_MAX, new)
         return cur
 
+    def fail_safe(rearm_watchdog=False):
+        # Each route to full speed sits on a different I2C bus (system CPLD,
+        # top fan board, bottom fan board). Try them all: one bus failing
+        # must not skip the others.
+        steps = [("system CPLD force-max", lambda: force_max(True))]
+        for name, bus in fans.buses.items():
+            def board(bus=bus):
+                for reg in PWM_REGS:
+                    bus.write_byte_data(FAN_CPLD, reg, 255)
+                if rearm_watchdog:
+                    cur = bus.read_byte_data(FAN_CPLD, REG_WDT)
+                    bus.write_byte_data(FAN_CPLD, REG_WDT, cur | 1)
+            steps.append((f"{name} fan board", board))
+        for what, step in steps:
+            try:
+                step()
+            except Exception as ex:
+                log(f"could not set full speed via {what}: {ex!r}")
+
     def full_speed(*_):
         try:
-            fans.set_pwm(255)
-            fans.watchdog(True)
-            force_max(True)
-            log("fans set to full speed, CPLD forced max and watchdog re-armed")
+            fail_safe(rearm_watchdog=True)
+            log("exiting: asked for full speed, CPLD forced max and watchdog re-armed")
         finally:
             sys.exit(0)
 
@@ -204,11 +221,7 @@ def main():
                 current = pwm
         except Exception as ex:  # fail safe: loud beats cooked
             log(f"error: {ex!r}; forcing full speed")
-            try:
-                fans.set_pwm(255)
-                force_max(True)
-            except Exception as ex2:
-                log(f"could not set full speed: {ex2!r}")
+            fail_safe()
             current = None
             asic_ref = None
         if a.once:
