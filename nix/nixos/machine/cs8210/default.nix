@@ -110,10 +110,10 @@
     networks."20-bond0-members" = {
       matchConfig.Name = "fpp17 fpp17-*";
       networkConfig.Bond = "bond0";
-      # Members must carry the bond MAC: replies to it arriving on a member
-      # that kept its own fpp MAC are classed PACKET_OTHERHOST and dropped
-      # before the bond sees them. Bonding did not always rewrite it after an
-      # SDK restart (2026-11-10), so set it here.
+      # Members must carry the bond MAC (else replies are PACKET_OTHERHOST
+      # and dropped). This pin alone is not enough: the SDK overwrites the
+      # MAC ~50 ms after networkd enslaves the new fpp netdev, so
+      # cs8210-switch-up (sync_bond_macs) puts it back once the SDK is up.
       linkConfig.MACAddress = "0e:48:c6:7a:55:ce";
     };
     networks."30-bond0" = {
