@@ -128,6 +128,17 @@ in
 {
   options.hardware.cs8210.vendorSdk = {
     enable = lib.mkEnableOption "kernel driver and glue for running the vendor Innovium/Credo SDK userland";
+    credoPorts = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "1:optics_1x400G;2:copper_4x10G;3-32:optics_1x400G";
+      description = ''
+        Credo PHY port spec for the vendor c-phy/auto_load_user.sh -m,
+        replacing the uniform one cs8210-switch-up derives from its port
+        mode. Ports 1-16 are behind the Credo PHYs; a breakout there needs
+        the same mode here and in innoviumPorts.
+      '';
+    };
     innoviumPorts = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
@@ -157,9 +168,13 @@ in
       description = "CS8210 switch ASIC + Credo PHY bring-up (vendor SDK in chroot)";
       after = [ "systemd-modules-load.service" "network-pre.target" ];
       path = [ chroot switchUp config.system.path ];
-      environment = lib.optionalAttrs (cfg.innoviumPorts != null) {
-        CS8210_INNV_PORTS = cfg.innoviumPorts;
-      };
+      environment =
+        lib.optionalAttrs (cfg.innoviumPorts != null) {
+          CS8210_INNV_PORTS = cfg.innoviumPorts;
+        }
+        // lib.optionalAttrs (cfg.credoPorts != null) {
+          CS8210_CREDO_PORTS = cfg.credoPorts;
+        };
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;

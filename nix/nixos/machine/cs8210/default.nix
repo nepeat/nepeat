@@ -29,11 +29,13 @@
 
   image.baseName = "nixos-cs8210";
 
-  # Cage 17 holds a QSA with a 10G SFP+ DAC to the lab aggregation switch
-  # (2026-11-10). 4x10G breakout; the QSA carries lane 1 (the first of the
-  # four logical ports on cage 17). Everything else stays 1x400G.
+  # Cage 2 holds an FS QSFP28->4xSFP28 breakout DAC to the lab aggregation
+  # switch (2026-11-11; it was in cage 17 before). 4x10G on the ASIC *and* on
+  # the Credo PHY in front of cage 2 (Credo still in MACsec bypass, see
+  # cs8210-switch-up). Everything else stays 1x400G.
   hardware.cs8210.vendorSdk.innoviumPorts =
-    "1-16:copper_1x400G:fec-def;17:copper_4x10G:fec-def;18-32:optics_1x400G:fec-def";
+    "1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def";
+  hardware.cs8210.vendorSdk.credoPorts = "1:optics_1x400G;2:copper_4x10G;3-32:optics_1x400G";
 
   sdImage = {
     compressImage = false;
@@ -50,8 +52,8 @@
   # runs and are re-created on every SDK restart; networkd picks them up
   # whenever they appear, scripted networking/dhcpcd cannot).
   #   * enp0s1 (management): plain DHCP on its own MAC, as before.
-  #   * bond0: an 802.3ad test LAG over front-panel cage 17 only (fpp17 in
-  #     1-port mode, fpp17-1..4 as a 4x10G breakout; see innoviumPorts).
+  #   * bond0: an 802.3ad test LAG over front-panel cage 2 only (fpp2 in
+  #     1-port mode, fpp2-1..4 as a 4x10G breakout; see innoviumPorts).
   #     A link with no LACP partner still works as an individual link.
   #   * Every other fpp*, inno_* (SDK-internal) and enp0s3 (the CPU card's
   #     link to ASIC devport 129) stay unmanaged.
@@ -62,7 +64,7 @@
   # fpp MACs (base + n). Unicast to any other MAC (e.g. a random bond MAC) is
   # switched or dropped by the ASIC and never reaches Linux; broadcast and
   # multicast still do, so DHCP looks fine while ARP/ping fail (2026-11-10).
-  # ipd's set_mac is software-only, so the bonding MAC rewrite of fpp17* is
+  # ipd's set_mac is software-only, so the bonding MAC rewrite of the members is
   # harmless.
   networking.useDHCP = false;
   networking.useNetworkd = true;
@@ -108,7 +110,7 @@
       };
     };
     networks."20-bond0-members" = {
-      matchConfig.Name = "fpp17 fpp17-*";
+      matchConfig.Name = "fpp2 fpp2-*";
       networkConfig.Bond = "bond0";
       # Members must carry the bond MAC (else replies are PACKET_OTHERHOST
       # and dropped). This pin alone is not enough: the SDK overwrites the
