@@ -196,6 +196,50 @@ the FPGA's PCIe logic while it is low, so it is probably a board reset
 input. Together with the I2C pads, every port's six FPGA pins are now
 known.
 
+## What to expect from an empty cage
+
+If the cage has no module, nobody answers on the bus. The simulation
+predicts exactly what the CPU sees (details and all register values in
+`SIM.md`, "Hardware comparison"):
+
+- On the wires: a START, the address byte 0xA0 (module 0x50, write) with no
+  answer, a STOP. Nothing else, also not for a write.
+- The busy bit (`cb+0x54` bit 31) goes back to 0 about 31 us after the
+  start; the vendor driver sleeps 1-2 ms before it looks, so it never sees
+  "busy".
+- Status `cb+0x60` reads 0x00000002 ("the module did not answer"); the
+  driver turns that into the error -ENXIO.
+- The data window is not touched: it still holds whatever an earlier
+  transfer left there.
+
+The simulation also reads the FPGA version register as 0x010b0009, the
+value the real switch reports, which is a good sign that the recovered
+design is the one running on the switch.
+
+## Behaviour in unusual cases (simulation)
+
+- **A slow module may hold the clock** ("clock stretching"): the FPGA waits.
+  If the module holds the clock for more than about 1 ms, the FPGA gives up,
+  ends the transfer and reports the same error as "no answer".
+- **A module that refuses a data byte during a write is not noticed.** Only
+  a refused address byte or register-offset byte counts as an error; a
+  refused data byte is ignored and the transfer reports success.
+- **Long reads:** each command pair has 128 bytes of memory, so up to 128
+  bytes can be read at once (the usual EEPROM page size). Asking for more
+  wraps around inside those 128 bytes and overwrites the start. The vendor
+  driver never asks for more than 128.
+- **Two commands at once:** if the second command pair (`0x58`/`0x5C`) is
+  started while the first is running, it simply waits and runs afterwards;
+  each has its own part of the memory and its own status bits.
+- **Reset defaults:** after power-up every module is held in reset (the
+  driver releases them), and writing bit 31 of `cb+0x0C` puts the channel's
+  speed settings back to their power-up values (profile 1 = about 100 kHz)
+  until the driver writes them again.
+- **Module plugged in or pulled out:** the FPGA records it in `0x150` and
+  sends one interrupt to the CPU (if that port is not masked in `0x158`).
+  The record can only be cleared while it is masked; the vendor's interrupt
+  handler masks, clears and unmasks in that order.
+
 ## How the 32 copies differ
 
 - **Which cage.** Decoding each instance's register page gives its driver
@@ -214,9 +258,13 @@ known.
   and a family-B channel were given the same 25 sequences of register
   writes (15 hand-made cases and 10 random ones), and everything that came
   out (every bus event, to the clock cycle, every status and data value)
-  was the same. That is strong evidence, not a proof (no formal equivalence
-  check). So the families are a synthesis choice about where shared logic
-  went, not a different I2C behaviour.
+  was the same. That is strong evidence, not a proof. A formal (mathematical)
+  check of the part of the logic that both families share also worked, but
+  only under assumptions about the signals at its edges; a stricter version
+  found 14 places where the two families wire that part differently, and
+  whether that matters was not settled (`SIM.md`). So the families are most
+  likely a synthesis choice about where shared logic went, not a different
+  I2C behaviour.
 - **Physical placement.** Every copy sits elsewhere on the chip, so its
   wiring, its packing of logic into slices and some optimiser decisions
   differ. Layer 6 records this per copy. The logic that follows the template
@@ -228,10 +276,11 @@ known.
 - Everything above comes from the recovered netlist and a simulation of
   it. None of it has run on the real switch yet; the next real test is one
   register read of a module (the cage tools in `reviews/i2c-fpga/`).
-- Not simulated: a module that stretches the clock, a module that NACKs a
-  data byte, reads longer than 4 bytes, the presence interrupt.
+- Not simulated: a second I2C master on the same bus, and the vendor's
+  other FPGA file.
 - A write with byte count 0 does not stop at zero (probably 256 bytes);
-  the driver never sends that.
+  the driver never sends that. Refused data bytes during a write go
+  unnoticed (see above).
 - The register at `0x68` and command bits 23:16 and 31 have no visible
   effect; their purpose is unknown.
 - Seven input pins showed no effect in the sideband test.

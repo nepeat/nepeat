@@ -208,10 +208,23 @@ seeded random register-write sequences (40 random operations each over the
 whole register page, then a read-back of all 64 register offsets). The bus
 event logs (every START, byte, ACK bit, STOP with its clock cycle), status
 values, read-window data and register read-backs are **identical, cycle for
-cycle, in all 25 runs**. A formal check (yosys equiv/sat) was not done: the
-two templates have different boundaries, so a meaningful miter needs the
-shared core and an address remapping, i.e. a sequential equivalence check
-of the whole 52k-primitive design, which was not attempted.
+cycle, in all 25 runs**.
+
+**Formal check (entry (m), `equivcheck.py`, details in `SIM.md`):** the
+comparable region (fan-in cone of the pad drivers through common elements:
+132 elements, 60 FFs) was compared with yosys (`miter -equiv`, `sat
+-tempinduct`), with the A/B correspondence re-derived from a pad-seeded
+alignment (the template's family map pairs the symmetric pad structures
+crosswise; 43 of its pairs differ from the re-derived ones). Cutting every
+structurally different pin and feeding it the same input on both sides
+(124 pins), the region is **proven** equivalent (induction length 1). Keeping
+the 14 pins whose two drivers are both inside the region but do not
+correspond, the check **fails** (counterexample within 40 steps). So the
+formal result is: the shared elements compute the same functions, but A and
+B wire 14 of their inputs from different flip-flops; whether that is
+compensated (as the co-simulation suggests) is not proven. A whole-design
+miter (two copies of the 52k-primitive design, inputs equal except the TLP
+address page) was not attempted.
 
 What the layer-7 analysis (`CHANNEL.md`) shows about the difference:
 
@@ -294,7 +307,12 @@ session.
   either way.
 - Family A's template boundary still cuts through its divider and profile
   register after growth (see "The two families"); equivalence of A and B is
-  shown by co-simulation only.
+  shown by co-simulation, and formally only for a cut region under explicit
+  assumptions.
+- The template's `family_map_B_to_A` pairs the two pad structures crosswise
+  (the cross-family alignment keeps the larger of the two pad orientations);
+  tools that need the correspondence re-derive it with the pads seeded by
+  role (`equivcheck.py --realign`, `simtb.py`).
 - Ports are design nets, not yet named signals of the core (layer 7 names
   the ones it understands).
 - Only the I2C channels are re-rolled. The sideband IO was mapped per port by

@@ -60,3 +60,34 @@ echo "co-simulation: identical $same, different $diffn"
 echo "== sideband mapping"
 "$S/obj_B/VtbB" +sideband=1 +sbwait=2000 > "$S/sideband.txt" 2>&1
 $PY "$HERE/sbmap.py" "$S/sideband.txt" "$HERE/mtd5/update.channel-map.txt" "$S/port-pins.txt"
+echo "== hardware-comparison and behaviour tests (family B, driver channel 17)"
+T=$S/tests; mkdir -p "$T"
+tests=(
+ "empty_read|+dev=7e +len=1 +off=0 +dumps=1 +pollgap=10 +maxpoll=2000"
+ "empty_write|+dev=7e +rd=0 +len=1 +off=7f +wdat=00000003 +dumps=1 +pollgap=10 +maxpoll=2000"
+ "ok_then_empty|+dev=50 +again=1 +dev2=7e +len=4 +off=10 +wdump=2 +pollgap=10 +maxpoll=4000"
+ "stretch_1000|+len=2 +off=10 +stretch=1000"
+ "stretch_63000|+len=2 +off=10 +stretch=63000 +maxpoll=800"
+ "stretch_64000|+len=2 +off=10 +stretch=64000 +maxpoll=800"
+ "stretch_forever|+len=2 +off=10 +stretch=-1 +maxpoll=20000 +pollgap=50"
+ "stretch_every_byte|+len=2 +off=10 +stretch=500 +stretch_all=1"
+ "nack_offset|+rd=0 +len=2 +off=20 +nackdata=-1 +pollgap=10 +maxpoll=4000"
+ "nack_data1|+rd=0 +len=3 +off=20 +wdat=33221100 +nackdata=1 +pollgap=10 +maxpoll=4000"
+ "nack_data3|+rd=0 +len=3 +off=20 +wdat=33221100 +nackdata=3 +pollgap=10 +maxpoll=4000"
+ "write_window_slot0|+rd=0 +len=4 +off=20 +wfill=1"
+ "write_window_slot1|+rd=0 +len=4 +off=20 +wfill=1 +ctx=1"
+ "read_128|+len=128 +off=0 +pollgap=200 +maxpoll=4000 +wdump=128"
+ "read_255|+len=255 +off=0 +pollgap=200 +maxpoll=4000 +wdump=128"
+ "read_128_slot1|+len=128 +off=0 +ctx=1 +pollgap=200 +maxpoll=4000 +wdump=128"
+ "queue_0_then_1|+off=10 +off2=40 +len=4 +queue=1 +pollgap=10 +maxpoll=8000 +wdump=40"
+ "queue_1_then_0|+ctx=1 +off=10 +off2=40 +len=2 +queue=1 +pollgap=10 +maxpoll=8000"
+ "irq_presence_port18|+irq=1 +irq_in=42 +sbwait=3000"
+)
+: > "$S/tests.txt"
+for s in "${tests[@]}"; do
+  n=${s%%|*}; a=${s#*|}
+  # shellcheck disable=SC2086
+  "$S/obj_B/VtbB" +ch=17 $a > "$T/$n.txt" 2>&1
+  { echo "== $n ($a)"; grep -E "wire|bus: device|NACKs|busy clear|queued|status|irq pins|0x1[45]0|0x158|mask|presence|dump|global|rwin(2)?\[(0|1|31|32|33)\]|after second|TRNRDSTRDY stuck" "$T/$n.txt"; } >> "$S/tests.txt"
+done
+echo "tests: $(grep -c '^== ' "$S/tests.txt") runs, summary in $S/tests.txt"

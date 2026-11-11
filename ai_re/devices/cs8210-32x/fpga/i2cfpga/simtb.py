@@ -109,7 +109,7 @@ def main():
         if p.startswith('pin_'):
             continue
         L.append('  reg %s = %d;' % (p, defaults.get(p, 0)))
-    L.append('  reg dev_sda_low = 0;')
+    L.append('  reg dev_sda_low = 0, dev_scl_low = 0;')
     ibufs = []
     for p in ins:
         if p.startswith('pin_'):
@@ -117,7 +117,7 @@ def main():
             if site == sda:
                 L.append('  wire %s = t_%s & ~dev_sda_low;' % (p, site))
             elif site == scl:
-                L.append('  wire %s = t_%s;' % (p, site))
+                L.append('  wire %s = t_%s & ~dev_scl_low;' % (p, site))
             elif 't_' + site in outs:
                 L.append('  wire %s = t_%s;' % (p, site))
             else:
@@ -220,6 +220,11 @@ TB_BODY = r'''
   reg [7:0] mem [0:255]; integer k; initial for (k = 0; k < 256; k = k + 1) mem[k] = k ^ 8'ha5;
   reg psda = 1, pscl = 1; integer nbit = 0; reg [7:0] sh = 0; integer state = 0;  // 0 idle 1 addr 2 wr 3 rd
   reg [7:0] ptr = 0; reg first = 0; reg ack_phase = 0; reg mack = 0; integer nscl = 0; integer last_rise = 0;
+  integer stretch = 0, stretch_all = 0, stretch_until = 0, nackdata = 0, ndata = 0, nbytes_dev = 0;
+  initial begin void'($value$plusargs("stretch=%d", stretch)); void'($value$plusargs("stretch_all=%d", stretch_all));
+    void'($value$plusargs("nackdata=%d", nackdata)); end
+  always @(posedge clk) if (dev_scl_low && stretch >= 0 && cyc >= stretch_until) begin
+    dev_scl_low = 0; $display("[%0d] bus: device releases SCL", cyc); end
   integer per_sum = 0, per_n = 0, per_min = 1 << 30, per_max = 0;
   always @(posedge clk) begin
     if (scl && !pscl) begin  // SCL rising: sample
@@ -241,14 +246,24 @@ TB_BODY = r'''
           $display("[%0d] bus: address 0x%02x %s -> %s", cyc, sh[7:1], sh[0] ? "R" : "W", (sh[7:1] == dev) ? "ACK" : "NACK");
           if (sh[7:1] == dev) begin dev_sda_low = 1; state = sh[0] ? 3 : 2; first = 1; end else state = 0;
         end else if (state == 2) begin
+          if (!first) ndata = ndata + 1;
+          if ((first && nackdata == -1) || (!first && nackdata > 0 && ndata == nackdata)) begin
+            $display("[%0d] bus: data byte %0d 0x%02x -> device NACKs", cyc, ndata, sh); dev_sda_low = 0; state = 0;
+          end else begin
           $display("[%0d] bus: %s byte 0x%02x -> ACK", cyc, first ? "offset" : "data", sh);
           if (first) begin ptr = sh; first = 0; end else begin mem[ptr] = sh; ptr = ptr + 1; end
           dev_sda_low = 1;
+          end
         end else if (state == 3) begin
           dev_sda_low = 0;   // release for the master's ACK
         end
       end else if (ack_phase) begin
-        ack_phase = 0; nbit = 0;
+        ack_phase = 0; nbit = 0; nbytes_dev = nbytes_dev + 1;
+        if (stretch != 0 && (stretch_all || nbytes_dev == 1)) begin
+          dev_scl_low = 1; stretch_until = cyc + stretch;
+          if (stretch > 0) $display("[%0d] bus: device holds SCL low for %0d clocks", cyc, stretch);
+          else $display("[%0d] bus: device holds SCL low forever", cyc);
+        end
         if (state == 3) begin
           if (!first) begin
             $display("[%0d] bus: read byte 0x%02x, master %s", cyc, mem[ptr - 1], mack ? "NACK" : "ACK");
@@ -261,7 +276,7 @@ TB_BODY = r'''
         dev_sda_low = ~sh[7 - nbit];
       end
     end
-    if (scl && pscl && psda && !sda) begin $display("[%0d] bus: START", cyc); state = 1; nbit = 0; ack_phase = 0; dev_sda_low = 0; end
+    if (scl && pscl && psda && !sda) begin $display("[%0d] bus: START", cyc); state = 1; nbit = 0; ack_phase = 0; dev_sda_low = 0; ndata = 0; nbytes_dev = 0; end
     if (scl && pscl && !psda && sda) begin $display("[%0d] bus: STOP", cyc); state = 0; nbit = 0; dev_sda_low = 0; end
     psda = sda; pscl = scl;
   end
@@ -274,9 +289,26 @@ TB_BODY = r'''
     if (scl && mpscl && !mpsda && sda) begin $display("[%0d] wire: STOP", cyc); mbits = 0; end
     mpsda = sda; mpscl = scl;
   end
+  // ------------------------------------------------------------ helpers for the hardware comparison
+  task dump(input [8*24-1:0] tag, input [31:0] base);
+    reg [31:0] dv; integer o;
+    begin
+      for (o = 0; o <= 'h6c; o = o + 4) begin mrd(base + o, dv); $display("[%0d] dump %0s cb+0x%02x = 0x%08x", cyc, tag, o, dv); end
+    end
+  endtask
+  reg pi_n = 1, pi_a = 1; reg [3:0] pi_di = 0;
+  always @(posedge clk) if (irq) begin
+    if (pcie_CFGINTERRUPTN !== pi_n || pcie_CFGINTERRUPTASSERTN !== pi_a ||
+        {pcie_CFGINTERRUPTDI3, pcie_CFGINTERRUPTDI2, pcie_CFGINTERRUPTDI1, pcie_CFGINTERRUPTDI0} !== pi_di)
+      $display("[%0d] irq pins: CFGINTERRUPTN=%0d CFGINTERRUPTASSERTN=%0d CFGINTERRUPTDI=%x", cyc, pcie_CFGINTERRUPTN,
+               pcie_CFGINTERRUPTASSERTN, {pcie_CFGINTERRUPTDI3, pcie_CFGINTERRUPTDI2, pcie_CFGINTERRUPTDI1, pcie_CFGINTERRUPTDI0});
+    pi_n = pcie_CFGINTERRUPTN; pi_a = pcie_CFGINTERRUPTASSERTN;
+    pi_di = {pcie_CFGINTERRUPTDI3, pcie_CFGINTERRUPTDI2, pcie_CFGINTERRUPTDI1, pcie_CFGINTERRUPTDI0};
+  end
   // ------------------------------------------------------------ scenario
   integer ch = 17, sel = 0, rd = 1, addr = 'h50, len = 4, off = 'h10, i, polls; reg [31:0] v, cb, st;
-  integer maxpoll = 400, pollgap = 500, ctx = 0, wdat = 32'h44332211, settle = 2000, again = 0, dev2 = 'h50, w1c = 0, cmdx = 0, rnd = 0, rnd_n = 40, sideband = 0, sbwait = 3000;
+  integer maxpoll = 400, pollgap = 500, ctx = 0, wdat = 32'h44332211, settle = 2000, again = 0, dev2 = 'h50, w1c = 0, cmdx = 0, rnd = 0, rnd_n = 40, sideband = 0, sbwait = 3000,
+          dumps = 0, wdump = 0, queue = 0, wfill = 0, off2 = 'h40, irq = 0, irq_in = -1, t_start = 0;
   initial begin
     void'($value$plusargs("ch=%d", ch)); void'($value$plusargs("sel=%d", sel)); void'($value$plusargs("rd=%d", rd));
     void'($value$plusargs("addr=%h", addr)); void'($value$plusargs("len=%d", len)); void'($value$plusargs("off=%h", off));
@@ -286,6 +318,8 @@ TB_BODY = r'''
     void'($value$plusargs("again=%d", again)); void'($value$plusargs("dev2=%h", dev2)); void'($value$plusargs("w1c=%h", w1c));
     void'($value$plusargs("cmdx=%h", cmdx)); void'($value$plusargs("rnd=%d", rnd)); void'($value$plusargs("rnd_n=%d", rnd_n));
     void'($value$plusargs("sideband=%d", sideband)); void'($value$plusargs("sbwait=%d", sbwait));
+    void'($value$plusargs("wfill=%d", wfill)); void'($value$plusargs("dumps=%d", dumps)); void'($value$plusargs("wdump=%d", wdump)); void'($value$plusargs("queue=%d", queue));
+    void'($value$plusargs("off2=%h", off2)); void'($value$plusargs("irq=%d", irq)); void'($value$plusargs("irq_in=%d", irq_in));
     cb = 32'h1000 + ch * 32'h100;
     if (sideband) begin : sideband_mode
       integer k, j; reg [31:0] r140, r160, b140, b160; reg [255:0] o0; reg [127:0] pres_mask; pres_mask = 0;
@@ -333,6 +367,37 @@ TB_BODY = r'''
       end
       $finish;
     end
+    if (irq) begin : irq_mode
+      reg [31:0] r;
+      pcie_USERRSTN = 0; repeat (30) @(posedge clk); pcie_USERRSTN = 1; repeat (200) @(posedge clk);
+      mrd('h150, r); $display("[%0d] 0x150 (presence change) at power-up 0x%08x", cyc, r);
+      mrd('h158, r); $display("[%0d] 0x158 (mask) at power-up 0x%08x", cyc, r);
+      mwr('h150, 32'hffff_ffff); mrd('h150, r); $display("[%0d] 0x150 after W1C 0x%08x", cyc, r);
+      mwr('h158, 32'h0000_0000); $display("[%0d] mask cleared (all presence interrupts enabled)", cyc);
+      repeat (500) @(posedge clk);
+      set_in(irq_in, 0); $display("[%0d] presence input %0d pulled low (module inserted)", cyc, irq_in);
+      repeat (sbwait) @(posedge clk);
+      mrd('h140, r); $display("[%0d] 0x140 = 0x%08x", cyc, r);
+      mrd('h150, r); $display("[%0d] 0x150 = 0x%08x", cyc, r);
+      repeat (2000) @(posedge clk);
+      mwr('h150, r); $display("[%0d] wrote 0x%08x to 0x150 (W1C)", cyc, r);
+      repeat (200) @(posedge clk); mrd('h150, r); $display("[%0d] 0x150 after W1C = 0x%08x", cyc, r);
+      repeat (2000) @(posedge clk);
+      mwr('h158, 32'hffff_ffff); $display("[%0d] mask set to all ones", cyc);
+      set_in(irq_in, 1); $display("[%0d] presence input %0d released (module removed)", cyc, irq_in);
+      repeat (sbwait) @(posedge clk);
+      mrd('h150, r); $display("[%0d] 0x150 = 0x%08x (masked)", cyc, r);
+      repeat (2000) @(posedge clk);
+      mwr('h158, 32'h0000_0000); $display("[%0d] mask cleared again with the change still pending", cyc);
+      repeat (2000) @(posedge clk);
+      mwr('h150, 32'hffff_ffff); repeat (200) @(posedge clk); mrd('h150, r); $display("[%0d] 0x150 after W1C = 0x%08x", cyc, r);
+      mwr('h150, 32'h0); repeat (200) @(posedge clk); mrd('h150, r); $display("[%0d] 0x150 after writing 0 = 0x%08x", cyc, r);
+      mrd('h140, r); mwr('h150, 32'hffff_ffff); repeat (200) @(posedge clk); mrd('h150, r); $display("[%0d] 0x150 after read 0x140 + W1C = 0x%08x", cyc, r);
+      mrd('h150, r); mrd('h150, r); $display("[%0d] 0x150 read twice = 0x%08x", cyc, r);
+      mwr('h158, 32'hffff_ffff); mwr('h150, 32'hffff_ffff); repeat (200) @(posedge clk); mrd('h150, r); $display("[%0d] 0x150 after mask + W1C = 0x%08x", cyc, r);
+      repeat (2000) @(posedge clk);
+      $finish;
+    end
     if (rnd) begin : random_mode
       integer k, r, o; reg [31:0] d, rv;
       void'($urandom(rnd));
@@ -354,22 +419,55 @@ TB_BODY = r'''
     end
     pcie_USERRSTN = 0; repeat (30) @(posedge clk); pcie_USERRSTN = 1; repeat (100) @(posedge clk);
     $display("[%0d] after reset: TRNRDSTRDY=%0d", cyc, pcie_TRNRDSTRDY); $fflush;
-    mwr(cb + 'h0c, 32'h8000_0000); mwr(cb + 'h08, 0); mwr(cb + 'h00, 32'h0066_0918);
+    if (dumps) dump("power-up", cb);
+    mwr(cb + 'h0c, 32'h8000_0000);
+    if (dumps) begin repeat (settle) @(posedge clk); dump("after-0C-write", cb); end
+    mwr(cb + 'h08, 0); mwr(cb + 'h00, 32'h0066_0918);
     if (sel != 0) mwr(cb + 'h08, sel);
     repeat (settle) @(posedge clk);   // the 0x0C bit-31 pulse restarts the channel's BRAM wipe (~512 clocks)
+    if (dumps) dump("after-probe", cb);
     show_probes();
     mrd(cb + 'h00, v); $display("[%0d] read profile 0x%08x", cyc, v);
     mrd(cb + 'h08, v); $display("[%0d] read profsel 0x%08x", cyc, v);
     mrd(cb + 'h60, v); $display("[%0d] read status before 0x%08x", cyc, v);
-    if (!rd) for (i = 0; i < (len + 3) / 4; i = i + 1) mwr('h4000 + ch * 'h200 + 4 * i, wdat + i * 32'h04040404);
+    if (wfill) begin   // fill the whole 512-byte write window: word i = {i, i, i, i} with marker bytes
+      for (i = 0; i < 128; i = i + 1) mwr('h4000 + ch * 'h200 + 4 * i, {i[7:0] | 8'h80, i[7:0], i[7:0] | 8'h80, i[7:0]});
+      $display("[%0d] write window filled: word i = {i|0x80, i, i|0x80, i}", cyc);
+    end else if (!rd) for (i = 0; i < (len + 3) / 4; i = i + 1) mwr('h4000 + ch * 'h200 + 4 * i, wdat + i * 32'h04040404);
     mwr(cb + (ctx ? 'h58 : 'h50), (rd ? 32'h1000_0000 : 0) | (addr << 8) | len | cmdx);
     mwr(cb + (ctx ? 'h5c : 'h54), 32'h8000_0000 | off);
+    t_start = cyc;
     $display("[%0d] started", cyc);
+    if (queue) begin
+      mwr(cb + (ctx ? 'h50 : 'h58), (rd ? 32'h1000_0000 : 0) | (addr << 8) | len);
+      mwr(cb + (ctx ? 'h54 : 'h5c), 32'h8000_0000 | off2);
+      $display("[%0d] slot %0d queued (offset 0x%02x) while slot %0d is busy", cyc, ctx ? 0 : 1, off2, ctx);
+      mrd(cb + 'h54, v); $display("[%0d] 0x54 = 0x%08x", cyc, v);
+      mrd(cb + 'h5c, v); $display("[%0d] 0x5c = 0x%08x", cyc, v);
+    end
     polls = 0;
     do begin repeat (pollgap) @(posedge clk); mrd(cb + (ctx ? 'h5c : 'h54), v); polls = polls + 1;
              if (polls < 4 || !v[31]) $display("[%0d] poll start reg 0x%08x", cyc, v); end
     while (v[31] && polls < maxpoll);
+    $display("[%0d] busy clear seen by the poll; start write at %0d: %0d clocks = %0d.%02d us (resolution: poll gap %0d + read latency)",
+             cyc, t_start, cyc - t_start, (cyc - t_start) * 16 / 1000, ((cyc - t_start) * 16 % 1000) / 10, pollgap);
+    if (queue) begin
+      polls = 0;
+      do begin repeat (pollgap) @(posedge clk); mrd(cb + (ctx ? 'h54 : 'h5c), v); polls = polls + 1; end while (v[31] && polls < maxpoll);
+      $display("[%0d] queued slot busy clear: %0d clocks after the first start", cyc, cyc - t_start);
+    end
     mrd(cb + 'h60, st); $display("[%0d] status 0x%08x (bit1 %0d)", cyc, st, st[1]);
+    for (i = 0; i < wdump; i = i + 1) begin mrd('h8000 + ch * 'h200 + 4 * i, v); $display("[%0d] rwin[%0d] 0x%08x", cyc, i, v); end
+    if (dumps) begin
+      dump("after-transaction", cb);
+      mwr(cb + 'h0c, 32'h8000_0000); repeat (settle) @(posedge clk); dump("after-second-0C", cb);
+      begin : globals
+        integer g; reg [31:0] gv; integer gl [0:9];
+        gl[0] = 'h000; gl[1] = 'h004; gl[2] = 'h140; gl[3] = 'h150; gl[4] = 'h158; gl[5] = 'h160; gl[6] = 'h168;
+        gl[7] = 'h170; gl[8] = 'h178; gl[9] = 'h100;
+        for (g = 0; g < 10; g = g + 1) begin mrd(gl[g], gv); $display("[%0d] global 0x%03x = 0x%08x", cyc, gl[g], gv); end
+      end
+    end
     for (i = 0; i < (len + 3) / 4; i = i + 1) begin mrd('h8000 + ch * 'h200 + 4 * i, v); $display("[%0d] read window[%0d] 0x%08x", cyc, i, v); end
     mrd(cb + 'h50, v); $display("[%0d] read cmd reg 0x%08x", cyc, v);
     if (w1c) begin mwr(cb + 'h60, w1c); mrd(cb + 'h60, st); $display("[%0d] status after writing 0x%02x to 0x60: 0x%08x", cyc, w1c, st); end
@@ -382,6 +480,9 @@ TB_BODY = r'''
       polls = 0;
       do begin repeat (pollgap) @(posedge clk); mrd(cb + 'h54, v); polls = polls + 1; end while (v[31] && polls < maxpoll);
       mrd(cb + 'h60, st); $display("[%0d] status after second 0x%08x", cyc, st);
+      for (i = 0; i < wdump; i = i + 1) begin mrd('h8000 + ch * 'h200 + 4 * i, v); $display("[%0d] rwin2[%0d] 0x%08x", cyc, i, v); end
+      mrd(cb + 'h54, v); $display("[%0d] 0x54 after second 0x%08x", cyc, v);
+      mrd(cb + 'h50, v); $display("[%0d] 0x50 after second 0x%08x", cyc, v);
     end
     $display("SCL periods (rising to rising, within bytes): n=%0d avg=%0d.%02d min=%0d max=%0d",
              per_n, per_n ? per_sum / per_n : 0, per_n ? (per_sum * 100 / per_n) % 100 : 0, per_min, per_max);

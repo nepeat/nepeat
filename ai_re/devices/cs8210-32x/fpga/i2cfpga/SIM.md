@@ -17,7 +17,8 @@ PCIe core, all 32 I2C channels and the sideband logic. `simtb.py` writes a
 testbench around it. `verilator --binary --timing` compiles both in about a
 minute and simulates 10,000-20,000 clocks per second of wall time.
 
-    cd fpga/i2cfpga && ./simrun.sh        # build, 15 scenarios x 2 families, 10 random seeds, sideband map
+    cd fpga/i2cfpga && ./simrun.sh        # build, 15 scenarios x 2 families, 10 random seeds, sideband map,
+                                          # 19 behaviour tests (summary work/sim/tests.txt)
 
 Testbench, by part:
 
@@ -136,6 +137,154 @@ probe does), writing one-hot values to `0x178` (ResetL) and `0x170`
   while it is low: a reset-like input (I). Seven other inputs showed no
   effect in this test.
 
+## Hardware comparison: an empty cage (entry (m))
+
+Prediction for the live test (I2C read/write on a cage with no module; SDA
+and SCL pulled up, nobody answers). Simulated on driver channel 17 (pad pair
+ch21); every channel behaves the same (co-simulation). Driver-style
+sequences from the vendor driver: read = `cb+0x50 = 0x10000000 | 0x50<<8 |
+1`, `cb+0x54 = 0x80000000 | offset`; write of 1 byte = window word 0 =
+data, `cb+0x50 = 0x50<<8 | 1`, `cb+0x54 = 0x80000000 | offset`; then poll
+`cb+0x54`, read `cb+0x60`, read the window. Logs `work/sim/tests/empty_*.txt`.
+
+| | read 1 byte, offset 0x00 | write 1 byte (0x03), offset 0x7F |
+|---|---|---|
+| bus | START, `0xA0` NACK, STOP (nothing else) | START, `0xA0` NACK, STOP (no offset, no data byte) |
+| START on the bus after the start write | 204 clocks (3.3 us) | 215 clocks (3.4 us) |
+| STOP after the start write | 1,899 clocks (30.4 us) | 1,910 clocks (30.6 us) |
+| busy (`cb+0x54` bit 31) clear, first poll that saw it | 1,909 clocks = 30.5 us after the start write (poll gap 10 + ~13 clocks per read) | 1,932 clocks = 30.9 us |
+| `cb+0x54` while busy / after | `0x80000000` / `0x00000000` (offset bits read back) | `0x8000007F` / `0x0000007F` |
+| `cb+0x60` status after | `0x00000002` (bit 1 = NACK; the driver returns -ENXIO) | `0x00000002` |
+| `cb+0x50` reads back | `0x10005001` (as written) | `0x00005001` |
+| read window (`0x8000 + ch*0x200`) | unchanged: the engine writes nothing on an address NACK. After a reset wipe it is 0; after an earlier successful read it still holds that read's bytes (checked: `0xB6B7B4B5` survived a following NACK) | unchanged |
+
+With the vendor driver's polling (`usleep_range(1000, 2000)` before the
+first status read), the first poll already sees "not busy"; the call returns
+-ENXIO after about 1-2 ms.
+
+Register values as the host reads them (channel block, `cb = 0x1000 + ch*0x100`):
+
+| offset | after power-up (configuration + PCIe reset) | after `0x0C = 0x80000000` | after the driver's probe writes | after an empty-cage read |
+|---|---|---|---|---|
+| `0x00` profile | `0x00081766` (profile 1 = 0x66, 2 = 0x17, 3 = 0x08) | `0x00081766` (the bit-31 pulse **restores** these defaults: checked by writing `0x0C` again after the probe) | `0x00660918` | `0x00660918` |
+| `0x04` | `0x00000000` | same | same | same |
+| `0x08` select | `0x00000000` | `0x00000000` | `0x00000000` | `0x00000000` |
+| `0x0C` | reads `0x00000000` | `0x00000000` | `0x00000000` | `0x00000000` |
+| `0x10`-`0x4C` | `0x00000000` | same | same | same |
+| `0x50` | `0x00000000` | `0x00000000` | `0x00000000` | `0x10005001` |
+| `0x54` | `0x00000000` | `0x00000000` | `0x00000000` | `0x00000000` |
+| `0x58`, `0x5C` | `0x00000000` | same | same | same |
+| `0x60` status | `0x00000000` | `0x00000000` | `0x00000000` | `0x00000002` |
+| `0x64` | `0x00000000` | same | same | same |
+| `0x68` | `0x00000033` | `0x00000033` | `0x00000033` | `0x00000033` |
+
+Global registers after power-up, as read in the same run: `0x000` =
+**`0x010b0009`**, the version the driver reads on the live unit (an
+independent check of the netlist and the simulation set-up); `0x004` = 0;
+`0x140` = 0 (no module present); `0x150` = 0; `0x158` = `0xFFFFFFFF`
+(presence interrupt masked); `0x160` = 0; `0x168` = `0xFFFFFFFF`; `0x170` =
+0; `0x178` = **`0xFFFFFFFF` (every module held in reset)** until the driver's
+probe writes 0.
+
+Caveats (I): power-up here means "configuration INIT values, then 30 clocks
+of PCIe user reset"; the live switch has run the driver probe and possibly
+other transactions, so `0x50`/`0x54`/`0x60` and the window will show the
+last transaction, and `0x00`/`0x08` whatever the driver set.
+
+## Further behaviour (entry (m))
+
+**Clock stretching** (device holds SCL low after acknowledging a byte;
+`work/sim/tests/stretch_*.txt`):
+- The engine waits while SCL is held low (it releases SCL and the divider
+  keeps reloading until SCL reads high, V structurally); transfers complete
+  with stretches of 500 clocks after every byte, 1,000 and up to 63,000
+  clocks after the address byte.
+- **Timeout:** a stretch of 63,300 clocks or more (about 1.01 ms) after the
+  address byte makes the engine give up (63,000 passes, 63,300 / 63,600 /
+  63,900 / 64,000 fail): it sends STOP after the current
+  byte and reports status bit 1 (the same bit as a NACK). The threshold is
+  the same for profile selects 0 and 1 and within a tick for select 2, so it
+  counts clocks, not SCL ticks (I: a 16-bit counter = 65,536 clocks would fit
+  with the time between the engine's release of SCL and the stretch start).
+- SCL held low forever: busy clears after about 130,700 clocks (2.1 ms),
+  status `0x2`, nothing more on the wire.
+
+**NACK of a written data byte:** **ignored**. The engine sends all remaining
+data bytes and STOP and reports status `0x1` (success). A NACK of the
+address byte or of the register-offset byte is detected (STOP right away,
+status bit 1). So a write can fail silently if the module rejects data.
+
+**Long reads and the window layout:**
+- A 128-byte read puts the bytes in read-window bytes 0-127 in bus order
+  (word 0 = bytes 0-3, little endian); 3.07 ms at profile 1.
+- The length field is 8 bits (255 maximum; 0 = no data on a read). A
+  255-byte read clocks 255 bytes over the bus, but each slot owns only 128
+  bytes of window: bytes 128-254 overwrite window bytes 0-126 (byte 127
+  survives). **128 bytes is the largest useful read**, which matches the
+  driver's 128-byte chunks.
+- Slot 0 uses window bytes 0x000-0x07F, slot 1 bytes 0x080-0x0FF, for reads
+  (read window) and writes (write window: slot 1's data starts at write
+  window byte 0x80). Window reads at 0x100-0x1FF return the last word read
+  again (not decoded, I).
+
+**Queued second slot:** a slot-1 start written while slot 0 is busy waits;
+slot 1 starts about 200 clocks after slot 0's STOP. Status ends `0x11`, each
+slot's data in its own window region. Reversed (slot 1 first, slot 0 queued)
+the running one finishes first again: first come, first served for two
+transactions (I for more than two pending, where the slot scan decides).
+
+**Presence interrupt** (port 18, presence input `IOB_X1Y126`, pin H4, index 42 of
+the testbench; `work/sim/tests/irq_presence_port18.txt`):
+- `0x158` mask = `0xFFFFFFFF` at power-up. With the mask cleared, a module
+  insertion sets `0x140` bit 17 and `0x150` bit 17 and the core raises one
+  interrupt request: `CFGINTERRUPTN` low for one clock with
+  `CFGINTERRUPTASSERTN` = 0 and `CFGINTERRUPTDI` = 1 (an MSI request; the
+  fabric never reads `CFGINTERRUPTRDYN`, V).
+- While masked, a change still sets `0x150` but raises no request;
+  unmasking with a change pending raises one.
+- **`0x150` clears with a write of ones only while the bit is masked in
+  `0x158`**; unmasked, writes (ones or zeros) and reads leave it set. The
+  vendor interrupt handler does exactly that: mask `0x158`, read `0x150`,
+  write `0xFFFFFFFF`, unmask (protocol review §5).
+
+## Formal check of the two templates (entry (m))
+
+`equivcheck.py` builds the comparable region: the fan-in cone of the two pad
+drivers inside the family-B template, through elements with a family-A
+counterpart, 132 elements (72 LUT, 60 FF: the bit sequencer, the pad
+drivers, the byte-phase flip-flops and their logic). The A/B correspondence
+is re-derived by aligning the two reference instances with the pads seeded
+by role (the template's family map, which keeps the larger of two pad
+orientations, pairs the symmetric pad structures crosswise; 43 pairs
+differ). Inputs entering the region become primary inputs; yosys `miter
+-equiv` + `sat -tempinduct` compares all 132 corresponding signals.
+
+    R=fpga/work/rt6-mtd5
+    equivcheck.py $R/l6/update.l6 OUT [--strict] --realign $R/l4/update.net.json $R/l4/update.logic.json $R/l5/update.blocks.json
+    cd OUT && yosys -s eq.ys          # in the ai_re devshell; reports in mtd5/equiv/
+
+| variant | cut inputs | result |
+|---|---|---|
+| lenient: every pin that differs structurally is cut and fed the same input on both sides (124 such pins: reset replicas, a port on one side vs an FF on the other, 14 pins with different internal drivers) | 149 | **proven** (base case and induction step at length 1) |
+| strict: the 14 pins whose drivers are inside the region on both sides but do not correspond stay connected to each side's own driver | 135 | **fails**: counterexample in the base case within 40 steps |
+
+What this means: the lenient proof shows that the 132 common elements
+implement the same next-state functions on corresponding signals. It
+**assumes** equality at the 124 differing pins, so it is not an equivalence
+proof of the channels. The strict failure says those 14 pins really are fed
+by different flip-flops in the two families. Whether the difference is
+compensated elsewhere (the co-simulation says the channels behave the same)
+or the counterexample is spurious because the cut frees inputs that are
+constrained in the real design was not resolved.
+
+A meaningful full equivalence would need the shared core: two copies of the
+whole 52k-primitive design (or the one design with two channels), with the
+inputs equal except the TLP address page (driver channel 1 vs 17), and the
+property "channel 1's pads in copy 1 equal channel 17's pads in copy 2". A
+transfer takes about 10,000 clocks, so bounded model checking is out of
+reach, and k-induction would need invariants over the other 30 channels and
+the core's state. That was not attempted.
+
 ## Failures and corrections on the way (logged honestly)
 
 - The first simulation never got past reset: Verilator does not settle
@@ -160,6 +309,10 @@ probe does), writing one-hot values to `0x178` (ResetL) and `0x170`
   at 3 stages); after generalising that rule the page decode was still not
   found. Not resolved. The flash image's analysis is unchanged by the
   generalisation (re-run, same register map, same channel map).
-- Not simulated: clock stretching by the device, arbitration, a NACK on a
-  data byte (the device model always ACKs data), reads longer than 4 bytes,
-  the interrupt path (`CFGINTERRUPT*` not acknowledged by the testbench).
+- Entry (m): `0x150` writes looked broken until the mask dependence was
+  found (clears only while masked). A `+nackdata` test replacement in the
+  generator silently did not apply once (Python `str.replace` with a
+  non-matching pattern); found because the expected lines were missing.
+- Not simulated: arbitration with another master, a NACK on a data byte
+  during a read (the master NACKs, not the device), INTx/legacy interrupt
+  handling, more than two queued slots, the vendor file.

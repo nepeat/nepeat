@@ -1,0 +1,46 @@
+{
+ "strict": false,
+ "lut_inputs_reordered": 71,
+ "roots": "pads",
+ "region_elements": 132,
+ "kinds": {
+  "LUT": 72,
+  "FDCE": 39,
+  "FDPE": 21
+ },
+ "cut_inputs": 149,
+ "pairing_conflicts": 124,
+ "conflict_kinds": {
+  "outside, not one-to-one": 88,
+  "B inside, A outside": 17,
+  "A inside, B outside": 5,
+  "both inside, different driver": 14
+ },
+ "conflict_examples": {
+  "outside, not one-to-one": [
+   "B0002.PRE: B B0009.Q / A AP000 (A driver None, kind -)",
+   "B0003.PRE: B B0009.Q / A AP000 (A driver None, kind -)",
+   "B0004.I2: B B0009.Q / A AP000 (A driver None, kind -)",
+   "B0005.I2: B B0009.Q / A AP000 (A driver None, kind -)"
+  ],
+  "B inside, A outside": [
+   "B0031.D: B B0301.O / A A0358.O (A driver A0358, kind LUT)",
+   "B0285.I2: B B0031.Q / A AP000 (A driver None, kind -)",
+   "B0287.I1: B B0031.Q / A AP000 (A driver None, kind -)",
+   "B0288.I2: B B0031.Q / A AP000 (A driver None, kind -)"
+  ],
+  "A inside, B outside": [
+   "B0316.I1: B B0009.Q / A A0008.Q (A driver A0008, kind FDCE)",
+   "B0317.I1: B B0009.Q / A A0008.Q (A driver A0008, kind FDCE)",
+   "B0325.I0: B B0009.Q / A A0141.Q (A driver A0141, kind FDPE)",
+   "B0330.I1: B B0009.Q / A A0081.Q (A driver A0081, kind FDCE)"
+  ],
+  "both inside, different driver": [
+   "B0336.I1: B B0107.Q / A A0085.Q (A driver A0085, kind FDCE)",
+   "B0336.I2: B B0068.Q / A A0121.Q (A driver A0121, kind FDCE)",
+   "B0459.I0: B B0041.Q / A A0100.Q (A driver A0100, kind FDCE)",
+   "B0459.I1: B B0029.Q / A A0112.Q (A driver A0112, kind FDCE)"
+  ]
+ },
+ "compared_outputs": 132
+}

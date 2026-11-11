@@ -1,0 +1,2 @@
+Base case for induction length 1 proven.
+Induction step proven: SUCCESS!

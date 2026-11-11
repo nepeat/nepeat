@@ -34,4 +34,6 @@ co-simulation: identical 25, different 0
 mapped: present 32, IntL 32, LPMode 32, ResetL 32 of 32
 inputs that stop the PCIe core while low (reset-like): IOB_X0Y50(N15)
 other inputs (no visible effect in this test): IOB_X0Y107(J17), IOB_X0Y21(V15), IOB_X0Y22(U15), IOB_X0Y45(AB17), IOB_X0Y97(R22), IOB_X0Y99(P20), IOB_X1Y69(W5)
-./simrun.sh  1238.15s user 28.87s system 558% cpu 3:46.82 total
+== hardware-comparison and behaviour tests (family B, driver channel 17)
+tests: 19 runs, summary in /home/erin/nepeat/ai_re/devices/cs8210-32x/fpga/i2cfpga/../work/sim/tests.txt
+./simrun.sh  1274.49s user 29.57s system 493% cpu 4:24.02 total
