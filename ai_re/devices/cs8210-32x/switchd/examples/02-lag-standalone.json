@@ -1,0 +1,6 @@
+{
+  "guard": true,
+  "lags": [
+    {"name": "bond0", "members": ["fpp2-1", "fpp2-2"]}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "guard": true,
+  "lags": [
+    {"name": "bond0", "members": ["fpp2-1", "fpp2-2"]}
+  ],
+  "bridges": [
+    {"name": "br0", "vlan": 100, "ports": ["bond0", "fpp3"], "mac": "02:00:00:00:00:01"}
+  ]
+}

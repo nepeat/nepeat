@@ -1,0 +1,3 @@
+$ ./switchd_dryrun.py examples/04-vlan-collision.json --ports '1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def'
+ERROR: bridge br0: vlan 10 collides with the knet private VLAN of devport 9 (fpp6). `diagtest knet config` gives every front port its own L2VNI = devport+1, so with this port spec VLANs 2..36 are taken. Use a VLAN above 36, or replace knet config (see DESIGN.md, "VLAN id collision").
+(exit status 2)

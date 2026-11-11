@@ -1,0 +1,209 @@
+$ ./switchd_dryrun.py examples/03-lag-bridge.json --ports '1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def' --emit-py2 examples/03-lag-bridge.ops_py2.txt
+# switchd_dryrun: 03-lag-bridge.json
+# port spec: 1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def
+# DRY RUN - nothing was executed. Tags: V verified-from-source form, I inferred, U unknown (hardware).
+
+## PORT MAP (front ports: 35, knet private VLANs 2..36, cpu = devport 0 / sysport 1000)
+netdev   devport sysport  cage  lanes  speed knet-vlan admin
+fpp2-1         2       2     2    0:1    10G         3    up
+fpp2-2         3       3     2    1:1    10G         4    up
+fpp3           6       6     3    0:8   400G         7    up
+(3 of 35 ports shown)
+
+## APPLY
+[A01] pre V  innoviumPorts = "1:copper_1x400G:fec-def:down-pall;2:copper_4x10G:fec-def:down-pall;3-16:copper_1x400G:fec-def:down-pall;17-32:optics_1x400G:fec-def:down-pall"
+            # before SDK start: down-pall makes dynamic_config.sh emit `port disable N` instead of
+            # `port enable N` (dynamic_config.sh:278-292) for both init passes
+            = not a command
+[A02] cli V  cls_shell 'port disable 1-35'
+            # belt and braces after knet config; port.py:428-498 sets IFCS_DEVPORT_ATTR_ADMIN_STATE
+            # false
+            = ok: port.py sub-command + list syntax ok
+[A03] cli V  cls_shell 'diagtest knet show'
+            # check: every L2VNI must list only cpu + one port
+            = ok: diagtest sub-command exists
+[A04] cli V  cls_shell 'port disable 2-3,6'
+            # ports being re-plumbed stay admin-down until the last step
+            = ok: port.py sub-command + list syntax ok
+[A05] api I  ifcs_mdg_mc_dest_remove(0, Knet.mdg_hdl[2], 1, [Knet.mcdest_hdl[2]])
+            # detach dp2 from its knet flood group: the SDK refuses a LAG member that is still in an
+            # mc_dest/L2VNI/L2 entry (libifcs.so strings)
+            = ok: ifcs_mdg_mc_dest_remove exists, 4 args, constants ok
+[A06] api I  ifcs_mc_dest_delete(0, Knet.mcdest_hdl[2])
+            = ok: ifcs_mc_dest_delete exists, 2 args, constants ok
+[A07] api I  ifcs_l2vni_member_remove(0, L2VNI(3), 1, [sysport(dp2)])
+            = ok: ifcs_l2vni_member_remove exists, 4 args, constants ok
+[A08] api I  ifcs_mdg_mc_dest_remove(0, Knet.mdg_hdl[3], 1, [Knet.mcdest_hdl[3]])
+            # detach dp3 from its knet flood group: the SDK refuses a LAG member that is still in an
+            # mc_dest/L2VNI/L2 entry (libifcs.so strings)
+            = ok: ifcs_mdg_mc_dest_remove exists, 4 args, constants ok
+[A09] api I  ifcs_mc_dest_delete(0, Knet.mcdest_hdl[3])
+            = ok: ifcs_mc_dest_delete exists, 2 args, constants ok
+[A10] api I  ifcs_l2vni_member_remove(0, L2VNI(4), 1, [sysport(dp3)])
+            = ok: ifcs_l2vni_member_remove exists, 4 args, constants ok
+[A11] api I  $lag_bond0 = ifcs_lag_create(0, &h, 0, NULL)
+            # no vendor script creates a LAG; form from the ctypes signature only
+            = ok: ifcs_lag_create exists, 4 args, constants ok
+[A12] api I  ifcs_lag_member_add(0, $lag_bond0, 2, [sysport(dp2), sysport(dp3)], 1, [IFCS_LAG_MEMBER_ATTR_TYPE=IFCS_LAG_MEMBER_TYPE_PRIMARY])
+            = ok: ifcs_lag_member_add exists, 6 args, constants ok
+[A13] api I  $mcd_bond0 = ifcs_mc_dest_create(0, &h, 1, [IFCS_MC_DEST_ATTR_LOCAL_DESTINATION=$lag_bond0])
+            # flood destination for the LAG as a whole
+            = ok: ifcs_mc_dest_create exists, 4 args, constants ok
+[A14] api V  $stp_br0 = ifcs_stp_create(0, &h, 0, NULL)
+            # own STP instance per bridge (knet.py:175-180 form)
+            = ok: ifcs_stp_create exists, 4 args, constants ok
+[A15] api U  ifcs_stp_port_add(0, $stp_br0, 3, [sysport(cpu), $lag_bond0, sysport(dp6)], 1, [IFCS_STP_PORT_ATTR_STP_STATE=IFCS_STP_PORT_STATE_BLOCKING])
+            # members start BLOCKING; forwarding is the explicit last step. LAG handle as STP port is
+            # U
+            = ok: ifcs_stp_port_add exists, 6 args, constants ok
+[A16] api V  $mdg_br0 = ifcs_mdg_create(0, &h, 0, NULL)
+            # flood group (knet.py:193-199 form)
+            = ok: ifcs_mdg_create exists, 4 args, constants ok
+[A17] api V  ifcs_l2vni_create(0, &L2VNI(100), 2, [IFCS_L2VNI_ATTR_STP_INSTANCE=$stp_br0, IFCS_L2VNI_ATTR_FLOOD_GROUP=$mdg_br0])
+            # knet.py:201-214 form, VLAN id = L2VNI value
+            = ok: ifcs_l2vni_create exists, 4 args, constants ok
+[A18] api V  ifcs_l2vni_member_add(0, L2VNI(100), 3, [sysport(cpu), $lag_bond0, sysport(dp6)], 0, NULL)
+            # cpu is a member so floods/traps reach the netdevs (knet.py:216-222 form)
+            = ok: ifcs_l2vni_member_add exists, 6 args, constants ok
+[A19] api V  ifcs_mdg_mc_dest_add(0, $mdg_br0, 3, [Knet.mcdest_hdl[0], $mcd_bond0, Knet.mcdest_hdl[6]], 0, NULL)
+            # reuses the knet mc_dest objects (knet puts mcdest[0] in every MDG, so sharing is
+            # allowed)
+            = ok: ifcs_mdg_mc_dest_add exists, 6 args, constants ok
+[A20] cli V  cls_shell 'ifcs set sysport 2 default_cvid 100'
+            # access port: PVID + egress untagged (knet.py:244-257 form)
+            = ok: vendor preParse+argparse ok; sysport.default_cvid (u16) via setDefaultCvid()
+[A21] cli V  cls_shell 'ifcs set sysport 2 egress_untagged_vlan_id 100'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id (u16) via setEgressUntaggedVlanId()
+[A22] cli V  cls_shell 'ifcs set sysport 2 egress_untagged_vlan_id_enable 1'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id_enable (data) via setEgressUntaggedVlanIdEnable()
+[A23] cli V  cls_shell 'ifcs set sysport 3 default_cvid 100'
+            # access port: PVID + egress untagged (knet.py:244-257 form)
+            = ok: vendor preParse+argparse ok; sysport.default_cvid (u16) via setDefaultCvid()
+[A24] cli V  cls_shell 'ifcs set sysport 3 egress_untagged_vlan_id 100'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id (u16) via setEgressUntaggedVlanId()
+[A25] cli V  cls_shell 'ifcs set sysport 3 egress_untagged_vlan_id_enable 1'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id_enable (data) via setEgressUntaggedVlanIdEnable()
+[A26] cli V  cls_shell 'ifcs set sysport 6 default_cvid 100'
+            # access port: PVID + egress untagged (knet.py:244-257 form)
+            = ok: vendor preParse+argparse ok; sysport.default_cvid (u16) via setDefaultCvid()
+[A27] cli V  cls_shell 'ifcs set sysport 6 egress_untagged_vlan_id 100'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id (u16) via setEgressUntaggedVlanId()
+[A28] cli V  cls_shell 'ifcs set sysport 6 egress_untagged_vlan_id_enable 1'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id_enable (data) via setEgressUntaggedVlanIdEnable()
+[A29] api U  ifcs_l2_entry_create(0, key{mac=01:80:c2:00:00:00, l2vni=100}, 2, [IFCS_L2_ENTRY_ATTR_ENTRY_DEST=sysport(cpu), IFCS_L2_ENTRY_ATTR_ENTRY_TYPE=IFCS_L2_ENTRY_TYPE_STATIC])   (optional)
+            # keep link-local (STP/LACP/LLDP) out of the flood group: static entry to cpu. Whether a
+            # group MAC is accepted here is U
+            = ok: ifcs_l2_entry_create exists, 4 args, constants ok
+[A30] api U  ifcs_l2_entry_create(0, key{mac=01:80:c2:00:00:02, l2vni=100}, 2, [IFCS_L2_ENTRY_ATTR_ENTRY_DEST=sysport(cpu), IFCS_L2_ENTRY_ATTR_ENTRY_TYPE=IFCS_L2_ENTRY_TYPE_STATIC])   (optional)
+            # keep link-local (STP/LACP/LLDP) out of the flood group: static entry to cpu. Whether a
+            # group MAC is accepted here is U
+            = ok: ifcs_l2_entry_create exists, 4 args, constants ok
+[A31] api U  ifcs_l2_entry_create(0, key{mac=01:80:c2:00:00:0e, l2vni=100}, 2, [IFCS_L2_ENTRY_ATTR_ENTRY_DEST=sysport(cpu), IFCS_L2_ENTRY_ATTR_ENTRY_TYPE=IFCS_L2_ENTRY_TYPE_STATIC])   (optional)
+            # keep link-local (STP/LACP/LLDP) out of the flood group: static entry to cpu. Whether a
+            # group MAC is accepted here is U
+            = ok: ifcs_l2_entry_create exists, 4 args, constants ok
+[A32] api I  ifcs_l2_entry_create(0, key{mac=02:00:00:00:00:01, l2vni=100}, 2, [IFCS_L2_ENTRY_ATTR_ENTRY_DEST=sysport(cpu), IFCS_L2_ENTRY_ATTR_ENTRY_TYPE=IFCS_L2_ENTRY_TYPE_STATIC])
+            # bridge/SVI MAC to cpu (test_l2.py:156-186 form)
+            = ok: ifcs_l2_entry_create exists, 4 args, constants ok
+[A33] api V  ifcs_stp_port_attr_set(0, $stp_br0, sysport(cpu), 1, [IFCS_STP_PORT_ATTR_STP_STATE=IFCS_STP_PORT_STATE_FORWARDING])
+            # knet.py:232-242 form
+            = ok: ifcs_stp_port_attr_set exists, 5 args, constants ok
+[A34] api U  ifcs_stp_port_attr_set(0, $stp_br0, $lag_bond0, 1, [IFCS_STP_PORT_ATTR_STP_STATE=IFCS_STP_PORT_STATE_FORWARDING])
+            # LAG handle as STP port is U
+            = ok: ifcs_stp_port_attr_set exists, 5 args, constants ok
+[A35] api V  ifcs_stp_port_attr_set(0, $stp_br0, sysport(dp6), 1, [IFCS_STP_PORT_ATTR_STP_STATE=IFCS_STP_PORT_STATE_FORWARDING])
+            # knet.py:232-242 form
+            = ok: ifcs_stp_port_attr_set exists, 5 args, constants ok
+[A36] cli V  cls_shell 'port enable 2-3,6'
+            # explicit enable, last (port.py:428-498)
+            = ok: port.py sub-command + list syntax ok
+[A37] cli V  cls_shell 'ifcs show lag'
+            # check
+            = ok: vendor preParse+argparse ok; show handler brief
+[A38] cli V  cls_shell 'ifcs show l2vni 100 members'
+            # check
+            = ok: vendor preParse+argparse ok; show handler members
+[A39] cli V  cls_shell 'ifcs show l2_entry'
+            # check (vendor knet-l2-show)
+            = ok: vendor preParse+argparse ok; show handler brief
+
+## TEARDOWN
+[T01] cli V  cls_shell 'port disable 2-3,6'
+            # first: nothing forwards while objects go away
+            = ok: port.py sub-command + list syntax ok
+[T02] api I  ifcs_l2_entry_delete(0, key{mac=02:00:00:00:00:01, l2vni=100})
+            = ok: ifcs_l2_entry_delete exists, 2 args, constants ok
+[T03] api U  ifcs_l2_entry_delete(0, key{mac=01:80:c2:00:00:00, l2vni=100})   (optional)
+            = ok: ifcs_l2_entry_delete exists, 2 args, constants ok
+[T04] api U  ifcs_l2_entry_delete(0, key{mac=01:80:c2:00:00:02, l2vni=100})   (optional)
+            = ok: ifcs_l2_entry_delete exists, 2 args, constants ok
+[T05] api U  ifcs_l2_entry_delete(0, key{mac=01:80:c2:00:00:0e, l2vni=100})   (optional)
+            = ok: ifcs_l2_entry_delete exists, 2 args, constants ok
+[T06] cli U  cls_shell 'l2learn flush'
+            # l2learn.py:70-72 flushes the learn DB; whether learned hardware entries in this L2VNI
+            # must be deleted before ifcs_l2vni_delete is U
+            = ok: l2learn sub-command exists
+[T07] api V  ifcs_mdg_mc_dest_remove(0, $mdg_br0, 3, [Knet.mcdest_hdl[0], $mcd_bond0, Knet.mcdest_hdl[6]])
+            = ok: ifcs_mdg_mc_dest_remove exists, 4 args, constants ok
+[T08] api V  ifcs_l2vni_member_remove(0, L2VNI(100), 3, [sysport(cpu), $lag_bond0, sysport(dp6)])
+            = ok: ifcs_l2vni_member_remove exists, 4 args, constants ok
+[T09] api V  ifcs_l2vni_delete(0, L2VNI(100))
+            = ok: ifcs_l2vni_delete exists, 2 args, constants ok
+[T10] api V  ifcs_mdg_delete(0, $mdg_br0)
+            = ok: ifcs_mdg_delete exists, 2 args, constants ok
+[T11] api I  ifcs_stp_port_remove(0, $stp_br0, 3, [sysport(cpu), $lag_bond0, sysport(dp6)])
+            = ok: ifcs_stp_port_remove exists, 4 args, constants ok
+[T12] api V  ifcs_stp_delete(0, $stp_br0)
+            = ok: ifcs_stp_delete exists, 2 args, constants ok
+[T13] cli V  cls_shell 'ifcs set sysport 6 default_cvid 7'
+            # back to the knet private VLAN
+            = ok: vendor preParse+argparse ok; sysport.default_cvid (u16) via setDefaultCvid()
+[T14] cli V  cls_shell 'ifcs set sysport 6 egress_untagged_vlan_id 7'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id (u16) via setEgressUntaggedVlanId()
+[T15] cli V  cls_shell 'ifcs set sysport 6 egress_untagged_vlan_id_enable 1'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id_enable (data) via setEgressUntaggedVlanIdEnable()
+[T16] api I  ifcs_mc_dest_delete(0, $mcd_bond0)
+            = ok: ifcs_mc_dest_delete exists, 2 args, constants ok
+[T17] api I  ifcs_lag_member_remove(0, $lag_bond0, 2, [sysport(dp2), sysport(dp3)])
+            = ok: ifcs_lag_member_remove exists, 4 args, constants ok
+[T18] api I  ifcs_lag_delete(0, $lag_bond0)
+            = ok: ifcs_lag_delete exists, 2 args, constants ok
+[T19] api V  Knet.mcdest_hdl[2] = ifcs_mc_dest_create(0, &h, 1, [IFCS_MC_DEST_ATTR_LOCAL_DESTINATION=sysport(dp2)])
+            # restore knet plumbing for dp2 exactly as knet.py:164-257 built it, so `diagtest knet
+            # unconfig` still works
+            = ok: ifcs_mc_dest_create exists, 4 args, constants ok
+[T20] api V  ifcs_mdg_mc_dest_add(0, Knet.mdg_hdl[2], 1, [Knet.mcdest_hdl[2]], 0, NULL)
+            = ok: ifcs_mdg_mc_dest_add exists, 6 args, constants ok
+[T21] api V  ifcs_l2vni_member_add(0, L2VNI(3), 1, [sysport(dp2)], 0, NULL)
+            = ok: ifcs_l2vni_member_add exists, 6 args, constants ok
+[T22] cli V  cls_shell 'ifcs set sysport 2 default_cvid 3'
+            # knet.py:244-257 values
+            = ok: vendor preParse+argparse ok; sysport.default_cvid (u16) via setDefaultCvid()
+[T23] cli V  cls_shell 'ifcs set sysport 2 egress_untagged_vlan_id 3'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id (u16) via setEgressUntaggedVlanId()
+[T24] cli V  cls_shell 'ifcs set sysport 2 egress_untagged_vlan_id_enable 1'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id_enable (data) via setEgressUntaggedVlanIdEnable()
+[T25] api V  Knet.mcdest_hdl[3] = ifcs_mc_dest_create(0, &h, 1, [IFCS_MC_DEST_ATTR_LOCAL_DESTINATION=sysport(dp3)])
+            # restore knet plumbing for dp3 exactly as knet.py:164-257 built it, so `diagtest knet
+            # unconfig` still works
+            = ok: ifcs_mc_dest_create exists, 4 args, constants ok
+[T26] api V  ifcs_mdg_mc_dest_add(0, Knet.mdg_hdl[3], 1, [Knet.mcdest_hdl[3]], 0, NULL)
+            = ok: ifcs_mdg_mc_dest_add exists, 6 args, constants ok
+[T27] api V  ifcs_l2vni_member_add(0, L2VNI(4), 1, [sysport(dp3)], 0, NULL)
+            = ok: ifcs_l2vni_member_add exists, 6 args, constants ok
+[T28] cli V  cls_shell 'ifcs set sysport 3 default_cvid 4'
+            # knet.py:244-257 values
+            = ok: vendor preParse+argparse ok; sysport.default_cvid (u16) via setDefaultCvid()
+[T29] cli V  cls_shell 'ifcs set sysport 3 egress_untagged_vlan_id 4'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id (u16) via setEgressUntaggedVlanId()
+[T30] cli V  cls_shell 'ifcs set sysport 3 egress_untagged_vlan_id_enable 1'
+            = ok: vendor preParse+argparse ok; sysport.egress_untagged_vlan_id_enable (data) via setEgressUntaggedVlanIdEnable()
+[T31] pre V  ports 2-3,6 stay admin-down (guard)
+            = not a command
+
+## VALIDATION
+27 cli + 41 api operations checked against R3181-J0001-01_V0.1.7_Briggs_SDK: 0 invalid
+python2 module (switchd_ops_03_lag_bridge): compiles as shared py2/py3 syntax; unresolved ifcs_*/IFCS_* identifiers: none
+confidence: I=15, U=9, V=44
+not validated offline: runtime semantics of every I/U step, return codes, handle values, ordering constraints inside libifcs.
+(exit status 0)

@@ -1,0 +1,34 @@
+$ ./switchd_dryrun.py examples/01-guard-only.json --ports '1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def'
+# switchd_dryrun: 01-guard-only.json
+# port spec: 1:copper_1x400G:fec-def;2:copper_4x10G:fec-def;3-16:copper_1x400G:fec-def;17-32:optics_1x400G:fec-def
+# DRY RUN - nothing was executed. Tags: V verified-from-source form, I inferred, U unknown (hardware).
+
+## PORT MAP (front ports: 35, knet private VLANs 2..36, cpu = devport 0 / sysport 1000)
+netdev   devport sysport  cage  lanes  speed knet-vlan admin
+fpp1           1       1     1    0:8   400G         2    up
+fpp2-1         2       2     2    0:1    10G         3    up
+fpp2-2         3       3     2    1:1    10G         4    up
+fpp2-3         4       4     2    2:1    10G         5    up
+(4 of 35 ports shown)
+
+## APPLY
+[A01] pre V  innoviumPorts = "1:copper_1x400G:fec-def:down-pall;2:copper_4x10G:fec-def:down-pall;3-16:copper_1x400G:fec-def:down-pall;17-32:optics_1x400G:fec-def:down-pall"
+            # before SDK start: down-pall makes dynamic_config.sh emit `port disable N` instead of
+            # `port enable N` (dynamic_config.sh:278-292) for both init passes
+            = not a command
+[A02] cli V  cls_shell 'port disable 1-35'
+            # belt and braces after knet config; port.py:428-498 sets IFCS_DEVPORT_ATTR_ADMIN_STATE
+            # false
+            = ok: port.py sub-command + list syntax ok
+[A03] cli V  cls_shell 'diagtest knet show'
+            # check: every L2VNI must list only cpu + one port
+            = ok: diagtest sub-command exists
+
+## TEARDOWN
+
+## VALIDATION
+2 cli + 0 api operations checked against R3181-J0001-01_V0.1.7_Briggs_SDK: 0 invalid
+python2 module (switchd_ops_01_guard_only): compiles as shared py2/py3 syntax; unresolved ifcs_*/IFCS_* identifiers: none
+confidence: V=2
+not validated offline: runtime semantics of every I/U step, return codes, handle values, ordering constraints inside libifcs.
+(exit status 0)

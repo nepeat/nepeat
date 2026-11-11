@@ -1,0 +1,18 @@
+$ ./switchd_dryrun.py --selftest
+lanes table matches dynamic_config.sh dic: True
+vendor dynamic_config.yaml (mode=1-32:copper_4x25G:fec-en): 128 devports, mapper output identical: True
+reject 'ifcs create lag 1'                      (no create verb)                     -> ifcs has no verb 'create' (has: show enable disable clear set list help ?)
+reject 'ifcs set sysport 2 lag 5'               (handle setter takes the raw string) -> setter setLag assigns the raw CLI string to a ctypes field (only int() setters work from the CLI)
+reject 'ifcs set sysport 2 no_such_attr 1'      (unknown attribute)                  -> sysport has no settable attr no_such_attr
+reject 'ifcs set sysport 2 default_cvid 70000'  (u16 range)                          -> value 70000 out of range for u16
+reject 'ifcs set sysport 2 default_cvid'        (missing value)                      -> value None is not an int
+reject 'ifcs set sysport 999 default_cvid 5'    (port not in map)                    -> sysport/devport 999 not in the port map
+reject 'ifcs show nosuchobj'                    (unknown object)                     -> unknown ifcs object nosuchobj
+reject 'port shutdown 2'                        (unknown sub-command)                -> port has no sub-command shutdown
+reject 'port disable 2..5'                      (bad list syntax)                    -> port list must be a,b-c
+reject 'diagtest knet reconfig'                 (unknown sub-command)                -> knet has no sub-command reconfig
+reject 'lag create 1'                           (unknown top-level command)          -> unknown top-level command lag
+reject api with wrong arg count -> ifcs_lag_create takes 4 args, generator uses 2
+reject api with unknown constant -> constant/macro IFCS_LAG_MEMBER_ATTR_NOPE not in ifcs_ctypes.py
+negative tests all rejected: True
+(exit status 0)
