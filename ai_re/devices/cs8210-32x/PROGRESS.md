@@ -80,6 +80,33 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (v) — bond survives SDK restarts unattended (member-MAC race fixed)
+
+Test #1 from the list (SDK restart regression) failed first, as expected,
+and is fixed now.
+- **Cause (V, `ip -ts monitor link` across a restart):** the SDK creates
+  `inno_0_0017` with a random MAC and renames it to `fpp17-1`. networkd
+  immediately pins the bond MAC and enslaves it (23:39:39.870), and ~50 ms
+  later (39.919) the SDK sets its own per-port MAC …:df on the netdev,
+  overwriting the bond MAC on an enslaved member. Replies to the bond MAC
+  are then PACKET_OTHERHOST and dropped. ipd itself only sets the MAC at
+  creation, before register_netdev, so the overwrite comes from SDK
+  userspace.
+- Second effect: bond0's DHCP ran during that window, lost its replies and
+  sat in retry backoff (no lease 2+ minutes later). A `networkctl
+  reconfigure bond0` gets a lease within seconds.
+- **Fix (`cs8210-switch-up` `sync_bond_macs`):** after auto_load_user.sh
+  returns and the speeds are set, every fpp* that is a bonding member and
+  does not carry its master's MAC is set to it, then `networkctl
+  reconfigure` runs for each bond that needed it. The networkd member pin
+  stays (harmless) with a corrected comment. The wrapper PATH gains
+  iproute2 and systemd.
+- **Result (V):** a plain `systemctl restart cs8210-switch` gives bond0
+  reachable from the desktop 28 s after the SDK is up, lease 10.60.30.163,
+  fpp17-1/2 on 0e:48:c6:7a:55:ce, LACP partner the Unifi, no
+  intervention. A few "failed to get link speed/duplex" kernel lines per
+  member before `set_speeds` runs are expected.
+
 ### 2026-11-10 (u) — LACP narrowed to cage 17 (SFP28 breakout), VRF, I2C on the breakout, RX 4x (Fable patch)
 
 - The user meant LACP on **cage 17 only**: bond0 members are now `fpp17
