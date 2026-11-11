@@ -80,6 +80,50 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-11 (ab) — offline "mini-switchd" design + dry-run generator (Fable), and why the ASIC can/can't loop
+
+Offline only; the switch is unplugged. Everything is in [switchd/](switchd/):
+[DESIGN.md](switchd/DESIGN.md) plus the stdlib tool `switchd_dryrun.py`,
+which turns desired-state JSON into the ordered SDK commands for apply and
+teardown, validated offline against the vendor CLI's own parser
+definitions and `ifcs_ctypes`.
+- **Default forwarding (V from vendor source, spot-checked by me):**
+  - **Steady knet state cannot loop.** `cmds/knet.py` gives each front
+    port its own L2VNI (vlan = i+1) and flood group, with members CPU +
+    that port only.
+  - **The vendor's `-s` single-L2-domain mode would loop** (one L2VNI for
+    all ports). We never pass it.
+  - **Init window: unknown default.** `auto_load_user.sh` (~L214-228)
+    initialises the ASIC twice: a `python2.7 ifcsshell.py` pass, then
+    `innovium.user`. Ports are enabled before `diagtest knet config` runs,
+    so for those moments the forwarding state is the SDK's built-in default.
+  - **Teardown leaves links up:** `cls_shell exit` is `kill -9` (cls_shell
+    L29), so a dead SDK leaves links up with no LACP behind them. That fits
+    the (z) incident; pause frames from a stuck CPU queue are an
+    alternative explanation.
+- **Proposed guard (not implemented yet):** the vendor `:down-pall` option
+  on every port spec entry, so all ports start admin-down; after init
+  `port disable`, an isolation check (`diagtest knet show`), the desired
+  state, and the `port enable` allow-list last. On stop, `port disable`
+  before `cls_shell exit`. A crash or soft-lockup still needs a
+  data-plane power-off/reset path (open).
+- **LAG / L2 mapping:** the CLI has no create verbs, so objects are created
+  in Python 2 inside innovium.user (`cls_shell 'run <module>'`). LAG
+  (`ifcs_lag_create`, `ifcs_lag_member_add`) needs members detached from
+  their knet L2VNI/mc_dest first. A bridge is STP + mdg + l2vni + members +
+  PVID `ifcs set sysport …`, with static `l2_entry` for LACP/LLDP group MACs
+  to the CPU. **knet uses VLANs 2..36**, so user VLANs must avoid them; the
+  tool refuses collisions. ipd has no switchdev/offload_fwd_mark, so a Linux
+  bridge on hardware-bridged ports would double-forward floods (a loop).
+  Bridges should live only in the ASIC until ipd is patched.
+- **Validation:** the port mapper matches the vendor dynamic_config.yaml for
+  all 128 devports. The example-03 plan is 27 CLI + 41 API steps, 0
+  invalid. The self-test rejects 13 deliberately wrong commands; I re-ran it
+  and regenerated example 03 myself (identical). Not validated: libifcs
+  semantics and return codes (especially LAG), `run <module>` via the remote
+  shell, a real Python 2 run, hardware behaviour. DESIGN.md §6 lists 15
+  unknowns.
+
 ### 2026-11-11 (aa) — FIB capacity from the SDK (offline, Sonnet swarm): 24,576 v4 prefixes on this build
 
 There is no public number. Four parallel Sonnet agents worked offline on
