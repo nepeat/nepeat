@@ -1,0 +1,54 @@
+ipd: opt-in scatter-gather / software GSO on the front-panel netdevs
+
+The netdevs advertise no features, so TCP hands the driver one linear
+MTU-sized skb per segment and every segment walks TCP output, the bond,
+the qdisc and the driver on its own (TX-3: 3 descriptors per packet,
+~1417 bytes per packet over 134M packets).
+
+inno_enet_tx() already emits one descriptor per skb fragment.  Offer
+NETIF_F_SG | NETIF_F_HW_CSUM in hw_features (NOT enabled by default) and
+resolve CHECKSUM_PARTIAL in software with skb_checksum_help().  With
+"ethtool -K <dev> tx on sg on" the stack builds 64k GSO skbs and segments
+them just before the driver.
+
+Default off because the multi-fragment descriptor path of the ASIC's DMA
+engine has not been exercised on this hardware; with the features off the
+only added code on the TX path is one ip_summed test.
+
+Not verified on hardware when written.
+
+--- a/inno_enet.c
++++ b/inno_enet.c
+@@ -267,6 +267,15 @@
+         return NETDEV_TX_OK;
+     }
+ 
++    /* The ASIC does not checksum for us.  NETIF_F_HW_CSUM is only offered
++     * so that the stack will do scatter-gather / software GSO (see
++     * inno_netdev_create()); fill the checksum in here. */
++    if (skb->ip_summed == CHECKSUM_PARTIAL && skb_checksum_help(skb)) {
++        idev->inno_stats.tx_ring_stats[tx_ring->num].drops++;
++        dev_kfree_skb_any(skb);
++        return NETDEV_TX_OK;
++    }
++
+     /* The completion NAPI is behind (ring more than 3/4 used): reap
+      * finished descriptors from here rather than run into a full ring.
+      * trylock: if the NAPI is already reaping there is nothing to add. */
+@@ -2356,6 +2365,16 @@
+     enet->idev = idev;
+     enet->sysport = ioctl->sysport;
+ 
++    /* Opt-in (default off): "ethtool -K <dev> tx on sg on".  The TX path
++     * already maps one descriptor per skb fragment, and the checksum is
++     * computed in software in inno_enet_tx(), so with these on TCP hands
++     * down 64k GSO skbs that are segmented right before the driver: one
++     * stack/bond/qdisc traversal per ~44 MTU frames instead of one each. */
++    idev->sysport_devs[ioctl->sysport]->hw_features |=
++        NETIF_F_SG | NETIF_F_HW_CSUM;
++    idev->sysport_devs[ioctl->sysport]->vlan_features |=
++        NETIF_F_SG | NETIF_F_HW_CSUM;
++
+     idev->sysport_devs[ioctl->sysport]->watchdog_timeo = (HZ >> 1);
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+     idev->sysport_devs[ioctl->sysport]->min_mtu = ETH_MIN_MTU;

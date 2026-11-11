@@ -1,0 +1,689 @@
+ipd: TX flow control, bounded TX reaping, own MSI-X vector + NAPI for TX completions
+
+Measured 2026-11-11 (iperf3 over a 2x10G LACP bond, after ipd-rx-gro-napi):
+ksoftirqd/0 at ~99% under bidirectional load, host TX flipping between
+~200 Mb/s and ~1.6 Gb/s every few minutes while RX stays at 1.1-1.7 Gb/s,
+TX-3 "Full" counter 146k, qdisc requeues 40k.
+
+What the code did:
+
+ * inno_enet_tx() returned NETDEV_TX_BUSY on a full ring without
+   netif_stop_queue(), so the qdisc requeued and retried in a loop.
+ * TX completions were reaped only in inno_ring_poll(), i.e. in the single
+   NAPI context on CPU 0, after the RX pass, once per poll, unbounded.
+   TCP only releases more data once the skbs it already queued are freed
+   (TSQ), so the TX rate was tied to how soon the saturated RX softirq got
+   around to reaping: this is the likely source of the bimodal TX rate
+   (inferred from the code, not measured).
+ * The TX-queue interrupt was steered to MSI-X vector 0 like RX
+   (inno_alloc_ring(): msix_vector = MSIX_VECTOR_NAPI), although the device
+   has 32 MSI-X table entries and a per-cause vector map (INTR_IMMR).
+
+Changes:
+
+ * Flow control.  After queuing a packet, stop the netdev queue when the
+   ring cannot hold another worst-case packet (MAX_SKB_FRAGS + 3
+   descriptors); the completion path wakes all stopped netdevs once a
+   quarter of the ring is free.  The ring is shared by every netdev, so
+   the wake walks sysport_devs[] (only when idev->tx_stopped is set).
+   Stop/wake use the usual stop -> barrier -> re-check pairing so a wake
+   cannot be lost.  NETDEV_TX_BUSY is still returned if two netdevs race
+   for the last slots, but now with the queue stopped.
+ * inno_tx_ring_poll() becomes inno_tx_ring_reap(tx, budget): bounded
+   work, own lock (tx_reap_lock) instead of napi_lock so it no longer
+   waits for a whole RX ring pass, and a sanity check of the CIDX read
+   from the writeback area (a bad value made the walk endless).
+ * Dedicated TX completion vector.  inno_intr_enable_msix() asks for one
+   MSI-X entry more than the 8 userspace knows about (entry 8,
+   "inno_irq-8-napi-tx"), the netdev TX ring interrupt is steered to it
+   and handled by its own NAPI (inno_tx_napi_poll), by default on the
+   second online CPU (irq_set_affinity_and_hint; change it through
+   /proc/irq/N/smp_affinity).  The RX NAPI then does no TX work at all.
+   Fallbacks: if the 9th vector cannot be allocated, with MSI/INTx, or
+   with the module parameter tx_irq_split=0, TX completions stay on
+   vector 0 as before (but bounded).  Until the new vector has fired
+   once (tx_irq_seen) the RX NAPI keeps reaping too and the vector 0
+   handler also masks/clears the TX cause, so a device that delivers the
+   TX interrupt on vector 0 anyway behaves exactly as before, and one
+   that does not deliver it at all still gets its completions reaped
+   from the RX NAPI, the xmit path and the watchdog.
+ * inno_enet_tx() reaps completions itself (trylock, max 64 packets) when
+   less than a quarter of the ring is free, i.e. when the completion
+   context is behind.
+ * ndo_tx_timeout kicks the completion NAPI, so a queue that stayed
+   stopped for watchdog_timeo (500 ms) recovers instead of only logging.
+
+Not verified on hardware when written.
+
+--- a/inno_enet.c
++++ b/inno_enet.c
+@@ -160,6 +160,63 @@
+ }
+ 
+ 
++/* TX flow control.
++ *
++ * All netdevs share one TX descriptor ring.  A netdev stops its queue as
++ * soon as the ring cannot take another worst-case packet (so the stack
++ * never sees NETDEV_TX_BUSY in the common case) and the completion path
++ * wakes every stopped netdev once a quarter of the ring is free again. */
++#define INNO_TX_STOP_THRESH    (MAX_SKB_FRAGS + 3)
++/* Packets reaped per call from the xmit path / from the shared NAPI */
++#define INNO_TX_XMIT_REAP      64
++#define INNO_TX_NAPI_REAP      256
++
++static inline uint32_t
++inno_tx_wake_thresh(const inno_ring_t *tx)
++{
++    return min_t(uint32_t, tx->count,
++                 max_t(uint32_t, tx->count / 4, 2 * INNO_TX_STOP_THRESH));
++}
++
++static inline uint32_t
++inno_tx_ring_space(const inno_ring_t *tx)
++{
++    uint32_t pidx = READ_ONCE(tx->pidx);
++    uint32_t cidx = READ_ONCE(tx->work_cidx);
++
++    return RING_SPACE(tx->count, pidx, cidx);
++}
++
++/* Stop @dev's queue; the caller re-checks the ring space afterwards (the
++ * completion path may have run in between, see inno_tx_ring_reap()). */
++static inline void
++inno_tx_stop_queue(inno_device_t *idev, struct net_device *dev)
++{
++    netif_stop_queue(dev);
++    set_bit(0, &idev->tx_stopped);
++    smp_mb__after_atomic();
++}
++
++/* Wake every netdev that stopped itself on a full TX ring */
++static void
++inno_tx_wake_queues(inno_device_t *idev)
++{
++    int i;
++
++    if (!test_and_clear_bit(0, &idev->tx_stopped)) {
++        return;
++    }
++    for (i = 0; i < NUM_SYSPORTS; i++) {
++        struct net_device *ndev = READ_ONCE(idev->sysport_devs[i]);
++
++        if (ndev && netif_running(ndev) && netif_queue_stopped(ndev)) {
++            netif_wake_queue(ndev);
++        }
++    }
++}
++
++static int inno_tx_ring_reap(inno_ring_t *tx, int budget);
++
+ /** @brief Net device tx
+  *
+  *  @return ERRNO
+@@ -210,17 +267,35 @@
+         return NETDEV_TX_OK;
+     }
+ 
++    /* The completion NAPI is behind (ring more than 3/4 used): reap
++     * finished descriptors from here rather than run into a full ring.
++     * trylock: if the NAPI is already reaping there is nothing to add. */
++    if (unlikely(inno_tx_ring_space(tx_ring) < inno_tx_wake_thresh(tx_ring)) &&
++        spin_trylock(&idev->tx_reap_lock)) {
++        inno_tx_ring_reap(tx_ring, INNO_TX_XMIT_REAP);
++        spin_unlock(&idev->tx_reap_lock);
++    }
++
+     spin_lock_irqsave(&idev->lock, lock_flags);
+ 
+     /* See if there is enough space in the processed descriptors */
+-    if (RING_SPACE(tx_ring->count, tx_ring->pidx, tx_ring->work_cidx) <
+-        skb_shinfo(skb)->nr_frags + 3) {
+-        /* Ring is full */
+-        ipd_info("Not enough space in TX ring %d. pidx=0x%x cidx=0x%x(0x%x) PIDX=0x%x, CIDX=0x%x\n", idev->enet_tx_ring_num, tx_ring->pidx,
+-                 tx_ring->work_cidx, tx_ring->cidx, REG32(TXQ_x_DESC_PIDX(tx_ring->num)), REG32(TXQ_x_DESC_CIDX(tx_ring->num)));
+-        idev->inno_stats.tx_ring_stats[tx_ring->num].ring_full++;
+-        spin_unlock_irqrestore(&idev->lock, lock_flags);
+-        return NETDEV_TX_BUSY;
++    if (unlikely(inno_tx_ring_space(tx_ring) <
++                 skb_shinfo(skb)->nr_frags + 3)) {
++        /* Ring is full: stop the queue so the qdisc holds the packet
++         * instead of retrying in a loop; the completion path wakes us. */
++        inno_tx_stop_queue(idev, dev);
++        if (inno_tx_ring_space(tx_ring) < skb_shinfo(skb)->nr_frags + 3) {
++            ipd_info("Not enough space in TX ring %d. pidx=0x%x cidx=0x%x(0x%x) PIDX=0x%x, CIDX=0x%x\n", idev->enet_tx_ring_num, tx_ring->pidx,
++                     tx_ring->work_cidx, tx_ring->cidx, REG32(TXQ_x_DESC_PIDX(tx_ring->num)), REG32(TXQ_x_DESC_CIDX(tx_ring->num)));
++            idev->inno_stats.tx_ring_stats[tx_ring->num].ring_full++;
++            spin_unlock_irqrestore(&idev->lock, lock_flags);
++            return NETDEV_TX_BUSY;
++        }
++        /* Completions arrived in between; this packet fits.  Stay
++         * stopped unless there is room for more than this one. */
++        if (inno_tx_ring_space(tx_ring) >= inno_tx_wake_thresh(tx_ring)) {
++            netif_start_queue(dev);
++        }
+     }
+ 
+     pidx = tx_ring->pidx;          /* Local copy */
+@@ -553,6 +628,15 @@
+     wmb();
+     REG32(TXQ_x_DESC_PIDX(tx_ring->num)) = tx_ring->pidx;
+ 
++    /* No room for another worst-case packet: stop now, before the stack
++     * hands us one we would have to bounce with NETDEV_TX_BUSY. */
++    if (unlikely(inno_tx_ring_space(tx_ring) < INNO_TX_STOP_THRESH)) {
++        inno_tx_stop_queue(idev, dev);
++        if (inno_tx_ring_space(tx_ring) >= inno_tx_wake_thresh(tx_ring)) {
++            netif_start_queue(dev);
++        }
++    }
++
+     spin_unlock_irqrestore(&idev->lock, lock_flags);
+ 
+     return NETDEV_TX_OK;
+@@ -611,6 +695,17 @@
+     ipd_warn("TX timeout on interface %s queue %d\n", dev->name, txqueue);
+ #endif
+     dev->stats.tx_errors++;
++    {
++        /* The queue has been stopped for watchdog_timeo, i.e. a wake-up
++         * was lost or a completion interrupt never came: run the
++         * completion NAPI by hand, it reaps and wakes the queues. */
++        const inno_enet_adapter_t *enet = netdev_priv(dev);
++        inno_device_t *idev = enet ? enet->idev : NULL;
++
++        if (idev && idev->napi_init) {
++            napi_schedule(idev->tx_irq ? &idev->napi_tx : &idev->napi);
++        }
++    }
+ }
+ 
+ /** @brief Get Net device Statistics
+@@ -1715,35 +1810,44 @@
+ }
+ 
+ 
+-/** @brief NAPI poll routine for TX rings
++/** @brief Reap completed TX descriptors of a netdev TX ring
+  *
+- *  @param [in] tx - Pointer to inno_ring
+- *  @return None
++ *  Caller holds idev->tx_reap_lock with BHs disabled (NAPI poll or
++ *  ndo_start_xmit).  Unmaps and frees at most @budget packets, publishes
++ *  the new work_cidx and wakes stopped netdev queues when enough of the
++ *  ring is free again.
++ *
++ *  @param [in] tx     - Pointer to inno_ring
++ *  @param [in] budget - Max number of packets (skbs) to complete
++ *  @return Number of packets completed; == budget means there may be more
+  */
+-static void
+-inno_tx_ring_poll(inno_ring_t *tx)
++static int
++inno_tx_ring_reap(inno_ring_t *tx, int budget)
+ {
+     inno_device_t         *idev = tx->idev;
+-    uint16_t              cur_cidx;
++    uint16_t              cur_cidx, hw_cidx;
+     inno_tx_wb_t          wb;
+-
+-    spin_lock(&idev->napi_lock);
++    int                   done = 0;
+ 
+     if(idev->napi_init == 0) {
+-        spin_unlock(&idev->napi_lock);
+-        return;
++        return 0;
+     }
+ 
+     if(idev->device_id == INNO_TERALYNX_PCI_DEVICE_ID &&
+             idev->rev_id == INNO_TERALYNX_PCI_DEVICE_REV_ID_A0) {
+-        tx->cidx = REG32(TXQ_x_DESC_CIDX(tx->num));
++        hw_cidx = REG32(TXQ_x_DESC_CIDX(tx->num));
+     } else {
+-        tx->cidx = *tx->cidx_addr;
++        hw_cidx = *tx->cidx_addr;
++    }
++    if (unlikely(RING_IDX_MASKED(hw_cidx) >= tx->count)) {
++        /* Not a ring index; the walk below would never terminate */
++        return 0;
+     }
++    tx->cidx = hw_cidx;
+     cur_cidx = tx->work_cidx;
+ 
+     /* For each completed descriptor */
+-    while (cur_cidx != tx->cidx) {
++    while (cur_cidx != hw_cidx && done < budget) {
+         inno_ring_desc_info_t *info;
+ 
+         info = &tx->desc_info[RING_IDX_MASKED(cur_cidx)];
+@@ -1754,12 +1858,6 @@
+         memset(&tx->tx_wb[RING_IDX_MASKED(cur_cidx)], 0,
+                sizeof(inno_tx_wb_t));
+ 
+-        if (wb.dd == 0) {
+-            //ipd_debug("wb.dd is 0\n");
+-            /* Supposed to be done but still pending !?!! */
+-            //break;
+-        }
+-
+         if (wb.crc) {
+             /* CRC error - increment counters */
+             idev->inno_stats.wb_stats.wb_crc++;
+@@ -1794,15 +1892,87 @@
+         if (info->skb != NULL) {
+             ipd_debug("Free skb pointer is %p\n", info->skb);
+             dev_kfree_skb_any(info->skb);
++            info->skb = NULL;
++            done++;
+         }
+ 
+         /* Increment the cidx pointer */
+         RING_IDX_INCR(tx->count, cur_cidx);
+     }
+ 
+-    tx->work_cidx = cur_cidx;
++    WRITE_ONCE(tx->work_cidx, cur_cidx);
+ 
+-    spin_unlock(&idev->napi_lock);
++    /* Pairs with inno_tx_stop_queue(): either we see tx_stopped here or
++     * the stopping CPU sees the work_cidx just published. */
++    smp_mb();
++    if (tx->num == idev->enet_tx_ring_num &&
++        test_bit(0, &idev->tx_stopped) &&
++        inno_tx_ring_space(tx) >= inno_tx_wake_thresh(tx)) {
++        inno_tx_wake_queues(idev);
++    }
++
++    return done;
++}
++
++/** @brief Reap all netdev TX rings once
++ *
++ *  @return Number of packets completed, capped at @budget
++ */
++static int
++inno_tx_rings_reap(inno_device_t *idev, int budget)
++{
++    int ring_num;
++    int done = 0;
++
++    spin_lock(&idev->tx_reap_lock);
++    for (ring_num = 0; ring_num < NUM_TX_RINGS && done < budget; ring_num++) {
++        inno_ring_t *tx = &idev->tx_ring[ring_num];
++        if ((tx->flags & INNO_RING_INIT) &&
++            (tx->flags & INNO_RING_NETDEV)) {
++            done += inno_tx_ring_reap(tx, budget - done);
++        }
++    }
++    spin_unlock(&idev->tx_reap_lock);
++
++    return done;
++}
++
++/** @brief NAPI poll routine of the dedicated TX completion vector
++ *
++ */
++static int
++inno_tx_napi_poll(struct napi_struct *napi,
++                  int                budget)
++{
++    inno_device_t *idev = container_of(napi, inno_device_t, napi_tx);
++    int           done;
++    int           i;
++
++    done = inno_tx_rings_reap(idev, budget);
++    if (done >= budget) {
++        return budget;
++    }
++
++    /* Same race as in inno_ring_poll(): the interrupt was cleared in the
++     * handler while a CIDX writeback may still have been in flight.  A
++     * PCIe read forces the round trip, then look once more. */
++    (void) REG32(SYNC_MODE);
++    done += inno_tx_rings_reap(idev, budget - done);
++    if (done >= budget) {
++        return budget;
++    }
++
++    if (napi_complete_done(napi, done)) {
++        /* Re-enable the TX completion interrupts */
++        for (i = 0; i < rupt_mask_words; i++) {
++            if (idev->napi_tx_mask[i] != 0) {
++                REG32(idev->inno_intr_regs.intr_inms + i * 4) =
++                    idev->napi_tx_mask[i];
++            }
++        }
++    }
++
++    return done;
+ }
+ 
+ 
+@@ -1817,6 +1987,7 @@
+     int         start_budget, last_budget, work_done;
+     int         i;
+     int         pcie_read_done = 0;
++    int         tx_more = 0;
+ 
+     inno_device_t *idev =
+         container_of(napi, inno_device_t, napi);
+@@ -1869,15 +2040,14 @@
+ 
+     idev->last_ring_num = ring_num;
+ 
+-    /* Now process the TX rings once */
+-    while (1) {
+-        for (ring_num = 0; ring_num < NUM_TX_RINGS; ring_num++) {
+-            inno_ring_t *tx = &idev->tx_ring[ring_num];
+-            if ((tx->flags & INNO_RING_INIT) &&
+-                (tx->flags & INNO_RING_NETDEV)) {
+-                inno_tx_ring_poll(tx);
+-            }
+-        }
++    /* Now process the TX rings once, unless TX completions have their
++     * own vector and NAPI context (inno_tx_napi_poll()).  Until that
++     * vector has been seen firing we keep reaping here as before, so a
++     * device that does not deliver it only loses the offload.  The work
++     * is bounded; if the bound is hit we stay scheduled. */
++    while (!idev->tx_irq || !READ_ONCE(idev->tx_irq_seen)) {
++        tx_more = (inno_tx_rings_reap(idev, INNO_TX_NAPI_REAP) >=
++                   INNO_TX_NAPI_REAP);
+ 
+         if (pcie_read_done) {
+             /* Already forced the flush */
+@@ -1925,14 +2095,30 @@
+         }
+     }
+ 
++    if (tx_more) {
++        /* TX completions left over: poll again */
++        return start_budget;
++    }
++
+     if (work_done < start_budget) {
++        /* Also the TX rupts if our handler masked them (see
++         * _inno_napi_handler()); a spurious unmask only costs one
++         * interrupt on the TX vector. */
++        bool tx_too;
+ 
+         napi_complete(napi);
+ 
++        tx_too = READ_ONCE(idev->tx_masked_by_napi);
++        if (tx_too) {
++            WRITE_ONCE(idev->tx_masked_by_napi, false);
++        }
++
+         /* Re-enable interrupts */
+         for (i = 0; i < rupt_mask_words; i++) {
+-            if (idev->napi_mask[i] != 0) {
+-                REG32(idev->inno_intr_regs.intr_inms + i * 4) = idev->napi_mask[i];
++            uint32_t mask = idev->napi_mask[i] |
++                            (tx_too ? idev->napi_tx_mask[i] : 0);
++            if (mask != 0) {
++                REG32(idev->inno_intr_regs.intr_inms + i * 4) = mask;
+             }
+         }
+     }
+@@ -1962,6 +2148,8 @@
+     }
+ 
+     idev->napi_init = 0;
++    napi_disable(&idev->napi_tx);
++    netif_napi_del(&idev->napi_tx);
+     napi_disable(&idev->napi);
+     netif_napi_del(&idev->napi);
+ 
+@@ -2015,7 +2203,15 @@
+     netif_napi_add_weight(idev->ndev, &idev->napi, inno_ring_poll, NAPI_POLL_WEIGHT);
+ #endif
+ 
++    /* TX completion context; only scheduled when the device gave us a
++     * separate MSI-X vector for it (idev->tx_irq) */
++    spin_lock_init(&idev->tx_reap_lock);
++    idev->tx_stopped = 0;
++    netif_napi_add_tx_weight(idev->ndev, &idev->napi_tx, inno_tx_napi_poll,
++                             NAPI_POLL_WEIGHT);
++
+     napi_enable(&idev->napi);
++    napi_enable(&idev->napi_tx);
+ 
+     memset(&(idev->inno_netdev),0,sizeof(inno_netdev_t));
+ 
+--- a/ipd.h
++++ b/ipd.h
+@@ -62,6 +62,10 @@
+  * but not wasste too much space */
+ #define INNO_RX_SKB_HDR_LEN    256
+ 
++/* MSI-X table entry used for netdev TX completions.  Kernel-internal: it
++ * sits right after the vectors userspace knows about (NUM_MSIX_VECS). */
++#define IPD_MSIX_ENTRY_NAPI_TX NUM_MSIX_VECS
++
+ #define INNO_DMA_BLOCK_SIZE    4096
+ 
+ #define MIN_PACKET_SIZE        64
+@@ -316,6 +320,18 @@
+ 
+     struct napi_struct      napi;                  /** Struct for NAPI rupts */
+ 
++    /* TX completion handling (netdev TX ring) */
++    struct napi_struct      napi_tx;               /** TX completion NAPI */
++    uint32_t                napi_tx_mask[RUPT_MASK_WORDS_MAX]; /** TX NAPI interrupts */
++    unsigned int            tx_irq;                /** Linux IRQ of the TX completion
++                                                       vector, 0 = shared with napi */
++    bool                    tx_irq_seen;           /** tx_irq has fired at least once */
++    bool                    tx_masked_by_napi;     /** napi vector masked the TX rupts
++                                                       (while !tx_irq_seen) */
++    spinlock_t              tx_reap_lock;          /** Serializes TX completion reaping */
++    unsigned long           tx_stopped;            /** bit 0: some netdev queue was
++                                                       stopped for a full TX ring */
++
+     uint32_t                napi_mask[RUPT_MASK_WORDS_MAX]; /** NAPI interrupts */
+     int                     napi_init;             /** 1 == NAPI initialized */
+ 
+--- a/ipd_main.c
++++ b/ipd_main.c
+@@ -96,6 +96,12 @@
+ 
+ 
+ 
++/* Give netdev TX completions their own MSI-X vector + NAPI context instead
++ * of sharing vector 0 / the RX NAPI. */
++static bool ipd_tx_irq_split = true;
++module_param_named(tx_irq_split, ipd_tx_irq_split, bool, 0444);
++MODULE_PARM_DESC(tx_irq_split, "1 = dedicated MSI-X vector for netdev TX completions (default 1)");
++
+ extern void inno_sysfs_init(inno_device_t  *idev, int max_device);
+ extern void inno_sysfs_deinit(void);
+ uint16_t rupt_mask_words = 0;
+@@ -940,13 +946,19 @@
+     if (ioctl->flags & INNO_RING_NETDEV) {
+         ring->flags |= INNO_RING_NETDEV;
+         dev          = &idev->pdev->dev;
++        msix_vector = MSIX_VECTOR_NAPI;
+         if (ioctl->flags & INNO_RING_TX) {
+             idev->enet_tx_ring_num = ring->num;
+-            idev->napi_mask[0] |= 1 << inno_txq_int[ring->num];
++            if (idev->tx_irq) {
++                /* TX completions go to their own vector / NAPI */
++                idev->napi_tx_mask[0] |= 1 << inno_txq_int[ring->num];
++                msix_vector = IPD_MSIX_ENTRY_NAPI_TX;
++            } else {
++                idev->napi_mask[0] |= 1 << inno_txq_int[ring->num];
++            }
+         } else {
+             idev->napi_mask[0] |= 1 << inno_rxq_int[ring->num];
+         }
+-        msix_vector = MSIX_VECTOR_NAPI;
+     } else {
+         msix_vector = ioctl->vector;
+     }
+@@ -1220,7 +1232,8 @@
+     REG32(idev->inno_intr_regs.intr_immr + rupt_bit * 4) = msix_vector;
+ 
+     /* Enable the interrupts for the updated interrupt mask */
+-    REG32(idev->inno_intr_regs.intr_inms) = idev->napi_mask[0];
++    REG32(idev->inno_intr_regs.intr_inms) = idev->napi_mask[0] |
++                                            idev->napi_tx_mask[0];
+ 
+     ring->flags |= INNO_RING_INIT;
+ 
+@@ -1319,6 +1332,13 @@
+ 
+     if (ring->flags & INNO_RING_NETDEV) {
+         if (ring->flags & INNO_RING_TX) {
++            if (idev->napi_tx_mask[0] & (1 << inno_txq_int[ring->num])) {
++                /* Mask the ring's interrupt before dropping it from the
++                 * TX NAPI mask, nothing would mask it afterwards */
++                REG32(idev->inno_intr_regs.intr_inmc) =
++                    1 << inno_txq_int[ring->num];
++                idev->napi_tx_mask[0] &= ~(1 << inno_txq_int[ring->num]);
++            }
+             idev->napi_mask[0] &= inno_txq_int[ring->num];
+         } else {
+             idev->napi_mask[0] &= inno_rxq_int[ring->num];
+@@ -4537,6 +4557,32 @@
+ }
+ #endif
+ 
++/** @brief Fast interrupt handler for the netdev TX completion vector
++ *
++ *  @return ERRNO
++ */
++static irqreturn_t
++_inno_napi_tx_handler(int  irq, void *dev_id)
++{
++    inno_device_t  *idev = dev_id;
++    int            i;
++
++    /* Disable and clear the TX completion interrupts */
++    for (i = 0; i < rupt_mask_words; i++) {
++        if (idev->napi_tx_mask[i] != 0) {
++            REG32(idev->inno_intr_regs.intr_inmc + i * 4) = idev->napi_tx_mask[i];
++            REG32(idev->inno_intr_regs.intr_incr + i * 4) = idev->napi_tx_mask[i];
++        }
++    }
++
++    if (unlikely(!idev->tx_irq_seen)) {
++        idev->tx_irq_seen = true;
++    }
++    napi_schedule(&idev->napi_tx);
++
++    return IRQ_HANDLED;
++}
++
+ /** @brief Fast interrupt handler for NAPI
+  *
+  *  @return ERRNO
+@@ -4546,14 +4592,24 @@
+ {
+     inno_device_t  *idev = dev_id;
+     int            i;
++    /* Until the dedicated TX completion vector has proven itself, treat
++     * the TX rupts as ours as well: if the device delivers them here
++     * after all (INTR_IMMR not honouring entry 8) this keeps the old
++     * shared behaviour instead of leaving the cause pending. */
++    bool           tx_too = idev->tx_irq && !READ_ONCE(idev->tx_irq_seen);
+ 
+     /* Disable and clear the interrupts */
+     for (i = 0; i < rupt_mask_words; i++) {
+-        if (idev->napi_mask[i] != 0) {
+-            REG32(idev->inno_intr_regs.intr_inmc + i * 4) = idev->napi_mask[i];
+-            REG32(idev->inno_intr_regs.intr_incr + i * 4) = idev->napi_mask[i];
++        uint32_t mask = idev->napi_mask[i] |
++                        (tx_too ? idev->napi_tx_mask[i] : 0);
++        if (mask != 0) {
++            REG32(idev->inno_intr_regs.intr_inmc + i * 4) = mask;
++            REG32(idev->inno_intr_regs.intr_incr + i * 4) = mask;
+         }
+     }
++    if (tx_too) {
++        WRITE_ONCE(idev->tx_masked_by_napi, true);
++    }
+ 
+     idev->inno_stats.inno_rupt_stats.num_int[MSIX_VECTOR_NAPI]++;
+     napi_schedule(&idev->napi);
+@@ -5259,13 +5315,24 @@
+ {
+     int err;
+     int vector;
++    /* The userspace-visible vectors plus one for netdev TX completions */
++    struct msix_entry ent[NUM_MSIX_VECS + 1];
++    int nvec = NUM_MSIX_VECS + (ipd_tx_irq_split ? 1 : 0);
+ 
+     ipd_trace("Enabling MSIX\n");
+     idev->num_vectors = 0;
++    idev->tx_irq = 0;
++    idev->tx_irq_seen = false;
++    idev->tx_masked_by_napi = false;
++    memset(idev->napi_tx_mask, 0, sizeof(idev->napi_tx_mask));
+     for (vector = 0; vector < NUM_MSIX_VECS; vector++) {
+         init_waitqueue_head(&idev->rupts[vector].wait_q);
+         idev->msix[vector].entry = vector;
+     }
++    memset(ent, 0, sizeof(ent));
++    for (vector = 0; vector < NUM_MSIX_VECS + 1; vector++) {
++        ent[vector].entry = vector;
++    }
+ 
+ #if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 13, 0)
+     err = pci_enable_msix(idev->pdev,
+@@ -5273,10 +5340,15 @@
+                           NUM_MSIX_VECS);
+     if (err) {
+ #else
+-    err = pci_enable_msix_range(idev->pdev,
+-                          idev->msix,
+-                          NUM_MSIX_VECS,
+-                          NUM_MSIX_VECS);
++    err = pci_enable_msix_range(idev->pdev, ent, nvec, nvec);
++    if (err < 0 && nvec > NUM_MSIX_VECS) {
++        /* No room for the extra vector: TX completions share vector 0 */
++        nvec = NUM_MSIX_VECS;
++        err = pci_enable_msix_range(idev->pdev, ent, nvec, nvec);
++    }
++    if (err >= 0) {
++        memcpy(idev->msix, ent, sizeof(idev->msix));
++    }
+     if (err < 0) {
+ #endif
+         ipd_err("Couldn't acquire enough MSIX vectors %d\n", err);
+@@ -5319,6 +5391,23 @@
+         }
+         return err;
+     }
++    if (nvec > NUM_MSIX_VECS) {
++        unsigned int tx_irq = ent[IPD_MSIX_ENTRY_NAPI_TX].vector;
++
++        if (request_irq(tx_irq, &_inno_napi_tx_handler, 0,
++                        "inno_irq-8-napi-tx", idev) == 0) {
++            idev->tx_irq = tx_irq;
++            /* Keep TX completion work off the CPU that takes the RX NAPI
++             * interrupt (everything lands on CPU 0 by default).  Can be
++             * changed through /proc/irq/N/smp_affinity. */
++            if (num_online_cpus() > 1) {
++                irq_set_affinity_and_hint(tx_irq,
++                    cpumask_of(cpumask_local_spread(1, NUMA_NO_NODE)));
++            }
++        } else {
++            ipd_err("TX completion vector unavailable, sharing the NAPI vector\n");
++        }
++    }
+     idev->intr_type |= INNO_INTR_MSIX_ENABLED;
+     ipd_info("MSIX Success\n");
+     return 0;
+@@ -5402,6 +5491,13 @@
+         idev->inno_stats.inno_rupt_stats.num_int[0]=0;
+     } else if(idev->intr_type & INNO_INTR_MSIX_ENABLED) {
+         ipd_info("Disabling MSIX\n");
++        if (idev->tx_irq) {
++            irq_set_affinity_and_hint(idev->tx_irq, NULL);
++            disable_irq(idev->tx_irq);
++            free_irq(idev->tx_irq, idev);
++            idev->tx_irq = 0;
++            memset(idev->napi_tx_mask, 0, sizeof(idev->napi_tx_mask));
++        }
+         for (vector = 0; vector < NUM_MSIX_VECS; vector++) {
+             if (idev->msix[vector].vector != 0) {
+                 unsigned long flags;

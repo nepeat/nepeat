@@ -145,6 +145,20 @@ cs8210-sdk-chroot /bin/bash -c "
   cd $SDK
   ./auto_load_user.sh -m '$innv' -k $macarg -d
   ./c-phy/auto_load_user.sh -m '$credo' -e $MACSEC -l
+  # phy_server reads commands from /tmp/cls_phy_fifo and, once the last
+  # writer (phy_shell, the loader) has closed it, every read() returns EOF at
+  # once: it spun at 100% of a core (~29k read()/s, strace 2026-11-11). Hold
+  # a writer open for its lifetime so read() blocks; phy_shell still works
+  # (FIFOs take several writers). It stays in this unit's cgroup and goes
+  # away with the SDK on stop.
+  for _ in 1 2 3 4 5 6 7 8 9 10; do [ -p /tmp/cls_phy_fifo ] && break; sleep 1; done
+  if [ -p /tmp/cls_phy_fifo ]; then
+    # Plain sleep: the chroot is busybox, which picks the applet from argv[0]
+    # (exec -a renaming made it exit at once).
+    sleep 2147483647 </dev/null >/tmp/cls_phy_fifo 2>/dev/null &
+  else
+    echo 'cs8210-switch-up: /tmp/cls_phy_fifo missing, phy_server may busy-loop' >&2
+  fi
   # The Credo loader writes 'double_CRC ... enable=1' for every port, also in
   # MACsec bypass. In bypass every frame the PHY passes to the ASIC then
   # fails the ASIC's FCS check (100% rx_frames_err_crc with a clean PCS;

@@ -1,0 +1,366 @@
+ipd: RX buffers from a page_pool, one refill doorbell per poll, napi_alloc_skb
+
+CPU 0 runs the only RX NAPI and sat at ~99% in ksoftirqd/0 under load
+(2026-11-11).  Per received packet inno_ring_poll()/inno_rx_ring_poll()
+did:
+
+ * alloc_page() + dma_map_page(PAGE_SIZE) for the refill and
+   dma_unmap_page(PAGE_SIZE) for the received buffer.  The PCIe host on
+   this board is not marked dma-coherent in the device tree, so on arm64
+   each map/unmap is a cache clean/invalidate over the whole 4 KiB page,
+   for a ~1.5 KiB frame.
+ * a wmb() + RXQ_x_DESC_PIDX MMIO write for every refilled descriptor.
+ * alloc_skb() for the header skb.
+
+Changes:
+
+ * Each netdev RX ring gets a page_pool (PP_FLAG_DMA_MAP |
+   PP_FLAG_DMA_SYNC_DEV).  Pages are mapped once and come back to the
+   pool when the stack frees the skb (skb_mark_for_recycle), so the hot
+   path has no page allocator and no map/unmap; the received bytes are
+   made visible with a dma sync of wb.length instead of an unmap of the
+   whole page.  inno_alloc_ring()/inno_free_ring()/refill_ring() use the
+   pool for netdev rings; userspace rings are untouched.
+ * The refill writes RXQ_x_DESC_PIDX once per ring per poll.
+ * Descriptors of discarded packets keep their buffer and are simply
+   posted again.  This replaces the need_release free and also stops the
+   page leaks the old refill had for multi-descriptor discards and for a
+   trailing descriptor holding only FCS bytes (it overwrote / dropped
+   pages that were still allocated and mapped).
+ * napi_alloc_skb() instead of alloc_skb(); napi_complete_done() instead
+   of napi_complete().
+ * The refill no longer returns -1 from the NAPI poll on a mapping error.
+
+The page_pool allocation side is serialized by idev->napi_lock (RX poll,
+refill, refill_ring() and the ring teardown).
+
+Not verified on hardware when written.
+
+--- a/inno_enet.c
++++ b/inno_enet.c
+@@ -1367,6 +1367,12 @@
+         do {
+             memcpy(&wb, &rx->rx_wb[RING_IDX_MASKED(end_cidx)],
+                    sizeof(inno_rx_wb_t));
++            /* The buffer stays DMA-mapped (page_pool); hand the bytes the
++             * device wrote to the CPU before anything reads them */
++            if (rx->pages[RING_IDX_MASKED(end_cidx)].page != NULL) {
++                inno_rx_buf_sync(rx, &rx->pages[RING_IDX_MASKED(end_cidx)],
++                                 wb.length);
++            }
+             if ((total_len != 0) && (wb.sop)) {
+                 ipd_err("RX WB got unexpected SOP - index %x\n", end_cidx);
+                 last_cidx = rx->cidx;
+@@ -1583,7 +1589,8 @@
+                 break;
+         }
+ 
+-        skb = alloc_skb(pull_len+INNO_RX_SKB_HDR_LEN, GFP_ATOMIC);
++        /* napi_alloc_skb(): per-CPU NAPI skb cache instead of kmalloc */
++        skb = napi_alloc_skb(napi, pull_len+INNO_RX_SKB_HDR_LEN);
+         if (!skb) {
+             ndev->stats.rx_dropped++;
+             ipd_err("Unable allocate Rx skb memory\n");
+@@ -1684,11 +1691,12 @@
+         ipd_debug("block_len=%d, wb.length=%d \n", block_len, wb.length);
+ 
+         /* First block */
++        /* Frag pages go back to the ring's page_pool when the skb dies */
++        skb_mark_for_recycle(skb);
++
+         if (block_len >= (wb.length-ETH_FCS_LEN)) {
+             /* Nothing left - release the page */
+-            dma_unmap_page(&pdev->dev, dma->dma_addr, PAGE_SIZE,
+-                           DMA_FROM_DEVICE);
+-            __free_page(dma->page);
++            inno_rx_buf_free(rx, dma, true);
+         } else {
+             int fcs_len = 0;
+             if(wb.eop) fcs_len = ETH_FCS_LEN;
+@@ -1696,12 +1704,9 @@
+             skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, dma->page,
+                             block_len,
+                             wb.length - block_len - fcs_len, PAGE_SIZE);
+-            dma_unmap_page(&pdev->dev, dma->dma_addr, PAGE_SIZE,
+-                           DMA_FROM_DEVICE);
++            memset(dma, 0, sizeof(inno_dma_alloc_t));
+         }
+ 
+-        memset(dma, 0, sizeof(inno_dma_alloc_t));
+-
+         while (1) {
+             int fcs_len = 0;
+             ipd_debug("RX: desc len %d for cidx 0x%x\n",wb.length, rx->cidx);
+@@ -1770,11 +1775,11 @@
+                 /* Add the page to the skb as a new frag */
+                 skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, dma->page,
+                                 0, wb.length - fcs_len, PAGE_SIZE);
++                memset(dma, 0, sizeof(inno_dma_alloc_t));
++            } else {
++                /* Only FCS bytes in this buffer: not part of the skb */
++                inno_rx_buf_free(rx, dma, true);
+             }
+-            dma_unmap_page(&pdev->dev, dma->dma_addr, PAGE_SIZE,
+-                           DMA_FROM_DEVICE);
+-
+-            memset(dma, 0, sizeof(inno_dma_alloc_t));
+         }
+ 
+         RING_IDX_INCR(rx->count, rx->cidx);
+@@ -1783,14 +1788,10 @@
+         budget--;
+         if (1 == need_release)
+         {
+-            if (rx->pages[RING_IDX_MASKED(last_cidx)].page != NULL)
+-            {
+-                /* Temporarily commented out log, needs investigation on why control reaches here */
+-                /* ipd_info("last_cidx %d page: %p\n", last_cidx, rx->pages[RING_IDX_MASKED(last_cidx)].page); */
+-                dma_unmap_page(&pdev->dev, rx->pages[RING_IDX_MASKED(last_cidx)].dma_addr, PAGE_SIZE,
+-                               DMA_FROM_DEVICE);
+-                __free_page(rx->pages[RING_IDX_MASKED(last_cidx)].page);
+-            }
++            /* The descriptors of a discarded packet keep their (still
++             * mapped) buffers; the refill in inno_ring_poll() posts them
++             * again as they are.  Nothing to free. */
++            (void) last_cidx;
+             need_release = 0;
+         }
+         /* Update the posted_cidx.  This is a PCIe MMIO read (a full
+@@ -2064,31 +2065,43 @@
+         inno_ring_t *rx = &idev->rx_ring[ring_num];
+         if ((rx->flags & INNO_RING_INIT) &&
+             (rx->flags & INNO_RING_NETDEV)) {
++            rxq_0_desc_pidx_t rxq_pidx;
++            bool              posted = false;
++
++            if (rx->pp == NULL) {
++                continue;
++            }
++
++            /* napi_lock serializes the page_pool allocation side against
++             * the ring teardown path */
++            spin_lock(&idev->napi_lock);
+             while (rx->pidx != RING_IDX_COMPL(rx->cidx)) {
+-                rxq_0_desc_pidx_t rxq_pidx;
+                 inno_dma_alloc_t  *dma = &rx->pages[RING_IDX_MASKED(rx->pidx)];
+-                dma->page = alloc_page(__GFP_HIGHMEM);
+-                if (dma->page == NULL) {
++
++                /* A descriptor whose packet was discarded still owns its
++                 * buffer: post it again.  Otherwise take a (recycled,
++                 * already DMA-mapped) page from the pool. */
++                if (dma->page == NULL &&
++                    inno_rx_buf_alloc(rx, dma, GFP_ATOMIC | __GFP_NOWARN) != 0) {
+                     /* We might run out or we will get more on the next rupt */
+                     break;
+                 }
+-                dma->dma_addr = dma_map_page(&idev->pdev->dev, dma->page, 0,
+-                                             PAGE_SIZE, DMA_FROM_DEVICE);
+-                if (dma_mapping_error(&idev->pdev->dev, dma->dma_addr)) {
+-                    ipd_err("%s dma_map_page err ring_num:%d offset:%u len:%u \n", __func__,
+-                            ring_num, 0, (unsigned)PAGE_SIZE);
+-                    return -1;
+-                }
+ 
+-                dma->vmaddr = page_address(dma->page);
+-                smp_mb();
+                 rx->rx_desc[RING_IDX_MASKED(rx->pidx)].hsn_upper =
+                     (uint32_t)(dma->dma_addr >> 32);
+                 rx->rx_desc[RING_IDX_MASKED(rx->pidx)].hsn_lower =
+                     (uint32_t)(dma->dma_addr & 0x00000000ffffffff);
+                 RING_IDX_INCR(rx->count, rx->pidx);
++                posted = true;
++            }
++            spin_unlock(&idev->napi_lock);
++
++            if (posted) {
++                /* One doorbell for the whole batch instead of an MMIO
++                 * write per page.
++                 * arm64: descriptor stores must be visible before the doorbell */
++                rxq_pidx.data = 0;
+                 rxq_pidx.flds.num_f = rx->pidx;
+-                /* arm64: descriptor stores must be visible before the doorbell */
+                 wmb();
+                 REG32(RXQ_x_DESC_PIDX(ring_num)) = rxq_pidx.data;
+             }
+@@ -2100,15 +2113,14 @@
+         return start_budget;
+     }
+ 
+-    if (work_done < start_budget) {
++    if (work_done < start_budget &&
++        napi_complete_done(napi, work_done)) {
++
+         /* Also the TX rupts if our handler masked them (see
+          * _inno_napi_handler()); a spurious unmask only costs one
+          * interrupt on the TX vector. */
+-        bool tx_too;
+-
+-        napi_complete(napi);
++        bool tx_too = READ_ONCE(idev->tx_masked_by_napi);
+ 
+-        tx_too = READ_ONCE(idev->tx_masked_by_napi);
+         if (tx_too) {
+             WRITE_ONCE(idev->tx_masked_by_napi, false);
+         }
+--- a/ipd.h
++++ b/ipd.h
+@@ -33,6 +33,7 @@
+ #include <linux/etherdevice.h>
+ #include <net/genetlink.h>
+ #include <linux/cdev.h>
++#include <net/page_pool/helpers.h>
+ 
+ /** @file ipd.h
+  *
+@@ -156,8 +157,43 @@
+ 
+     inno_dma_alloc_t      *pages;       /** Array of ring pages */
+ 
++    struct page_pool      *pp;          /** RX buffer pool (netdev RX rings) */
++
+ } inno_ring_t;
+ 
++/* Netdev RX ring buffers come from a page_pool: pages stay DMA-mapped and
++ * are recycled when the stack frees the skb.  Allocation and "in_napi"
++ * frees are serialized by idev->napi_lock. */
++static inline int
++inno_rx_buf_alloc(inno_ring_t *ring, inno_dma_alloc_t *dma, gfp_t gfp)
++{
++    struct page *page = page_pool_alloc_pages(ring->pp, gfp);
++
++    if (page == NULL) {
++        return -ENOMEM;
++    }
++    dma->page     = page;
++    dma->dma_addr = page_pool_get_dma_addr(page);
++    dma->vmaddr   = page_address(page);
++    return 0;
++}
++
++/* Give an RX buffer that was not handed to the stack back to the pool */
++static inline void
++inno_rx_buf_free(inno_ring_t *ring, inno_dma_alloc_t *dma, bool in_napi)
++{
++    page_pool_put_full_page(ring->pp, dma->page, in_napi);
++    memset(dma, 0, sizeof(inno_dma_alloc_t));
++}
++
++/* Make @len bytes the device wrote into an RX buffer visible to the CPU */
++static inline void
++inno_rx_buf_sync(inno_ring_t *ring, inno_dma_alloc_t *dma, uint32_t len)
++{
++    page_pool_dma_sync_for_cpu(ring->pp, dma->page, 0,
++                               min_t(uint32_t, len, PAGE_SIZE));
++}
++
+ /** @brief Interrupt vector definition */
+ typedef struct inno_rupt_vector_s {
+     uint16_t          vector;                    /** Vector number */
+--- a/ipd_main.c
++++ b/ipd_main.c
+@@ -760,6 +760,18 @@
+             /* RX descriptors are allocated only once. So we should be able to recycle it.
+              * For some reason if it is not allocated we allocate it. */
+             if (dma->page == NULL) {
++                if (rx->pp != NULL) {
++                    /* Netdev ring: buffers come from the page_pool, whose
++                     * allocation side is serialized by napi_lock */
++                    int rc;
++
++                    spin_lock_bh(&idev->napi_lock);
++                    rc = inno_rx_buf_alloc(rx, dma, GFP_ATOMIC | __GFP_NOWARN);
++                    spin_unlock_bh(&idev->napi_lock);
++                    if (rc != 0) {
++                        return;
++                    }
++                } else {
+                 dma->page = alloc_page(__GFP_HIGHMEM);
+                 if (dma->page == NULL) {
+                     /* We might run out or we will get more on the next rupt */
+@@ -774,6 +786,7 @@
+                     return;
+                 }
+                 dma->vmaddr = page_address(dma->page);
++                }
+                 smp_mb();
+                 rx->rx_desc[RING_IDX_MASKED(pidx)].hsn_upper =
+                     (uint32_t)(dma->dma_addr >> 32);
+@@ -1174,23 +1187,37 @@
+         /* Allocate pages and program the descriptors */
+         if (ioctl->flags & INNO_RING_NETDEV) {
+             uint32_t i;
++            /* RX buffers are recycled through a page_pool: one DMA mapping
++             * per page for its lifetime instead of alloc_page() +
++             * dma_map_page() + dma_unmap_page() for every packet */
++            struct page_pool_params pp_params = {
++                .order     = 0,
++                .flags     = PP_FLAG_DMA_MAP | PP_FLAG_DMA_SYNC_DEV,
++                .pool_size = ring->count,
++                .nid       = NUMA_NO_NODE,
++                .dev       = &idev->pdev->dev,
++                .dma_dir   = DMA_FROM_DEVICE,
++                .offset    = 0,
++                .max_len   = PAGE_SIZE,
++            };
++
++            ring->pp = page_pool_create(&pp_params);
++            if (IS_ERR(ring->pp)) {
++                ipd_err("RX ring %d page_pool create failed: %ld\n",
++                        ioctl->num, PTR_ERR(ring->pp));
++                ring->pp = NULL;
++                return -ENOMEM;
++            }
++
+             for (i = 0; i < ioctl->count; i++ ) {
+                 inno_dma_alloc_t  *dma = &ring->pages[i];
+-                dma->page = alloc_page(__GFP_HIGHMEM);
+-                if (dma->page == NULL) {
++                if (inno_rx_buf_alloc(ring, dma,
++                                      GFP_KERNEL | __GFP_NOWARN) != 0) {
+                     /* We might run out or we will get more on the next rupt */
+                     ipd_crit("Unable to allocate RX page memory \
+                            ring: %d, index: %d\n", ioctl->num, i);
+                     break;
+                 }
+-                dma->dma_addr = dma_map_page(&idev->pdev->dev, dma->page, 0,
+-                                             PAGE_SIZE, DMA_FROM_DEVICE);
+-                if (dma_mapping_error(&idev->pdev->dev, dma->dma_addr)) {
+-                    ipd_err("%s dma_map err i:%d offset:%u len:%u \n", __func__,
+-                            i, 0, (unsigned)PAGE_SIZE);
+-                    return -1;
+-                }
+-                dma->vmaddr = page_address(dma->page);
+                 smp_mb();
+                 ring->rx_desc[i].hsn_upper = (uint32_t)(dma->dma_addr >> 32);
+                 ring->rx_desc[i].hsn_lower = (uint32_t)(dma->dma_addr & 0x00000000ffffffff);
+@@ -1315,6 +1342,16 @@
+         } else {
+             int i;
+             /* Release RX buffers */
++            if (ring->pp != NULL) {
++                /* Netdev ring: back to the page_pool (which unmaps) */
++                spin_lock_bh(&idev->napi_lock);
++                for (i = 0; i < ring->count; i++) {
++                    if (ring->pages[i].page != NULL) {
++                        inno_rx_buf_free(ring, &ring->pages[i], false);
++                    }
++                }
++                spin_unlock_bh(&idev->napi_lock);
++            } else
+             for (i = 0; i < ring->count; i++) {
+                 if (ring->pages[i].dma_addr != 0) {
+                     dma_unmap_page(&idev->pdev->dev, ring->pages[i].dma_addr,
+@@ -1328,6 +1365,12 @@
+         kfree(ring->pages);
+         ring->pages = NULL;
+     }
++    if (ring->pp != NULL) {
++        /* Pages still held by skbs in the stack are released (and
++         * unmapped) by the pool when they come back */
++        page_pool_destroy(ring->pp);
++        ring->pp = NULL;
++    }
+     dev = &idev->pdev->dev;
+ 
+     if (ring->flags & INNO_RING_NETDEV) {

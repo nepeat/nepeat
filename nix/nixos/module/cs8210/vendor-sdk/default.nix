@@ -54,6 +54,16 @@ let
     isExecutable = true;
     replacements.libmdio = "${libmdio}/lib/libMdio.so";
   };
+  binPath = lib.makeBinPath [
+    pkgs.procps
+    pkgs.gnused
+    pkgs.coreutils
+    pkgs.ethtool
+    pkgs.iproute2
+    pkgs.systemd
+    pkgs.util-linux
+    pkgs.bash
+  ];
   switchUp =
     pkgs.runCommand "cs8210-switch-up"
       {
@@ -62,11 +72,14 @@ let
       ''
         install -D -m 0755 ${./cs8210-switch-up} $out/libexec/cs8210-switch-up
         patchShebangs $out/libexec
+        # /run/current-system/sw/bin last, at runtime: cs8210-show (EEPROM
+        # MAC) and the chroot helper's util-linux come from there. A runtime
+        # path, not a store path, so system.path changes don't touch the unit.
         makeWrapper $out/libexec/cs8210-switch-up $out/bin/cs8210-switch-up \
-          --prefix PATH : ${lib.makeBinPath [ pkgs.procps pkgs.gnused pkgs.coreutils pkgs.ethtool pkgs.iproute2 pkgs.systemd ]}
+          --prefix PATH : ${binPath} --suffix PATH : /run/current-system/sw/bin
         makeWrapper $out/libexec/cs8210-switch-up $out/bin/cs8210-switch-down \
           --add-flags --down \
-          --prefix PATH : ${lib.makeBinPath [ pkgs.procps pkgs.gnused pkgs.coreutils pkgs.ethtool pkgs.iproute2 pkgs.systemd ]}
+          --prefix PATH : ${binPath} --suffix PATH : /run/current-system/sw/bin
       '';
   # The SDK writes its own log files into its /tmp and never rotates them.
   # On 2026-11-10 a wedged innovium.user logged "Learn WB w/o expected SOP"
@@ -107,6 +120,26 @@ let
         punched=0
         last=$now
       fi
+    done
+  '';
+  sdkWatchdog = pkgs.writeShellScript "cs8210-sdk-watchdog" ''
+    set -u
+    last=0
+    while sleep 60; do
+      systemctl -q is-active cs8210-switch || continue
+      since=$(systemctl show -p ActiveEnterTimestamp --value cs8210-switch)
+      [ -n "$since" ] || continue
+      epoch=$(date -d "$since" +%s 2>/dev/null) || continue
+      hit=$(journalctl -k -q --no-pager --since "@$epoch" -g 'comm: ifcs-learn' -n 1 2>/dev/null) || hit=""
+      [ -n "$hit" ] || continue
+      now=$(date +%s)
+      if ((now - last < 900)); then
+        echo "SDK learn thread wedged again within 15 min of the last restart; not restarting: $hit"
+        continue
+      fi
+      echo "SDK learn thread wedged, restarting cs8210-switch: $hit"
+      last=$now
+      systemctl restart cs8210-switch || echo "restart of cs8210-switch failed"
     done
   '';
   pyEnv = pkgs.python3;
@@ -167,7 +200,13 @@ in
     systemd.services.cs8210-switch = {
       description = "CS8210 switch ASIC + Credo PHY bring-up (vendor SDK in chroot)";
       after = [ "systemd-modules-load.service" "network-pre.target" ];
-      path = [ chroot switchUp config.system.path ];
+      # Not config.system.path: that changes with any package in the system
+      # and then every deploy restarted this unit (= chip reset). The
+      # wrappers fall back to /run/current-system/sw/bin at runtime instead.
+      path = [
+        chroot
+        switchUp
+      ];
       environment =
         lib.optionalAttrs (cfg.innoviumPorts != null) {
           CS8210_INNV_PORTS = cfg.innoviumPorts;
@@ -185,6 +224,26 @@ in
         # then kills them; whatever is still in the cgroup after that is
         # removed by systemd.
         TimeoutStopSec = "90s";
+      };
+    };
+
+    # The SDK's learn thread wedges every few hours on this box (2026-11-10
+    # review: one all-ones PCIe read of the learn producer index, then a 32 GiB
+    # malloc and an endless loop; reviews/2026-11-10-sdk-learn-crash.md). The
+    # data plane is dead until cs8210-switch restarts, and restarts recover
+    # unattended (bond, DHCP, speeds). Until the root cause is shimmed, watch
+    # for the kernel's signature line and restart, at most once per 15 min.
+    systemd.services.cs8210-sdk-watchdog = {
+      description = "CS8210: restart the vendor SDK when its learn thread wedges";
+      wantedBy = [ "multi-user.target" ];
+      path = [
+        pkgs.coreutils
+        pkgs.systemd
+      ];
+      serviceConfig = {
+        ExecStart = sdkWatchdog;
+        Restart = "always";
+        RestartSec = 30;
       };
     };
 
