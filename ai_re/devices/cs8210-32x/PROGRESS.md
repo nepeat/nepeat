@@ -80,6 +80,45 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-10 (r) — iperf3 over fpp17-1: RX 429 Mb/s, then the CPU→port TX path stalls
+
+iperf3 3.21 (aarch64, same nixpkgs pin) was copied over fpp17-1, with
+port 5201 opened by a temporary `nixos-fw` rule on fpp17-1. The desktop
+reaches the switch routed through 10.60.2.1.
+- **desktop → switch (switch RX): 429 Mb/s** over 10 s, 65 retransmits.
+- **switch → desktop (`-R`, switch TX): hung.** After that the switch did
+  not answer on fpp17-1 at all (ping 100% lost both ways, ssh gone). The
+  link stayed up and there was nothing new in dmesg. A server socket sat in
+  FIN-WAIT-1 with 11 bytes unsent.
+- Where the frames stop, from counters read over serial:
+  - Linux: fpp17-1 `tx_packets` counts every new ping, and the fq_codel
+    qdisc shows 0 drops and 0 requeues, so `inno_enet_tx` accepts frames
+    and the ipd TX ring is not full (a full ring returns NETDEV_TX_BUSY
+    and would show requeues).
+  - ASIC CPU port (devport 0) `rx_frames_all` keeps rising (408,398 →
+    410,228), so the ASIC is still pulling frames off the DMA ring.
+  - devport 17 `tx_frames_all` is frozen at 230,208. Of the 370,941 large
+    frames (1519-2047 B, i.e. MTU frames plus the CPU header) that the CPU
+    port received, devport 17 sent only 42,990 frames of 1024-1518 B.
+  - So frames are dropped or held inside the ASIC between CPU-port ingress
+    (pipeline bypass, `syshdr` PIPELINE_BYPASS to sysport 17) and devport-17
+    egress. devport 17 shows no pause/PFC frames and no drop counters (none
+    are non-zero).
+- `port disable 17` / `port enable 17` in cls_shell did not clear it.
+  The bounce also removed the fpp17-1 routes (the address stayed); the
+  routes were re-added by hand and ping still failed. Most likely an SDK
+  restart is needed (not done yet).
+- One `cls_shell "ifcs show devport 0 stats"` call hung and was Ctrl-C'd.
+  innovium.user was idle and not wedged.
+- Correction: the `transns 2` in `ip -s -s link` is the carrier-transition
+  count, not TX watchdog timeouts. ipd's `ndo_tx_timeout` only bumps
+  `tx_errors`, and that stayed 0.
+- Hypothesis (unverified): the CPU-injected bypass traffic outran
+  devport 17's 10G egress, and a buffer or credit pool for CPU-sourced
+  traffic did not recover. Next: an SDK counter or buffer dump for the
+  CPU port / sysport 17 queues before restarting, then rate-limited TX
+  (`iperf3 -R -b`) to find the threshold.
+
 ### 2026-11-10 (q) — management over the front panel: DHCP, ping, ssh via fpp17-1
 
 At ~22:18 the user unplugged the management port (enp0s1 link down), and
