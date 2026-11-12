@@ -17,15 +17,19 @@ recipes), [dentos.md](dentos.md) (as-received disk + provenance),
 - ONIE's DTB lacks the ATF reserved-memory node and **crashes under memory
   pressure**. For bulk I/O, boot it with the RAM-patched DTB (uboot.md).
 - SoC is **secure-boot fused**, so SPI U-Boot can't be replaced. U-Boot 2018.03's EFI
-  is broken (log 2026-11-11 (c)).
-- **NixOS boots unattended** via extlinux: SPI env `nos_bootcmd` =
-  `setenv ramdisk_addr_r 0x10000000; scsi reset; sysboot scsi 0:1 any 0x0f000000 /extlinux/extlinux.conf`
-  (undo: `fw_setenv nos_bootcmd true`). Mgmt end2 DHCP 10.60.2.218 (takes ~30 s
-  after carrier), on BasementMDFSwitch1 USW-Pro-Max-48-PoE port 4 (LLDP).
+  is broken (log (c)), so EFI comes from a chainloaded mainline U-Boot (log (e)).
+- **NixOS boots unattended over real UEFI**: factory U-Boot 2018.03 ->
+  chainloads mainline **U-Boot 2026.10** (`/u-boot-tn48m.bin` on the ESP, built
+  by `nix/nixos/module/tn48m/uboot`) -> bootstd EFI -> **systemd-boot 262** ->
+  Linux 7.3.3. Cold power cycle verified 2026-11-12. SPI env `nos_bootcmd` =
+  `scsi reset; load scsi 0:1 0x7000000 u-boot-tn48m.bin && dcache off && icache off && go 0x7000000; setenv ramdisk_addr_r 0x10000000; sysboot scsi 0:1 any 0x0f000000 /extlinux/extlinux.conf`
+  (the extlinux tail is a stale fallback; undo everything with `fw_setenv nos_bootcmd true`).
+  Mgmt end2 DHCP 10.60.2.218 (MAC pinned in networkd), on BasementMDFSwitch1
+  USW-Pro-Max-48-PoE port 4 (LLDP).
   Deploy: `sudo nix copy --no-check-sigs --to ssh-ng://root@10.60.2.218 <toplevel>`,
   then `nix-env -p /nix/var/nix/profiles/system --set <toplevel>` +
   `<toplevel>/bin/switch-to-configuration boot|switch` over `sudo ssh` (root key of sea420-desktop).
-- Next: real EFI via a chainloaded mainline U-Boot.
+
 - Switch is sitting in ONIE (patched-DTB boot), mgmt 10.60.2.217.
 
 ## identity
@@ -128,6 +132,48 @@ in `dumps/sda.img.zst`, and writes one SPI env var):
   shows last mount 2022-05-11 and clean, so it appears nothing was replayed.
 
 ## log (newest first)
+
+### 2026-11-12 (e) — legit EFI: chainloaded mainline U-Boot + systemd-boot
+
+- Built mainline U-Boot 2026.10 (nixpkgs master) from `mvebu_db_armada8k_defconfig`
+  + `nixos/module/tn48m/uboot/0001-...patch`:
+  - new `armada-7040-tn48m.dts` (U-Boot control DT): factory AP/CP pinmux and
+    comphy lanes copied verbatim from the factory control DTB (numeric
+    phy-types are identical to mainline's constants), cp0_spi0 NOR, SATA0,
+    USB2 (usb3_0 + utmi0), MDIO PHY @0, mvpp2 eth2 SGMII. Compatible
+    `delta,tn48m`, so the DB-only PCA9555 VBUS code in board.c is skipped.
+  - **DRAM mapping fix**: upstream `mvebu_mem_map` maps RAM only up to
+    ATF_REGION_END + 2 GiB, but `lmb_arch_add_memory()` gives all banks to LMB
+    -> EFI conventional memory, and AllocateAnyPages takes the top, so the same
+    crash class as the factory U-Boot on any >2 GiB board.
+    `a8k_mem_map_add_dram()` (called from `a8k_dram_init_banksize()`, which
+    runs before `arch_reserve_mmu()`) adds the rest of bank 0
+    (0x8540_0000-0xC000_0000) and bank 1 (0x1_0000_0000 + 5 GiB). Upstreamable.
+  - Config: POSITION_INDEPENDENT, ENV_IS_NOWHERE (never touches the SPI env),
+    SPI_FLASH_WINBOND, SCSI/AHCI, FAT_WRITE + EFI_VARIABLE_FILE_STORE
+    (`/ubootefi.var`), no extlinux bootmeth, `bootcommand = bootflow scan`.
+- Chainload: `load scsi 0:1 0x7000000 u-boot-tn48m.bin; dcache off; icache off;
+  go 0x7000000` from the factory prompt (factory `dcache off` also turns off the
+  MMU). First try: SATA, USB, comphy all fine; EFI ran systemd-boot correctly
+  (it complained only about missing entries). Problems fixed after that:
+  extlinux bootmeth picking up the stale ESP extlinux.conf (DB env load
+  addresses overlap: "RD image overlaps OS image"); `bootflow scan -lb` needs
+  BOOTSTD_FULL; mvpp2 "No valid MAC address found" (no env), so Linux end2
+  MAC is pinned via networkd `[Link] MACAddress=18:be:92:16:56:42`.
+- Seen once: after EFI fell through, bootstd scanning `scsi 0:2` (ext4 root)
+  took a synchronous abort in U-Boot (far 0x4f300000edfe0dd0, reloc elr
+  0x3eeb8). Not reached now that EFI boots from p1; the U-Boot ELF is now
+  installed for symbolizing. **Open.**
+- NixOS: `hardware.tn48m.boot = "efi"`: systemd-boot (graceful, no EFI var
+  writes, installs the DTB `devicetree` line -> U-Boot EFI_DT_FIXUP),
+  u-boot-tn48m.bin via `systemd-boot.extraFiles`. `bootctl status`: Firmware
+  UEFI 2.110 (Das U-Boot), systemd-boot 262; EFI memmap gives Linux all 8 GiB
+  (EFI tables at 0x23ff..., i.e. top of bank 1 is mapped).
+- Cold power cycle, hands-off: BootROM -> ATF -> U-Boot 2018 -> U-Boot 2026.10 ->
+  systemd-boot -> 7.3.3 -> login; 52 ports, fancontrol active, 0 failed units.
+- Benign boot noise: `tpm tpm0: A TPM error (256) ... self test` (dentOS
+  showed it too), `crypto-safexcel ... error -2` (EIP197 firmware not shipped,
+  since only Prestera firmware is included), `cpufreq-dt is already registered`.
 
 ### 2026-11-11 (d) — extlinux boot persisted
 

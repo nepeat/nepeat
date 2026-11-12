@@ -109,6 +109,18 @@ than 8 GiB) and `/proc/device-tree/reserved-memory/psci-area@4000000` exists.
 FIT sub-image names: `kernel`, `initramfs`, `dtb`; configs `delta_tn48m`,
 `delta_tn48m-poe`.
 
+### chainload mainline U-Boot by hand (RAM only)
+
+```
+scsi reset
+load scsi 0:1 0x7000000 u-boot-tn48m.bin
+dcache off; icache off; go 0x7000000
+```
+
+The mainline prompt is `TN48M=> `. `bootflow scan` boots systemd-boot. It has
+no env storage, so `setenv` is lost on reset. This is what `nos_bootcmd`
+does since 2026-11-12.
+
 ### recover from a broken NOS boot
 
 Stop autoboot with `@wa23`, then `run onie_rescue` (or `run onie_bootcmd`) for
