@@ -108,6 +108,8 @@
         chickennugget = mkNixos "chickennugget" [ ./nixos/machine/chickennugget ];
         # Celestica CS8210-32X switch (aarch64, Alpine v3); see nixos/module/cs8210.
         cs8210 = mkNixos "cs8210" [ ./nixos/machine/cs8210 ];
+        # Delta TN48M switch (aarch64, Armada 7040 + Prestera); see nixos/module/tn48m.
+        tn48m = mkNixos "tn48m" [ ./nixos/machine/tn48m ];
       };
 
     # home-manager

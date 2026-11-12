@@ -1,0 +1,526 @@
+/*
+ * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
+ *
+ * Copyright (C) 2016 Marvell Technology Group Ltd.
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPLv2 or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
+#include "armada-7040.dtsi"
+
+/ {
+	model = "Delta TN48M";
+	compatible = "delta,tn48m", "marvell,armada7040",
+		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	aliases {
+		ethernet0 = &cp0_eth0;
+		ethernet1 = &cp0_eth1;
+		ethernet2 = &cp0_eth2;
+	};
+
+	switch-cpu {
+		compatible = "marvell,prestera-switch-rxtx-sdma";
+		status = "okay";
+	};
+
+	/* SFP+ cage signals via the mainline TN48M CPLD gpio children:
+	 * TX-disable on the GPO @0x31, presence (mod-def0) on the GPI @0x3a,
+	 * LOS on the GPI @0x40 — bit N of each register = SFP N (49+N). */
+	sfp49: sfp-49 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp1>;
+		los-gpio = <&cpld_gpi_40 0 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&cpld_gpi_3a 0 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&cpld_gpo 0 GPIO_ACTIVE_HIGH>;
+	};
+	sfp50: sfp-50 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp2>;
+		los-gpio = <&cpld_gpi_40 1 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&cpld_gpi_3a 1 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&cpld_gpo 1 GPIO_ACTIVE_HIGH>;
+	};
+	sfp51: sfp-51 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp3>;
+		los-gpio = <&cpld_gpi_40 2 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&cpld_gpi_3a 2 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&cpld_gpo 2 GPIO_ACTIVE_HIGH>;
+	};
+	sfp52: sfp-52 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp4>;
+		los-gpio = <&cpld_gpi_40 3 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&cpld_gpi_3a 3 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&cpld_gpo 3 GPIO_ACTIVE_HIGH>;
+	};
+
+	i2cmux {
+		compatible = "i2c-mux-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
+		i2c-parent = <&cp0_i2c1>;
+
+		i2c1_sfp1: i2c@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c1_sfp2: i2c@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c1_sfp3: i2c@2 {
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c1_sfp4: i2c@3 {
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+
+	/*
+	 * Front-panel status LEDs — bi-color (green/amber) SYS, FAN, PSU,
+	 * each a CP110 MPP GPIO, active-high. Mapping decompiled from
+	 * Sartura's replica `armada-7040-tn48m.dtb` (the original dent NOS
+	 * drove these from an out-of-tree led.c using raw global GPIO
+	 * numbers; this phandle form is base-independent and lands on our
+	 * gpiochips): cp0_gpio1 (gpio@100) lines 2,3,11,14,31 and
+	 * cp0_gpio2 (gpio@140) line 2. Greens default-on, ambers off;
+	 * SYS amber doubles as the kernel panic indicator.
+	 */
+	leds {
+		compatible = "gpio-leds";
+
+		led-sys-amber {
+			gpios = <&cp0_gpio2 2 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_AMBER>;
+			function = LED_FUNCTION_STATUS;
+			default-state = "off";
+			panic-indicator;
+		};
+
+		led-sys-green {
+			gpios = <&cp0_gpio1 31 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_STATUS;
+			/*
+			 * Heartbeat = "kernel alive" pulse (load-weighted blink).
+			 * Overrides default-state once the trigger registers; the
+			 * CONFIG_LEDS_TRIGGER_HEARTBEAT module autoloads. sys-amber
+			 * stays the panic-indicator, so a hung/panicked kernel reads
+			 * as steady-amber instead of a pulsing green.
+			 */
+			linux,default-trigger = "heartbeat";
+		};
+
+		led-fan-amber {
+			gpios = <&cp0_gpio1 11 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_AMBER>;
+			function = "fan";
+			default-state = "off";
+		};
+
+		led-fan-green {
+			gpios = <&cp0_gpio1 14 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = "fan";
+			default-state = "on";
+		};
+
+		led-psu-amber {
+			gpios = <&cp0_gpio1 2 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_AMBER>;
+			function = LED_FUNCTION_POWER;
+			default-state = "off";
+		};
+
+		led-psu-green {
+			gpios = <&cp0_gpio1 3 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_GREEN>;
+			function = LED_FUNCTION_POWER;
+			default-state = "on";
+		};
+	};
+
+	/*
+	 * Note: the root-level `prestera` node from dent's vintage of
+	 * this DTS (with `compatible = "marvell,prestera"` and a `ports`
+	 * subnode listing SFP slots) was unused by mainline. Mainline
+	 * prestera's `sw->np` comes from the PCI device's of_node, not
+	 * from a global compatible match. The PCI hierarchy under
+	 * `&cp0_pcie0` below is where DT properties (including
+	 * nvmem-cells) actually attach to the prestera ASIC — and where
+	 * the SFP+ port mapping (the `ports`/port49..52 subnode with
+	 * their sfp phandles) now lives, see `prestera@0,0`.
+	 */
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	/*
+	 * TN48M CPLD — mainline MFD stack (simple-mfd-i2c + delta,tn48m-cpld,
+	 * Linux 7.0). Splits the CPLD's GPIO into three register-backed
+	 * gpiochips (one output @0x31, two inputs @0x3a/@0x40) plus a reset
+	 * controller. Replaces dent's out-of-tree `dni,tn48m_cpld` node.
+	 */
+	cpld@41 {
+		compatible = "delta,tn48m-cpld";
+		reg = <0x41>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/* Output reg 0x31 — SFP TX-disable (bits 0-3 = SFP49-52). */
+		cpld_gpo: gpio@31 {
+			compatible = "delta,tn48m-gpo";
+			reg = <0x31>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		/* Input reg 0x3a — SFP presence / mod-def0 (bits 0-3). */
+		cpld_gpi_3a: gpio@3a {
+			compatible = "delta,tn48m-gpi";
+			reg = <0x3a>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		/* Input reg 0x40 — SFP LOS (bits 0-3). */
+		cpld_gpi_40: gpio@40 {
+			compatible = "delta,tn48m-gpi";
+			reg = <0x40>;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		/*
+		 * Reset lines (see dt-bindings/reset/delta,tn48m-reset.h):
+		 * 0 CPU_88F7040, 1 CPU_88F6820, 2 MAC_98DX3265 (NPU),
+		 * 3 PHY_88E1680, 4 PHY_88E1512, 5 POE (PD69200, -P only).
+		 * Reference as e.g. resets = <&tn48m_reset POE_RESET>.
+		 */
+		tn48m_reset: reset-controller {
+			compatible = "delta,tn48m-reset";
+			#reset-cells = <1>;
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+
+	tpm0: slb9670@0 {
+		compatible = "infineon,slb9670";
+		reg = <0>;
+		spi-max-frequency = <38000000>;
+		status = "okay";
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&cp0_i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	eeprom_at24: at24@56 {
+		compatible = "atmel,24c64";
+		reg = <0x56>;
+
+		/*
+		 * Mainline ONIE TLV layout (drivers/nvmem/layouts/onie-tlv.c).
+		 * Parses the TLV table the factory wrote to this EEPROM and
+		 * exposes named nvmem cells. The `mac-address` cell takes one
+		 * argument (an offset into the reserved MAC range), which is
+		 * what `<&onie_base_mac N>` consumers pick.
+		 */
+		nvmem-layout {
+			compatible = "onie,tlv-layout";
+
+			onie_base_mac: mac-address {
+				#nvmem-cell-cells = <1>;
+			};
+		};
+	};
+
+	/* Chassis fan controller: ADT7473, 3 fans (pwm1-3 + tach).
+	 * Present on both TN48M and TN48M-P; mainline adt7475 driver. */
+	fan-controller@2e {
+		compatible = "adi,adt7473";
+		reg = <0x2e>;
+	};
+
+	/* Board temperature sensors (LM75-compatible). 0x4a ran ~39 C,
+	 * 0x4b ~55 C (nearer the ASIC) in testing. */
+	temp-sensor@4a {
+		compatible = "ti,tmp1075";
+		reg = <0x4a>;
+	};
+
+	temp-sensor@4b {
+		compatible = "ti,tmp1075";
+		reg = <0x4b>;
+	};
+};
+
+&cp0_i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_spi0 {
+	status = "okay";
+
+	spi-flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0x0>;
+		spi-max-frequency = <20000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "uboot";
+				reg = <0x0 0x3f0000>;
+			};
+
+			partition@3f0000 {
+				label = "uboot-env";
+				reg = <0x3f0000 0x010000>;
+			};
+
+			partition@400000 {
+				label = "ONIE";
+				reg = <0x400000 0xc00000>;
+			};
+		};
+	};
+};
+
+&cp0_sata0 {
+	status = "okay";
+
+	/*
+	 * Mainline's cp11x SATA ports default to status = "disabled" (dent's
+	 * older vendored DTSI left them implicitly enabled). Enable both so
+	 * the internal SATA drive enumerates — matches the prior behavior
+	 * exactly now that the SoC DTSIs come from the kernel tree.
+	 */
+	sata-port@0 {
+		status = "okay";
+	};
+
+	sata-port@1 {
+		status = "okay";
+	};
+};
+
+&cp0_usb3_0 {
+	status = "okay";
+};
+
+&cp0_usb3_1 {
+	status = "okay";
+};
+
+&ap_sdhci0 {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	non-removable;
+};
+
+&cp0_sdhci0 {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	non-removable;
+};
+
+&cp0_mdio {
+	status = "okay";
+
+	OOB_E1512_PHY: ethernet-phy@1 {
+		reg = <0x0>;
+	};
+};
+
+&cp0_ethernet {
+	status = "okay";
+};
+
+&cp0_eth0 {
+	status = "disabled";
+};
+
+&cp0_eth1 {
+	status = "disabled";
+};
+
+&cp0_eth2 {
+	status = "okay";
+
+	phy-mode = "sgmii";
+	phy = <&OOB_E1512_PHY>;
+	phys = <&cp0_comphy5 2>;
+};
+
+&cp0_pcie0 {
+	dma-ranges = <0x42000000 0x0 0x00000000 0x0 0x00000000 0x0 0x40000000>;
+	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
+		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x0f00000
+		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
+	phys = <&cp0_comphy0 0>;
+	status = "okay";
+
+	/*
+	 * Describe the PCI bus topology so the kernel can attach DT
+	 * properties to the prestera ASIC when it enumerates the bus.
+	 *
+	 * Topology: cp0_pcie0 → root port at BDF 00:00.0 → endpoint
+	 * (prestera) at BDF 01:00.0. The kernel matches DT child nodes
+	 * to PCI devices by walking the parent's children and comparing
+	 * each `reg` property's devfn (bits 8-15 of cell 0) against the
+	 * device's actual devfn. Bus number bits are ignored in the
+	 * match — they're informational.
+	 *
+	 * The DT description is supplementary: PCI enumeration via
+	 * config space happens normally; this just attaches properties
+	 * (here, nvmem-cells for the base MAC) to the matched device.
+	 */
+	#address-cells = <3>;
+	#size-cells = <2>;
+
+	pcie@0,0 {
+		device_type = "pci";
+		reg = <0x0 0 0 0 0>;     /* root port: devfn = 0:0 */
+		ranges;
+		#address-cells = <3>;
+		#size-cells = <2>;
+
+		prestera@0,0 {
+			reg = <0x0 0 0 0 0>; /* prestera: devfn = 0:0 (bus 1) */
+
+			/*
+			 * Read the base MAC from the ONIE TLV EEPROM via
+			 * mainline's onie-tlv layout driver. The cell is
+			 * declared on `eeprom_at24` in the &cp0_i2c0 block.
+			 *
+			 * Offset 3: U-Boot's runtime DT fixup hands out the
+			 * first three EEPROM MACs to the SoC's mvpp2 ports
+			 * (mvpp2-0/1/2 ↔ base+0/1/2; mvpp2-2 is the mgmt port
+			 * the management interface). Prestera then derives
+			 * per-port MACs as base+port_index, so without the
+			 * offset np1=base+1 and np2=base+2 collide. Shifting
+			 * prestera's base to base+3 puts the front-panel
+			 * range at base+4..base+55, well within the 64 MACs
+			 * reserved per the EEPROM TLV `num-macs` field.
+			 */
+			nvmem-cells = <&onie_base_mac 3>;
+			nvmem-cell-names = "mac-address";
+
+			/*
+			 * SFP+ cages for the four 10G front ports (np49..52).
+			 * Mainline prestera's `prestera_port_sfp_bind()` does
+			 * `of_find_node_by_name(sw->np, "ports")` — where
+			 * `sw->np` is *this* PCI endpoint's of_node — then, for
+			 * each child, matches `prestera,port-num` to the
+			 * firmware-enumerated front-panel port and hands the
+			 * child's fwnode to `phylink_create()`. phylink itself
+			 * then picks up the `sfp` phandle (→ the sff,sfp cage
+			 * nodes at the top of this file) and manages the module.
+			 *
+			 * No `managed`/`phy-mode` here on purpose: the driver
+			 * passes PHY_INTERFACE_MODE_INTERNAL as the default and
+			 * sets supported_interfaces = {10GBASE-R, 2500BASE-X,
+			 * SGMII, 1000BASE-X} itself, so phylink starts in PHY
+			 * mode and the inserted module upgrades the interface.
+			 * This is the bare form dent shipped — relocated from
+			 * dent's root-level `marvell,prestera` node (which
+			 * mainline never matches) to here, the node mainline
+			 * actually reads.
+			 */
+			ports {
+				port49 {
+					prestera,port-num = <49>;
+					sfp = <&sfp49>;
+				};
+				port50 {
+					prestera,port-num = <50>;
+					sfp = <&sfp50>;
+				};
+				port51 {
+					prestera,port-num = <51>;
+					sfp = <&sfp51>;
+				};
+				port52 {
+					prestera,port-num = <52>;
+					sfp = <&sfp52>;
+				};
+			};
+		};
+	};
+};
