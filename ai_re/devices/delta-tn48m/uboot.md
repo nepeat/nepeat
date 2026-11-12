@@ -51,8 +51,7 @@ configuration is signed by Amazon's IHM DENT key** (the ONIE FIT is:
 - `bootefi`.
 
 The NixOS path (extlinux -> raw Image) is not blocked. The check lives only in
-U-Boot, which sits in SPI. Whether the BootROM checks U-Boot (efuse secure
-boot) is unknown; **don't reflash U-Boot** without a tested recovery path.
+U-Boot, which sits in SPI. The BootROM does check it: secure boot is fused and locked (efuse.md); **don't reflash U-Boot** without a tested recovery path.
 
 ## capabilities worth knowing (help + config)
 

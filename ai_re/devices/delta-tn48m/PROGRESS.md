@@ -3,6 +3,7 @@
 Details: [uboot.md](uboot.md) (password, signature enforcement, commands,
 recipes), [dentos.md](dentos.md) (as-received disk + provenance),
 [ihm.md](ihm.md) (Amazon IHM device identity / credential system, passive map),
+[efuse.md](efuse.md) (efuse map: secure boot proven fused, KAK digest),
 `onie-delta_tn48m-r0.dts` / `dentos-delta-tn48m.dts` (decompiled vendor DTBs),
 `onie-env-dmesg.txt` (full U-Boot env + ONIE dmesg).
 
@@ -16,7 +17,7 @@ recipes), [dentos.md](dentos.md) (as-received disk + provenance),
   `booti`/extlinux raw Image/`bootefi` aren't checked, so the NixOS route works.
 - ONIE's DTB lacks the ATF reserved-memory node and **crashes under memory
   pressure**. For bulk I/O, boot it with the RAM-patched DTB (uboot.md).
-- SoC is **secure-boot fused**, so SPI U-Boot can't be replaced. U-Boot 2018.03's EFI
+- SoC is **secure-boot fused (proven: efuse rows 25-29 = sha256 of the KAK, locked; efuse.md)**, so SPI U-Boot can't be replaced. U-Boot 2018.03's EFI
   is broken (log (c)), so EFI comes from a chainloaded mainline U-Boot (log (e)).
 - **NixOS boots unattended over real UEFI**: factory U-Boot 2018.03 ->
   chainloads mainline **U-Boot 2026.10** (`/u-boot-tn48m.bin` on the ESP, built
@@ -134,6 +135,21 @@ in `dumps/sda.img.zst`, and writes one SPI env var):
 
 ## log (newest first)
 
+### 2026-11-12 (g) — efuse read: secure boot proven
+
+- Public research: no published BootROM/secure-boot bypass for Armada
+  7K/8K/AP806. Marvell's secure-boot CVEs (CVE-2019-10636/10637) are for its
+  88SS10xx SSD controllers. The "phone rooting" BootROM breaks are MediaTek
+  (kamakiri/amonet, glitching) and Tegra X1 (fusée gelée); both attack USB
+  recovery modes the AP806 BootROM doesn't have.
+- Read the efuses from the factory U-Boot (`fuse read`, cross-checked with
+  `md.l 0xf06f9000`), all read-only, then `boot`. **HD rows 25-29 = SHA-256 of
+  the 524-byte KAK field** in mtd0's SECURITY extension (7 B/row + ECC), row 30
+  = flash_id 0xc0dec0de, row 31 = box_id 0xde8de800, rows 37-39 = 1
+  (triplicated enable), all locked. Map and raw dump in efuse.md /
+  efuse-dump.txt. Correction: the KAK digest is over the whole 524-byte field,
+  not the 294-byte DER I hashed in (c).
+
 ### 2026-11-12 (f) — loose ends from (e) tied up
 
 - **"scsi 0:2" U-Boot crash, root-caused**: rebuilt the crashing v1 bit-identically
@@ -224,7 +240,7 @@ in `dumps/sda.img.zst`, and writes one SPI env var):
 - **SoC is secure-boot fused**: BootROM prints `Secure boot from SPI NOR flash 0
   (0x34)`. mtd0's Marvell header has ext_count 2: BINARY (BLE/mv_ddr) at 0x40 and
   a SECURITY ext at 0x5c000 (9956 B: RSA-2048 KAK, sha256 of DER
-  `6695e021480f4e48942f8be2423dc3dff634c65f0d8da2dc9516020f42425467`; CSK slots
+  `6695e021...` (DER only; the BootROM digest is over the 524-byte field: `62431611...b552d80b`, matches efuse, see (g)); CSK slots
   0-3; jtag_en=1, encrypt_en=0, box_id 0xde8de800, flash_id 0xc0dec0de). The
   signed boot image (BL1 + FIP incl. BL33) is verified by the BootROM, so **SPI
   U-Boot can't be replaced** (no key). Efuse bits themselves not read.
