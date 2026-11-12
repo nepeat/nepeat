@@ -1,0 +1,2 @@
+Warning: Permanently added '10.60.2.217' (ECDSA) to the list of known hosts.
+root@10.60.2.217: Permission denied (publickey,password).

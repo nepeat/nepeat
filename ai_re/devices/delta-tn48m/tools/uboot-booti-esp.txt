@@ -1,0 +1,5 @@
+load scsi 0:1 $fdt_addr_r dtbs/delta-tn48m.dtb
+load scsi 0:1 0x10000000 EFI/nixos/image-initrd.efi
+setenv initrd_size $filesize
+load scsi 0:1 $kernel_addr_r EFI/nixos/image-kernel.efi
+setenv bootargs init=/nix/store/2ivzh1y2hvcw2i6ay2xyix13yx8k9ljj-nixos-system-tn48m-sd-card-26.11.20261110.370746b/init console=ttyS0,115200n8 earlycon=uart8250,mmio32,0xf0512000 root=fstab loglevel=4

@@ -1,0 +1,402 @@
+SATA_P0_FORCE_G1=mw 0xf25400a0 0x0;mw 0xf25400a4 0x45;mw 0xf254012c 0x50;mw 0xf25400a4 0xc40005
+SATA_P0_FORCE_G2=mw 0xf25400a0 0x0;mw 0xf25400a4 0x46;mw 0xf254012c 0x60;mw 0xf25400a4 0xc40006
+SATA_P0_FORCE_G3=mw 0xf25400a0 0x0;mw 0xf25400a4 0x47;mw 0xf254012c 0x70;mw 0xf25400a4 0xc40007
+SATA_P0_HFTP=mw f2540178 0x40;mw f254017C 0x98;mw f2540178 0x6;mw f254017c 0x4a4a4a4a;mw f2540178 0x7;mw f254017c 0x4a4a4a4a;mw f2540178 0x5;mw f254017c 0x2e0
+SATA_P0_LBP=mw f2540178 0x40;mw f254017C 0x98;mw f2540178 0x6;mw f254017c 0x0C8B0C6B;mw f2540178 0x7;mw f254017c 0x0C8B0C6B;mw f2540178 0x5;mw f254017c 0x2e0
+SATA_P0_LFTP=mw f2540178 0x40;mw f254017C 0x98;mw f2540178 0x6;mw f254017c 0x7E7E7E7E;mw f2540178 0x7;mw f254017c 0x7E7E7E7E;mw f2540178 0x5;mw f254017c 0x2e0
+SATA_P0_MFTP=mw f2540178 0x40;mw f254017C 0x98;mw f2540178 0x6;mw f254017c 0x78787878;mw f2540178 0x7;mw f254017c 0x78787878;mw f2540178 0x5;mw f254017c 0x2e0
+arch=arm
+autoload=no
+baudrate=115200
+board=tn48m
+board_name=tn48m
+bootcmd=run bootonie
+bootdelay=10
+bootdiag=scsi scan; ext4load scsi 0:1 $loadaddr $diag_os_name;run set_bootargs; bootm $loadaddr
+bootonie=run check_boot_reason; run nos_bootcmd; run onie_bootcmd
+check_boot_reason=if test -n $onie_boot_reason; then setenv onie_bootargs boot_reason=$onie_boot_reason; run onie_bootcmd; fi;
+console=console=ttyS0,115200 earlycon=uart8250,mmio32,0xf0512000
+consoledev=ttyS0
+cpu=armv8
+cpuidle=cpuidle.off=1
+dhcp_user-class=arm64-delta_tn48m-r0_uboot
+dhcp_vendor-class-identifier=arm64-delta_tn48m-r0
+diag_app_name=dnidiag
+diag_os_name=tn48m_diag_os.itb
+eth1addr=18:BE:92:16:56:41
+eth2addr=18:BE:92:16:56:42
+ethaddr=18:BE:92:16:56:40
+ethprime=eth2
+extra_params=pci=pcie_bus_safe
+fdt_addr_r=0x6f00000
+fdt_high=0xffffffffffffffff
+gatewayip=192.168.1.254
+hostname=marvell
+initrd_addr=0xa00000
+initrd_size=0x2000000
+ipaddr=192.168.1.111
+kernel_addr_r=0x7000000
+load=load
+loadaddr=0x6000000
+loads_echo=1
+netdev=eth2
+netmask=255.255.255.0
+onie_args=run onie_initargs onie_platformargs
+onie_bootcmd=echo Loading Open Network Install Environment ...; echo Platform: $onie_platform ; echo Version : $onie_version ; sf probe; sf read $kernel_addr_r $onie_spi_flash_offset $onie_spi_flash_size; run onie_args; bootm $kernel_addr_r
+onie_build_date=2019-09-25T14:03+08:00
+onie_image_name=delta_tn48m-r0.itb
+onie_initargs=setenv bootargs quiet console=$consoledev,$baudrate
+onie_machine=delta_tn48m
+onie_machine_rev=0
+onie_platform=arm64-delta_tn48m-r0
+onie_platformargs=setenv bootargs $bootargs serial_num=${serial#} eth_addr=$ethaddr $onie_bootargs $onie_debugargs 
+onie_rescue=setenv onie_boot_reason rescue && run bootonie
+onie_spi_flash_offset=0x400000
+onie_spi_flash_size=0xC00000
+onie_uboot_version=U-Boot 2018.03-devel-1.2.0 (Oct 13 2020 - 09:50:08 +0800) TN48M/TN48M-P/TN4810M/TN48M2 V06 
+onie_uninstall=setenv onie_boot_reason uninstall && run bootonie
+onie_update=setenv onie_boot_reason update && run bootonie
+onie_vendor_id=5324
+onie_version=2019.08
+platform=delta_tn48m
+root=root=/dev/ram0 rw
+sata_test_gen1=run SATA_P0_FORCE_G1;run SATA_P0_HFTP;run SATA_P0_LFTP;run SATA_P0_MFTP;run SATA_P0_LBP
+sata_test_gen2=run SATA_P0_FORCE_G2;run SATA_P0_HFTP;run SATA_P0_LFTP;run SATA_P0_MFTP;run SATA_P0_LBP
+sata_test_gen3=mw f2121844 4B62;run SATA_P0_FORCE_G3;run SATA_P0_HFTP;run SATA_P0_LFTP;run SATA_P0_MFTP;run SATA_P0_LBP
+serial#=TN481N1TW21290148
+serverip=192.168.1.100
+set_bootargs=setenv bootargs $console $root $extra_params $cpuidle
+soc=mvebu
+stderr=serial
+stdin=serial
+stdout=serial
+uplddiag=ping $serverip;env delete -f filesize;tftp $loadaddr $serverip:$diag_app_name;scsi scan; ext4write scsi 0:1 $loadaddr /$diag_app_name $filesize
+uplddiag_usb=usb reset;env delete -f filesize;$usb_fs_type$load usb 0:1 $loadaddr $diag_app_name;scsi scan; ext4write scsi 0:1 $loadaddr /$diag_app_name $filesize
+upldlinux=ping $serverip;env delete -f filesize;tftp $loadaddr $serverip:$diag_os_name;scsi scan; ext4write scsi 0:1 $loadaddr /$diag_os_name $filesize
+upldlinux_usb=usb reset;env delete -f filesize;$usb_fs_type$load usb 0:1 $loadaddr $diag_os_name;scsi scan; ext4write scsi 0:1 $loadaddr /$diag_os_name $filesize
+upldonie=ping $serverip;env delete -f filesize;tftp $loadaddr $serverip:$onie_image_name;sf probe; sf erase $onie_spi_flash_offset +$onie_spi_flash_size; sf write $loadaddr $onie_spi_flash_offset $onie_spi_flash_size
+upldonie_usb=usb reset;env delete -f filesize;$usb_fs_type$load usb 0:1 $loadaddr $onie_image_name;sf probe; sf erase $onie_spi_flash_offset +$onie_spi_flash_size; sf write $loadaddr $onie_spi_flash_offset $onie_spi_flash_size
+uplduboot=bubt flash-image.bin spi tftp
+uplduboot_usb=bubt flash-image.bin spi usb
+usb_fs_type=fat
+vendor=Marvell
+ver=U-Boot 2018.03-devel-1.2.0 (Oct 13 2020 - 09:50:08 +0800) TN48M/TN48M-P/TN4810M/TN48M2 V06 
+onie_dropbear_ecdsa_host_key=begin-base64@600@r#AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEF2SNV2#W83nIuMI8KxLxCYkcx/ZO00Nt6zj7/owhFfUTfrRHFd6lsRAfLfyZGrLRdWQ#Fy5M8CIUkaVsfYOtLrgAAAAhAO378GmT1w1KAkmmaSuI7pT4PlKkMVHao8J9#Lrk/wtIe#====#
+onie_dropbear_rsa_host_key=begin-base64@600@r#AAAAB3NzaC1yc2EAAAADAQABAAAAgQCIbSF5y4nIUQ7kZDLV2TJwvZC9Clss#rYLCbAsblburLuFcJ4aRuF4w5dhXw2R0PvB19IGtQ2VcCJaBe65BGN1gSos3#Iizo1+hZ2TkHjnIOgurrlga4pF9W4+wY6qfGZyXC+Q+JH1hLRTaXAT3duegu#hDEo/PENogMhL0gfGs6UrQAAAIAFm3lZGIePkd1V1SnNu6v6EaCQVIujeMzm#EYDHX854iRMUMZUItOuSK5r1HdUpff4Y1bWQGd62+1dhomQVeDXTvuwY/CLi#aBi/hojq5/ieK2pnUOi3j1Uas4phTYPFOlpsZ+m3XUwKfdE2NN8wOVPi/l0P#gi9g+IFbVivcv948lQAAAEEAzo0kXzb3UDPJRuRs0KPbdaGCVc7hZXucTxfU#ABpstCyDaoFpGpxaOaCfMgQKxyDJt4WOlHDDrAa1XUDoDonsBwAAAEEAqRZA#3URUZx/Vu3CRJzdEH7OHyqc+a5bXECYUdPvG6tt2A2Bqz9rJHHemEa7epv3Z#/SqFuuC8xwm1tagGwz+0qw==#====#
+onie_dropbear_dss_host_key=begin-base64@600@d#AAAAB3NzaC1kc3MAAACBAMyn5L3584AKx8M9pQ4UIfS+kBnGcmXLP4PgkqV2#T5UOIwBrbYWoNl4GMRt1Fsfxa3GPMaKzdNGHAsKSCP5JgVk6phQwdTIsu3hr#TLEcwxEp8qC86tbFJOV/vcaRMrpoa4HVn6Z9Dbc9zlgcDUt6jQOjzgU+qDWV#CiVVASxfdLzZAAAAFQDvTlDxL+I1O4HsZrhdOBZVUVQlBQAAAIBuyVy0X5YY#pQ7lGOdwyRuMtLVZivvY/ZDKJVn38oR3x4HqR9TKArR34XO4PTH2xIWroZN6#8eYbYaqrrj2Bu/QWFFf99dch2ZxGcQgbDhlJpA/s8FZ7UoVv10PLBGuyMl6x#YAstJXKwheU/QSD3/ItbhlXzQuT/X3e5PWBEZtmIPAAAAIBUGBfWQENxXW8x#US7+ccP7W/jysHwZ17Z9eMKj9AcKy2wCNVha+Z2zxsghHSqSSEQDzC3v07+K#QRVV9LnblG709cAno70XbBVayV+cl5EN8sSTSF29z7FmXsYdusED1tIN4Wrn#qy4481/vfxVSP8j9olMLMFAhMawLHF3HPxcmlwAAABQKo5wwbZMp9iOkdHZJ#TfdD4VTV/g==#====#
+boot-config-default=TkVUREVWPWV0aDAKQk9PVE1PREU9SU5TVEFMTEVEClNXST1pbWFnZXM6OmxhdGVzdAo=
+onl_installer_initrd=onl-loader-fit.itb:ceb99c:1acf0f7
+nos_bootcmd=true
+===mount
+rootfs on / type rootfs (rw,size=4072412k,nr_inodes=1018103)
+proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+devtmpfs on /dev type devtmpfs (rw,relatime,size=4072412k,nr_inodes=1018103,mode=755)
+tmpfs on /run type tmpfs (rw,noatime,size=10240k)
+tmpfs on /run/lock type tmpfs (rw,noatime,size=10240k)
+tmpfs on /tmp type tmpfs (rw,noatime)
+tmpfs on /var/tmp type tmpfs (rw,noatime)
+sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /run/shm type tmpfs (rw,nosuid,nodev,relatime)
+devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000)
+/dev/sda1 on /mnt/p1 type ext4 (ro,relatime,block_validity,delalloc,barrier,user_xattr,acl)
+/dev/sda2 on /mnt/p2 type ext4 (ro,relatime,data=ordered)
+/dev/sda3 on /mnt/p3 type ext4 (ro,relatime,data=ordered)
+/dev/sda4 on /mnt/p4 type ext4 (ro,relatime,data=ordered)
+===dmesg
+[    0.000000] Booting Linux on physical CPU 0x0
+[    0.000000] Linux version 4.9.95-g9d1e8e6c (admin@459ea3602ed0) (gcc version 6.3.0 (crosstool-NG bb305bc - ONIE-master-01291948-V03) ) #1 SMP PREEMPT Fri Jan 29 20:13:06 UTC 2021
+[    0.000000] Boot CPU: AArch64 Processor [410fd081]
+[    0.000000] efi: Getting EFI parameters from FDT:
+[    0.000000] efi: UEFI not found.
+[    0.000000] cma: Reserved 16 MiB at 0x00000000bf000000
+[    0.000000] On node 0 totalpages: 2097152
+[    0.000000]   DMA zone: 12288 pages used for memmap
+[    0.000000]   DMA zone: 0 pages reserved
+[    0.000000]   DMA zone: 786432 pages, LIFO batch:31
+[    0.000000]   Normal zone: 20480 pages used for memmap
+[    0.000000]   Normal zone: 1310720 pages, LIFO batch:31
+[    0.000000] psci: probing for conduit method from DT.
+[    0.000000] psci: PSCIv1.1 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+[    0.000000] psci: Trusted OS resident on physical CPU 0x0
+[    0.000000] psci: SMC Calling Convention v1.1
+[    0.000000] percpu: Embedded 21 pages/cpu @ffff80023ff8c000 s48152 r8192 d29672 u86016
+[    0.000000] pcpu-alloc: s48152 r8192 d29672 u86016 alloc=21*4096
+[    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+[    0.000000] Detected PIPT I-cache on CPU0
+[    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 2064384
+[    0.000000] Kernel command line: quiet console=ttyS0,115200 serial_num=TN481N1TW21290148 eth_addr=18:BE:92:16:56:40
+[    0.000000] log_buf_len individual max cpu contribution: 4096 bytes
+[    0.000000] log_buf_len total cpu_extra contributions: 12288 bytes
+[    0.000000] log_buf_len min size: 16384 bytes
+[    0.000000] log_buf_len: 32768 bytes
+[    0.000000] early log buf free: 14660(89%)
+[    0.000000] PID hash table entries: 4096 (order: 3, 32768 bytes)
+[    0.000000] Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
+[    0.000000] Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
+[    0.000000] software IO TLB [mem 0xbafff000-0xbefff000] (64MB) mapped at [ffff8000bafff000-ffff8000beffefff]
+[    0.000000] Memory: 8144828K/8388608K available (8764K kernel code, 876K rwdata, 3732K rodata, 1024K init, 282K bss, 227396K reserved, 16384K cma-reserved)
+[    0.000000] Virtual kernel memory layout:
+[    0.000000]     modules : 0xffff000000000000 - 0xffff000008000000   (   128 MB)
+[    0.000000]     vmalloc : 0xffff000008000000 - 0xffff7dffbfff0000   (129022 GB)
+[    0.000000]       .text : 0xffff000008080000 - 0xffff000008910000   (  8768 KB)
+[    0.000000]     .rodata : 0xffff000008910000 - 0xffff000008cc0000   (  3776 KB)
+[    0.000000]       .init : 0xffff000008cc0000 - 0xffff000008dc0000   (  1024 KB)
+[    0.000000]       .data : 0xffff000008dc0000 - 0xffff000008e9b200   (   877 KB)
+[    0.000000]        .bss : 0xffff000008e9b200 - 0xffff000008ee1c3c   (   283 KB)
+[    0.000000]     fixed   : 0xffff7dfffe7fb000 - 0xffff7dfffec00000   (  4116 KB)
+[    0.000000]     PCI I/O : 0xffff7dfffee00000 - 0xffff7dffffe00000   (    16 MB)
+[    0.000000]     vmemmap : 0xffff7e0000000000 - 0xffff800000000000   (  2048 GB maximum)
+[    0.000000]               0xffff7e0000000000 - 0xffff7e0009000000   (   144 MB actual)
+[    0.000000]     memory  : 0xffff800000000000 - 0xffff800240000000   (  9216 MB)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+[    0.000000] Preemptible hierarchical RCU implementation.
+[    0.000000] 	Build-time adjustment of leaf fanout to 64.
+[    0.000000] 	RCU restricting CPUs from NR_CPUS=64 to nr_cpu_ids=4.
+[    0.000000] RCU: Adjusting geometry for rcu_fanout_leaf=64, nr_cpu_ids=4
+[    0.000000] NR_IRQS:64 nr_irqs:64 0
+[    0.000000] GIC: Adjusting CPU interface base to 0x00000000f022f000
+[    0.000000] GIC: Using split EOI/Deactivate mode
+[    0.000000] GICv2m: DT overriding V2M MSI_TYPER (base:160, num:32)
+[    0.000000] GICv2m: range[mem 0xf0280000-0xf0280fff], SPI[160:191]
+[    0.000000] GICv2m: DT overriding V2M MSI_TYPER (base:192, num:32)
+[    0.000000] GICv2m: range[mem 0xf0290000-0xf0290fff], SPI[192:223]
+[    0.000000] GICv2m: DT overriding V2M MSI_TYPER (base:224, num:32)
+[    0.000000] GICv2m: range[mem 0xf02a0000-0xf02a0fff], SPI[224:255]
+[    0.000000] GICv2m: DT overriding V2M MSI_TYPER (base:256, num:32)
+[    0.000000] GICv2m: range[mem 0xf02b0000-0xf02b0fff], SPI[256:287]
+[    0.000000] arm_arch_timer: Architected cp15 timer(s) running at 25.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x5c40939b5, max_idle_ns: 440795202646 ns
+[    0.000002] sched_clock: 56 bits at 25MHz, resolution 40ns, wraps every 4398046511100ns
+[    0.000138] Console: colour dummy device 80x25
+[    0.000156] Calibrating delay loop (skipped), value calculated using timer frequency.. 50.00 BogoMIPS (lpj=100000)
+[    0.000161] pid_max: default: 32768 minimum: 301
+[    0.000194] Security Framework initialized
+[    0.000215] Mount-cache hash table entries: 16384 (order: 5, 131072 bytes)
+[    0.000218] Mountpoint-cache hash table entries: 16384 (order: 5, 131072 bytes)
+[    0.000890] ASID allocator initialised with 32768 entries
+[    0.032238] EFI services will not be available.
+[    0.086089] Detected PIPT I-cache on CPU1
+[    0.086121] CPU1: Booted secondary processor [410fd081]
+[    0.124077] Detected PIPT I-cache on CPU2
+[    0.124102] CPU2: Booted secondary processor [410fd081]
+[    0.162010] Detected PIPT I-cache on CPU3
+[    0.162028] CPU3: Booted secondary processor [410fd081]
+[    0.162071] Brought up 4 CPUs
+[    0.162074] SMP: Total of 4 processors activated.
+[    0.162078] CPU features: detected feature: 32-bit EL0 Support
+[    0.162116] CPU features: detected feature: Kernel page table isolation (KPTI)
+[    0.165314] CPU: All CPU(s) started at EL2
+[    0.165325] alternatives: patching kernel code
+[    0.166767] devtmpfs: initialized
+[    0.168249] DMI not present or invalid.
+[    0.168355] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.168368] futex hash table entries: 1024 (order: 5, 131072 bytes)
+[    0.168724] pinctrl core: initialized pinctrl subsystem
+[    0.169320] NET: Registered protocol family 16
+[    0.186190] cpuidle: using governor menu
+[    0.186317] vdso: 2 pages (1 code @ ffff000008917000, 1 data @ ffff000008dc4000)
+[    0.186328] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.186825] DMA: preallocated 256 KiB pool for atomic allocations
+[    0.186966] Serial: AMBA PL011 UART driver
+[    0.210649] HugeTLB registered 2 MB page size, pre-allocated 0 pages
+[    0.211203] ACPI: Interpreter disabled.
+[    0.211595] vgaarb: loaded
+[    0.211730] SCSI subsystem initialized
+[    0.211821] libata version 3.00 loaded.
+[    0.211950] usbcore: registered new interface driver usbfs
+[    0.211973] usbcore: registered new interface driver hub
+[    0.211999] usbcore: registered new device driver usb
+[    0.212201] pps_core: LinuxPPS API ver. 1 registered
+[    0.212203] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.212211] PTP clock support registered
+[    0.212275] dmi: Firmware registration failed.
+[    0.212351] Advanced Linux Sound Architecture Driver Initialized.
+[    0.218266] clocksource: Switched to clocksource arch_sys_counter
+[    0.218353] VFS: Disk quotas dquot_6.6.0
+[    0.218386] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.218523] pnp: PnP ACPI: disabled
+[    0.222672] NET: Registered protocol family 2
+[    0.222996] TCP established hash table entries: 65536 (order: 7, 524288 bytes)
+[    0.223181] TCP bind hash table entries: 65536 (order: 8, 1048576 bytes)
+[    0.224097] TCP: Hash tables configured (established 65536 bind 65536)
+[    0.224186] UDP hash table entries: 4096 (order: 5, 131072 bytes)
+[    0.224223] UDP-Lite hash table entries: 4096 (order: 5, 131072 bytes)
+[    0.224363] NET: Registered protocol family 1
+[    0.224599] RPC: Registered named UNIX socket transport module.
+[    0.224602] RPC: Registered udp transport module.
+[    0.224604] RPC: Registered tcp transport module.
+[    0.224605] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.224612] PCI: CLS 0 bytes, default 128
+[    0.224731] Unpacking initramfs...
+[    0.798084] Freeing initrd memory: 2780K
+[    0.798364] hw perfevents: enabled with armv8_cortex_a72 PMU driver, 7 counters available
+[    0.798486] kvm [1]: 8-bit VMID
+[    0.798491] kvm [1]: IDMAP page: 808fc000
+[    0.798493] kvm [1]: HYP VA range: 800000000000:ffffffffffff
+[    0.799045] kvm [1]: Hyp mode initialized successfully
+[    0.799096] kvm [1]: vgic-v2@f0240000
+[    0.799184] kvm [1]: vgic interrupt IRQ1
+[    0.799199] kvm [1]: virtual timer IRQ4
+[    0.800541] audit: initializing netlink subsys (disabled)
+[    0.800570] audit: type=2000 audit(0.792:1): initialized
+[    0.800895] workingset: timestamp_bits=46 max_order=21 bucket_order=0
+[    0.805594] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.806004] NFS: Registering the id_resolver key type
+[    0.806018] Key type id_resolver registered
+[    0.806020] Key type id_legacy registered
+[    0.806026] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.806130] 9p: Installing v9fs 9p2000 file system support
+[    0.807571] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 247)
+[    0.807579] io scheduler noop registered
+[    0.807649] io scheduler cfq registered (default)
+[    0.808594] libphy: mdio_driver_register: phy-bcm-ns2-pci
+[    0.811368] xenfs: not registering filesystem on non-xen platform
+[    0.813194] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+[    0.813926] console [ttyS0] disabled
+[    0.834084] f0512000.serial: ttyS0 at MMIO 0xf0512000 (irq = 9, base_baud = 12500000) is a 16550A
+[    0.838587] console [ttyS0] enabled
+[    0.838917] SuperH (H)SCI(F) driver initialized
+[    0.839072] msm_serial: driver initialized
+[    0.839303] Unable to detect cache hierarchy for CPU 0
+[    0.841925] loop: module loaded
+[    0.842293] hisi_sas: driver version v1.6
+[    0.842650] ahci f2540000.sata: AHCI 0001.0000 32 slots 2 ports 6 Gbps 0x3 impl platform mode
+[    0.842656] ahci f2540000.sata: flags: 64bit ncq sntf led only pmp fbs pio slum part sxs 
+[    0.843412] scsi host0: ahci
+[    0.843598] scsi host1: ahci
+[    0.843697] ata1: SATA max UDMA/133 mmio [mem 0xf2540000-0xf256ffff] port 0x100 irq 11
+[    0.843700] ata2: SATA max UDMA/133 mmio [mem 0xf2540000-0xf256ffff] port 0x180 irq 11
+[    0.844909] m25p80 spi1.0: w25q128 (16384 Kbytes)
+[    0.847180] 3 ofpart partitions found on MTD device spi1.0
+[    0.847184] Creating 3 MTD partitions on "spi1.0":
+[    0.847190] 0x000000000000-0x0000003f0000 : "uboot"
+[    0.847740] 0x0000003f0000-0x000000400000 : "uboot-env"
+[    0.848145] 0x000000400000-0x000001000000 : "onie"
+[    0.849046] libphy: Fixed MDIO Bus: probed
+[    0.849432] tun: Universal TUN/TAP device driver, 1.6
+[    0.849434] tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+[    0.849884] e1000e: Intel(R) PRO/1000 Network Driver - 3.2.6-k
+[    0.849886] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    0.849920] igb: Intel(R) Gigabit Ethernet Network Driver - version 5.4.0-k
+[    0.849922] igb: Copyright (c) 2007-2014 Intel Corporation.
+[    0.849949] igbvf: Intel(R) Gigabit Virtual Function Network Driver - version 2.4.0-k
+[    0.849950] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[    0.850087] libphy: orion_mdio_bus: probed
+[    0.855681] mvpp2 f2000000.ethernet: no ports enabled
+[    0.860849] sky2: driver version 1.30
+[    0.861061] mvpp2x f2000000.ppv22: cma_area base 0x00000000bf000000 size 16 MB
+[    0.871701] gop_mac(0), phy_mode(3)=sgmii phy-speed=1000
+[    0.871708] mac_addr 18:be:92:16:56:40
+[    0.895372] mvpp2x f2000000.ppv22 eth0: Using device tree mac address 18:be:92:16:56:40
+[    0.895484] gop_mac(2), phy_mode(3)=sgmii phy-speed=1000
+[    0.895488] mac_addr 18:be:92:16:56:41
+[    0.918864] mvpp2x f2000000.ppv22 eth1: Using device tree mac address 18:be:92:16:56:41
+[    0.918981] gop_mac(3), phy_mode(3)=sgmii phy-speed=1000
+[    0.990896] mac_addr 18:be:92:16:56:42
+[    1.014407] mvpp2x f2000000.ppv22 eth2: Using device tree mac address 18:be:92:16:56:42
+[    1.014875] VFIO - User Level meta-driver version: 0.3
+[    1.016036] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+[    1.016042] ehci-pci: EHCI PCI platform driver
+[    1.016065] ehci-platform: EHCI generic platform driver
+[    1.016120] ehci-exynos: EHCI EXYNOS driver
+[    1.016163] ehci-msm: Qualcomm On-Chip EHCI Host Controller
+[    1.016198] ohci_hcd: USB 1.1 'Open' Host Controller (OHCI) Driver
+[    1.016213] ohci-pci: OHCI PCI platform driver
+[    1.016236] ohci-platform: OHCI generic platform driver
+[    1.016277] ohci-exynos: OHCI EXYNOS driver
+[    1.016543] xhci-hcd f2500000.usb3: xHCI Host Controller
+[    1.016556] xhci-hcd f2500000.usb3: new USB bus registered, assigned bus number 1
+[    1.016759] xhci-hcd f2500000.usb3: hcc params 0x0a000990 hci version 0x100 quirks 0x00010010
+[    1.016792] xhci-hcd f2500000.usb3: irq 42, io mem 0xf2500000
+[    1.017257] hub 1-0:1.0: USB hub found
+[    1.017279] hub 1-0:1.0: 1 port detected
+[    1.017434] xhci-hcd f2500000.usb3: xHCI Host Controller
+[    1.017440] xhci-hcd f2500000.usb3: new USB bus registered, assigned bus number 2
+[    1.017483] usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+[    1.017754] hub 2-0:1.0: USB hub found
+[    1.017771] hub 2-0:1.0: 1 port detected
+[    1.017985] xhci-hcd f2510000.usb3: xHCI Host Controller
+[    1.017993] xhci-hcd f2510000.usb3: new USB bus registered, assigned bus number 3
+[    1.018150] xhci-hcd f2510000.usb3: hcc params 0x0a000990 hci version 0x100 quirks 0x00010010
+[    1.018171] xhci-hcd f2510000.usb3: irq 43, io mem 0xf2510000
+[    1.018508] hub 3-0:1.0: USB hub found
+[    1.018523] hub 3-0:1.0: 1 port detected
+[    1.018650] xhci-hcd f2510000.usb3: xHCI Host Controller
+[    1.018656] xhci-hcd f2510000.usb3: new USB bus registered, assigned bus number 4
+[    1.018685] usb usb4: We don't know the algorithms for LPM for this host, disabling LPM.
+[    1.018914] hub 4-0:1.0: USB hub found
+[    1.018927] hub 4-0:1.0: 1 port detected
+[    1.019231] usbcore: registered new interface driver usb-storage
+[    1.019735] mousedev: PS/2 mouse device common for all mice
+[    1.020154] armada38x-rtc f2284000.rtc: rtc core: registered f2284000.rtc as rtc0
+[    1.020471] i2c /dev entries driver
+[    1.022029] sdhci: Secure Digital Host Controller Interface driver
+[    1.022032] sdhci: Copyright(c) Pierre Ossman
+[    1.022156] Synopsys Designware Multimedia Card Interface Driver
+[    1.022373] sdhci-pltfm: SDHCI platform and OF driver helper
+[    1.062274] mmc0: SDHCI controller on f06e0000.sdhci [f06e0000.sdhci] using ADMA 64-bit
+[    1.106273] mmc1: SDHCI controller on f2780000.sdhci [f2780000.sdhci] using ADMA 64-bit
+[    1.108539] ledtrig-cpu: registered to indicate activity on CPUs
+[    1.111201] usbcore: registered new interface driver usbhid
+[    1.111203] usbhid: USB HID core driver
+[    1.114103] NET: Registered protocol family 17
+[    1.114152] 9pnet: Installing 9P2000 support
+[    1.114186] Key type dns_resolver registered
+[    1.114528] registered taskstats version 1
+[    1.120524] OF: PCI: host bridge /cp110-master/pcie@f2600000 ranges:
+[    1.120539] OF: PCI:    IO 0xf9020000..0xf902ffff -> 0xf9020000
+[    1.120545] OF: PCI:   MEM 0xc0000000..0xefffffff -> 0xc0000000
+[    1.125046] armada8k-pcie f2600000.pcie: link up
+[    1.127162] armada8k-pcie f2600000.pcie: PCI host bridge to bus 0000:00
+[    1.127168] pci_bus 0000:00: root bus resource [bus 00-ff]
+[    1.127173] pci_bus 0000:00: root bus resource [io  0x0000-0xffff] (bus address [0xf9020000-0xf902ffff])
+[    1.127176] pci_bus 0000:00: root bus resource [mem 0xc0000000-0xefffffff]
+[    1.127194] pci 0000:00:00.0: [11ab:0110] type 01 class 0x060400
+[    1.127210] pci 0000:00:00.0: reg 0x10: [mem 0x00000000-0x000fffff]
+[    1.129291] pci 0000:00:00.0: supports D1 D2
+[    1.129294] pci 0000:00:00.0: PME# supported from D0 D1 D3hot
+[    1.131613] pci 0000:01:00.0: [11ab:c80c] type 00 class 0x028000
+[    1.133801] pci 0000:01:00.0: reg 0x10: [mem 0xc0000000-0xc00fffff 64bit pref]
+[    1.135953] pci 0000:01:00.0: reg 0x18: [mem 0xc0800000-0xc0ffffff 64bit pref]
+[    1.136069] pci 0000:01:00.0: reg 0x20: [mem 0xc1000000-0xc13fffff 64bit pref]
+[    1.136523] pci 0000:01:00.0: supports D1 D2
+[    1.146344] pci 0000:00:00.0: BAR 15: assigned [mem 0xc0000000-0xc0dfffff pref]
+[    1.146348] pci 0000:00:00.0: BAR 0: assigned [mem 0xc0e00000-0xc0efffff]
+[    1.146355] pci 0000:01:00.0: BAR 2: assigned [mem 0xc0000000-0xc07fffff 64bit pref]
+[    1.146431] pci 0000:01:00.0: BAR 4: assigned [mem 0xc0800000-0xc0bfffff 64bit pref]
+[    1.146507] pci 0000:01:00.0: BAR 0: assigned [mem 0xc0c00000-0xc0cfffff 64bit pref]
+[    1.146583] pci 0000:00:00.0: PCI bridge to [bus 01-ff]
+[    1.146589] pci 0000:00:00.0:   bridge window [mem 0xc0000000-0xc0dfffff pref]
+[    1.146863] pcieport 0000:00:00.0: Signaling PME through PCIe PME interrupt
+[    1.146866] pci 0000:01:00.0: Signaling PME through PCIe PME interrupt
+[    1.146870] pcie_pme 0000:00:00.0:pcie001: service driver pcie_pme loaded
+[    1.146929] aer 0000:00:00.0:pcie002: service driver aer loaded
+[    1.147250] armada38x-rtc f2284000.rtc: setting system clock to 2026-11-12 11:33:05 UTC (1794483185)
+[    1.147335] ALSA device list:
+[    1.147336]   No soundcards found.
+[    1.161291] ata2: SATA link down (SStatus 0 SControl 300)
+[    1.318279] ata1: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+[    1.318378] ata1.00: ATA-9: M.2 (S42) 3TE7, S21524D, max UDMA/133
+[    1.318381] ata1.00: 53742528 sectors, multi 16: LBA48 NCQ (depth 31/32)
+[    1.318483] ata1.00: configured for UDMA/133
+[    1.318714] scsi 0:0:0:0: Direct-Access     ATA      M.2 (S42) 3TE7   24D  PQ: 0 ANSI: 5
+[    1.354711] sd 0:0:0:0: [sda] 53742528 512-byte logical blocks: (27.5 GB/25.6 GiB)
+[    1.354814] sd 0:0:0:0: [sda] Write Protect is off
+[    1.354818] sd 0:0:0:0: [sda] Mode Sense: 00 3a 00 00
+[    1.354850] sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+[    1.357663]  sda: sda1 sda2 sda3 sda4
+[    1.360371] sd 0:0:0:0: [sda] Attached SCSI removable disk
+[    1.360992] Freeing unused kernel memory: 1024K
+[   26.754767] mvpp2x f2000000.ppv22 eth2: link up
+[   51.659994] random: fast init done
+[   51.689993] Board TN48M
+[  238.390514] random: crng init done
+[  610.793226] EXT4-fs (sda1): couldn't mount as ext3 due to feature incompatibilities
+[  610.802318] EXT4-fs (sda1): mounted filesystem without journal. Opts: (null)
+[  610.807979] EXT4-fs (sda2): couldn't mount as ext3 due to feature incompatibilities
+[  610.817700] EXT4-fs (sda2): mounted filesystem with ordered data mode. Opts: (null)
+[  610.823447] EXT4-fs (sda3): couldn't mount as ext3 due to feature incompatibilities
+[  610.832491] EXT4-fs (sda3): mounted filesystem with ordered data mode. Opts: (null)
+[  610.838116] EXT4-fs (sda4): couldn't mount as ext3 due to feature incompatibilities
+[  610.849506] EXT4-fs (sda4): mounted filesystem with ordered data mode. Opts: (null)
