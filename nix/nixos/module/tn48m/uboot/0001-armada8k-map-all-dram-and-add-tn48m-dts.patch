@@ -1,0 +1,246 @@
+diff --color -ruN a/arch/arm/dts/armada-7040-tn48m.dts b/arch/arm/dts/armada-7040-tn48m.dts
+--- a/arch/arm/dts/armada-7040-tn48m.dts	1969-12-31 16:00:00.000000000 -0800
++++ b/arch/arm/dts/armada-7040-tn48m.dts	2026-11-12 00:03:50.202976269 -0800
+@@ -0,0 +1,144 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Delta TN48M -- U-Boot control device tree (mainline U-Boot bindings).
++ *
++ * Only what U-Boot needs to reach the SSD, USB, the SPI NOR (read) and the
++ * management port. Board values are copied from the factory U-Boot's control
++ * DTB (SPI 0x18593c, Marvell U-Boot 2018.03 "V06_test"): AP/CP pinmux, CP110
++ * comphy lane plan, MDIO PHY address, mvpp2 port layout. Linux does NOT use
++ * this tree; it gets nixos/module/tn48m/delta-tn48m.dts through systemd-boot.
++ *
++ * Comphy (factory banner): 0 PEX0 5G (Prestera), 1 SATA0 6G, 2 SGMII0 3.125G,
++ * 3 SGMII1 1.25G, 4 unconnected, 5 SGMII2 1.25G (mgmt, 88E1512 @ MDIO 0).
++ */
++
++/dts-v1/;
++
++#include "armada-7040.dtsi"
++
++/ {
++	model = "Delta TN48M";
++	compatible = "delta,tn48m", "marvell,armada7040",
++		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	aliases {
++		i2c0 = &cp0_i2c0;
++		spi0 = &cp0_spi0;
++		ethernet0 = &cp0_eth2;
++	};
++
++	/* Only a placeholder: U-Boot sizes DRAM from ATF (MV_SIP_DRAM_SIZE). */
++	memory@00000000 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++};
++
++&ap_pinctl {
++	/* factory: SDIO/eMMC MPP 0-5 = 3, UART0 MPP 11/19 = 3 */
++		  /* 0 1 2 3 4 5 6 7 8 9 */
++	pin-func = < 3 3 3 3 3 3 0 0 0 0
++		     0 3 0 0 0 0 0 0 0 3 >;
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&cp0_pinctl {
++	/* factory CP0 MPP functions, verbatim */
++		  /*  0   1   2   3   4   5   6   7   8   9 */
++	pin-func = < 0xa 0xa 0   0   0   0   0   0   0   0
++		     0   0   0   0   0   0   0   0   0   0
++		     0   0   0   0   0   0   0   0   0   9
++		     0   0   0   0   0   2   2   2   2   0
++		     0   0   0   0   0   0   0   0   0   0
++		     0   0   0   0   0   0   6   6   6   6
++		     0   0   0 >;
++};
++
++&cp0_i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++/* SPI NOR (w25q128bv, 16 MiB) with the factory env at 0x3f0000. This
++ * U-Boot keeps its own env nowhere and never writes here. */
++&cp0_spi0 {
++	status = "okay";
++
++	spi-flash@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <20000000>;
++	};
++};
++
++&cp0_sata0 {
++	status = "okay";
++};
++
++/* USB2 only (no USB3 comphy lanes on this board). */
++&cp0_usb3_0 {
++	status = "okay";
++};
++
++&cp0_utmi0 {
++	status = "okay";
++};
++
++&cp0_comphy {
++	phy0 {
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy1 {
++		phy-type = <COMPHY_TYPE_SATA0>;
++		phy-speed = <COMPHY_SPEED_6G>;
++	};
++
++	phy2 {
++		phy-type = <COMPHY_TYPE_SGMII0>;
++		phy-speed = <COMPHY_SPEED_3_125G>;
++	};
++
++	phy3 {
++		phy-type = <COMPHY_TYPE_SGMII1>;
++		phy-speed = <COMPHY_SPEED_1_25G>;
++	};
++
++	phy4 {
++		phy-type = <COMPHY_TYPE_UNCONNECTED>;
++	};
++
++	phy5 {
++		phy-type = <COMPHY_TYPE_SGMII2>;
++		phy-speed = <COMPHY_SPEED_1_25G>;
++	};
++};
++
++&cp0_mdio {
++	status = "okay";
++
++	mgmt_phy: ethernet-phy@0 {
++		reg = <0>;
++	};
++};
++
++&cp0_ethernet {
++	status = "okay";
++};
++
++/* eth0/eth1 are the in-band links to the Prestera; U-Boot leaves them off. */
++&cp0_eth2 {
++	status = "okay";
++	phy = <&mgmt_phy>;
++	phy-mode = "sgmii";
++};
+diff --color -ruN a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+--- a/arch/arm/dts/Makefile	2026-11-12 00:03:26.992783611 -0800
++++ b/arch/arm/dts/Makefile	2026-11-12 00:03:35.581854499 -0800
+@@ -155,6 +155,7 @@
+ 	armada-3720-uDPU.dtb			\
+ 	armada-7040-db-nand.dtb			\
+ 	armada-7040-db.dtb			\
++	armada-7040-tn48m.dtb			\
+ 	armada-8040-clearfog-gt-8k.dtb		\
+ 	armada-8040-db.dtb			\
+ 	armada-8040-mcbin.dtb			\
+diff --color -ruN a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
+--- a/arch/arm/mach-mvebu/armada8k/cpu.c	2026-11-12 00:03:26.990783594 -0800
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c	2026-11-12 00:03:27.013783784 -0800
+@@ -59,6 +59,9 @@
+ 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+ 			 PTE_BLOCK_NON_SHARE
+ 	},
++	/* Filled by a8k_mem_map_add_dram(): rest of bank 0, bank 1. */
++	{ 0, },
++	{ 0, },
+ 	{
+ 		0,
+ 	}
+@@ -66,6 +69,43 @@
+ 
+ struct mm_region *mem_map = mvebu_mem_map;
+ 
++/**
++ * a8k_mem_map_add_dram() - map all DRAM, not just the first 2 GiB
++ *
++ * The static map above covers RAM only up to ATF_REGION_END + 2 GiB, yet
++ * lmb_arch_add_memory() hands every DRAM bank (minus the ATF/TEE hole) to
++ * LMB, and LMB publishes it to EFI payloads as conventional memory. EFI's
++ * AllocateAnyPages takes the highest free range, so on boards with more
++ * than ~2 GiB the first payload allocation lands in unmapped memory and
++ * aborts. Map the rest of bank 0 and all of bank 1 as normal memory.
++ * Must run after the banks are known and before arch_reserve_mmu() sizes
++ * the page tables (it is called from a8k_dram_init_banksize()).
++ */
++void a8k_mem_map_add_dram(void)
++{
++	const phys_addr_t low_end = ATF_REGION_END + SZ_2G;
++	phys_addr_t end;
++	int slot = 3;	/* first spare entry */
++
++	end = gd->dram[0].start + gd->dram[0].size;
++	if (end > low_end) {
++		mvebu_mem_map[slot].phys = low_end;
++		mvebu_mem_map[slot].virt = low_end;
++		mvebu_mem_map[slot].size = end - low_end;
++		mvebu_mem_map[slot].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++					    PTE_BLOCK_INNER_SHARE;
++		slot++;
++	}
++
++	if (CONFIG_NR_DRAM_BANKS > 1 && gd->dram[1].size) {
++		mvebu_mem_map[slot].phys = gd->dram[1].start;
++		mvebu_mem_map[slot].virt = gd->dram[1].start;
++		mvebu_mem_map[slot].size = gd->dram[1].size;
++		mvebu_mem_map[slot].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++					    PTE_BLOCK_INNER_SHARE;
++	}
++}
++
+ #if CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP)
+ /**
+  * mvebu_lmb_reserve() - mark a region as present but not allocatable
+diff --color -ruN a/arch/arm/mach-mvebu/armada8k/dram.c b/arch/arm/mach-mvebu/armada8k/dram.c
+--- a/arch/arm/mach-mvebu/armada8k/dram.c	2026-11-12 00:03:26.990783594 -0800
++++ b/arch/arm/mach-mvebu/armada8k/dram.c	2026-11-12 00:03:27.013783784 -0800
+@@ -41,6 +41,7 @@
+ 	gd->dram[0].start = CFG_SYS_SDRAM_BASE;
+ 	if (gd->ram_size <= max_bank0_size) {
+ 		gd->dram[0].size = gd->ram_size;
++		a8k_mem_map_add_dram();
+ 		return 0;
+ 	}
+ 
+@@ -50,5 +51,7 @@
+ 		gd->dram[1].size = gd->ram_size - max_bank0_size;
+ 	}
+ 
++	a8k_mem_map_add_dram();
++
+ 	return 0;
+ }
+diff --color -ruN a/arch/arm/mach-mvebu/include/mach/cpu.h b/arch/arm/mach-mvebu/include/mach/cpu.h
+--- a/arch/arm/mach-mvebu/include/mach/cpu.h	2026-11-12 00:03:26.991783603 -0800
++++ b/arch/arm/mach-mvebu/include/mach/cpu.h	2026-11-12 00:03:27.013783784 -0800
+@@ -188,6 +188,7 @@
+ /* A8K dram functions */
+ u64 a8k_dram_scan_ap_sz(void);
+ int a8k_dram_init_banksize(void);
++void a8k_mem_map_add_dram(void);
+ 
+ /* A3700 dram functions */
+ int a3700_dram_init(void);

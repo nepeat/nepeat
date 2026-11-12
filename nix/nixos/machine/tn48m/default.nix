@@ -14,13 +14,13 @@
 #      /extlinux/extlinux.conf + /nixos/* (kernels, initrds, DTBs);
 # p2 = ext4 root ("NIXOS_SD"), grown to the whole disk on first boot.
 #
-# Boot: the factory U-Boot (Amazon-signed, secure-boot fused, can't be
-# replaced) runs extlinux via `sysboot` from nos_bootcmd (SPI env, set once):
-#   fw_setenv nos_bootcmd 'setenv ramdisk_addr_r 0x10000000; scsi reset; sysboot scsi 0:1 any 0x0f000000 /extlinux/extlinux.conf'
-# If it fails, bootcmd falls through to ONIE; `fw_setenv nos_bootcmd true`
-# restores the as-received value. Its 2018.03 `bootefi` is too broken for
-# systemd-boot (ai_re PROGRESS 2026-11-11 (c)); real EFI is a later step via a
-# chainloaded mainline U-Boot.
+# Boot (since 2026-11-12): the factory U-Boot (Amazon-signed, secure-boot
+# fused, can't be replaced) chainloads mainline U-Boot from the ESP, which
+# runs systemd-boot over real UEFI. nos_bootcmd in the SPI env (set once):
+#   fw_setenv nos_bootcmd 'scsi reset; load scsi 0:1 0x7000000 u-boot-tn48m.bin && dcache off && icache off && go 0x7000000; setenv ramdisk_addr_r 0x10000000; sysboot scsi 0:1 any 0x0f000000 /extlinux/extlinux.conf'
+# The sysboot tail is a stale extlinux fallback, used only if the U-Boot
+# file can't be loaded. If everything fails, bootcmd falls through to ONIE;
+# `fw_setenv nos_bootcmd true` restores the as-received value.
 # U-Boot autoboot password: @wa23.
 {
   lib,
@@ -42,7 +42,7 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   hardware.tn48m = {
-    boot = "extlinux";
+    boot = "efi";
     thermal.enable = true;
     # Leave the watchdog off until the boot path is proven; a 10 s fixed
     # timeout plus a half-working userspace would be a reset loop.
@@ -82,6 +82,7 @@
   # Each generation with a new kernel puts ~100 MB (Image + initrd) on the
   # 512 MiB ESP.
   boot.loader.generic-extlinux-compatible.configurationLimit = 3;
+  boot.loader.systemd-boot.configurationLimit = 3;
 
   # Management port only. Prestera front-panel netdevs are left unmanaged
   # (networkd ignores links nothing matches), i.e. admin-down.
@@ -97,6 +98,10 @@
         IPv6AcceptRA = true;
       };
       dhcpV4Config.ClientIdentifier = "mac";
+      # The chainloaded U-Boot has no env, so nothing fixes up a MAC for
+      # mvpp2; pin the EEPROM's base+2 (the address the factory U-Boot gave
+      # this port) so the DHCP lease stays put.
+      linkConfig.MACAddress = "18:be:92:16:56:42";
     };
   };
 

@@ -34,9 +34,6 @@
 let
   cfg = config.hardware.tn48m;
 
-  # Where the EFI path keeps the board DTB on the ESP (read by U-Boot's
-  # nos_bootcmd, see machine/tn48m).
-  efiDtbPath = "dtbs/delta-tn48m.dtb";
 
   presteraFirmware = pkgs.runCommand "prestera-firmware" { } ''
     mkdir -p $out/lib/firmware/mrvl
@@ -82,10 +79,19 @@ in
       ];
       default = "efi";
       description = ''
-        How the factory U-Boot starts NixOS. "efi": `bootefi` of systemd-boot
-        from the ESP, with the DTB at /${efiDtbPath} on the ESP. "extlinux":
-        `sysboot` of /boot/extlinux/extlinux.conf (upstream's tested path).
+        How the factory U-Boot starts NixOS. "efi": it chainloads mainline
+        U-Boot (/u-boot-tn48m.bin on the ESP), which runs systemd-boot over
+        UEFI. "extlinux": factory `sysboot` of /boot/extlinux/extlinux.conf
+        (upstream's tested path). Either way nos_bootcmd in the SPI env picks
+        the path; see machine/tn48m.
       '';
+    };
+
+    uboot.package = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.callPackage ./uboot { };
+      defaultText = lib.literalExpression "pkgs.callPackage ./uboot { }";
+      description = "Mainline U-Boot chainloaded by the factory U-Boot (EFI boot path).";
     };
 
     thermal = {
@@ -199,16 +205,15 @@ in
     }
 
     (lib.mkIf (cfg.boot == "efi") {
-      # Factory U-Boot 2018.03 `bootefi` -> systemd-boot. U-Boot's EFI has no
-      # persistent variables, so systemd-boot runs without touching them and
-      # just follows loader.conf. The DTB is NOT installed by systemd-boot:
-      # U-Boot passes it to `bootefi` from the fixed path below so its fixups
-      # (mvpp2 MACs, memory banks) are applied.
+      # The factory U-Boot 2018.03 chainloads mainline U-Boot (./uboot) from
+      # the ESP; that one provides real UEFI and runs systemd-boot. The
+      # factory `bootefi` itself is unusable (see ./uboot/default.nix).
+      # systemd-boot installs the board DTB and hands it to U-Boot's
+      # EFI_DT_FIXUP protocol, so U-Boot's DT fixups still apply.
       boot.loader.systemd-boot = {
         enable = true;
         graceful = true;
-        installDeviceTree = false;
-        extraFiles.${efiDtbPath} = "${config.hardware.deviceTree.package}/${config.hardware.deviceTree.name}";
+        extraFiles."u-boot-tn48m.bin" = "${cfg.uboot.package}/u-boot.bin";
       };
       boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
       boot.loader.efi.efiSysMountPoint = "/boot";
