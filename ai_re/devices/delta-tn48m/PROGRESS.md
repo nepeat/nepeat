@@ -23,8 +23,9 @@ recipes), [dentos.md](dentos.md) (as-received disk + provenance),
   by `nix/nixos/module/tn48m/uboot`) -> bootstd EFI -> **systemd-boot 262** ->
   Linux 7.3.3. Cold power cycle verified 2026-11-12. SPI env `nos_bootcmd` =
   `scsi reset; load scsi 0:1 0x7000000 u-boot-tn48m.bin && dcache off && icache off && go 0x7000000; setenv ramdisk_addr_r 0x10000000; sysboot scsi 0:1 any 0x0f000000 /extlinux/extlinux.conf`
-  (the extlinux tail is a stale fallback; undo everything with `fw_setenv nos_bootcmd true`).
-  Mgmt end2 DHCP 10.60.2.218 (MAC pinned in networkd), on BasementMDFSwitch1
+  (the extlinux tail is a fallback regenerated on every switch for the current
+  generation; undo everything with `fw_setenv nos_bootcmd true`).
+  Mgmt end2 DHCP 10.60.2.218 (MAC from the TLV EEPROM via U-Boot's DT fixup), on BasementMDFSwitch1
   USW-Pro-Max-48-PoE port 4 (LLDP).
   Deploy: `sudo nix copy --no-check-sigs --to ssh-ng://root@10.60.2.218 <toplevel>`,
   then `nix-env -p /nix/var/nix/profiles/system --set <toplevel>` +
@@ -132,6 +133,37 @@ in `dumps/sda.img.zst`, and writes one SPI env var):
   shows last mount 2022-05-11 and clean, so it appears nothing was replayed.
 
 ## log (newest first)
+
+### 2026-11-12 (f) — loose ends from (e) tied up
+
+- **"scsi 0:2" U-Boot crash, root-caused**: rebuilt the crashing v1 bit-identically
+  (sha256 66416bd0...) with its ELF. elr 0x3eeb8 = `mvpp2_bm_pool_use` <-
+  `mvpp2_swf_bm_pool_init` <- `mvpp2_port_init` <- `mvpp2_probe`, during
+  bootstd's lazy ethernet-bootdev probe (not ext4). FAR 0x4f300000edfe0dd0 =
+  bytes `d0 0d fe ed 00 00 30 4f`, an FDT header, so a stale mvpp2 controller
+  pointer into reused memory on re-probe (inferred, not traced). Fix: networking
+  compiled out of the chainload U-Boot (`CONFIG_NO_NET`), which also needed
+  (in the patch) PXE/DHCP distro targets guarded on CMD_PXE/CMD_DHCP, a guard for
+  `CONFIG_ENV_MMC_DEVICE_INDEX` in `mmc_get_env_dev()`, and dropping `bubt`
+  (SPI flash writer; a brick on this fused SoC anyway).
+- **MAC from the EEPROM**: U-Boot DTS got `eeprom@56` (atmel,24c64) on cp0_i2c0;
+  `CONFIG_ID_EEPROM` + `CMD_TLV_EEPROM` -> `mac_read_from_eeprom()` sets
+  ethaddr/eth1addr/... from the TLV base + count; the EFI DT fixup
+  (systemd-boot -> EFI_DT_FIXUP) writes them to the Linux DT's ethernetN aliases:
+  ethernet-port@0/1/2 = :40/:41/:42, as the factory U-Boot did. networkd MAC pin
+  removed; end2 keeps :42 and 10.60.2.218.
+- **extlinux fallback** no longer stale: systemd-boot `extraInstallCommands`
+  runs nixpkgs' extlinux-conf-builder (`-g 1`) for the generation being
+  installed (/boot/extlinux + /boot/nixos, ~100 MB; ESP 43% used).
+- **crypto-safexcel**: ship `inside-secure/eip197_minifw` -> EIP197 probes and
+  registers its algorithms. `hardware.wirelessRegulatoryDatabase = true`
+  silences the cfg80211 regulatory.db miss.
+- Verified benign, left alone: `cpufreq-dt is already registered` (scaling works,
+  350/467/700/1400 MHz); `TPM error (256) ... self test` (nothing runs
+  TPM2_Startup before Linux; the TPM works: IFX, tpm2_getrandom OK).
+- Cold power cycle hands-off with the new U-Boot (689 KB): systemd-boot menu ->
+  gen 5 -> login, 52 ports, 0 failed units. Removed ESP leftovers (`/dtbs`,
+  temporary `u-boot-good.bin`).
 
 ### 2026-11-12 (e) — legit EFI: chainloaded mainline U-Boot + systemd-boot
 
