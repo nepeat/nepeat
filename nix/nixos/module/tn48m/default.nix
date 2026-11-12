@@ -28,16 +28,24 @@
   config,
   lib,
   pkgs,
+  modulesPath,
   ...
 }:
 
 let
   cfg = config.hardware.tn48m;
 
+  extlinuxBuilder = import (
+    modulesPath + "/system/boot/loader/generic-extlinux-compatible/extlinux-conf-builder.nix"
+  ) { inherit lib pkgs; };
 
-  presteraFirmware = pkgs.runCommand "prestera-firmware" { } ''
-    mkdir -p $out/lib/firmware/mrvl
+
+  # Only the blobs this board uses: the Prestera switch firmware and the
+  # CP110 EIP197 crypto engine's (crypto-safexcel) mini firmware.
+  boardFirmware = pkgs.runCommand "tn48m-firmware" { } ''
+    mkdir -p $out/lib/firmware/mrvl $out/lib/firmware/inside-secure
     cp -r ${pkgs.linux-firmware}/lib/firmware/mrvl/prestera $out/lib/firmware/mrvl/
+    cp -r ${pkgs.linux-firmware}/lib/firmware/inside-secure/eip197_minifw $out/lib/firmware/inside-secure/
   '';
 
   # thermal (upstream thermal.nix): fancontrol on the ADT7473, all three PWM
@@ -147,7 +155,9 @@ in
       # base.nix also enables x86 microcode unconditionally (cs8210 does the same).
       hardware.cpu.intel.updateMicrocode = lib.mkForce false;
       hardware.cpu.amd.updateMicrocode = lib.mkForce false;
-      hardware.firmware = [ presteraFirmware ];
+      hardware.firmware = [ boardFirmware ];
+      # Something pulls in cfg80211; give it its database instead of an error.
+      hardware.wirelessRegulatoryDatabase = true;
 
       boot.initrd.kernelModules = [
         "marvell"
@@ -214,6 +224,16 @@ in
         enable = true;
         graceful = true;
         extraFiles."u-boot-tn48m.bin" = "${cfg.uboot.package}/u-boot.bin";
+        # Keep the factory U-Boot's fallback (nos_bootcmd's sysboot tail, used
+        # if u-boot-tn48m.bin can't be loaded) pointing at the generation
+        # being installed instead of going stale. Kernels go to /boot/nixos.
+        # nixpkgs' extlinux builder is called directly, since its populateCmd only
+        # exists while that loader is the enabled one. -g 1: one generation is
+        # enough for an emergency fallback and keeps the 512 MiB ESP from
+        # filling up next to systemd-boot's copies.
+        extraInstallCommands = ''
+          ${extlinuxBuilder} -g 1 -t 3 -n ${config.hardware.deviceTree.name} -c "$1" -d /boot
+        '';
       };
       boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
       boot.loader.efi.efiSysMountPoint = "/boot";

@@ -1,13 +1,15 @@
 diff --color -ruN a/arch/arm/dts/armada-7040-tn48m.dts b/arch/arm/dts/armada-7040-tn48m.dts
 --- a/arch/arm/dts/armada-7040-tn48m.dts	1969-12-31 16:00:00.000000000 -0800
-+++ b/arch/arm/dts/armada-7040-tn48m.dts	2026-11-12 00:03:50.202976269 -0800
-@@ -0,0 +1,144 @@
++++ b/arch/arm/dts/armada-7040-tn48m.dts	2026-11-12 00:49:13.315667550 -0800
+@@ -0,0 +1,155 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Delta TN48M -- U-Boot control device tree (mainline U-Boot bindings).
 + *
 + * Only what U-Boot needs to reach the SSD, USB, the SPI NOR (read) and the
-+ * management port. Board values are copied from the factory U-Boot's control
++ * ONIE TLV EEPROM. Networking is compiled out of this U-Boot (its mvpp2
++ * driver crashed on re-probe from bootstd's ethernet bootdev); the mvpp2
++ * nodes below just document the board. Board values are copied from the factory U-Boot's control
 + * DTB (SPI 0x18593c, Marvell U-Boot 2018.03 "V06_test"): AP/CP pinmux, CP110
 + * comphy lane plan, MDIO PHY address, mvpp2 port layout. Linux does NOT use
 + * this tree; it gets nixos/module/tn48m/delta-tn48m.dts through systemd-boot.
@@ -32,7 +34,6 @@ diff --color -ruN a/arch/arm/dts/armada-7040-tn48m.dts b/arch/arm/dts/armada-704
 +	aliases {
 +		i2c0 = &cp0_i2c0;
 +		spi0 = &cp0_spi0;
-+		ethernet0 = &cp0_eth2;
 +	};
 +
 +	/* Only a placeholder: U-Boot sizes DRAM from ATF (MV_SIP_DRAM_SIZE). */
@@ -68,6 +69,16 @@ diff --color -ruN a/arch/arm/dts/armada-7040-tn48m.dts b/arch/arm/dts/armada-704
 +&cp0_i2c0 {
 +	status = "okay";
 +	clock-frequency = <100000>;
++
++	/* ONIE TlvInfo EEPROM: base MAC + count. CONFIG_ID_EEPROM's
++	 * mac_read_from_eeprom() turns it into ethaddr, eth1addr, ...; the
++	 * EFI DT fixup then gives the Linux DT's ethernetN aliases those MACs
++	 * (cp0_eth2 = mgmt = base+2, as the factory U-Boot did). */
++	eeprom@56 {
++		compatible = "atmel,24c64";
++		reg = <0x56>;
++		pagesize = <32>;
++	};
 +};
 +
 +/* SPI NOR (w25q128bv, 16 MiB) with the factory env at 0x3f0000. This
@@ -159,7 +170,7 @@ diff --color -ruN a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
  	armada-8040-mcbin.dtb			\
 diff --color -ruN a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
 --- a/arch/arm/mach-mvebu/armada8k/cpu.c	2026-11-12 00:03:26.990783594 -0800
-+++ b/arch/arm/mach-mvebu/armada8k/cpu.c	2026-11-12 00:03:27.013783784 -0800
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c	2026-11-12 00:51:11.251156706 -0800
 @@ -59,6 +59,9 @@
  		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
  			 PTE_BLOCK_NON_SHARE
@@ -214,6 +225,19 @@ diff --color -ruN a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/arm
  #if CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP)
  /**
   * mvebu_lmb_reserve() - mark a region as present but not allocatable
+@@ -200,7 +240,12 @@
+ 		return 1;
+ 	}
+ 
++#ifdef CONFIG_ENV_MMC_DEVICE_INDEX
+ 	return CONFIG_ENV_MMC_DEVICE_INDEX;
++#else
++	/* only defined when an env-in-MMC/FAT/EXT4 (or bubt) option is set */
++	return 0;
++#endif
+ }
+ 
+ int print_cpuinfo(void)
 diff --color -ruN a/arch/arm/mach-mvebu/armada8k/dram.c b/arch/arm/mach-mvebu/armada8k/dram.c
 --- a/arch/arm/mach-mvebu/armada8k/dram.c	2026-11-12 00:03:26.990783594 -0800
 +++ b/arch/arm/mach-mvebu/armada8k/dram.c	2026-11-12 00:03:27.013783784 -0800
@@ -244,3 +268,32 @@ diff --color -ruN a/arch/arm/mach-mvebu/include/mach/cpu.h b/arch/arm/mach-mvebu
  
  /* A3700 dram functions */
  int a3700_dram_init(void);
+diff --color -ruN a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+--- a/include/configs/mvebu_armada-8k.h	2026-11-12 00:50:04.041310074 -0800
++++ b/include/configs/mvebu_armada-8k.h	2026-11-12 00:50:04.054310238 -0800
+@@ -31,13 +31,23 @@
+  * PCI configuration
+  */
+ #ifdef CONFIG_DISTRO_DEFAULTS
++#if CONFIG_IS_ENABLED(CMD_PXE)
++#define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
++#else
++#define BOOT_TARGET_PXE(func)
++#endif
++#if CONFIG_IS_ENABLED(CMD_DHCP)
++#define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
++#else
++#define BOOT_TARGET_DHCP(func)
++#endif
+ #define BOOT_TARGET_DEVICES(func) \
+ 	func(MMC, mmc, 1) \
+ 	func(MMC, mmc, 0) \
+ 	func(USB, usb, 0) \
+ 	func(SCSI, scsi, 0) \
+-	func(PXE, pxe, na) \
+-	func(DHCP, dhcp, na)
++	BOOT_TARGET_PXE(func) \
++	BOOT_TARGET_DHCP(func)
+ 
+ #include <config_distro_bootcmd.h>
+ #else
