@@ -5,6 +5,13 @@
 
 let
   cfg = config.nix.remoteBuilders;
+  keys = import ./remote-builder-keys.nix;
+  desktop = {
+    inherit (keys.sea420-desktop) hostName publicHostKey;
+    sshUser = "nix-ssh";
+    sshKey = cfg.desktopKey;
+    protocol = "ssh-ng";
+  };
 in
 
 {
@@ -20,6 +27,16 @@ in
         Private key root uses to reach the builders. NOT managed here -- it has
         to exist on the host, and its public half must be authorized on each
         builder. Until then nix simply falls back to building locally.
+      '';
+    };
+
+    desktopKey = lib.mkOption {
+      type = lib.types.str;
+      default = "/root/.ssh/nix-remote-builder";
+      description = ''
+        Private key for sea420-desktop's nix-ssh builder user (see
+        remote-builder-host.nix). Copied onto each client by hand; the public
+        half is in remote-builder-keys.nix.
       '';
     };
   };
@@ -52,6 +69,26 @@ in
         supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" ];
         mandatoryFeatures = [ ];
       }
+    ]
+    # sea420-desktop (Ryzen 9 7950X, 32 threads): native x86, plus aarch64/POWER
+    # via qemu-user binfmt -- which on this box still outruns the small native
+    # ARM/PPC machines, so it is preferred for those too.
+    # Not on the desktop itself, which would otherwise ssh to itself.
+    ++ lib.optionals (!config.nix.remoteBuilderHost.enable) [
+      (desktop // {
+        systems = [ "x86_64-linux" "i686-linux" ];
+        maxJobs = 16;
+        speedFactor = 4;
+        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        mandatoryFeatures = [ ];
+      })
+      (desktop // {
+        systems = [ "aarch64-linux" "powerpc64-linux" "powerpc64le-linux" ];
+        maxJobs = 16;
+        speedFactor = 4;
+        supportedFeatures = [ "benchmark" "big-parallel" ];
+        mandatoryFeatures = [ ];
+      })
     ];
   };
 }

@@ -176,8 +176,7 @@
     useRoutingFeatures = "server";
   };
 
-  # Allow other arch emulation
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  boot.binfmt.preferStaticEmulators = true;
-  boot.binfmt.registrations."aarch64-linux".fixBinary = true;
+  # Fleet build server: native x86 plus aarch64/ppc64/ppc64le via binfmt,
+  # served to other hosts as nix-ssh (see nixos/module/remote-builder-host.nix).
+  nix.remoteBuilderHost.enable = true;
 }

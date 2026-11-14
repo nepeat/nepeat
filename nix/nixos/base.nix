@@ -118,5 +118,8 @@
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
 
-  imports = [ ./module/remote-builders.nix ];
+  imports = [
+    ./module/remote-builders.nix
+    ./module/remote-builder-host.nix
+  ];
 }
