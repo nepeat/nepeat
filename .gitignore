@@ -102,3 +102,6 @@ virtualenv/
 .mypy_cache/
 
 .direnv/
+
+# Per-user Claude Code settings (local MCP servers, permissions)
+.claude/settings.local.json
