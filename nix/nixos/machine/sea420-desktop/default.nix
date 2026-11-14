@@ -50,6 +50,8 @@
   # Keep userspace on 2.4.4 and apply only the kernel API fixes to the module.
   boot = {
     kernelPackages = pkgs.linuxPackages_7_3;
+    # Refuse to force-import a root pool that may still be active on another host.
+    zfs.forceImportRoot = false;
     zfs.package = pkgs.zfs_unstable;
     zfs.modulePackage = pkgs.callPackage ../../../package/zfs-linux-7.3.nix {
       zfs = config.boot.kernelPackages.zfs_unstable;

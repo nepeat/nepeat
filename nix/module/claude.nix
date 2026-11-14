@@ -3,7 +3,7 @@ let
   commonPrompt = builtins.readFile ./common/AGENTS.md;
 
   claudeHomeConfig = {
-    home.packages = [ inputs.llm-agents.packages.${pkgs.system}.claude-code ];
+    home.packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code ];
 
     home.file.".claude/CLAUDE.md".text = commonPrompt;
 

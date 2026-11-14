@@ -2,7 +2,7 @@
 let
   commonPrompt = builtins.readFile ./common/AGENTS.md;
 
-  opencodePkg = inputs.llm-agents.packages.${pkgs.system}.opencode;
+  opencodePkg = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
 
   opencodeHomeConfig = {
     home.packages = [ opencodePkg ];

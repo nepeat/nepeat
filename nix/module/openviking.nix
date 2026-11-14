@@ -15,7 +15,7 @@ let
     # Provides `ov`, `openviking` and `openviking-server`.
     home.packages = [
       setupOpenvikingConfig
-      inputs.self.packages.${pkgs.system}.openviking
+      inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.openviking
     ];
   };
 in

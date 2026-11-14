@@ -170,7 +170,7 @@
     # Useful nix related tools
     cachix # adding/managing alternative binary caches hosted by Cachix
     niv # easy dependency management for nix projects
-  ] ++ lib.optionals pkgs.stdenv.isDarwin [
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
     cocoapods
     m-cli # useful macOS CLI commands
     nix-output-monitor

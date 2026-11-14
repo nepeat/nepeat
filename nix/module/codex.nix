@@ -3,7 +3,7 @@ let
   commonPrompt = builtins.readFile ./common/AGENTS.md;
 
   codexHomeConfig = {
-    home.packages = [ inputs.llm-agents.packages.${pkgs.system}.codex ];
+    home.packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex ];
 
     # Codex reads global instructions from ~/.codex/AGENTS.md, the same way
     # opencode reads ~/.config/opencode/AGENTS.md and claude reads
