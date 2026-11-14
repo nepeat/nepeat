@@ -14,6 +14,7 @@ marker = 'CFE> ' + args.command + '\n'
 previous = capture().count(marker)
 subprocess.run(['tmux', 'send-keys', '-t', session, '-l', args.command], check=True)
 subprocess.run(['tmux', 'send-keys', '-t', session, 'Enter'], check=True)
+text = capture()
 start = time.monotonic()
 while time.monotonic() - start < args.timeout:
     text = capture()
