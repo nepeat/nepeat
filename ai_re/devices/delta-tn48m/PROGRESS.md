@@ -4,6 +4,7 @@ Details: [uboot.md](uboot.md) (password, signature enforcement, commands,
 recipes), [dentos.md](dentos.md) (as-received disk + provenance),
 [ihm.md](ihm.md) (Amazon IHM device identity / credential system, passive map),
 [efuse.md](efuse.md) (efuse map: secure boot proven fused, KAK digest),
+[bootrom.md](bootrom.md) (AP806 BootROM 2.03 dump + first look),
 `onie-delta_tn48m-r0.dts` / `dentos-delta-tn48m.dts` (decompiled vendor DTBs),
 `onie-env-dmesg.txt` (full U-Boot env + ONIE dmesg).
 
@@ -134,6 +135,40 @@ in `dumps/sda.img.zst`, and writes one SPI env var):
   shows last mount 2022-05-11 and clean, so it appears nothing was replayed.
 
 ## log (newest first)
+
+### 2026-11-12 (i) — Ghidra + MCP in the devshell; CP110 ROM hunt (not found); one hang
+
+- Ghidra 12.1.2 added to `ai_re/flake.nix` with a headless MCP server
+  (pyghidra-mcp 0.3.0, pinned, its online code-index download patched off),
+  registered in `ai_re/.mcp.json` as `ghidra-tn48m`. Project:
+  `devices/delta-tn48m/ghidra/tn48m.gpr` (gitignored), ROM loaded at
+  0xFFFF0000. Set up by a sonnet subagent, which showed a decompile of
+  0xFFFF040C over stdio. Usage: `ai_re/tools/README.md`.
+- CP110 IOROM: **not located, not dumped**. Static reading of the AP ROM found
+  the IOROM loader and header format instead (bootrom.md).
+- **Mistake:** a `/dev/mem` read of 0xF06F4700 from NixOS hard-hung the box
+  (no panic, watchdog silent). Power-cycled via the lab plug; clean boot,
+  0 failed units. Should have been tried from U-Boot, not a running OS.
+- The serial tmux session had died earlier (adapter re-enumerated 03:48);
+  restarted, new log `serial-20261112-041202.txt`.
+- Two more power cycles after that (one from the factory U-Boot prompt, where
+  nothing was written). Box is in NixOS, healthy.
+
+### 2026-11-12 (h) — AP806 BootROM dumped (read-only)
+
+- Goal: get the BootROM for a static audit (Marvell has no bug bounty; this is
+  for fun, and anything found goes to psirt@marvell.com).
+- Found it from the live window registers: IO_WIN win0 (0xF06F0000) =
+  `0x0000fff1`, i.e. enabled at 0xFFF00000; TF-A reserves that window for the
+  BootROM.
+- Read it from NixOS over `/dev/mem` with `tools/devmem.py` (`sync` first in
+  case the bus faulted; it didn't). Readable from the non-secure world. Two
+  reads identical. 64 KiB image mirrored 16x in the 1 MiB window.
+- `dumps/ap806-bootrom.bin`, sha256 `c79632ea...1ca787` (gitignored).
+- It is the real thing: AArch64 reset vector, version word 0x203 ("BootROM -
+  2.03"), all the secure-boot error strings, and a `bootrom>> ` debug monitor
+  (r/w/j/t). Nothing audited yet. Details: [bootrom.md](bootrom.md).
+- Temp files removed from the box; nothing written to SPI/efuse/SSD.
 
 ### 2026-11-12 (g) — efuse read: secure boot proven
 
