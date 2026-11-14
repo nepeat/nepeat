@@ -112,7 +112,7 @@ switch machine_name="":
     fi
 
     # Build the system
-    nix build -vL --always-allow-substitutes --log-format internal-json ".#$ATTR" 2>&1 | nix run 'nixpkgs#nix-output-monitor' -- --json
+    nix build -vL --max-jobs 8 --always-allow-substitutes --log-format internal-json ".#$ATTR" 2>&1 | nix run 'nixpkgs#nix-output-monitor' -- --json
 
     # Apply the update using the rebuild tool from PATH, falling back to the
     # one in the freshly built result (darwin-rebuild lives in the system
