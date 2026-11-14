@@ -135,6 +135,9 @@
             # ghidraPy: python+pyghidra for tools/ghidra/ scripts.
             ghidra
 
+            # Search hardware reference-manual PDF register definitions.
+            poppler-utils
+
             # Terminal multiplexing for persistent serial sessions
             tmux
 
@@ -168,6 +171,9 @@
             # General RE / analysis helpers
             binwalk
             squashfsTools # unsquashfs (xz) — extract Raritan PP/SquashFS rootfs
+            # Edge-Core AS7760: inspect acquired FAT32 SD and JFFS2 NOR images.
+            mtools
+            jefferson
             dtc # device tree compiler — decompile firmware DTBs
             hexyl # friendly hex viewer
             file
