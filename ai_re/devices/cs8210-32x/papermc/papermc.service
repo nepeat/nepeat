@@ -1,0 +1,35 @@
+[Unit]
+Description=PaperMC on the CS8210
+Wants=network-online.target
+After=network-online.target firewall.service
+StartLimitIntervalSec=600
+StartLimitBurst=3
+
+[Service]
+WorkingDirectory=/root/papermc
+ExecStartPre=/run/current-system/sw/bin/bash /root/papermc/wait-address.sh
+ExecStartPre=/run/current-system/sw/bin/bash /root/papermc/firewall.sh open
+ExecStopPost=/run/current-system/sw/bin/bash /root/papermc/firewall.sh close
+ExecStart=/root/papermc/result/bin/papermc
+Restart=on-failure
+RestartSec=15
+TimeoutStartSec=150
+TimeoutStopSec=180
+KillSignal=SIGINT
+MemoryAccounting=true
+MemoryHigh=3584M
+MemoryMax=4G
+MemorySwapMax=0
+CPUWeight=25
+Nice=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/root/papermc
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

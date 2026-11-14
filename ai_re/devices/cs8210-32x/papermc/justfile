@@ -1,0 +1,59 @@
+# Run in /root/papermc on the switch.
+set shell := ["bash", "-e", "-o", "pipefail", "-c"]
+
+# List available commands
+default:
+    @just --list
+
+# Start the server
+start:
+    systemctl start papermc
+
+# Stop gracefully and save the worlds
+stop:
+    systemctl stop papermc
+
+# Restart gracefully
+restart:
+    systemctl restart papermc
+
+# Service status (including when stopped)
+status:
+    @systemctl --no-pager --full status papermc || test "$?" -eq 3
+
+# Follow live logs (Ctrl-C exits the viewer)
+logs:
+    journalctl -u papermc -f -n 50
+
+# Show recent logs
+recent:
+    journalctl -u papermc -n 100 --no-pager
+
+# Memory usage and limits in bytes
+memory:
+    @systemctl show papermc -p MemoryCurrent -p MemoryPeak -p MemoryHigh -p MemoryMax
+
+# Show connection address
+join:
+    @echo "Minecraft Java 26.3: 10.60.2.190:25565"
+
+# Build pinned server without restarting
+build:
+    nix build path:/root/papermc
+
+# Build pinned server and restart
+deploy: build
+    systemctl restart papermc
+
+# Check persistent boot dependency
+boot-status:
+    @systemctl show multi-user.target -p Wants | tr ' ' '\n' | grep papermc
+
+# Interactive Minecraft admin console (type Q to leave)
+console:
+    @bash /root/papermc/console.sh -t
+
+# Send one Minecraft command, e.g. just command "list"
+[ positional-arguments ]
+command cmd:
+    @bash /root/papermc/console.sh "$1"
