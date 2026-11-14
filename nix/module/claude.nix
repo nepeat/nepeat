@@ -7,6 +7,9 @@ let
 
     home.file.".claude/CLAUDE.md".text = commonPrompt;
 
+    # Opt into Code Mode (the REPL-driven tool surface) everywhere.
+    home.sessionVariables.CLAUDE_CODE_EXPERIMENTAL_CODE_MODE = "1";
+
     home.file.".claude/output-styles/feral-catgirl.md".text = ''
       ---
       name: feral catgirl
