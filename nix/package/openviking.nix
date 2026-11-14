@@ -75,12 +75,14 @@ let
     src = "${src}/web-studio";
     inherit npmDepsHash;
 
-    # CodeMirror's jsdom tests take a little over Vitest's 5s default on a
-    # loaded Nix builder.  Keep the upstream prebuild test suite enabled, but
-    # give those tests enough headroom to finish.
+    # jsdom and the first ESLint config load can exceed upstream's timeouts
+    # on a loaded Nix builder. Keep the prebuild suite enabled with headroom
+    # for both the default timeout and the i18n test's explicit override.
     postPatch = ''
       substituteInPlace vite.config.ts \
-        --replace-fail "test: {" "test: { testTimeout: 15000,"
+        --replace-fail "test: {" "test: { testTimeout: 60000,"
+      substituteInPlace script/eslint-i18n.test.ts \
+        --replace-fail '    15000,' '    60000,'
     '';
 
     # Matches the `--base=/studio/` upstream passes.
