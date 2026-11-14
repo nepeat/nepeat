@@ -28,20 +28,112 @@
           '';
           runScript = "bash";
         };
+
+        # --- Ghidra MCP server (headless, stdio) ---------------------------
+        # pyghidra-mcp (clearbluejar, Apache-2.0) + its one non-nixpkgs
+        # dependency ghidrecomp, built against nixpkgs' pyghidra/chromadb/mcp
+        # and wired to nixpkgs' Ghidra. Kept inline (not a tools/*.nix file)
+        # because flakes only see git-tracked files. Pinned by tag + source hash.
+        # Network surface: Ghidra's optional PDB symbol server (off via
+        # --no-symbols in .mcp.json) and chromadb's ONNX-model download (code
+        # index, patched off below); see tools/README.md.
+        ghidrecomp = pkgs.python3Packages.buildPythonPackage rec {
+          pname = "ghidrecomp";
+          version = "0.5.9";
+          pyproject = true;
+          build-system = [ pkgs.python3Packages.setuptools ];
+          src = pkgs.fetchFromGitHub {
+            owner = "clearbluejar";
+            repo = "ghidrecomp";
+            tag = "v${version}";
+            hash = "sha256-r8jMfK5oFvyd1eFgf4wJrDfhhUzGEUyPf+BmOrx2OSU=";
+          };
+          dependencies = [ pkgs.python3Packages.pyghidra ];
+          doCheck = false;
+        };
+        pyghidraMcpUnwrapped = pkgs.python3Packages.buildPythonApplication rec {
+          pname = "pyghidra-mcp";
+          version = "0.3.0";
+          pyproject = true;
+          build-system = [ pkgs.python3Packages.hatchling ];
+          src = pkgs.fetchFromGitHub {
+            owner = "clearbluejar";
+            repo = "pyghidra-mcp";
+            tag = "v${version}";
+            hash = "sha256-e5/tVFf4GCJ2mA4kxRko1LzpR6WP34qCgdnPY5ArH74=";
+          };
+          dependencies = with pkgs.python3Packages; [
+            click click-option-group mcp pyghidra chromadb ghidrecomp
+          ];
+          doCheck = false;
+          pythonRelaxDeps = true; # upstream lower bounds vs nixpkgs versions
+          # chromadb's default embedder downloads an ONNX model from
+          # chroma-onnx-models.s3.amazonaws.com the first time the code index is
+          # filled, and upstream does that automatically at startup. Turn the
+          # semantic code index off (search_code then reports "not indexed");
+          # every other tool is unaffected and the server stays fully offline.
+          postPatch = ''
+            substituteInPlace src/pyghidra_mcp/indexing_mixin.py --replace-fail \
+              "        code: bool = True,
+                    strings: bool = True,
+                ) -> bool:" \
+              "        code: bool = False,
+                    strings: bool = True,
+                ) -> bool:"
+          '';
+        };
+        # Pin Ghidra to the nixpkgs build so GHIDRA_INSTALL_DIR is never needed.
+        pyghidraMcp = pkgs.symlinkJoin {
+          name = "pyghidra-mcp-${pyghidraMcpUnwrapped.version}";
+          paths = [ pyghidraMcpUnwrapped ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/pyghidra-mcp \
+              --set-default GHIDRA_INSTALL_DIR ${pkgs.ghidra}/lib/ghidra
+          '';
+          meta.mainProgram = "pyghidra-mcp";
+        };
+        # python with pyghidra for tools/ghidra/*.py (project seeding scripts).
+        ghidraPy = pkgs.writeShellApplication {
+          name = "ghidra-py";
+          runtimeInputs = [ (pkgs.python3.withPackages (ps: [ ps.pyghidra ])) ];
+          text = ''
+            export GHIDRA_INSTALL_DIR=${pkgs.ghidra}/lib/ghidra
+            exec python3 "$@"
+          '';
+        };
       in
       {
+        # `nix run .#pyghidra-mcp -- ...` (used by .mcp.json; no devshell shellHook
+        # noise on stdout, which would corrupt the MCP stdio stream).
+        packages = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+          pyghidra-mcp = pyghidraMcp;
+        };
+
         devShells.default = pkgs.mkShell {
           name = "ai_re";
 
           # Add tools here as RE tasks require them. Note the reason in the
           # commit that adds a package.
-          packages = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [ openwrtBuildShell ] ++ (with pkgs; [
+          packages = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+            openwrtBuildShell
+            # Only verified on x86_64-linux; not evaluated on darwin.
+            pyghidraMcp
+            ghidraPy
+          ] ++ (with pkgs; [
             # Home Assistant outlet control; credentials stay in the environment.
             (writeShellApplication {
               name = "lab-power";
               runtimeInputs = [ python3 ];
               text = ''exec python3 ${./tools/lab_power.py} "$@"'';
             })
+
+            # Static analysis of the TN48M AP806 BootROM
+            # (devices/delta-tn48m/bootrom.md). nixpkgs `ghidra` is the
+            # source build and substitutes from cache.nixos.org (no compile).
+            # pyghidraMcp: headless MCP server so Claude Code can drive it;
+            # ghidraPy: python+pyghidra for tools/ghidra/ scripts.
+            ghidra
 
             # Terminal multiplexing for persistent serial sessions
             tmux

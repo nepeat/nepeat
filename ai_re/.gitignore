@@ -14,3 +14,11 @@ extract/
 
 # local secrets sourced by .envrc (direnv source_env_if_exists)
 .envrc.local
+
+# Ghidra projects embed the analysed binary's bytes (vendor firmware); the
+# monorepo is public. Never commit them. Scripts live in tools/, not here.
+devices/*/ghidra/
+*.gpr
+*.rep/
+*.rep
+*.lock~

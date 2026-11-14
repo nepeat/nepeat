@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ghidra-tn48m": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-c",
+        "root=\"$(git rev-parse --show-toplevel)/ai_re\"; exec nix run \"$root#pyghidra-mcp\" -- --transport stdio --no-symbols --project-path \"$root/devices/delta-tn48m/ghidra/tn48m.gpr\""
+      ]
+    }
+  }
+}
