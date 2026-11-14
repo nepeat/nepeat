@@ -1,5 +1,9 @@
 # Hardware forwarding and Linux configuration integration
 
+The following records the initial SDK-only investigation. The subsequent
+[native OpenWrt state controller](../native-network/README.md) implements and
+tests the supported synchronization layer; its latest result is separate.
+
 ## Finding, 2026-11-09
 
 **BCM56845_A3 can route in hardware under our OpenWrt/SDK stack.** The earlier

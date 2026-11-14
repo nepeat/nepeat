@@ -1,0 +1,297 @@
+/* SDK objects owned exclusively by the native Linux state controller.
+ * Counts survive individual reconcile scripts, and reset with SDK startup.
+ */
+int native_vlans[4094];
+int native_nv=0;
+int native_rifs[256];
+uint8 native_rif_macs[1536];
+int native_nr=0;
+int native_egress[2048];
+int native_ne=0;
+uint32 native_prefix[2048];
+uint32 native_mask[2048];
+int native_np=0;
+uint8 native_local_macs[3072];
+int native_local_vids[512];
+int native_nm=0;
+int native_fdb_ports[512];
+int native_nstatic=0;
+uint8 native_static_macs[3072];
+int native_static_vids[512];
+int native_cpu=-1;
+
+/* Desired-set epochs retain unchanged SDK IDs across neighbor/route changes.
+ * Extra slots allow old and new objects to coexist until reference swaps. */
+int native_epoch=0;
+int native_rif_creates=0;
+int native_rif_deletes=0;
+int native_egress_creates=0;
+int native_egress_deletes=0;
+int native_route_writes=0;
+int native_route_deletes=0;
+int native_rif_seen[256];
+int native_egress_seen[2048];
+int native_egress_vid[2048];
+int native_egress_port[2048];
+uint8 native_egress_mac[12288];
+int native_route_seen[2048];
+int native_route_egress[2048];
+int native_begin_l3() {
+    int i;
+    native_epoch++;
+    if(native_epoch>=1000000000) {
+        native_epoch=1;
+        for(i=0;i<native_nr;i++)native_rif_seen[i]=0;
+        for(i=0;i<native_ne;i++)native_egress_seen[i]=0;
+        for(i=0;i<native_np;i++)native_route_seen[i]=0;
+    }
+    return 0;
+}
+
+int native_local_mac(int vid,bcm_mac_t mac) {
+    int i,j,same;
+    bcm_l2_addr_t entry;
+    bcm_l2_addr_t_init(&entry,mac,vid);
+    entry.flags=BCM_L2_STATIC;
+    entry.port=0;
+    if(bcm_l2_addr_add(0,&entry)<0) return -1;
+    for(i=0;i<native_nm;i++) {
+        same=(native_local_vids[i]==vid);
+        for(j=0;j<6;j++) if(native_local_macs[i*6+j]!=mac[j]) same=0;
+        if(same) return 0;
+    }
+    if(native_nm>=512) return -14;
+    native_local_vids[native_nm]=vid;
+    for(j=0;j<6;j++) native_local_macs[native_nm*6+j]=mac[j];
+    native_nm++;
+    return 0;
+}
+
+int native_clear_l3() {
+    int i,j,rv;
+    bcm_mac_t m;
+    bcm_l3_route_t route;
+    bcm_l3_intf_t rif;
+    for(i=0;i<native_np;i++) {
+        bcm_l3_route_t_init(&route);
+        route.l3a_subnet=native_prefix[i];route.l3a_ip_mask=native_mask[i];
+        rv=bcm_l3_route_delete(0,&route);
+        if(rv<0 && rv!=-7) return rv;
+        native_route_deletes++;
+    }
+    native_np=0;
+    for(i=0;i<native_ne;i++) {
+        rv=bcm_l3_egress_destroy(0,native_egress[i]);
+        if(rv<0 && rv!=-7) return rv;
+        native_egress_deletes++;
+    }
+    native_ne=0;native_cpu=-1;
+    for(i=0;i<native_nr;i++) {
+        bcm_l3_intf_t_init(&rif);rif.l3a_intf_id=native_rifs[i];
+        rv=bcm_l3_intf_delete(0,&rif);
+        if(rv<0 && rv!=-7) return rv;
+        native_rif_deletes++;
+        for(j=0;j<6;j++) m[j]=native_rif_macs[i*6+j];
+        rv=native_local_mac(native_rifs[i],m);
+        if(rv<0) return rv;
+    }
+    native_nr=0;
+    return 0;
+}
+
+int native_clear_l2() {
+    int i,j,rv;
+    bcm_mac_t m;
+    bcm_pbmp_t all;
+    bcm_port_config_t pc;
+    rv=bcm_port_config_get(0,&pc);if(rv<0)return rv;
+    all=pc.all;
+    for(i=0;i<native_nm;i++) {
+        for(j=0;j<6;j++) m[j]=native_local_macs[i*6+j];
+        bcm_l2_addr_delete(0,m,native_local_vids[i]);
+    }
+    native_nm=0;
+    for(i=0;i<native_nstatic;i++) {
+        for(j=0;j<6;j++) m[j]=native_static_macs[i*6+j];
+        bcm_l2_addr_delete(0,m,native_static_vids[i]);
+    }
+    native_nstatic=0;
+    for(i=0;i<native_nv;i++) {
+        /* Flush learned MACs in owned VLANs before deleting/reusing them. */
+        rv=bcm_l2_addr_delete_by_vlan(0,native_vlans[i],0);
+        if(rv<0 && rv!=-7) return rv;
+        if(native_vlans[i]==1) rv=bcm_vlan_port_remove(0,1,all);
+        else rv=bcm_vlan_destroy(0,native_vlans[i]);
+        if(rv<0 && rv!=-7) return rv;
+    }
+    native_nv=0;
+    /* The stock SDK creates VLAN 1 before our first reconcile. */
+    rv=bcm_vlan_port_remove(0,1,all);
+    if(rv<0 && rv!=-7) return rv;
+    return 0;
+}
+
+int native_vlan(int vid,bcm_pbmp_t members,bcm_pbmp_t untagged) {
+    int rv;
+    if(vid!=1) {
+        rv=bcm_vlan_create(0,vid);
+        if(rv<0 && rv!=-8) return rv;
+    }
+    rv=bcm_vlan_port_add(0,vid,members,untagged);
+    if(rv<0) return rv;
+    if(native_nv>=4094) return -14;
+    native_vlans[native_nv]=vid;native_nv++;
+    return 0;
+}
+
+int native_static_mac(int vid,bcm_mac_t mac,int port) {
+    int j,rv;
+    bcm_l2_addr_t entry;
+    if(native_nstatic>=512) return -14;
+    bcm_l2_addr_t_init(&entry,mac,vid);entry.flags=BCM_L2_STATIC;entry.port=port;
+    rv=bcm_l2_addr_add(0,&entry);if(rv<0) return rv;
+    native_static_vids[native_nstatic]=vid;native_fdb_ports[native_nstatic]=port;
+    for(j=0;j<6;j++) native_static_macs[native_nstatic*6+j]=mac[j];
+    native_nstatic++;return 0;
+}
+
+int native_rif(int vid,bcm_mac_t mac) {
+    int rv,j,i;
+    bcm_l3_intf_t rif;
+    for(i=0;i<native_nr;i++)if(native_rifs[i]==vid) {
+        for(j=0;j<6;j++)if(native_rif_macs[i*6+j]!=mac[j])return -4;
+        native_rif_seen[i]=native_epoch;return 0;
+    }
+    if(native_nr>=256) return -14;
+    bcm_l3_intf_t_init(&rif);rif.l3a_intf_id=vid;rif.l3a_vid=vid;
+    rif.l3a_mtu=1500;rif.l3a_flags=BCM_L3_WITH_ID|BCM_L3_ADD_TO_ARL;
+    for(j=0;j<6;j++) rif.l3a_mac_addr[j]=mac[j];
+    rv=bcm_l3_intf_create(0,&rif);if(rv<0)return rv;native_rif_creates++;
+    native_rif_seen[native_nr]=native_epoch;
+    native_rifs[native_nr]=vid;
+    for(j=0;j<6;j++) native_rif_macs[native_nr*6+j]=mac[j];
+    native_nr++;return 0;
+}
+
+int native_cpu_egress() {
+    int rv,id,i;
+    bcm_l3_egress_t egr;
+    for(i=0;i<native_ne;i++)if(native_egress_vid[i]==-1) {
+        native_cpu=native_egress[i];native_egress_seen[i]=native_epoch;return 0;
+    }
+    if(native_ne>=2048)return -14;
+    bcm_l3_egress_t_init(&egr);
+    egr.intf=4095;egr.port=0;egr.flags=BCM_L3_L2TOCPU;
+    rv=bcm_l3_egress_create(0,0,&egr,&id);if(rv<0)return rv;native_egress_creates++;
+    native_egress_vid[native_ne]=-1;native_egress_seen[native_ne]=native_epoch;
+    native_egress[native_ne]=id;native_ne++;native_cpu=id;
+    return 0;
+}
+
+int native_nexthop(int vid,int port,bcm_mac_t mac) {
+    int rv,id,j,i,same;
+    bcm_l3_egress_t egr;
+    for(i=0;i<native_ne;i++) {
+        same=(native_egress_vid[i]==vid && native_egress_port[i]==port);
+        for(j=0;j<6;j++)if(native_egress_mac[i*6+j]!=mac[j])same=0;
+        if(same) {native_egress_seen[i]=native_epoch;return native_egress[i];}
+    }
+    if(native_ne>=2048)return -14;
+    bcm_l3_egress_t_init(&egr);egr.intf=vid;egr.vlan=vid;egr.port=port;
+    for(j=0;j<6;j++) egr.mac_addr[j]=mac[j];
+    rv=bcm_l3_egress_create(0,0,&egr,&id);if(rv<0)return rv;native_egress_creates++;
+    native_egress_vid[native_ne]=vid;native_egress_port[native_ne]=port;
+    for(j=0;j<6;j++)native_egress_mac[native_ne*6+j]=mac[j];
+    native_egress_seen[native_ne]=native_epoch;
+    native_egress[native_ne]=id;native_ne++;
+    return id;
+}
+
+int native_route(uint32 prefix,uint32 mask,int egress) {
+    int rv,i;
+    bcm_l3_route_t route;
+    for(i=0;i<native_np;i++)if(native_prefix[i]==prefix && native_mask[i]==mask)break;
+    if(i<native_np && native_route_egress[i]==egress) {
+        native_route_seen[i]=native_epoch;return 0;
+    }
+    if(i==native_np && native_np>=2048)return -14;
+    bcm_l3_route_t_init(&route);route.l3a_subnet=prefix;route.l3a_ip_mask=mask;route.l3a_intf=egress;
+    if(i<native_np)route.l3a_flags=BCM_L3_REPLACE;
+    rv=bcm_l3_route_add(0,&route);if(rv<0)return rv;native_route_writes++;
+    native_prefix[i]=prefix;native_mask[i]=mask;native_route_egress[i]=egress;
+    native_route_seen[i]=native_epoch;
+    if(i==native_np)native_np++;
+    return 0;
+}
+
+int native_finish_l3() {
+    int i,j,last,rv;
+    bcm_l3_route_t route;
+    bcm_l3_intf_t rif;
+    bcm_mac_t m;
+    i=0;
+    while(i<native_np) {
+        if(native_route_seen[i]==native_epoch) {i++;continue;}
+        bcm_l3_route_t_init(&route);route.l3a_subnet=native_prefix[i];route.l3a_ip_mask=native_mask[i];
+        rv=bcm_l3_route_delete(0,&route);if(rv<0 && rv!=-7)return rv;native_route_deletes++;
+        last=--native_np;
+        native_prefix[i]=native_prefix[last];native_mask[i]=native_mask[last];
+        native_route_seen[i]=native_route_seen[last];native_route_egress[i]=native_route_egress[last];
+    }
+    i=0;
+    while(i<native_ne) {
+        if(native_egress_seen[i]==native_epoch) {i++;continue;}
+        rv=bcm_l3_egress_destroy(0,native_egress[i]);if(rv<0 && rv!=-7)return rv;native_egress_deletes++;
+        if(native_cpu==native_egress[i])native_cpu=-1;
+        last=--native_ne;native_egress[i]=native_egress[last];
+        native_egress_seen[i]=native_egress_seen[last];native_egress_vid[i]=native_egress_vid[last];
+        native_egress_port[i]=native_egress_port[last];
+        for(j=0;j<6;j++)native_egress_mac[i*6+j]=native_egress_mac[last*6+j];
+    }
+    i=0;
+    while(i<native_nr) {
+        if(native_rif_seen[i]==native_epoch) {i++;continue;}
+        bcm_l3_intf_t_init(&rif);rif.l3a_intf_id=native_rifs[i];
+        rv=bcm_l3_intf_delete(0,&rif);if(rv<0 && rv!=-7)return rv;native_rif_deletes++;
+        for(j=0;j<6;j++)m[j]=native_rif_macs[i*6+j];
+        rv=native_local_mac(native_rifs[i],m);if(rv<0)return rv;
+        last=--native_nr;native_rifs[i]=native_rifs[last];native_rif_seen[i]=native_rif_seen[last];
+        for(j=0;j<6;j++)native_rif_macs[i*6+j]=native_rif_macs[last*6+j];
+    }
+    return 0;
+}
+
+int native_report() {
+    printf("NATIVE_METRICS {\"rifs\":%d,\"egress\":%d,\"routes\":%d,\"rif_creates\":%d,\"rif_deletes\":%d,\"egress_creates\":%d,\"egress_deletes\":%d,\"route_writes\":%d,\"route_deletes\":%d}\n",native_nr,native_ne,native_np,native_rif_creates,native_rif_deletes,native_egress_creates,native_egress_deletes,native_route_writes,native_route_deletes);
+    return 0;
+}
+
+int native_port(int p,int pvid,int admin,int speed,int autoneg,int stp,int learning) {
+    int rv,current;
+    uint16 oldvid;
+    rv=bcm_port_vlan_member_set(0,p,3);if(rv<0)return rv;
+    rv=bcm_port_untagged_vlan_get(0,p,&oldvid);if(rv<0)return rv;
+    if(oldvid!=pvid) {rv=bcm_port_untagged_vlan_set(0,p,pvid);if(rv<0)return rv;}
+    rv=bcm_port_autoneg_get(0,p,&current);if(rv<0)return rv;
+    if(current!=autoneg) {rv=bcm_port_autoneg_set(0,p,autoneg);if(rv<0)return rv;}
+    if(!autoneg) {
+        rv=bcm_port_speed_get(0,p,&current);if(rv<0)return rv;
+        if(current!=speed) {rv=bcm_port_speed_set(0,p,speed);if(rv<0)return rv;}
+    }
+    rv=bcm_port_frame_max_set(0,p,1522);if(rv<0)return rv;
+    if(learning) rv=bcm_port_learn_set(0,p,BCM_PORT_LEARN_ARL|BCM_PORT_LEARN_FWD);
+    else rv=bcm_port_learn_set(0,p,BCM_PORT_LEARN_FWD);
+    if(rv<0)return rv;
+    rv=bcm_stg_stp_set(0,1,p,stp);if(rv<0)return rv;
+    rv=bcm_port_enable_get(0,p,&current);if(rv<0)return rv;
+    if(current!=admin) {rv=bcm_port_enable_set(0,p,admin);if(rv<0)return rv;}
+    return 0;
+}
+
+print bcm_switch_control_set(0,bcmSwitchL3EgressMode,1);
+print bcm_switch_control_set(0,bcmSwitchV4L3DstMissToCpu,1);
+print bcm_switch_control_set(0,bcmSwitchV6L3DstMissToCpu,1);
+print bcm_switch_control_set(0,bcmSwitchL3UcTtlErrToCpu,1);
+print bcm_switch_control_set(0,bcmSwitchL3MtuFailToCpu,1);
+print bcm_switch_control_set(0,bcmSwitchNonIpL3ErrToCpu,1);
+printf("NATIVE_CONTROLLER_READY\n");

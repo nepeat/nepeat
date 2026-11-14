@@ -1,0 +1,16 @@
+{
+  "trial": "bcm_port_pfm_set(0,p,BCM_PORT_MCAST_FLOOD_ALL)",
+  "result": "BCM_E_UNAVAIL (-16); legacy per-port PFM status is not authoritative on this chip",
+  "controller_status": {
+    "ok": false,
+    "message": "ASIC rejected native configuration: cint /tmp/bcm-sdk/native-apply.cint\r\r\nNATIVE_ERROR port-1 -16\r\nint $$ = -16 (0xfffffff0)\r\n",
+    "timestamp": 1794219392,
+    "source": "Linux/netifd"
+  },
+  "action": "removed unsupported trial call; restored original helper and reconciled; multicast packet test follows",
+  "get_probe": {
+    "ok": true,
+    "status": 0,
+    "output": "cint /tmp/read-pfm.cint\r\r\nint $$ = -16 (0xfffffff0)\r\nint native_pfm_probe_value = 2 (0x2)\r\n"
+  }
+}

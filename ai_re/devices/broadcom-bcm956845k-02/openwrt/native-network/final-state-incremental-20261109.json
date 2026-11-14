@@ -1,0 +1,67 @@
+{
+  "manifest": {
+    "label": "(emma’s version)",
+    "status": "compiled; hardware boot not implied",
+    "openwrt_version": "25.12.1",
+    "board": "BCM98548XMC",
+    "boot": "TFTP/RAM initramfs",
+    "flash_drivers": false,
+    "dtb_address": "0x03000000",
+    "unpacked_image_bytes": 27433612,
+    "asic_support": "experimental legacy SDK/BDE integration",
+    "default_lane_profile": "16x40G",
+    "luci": true,
+    "packet_interface": "SDK packet API/TAP; factory KNET APIs are disabled",
+    "files": {
+      "emma-openwrt-netboot.uImage": {
+        "bytes": 13740492,
+        "sha256": "28b70fcc19199701cfcf1a5379f4f35d3f99778cd8099efa045acce839d0a4e3"
+      },
+      "bcm98548xmc-netboot.dtb": {
+        "bytes": 2702,
+        "sha256": "7f767590b6040748aeb5c3bedf8b0a4fc7ac34a9541544e7fa82e85aa86957df"
+      }
+    }
+  },
+  "status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794222300,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 1,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": [],
+    "objects": {
+      "rifs": 0,
+      "egress": 0,
+      "routes": 0,
+      "rif_creates": 6,
+      "rif_deletes": 6,
+      "egress_creates": 8,
+      "egress_deletes": 8,
+      "route_writes": 30,
+      "route_deletes": 25
+    }
+  },
+  "ports": {
+    "ok": true,
+    "status": 0,
+    "output": "port xe0,xe15\r\r\nPORT: Status (* indicates PHY link up)\r\n  xe0     LS(SW) Forced(40GFD,pause) STP(Disable) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(1522) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) \r\n  xe15    LS(SW) Forced(40GFD,pause) STP(Disable) Lrn(ARL,FWD) UtPri(0) Pfm(FloodNone) IF(XLAUI) PH(Slave) Max_frame(1522) MDIX(ForcedNormal, Normal) Medium(None) Fault(LocalRemote) \r\n"
+  },
+  "watcher": {
+    "pid": 3856,
+    "events": 12,
+    "overflows": 0,
+    "reconciles": 33,
+    "netlink_reconciles": 8,
+    "last_trigger": "periodic",
+    "running_apply": true
+  },
+  "pending_marker_absent": true,
+  "test_configuration_removed": true,
+  "flash_changed": false,
+  "note": "The apply lock may be briefly held by normal periodic snapshot work."
+}

@@ -25,24 +25,22 @@ sockets use them normally; hardware switching remains SDK-controlled.
 - The worker passes TX frames to `bcm_tx` and routes CPU-bound RX by ingress
   port to the corresponding TAP. ASIC-switched transit traffic stays in ASIC.
 - Physical carrier and current SDK speed are reflected into Linux. Admin
-  changes propagate between Linux and SDK. Speed configuration remains on the
-  ASIC page/UCI; TAP ethtool settings alone do not configure hardware.
-- Each Linux MAC gets a static L2 destination to CPU port 0 in that port's
-  PVID. CPU membership must be allowed in the configured VLAN.
+  changes propagate from Linux to SDK in native managed mode. Speed configuration remains on the
+  Switch hardware page/UCI; TAP ethtool settings alone do not configure hardware.
+- The native controller owns local MAC/RIF entries and CPU port membership.
+  Legacy unmanaged mode installs local MACs in each port's PVID. CPU membership must be allowed in the configured VLAN.
 - `/tmp/bcm-sdk/netdev-status.json` identifies backend `sdk-tap`, explicitly
   reports `knet:false`, and records per-device CPU-path packet/error counts.
 - Linux/TAP statistics measure CPU traffic, not all front-panel hardware traffic.
 - 1500-byte MTU is the supported starting configuration; jumbo support is untested.
 
-Native LuCI Network → Devices and normal interface creation can use `swpN`.
-Adding an IP/interface configuration does not automatically program ASIC
-VLANs or routing. Use Network → Broadcom ASIC for hardware port/VLAN settings.
-The baseline has no automatic route synchronizer. Hardware IPv4 routing
-was subsequently proven with Linux forwarding disabled; see the
-[hardware offload findings and test](../offload/README.md).
-**Linux bridge/VLAN changes are not synchronized to ASIC tables.** Do not
-assume DSA/switchdev behavior or combine software bridges with overlapping
-hardware switching domains without an explicit forwarding design.
+Native LuCI Network → Interfaces/Devices now owns bridge membership, VLANs,
+addresses and routes. A native state controller programs the SDK; see
+[configuration, supported scope and packet evidence](../native-network/README.md).
+Network → Switch hardware retains lane profiles, PHY settings and diagnostics.
+This is an experimental SDK/TAP integration with bridge forwarding-domain
+support, rather than a full DSA/switchdev driver. Linux route/FDB offload flags
+are not implemented; inspect the controller status and SDK tables.
 
 ## Exact-binary adapter mechanism
 

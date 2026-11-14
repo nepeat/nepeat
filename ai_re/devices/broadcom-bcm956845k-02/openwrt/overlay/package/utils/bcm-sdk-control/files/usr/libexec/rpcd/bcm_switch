@@ -4,7 +4,8 @@ case "$1" in
     call)
         read -r request || :
         case "$2" in
-            status|apply) exec /usr/libexec/bcm-switch "$2";;
+            status) exec /usr/libexec/bcm-switch status;;
+            apply) exec /usr/libexec/bcm-switch reconcile;;
             *) echo '{"ok":false,"message":"unknown method"}';;
         esac;;
 esac

@@ -1,0 +1,28 @@
+{
+  "manifest": {
+    "label": "(emma’s version)",
+    "status": "compiled; hardware boot not implied",
+    "openwrt_version": "25.12.1",
+    "board": "BCM98548XMC",
+    "boot": "TFTP/RAM initramfs",
+    "flash_drivers": false,
+    "dtb_address": "0x03000000",
+    "unpacked_image_bytes": 27425420,
+    "asic_support": "experimental legacy SDK/BDE integration",
+    "default_lane_profile": "16x40G",
+    "luci": true,
+    "packet_interface": "SDK packet API/TAP; factory KNET APIs are disabled",
+    "files": {
+      "emma-openwrt-netboot.uImage": {
+        "bytes": 13734363,
+        "sha256": "1fa0e770d945dd47144527e5f3470aab74e8922c6987e0818b12ab3822b729ba"
+      },
+      "bcm98548xmc-netboot.dtb": {
+        "bytes": 2702,
+        "sha256": "7f767590b6040748aeb5c3bedf8b0a4fc7ac34a9541544e7fa82e85aa86957df"
+      }
+    }
+  },
+  "automatic_startup": "78.75 0.59\nY\n62636d3536383435\n{\n\t\"bcm-network\": {\n\t\t\"instances\": {\n\t\t\t\"instance1\": {\n\t\t\t\t\"running\": true,\n\t\t\t\t\"pid\": 1437,\n\t\t\t\t\"command\": [\n\t\t\t\t\t\"/usr/bin/ucode\",\n\t\t\t\t\t\"/usr/libexec/bcm-native.uc\",\n\t\t\t\t\t\"daemon\"\n\t\t\t\t],\n\t\t\t\t\"term_timeout\": 5,\n\t\t\t\t\"respawn\": {\n\t\t\t\t\t\"threshold\": 3600,\n\t\t\t\t\t\"timeout\": 5,\n\t\t\t\t\t\"retry\": 3\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}\n{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794218923, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ] }\n",
+  "flash_changed": false
+}

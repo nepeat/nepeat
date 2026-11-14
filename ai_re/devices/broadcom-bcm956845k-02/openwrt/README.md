@@ -6,7 +6,7 @@ using pinned OpenWrt **25.12.1** source commit
 
 This is **TFTP → RAM initramfs only**, with no flash driver or persistent
 installation image. It now includes working experimental **BCM56845_A3
-ASIC initialization**, UCI port/VLAN configuration and an authenticated
+ASIC initialization**, native Linux/netifd port/VLAN/IPv4 route synchronization and an authenticated
 **LuCI web interface**. The default lane profile is **16×40G**, with
 **64×10G** breakout available. Internal CPU DMA loopback has passed;
 external 40G link/forwarding has not been tested.
@@ -14,18 +14,18 @@ external 40G link/forwarding has not been tested.
 See [ASIC integration, usage and limitations](asic-integration.md) and
 [real Linux port devices through the SDK/TAP adapter](sdk-netdev/README.md).
 The factory SDK has KNET disabled; this adapter uses its working packet APIs.
-[Hardware IPv4 routing is proven](offload/README.md); Linux-state synchronization
-is the remaining integration work.
+[Native configuration and hardware forwarding](native-network/README.md) now
+cover bridges, VLANs, FDB/neighbor resolution and supported IPv4 routes.
+The hardware page retains lane profiles, PHY settings and diagnostics.
 Build manifests identify compiled artifacts; hardware test records separately
 identify which exact image was booted.
 
 ## Build
 
-From the project root, enter the updated nix devshell. While these files are
-untracked, use the path form so Nix includes them:
+From the project root, enter the nix devshell:
 
 ```sh
-nix develop path:.
+nix develop
 bash devices/broadcom-bcm956845k-02/openwrt/build.sh
 ```
 
@@ -39,6 +39,10 @@ the board overlay and writes a seed configuration. Feed revisions come from
 the pinned OpenWrt release's `feeds.conf.default`. Source/downloads/build
 outputs live under ignored `work/`; final netboot files go in ignored
 `artifacts/`.
+
+The SDK integration needs the ignored device input `firmware/linux-rootfs.bin`.
+Recover it from the owned factory dump using [firmware-dump.md](../firmware-dump.md)
+and `extract_fat16.py`; proprietary binaries are not distributed in git.
 
 Default build parallelism is 16 jobs; override with `OPENWRT_JOBS`.
 The initial build completed successfully on 2026-11-08 in named tmux session

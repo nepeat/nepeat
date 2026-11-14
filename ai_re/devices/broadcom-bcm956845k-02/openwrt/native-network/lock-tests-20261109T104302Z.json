@@ -1,0 +1,24 @@
+{
+  "date_utc": "2026-11-09T10:42:55.565567+00:00",
+  "empty": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794220859, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 8, \"rif_deletes\": 8, \"egress_creates\": 12, \"egress_deletes\": 12, \"route_writes\": 41, \"route_deletes\": 36 } }\n"
+  },
+  "dead_pid": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794220859, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 8, \"rif_deletes\": 8, \"egress_creates\": 12, \"egress_deletes\": 12, \"route_writes\": 41, \"route_deletes\": 36 } }\n"
+  },
+  "reused_pid": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794220859, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 8, \"rif_deletes\": 8, \"egress_creates\": 12, \"egress_deletes\": 12, \"route_writes\": 41, \"route_deletes\": 36 } }\n"
+  },
+  "contended": {
+    "rc": 1,
+    "result": "{ \"ok\": false, \"message\": \"another native reconcile is running\" }\n"
+  },
+  "after_owner_killed": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794220859, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 8, \"rif_deletes\": 8, \"egress_creates\": 12, \"egress_deletes\": 12, \"route_writes\": 41, \"route_deletes\": 36 } }\n"
+  },
+  "passed": true
+}

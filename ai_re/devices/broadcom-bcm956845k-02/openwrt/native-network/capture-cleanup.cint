@@ -1,0 +1,2 @@
+if(native_test_entry>=0) print bcm_field_entry_destroy(0,native_test_entry);
+if(native_test_group>=0) print bcm_field_group_destroy(0,native_test_group);

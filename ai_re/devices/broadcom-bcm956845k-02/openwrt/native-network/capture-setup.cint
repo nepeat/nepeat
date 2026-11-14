@@ -1,0 +1,17 @@
+/* Test instrumentation only; controller owns no field groups. */
+int native_test_group=-1;
+int native_test_entry=-1;
+int native_test_capture_setup() {
+    int rv;
+    bcm_field_qset_t q;
+    BCM_FIELD_QSET_INIT(q);
+    BCM_FIELD_QSET_ADD(q,bcmFieldQualifyInPort);
+    rv=bcm_field_group_create(0,q,1000,&native_test_group);if(rv<0)return rv;
+    rv=bcm_field_entry_create(0,native_test_group,&native_test_entry);if(rv<0)return rv;
+    rv=bcm_field_qualify_InPort(0,native_test_entry,16,0xff);if(rv<0)return rv;
+    rv=bcm_field_action_add(0,native_test_entry,bcmFieldActionCopyToCpu,0,0);if(rv<0)return rv;
+    rv=bcm_field_action_add(0,native_test_entry,bcmFieldActionDrop,0,0);if(rv<0)return rv;
+    rv=bcm_field_entry_install(0,native_test_entry);if(rv<0)return rv;
+    printf("NATIVE_CAPTURE_OK\n");return 0;
+}
+print native_test_capture_setup();

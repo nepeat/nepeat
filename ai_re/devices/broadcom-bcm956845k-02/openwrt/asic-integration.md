@@ -17,7 +17,8 @@ These are logical SDK port counts; front-panel jack numbering is not mapped.
   inspect hardware readback, reject an unsupported speed, restore defaults.
 
 External 40G link, optical/copper compatibility, external forwarding,
-throughput, long-term stability, and routed traffic are not validated.
+throughput and long-term stability are not validated. Hardware routing
+was validated subsequently; see [native integration](native-network/README.md).
 The CPU loopback test is internal DMA evidence, not external wire-rate proof.
 
 The complete image was then cold-netbooted and passed automatic ASIC startup,
@@ -47,49 +48,50 @@ is enabled; hardware interrupt operation is not part of the validated path.
 `bcmd` owns the single SDK process through a PTY and serializes commands
 through a root-only UNIX socket. `bcmctl` exposes this socket, including JSON
 output and SDK error codes. Do not start a second SDK process alongside it.
-The procd `bcm-switch` service initializes the selected profile and applies
-UCI settings. It starts ports disabled, validates a whole configuration
-before applying it, updates VLANs/speeds/PVIDs and then enables selected ports.
-Configuration failure during application can leave ports disabled; inspect
-`/tmp/bcm-sdk/last-apply.json` and `/tmp/bcm-sdk/console.txt`.
+The procd `bcm-switch` service initializes the selected lane profile with
+ports disabled and creates SDK/TAP Linux ports. `bcm-network` then programs
+the ASIC from authoritative native Linux/netifd state. Inspect
+`/tmp/bcm-sdk/native-status.json`, `native-plan.json` and `console.txt`.
+The native controller validates supported configurations and leaves front
+ports disabled on failure; management Ethernet is independent.
 
 ## Configure
 
-Use LuCI: **Network → Broadcom ASIC** at `https://10.60.2.203/`.
+Use standard LuCI **Network → Interfaces** at `https://10.60.2.203/` for
+interfaces, bridges, VLANs, IPv4 addresses and routes. **Network → Switch
+hardware** retains lane profiles, PHY settings and hardware status.
+[Native integration](native-network/README.md) describes supported settings,
+reconciliation, hardware routing, tests and limits. The older port/VLAN editor
+and its separate `bcm_switch` forwarding configuration have been removed.
+
 The certificate is self-signed. Login is `root`; the generated password is
 in ignored host file `work/luci-root-password.txt` (mode 0600). Build setup
 stages the same password hash, authorized task key and stable SSH host key
 into later RAM images. Never commit these secrets or publish the rootfs.
 
-CLI examples on OpenWrt:
+Read-only CLI examples:
 
 ```sh
 bcmctl --json 'ps'
 bcmctl --json 'port xe0'
 ubus call bcm_switch status '{}'
-uci set bcm_switch.xe0.enabled='0'
-uci commit bcm_switch
-/etc/init.d/bcm-switch reload
+ip -d link show swp1
+bridge vlan show
+ip -4 route show
 ```
 
-Settings live in `/etc/config/bcm_switch`. The `core.profile` values are
-`40g` (16 logical ports) and `10g` (64 logical ports). Changing profile
-restarts the ASIC and changes logical lane mapping. Port speed `0` means
-profile maximum; supported explicit settings are 1000/10000, plus 40000
-in the 40G profile. Disabled inactive port sections are retained for later
-breakout use. VLANs contain `tagged` and `untagged` lists of `xeN` or `cpu`.
-Enabled ports must belong to their PVID VLAN. A port cannot be untagged in
-multiple VLANs. The CPU management Ethernet is separate from ASIC ports.
-SDK-backed Linux `swpN` devices are now available for the CPU packet path.
-Automatic DSA/switchdev and route synchronization are not implemented.
-[Hardware IPv4 routing is now proven](offload/README.md). Linux bridge/VLAN
-changes do not automatically update ASIC tables. See [details](sdk-netdev/README.md).
+Hardware settings remain in `/etc/config/bcm_switch`: `core.profile` is
+`40g` (16 logical ports) or `10g` (64 logical ports); each `xeN` has speed and
+autonegotiation. Speed `0` means profile maximum; explicit settings are
+1000/10000 and, in 40G mode, 40000. Changing profile restarts the ASIC and
+changes logical mapping; adapt native network membership to active ports.
+Linux controls admin state. Physical front-panel mapping is unverified.
 
-LuCI uses an authenticated rpcd plugin with UCI/ASIC-specific ACLs and
-standard Save & Apply reload triggers. A real Chromium login/render test
-confirmed the 40G profile, port grid and VLAN editor without JS exceptions.
-Save & Apply disabled and re-enabled the ASIC ports, checked by SDK readback;
-see [browser test result](luci-test-20261108.json).
+The authenticated rpcd plugin exposes hardware status/reconcile under its
+own ACL. Native network configuration uses the standard LuCI network ACLs
+and reload triggers. Earlier editor validation is historical evidence in
+[luci-test-20261108.json](luci-test-20261108.json); current validation is
+recorded with the [native controller](native-network/README.md).
 
 All configuration remains in RAM and is lost on power cycle. CFE and stock
 flash images are untouched. The image is an experimental hardware bring-up,

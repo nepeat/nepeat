@@ -1,0 +1,93 @@
+{
+  "passed": 22,
+  "tests": [
+    {
+      "case": "standalone ports are isolated",
+      "passed": true
+    },
+    {
+      "case": "resolved route offloads through static FDB port",
+      "passed": true
+    },
+    {
+      "case": "neighbor withdrawal falls back to CPU",
+      "passed": true
+    },
+    {
+      "case": "Linux forwarding disabled never offloads transit",
+      "passed": true
+    },
+    {
+      "case": "policy routing stays in CPU",
+      "passed": true
+    },
+    {
+      "case": "configured firewall keeps routing in CPU",
+      "passed": true
+    },
+    {
+      "case": "blackhole is not bypassed by a hardware prefix",
+      "passed": true
+    },
+    {
+      "case": "unsupported ECMP falls back to CPU",
+      "passed": true
+    },
+    {
+      "case": "standard priority with alternate table stays in CPU",
+      "passed": true
+    },
+    {
+      "case": "standard priority with selector stays in CPU",
+      "passed": true
+    },
+    {
+      "case": "incomplete default rule chain stays in CPU",
+      "passed": true
+    },
+    {
+      "case": "duplicate standard rule stays in CPU",
+      "passed": true
+    },
+    {
+      "case": "TOS-selected routes disable destination-only offload",
+      "passed": true
+    },
+    {
+      "case": "per-route MTU uses CPU",
+      "passed": true
+    },
+    {
+      "case": "link-down route uses CPU",
+      "passed": true
+    },
+    {
+      "case": "disabled egress port cannot resolve hardware next hop",
+      "passed": true
+    },
+    {
+      "case": "unsupported MTU rejected",
+      "passed": true
+    },
+    {
+      "case": "multicast snooping is not silently ignored",
+      "passed": true
+    },
+    {
+      "case": "unvalidated STP rejected",
+      "passed": true
+    },
+    {
+      "case": "reserved private VLAN cannot leak into user bridge",
+      "passed": true
+    },
+    {
+      "case": "unsupported isolation policy rejected",
+      "passed": true
+    },
+    {
+      "case": "management/software bridge mixing rejected",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,394 @@
+{
+  "date_utc": "2026-11-09T10:48:18.149059+00:00",
+  "deployment": "fresh RAM image boot",
+  "manifest": {
+    "label": "(emma’s version)",
+    "status": "compiled; hardware boot not implied",
+    "openwrt_version": "25.12.1",
+    "board": "BCM98548XMC",
+    "boot": "TFTP/RAM initramfs",
+    "flash_drivers": false,
+    "dtb_address": "0x03000000",
+    "unpacked_image_bytes": 27433612,
+    "asic_support": "experimental legacy SDK/BDE integration",
+    "default_lane_profile": "16x40G",
+    "luci": true,
+    "packet_interface": "SDK packet API/TAP; factory KNET APIs are disabled",
+    "files": {
+      "emma-openwrt-netboot.uImage": {
+        "bytes": 13740808,
+        "sha256": "9884a7feb35a68af368e1e188d6f4f52543e755c01901598d05d386fccfed6e5"
+      },
+      "bcm98548xmc-netboot.dtb": {
+        "bytes": 2702,
+        "sha256": "7f767590b6040748aeb5c3bedf8b0a4fc7ac34a9541544e7fa82e85aa86957df"
+      }
+    }
+  },
+  "watcher_before": {
+    "pid": 1437,
+    "events": 297,
+    "overflows": 0,
+    "reconciles": 40,
+    "netlink_reconciles": 23,
+    "last_trigger": "periodic",
+    "running_apply": true
+  },
+  "initial_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221269,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 1,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": [],
+    "objects": {
+      "rifs": 0,
+      "egress": 0,
+      "routes": 0,
+      "rif_creates": 0,
+      "rif_deletes": 0,
+      "egress_creates": 0,
+      "egress_deletes": 0,
+      "route_writes": 0,
+      "route_deletes": 0
+    }
+  },
+  "untagged_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221305,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 2,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": [],
+    "objects": {
+      "rifs": 0,
+      "egress": 0,
+      "routes": 0,
+      "rif_creates": 0,
+      "rif_deletes": 0,
+      "egress_creates": 0,
+      "egress_deletes": 0,
+      "route_writes": 0,
+      "route_deletes": 0
+    }
+  },
+  "capture_setup": "cint /tmp/capture-setup.cint\r\r\nNATIVE_CAPTURE_OK\r\nint $$ = 0 (0x0)\r\n",
+  "untagged_vlans": "vlan show\r\r\nvlan 1\tports cpu,xe1-xe14 (0x00000000000000000000fffd), untagged xe1-xe14 (0x00000000000000000000fffc) MCAST_FLOOD_UNKNOWN\r\nvlan 100\tports cpu,xe0,xe15 (0x000000000000000000010003), untagged xe0,xe15 (0x000000000000000000010002) MCAST_FLOOD_UNKNOWN\r\n",
+  "untagged_packets": {
+    "rc": 0,
+    "stdout": "20/20 native ASIC bridge frames, untagged, broadcast; duplicate ingress=0 software re-forward=0\n",
+    "stderr": ""
+  },
+  "tagged_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221330,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": [],
+    "objects": {
+      "rifs": 0,
+      "egress": 0,
+      "routes": 0,
+      "rif_creates": 0,
+      "rif_deletes": 0,
+      "egress_creates": 0,
+      "egress_deletes": 0,
+      "route_writes": 0,
+      "route_deletes": 0
+    }
+  },
+  "tagged_vlans": "vlan show\r\r\nvlan 1\tports cpu,xe1-xe14 (0x00000000000000000000fffd), untagged xe1-xe14 (0x00000000000000000000fffc) MCAST_FLOOD_UNKNOWN\r\nvlan 100\tports cpu,xe0,xe15 (0x000000000000000000010003), untagged xe0 (0x000000000000000000000002) MCAST_FLOOD_UNKNOWN\r\nvlan 200\tports cpu,xe15 (0x000000000000000000010001), untagged xe15 (0x000000000000000000010000) MCAST_FLOOD_UNKNOWN\r\n",
+  "tagged_packets": {
+    "rc": 0,
+    "stdout": "20/20 native ASIC bridge frames, 802.1Q VID 100, broadcast; duplicate ingress=0 software re-forward=0\n",
+    "stderr": ""
+  },
+  "multicast_packets": {
+    "rc": 0,
+    "stdout": "20/20 native ASIC bridge frames, 802.1Q VID 100, multicast; duplicate ingress=0 software re-forward=0\n",
+    "stderr": ""
+  },
+  "rif_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221367,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 2,
+    "hardware_routes": 0,
+    "cpu_routes": 7,
+    "warnings": [],
+    "objects": {
+      "rifs": 2,
+      "egress": 1,
+      "routes": 7,
+      "rif_creates": 2,
+      "rif_deletes": 0,
+      "egress_creates": 1,
+      "egress_deletes": 0,
+      "route_writes": 7,
+      "route_deletes": 0
+    }
+  },
+  "local_arp": {
+    "rc": 0,
+    "stdout": "swp1: PASS Linux IPv4 stack generated ARP reply for 198.18.1.1 on native bridge SVI after request traversed SDK/ASIC MAC loopback (packet type 4)\n",
+    "stderr": ""
+  },
+  "route_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221384,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 2,
+    "hardware_routes": 3,
+    "cpu_routes": 6,
+    "warnings": [],
+    "objects": {
+      "rifs": 2,
+      "egress": 3,
+      "routes": 9,
+      "rif_creates": 4,
+      "rif_deletes": 2,
+      "egress_creates": 4,
+      "egress_deletes": 1,
+      "route_writes": 16,
+      "route_deletes": 7
+    }
+  },
+  "linux_routes": [
+    {
+      "dst": "default",
+      "gateway": "10.60.2.1",
+      "dev": "eth0",
+      "protocol": "static",
+      "prefsrc": "10.60.2.203",
+      "flags": []
+    },
+    {
+      "dst": "10.60.2.0/24",
+      "dev": "eth0",
+      "protocol": "kernel",
+      "scope": "link",
+      "prefsrc": "10.60.2.203",
+      "flags": []
+    },
+    {
+      "dst": "198.18.1.0/24",
+      "dev": "br-switch.100",
+      "protocol": "kernel",
+      "scope": "link",
+      "prefsrc": "198.18.1.1",
+      "flags": []
+    },
+    {
+      "dst": "198.18.2.0/24",
+      "dev": "br-switch.200",
+      "protocol": "kernel",
+      "scope": "link",
+      "prefsrc": "198.18.2.1",
+      "flags": []
+    },
+    {
+      "dst": "198.19.2.0/24",
+      "gateway": "198.18.2.2",
+      "dev": "br-switch.200",
+      "protocol": "static",
+      "flags": []
+    }
+  ],
+  "linux_neighbors": [
+    {
+      "dst": "198.18.2.2",
+      "dev": "br-switch.200",
+      "lladdr": "02:10:18:bb:02:02",
+      "state": [
+        "PERMANENT"
+      ]
+    },
+    {
+      "dst": "10.60.2.1",
+      "dev": "eth0",
+      "lladdr": "28:70:4e:5c:6d:27",
+      "state": [
+        "REACHABLE"
+      ]
+    },
+    {
+      "dst": "10.60.2.208",
+      "dev": "eth0",
+      "lladdr": "c8:7f:54:02:d1:99",
+      "state": [
+        "REACHABLE"
+      ]
+    }
+  ],
+  "hardware_route_before": "l3 defip show\r\r\nUnit 0, Total Number of DEFIP entries: 16385\r\n#     VRF     Net addr             Next Hop Mac        INTF MODID PORT PRIO CLASS HIT VLAN\r\n0     0        198.18.1.1/32        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.2.1/32        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.2.2/32        00:00:00:00:00:00 100003    0     0     0    0 n\r\n0     0        10.60.2.0/24         00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.1.0/24        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.2.0/24        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.19.2.0/24        00:00:00:00:00:00 100003    0     0     0    0 n\r\n0     0        0.0.0.0/0            00:00:00:00:00:00 100002    0     0     0    0 n\r\n",
+  "routed_packets": {
+    "rc": 0,
+    "stdout": "20/20 exact ASIC-routed IPv4 frames: next-hop MAC rewrite, egress RIF source MAC, TTL 64->63, valid IPv4 checksum; original Linux ingress=0\n",
+    "stderr": ""
+  },
+  "hardware_route_after": "l3 defip show\r\r\nUnit 0, Total Number of DEFIP entries: 16385\r\n#     VRF     Net addr             Next Hop Mac        INTF MODID PORT PRIO CLASS HIT VLAN\r\n0     0        198.18.1.1/32        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.2.1/32        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.2.2/32        00:00:00:00:00:00 100003    0     0     0    0 n\r\n0     0        10.60.2.0/24         00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.1.0/24        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.18.2.0/24        00:00:00:00:00:00 100002    0     0     0    0 n\r\n0     0        198.19.2.0/24        00:00:00:00:00:00 100003    0     0     0    0 y\r\n0     0        0.0.0.0/0            00:00:00:00:00:00 100002    0     0     0    0 n\r\n",
+  "policy_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221400,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 2,
+    "hardware_routes": 0,
+    "cpu_routes": 7,
+    "warnings": [
+      "IPv4 hardware routing bypassed: policy rules or firewall configuration require CPU forwarding"
+    ],
+    "objects": {
+      "rifs": 2,
+      "egress": 1,
+      "routes": 7,
+      "rif_creates": 4,
+      "rif_deletes": 2,
+      "egress_creates": 5,
+      "egress_deletes": 4,
+      "route_writes": 20,
+      "route_deletes": 10
+    }
+  },
+  "policy_convergence_seconds": 2.526999066998542,
+  "policy_cpu_forwarding": {
+    "rc": 0,
+    "stdout": "20/20 exact Linux CPU-routed IPv4 frames: next-hop MAC rewrite, egress RIF source MAC, TTL 64->63, valid IPv4 checksum; original Linux ingress=20\n",
+    "stderr": ""
+  },
+  "policy_recovery": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221406,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 2,
+    "hardware_routes": 2,
+    "cpu_routes": 6,
+    "warnings": [],
+    "objects": {
+      "rifs": 2,
+      "egress": 2,
+      "routes": 8,
+      "rif_creates": 4,
+      "rif_deletes": 2,
+      "egress_creates": 6,
+      "egress_deletes": 4,
+      "route_writes": 22,
+      "route_deletes": 10
+    }
+  },
+  "withdraw_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221408,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 2,
+    "hardware_routes": 0,
+    "cpu_routes": 7,
+    "warnings": [],
+    "objects": {
+      "rifs": 2,
+      "egress": 1,
+      "routes": 7,
+      "rif_creates": 4,
+      "rif_deletes": 2,
+      "egress_creates": 6,
+      "egress_deletes": 5,
+      "route_writes": 23,
+      "route_deletes": 11
+    }
+  },
+  "incremental_preserved_rifs_and_cpu_egress": true,
+  "neighbor_negative": {
+    "rc": 0,
+    "stdout": "PASS route withdrawal: no routed packet reached swp16; CPU fallback ingress=1\n",
+    "stderr": ""
+  },
+  "blackhole_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221416,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 2,
+    "hardware_routes": 1,
+    "cpu_routes": 7,
+    "warnings": [],
+    "objects": {
+      "rifs": 2,
+      "egress": 2,
+      "routes": 8,
+      "rif_creates": 4,
+      "rif_deletes": 2,
+      "egress_creates": 7,
+      "egress_deletes": 5,
+      "route_writes": 24,
+      "route_deletes": 11
+    }
+  },
+  "blackhole_negative": {
+    "rc": 0,
+    "stdout": "PASS route withdrawal: no routed packet reached swp16; CPU fallback ingress=1\n",
+    "stderr": ""
+  },
+  "watcher_after": {
+    "pid": 1437,
+    "events": 690,
+    "overflows": 0,
+    "reconciles": 91,
+    "netlink_reconciles": 69,
+    "last_trigger": "netlink",
+    "running_apply": true
+  },
+  "passed": true,
+  "capture_cleanup": "cint /tmp/capture-cleanup.cint\r\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\n",
+  "final_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794221429,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 1,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": [],
+    "objects": {
+      "rifs": 0,
+      "egress": 0,
+      "routes": 0,
+      "rif_creates": 4,
+      "rif_deletes": 4,
+      "egress_creates": 7,
+      "egress_deletes": 7,
+      "route_writes": 24,
+      "route_deletes": 19
+    }
+  }
+}

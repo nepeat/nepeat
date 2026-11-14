@@ -9,7 +9,10 @@ start_service() {
     fi
     test -c /dev/linux-user-bde && test -c /dev/bcm || return 1
     modprobe tun || return 1
+    echo 1 > /sys/module/tun/parameters/bcm_switch_offload || return 1
     mkdir -p /tmp/bcm-sdk
+    touch /tmp/bcm-sdk/linux-managed
+    rm -f /tmp/bcm-sdk/native-current.json /tmp/bcm-sdk/native-plan.json /tmp/bcm-sdk/native-status.json /tmp/bcm-sdk/native-failed
     rm -f /tmp/bcm-sdk/last-apply.json /var/run/bcm-sdk.ready
     local profile
     profile="$(uci -q get bcm_switch.core.profile)"

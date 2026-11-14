@@ -1,0 +1,402 @@
+CFE-NTSW-5.1.2 for BCM98548XMC (32bit,SP,BE,PPC)
+Build Date: Tue Dec  1 08:04:52 PST 2009 (sdkrel@lc-sj1-3183)
+Copyright (C) 2000-2008 Broadcom Corporation.
+
+Initializing Arena.
+Initializing PCI. [normal]
+PCI[0] bus 0 slot 0/0: unknown vendor 0x1057 product 0x0013 (PowerPC processor, rev 0x21)
+PCI[1] bus 0 slot 0/0: unknown vendor 0x1957 product 0x0013 (PowerPC processor, rev 0x21)
+PCI[1] bus 2 slot 0/0: Broadcom product 0xb845 (ethernet network, rev 0x04)
+Initializing Devices.
+CORE clock: 997MHz
+CCB clock: 399MHz
+BCM98548XMC Board Id: 0x51
+CPU type 0x80210022: 998MHz
+Total memory: 0x20000000 bytes (512MB)
+
+Total memory used by CFE:  0x1FF38300 - 0x1FFFFF30 (818224)
+Initialized Data:          0x1FF79C40 - 0x1FF7CAB0 (11888)
+BSS Area:                  0x1FF7CAB0 - 0x1FF7DF30 (5248)
+Local Heap:                0x1FF7DF30 - 0x1FFFDF30 (524288)
+Stack Area:                0x1FFFDF30 - 0x1FFFFF30 (8192)
+Text (code) segment:       0x1FF38300 - 0x1FF7867F (263039)
+Boot area (physical):      0x00000000 - 0x00000000
+Relocation Factor:         I:20038300 - D:20038300
+
+Automatic startup canceled via Ctrl-C
+CFE> ^C
+CFE> ifconfig eth0 -addr=10.60.2.203 -mask=255.255.255.0 -gw=10.60.2.1
+1000BaseT FDX
+Speed: 1000, full duplex
+Device eth0:  hwaddr 00-10-18-48-FB-2C, ipaddr 10.60.2.203, mask 255.255.255.0
+        gateway 10.60.2.1, nameserver not set
+*** command status = 0
+CFE> load -raw -addr=0x03000000 -max=0x10000 -tftp 10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb
+Loader:raw Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/bcm98548xmc-netboot.dtb Options:(null)
+Loading: .. 2702 bytes read
+Entry at 0x03000000
+*** command status = 0
+CFE> setenv LINUX_CMDLINE "console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500"
+*** command status = 0
+CFE> boot -uboot -extdtb -dtbaddr=0x03000000 -tftp 10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage
+Loader:uboot Filesys:tftp Dev:eth0 File:10.60.2.208:emma-openwrt/emma-openwrt-netboot.uImage Options:(null)
+Loading: .... 13740808 bytes read
+Unpacking U-Boot image at 0x00000000 (13740744) .... 27433612 bytes
+Entry at 0x00000000
+Closing network.
+eth0: 9632 sent, 9744 received, 42384958 interrupts rx_alloc_err 0
+  9631 tx interrupts, 9737 rx interrupts tx_err 0 rx_err 0
+Starting program at 0x00000000
+
+external DTB in memory at 3000000
+[    0.000000] printk: legacy bootconsole [udbg0] enabled
+[    0.000000] ioremap() called early from setup_earlycon+0x2cc/0x378. Use early_ioremap() instead
+[    0.000000] earlycon: uart8250 at MMIO 0xe0004500 (options '')
+[    0.000000] printk: legacy bootconsole [uart8250] enabled
+[    0.000000] printk: legacy bootconsole [udbg0] enabled
+[    0.000000] ioremap() called early from setup_earlycon+0x2cc/0x378. Use early_ioremap() instead
+[    0.000000] earlycon: uart8250 at MMIO 0xe0004500 (options '')
+[    0.000000] printk: legacy bootconsole [uart8250] enabled
+[    0.000000] Memory CAM mapping: 16/16/16/16/64/64/64/256 Mb, residual: 0Mb
+[    0.000000] Memory CAM mapping: 16/16/16/16/64/64/64/256 Mb, residual: 0Mb
+[    0.000000] Activating Kernel Userspace Access Protection
+[    0.000000] Activating Kernel Userspace Access Protection
+[    0.000000] Activating Kernel Userspace Execution Prevention
+[    0.000000] Activating Kernel Userspace Execution Prevention
+[    0.000000] Linux version 6.12.74 (erin@sea420-desktop) (powerpc-openwrt-linux-musl-gcc.bin (OpenWrt GCC 14.3.0 r32768-b21cfa8f8c) 14.3.0, GNU ld (GNU Binutils) 2.44) #0 Tue Mar 17 01:31:57 2026
+[    0.000000] Linux version 6.12.74 (erin@sea420-desktop) (powerpc-openwrt-linux-musl-gcc.bin (OpenWrt GCC 14.3.0 r32768-b21cfa8f8c) 14.3.0, GNU ld (GNU Binutils) 2.44) #0 Tue Mar 17 01:31:57 2026
+[    0.000000] OF: reserved mem: 0x1c000000..0x1dffffff (32768 KiB) nomap non-reusable dma-pool@1c000000
+[    0.000000] OF: reserved mem: 0x1c000000..0x1dffffff (32768 KiB) nomap non-reusable dma-pool@1c000000
+[    0.000000] Hardware name: Broadcom BCM98548XMC (emma’s version) e500v2 0x80210022 Broadcom BCM98548XMC (netboot)
+[    0.000000] Hardware name: Broadcom BCM98548XMC (emma’s version) e500v2 0x80210022 Broadcom BCM98548XMC (netboot)
+[    0.000000] Found legacy serial port 0 for /soc@e0000000/serial@4500
+[    0.000000] Found legacy serial port 0 for /soc@e0000000/serial@4500
+[    0.000000]   mem=e0004500, taddr=e0004500, irq=0, clk=399000000, speed=9600
+[    0.000000]   mem=e0004500, taddr=e0004500, irq=0, clk=399000000, speed=9600
+[    0.000000] -----------------------------------------------------
+[    0.000000] -----------------------------------------------------
+[    0.000000] phys_mem_size     = 0x20000000
+[    0.000000] phys_mem_size     = 0x20000000
+[    0.000000] dcache_bsize      = 0x20
+[    0.000000] dcache_bsize      = 0x20
+[    0.000000] icache_bsize      = 0x20
+[    0.000000] icache_bsize      = 0x20
+[    0.000000] cpu_features      = 0x0000000010010108
+[    0.000000] cpu_features      = 0x0000000010010108
+[    0.000000]   possible        = 0x0000000010010108
+[    0.000000]   possible        = 0x0000000010010108
+[    0.000000]   always          = 0x0000000010010108
+[    0.000000]   always          = 0x0000000010010108
+[    0.000000] cpu_user_features = 0x84e08000 0x08000000
+[    0.000000] cpu_user_features = 0x84e08000 0x08000000
+[    0.000000] mmu_features      = 0x00020210
+[    0.000000] mmu_features      = 0x00020210
+[    0.000000] -----------------------------------------------------
+[    0.000000] -----------------------------------------------------
+[    0.000000] barrier-nospec: using isync; sync as speculation barrier
+[    0.000000] barrier-nospec: using isync; sync as speculation barrier
+[    0.000000] barrier-nospec: patched 0 locations
+[    0.000000] barrier-nospec: patched 0 locations
+[    0.000000] Top of RAM: 0x20000000, Total RAM: 0x20000000
+[    0.000000] Top of RAM: 0x20000000, Total RAM: 0x20000000
+[    0.000000] Memory hole size: 0MB
+[    0.000000] Memory hole size: 0MB
+[    0.000000] Zone ranges:
+[    0.000000] Zone ranges:
+[    0.000000]   Normal   [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000]   Normal   [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000000000-0x000000001bffffff]
+[    0.000000]   node   0: [mem 0x0000000000000000-0x000000001bffffff]
+[    0.000000]   node   0: [mem 0x000000001c000000-0x000000001dffffff]
+[    0.000000]   node   0: [mem 0x000000001c000000-0x000000001dffffff]
+[    0.000000]   node   0: [mem 0x000000001e000000-0x000000001fffffff]
+[    0.000000]   node   0: [mem 0x000000001e000000-0x000000001fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000001fffffff]
+[    0.000000] MMU: Allocated 1088 bytes of context maps for 255 contexts
+[    0.000000] MMU: Allocated 1088 bytes of context maps for 255 contexts
+[    0.000000] pcpu-alloc: s0 r0 d32768 u32768 alloc=1*32768
+[    0.000000] pcpu-alloc: s0 r0 d32768 u32768 alloc=1*32768
+[    0.000000] pcpu-alloc: [0] 0 
+[    0.000000] pcpu-alloc: [0] 0 
+[    0.000000] Kernel command line: console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500
+[    0.000000] Kernel command line: console=ttyS0,9600 earlycon=uart8250,mmio,0xe0004500
+[    0.000000] Dentry cache hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.000000] Dentry cache hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 32768 (order: 5, 131072 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 32768 (order: 5, 131072 bytes, linear)
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 131072
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 131072
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] Kernel virtual memory layout:
+[    0.000000] Kernel virtual memory layout:
+[    0.000000]   * 0xffbdf000..0xfffff000  : fixmap
+[    0.000000]   * 0xffbdf000..0xfffff000  : fixmap
+[    0.000000]   * 0xe1000000..0xffbdf000  : vmalloc & ioremap
+[    0.000000]   * 0xe1000000..0xffbdf000  : vmalloc & ioremap
+[    0.000000] SLUB: HWalign=32, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] SLUB: HWalign=32, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=1.
+[    0.000000] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=1.
+[    0.000000] NR_IRQS: 512, nr_irqs: 512, preallocated irqs: 16
+[    0.000000] NR_IRQS: 512, nr_irqs: 512, preallocated irqs: 16
+[    0.000000] mpic: Resetting
+[    0.000000] mpic: Resetting
+[    0.000000] mpic: Setting up MPIC "BCM98548XMC MPIC" version 1.2 at e0040000, max 1 CPUs
+[    0.000000] mpic: Setting up MPIC "BCM98548XMC MPIC" version 1.2 at e0040000, max 1 CPUs
+[    0.000000] mpic: ISU size: 256, shift: 8, mask: ff
+[    0.000000] mpic: ISU size: 256, shift: 8, mask: ff
+[    0.000000] mpic: Initializing for 256 sources
+[    0.000000] mpic: Initializing for 256 sources
+[    0.000000] time_init: decrementer frequency = 49.875000 MHz
+[    0.000000] time_init: decrementer frequency = 49.875000 MHz
+[    0.000000] time_init: processor frequency   = 997.500000 MHz
+[    0.000000] time_init: processor frequency   = 997.500000 MHz
+[    0.000007] clocksource: timebase: mask: 0xffffffffffffffff max_cycles: 0xb80b12003, max_idle_ns: 440795202467 ns
+[    0.000007] clocksource: timebase: mask: 0xffffffffffffffff max_cycles: 0xb80b12003, max_idle_ns: 440795202467 ns
+[    0.246566] clocksource: timebase mult[140cd503] shift[24] registered
+[    0.246566] clocksource: timebase mult[140cd503] shift[24] registered
+[    0.401198] clockevent: decrementer mult[cc49ba6] shift[32] cpu[0]
+[    0.401198] clockevent: decrementer mult[cc49ba6] shift[32] cpu[0]
+[    0.549657] pid_max: default: 32768 minimum: 301
+[    0.549657] pid_max: default: 32768 minimum: 301
+[    0.666578] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.666578] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.842126] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.842126] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    1.035265] Memory: 458568K/524288K available (6432K kernel code, 656K rwdata, 9952K rodata, 9752K init, 240K bss, 64884K reserved, 0K cma-reserved)
+[    1.035265] Memory: 458568K/524288K available (6432K kernel code, 656K rwdata, 9952K rodata, 9752K init, 240K bss, 64884K reserved, 0K cma-reserved)
+[    1.356598] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    1.356598] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    1.592751] futex hash table entries: 256 (order: 0, 3072 bytes, linear)
+[    1.592751] futex hash table entries: 256 (order: 0, 3072 bytes, linear)
+[    1.760126] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    1.760126] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+             
+[    1.918327] Found FSL PCI host bridge at 0x00000000e000a000. Firmware bus number: 0->255
+[    1.918327] Found FSL PCI host bridge at 0x00000000e000a000. Firmware bus number: 0->255
+[    2.113185] PCI host bridge /pcie@e000a000 (primary) ranges:
+[    2.113185] PCI host bridge /pcie@e000a000 (primary) ranges:
+[    2.249047]  MEM 0x0000000060000000..0x000000006fffffff -> 0x0000000060000000 
+[    2.249047]  MEM 0x0000000060000000..0x000000006fffffff -> 0x0000000060000000 
+[    2.422499]   IO 0x00000000e8000000..0x00000000e80fffff -> 0x0000000000000000
+[    2.422499]   IO 0x00000000e8000000..0x00000000e80fffff -> 0x0000000000000000
+[    2.593897] /pcie@e000a000: PCICSRBAR @ 0xfff00000
+[    2.593897] /pcie@e000a000: PCICSRBAR @ 0xfff00000
+[    2.708855] setup_pci_atmu: end of DRAM 20000000
+[    2.708855] setup_pci_atmu: end of DRAM 20000000
+[    2.821413] PCI: Probing PCI hardware
+[    2.821413] PCI: Probing PCI hardware
+[    2.909353] fsl-pci e000a000.pcie: PCI host bridge to bus 1000:00
+[    2.909353] fsl-pci e000a000.pcie: PCI host bridge to bus 1000:00
+[    3.055651] pci_bus 1000:00: root bus resource [io  0x0000-0xfffff]
+[    3.055651] pci_bus 1000:00: root bus resource [io  0x0000-0xfffff]
+[    3.206121] pci_bus 1000:00: root bus resource [mem 0x60000000-0x6fffffff]
+[    3.206121] pci_bus 1000:00: root bus resource [mem 0x60000000-0x6fffffff]
+[    3.371211] pci_bus 1000:00: root bus resource [bus 00-ff]
+[    3.371211] pci_bus 1000:00: root bus resource [bus 00-ff]
+[    3.502871] pci_bus 1000:00: busn_res: [bus 00-ff] end is updated to ff
+[    3.502871] pci_bus 1000:00: busn_res: [bus 00-ff] end is updated to ff
+[    3.661737] pci 1000:00:00.0: [1957:0013] type 01 class 0x060400 PCIe Root Port
+[    3.661737] pci 1000:00:00.0: [1957:0013] type 01 class 0x060400 PCIe Root Port
+[    3.837290] pci 1000:00:00.0: BAR 0 [mem 0xfff00000-0xffffffff]
+[    3.837290] pci 1000:00:00.0: BAR 0 [mem 0xfff00000-0xffffffff]
+[    3.979411] pci 1000:00:00.0: PCI bridge to [bus 02]
+[    3.979411] pci 1000:00:00.0: PCI bridge to [bus 02]
+[    4.098538] pci 1000:00:00.0:   bridge window [mem 0x60000000-0x600fffff]
+[    4.098538] pci 1000:00:00.0:   bridge window [mem 0x60000000-0x600fffff]
+[    4.261607] pci 1000:00:00.0: supports D1 D2
+[    4.261607] pci 1000:00:00.0: supports D1 D2
+[    4.364017] pci 1000:00:00.0: PME# supported from D0 D1 D2 D3hot D3cold
+[    4.364017] pci 1000:00:00.0: PME# supported from D0 D1 D2 D3hot D3cold
+[    4.523444] pci 1000:01:00.0: [14e4:b845] type 00 class 0x020000 PCIe Endpoint
+[    4.523444] pci 1000:01:00.0: [14e4:b845] type 00 class 0x020000 PCIe Endpoint
+[    4.696926] pci 1000:01:00.0: BAR 0 [mem 0x60000000-0x6003ffff 64bit]
+[    4.696926] pci 1000:01:00.0: BAR 0 [mem 0x60000000-0x6003ffff 64bit]
+[    4.851618] pci 1000:01:00.0: Max Payload Size set to 256 (was 128, max 512)
+[    4.851618] pci 1000:01:00.0: Max Payload Size set to 256 (was 128, max 512)
+[    5.021006] pci 1000:01:00.0: PME# supported from D0 D3hot D3cold
+[    5.021006] pci 1000:01:00.0: PME# supported from D0 D3hot D3cold
+[    5.167371] pci 1000:01:00.0: 4.000 Gb/s available PCIe bandwidth, limited by 2.5 GT/s PCIe x2 link at 1000:00:00.0 (capable of 8.000 Gb/s with 5.0 GT/s PCIe x2 link)
+[    5.167371] pci 1000:01:00.0: 4.000 Gb/s available PCIe bandwidth, limited by 2.5 GT/s PCIe x2 link at 1000:00:00.0 (capable of 8.000 Gb/s with 5.0 GT/s PCIe x2 link)
+[    5.544774] pci 1000:00:00.0: PCI bridge to [bus 01-ff]
+[    5.544774] pci 1000:00:00.0: PCI bridge to [bus 01-ff]
+[    5.670204] pci_bus 1000:01: busn_res: [bus 01-ff] end is updated to 01
+[    5.670204] pci_bus 1000:01: busn_res: [bus 01-ff] end is updated to 01
+[    5.829032] pci_bus 1000:00: busn_res: [bus 00-ff] end is updated to 01
+[    5.829032] pci_bus 1000:00: busn_res: [bus 00-ff] end is updated to 01
+[    5.988089] PCI: Cannot allocate resource region 0 of device 1000:00:00.0, will remap
+[    5.988089] PCI: Cannot allocate resource region 0 of device 1000:00:00.0, will remap
+[    6.176208] pci 1000:00:00.0: BAR 0 [mem 0x60100000-0x601fffff]: assigned
+[    6.176208] pci 1000:00:00.0: BAR 0 [mem 0x60100000-0x601fffff]: assigned
+[    6.339226] pci 1000:00:00.0: PCI bridge to [bus 01]
+[    6.339226] pci 1000:00:00.0: PCI bridge to [bus 01]
+[    6.458355] pci 1000:00:00.0:   bridge window [mem 0x60000000-0x600fffff]
+[    6.458355] pci 1000:00:00.0:   bridge window [mem 0x60000000-0x600fffff]
+[    6.621361] pci_bus 1000:00: resource 4 [io  0x0000-0xfffff]
+[    6.621361] pci_bus 1000:00: resource 4 [io  0x0000-0xfffff]
+[    6.757201] pci_bus 1000:00: resource 5 [mem 0x60000000-0x6fffffff]
+[    6.757201] pci_bus 1000:00: resource 5 [mem 0x60000000-0x6fffffff]
+[    6.907664] pci_bus 1000:01: resource 1 [mem 0x60000000-0x600fffff]
+[    6.907664] pci_bus 1000:01: resource 1 [mem 0x60000000-0x600fffff]
+[    7.082074] EDAC MC: Ver: 3.0.0
+[    7.082074] EDAC MC: Ver: 3.0.0
+[    7.158999] clocksource: Switched to clocksource timebase
+[    7.158999] clocksource: Switched to clocksource timebase
+[    7.296074] NET: Registered PF_INET protocol family
+[    7.296074] NET: Registered PF_INET protocol family
+[    7.413349] IP idents hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    7.413349] IP idents hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    7.587798] tcp_listen_portaddr_hash hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    7.587798] tcp_listen_portaddr_hash hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    7.790549] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    7.790549] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    7.977218] TCP established hash table entries: 4096 (order: 2, 16384 bytes, linear)
+[    7.977218] TCP established hash table entries: 4096 (order: 2, 16384 bytes, linear)
+[    8.163271] TCP bind hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    8.163271] TCP bind hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    8.334710] TCP: Hash tables configured (established 4096 bind 4096)
+[    8.334710] TCP: Hash tables configured (established 4096 bind 4096)
+[    8.487840] MPTCP token hash table entries: 512 (order: 1, 6144 bytes, linear)
+[    8.487840] MPTCP token hash table entries: 512 (order: 1, 6144 bytes, linear)
+[    8.661527] UDP hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    8.661527] UDP hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    8.818306] UDP-Lite hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    8.818306] UDP-Lite hash table entries: 256 (order: 0, 4096 bytes, linear)
+[    8.986034] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    8.986034] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    9.122021] PCI: CLS 32 bytes, default 32
+[    9.122021] PCI: CLS 32 bytes, default 32
+[    9.249636] workingset: timestamp_bits=14 max_order=17 bucket_order=3
+[    9.249636] workingset: timestamp_bits=14 max_order=17 bucket_order=3
+[    9.405393] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    9.405393] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    9.849728] Serial: 8250/16550 driver, 2 ports, IRQ sharing enabled
+[    9.849728] Serial: 8250/16550 driver, 2 ports, IRQ sharing enabled
+[   10.001085] printk: legacy console [ttyS0] disabled
+[   10.001085] printk: legacy console [ttyS0] disabled
+[   10.118585] serial8250.0: ttyS0 at MMIO 0xe0004500 (irq = 42, base_baud = 24937500) is a 16550A
+[   10.118585] serial8250.0: ttyS0 at MMIO 0xe0004500 (irq = 42, base_baud = 24937500) is a 16550A
+[   10.327628] printk: legacy console [ttyS0] enabled
+[   10.327628] printk: legacy console [ttyS0] enabled
+[   10.327628] printk: legacy console [ttyS0] enabled
+[   10.499985] printk: legacy bootconsole [udbg0] disabled
+[   10.499985] printk: legacy bootconsole [udbg0] disabled
+[   10.499985] printk: legacy bootconsole [udbg0] disabled
+[   11.415098] printk: legacy bootconsole [uart8250] disabled
+[   11.415098] printk: legacy bootconsole [uart8250] disabled
+[   11.547526] printk: legacy console [ttyS0] disabled
+[   11.607688] printk: legacy console [ttyS0] enabled
+[   11.694515] fsl-gianfar e0024000.ethernet: enabled errata workarounds, flags: 0x6
+[   11.794721] fsl-gianfar e0024000.ethernet eth0: mac: 00:10:18:48:fb:2c
+[   11.872975] fsl-gianfar e0024000.ethernet eth0: Running with NAPI enabled
+[   11.954301] fsl-gianfar e0024000.ethernet eth0: RX BD ring size for Q[0]: 256
+[   12.039782] fsl-gianfar e0024000.ethernet eth0: TX BD ring size for Q[0]: 256
+[   12.125390] ucc_geth_driver: QE UCC Gigabit Ethernet Controller
+[   12.196584] Freescale(R) MPC85xx EDAC driver, (C) 2006 Montavista Software
+[   12.279282] EDAC PCI0: Giving out device to module MPC85xx_edac controller mpc85xx_pci_err: DEV mpc85xx-pci-edac.0.auto (INTERRUPT)
+[   12.421202] MPC85xx_edac acquired irq 26 for PCI Err
+[   12.480659] MPC85xx_edac PCI err registered
+[   12.531668] NET: Registered PF_INET6 protocol family
+[   12.596251] Segment Routing with IPv6
+[   12.640207] In-situ OAM (IOAM) with IPv6
+[   12.687286] NET: Registered PF_PACKET protocol family
+[   12.747829] 8021q: 802.1Q VLAN Support v1.8
+[   12.834768] Freeing unused kernel image (initmem) memory: 9752K
+[   12.905714] Run /init as init process
+[   12.949519]   with arguments:
+[   12.984971]     /init
+[   13.012094]   with environment:
+[   13.049639]     HOME=/
+[   13.077798]     TERM=linux
+[   13.694116] init: Console is alive
+[   13.745848] kmodloader: loading kernel modules from /etc/modules-boot.d/*
+[   13.829349] kmodloader: done loading kernel modules from /etc/modules-boot.d/*
+[   13.926433] init: - preinit -
+Press the [f] key and hit [enter] to enter failsafe mode
+Press the [1], [2], [3] or [4] key and hit [enter] to select the debug level
+[   18.279603] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+[   18.535303] fsl-gianfar e0024000.ethernet eth0: Link is Down
+[   18.698021] procd: - early -
+[   18.732543] random: procd: uninitialized urandom read (4 bytes read)
+[   19.338374] procd: - ubus -
+[   20.099032] random: crng init done
+[   20.147586] procd: - init -
+Please press Enter to activate this console.
+[   20.722857] kmodloader: loading kernel modules from /etc/modules.d/*
+[   20.883281] tun: Universal TUN/TAP device driver, 1.6
+[   21.119262] kmodloader: done loading kernel modules from /etc/modules.d/*
+[   21.811850] urngd: v1.0.2 started.
+[   33.052677] bcm_bde_compat: loading out-of-tree module taints kernel.
+[   33.165012] fsl-gianfar e0024000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+[   33.300871] bcm-bde-compat 1000:01:00.0: legacy BDE: BAR 0x60000000, DMA 0x1c000000 (16777216 bytes), IRQ 16
+[   55.293283] br-switch: port 1(swp1) entered blocking state
+[   55.359256] br-switch: port 1(swp1) entered disabled state
+[   55.425296] swp1: entered allmulticast mode
+[   55.475637] swp1: entered promiscuous mode
+[   56.264488] br-switch: port 2(swp2) entered blocking state
+[   56.330243] br-switch: port 2(swp2) entered disabled state
+[   56.396008] swp2: entered allmulticast mode
+[   56.694266] swp2: entered promiscuous mode
+[   56.861290] br-switch: port 3(swp3) entered blocking state
+[   56.927022] br-switch: port 3(swp3) entered disabled state
+[   56.992771] swp3: entered allmulticast mode
+[   57.043109] swp3: entered promiscuous mode
+[   57.510734] br-switch: port 4(swp4) entered blocking state
+[   57.576481] br-switch: port 4(swp4) entered disabled state
+[   57.642247] swp4: entered allmulticast mode
+[   57.692677] swp4: entered promiscuous mode
+[   57.918178] br-switch: port 5(swp5) entered blocking state
+[   57.983926] br-switch: port 5(swp5) entered disabled state
+[   58.049690] swp5: entered allmulticast mode
+[   58.100009] swp5: entered promiscuous mode
+[   58.527179] br-switch: port 6(swp6) entered blocking state
+[   58.592923] br-switch: port 6(swp6) entered disabled state
+[   58.658679] swp6: entered allmulticast mode
+[   58.709019] swp6: entered promiscuous mode
+[   58.910445] br-switch: port 7(swp7) entered blocking state
+[   58.976181] br-switch: port 7(swp7) entered disabled state
+[   59.041942] swp7: entered allmulticast mode
+[   59.092245] swp7: entered promiscuous mode
+[   59.404260] br-switch: port 8(swp8) entered blocking state
+[   59.470010] br-switch: port 8(swp8) entered disabled state
+[   59.535767] swp8: entered allmulticast mode
+[   59.586099] swp8: entered promiscuous mode
+[   59.810627] br-switch: port 9(swp9) entered blocking state
+[   59.876378] br-switch: port 9(swp9) entered disabled state
+[   59.942138] swp9: entered allmulticast mode
+[   59.992460] swp9: entered promiscuous mode
+[   60.289103] br-switch: port 10(swp10) entered blocking state
+[   60.356991] br-switch: port 10(swp10) entered disabled state
+[   60.424837] swp10: entered allmulticast mode
+[   60.476217] swp10: entered promiscuous mode
+[   60.832232] br-switch: port 11(swp11) entered blocking state
+[   60.900051] br-switch: port 11(swp11) entered disabled state
+[   60.967891] swp11: entered allmulticast mode
+[   61.019289] swp11: entered promiscuous mode
+[   61.321834] br-switch: port 12(swp12) entered blocking state
+[   61.389664] br-switch: port 12(swp12) entered disabled state
+[   61.457505] swp12: entered allmulticast mode
+[   61.508882] swp12: entered promiscuous mode
+[   61.573992] br-switch: port 13(swp13) entered blocking state
+[   61.641945] br-switch: port 13(swp13) entered disabled state
+[   61.709804] swp13: entered allmulticast mode
+[   61.761176] swp13: entered promiscuous mode
+[   61.926608] br-switch: port 14(swp14) entered blocking state
+[   61.994433] br-switch: port 14(swp14) entered disabled state
+[   62.062267] swp14: entered allmulticast mode
+[   62.113648] swp14: entered promiscuous mode
+[   62.219597] br-switch: port 15(swp15) entered blocking state
+[   62.287512] br-switch: port 15(swp15) entered disabled state
+[   62.355376] swp15: entered allmulticast mode
+[   62.406767] swp15: entered promiscuous mode
+[   62.508903] br-switch: port 16(swp16) entered blocking state
+[   62.576860] br-switch: port 16(swp16) entered disabled state
+[   62.644777] swp16: entered allmulticast mode
+[   62.696206] swp16: entered promiscuous mode
+

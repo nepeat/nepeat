@@ -1,0 +1,117 @@
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -52,6 +52,7 @@
+ #include <linux/if_arp.h>
+ #include <linux/if_ether.h>
+ #include <linux/if_tun.h>
++#include <net/switchdev.h>
+ #include <linux/if_vlan.h>
+ #include <linux/crc32.h>
+ #include <linux/math.h>
+@@ -177,7 +178,13 @@
+  * device, socket filter, sndbuf and vnet header size were restore when the
+  * file were attached to a persist device.
+  */
++static bool bcm_switch_offload;
++module_param(bcm_switch_offload, bool, 0600);
++MODULE_PARM_DESC(bcm_switch_offload, "Enable SDK switch forwarding marks for swp1..swp64 TAP ports");
++
+ struct tun_struct {
++	bool bcm_offload;
++	bool bcm_bridge_offloaded;
+ 	struct tun_file __rcu	*tfiles[MAX_TAP_QUEUES];
+ 	unsigned int            numqueues;
+ 	unsigned int 		flags;
+@@ -1327,7 +1334,32 @@
+ 	return nxmit;
+ }
+ 
++/* The SDK controller owns hardware objects. These hooks identify a shared
++ * ingress forwarding domain so bridge CPU copies are not flooded twice.
++ * No TX forwarding offload is advertised: CPU-originated frames use each TAP.
++ */
++static int tun_bcm_parent_id(struct net_device *dev, struct netdev_phys_item_id *id)
++{
++    struct tun_struct *tun = netdev_priv(dev);
++    if (!tun->bcm_offload)
++        return -EOPNOTSUPP;
++    memcpy(id->id, "bcm56845", 8);
++    id->id_len = 8;
++    return 0;
++}
++
++static int tun_bcm_replay(struct notifier_block *nb, unsigned long event, void *ptr)
++{
++    /* Actual objects are reconciled from Linux state by the SDK controller. */
++    return NOTIFY_DONE;
++}
++
++static struct notifier_block tun_bcm_replay_nb = {
++    .notifier_call = tun_bcm_replay,
++};
++
+ static const struct net_device_ops tap_netdev_ops = {
++	.ndo_get_port_parent_id = tun_bcm_parent_id,
+ 	.ndo_init		= tun_net_init,
+ 	.ndo_uninit		= tun_net_uninit,
+ 	.ndo_open		= tun_net_open,
+@@ -1903,6 +1935,10 @@
+ 			goto drop;
+ 		}
+ 		skb->protocol = eth_type_trans(skb, tun->dev);
++#ifdef CONFIG_NET_SWITCHDEV
++    if (tun->bcm_offload && netif_is_bridge_port(tun->dev))
++        skb->offload_fwd_mark = 1;
++#endif
+ 		break;
+ 	}
+ 
+@@ -2518,6 +2554,10 @@
+ 	}
+ 
+ 	skb->protocol = eth_type_trans(skb, tun->dev);
++#ifdef CONFIG_NET_SWITCHDEV
++    if (tun->bcm_offload && netif_is_bridge_port(tun->dev))
++        skb->offload_fwd_mark = 1;
++#endif
+ 	skb_reset_network_header(skb);
+ 	skb_probe_transport_header(skb);
+ 	skb_record_rx_queue(skb, tfile->queue_index);
+@@ -2847,6 +2887,12 @@
+ 
+ 		tun = netdev_priv(dev);
+ 		tun->dev = dev;
++        if (bcm_switch_offload && (ifr->ifr_flags & IFF_TAP)) {
++            unsigned int port;
++            char extra;
++            tun->bcm_offload = sscanf(ifr->ifr_name, "swp%u%c", &port, &extra) == 1 &&
++                               port >= 1 && port <= 64;
++        }
+ 		tun->flags = flags;
+ 		tun->txflt.count = 0;
+ 		tun->vnet_hdr_sz = sizeof(struct virtio_net_hdr);
+@@ -3718,6 +3764,24 @@
+ 	if (dev->rtnl_link_ops != &tun_link_ops)
+ 		return NOTIFY_DONE;
+ 
++    if (event == NETDEV_CHANGEUPPER && tun->bcm_offload) {
++        struct netdev_notifier_changeupper_info *info = ptr;
++        int err;
++        if (netif_is_bridge_master(info->upper_dev)) {
++            if (info->linking) {
++                err = switchdev_bridge_port_offload(dev, dev, tun,
++                         &tun_bcm_replay_nb, &tun_bcm_replay_nb, false,
++                         info->info.extack);
++                if (err)
++                    return notifier_from_errno(err);
++                tun->bcm_bridge_offloaded = true;
++            } else if (tun->bcm_bridge_offloaded) {
++                switchdev_bridge_port_unoffload(dev, tun,
++                         &tun_bcm_replay_nb, &tun_bcm_replay_nb);
++                tun->bcm_bridge_offloaded = false;
++            }
++        }
++    }
+ 	switch (event) {
+ 	case NETDEV_CHANGE_TX_QUEUE_LEN:
+ 		if (tun_queue_resize(tun))

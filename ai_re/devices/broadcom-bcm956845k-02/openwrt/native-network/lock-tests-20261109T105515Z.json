@@ -1,0 +1,33 @@
+{
+  "date_utc": "2026-11-09T10:54:58.487781+00:00",
+  "empty": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794221429, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 4, \"rif_deletes\": 4, \"egress_creates\": 7, \"egress_deletes\": 7, \"route_writes\": 24, \"route_deletes\": 19 } }\n"
+  },
+  "dead_pid": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794221429, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 4, \"rif_deletes\": 4, \"egress_creates\": 7, \"egress_deletes\": 7, \"route_writes\": 24, \"route_deletes\": 19 } }\n"
+  },
+  "reused_pid": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794221429, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 4, \"rif_deletes\": 4, \"egress_creates\": 7, \"egress_deletes\": 7, \"route_writes\": 24, \"route_deletes\": 19 } }\n"
+  },
+  "contended": {
+    "rc": 1,
+    "result": "{ \"ok\": false, \"message\": \"another native reconcile is running\" }\n"
+  },
+  "after_owner_killed": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794221429, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 4, \"rif_deletes\": 4, \"egress_creates\": 7, \"egress_deletes\": 7, \"route_writes\": 24, \"route_deletes\": 19 } }\n"
+  },
+  "interrupted_apply": {
+    "rc": 255,
+    "pending_marker": "apply pending 1794221709_4611_1\n"
+  },
+  "after_interrupted_apply": {
+    "rc": 0,
+    "result": "{ \"ok\": true, \"message\": \"Native Linux networking applied to ASIC\", \"timestamp\": 1794221714, \"source\": \"Linux/netifd\", \"bridge\": \"br-switch\", \"vlan_count\": 1, \"rif_count\": 0, \"hardware_routes\": 0, \"cpu_routes\": 0, \"warnings\": [ ], \"objects\": { \"rifs\": 0, \"egress\": 0, \"routes\": 0, \"rif_creates\": 4, \"rif_deletes\": 4, \"egress_creates\": 7, \"egress_deletes\": 7, \"route_writes\": 24, \"route_deletes\": 19 } }\n"
+  },
+  "interrupted_apply_forced_full_rebuild": true,
+  "passed": true
+}

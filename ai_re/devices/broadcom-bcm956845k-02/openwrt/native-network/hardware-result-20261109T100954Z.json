@@ -1,0 +1,91 @@
+{
+  "date_utc": "2026-11-09T10:08:55.765436+00:00",
+  "deployment": "fresh RAM image boot",
+  "manifest": {
+    "label": "(emma’s version)",
+    "status": "compiled; hardware boot not implied",
+    "openwrt_version": "25.12.1",
+    "board": "BCM98548XMC",
+    "boot": "TFTP/RAM initramfs",
+    "flash_drivers": false,
+    "dtb_address": "0x03000000",
+    "unpacked_image_bytes": 27425420,
+    "asic_support": "experimental legacy SDK/BDE integration",
+    "default_lane_profile": "16x40G",
+    "luci": true,
+    "packet_interface": "SDK packet API/TAP; factory KNET APIs are disabled",
+    "files": {
+      "emma-openwrt-netboot.uImage": {
+        "bytes": 13734363,
+        "sha256": "1fa0e770d945dd47144527e5f3470aab74e8922c6987e0818b12ab3822b729ba"
+      },
+      "bcm98548xmc-netboot.dtb": {
+        "bytes": 2702,
+        "sha256": "7f767590b6040748aeb5c3bedf8b0a4fc7ac34a9541544e7fa82e85aa86957df"
+      }
+    }
+  },
+  "initial_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794218923,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 1,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": []
+  },
+  "untagged_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794218945,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 2,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": []
+  },
+  "capture_setup": "cint /tmp/capture-setup.cint\r\r\nNATIVE_CAPTURE_OK\r\nint $$ = 0 (0x0)\r\n",
+  "untagged_vlans": "vlan show\r\r\nvlan 1\tports cpu,xe1-xe14 (0x00000000000000000000fffd), untagged xe1-xe14 (0x00000000000000000000fffc) MCAST_FLOOD_UNKNOWN\r\nvlan 100\tports cpu,xe0,xe15 (0x000000000000000000010003), untagged xe0,xe15 (0x000000000000000000010002) MCAST_FLOOD_UNKNOWN\r\n",
+  "untagged_packets": {
+    "rc": 0,
+    "stdout": "20/20 native ASIC bridge frames, untagged; duplicate ingress=0 software re-forward=0\n",
+    "stderr": ""
+  },
+  "tagged_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794218978,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 3,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": []
+  },
+  "tagged_vlans": "vlan show\r\r\nvlan 1\tports cpu,xe1-xe14 (0x00000000000000000000fffd), untagged xe1-xe14 (0x00000000000000000000fffc) MCAST_FLOOD_UNKNOWN\r\nvlan 100\tports cpu,xe0,xe15 (0x000000000000000000010003), untagged xe0 (0x000000000000000000000002) MCAST_FLOOD_UNKNOWN\r\nvlan 200\tports cpu,xe15 (0x000000000000000000010001), untagged xe15 (0x000000000000000000010000) MCAST_FLOOD_UNKNOWN\r\n",
+  "tagged_packets": {
+    "rc": 1,
+    "stdout": "0/20 native ASIC bridge frames, 802.1Q VID 100; duplicate ingress=0 software re-forward=0\n",
+    "stderr": "missing sequence 0\n"
+  },
+  "error": "0/20 native ASIC bridge frames, 802.1Q VID 100; duplicate ingress=0 software re-forward=0\nmissing sequence 0\n",
+  "capture_cleanup": "cint /tmp/capture-cleanup.cint\r\r\nint $$ = 0 (0x0)\r\nint $$ = 0 (0x0)\r\n",
+  "final_status": {
+    "ok": true,
+    "message": "Native Linux networking applied to ASIC",
+    "timestamp": 1794218993,
+    "source": "Linux/netifd",
+    "bridge": "br-switch",
+    "vlan_count": 1,
+    "rif_count": 0,
+    "hardware_routes": 0,
+    "cpu_routes": 0,
+    "warnings": []
+  }
+}

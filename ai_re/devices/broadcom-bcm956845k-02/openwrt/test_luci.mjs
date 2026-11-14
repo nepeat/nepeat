@@ -1,6 +1,5 @@
 // Headless Chromium must be listening on loopback port 9223.
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -59,53 +58,51 @@ try {
             input.form.submit();
         })()`);
     }
-    for (let i = 0; i < 60; i++) {
-        if (await evaluate('!!document.querySelector(".cbi-map")')) break;
+    for (let i = 0; i < 180; i++) {
+        if (await evaluate('document.readyState === "complete" && !!document.querySelector(".cbi-map") && !document.querySelector("input[name=luci_password]")')) break;
         await delay(500);
     }
-    let applyTest;
-    if (process.env.BCM_UI_APPLY_TEST === '1') {
-        const readPort = () => JSON.parse(execFileSync('bash', [path.join(root, 'ssh.sh'), 'bcmctl --json "port xe0"'], { encoding: 'utf8', timeout: 15000 })).output;
-        async function toggleAndApply(disabled) {
-            await evaluate(`(() => {
-                const input = document.querySelector('input[type=checkbox]');
-                if (!input) throw new Error('Enable checkbox missing');
-                input.click();
-                const button = document.querySelector('.cbi-button-apply');
-                if (!button) throw new Error('Save & Apply button missing');
-                button.click();
-            })()`);
-            for (let i = 0; i < 45; i++) {
-                await delay(1000);
-                if (readPort().includes('DISABLED') === disabled) return true;
-            }
-            throw new Error('LuCI apply did not reach expected ASIC state');
+    await delay(1000);
+    let bridgeVlanEditor = false;
+    if (nativeView) {
+        await evaluate(`(() => {
+            const button = document.querySelector('[data-sid="switch_bridge"] .cbi-button-edit');
+            if (!button) throw new Error('Native bridge Configure button missing');
+            button.click();
+        })()`);
+        for (let i = 0; i < 90; i++) {
+            if (await evaluate('!!document.querySelector(".modal [data-tab=bridgevlan]")')) break;
+            await delay(500);
         }
-        try {
-            await toggleAndApply(true);
-            await delay(5000);
-            await toggleAndApply(false);
-            applyTest = 'LuCI Save & Apply disabled and re-enabled xe0; ASIC readback verified';
-        } finally {
-            execFileSync('bash', [path.join(root, 'ssh.sh'), 'uci set bcm_switch.core.enabled=1; uci commit bcm_switch; /usr/libexec/bcm-switch apply'], { timeout: 60000 });
-        }
+        await evaluate(`(() => {
+            const tab = document.querySelector('.modal .cbi-tabmenu [data-tab=bridgevlan] a');
+            if (!tab) throw new Error('Native bridge VLAN filtering tab missing');
+            tab.click();
+        })()`);
+        await delay(1000);
+        bridgeVlanEditor = await evaluate(`(() => {
+            const modal = document.querySelector('.modal');
+            return !!modal && modal.innerText.includes('Enable VLAN filtering') && modal.innerText.includes('swp1') && modal.innerText.includes('swp16');
+        })()`);
     }
     const result = await evaluate(`({
         title: document.title,
         hasMap: !!document.querySelector('.cbi-map'),
-        has40G: document.body.innerText.includes('16 × 40'),
-        hasVLAN: document.body.innerText.includes('VLAN membership'),
-        hasNativePort: document.body.innerText.includes('swp1'),
-        text: document.body.innerText.slice(0, 8000)
+        has40G: (document.body?.innerText || "").includes('16 × 40'),
+        hasPHY: (document.body?.innerText || "").includes('PHY settings'),
+        hasLegacyVLANEditor: (document.body?.innerText || "").includes('VLAN membership'),
+        hasNativeAuthority: (document.body?.innerText || "").includes('Native network configuration is synchronized to the ASIC'),
+        hasNativePort: (document.body?.innerText || "").includes('swp1'),
+        text: (document.body?.innerText || "").slice(0, 8000)
     })`);
+    result.bridgeVlanEditor = bridgeVlanEditor;
     result.exceptions = exceptions;
     result.loginExceptions = loginExceptions;
-    if (applyTest) result.applyTest = applyTest;
     fs.writeFileSync(path.join(root, nativeView ? 'work/luci-native-browser-result.json' : 'work/luci-browser-result.json'), JSON.stringify(result, null, 2));
     const screenshot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
     fs.writeFileSync(path.join(root, nativeView ? 'work/luci-native.png' : 'work/luci-asic.png'), Buffer.from(screenshot.data, 'base64'));
     console.log(JSON.stringify(result));
-    if (!result.hasMap || (nativeView ? !result.hasNativePort : (!result.has40G || !result.hasVLAN)) || exceptions.length) process.exitCode = 1;
+    if (!result.hasMap || (nativeView ? (!result.hasNativePort || !bridgeVlanEditor) : (!result.has40G || !result.hasPHY || result.hasLegacyVLANEditor || !result.hasNativeAuthority)) || exceptions.length) process.exitCode = 1;
 } finally {
     await call('Page.close').catch(() => {});
     socket.close();

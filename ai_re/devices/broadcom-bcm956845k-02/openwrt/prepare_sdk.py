@@ -79,7 +79,7 @@ def prepare_sdk(source: Path, device: Path):
     startup += "\nport xe enable=false\n"
     if tap_enabled:
         (destination / "start-tap.cint").write_text("/* Experimental SDK TAP bootstrap, not a working KNET ABI. */\nprint bcm_knet_init(0);\nprint bcm_switch_control_set(0, bcmSwitchArpRequestToCpu, 1);\nprint bcm_switch_control_set(0, bcmSwitchArpReplyToCpu, 1);\nprint bcm_switch_control_set(0, bcmSwitchNdPktToCpu, 1);\nprint bcm_switch_control_set(0, bcmSwitchDhcpPktToCpu, 1);\n")
-        startup += "cint /usr/lib/bcm-sdk/start-tap.cint\n"
+        startup += "cint /usr/lib/bcm-sdk/native-init.cint\ncint /usr/lib/bcm-sdk/start-tap.cint\n"
     (destination / "rc.soc").write_text(startup)
     provenance = {"source": "owned board's recovered Linux initramfs",
                   "original_sha256": SDK_SHA256,

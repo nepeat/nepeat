@@ -199,6 +199,10 @@ static int server(const char *sdk, const char *directory)
 				bool initialized = strstr(output, "rc: BCM driver initialized") &&
 					strstr(output, "rc: Port modes initialized") &&
 					!strstr(output, "ERROR loading rc script");
+                char generation[80];
+                int generation_length = snprintf(generation, sizeof(generation), "%ld-%lld\n", (long)getpid(), (long long)monotonic_seconds());
+                int generation_fd = open("/tmp/bcm-sdk/native-generation", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
+                if (generation_fd >= 0) { (void)transfer(generation_fd, generation, generation_length, true); close(generation_fd); }
 				int fd = open(READY_PATH, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
 				if (fd >= 0) { (void)transfer(fd, initialized ? "ready\n" : "failed\n", initialized ? 6 : 7, true); close(fd); }
 				announced = ready = true; length = 0; output[0] = 0;
