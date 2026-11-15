@@ -85,6 +85,12 @@ public:
         RV(ob_sdk_l3_egress_special(unit_, 1, &drop));
         cpu_egress_ = cpu;
         drop_egress_ = drop;
+        ob_chip_limits_t lim;
+        if (ob_sdk_chip_limits(unit_, &lim) == OB_E_NONE)
+            OB_NOTICE(SAI_API_SWITCH, "SDK tables: host %d, route %d, egress %d, L2 %d; buffer %llu B; "
+                      "ECMP %d groups x %d paths (not exposed: no next-hop groups in this SAI)",
+                      lim.max_host, lim.max_route, lim.max_nexthop, lim.max_l2,
+                      (unsigned long long)lim.buffer_bytes, lim.ecmp_groups, lim.ecmp_paths);
         return SAI_STATUS_SUCCESS;
     }
 
@@ -112,6 +118,28 @@ public:
         if (rv < 0) return map_rv(rv);
         cur.assign(c, c + n);
         peak.assign(p, p + n);
+        return SAI_STATUS_SUCCESS;
+    }
+
+    sai_status_t table_usage(TableUsage& u) override
+    {
+        ob_table_usage_t t;
+        RV(ob_sdk_table_usage(unit_, &t));
+        u.v4_routes_free = t.v4_routes_free;
+        u.v6_routes_free = t.v6_routes_free;
+        u.hosts_free = t.hosts_free;
+        u.egress_free = t.egress_free;
+        u.fdb_free = t.fdb_free;
+        return SAI_STATUS_SUCCESS;
+    }
+
+    sai_status_t chip_limits(ChipLimits& l) override
+    {
+        ob_chip_limits_t c;
+        RV(ob_sdk_chip_limits(unit_, &c));
+        l.buffer_bytes = c.buffer_bytes;
+        l.acl_prio_min = c.acl_prio_min;
+        l.acl_prio_max = c.acl_prio_max;
         return SAI_STATUS_SUCCESS;
     }
 

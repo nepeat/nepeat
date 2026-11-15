@@ -17,6 +17,9 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   `sonic-nix-diff`). All 92 VM checks pass, incl. a 4x25G split, alias
   ranges, VLAN, LACP PortChannel to a peer VM, reboot and `nixos-rebuild switch`
   ([VM](sonic-module-vm-20261115.txt), [eval](sonic-module-eval-20261115.txt)).
+  The same test on sai-openbcm's fake backend (what the AS7760 runs, minus the
+  ASIC) passes too: 86 checks, 3 N/A (no breakout in the SAI)
+  ([log](sonic-openbcm-fake-vm-20261115.txt)).
   Cross-builds into the AS7760 system with the openbcm syncd, +240 MiB
   ([cross](sonic-module-cross-20261115.txt)). **Not on the switch yet**: its
   kernel lacks bridge/8021q/team/dummy, and it needs the board wiring.
@@ -27,7 +30,9 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   and a router interface created, ASIC_DB populated ([transcript](sai-openbcm-hw-20261115.txt)).
   Since then also through syncd: ASIC temperature attributes and LAG (2 members,
   egress disable) ([transcript](sai-lag-temp-hw-20261115.txt)). Not yet:
-  swss/orchagent on the switch, traffic through SAI-created objects, ACL/QoS.
+  swss/orchagent on the switch (first try aborted in AclOrch init; fixed in
+  sai-openbcm and VM-tested on the fake, 2026-11-15 entry; rerun pending),
+  traffic through SAI-created objects, ACL/QoS.
 - **swss packaged** (`sonic.swss`: orchagent, port/intf/vlan/team managers,
   portsyncd, teamsyncd, neighsyncd, fdbsyncd, ...; plus `sonic.libteam` with
   SONiC's teamd patches and `sonic.dash-api`): native build passes upstream's
@@ -101,6 +106,37 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-15 — orchagent runs on sai-openbcm (fake backend VM test)
+
+- Switch symptom (orchagent aborts in AclOrch init on ACL_ENTRY_MIN/MAX_PRIORITY)
+  reproduced in a VM: new `tests/vm-openbcm-fake.nix` runs the whole
+  services.sonic stack and vm-test.py on sai-openbcm's fake backend (32 cages
+  x 4 lanes, AS7760 port map, `asic_type` broadcom). Baseline libsai: same
+  abort, PortInitDone never set ([log](sonic-openbcm-fake-vm-20261115.txt), run 1).
+- sai-openbcm now answers what orchagent reads at init and CRM polls; per
+  attribute from the swss source, table in the
+  [sai-openbcm README](../../nix/packages/sai-openbcm/README.md#what-orchagent-reads).
+  Real (SDK at run time on openbcm): ACL entry priority range, TOTAL_BUFFER_SIZE
+  (TH MMU), AVAILABLE_IPV4/6 ROUTE/NEXTHOP/NEIGHBOR/FDB. Honest zeros:
+  ECMP groups/members (no NHG API, so RouteOrch never creates groups), ACL
+  action count/stage lists. Still NOT_SUPPORTED: STP instances, NAT, hashes,
+  ACL resource lists (orchagent survives each). 795 unit checks.
+- Fake backend: `SAI_OPENBCM_FAKE_NETDEV=tap` (hostif = TAP netdev, like KNET)
+  and `SAI_OPENBCM_FAKE_WIRE` (CPU path of a port to a host NIC), so swss
+  and teamd have netdevs and LACP reaches the peer VM.
+- Result: 86 checks pass, 3 N/A (4x25G split, lanemap.ini, split-cage range:
+  no breakout in the SAI), 0 fail: ports, admin state by alias, VLAN +
+  member, RIF/IP, PortChannel with LACP to the peer and ping across it, the
+  enforce/seed conflict flow (Ethernet1/1 speed enforced by `fieldModes`
+  here), reboot, rebuild, reload, restartOnStop (run 2 in the log).
+- Left for the switch: CoPP policers are NOT_IMPLEMENTED (6 ERRORs + a missing
+  `/usr/bin/sai_failure_dump.sh` per boot, no rate limits); the fake's wire
+  is only the CPU path, so no ASIC forwarding is tested; the openbcm values
+  above are compiled (cross build) but not yet read on the chip.
+- Cross-built for the AS7760 (README commands): libsai `7ccqhpcz…-sai-openbcm-powerpc64…`,
+  `rbd14dx5…-sonic-sairedis-sai-openbcm-powerpc64…` (= the board's
+  `services.sonic.sai.package`). The vs variant still passes (92/92).
 
 ## 2026-11-15 — services.sonic: control plane + config ownership, VM-tested
 
@@ -250,32 +286,5 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   `0x12b930`. This is route 1 of the research working further than any
   public report found for an e6500 host. OpenMDK (route 2) not needed so far.
 
-## 2026-11-14 (late) — OpenBCM kernel modules load; PCIe aperture bug found
-
-- First `insmod linux-kernel-bde` machine-checked the kernel (panic, automatic
-  reboot) on the first MMIO read of the ASIC; a plain userspace read of BAR2
-  did the same. Cause was not the SDK: the Linux device tree placed the PCIe
-  controller's CPU aperture at 0xc_6000_0000, but U-Boot opens the local access
-  window (LAW) for it at 0xc_4000_0000, and Linux never programs LAWs. Fixed in
-  the AS7760 device tree; BAR reads now work (`000c0f00` at CMIC offset 0).
-  Nothing had ever read ASIC memory under mainline before, so this was latent.
-- The panic also left the freshly copied modules as zero-length files (ext4,
-  not yet flushed): "insmod: Invalid parameters" with no kernel message. Sync
-  after copying test binaries to the switch.
-- Kernel-module port to Linux 7: timer/MAX_ORDER renames and explicit
-  module_init/exit (patch 0001 in `nix/packages/openbcm/patches`). Built with
-  the SDK's own PowerPC endian settings (SYS_BE_PIO=1, SYS_BE_OTHER=1, BE_HOST).
-
-## 2026-11-14 — Phase 0 and first cross-built component
-
-- Pinned sonic-buildimage `47fcc8d` and its submodule SHAs in
-  `nix/packages/sonic/sources.json` (the only place a SONiC rev appears).
-- libnl: no fork. SONiC patches libnl 3.7 for RTA_NH_ID; nixpkgs' 3.12 has it
-  upstream as `rtnl_route_get_nhid`, so consumers get a `-D` alias instead.
-- swss-common divergences from debian/rules, recorded in the derivation: unit
-  tests not built (C++14 vs nixpkgs gtest needing C++17, and they need redis),
-  `-Werror` relaxed for GCC 16, Python include/lib/install paths fixed, headers
-  installed by hand, `database_config.json` installed under `share/`.
-- Upstream has `device/accton/x86_64-accton_as7712_32x-r0`: the x86 sibling of
-  this switch. A public reference for port naming and the SDK config layout.
-- Research (Sonnet agent, web only): [research-ppc-sai-20261114.md](research-ppc-sai-20261114.md).
+Older entries (2026-11-14: Phase 0, first cross-built component, OpenBCM
+kernel modules): [HISTORY.md](HISTORY.md).

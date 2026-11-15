@@ -42,6 +42,8 @@
 #include <bcm/link.h>
 #include <bcm/stack.h>
 #include <bcm/trunk.h>
+#include <bcm/field.h>
+#include <soc/tomahawk.h>
 #include <bcm_int/control.h>
 #include <appl/diag/shell.h>
 #include <bcm-knet-kcom.h>
@@ -413,6 +415,47 @@ int ob_sdk_shell(int unit, const char* cmd)
 int ob_sdk_hw_info(int unit, char* buf, int len)
 {
     snprintf(buf, len, "%s", soc_dev_name(unit));
+    return BCM_E_NONE;
+}
+
+static uint32_t left(int max, int used) { return max > used ? (uint32_t)(max - used) : 0; }
+
+int ob_sdk_table_usage(int unit, ob_table_usage_t* u)
+{
+    int v4 = 0, v6 = 0, l2max = 0, l2cur = 0, rv;
+    bcm_l3_info_t li;
+    memset(u, 0, sizeof(*u));
+    if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectL3RouteV4RoutesFree, &v4)) < 0) return rv;
+    if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectL3RouteV6Routes64bFree, &v6)) < 0) return rv;
+    if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectL2EntryMax, &l2max)) < 0) return rv;
+    if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectL2EntryCurrent, &l2cur)) < 0) return rv;
+    bcm_l3_info_t_init(&li);
+    if ((rv = bcm_l3_info(unit, &li)) < 0) return rv;
+    u->v4_routes_free = v4 > 0 ? (uint32_t)v4 : 0;
+    u->v6_routes_free = v6 > 0 ? (uint32_t)v6 : 0;
+    u->hosts_free = left(li.l3info_max_host, li.l3info_occupied_host);
+    u->egress_free = left(li.l3info_max_nexthop, li.l3info_used_nexthop);
+    u->fdb_free = left(l2max, l2cur);
+    return BCM_E_NONE;
+}
+
+int ob_sdk_chip_limits(int unit, ob_chip_limits_t* l)
+{
+    bcm_l3_info_t li;
+    int rv;
+    memset(l, 0, sizeof(*l));
+    if (!SOC_IS_TOMAHAWK(unit)) return BCM_E_UNAVAIL;   /* MMU geometry below is the BCM56960's */
+    l->buffer_bytes = (uint64_t)_TH_MMU_TOTAL_CELLS * _TH_MMU_BYTES_PER_CELL;
+    l->acl_prio_min = BCM_FIELD_ENTRY_PRIO_LOWEST;
+    l->acl_prio_max = BCM_FIELD_ENTRY_PRIO_HIGHEST;
+    bcm_l3_info_t_init(&li);
+    if ((rv = bcm_l3_info(unit, &li)) < 0) return rv;
+    l->max_host = li.l3info_max_host;
+    l->max_route = li.l3info_max_route;
+    l->max_nexthop = li.l3info_max_nexthop;
+    l->ecmp_groups = li.l3info_max_ecmp_groups;
+    l->ecmp_paths = li.l3info_max_ecmp;
+    if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectL2EntryMax, &l->max_l2)) < 0) return rv;
     return BCM_E_NONE;
 }
 

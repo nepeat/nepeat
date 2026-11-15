@@ -3,6 +3,7 @@
 // delivery (link scan / L2 learn -> SAI notifications). Temperatures: sai_temp.cpp.
 #include "sai_internal.h"
 
+#include <algorithm>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -511,9 +512,85 @@ static sai_status_t remove_switch(_In_ sai_object_id_t switch_id)
     return SAI_STATUS_SUCCESS;
 }
 
+// Capacity and capability attributes orchagent reads at init and CRM polls
+// (see the README's orchagent table). Real values from the backend where
+// the SAI implements the feature; for features this SAI does not implement,
+// an honest zero / empty list where orchagent then takes its "unsupported"
+// path, otherwise ATTR_NOT_SUPPORTED (get_one's default).
+static sai_status_t get_capacity(uint32_t i, sai_attribute_t& a, bool& handled)
+{
+    auto& c = ctx();
+    handled = true;
+    switch (a.id) {
+    case SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY:
+    case SAI_SWITCH_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY: {
+        // The SDK's field entry priority range. AclOrch needs it to start;
+        // ACL tables/entries themselves are not implemented (ACL API).
+        ChipLimits l;
+        sai_status_t st = c.be->chip_limits(l);
+        if (st != SAI_STATUS_SUCCESS) return attr_backend_status(st, i);
+        a.value.u32 = a.id == SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY ? l.acl_prio_min : l.acl_prio_max;
+        return SAI_STATUS_SUCCESS;
+    }
+    case SAI_SWITCH_ATTR_MAX_ACL_ACTION_COUNT:
+        a.value.u32 = 0;   // no ACL actions: AclOrch records none as supported
+        return SAI_STATUS_SUCCESS;
+    case SAI_SWITCH_ATTR_ACL_STAGE_INGRESS:
+    case SAI_SWITCH_ATTR_ACL_STAGE_EGRESS: {
+        a.value.aclcapability.is_action_list_mandatory = false;
+        std::vector<int32_t> none;
+        return fill_list(a.value.aclcapability.action_list, none);
+    }
+    case SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS:
+    case SAI_SWITCH_ATTR_MAX_ECMP_MEMBER_COUNT:
+    case SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY:
+        // No next-hop groups in this SAI (the chip has ECMP): RouteOrch then
+        // installs multipath routes with one next hop instead of creating groups.
+        a.value.u32 = 0;
+        return SAI_STATUS_SUCCESS;
+    case SAI_SWITCH_ATTR_TOTAL_BUFFER_SIZE: {
+        ChipLimits l;
+        sai_status_t st = c.be->chip_limits(l);
+        if (st != SAI_STATUS_SUCCESS) return attr_backend_status(st, i);
+        a.value.u64 = l.buffer_bytes / 1024;   // KB
+        return SAI_STATUS_SUCCESS;
+    }
+    case SAI_SWITCH_ATTR_AVAILABLE_IPV4_ROUTE_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_IPV6_ROUTE_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEXTHOP_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEXTHOP_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEIGHBOR_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_FDB_ENTRY: {
+        TableUsage u;
+        sai_status_t st = c.be->table_usage(u);
+        if (st != SAI_STATUS_SUCCESS) return attr_backend_status(st, i);
+        switch (a.id) {
+        case SAI_SWITCH_ATTR_AVAILABLE_IPV4_ROUTE_ENTRY: a.value.u32 = u.v4_routes_free; break;
+        case SAI_SWITCH_ATTR_AVAILABLE_IPV6_ROUTE_ENTRY: a.value.u32 = u.v6_routes_free; break;
+        // A next hop uses its neighbor's egress object.
+        case SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEXTHOP_ENTRY:
+        case SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEXTHOP_ENTRY: a.value.u32 = u.egress_free; break;
+        // A neighbor takes a host entry (IPv6: 2) and an egress object.
+        case SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY: a.value.u32 = std::min(u.hosts_free, u.egress_free); break;
+        case SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEIGHBOR_ENTRY: a.value.u32 = std::min(u.hosts_free / 2, u.egress_free); break;
+        default: a.value.u32 = u.fdb_free; break;
+        }
+        return SAI_STATUS_SUCCESS;
+    }
+    default:
+        handled = false;
+        return SAI_STATUS_SUCCESS;
+    }
+}
+
 static sai_status_t get_one(uint32_t i, sai_attribute_t& a)
 {
     auto& c = ctx();
+    bool handled = false;
+    sai_status_t cst = get_capacity(i, a, handled);
+    if (handled) return cst;
     switch (a.id) {
     case SAI_SWITCH_ATTR_TYPE: a.value.s32 = SAI_SWITCH_TYPE_NPU; return SAI_STATUS_SUCCESS;
     case SAI_SWITCH_ATTR_INIT_SWITCH: a.value.booldata = true; return SAI_STATUS_SUCCESS;

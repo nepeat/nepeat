@@ -75,6 +75,22 @@ int ob_sdk_register_callbacks(int unit, ob_link_cb_t link, ob_l2_cb_t l2, void* 
 void ob_sdk_unregister_callbacks(int unit);
 int ob_sdk_hw_info(int unit, char* buf, int len);
 
+/* Free entries in the forwarding tables (bcm_switch_object_count_get,
+ * bcm_l3_info; hosts in IPv4 units, an IPv6 host takes 2). */
+typedef struct {
+    uint32_t v4_routes_free, v6_routes_free, hosts_free, egress_free, fdb_free;
+} ob_table_usage_t;
+int ob_sdk_table_usage(int unit, ob_table_usage_t* u);
+/* Chip limits: packet buffer (Tomahawk: MMU cells x cell size, else
+ * BCM_E_UNAVAIL), field entry priority range, and for the log the table
+ * sizes and ECMP limits the SAI does not expose. */
+typedef struct {
+    uint64_t buffer_bytes;
+    uint32_t acl_prio_min, acl_prio_max;
+    int max_host, max_route, max_nexthop, max_l2, ecmp_groups, ecmp_paths;
+} ob_chip_limits_t;
+int ob_sdk_chip_limits(int unit, ob_chip_limits_t* l);
+
 int ob_sdk_cpu_port(int unit);
 int ob_sdk_ports(int unit, ob_port_info_t* out, int max);   /* >= 0: count */
 

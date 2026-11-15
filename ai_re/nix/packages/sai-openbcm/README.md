@@ -9,7 +9,8 @@ no vendor SAI binary exists. Status: builds natively (fake) and cross
 backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF;
 [sonic-nixos PROGRESS](../../../devices/sonic-nixos/PROGRESS.md)). LAG, SAI
 temperatures, the syncd temperature publisher and `--shutdown-at` are
-fake-tested only.
+fake-tested only. orchagent and the rest of `services.sonic` run on the fake
+backend (VM test, [below](#what-orchagent-reads)); not yet on the switch.
 
 ## Design
 
@@ -62,6 +63,8 @@ fake-tested only.
 | `SAI_OPENBCM_TEMP_INTERVAL` | 5 | publisher period in seconds (1..3600) |
 | `SAI_OPENBCM_FAKE_PORTS` / `_LANES` / `_SPEED` | 32 / 4 / 100000 | fake: port count, lanes per port, initial speed |
 | `SAI_OPENBCM_FAKE_LINK` | `admin` | fake: link follows admin state; `none`: never (loopback still links) |
+| `SAI_OPENBCM_FAKE_NETDEV` | `none` | fake: `tap` makes every hostif netif a Linux TAP netdev of that name (MAC set, carrier = hostif OPER_STATUS), as KNET does on the switch; needs CAP_NET_ADMIN and `/dev/net/tun`. For running swss on the fake. |
+| `SAI_OPENBCM_FAKE_WIRE` | none | fake, `tap` only: `<netif>:<ifname>,...`; while the port is admin up, frames the TAP sends leave through host interface `<ifname>` and everything `<ifname>` receives goes up the TAP: the CPU path of that port (what KNET carries), no switching between ports. One thread per wire. |
 
 ## Safety rules (code + this doc)
 
@@ -99,7 +102,7 @@ C/S/G = create/set/get. *stub* = stored and returned, not programmed.
 
 | object | supported | stubbed | not supported |
 | --- | --- | --- | --- |
-| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES, MAX_NUMBER_OF_TEMP_SENSORS, TEMP_LIST / MAX_TEMP / AVERAGE_TEMP (live PVTMON read, whole C rounded); C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, ACL/resource counters, switch stats, INIT_SWITCH=false |
+| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES, MAX_NUMBER_OF_TEMP_SENSORS, TEMP_LIST / MAX_TEMP / AVERAGE_TEMP (live PVTMON read, whole C rounded); the capacity attributes orchagent reads ([table below](#what-orchagent-reads)): ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY, TOTAL_BUFFER_SIZE, AVAILABLE_IPV4/IPV6_ROUTE/NEXTHOP/NEIGHBOR_ENTRY, AVAILABLE_FDB_ENTRY (live), and the honest zeros MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS (no actions), NUMBER_OF_ECMP_GROUPS, MAX_ECMP_MEMBER_COUNT, AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY; C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, MAX_STP_INSTANCE, ACL resource lists (AVAILABLE_ACL_TABLE*), NAT/IPMC/L2MC/MY_SID available counts, ACL table priority range, switch stats, INIT_SWITCH=false |
 | PORT | G: TYPE, HW_LANE_LIST (SDK physical lanes), OPER_STATUS (live), SPEED/OPER_SPEED (live), SUPPORTED_SPEED, SUPPORTED_FEC_MODE, SUPPORTED_AUTO_NEG_MODE, QOS_NUMBER_OF_QUEUES, QOS_QUEUE_LIST, NUMBER_OF_INGRESS_PRIORITY_GROUPS, INGRESS_PRIORITY_GROUP_LIST, QOS_NUMBER_OF_SCHEDULER_GROUPS (0); S/G: ADMIN_STATE, SPEED, MTU (frame max = MTU + 8), FEC_MODE (NONE/RS/FC), AUTO_NEG_MODE, PORT_VLAN_ID, LOOPBACK_MODE (NONE/MAC/PHY); stats: IF_IN/OUT_{OCTETS,UCAST,NON_UCAST,BROADCAST,MULTICAST,DISCARDS,ERRORS}, IF_IN_UNKNOWN_PROTOS (read; clear-all) | MEDIA_TYPE, INTERFACE_TYPE, DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, LINK_TRAINING_ENABLE, GLOBAL_FLOW_CONTROL_MODE, PRIORITY_FLOW_CONTROL, UPDATE_DSCP, FULL_DUPLEX_MODE, IPG, PKT_TX_ENABLE, HOST_TX_SIGNAL_ENABLE, AUTO_NEG_FEC_MODE_OVERRIDE | create/remove (breakout), ADVERTISED_SPEED, PORT_SERDES, QoS map/policer/buffer bindings, PFC, per-counter clear, stats_ext READ_AND_CLEAR |
 | QUEUE / INGRESS_PRIORITY_GROUP | 8 + 8 per port, G: TYPE, INDEX, PORT, PARENT_SCHEDULER_NODE / PORT, INDEX, BUFFER_PROFILE (null) | | set, stats, scheduler groups |
 | VLAN | C/R; C/G VLAN_ID; G MEMBER_LIST, STP_INSTANCE (default); the CPU is a tagged member of every VLAN | LEARN_DISABLE, MAX_LEARNED_ADDRESSES, flood control types, MCAST lookup key types, META_DATA, CUSTOM_IGMP_SNOOPING_ENABLE | stats, flood groups, ACL bindings |
@@ -131,6 +134,29 @@ Global: `sai_api_initialize/query/uninitialize`, `sai_log_set`,
 `query_stats_st_capability` / TAM entry points are deliberately absent, so
 syncd's configure leaves them out (VendorSai then uses its null paths).
 
+## What orchagent reads
+
+swss pin `d9684cc` (nix/packages/sonic/sources.json). orchagent aborts its
+init only on a failed get of the ACL entry priority range (AclOrch throws);
+everything else below is logged and survived, but the answer decides what
+orchagent does later. Values: openbcm = SDK at run time, fake = constants in
+`fake_backend.cpp` (Tomahawk values for the fixed ones).
+
+| SWITCH attribute | answer | orchagent path (why this answer) |
+| --- | --- | --- |
+| ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY | openbcm: BCM_FIELD_ENTRY_PRIO_LOWEST..HIGHEST (0..0x7fffffff); fake: same | AclOrch::init, fatal if the get fails. A chip fact; ACL objects stay NOT_IMPLEMENTED (sai_api_query) |
+| MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS | 0, empty action lists | queryAclActionCapability: records no supported actions in STATE_DB (NOT_SUPPORTED would make it assume the default set); MAC-move guard soft-disables itself |
+| ACL table match fields (attribute capability) | not advertised | AclTableTypeBuilder skips every match field ("not supported by the platform") |
+| NUMBER_OF_ECMP_GROUPS, MAX_ECMP_MEMBER_COUNT, AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY | 0 | RouteOrch caps groups at this number and installs a multipath route with one next hop when it is reached. A failed get means 128 groups and `create_next_hop_group` failures (no NHG API). The chip's ECMP size goes to syncd's log at init (openbcm) |
+| TOTAL_BUFFER_SIZE | openbcm: `_TH_MMU_TOTAL_CELLS` x `_TH_MMU_BYTES_PER_CELL` (16384 KB, Tomahawk only, else not supported); fake: same | BufferOrch: STATE_DB BUFFER_MAX_PARAM_TABLE mmu_size, read by buffermgrd (not run). No buffer pools/profiles are implemented |
+| AVAILABLE_IPV4/IPV6_ROUTE_ENTRY | openbcm: bcmSwitchObjectL3RouteV4RoutesFree / V6Routes64bFree; fake: 16384 / 8192 minus routes | CrmOrch counters |
+| AVAILABLE_IPV4/IPV6_NEXTHOP_ENTRY | free L3 egress objects (bcm_l3_info max - used nexthop); fake: 32768 minus egress | CRM. A next hop uses its neighbor's egress object |
+| AVAILABLE_IPV4/IPV6_NEIGHBOR_ENTRY | min(free host entries (IPv6: half; the SDK counts an IPv6 host as 2), free egress); host: bcm_l3_info max_host - occupied_host; fake: 16384 hosts | CRM |
+| AVAILABLE_FDB_ENTRY | bcmSwitchObjectL2EntryMax - L2EntryCurrent; fake: 32768 minus L2 | CRM |
+| MAX_STP_INSTANCE | not supported | StpOrch logs "initialization failure" and has no default STP instance (STP is not implemented; stpmgrd is not run) |
+| AVAILABLE_SNAT/DNAT_ENTRY, ECMP_HASH, LAG_HASH, hash algorithm enum capabilities, ACL resource lists | not supported | NAT off, hash objects absent (trunk hash fixed, RTAG 6), CRM marks the resource unsupported |
+| HOSTIF QUEUE, queue stats (WRED), trap-type enum capability, policer stats | not advertised / not supported | warnings only; CoppOrch falls back to its default trap list |
+
 ## Building and testing (no hardware)
 
 ```sh
@@ -140,6 +166,8 @@ N='let f = builtins.getFlake "path:'$PWD'/nix"; p = import f.inputs.nixpkgs { sy
 nix build --impure --expr "$N libsai"                      # fake-only libsai + unit tests (checkPhase)
 nix build --impure --expr "$N sonic.sairedis-openbcm libsai"
 nix build --impure --expr "$N import $PWD/nix/packages/sai-openbcm/test-syncd.nix { pkgs = p; inherit sonic; }"   # VM test (needs kvm)
+# services.sonic (orchagent and all) on the fake, see its header:
+nix build -L --impure --expr "$N import $PWD/nix/modules/switch/sonic/tests/vm-openbcm-fake.nix { pkgs = p; inherit sonic libsai; }"
 
 X='let f = builtins.getFlake "path:'$PWD'/nix"; s = f.nixosConfigurations.as7760; pk = s.pkgs;
    ob = import '$PWD'/nix/packages/openbcm { pkgs = pk; }; sonic = import '$PWD'/nix/packages/sonic { pkgs = pk; };
@@ -164,7 +192,9 @@ CXXFLAGS=-I<SAI/experimental> check`.
   flags, PVID, bridge port + VLAN + FDB on the trunk, join/leave, port RIF +
   neighbor on the trunk, LACP trap, member hostifs), temperature attributes
   and rounding, the temperature publisher (files, failed/implausible read,
-  removal), capability table, dump, remove/re-create.
+  removal), capability table, capacity attributes (values, free counts
+  following the model, the still-unsupported ones), fake NETDEV/WIRE profile
+  validation, dump, remove/re-create.
 - `test-syncd.nix` (NixOS VM): redis on `/var/run/redis/redis.sock`, syncd
   (`-SUu -z redis_sync`) on the fake, `tests/sai_smoke.py` (the
   sai_smoke.py calls with assertions, plus admin-up of port 0), then ASIC_DB:
@@ -279,8 +309,11 @@ hardware.
   untested under load with syncd.
 - **Not implemented**: ECMP (next-hop groups), ACL, QoS/buffers/
   schedulers/policers (CoPP has no rate limits), port breakout, warm boot
-  (`RESTART_WARM` is only stored), mirror, tunnels, sFlow. orchagent has not
-  been run against this SAI; its init will hit some of these as errors.
+  (`RESTART_WARM` is only stored), mirror, tunnels, sFlow, STP instances.
+  orchagent survives all of them (VM test): it reads the
+  [capacities](#what-orchagent-reads) and takes its "unsupported" paths, but
+  logs an ERROR per CoPP trap group with a policer (`create` on
+  SAI_API_POLICER: NOT_IMPLEMENTED, plus a failed `sai_failure_dump.sh`).
 - **pysairedis callbacks**: pysairedis' own notification trampolines build
   Python objects without the GIL and crash when libsairedis calls them from
   its notification thread (seen with Python 3.14). `tests/sai_smoke.py`

@@ -213,6 +213,18 @@ static void test_init_and_backend_selection()
     g_profile["SAI_OPENBCM_BACKEND"] = "bogus";
     CHECK(sw->create_switch(&s, 1, &a) != SAI_STATUS_SUCCESS);
     g_profile["SAI_OPENBCM_BACKEND"] = "fake";
+    // Fake netdev / wire keys: bad values refuse the switch (TAP mode itself
+    // needs CAP_NET_ADMIN and is exercised by the NixOS VM test).
+    for (auto kv : std::vector<std::pair<std::string, std::string>>{
+             {"SAI_OPENBCM_FAKE_NETDEV", "bogus"},
+             {"SAI_OPENBCM_FAKE_WIRE", "Ethernet0:eth1"},          // a wire needs NETDEV=tap
+             {"SAI_OPENBCM_FAKE_WIRE", "Ethernet0"},
+             {"SAI_OPENBCM_FAKE_WIRE", "Ethernet0:eth1,Ethernet4:eth1"}}) {
+        g_profile[kv.first] = kv.second;
+        CHECK_EQ(sw->create_switch(&s, 1, &a), SAI_STATUS_INVALID_PARAMETER);
+        CHECK(!ctx().switch_created);
+        g_profile.erase(kv.first);
+    }
     a.value.booldata = false;
     CHECK_EQ(sw->create_switch(&s, 1, &a), SAI_STATUS_NOT_SUPPORTED);
     CHECK_EQ(sw->create_switch(&s, 0, nullptr), SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING);
@@ -1324,6 +1336,99 @@ static void test_dump_and_teardown()
     CHECK_EQ(sai_api_uninitialize(), SAI_STATUS_UNINITIALIZED);
 }
 
+// Capacity attributes orchagent reads (AclOrch, RouteOrch, BufferOrch, CRM):
+// fake constants, free counts follow the model.
+static void test_capacity()
+{
+    auto get = [](sai_attr_id_t id) {
+        sai_attribute_t a;
+        std::memset(&a, 0, sizeof(a));
+        a.id = id;
+        CHECK_EQ(sw->get_switch_attribute(g_sw, 1, &a), SAI_STATUS_SUCCESS);
+        return a;
+    };
+    CHECK_EQ(get(SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY).value.u32, 0u);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY).value.u32, 0x7fffffffu);
+    sai_attribute_t both[2];
+    both[0].id = SAI_SWITCH_ATTR_ACL_ENTRY_MINIMUM_PRIORITY;   // AclOrch gets both in one call
+    both[1].id = SAI_SWITCH_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY;
+    OK(sw->get_switch_attribute(g_sw, 2, both));
+    CHECK(both[0].value.u32 < both[1].value.u32);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_MAX_ACL_ACTION_COUNT).value.u32, 0u);
+    int32_t acts[8];
+    for (sai_attr_id_t st : {SAI_SWITCH_ATTR_ACL_STAGE_INGRESS, SAI_SWITCH_ATTR_ACL_STAGE_EGRESS}) {
+        sai_attribute_t a;
+        a.id = st;
+        a.value.aclcapability.is_action_list_mandatory = true;
+        a.value.aclcapability.action_list.count = 8;
+        a.value.aclcapability.action_list.list = acts;
+        OK(sw->get_switch_attribute(g_sw, 1, &a));
+        CHECK_EQ(a.value.aclcapability.action_list.count, 0u);
+        CHECK(!a.value.aclcapability.is_action_list_mandatory);
+    }
+    CHECK_EQ(get(SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS).value.u32, 0u);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_MAX_ECMP_MEMBER_COUNT).value.u32, 0u);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_ENTRY).value.u32, 0u);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY).value.u32, 0u);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_TOTAL_BUFFER_SIZE).value.u64, 20165ull * 4 * 208 / 1024);   // 16384 KB
+    // Still unsupported (orchagent: "not supported" paths): STP instances, NAT, ACL resources, hashes.
+    for (sai_attr_id_t id : {SAI_SWITCH_ATTR_MAX_STP_INSTANCE, SAI_SWITCH_ATTR_AVAILABLE_SNAT_ENTRY,
+                             SAI_SWITCH_ATTR_AVAILABLE_DNAT_ENTRY, SAI_SWITCH_ATTR_ECMP_HASH,
+                             SAI_SWITCH_ATTR_LAG_HASH}) {
+        sai_attribute_t a;
+        a.id = id;
+        CHECK_EQ(sw->get_switch_attribute(g_sw, 1, &a), SAI_STATUS_ATTR_NOT_SUPPORTED_0);
+    }
+
+    // Free entries: capacity minus what the model holds.
+    uint32_t v4 = get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_ROUTE_ENTRY).value.u32;
+    uint32_t v6 = get(SAI_SWITCH_ATTR_AVAILABLE_IPV6_ROUTE_ENTRY).value.u32;
+    uint32_t n4 = get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY).value.u32;
+    uint32_t n6 = get(SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEIGHBOR_ENTRY).value.u32;
+    uint32_t nh = get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEXTHOP_ENTRY).value.u32;
+    uint32_t fdb = get(SAI_SWITCH_ATTR_AVAILABLE_FDB_ENTRY).value.u32;
+    size_t r4 = 0, r6 = 0;
+    for (auto& r : fake().routes) (r.first.addr.v6 ? r6 : r4)++;
+    CHECK_EQ(v4, 16384u - r4);
+    CHECK_EQ(v6, 8192u - r6);
+    CHECK_EQ(nh, 32768u - fake().egress.size());
+    CHECK_EQ(fdb, 32768u - fake().l2.size());
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEXTHOP_ENTRY).value.u32, nh);
+    sai_route_entry_t d4 = route(198, 51, 100, 0, 24);
+    sai_attribute_t drop;
+    drop.id = SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION;
+    drop.value.s32 = SAI_PACKET_ACTION_DROP;
+    OK(rta->create_route_entry(&d4, 1, &drop));
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_ROUTE_ENTRY).value.u32, v4 - 1);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV6_ROUTE_ENTRY).value.u32, v6);
+    OK(rta->remove_route_entry(&d4));
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_ROUTE_ENTRY).value.u32, v4);
+    {
+        std::lock_guard<std::mutex> g(fake().mu);
+        IpAddr h6;
+        h6.v6 = true;
+        h6.addr[0] = 0x20;
+        h6.addr[15] = 9;
+        fake().hosts[h6] = fake().egress.begin()->first;       // an IPv6 host takes 2 entries
+        uint8_t m[6] = {0x02, 0, 0, 0, 0, 9};
+        fake().l2[{std::vector<uint8_t>(m, m + 6), 1}] = FakeBackend::L2{0, false, false};
+    }
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_FDB_ENTRY).value.u32, fdb - 1);
+    // A neighbor needs a host entry and an egress object; here the host table is the bound.
+    CHECK(n4 < nh);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY).value.u32, n4 - 2);
+    CHECK_EQ(n6, n4 / 2);
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV6_NEIGHBOR_ENTRY).value.u32, (n4 - 2) / 2);
+    {
+        std::lock_guard<std::mutex> g(fake().mu);
+        for (auto it = fake().hosts.begin(); it != fake().hosts.end();)
+            it = it->first.v6 ? fake().hosts.erase(it) : std::next(it);
+        uint8_t m[6] = {0x02, 0, 0, 0, 0, 9};
+        fake().l2.erase({std::vector<uint8_t>(m, m + 6), 1});
+    }
+    CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY).value.u32, n4);
+}
+
 int main()
 {
     test_oid_encoding();
@@ -1337,6 +1442,7 @@ int main()
     test_lag();
     test_temperature();
     test_capabilities();
+    test_capacity();
     test_dump_and_teardown();
     std::printf("%d checks, %d failures\n", g_checks, g_fail);
     return g_fail ? 1 : 0;

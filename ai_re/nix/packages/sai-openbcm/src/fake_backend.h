@@ -7,13 +7,27 @@
 //   SAI_OPENBCM_FAKE_SPEED   initial speed in Mb/s (default 100000)
 //   SAI_OPENBCM_FAKE_LINK    "admin": link follows admin state (default);
 //                            "none": links never come up
+//   SAI_OPENBCM_FAKE_NETDEV  "none" (default): netifs exist only in this model;
+//                            "tap": each netif is also a Linux TAP netdev of
+//                            that name (needs CAP_NET_ADMIN), carrier = the
+//                            hostif's OPER_STATUS, like a KNET netif
+//   SAI_OPENBCM_FAKE_WIRE    "<netif>:<ifname>,...": (tap only) frames the
+//                            TAP sends go out of host interface <ifname>, and
+//                            everything <ifname> receives comes up the TAP,
+//                            while the port is admin up: the CPU path of that
+//                            port (what KNET carries), no switching. One
+//                            thread per wired netif.
+// Tables: fixed capacities (FAKE_* in fake_backend.cpp) minus what the model
+// holds; chip limits: the Tomahawk's values.
 // Temperatures: 8 monitors, current 40.0, 41.5, ... 50.5 C, peak = current
 // + 0.5 C (test hooks: temps, temp_fail).
 #pragma once
 #include "backend.h"
 
+#include <memory>
 #include <mutex>
 #include <set>
+#include <thread>
 #include <tuple>
 
 namespace ob {
@@ -37,6 +51,7 @@ public:
     struct Egress { int intf; uint8_t mac[6]; int hw; uint16_t vid; bool cpu; bool drop; };
     struct Intf { uint8_t mac[6]; uint16_t vid; uint32_t mtu; };
 
+    ~FakeBackend() override;
     const char* name() const override { return "fake"; }
     bool is_fake() const override { return true; }
     sai_status_t init(const BackendConfig& cfg, LinkCallback link_cb, FdbCallback fdb_cb) override;
@@ -46,6 +61,8 @@ public:
     std::vector<PortInfo> ports() override;
     std::string hardware_info() override { return "fake"; }
     sai_status_t asic_temperatures(std::vector<int>& cur, std::vector<int>& peak) override;
+    sai_status_t table_usage(TableUsage& u) override;
+    sai_status_t chip_limits(ChipLimits& l) override;
 
     sai_status_t lag_create(int& tid) override;
     sai_status_t lag_destroy(int tid) override;
@@ -118,10 +135,23 @@ public:
     std::map<IpAddr, int> hosts;
     std::map<IpPrefix, int> routes;
     uint32_t age_seconds = 300;
+    bool tap_mode = false;                             // SAI_OPENBCM_FAKE_NETDEV=tap
+    std::map<std::string, std::string> wire;           // netif name -> host ifname
     std::vector<std::string> shell_log;
     bool initialized = false;
 
 private:
+    // A netif's TAP netdev (tap mode) and its wire, see the profile keys.
+    struct Tap {
+        int fd = -1, wire_fd = -1, stop_rd = -1, stop_wr = -1;
+        int hw = -1;
+        std::thread pump;
+    };
+    std::map<int, std::unique_ptr<Tap>> taps_;         // netif id -> TAP (guarded by mu)
+    sai_status_t tap_open(const std::string& ifname, int hw, const uint8_t mac[6], std::unique_ptr<Tap>& out);
+    void tap_close(std::unique_ptr<Tap>& t);           // call without mu (joins the pump)
+    void pump(Tap* t);
+    bool port_up(int hw);
     Port* port(int hw);
     bool dest_ok(int d);                               // a port, or an existing LAG
     void update_link(Port& p, std::vector<std::pair<int, bool>>& changes);

@@ -90,6 +90,23 @@ struct BackendConfig {
     }
 };
 
+// Free entries in the forwarding tables, from the backend's own accounting
+// (openbcm: bcm_switch_object_count_get / bcm_l3_info). SWITCH AVAILABLE_*.
+struct TableUsage {
+    uint32_t v4_routes_free = 0;    // LPM, IPv4 prefixes
+    uint32_t v6_routes_free = 0;    // LPM, IPv6 prefixes up to /64
+    uint32_t hosts_free = 0;        // host table in IPv4 entries (an IPv6 host takes 2)
+    uint32_t egress_free = 0;       // L3 egress objects (one per neighbor)
+    uint32_t fdb_free = 0;          // L2 table
+};
+
+// Fixed properties of the chip.
+struct ChipLimits {
+    uint64_t buffer_bytes = 0;      // shared packet buffer (MMU)
+    uint32_t acl_prio_min = 0;      // field entry priority range (higher wins)
+    uint32_t acl_prio_max = 0;
+};
+
 using LinkCallback = std::function<void(int hw_port, bool up)>;
 using FdbCallback = std::function<void(const FdbEvent&)>;
 
@@ -113,6 +130,8 @@ public:
     // peak since the previous read). Thread-safe: the temperature publisher
     // calls it without the SAI lock.
     virtual sai_status_t asic_temperatures(std::vector<int>& cur, std::vector<int>& peak) = 0;
+    virtual sai_status_t table_usage(TableUsage& u) = 0;
+    virtual sai_status_t chip_limits(ChipLimits& l) = 0;
 
     // ports
     virtual sai_status_t port_admin_set(int hw, bool up) = 0;

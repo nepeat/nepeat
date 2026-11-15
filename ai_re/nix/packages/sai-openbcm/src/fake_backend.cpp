@@ -2,12 +2,60 @@
 #include "fake_backend.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
+
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <linux/if_ether.h>
+#include <linux/if_packet.h>
+#include <linux/if_tun.h>
+#include <net/if.h>
+#include <net/if_arp.h>
+#include <poll.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include "sai_internal.h"
 
 namespace ob {
 
 static std::vector<uint8_t> macv(const uint8_t m[6]) { return std::vector<uint8_t>(m, m + 6); }
+
+// Table capacities of the fake (made up, round numbers; the openbcm backend
+// reports the SDK's). Free = capacity - what the model holds.
+static constexpr uint32_t FAKE_V4_ROUTES = 16384, FAKE_V6_ROUTES = 8192, FAKE_HOSTS = 16384,
+                          FAKE_EGRESS = 32768, FAKE_FDB = 32768;
+// Chip limits: the BCM56960's (20165 cells x 4 XPEs x 208 B; SDK field entry
+// priorities BCM_FIELD_ENTRY_PRIO_LOWEST..HIGHEST).
+static constexpr uint64_t FAKE_BUFFER_BYTES = 20165ull * 4 * 208;
+static constexpr uint32_t FAKE_ACL_PRIO_MIN = 0, FAKE_ACL_PRIO_MAX = 0x7fffffff;
+
+// "<netif>:<ifname>,..." -> map; false on a malformed list.
+static bool parse_wire(const std::string& s, std::map<std::string, std::string>& out)
+{
+    out.clear();
+    size_t i = 0;
+    while (i < s.size()) {
+        size_t j = s.find(',', i);
+        std::string item = s.substr(i, j == std::string::npos ? std::string::npos : j - i);
+        size_t c = item.find(':');
+        if (c == std::string::npos || c == 0 || c + 1 >= item.size() || c > 15 || item.size() - c - 1 > 15)
+            return false;
+        std::string a = item.substr(0, c), b = item.substr(c + 1);
+        if (out.count(a)) return false;
+        for (auto& kv : out)
+            if (kv.second == b) return false;   // one host interface per netif
+        out[a] = b;
+        if (j == std::string::npos) break;
+        i = j + 1;
+    }
+    return true;
+}
+
+FakeBackend::~FakeBackend() { shutdown(); }
 
 sai_status_t FakeBackend::init(const BackendConfig& cfg, LinkCallback link_cb, FdbCallback fdb_cb)
 {
@@ -18,6 +66,12 @@ sai_status_t FakeBackend::init(const BackendConfig& cfg, LinkCallback link_cb, F
     long speed = std::atol(cfg.get("SAI_OPENBCM_FAKE_SPEED", "100000").c_str());
     if (n < 1 || n > 256 || lanes < 1 || lanes > 8 || speed <= 0) return SAI_STATUS_INVALID_PARAMETER;
     link_follows_admin_ = cfg.get("SAI_OPENBCM_FAKE_LINK", "admin") != "none";
+    std::string nd = cfg.get("SAI_OPENBCM_FAKE_NETDEV", "none");
+    if (nd != "none" && nd != "tap") return SAI_STATUS_INVALID_PARAMETER;
+    tap_mode = nd == "tap";
+    if (!parse_wire(cfg.get("SAI_OPENBCM_FAKE_WIRE"), wire)) return SAI_STATUS_INVALID_PARAMETER;
+    if (!wire.empty() && !tap_mode) return SAI_STATUS_INVALID_PARAMETER;   // a wire needs the TAP
+    if (tap_mode && access("/dev/net/tun", R_OK | W_OK) != 0) return SAI_STATUS_FAILURE;
     link_cb_ = std::move(link_cb);
     fdb_cb_ = std::move(fdb_cb);
     port_state.clear(); vlans.clear(); l2.clear(); netifs.clear(); traps.clear();
@@ -41,10 +95,15 @@ sai_status_t FakeBackend::init(const BackendConfig& cfg, LinkCallback link_cb, F
 
 void FakeBackend::shutdown()
 {
-    std::lock_guard<std::mutex> g(mu);
-    initialized = false;
-    link_cb_ = nullptr;
-    fdb_cb_ = nullptr;
+    std::map<int, std::unique_ptr<Tap>> taps;
+    {
+        std::lock_guard<std::mutex> g(mu);
+        initialized = false;
+        link_cb_ = nullptr;
+        fdb_cb_ = nullptr;
+        taps.swap(taps_);
+    }
+    for (auto& t : taps) tap_close(t.second);   // TAP netdevs go with their fd
 }
 
 sai_status_t FakeBackend::run_shell(const std::string& cmd)
@@ -80,6 +139,29 @@ sai_status_t FakeBackend::asic_temperatures(std::vector<int>& cur, std::vector<i
     cur = temps;
     peak.clear();
     for (int t : temps) peak.push_back(t + 5);
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::table_usage(TableUsage& u)
+{
+    std::lock_guard<std::mutex> g(mu);
+    uint32_t v4 = 0, v6 = 0, host_units = 0;
+    for (auto& r : routes) (r.first.addr.v6 ? v6 : v4)++;
+    for (auto& h : hosts) host_units += h.first.v6 ? 2 : 1;
+    auto left = [](uint32_t cap, size_t used) { return used >= cap ? 0u : cap - (uint32_t)used; };
+    u.v4_routes_free = left(FAKE_V4_ROUTES, v4);
+    u.v6_routes_free = left(FAKE_V6_ROUTES, v6);
+    u.hosts_free = left(FAKE_HOSTS, host_units);
+    u.egress_free = left(FAKE_EGRESS, egress.size());
+    u.fdb_free = left(FAKE_FDB, l2.size());
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::chip_limits(ChipLimits& l)
+{
+    l.buffer_bytes = FAKE_BUFFER_BYTES;
+    l.acl_prio_min = FAKE_ACL_PRIO_MIN;
+    l.acl_prio_max = FAKE_ACL_PRIO_MAX;
     return SAI_STATUS_SUCCESS;
 }
 
@@ -348,18 +430,33 @@ sai_status_t FakeBackend::netif_create(const std::string& ifname, int hw, uint16
     if (ifname.empty() || ifname.size() > 15) return SAI_STATUS_INVALID_PARAMETER;
     for (auto& n : netifs)
         if (n.second.name == ifname) return SAI_STATUS_ITEM_ALREADY_EXISTS;
+    std::unique_ptr<Tap> tap;
+    if (tap_mode) {
+        sai_status_t st = tap_open(ifname, hw, mac, tap);
+        if (st != SAI_STATUS_SUCCESS) return st;
+    }
     Netif n{ifname, hw, vid, {0}, keep_tag, false, next_filter_++};
     std::memcpy(n.mac, mac, 6);
     netif_id = next_netif_++;
     filter_id = n.filter;
     netifs[netif_id] = n;
+    if (tap) taps_[netif_id] = std::move(tap);
     return SAI_STATUS_SUCCESS;
 }
 
 sai_status_t FakeBackend::netif_destroy(int netif_id, int /*filter_id*/)
 {
-    std::lock_guard<std::mutex> g(mu);
-    if (!netifs.erase(netif_id)) return SAI_STATUS_ITEM_NOT_FOUND;
+    std::unique_ptr<Tap> tap;
+    {
+        std::lock_guard<std::mutex> g(mu);
+        if (!netifs.erase(netif_id)) return SAI_STATUS_ITEM_NOT_FOUND;
+        auto it = taps_.find(netif_id);
+        if (it != taps_.end()) {
+            tap = std::move(it->second);
+            taps_.erase(it);
+        }
+    }
+    if (tap) tap_close(tap);
     return SAI_STATUS_SUCCESS;
 }
 
@@ -367,8 +464,121 @@ sai_status_t FakeBackend::netif_carrier_set(const std::string& ifname, bool up)
 {
     std::lock_guard<std::mutex> g(mu);
     for (auto& n : netifs)
-        if (n.second.name == ifname) { n.second.carrier = up; return SAI_STATUS_SUCCESS; }
+        if (n.second.name == ifname) {
+            n.second.carrier = up;
+            auto t = taps_.find(n.first);
+            if (t != taps_.end()) {
+                int on = up ? 1 : 0;
+                if (ioctl(t->second->fd, TUNSETCARRIER, &on) != 0) {
+                    OB_ERR(SAI_API_HOSTIF, "fake: TAP %s carrier: %s", ifname.c_str(), std::strerror(errno));
+                    return SAI_STATUS_FAILURE;
+                }
+            }
+            return SAI_STATUS_SUCCESS;
+        }
     return SAI_STATUS_ITEM_NOT_FOUND;
+}
+
+// ---- TAP netdevs and wires (tap mode only; never used by the unit tests)
+sai_status_t FakeBackend::tap_open(const std::string& ifname, int hw, const uint8_t mac[6], std::unique_ptr<Tap>& out)
+{
+    auto t = std::make_unique<Tap>();
+    t->hw = hw;
+    auto fail = [&](const char* what) {
+        OB_ERR(SAI_API_HOSTIF, "fake: TAP %s: %s: %s", ifname.c_str(), what, std::strerror(errno));
+        tap_close(t);
+        return SAI_STATUS_FAILURE;
+    };
+    t->fd = open("/dev/net/tun", O_RDWR | O_CLOEXEC);
+    if (t->fd < 0) return fail("open /dev/net/tun");
+    struct ifreq ifr;
+    std::memset(&ifr, 0, sizeof(ifr));
+    ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
+    std::strncpy(ifr.ifr_name, ifname.c_str(), IFNAMSIZ - 1);
+    if (ioctl(t->fd, TUNSETIFF, &ifr) != 0) return fail("TUNSETIFF");
+    int off = 0;
+    if (ioctl(t->fd, TUNSETCARRIER, &off) != 0) return fail("TUNSETCARRIER");   // like KNET: down until OPER_STATUS
+    int s = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+    if (s < 0) return fail("socket");
+    ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+    std::memcpy(ifr.ifr_hwaddr.sa_data, mac, 6);
+    int rc = ioctl(s, SIOCSIFHWADDR, &ifr);
+    close(s);
+    if (rc != 0) return fail("SIOCSIFHWADDR");
+    auto w = wire.find(ifname);
+    if (w != wire.end()) {
+        unsigned idx = if_nametoindex(w->second.c_str());
+        if (idx == 0) return fail(("wire interface " + w->second).c_str());
+        t->wire_fd = socket(AF_PACKET, SOCK_RAW | SOCK_CLOEXEC, htons(ETH_P_ALL));
+        if (t->wire_fd < 0) return fail("AF_PACKET socket");
+        struct sockaddr_ll sll;
+        std::memset(&sll, 0, sizeof(sll));
+        sll.sll_family = AF_PACKET;
+        sll.sll_protocol = htons(ETH_P_ALL);
+        sll.sll_ifindex = (int)idx;
+        if (bind(t->wire_fd, (struct sockaddr*)&sll, sizeof(sll)) != 0) return fail("bind wire");
+        struct packet_mreq mr;
+        std::memset(&mr, 0, sizeof(mr));
+        mr.mr_ifindex = (int)idx;
+        mr.mr_type = PACKET_MR_PROMISC;
+        if (setsockopt(t->wire_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) != 0) return fail("promisc");
+        int one = 1;
+        if (setsockopt(t->wire_fd, SOL_PACKET, PACKET_IGNORE_OUTGOING, &one, sizeof(one)) != 0)
+            return fail("PACKET_IGNORE_OUTGOING");
+        int p[2];
+        if (pipe2(p, O_CLOEXEC) != 0) return fail("pipe");
+        t->stop_rd = p[0];
+        t->stop_wr = p[1];
+        Tap* raw = t.get();
+        t->pump = std::thread([this, raw] { pump(raw); });
+        OB_NOTICE(SAI_API_HOSTIF, "fake: TAP %s wired to %s", ifname.c_str(), w->second.c_str());
+    }
+    out = std::move(t);
+    return SAI_STATUS_SUCCESS;
+}
+
+void FakeBackend::tap_close(std::unique_ptr<Tap>& t)
+{
+    if (!t) return;
+    if (t->pump.joinable()) {
+        char c = 0;
+        if (write(t->stop_wr, &c, 1) < 0) { /* pump exits on its next wakeup anyway */ }
+        t->pump.join();
+    }
+    for (int fd : {t->fd, t->wire_fd, t->stop_rd, t->stop_wr})
+        if (fd >= 0) close(fd);
+    t.reset();
+}
+
+bool FakeBackend::port_up(int hw)
+{
+    std::lock_guard<std::mutex> g(mu);
+    Port* p = port(hw);
+    return p && p->admin && p->link;
+}
+
+// Frames TAP -> wire and wire -> TAP while the port is up (KNET: TX to the
+// port, RX of what reaches the CPU from it). No lock held while blocking.
+void FakeBackend::pump(Tap* t)
+{
+    std::vector<uint8_t> buf(65536);
+    struct pollfd pf[3] = {{t->fd, POLLIN, 0}, {t->wire_fd, POLLIN, 0}, {t->stop_rd, POLLIN, 0}};
+    for (;;) {
+        if (poll(pf, 3, -1) < 0) {
+            if (errno == EINTR) continue;
+            return;
+        }
+        if (pf[2].revents) return;
+        if (pf[0].revents & POLLIN) {
+            ssize_t n = read(t->fd, buf.data(), buf.size());
+            if (n > 0 && port_up(t->hw)) (void)send(t->wire_fd, buf.data(), (size_t)n, 0);
+        }
+        if (pf[1].revents & POLLIN) {
+            ssize_t n = recv(t->wire_fd, buf.data(), buf.size(), 0);
+            if (n > 0 && port_up(t->hw) && write(t->fd, buf.data(), (size_t)n) < 0) { /* TAP queue full: drop */ }
+        }
+        if ((pf[0].revents | pf[1].revents) & (POLLERR | POLLHUP | POLLNVAL)) return;
+    }
 }
 
 sai_status_t FakeBackend::netif_set_keep_tag(int netif_id, int hw, bool keep_tag, int& filter_id)
