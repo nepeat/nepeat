@@ -179,4 +179,9 @@
   # Fleet build server: native x86 plus aarch64/ppc64/ppc64le via binfmt,
   # served to other hosts as nix-ssh (see nixos/module/remote-builder-host.nix).
   nix.remoteBuilderHost.enable = true;
+
+  # Hard-link identical store files as they're written. The store here has lots
+  # of near-duplicate trees (source snapshots, toolchains); this dedupes them
+  # continuously instead of needing a manual `nix-store --optimise`.
+  nix.settings.auto-optimise-store = true;
 }
