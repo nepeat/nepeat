@@ -1,0 +1,7 @@
+/* Export only the SAI C entry points. */
+{
+  global:
+    sai_*;
+  local:
+    *;
+};

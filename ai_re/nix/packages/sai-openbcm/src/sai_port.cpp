@@ -1,0 +1,360 @@
+// SPDX-License-Identifier: Apache-2.0
+// PORT, QUEUE and INGRESS_PRIORITY_GROUP objects. Ports and their lanes come
+// from the backend at switch creation; ports cannot be created or removed.
+#include "sai_internal.h"
+
+namespace ob {
+
+static const StubDef port_stubs[] = {
+    {SAI_PORT_ATTR_MEDIA_TYPE, Kind::S32, SAI_PORT_MEDIA_TYPE_NOT_PRESENT, false},
+    {SAI_PORT_ATTR_INTERFACE_TYPE, Kind::S32, SAI_PORT_INTERFACE_TYPE_NONE, false},
+    {SAI_PORT_ATTR_DEFAULT_VLAN_PRIORITY, Kind::U8, 0, false},
+    {SAI_PORT_ATTR_DROP_UNTAGGED, Kind::Bool, 0, false},
+    {SAI_PORT_ATTR_DROP_TAGGED, Kind::Bool, 0, false},
+    {SAI_PORT_ATTR_LINK_TRAINING_ENABLE, Kind::Bool, 0, false},
+    {SAI_PORT_ATTR_GLOBAL_FLOW_CONTROL_MODE, Kind::S32, SAI_PORT_FLOW_CONTROL_MODE_DISABLE, false},
+    {SAI_PORT_ATTR_PRIORITY_FLOW_CONTROL, Kind::U8, 0, false},
+    {SAI_PORT_ATTR_UPDATE_DSCP, Kind::Bool, 0, false},
+    {SAI_PORT_ATTR_FULL_DUPLEX_MODE, Kind::Bool, 1, false},
+    {SAI_PORT_ATTR_IPG, Kind::U32, 96, false},
+    {SAI_PORT_ATTR_PKT_TX_ENABLE, Kind::Bool, 1, false},
+    {SAI_PORT_ATTR_HOST_TX_SIGNAL_ENABLE, Kind::Bool, 0, false},
+    {SAI_PORT_ATTR_AUTO_NEG_FEC_MODE_OVERRIDE, Kind::Bool, 0, false},
+};
+static constexpr size_t N_PORT_STUBS = sizeof(port_stubs) / sizeof(port_stubs[0]);
+
+// ------------------------------------------------------------------- stats
+static bool map_stat(sai_stat_id_t id, PortStat& s)
+{
+    switch (id) {
+    case SAI_PORT_STAT_IF_IN_OCTETS: s = PortStat::InOctets; return true;
+    case SAI_PORT_STAT_IF_IN_UCAST_PKTS: s = PortStat::InUcastPkts; return true;
+    case SAI_PORT_STAT_IF_IN_NON_UCAST_PKTS: s = PortStat::InNonUcastPkts; return true;
+    case SAI_PORT_STAT_IF_IN_DISCARDS: s = PortStat::InDiscards; return true;
+    case SAI_PORT_STAT_IF_IN_ERRORS: s = PortStat::InErrors; return true;
+    case SAI_PORT_STAT_IF_IN_UNKNOWN_PROTOS: s = PortStat::InUnknownProtos; return true;
+    case SAI_PORT_STAT_IF_IN_BROADCAST_PKTS: s = PortStat::InBroadcastPkts; return true;
+    case SAI_PORT_STAT_IF_IN_MULTICAST_PKTS: s = PortStat::InMulticastPkts; return true;
+    case SAI_PORT_STAT_IF_OUT_OCTETS: s = PortStat::OutOctets; return true;
+    case SAI_PORT_STAT_IF_OUT_UCAST_PKTS: s = PortStat::OutUcastPkts; return true;
+    case SAI_PORT_STAT_IF_OUT_NON_UCAST_PKTS: s = PortStat::OutNonUcastPkts; return true;
+    case SAI_PORT_STAT_IF_OUT_DISCARDS: s = PortStat::OutDiscards; return true;
+    case SAI_PORT_STAT_IF_OUT_ERRORS: s = PortStat::OutErrors; return true;
+    case SAI_PORT_STAT_IF_OUT_BROADCAST_PKTS: s = PortStat::OutBroadcastPkts; return true;
+    case SAI_PORT_STAT_IF_OUT_MULTICAST_PKTS: s = PortStat::OutMulticastPkts; return true;
+    default: return false;
+    }
+}
+
+bool port_stat_supported(sai_stat_id_t id)
+{
+    PortStat s;
+    return map_stat(id, s);
+}
+
+sai_status_t port_stats_get(int hw, uint32_t n, const sai_stat_id_t* ids, uint64_t* out)
+{
+    for (uint32_t i = 0; i < n; i++) {
+        PortStat s;
+        if (!map_stat(ids[i], s)) return SAI_STATUS_NOT_SUPPORTED;
+        sai_status_t st = ctx().be->port_stat_get(hw, s, out[i]);
+        if (st != SAI_STATUS_SUCCESS) return st;
+    }
+    return SAI_STATUS_SUCCESS;
+}
+
+// ------------------------------------------------------------------- ports
+static PortObj* port_of(sai_object_id_t oid)
+{
+    if (oid_type(oid) != SAI_OBJECT_TYPE_PORT) return nullptr;
+    return lookup(ctx().ports, oid);
+}
+
+static Fec to_fec(int32_t m) { return m == SAI_PORT_FEC_MODE_RS ? Fec::Rs : m == SAI_PORT_FEC_MODE_FC ? Fec::Fc : Fec::None; }
+
+static sai_status_t port_set_one(PortObj& p, const sai_attribute_t& a, uint32_t i)
+{
+    Backend& be = *ctx().be;
+    sai_status_t st;
+    if (p.cpu) return attr_not_supported(i);
+    switch (a.id) {
+    case SAI_PORT_ATTR_ADMIN_STATE:
+        st = be.port_admin_set(p.hw, a.value.booldata);
+        if (st == SAI_STATUS_SUCCESS) {
+            p.admin = a.value.booldata;
+            OB_NOTICE(SAI_API_PORT, "port %s admin %s", p.sdk_name.c_str(), p.admin ? "up" : "down");
+        }
+        return attr_backend_status(st, i);
+    case SAI_PORT_ATTR_SPEED:
+        if (a.value.u32 == 0) return attr_invalid(i);
+        return attr_backend_status(be.port_speed_set(p.hw, a.value.u32), i);
+    case SAI_PORT_ATTR_MTU:
+        if (a.value.u32 < 68 || a.value.u32 > 9408) return attr_invalid(i);
+        // SAI MTU excludes FCS and VLAN tag; the SDK limit is the full frame.
+        st = be.port_frame_max_set(p.hw, a.value.u32 + 8);
+        if (st == SAI_STATUS_SUCCESS) p.mtu = a.value.u32;
+        return attr_backend_status(st, i);
+    case SAI_PORT_ATTR_FEC_MODE:
+        if (a.value.s32 != SAI_PORT_FEC_MODE_NONE && a.value.s32 != SAI_PORT_FEC_MODE_RS &&
+            a.value.s32 != SAI_PORT_FEC_MODE_FC)
+            return attr_invalid(i);
+        st = be.port_fec_set(p.hw, to_fec(a.value.s32));
+        if (st == SAI_STATUS_SUCCESS) p.fec = a.value.s32;
+        return attr_backend_status(st, i);
+    case SAI_PORT_ATTR_AUTO_NEG_MODE:
+        st = be.port_autoneg_set(p.hw, a.value.booldata);
+        if (st == SAI_STATUS_SUCCESS) p.autoneg = a.value.booldata;
+        return attr_backend_status(st, i);
+    case SAI_PORT_ATTR_PORT_VLAN_ID:
+        if (a.value.u16 < 1 || a.value.u16 > 4094) return attr_invalid(i);
+        st = be.port_pvid_set(p.hw, a.value.u16);
+        if (st == SAI_STATUS_SUCCESS) p.pvid = a.value.u16;
+        return attr_backend_status(st, i);
+    case SAI_PORT_ATTR_LOOPBACK_MODE: {
+        Loopback lb;
+        if (a.value.s32 == SAI_PORT_LOOPBACK_MODE_NONE) lb = Loopback::None;
+        else if (a.value.s32 == SAI_PORT_LOOPBACK_MODE_MAC) lb = Loopback::Mac;
+        else if (a.value.s32 == SAI_PORT_LOOPBACK_MODE_PHY) lb = Loopback::Phy;
+        else return attr_invalid(i);
+        st = be.port_loopback_set(p.hw, lb);
+        if (st == SAI_STATUS_SUCCESS) p.loopback = a.value.s32;
+        return attr_backend_status(st, i);
+    }
+    default:
+        break;
+    }
+    if (find_stub(port_stubs, N_PORT_STUBS, a.id)) {
+        p.stub[a.id] = a.value;
+        OB_INFO(SAI_API_PORT, "port %s attr %d stored (not programmed)", p.sdk_name.c_str(), a.id);
+        return SAI_STATUS_SUCCESS;
+    }
+    OB_WARN(SAI_API_PORT, "port attr %d not supported", a.id);
+    return attr_not_supported(i);
+}
+
+static sai_status_t port_get_one(PortObj& p, sai_attribute_t& a, uint32_t i)
+{
+    Backend& be = *ctx().be;
+    switch (a.id) {
+    case SAI_PORT_ATTR_TYPE: a.value.s32 = p.cpu ? SAI_PORT_TYPE_CPU : SAI_PORT_TYPE_LOGICAL; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_HW_LANE_LIST: return fill_list(a.value.u32list, p.lanes);
+    case SAI_PORT_ATTR_ADMIN_STATE: a.value.booldata = p.admin; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_OPER_STATUS: {
+        if (p.cpu) { a.value.s32 = SAI_PORT_OPER_STATUS_UP; return SAI_STATUS_SUCCESS; }
+        bool up = false;
+        sai_status_t st = be.port_link_get(p.hw, up);
+        if (st != SAI_STATUS_SUCCESS) return st;
+        a.value.s32 = up ? SAI_PORT_OPER_STATUS_UP : SAI_PORT_OPER_STATUS_DOWN;
+        return SAI_STATUS_SUCCESS;
+    }
+    case SAI_PORT_ATTR_SPEED:
+    case SAI_PORT_ATTR_OPER_SPEED: {
+        if (p.cpu) return attr_not_supported(i);
+        uint32_t s = 0;
+        sai_status_t st = be.port_speed_get(p.hw, s);
+        if (st != SAI_STATUS_SUCCESS) return st;
+        a.value.u32 = s;
+        return SAI_STATUS_SUCCESS;
+    }
+    case SAI_PORT_ATTR_SUPPORTED_SPEED: {
+        if (p.cpu) return attr_not_supported(i);
+        std::vector<uint32_t> v;
+        sai_status_t st = be.port_supported_speeds(p.hw, v);
+        if (st != SAI_STATUS_SUCCESS) return st;
+        return fill_list(a.value.u32list, v);
+    }
+    case SAI_PORT_ATTR_MTU: a.value.u32 = p.mtu; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_FEC_MODE:
+    case SAI_PORT_ATTR_OPER_PORT_FEC_MODE: a.value.s32 = p.fec; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_SUPPORTED_FEC_MODE: {
+        std::vector<int32_t> v = {SAI_PORT_FEC_MODE_NONE, SAI_PORT_FEC_MODE_RS, SAI_PORT_FEC_MODE_FC};
+        return fill_list(a.value.s32list, v);
+    }
+    case SAI_PORT_ATTR_AUTO_NEG_MODE: a.value.booldata = p.autoneg; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_SUPPORTED_AUTO_NEG_MODE: a.value.booldata = !p.cpu; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_PORT_VLAN_ID: a.value.u16 = p.pvid; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_LOOPBACK_MODE: a.value.s32 = p.loopback; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_QOS_NUMBER_OF_QUEUES: a.value.u32 = (uint32_t)p.queues.size(); return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_QOS_QUEUE_LIST: return fill_list(a.value.objlist, p.queues);
+    case SAI_PORT_ATTR_NUMBER_OF_INGRESS_PRIORITY_GROUPS: a.value.u32 = (uint32_t)p.ipgs.size(); return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_INGRESS_PRIORITY_GROUP_LIST: return fill_list(a.value.objlist, p.ipgs);
+    case SAI_PORT_ATTR_QOS_NUMBER_OF_SCHEDULER_GROUPS: a.value.u32 = 0; return SAI_STATUS_SUCCESS;
+    case SAI_PORT_ATTR_QOS_SCHEDULER_GROUP_LIST: {
+        std::vector<sai_object_id_t> none;
+        return fill_list(a.value.objlist, none);
+    }
+    default:
+        break;
+    }
+    if (const StubDef* d = find_stub(port_stubs, N_PORT_STUBS, a.id)) {
+        auto it = p.stub.find(a.id);
+        if (it != p.stub.end()) a.value = it->second;
+        else stub_default(*d, a.value);
+        return SAI_STATUS_SUCCESS;
+    }
+    return attr_not_supported(i);
+}
+
+static sai_status_t create_port(_Out_ sai_object_id_t*, _In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_attribute_t*)
+{
+    OB_ERR(SAI_API_PORT, "dynamic port creation (breakout) is not supported; ports come from the SDK config");
+    return SAI_STATUS_NOT_SUPPORTED;
+}
+
+static sai_status_t remove_port(_In_ sai_object_id_t)
+{
+    OB_ERR(SAI_API_PORT, "port removal is not supported");
+    return SAI_STATUS_NOT_SUPPORTED;
+}
+
+static sai_status_t set_port_attribute(_In_ sai_object_id_t port_id, _In_ const sai_attribute_t* attr)
+{
+    return guarded(SAI_API_PORT, __func__, [&]() -> sai_status_t {
+        PortObj* p = port_of(port_id);
+        if (!p) return SAI_STATUS_INVALID_OBJECT_ID;
+        if (!attr) return SAI_STATUS_INVALID_PARAMETER;
+        return port_set_one(*p, *attr, 0);
+    });
+}
+
+static sai_status_t get_port_attribute(_In_ sai_object_id_t port_id, _In_ uint32_t attr_count,
+                                       _Inout_ sai_attribute_t* attr_list)
+{
+    return guarded(SAI_API_PORT, __func__, [&]() -> sai_status_t {
+        PortObj* p = port_of(port_id);
+        if (!p) return SAI_STATUS_INVALID_OBJECT_ID;
+        if (attr_count && !attr_list) return SAI_STATUS_INVALID_PARAMETER;
+        for (uint32_t i = 0; i < attr_count; i++) {
+            sai_status_t st = port_get_one(*p, attr_list[i], i);
+            if (st != SAI_STATUS_SUCCESS) return st;
+        }
+        return SAI_STATUS_SUCCESS;
+    });
+}
+
+static sai_status_t get_port_stats(_In_ sai_object_id_t port_id, _In_ uint32_t n, _In_ const sai_stat_id_t* ids,
+                                   _Out_ uint64_t* counters)
+{
+    return guarded(SAI_API_PORT, __func__, [&]() -> sai_status_t {
+        PortObj* p = port_of(port_id);
+        if (!p || p->cpu) return SAI_STATUS_INVALID_OBJECT_ID;
+        if (n && (!ids || !counters)) return SAI_STATUS_INVALID_PARAMETER;
+        return port_stats_get(p->hw, n, ids, counters);
+    });
+}
+
+static sai_status_t get_port_stats_ext(_In_ sai_object_id_t port_id, _In_ uint32_t n, _In_ const sai_stat_id_t* ids,
+                                       _In_ sai_stats_mode_t mode, _Out_ uint64_t* counters)
+{
+    if (mode != SAI_STATS_MODE_READ) return SAI_STATUS_NOT_SUPPORTED;   // no per-counter clear in the SDK API
+    return get_port_stats(port_id, n, ids, counters);
+}
+
+static sai_status_t clear_port_stats(_In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_stat_id_t*)
+{
+    return SAI_STATUS_NOT_SUPPORTED;
+}
+
+static sai_status_t clear_port_all_stats(_In_ sai_object_id_t port_id)
+{
+    return guarded(SAI_API_PORT, __func__, [&]() -> sai_status_t {
+        PortObj* p = port_of(port_id);
+        if (!p || p->cpu) return SAI_STATUS_INVALID_OBJECT_ID;
+        return ctx().be->port_stat_clear(p->hw);
+    });
+}
+
+static sai_port_api_t make_port_api()
+{
+    sai_port_api_t a;
+    std::memset(&a, 0, sizeof(a));
+    a.create_port = create_port;
+    a.remove_port = remove_port;
+    a.set_port_attribute = set_port_attribute;
+    a.get_port_attribute = get_port_attribute;
+    a.get_port_stats = get_port_stats;
+    a.get_port_stats_ext = get_port_stats_ext;
+    a.clear_port_stats = clear_port_stats;
+    a.clear_port_all_stats = clear_port_all_stats;
+    return a;
+}
+const sai_port_api_t port_api = make_port_api();
+
+// ------------------------------------------------------------------ queues
+static sai_status_t get_queue_attribute(_In_ sai_object_id_t qid, _In_ uint32_t n, _Inout_ sai_attribute_t* attrs)
+{
+    return guarded(SAI_API_QUEUE, __func__, [&]() -> sai_status_t {
+        QueueObj* q = lookup(ctx().queues, qid);
+        if (!q) return SAI_STATUS_INVALID_OBJECT_ID;
+        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
+        for (uint32_t i = 0; i < n; i++) {
+            sai_attribute_t& a = attrs[i];
+            switch (a.id) {
+            case SAI_QUEUE_ATTR_TYPE: a.value.s32 = q->type; break;
+            case SAI_QUEUE_ATTR_INDEX: a.value.u8 = q->index; break;
+            case SAI_QUEUE_ATTR_PORT: a.value.oid = q->port; break;
+            case SAI_QUEUE_ATTR_PARENT_SCHEDULER_NODE: a.value.oid = q->port; break;
+            default: return attr_not_supported(i);
+            }
+        }
+        return SAI_STATUS_SUCCESS;
+    });
+}
+
+static sai_status_t set_queue_attribute(_In_ sai_object_id_t, _In_ const sai_attribute_t*)
+{
+    return attr_not_supported(0);   // scheduler / WRED / buffer profiles: not implemented
+}
+
+static sai_status_t no_queue_stats(_In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_stat_id_t*, _Out_ uint64_t*)
+{
+    return SAI_STATUS_NOT_SUPPORTED;
+}
+
+static sai_queue_api_t make_queue_api()
+{
+    sai_queue_api_t a;
+    std::memset(&a, 0, sizeof(a));
+    a.set_queue_attribute = set_queue_attribute;
+    a.get_queue_attribute = get_queue_attribute;
+    a.get_queue_stats = no_queue_stats;
+    return a;
+}
+const sai_queue_api_t queue_api = make_queue_api();
+
+// ----------------------------------------------- ingress priority groups
+static sai_status_t get_ipg_attribute(_In_ sai_object_id_t id, _In_ uint32_t n, _Inout_ sai_attribute_t* attrs)
+{
+    return guarded(SAI_API_BUFFER, __func__, [&]() -> sai_status_t {
+        IpgObj* g = lookup(ctx().ipgs, id);
+        if (!g) return SAI_STATUS_INVALID_OBJECT_ID;
+        if (n && !attrs) return SAI_STATUS_INVALID_PARAMETER;
+        for (uint32_t i = 0; i < n; i++) {
+            sai_attribute_t& a = attrs[i];
+            switch (a.id) {
+            case SAI_INGRESS_PRIORITY_GROUP_ATTR_PORT: a.value.oid = g->port; break;
+            case SAI_INGRESS_PRIORITY_GROUP_ATTR_INDEX: a.value.u8 = g->index; break;
+            case SAI_INGRESS_PRIORITY_GROUP_ATTR_BUFFER_PROFILE: a.value.oid = SAI_NULL_OBJECT_ID; break;
+            default: return attr_not_supported(i);
+            }
+        }
+        return SAI_STATUS_SUCCESS;
+    });
+}
+
+static sai_status_t set_ipg_attribute(_In_ sai_object_id_t, _In_ const sai_attribute_t*)
+{
+    return attr_not_supported(0);
+}
+
+static sai_buffer_api_t make_buffer_api()
+{
+    sai_buffer_api_t a;
+    std::memset(&a, 0, sizeof(a));
+    a.get_ingress_priority_group_attribute = get_ipg_attribute;
+    a.set_ingress_priority_group_attribute = set_ipg_attribute;
+    return a;
+}
+const sai_buffer_api_t buffer_api = make_buffer_api();
+
+} // namespace ob
