@@ -1,0 +1,22 @@
+/sys/bus/i2c/devices/0-0057/name: 24c64
+/sys/bus/i2c/devices/0-0070/name: pca9548
+/sys/bus/i2c/devices/2-0068/name: ds1339
+/sys/bus/i2c/devices/3-0020/name: tpm_i2c_infineon
+/sys/bus/i2c/devices/4-0071/name: pca9546
+/sys/bus/i2c/devices/5-004a/name: lm75
+/sys/bus/i2c/devices/7-0048/name: tmp75
+/sys/bus/i2c/devices/7-0049/name: tmp75
+/sys/bus/i2c/devices/7-0051/name: 24c02
+/sys/bus/i2c/devices/i2c-0/name: Synopsys DesignWare I2C adapter
+/sys/bus/i2c/devices/i2c-1/name: i2c-0-mux (chan_id 0)
+/sys/bus/i2c/devices/i2c-10/name: i2c-0-mux (chan_id 5)
+/sys/bus/i2c/devices/i2c-11/name: i2c-0-mux (chan_id 6)
+/sys/bus/i2c/devices/i2c-12/name: i2c-0-mux (chan_id 7)
+/sys/bus/i2c/devices/i2c-2/name: i2c-0-mux (chan_id 1)
+/sys/bus/i2c/devices/i2c-3/name: i2c-0-mux (chan_id 2)
+/sys/bus/i2c/devices/i2c-4/name: i2c-0-mux (chan_id 3)
+/sys/bus/i2c/devices/i2c-5/name: i2c-4-mux (chan_id 0)
+/sys/bus/i2c/devices/i2c-6/name: i2c-4-mux (chan_id 1)
+/sys/bus/i2c/devices/i2c-7/name: i2c-4-mux (chan_id 2)
+/sys/bus/i2c/devices/i2c-8/name: i2c-4-mux (chan_id 3)
+/sys/bus/i2c/devices/i2c-9/name: i2c-0-mux (chan_id 4)

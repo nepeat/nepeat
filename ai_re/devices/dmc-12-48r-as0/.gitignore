@@ -1,0 +1,9 @@
+# Private to this unit: raw console captures can hold the U-Boot env, keys.
+*-private.txt
+serial-*.txt
+# Disk/flash images (raw and .zst) and build outputs stay local.
+dumps/*
+!dumps/manifest.jsonl
+!dumps/SHA256SUMS
+nixos-build/
+__pycache__/

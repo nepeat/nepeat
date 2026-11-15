@@ -45,6 +45,13 @@ Goal: know exactly what is there and hold verified copies of every byte before w
   - how: stream with nc. The source hash, the transfer hash and the saved-file reread hash must all agree before a
     .partial is renamed to final. Keep `manifest.jsonl` + `SHA256SUMS`. Also concatenate the NOR in physical order.
   - A failed read stays .partial and is logged as failed. Do not claim it.
+  - Compress verified images with zstd: they're big, and a whole SSD is mostly
+    empty blocks. `nice zstd -T6 -12 --long=27 img -o img.zst`, then `zstd -t`. Bound the threads: `-T0` on a
+    32 GB image next to a big nix build ran the host out of memory and the OOM killer took the whole user session
+    (tmux, tio, every agent) on 2026-11-15. Keep
+    the raw image's sha256 in the manifest next to the `.zst` hash so a
+    decompressed copy can be checked. Then remove the raw file. Tooling that reads
+    compressed images directly (no full decompress) is a later concern.
 - [ ] Unpack offline, never mounting the source: FIT/legacy multi-images (kernel, initramfs, DTB), JFFS2 (jefferson), FAT (mtools).
 - [ ] Mine the vendor diag/NOS userspace for board tables: CPLD register maps, I2C device tables, fan and
   thermal routing, SDK config.bcm/rc.soc for each port mode, LED programs, pre-emphasis scripts.
@@ -261,6 +268,11 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - extlinux builder failed on old generations → no DTB in pre-extlinux generations → deleting them cost rollback history. Tell the owner first.
 
 **Bootloader**
+- Autoboot never stops though keys were sent "at the prompt" → tio block-buffers its `--log-file`, so a helper
+  tailing the file sees the countdown only after it expired (CS8210, DMC-12) → watch `tmux capture-pane`, not the file.
+- Need a vendor-OS root shell without credentials → if the bootcmd appends a variable to bootargs (DMC-12: `$bootargsextra`),
+  `setenv` it to `rdinit=/bin/sh` (initramfs) or `init=/bin/sh` and boot **without saveenv**. Nothing mounts the disk, so it's a clean imaging source.
+  Before power-cutting a running vendor OS, serial break + SysRq `s` then `u` (sync, remount ro) if the kernel allows it.
 - Garbled console from the new U-Boot → wrong SYS_CLK default, plus an upstream DM UART clock bug (2× too high) → derive the real clock from the factory divisor.
 - Intermittent silent hang after `fatload + go` but not `tftp + go` → fatload leaves dirty cache lines and start.S flash-invalidated L2 → flush before invalidate (L2 and CPC).
 - Hang returning to AS0 → the parent's protected TLB entry overlapped ours (multi-hit) → drop the parent's TLB1 entries first.
