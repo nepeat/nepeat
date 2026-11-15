@@ -1,6 +1,8 @@
 # Front-panel ports from cages + explicit breakout overrides (pure; used by
 # default.nix and the eval tests). Rules: config-ownership.md "ports".
-#   SONiC name = Ethernet<4*(cage-1) + subport-1>, alias = Ethernet<cage>/<subport>.
+#   SONiC name from the port's first lane, as SONiC does:
+#   Ethernet<4*(cage-1) + index of the first lane within the cage (0-based)>;
+#   alias = Ethernet<cage>/<subport>.
 { lib }:
 { cages, breakout, defaultSpeed, validSpeeds }:
 let
@@ -12,8 +14,10 @@ let
   stride = 4;
   parseAlias = alias: let m = builtins.match "Ethernet([0-9]+)/([0-9]+)" alias; in
     if m == null then null else { cage = toInt (lib.head m); sub = toInt (lib.last m); };
+  laneIndex = cage: lane: let l = lib.elemAt cages (cage - 1); i = lib.lists.findFirstIndex (x: x == lane) null l; in
+    if i == null then stride else i;   # foreign lane: an assertion fails anyway
   mkPort = cage: sub: lanes: speed: fromBreakout: {
-    name = "Ethernet${str (stride * (cage - 1) + sub - 1)}";
+    name = "Ethernet${str (stride * (cage - 1) + (if lanes == [ ] then 0 else laneIndex cage (lib.head lanes)))}";
     alias = "Ethernet${str cage}/${str sub}";
     inherit cage sub lanes speed fromBreakout;
   };
@@ -48,6 +52,10 @@ let
         message = "${where}: lanes used more than once: ${showLanes (dups used)} (each lane of the cage exactly once)"; }
       { assertion = filter (l: !elem l cageLanes) used == [ ];
         message = "${where}: lanes ${showLanes (filter (l: !elem l cageLanes) used)} are not lanes of cage ${key} (${showLanes cageLanes})"; }
+      { assertion = let firsts = map (p: if p.lanes == [ ] then 0 else laneIndex cage (lib.head p.lanes))
+                                  (lib.sort (a: b: (parseAlias a.alias).sub or 0 < (parseAlias b.alias).sub or 0) list);
+                    in firsts == lib.sort (a: b: a < b) firsts;
+        message = "${where}: subports must follow the lane order (Ethernet${key}/1 on the lowest lanes)"; }
       { assertion = filter (l: !elem l used) cageLanes == [ ];
         message = "${where}: lanes ${showLanes (filter (l: !elem l used) cageLanes)} of cage ${key} are not assigned (left over from the default port): list every port"; }
     ] ++ concatLists (map (p:

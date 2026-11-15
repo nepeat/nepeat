@@ -22,9 +22,14 @@ let
   value = v: if isList v then map str v else if isBool v then (if v then "true" else "false") else str v;
 
   generated = {
+    # What NixOS knows about the device, mirrored (enforced) for SONiC tools.
     DEVICE_METADATA.localhost = {
       inherit (cfg) platform hwsku;
       mac = cfg.macAddress;
+    } // optionalAttrs (config.networking.hostName != "") {
+      hostname = config.networking.hostName;
+    } // optionalAttrs (config.time.timeZone != null) {
+      timezone = config.time.timeZone;
     };
     PORT = listToAttrs (map (p: nameValuePair p.name {
       lanes = concatMapStringsSep "," str p.lanes;
@@ -43,7 +48,7 @@ let
   hardwareMode = t: k: f:
     if t == "PORT" && hasAttr k portByName then
       (if elem f [ "lanes" "alias" "index" ] || (f == "speed" && portByName.${k}.fromBreakout) then "enforce" else null)
-    else if t == "DEVICE_METADATA" && k == "localhost" && elem f [ "platform" "hwsku" "mac" ] then "enforce"
+    else if t == "DEVICE_METADATA" && k == "localhost" && elem f [ "platform" "hwsku" "mac" "hostname" "timezone" ] then "enforce"
     else null;
   softDefault = t: k: if t == "PORT" && hasAttr k portByName then "seed" else cfg.defaultMode;
   modeOf = t: k: f:
@@ -123,6 +128,17 @@ let
   '';
   sonicNixDiff = pkgs.writeShellScriptBin "sonic-nix-diff" ''exec ${sonicNix}/bin/sonic-nix diff "$@"'';
 
+  # ExecStopPost of syncd: in 10 s, if syncd is neither running, starting nor
+  # queued, start sai.restartOnStop again (an immediate start would fight a
+  # restart of syncd through Conflicts=).
+  restartOnStop = pkgs.writeShellScript "sonic-syncd-restart-on-stop" ''
+    [ -e /run/sonic-nix/reloading ] && exit 0      # sonic-nix reload / config reload
+    state=$(systemctl show -p ActiveState --value sonic-syncd.service)
+    case "$state" in active|activating|reloading|deactivating) exit 0 ;; esac
+    systemctl list-jobs --no-legend | grep -q ' sonic-syncd.service ' && exit 0
+    echo "syncd stopped: starting ${concatStringsSep " " cfg.sai.restartOnStop}"
+    exec systemctl start --no-block ${lib.escapeShellArgs cfg.sai.restartOnStop}
+  '';
   swss = sonic.swss;
   # nbrmgrd runs ndisc6; take only that binary (the package's dnssort script
   # references the build machine's perl in cross builds).
@@ -215,7 +231,7 @@ in {
         "SSH_SERVER" "PASSW_HARDENING" "BANNER_MESSAGE" "KDUMP" "SNMP*" "FIPS" "SERIAL_CONSOLE" ];
       description = "Tables NixOS owns: never loaded into CONFIG_DB (dropped from the saved file, flagged when written at runtime). A trailing * matches a prefix.";
     };
-    hostFields = mkOption { type = types.listOf types.str; default = [ "DEVICE_METADATA|localhost|hostname" ]; description = "TABLE|key|field entries NixOS owns (the hostname is networking.hostName)."; };
+    hostFields = mkOption { type = types.listOf types.str; default = [ ]; example = [ "DEVICE_METADATA|localhost|bgp_asn" ]; description = "TABLE|key|field entries NixOS owns and keeps out of CONFIG_DB (dropped like hostTables). The hostname and time zone are mirrored (enforced) instead."; };
     tablesWithoutYang = mkOption { type = types.listOf types.str; default = [ ]; description = "Tables allowed in settings without a YANG model (not validated)."; };
     redisDatabases = mkOption { type = types.ints.positive; default = 20; description = "Number of redis databases (SONiC's DB map uses ids up to 18)."; };
     copp.enable = mkOption { type = types.bool; default = true; description = "Run coppmgrd with SONiC's default copp_cfg.json (traps LACP/ARP/... to the CPU)."; };
@@ -235,6 +251,12 @@ in {
         default = optional (config.hardware.openbcm.temperature.enable or false) "openbcm-asic-temp.service";
         defaultText = lib.literalExpression ''[ "openbcm-asic-temp.service" ] when hardware.openbcm.temperature.enable'';
         description = "Units that own the ASIC and must stop while syncd runs (one SDK process per unit).";
+      };
+      restartOnStop = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        example = [ "openbcm-asic-temp.service" ];
+        description = "Units to start again when syncd stays stopped (checked 10 s after it stops, so restarts of syncd are left alone), e.g. the ASIC temperature reader it displaced.";
       };
       vs.interfaces = mkOption { type = types.attrsOf types.str; default = { }; example = { "Ethernet5/1" = "eth1"; }; description = "vs only: kernel interface carrying a port's packets (alias -> ifname); other ports get dummy interfaces."; };
     };
@@ -371,6 +393,8 @@ in {
           ExecStart = concatStringsSep " " ([ "${cfg.sai.package}/bin/syncd" "-p" "${saiProfile}" ] ++ cfg.syncdArgs);
           Restart = "always";
           RestartSec = 3;
+          ExecStopPost = lib.optional (cfg.sai.restartOnStop != [ ])
+            "-${config.systemd.package}/bin/systemd-run --quiet --collect --on-active=10 --property=Environment=PATH=${config.systemd.package}/bin:${pkgs.gnugrep}/bin ${restartOnStop}";
           StateDirectory = "sonic-syncd";
           WorkingDirectory = "/var/lib/sonic-syncd";
         };

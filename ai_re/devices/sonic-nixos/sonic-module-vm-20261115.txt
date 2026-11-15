@@ -1,7 +1,9 @@
-NixOS VM test nix/modules/switch/sonic/tests/vm.nix (vs SAI), 2026-11-15, x86_64.
+NixOS VM test nix/modules/switch/sonic/tests/vm.nix (vs SAI), 2026-11-15, x86_64,
+after the follow-ups (first-lane names, hostname mirror, alias ranges, restartOnStop).
 Nodes: switch (services.sonic, AS7712/AS7760 port map, cage 1 split 4x25G,
-Ethernet5/1 -> eth1, Ethernet6/1 -> eth2 for the virtual SAI) and peer (Linux
-bond 802.3ad over eth1+eth2). Result: vm-test-run-sonic-control-plane (exit 0).
+Ethernet5/1 -> eth1, Ethernet6/1 -> eth2 for the virtual SAI, fake-asic-temp
+as the unit syncd displaces) and peer (Linux bond 802.3ad over eth1+eth2).
+Result: vm-test-run-sonic-control-plane (exit 0).
 Extract of the driver log (checks + selected command output); full log not kept.
 
 == checks
@@ -22,6 +24,8 @@ PASS kernel netdev Ethernet124
 PASS COUNTERS_PORT_NAME_MAP: 35 ports, distinct SAI objects
 PASS orchagent matched every port by lanes (no port re-created)
 PASS lanemap: split lanes 49..52 one per port, cage 3 = 57-60
+PASS DEVICE_METADATA hostname mirrored from networking.hostName
+PASS fake-asic-temp stopped while syncd runs (Conflicts)
 PASS show interfaces status lists aliases
 PASS show interfaces status: Ethernet1/2 = Ethernet1, lane 50, 25G
 PASS show interfaces alias maps Ethernet1 -> Ethernet1/2
@@ -30,6 +34,14 @@ PASS CONFIG_DB PORT|Ethernet8 admin up
 PASS ASIC_DB Ethernet8 ADMIN_STATE true
 PASS config interface shutdown Ethernet3/1
 PASS show interfaces status Ethernet3/1: down
+PASS config interface startup Ethernet1/1-4
+PASS config interface shutdown Ethernet1/1-4
+PASS config interface startup Ethernet1/3-3/1
+PASS config interface shutdown Ethernet1/3-3/1
+PASS config interface startup Ethernet9/1,Ethernet10/1
+PASS config interface shutdown Ethernet9/1,Ethernet10/1
+PASS ranges wrote no alias keys
+PASS Ethernet1/1-3/1 left Ethernet1/1, 1/2 alone
 PASS config vlan add 100
 PASS config vlan member add -u 100 Ethernet4/1
 PASS config interface startup Ethernet4/1
@@ -56,6 +68,7 @@ PASS config interface speed Ethernet1/1 10000 (enforced: breakout speed)
 PASS runtime speed is 10000 (not reverted live)
 PASS watcher: runtime conflict PORT|Ethernet0 speed
 PASS watcher: host table NTP flagged
+PASS watcher: hostname change is an enforce conflict
 PASS watcher warning in the journal
 PASS config save -y
 PASS saved file has VLAN 100, PortChannel0001 and the 10000 speed
@@ -66,6 +79,7 @@ PASS after reboot: APPL_DB speed 25000
 PASS after reboot: seeded mtu 1500 sticks
 PASS after reboot: VLAN 100 member restored
 PASS after reboot: NTP host table not loaded
+PASS after reboot: hostname back to networking.hostName
 PASS loader warning: saved speed overridden by Nix
 PASS conflicts.json: saved conflict pending
 PASS /etc/issue.d/sonic-nix.issue shows the conflict
@@ -82,6 +96,9 @@ PASS rebuild: orchagent not restarted
 PASS config reload -y -f
 PASS config reload used sonic-nix
 PASS after reload: Vlan400 gone (not saved), Vlan100 back
+PASS syncd restart: fake-asic-temp left stopped
+PASS stack stopped: fake-asic-temp started again
+PASS stack started: fake-asic-temp stopped again
 FAILED CHECKS: 0 []
 
 == show interfaces status (alias mode, first rows)
@@ -128,12 +145,13 @@ PASS APPL_DB LAG_TABLE:PortChannel0001
 PASS ASIC_DB LAG members 2
 
 == sonic-nix-diff after 'config interface speed Ethernet1/1 10000' + config save
-Nix base: /nix/store/r0a33ba3aax5djsnckykizs27w1nj19w-sonic-config-db-nix-validated.json
+Nix base: /nix/store/pfa0352pg16ff8yaz49bhpc1iyxavd6k-sonic-config-db-nix-validated.json
 saved:    /var/lib/sonic/config_db.json
 
 Conflicts (Nix wins at the next boot / nixos-rebuild switch):
-  NTP                   nix=(NixOS host config)  current=global  [host, saved+runtime]
-  PORT|Ethernet0 speed  nix=25000  current=10000  [enforce, saved+runtime]
+  DEVICE_METADATA|localhost hostname  nix=switch  current=renamed  [enforce, saved+runtime]
+  NTP                                 nix=(NixOS host config)  current=global  [host, saved+runtime]
+  PORT|Ethernet0 speed                nix=25000  current=10000  [enforce, saved+runtime]
 
 Seeded fields changed by the user (kept):
   PORT|Ethernet12 admin_status: nix seed down, running up (user value sticks)
@@ -141,7 +159,6 @@ Seeded fields changed by the user (kept):
   PORT|Ethernet16 admin_status: nix seed down, running up (user value sticks)
   PORT|Ethernet20 admin_status: nix seed down, running up (user value sticks)
 
-PASS sonic-nix-diff lists PORT|Ethernet0 speed (exit 1)
 
 == teamdctl PortChannel0001 state (before reboot)
 setup:
@@ -176,22 +193,23 @@ runner:
 
 
 == /etc/issue.d/sonic-nix.issue after reboot
-SONiC config (NixOS): 2 setting(s) differ from the Nix configuration and will go away:
+SONiC config (NixOS): 3 setting(s) differ from the Nix configuration and will go away:
+  DEVICE_METADATA|localhost hostname: Nix switch, current renamed (Nix value loaded at boot; in /var/lib/sonic/config_db.json)
   NTP (global): NixOS host config, never loaded into CONFIG_DB (in /var/lib/sonic/config_db.json)
   PORT|Ethernet0 speed: Nix 25000, current 10000 (Nix value loaded at boot; in /var/lib/sonic/config_db.json)
 Full list: sonic-nix-diff. Keep a value: declare it in Nix (or mode seed); drop it: config save.
 
 
-PASS /etc/issue.d/sonic-nix.issue shows the conflict
 
 == sonic-nix journal after reboot
-switch # [    7.368486] rfiqf690vmxghsbwzgdrq8fx953cs6sl-sonic-nix.py[767]: sonic-nix: CONFIG_DB loaded: 3 tables, 37 keys; 0 conflict(s) with Nix; user layer (none)
-switch # [    6.775348] sonic-nix[754]: sonic-nix: saved PORT|Ethernet0 speed = 10000 overridden by Nix: 25000
-switch # [    7.221699] rfiqf690vmxghsbwzgdrq8fx953cs6sl-sonic-nix.py[754]: sonic-nix: CONFIG_DB loaded: 9 tables, 138 keys; 2 conflict(s) with Nix; user layer /var/lib/sonic/config_db.json
-Nov 15 13:54:47 switch sonic-nix[754]: sonic-nix: saved PORT|Ethernet0 speed = 10000 overridden by Nix: 25000
+switch # [    7.215299] 9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py[762]: sonic-nix: CONFIG_DB loaded: 3 tables, 37 keys; 0 conflict(s) with Nix; user layer (none)
+switch # [    6.785118] sonic-nix[722]: sonic-nix: saved DEVICE_METADATA|localhost hostname = renamed overridden by Nix: switch
+switch # [    6.787182] sonic-nix[722]: sonic-nix: saved PORT|Ethernet0 speed = 10000 overridden by Nix: 25000
+switch # [    7.231087] 9sb413fvf44n1rggdsbkp973yi3azaa5-sonic-nix.py[722]: sonic-nix: CONFIG_DB loaded: 9 tables, 138 keys; 3 conflict(s) with Nix; user layer /var/lib/sonic/config_db.json
+Nov 15 14:03:38 switch sonic-nix[722]: sonic-nix: saved DEVICE_METADATA|localhost hostname = renamed overridden by Nix: switch
+Nov 15 14:03:38 switch sonic-nix[722]: sonic-nix: saved PORT|Ethernet0 speed = 10000 overridden by Nix: 25000
 PASS loader warning: saved speed overridden by Nix
-switch # [   40.544716] sonic-nix[2377]: sonic-nix: saved PORT|Ethernet0 speed = 10000 overridden by Nix: 25000
-switch # [   40.858889] rfiqf690vmxghsbwzgdrq8fx953cs6sl-sonic-nix.py[2377]: sonic-nix: CONFIG_DB loaded: 9 tables, 139 keys; 2 conflict(s) with Nix; user layer /var/lib/sonic/config_db.json
+switch # [   40.741246] sonic-nix[2438]: sonic-nix: saved DEVICE_METADATA|localhost hostname = renamed overridden by Nix: switch
 
 == peer bond partner
 Partner Mac Address: 52:54:00:aa:bb:01

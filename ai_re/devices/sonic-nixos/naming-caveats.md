@@ -5,7 +5,7 @@ sonic-config-engine (grep for `Ethernet\d`, `startswith("Ethernet")`,
 IFNAMSIZ / `isInterfaceNameValid`, natsort, `split('/')`, alias in file
 names / redis keys, plus an AST scan of every config command taking a port
 argument), then exercised in the VM test (`config ... Ethernet3/1` etc.).
-Fixes: `nix/packages/sonic/python/patches/0002-*`.
+Fixes: `nix/packages/sonic/python/patches/0002-*`, `0003-*`.
 
 | assumption | where | bites? |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Fixes: `nix/packages/sonic/python/patches/0002-*`.
 | alias -> name by exact match on PORT `alias` | utilities_common/cli.py, config/main.py `interface_alias_to_name` | no |
 | name -> alias in alias-mode output: regex `(^\|\s)Ethernet1($\|,?\s)` per port | cli.py `run_command_in_alias_mode` | no: the `/` after `Ethernet1` in `Ethernet1/1` stops prefix collisions |
 | sub-interface separator `.` | cli.py, config/main.py | no: `Ethernet1/1.10` -> `Ethernet0.10` |
-| ranges `Ethernet0-3` | utilities_common/intf_filter.py | alias ranges (`Ethernet1/1-4`) are rejected ("Invalid interface range"); names work. Not patched |
+| ranges `Ethernet0-3` | utilities_common/intf_filter.py | **yes**: alias ranges were rejected, and alias filters (comma lists too) reached CONFIG_DB unconverted in `config interface startup/shutdown`. Patched (0003): `Ethernet1/1-4`, `Ethernet1/3-3/1` (missing subports are gaps). `config vlan member` takes one port (its `-m` is for VLAN ids); `show interfaces status <range>` still takes names only |
 | IFNAMSIZ (<16) / `isInterfaceNameValid` | sonic-cfggen, fdbsyncd, intfmgrd | no: applied to names (max `Ethernet124`) |
 | redis key separators `\|` `:` | everywhere | no: keys hold names, `/` only in the alias field |
 | PORT `alias` used as a netdev or file name | orchagent porthlpr (parsed, unused), portmgrd/teammgrd ("alias" = SONiC name) | no |

@@ -24,6 +24,7 @@ let
     name-twice = { cfg = cage1 [ (p "Ethernet1/1" [ 49 50 ] 50000) (p "Ethernet1/1" [ 51 52 ] 50000) ]; expect = "port names used twice: Ethernet1/1"; };
     empty = { cfg = cage1 [ ]; expect = "an override must list every resulting port"; };
     no-such-cage = { cfg = { services.sonic.breakout."33" = [ (p "Ethernet33/1" [ 1 ] 25000) ]; }; expect = "no such cage"; };
+    subport-order = { cfg = cage1 [ (p "Ethernet1/1" [ 51 52 ] 50000) (p "Ethernet1/2" [ 49 50 ] 50000) ]; expect = "subports must follow the lane order"; };
     no-such-port-setting = { cfg = { services.sonic.settings.PORT."Ethernet1/9".admin_status = "up"; }; expect = "settings.PORT.\"Ethernet1/9\": no such port"; };
   };
   results = lib.mapAttrs (n: c: let m = failed c.cfg; in {
@@ -33,16 +34,27 @@ let
   good = failed { };
   bad = lib.filterAttrs (_: r: !r.ok) results;
   goodSys = (eval { }).config.system.build.sonic;
+  # Names from the first lane (SONiC's rule): 2x50G cage 1 -> Ethernet0, Ethernet2.
+  twoBy50 = eval (cage1 [ (p "Ethernet1/1" [ 49 50 ] 50000) (p "Ethernet1/2" [ 51 52 ] 50000) ]);
+  names = sys: map (q: "${q.alias}=${q.name}") (lib.take 6 sys.config.system.build.sonic.ports);
+  namesGood = names (eval { });
+  names2x50 = names twoBy50;
+  namesOk = names2x50 == [ "Ethernet1/1=Ethernet0" "Ethernet1/2=Ethernet2" "Ethernet2/1=Ethernet4" "Ethernet3/1=Ethernet8" "Ethernet4/1=Ethernet12" "Ethernet5/1=Ethernet16" ]
+    && namesGood == [ "Ethernet1/1=Ethernet0" "Ethernet1/2=Ethernet1" "Ethernet1/3=Ethernet2" "Ethernet1/4=Ethernet3" "Ethernet2/1=Ethernet4" "Ethernet3/1=Ethernet8" ]
+    && failed (cage1 [ (p "Ethernet1/1" [ 49 50 ] 50000) (p "Ethernet1/2" [ 51 52 ] 50000) ]) == [ ];
   yangBad = (eval { services.sonic.settings.VLAN.Vlan5000.vlanid = "5000"; }).config.system.build.sonic.base;
 in pkgs.runCommand "sonic-module-eval-tests" {
   passAsFile = [ "report" ];
-  report = builtins.toJSON { inherit results good; };
+  report = builtins.toJSON { inherit results good namesGood names2x50; };
   yangFailure = pkgs.testers.testBuildFailure yangBad;
   goodBase = goodSys.base;
 } ''
   cat $reportPath
   echo
   ${lib.optionalString (good != [ ]) "echo 'good config has failed assertions'; exit 1"}
+  ${lib.optionalString (!namesOk) "echo 'port names not generated from the first lane'; exit 1"}
+  echo "names 4x25G: ${toString namesGood}"
+  echo "names 2x50G: ${toString names2x50}"
   ${lib.optionalString (bad != { }) "echo 'cases without the expected message: ${toString (lib.attrNames bad)}'; exit 1"}
   grep -q "fails YANG validation" $yangFailure/testBuildFailure.log
   echo "YANG negative: $(grep -o 'fails YANG validation.*' $yangFailure/testBuildFailure.log | head -c 300)"

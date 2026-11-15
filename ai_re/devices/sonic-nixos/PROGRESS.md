@@ -14,8 +14,8 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   managers and syncers, the show/config CLI in alias mode
   (`Ethernet<cage>/<sub>`), with the [config ownership](config-ownership.md)
   rules (enforce/seed/unmanaged, conflicts in `/etc/issue`, motd and
-  `sonic-nix-diff`). All 77 VM checks pass, incl. a 4x25G split, VLAN,
-  LACP PortChannel to a peer VM, reboot and `nixos-rebuild switch`
+  `sonic-nix-diff`). All 92 VM checks pass, incl. a 4x25G split, alias
+  ranges, VLAN, LACP PortChannel to a peer VM, reboot and `nixos-rebuild switch`
   ([VM](sonic-module-vm-20261115.txt), [eval](sonic-module-eval-20261115.txt)).
   Cross-builds into the AS7760 system with the openbcm syncd, +240 MiB
   ([cross](sonic-module-cross-20261115.txt)). **Not on the switch yet**: its
@@ -121,10 +121,16 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   portchannel needs `tlm_teamd`; Linux 802.3ad needs a slave speed (virtio
   has none: `ethtool -s` in the peer VM); kernel messages hide agetty's
   issue on tty1 in test VMs.
-- Deviation from the request: syncd always `Conflicts=openbcm-asic-temp`
-  (both open the SDK; one process per unit), not only without
-  `SAI_OPENBCM_TEMP_FILE`; without it a NixOS warning says fans lose the
-  ASIC sensor while syncd runs.
+- syncd always `Conflicts=openbcm-asic-temp` (both open the SDK; one process
+  per unit); without `SAI_OPENBCM_TEMP_FILE` a NixOS warning says fans lose
+  the ASIC sensor while syncd runs. `sai.restartOnStop` starts it again when
+  syncd stays stopped (10 s check, skipped during restarts and reloads).
+- Follow-ups (same day): SONiC names from the first lane (2x50G cage 1 =
+  Ethernet0/Ethernet2; my first formula used the subport, spec corrected);
+  hostname (and time zone, if set) mirrored into DEVICE_METADATA as enforced
+  keys instead of dropped; sonic-utilities patch 0003: alias ranges
+  `Ethernet1/1-4`, `Ethernet1/3-3/1`, and alias filters resolved to names in
+  `config interface startup/shutdown` (comma lists of aliases wrote alias keys).
 
 ## 2026-11-15 — sonic-swss packaged; big-endian fixes in orchagent and SAI meta
 

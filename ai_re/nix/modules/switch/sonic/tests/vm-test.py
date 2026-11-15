@@ -83,6 +83,9 @@ lm = sh("cat /usr/share/sonic/hwsku/lanemap.ini")[1]
 check("lanemap: split lanes 49..52 one per port, cage 3 = 57-60", all(("sw%d:%d" % (i, 49 + i)) in lm for i in range(4)) and "sw8:57,58,59,60" in lm and "eth1:65,66,67,68" in lm, lm[:300])
 print(db(1, "hgetall ASIC_STATE:SAI_OBJECT_TYPE_PORT:" + names.get("Ethernet1", "x")))
 
+check("DEVICE_METADATA hostname mirrored from networking.hostName", db(4, "hget 'DEVICE_METADATA|localhost' hostname") == "switch")
+check("fake-asic-temp stopped while syncd runs (Conflicts)", sh("systemctl is-active fake-asic-temp")[1].strip() != "active" and sh("systemctl is-active sonic-syncd")[1].strip() == "active")
+
 rc, out = cli("show interfaces status")
 print(out)
 check("show interfaces status lists aliases", rc == 0 and "Ethernet1/1" in out and "Ethernet1/4" in out and "Ethernet32/1" in out, out)
@@ -107,6 +110,19 @@ check("config interface shutdown Ethernet3/1", rc == 0, out)
 switch.wait_until_succeeds("redis-cli -s /var/run/redis/redis.sock -n 0 hget PORT_TABLE:Ethernet8 admin_status | grep -qx down", timeout=30)
 rc, out = cli("show interfaces status Ethernet3/1")
 check("show interfaces status Ethernet3/1: down", rc == 0 and re.search(r"Ethernet3/1.*down\s+down", out) is not None, out)
+
+# alias ranges and lists (patch 0003)
+def admin(pnames):
+    return [db(4, "hget 'PORT|%s' admin_status" % n) for n in pnames]
+for rng, pnames in [("Ethernet1/1-4", ["Ethernet0", "Ethernet1", "Ethernet2", "Ethernet3"]),
+                   ("Ethernet1/3-3/1", ["Ethernet2", "Ethernet3", "Ethernet4", "Ethernet8"]),
+                   ("Ethernet9/1,Ethernet10/1", ["Ethernet32", "Ethernet36"])]:
+    rc, out = cli("config interface startup " + rng)
+    check("config interface startup %s" % rng, rc == 0 and admin(pnames) == ["up"] * len(pnames), (out, admin(pnames)))
+    rc, out = cli("config interface shutdown " + rng)
+    check("config interface shutdown %s" % rng, rc == 0 and admin(pnames) == ["down"] * len(pnames), (out, admin(pnames)))
+check("ranges wrote no alias keys", db(4, "keys 'PORT|Ethernet*/*'") == "", db(4, "keys 'PORT|Ethernet*/*'"))
+check("Ethernet1/1-3/1 left Ethernet1/1, 1/2 alone", admin(["Ethernet0", "Ethernet1"]) == ["down", "down"])
 
 # ---------------------------------------------------------------- 3. VLAN with a member by alias
 for c in ["config vlan add 100", "config vlan member add -u 100 Ethernet4/1", "config interface startup Ethernet4/1"]:
@@ -169,11 +185,15 @@ rc, out = cli("config interface speed Ethernet1/1 10000")
 check("config interface speed Ethernet1/1 10000 (enforced: breakout speed)", rc == 0, out)
 check("runtime speed is 10000 (not reverted live)", db(4, "hget 'PORT|Ethernet0' speed") == "10000")
 rc, out = sh("redis-cli -s /var/run/redis/redis.sock -n 4 hset 'NTP|global' src_intf eth0")
+sh("redis-cli -s /var/run/redis/redis.sock -n 4 hset 'DEVICE_METADATA|localhost' hostname renamed")
 switch.wait_until_succeeds("grep -q 'PORT' /run/sonic-nix/conflicts.json && grep -q '\"speed\"' /run/sonic-nix/conflicts.json", timeout=30)
 c = json.loads(sh("cat /run/sonic-nix/conflicts.json")[1])
 print(json.dumps(c, indent=1))
 check("watcher: runtime conflict PORT|Ethernet0 speed", any(x["key"] == "Ethernet0" and x["field"] == "speed" and x["source"] == "runtime" for x in c["conflicts"]), c)
 check("watcher: host table NTP flagged", any(x["table"] == "NTP" for x in c["conflicts"]), c)
+switch.wait_until_succeeds("grep -q '\"hostname\"' /run/sonic-nix/conflicts.json", timeout=30)
+c = json.loads(sh("cat /run/sonic-nix/conflicts.json")[1])
+check("watcher: hostname change is an enforce conflict", any(x["field"] == "hostname" and x["kind"] == "enforce" and x["current"] == "renamed" for x in c["conflicts"]), c)
 check("watcher warning in the journal", sh("journalctl -b -t sonic-nix --no-pager | grep -q 'Ethernet0 speed changed to 10000'")[0] == 0,
       sh("journalctl -b -t sonic-nix --no-pager | tail")[1])
 rc, out = cli("config save -y")
@@ -195,6 +215,7 @@ check("after reboot: APPL_DB speed 25000", db(0, "hget PORT_TABLE:Ethernet0 spee
 check("after reboot: seeded mtu 1500 sticks", db(4, "hget 'PORT|Ethernet12' mtu") == "1500")
 check("after reboot: VLAN 100 member restored", db(4, "hget 'VLAN_MEMBER|Vlan100|Ethernet12' tagging_mode") == "untagged")
 check("after reboot: NTP host table not loaded", db(4, "exists 'NTP|global'") == "0")
+check("after reboot: hostname back to networking.hostName", db(4, "hget 'DEVICE_METADATA|localhost' hostname") == "switch")
 rc, log = sh("journalctl -b -t sonic-nix --no-pager")
 print(log[-3000:])
 check("loader warning: saved speed overridden by Nix", "PORT|Ethernet0 speed = 10000 overridden by Nix" in log, log[-2000:])
@@ -256,6 +277,21 @@ check("config reload used sonic-nix", "sonic-nix reload" in out, out[-800:])
 switch.wait_for_unit("sonic-orchagent.service", timeout=120)
 wait_ports_ready()
 check("after reload: Vlan400 gone (not saved), Vlan100 back", db(4, "exists 'VLAN|Vlan400'") == "0" and db(4, "exists 'VLAN|Vlan100'") == "1")
+
+# ---------------------------------------------------------------- 9. sai.restartOnStop
+sh("systemctl restart sonic-syncd")
+time.sleep(15)
+check("syncd restart: fake-asic-temp left stopped", sh("systemctl is-active fake-asic-temp")[1].strip() != "active" and sh("systemctl is-active sonic-syncd")[1].strip() == "active",
+      sh("systemctl status fake-asic-temp sonic-syncd --no-pager | head -30")[1])
+sh("systemctl stop sonic.target")
+try:
+    switch.wait_until_succeeds("systemctl is-active fake-asic-temp", timeout=40)
+    check("stack stopped: fake-asic-temp started again", True)
+except Exception:
+    check("stack stopped: fake-asic-temp started again", False, sh("journalctl -b --no-pager | grep -i 'restart-on-stop\\|syncd stopped' | tail")[1])
+sh("systemctl start sonic.target")
+switch.wait_for_unit("sonic-orchagent.service", timeout=120)
+check("stack started: fake-asic-temp stopped again", sh("systemctl is-active fake-asic-temp")[1].strip() != "active")
 
 print("FAILED CHECKS: %d %s" % (len(FAILS), FAILS))
 diag("end")

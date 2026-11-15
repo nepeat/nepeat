@@ -31,8 +31,8 @@ config survives both).
 
 | rule | where |
 | --- | --- |
-| host tables (MGMT_*, NTP*, SYSLOG*, AAA, ...; option `hostTables`) and DEVICE_METADATA hostname | dropped from the saved file, flagged when written at runtime |
-| enforce: DEVICE_METADATA platform/hwsku/mac, PORT lanes/alias/index, breakout speeds, `settings` by default | Nix value at boot and rebuild; a runtime/saved difference is logged and shown |
+| host tables (MGMT_*, NTP*, SYSLOG*, AAA, ...; option `hostTables`, fields: `hostFields`) | dropped from the saved file, flagged when written at runtime |
+| enforce: DEVICE_METADATA platform/hwsku/mac + hostname/timezone (mirrored from `networking.hostName`/`time.timeZone`), PORT lanes/alias/index, breakout speeds, `settings` by default | Nix value at boot and rebuild; a runtime/saved difference is logged and shown |
 | seed: other PORT fields (speed of unsplit cages, admin_status = down, mtu = 9100, `settings.PORT.*`) | Nix value only where the user has none; rebuild writes a changed seed only over the old Nix value |
 | unmanaged: everything else | `config ...` + `config save` |
 
@@ -63,9 +63,9 @@ services.sonic.breakout."1" = [
 ];
 ```
 
-SONiC name = `Ethernet<4*(cage-1)+sub-1>` (a 2x50G cage 1 gives Ethernet0 and
-Ethernet1, not SONiC's usual Ethernet0/Ethernet2). Eval-time assertions: each
-lane of the cage exactly once, no foreign lane, names `Ethernet<cage>/<1..4>`
+SONiC name from the first lane, as SONiC does: `Ethernet<4*(cage-1) + index of
+the first lane in the cage>` (2x50G cage 1: Ethernet0, Ethernet2). Eval-time
+assertions: each lane of the cage exactly once, subports in lane order, no foreign lane, names `Ethernet<cage>/<1..4>`
 and unique, speed valid for the lane count (`validSpeeds`), cage exists,
 `settings.PORT` keys exist. The Nix base is YANG-validated at build time
 (`system.build.sonic.base`); the merged config again at boot (warning only).
@@ -79,7 +79,9 @@ generated device/hwsku tree (port_config.ini, sai.profile, lanemap.ini),
 `/run/redis/sonic-db/database_config.json` (no chassis instance; redis has
 20 databases), `/etc/sonic/{sonic_version.yml,copp_cfg.json}`, `/zmq_swss`
 (orchagent's ZMQ endpoints). CLI: `SONIC_CLI_IFACE_MODE=alias` for login
-shells and kept by sudo; `config reload` calls `sonic-nix reload`.
+shells and kept by sudo; `config reload` calls `sonic-nix reload`; alias
+ranges `Ethernet1/1-4` and `Ethernet1/3-3/1` (missing subports are gaps) in
+`config interface startup/shutdown`.
 
 ## tests
 
@@ -98,8 +100,9 @@ virtual SAI (`kernelModules` loads them). Vendor SAI: `sai.kind = "vendor"`,
 `sai.package = sonic.sairedis-openbcm libsai`, `sai.libraryPath`,
 `sai.initConfigFile`, `sai.profile`. syncd `Conflicts=` the units in
 `sai.conflicts` (default: openbcm-asic-temp when enabled; one SDK process
-per unit) and starts after them; start openbcm-asic-temp again by hand
-after stopping the stack.
+per unit) and starts after them. `sai.restartOnStop` units are started
+again 10 s after syncd stops, unless syncd is back, queued or a
+`sonic-nix reload` runs.
 
 ## not here (yet)
 

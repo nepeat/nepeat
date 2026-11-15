@@ -8,7 +8,7 @@
 { pkgs }:
 pkgs.testers.runNixOSTest {
   name = "sonic-control-plane";
-  nodes.switch = { lib, ... }: {
+  nodes.switch = { lib, pkgs, ... }: {
     imports = [ ./common.nix ];
     virtualisation.memorySize = 3072;
     virtualisation.cores = 2;
@@ -22,6 +22,14 @@ pkgs.testers.runNixOSTest {
     services.openssh.enable = true;
     # Declared in Nix (enforced by defaultMode): must survive everything.
     services.sonic.settings.VLAN.Vlan200.vlanid = "200";
+    # Stand-in for openbcm-asic-temp: stopped while syncd runs, started
+    # again when syncd stays stopped.
+    systemd.services.fake-asic-temp = {
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig.ExecStart = "${pkgs.coreutils}/bin/sleep infinity";
+    };
+    services.sonic.sai.conflicts = [ "fake-asic-temp.service" ];
+    services.sonic.sai.restartOnStop = [ "fake-asic-temp.service" ];
     # nixos-rebuild switch to this: seed change (applied), seed change over a
     # user value (not applied), new enforced key (applied).
     specialisation.changed.configuration = {

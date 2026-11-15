@@ -35,6 +35,10 @@ in py.buildPythonPackage {
     # wrote the alias as the member key; run_command(return_cmd=True)
     # returned None in alias mode. Upstreamable.
     ./patches/0002-alias-mode-portchannel-member-and-return-cmd.patch
+    # Alias ranges for commands taking interface filters (interface
+    # startup/shutdown): Ethernet1/1-4, Ethernet1/1-3/1; filters resolved to
+    # SONiC names in alias mode (comma lists of aliases wrote alias keys).
+    ./patches/0003-alias-ranges.patch
   ];
 
   postPatch = ''

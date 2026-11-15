@@ -368,11 +368,17 @@ def systemctl(*a):
 
 
 def cmd_reload(args):
-    if not args.no_service_restart:
-        systemctl("stop", "sonic.target")
-    cmd_load(args)
-    if not args.no_service_restart:
-        systemctl("start", "sonic.target")
+    # syncd's restartOnStop helper leaves the units alone while this exists.
+    flag = os.path.join(RUN, "reloading")
+    atomic_write(flag, "%d\n" % os.getpid())
+    try:
+        if not args.no_service_restart:
+            systemctl("stop", "sonic.target")
+        cmd_load(args)
+        if not args.no_service_restart:
+            systemctl("start", "sonic.target")
+    finally:
+        os.unlink(flag)
 
 
 def cmd_apply(args):

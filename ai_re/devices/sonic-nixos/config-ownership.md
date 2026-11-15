@@ -1,6 +1,6 @@
 # SONiC config on NixOS: who owns what (design, 2026-11-15)
 
-Decided with the owner; nothing is implemented yet. Hybrid: NixOS owns the
+Decided with the owner; implemented in [nix/modules/switch/sonic](../../nix/modules/switch/sonic/README.md) (VM-tested, 2026-11-15). Hybrid: NixOS owns the
 host and declared switch keys, the SONiC way (`config` CLI, `config save`)
 owns the rest.
 
@@ -8,8 +8,8 @@ owns the rest.
 
 | layer | owner | examples |
 | --- | --- | --- |
-| host | NixOS only; never in CONFIG_DB (the loader drops these tables) | hostname, management port (`MGMT_INTERFACE`), users, SSH, NTP, syslog, fans, platform drivers |
-| `enforce` | Nix value wins at boot and at `nixos-rebuild switch` | `DEVICE_METADATA` (platform, hwsku, MAC), the hardware part of `PORT` (lanes, alias, index), anything declared `enforce` |
+| host | NixOS only; never in CONFIG_DB (the loader drops these tables) | management port (`MGMT_INTERFACE`), users, SSH, NTP, syslog, fans, platform drivers |
+| `enforce` | Nix value wins at boot and at `nixos-rebuild switch` | `DEVICE_METADATA` (platform, hwsku, MAC; hostname and time zone mirrored from NixOS, which stays their owner), the hardware part of `PORT` (lanes, alias, index), anything declared `enforce` |
 | `seed` | Nix gives the first value; a saved user value sticks | port speed/FEC/admin state, anything declared `seed` |
 | unmanaged | user (`config ...`, `config save`) | VLAN, PORTCHANNEL, INTERFACE, BGP, ... unless declared in Nix |
 
@@ -41,13 +41,16 @@ owns the rest.
 - **Naming** (owner, 2026-11-15): Nix uses front-panel aliases,
   `Ethernet<cage>/<subport>` (1-based: `Ethernet1/1`..`Ethernet1/4` for a
   split cage 1, `Ethernet3/1` for an unsplit cage 3). The SONiC port name
-  (= Linux netdev, which cannot contain `/`) is generated from the first lane:
-  `Ethernet<4*(cage-1) + subport-1>`, e.g. `Ethernet1/2` -> `Ethernet1`,
-  `Ethernet3/1` -> `Ethernet8`; never written by hand. The alias goes in
+  (= Linux netdev, which cannot contain `/`) is generated from the port's
+  first lane, as SONiC does: `Ethernet<4*(cage-1) + index of the first lane
+  in the cage>` (0-based), e.g. 4x25G `Ethernet1/2` -> `Ethernet1`, 2x50G
+  `Ethernet1/2` -> `Ethernet2`, `Ethernet3/1` -> `Ethernet8` (corrected
+  2026-11-15; an earlier formula used the subport); never written by hand. The alias goes in
   PORT `alias`, and the CLI defaults to `interface_naming_mode alias`.
 - Build-time checks: each lane of the cage used exactly
   once, speeds valid for the lane count, names unique, no port left over from
-  the 1x100G default. Nix generates `config.bcm` (the factory 32x100 config
-  matches public sonic-buildimage AS7712 values), so no vendor file is copied
-  by hand. The lab loop (port 1 breakout into port 32 via QSA) needs ports
+  the 1x100G default. **Planned, not built:** Nix generates `config.bcm` (the
+  factory 32x100 config matches public sonic-buildimage AS7712 values); until
+  then the SDK uses the factory file copied by hand, so only 32x100G matches
+  the hardware. The lab loop (port 1 breakout into port 32 via QSA) needs ports
   1 and 32 set to 4x25G (or 4x10G) to link.
