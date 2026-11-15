@@ -54,7 +54,7 @@ appear once `nix/` is committed; `path:./nix` always works.
 | function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
 | board | `board-dmc12` | DMC-12-48R-AS0 console server (Alpine V2): verbatim import of the first iteration, not yet on the shared layers; [README](modules/boards/dmc12/README.md) |
-| package | `uboot-*` | upstream U-Boot; one patch series with a per-patch `scope` in [packages/uboot/default.nix](packages/uboot/default.nix): `t208x` + `as7760` (ppc), `alpine-v2` + `dmc12` (arm64, RAM chainload from the vendor U-Boot, [packages/uboot/alpine-v2](packages/uboot/alpine-v2/default.nix)) |
+| package | `uboot-*` | upstream U-Boot; one patch series with a per-patch `scope` in [packages/uboot/default.nix](packages/uboot/default.nix): `t208x` + `as7760` (ppc), `alpine-v2` + `dmc12` (arm64, RAM chainload from the vendor U-Boot, al_eth network + board-params handoff, [packages/uboot/alpine-v2](packages/uboot/alpine-v2/default.nix)) |
 | package | `fastfetch-tiny` | fastfetch without optional libraries (cross-builds everywhere) |
 
 **fand and `path:./nix`.** fand lives in `rust/` of the monorepo, outside this

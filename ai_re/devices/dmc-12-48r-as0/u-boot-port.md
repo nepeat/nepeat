@@ -16,26 +16,47 @@ needed). SCSI capacity reads one sector high (62533297 vs Linux 62533296; QEMU s
 same +1), harmless for partition reads. Transcript:
 `serial-chainload-20261115-042317.txt` (git-ignored).
 
+**Ethernet (2026-11-15): built and offline-tested, not yet run on hardware.** The al_eth
+driver (`dhcp`, `tftpboot`, `ping`, HTTP `wget`) and the board-params/MAC handoff to
+Linux, see [network](#network-al_eth-built-not-yet-run-on-hardware). Staged in
+`/srv/tftpboot/dmc12-uboot/eth-b/` (driver + handoff) and `eth-a/` (handoff only, no
+network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
+
 ## what exists
 
 - `nix build path:./nix#uboot-dmc12-chainload` → `u-boot.uimage` (for `bootm`),
   `u-boot.bin` (for `go`/`booti`), `u-boot`, `.map`, `.dtb`, `.config`.
-  Store path `/nix/store/7w61vis50vjz9p5vjm4vs4czbn0wsjba-…-2026.10`.
-  `u-boot.bin` sha256 `66daa630…`, `u-boot.uimage` sha256 `7634a36c…`.
+  Current (with Ethernet, = `eth-b`): `/nix/store/0z18z3wvgihjdid9ky35x0ca6w3q2cbp-…-2026.10`,
+  `u-boot.uimage` sha256 `5c59c22d…`, `u-boot.bin` `3b5102a1…`. `eth-a` (0018+0019
+  only): `/nix/store/2j3xfn9znz0wavzxg3b3j80k4dmbh102-…`, uimage `6e16f48b…`. The
+  hardware-tested build (no network): `/nix/store/7w61vis50vjz9p5vjm4vs4czbn0wsjba-…`,
+  uimage `7634a36c…`.
 - Patches: shared series [ai_re/nix/packages/uboot/default.nix](../../nix/packages/uboot/default.nix):
   - 0014 `alpine-v2` (any Alpine V2 board): new target `TARGET_ALPINE_V2`, with no low-level init.
   - 0015 `dmc12`: CPLD sysreset driver.
   - 0016 `dmc12`: `-u-boot.dtsi` and `alpine_v2_dmc12_defconfig`.
+  - 0017 `alpine-v2`: initrd and FDT used in place (`fdt_high`/`initrd_high`).
+  - 0018 `alpine-v2`: al_eth board params + MAC handoff before Linux, `aleth` command.
+  - 0019 `dmc12`: the port's DT node (00:01.0, rgmii fixed-link 1000, EEPROM MAC).
+  - 0020 `alpine-v2`: the al_eth network driver (HAL copied verbatim from `packages/al-eth/src`).
+  - 0021 `dmc12`: network on in the defconfig, no ethernet bootdev.
 
   The T208x builds take only their own scopes, and their `.drvPath`s are unchanged.
   The board DTS is the Linux one, `nix/packages/linux-alpine/boards/dmc12/alpine-v2-dmc12.dts`,
   copied in at build time. A DTS edit there rebuilds U-Boot.
-- Tests: `nix build path:./nix#uboot-alpine-v2-tests` (no board needed, both pass).
+- Tests: `nix build path:./nix#uboot-alpine-v2-tests` (no board needed, all three pass).
   - **static:** AArch64 ELF linked at 0x08000000, Linux Image header, uImage header,
     RAM footprint, no `smc`/`hvc` instruction anywhere. The config is checked to have
-    no SPI flash, env storage, network, MMC, EFI or PSCI reset, and the sp805 is not
-    auto-started. The DT is checked for the memory banks, firmware ranges, CPLD and
-    sp805 nodes, and the 500 MHz UART bound before relocation.
+    no SPI flash, env storage, MMC, EFI, PSCI reset, ethernet bootdev or EEPROM-writing
+    command, the sp805 not auto-started, and al_eth + dhcp/tftp/ping/wget present. The
+    DT is checked for the memory banks, firmware ranges, CPLD and sp805 nodes, the
+    500 MHz UART bound before relocation, and the al_eth port node with its EEPROM phandle.
+  - **eth-params:** host build of the handoff encoders (`include/alpine_v2_eth.h` out of
+    the series) against the HAL in `packages/al-eth/src`: register offsets, enums, the
+    DMC-12 params `60000001 00000004 00000000`, 20000 random param sets through
+    `al_eth_board_params_set/get`, MACs through `al_eth_mac_addr_store/read`, and the
+    ONIE TLV parser (the CRC convention was also checked by hand on the u01 EEPROM
+    dump). Also: the 23 HAL files inside patch 0020 are byte-identical to `packages/al-eth/src`.
   - **qemu-virt:** the same patches and board code on `virt,highmem=off,virtualization=on`
     (Cortex-A57, EL2), with a test DT ([qemu-virt.dts](../../nix/packages/uboot/alpine-v2/qemu-virt.dts)).
     1. Entered like the vendor `bootm`: MMU off, x0 = DTB.
@@ -47,6 +68,8 @@ same +1), harmless for partition reads. Transcript:
        prompt that reports the MMU-on entry.
 
     QEMU doesn't model caches, so this proves the code path, not the cache maintenance.
+    Also checked: the al_eth handoff runs before "Starting kernel" and reports no NIC.
+    QEMU has no al_eth model, so the network driver is tested on hardware only.
 
 ## design (why it is shaped like this)
 
@@ -83,7 +106,8 @@ same +1), harmless for partition reads. Transcript:
   falls through to the SoC sp805 (`wdt-reboot`, load 0). There's no PSCI SYSTEM_RESET
   (the firmware has none). The sp805 is never started otherwise, so Linux doesn't
   inherit a running watchdog. Untested on hardware.
-- **No network:** al_eth has no U-Boot driver. Boot media is SATA only.
+- **Network:** see [network](#network-al_eth-built-not-yet-run-on-hardware). The default
+  boot stays SATA only: there is no ethernet bootdev, so `bootflow scan` never DHCPs.
 
 ## load addresses
 
@@ -92,7 +116,7 @@ same +1), harmless for partition reads. Transcript:
 | 0x0 +1 MiB, 0x02000000 +1 MiB | firmware (reserved) |
 | ~0x03B00000–0x04000000 | factory U-Boot (stack 0x03B04CD0, `fdtaddr` 0x03B06010, relocaddr 0x03F0A000) |
 | 0x04078000 +28 KiB | factory DTB copy (`loadaddr_dt`) |
-| **0x08000000–0x080CE5F0** | **this image** (code + BSS + 512 KiB early stack; dead after relocation) |
+| **0x08000000–0x080E3C00** | **this image** (code + BSS + 512 KiB early stack; dead after relocation; with Ethernet) |
 | 0x0f000000 / 0x0f100000 / 0x0f200000 / 0x0f300000 | `fdt_addr_r` / `fdtoverlay_addr_r` / `scriptaddr` / `pxefile_addr_r` |
 | 0x0fd00000 | factory initrd staging (not used by us) |
 | 0x10000000 | uImage TFTP staging (factory side), then `kernel_addr_r` |
@@ -104,6 +128,133 @@ same +1), harmless for partition reads. Transcript:
 initrd where they were loaded, no copy. The value must be 64-bit; `0xffffffff` would be
 read as a 4 GiB limit.
 | 0xb0000000 +256 MiB | firmware (reserved) |
+
+## network: al_eth (built, not yet run on hardware)
+
+The port is integrated Ethernet port 1: PCI 00:01.0 `1c36:0001` rev 2, RGMII at a fixed
+1000/full to the CPLD-managed uplink PHY pair. It has no MDIO PHY and no SerDes.
+BARs: 0 = UDMA (128 KiB), 2 = MAC (4 KiB), 4 = EC (16 KiB). U-Boot assigns them inside
+0xfe000000 +16 MiB, and Linux moves them again.
+
+**Handoff to Linux (patch 0018, also in builds without a network stack).** Linux
+al_eth reads three "board params" scratch registers (MAC BAR +0x4, +0x404, +0xc) and the
+MAC address (EC forwarding entry 0, +0x868/+0x86c). Without the params, probe fails
+("board info not available"). Without the MAC, it picks a random one. An FLR clears
+both. In `board_prep_linux` (just before "Starting kernel"), for every 1c36:0001
+function:
+- **Params** already there are kept; a difference from the DT is printed, not acted on.
+  Missing params are written from the function's DT node (`phy-mode` + `fixed-link`),
+  encoded as the HAL's `al_eth_board_params_set()` does. On the DMC-12 that is
+  `60000001 00000004 00000000`: rgmii, no PHY, autoneg off, 1000, full, ref-clk
+  500 MHz. ref-clk is inferred; only the MDIO divider uses it.
+- **MAC**, first that exists: env `ethaddr`, what the EC already holds, the board
+  EEPROM's ONIE base MAC (TLV 0x24, CRC checked; it equals the factory env's `eth1addr`).
+- `aleth info` shows BARs, params and MACs (read-only). `aleth handoff` runs the
+  handoff by hand.
+
+**Driver (patch 0020).** The device is `al_eth1`, named like the vendor U-Boot's. It runs
+on Annapurna's HAL, copied verbatim; only the platform shim is new, and its `al_assert`
+reports instead of halting. The order follows Linux al_eth:
+- **start:** first quiesce whatever ran before: MAC stop, all 8 queues reset, UDMA
+  disable, FLR keeping params + MAC. Then adapter init, MAC config from the board
+  params, link config 1000/full, one TX and one RX queue, RX forwarding (our unicast and
+  broadcast, the rest dropped), 63 RX buffers of 1536 B, MAC start.
+- **stop and remove:** both quiesce the same way. remove runs before the OS
+  (`DM_FLAG_OS_PREPARE`), so Linux finds the function idle with params and MAC in place.
+- **probe:** maps the BARs, runs the handoff, allocates. Nothing touches the data path
+  before a network command, so a driver fault can't break a disk boot.
+- **DMA:** cached memory with explicit flush/invalidate. TX goes through an aligned
+  bounce buffer padded to 60 B. The MAC's link bit is printed at start but not trusted:
+  Linux turns the carrier on unconditionally for this port.
+
+Commands: `dhcp`, `tftpboot`, `ping`, `wget`. `wget` is the legacy stack's: HTTP only,
+the server given as an IP, the port from env `httpdstp` (default 80). There is no env
+storage, so nothing persists.
+
+### hardware test plan (main agent; RAM only, nothing written)
+
+Run each step only after the one before it passed. Start from an idle `ALPINE_DB>`
+(`./powercycle_to_uboot.py`).
+
+1. **Factory side, before any chainload** (read-only; answers question 1 in
+   `uboot-vendor-commands.md`):
+   1. `pci header 0.1.0` for the BARs.
+   2. `md.l` MAC BAR +0x4, +0x404, +0xc and EC BAR +0x868, +0x86c.
+   3. Repeat 2 after `setenv autoload no; dhcp`.
+
+   Do the first reading straight after the power-cycle, before any `dhcp`. Expect params
+   at or near `60000001 00000004 00000000`. Record the first word: it settles ref-clk.
+   Don't paste the EC words (the MAC) into tracked files.
+2. **Handoff only:** `./chainload_uboot.py nixos-build/result-uboot-dmc12-eth-a --cmd
+   'aleth info::board params'`. Expect:
+   - `board params (present): …` with the factory values;
+   - a valid `EC MAC:` (the chainload ran `dhcp`), equal to the `EEPROM MAC:` line.
+
+   Then `aleth handoff` must report "kept" for both.
+3. **Driver probe:** the same with `…-eth-b`. Expect the banner, an `al_eth 00:01.0:`
+   line and `Net:   al_eth1`, with no "random MAC" or "No valid MAC" warning.
+   `aleth info` as in step 2.
+4. **Data path:**
+   - `setenv autoload no; dhcp`: expect `al_eth1: RGMII 1000M full, link bit …` and a
+     lease in 10.60.2.0/24.
+   - `ping 10.60.2.208`: expect "is alive".
+
+   On failure, note what the link bit said and capture `aleth info`.
+5. **TFTP:** `setenv serverip 10.60.2.208; tftpboot ${kernel_addr_r}
+   dmc12-uboot/eth-b/u-boot.bin; crc32 ${kernel_addr_r} ${filesize}`. Compare with the
+   host: `python3 -c 'import zlib,sys;print(hex(zlib.crc32(open(sys.argv[1],"rb").read())))' <file>`.
+   Then repeat with a large file, `dmc12/uInitrd` (~300 MB), and note the rate U-Boot prints.
+6. **HTTP:**
+   1. On the host: `python3 -m http.server 8608 --bind 10.60.2.208 --directory
+      /srv/tftpboot`. Any free port works; 8608 is free on the host today. Check the
+      host firewall.
+   2. At `=>`: `setenv httpdstp 8608; wget ${kernel_addr_r}
+      10.60.2.208:/dmc12-uboot/eth-b/u-boot.bin`, then `crc32` as in step 5.
+   3. Then the uInitrd, for the rate.
+7. **Linux after U-Boot networking (the handoff end to end):** netboot NixOS as below.
+   In Linux, expect:
+   - `al_eth … Board info: phy exist No … media 1`;
+   - the board MAC on eth0, not a random one;
+   - eth0 up at 1000 with DHCP.
+
+   Then `./smoke.py`.
+8. **Disk boot unaffected:** `bootflow scan -l` lists only SCSI bootflows (no
+   ethernet, no DHCP).
+
+If step 4 gets no RX at all, the likeliest causes, in order:
+1. RX forwarding: compare MAC entry 0 (`md.l <EC BAR>+0x868 2`) with the MAC.
+2. RGMII clocking/delays: the factory U-Boot has `al_cmos_rgmii_dll_*` code that this
+   HAL lacks (see risks).
+3. Cache maintenance.
+
+### netboot NixOS through it
+
+The existing TFTP bundle boots unchanged from upstream U-Boot, which has `bootm` and
+`source`. The bundle is `dmc12-netboot` in `/srv/tftpboot/dmc12/`: legacy uImage,
+uInitrd, dmc12.dtb, boot.scr.
+
+```
+=> setenv autoload no; dhcp; setenv serverip 10.60.2.208; setenv dmc12dir dmc12
+=> tftpboot 0x07000000 dmc12/boot.scr; source 0x07000000
+```
+
+Over HTTP, use the server from step 6 with the same files and the same addresses as
+boot.scr. Take the bootargs from the bundle's `bootargs.txt`; the console buffer is
+1024 B, so typing them works when paced (console.py).
+
+```
+=> setenv autoload no; dhcp; setenv httpdstp 8608
+=> wget 0x10000000 10.60.2.208:/dmc12/uImage
+=> wget 0x20000000 10.60.2.208:/dmc12/uInitrd
+=> wget 0x04078000 10.60.2.208:/dmc12/dmc12.dtb
+=> setenv bootargs '<contents of bootargs.txt>'
+=> bootm 0x10000000 0x20000000 0x04078000
+```
+
+`bootm` moves the kernel to 0x04200000, the uImage load address, clear of everything
+this U-Boot still uses. The natural next step for `nix/packages/dmc12-images` is a
+raw-`Image` + `booti` bundle (kernel at `kernel_addr_r`, initrd at `ramdisk_addr_r`,
+FDT at `fdt_addr_r`). It isn't built yet.
 
 ## first hardware test (main agent runs it; RAM only)
 
@@ -198,8 +349,8 @@ the same image in both slots.
 
 ## risks / unverified
 
-- **Nothing has run on the SoC yet.** The DMC-12 console, PCI and I2C paths are only
-  build-tested. QEMU covered the generic board code.
+- What has run on u01 is in the status at the top (console, I2C/CPLD, PCI, AHCI, CPLD
+  reset via `bootm`). Everything else here is build- or QEMU-tested only.
 - Arch timer: U-Boot uses `CNTFRQ_EL0` as the firmware left it. The vendor DT also
   carries `clock-frequency = 66.66 MHz`. If CNTFRQ were 0, delays and the autoboot
   countdown would break. In that case: hang after `DRAM:`, or a countdown that never ends.
@@ -220,7 +371,20 @@ the same image in both slots.
   sda1 is not known to have one.
 - The uC watchdog (10 s, "enabled") never fired in the factory U-Boot, which never
   services it either (disassembly). Watch for an unexpected reset while sitting at `=>`.
-- **On-disk boot:** al_eth's board params + MAC and the DN0 SATA SerDes write both come
-  from `dmc12_boot_preamble`, which `nixos_boot` now runs first (`uboot-vendor-commands.md`).
-  Unverified on hardware. Without a DHCP answer `bootp` times out first (slower boot; the
-  halt that writes the params should still run, not checked).
+- **On-disk boot:** the DN0 SATA SerDes write comes from `dmc12_boot_preamble`, which
+  `nixos_boot` runs first (`uboot-vendor-commands.md`). al_eth's board params and MAC
+  come from it too, and now also from the upstream handoff (patch 0018) whenever they
+  are missing. Unverified on hardware. Without a DHCP answer, `bootp` times out first,
+  which only slows the boot.
+- **Network (patches 0018–0021), none of it run on hardware:**
+  - RGMII timing. The factory U-Boot contains `al_cmos_rgmii_dll_start` /
+    `_delay_set`, which this HAL (and Linux al_eth) lacks. Linux works after the
+    factory's init, and so should this, if the DLL state survives the factory's FLR the
+    way it does for Linux. A board whose NIC the factory never touched is untested.
+  - DMA coherency is not assumed. Rings and buffers get explicit cache maintenance; a
+    bug there shows as RX garbage or TX timeouts, not a hang.
+  - ref-clk in written params is inferred (500 MHz). Firmware values win when present.
+  - Legacy `wget` is HTTP only, and nobody has measured whether it is fast enough for a
+    300 MB initrd. TFTP uses blocksize 1468, window 1.
+  - The control DT now has a `/soc/pci@fbc00000/ethernet@1,0` node. A Linux booted
+    with U-Boot's own DT sees it; the out-of-tree al_eth ignores DT.

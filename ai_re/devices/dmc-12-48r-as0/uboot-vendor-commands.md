@@ -72,14 +72,17 @@ path skips today.
    from MAC scratch registers** (mac_base +0x4, +0xc, +0x404, with a magic). Without them,
    probe fails with "board info not available". They also read the MAC from EC forwarding
    entry 0 (EC +0x868/+0x86c); without it, Linux picks a random MAC.
-   - The factory U-Boot writes both **only in `al_eth_halt`**. That runs at the end of
-     every network command when `skip_eth_halt` is unset or `0`, and the `eth_*` commands
-     also write the params.
-   - No board-params code exists in stage2 or stage3 (strings checked).
+   - The factory U-Boot's `al_eth_halt` (end of every network command when
+     `skip_eth_halt` is unset or `0`) reads the params back, FLRs the function, restores
+     them and writes the MAC (`al_eth_write_hwaddr`). The `eth_*` commands also write
+     the params. Correction (2026-11-15, Ghidra on `uboot-2015-alpine.bin`): its
+     `al_eth_register` (PCI probe, `FUN_01167568`) *reads* the params and fails with
+     "board_params_get failed" if they're absent. So something writes them before
+     the first network command. No board-params strings exist in stage2/3, but HAL
+     asserts could be compiled out there. Hardware question 1 settles where.
    - So the TFTP chainload (it runs `dhcp`) is fine, and both on-disk paths run the
-     preamble's `bootp` (factory env has `autoload=n`). Alternatives, if that proves
-     unreliable: make upstream's al_eth write the params and MAC (layout:
-     `al_eth_board_params_set` in the al-eth HAL), or teach Linux al_eth a DT fallback.
+     preamble's `bootp` (factory env has `autoload=n`). Upstream U-Boot now also writes
+     missing params and the MAC itself before Linux (`u-boot-port.md`, network).
    - Port1 (RGMII, 1G, autoneg off, `allow-random-mac`) is the only enabled port in
      board-cfg.
 5. **uC watchdog.** The factory U-Boot never talks to the uC except inside the `uc_*`
