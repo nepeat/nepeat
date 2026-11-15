@@ -164,7 +164,7 @@ def cmd_route_a(a):
         raise SystemExit("image does not match its .txt")
     tramp = b"".join(struct.pack("<I", w) for w in TRAMP)
     d = a.tftp_root / a.tftp_dir
-    steps = [f"setenv serverip {a.server}", "dhcp",
+    steps = ["dhcp", f"setenv serverip {a.server}",
              f"tftpboot {IMG_ADDR:#x} {a.tftp_dir}/{a.image.name}",
              f"crc32 {IMG_ADDR:#x} {IMG_SIZE:#x}",
              f"tftpboot {TRAMP_ADDR:#x} {a.tftp_dir}/tramp.bin",
@@ -183,9 +183,11 @@ def cmd_route_a(a):
     d.mkdir(parents=True, exist_ok=True)
     (d / a.image.name).write_bytes(a.image.read_bytes())
     (d / "tramp.bin").write_bytes(tramp)
-    console(f"setenv serverip {a.server}")
+    # dhcp first: it overwrites serverip with the DHCP server's address (TFTP went to
+    # the router once, 2026-11-15).
     if "bound to address" not in console("dhcp", 60):
         raise SystemExit("dhcp failed")
+    console(f"setenv serverip {a.server}")
     for addr, name, size, want in ((IMG_ADDR, a.image.name, IMG_SIZE, meta["crc"]),
                                    (TRAMP_ADDR, "tramp.bin", len(tramp), zlib.crc32(tramp))):
         console(f"tftpboot {addr:#x} {a.tftp_dir}/{name}", 180)
