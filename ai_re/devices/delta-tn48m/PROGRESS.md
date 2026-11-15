@@ -65,7 +65,7 @@ recipes), [dentos.md](dentos.md) (as-received disk + provenance),
 - serial: front console, **115200 8N1 confirmed 2026-11-11**, FTDI FT232R
   `B0016Y5Q` (same cable as the cs8210). tmux session `serial-tn48m`, logged to
   `serial-YYYYMMDD-HHMMSS.txt` here. Levels not measured by the agent.
-- power: `tools/lab_power.py` (same HA lab plug as the cs8210).
+- power: `tools/lab_power.py` (HA lab plug 1, same as the cs8210).
 - U-Boot: `@wa23` during "Type password to STOP autoboot" (10 s) -> `Marvell>>`.
 - ONIE: root shell on serial. The mgmt port DHCPs (10.60.2.217, MAC ...:42).
   dropbear 2016.74 rejects root ("Login attempt for nonexistent user") even with

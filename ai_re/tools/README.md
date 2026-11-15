@@ -10,18 +10,22 @@ which `.envrc` sources through direnv. Plain
 `nix develop` does not load `.envrc` exports; use direnv or export them yourself.
 Never commit tokens or paste them into CLI arguments.
 
+Every call names the plug; there is no default, so `lab-power off` alone
+is refused before anything reaches HA.
+
+| plug | HA entity | device on it |
+| --- | --- | --- |
+| 1 | `switch.server_room_lab_plug` | whichever lab switch is in bring-up (another agent is using it) |
+| 2 | `switch.server_room_lab_plug_2` | `dmc-12-48r-as0` console server |
+
 ```sh
-lab-power status
-lab-power off
-lab-power on
-lab-power status --json
-lab-power status --entity switch.another_outlet
-lab-power on --entity switch.another_outlet
+lab-power 2 status
+lab-power 2 off
+lab-power 2 on
+lab-power 1 status --json
 ```
 
-The default is `switch.server_room_lab_plug`. Set `HA_ENTITY` to change the
-default, or use `--entity` for a single command (takes precedence over the
-environment). Entity IDs must be in the `switch` domain.
+To add a plug, add it to `PLUGS` in `lab_power.py` and to this table.
 
 `status` only reads. `on` and `off` first check the entity, call the switch
 service, then poll until HA reports the requested state. Failure returns a

@@ -13,7 +13,7 @@
 - serial console: **115200 8N1, no flow control — confirmed 2026-11-09** on the
   console port via FTDI FT232R adapter; clean text from the first stage-2 loader
   byte through U-Boot and ONIE. Pinout and levels were not measured by the agent.
-- tmux session `serial-cs8210`; power via `tools/lab_power.py` (HA lab plug).
+- tmux session `serial-cs8210`; power via `tools/lab_power.py` (HA lab plug 1: `lab-power 1 …`).
 - CPU: 16x Cortex-A72 (`0x41/0xd08`), 8 GB DDR (2 x 4 GB, SPD at 0x52), Alpine v3.
 - boot chain: AL stage2/3 v3.65.1 -> U-Boot 2018.05-alpine_db-v3.65.1.015 ->
   ONIE 2017.11.015 (FIT from SPI `0x410000`), kernel 4.9.124+.

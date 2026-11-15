@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Read and switch a Home Assistant lab outlet using environment credentials."""
+"""Read and switch a Home Assistant lab outlet using environment credentials.
+
+The plug number is required on every call so nothing is switched by default.
+"""
 
 import argparse
 import http.client
 import json
 import math
 import os
-import re
 import sys
 import time
 import urllib.error
@@ -14,7 +16,12 @@ import urllib.parse
 import urllib.request
 
 
-DEFAULT_ENTITY = "switch.server_room_lab_plug"
+# Plug number -> HA entity. Which device is on each plug is recorded in
+# tools/README.md.
+PLUGS = {
+    "1": "switch.server_room_lab_plug",
+    "2": "switch.server_room_lab_plug_2",
+}
 
 
 class PowerError(Exception):
@@ -78,17 +85,15 @@ def positive_seconds(value):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="lab-power", description=__doc__)
+    parser.add_argument("plug", choices=sorted(PLUGS), help="lab plug number (required)")
     parser.add_argument("action", choices=("status", "on", "off"))
-    parser.add_argument("--entity", default=os.environ.get("HA_ENTITY", DEFAULT_ENTITY),
-                        help=f"outlet entity (HA_ENTITY or {DEFAULT_ENTITY})")
     parser.add_argument("--json", action="store_true", help="print the full entity state as JSON")
     parser.add_argument("--timeout", type=positive_seconds, default=10,
                         help="timeout per HTTP request in seconds (default: 10)")
     parser.add_argument("--wait", type=positive_seconds, default=5,
                         help="seconds to wait for a requested state (default: 5)")
     args = parser.parse_args(argv)
-    if not re.fullmatch(r"switch\.[a-z0-9_]+", args.entity):
-        parser.error("--entity / HA_ENTITY must be a switch.<entity_name> ID")
+    args.entity = PLUGS[args.plug]
     try:
         base, key = os.environ.get("HA_BASE"), os.environ.get("HA_KEY")
         if not base or not key:
@@ -108,7 +113,7 @@ def main(argv=None):
                     raise PowerError(f"service accepted but {args.entity} did not report {args.action}; "
                                      f"last state: {state['state']}")
                 time.sleep(min(0.25, max(0, deadline - time.monotonic())))
-        print(json.dumps(state) if args.json else f"{args.entity}: {state['state']}")
+        print(json.dumps(state) if args.json else f"plug {args.plug} ({args.entity}): {state['state']}")
         return 0
     except PowerError as exc:
         print(f"lab-power: {exc}", file=sys.stderr)

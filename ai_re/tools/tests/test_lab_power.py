@@ -56,7 +56,7 @@ class OutletTests(unittest.TestCase):
         self.thread.start()
         self.env = patch.dict(os.environ, {
             "HA_BASE": f"http://127.0.0.1:{self.server.server_port}",
-            "HA_KEY": "test-secret", "HA_ENTITY": "switch.test",
+            "HA_KEY": "test-secret",
         }, clear=True)
         self.env.start()
 
@@ -73,27 +73,28 @@ class OutletTests(unittest.TestCase):
         return code, out.getvalue(), err.getvalue()
 
     def test_status_is_read_only_and_authenticated(self):
-        code, out, err = self.run_cli("status", "--json")
+        code, out, err = self.run_cli("1", "status", "--json")
         self.assertEqual(code, 0, err)
         self.assertEqual(json.loads(out)["state"], "off")
-        self.assertEqual(self.calls, [("GET", "/api/states/switch.test", None, "Bearer test-secret")])
+        self.assertEqual(self.calls, [("GET", "/api/states/switch.server_room_lab_plug", None, "Bearer test-secret")])
 
     def test_on_off_target_and_verification(self):
+        entity = "switch.server_room_lab_plug_2"
         for action in ("on", "off"):
             self.calls.clear()
-            code, out, err = self.run_cli(action, "--entity", "switch.override")
+            code, out, err = self.run_cli("2", action)
             self.assertEqual(code, 0, err)
-            self.assertIn(f"switch.override: {action}", out)
+            self.assertIn(f"plug 2 ({entity}): {action}", out)
             self.assertEqual([(c[0], c[1], c[2]) for c in self.calls], [
-                ("GET", "/api/states/switch.override", None),
-                ("POST", f"/api/services/switch/turn_{action}", {"entity_id": "switch.override"}),
-                ("GET", "/api/states/switch.override", None),
+                ("GET", f"/api/states/{entity}", None),
+                ("POST", f"/api/services/switch/turn_{action}", {"entity_id": entity}),
+                ("GET", f"/api/states/{entity}", None),
             ])
 
     def test_http_errors_hide_private_details(self):
         for status in (401, 404, 500, 302):
             self.error = status
-            code, out, err = self.run_cli("on")
+            code, out, err = self.run_cli("1", "on")
             self.assertEqual(code, 1)
             self.assertIn(str(status), err)
             self.assertNotIn("test-secret", err)
@@ -103,30 +104,33 @@ class OutletTests(unittest.TestCase):
 
     def test_unavailable_prevents_switching(self):
         self.state = "unavailable"
-        self.assertEqual(self.run_cli("status")[0], 0)
-        self.assertEqual(self.run_cli("on")[0], 1)
+        self.assertEqual(self.run_cli("1", "status")[0], 0)
+        self.assertEqual(self.run_cli("1", "on")[0], 1)
         self.assertTrue(all(call[0] == "GET" for call in self.calls))
 
     def test_unconfirmed_switch_fails(self):
         self.stuck = True
-        code, out, err = self.run_cli("on", "--wait", "0.01")
+        code, out, err = self.run_cli("1", "on", "--wait", "0.01")
         self.assertEqual(code, 1)
         self.assertIn("did not report on", err)
 
     def test_missing_configuration(self):
         del os.environ["HA_KEY"]
-        self.assertEqual(self.run_cli("status")[0], 1)
+        self.assertEqual(self.run_cli("1", "status")[0], 1)
         self.assertEqual(self.calls, [])
 
-    def test_invalid_target_fails_before_request(self):
-        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-            power.main(["off", "--entity", "switch.test/../../services"])
+    def test_plug_is_required_and_validated(self):
+        # Old `lab-power off` and bogus targets must never reach HA.
+        for argv in (["off"], ["on"], ["status"], ["3", "off"], ["off", "2"],
+                     ["2", "off", "--entity", "switch.server_room_lab_plug"]):
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                power.main(argv)
         self.assertEqual(self.calls, [])
 
-    def test_default_entity(self):
-        del os.environ["HA_ENTITY"]
-        self.assertEqual(self.run_cli("status")[0], 0)
-        self.assertEqual(self.calls[0][1], "/api/states/switch.server_room_lab_plug")
+    def test_ha_entity_env_is_ignored(self):
+        os.environ["HA_ENTITY"] = "switch.server_room_lab_plug"
+        self.assertEqual(self.run_cli("2", "status")[0], 0)
+        self.assertEqual(self.calls[0][1], "/api/states/switch.server_room_lab_plug_2")
 
 
 if __name__ == "__main__":

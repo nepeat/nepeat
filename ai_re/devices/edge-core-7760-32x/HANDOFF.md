@@ -157,7 +157,7 @@ Module: `ai_re/nix/modules/profiles/netboot-root.nix`; bundle: `ai_re/nix/packag
 
 TFTP server at handoff: atftpd on UDP 69, `/srv/tftpboot`, workstation
 `10.60.2.208`; staged public files are in `as7760-probe/`. Check those before
-reusing the helper. Power entity is `switch.server_room_lab_plug` via `lab-power`.
+reusing the helper. Power entity is `switch.server_room_lab_plug`, plug 1: `lab-power 1 …`.
 The following power-cycles the switch and discards its RAM shell:
 
 ```sh

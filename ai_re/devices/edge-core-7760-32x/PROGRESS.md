@@ -189,7 +189,7 @@ RAM-root SD image): [HISTORY.md](HISTORY.md).
 - `tmux attach -t serial-7760` (inside tmux: `tmux switch-client -t serial-7760`). Persistent `sudo tio` needed because user lacks dialout group.
 - **115200 8N1, no flow control confirmed by readable boot and shell interaction**. FTDI FT232R `B0016Y5Q`, `/dev/ttyUSB0`, using stable `/dev/serial/by-id/` name. Existing user-connected cable; no wiring changes. Electrical levels unmeasured; verify before internal probing.
 - Raw ongoing session: local `serial-20261114-020529.txt`. Earlier non-sudo connection failed with permission denied before power-on.
-- Power: `lab-power`, `switch.server_room_lab_plug`; credentials loaded locally, never included in records.
+- Power: `lab-power 1 …` (`switch.server_room_lab_plug`); credentials loaded locally, never included in records.
 - ONIE management DHCP: `10.60.2.253`, eth0. Installer discovery stopped. Root serial shell needs no login.
 
 ## NOR map
