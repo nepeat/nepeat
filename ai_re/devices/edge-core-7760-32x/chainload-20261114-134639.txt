@@ -1,0 +1,486 @@
+setenv autoload no
+LOADER=> dhcp
+FM1@DTSEC1 Waiting for PHY auto negotiation to complete.... done
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+*** ERROR: `eth3addr' not set
+BOOTP broadcast 1
+*** Unhandled DHCP Option in OFFER/ACK: 42
+*** Unhandled DHCP Option in OFFER/ACK: 42
+DHCP client bound to address 10.60.2.253
+LOADER=> setenv serverip 10.60.2.208
+LOADER=> tftpboot 0x00200000 as7760-probe/u-boot-chainload.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.253
+Filename 'as7760-probe/u-boot-chainload.bin'.
+Load address: 0x200000
+Loading: *#######################################
+	 7 MiB/s
+done
+Bytes transferred = 570082 (8b2e2 hex)
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> mw.l fec20000 c0000800
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> go 0x00200000
+## Starting application at 0x00200000 ...
+
+
+U-Boot 2026.10-as7760-chainload (Jan 01 1980 - 00:00:00 +0000)
+
+CPU0:  T2080, Version: 1.1, (0x85300011)
+Core:  e6500, Version: 2.0, (0x80400120)
+Clock Configuration:
+       CPU0:1800 MHz, CPU1:1800 MHz, CPU2:1800 MHz, CPU3:1800 MHz, 
+       CCB:600  MHz,
+       DDR:799.980 MHz (1599.960 MT/s data rate) (Asynchronous), IFC:600  MHz
+       FMAN1: 600 MHz
+       QMAN:  300 MHz
+       PME:   600 MHz
+L1:    D-cache 32 KiB enabled
+       I-cache 32 KiB enabled
+Reset Configuration Word (RCW):
+       00000000: 0c060012 12000000 00000000 00000000
+       00000010: 6c160002 00004200 fc027000 a1000000
+       00000020: 00080000 00000001 00000000 00022002
+       00000030: 00000000 50000009 00000000 00000005
+Model: Accton AS7760-32X
+Board: T2080RDB, Board rev: C CPLD ver: 0xff, boot from SD/MMC
+SERDES Reference Clocks:
+SD1_CLK1=156.25MHZ, SD1_CLK2=100.00MHZ
+SD2_CLK1=100.00MHZ, SD2_CLK2=100.00MHZ
+DRAM:  Detected UDIMM U10U7211P8FU-BDE
+       Detected UDIMM U10U7211P8FU-BDE
+       14 GiB of DDR memory left unmapped in U-Boot
+       16 GiB (total 2 GiB) (DDR3, 64-bit, CL=11, ECC on)
+Core:  29 devices, 13 uclasses, devicetree: separate
+Flash: 128 MiB
+L2:    2 MiB enabled
+Corenet Platform Cache: 512 KiB enabled
+Using SERDES1 Protocol: 108 (0x6c)
+Using SERDES2 Protocol: 22 (0x16)
+CPU up timeout. CPU up mask is 1 should be f
+MMC:   FSL_SDHC: 0
+Loading Environment from MMC...Reading from MMC(0)... *** Warning - bad CRC, using default environment
+
+EEPROM: Read failed.
+In:    serial@11c500
+Out:   serial@11c500
+Err:   serial@11c500
+WARNING: adjusting available memory from 0x30000000 to 0x80000000
+Net:   Fman1: Uploading microcode version 106.4.14
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+No ethernet found.
+
+=> version
+U-Boot 2026.10-as7760-chainload (Jan 01 1980 - 00:00:00 +0000)
+
+powerpc-unknown-linux-gnu-gcc (GCC) 16.2.0
+GNU ld (GNU Binutils) 2.46
+=> bdinfo
+boot_params = 0x00000000
+DRAM bank   = 0x00000000
+-> start    = 0x00000000
+-> size     = 0x80000000
+flashstart  = 0xe8000000
+flashsize   = 0x08000000
+flashoffset = 0x00000000
+baudrate    = 115200 bps
+relocaddr   = 0x7ff60000
+reloc off   = 0x7fd60000
+Build       = 32-bit
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+current eth = unknown
+eth-1addr   = (not set)
+IP addr     = <NULL>
+fdt_blob    = 0x7fb5ad60
+lmb_dump_all:
+ memory.count = 0x1
+ memory[0]	[0x0-0x7fffffff], 0x80000000 bytes, flags: none
+ reserved.count = 0x2
+ reserved[0]	[0x7eb5ad50-0x7fffefff], 0x14a42b0 bytes, flags: no-overwrite
+ reserved[1]	[0x7ffff000-0x7fffffff], 0x1000 bytes, flags: none
+devicetree  = separate
+serial addr = 0xfe11c500
+ width      = 0x00000001
+ shift      = 0x00000000
+ offset     = 0x00000000
+ clock      = 0x11e1a300
+busfreq     =    600 MHz
+immr_base   = 0xfe000000
+bootflags   = 0x00000000
+intfreq     =   1800 MHz
+addressing  = 36-bit
+=> dm tree
+ Class     Seq    Probed  Driver                Name
+-----------------------------------------------------------
+ root          0  [ + ]   root_driver           root_driver
+ simple_bus    0  [ + ]   simple_bus            |-- soc@ffe000000
+ mmc           0  [ + ]   fsl-esdhc-mmc         |   |-- esdhc@114000
+ blk           0  [ + ]   mmc_blk               |   |   |-- esdhc@114000.blk
+ partition     0  [ + ]   blk_partition         |   |   |   |-- esdhc@114000.blk:1
+ partition     1  [ + ]   blk_partition         |   |   |   `-- esdhc@114000.blk:2
+ bootdev       0  [   ]   mmc_bootdev           |   |   `-- esdhc@114000.bootdev
+ ahci          0  [   ]   fsl_ahci              |   |-- sata@220000
+ i2c           0  [ + ]   i2c_fsl               |   |-- i2c@118000
+ i2c           1  [   ]   i2c_fsl               |   |-- i2c@118100
+ i2c           2  [   ]   i2c_fsl               |   |-- i2c@119000
+ i2c           3  [   ]   i2c_fsl               |   |-- i2c@119100
+ simple_bus    1  [ + ]   fman                  |   |-- fman@400000
+ ethernet      0  [   ]   eth_fman              |   |   |-- fm1-mac1
+ bootdev       1  [   ]   eth_bootdev           |   |   |   `-- fm1-mac1.bootdev
+ mdio          0  [ + ]   fman_mdio             |   |   |-- mdio@fc000
+ mdio          1  [   ]   fman_mdio             |   |   |-- mdio@fd000
+ mdio          2  [ + ]   fman_mdio             |   |   |-- mdio@e1000
+ mdio          3  [   ]   fman_mdio             |   |   |-- mdio@e3000
+ mdio          4  [   ]   fman_mdio             |   |   |-- mdio@e5000
+ mdio          5  [   ]   fman_mdio             |   |   |-- mdio@e7000
+ mdio          6  [   ]   fman_mdio             |   |   |-- mdio@f1000
+ mdio          7  [   ]   fman_mdio             |   |   `-- mdio@f3000
+ serial        0  [ + ]   ns16550_serial        |   |-- serial@11c500
+ serial        1  [   ]   ns16550_serial        |   |-- serial@11c600
+ serial        2  [   ]   ns16550_serial        |   |-- serial@11d500
+ serial        3  [   ]   ns16550_serial        |   |-- serial@11d600
+ misc          0  [ + ]   caam_jr               |   `-- crypto@300000
+ bootstd       0  [   ]   bootstd_drv           `-- bootstd
+ bootmeth      0  [   ]   bootmeth_extlinux         |-- extlinux
+ bootmeth      1  [   ]   vbe_simple                `-- vbe_simple
+=> md.b ffdf0000 20
+ffdf0000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+ffdf0010: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+=> mmc info
+Device: FSL_SDHC
+Manufacturer ID: 3
+OEM: 5344
+Name: SA08G
+Bus Speed: 50000000
+Mode: SD High Speed (50MHz)
+Rd Block Len: 512
+SD version 3.0
+High Capacity: Yes
+Capacity: 7.4 GiB
+Bus Width: 4-bit
+Erase Group Size: 512 Bytes
+=> i2c bus
+Bus 0:	i2c@118000  (active 0)
+Bus 1:	i2c@118100
+Bus 2:	i2c@119000
+Bus 3:	i2c@119100
+=> mw.l 0x10000000 0x5a5aa5a5 0x1000
+=> cmp.l 0x10000000 0x10000004 0xfff
+Total of 4095 word(s) were the same
+=> mmc rescan
+=> fatload mmc 0:1 0x10000000 uImage
+4988423 bytes read in 212 ms (22.4 MiB/s)
+=> fatload mmc 0:1 0x20000000 uInitrd
+25140093 bytes read in 1043 ms (23 MiB/s)
+=> fatload mmc 0:1 0x08000000 as7760.dtb
+36904 bytes read in 4 ms (8.8 MiB/s)
+=> setenv bootargs console=ttyS0,115200n8 ignore_loglevel panic=10 pcie_aspm.policy=performance root=fstab net.ifnames=0 init=/nix/store/5qrxaz74mpypcq9abmr4sq918lzzw6yv-nixos-system-as7760-26.11.20261111.d4f25a3/init
+=> bootm 0x10000000 0x20000000 0x08000000
+## Booting kernel from Legacy Image at 10000000 ...
+   Image Name:   AS7760 Linux 7.3.4
+   Created:      1970-01-01   0:00:01 UTC
+   Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+   Data Size:    4988359 Bytes = 4.8 MiB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+## Loading init Ramdisk from Legacy Image at 20000000 ...
+   Image Name:   AS7760 NixOS initrd
+   Created:      1970-01-01   0:00:01 UTC
+   Image Type:   PowerPC Linux RAMDisk Image (gzip compressed)
+   Data Size:    25140029 Bytes = 24 MiB
+   Load Address: 00000000
+   Entry Point:  00000000
+   Verifying Checksum ... OK
+## Flattened Device Tree blob at 08000000
+   Booting using the fdt blob at 0x8000000
+Working FDT set to 8000000
+   Uncompressing Kernel Image to 0
+   Loading Ramdisk to 02806000, end 03fffb3d ... OK
+   Loading Device Tree to 027e9000, end 02805027 ... OK
+Working FDT set to 27e9000
+
+Starting kernel ...
+
+** 2 printk messages dropped **
+
+
+
+
+
+
+printk: debug: ignoring loglevel setting.
+OF: reserved mem: 0x000000007f000000..0x000000007fffffff (16384 KiB) map non-reusable bman-fbpr
+OF: reserved mem: 0x000000007ec00000..0x000000007effffff (4096 KiB) map non-reusable qman-fqd
+OF: reserved mem: 0x000000007c000000..0x000000007dffffff (32768 KiB) map non-reusable qman-pfdr
+Activating Kernel Userspace Execution Prevention
+MMU: Supported page sizes
+         4 KB as di         4 KB as direct
+      2048 KB as direct & indirect
+      4096 KB as direct
+     16384 KB as direct
+     65536 KB as direct
+    262144 KB as direct
+   1048576 KB as direct
+MMU: Book3E HW tablewalk enabled
+Linux version 7.3.4 (nixbld@localhost) (powerpc64-unknown-linux-gnuabielfv2-gcc (GCC) 16.2.0, GNU ld (GNU Binutils) 2.46) #1-NixOS SMP PREEMPT @1794334210
+Found initrd at 0xc000000002806000:0xc000000003fffb3d
+Hardware name: accton,as7760_32x e6500 0x80400120 CoreNet Generic
+Found legacy serial port 0 for /soc@ffe000000/serial@11c500
+  mem=0x0000000ffe11c500, taddr=0x0000000ffe11c500, irq=0, clk=300000000, speed=0
+Found legacy serial port 1 for /soc@ffe000000/serial@11c600
+  mem=0x0000000ffe11c600, taddr=0x0000000ffe11c600, irq=0, clk=300000000, speed=0
+Found legacy serial port 2 for /soc@ffe000000/serial@11d500
+  mem=0x0000000ffe11d500, taddr=0x0000000ffe11d500, irq=0, clk=300000000, speed=0
+Found legacy serial port 3 for /soc@ffe000000/serial@11d600
+  mem=0x0000000ffe11d600, taddr=0x0000000ffe11d600, irq=0, clk=300000000, speed=0
+printk: legacy bootconsole [udbg0] enabled
+kernel tried to execute user page (0) - exploit attempt? (uid: 0)
+BUG: Unable to handle kernel instruction fetch (NULL pointer?)
+Faulting instruction address: 0x00000000
+Oops: Kernel access of bad area, sig: 11 [#1]
+BE PAGE_SIZE=4K  SMP NR_CPUS=8 CoreNet Generic
+Modules linked in:
+** 1 printk messages dropped **
+kernel tried to execute user page (8) - exploit attempt? (uid: 0)
+BUG: Unable to handle kernel data access on read at 0x52454753
+BUG: Unable to handle unknown paging fault at 0x0000007a
+Faulting instruction address: 0xc000000000720730
+Faulting instruction address: 0x00000000
+Oops: Kernel access of bad area, sig: 11 [#2]
+Oops: Kernel access of bad area, sig: 11 [#3]
+BE PAGE_SIZE=4K  SMP NR_CPUS=8 CoreNet Generic
+BE PAGE_SIZE=4K  SMP NR_CPUS=8 CoreNet Generic
+Modules linked in:
+Modules linked in:
+
+CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 7.3.4 #1-NixOS PREEMPTLAZY 
+CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 7.3.4 #1-NixOS PREEMPTLAZY 
+Hardware name: accton,as7760_32x e6500 0x80400120 CoreNet Generic
+Hardware name: accton,as7760_32x e6500 0x80400120 CoreNet Generic
+NIP:  c000000000720730 LR: c000000000721da4 CTR: 00000000ffffffff
+NIP:  c000000000a64f40 LR: c000000000a64f60 CTR: c0000000008566d5
+REGS: c000000000a65280 TRAP: 0300   Not tainted  (7.3.4)
+REGS: c000000000a64e20 TRAP: c000000000a64ff0   Not tainted  (7.3.4)
+MSR:  0000000080021002 
+MSR:  0504000000000000 <
+<CE0000000000000000 
+,ME>
+0000000400a64f48   CR: 28002281  XER: 20000000
+c0000000008c7db5 
+GPR08: 
+DEAR: 0000000052454753 ESR: 0000000000000000 
+c00000000001db44 
+IRQMASK: 3 
+0000000000000000 
+GPR00: 
+c000000000a65358 c000000000721d84 
+c000000000859530 c000000000a65520 
+
+GPR12: c000000000966000 
+0000000000000000 c000000000a8cecc 
+0504000000000000 
+GPR04: 
+c000000000a64f88 c000000000a92e98 
+c0000000008566cb 
+GPR16: 
+0000000052454753 0000000000000000 
+000affffffffffff 0000000000000000 
+0000000000000000 ffffffffffffffff 
+
+GPR08: c000000000a8cecc 
+0000000000000000 
+GPR20: 
+0000000100000000 c000000000a64f20 
+0000000000000000 0000000022222222 
+2222222200000000 
+GPR12: 
+c00000000008ba20 6c696e6b65642069 
+0000000000000000 
+GPR24: 
+c000000000acb000 0000000000000000 
+000000007fb5f830 0000000000000000 
+0000000000000000 
+GPR16: 
+c00000000085666c 000000007fb81820 
+c0000000008b5501 0000000000000000 c000000000a651b0 c0000000 000affffffffffff 009ba208 
+Code: 
+Oops: Kernel access of bad area, sig: 11 [#4]
+
+CPU: 0 UID: 0 PID: 0 Comm: swapper Tainted: G      D             7.3.4 #1-NixOS PREEMPTLAZY 
+Tainted: [D]=DIE
+Hardware name: accton,as7760_32x e6500 0x80400120 CoreNet Generic
+NIP:  6666666666666664 LR: 6666666666666666 CTR: c00000000072399c
+REGS: c000000000a649a0 TRAP: 0400   Tainted: G      D              (7.3.4)
+MSR:  0000000080021002 <CE,ME>  CR: 28002280  XER: 20000000
+IRQMASK: 3 
+GPR00: 6666666666666666 c000000000a64c40 c000000000966000 0000000000000000 
+GPR04: 0000000000001050 c000000000a648b0 fffffffffffe3188 fffffffffffe31b8 
+GPR08: 3ffffffffffff0ae 0000000000000000 fffffffffffe3188 0000000022222222 
+GPR12: 3030386235353031 c00000000099c740 0000000000000001 0000000000000000 
+GPR16: 0000000000000000 0000000000000000 0000000000000001 c000000000a65858 
+GPR20: 0000000000000504 c0000000008c7da3 0000000000000005 0000000000000000 
+GPR24: 0000000000000000 3ffffffffffff0af 00000000000000ad c000000000a64c80 
+GPR28: c000000000a64c60 c000000000a8d8ef c000000000a64cd0 c0000000009c2db0 
+NIP [6666666666666664] 0x6666666666666664
+LR [6666666666666666] 0x6666666666666666
+Call Trace:
+[c000000000a64c40] [6666666666666666] 0x6666666666666666 (unreliable)
+[c000000000a64cd0] [c000000000a64d60] 0xc000000000a64d60
+[c000000000a64d60] [c00000000008e5b4] desc_read_finalized_seq+0x3c/0x9c
+[c000000000a64da0] [c00000000008ea90] prb_next_reserve_seq+0x64/0xa4
+[c000000000a64e10] [c00000000008ed48] _prb_read_valid+0x278/0x29c
+[c000000000a64ed0] [c00000000008edb0] desc_update_last_finalized+0x44/0x90
+[c000000000a64f20] [c00000000008a28c] vprintk_store+0x404/0x40c
+[c000000000a65000] [c00000000008ba20] vprintk_emit+0xf4/0x288
+[c000000000a65060] [c00000000008c5dc] vprintk+0x18/0x2c
+[c000000000a65080] [c00000000008c140] _printk+0x38/0x4c
+[c000000000a650a0] [c0000000000091ec] die+0x1d0/0x2a8
+[c000000000a65140] [c00000000001dc64] bad_page_fault+0x14c/0x1a4
+[c000000000a651b0] [c00000000001ddd8] do_page_fault+0x11c/0x4b8
+[c000000000a65250] [c0000000000148d4] storage_fault_common+0x8/0xc
+---- interrupt: 300 at string_nocheck+0x2c/0x5c
+NIP:  c000000000720730 LR: c000000000721da4 CTR: 00000000ffffffff
+REGS: c000000000a65280 TRAP: 0300   Tainted: G      D              (7.3.4)
+MSR:  0000000080021002 <CE,ME>  CR: 28002281  XER: 20000000
+DEAR: 0000000052454753 ESR: 0000000000000000 IRQMASK: 3 
+GPR00: c000000000721d84 c000000000a65520 c000000000966000 c000000000a8cecc 
+GPR04: c000000000a92e98 0000000052454753 000affffffffffff 0000000000000000 
+GPR08: c000000000a8cecc 0000000100000000 0000000000000000 0000000022222222 
+GPR12: 6c696e6b65642069 c000000000acb000 000000007fb5f830 0000000000000000 
+GPR16: 000000007fb81820 0000000000000000 c000000000a651b0 0000000000000000 
+GPR20: c00000000001db44 0000000000000000 c000000000a65358 c000000000859530 
+GPR24: 0000000000006000 0504000000000000 c000000000a92e98 00000000ffffffff 
+GPR28: c000000000a8ce98 000affffffffffff 0000000052454753 c000000000a92e98 
+NIP [c000000000720730] string_nocheck+0x2c/0x5c
+LR [c000000000721da4] string+0x4c/0x54
+---- interrupt: 300
+[c000000000a65520] [c000000000721d84] string+0x2c/0x54 (unreliable)
+[c000000000a65570] [c000000000723b48] vsnprintf+0x2fc/0x364
+[c000000000a65610] [c00000000072482c] vscnprintf+0x28/0x44
+[c000000000a65640] [c000000000089e04] printk_sprint+0x2c/0xb0
+[c000000000a65680] [c00000000008a1b8] vprintk_store+0x330/0x40c
+Code: XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX 
+---[ end trace 0000000000000000 ]---
+
+Kernel panic - not syncing: Attempted to kill the idle task!
+BUG: Unable to handle kernel data access on read at 0xc00000007ebbdff8
+Faulting instruction address: 0xc000000000020f18
+Thread overran stack, or stack corrupted
+Oops: Kernel access of bad area, sig: 11 [#5]
+BE PAGE_SIZE=4K  SMP NR_CPUS=8 CoreNet Generic
+Modules linked in:
+CPU: 0 UID: 0 PID: 0 Comm: swapper Tainted: G      D             7.3.4 #1-NixOS PREEMPTLAZY 
+Tainted: [D]=DIE
+Hardware name: accton,as7760_32x e6500 0x80400120 CoreNet Generic
+NIP:  c000000000020f18 LR: c000000000019ddc CTR: c000000000019d1c
+REGS: c000000000a64c20 TRAP: 0300   Tainted: G      D              (7.3.4)
+MSR:  0000000080021002 <CE,ME>  CR: 80002240  XER: 20000000
+DEAR: c00000007ebbdff8 ESR: 0000000000000000 IRQMASK: 3 
+GPR00: c000000000019e38 c000000000a64ec0 c000000000966000 0000000000000005 
+GPR04: 0000000000000018 0000000000000018 0000000000000000 0000000000000000 
+GPR08: 0000000000000000 0000000000000005 0000000000000000 c00000000099cd90 
+GPR12: c00000000099c7d8 c00000000099c740 c00000007ebbd000 0000000000000ff8 
+GPR16: c0001bffffc00504 0000000000000000 0000000000000003 0000000000000000 
+GPR20: 0000000000000000 0000000000000001 0000000000000000 c000000000aaa790 
+GPR24: 0000000000000000 0000000000000001 0000000000000000 c000000000a65030 
+GPR28: 0000000000000000 0000000000000018 0000000000000017 0000000000000020 
+NIP [c000000000020f18] tlb_miss_common_e6500+0xd4/0x108
+LR [c000000000019ddc] udbg_uart_flush+0x48/0x64
+Call Trace:
+[c000000000a64ee0] [c000000000019e38] udbg_uart_putc+0x40/0x68
+[c000000000a64f10] [c00000000000ba4c] udbg_write+0xac/0xc8
+[c000000000a64f50] [c00000000008a9c0] console_flush_all+0x20c/0x274
+[c000000000a65010] [c00000000008b60c] console_flush_on_panic+0x78/0x88
+[c000000000a65040] [c0000000000323c4] vpanic+0x1a4/0x358
+[c000000000a650e0] [c0000000000325b0] arch_set_bit+0x0/0x34
+[c000000000a65100] [c000000000035954] make_task_dead+0x34/0x15c
+[c000000000a65180] [c0000000000092b8] die+0x29c/0x2a8
+---- interrupt: 7fb5f830 at 0xaffffffffffff
+NIP:  000affffffffffff LR: 0000000000000000 CTR: 0000000100000000
+REGS: c000000000a651b0 TRAP: 7fb5f830   Tainted: G      D              (7.3.4)
+MSR:  0000000000000000 <>  CR: 6c696e6b65642069  XER: 22222222
+IRQMASK: c000000000acb000 
+GPR00: c000000000a65250 fffffffffffe1d78 c00000000001ddd8 c000000000aa6000 
+GPR04: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+GPR08: 0000000000000000 0000000000000000 0000000000000000 01326b65726e6500 
+GPR12: 0000000000006000 0504000000000000 c000000000a92e98 00000000ffffffff 
+GPR16: c000000000a8ce98 000affffffffffff 0000000052454753 c000000000a92e98 
+GPR20: c000000000a65520 2800228100000001 c0000000000148d4 c000000000859530 
+GPR24: 0000000052454753 0000000000000000 c000000000721d84 c000000000a65520 
+GPR28: c000000000966000 c000000000a8cecc c000000000a92e98 0000000052454753 
+NIP [000affffffffffff] 0xaffffffffffff
+LR [0000000000000000] 0x0
+---- interrupt: 7fb5f830
+Code: 7d519ba6 7a0a94a1 40c20128 7a0ff520 282e0000 79ef0724 41c20118 7dce782a 7a0f3d22 79ef0724 2c2e0000 40800098 <7dce782a> 7a0f75a2 79ef0724 2c2e0000 
+---[ end trace 0000000000000000 ]---
+
+Kernel panic - not syncing: Attempted to kill the idle task!
+Kernel panic - not syncing: Attempted to kill the idle task!
+BUG: Unable to handle kernel data access on read at 0xc00000007ebbdff8
+Faulting instruction address: 0xc000000000020f18
+Thread overran stack, or stack corrupted
+Oops: Kernel access of bad area, sig: 11 [#6]
+BE PAGE_SIZE=4K  SMP NR_CPUS=8 CoreNet Generic
+Modules linked in:
+CPU: 0 UID: 0 PID: 0 Comm: swapper Tainted: G      D             7.3.4 #1-NixOS PREEMPTLAZY 
+Tainted: [D]=DIE
+Hardware name: accton,as7760_32x e6500 0x80400120 CoreNet Generic
+NIP:  c000000000020f18 LR: c000000000019ddc CTR: c000000000019d1c
+REGS: c000000000a64260 TRAP: 0300   Tainted: G      D              (7.3.4)
+MSR:  0000000080021002 <CE,ME>  CR: 80002240  XER: 20000000
+DEAR: c00000007ebbdff8 ESR: 0000000000000000 IRQMASK: 3 
+GPR00: c000000000019e38 c000000000a64500 c000000000966000 0000000000000005 
+GPR04: 0000000000000018 0000000000000018 0000000000000000 0000000000000000 
+GPR08: 0000000000000000 0000000000000005 0000000000000000 c00000000099cd90 
+GPR12: c00000000099c7d8 c00000000099c740 c00000007ebbd000 0000000000000ff8 
+GPR16: c0001bffffc00504 0000000000000000 0000000000000003 0000000000000000 
+GPR20: 0000000000000000 0000000000000001 0000000000000000 c000000000aaa790 
+GPR24: 0000000000000000 0000000000000001 0000000000000000 c000000000a64670 
+GPR28: 0000000000000000 0000000000000018 0000000000000017 0000000000000020 
+NIP [c000000000020f18] tlb_miss_common_e6500+0xd4/0x108
+LR [c000000000019ddc] udbg_uart_flush+0x48/0x64
+Call Trace:
+[c000000000a64520] [c000000000019e38] udbg_uart_putc+0x40/0x68
+[c000000000a64550] [c00000000000ba4c] udbg_write+0xac/0xc8
+[c000000000a64590] [c00000000008a9c0] console_flush_all+0x20c/0x274
+[c000000000a64650] [c00000000008b60c] console_flush_on_panic+0x78/0x88
+[c000000000a64680] [c0000000000323c4] vpanic+0x1a4/0x358
+[c000000000a64720] [c0000000000325b0] arch_set_bit+0x0/0x34
+[c000000000a64740] [c000000000035954] make_task_dead+0x34/0x15c
+[c000000000a647c0] [c0000000000092b8] die+0x29c/0x2a8
+Code: 7d519ba6 7a0a94a1 40c20128 7a0ff520 282e0000 79ef0724 41c20118 7dce782a 7a0f3d22 79ef0724 2c2e0000 40800098 <7dce782a> 7a0f75a2 79ef0724 2c2e0000 
+---[ end trace 0000000000000000 ]---
+

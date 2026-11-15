@@ -1,0 +1,71 @@
+setenv autoload no
+LOADER=> dhcp
+FM1@DTSEC1 Waiting for PHY auto negotiation to complete. done
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+*** ERROR: `eth3addr' not set
+BOOTP broadcast 1
+*** Unhandled DHCP Option in OFFER/ACK: 42
+*** Unhandled DHCP Option in OFFER/ACK: 42
+DHCP client bound to address 10.60.2.253
+LOADER=> setenv serverip 10.60.2.208
+LOADER=> tftpboot 0x1000000 as7760-probe/u-boot-as7760-nor.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.253
+Filename 'as7760-probe/u-boot-as7760-nor.bin'.
+Load address: 0x1000000
+Loading: *######################################################
+	 7.1 MiB/s
+done
+Bytes transferred = 786432 (c0000 hex)
+LOADER=> crc32 1000000 c0000
+crc32 for 01000000 ... 010bffff ==> a959900c
+LOADER=> tftpboot 0x2000000 as7760-probe/mtd7-factory.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.253
+Filename 'as7760-probe/mtd7-factory.bin'.
+Load address: 0x2000000
+Loading: *######################################################
+	 7.1 MiB/s
+done
+Bytes transferred = 786432 (c0000 hex)
+LOADER=> crc32 2000000 c0000
+crc32 for 02000000 ... 020bffff ==> 38c38261
+LOADER=> crc32 eff40000 c0000
+crc32 for eff40000 ... efffffff ==> 38c38261
+LOADER=> cmp.b eff40000 2000000 c0000
+Total of 786432 byte(s) were the same
+LOADER=> protect off eff40000 efffffff
+Un-Protected 6 sectors
+LOADER=> erase eff40000 efffffff
+
+...... done
+Erased 6 sectors
+LOADER=> cp.b 1000000 eff40000 c0000
+Copy to Flash... 9....8....7....6....5....4....3....2....1....done
+LOADER=> cmp.b 1000000 eff40000 c0000
+Total of 786432 byte(s) were the same
+LOADER=> crc32 eff40000 c0000
+crc32 for eff40000 ... efffffff ==> a959900c
+LOADER=> protect on eff40000 efffffff
+Protected 6 sectors
+LOADER=>

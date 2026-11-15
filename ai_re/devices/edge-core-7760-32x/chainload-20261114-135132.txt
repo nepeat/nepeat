@@ -1,0 +1,384 @@
+setenv autoload no
+LOADER=> dhcp
+FM1@DTSEC1 Waiting for PHY auto negotiation to complete. done
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+*** ERROR: `eth3addr' not set
+BOOTP broadcast 1
+*** Unhandled DHCP Option in OFFER/ACK: 42
+*** Unhandled DHCP Option in OFFER/ACK: 42
+DHCP client bound to address 10.60.2.253
+LOADER=> setenv serverip 10.60.2.208
+LOADER=> tftpboot 0x00200000 as7760-probe/u-boot-chainload.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.253
+Filename 'as7760-probe/u-boot-chainload.bin'.
+Load address: 0x200000
+Loading: *#######################################
+	 9.1 MiB/s
+done
+Bytes transferred = 570082 (8b2e2 hex)
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> mw.l fec20000 c0000800
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> go 0x00200000
+## Starting application at 0x00200000 ...
+
+
+U-Boot 2026.10-as7760-chainload (Jan 01 1980 - 00:00:00 +0000)
+
+CPU0:  T2080, Version: 1.1, (0x85300011)
+Core:  e6500, Version: 2.0, (0x80400120)
+Clock Configuration:
+       CPU0:1800 MHz, CPU1:1800 MHz, CPU2:1800 MHz, CPU3:1800 MHz, 
+       CCB:600  MHz,
+       DDR:799.980 MHz (1599.960 MT/s data rate) (Asynchronous), IFC:600  MHz
+       FMAN1: 600 MHz
+       QMAN:  300 MHz
+       PME:   600 MHz
+L1:    D-cache 32 KiB enabled
+       I-cache 32 KiB enabled
+Reset Configuration Word (RCW):
+       00000000: 0c060012 12000000 00000000 00000000
+       00000010: 6c160002 00004200 fc027000 a1000000
+       00000020: 00080000 00000001 00000000 00022002
+       00000030: 00000000 50000009 00000000 00000005
+Model: Accton AS7760-32X
+Board: T2080RDB, Board rev: C CPLD ver: 0xff, boot from SD/MMC
+SERDES Reference Clocks:
+SD1_CLK1=156.25MHZ, SD1_CLK2=100.00MHZ
+SD2_CLK1=100.00MHZ, SD2_CLK2=100.00MHZ
+DRAM:  Detected UDIMM U10U7211P8FU-BDE
+       Detected UDIMM U10U7211P8FU-BDE
+       14 GiB of DDR memory left unmapped in U-Boot
+       16 GiB (total 2 GiB) (DDR3, 64-bit, CL=11, ECC on)
+Core:  29 devices, 13 uclasses, devicetree: separate
+Flash: 128 MiB
+L2:    2 MiB enabled
+Corenet Platform Cache: 512 KiB enabled
+Using SERDES1 Protocol: 108 (0x6c)
+Using SERDES2 Protocol: 22 (0x16)
+CPU up timeout. CPU up mask is 1 should be f
+MMC:   FSL_SDHC: 0
+Loading Environment from MMC...Reading from MMC(0)... *** Warning - bad CRC, using default environment
+
+EEPROM: Read failed.
+In:    serial@11c500
+Out:   serial@11c500
+Err:   serial@11c500
+WARNING: adjusting available memory from 0x30000000 to 0x80000000
+Net:   Fman1: Uploading microcode version 106.4.14
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+No ethernet found.
+
+=> version
+U-Boot 2026.10-as7760-chainload (Jan 01 1980 - 00:00:00 +0000)
+
+powerpc-unknown-linux-gnu-gcc (GCC) 16.2.0
+GNU ld (GNU Binutils) 2.46
+=> bdinfo
+boot_params = 0x00000000
+DRAM bank   = 0x00000000
+-> start    = 0x00000000
+-> size     = 0x80000000
+flashstart  = 0xe8000000
+flashsize   = 0x08000000
+flashoffset = 0x00000000
+baudrate    = 115200 bps
+relocaddr   = 0x7ff60000
+reloc off   = 0x7fd60000
+Build       = 32-bit
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+
+Error: fm1-mac1 No valid MAC address found.
+current eth = unknown
+eth-1addr   = (not set)
+IP addr     = <NULL>
+fdt_blob    = 0x7fb5ad60
+lmb_dump_all:
+ memory.count = 0x1
+ memory[0]	[0x0-0x7fffffff], 0x80000000 bytes, flags: none
+ reserved.count = 0x2
+ reserved[0]	[0x7eb5ad50-0x7fffefff], 0x14a42b0 bytes, flags: no-overwrite
+ reserved[1]	[0x7ffff000-0x7fffffff], 0x1000 bytes, flags: none
+devicetree  = separate
+serial addr = 0xfe11c500
+ width      = 0x00000001
+ shift      = 0x00000000
+ offset     = 0x00000000
+ clock      = 0x11e1a300
+busfreq     =    600 MHz
+immr_base   = 0xfe000000
+bootflags   = 0x00000000
+intfreq     =   1800 MHz
+addressing  = 36-bit
+=> dm tree
+ Class     Seq    Probed  Driver                Name
+-----------------------------------------------------------
+ root          0  [ + ]   root_driver           root_driver
+ simple_bus    0  [ + ]   simple_bus            |-- soc@ffe000000
+ mmc           0  [ + ]   fsl-esdhc-mmc         |   |-- esdhc@114000
+ blk           0  [ + ]   mmc_blk               |   |   |-- esdhc@114000.blk
+ partition     0  [ + ]   blk_partition         |   |   |   |-- esdhc@114000.blk:1
+ partition     1  [ + ]   blk_partition         |   |   |   `-- esdhc@114000.blk:2
+ bootdev       0  [   ]   mmc_bootdev           |   |   `-- esdhc@114000.bootdev
+ ahci          0  [   ]   fsl_ahci              |   |-- sata@220000
+ i2c           0  [ + ]   i2c_fsl               |   |-- i2c@118000
+ i2c           1  [   ]   i2c_fsl               |   |-- i2c@118100
+ i2c           2  [   ]   i2c_fsl               |   |-- i2c@119000
+ i2c           3  [   ]   i2c_fsl               |   |-- i2c@119100
+ simple_bus    1  [ + ]   fman                  |   |-- fman@400000
+ ethernet      0  [   ]   eth_fman              |   |   |-- fm1-mac1
+ bootdev       1  [   ]   eth_bootdev           |   |   |   `-- fm1-mac1.bootdev
+ mdio          0  [ + ]   fman_mdio             |   |   |-- mdio@fc000
+ mdio          1  [   ]   fman_mdio             |   |   |-- mdio@fd000
+ mdio          2  [ + ]   fman_mdio             |   |   |-- mdio@e1000
+ mdio          3  [   ]   fman_mdio             |   |   |-- mdio@e3000
+ mdio          4  [   ]   fman_mdio             |   |   |-- mdio@e5000
+ mdio          5  [   ]   fman_mdio             |   |   |-- mdio@e7000
+ mdio          6  [   ]   fman_mdio             |   |   |-- mdio@f1000
+ mdio          7  [   ]   fman_mdio             |   |   `-- mdio@f3000
+ serial        0  [ + ]   ns16550_serial        |   |-- serial@11c500
+ serial        1  [   ]   ns16550_serial        |   |-- serial@11c600
+ serial        2  [   ]   ns16550_serial        |   |-- serial@11d500
+ serial        3  [   ]   ns16550_serial        |   |-- serial@11d600
+ misc          0  [ + ]   caam_jr               |   `-- crypto@300000
+ bootstd       0  [   ]   bootstd_drv           `-- bootstd
+ bootmeth      0  [   ]   bootmeth_extlinux         |-- extlinux
+ bootmeth      1  [   ]   vbe_simple                `-- vbe_simple
+=> md.b ffdf0000 20
+ffdf0000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+ffdf0010: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+=> mmc info
+Device: FSL_SDHC
+Manufacturer ID: 3
+OEM: 5344
+Name: SA08G
+Bus Speed: 50000000
+Mode: SD High Speed (50MHz)
+Rd Block Len: 512
+SD version 3.0
+High Capacity: Yes
+Capacity: 7.4 GiB
+Bus Width: 4-bit
+Erase Group Size: 512 Bytes
+=> i2c bus
+Bus 0:	i2c@118000  (active 0)
+Bus 1:	i2c@118100
+Bus 2:	i2c@119000
+Bus 3:	i2c@119100
+=> mw.l 0x10000000 0x5a5aa5a5 0x1000
+=> cmp.l 0x10000000 0x10000004 0xfff
+Total of 4095 word(s) were the same
+=> mmc rescan
+=> fatload mmc 0:1 0x08000000 as7760.dtb
+36904 bytes read in 3 ms (11.7 MiB/s)
+=> fdt addr 0x08000000
+Working FDT set to 8000000
+=> fdt resize 0x10000
+=> fdt print /cpus
+cpus {
+	power-isa-version = "2.06";
+	power-isa-b;
+	power-isa-e;
+	power-isa-atb;
+	power-isa-cs;
+	power-isa-ds;
+	power-isa-e.ed;
+	power-isa-e.pd;
+	power-isa-e.hv;
+	power-isa-e.le;
+	power-isa-e.pm;
+	power-isa-e.pc;
+	power-isa-ecl;
+	power-isa-exp;
+	power-isa-fp;
+	power-isa-fp.r;
+	power-isa-mmc;
+	power-isa-scpm;
+	power-isa-wt;
+	fsl,eref-deo;
+	mmu-type = "power-embedded";
+	#address-cells = <0x00000001>;
+	#size-cells = <0x00000000>;
+	PowerPC,e6500@0 {
+		device_type = "cpu";
+		reg = <0x00000000 0x00000001>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000005>;
+		phandle = <0x00000005>;
+	};
+	PowerPC,e6500@2 {
+		device_type = "cpu";
+		reg = <0x00000002 0x00000003>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000006>;
+		phandle = <0x00000006>;
+	};
+	PowerPC,e6500@4 {
+		device_type = "cpu";
+		reg = <0x00000004 0x00000005>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000007>;
+		phandle = <0x00000007>;
+	};
+	PowerPC,e6500@6 {
+		device_type = "cpu";
+		reg = <0x00000006 0x00000007>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000008>;
+		phandle = <0x00000008>;
+	};
+};
+=> fdt boardsetup
+=> fdt print /cpus
+cpus {
+	power-isa-version = "2.06";
+	power-isa-b;
+	power-isa-e;
+	power-isa-atb;
+	power-isa-cs;
+	power-isa-ds;
+	power-isa-e.ed;
+	power-isa-e.pd;
+	power-isa-e.hv;
+	power-isa-e.le;
+	power-isa-e.pm;
+	power-isa-e.pc;
+	power-isa-ecl;
+	power-isa-exp;
+	power-isa-fp;
+	power-isa-fp.r;
+	power-isa-mmc;
+	power-isa-scpm;
+	power-isa-wt;
+	fsl,eref-deo;
+	mmu-type = "power-embedded";
+	#address-cells = <0x00000001>;
+	#size-cells = <0x00000000>;
+	PowerPC,e6500@0 {
+		i-cache-sets = <0x00000040>;
+		i-cache-size = <0x00008000>;
+		i-cache-block-size = <0x00000040>;
+		cache-stash-id = <0x00000020>;
+		d-cache-sets = <0x00000040>;
+		d-cache-size = <0x00008000>;
+		d-cache-block-size = <0x00000040>;
+		enable-method = "spin-table";
+		cpu-release-addr = <0x00000000 0x7ff64100>;
+		status = "okay";
+		clock-frequency = "kIÒ";
+		bus-frequency = "#ÃF";
+		timebase-frequency = <0x023c3460>;
+		device_type = "cpu";
+		reg = <0x00000000 0x00000001>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000005>;
+		phandle = <0x00000005>;
+	};
+	PowerPC,e6500@2 {
+		i-cache-sets = <0x00000040>;
+		i-cache-size = <0x00008000>;
+		i-cache-block-size = <0x00000040>;
+		cache-stash-id = <0x00000024>;
+		d-cache-sets = <0x00000040>;
+		d-cache-size = <0x00008000>;
+		d-cache-block-size = <0x00000040>;
+		enable-method = "spin-table";
+		cpu-release-addr = <0x00000000 0x7ff64140>;
+		status = "disabled";
+		clock-frequency = "kIÒ";
+		bus-frequency = "#ÃF";
+		timebase-frequency = <0x023c3460>;
+		device_type = "cpu";
+		reg = <0x00000002 0x00000003>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000006>;
+		phandle = <0x00000006>;
+	};
+	PowerPC,e6500@4 {
+		i-cache-sets = <0x00000040>;
+		i-cache-size = <0x00008000>;
+		i-cache-block-size = <0x00000040>;
+		cache-stash-id = <0x00000028>;
+		d-cache-sets = <0x00000040>;
+		d-cache-size = <0x00008000>;
+		d-cache-block-size = <0x00000040>;
+		enable-method = "spin-table";
+		cpu-release-addr = <0x00000000 0x7ff64180>;
+		status = "disabled";
+		clock-frequency = "kIÒ";
+		bus-frequency = "#ÃF";
+		timebase-frequency = <0x023c3460>;
+		device_type = "cpu";
+		reg = <0x00000004 0x00000005>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000007>;
+		phandle = <0x00000007>;
+	};
+	PowerPC,e6500@6 {
+		i-cache-sets = <0x00000040>;
+		i-cache-size = <0x00008000>;
+		i-cache-block-size = <0x00000040>;
+		cache-stash-id = <0x0000002c>;
+		d-cache-sets = <0x00000040>;
+		d-cache-size = <0x00008000>;
+		d-cache-block-size = <0x00000040>;
+		enable-method = "spin-table";
+		cpu-release-addr = <0x00000000 0x7ff641c0>;
+		status = "disabled";
+		clock-frequency = "kIÒ";
+		bus-frequency = "#ÃF";
+		timebase-frequency = <0x023c3460>;
+		device_type = "cpu";
+		reg = <0x00000006 0x00000007>;
+		clocks = <0x00000020 0x00000001 0x00000000>;
+		next-level-cache = <0x00000003>;
+		linux,phandle = <0x00000008>;
+		phandle = <0x00000008>;
+	};
+};
+=> fdt print /memory
+memory {
+	reg = <0x00000000 0x00000000 0x00000000 0x80000000>;
+	device_type = "memory";
+};
+=> fdt print /chosen
+libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND
+=> 

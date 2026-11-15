@@ -1,0 +1,47 @@
+setenv autoload no
+LOADER=> dhcp
+FM1@DTSEC1 Waiting for PHY auto negotiation to complete... done
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+*** ERROR: `eth3addr' not set
+BOOTP broadcast 1
+*** Unhandled DHCP Option in OFFER/ACK: 42
+*** Unhandled DHCP Option in OFFER/ACK: 42
+DHCP client bound to address 10.60.2.253
+LOADER=> setenv serverip 10.60.2.208
+LOADER=> tftpboot 0x00200000 as7760-probe/u-boot-chainload.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.253
+Filename 'as7760-probe/u-boot-chainload.bin'.
+Load address: 0x200000
+Loading: *#######################################
+	 7.5 MiB/s
+done
+Bytes transferred = 567131 (8a75b hex)
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> mw.l fec20000 c0000800
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> go 0x00200000
+## Starting application at 0x00200000 ...
+;D°4´i7û·7{€DGpÄGo	G7ƒ;{ôGw´³¸°·v¼Ã··pˆ364770À4G`	4G@éÀGyGyG`™Àgp‰Ñ4´0ƒKKp‘D`a‹ŒàGnKsÄ;‹·77€go„30°Gø´GŒÀgp	4G4;D°°¿3K7€fsÌ´Gp„30LK7¼Ç‹·77€fgo„30°gøÁGvG8Äg4;D°°¸û·¸·³°¿ó7LtK37y³û77;f00€F`€thiŒög8ó4Ä3<ðg`é"ôÃ30KK8ô4g8ó4Ä3<ðG`é"ôÃ3KKs±4G8ó4Ä3<ðG`é"ôÃ30KKŒô6g8ó4Ä3<ðG`é"ôÃ30;D00€f`€tH°³tG<óÄ³<Ìg`é"ôÃ³4f`€D`a!D³ôG<óÄ³<ðg`é"ô36Ã´G<óÄ³<Ìg`é-¿tO`a—0È70Ä7{‹‹30°4H¼óó·¸°3û7··{Ç‹37€44H°ôvg<óÄ³<Ìg`é"ôË0ƒ€f`€D‡é– <DDŒó6Ä³<Ìg`é"ôË0ƒ€f`€fH;44€f8ó4Ä³>ðg`í"ôË0ƒ€f`˜€fíÒ!ôf`ÑŒó4Ä³<ÌG`é"ôË0ƒ8DD`Ë³¸ƒ;7v‹³ŒÄf³³34‹ó·p„Ã·qˆË0ƒ€f D`Ñ"»tnp‡ƒ·q€tgqÑ³³34‹ó·p„Ã·qˆË0ƒDK·¼‹C³°¿ó7LtK37{³û770Oû7¼ˆ36D;´K4ô´0ƒ€f`€fpGpGpDDpÌgp	DG`	DGpGpG`GpGpG`GpGpG4f`€f`GpGp	GyG¸Ãæg0ÀgqœÀgp!DgpdçœÄög0Àg GpGp´0ƒ€f f`œÀg0GqDDpGxgpDpGpGp	DpGpGpDpGqGp´0ƒ€f`€fpGpGŒÀDDpGpGpD;ÀGpGp‰DpGpGpDpGpGpi´0ƒ;û7s‹Ã7€æn¼¸Ã3iÄgxDK†–4Dh·pÄC7€†iqG³a°¸fÁýÓ¸ÄC7ÄK7O{‘°€vhá!€ÄosÄ³Dps7LL¸¿û7{€ÄNñù—3€tI†ù‘#;;´4tKCDC´AG3´‹s·qÄK7·¸‹³°¸û·¸·;³´0ƒGC´8;4G7´4G;ÌÄ3ŒË¶4DtÃ30GC´8;4G73´4GpÄ38À´4DtË0ƒGC4Œ;4G7´4GpÄ38À´4DtÃ30GC4Œ;4G73´4GpÄ38À´4DtË0ƒ3K°;³D`ÿûËLsÈûË¼ÀC7€vhp¼ó·7{€ÄNt¼C70ËC·sÌ3L7¼€6n`Ó=Ç3;D°CÄ3û7¼ôfýÌ7w³C7GH@a—qÈK·¸ÈK7q¼´0ƒ7s€„Oñ	<€4Lö,³Dq4DGÇ„30G3‹€fg8ÄgpáÌK·¸Èû7¼û„np´0ƒ<‹4hôFpDGp‰DG‡D˜i´ôfpGpGpDŽ‹€gpDGG<ÈG`KHH´ôfça1ÀtG<ðG`a‹´‹€gâG@a–`D³D‡q°Ì†h‡a;D°GG3‹€g0DG8ÄGp‘!³DphD³DpH°³Dp‘c³D8€44´¿†h‘‘Dp´0ƒ;D°H°3ŒÀfDpDGsyÄGŒÀf‡a!ÀtG@Ïg`q!tGCD‡q°Ì†h‡!€GpGpGpÀGpGqs4°Ì†h‡Ò°€gpGpGp‘4ôHŒðfDpGpGpD‡q°Ì†hÃ!œ€ÄH†aÇ´h†D‡a!ÀtG@ÏG`GpGpG@GpGpG`GpGptG@yÄH@s´ŒD4ôHKŒÌfDG‡s;48ËfG‡sK„H‡‘G‡	a;DHp‘G‡a;4Hp‘G‡a;´HpÀgpGpDpGpGpDpGpGpD4ôh‹ŒèfDpGpGp	DG‡q– Àg‡DpGpGpDG‡	a;DHpH„CÇ´H†DpGpGpDpDGG‡3Àf‡!Hp4HGp‘4thp¸Ã70„·¸·C3·¸‹³D4´hø—1ÀC‹·770³ó70·K7¼¼K7w€o¸€fgpÍDGçD¼³{7·p¸3;D°ˆ‡vf -š´Dû4´€vfˆ‡fÐáK·pÇK7DK´´Cˆèƒ·q€DL·pÄC70‡tFˆ;Fð

@@ -1,0 +1,46 @@
+setenv autoload no
+LOADER=> dhcp
+FM1@DTSEC1 Waiting for PHY auto negotiation to complete. done
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+*** ERROR: `eth3addr' not set
+BOOTP broadcast 1
+*** Unhandled DHCP Option in OFFER/ACK: 42
+*** Unhandled DHCP Option in OFFER/ACK: 42
+DHCP client bound to address 10.60.2.253
+LOADER=> setenv serverip 10.60.2.208
+LOADER=> tftpboot 0x00200000 as7760-probe/u-boot-chainload.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.253
+Filename 'as7760-probe/u-boot-chainload.bin'.
+Load address: 0x200000
+Loading: *#######################################
+	 9.1 MiB/s
+done
+Bytes transferred = 570082 (8b2e2 hex)
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> mw.l fec20000 c0000800
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> go 0x00200000
+## Starting application at 0x00200000 ...

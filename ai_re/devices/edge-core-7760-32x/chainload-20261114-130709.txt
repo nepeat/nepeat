@@ -1,0 +1,87 @@
+setenv autoload no
+LOADER=> dhcp
+FM1@DTSEC1 Waiting for PHY auto negotiation to complete..... done
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+BOOTP broadcast 4
+BOOTP broadcast 5
+
+Retry count exceeded; starting again
+*** ERROR: `eth3addr' not set
+BOOTP broadcast 1
+*** Unhandled DHCP Option in OFFER/ACK: 42
+*** Unhandled DHCP Option in OFFER/ACK: 42
+DHCP client bound to address 10.60.2.253
+LOADER=> setenv serverip 10.60.2.208
+LOADER=> tftpboot 0x00200000 as7760-probe/u-boot-chainload.bin
+Using FM1@DTSEC1 device
+TFTP from server 10.60.2.208; our IP address is 10.60.2.253
+Filename 'as7760-probe/u-boot-chainload.bin'.
+Load address: 0x200000
+Loading: *#######################################
+	 10.6 MiB/s
+done
+Bytes transferred = 567923 (8aa73 hex)
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> mw.l fec20000 c0000800
+LOADER=> md.l fec20000 1
+fec20000: c0000000                               ....
+LOADER=> go 0x00200000
+## Starting application at 0x00200000 ...
+
+
+U-Boot 2026.10-as7760-chainload (Jan 01 1980 - 00:00:00 +0000)
+
+CPU0:  T2080, Version: 1.1, (0x85300011)
+Core:  e6500, Version: 2.0, (0x80400120)
+Clock Configuration:
+       CPU0:1800 MHz, CPU1:1800 MHz, CPU2:1800 MHz, CPU3:1800 MHz, 
+       CCB:600  MHz,
+       DDR:799.980 MHz (1599.960 MT/s data rate) (Asynchronous), IFC:600  MHz
+       FMAN1: 600 MHz
+       QMAN:  300 MHz
+       PME:   600 MHz
+L1:    D-cache 32 KiB enabled
+       I-cache 32 KiB enabled
+Reset Configuration Word (RCW):
+       00000000: 0c060012 12000000 00000000 00000000
+       00000010: 6c160002 00004200 fc027000 a1000000
+       00000020: 00080000 00000001 00000000 00022002
+       00000030: 00000000 50000009 00000000 00000005
+Model: fsl,T2080RDB
+Board: T2080RDB, Board rev: C CPLD ver: 0xff, boot from SD/MMC
+SERDES Reference Clocks:
+SD1_CLK1=156.25MHZ, SD1_CLK2=100.00MHZ
+SD2_CLK1=100.00MHZ, SD2_CLK2=100.00MHZ
+DRAM:  alloc space exhausted ptr 42c limit 400
+__get_spd: Cannot find udev for a bus 0
+alloc space exhausted ptr 438 limit 400
+__get_spd: Cannot find udev for a bus 0
+Error: No valid SPD detected.
+Bad trap at PC: 2092f0, SR: 21200, vector=d00
+NIP: 002092F0 XER: 00000000 LR: 00227940 REGS: fdd03980 TRAP: 0d00 DAR: FFB6DFD0
+MSR: 00021200 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 00
+
+GPR00: 00227630 FDD03A70 FDD03ED0 FFB6DFD0 00000000 0000002C FFB6DFCC 00000000 
+GPR08: 00000000 FFB6DFD0 FDD03ED0 FDD03A70 00000020 00000000 00000003 7FADF3B0 
+GPR16: 7FF4AC05 7FF4A5DF 7FADF3B0 7FADF3A0 7FADF3E0 00000000 00000000 00000000 
+GPR24: 00000001 7FFA00F0 00000002 7FADF3B0 FDD03ED0 00000000 0027FE1C FDD03A70 
+Call backtrace: 
+Exception in kernel pc 2092f0 signal 0
+### ERROR ### Please RESET the board ###

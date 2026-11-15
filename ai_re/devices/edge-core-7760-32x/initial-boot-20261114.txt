@@ -1,0 +1,1320 @@
+
+
+U-Boot 2014.07-g8946503 (Feb 06 2018 - 17:37:35) - 1.7.0.10
+
+CPU0:  T2080, Version: 1.1, (0x85300011)
+Core:  e6500, Version: 2.0, (0x80400120)
+Clock Configuration:
+       CPU0:1800 MHz, CPU1:1800 MHz, CPU2:1800 MHz, CPU3:1800 MHz, 
+       CCB:600  MHz,
+       DDR:799.980 MHz (1599.960 MT/s data rate) (Asynchronous), IFC:100  MHz
+       FMAN1: 600 MHz
+       QMAN:  300 MHz
+       PME:   600 MHz
+L1:    D-cache 32 KiB enabled
+       I-cache 32 KiB enabled
+Reset Configuration Word (RCW):
+       00000000: 0c060012 12000000 00000000 00000000
+       00000010: 6c160002 00004200 fc027000 a1000000
+       00000020: 00080000 00000001 00000000 00022002
+       00000030: 00000000 50000009 00000000 00000005
+Board: Accton AS7760_32X, Board rev: 0xff CPLD ver: 0xff, boot from NAND
+SERDES Reference Clocks:
+SD1_CLK1=156.25MHZ, SD1_CLK2=100.00MHZ
+SD2_CLK1=100.00MHZ, SD2_CLK2=100.00MHZ
+I2C:   ready
+SPI:   ready
+DRAM:  Initializing....using SPD
+Detected UDIMM U10U7211P8FU-BDE
+Detected UDIMM U10U7211P8FU-BDE
+Prob-D
+FSLDDR: ddr_sdram_cfg = 0xe7040000
+ddr->debug[28]=70004d
+Prob-D
+ret 0x0
+16 GiB (DDR3, 64-bit, CL=11, ECC on)
+Flash: 128 MiB
+L2:    2 MiB enabled
+Corenet Platform Cache: 512 KiB enabled
+Using SERDES1 Protocol: 108 (0x6c)
+Using SERDES2 Protocol: 22 (0x16)
+NAND:  0 MiB
+MMC:   FSL_SDHC: 0
+EEPROM: TlvInfo v1 len=198
+PCIe4: Root Complex, x4 gen2, regs @ 0xfe270000
+  01:00.0     - 14e4:b930 - Network controller
+  01:00.1     - 14e4:b930 - Network controller
+PCIe4: Bus 00 - 01
+In:    serial
+Out:   serial
+Err:   serial
+Net:   Fman1: Uploading microcode version 106.4.14
+Phy not found
+PHY reset timed out
+PHY reset timed out
+PHY reset timed out
+FM_TGEC_MDIO:0 is connected to FM1@TGEC1.  Reconnecting to FM1@TGEC2
+FM1@DTSEC1 [PRIME], FM1@DTSEC2, FM1@TGEC1, FM1@TGEC2
+Prob-D
+ret 0x0
+Type 123<ENTER> to STOP autoboot
+Loading Open Network Install Environment ...
+Platform: powerpc-accton_as7760_32x-r0
+Version : 2015.02.00.30
+WARNING: adjusting available memory to 30000000
+## Loading kernel from FIT Image at 01000000 ...
+   Using 'accton_as7760_32x' configuration
+   Trying 'kernel' kernel subimage
+     Description:  accton_as7760_32x-r0 PowerPC Kernel
+     Type:         Kernel Image
+     Compression:  gzip compressed
+     Data Start:   0x010000e8
+     Data Size:    3860081 Bytes = 3.7 MiB
+     Architecture: PowerPC
+     OS:           Linux
+     Load Address: 0x00000000
+     Entry Point:  0x00000000
+     Hash algo:    crc32
+     Hash value:   a9d4f8f1
+   Verifying Hash Integrity ... crc32+ OK
+## Loading ramdisk from FIT Image at 01000000 ...
+   Using 'accton_as7760_32x' configuration
+   Trying 'initramfs' ramdisk subimage
+     Description:  initramfs
+     Type:         RAMDisk Image
+     Compression:  uncompressed
+     Data Start:   0x013ae834
+     Data Size:    17458532 Bytes = 16.6 MiB
+     Architecture: PowerPC
+     OS:           Linux
+     Load Address: 0x00000000
+     Entry Point:  0x7fadd870
+     Hash algo:    crc32
+     Hash value:   e98d38c9
+   Verifying Hash Integrity ... crc32+ OK
+## Loading fdt from FIT Image at 01000000 ...
+   Using 'accton_as7760_32x' configuration
+   Trying 'dtb' fdt subimage
+     Description:  accton_as7760_32x-r0.dtb
+     Type:         Flat Device Tree
+     Compression:  uncompressed
+     Data Start:   0x02454e68
+     Data Size:    37155 Bytes = 36.3 KiB
+     Architecture: PowerPC
+     Hash algo:    crc32
+     Hash value:   1b7fff86
+   Verifying Hash Integrity ... crc32+ OK
+   Booting using the fdt blob at 0x2454e68
+   Uncompressing Kernel Image ... OK
+   Loading Ramdisk to 2ef59000, end 2ffff564 ... OK
+   Loading Device Tree to 03fe3000, end 03fff122 ... OK
+ <- setup_system()
+CF000012
+
+Setup Arch
+CF000015
+
+Setup Done
+pci 0000:00:00.0: ignoring class 0x0b2000 (doesn't match header type 01)
+cpu4/4: > WARNING (FM) [CPU04, drivers/net/ethernet/freescale/fman/Peripherals/FM/fm.c:3514 FM_Init]: 
+cpu4/4: Hack: No FM reset!
+cpu4/4: 
+Freescale FM module (Feb  6 2018:17:40:07), FMD API version 21.1.0
+Freescale FM Ports module (Feb  6 2018:17:40:08)
+rtc-ds1672 0-0068: hctosys: invalid date/time
+Info: Mounting kernel filesystems... done.
+SWITCH: INFO. PORT. uboot env, onie_knet=25top-10bottom
+SWITCH: INFO. SWITCH. uboot env, onie_fec_enable DOES NOT exist. Use the default value (false)
+SWITCH: INFO. SWITCH. uboot env, onie_25fec-10nofec_enable=true
+SWITCH: INFO. KNET: Generating the configuration file (128 KNET interfaces with Name / HWaddr / inet addr / VLAN starting from knet1 / 8C:EA:1B:89:C9:3D / 2).
+SWITCH: INFO. STOPPED.
+linux_kernel_bde: module license 'Proprietary' taints kernel.
+Disabling lock debugging due to kernel taint
+SWITCH: INFO. SWITCH: Pre-emphasis is set to 25top-10bottom
+SWITCH: INFO. KNET: Generating the por map file.
+KNET: INFO. The port map is the follow:
+Port	VLAN	Interface Name		Matched Ingress Port
+1	2	knet1			xe0
+2	3	knet2			xe1
+3	4	knet3			xe2
+4	5	knet4			xe3
+5	6	knet5			xe4
+6	7	knet6			xe5
+7	8	knet7			xe6
+8	9	knet8			xe7
+9	10	knet9			xe8
+10	11	knet10			xe9
+11	12	knet11			xe10
+12	13	knet12			xe11
+13	14	knet13			xe12
+14	15	knet14			xe13
+15	16	knet15			xe14
+16	17	knet16			xe15
+17	18	knet17			xe16
+18	19	knet18			xe17
+19	20	knet19			xe18
+20	21	knet20			xe19
+21	22	knet21			xe20
+22	23	knet22			xe21
+23	24	knet23			xe22
+24	25	knet24			xe23
+25	26	knet25			xe24
+26	27	knet26			xe25
+27	28	knet27			xe26
+28	29	knet28			xe27
+29	30	knet29			xe28
+30	31	knet30			xe29
+31	32	knet31			xe30
+32	33	knet32			xe31
+33	34	knet33			xe32
+34	35	knet34			xe33
+35	36	knet35			xe34
+36	37	knet36			xe35
+37	38	knet37			xe36
+38	39	knet38			xe37
+39	40	knet39			xe38
+40	41	knet40			xe39
+41	42	knet41			xe40
+42	43	knet42			xe41
+43	44	knet43			xe42
+44	45	knet44			xe43
+45	46	knet45			xe44
+46	47	knet46			xe45
+47	48	knet47			xe46
+48	49	knet48			xe47
+49	50	knet49			xe48
+50	51	knet50			xe49
+51	52	knet51			xe50
+52	53	knet52			xe51
+53	54	knet53			xe52
+54	55	knet54			xe53
+55	56	knet55			xe54
+56	57	knet56			xe55
+57	58	knet57			xe56
+58	59	knet58			xe57
+59	60	knet59			xe58
+60	61	knet60			xe59
+61	62	knet61			xe60
+62	63	knet62			xe61
+63	64	knet63			xe62
+64	65	knet64			xe63
+65	66	knet65			xe64
+66	67	knet66			xe65
+67	68	knet67			xe66
+68	69	knet68			xe67
+69	70	knet69			xe68
+70	71	knet70			xe69
+71	72	knet71			xe70
+72	73	knet72			xe71
+73	74	knet73			xe72
+74	75	knet74			xe73
+75	76	knet75			xe74
+76	77	knet76			xe75
+77	78	knet77			xe76
+78	79	knet78			xe77
+79	80	knet79			xe78
+80	81	knet80			xe79
+81	82	knet81			xe80
+82	83	knet82			xe81
+83	84	knet83			xe82
+84	85	knet84			xe83
+85	86	knet85			xe84
+86	87	knet86			xe85
+87	88	knet87			xe86
+88	89	knet88			xe87
+89	90	knet89			xe88
+90	91	knet90			xe89
+91	92	knet91			xe90
+92	93	knet92			xe91
+93	94	knet93			xe92
+94	95	knet94			xe93
+95	96	knet95			xe94
+96	97	knet96			xe95
+97	98	knet97			xe96
+98	99	knet98			xe97
+99	100	knet99			xe98
+100	101	knet100			xe99
+101	102	knet101			xe100
+102	103	knet102			xe101
+103	104	knet103			xe102
+104	105	knet104			xe103
+105	106	knet105			xe104
+106	107	knet106			xe105
+107	108	knet107			xe106
+108	109	knet108			xe107
+109	110	knet109			xe108
+110	111	knet110			xe109
+111	112	knet111			xe110
+112	113	knet112			xe111
+113	114	knet113			xe112
+114	115	knet114			xe113
+115	116	knet115			xe114
+116	117	knet116			xe115
+117	118	knet117			xe116
+118	119	knet118			xe117
+119	120	knet119			xe118
+120	121	knet120			xe119
+121	122	knet121			xe120
+122	123	knet122			xe121
+123	124	knet123			xe122
+124	125	knet124			xe123
+125	126	knet125			xe124
+126	127	knet126			xe125
+127	128	knet127			xe126
+128	129	knet128			xe127
+SWITCH: INFO. Starting SDK process.....
+SWITCH: INFO. STARTED.
+SWITCH: INFO. KNET: There are 128 KNET interfaces.....
+SWITCH: INFO. KNET: Waiting KNET interaces ALL up (0 / 128 KNET).....
+SWITCH: INFO. KNET: Waiting KNET interaces ALL up (0 / 128 KNET).....
+SWITCH: INFO. KNET: KNET interaces ALL up (128 / 128 KNET).....
+Info: Using eth0 MAC address: 8c:ea:1b:89:c9:3c
+Info: knet10:  Skipping checking link.
+Info: knet103:  Skipping checking link.
+Info: knet101:  Skipping checking link.
+Info: knet109:  Skipping checking link.
+Info: knet102:  Skipping checking link.
+Info: knet100:  Skipping checking link.
+Info: knet115:  Skipping checking link.
+Info: knet18:  Skipping checking link.
+Info: eth0:  Checking link... Info: knet110:  Skipping checking link.
+Info: knet107:  Skipping checking link.
+Info: knet1:  Skipping checking link.
+Info: knet120:  Skipping checking link.
+Info: knet113:  Skipping checking link.
+Info: knet118:  Skipping checking link.
+Info: knet124:  Skipping checking link.
+Info: knet11:  Skipping checking link.
+Info: knet21:  Skipping checking link.
+Info: knet117:  Skipping checking link.
+Info: knet23:  Skipping checking link.
+Info: knet125:  Skipping checking link.
+Info: knet123:  Skipping checking link.
+Info: knet127:  Skipping checking link.
+Info: knet24:  Skipping checking link.
+Info: knet106:  Skipping checking link.
+Info: knet19:  Skipping checking link.
+Info: knet122:  Skipping checking link.
+Info: knet105:  Skipping checking link.
+Info: knet114:  Skipping checking link.
+Info: knet15:  Skipping checking link.
+Info: knet30:  Skipping checking link.
+Info: knet27:  Skipping checking link.
+Info: knet112:  Skipping checking link.
+Info: knet28:  Skipping checking link.
+Info: knet20:  Skipping checking link.
+Info: knet121:  Skipping checking link.
+Info: knet31:  Skipping checking link.
+Info: knet32:  Skipping checking link.
+Info: knet2:  Skipping checking link.
+Info: knet12:  Skipping checking link.
+Info: knet13:  Skipping checking link.
+Info: knet14:  Skipping checking link.
+Info: knet35:  Skipping checking link.
+Info: knet22:  Skipping checking link.
+Info: knet33:  Skipping checking link.
+Info: knet128:  Skipping checking link.
+up.
+Info: knet29:  Skipping checking link.
+Info: knet3:  Skipping checking link.
+Info: knet25:  Skipping checking link.
+Info: knet116:  Skipping checking link.
+Info: knet37:  Skipping checking link.
+Info: knet108:  Skipping checking link.
+Info: knet36:  Skipping checking link.
+Info: knet126:  Skipping checking link.
+Info: knet38:  Skipping checking link.
+Info: knet17:  Skipping checking link.
+Info: knet119:  Skipping checking link.
+Info: knet4:  Skipping checking link.
+Info: knet104:  Skipping checking link.
+Info: knet34:  Skipping checking link.
+Info: knet16:  Skipping checking link.
+Info: knet26:  Skipping checking link.
+Info: knet111:  Skipping checking link.
+Info: knet45:  Skipping checking link.
+Info: knet42:  Skipping checking link.
+Info: knet43:  Skipping checking link.
+Info: knet53:  Skipping checking link.
+Info: knet5:  Skipping checking link.
+Info: knet48:  Skipping checking link.
+Info: knet40:  Skipping checking link.
+Info: knet55:  Skipping checking link.
+Info: knet50:  Skipping checking link.
+Info: knet51:  Skipping checking link.
+Info: knet52:  Skipping checking link.
+Info: knet44:  Skipping checking link.
+Info: knet47:  Skipping checking link.
+Info: knet54:  Skipping checking link.
+Info: knet64:  Skipping checking link.
+Info: knet59:  Skipping checking link.
+Info: knet41:  Skipping checking link.
+Info: knet63:  Skipping checking link.
+Info: knet60:  Skipping checking link.
+Info: knet66:  Skipping checking link.
+Info: knet62:  Skipping checking link.
+Info: knet67:  Skipping checking link.
+Info: knet49:  Skipping checking link.
+Info: knet46:  Skipping checking link.
+Info: knet65:  Skipping checking link.
+Info: knet7:  Skipping checking link.
+Info: knet39:  Skipping checking link.
+Info: knet57:  Skipping checking link.
+Info: knet61:  Skipping checking link.
+Info: knet6:  Skipping checking link.
+Info: knet69:  Skipping checking link.
+Info: knet77:  Skipping checking link.
+Info: knet76:  Skipping checking link.
+Info: knet75:  Skipping checking link.
+Info: knet79:  Skipping checking link.
+Info: knet72:  Skipping checking link.
+Info: knet80:  Skipping checking link.
+Info: knet8:  Skipping checking link.
+Info: knet56:  Skipping checking link.
+Info: knet68:  Skipping checking link.
+Info: knet73:  Skipping checking link.
+Info: knet81:  Skipping checking link.
+Info: knet58:  Skipping checking link.
+Info: knet78:  Skipping checking link.
+Info: knet92:  Skipping checking link.
+Info: knet74:  Skipping checking link.
+Info: knet97:  Skipping checking link.
+Info: knet87:  Skipping checking link.
+Info: knet89:  Skipping checking link.
+Info: knet71:  Skipping checking link.
+Info: knet88:  Skipping checking link.
+Info: knet86:  Skipping checking link.
+Info: knet70:  Skipping checking link.
+Info: knet85:  Skipping checking link.
+Info: knet93:  Skipping checking link.
+Info: knet90:  Skipping checking link.
+Info: knet9:  Skipping checking link.
+Info: knet82:  Skipping checking link.
+Info: knet95:  Skipping checking link.
+Info: knet99:  Skipping checking link.
+Info: knet84:  Skipping checking link.
+Info: knet94:  Skipping checking link.
+Info: knet96:  Skipping checking link.
+Info: knet98:  Skipping checking link.
+Info: knet83:  Skipping checking link.
+Info: knet91:  Skipping checking link.
+Info: Trying DHCPv4 on interface: knet103
+Info: Trying DHCPv4 on interface: knet101
+Info: Trying DHCPv4 on interface: knet18
+Info: Trying DHCPv4 on interface: knet109
+Info: Trying DHCPv4 on interface: knet120
+Info: Trying DHCPv4 on interface: knet100
+Info: Trying DHCPv4 on interface: knet102
+Info: Trying DHCPv4 on interface: knet113
+Info: Trying DHCPv4 on interface: knet115
+Info: Trying DHCPv4 on interface: knet122
+Info: Trying DHCPv4 on interface: knet23
+Info: Trying DHCPv4 on interface: knet110
+Info: Trying DHCPv4 on interface: knet105
+Info: Trying DHCPv4 on interface: knet112
+Info: Trying DHCPv4 on interface: knet24
+Info: Trying DHCPv4 on interface: knet123
+Info: Trying DHCPv4 on interface: knet20
+Info: Trying DHCPv4 on interface: knet118
+Info: Trying DHCPv4 on interface: knet19
+Info: Trying DHCPv4 on interface: knet1
+Info: Trying DHCPv4 on interface: knet107
+Info: Trying DHCPv4 on interface: knet114
+Info: Trying DHCPv4 on interface: knet11
+Info: Trying DHCPv4 on interface: knet125
+Info: Trying DHCPv4 on interface: knet27
+Info: Trying DHCPv4 on interface: knet128
+Info: Trying DHCPv4 on interface: knet32
+Info: Trying DHCPv4 on interface: knet30
+Info: Trying DHCPv4 on interface: knet124
+Info: Trying DHCPv4 on interface: knet33
+Info: Trying DHCPv4 on interface: eth0
+Info: Trying DHCPv4 on interface: knet127
+Info: Trying DHCPv4 on interface: knet2
+Info: Trying DHCPv4 on interface: knet37
+Info: Trying DHCPv4 on interface: knet29
+Info: Trying DHCPv4 on interface: knet15
+Info: Trying DHCPv4 on interface: knet21
+Info: Trying DHCPv4 on interface: knet14
+Info: Trying DHCPv4 on interface: knet10
+Info: Trying DHCPv4 on interface: knet13
+Info: Trying DHCPv4 on interface: knet121
+Info: Trying DHCPv4 on interface: knet35
+Info: Trying DHCPv4 on interface: knet3
+Info: Trying DHCPv4 on interface: knet106
+Info: Trying DHCPv4 on interface: knet117
+Info: Trying DHCPv4 on interface: knet12
+Info: Trying DHCPv4 on interface: knet31
+Info: Trying DHCPv4 on interface: knet28
+Info: Trying DHCPv4 on interface: knet17
+Info: Trying DHCPv4 on interface: knet22
+Info: Trying DHCPv4 on interface: knet108
+Info: Trying DHCPv4 on interface: knet36
+Info: Trying DHCPv4 on interface: knet25
+Info: Trying DHCPv4 on interface: knet126
+Info: Trying DHCPv4 on interface: knet116
+Info: Trying DHCPv4 on interface: knet16
+Info: Trying DHCPv4 on interface: knet4
+Info: Trying DHCPv4 on interface: knet34
+Info: Trying DHCPv4 on interface: knet38
+Info: Trying DHCPv4 on interface: knet111
+Info: Trying DHCPv4 on interface: knet119
+Info: Trying DHCPv4 on interface: knet104
+Info: Trying DHCPv4 on interface: knet45
+Info: Trying DHCPv4 on interface: knet43
+Info: Trying DHCPv4 on interface: knet50
+Info: Trying DHCPv4 on interface: knet42
+Info: Trying DHCPv4 on interface: knet53
+Info: Trying DHCPv4 on interface: knet26
+Info: Trying DHCPv4 on interface: knet40
+Info: Trying DHCPv4 on interface: knet51
+Info: Trying DHCPv4 on interface: knet54
+Info: Trying DHCPv4 on interface: knet55
+Info: Trying DHCPv4 on interface: knet5
+Info: Trying DHCPv4 on interface: knet44
+Info: Trying DHCPv4 on interface: knet59
+Info: Trying DHCPv4 on interface: knet63
+Info: Trying DHCPv4 on interface: knet66
+Info: Trying DHCPv4 on interface: knet41
+Info: Trying DHCPv4 on interface: knet52
+Info: Trying DHCPv4 on interface: knet48
+Info: Trying DHCPv4 on interface: knet6
+Info: Trying DHCPv4 on interface: knet47
+Info: Trying DHCPv4 on interface: knet7
+Info: Trying DHCPv4 on interface: knet64
+Info: Trying DHCPv4 on interface: knet67
+Info: Trying DHCPv4 on interface: knet39
+Info: Trying DHCPv4 on interface: knet60
+Info: Trying DHCPv4 on interface: knet62
+Info: Trying DHCPv4 on interface: knet57
+Info: Trying DHCPv4 on interface: knet77
+Info: Trying DHCPv4 on interface: knet46
+Info: Trying DHCPv4 on interface: knet75
+Info: Trying DHCPv4 on interface: knet49
+Info: Trying DHCPv4 on interface: knet65
+Info: Trying DHCPv4 on interface: knet69
+Info: Trying DHCPv4 on interface: knet73
+Info: Trying DHCPv4 on interface: knet56
+Info: Trying DHCPv4 on interface: knet81
+Info: Trying DHCPv4 on interface: knet76
+Info: Trying DHCPv4 on interface: knet80
+Info: Trying DHCPv4 on interface: knet72
+Info: Trying DHCPv4 on interface: knet61
+Info: Trying DHCPv4 on interface: knet79
+Info: Trying DHCPv4 on interface: knet97
+Info: Trying DHCPv4 on interface: knet78
+Info: Trying DHCPv4 on interface: knet68
+Info: Trying DHCPv4 on interface: knet8
+Info: Trying DHCPv4 on interface: knet71
+Info: Trying DHCPv4 on interface: knet58
+Info: Trying DHCPv4 on interface: knet92
+Info: Trying DHCPv4 on interface: knet74
+Info: Trying DHCPv4 on interface: knet86
+Info: Trying DHCPv4 on interface: knet82
+Info: Trying DHCPv4 on interface: knet87
+Info: Trying DHCPv4 on interface: knet89
+Info: Trying DHCPv4 on interface: knet88
+Info: Trying DHCPv4 on interface: knet70
+Info: Trying DHCPv4 on interface: knet98
+Info: Trying DHCPv4 on interface: knet95
+Info: Trying DHCPv4 on interface: knet90
+Info: Trying DHCPv4 on interface: knet85
+Info: Trying DHCPv4 on interface: knet9
+Info: Trying DHCPv4 on interface: knet91
+Info: Trying DHCPv4 on interface: knet93
+Info: Trying DHCPv4 on interface: knet83
+Info: Trying DHCPv4 on interface: knet84
+Info: Trying DHCPv4 on interface: knet99
+Info: Trying DHCPv4 on interface: knet94
+Info: Trying DHCPv4 on interface: knet96
+ONIE: Using DHCPv4 addr: eth0: 10.60.2.253 / 255.255.255.0
+Warning: Unable to configure interface using DHCPv4: knet103
+ONIE: Failed to configure knet103 interface
+Warning: Unable to configure interface using DHCPv4: knet101
+ONIE: Failed to configure knet101 interface
+Warning: Unable to configure interface using DHCPv4: knet109
+ONIE: Failed to configure knet109 interface
+Warning: Unable to configure interface using DHCPv4: knet100
+ONIE: Failed to configure knet100 interface
+Warning: Unable to configure interface using DHCPv4: knet18
+ONIE: Failed to configure knet18 interface
+Warning: Unable to configure interface using DHCPv4: knet102
+Warning: Unable to configure interface using DHCPv4: knet122
+ONIE: Failed to configure knet102 interface
+Warning: Unable to configure interface using DHCPv4: knet115
+ONIE: Failed to configure knet122 interface
+Warning: Unable to configure interface using DHCPv4: knet110
+ONIE: Failed to configure knet115 interface
+ONIE: Failed to configure knet110 interface
+Warning: Unable to configure interface using DHCPv4: knet23
+ONIE: Failed to configure knet23 interface
+Warning: Unable to configure interface using DHCPv4: knet118
+Warning: Unable to configure interface using DHCPv4: knet113
+ONIE: Failed to configure knet118 interface
+ONIE: Failed to configure knet113 interface
+Warning: Unable to configure interface using DHCPv4: knet120
+Warning: Unable to configure interface using DHCPv4: knet105
+Warning: Unable to configure interface using DHCPv4: knet19
+ONIE: Failed to configure knet105 interface
+ONIE: Failed to configure knet19 interface
+ONIE: Failed to configure knet120 interface
+Warning: Unable to configure interface using DHCPv4: knet24
+ONIE: Failed to configure knet24 interface
+Warning: Unable to configure interface using DHCPv4: knet128
+Warning: Unable to configure interface using DHCPv4: knet37
+Warning: Unable to configure interface using DHCPv4: knet125
+ONIE: Failed to configure knet37 interface
+Warning: Unable to configure interface using DHCPv4: knet20
+ONIE: Failed to configure knet128 interface
+Warning: Unable to configure interface using DHCPv4: knet112
+ONIE: Failed to configure knet125 interface
+Warning: Unable to configure interface using DHCPv4: knet1
+Warning: Unable to configure interface using DHCPv4: knet107
+Warning: Unable to configure interface using DHCPv4: knet117
+Warning: Unable to configure interface using DHCPv4: knet114
+Warning: Unable to configure interface using DHCPv4: knet35
+Warning: Unable to configure interface using DHCPv4: knet11
+Warning: Unable to configure interface using DHCPv4: knet123
+Warning: Unable to configure interface using DHCPv4: knet27
+ONIE: Failed to configure knet112 interface
+ONIE: Failed to configure knet107 interface
+ONIE: Failed to configure knet117 interface
+ONIE: Failed to configure knet20 interface
+ONIE: Failed to configure knet1 interface
+ONIE: Failed to configure knet11 interface
+Warning: Unable to configure interface using DHCPv4: knet2
+ONIE: Failed to configure knet35 interface
+ONIE: Failed to configure knet123 interface
+ONIE: Failed to configure knet114 interface
+ONIE: Failed to configure knet2 interface
+ONIE: Failed to configure knet27 interface
+Warning: Unable to configure interface using DHCPv4: knet127
+Warning: Unable to configure interface using DHCPv4: knet121
+Warning: Unable to configure interface using DHCPv4: knet10
+ONIE: Failed to configure knet121 interface
+Warning: Unable to configure interface using DHCPv4: knet30
+ONIE: Failed to configure knet127 interface
+Warning: Unable to configure interface using DHCPv4: knet17
+Warning: Unable to configure interface using DHCPv4: knet29
+ONIE: Failed to configure knet10 interface
+Warning: Unable to configure interface using DHCPv4: knet21
+ONIE: Failed to configure knet17 interface
+ONIE: Failed to configure knet21 interface
+Warning: Unable to configure interface using DHCPv4: knet3
+ONIE: Failed to configure knet29 interface
+ONIE: Failed to configure knet30 interface
+ONIE: Failed to configure knet3 interface
+Warning: Unable to configure interface using DHCPv4: knet33
+ONIE: Failed to configure knet33 interface
+Warning: Unable to configure interface using DHCPv4: knet14
+Warning: Unable to configure interface using DHCPv4: knet124
+ONIE: Failed to configure knet14 interface
+ONIE: Failed to configure knet124 interface
+Warning: Unable to configure interface using DHCPv4: knet32
+Warning: Unable to configure interface using DHCPv4: knet12
+ONIE: Failed to configure knet32 interface
+ONIE: Failed to configure knet12 interface
+Warning: Unable to configure interface using DHCPv4: knet106
+Warning: Unable to configure interface using DHCPv4: knet15
+ONIE: Failed to configure knet106 interface
+ONIE: Failed to configure knet15 interface
+Warning: Unable to configure interface using DHCPv4: knet13
+ONIE: Failed to configure knet13 interface
+Warning: Unable to configure interface using DHCPv4: knet25
+Warning: Unable to configure interface using DHCPv4: knet28
+Warning: Unable to configure interface using DHCPv4: knet36
+ONIE: Failed to configure knet28 interface
+ONIE: Failed to configure knet25 interface
+ONIE: Failed to configure knet36 interface
+Warning: Unable to configure interface using DHCPv4: knet126
+ONIE: Failed to configure knet126 interface
+Warning: Unable to configure interface using DHCPv4: knet22
+ONIE: Failed to configure knet22 interface
+Warning: Unable to configure interface using DHCPv4: knet16
+Warning: Unable to configure interface using DHCPv4: knet108
+ONIE: Failed to configure knet16 interface
+Warning: Unable to configure interface using DHCPv4: knet31
+ONIE: Failed to configure knet108 interface
+ONIE: Failed to configure knet31 interface
+Warning: Unable to configure interface using DHCPv4: knet38
+Warning: Unable to configure interface using DHCPv4: knet116
+Warning: Unable to configure interface using DHCPv4: knet34
+Warning: Unable to configure interface using DHCPv4: knet4
+Warning: Unable to configure interface using DHCPv4: knet111
+Warning: Unable to configure interface using DHCPv4: knet50
+Warning: Unable to configure interface using DHCPv4: knet43
+Warning: Unable to configure interface using DHCPv4: knet119
+Warning: Unable to configure interface using DHCPv4: knet51
+Warning: Unable to configure interface using DHCPv4: knet26
+Warning: Unable to configure interface using DHCPv4: knet45
+Warning: Unable to configure interface using DHCPv4: knet104
+Warning: Unable to configure interface using DHCPv4: knet63
+Warning: Unable to configure interface using DHCPv4: knet42
+ONIE: Failed to configure knet4 interface
+Warning: Unable to configure interface using DHCPv4: knet66
+Warning: Unable to configure interface using DHCPv4: knet7
+ONIE: Failed to configure knet43 interface
+Warning: Unable to configure interface using DHCPv4: knet60
+Warning: Unable to configure interface using DHCPv4: knet52
+Warning: Unable to configure interface using DHCPv4: knet77
+Warning: Unable to configure interface using DHCPv4: knet49
+Warning: Unable to configure interface using DHCPv4: knet55
+Warning: Unable to configure interface using DHCPv4: knet5
+Warning: Unable to configure interface using DHCPv4: knet48
+Warning: Unable to configure interface using DHCPv4: knet76
+Warning: Unable to configure interface using DHCPv4: knet53
+Warning: Unable to configure interface using DHCPv4: knet62
+Warning: Unable to configure interface using DHCPv4: knet40
+ONIE: Failed to configure knet38 interface
+Warning: Unable to configure interface using DHCPv4: knet54
+Warning: Unable to configure interface using DHCPv4: knet6
+Warning: Unable to configure interface using DHCPv4: knet65
+Warning: Unable to configure interface using DHCPv4: knet47
+Warning: Unable to configure interface using DHCPv4: knet44
+ONIE: Failed to configure knet119 interface
+ONIE: Failed to configure knet45 interface
+Warning: Unable to configure interface using DHCPv4: knet41
+Warning: Unable to configure interface using DHCPv4: knet59
+Warning: Unable to configure interface using DHCPv4: knet81
+Warning: Unable to configure interface using DHCPv4: knet73
+Warning: Unable to configure interface using DHCPv4: knet67
+ONIE: Failed to configure knet76 interface
+Warning: Unable to configure interface using DHCPv4: knet69
+ONIE: Failed to configure knet7 interface
+Warning: Unable to configure interface using DHCPv4: knet75
+Warning: Unable to configure interface using DHCPv4: knet64
+ONIE: Failed to configure knet42 interface
+Warning: Unable to configure interface using DHCPv4: knet74
+Warning: Unable to configure interface using DHCPv4: knet46
+Warning: Unable to configure interface using DHCPv4: knet79
+Warning: Unable to configure interface using DHCPv4: knet97
+Warning: Unable to configure interface using DHCPv4: knet92
+Warning: Unable to configure interface using DHCPv4: knet61
+Warning: Unable to configure interface using DHCPv4: knet8
+ONIE: Failed to configure knet60 interface
+ONIE: Failed to configure knet26 interface
+ONIE: Failed to configure knet5 interface
+Warning: Unable to configure interface using DHCPv4: knet56
+Warning: Unable to configure interface using DHCPv4: knet72
+ONIE: Failed to configure knet48 interface
+ONIE: Failed to configure knet49 interface
+Warning: Unable to configure interface using DHCPv4: knet78
+ONIE: Failed to configure knet63 interface
+ONIE: Failed to configure knet55 interface
+ONIE: Failed to configure knet116 interface
+ONIE: Failed to configure knet111 interface
+Warning: Unable to configure interface using DHCPv4: knet57
+ONIE: Failed to configure knet104 interface
+Warning: Unable to configure interface using DHCPv4: knet39
+Warning: Unable to configure interface using DHCPv4: knet80
+Warning: Unable to configure interface using DHCPv4: knet91
+Warning: Unable to configure interface using DHCPv4: knet58
+Warning: Unable to configure interface using DHCPv4: knet85
+Warning: Unable to configure interface using DHCPv4: knet9
+Warning: Unable to configure interface using DHCPv4: knet68
+Warning: Unable to configure interface using DHCPv4: knet93
+Warning: Unable to configure interface using DHCPv4: knet71
+Warning: Unable to configure interface using DHCPv4: knet90
+ONIE: Failed to configure knet91 interface
+Warning: Unable to configure interface using DHCPv4: knet70
+Warning: Unable to configure interface using DHCPv4: knet99
+Warning: Unable to configure interface using DHCPv4: knet89
+Warning: Unable to configure interface using DHCPv4: knet98
+Warning: Unable to configure interface using DHCPv4: knet86
+Warning: Unable to configure interface using DHCPv4: knet84
+Warning: Unable to configure interface using DHCPv4: knet82
+Warning: Unable to configure interface using DHCPv4: knet88
+Warning: Unable to configure interface using DHCPv4: knet87
+ONIE: Failed to configure knet9 interface
+Warning: Unable to configure interface using DHCPv4: knet94
+Warning: Unable to configure interface using DHCPv4: knet95
+Warning: Unable to configure interface using DHCPv4: knet96
+Warning: Unable to configure interface using DHCPv4: knet83
+ONIE: Failed to configure knet46 interface
+ONIE: Failed to configure knet52 interface
+ONIE: Failed to configure knet40 interface
+ONIE: Failed to configure knet44 interface
+ONIE: Failed to configure knet77 interface
+ONIE: Failed to configure knet86 interface
+ONIE: Failed to configure knet58 interface
+ONIE: Failed to configure knet51 interface
+ONIE: Failed to configure knet59 interface
+ONIE: Failed to configure knet53 interface
+ONIE: Failed to configure knet62 interface
+ONIE: Failed to configure knet64 interface
+ONIE: Failed to configure knet6 interface
+ONIE: Failed to configure knet81 interface
+ONIE: Failed to configure knet54 interface
+ONIE: Failed to configure knet70 interface
+ONIE: Failed to configure knet69 interface
+ONIE: Failed to configure knet71 interface
+ONIE: Failed to configure knet56 interface
+ONIE: Failed to configure knet74 interface
+ONIE: Failed to configure knet67 interface
+ONIE: Failed to configure knet93 interface
+ONIE: Failed to configure knet84 interface
+ONIE: Failed to configure knet75 interface
+ONIE: Failed to configure knet47 interface
+ONIE: Failed to configure knet61 interface
+ONIE: Failed to configure knet97 interface
+ONIE: Failed to configure knet39 interface
+ONIE: Failed to configure knet8 interface
+ONIE: Failed to configure knet78 interface
+ONIE: Failed to configure knet65 interface
+ONIE: Failed to configure knet72 interface
+ONIE: Failed to configure knet87 interface
+ONIE: Failed to configure knet34 interface
+ONIE: Failed to configure knet92 interface
+ONIE: Failed to configure knet66 interface
+ONIE: Failed to configure knet80 interface
+ONIE: Failed to configure knet57 interface
+ONIE: Failed to configure knet41 interface
+ONIE: Failed to configure knet83 interface
+ONIE: Failed to configure knet73 interface
+ONIE: Failed to configure knet50 interface
+ONIE: Failed to configure knet79 interface
+ONIE: Failed to configure knet98 interface
+ONIE: Failed to configure knet88 interface
+ONIE: Failed to configure knet95 interface
+ONIE: Failed to configure knet99 interface
+ONIE: Failed to configure knet85 interface
+ONIE: Failed to configure knet82 interface
+ONIE: Failed to configure knet90 interface
+ONIE: Failed to configure knet94 interface
+ONIE: Failed to configure knet89 interface
+ONIE: Failed to configure knet96 interface
+ONIE: Failed to configure knet68 interface
+Starting: dropbear ssh daemon... done.
+Starting: telnetd... done.
+discover: installer mode detected.  Running installer.
+Starting: discover... done.
+Starting: iic-util... done.
+
+Please press Enter to activate this console. Info: knet1:  Skipping checking link.
+Info: knet102:  Skipping checking link.
+Info: knet103:  Skipping checking link.
+Info: knet12:  Skipping checking link.
+Info: knet114:  Skipping checking link.
+Info: knet116:  Skipping checking link.
+Info: knet11:  Skipping checking link.
+Info: eth0:  Checking link... Info: knet101:  Skipping checking link.
+Info: knet110:  Skipping checking link.
+Info: knet23:  Skipping checking link.
+Info: knet117:  Skipping checking link.
+Info: knet16:  Skipping checking link.
+Info: knet124:  Skipping checking link.
+Info: knet113:  Skipping checking link.
+Info: knet24:  Skipping checking link.
+Info: knet112:  Skipping checking link.
+Info: knet109:  Skipping checking link.
+Info: knet125:  Skipping checking link.
+Info: knet108:  Skipping checking link.
+Info: knet21:  Skipping checking link.
+Info: knet118:  Skipping checking link.
+Info: knet107:  Skipping checking link.
+Info: knet26:  Skipping checking link.
+Info: knet18:  Skipping checking link.
+Info: knet105:  Skipping checking link.
+Info: knet49:  Skipping checking link.
+Info: knet20:  Skipping checking link.
+Info: knet121:  Skipping checking link.
+Info: knet35:  Skipping checking link.
+Info: knet115:  Skipping checking link.
+Info: knet13:  Skipping checking link.
+Info: knet100:  Skipping checking link.
+Info: knet10:  Skipping checking link.
+Info: knet33:  Skipping checking link.
+Info: knet14:  Skipping checking link.
+Info: knet29:  Skipping checking link.
+Info: knet28:  Skipping checking link.
+Info: knet19:  Skipping checking link.
+Info: knet38:  Skipping checking link.
+Info: knet4:  Skipping checking link.
+Info: knet27:  Skipping checking link.
+Info: knet80:  Skipping checking link.
+Info: knet123:  Skipping checking link.
+Info: knet59:  Skipping checking link.
+Info: knet6:  Skipping checking link.
+Info: knet36:  Skipping checking link.
+Info: knet15:  Skipping checking link.
+Info: knet122:  Skipping checking link.
+Info: knet50:  Skipping checking link.
+Info: knet54:  Skipping checking link.
+Info: knet53:  Skipping checking link.
+Info: knet42:  Skipping checking link.
+Info: knet71:  Skipping checking link.
+Info: knet41:  Skipping checking link.
+Info: knet44:  Skipping checking link.
+Info: knet75:  Skipping checking link.
+Info: knet72:  Skipping checking link.
+Info: knet37:  Skipping checking link.
+Info: knet66:  Skipping checking link.
+Info: knet68:  Skipping checking link.
+Info: knet65:  Skipping checking link.
+Info: knet45:  Skipping checking link.
+Info: knet32:  Skipping checking link.
+Info: knet74:  Skipping checking link.
+Info: knet127:  Skipping checking link.
+Info: knet47:  Skipping checking link.
+Info: knet87:  Skipping checking link.
+Info: knet86:  Skipping checking link.
+up.
+Info: knet56:  Skipping checking link.
+Info: knet83:  Skipping checking link.
+Info: knet43:  Skipping checking link.
+Info: knet52:  Skipping checking link.
+Info: knet70:  Skipping checking link.
+Info: knet8:  Skipping checking link.
+Info: knet64:  Skipping checking link.
+Info: knet40:  Skipping checking link.
+Info: knet7:  Skipping checking link.
+Info: knet128:  Skipping checking link.
+Info: knet60:  Skipping checking link.
+Info: knet82:  Skipping checking link.
+Info: knet31:  Skipping checking link.
+Info: knet48:  Skipping checking link.
+Info: knet106:  Skipping checking link.
+Info: knet3:  Skipping checking link.
+Info: knet76:  Skipping checking link.
+Info: knet78:  Skipping checking link.
+Info: knet89:  Skipping checking link.
+Info: knet34:  Skipping checking link.
+Info: knet9:  Skipping checking link.
+Info: knet79:  Skipping checking link.
+Info: knet63:  Skipping checking link.
+Info: knet58:  Skipping checking link.
+Info: knet85:  Skipping checking link.
+Info: knet25:  Skipping checking link.
+Info: knet90:  Skipping checking link.
+Info: knet120:  Skipping checking link.
+Info: knet30:  Skipping checking link.
+Info: knet93:  Skipping checking link.
+Info: knet62:  Skipping checking link.
+Info: knet61:  Skipping checking link.
+Info: knet81:  Skipping checking link.
+Info: knet57:  Skipping checking link.
+Info: knet46:  Skipping checking link.
+Info: knet111:  Skipping checking link.
+Info: knet55:  Skipping checking link.
+Info: knet2:  Skipping checking link.
+Info: knet39:  Skipping checking link.
+Info: knet69:  Skipping checking link.
+Info: knet5:  Skipping checking link.
+Info: knet119:  Skipping checking link.
+Info: knet22:  Skipping checking link.
+Info: knet77:  Skipping checking link.
+Info: knet73:  Skipping checking link.
+Info: knet67:  Skipping checking link.
+Info: knet84:  Skipping checking link.
+Info: knet91:  Skipping checking link.
+Info: knet88:  Skipping checking link.
+Info: knet126:  Skipping checking link.
+Info: knet99:  Skipping checking link.
+Info: knet17:  Skipping checking link.
+Info: knet51:  Skipping checking link.
+Info: knet96:  Skipping checking link.
+Info: knet92:  Skipping checking link.
+Info: knet104:  Skipping checking link.
+Info: knet95:  Skipping checking link.
+Info: knet98:  Skipping checking link.
+Info: knet97:  Skipping checking link.
+Info: knet94:  Skipping checking link.
+Info: Trying DHCPv4 on interface: knet116
+Info: Trying DHCPv4 on interface: knet1
+Info: Trying DHCPv4 on interface: knet12
+Info: Trying DHCPv4 on interface: knet101
+Info: Trying DHCPv4 on interface: knet117
+Info: Trying DHCPv4 on interface: knet114
+Info: Trying DHCPv4 on interface: knet102
+Info: Trying DHCPv4 on interface: knet109
+Info: Trying DHCPv4 on interface: knet110
+Info: Trying DHCPv4 on interface: knet11
+Info: Trying DHCPv4 on interface: knet24
+Info: Trying DHCPv4 on interface: knet103
+Info: Trying DHCPv4 on interface: knet23
+Info: Trying DHCPv4 on interface: knet35
+Info: Trying DHCPv4 on interface: knet20
+Info: Trying DHCPv4 on interface: knet21
+Info: Trying DHCPv4 on interface: knet33
+Info: Trying DHCPv4 on interface: knet16
+Info: Trying DHCPv4 on interface: knet105
+Info: Trying DHCPv4 on interface: knet10
+Info: Trying DHCPv4 on interface: knet118
+Info: Trying DHCPv4 on interface: knet75
+Info: Trying DHCPv4 on interface: knet125
+Info: Trying DHCPv4 on interface: knet124
+Info: Trying DHCPv4 on interface: knet14
+Info: Trying DHCPv4 on interface: knet27
+Info: Trying DHCPv4 on interface: knet32
+Info: Trying DHCPv4 on interface: knet28
+Info: Trying DHCPv4 on interface: knet15
+Info: Trying DHCPv4 on interface: knet54
+Info: Trying DHCPv4 on interface: knet87
+Info: Trying DHCPv4 on interface: knet108
+Info: Trying DHCPv4 on interface: knet56
+Info: Trying DHCPv4 on interface: knet49
+Info: Trying DHCPv4 on interface: knet86
+Info: Trying DHCPv4 on interface: knet107
+Info: Trying DHCPv4 on interface: knet7
+Info: Trying DHCPv4 on interface: knet18
+Info: Trying DHCPv4 on interface: knet29
+Info: Trying DHCPv4 on interface: knet4
+Info: Trying DHCPv4 on interface: knet43
+Info: Trying DHCPv4 on interface: knet115
+Info: Trying DHCPv4 on interface: knet44
+Info: Trying DHCPv4 on interface: knet59
+Info: Trying DHCPv4 on interface: knet52
+Info: Trying DHCPv4 on interface: knet127
+Info: Trying DHCPv4 on interface: knet38
+Info: Trying DHCPv4 on interface: knet80
+Info: Trying DHCPv4 on interface: knet121
+Info: Trying DHCPv4 on interface: knet36
+Info: Trying DHCPv4 on interface: knet31
+Info: Trying DHCPv4 on interface: knet50
+Info: Trying DHCPv4 on interface: knet26
+Info: Trying DHCPv4 on interface: knet37
+Info: Trying DHCPv4 on interface: knet68
+Info: Trying DHCPv4 on interface: knet45
+Info: Trying DHCPv4 on interface: knet57
+Info: Trying DHCPv4 on interface: knet66
+Info: Trying DHCPv4 on interface: knet112
+Info: Trying DHCPv4 on interface: knet47
+Info: Trying DHCPv4 on interface: knet128
+Info: Trying DHCPv4 on interface: knet53
+Info: Trying DHCPv4 on interface: knet71
+Info: Trying DHCPv4 on interface: knet9
+Info: Trying DHCPv4 on interface: knet64
+Info: Trying DHCPv4 on interface: knet83
+Info: Trying DHCPv4 on interface: knet3
+Info: Trying DHCPv4 on interface: knet48
+Info: Trying DHCPv4 on interface: knet42
+Info: Trying DHCPv4 on interface: knet72
+Info: Trying DHCPv4 on interface: knet89
+Info: Trying DHCPv4 on interface: knet58
+Info: Trying DHCPv4 on interface: knet8
+Info: Trying DHCPv4 on interface: knet63
+Info: Trying DHCPv4 on interface: knet30
+Info: Trying DHCPv4 on interface: knet19
+Info: Trying DHCPv4 on interface: knet113
+Info: Trying DHCPv4 on interface: knet78
+Info: Trying DHCPv4 on interface: knet62
+Info: Trying DHCPv4 on interface: knet90
+Info: Trying DHCPv4 on interface: knet74
+Info: Trying DHCPv4 on interface: knet41
+Info: Trying DHCPv4 on interface: eth0
+Info: Trying DHCPv4 on interface: knet106
+Info: Trying DHCPv4 on interface: knet34
+Info: Trying DHCPv4 on interface: knet65
+Info: Trying DHCPv4 on interface: knet93
+Info: Trying DHCPv4 on interface: knet82
+Info: Trying DHCPv4 on interface: knet6
+Info: Trying DHCPv4 on interface: knet100
+Info: Trying DHCPv4 on interface: knet39
+Info: Trying DHCPv4 on interface: knet120
+Info: Trying DHCPv4 on interface: knet79
+Info: Trying DHCPv4 on interface: knet25
+Info: Trying DHCPv4 on interface: knet123
+Info: Trying DHCPv4 on interface: knet60
+Info: Trying DHCPv4 on interface: knet76
+Info: Trying DHCPv4 on interface: knet5
+Info: Trying DHCPv4 on interface: knet40
+Info: Trying DHCPv4 on interface: knet70
+Info: Trying DHCPv4 on interface: knet61
+Info: Trying DHCPv4 on interface: knet119
+Info: Trying DHCPv4 on interface: knet91
+Info: Trying DHCPv4 on interface: knet69
+Info: Trying DHCPv4 on interface: knet22
+Info: Trying DHCPv4 on interface: knet13
+Info: Trying DHCPv4 on interface: knet55
+Info: Trying DHCPv4 on interface: knet122
+Info: Trying DHCPv4 on interface: knet46
+Info: Trying DHCPv4 on interface: knet81
+Info: Trying DHCPv4 on interface: knet73
+Info: Trying DHCPv4 on interface: knet85
+Info: Trying DHCPv4 on interface: knet2
+Info: Trying DHCPv4 on interface: knet95
+Info: Trying DHCPv4 on interface: knet17
+Info: Trying DHCPv4 on interface: knet111
+Info: Trying DHCPv4 on interface: knet126
+Info: Trying DHCPv4 on interface: knet92
+Info: Trying DHCPv4 on interface: knet96
+Info: Trying DHCPv4 on interface: knet67
+Info: Trying DHCPv4 on interface: knet51
+Info: Trying DHCPv4 on interface: knet88
+Info: Trying DHCPv4 on interface: knet99
+Info: Trying DHCPv4 on interface: knet77
+Info: Trying DHCPv4 on interface: knet104
+Info: Trying DHCPv4 on interface: knet97
+Info: Trying DHCPv4 on interface: knet98
+Info: Trying DHCPv4 on interface: knet94
+Info: Trying DHCPv4 on interface: knet84
+ONIE: Using DHCPv4 addr: eth0: 10.60.2.253 / 255.255.255.0
+Warning: Unable to configure interface using DHCPv4: knet1
+ONIE: Failed to configure knet1 interface
+Warning: Unable to configure interface using DHCPv4: knet12
+ONIE: Failed to configure knet12 interface
+Warning: Unable to configure interface using DHCPv4: knet114
+Warning: Unable to configure interface using DHCPv4: knet117
+ONIE: Failed to configure knet117 interface
+ONIE: Failed to configure knet114 interface
+Warning: Unable to configure interface using DHCPv4: knet101
+ONIE: Failed to configure knet101 interface
+Warning: Unable to configure interface using DHCPv4: knet116
+ONIE: Failed to configure knet116 interface
+Warning: Unable to configure interface using DHCPv4: knet110
+ONIE: Failed to configure knet110 interface
+Warning: Unable to configure interface using DHCPv4: knet102
+ONIE: Failed to configure knet102 interface
+Warning: Unable to configure interface using DHCPv4: knet103
+ONIE: Failed to configure knet103 interface
+Warning: Unable to configure interface using DHCPv4: knet10
+Warning: Unable to configure interface using DHCPv4: knet33
+Warning: Unable to configure interface using DHCPv4: knet20
+Warning: Unable to configure interface using DHCPv4: knet11
+ONIE: Failed to configure knet20 interface
+ONIE: Failed to configure knet11 interface
+ONIE: Failed to configure knet10 interface
+Warning: Unable to configure interface using DHCPv4: knet35
+Warning: Unable to configure interface using DHCPv4: knet125
+Warning: Unable to configure interface using DHCPv4: knet15
+ONIE: Failed to configure knet33 interface
+Warning: Unable to configure interface using DHCPv4: knet24
+Warning: Unable to configure interface using DHCPv4: knet27
+Warning: Unable to configure interface using DHCPv4: knet86
+Warning: Unable to configure interface using DHCPv4: knet21
+Warning: Unable to configure interface using DHCPv4: knet87
+Warning: Unable to configure interface using DHCPv4: knet118
+ONIE: Failed to configure knet15 interface
+ONIE: Failed to configure knet24 interface
+Warning: Unable to configure interface using DHCPv4: knet43
+ONIE: Failed to configure knet35 interface
+ONIE: Failed to configure knet125 interface
+Warning: Unable to configure interface using DHCPv4: knet54
+Warning: Unable to configure interface using DHCPv4: knet124
+Warning: Unable to configure interface using DHCPv4: knet49
+Warning: Unable to configure interface using DHCPv4: knet75
+ONIE: Failed to configure knet86 interface
+ONIE: Failed to configure knet21 interface
+ONIE: Failed to configure knet27 interface
+Warning: Unable to configure interface using DHCPv4: knet56
+ONIE: Failed to configure knet87 interface
+Warning: Unable to configure interface using DHCPv4: knet108
+Warning: Unable to configure interface using DHCPv4: knet18
+ONIE: Failed to configure knet49 interface
+ONIE: Failed to configure knet54 interface
+ONIE: Failed to configure knet43 interface
+ONIE: Failed to configure knet75 interface
+Warning: Unable to configure interface using DHCPv4: knet52
+ONIE: Failed to configure knet118 interface
+Warning: Unable to configure interface using DHCPv4: knet32
+Warning: Unable to configure interface using DHCPv4: knet107
+Warning: Unable to configure interface using DHCPv4: knet28
+ONIE: Failed to configure knet124 interface
+ONIE: Failed to configure knet18 interface
+Warning: Unable to configure interface using DHCPv4: knet4
+Warning: Unable to configure interface using DHCPv4: knet29
+Warning: Unable to configure interface using DHCPv4: knet16
+Warning: Unable to configure interface using DHCPv4: knet38
+Warning: Unable to configure interface using DHCPv4: knet53
+ONIE: Failed to configure knet108 interface
+Warning: Unable to configure interface using DHCPv4: knet7
+Warning: Unable to configure interface using DHCPv4: knet30
+Warning: Unable to configure interface using DHCPv4: knet115
+Warning: Unable to configure interface using DHCPv4: knet41
+Warning: Unable to configure interface using DHCPv4: knet80
+Warning: Unable to configure interface using DHCPv4: knet31
+Warning: Unable to configure interface using DHCPv4: knet37
+Warning: Unable to configure interface using DHCPv4: knet128
+Warning: Unable to configure interface using DHCPv4: knet89
+Warning: Unable to configure interface using DHCPv4: knet121
+Warning: Unable to configure interface using DHCPv4: knet66
+ONIE: Failed to configure knet52 interface
+ONIE: Failed to configure knet56 interface
+Warning: Unable to configure interface using DHCPv4: knet44
+Warning: Unable to configure interface using DHCPv4: knet50
+Warning: Unable to configure interface using DHCPv4: knet34
+ONIE: Failed to configure knet28 interface
+Warning: Unable to configure interface using DHCPv4: knet71
+Warning: Unable to configure interface using DHCPv4: knet127
+Warning: Unable to configure interface using DHCPv4: knet60
+Warning: Unable to configure interface using DHCPv4: knet58
+Warning: Unable to configure interface using DHCPv4: knet62
+Warning: Unable to configure interface using DHCPv4: knet14
+ONIE: Failed to configure knet107 interface
+Warning: Unable to configure interface using DHCPv4: knet3
+Warning: Unable to configure interface using DHCPv4: knet36
+Warning: Unable to configure interface using DHCPv4: knet42
+Warning: Unable to configure interface using DHCPv4: knet48
+Warning: Unable to configure interface using DHCPv4: knet9
+Warning: Unable to configure interface using DHCPv4: knet57
+Warning: Unable to configure interface using DHCPv4: knet47
+Warning: Unable to configure interface using DHCPv4: knet83
+Warning: Unable to configure interface using DHCPv4: knet19
+ONIE: Failed to configure knet16 interface
+Warning: Unable to configure interface using DHCPv4: knet112
+Warning: Unable to configure interface using DHCPv4: knet78
+Warning: Unable to configure interface using DHCPv4: knet105
+Warning: Unable to configure interface using DHCPv4: knet64
+Warning: Unable to configure interface using DHCPv4: knet109
+ONIE: Failed to configure knet53 interface
+ONIE: Failed to configure knet4 interface
+Warning: Unable to configure interface using DHCPv4: knet45
+ONIE: Failed to configure knet64 interface
+ONIE: Failed to configure knet29 interface
+ONIE: Failed to configure knet7 interface
+Warning: Unable to configure interface using DHCPv4: knet63
+Warning: Unable to configure interface using DHCPv4: knet113
+ONIE: Failed to configure knet30 interface
+Warning: Unable to configure interface using DHCPv4: knet26
+ONIE: Failed to configure knet45 interface
+ONIE: Failed to configure knet109 interface
+ONIE: Failed to configure knet32 interface
+ONIE: Failed to configure knet44 interface
+Warning: Unable to configure interface using DHCPv4: knet68
+Warning: Unable to configure interface using DHCPv4: knet100
+ONIE: Failed to configure knet38 interface
+ONIE: Failed to configure knet89 interface
+Warning: Unable to configure interface using DHCPv4: knet39
+Warning: Unable to configure interface using DHCPv4: knet59
+ONIE: Failed to configure knet121 interface
+ONIE: Failed to configure knet41 interface
+ONIE: Failed to configure knet80 interface
+Warning: Unable to configure interface using DHCPv4: knet40
+ONIE: Failed to configure knet31 interface
+ONIE: Failed to configure knet113 interface
+ONIE: Failed to configure knet63 interface
+Warning: Unable to configure interface using DHCPv4: knet79
+Warning: Unable to configure interface using DHCPv4: knet23
+ONIE: Failed to configure knet37 interface
+Warning: Unable to configure interface using DHCPv4: knet90
+Warning: Unable to configure interface using DHCPv4: knet55
+Warning: Unable to configure interface using DHCPv4: knet6
+ONIE: Failed to configure knet26 interface
+ONIE: Failed to configure knet115 interface
+Warning: Unable to configure interface using DHCPv4: knet85
+Warning: Unable to configure interface using DHCPv4: knet106
+ONIE: Failed to configure knet128 interface
+Warning: Unable to configure interface using DHCPv4: knet120
+Warning: Unable to configure interface using DHCPv4: knet5
+ONIE: Failed to configure knet14 interface
+Warning: Unable to configure interface using DHCPv4: knet25
+Warning: Unable to configure interface using DHCPv4: knet93
+ONIE: Failed to configure knet112 interface
+Warning: Unable to configure interface using DHCPv4: knet119
+ONIE: Failed to configure knet34 interface
+Warning: Unable to configure interface using DHCPv4: knet76
+ONIE: Failed to configure knet42 interface
+Warning: Unable to configure interface using DHCPv4: knet96
+ONIE: Failed to configure knet50 interface
+ONIE: Failed to configure knet100 interface
+ONIE: Failed to configure knet78 interface
+ONIE: Failed to configure knet60 interface
+Warning: Unable to configure interface using DHCPv4: knet99
+ONIE: Failed to configure knet3 interface
+ONIE: Failed to configure knet71 interface
+Warning: Unable to configure interface using DHCPv4: knet74
+ONIE: Failed to configure knet62 interface
+Warning: Unable to configure interface using DHCPv4: knet8
+ONIE: Failed to configure knet48 interface
+Warning: Unable to configure interface using DHCPv4: knet73
+Warning: Unable to configure interface using DHCPv4: knet69
+Warning: Unable to configure interface using DHCPv4: knet72
+Warning: Unable to configure interface using DHCPv4: knet51
+Warning: Unable to configure interface using DHCPv4: knet17
+ONIE: Failed to configure knet79 interface
+ONIE: Failed to configure knet39 interface
+ONIE: Failed to configure knet85 interface
+ONIE: Failed to configure knet36 interface
+ONIE: Failed to configure knet40 interface
+ONIE: Failed to configure knet59 interface
+Warning: Unable to configure interface using DHCPv4: knet70
+Warning: Unable to configure interface using DHCPv4: knet13
+Warning: Unable to configure interface using DHCPv4: knet77
+ONIE: Failed to configure knet55 interface
+ONIE: Failed to configure knet47 interface
+Warning: Unable to configure interface using DHCPv4: knet95
+Warning: Unable to configure interface using DHCPv4: knet61
+Warning: Unable to configure interface using DHCPv4: knet46
+Warning: Unable to configure interface using DHCPv4: knet67
+ONIE: Failed to configure knet9 interface
+Warning: Unable to configure interface using DHCPv4: knet65
+Warning: Unable to configure interface using DHCPv4: knet111
+Warning: Unable to configure interface using DHCPv4: knet82
+Warning: Unable to configure interface using DHCPv4: knet81
+ONIE: Failed to configure knet83 interface
+ONIE: Failed to configure knet127 interface
+Warning: Unable to configure interface using DHCPv4: knet97
+Warning: Unable to configure interface using DHCPv4: knet22
+Warning: Unable to configure interface using DHCPv4: knet2
+Warning: Unable to configure interface using DHCPv4: knet126
+Warning: Unable to configure interface using DHCPv4: knet98
+Warning: Unable to configure interface using DHCPv4: knet122
+Warning: Unable to configure interface using DHCPv4: knet92
+ONIE: Failed to configure knet61 interface
+ONIE: Failed to configure knet19 interface
+ONIE: Failed to configure knet57 interface
+Warning: Unable to configure interface using DHCPv4: knet91
+Warning: Unable to configure interface using DHCPv4: knet123
+ONIE: Failed to configure knet67 interface
+Warning: Unable to configure interface using DHCPv4: knet84
+ONIE: Failed to configure knet66 interface
+Warning: Unable to configure interface using DHCPv4: knet104
+ONIE: Failed to configure knet46 interface
+Warning: Unable to configure interface using DHCPv4: knet94
+ONIE: Failed to configure knet2 interface
+Warning: Unable to configure interface using DHCPv4: knet88
+ONIE: Failed to configure knet58 interface
+ONIE: Failed to configure knet105 interface
+ONIE: Failed to configure knet90 interface
+ONIE: Failed to configure knet23 interface
+ONIE: Failed to configure knet106 interface
+ONIE: Failed to configure knet96 interface
+ONIE: Failed to configure knet25 interface
+ONIE: Failed to configure knet93 interface
+ONIE: Failed to configure knet68 interface
+ONIE: Failed to configure knet5 interface
+ONIE: Failed to configure knet120 interface
+ONIE: Failed to configure knet65 interface
+ONIE: Failed to configure knet6 interface
+ONIE: Failed to configure knet76 interface
+ONIE: Failed to configure knet73 interface
+ONIE: Failed to configure knet8 interface
+ONIE: Failed to configure knet119 interface
+ONIE: Failed to configure knet77 interface
+ONIE: Failed to configure knet72 interface
+ONIE: Failed to configure knet69 interface
+ONIE: Failed to configure knet99 interface
+ONIE: Failed to configure knet70 interface
+ONIE: Failed to configure knet51 interface
+ONIE: Failed to configure knet13 interface
+ONIE: Failed to configure knet74 interface
+ONIE: Failed to configure knet17 interface
+ONIE: Failed to configure knet123 interface
+ONIE: Failed to configure knet91 interface
+ONIE: Failed to configure knet97 interface
+ONIE: Failed to configure knet98 interface
+ONIE: Failed to configure knet126 interface
+ONIE: Failed to configure knet104 interface
+ONIE: Failed to configure knet122 interface
+ONIE: Failed to configure knet84 interface
+ONIE: Failed to configure knet81 interface
+ONIE: Failed to configure knet82 interface
+ONIE: Failed to configure knet111 interface
+ONIE: Failed to configure knet92 interface
+ONIE: Failed to configure knet94 interface
+ONIE: Failed to configure knet22 interface
+ONIE: Failed to configure knet88 interface
+ONIE: Failed to configure knet95 interface
+ONIE: Starting ONIE Service Discovery
+Info: Trying DHCPv4 service discovery on interface: eth0
+Info: Fetching http://10.60.2.1/onie-installer-powerpc-accton_as7760_32x-r0 ...
+Info: Fetching http://10.60.2.1/onie-installer-powerpc-accton_as7760_32x ...
+Info: Fetching http://10.60.2.1/onie-installer-accton_as7760_32x ...
+Info: Fetching http://10.60.2.1/onie-installer-powerpc ...
+Info: Fetching http://10.60.2.1/onie-installer ...
+Info: Fetching tftp://10.60.2.1/8C-EA-1B-89-C9-3C/onie-installer-powerpc-accton_as7760_32x-r0 ...
+^C
+To check the install status inspect /var/log/onie.log.
+Try this:  tail -f /var/log/onie.log
+
+** Installer Mode Enabled **
