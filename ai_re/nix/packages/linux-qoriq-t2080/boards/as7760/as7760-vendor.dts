@@ -1344,6 +1344,7 @@
 			pca9548@71 {
 				compatible = "nxp,pca9548";
 				reg = <0x71>;
+				i2c-mux-idle-disconnect; /* else two modules answer at 0x50 at once */
 				#address-cells = <0x01>;
 				#size-cells = <0x00>;
 			};
@@ -1351,6 +1352,7 @@
 			pca9548@72 {
 				compatible = "nxp,pca9548";
 				reg = <0x72>;
+				i2c-mux-idle-disconnect; /* else two modules answer at 0x50 at once */
 				#address-cells = <0x01>;
 				#size-cells = <0x00>;
 
@@ -1446,6 +1448,7 @@
 			pca9548@73 {
 				compatible = "nxp,pca9548";
 				reg = <0x73>;
+				i2c-mux-idle-disconnect; /* else two modules answer at 0x50 at once */
 				#address-cells = <0x01>;
 				#size-cells = <0x00>;
 
@@ -1541,6 +1544,7 @@
 			pca9548@74 {
 				compatible = "nxp,pca9548";
 				reg = <0x74>;
+				i2c-mux-idle-disconnect; /* else two modules answer at 0x50 at once */
 				#address-cells = <0x01>;
 				#size-cells = <0x00>;
 
@@ -1636,6 +1640,7 @@
 			pca9548@75 {
 				compatible = "nxp,pca9548";
 				reg = <0x75>;
+				i2c-mux-idle-disconnect; /* else two modules answer at 0x50 at once */
 				#address-cells = <0x01>;
 				#size-cells = <0x00>;
 

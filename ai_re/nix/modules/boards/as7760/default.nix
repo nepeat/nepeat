@@ -5,6 +5,8 @@
 { pkgs, ... }:
 {
   imports = [ ../../platforms/qoriq-t2080.nix ../../thermal/as7760-fan.nix ];
+  # Front-panel module EEPROM reader (works for hot-plugged modules).
+  environment.systemPackages = [ (pkgs.callPackage ../../../packages/as7760-qsfp { }) ];
   hardware.qoriqT2080.kernelPatches = [ {
     name = "accton-as7760-corenet-machine";
     patch = pkgs.writeText "as7760-machine.patch"
