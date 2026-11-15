@@ -26,9 +26,10 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
 
 - `nix build path:./nix#uboot-dmc12-chainload` → `u-boot.uimage` (for `bootm`),
   `u-boot.bin` (for `go`/`booti`), `u-boot`, `.map`, `.dtb`, `.config`.
-  Current (with Ethernet, = `eth-b`): `/nix/store/0z18z3wvgihjdid9ky35x0ca6w3q2cbp-…-2026.10`,
-  `u-boot.uimage` sha256 `5c59c22d…`, `u-boot.bin` `3b5102a1…`. `eth-a` (0018+0019
-  only): `/nix/store/2j3xfn9znz0wavzxg3b3j80k4dmbh102-…`, uimage `6e16f48b…`. The
+  Current (with Ethernet, = `eth-b`): `/nix/store/rn2wy3hjmd08qnfp03hvd53fkd6h16wg-…-2026.10`,
+  `u-boot.uimage` sha256 `95f8f510…`, `u-boot.bin` `1f485be5…`. `eth-a` (0018+0019
+  only, built at commit 7e438d0; the later 0018 change only matters with the driver):
+  `/nix/store/2j3xfn9znz0wavzxg3b3j80k4dmbh102-…`, uimage `6e16f48b…`. The
   hardware-tested build (no network): `/nix/store/7w61vis50vjz9p5vjm4vs4czbn0wsjba-…`,
   uimage `7634a36c…`.
 - Patches: shared series [ai_re/nix/packages/uboot/default.nix](../../nix/packages/uboot/default.nix):
@@ -116,7 +117,7 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
 | 0x0 +1 MiB, 0x02000000 +1 MiB | firmware (reserved) |
 | ~0x03B00000–0x04000000 | factory U-Boot (stack 0x03B04CD0, `fdtaddr` 0x03B06010, relocaddr 0x03F0A000) |
 | 0x04078000 +28 KiB | factory DTB copy (`loadaddr_dt`) |
-| **0x08000000–0x080E3C00** | **this image** (code + BSS + 512 KiB early stack; dead after relocation; with Ethernet) |
+| **0x08000000–0x080E3CB0** | **this image** (code + BSS + 512 KiB early stack; dead after relocation; with Ethernet) |
 | 0x0f000000 / 0x0f100000 / 0x0f200000 / 0x0f300000 | `fdt_addr_r` / `fdtoverlay_addr_r` / `scriptaddr` / `pxefile_addr_r` |
 | 0x0fd00000 | factory initrd staging (not used by us) |
 | 0x10000000 | uImage TFTP staging (factory side), then `kernel_addr_r` |

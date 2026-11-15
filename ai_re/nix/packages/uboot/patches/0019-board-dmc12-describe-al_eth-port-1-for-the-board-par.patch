@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: ai_re <ai_re@localhost>
 Date: Sun, 15 Nov 2026 06:06:09 -0800
-Subject: [PATCH 19/19] board: dmc12: describe al_eth port 1 for the board
+Subject: [PATCH 19/21] board: dmc12: describe al_eth port 1 for the board
  params handoff
 
 PCI 00:01.0 is integrated Ethernet port 1, the only port the vendor
