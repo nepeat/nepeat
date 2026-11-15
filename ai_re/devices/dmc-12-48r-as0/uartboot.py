@@ -156,33 +156,33 @@ def val_reg(insns):
 # v5 read RMR in this hook and the UNDEF flooded the console (2f). v5b reads/sets RMR in P instead.
 # P = stage3's entry (0x01000000) right after our stub's RMR warm reset, Secure SVC: prints RMR.AA64,
 # sets RMR = AA64 1 / RR 0 (unless --no-rmr-fix), prints it again, then runs stage3's first insn.
-HOOK32_R, HOOK32_W, HOOK32_P = HOOK_ADDR + 0x200, HOOK_ADDR + 0x300, HOOK_ADDR + 0x380
+HOOK32_R, HOOK32_P = HOOK_ADDR + 0x200, HOOK_ADDR + 0x380
 STG3_ENTRY_INSN = 0x01000000      # ldr r3, =0x01059020 (displaced: movw/movt r3), then b 0x01000004
 RESUME_LITERAL = 0x01047DC0       # SRAM agent init: resume address it gives all 4 CPUs (0xfbff423c)
 STG3_RESET_CALL = 0x010294B4      # stage3 exec: bl 0x01023da0 (core warm reset), then wfi
 
 
-def hooks32(rmr_fix):
+def hooks32(rmr_fix, verbose):
+    """R (verbose only) and P (verbose, or quiet when only the RMR fix is wanted; None if neither)."""
     r = [_arm_movw(0, 0x3000), _arm_movt(0, 0xFD88)]  # r0/r1 are dead at 0xfbff423c's entry
     r += _arm_putc(0, 1, [0xE3A01000 | ord("R")], HOOK32_R + 4 * len(r))
     r += [_arm_movw(0, 0x423C), _arm_movt(0, 0xFBFF), 0xE12FFF10]   # bx r0 -> 0xfbff423c (ARM)
-    w = [_arm_movw(2, 0x3000), _arm_movt(2, 0xFD88)]  # r2/r3/r12 are caller-saved at the bl
-    w += _arm_putc(2, 12, [0xE3A03000 | ord("w")], HOOK32_W + 4 * len(w))
-    w += _arm_putc(2, 12, [_arm_movw(3, 0x2004), _arm_movt(3, 0xF007), 0xE5933000,  # ldr r3, [r3]
-                           0xE2033001, 0xE2833030],     # config_aarch64 & 1 -> '0'/'1'
-                   HOOK32_W + 4 * len(w))
-    w.append(_arm_b(HOOK32_W + 4 * len(w), 0x01023DA0))  # b 0x01023da0 (lr = site + 4)
     rmr = [0xEE1C3F50, 0xE2033001, 0xE2833030]          # mrc p15,0,r3,c12,c0,2 (RMR); and #1; add #'0'
-    p = [_arm_movw(1, 0x3000), _arm_movt(1, 0xFD88)]  # r1/r2/r3 are dead at stage3's entry (r0, lr kept)
-    p += _arm_putc(1, 2, [0xE3A03000 | ord("P")], HOOK32_P + 4 * len(p))
-    p += _arm_putc(1, 2, list(rmr), HOOK32_P + 4 * len(p))
-    if rmr_fix:
-        p += [0xE3A03001, 0xEE0C3F50, 0xF57FF06F]       # mov r3, #1; mcr RMR (AA64=1, RR=0); isb
-    p += _arm_putc(1, 2, list(rmr), HOOK32_P + 4 * len(p))
-    p += [_arm_movw(3, 0x9020), _arm_movt(3, 0x0105)]   # the displaced ldr r3, =0x01059020
-    p.append(_arm_b(HOOK32_P + 4 * len(p), STG3_ENTRY_INSN + 4))
-    pack = lambda l: b"".join(struct.pack("<I", x) for x in l)
-    return pack(r), pack(w), pack(p)
+    fix = [0xE3A03001, 0xEE0C3F50, 0xF57FF06F] if rmr_fix else []   # mov r3,#1; mcr RMR (AA64 1); isb
+    p = None
+    if verbose:
+        p = [_arm_movw(1, 0x3000), _arm_movt(1, 0xFD88)]  # r1/r2/r3 are dead at stage3's entry
+        p += _arm_putc(1, 2, [0xE3A03000 | ord("P")], HOOK32_P + 4 * len(p))
+        p += _arm_putc(1, 2, list(rmr), HOOK32_P + 4 * len(p))
+        p += fix
+        p += _arm_putc(1, 2, list(rmr), HOOK32_P + 4 * len(p))
+    elif rmr_fix:
+        p = list(fix)
+    if p is not None:
+        p += [_arm_movw(3, 0x9020), _arm_movt(3, 0x0105)]   # the displaced ldr r3, =0x01059020
+        p.append(_arm_b(HOOK32_P + 4 * len(p), STG3_ENTRY_INSN + 4))
+    pack = lambda l: b"".join(struct.pack("<I", x) for x in l) if l is not None else None
+    return pack(r), pack(p)
 
 
 def agent_trace():
@@ -211,7 +211,7 @@ def agent_trace():
 HOOK32_X = HOOK_ADDR + 0x400      # v6: replaces w at stage3's reset call (never returns to stage3)
 
 
-def hook_x():
+def hook_x(verbose=True):
     """'w' replacement, ARM, at HOOK32_X; entered by the patched `bl 0x01023da0`. Never returns.
     v7 prints: w<config_aarch64> <word at 0x1000> <GICD_CTLR> <GICR_ISPENDR0 (CPU0 SGI/PPI)> <ISR>,
     then 'Q' and requests CPU0's reset itself as cpus_software_reset = 0x00010013: stage3's 0x13
@@ -219,6 +219,13 @@ def hook_x():
     0x13 is never applied here: CPU0's WFI wakes at once (8 of 8), so it never reaches STNDBYWFI.
     If CPU0 is still alive afterwards: q<cpus_software_reset> <cpu0 power_status> <cpus_hold_reset>,
     16 delayed dots, then WFI up to 8 times with '!' after each that returns."""
+    reset = [_arm_movw(4, 0x0024), _arm_movt(4, 0xF007),           # cpus_software_reset
+             _arm_movw(5, 0x0013), _arm_movt(5, 0x0001),           # 0x00010013
+             0xE5845000, 0xF57FF04F, 0xF57FF06F]                  # str r5, [r4]; dsb; isb
+    if not verbose:                                                # the fix alone: reset, then wfi
+        code = reset + [0xE320F003]
+        code.append(_arm_b(HOOK32_X + 4 * len(code), HOOK32_X + 4 * (len(code) - 1)))   # b wfi
+        return b"".join(struct.pack("<I", x) for x in code)
     code, labels, fix = [], {}, []
     here = lambda: HOOK32_X + 4 * len(code)
     def putc_r3():
@@ -237,9 +244,7 @@ def hook_x():
     putc(" "); hexw(0x1000); putc(" "); hexw(0xF0200000); putc(" "); hexw(0xF0290200)
     putc(" "); code.append(0xEE1C5F11); hexw()                           # mrc p15,0,r5,c12,c1,0 (ISR)
     putc("Q")
-    code.extend([_arm_movw(4, 0x0024), _arm_movt(4, 0xF007),           # cpus_software_reset
-                 _arm_movw(5, 0x0013), _arm_movt(5, 0x0001),           # 0x00010013
-                 0xE5845000, 0xF57FF04F, 0xF57FF06F])                  # str r5, [r4]; dsb; isb
+    code.extend(reset)
     putc("q"); hexw(0xF0070024); putc(" "); hexw(0xF0072024); putc(" "); hexw(0xF0070020)
     code.append(0xE3A07010)                                            # mov r7, #16
     labels["dots"] = len(code)
@@ -271,22 +276,25 @@ def hook_x():
     return b"".join(struct.pack("<I", x) for x in code)
 
 
-def trace_blob(rmr_fix=True):
-    """The whole 0x400-byte blob at HOOK_ADDR and every patch in the stage3 copy."""
-    a64, patches = agent_trace()
-    r, w, p = hooks32(rmr_fix)
-    assert len(a64) <= 0x200 and len(r) <= 0x100 and len(w) <= 0x80 and len(p) <= 0x80
-    x = hook_x()
-    assert len(x) <= 0x200
-    blob = bytearray(0x600)
+def trace_blob(rmr_fix=True, trace=True):
+    """The 0x600-byte hook blob at HOOK_ADDR and its patches in the stage3 copy.
+    Always: x (CPU0 reset with WFI_MASK, the Route A fix) and, with rmr_fix, P. trace adds the
+    AArch64 agent hooks (A M Z g r D W S E), R, and the prints in P and x."""
+    blob, patches = bytearray(0x600), []
+    if trace:
+        a64, patches = agent_trace()
+        blob[:len(a64)] = a64
+    r, p = hooks32(rmr_fix, trace)
+    x = hook_x(trace)
+    assert len(r) <= 0x100 and (p is None or len(p) <= 0x80) and len(x) <= 0x200
     blob[0x400:0x400 + len(x)] = x
-    blob[:len(a64)] = a64
-    blob[0x200:0x200 + len(r)] = r
-    blob[0x300:0x300 + len(w)] = w
-    blob[0x380:0x380 + len(p)] = p
-    patches = patches + [(STG3_ENTRY_INSN, _arm_b(STG3_ENTRY_INSN, HOOK32_P)),
-                         (RESUME_LITERAL, HOOK32_R),
-                         (STG3_RESET_CALL, _arm_b(STG3_RESET_CALL, HOOK32_X, link=True))]
+    if trace:
+        blob[0x200:0x200 + len(r)] = r
+        patches.append((RESUME_LITERAL, HOOK32_R))
+    if p is not None:
+        blob[0x380:0x380 + len(p)] = p
+        patches.append((STG3_ENTRY_INSN, _arm_b(STG3_ENTRY_INSN, HOOK32_P)))
+    patches.append((STG3_RESET_CALL, _arm_b(STG3_RESET_CALL, HOOK32_X, link=True)))
     return bytes(blob), patches
 
 
@@ -399,9 +407,9 @@ def cmd_route_a(a):
              f"cp.b {meta['stg3_src']:#x} {STG3_ADDR:#x} {meta['stg3_size']:#x}",
              f"crc32 {STG3_ADDR:#x} {meta['stg3_size']:#x}",
              f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}",
-             *([f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/agent-trace.bin; crc32",
-                "mw.l <11 sites in the stage3 copy: 9 agent calls, the SRAM agent resume literal, the reset call>"]
-               if a.trace_agent else []),
+             f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/route-a-hooks.bin; crc32",
+             "mw.l <sites in the stage3 copy: the reset call (always), stage3's entry (RMR fix)"
+             + (", 9 agent calls, the SRAM agent resume literal>" if a.trace_agent else ">"),
              "md.l 0xfd8e0000 0x24   (DFX: the agent waits for 0xfd8e0080 == 2)",
              "md.l 0xf0280014 1   (GICR_WAKER CPU0)",
              "md.b 0xfbff41c0 4", "mw.b 0xfbff41c1 <old & ~3 | 1>", "md.b 0xfbff41c0 4",
@@ -432,20 +440,20 @@ def cmd_route_a(a):
     if crc_of(console(f"crc32 {STG3_ADDR:#x} {meta['stg3_size']:#x}")) != meta["stg3_crc"]:
         raise SystemExit("stage3 copy: crc mismatch")
     console(f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}")
-    if a.trace_agent:
-        hooks, patches = trace_blob(a.rmr_fix)
-        (d / "agent-trace.bin").write_bytes(hooks)
-        console(f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/agent-trace.bin", 60)
-        if crc_of(console(f"crc32 {HOOK_ADDR:#x} {len(hooks):#x}")) != zlib.crc32(hooks):
-            raise SystemExit("agent-trace.bin: crc mismatch")
-        img = a.image.read_bytes()
-        for addr, new in patches:
-            old, = struct.unpack_from("<I", img, meta["stg3_src"] - IMG_ADDR + addr - STG3_ADDR)
-            if f"{old:08x}" not in console(f"md.l {addr:#x} 1"):
-                raise SystemExit(f"{addr:#x}: stage3 copy does not hold {old:08x}")
-            console(f"mw.l {addr:#x} {new:#010x}")
-            if f"{new:08x}" not in console(f"md.l {addr:#x} 1"):
-                raise SystemExit(f"{addr:#x}: patch did not stick")
+    # The reset fix (hook x) is always installed: stage3's own CPU0 reset never fires on this path.
+    hooks, patches = trace_blob(a.rmr_fix, a.trace_agent)
+    (d / "route-a-hooks.bin").write_bytes(hooks)
+    console(f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/route-a-hooks.bin", 60)
+    if crc_of(console(f"crc32 {HOOK_ADDR:#x} {len(hooks):#x}")) != zlib.crc32(hooks):
+        raise SystemExit("route-a-hooks.bin: crc mismatch")
+    img = a.image.read_bytes()
+    for addr, new in patches:
+        old, = struct.unpack_from("<I", img, meta["stg3_src"] - IMG_ADDR + addr - STG3_ADDR)
+        if f"{old:08x}" not in console(f"md.l {addr:#x} 1"):
+            raise SystemExit(f"{addr:#x}: stage3 copy does not hold {old:08x}")
+        console(f"mw.l {addr:#x} {new:#010x}")
+        if f"{new:08x}" not in console(f"md.l {addr:#x} 1"):
+            raise SystemExit(f"{addr:#x}: patch did not stick")
     console("md.l 0xfd8e0000 0x24")
     console("md.l 0xf0280014 1")
     line = [l for l in console("md.b 0xfbff41c0 4").splitlines() if l.startswith("fbff41c0:")][0]
@@ -639,7 +647,7 @@ p.add_argument("--tftp-root", type=pathlib.Path, default=pathlib.Path("/srv/tftp
 p.add_argument("--tftp-dir", default="dmc12/route-a")
 p.add_argument("--timeout", type=float, default=60)
 p.add_argument("--no-agent-trace", dest="trace_agent", action="store_false",
-               help="don't patch print hooks into the agent copy (they stay resident: debug runs only)")
+               help="no trace prints (agent hooks, R, P/x prints); the reset fix (x) and RMR fix (P) stay")
 p.add_argument("--no-rmr-fix", dest="rmr_fix", action="store_false",
                help="trace only: don't set RMR.AA64 = 1 in the stage3-entry hook (P)")
 p.add_argument("--no-rom-debug", dest="rom_debug", action="store_false",
