@@ -1,0 +1,141 @@
+# AS7760 on f6a74f4 (all agents' work), 2026-11-15, after reboot
+## platform, LLDP, LED rc
+== show platform fan
+  Drawer    LED          FAN    Speed    Direction    Presence    Status          Timestamp
+--------  -----  -----------  -------  -----------  ----------  --------  -----------------
+FanTray1  green  Fan 1 front      63%          N/A     Present        OK  20261115 13:35:06
+FanTray1  green   Fan 1 rear      62%          N/A     Present        OK  20261115 13:35:06
+FanTray2  green  Fan 2 front      64%          N/A     Present        OK  20261115 13:35:06
+FanTray2  green   Fan 2 rear      62%          N/A     Present        OK  20261115 13:35:06
+FanTray3  green  Fan 3 front      66%          N/A     Present        OK  20261115 13:35:06
+FanTray3  green   Fan 3 rear      65%          N/A     Present        OK  20261115 13:35:06
+FanTray4  green  Fan 4 front      63%          N/A     Present        OK  20261115 13:35:06
+FanTray4  green   Fan 4 rear      62%          N/A     Present        OK  20261115 13:35:06
+FanTray5  green  Fan 5 front      65%          N/A     Present        OK  20261115 13:35:06
+FanTray5  green   Fan 5 rear      63%          N/A     Present        OK  20261115 13:35:06
+FanTray6  green  Fan 6 front      65%          N/A     Present        OK  20261115 13:35:07
+FanTray6  green   Fan 6 rear      64%          N/A     Present        OK  20261115 13:35:07
+== show platform temperature
+   Sensor    Temperature    High TH    Low TH    Crit High TH    Crit Low TH    Warning          Timestamp
+---------  -------------  ---------  --------  --------------  -------------  ---------  -----------------
+     asic           41.8         95       N/A             100            N/A      False  20261115 13:35:07
+  board_1           29.5         45       N/A              50            N/A      False  20261115 13:35:07
+  board_2           28.5         45       N/A              50            N/A      False  20261115 13:35:07
+  board_3           27.5         45       N/A              50            N/A      False  20261115 13:35:07
+cpu_board           26.5         45       N/A              50            N/A      False  20261115 13:35:07
+== show platform psustatus
+PSU    Model    Serial    HW Rev    Voltage (V)    Current (A)    Power (W)    Status    LED
+-----  -------  --------  --------  -------------  -------------  -----------  --------  -----
+PSU 1  N/A      N/A       N/A       N/A            N/A            N/A          OK        green
+PSU 2  N/A      N/A       N/A       N/A            N/A            N/A          NOT OK    off
+== show platform syseeprom
+TlvInfo Header:
+   Id String:    TlvInfo
+   Version:      1
+   Total Length: 198
+TLV Name             Code      Len  Value
+-------------------  ------  -----  ------------------------------------------------------------------------------------------------------------------
+Product Name         0x21       15  7760-32X-A-AC-F
+Part Number          0x22       13  FP3AO7632004A
+Serial Number        0x23       15  776032X16521259
+Base MAC Address     0x24        6  8C:EA:1B:89:C9:3C
+Manufacture Date     0x25       19  11/19/2018 16:34:47
+Device Version       0x26        1  11
+Label Revision       0x27        4  R01I
+Platform Name        0x28       28  powerpc-accton_as7760_32x-r0
+ONIE Version         0x29       13  2015.02.00.30
+MAC Addresses        0x2A        2  4
+Manufacturer         0x2B        6  Accton
+Manufacture Country  0x2C        2  TW
+== show interfaces transceiver presence
+Port         Presence
+-----------  -----------
+Ethernet1/1    Present
+Ethernet1/2    Present
+Ethernet1/3    Present
+Ethernet1/4    Present
+Ethernet2/1    Not present
+Ethernet3/1    Not present
+Ethernet4/1   Not present
+Ethernet5/1   Not present
+Ethernet6/1   Not present
+Ethernet7/1   Not present
+Ethernet8/1   Not present
+Ethernet9/1   Not present
+Ethernet10/1   Not present
+Ethernet11/1   Not present
+Ethernet12/1   Not present
+Ethernet13/1   Not present
+== eeprom 1/1
+Ethernet0: SFP EEPROM detected
+        Application Advertisement: N/A
+        Connector: No separable connector
+        Encoding: 64B/66B
+        Extended Identifier: Power Class 1 Module (1.5W max.), CLEI code present in Page 02h, No CDR in TX, No CDR in RX
+        Extended RateSelect Compliance: Unknown
+        Identifier: QSFP28 or later
+        Length Cable Assembly(m): 3.0
+        Nominal Bit Rate(100Mbs): 255
+        Specification compliance:
+                10/40G Ethernet Compliance Code: Extended
+                Extended Specification Compliance: 100GBASE-CR4, 25GBASE-CR CA-25G-L or 50GBASE-CR2 with RS
+== lldp
+Capability codes: (R) Router, (B) Bridge, (O) Other
+   LocalPort    RemoteDevice    RemotePortID    Capability    RemotePortDescr
+------------  --------------  --------------  ------------  -----------------
+ Ethernet1/1    as7760          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7760          Ethernet1/1     BR            Ethernet0
+--------------------------------------
+Total entries displayed:  2
+== fand
+duty 53.299999999999997
+0
+== led
+:- sai_metadata_apis_query: :- failed to query api SAI_API_ACL: SAI_STATUS_NOT_IMPLEMENTED (-15)
+:- sai_metadata_apis_query: :- failed to query api SAI_API_ARS: SAI_STATUS_NOT_IMPLEMENTED (-15)
+:- sai_metadata_apis_query: :- failed to query api SAI_API_ARS_PROFILE: SAI_STATUS_NOT_IMPLEMENTED (-15)
+:- sai_metadata_apis_query: :- failed to query api SAI_API_BFD: SAI_STATUS_NOT_IMPLEMENTED (-15)
+:- sai_metadata_apis_query: :- failed to query api SAI_API_BMTOR: SAI_STATUS_NOT_IMPLEMENTED (-15)
+## FRR + recovery fixes (teardown of the VRF try first)
+== teardown VRF test
+rc=0
+Interface Ethernet124 IP disabled and address(es) removed due to unbinding VRF.
+VRF Vrf-test deleted and all associated IP addresses removed.
+rc=0
+VRs: 1
+== FRR units
+active active active active active active active active active 
+ mgmtd zebra bgpd staticd
+ Address to connect to         127.0.0.1   
+ Port                          2620        
+ Connected                     Yes         
+ Use Nexthop Groups            No          
+== ip add/remove (was: vtysh not found)
+add=0
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+remove=0
+== (a) teamd respawn
+ 0001  PortChannel0001  LACP(A)(Up)  Ethernet1/1(S)
+ 0002  PortChannel0002  LACP(A)(Up)  Ethernet32/1(S)
+teamd pid 2639
+new pid 3391
+Ethernet0: Enabling port
+Enable carrier. Number of enabled ports 1 >= configured min_ports 1
+ 0001  PortChannel0001  LACP(A)(Up)  Ethernet1/1(S)
+ 0002  PortChannel0002  LACP(A)(Up)  Ethernet32/1(S)
+== (b) orchagent kill
+syncd restarted: yes
+netdevs 38 PortInitDone 1
+inactive
+temp=41.8 pwm=136
+== (c) reload without saved file
+Running command: /run/current-system/sw/bin/sonic-nix reload
+sonic-nix: CONFIG_DB loaded: 5 tables, 42 keys; 0 conflict(s) with Nix; user layer (none)
+Released lock on /etc/sonic/reload.lock
+netdevs 38 PortInitDone 1 portchannels 0
+pwm=136
+## LLDP after the orchagent/syncd restart and reload
+ Ethernet1/1    as7760          Ethernet32/1    BR            Ethernet124
+Ethernet32/1  as7760          Ethernet1/1     BR            Ethernet0
+--------------------------------------
+Total entries displayed:  2

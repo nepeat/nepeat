@@ -1,0 +1,71 @@
+# vrf-ecmp-test.md steps 1-2 on the AS7760, 2026-11-15 (all units up, NET_VRF, ECMP 2048)
+vrf table 1001
+VR count: 2
+sai-openbcm NOTICE api=9: rif type 2 vid 0 intf -1 vrf 0
+sai-openbcm NOTICE api=5: virtual router: SDK VRF 1
+sai-openbcm NOTICE api=9: rif type 0 vid 4094 intf 0 vrf 1
+sai-openbcm NOTICE api=9: rif type 0 vid 4093 intf 1 vrf 0
+== ping default->Vrf-test
+100 packets transmitted, 0 received, 100% packet loss, time 1582ms
+
+== ping Vrf-test->default
+100 packets transmitted, 0 received, 100% packet loss, time 1587ms
+
+------------  -------  -------  --------  ---------  --------  --------  --------  -------  --------  ---------  --------  --------  --------
+ Ethernet1/1        U      110       N/A        N/A         0       103       N/A      110       N/A        N/A         0         0       N/A
+Ethernet32/1        U      110       N/A        N/A         0         6       N/A      110       N/A        N/A         0         0       N/A
+## state
+== neigh
+10.0.0.1 lladdr 8c:ea:1b:89:c9:3c STALE 
+10.0.0.0 FAILED 
+== kernel routes
+local 10.0.0.0 dev Ethernet0 proto kernel scope host src 10.0.0.0 
+10.0.0.0/31 dev Ethernet124 proto kernel scope link src 10.0.0.1 
+10.0.0.0/31 dev Ethernet0 proto kernel scope link src 10.0.0.0 
+== APPL ROUTE
+ROUTE_TABLE:Vrf-test:10.0.0.0/31
+ROUTE_TABLE:10.0.0.0/31
+NEIGH_TABLE:eth0:10.60.2.1
+NEIGH_TABLE:eth0:10.60.2.208
+NEIGH_TABLE:Ethernet0:10.0.0.1
+== ASIC ROUTE/NEIGH
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.0.0.0/31","switch_id":"oid:0x21000000000000","vr":"oid:0x3000000000314"}
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.0.0.0/32","switch_id":"oid:0x21000000000000","vr":"oid:0x3000000000028"}
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.0.0.0/31","switch_id":"oid:0x21000000000000","vr":"oid:0x3000000000028"}
+ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"10.0.0.1/32","switch_id":"oid:0x21000000000000","vr":"oid:0x3000000000314"}
+ASIC_STATE:SAI_OBJECT_TYPE_NEIGHBOR_ENTRY:{"ip":"10.0.0.1","rif":"oid:0x6000000000316","switch_id":"oid:0x21000000000000"}
+== syncd errors
+sai-openbcm NOTICE api=5: virtual router: SDK VRF 1
+== orchagent errors
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+:- start: Encountered failure in create operation, SAI API: SAI_API_POLICER, status: SAI_STATUS_NOT_IMPLEMENTED
+## tcpdump on both netdevs (neigh flushed, 3 pings each way)
+== on Ethernet124 (Vrf-test)
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+13:41:08.919480 8c:ea:1b:89:c9:3c > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 60: Request who-has 10.0.0.1 tell 10.0.0.0, length 46
+13:41:08.919593 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype ARP (0x0806), length 42: Reply 10.0.0.1 is-at 8c:ea:1b:89:c9:3c, length 28
+13:41:09.948298 8c:ea:1b:89:c9:3c > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 60: Request who-has 10.0.0.1 tell 10.0.0.0, length 46
+13:41:09.948355 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype ARP (0x0806), length 42: Reply 10.0.0.1 is-at 8c:ea:1b:89:c9:3c, length 28
+13:41:10.972289 8c:ea:1b:89:c9:3c > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 60: Request who-has 10.0.0.1 tell 10.0.0.0, length 46
+13:41:10.972348 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype ARP (0x0806), length 42: Reply 10.0.0.1 is-at 8c:ea:1b:89:c9:3c, length 28
+13:41:12.045091 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.0: ICMP echo request, id 1811, seq 1, len
+13:41:12.572304 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.0: ICMP echo request, id 1811, seq 2, len
+13:41:13.084278 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype IPv4 (0x0800), length 98: 10.0.0.1 > 10.0.0.0: ICMP echo request, id 1811, seq 3, len
+13:41:17.084261 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.0 tell 10.0.0.1, length 28
+
+== on Ethernet0 (default)
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+13:41:08.919415 8c:ea:1b:89:c9:3c > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.1 tell 10.0.0.0, length 28
+13:41:09.948237 8c:ea:1b:89:c9:3c > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.1 tell 10.0.0.0, length 28
+13:41:10.972229 8c:ea:1b:89:c9:3c > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 10.0.0.1 tell 10.0.0.0, length 28
+13:41:17.084338 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype ARP (0x0806), length 60: Request who-has 10.0.0.0 tell 10.0.0.1, length 46
+13:41:17.084425 8c:ea:1b:89:c9:3c > 8c:ea:1b:89:c9:3c, ethertype ARP (0x0806), length 42: Reply 10.0.0.0 is-at 8c:ea:1b:89:c9:3c, length 28
+
+10.0.0.1 lladdr 8c:ea:1b:89:c9:3c STALE 
+10.0.0.0 FAILED
