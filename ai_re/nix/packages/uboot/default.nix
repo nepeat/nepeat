@@ -1,6 +1,8 @@
 { pkgs }:
 # Upstream U-Boot (nixpkgs buildUBoot, 2026.10) for the Accton AS7760-32X
 # (T2080). Board deltas are patches + Kconfig fragments; see devices/edge-core-7760-32x/u-boot-port.md.
+# The same series also carries the Alpine V2 (arm64) patches, built in
+# ./alpine-v2/; each build takes only its own scopes.
 #
 # Toolchain: 32-bit PowerPC Linux-ABI cross gcc without a target libc:
 #  - ppc-embedded (eabi) libgcc will not link with U-Boot's -mrelocatable
@@ -13,7 +15,11 @@ let
   # the numbering is the apply order. scope says who can reuse a patch:
   #   t208x  - any T208x / e6500 board built from the T208xRDB port
   #   as7760 - Accton AS7760-32X only (DDR tuning, DT, SPD addresses, identity)
+  #   alpine-v2 - any Annapurna Alpine V2 board chainloaded by the vendor U-Boot
+  #   dmc12  - Edgecore DMC-12-48R-AS0 only (CPLD reset, U-Boot DT bits, defconfig)
   # A sibling board takes the t208x ones and replaces the as7760 ones.
+  # Platforms touch disjoint files: each build applies only its scopes, and
+  # the whole series still applies in order to a pristine tree.
   series = [
     { scope = "t208x"; file = "0001-mpc85xx-optionally-skip-CCSR-relocation-for-chainloa.patch"; }
     { scope = "t208x"; file = "0002-board-t208xrdb-honour-CONFIG_VID-and-CONFIG_PCI.patch"; }
@@ -28,10 +34,15 @@ let
     { scope = "t208x"; file = "0011-board-t208xrdb-add-ddrcmp-bring-up-command.patch"; }
     { scope = "t208x"; file = "0012-board-t208xrdb-add-spltest-bring-up-command.patch"; }
     { scope = "as7760"; file = "0013-board-t208xrdb-Accton-AS7760-32X-board-identity.patch"; }
+    { scope = "alpine-v2"; file = "0014-arm-add-a-chainloaded-Annapurna-Labs-Alpine-V2-targe.patch"; }
+    { scope = "dmc12"; file = "0015-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
+    { scope = "dmc12"; file = "0016-board-Edgecore-DMC-12-48R-AS0-on-the-Alpine-V2-chain.patch"; }
   ];
+  patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
+    (builtins.filter (s: builtins.elem s.scope scopes) series);
   # builtins.path: stable store names, so unrelated edits in this tree do not
   # rebuild U-Boot.
-  patches = map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; }) series;
+  patches = patchesFor [ "t208x" "as7760" ];
   mk = { defconfig, extraConfig ? "", patches ? [ ], files ? [ "u-boot.bin" "u-boot" "u-boot.map" ".config" ] }:
     buildUBoot {
       inherit defconfig extraConfig;
@@ -84,7 +95,7 @@ let
   bootCommand = "bootflow scan -lb";
 in {
   # For other boards: the builder and the raw series.
-  lib = { inherit mk series; };
+  lib = { inherit mk series patchesFor; };
 
   # Stock reference-board NOR image. Build-only; never flash (VID on).
   t2080rdb-nor = mk { defconfig = "T2080RDB_defconfig"; };

@@ -1,0 +1,71 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Test fixture, not a board: QEMU "virt,highmem=off" described for the
+ * alpine-v2 U-Boot target, so the same board code (DRAM from /memory,
+ * /reserved-memory ram_top walk-down and OS memreserve copy, PIE entry,
+ * MMU-on "go" entry, ECAM + AHCI + extlinux + booti) runs without hardware.
+ * Addresses from `qemu-system-aarch64 -M virt,highmem=off,dumpdtb=`.
+ */
+/dts-v1/;
+
+/ {
+	model = "QEMU virt (alpine-v2 U-Boot test)";
+	compatible = "linux,dummy-virt";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x0 0x40000000 0x0 0x40000000>;	/* -m 1G */
+	};
+
+	/* Stand-ins for al-boot's ranges: QEMU's DTB/boot stub, and the top
+	 * 64 MiB so U-Boot must relocate below 0x7c000000. */
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		fw@40000000 {
+			reg = <0x0 0x40000000 0x0 0x00100000>;
+		};
+		fw@7c000000 {
+			reg = <0x0 0x7c000000 0x0 0x04000000>;
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		bootph-all;
+
+		uart0: serial@9000000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x0 0x09000000 0x0 0x1000>;
+			clock = <24000000>;
+			skip-init;
+			bootph-all;
+		};
+
+		pci@3f000000 {
+			compatible = "pci-host-ecam-generic";
+			device_type = "pci";
+			#address-cells = <3>;
+			#size-cells = <2>;
+			reg = <0x0 0x3f000000 0x0 0x01000000>;
+			bus-range = <0x00 0x0f>;
+			ranges = <0x01000000 0x0 0x00000000 0x0 0x3eff0000 0x0 0x00010000>,
+				 <0x02000000 0x0 0x10000000 0x0 0x10000000 0x0 0x2eff0000>;
+		};
+	};
+};

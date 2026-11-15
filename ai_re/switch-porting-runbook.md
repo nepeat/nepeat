@@ -284,6 +284,10 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - Stock reference config would drive a VID regulator over I2C → the board doesn't have one → disable VID before running anything.
 - `bootflow scan` slow → SATA/AHCI hunting for absent disks → disable them.
 - Cross toolchain: bare-metal libgcc refused `-mrelocatable`, and ppc32 glibc failed to install → use the Linux-ABI cross gcc with `stdenvNoLibc`.
+- arm64 chainload (DMC-12, from design + QEMU, not yet on hardware): `go` enters with the parent's MMU and caches on → wrap the
+  image as a **kernel-type** uImage and `bootm` it (MMU off, EL2, x0 = DTB, like Linux), or clean and turn off the caches in `save_boot_params`.
+  A kernel-tree DTB lacks the firmware's memreserves → copy them in `ft_board_setup()`. A board header's `CFG_SYS_SDRAM_BASE`
+  overrides the DT's DRAM base (QEMU: relocation landed below RAM) → leave it undefined when banks come from `/memory`.
 
 **Switch chip / optics**
 - Frames went to the wrong netdev → KNET netif IDs persist across SDK restarts → destroy stale netifs before creating new ones.
