@@ -204,6 +204,15 @@ pub fn prometheus(s: &Status) -> String {
             .map(|(n, x)| (sl(n), f64::from(u8::from(x.error.is_none()))))
             .collect(),
     );
+    metric(
+        "fand_sensor_in_grace",
+        "1 while a failing sensor's last good value is held (grace)",
+        "gauge",
+        s.sensors
+            .iter()
+            .map(|(n, x)| (sl(n), f64::from(u8::from(x.in_grace))))
+            .collect(),
+    );
     let ol = |n: &str| format!("output=\"{}\"", esc(n));
     metric(
         "fand_output_duty_percent",
@@ -516,6 +525,7 @@ mod tests {
                 required: true,
                 path: None,
                 age: None,
+                in_grace: false,
             },
         );
         let p = prometheus(&s);

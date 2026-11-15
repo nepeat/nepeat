@@ -240,10 +240,19 @@ pub struct SensorRt {
     pub error: Option<String>,
     error_kind: Option<&'static str>,
     pub age: Option<f64>,
+    /// Seconds a last good value may be held after failed readings.
+    grace: f64,
+    /// Lowest critical this sensor's value can trip (its own, or a zone's
+    /// minus the zone's offset for it): a held value at/above it gets no grace.
+    grace_ceiling: Option<f64>,
+    /// Last good value and when it was read.
+    last_good: Option<(f64, f64)>,
+    /// Failing, but holding `last_good`.
+    pub in_grace: bool,
 }
 
 impl SensorRt {
-    fn new(name: &str, c: &SensorConfig, mode: ExecMode) -> Result<SensorRt> {
+    fn new(name: &str, c: &SensorConfig, grace: f64, mode: ExecMode) -> Result<SensorRt> {
         let sel = || c.hwmon.clone().map(|s| s.0).unwrap_or_default();
         let src = match c.kind {
             SensorKind::Hwmon => Source::Sysfs(
@@ -289,6 +298,10 @@ impl SensorRt {
             error: None,
             error_kind: None,
             age: None,
+            grace,
+            grace_ceiling: c.critical,
+            last_good: None,
+            in_grace: false,
         })
     }
 
@@ -348,17 +361,55 @@ impl SensorRt {
                     format!("implausible reading {v:.1} C (plausible {}..{} C)", self.lo, self.hi),
                 ));
             }
-            Ok(v)
+            Ok((v, at))
         });
         match checked {
-            Ok(v) => {
-                if self.error.take().is_some() {
+            Ok((v, at)) => {
+                if self.in_grace {
+                    self.in_grace = false;
+                    self.error = None;
+                    let gap = self.last_good.map_or(0.0, |(_, t)| now - t);
+                    log_info!("sensor {}: reading back after {gap:.0}s, {v:.1} C", self.name);
+                } else if self.error.take().is_some() {
                     log_info!("sensor {}: recovered, {v:.1} C", self.name);
                 }
                 self.error_kind = None;
                 self.value = Some(v);
+                self.last_good = Some((v, at));
             }
             Err((kind, msg)) => {
+                // Grace: hold the last good value for a short gap (a writer
+                // restarting), counted from when it was read. Never before the
+                // first good reading, never for a value at/above a critical,
+                // never again once the fault has been raised.
+                let hold = self.last_good.filter(|&(v, at)| {
+                    self.grace > 0.0
+                        && self.error_kind.is_none()
+                        && now - at <= self.grace
+                        && self.grace_ceiling.is_none_or(|c| v < c)
+                });
+                if let Some((v, _)) = hold {
+                    if !self.in_grace {
+                        self.in_grace = true;
+                        log_info!(
+                            "sensor {}: no reading ({msg}), holding {v:.1} C for up to {}s",
+                            self.name,
+                            self.grace
+                        );
+                    }
+                    self.error = Some(msg);
+                    self.value = Some(v);
+                    return;
+                }
+                if self.in_grace {
+                    self.in_grace = false;
+                    let gap = self.last_good.map_or(0.0, |(_, t)| now - t);
+                    log_info!(
+                        "sensor {}: grace of {}s ran out, no good reading for {gap:.0}s",
+                        self.name,
+                        self.grace
+                    );
+                }
                 if self.error_kind != Some(kind) {
                     let level = if self.required {
                         crate::log::Level::Warn
@@ -1331,7 +1382,7 @@ impl Engine {
         let mut sensor_idx = BTreeMap::new();
         for (name, sc) in &cfg.sensors {
             sensor_idx.insert(name.clone(), sensors.len());
-            sensors.push(SensorRt::new(name, sc, opts.exec_mode)?);
+            sensors.push(SensorRt::new(name, sc, cfg.sensor_grace(sc), opts.exec_mode)?);
         }
         let mut outputs = Vec::new();
         let mut output_idx = BTreeMap::new();
@@ -1344,6 +1395,17 @@ impl Engine {
             .iter()
             .map(|(n, z)| ZoneRt::new(n, z, &cfg, &sensor_idx, &output_idx))
             .collect::<Result<Vec<_>>>()?;
+        // A held value must not mask a zone's critical either (the zone sees
+        // value + offset).
+        for z in &zones {
+            if let Some(c) = z.critical {
+                for zs in &z.sensors {
+                    let s = &mut sensors[zs.idx];
+                    let lim = c - zs.offset;
+                    s.grace_ceiling = Some(s.grace_ceiling.map_or(lim, |x| x.min(lim)));
+                }
+            }
+        }
         Ok(Engine {
             root: opts.root,
             dry_run: opts.dry_run,
@@ -1565,6 +1627,7 @@ impl Engine {
                         required: s.required,
                         path: s.path().map(|p| p.display().to_string()),
                         age: s.age.map(r1),
+                        in_grace: s.in_grace,
                     },
                 )
             })
@@ -1691,6 +1754,8 @@ pub struct SensorStatus {
     pub required: bool,
     pub path: Option<String>,
     pub age: Option<f64>,
+    /// The reading failed and the last good value is being held (`grace`).
+    pub in_grace: bool,
 }
 
 #[derive(Debug, Serialize)]

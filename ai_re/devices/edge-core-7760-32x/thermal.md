@@ -100,7 +100,11 @@ fand config (interval 2 s, profile `none`: the hardware minimum is the floor):
 - zone `asic` = `/run/asic/temperature` (below), built-in `delta-asic`
   (flat at the minimum below ~74 °C, 100% at 95), critical 100 °C. **Not
   checked against a datasheet junction limit.** The sensor is required: no
-  reading (reader stopped or failing) = failsafe 100%.
+  reading (reader stopped or failing) = failsafe 100%, after a 15 s `grace`
+  that holds the last value through writer restarts and the reader -> syncd
+  handover (verified: a reader restart held 41.8 °C for 4 s, fans stayed at
+  the minimum). Under syncd, sai-openbcm writes the same file
+  (`SAI_OPENBCM_TEMP_FILE`); fans stayed at the minimum there too.
 
 Metrics go to `/run/prometheus-textfile/fand.prom` (`fand_*`, scraped with
 node-exporter).

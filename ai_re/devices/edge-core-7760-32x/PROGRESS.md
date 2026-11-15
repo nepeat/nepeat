@@ -8,8 +8,9 @@ longer background.
 - **Runs:** upstream U-Boot 2026.10 in boot NOR (`uboot-as7760-nor`, sha256
   `2c0d7387…`, crc32 `31a7d1c9`) → standard boot (`nos_bootcmd=bootflow scan
   -lb`, extlinux on SD p1) → NixOS 26.11 on the SD (8 CPUs, 16 GiB, 0 failed units).
-- **Reach:** serial tmux `serial-7760` (115200 8N1, prompt `=>`, any key stops
-  autoboot); `sudo ssh root@10.60.2.253`; outlet `switch.server_room_lab_plug`.
+- **Reach:** serial: none right now (cable moved to the DMC-12 project
+  2026-11-15; AS7760 console = DMC-12 port 48, not live yet; was tmux
+  `serial-7760`, 115200 8N1, prompt `=>`); `sudo ssh root@10.60.2.253`; outlet `switch.server_room_lab_plug`.
 - **Change it:** Nix is in [ai_re/nix](../../nix/README.md);
   `./deploy.sh` (system), `./flash_uboot.py` (U-Boot, with checks + backup),
   `./chainload_uboot.py` (try a U-Boot build in RAM first).
@@ -31,6 +32,27 @@ longer background.
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; other T2080 boards (K2 cards) need their
   own DDR/DT patches, later. Details: [u-boot-port.md](u-boot-port.md).
+
+## 2026-11-15 (evening) — SAI temperature + LAG on hardware, QSPF control, fand grace
+
+- Through syncd (sai-openbcm): ASIC temperature attributes (8 sensors, max
+  39 / avg 37 °C) and a LAG with two members on SDK trunk 0, member
+  egress-disable, teardown: SMOKE_OK ([transcript](../sonic-nixos/sai-lag-temp-hw-20261115.txt)).
+  syncd publishes `/run/asic/temperature`, so fans stay at the minimum while
+  SONiC owns the chip. LAG traffic and LACP not tested yet.
+- fand: sensor `grace` (AS7760 asic: 15 s) bridges writer restarts without a
+  failsafe blip; PI back-calculation (no AS7760 zone uses PI).
+- QSFP: CPLD#1 reset/presence/interrupt via `as7760-qsfp --status/--reset`
+  ([qsfp-control.md](qsfp-control.md)); no LPMODE pin, software low power
+  untested on an active module.
+- Load test (MAC-loopback broadcast storm via `bcm.user`) **not done**: the
+  diag shell hung at `tx` with all 32 ports in loopback (no readings reached
+  fand, which held 100% as designed; chip reset with `init all` each time).
+  Next attempt through syncd + a hostif seed packet.
+- Factory U-Boot restore is unsupported now (flash_uboot.py refuses it).
+- Serial: the console cable went to the DMC-12 project around 10:15 UTC; the
+  AS7760 console is DMC-12 port 48 (not live yet). Deploys over SSH only; no
+  U-Boot or power-cycle experiments until the console is back.
 
 ## 2026-11-15 (later) — ASIC die temperature drives the fans
 

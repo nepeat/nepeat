@@ -41,7 +41,7 @@ link the evidence.
 | NOS / dataplane driver | OpenBCM 6.5.27 + sai-openbcm | vendor SDK (chroot) + open ipd | mainline `prestera` + fw 4.1 | Broadcom SDK + native-network controller | stock |
 | ports up (real links) | yes: 10G + 25G (2026-11-14) [^a1] | yes: 10G breakouts (2026-11-10/11); 400G no [^c1] | no: 52 netdevs, admin-down | no: MAC loopback only [^b1] | unknown |
 | L2 VLAN | yes: SDK + SAI (2026-11-15) [^a2] | chip-capable [^c2] | unknown [^t1] | yes (2026-11-09) [^b1] | unknown |
-| LAG (hardware) | chip-capable; sai-openbcm in progress | chip-capable [^c2] | unknown [^t1] | unknown | unknown |
+| LAG (hardware) | partial: SAI LAG + members on SDK trunks (2026-11-15), no traffic yet [^a2] | chip-capable [^c2] | unknown [^t1] | unknown | unknown |
 | LACP (control plane) | no: teamd/teammgrd packaging in progress | partial: Linux bond over CPU netdevs, failover verified [^c3] | unknown [^t1] | unknown | unknown |
 | L3 routing | partial: RIF via SAI; routes/neighbours untested [^a2] | chip-capable: Linux routes on CPU only [^c2] | unknown [^t1] | partial: IPv4 hardware routing in MAC loopback [^b1] | unknown |
 | ACL | chip-capable | unknown | unknown [^t1] | chip-capable: not offloaded [^b1] | unknown |
@@ -50,7 +50,7 @@ link the evidence.
 | SAI | partial: switch, 32 ports, VLAN, RIF [^a2] | no: vendor SAI is amd64 only | no | no | no |
 | SONiC stack | partial: syncd yes, orchagent not yet [^a2] | no | no | no | no |
 | fan control | yes: fand, board + ASIC zones [^a3] | yes: incl. ASIC die (2026-11-10) [^c4] | yes: fancontrol, PWM floor 96 | unknown | unknown |
-| ASIC temperature | yes: 8 PVTMON (2026-11-15); SAI TEMP_LIST in progress [^a3] | yes: MCP3425 diode (2026-11-10) [^c4] | unknown | unknown | unknown |
+| ASIC temperature | yes: 8 PVTMON, also over SAI under syncd (2026-11-15) [^a3] | yes: MCP3425 diode (2026-11-10) [^c4] | unknown | unknown | unknown |
 | board sensors | yes: 4x LM75 [^a3] | yes: LM75s + I2C hwmon [^c4] | yes: tmp1075/ADT7473, 35-40 °C | unknown | unknown |
 | optics EEPROM | yes: `as7760-qsfp` (2026-11-14) [^a4] | yes: `cs8210-qsfp`, SFF-8636/8472 (2026-11-10) [^c5] | unknown | unknown | unknown |
 | QSFP reset/presence | yes: CPLD#1 (2026-11-15) [^a4] | yes: I2C FPGA (2026-11-10) [^c5] | unknown (SFP+ cages) | unknown | unknown |

@@ -246,6 +246,9 @@ pub struct Config {
     /// Fault-free time required before leaving failsafe.
     #[serde(default = "d_calm")]
     pub calm_period: Secs,
+    /// Default `grace` of every sensor (0 = none).
+    #[serde(default)]
+    pub sensor_grace: Secs,
     /// Compute everything, write nothing.
     #[serde(default)]
     pub dry_run: bool,
@@ -524,6 +527,9 @@ pub struct SensorConfig {
     pub max_age: Option<Secs>,
     /// At or above this temperature every zone using the sensor goes failsafe.
     pub critical: Option<f64>,
+    /// After a failed reading, keep using the last good value for up to this
+    /// long since it was read (default: the global `sensor_grace`, 0).
+    pub grace: Option<Secs>,
 }
 
 impl SensorConfig {
@@ -824,6 +830,9 @@ str_or_map_deserialize!(PolicyConfig);
 /// Default PI gains, chosen for high-flow fans on boards with seconds-scale
 /// thermal response: 4 %/C proportional, 0.05 %/(C*s) integral, no D.
 pub const DEFAULT_KP: f64 = 4.0;
+
+/// Longest allowed sensor `grace` (s).
+pub const MAX_SENSOR_GRACE: f64 = 60.0;
 pub const DEFAULT_KI: f64 = 0.05;
 pub const DEFAULT_KD: f64 = 0.0;
 
@@ -892,6 +901,11 @@ impl Config {
         self.sysfs_root.clone().unwrap_or_else(|| PathBuf::from("/"))
     }
 
+    /// Grace of a sensor: its own, else the global default.
+    pub fn sensor_grace(&self, s: &SensorConfig) -> f64 {
+        s.grace.unwrap_or(self.sensor_grace).0
+    }
+
     pub fn startup_duty(&self) -> f64 {
         self.startup_duty.unwrap_or(self.failsafe_duty).0
     }
@@ -937,6 +951,21 @@ impl Config {
         }
         if self.max_override.0 <= 0.0 {
             e("max_override must be > 0".into());
+        }
+        let long = |g: f64| g > MAX_SENSOR_GRACE;
+        if long(self.sensor_grace.0) {
+            e(format!(
+                "sensor_grace: {}s is above {MAX_SENSOR_GRACE}s; a longer hold hides a dead sensor",
+                self.sensor_grace.0
+            ));
+        }
+        for (name, s) in &self.sensors {
+            if let Some(g) = s.grace.filter(|g| long(g.0)) {
+                e(format!(
+                    "sensors.{name}: grace {}s is above {MAX_SENSOR_GRACE}s; a longer hold hides a dead sensor",
+                    g.0
+                ));
+            }
         }
 
         for (name, s) in &self.sensors {
@@ -1347,6 +1376,18 @@ zones:
         let explicit = y.replace("kp: 2 } }", "kp: 2 }, ramp_down: 0.5, dwell: 5s }");
         let c = Config::parse(&explicit).unwrap();
         assert_eq!(c.zones["z2"].ramp(), (0.0, 0.5, 5.0));
+    }
+
+    #[test]
+    fn sensor_grace_defaults_and_limit() {
+        let c = Config::parse(MINIMAL).unwrap();
+        assert_eq!(c.sensor_grace(&c.sensors["board"]), 0.0);
+        let g = MINIMAL.replacen("sensors:", "sensor_grace: 5s\nsensors:", 1);
+        let c = Config::parse(&g).unwrap();
+        assert_eq!(c.sensor_grace(&c.sensors["board"]), 5.0);
+        let long = MINIMAL.replacen("sensors:", "sensor_grace: 2m\nsensors:", 1);
+        let err = Config::parse(&long).unwrap_err().0;
+        assert!(err.contains("sensor_grace: 120s is above 60s"), "{err}");
     }
 
     #[test]

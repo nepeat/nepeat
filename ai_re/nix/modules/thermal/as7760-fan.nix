@@ -78,8 +78,11 @@ in {
         // lib.optionalAttrs asicTemp {
           # Required: no reading (reader stopped, e.g. for a bcm.user session,
           # or failing) means failsafe, fans at 100%.
+          # grace: hold the last reading through writer restarts/handovers
+          # (reader restart ~2 s, reader -> syncd ~10 s) instead of a
+          # failsafe blip; never applies to a hot or a first reading.
           asic = { type = "file"; path = config.hardware.openbcm.temperature.file; max_age = "20s";
-                   plausible = [ 0 130 ]; critical = 100; };
+                   grace = "15s"; plausible = [ 0 130 ]; critical = 100; };
         };
       outputs.fans = {
         type = "hwmon"; hwmon = "as7760_fan"; pwm = "pwm1";

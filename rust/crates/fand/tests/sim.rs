@@ -781,3 +781,163 @@ fn curve_and_fixed_zones_keep_their_ramp_and_dwell_defaults() {
     assert!(down[..4].iter().all(|d| approx(*d, 80.0)), "{down:?}");
     assert!(approx(down[4], 78.0) && approx(down[5], 76.0), "{down:?}");
 }
+
+/// The AS7760 ASIC sensor as deployed: a file its writer rewrites, which is
+/// briefly missing whenever the writer restarts or hands over.
+const GRACE_RIG: &str = r#"
+sysfs_root: "{root}"
+interval: 2s
+profile: medium
+calm_period: 60s
+runtime: { state_file: null, socket: null, calibration_file: null }
+sensors:
+  asic: { type: file, path: /run/asic/temperature, grace: 15s }
+outputs:
+  fans: { type: hwmon, hwmon: as7760_fan, raw_min: 128 }
+zones:
+  asic:
+    outputs: [fans]
+    sensors: [asic]
+    policy: delta-asic
+"#;
+
+impl Rig {
+    fn asic_file(&self, c: Option<f64>) {
+        match c {
+            Some(c) => {
+                self.fs.write("run/asic/temperature", &format!("{c:.1}"));
+            }
+            None => self.fs.remove(&self.fs.root.join("run/asic"), "temperature"),
+        }
+    }
+
+    fn in_grace(&self, sensor: &str) -> bool {
+        self.engine.status(self.t).sensors[sensor].in_grace
+    }
+}
+
+fn grace_rig(yaml: &str, c: f64) -> Rig {
+    let mut rig = Rig::new(yaml);
+    rig.asic_file(Some(c));
+    rig.run(60);
+    rig
+}
+
+#[test]
+fn grace_rides_out_a_short_gap_without_failsafe_or_duty_change() {
+    use fand::log::Level;
+    let mut rig = grace_rig(GRACE_RIG, 80.0); // delta-asic: 63.3 %
+    let steady = rig.tick();
+    assert!(steady > 60.0 && steady < 100.0, "{steady}");
+    fand::log::capture();
+    // The file is gone for ~5 s: the ticks 2 s and 4 s after the last good
+    // reading miss it.
+    rig.asic_file(None);
+    for _ in 0..2 {
+        assert_eq!(rig.tick(), steady);
+        assert_eq!(rig.state("asic"), "normal");
+        assert!(rig.in_grace("asic"));
+    }
+    let st = rig.engine.status(rig.t);
+    assert_eq!(st.sensors["asic"].value, Some(80.0), "the last good value is held");
+    assert!(st.sensors["asic"].error.is_some(), "and the failure is visible");
+    let prom = fand::daemon::prometheus(&st);
+    assert!(prom.contains("fand_sensor_in_grace{sensor=\"asic\"} 1"), "{prom}");
+    assert!(prom.contains("fand_sensor_ok{sensor=\"asic\"} 0"), "{prom}");
+    rig.asic_file(Some(80.0));
+    for _ in 0..10 {
+        assert_eq!(rig.tick(), steady);
+        assert_eq!(rig.state("asic"), "normal");
+    }
+    assert!(!rig.in_grace("asic"));
+    let log = fand::log::captured();
+    assert!(!log.iter().any(|(l, _)| *l <= Level::Warn), "{log:?}");
+    let info: Vec<&String> = log.iter().filter(|(l, _)| *l == Level::Info).map(|(_, m)| m).collect();
+    assert_eq!(info.len(), 2, "{info:?}");
+    assert!(
+        info[0].starts_with("sensor asic: no reading (") && info[0].ends_with("), holding 80.0 C for up to 15s"),
+        "{}",
+        info[0]
+    );
+    assert_eq!(info[1], "sensor asic: reading back after 6s, 80.0 C");
+}
+
+#[test]
+fn grace_runs_out_15s_after_the_last_good_reading() {
+    use fand::log::Level;
+    let mut rig = grace_rig(GRACE_RIG, 80.0);
+    let steady = rig.tick();
+    let last_good = rig.t - DT;
+    fand::log::capture();
+    rig.asic_file(None);
+    let mut first_fault = None;
+    for _ in 0..10 {
+        let now = rig.t;
+        let d = rig.tick();
+        if rig.state("asic") == "failsafe" {
+            first_fault.get_or_insert((now - last_good, d));
+        } else {
+            assert_eq!(d, steady);
+        }
+    }
+    assert_eq!(
+        first_fault,
+        Some((16.0, 100.0)),
+        "held through 14 s, failsafe on the 16 s tick"
+    );
+    assert!(!rig.in_grace("asic"));
+    let log = fand::log::captured();
+    let ran_out = log
+        .iter()
+        .position(|(l, m)| *l == Level::Info && m == "sensor asic: grace of 15s ran out, no good reading for 16s")
+        .expect("grace ran out line");
+    let warn = log
+        .iter()
+        .position(|(l, m)| *l == Level::Warn && m.starts_with("sensor asic: "))
+        .expect("the normal sensor warning");
+    assert!(ran_out < warn, "{log:?}");
+    assert!(log.iter().any(|(l, m)| *l == Level::Error && m.contains("FAILSAFE")));
+}
+
+#[test]
+fn no_grace_for_a_value_at_a_critical() {
+    // At the sensor's own critical: already failsafe, and a gap is not held.
+    let yaml = GRACE_RIG.replace("grace: 15s }", "grace: 15s, critical: 85 }");
+    let mut rig = grace_rig(&yaml, 86.0);
+    assert_eq!(rig.state("asic"), "failsafe");
+    rig.asic_file(None);
+    rig.tick();
+    assert!(!rig.in_grace("asic"));
+    let st = rig.engine.status(rig.t);
+    assert_eq!(st.sensors["asic"].value, None);
+    assert!(
+        st.zones["asic"].reasons.iter().any(|r| r.starts_with("sensor asic: ")),
+        "{:?}",
+        st.zones["asic"].reasons
+    );
+
+    // A zone critical counts too, through the zone's offset for the sensor:
+    // 76 + 5 is at the zone's critical of 80, 74 + 5 is not.
+    let yaml = GRACE_RIG
+        .replace("sensors: [asic]", "sensors: [{ sensor: asic, offset: 5 }]")
+        .replace("policy: delta-asic", "policy: delta-asic\n    critical: 80");
+    let mut rig = grace_rig(&yaml, 76.0);
+    assert_eq!(rig.state("asic"), "failsafe");
+    rig.asic_file(None);
+    rig.tick();
+    assert!(!rig.in_grace("asic"));
+    let mut rig = grace_rig(&yaml, 74.0);
+    assert_eq!(rig.state("asic"), "normal");
+    rig.asic_file(None);
+    rig.tick();
+    assert!(rig.in_grace("asic"));
+    assert_eq!(rig.state("asic"), "normal");
+}
+
+#[test]
+fn no_grace_before_the_first_good_reading() {
+    let mut rig = Rig::new(GRACE_RIG);
+    assert_eq!(rig.tick(), 100.0);
+    assert_eq!(rig.state("asic"), "failsafe");
+    assert!(!rig.in_grace("asic"));
+}

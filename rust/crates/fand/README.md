@@ -62,6 +62,7 @@ output through its RPM model.
 | `exit_duty` | `100` | duty written on exit and by `fand failsafe` |
 | `startup_duty` | `failsafe_duty` | duty every zone starts from; it ramps down from there after the dwell time |
 | `calm_period` | `60s` | fault-free time before a zone leaves failsafe |
+| `sensor_grace` | `0s` | default `grace` of every sensor |
 | `dry_run` | `false` | compute only (also honoured by `failsafe`) |
 | `max_override` | `1h` | longest `fand set` override |
 | `sysfs_root` | `/` | prefix for every device path (tests, simulation) |
@@ -92,6 +93,7 @@ output through its RPM model.
 | `required` | all | `true` | a failing required sensor puts its zones in failsafe; an optional one is left out of the aggregation |
 | `max_age` | all | exec: `3*interval + timeout` | older readings are stale (errors) |
 | `critical` | all | none | at/above this, every zone using the sensor goes failsafe |
+| `grace` | all | `sensor_grace` | after a failed reading, keep the last good value for up to this long since it was read (at most 60 s), see [Safety model](#safety-model) |
 
 JSON paths: dot-separated keys; `[]`, `[*]` or `*` for every element of an
 array or every value of an object; `[N]` for an index; a leading `$` is
@@ -238,6 +240,19 @@ Fail safe, never fail silent. A zone enters **failsafe** (its
   above `check_above_duty`, or a rotor not following its command (below the
   expected RPM by more than `follow_tolerance`, after `follow_grace`).
 
+**Sensor grace.** With `grace` set, a failed reading (any of the first
+bullet) keeps the last good value for up to `grace` after that value was
+read, so a writer restart does not cost a failsafe plus a `calm_period` at
+100 %; after that it faults as above (a stale reading's age counts too, so
+the total hold is `grace`). Not before the first good reading, not for a
+value at/above the sensor's `critical` or a zone's `critical` (minus the
+zone's offset for it), and a good reading ends it. One INFO line on entry
+(`sensor asic: no reading (...), holding 41.3 C for up to 15s`), one on
+recovery or when it runs out; `in_grace` in the status. An exec sensor's
+grace counts from its last successful run, so make it longer than its
+`interval`; a vanished hwmon device is re-resolved only every 10 s, so a
+short grace may not bridge that gap.
+
 It leaves failsafe only after `calm_period` without any of these, then
 ramps down normally (after the dwell). Every transition is logged with the
 reasons. A failed write additionally tries the failsafe duty on the spot.
@@ -370,20 +385,20 @@ is added to `ReadWritePaths` automatically.
 
 - Logs go to stderr; under systemd each line carries a `<N>` priority prefix
   for journald. Lines are written on state changes (failsafe enter /
-  recovering / leave with reasons, sensor errors and recoveries, output
+  recovering / leave with reasons, sensor errors, grace and recoveries, output
   faults set/cleared, overrides, outputs held at their hardware minimum)
   plus one summary line every `runtime.log_interval` (or on SIGHUP/SIGUSR1),
   never every tick.
 - `STATUS=` of the unit shows the summary (`systemctl status fand`).
 - `fand status`: JSON with every zone (state, reasons, temperature,
-  demand, floor, duty, override), sensor (value, error, path, age) and
+  demand, floor, duty, override), sensor (value, error, path, age, in_grace) and
   output (duty, demand before the clamp, hardware_min, clamped, raw
   written/observed, faults, rotors with rpm, expected rpm, max rpm, percent
   of max, calibrated, fault).
 - `runtime.state_file`: the same JSON, rewritten atomically every tick.
 - `runtime.prometheus_file`: `fand_zone_duty_percent`,
   `fand_zone_temperature_celsius`, `fand_zone_failsafe`,
-  `fand_sensor_temperature_celsius`, `fand_sensor_ok`,
+  `fand_sensor_temperature_celsius`, `fand_sensor_ok`, `fand_sensor_in_grace`,
   `fand_output_duty_percent`, `fand_output_demand_percent` (requested,
   before the hardware limits), `fand_output_clamped` (1 while raised to the
   hardware minimum), `fand_output_raw`, `fand_output_faults`,
@@ -402,8 +417,9 @@ AS7760-like box (12 rotors following the pwm, four lm75s, an exec ASIC
 sensor) covering sensor loss, implausible values, exec failures, fan fault
 flags, stalls, rotors not following, write failures, readback mismatches,
 overrides, rpm floors, hardware-minimum warnings, dry run, PI convergence
-and anti-windup (taking over from a higher zone, ramp/dwell holds) and
-panic unwinding. The CLI tests run the real binary under a fake `NOTIFY_SOCKET` and check READY,
+and anti-windup (taking over from a higher zone, ramp/dwell holds), sensor
+grace and panic unwinding. The CLI tests run the real binary under a fake
+`NOTIFY_SOCKET` and check READY,
 WATCHDOG, the control socket, SIGTERM → exit duty, single-instance, failsafe
 and calibration. They need only `/bin/sh`.
 
@@ -425,9 +441,6 @@ from source), and the dependency set has no build scripts that compile C.
 
 - No live config reload; the NixOS unit restarts on config changes, which
   is cheap and passes through the exit duty.
-- A single failed exec sensor run is a fault immediately (no "hold the last
-  value" grace); use `required: false` plus another zone sensor if a tool
-  is flaky.
 - Exec outputs have no readback; rely on tach feedback.
 - The follow check assumes RPM rises with duty; uncalibrated models are
   linear, so keep `follow_tolerance` generous until `fand calibrate` has run.
