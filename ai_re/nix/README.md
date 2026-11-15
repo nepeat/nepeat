@@ -10,6 +10,7 @@ modules/    NixOS modules, layered from most to least reusable:
   profiles/   policy, no hardware knowledge (appliance, netboot-root, ...)
   platforms/  one SoC family: kernel, boot image format, console
   thermal/    one function, shared by boards using the same part
+  monitoring/ Prometheus node metrics + textfile producers (any board)
   (switch/, ...  add a directory per function when the first module exists)
   boards/     one board = platform + functions + board deltas
 configs/    complete systems (nixosConfigurations) + images derived from them
@@ -48,9 +49,15 @@ appear once `nix/` is committed; `path:./nix` always works.
 | profile | `profile-netboot-root` | whole system in the initramfs (squashfs + tmpfs), nothing on disk touched |
 | platform | `platform-qoriq-t2080` | NXP T2080/e6500: allnoconfig kernel, legacy uImage, serial console; option `hardware.qoriqT2080.kernelPatches` |
 | function | `thermal-as7760-fan` | Accton fan-CPLD hwmon driver, sensor labels, monitor service |
+| function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
 | package | `uboot-*` | upstream U-Boot for T208x; patch series with a per-patch `scope` (`t208x` reusable, `as7760` board-only) in [packages/uboot/default.nix](packages/uboot/default.nix) |
 | package | `fastfetch-tiny` | fastfetch without optional libraries (cross-builds everywhere) |
+
+Monitoring: `board-as7760` enables `monitoring-node-exporter` with the
+[as7760-metrics](packages/as7760-metrics/README.md) producer (`switch_*` optics,
+fan and board-temperature metrics); on e6500 the exporter is
+`node-exporter-lite` because Go binaries need POWER8. `curl http://<switch>:9100/metrics`.
 
 ## adding a board on a platform that exists (e.g. another T2080 card)
 

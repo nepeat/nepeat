@@ -14,4 +14,8 @@ in {
   uboot-as7760-chainload = uboots.as7760-chainload; # RAM build: "go 0x00200000" test stage
   uboot-qemu-ppce500 = uboots.qemu-ppce500;
   uboot-tests = import ./uboot/tests.nix { inherit pkgs uboots; };
+
+  # Offline tests (native): monitoring exporter and the AS7760 metrics producer.
+  node-exporter-lite-test = pkgs.callPackage ./node-exporter-lite/test.nix { };
+  as7760-metrics-test = pkgs.callPackage ./as7760-metrics/test.nix { };
 }

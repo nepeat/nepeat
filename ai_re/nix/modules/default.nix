@@ -2,7 +2,7 @@
 # (import ./ai_re/nix).nixosModules.<name>). Layers, most to least reusable:
 #   profiles/   policy with no hardware knowledge
 #   platforms/  one SoC family (kernel, boot image format, console)
-#   thermal/, switch/ ...  one function, shared by boards using the same part
+#   thermal/, monitoring/ ...  one function, shared by boards using the same part
 #   boards/     one board = platform + functions + board deltas
 {
   profile-appliance = ./profiles/appliance.nix;
@@ -10,6 +10,7 @@
   profile-netboot-root = ./profiles/netboot-root.nix;
   platform-qoriq-t2080 = ./platforms/qoriq-t2080.nix;
   thermal-as7760-fan = ./thermal/as7760-fan.nix;
+  monitoring-node-exporter = ./monitoring/node-exporter.nix;
   board-as7760 = ./boards/as7760;
   board-as7760-sd-install = ./boards/as7760/sd-install.nix;
   board-as7760-sd-persist = ./boards/as7760/sd-persist.nix;
