@@ -36,11 +36,79 @@ HA's reported state is not an independent measurement of physical mains power.
 
 API reference: [Home Assistant REST API](https://developers.home-assistant.io/docs/api/rest/).
 
-Run the isolated API tests without touching hardware:
+Run the isolated tests (lab-power and ai-re-images; no hardware, no real dumps):
 
 ```sh
 python3 -m unittest discover -s tools/tests -v
 ```
+
+## ai-re-images: image catalog
+
+Lists, tags, verifies and inspects every dump under
+`devices/*/{dumps,dump,images,firmware,captures}`, across devices and units,
+without changing them. Images are never written, moved or mounted.
+Files with `private` in their path are skipped, so their contents never
+reach the output or a sidecar.
+
+- **Recorded facts stay with the device.** The tool reads the files already
+  there (`manifest.json[l]`, acquisition/verification JSON, `SHA256SUMS`,
+  `RAW-SHA256SUMS`, `*.sha256`, `device-sha256.txt`) and never rewrites them.
+- **Its own additions** (tags, notes, `set` overrides of kind/unit/version,
+  `inspect` results) go in one tracked sidecar per device:
+  `devices/<device>/images.jsonl`. There is one row per image, keyed by
+  device-relative path plus content sha256. If a file is moved, the sha256
+  re-attaches its row. The sidecar sits at device level, not in
+  `dumps/<unit>/`, so acquisition dirs stay pure tool output (`acquire.py`
+  writes there). It also covers devices with no unit layout. It is public:
+  `inspect` stores only safe fields (ONIE serial, MAC and service tag, U-Boot
+  env values, and filesystem UUIDs are withheld).
+- **Identity** = sha256 of the stored file (the `.zst` when the raw file was
+  removed), plus the raw-content sha256 when one is recorded. `dupes` groups by
+  content. Hashes of untracked files are cached in `~/.cache/ai_re-images/`.
+
+```sh
+ai-re-images scan [--hash]                  # per device: ok / zst-only / missing / untracked; --hash names untracked files
+ai-re-images list --device dmc-12-48r-as0 --sort version
+ai-re-images list --kind spi-nor --tag original-state --json
+ai-re-images show dmc-12-48r-as0:dumps/u01/sda.img.zst     # or a path, or a sha256 prefix
+ai-re-images tag REF factory os-1.0.457.0; ai-re-images untag REF factory
+ai-re-images note REF "read via /dev/mtd0 from the rdinit shell"
+ai-re-images set REF --kind spi-nor --version 2.60.4         # '' clears
+ai-re-images verify --device dmc-12-48r-as0 [--raw]          # --raw also hashes the decompressed stream
+ai-re-images inspect [REF...] [--deep] [--no-store]
+ai-re-images dupes
+ai-re-images export-qcow2 REF /scratch/u01-sda.qcow2
+```
+
+Kinds come from the name, then `inspect`, then a `set` override: `disk`,
+`partition`, `flash` (use `set --kind spi-nor` once that's known), `env`,
+`eeprom`, `dtb`, `fit`, `kernel`, `initramfs`, `rootfs`, `firmware`, `rom`,
+`config`, `other`. Unit = `dumps/<uNN>/`. Filters: `--device --unit --kind
+--tag --text --status`. Every command takes `--json`.
+
+`verify` re-hashes against every recorded hash (host and on-device). A dump whose
+raw file was removed after compression reports `raw removed, .zst verified`.
+With `--raw` it reports `raw removed, content verified`.
+`inspect` reads headers only: partition table (`sfdisk --json`, from a sparse
+copy of the stream head for `.zst`) and the filesystem at each partition
+start. Partitions more than 1 GiB into a compressed stream need `--deep`.
+It also reads U-Boot legacy/FIT (`dumpimage -l`), DTB model, ONIE `TlvInfo`,
+CRC-valid U-Boot env (either byte order), ELF and cpio. For images of 256 MiB
+or less it adds a map of embedded headers and the 0xff/0x00 fill. Logical
+partitions in a compressed stream are not read.
+
+`export-qcow2` writes a zstd-cluster qcow2 (`qemu-img convert -c -O qcow2 -o
+compression_type=zstd -m 4`). For a `.zst` it first decompresses to a sparse
+temp file in `--scratch` (default: next to OUT), checks the recorded raw
+sha256 on the way, then deletes the temp. It refuses an OUT inside a
+device image dir unless `--next-to-original` is passed. It only prints the
+attach commands (`qemu-nbd --read-only`, or `nbdkit --readonly
+--filter=qcow2dec file X`, then `mount -o ro,noload`), because they need root.
+
+Exit codes: 0 ok; 1 mismatch, conflict or failure; 2 usage or unknown REF;
+3 `verify` found missing files but no mismatch. Decompression is
+single-threaded and streamed (1 MiB chunks), so memory stays flat even for a
+32 GB image.
 
 ## ghidra
 

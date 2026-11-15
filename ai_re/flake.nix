@@ -162,6 +162,14 @@
               text = ''exec python3 ${./tools/lab_power.py} "$@"'';
             })
 
+            # Read-only catalog of device dumps: tags, verify, inspect, dupes,
+            # zstd-qcow2 export (tools/images.py, tools/README.md).
+            (writeShellApplication {
+              name = "ai-re-images";
+              runtimeInputs = [ python3 zstd xz util-linux ubootTools qemu-utils file ];
+              text = ''exec python3 ${./tools/images.py} "$@"'';
+            })
+
             # Static analysis of the TN48M AP806 BootROM
             # (devices/delta-tn48m/bootrom.md). nixpkgs `ghidra` is the
             # source build and substitutes from cache.nixos.org (no compile).
