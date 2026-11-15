@@ -1,10 +1,11 @@
 # DMC-12-48R-AS0 serial console server
 
 ## Status
-- **u01 runs NixOS from its SSD (2026-11-15)**, installed by `reimage.py` in one run (202 s from
-  power-cycle to smoke PASS): factory U-Boot → preamble (bootp) → `scsi read` of our U-Boot 2026.10
-  (al_eth) from raw sda1 → extlinux on sda2 → root sda3. Env: `nixos_boot` + `bootcmd` only, factory
-  chain kept as fallback. Original state: `dumps/u01/` (restore: `reimage.md` "Back to factory").
+- **u01 boots our U-Boot from SPI (2026-11-15, `spi-upgrade.py install`)**: stage3 → our self-init
+  U-Boot 2026.10 in IPXE 0 (BOOT_MODE app 0x110) → extlinux on sda2 → NixOS root sda3; login ≈ 38 s.
+  Holding `u` at stage3 (`stage3keys.py --key u`) gives the untouched factory U-Boot, whose env still
+  chainloads our U-Boot from raw sda1 (`reimage.py` install, `reimage.md`). Back to the factory boot:
+  `spi-upgrade.py rollback --write`. Original state: `dumps/u01/` (`reimage.md` "Back to factory").
 - **Board quirks/features at a glance:** `board-notes.md`.
 - **Self-init U-Boot (RAM, 2026-11-15, transcript `serial-chainload-20261115-123112.txt`): full checklist
   passes.** Read-only `sf read` of CS0/CS1 CRC-exact vs the backups (08145ce6, 3d086ac6, whole CS1
@@ -19,10 +20,9 @@
   U-Boot!")**, i.e. the escape hatch is proven; **exp 4: our self-init U-Boot as stage3's app (x0=0, EL2) →
   alpcie reinit → extlinux → NixOS: smoke 15/15, 4 CPUs, no dmesg warnings.** Caveat: the factory U-Boot ran
   once before each Route A test, so a PCIe start with no factory init at all is still untested.
-- **SPI upgrade: `spi-upgrade.py` written and rehearsed on u01 (2026-11-15), no SPI write yet.**
-  `status` and `rehearse` pass (exact install bytes via Route A → NixOS, smoke 15/15; `u` escape).
-  `--write` is blocked by gates in `spi-upgrade-gates.json`: clip read of CS0, independent review,
-  cold PCIe (owner accepts or tests). Spec: `spi-upgrade-plan.md`. Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
+- **SPI upgrade:** `spi-upgrade.py` (spec `spi-upgrade-plan.md`, gates `spi-upgrade-gates.json`, journal
+  `inventory/u01/spi-upgrade.jsonl`). CS0 now = backup + IPXE 0 + BOOT_MODE (crc32 0..0xfd0000
+  `161a8c6d`). Open: a clip read of CS0 was skipped (owner); IPXE 1 blank. Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
   `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
 - Console: tmux `serial-dmc12`, tio on the FTDI `B0016Y5Q` (by-id path) at **115200 8N1**,
   confirmed from a readable boot. Captures go to `serial-*.txt` (git-ignored, may
@@ -202,6 +202,18 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 16:00: soak from SPI, 6/6 PASS (power, warm CPLD reboot, 30 s cold): login 37.7–40.2 s, smoke clean,
+  CPLD WDT flag 0x01 and uC 50–56 °C as before (`inventory/u01/soak.jsonl`; soak.py now matches the selfinit
+  banner too).
+- 2026-11-15 15:30: **u01 SPI install done** (`spi-upgrade.py install --write`, 3f28637; owner: "yolo -
+  apply it either way", clip read + cold PCIe gates overridden). Two independent reviews first
+  (Opus + Fable): typed-blind `sf` commands and a torn-BOOT_MODE trap (good header + bad data hangs
+  stage3 past its key poll) fixed in de26892; fake-flash simulation of all paths. Writes: IPXE 0
+  (0x2c0000, erase 0x80000, data then header) and BOOT_MODE app 0x110 (0x340000, 0x1000), each read
+  back; full CS0 re-read `161a8c6d` = model (only those regions changed). **First real cold boot of our
+  U-Boot:** `x0=0x0`, `MUIO: 5 pins, 3 changed`, `GPIO: 22 out 1 (was in 1)`, `PCIe 0: link up (our
+  init)`, bootflow → NixOS, login 37.7 s, smoke 15/15. `u` escape → factory prompt + `sf probe` OK, then
+  ours again. Soak: the entry above.
 - 2026-11-15 14:50: `spi-upgrade.py` (189696e; spec `spi-upgrade-plan.md`), first runs on u01, zero
   SPI writes. Selfinit build with GPIO 22 (683d033, stage3app `.fimg` sha256 `2c00d920…`, 3884 B
   left in the 512 KiB IPXE slot): chainload RAM test PASS, `GPIO:  22 out 1 (was out 1)`, readback

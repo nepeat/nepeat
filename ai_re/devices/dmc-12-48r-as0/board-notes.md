@@ -44,9 +44,11 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
   WFI from holding). [hw] `uart-boot.md`
 - **al_eth board params + MAC** are written by stage3 (present at the factory prompt before any dhcp);
   our U-Boot keeps or rewrites them. [hw/code] `u-boot-port.md`
+- **Cold start (no factory U-Boot): GPIO 22 is an input** and 3 MUIO pins differ; our U-Boot sets both,
+  and does its own PCIe RC init. [hw, first SPI boot]
 - **Fans fail safe:** with no OS the CPLD runs them full speed until the WDT flag 0x2a is cleared. [hw]
 - **SPI upgrade path:** our U-Boot in IPXE 0/1 + BOOT_MODE (64 KiB TOC slot, first sector used); factory
-  UBOOT stays as the `u` escape. Rehearsed in RAM [hw]; `spi-upgrade.py`, `spi-upgrade-plan.md`.
+  UBOOT stays as the `u` escape. Installed on u01 [hw]; `spi-upgrade.py`, `spi-upgrade-plan.md`.
 
 ## Linux / NixOS quirks
 - Firmware PSCI is **v0.1** (cpu_on/off only, no SYSTEM_RESET). sbclk is **500 MHz** (mainline dtsi
@@ -63,8 +65,8 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
   2000 RPM. [hw]
 - **USB serial enumeration takes ~25 s** after boot; wait for 48 `/dev/P*` before tests. [hw]
 - **Kernel:** nixpkgs' aarch64 config builds ~50 foreign SoC families; use `linux-alpine` lean/minimal.
-- Boot timeline (installed, chainload): login ≈ 64 s, of which 24 s is the factory countdown + BOOTP
-  in the preamble (candidate for trimming). [hw] `inventory/u01/soak.jsonl`
+- Boot timeline: SPI install (stage3 → ours) login ≈ 38 s; the old chainload path (factory countdown +
+  BOOTP preamble, still the `u` path) ≈ 64 s. [hw] `inventory/u01/soak.jsonl`
 
 ## Lab / tooling quirks (bit us here)
 - tio block-buffers its log: watch the tmux pane for prompts; `clear-history` keeps the visible

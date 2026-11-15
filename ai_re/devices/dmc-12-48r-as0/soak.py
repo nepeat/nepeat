@@ -17,7 +17,7 @@ SSH = ["sudo", "-n", "ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=
        "-o", "UserKnownHostsFile=/dev/null", "-o", "LogLevel=ERROR", "-o", "ConnectTimeout=5"]
 # (event, pattern) in boot order; the first match after the cycle start is timed.
 EVENTS = [("stage2", r"stage2_loader_k2"), ("factory_uboot", r"U-Boot 2015\.07"),
-          ("bootp", r"DHCP client bound"), ("our_uboot", r"U-Boot 2026\.10-dmc12-chainload"),
+          ("bootp", r"DHCP client bound"), ("our_uboot", r"U-Boot 2026\.10-dmc12-(?:chainload|selfinit)"),
           ("kernel", r"Booting Linux on physical CPU"), ("login", r"root@dmc12[^\n]*#")]
 BAD = [r"Kernel panic", r"Synchronous Abort", r"### ERROR", r"Reboot failed", r"Call trace",
        r"Unknown command", r"Retrieving file: .* failed", r"Wrong Image"]
