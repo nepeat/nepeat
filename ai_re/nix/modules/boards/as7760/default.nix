@@ -26,6 +26,11 @@ in {
   # SONiC on this board. syncd (sai-openbcm) owns the ASIC while it runs, so
   # openbcm-asic-temp stops and syncd publishes the same temperature file for
   # fand; it is started again when the stack stops.
+  # With SONiC on, syncd owns the ASIC from boot: don't start the reader at
+  # boot or on activation (it would be stopped mid-start by syncd's Conflicts
+  # and show as failed); restartOnStop brings it back when syncd stops.
+  systemd.services.openbcm-asic-temp.wantedBy = lib.mkIf config.services.sonic.enable (lib.mkForce [ ]);
+
   services.sonic = {
     platform = lib.mkDefault "powerpc64-accton_as7760_32x-r0";
     hwsku = lib.mkDefault "Accton-AS7760-32X";
