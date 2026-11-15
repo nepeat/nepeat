@@ -38,6 +38,8 @@ let
     { scope = "dmc12"; file = "0015-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
     { scope = "dmc12"; file = "0016-board-Edgecore-DMC-12-48R-AS0-on-the-Alpine-V2-chain.patch"; }
     { scope = "alpine-v2"; file = "0017-board-alpine-v2-boot-the-initrd-and-FDT-in-place.patch"; }
+    { scope = "alpine-v2"; file = "0018-board-alpine-v2-hand-the-al_eth-board-params-and-MAC.patch"; }
+    { scope = "dmc12"; file = "0019-board-dmc12-describe-al_eth-port-1-for-the-board-par.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

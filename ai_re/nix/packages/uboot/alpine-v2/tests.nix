@@ -4,7 +4,11 @@
 #          uImage header (kernel type, load = entry = loadAddr), footprint
 #          clear of the vendor initrd staging, no SMC/HVC anywhere (the
 #          firmware's PSCI v0.1 has no SYSTEM_RESET), RAM-only/safety config,
-#          DMC-12 control DT contents (memory, firmware ranges, resets).
+#          DMC-12 control DT contents (memory, firmware ranges, resets,
+#          the al_eth port node).
+#  eth-params: ./eth-test, the al_eth board-params/MAC handoff encoding of
+#          include/alpine_v2_eth.h (from the patch series) against the
+#          Annapurna HAL in ../../al-eth/src, compiled for the host.
 #  qemu:   ./qemu-test.py on QEMU virt with the same board code.
 let
   cross = pkgs.pkgsCross.aarch64-multiplatform;
@@ -47,6 +51,7 @@ let
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
     for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y SYSRESET_DMC12_CPLD=y \
+              ALPINE_V2_ETH_HANDOFF=y CMD_ALPINE_V2_ETH=y I2C_EEPROM=y \
               SYSRESET_WATCHDOG=y WDT_SP805=y CMD_BOOTI=y CMD_SYSBOOT=y BOOTMETH_EXTLINUX=y \
               PCIE_ECAM_GENERIC=y AHCI_PCI=y SCSI=y CMD_EXT4=y CMD_FAT=y OF_BOARD_SETUP=y \
               NR_DRAM_BANKS=2 'DEFAULT_FDT_FILE="amazon/alpine-v2-dmc12.dtb"' \
@@ -66,8 +71,44 @@ let
     [ "$(fdtget $t /soc/io-bus@fc000000/i2c@1880000/i2c-mux@70/i2c@3/$cpld compatible)" = edgecore,dmc12-cpld ]
     [ "$(fdtget -t x $t /soc/io-bus@fc000000/serial@1883000 clock-frequency)" = 1dcd6500 ]
     fdtget $t /soc/io-bus@fc000000/serial@1883000 bootph-all >/dev/null
-    echo "dt: ok (4 GiB in 2 banks, 4 firmware ranges, CPLD + sp805 resets, UART0 500 MHz pre-reloc)"
+    e=/soc/pci@fbc00000/ethernet@1,0
+    [ "$(fdtget -t x $t $e reg)" = "800 0 0 0 0" ]
+    [ "$(fdtget $t $e phy-mode)" = rgmii ]
+    [ "$(fdtget $t $e/fixed-link speed)" = 1000 ]
+    fdtget $t $e/fixed-link full-duplex >/dev/null
+    ee=/soc/io-bus@fc000000/i2c@1880000/i2c-mux@70/i2c@3/i2c-mux@71/i2c@2/eeprom@51
+    [ "$(fdtget $t $e amazon,mac-eeprom)" = "$(fdtget $t $ee phandle)" ]
+    [ "$(fdtget $t $ee compatible)" = atmel,24c02 ]
+    echo "dt: ok (4 GiB in 2 banks, 4 firmware ranges, CPLD + sp805 resets, UART0 500 MHz pre-reloc, al_eth 00:01.0 rgmii fixed 1000 + EEPROM MAC)"
     mkdir $out; echo pass > $out/result
+  '';
+
+  # Host build: HAL headers + extracted HAL functions, host shims for the
+  # two platform headers, include/alpine_v2_eth.h out of the series.
+  ethParams = pkgs.runCommandCC "alpine-v2-uboot-eth-params" {
+    nativeBuildInputs = [ pkgs.patchutils pkgs.gawk ];
+    buildInputs = [ pkgs.zlib ];
+    hal = builtins.path { path = ../../al-eth/src; name = "al_eth-src"; };
+    test = builtins.path { path = ./eth-test; name = "alpine-v2-eth-test"; };
+  } ''
+    set -euo pipefail
+    mkdir hal
+    cp $hal/*.h hal/; chmod u+w hal/*
+    cp $test/al_hal_plat_types.h $test/al_hal_plat_services.h hal/
+    awk '/^\/\* board params register 1 \*\//{p=1} p{print} p&&/^int al_eth_board_params_get/{g=1} g&&/^}/{exit}' \
+      $hal/al_hal_eth_main.c > hal/params_extract.c
+    awk '/^int al_eth_mac_addr_store\(/{p=1} /^int al_eth_fwd_mhash_table_set/{exit} p{print}' \
+      $hal/al_hal_eth_main.c > hal/mac_extract.c
+    grep -q '^int al_eth_board_params_get' hal/params_extract.c
+    grep -q '^int al_eth_mac_addr_read' hal/mac_extract.c
+    for p in ${toString alpine.patches}; do
+      filterdiff -i '*/include/alpine_v2_eth.h' "$p"
+    done > header.diff
+    mkdir ub; (cd ub && patch -s -p1 < ../header.diff)
+    cp ub/include/alpine_v2_eth.h hal/
+    $CC -O1 -Wall -Werror -Wno-unused-function -Ihal -o t $test/eth-params-test.c -lz
+    ./t | tee log.txt
+    mkdir $out; cp log.txt $out/
   '';
 
   probe = pkgs.runCommand "alpine-v2-booti-probe" { nativeBuildInputs = [ binutils ]; } ''
@@ -110,5 +151,6 @@ let
   '';
 in pkgs.linkFarm "alpine-v2-uboot-tests" [
   { name = "static"; path = static; }
+  { name = "eth-params"; path = ethParams; }
   { name = "qemu-virt"; path = qemu; }
 ]

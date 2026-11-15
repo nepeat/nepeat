@@ -38,7 +38,7 @@ let
       '';
     });
 in {
-  inherit loadAddr;
+  inherit loadAddr patches;
 
   # RAM-only second stage for the DMC-12. Never flashed.
   dmc12-chainload = mk {

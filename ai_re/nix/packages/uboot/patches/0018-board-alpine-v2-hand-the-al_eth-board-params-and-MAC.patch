@@ -1,0 +1,644 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 06:06:09 -0800
+Subject: [PATCH 18/19] board: alpine-v2: hand the al_eth board params and MAC
+ to Linux
+
+The vendor al_eth driver (Linux, and the vendor U-Boot's own) reads the
+integrated Ethernet port's wiring from three scratch registers in the MAC
+BAR ("board params": MAC +0x4, +0x404, +0xc) and its MAC address from
+forwarding MAC entry 0 in the EC BAR (+0x868/+0x86c). Without the params
+probe fails ("board info not available"); without the MAC it picks a
+random one. The vendor U-Boot leaves both behind after a network command;
+a boot path that never ran one gave Linux neither.
+
+Right before Linux is entered (board_prep_linux), for every PCI 1c36:0001
+function:
+- params already present are kept (the firmware is authoritative; a
+  mismatch with the DT is only reported); missing ones are encoded from
+  the function's DT node (phy-mode rgmii*/sgmii + fixed-link, no MDIO
+  PHY) exactly as the HAL's al_eth_board_params_set() would;
+- the MAC is env ethaddr (eth<N>addr) if set, else what the EC already
+  holds, else the ONIE TlvInfo EEPROM named by "amazon,mac-eeprom"
+  (TLV 0x24, CRC-32 checked);
+- what it found and did is printed; failures say what Linux will do.
+
+include/alpine_v2_eth.h holds the offsets and the pure encoders/parsers,
+so a host test can check them against the HAL (al_hal_eth_main.c) and
+its register structs. "aleth info" shows the state read-only, "aleth
+handoff" runs the handoff now.
+
+Scope: alpine-v2.
+---
+ board/amazon/alpine-v2/Kconfig       |  20 ++
+ board/amazon/alpine-v2/MAINTAINERS   |   1 +
+ board/amazon/alpine-v2/Makefile      |   1 +
+ board/amazon/alpine-v2/eth-handoff.c | 366 +++++++++++++++++++++++++++
+ include/alpine_v2_eth.h              | 175 +++++++++++++
+ 5 files changed, 563 insertions(+)
+ create mode 100644 board/amazon/alpine-v2/eth-handoff.c
+ create mode 100644 include/alpine_v2_eth.h
+
+diff --git a/board/amazon/alpine-v2/Kconfig b/board/amazon/alpine-v2/Kconfig
+index ed8f2f67..710f0f3f 100644
+--- a/board/amazon/alpine-v2/Kconfig
++++ b/board/amazon/alpine-v2/Kconfig
+@@ -12,4 +12,24 @@ config SYS_CONFIG_NAME
+ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+ 	default 0x0
+ 
++config ALPINE_V2_ETH_HANDOFF
++	bool "Hand the al_eth board params and MAC address to Linux"
++	depends on PCI
++	default y
++	help
++	  Before entering Linux, make sure every integrated Ethernet function
++	  (PCI 1c36:0001) carries the "board params" scratch registers and
++	  the MAC address that the vendor al_eth driver reads at probe.
++	  Values the firmware left are kept; missing params come from the
++	  function's DT node (phy-mode, fixed-link), a missing MAC from env
++	  ethaddr or the ONIE EEPROM named by "amazon,mac-eeprom".
++
++config CMD_ALPINE_V2_ETH
++	bool "aleth command"
++	depends on ALPINE_V2_ETH_HANDOFF && CMDLINE
++	default y
++	help
++	  "aleth info" shows the board params and MAC of each al_eth
++	  function (read-only); "aleth handoff" writes missing ones now.
++
+ endif
+diff --git a/board/amazon/alpine-v2/MAINTAINERS b/board/amazon/alpine-v2/MAINTAINERS
+index 444805cf..99bebede 100644
+--- a/board/amazon/alpine-v2/MAINTAINERS
++++ b/board/amazon/alpine-v2/MAINTAINERS
+@@ -3,3 +3,4 @@ S:	Orphan
+ F:	board/amazon/alpine-v2/
+ F:	include/configs/alpine-v2.h
+ F:	arch/arm/dts/alpine-v2-u-boot.dtsi
++F:	include/alpine_v2_eth.h
+diff --git a/board/amazon/alpine-v2/Makefile b/board/amazon/alpine-v2/Makefile
+index 52ed7174..0bdf963d 100644
+--- a/board/amazon/alpine-v2/Makefile
++++ b/board/amazon/alpine-v2/Makefile
+@@ -1,3 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+ obj-y	:= alpine-v2.o lowlevel.o
++obj-$(CONFIG_ALPINE_V2_ETH_HANDOFF) += eth-handoff.o
+diff --git a/board/amazon/alpine-v2/eth-handoff.c b/board/amazon/alpine-v2/eth-handoff.c
+new file mode 100644
+index 00000000..0eb32bfe
+--- /dev/null
++++ b/board/amazon/alpine-v2/eth-handoff.c
+@@ -0,0 +1,366 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Alpine V2 integrated Ethernet: leave the board params and the MAC address
++ * where the vendor al_eth driver looks for them (see alpine_v2_eth.h).
++ *
++ * The vendor U-Boot leaves them behind after a network command; a boot that
++ * never ran one, or one that went through an FLR without restoring them,
++ * would otherwise give Linux an al_eth that fails to probe ("board info not
++ * available") or runs with a random MAC. This runs right before Linux is
++ * entered (board_prep_linux) and from the "aleth" command.
++ *
++ * Policy: never second-guess the firmware. Params already present are kept
++ * as they are (a mismatch with the DT is only reported); only missing ones
++ * are written, from the DT node of the PCI function. The MAC already in
++ * the EC is kept unless env "ethaddr" says otherwise; a missing one comes
++ * from the board's ONIE EEPROM.
++ */
++
++#include <alpine_v2_eth.h>
++#include <command.h>
++#include <dm.h>
++#include <env.h>
++#include <i2c_eeprom.h>
++#include <pci.h>
++#include <u-boot/crc.h>
++#include <asm/io.h>
++#include <dm/ofnode.h>
++#include <linux/errno.h>
++#include <net-common.h>
++
++struct bootm_headers;
++
++#define EEPROM_LEN		256	/* 24c02 */
++
++/* Decode params1/2 the way al_eth_board_params_get() does, for messages. */
++static void params_print(const char *what, const u32 r[3])
++{
++	static const char * const media[] = {
++		"auto-detect", "rgmii", "10gbase-sr", "sgmii", "1000base-x",
++		"auto-detect-auto-speed", "sgmii-2.5g", "nbase-t", "25g",
++		"25g-10g-auto",
++	};
++	unsigned int m = r[0] & 0xf;
++	static const int speed[] = { 1000, 100, 10, -1 };
++
++	printf("  board params (%s): %08x %08x %08x = media %s, phy %s, %s %dM %s, ref-clk %u\n",
++	       what, r[0], r[1], r[2], m < ARRAY_SIZE(media) ? media[m] : "?",
++	       r[0] & BIT(4) ? "yes" : "no", r[1] & BIT(2) ? "fixed" : "autoneg",
++	       speed[(r[1] >> 3) & 3], r[1] & BIT(5) ? "half" : "full", r[0] >> 29);
++}
++
++/* Board params from the PCI function's DT node: phy-mode + fixed-link. */
++static int params_from_dt(ofnode node, u32 reg[3])
++{
++	struct alpine_v2_eth_params p = {
++		.mdio_freq = ALPINE_V2_ETH_MDIO_2_5MHZ,
++		.phy_if = ALPINE_V2_ETH_PHY_IF_MDIO,
++		/*
++		 * Alpine V2 Ethernet reference clock: 500 MHz, as Annapurna's
++		 * al_eth uses for its V2 parts. Only the MDIO clock divider
++		 * depends on it, and a port without an MDIO PHY has no use for
++		 * it. Inferred; firmware-written params win anyway.
++		 */
++		.ref_clk_freq = ALPINE_V2_ETH_REF_CLK_500MHZ,
++	};
++	const char *mode = ofnode_read_string(node, "phy-mode");
++	ofnode fl = ofnode_find_subnode(node, "fixed-link");
++	u32 speed;
++
++	if (!mode) {
++		printf("  DT: no phy-mode\n");
++		return -EINVAL;
++	}
++	if (!strncmp(mode, "rgmii", 5)) {
++		p.media_type = ALPINE_V2_ETH_MEDIA_RGMII;
++	} else if (!strcmp(mode, "sgmii")) {
++		p.media_type = ALPINE_V2_ETH_MEDIA_SGMII;
++	} else {
++		printf("  DT: phy-mode \"%s\" not supported (rgmii*, sgmii)\n", mode);
++		return -EINVAL;
++	}
++	/* An MDIO PHY would need its address and bus: not supported. */
++	if (ofnode_has_property(node, "phy-handle") || !ofnode_valid(fl)) {
++		printf("  DT: only fixed-link ports are supported\n");
++		return -EINVAL;
++	}
++	speed = ofnode_read_u32_default(fl, "speed", 0);
++	switch (speed) {
++	case 1000:
++		p.speed = ALPINE_V2_ETH_SPEED_1000M;
++		break;
++	case 100:
++		p.speed = ALPINE_V2_ETH_SPEED_100M;
++		break;
++	case 10:
++		p.speed = ALPINE_V2_ETH_SPEED_10M;
++		break;
++	default:
++		printf("  DT: fixed-link speed %u not supported\n", speed);
++		return -EINVAL;
++	}
++	p.an_disable = 1;
++	p.half_duplex = !ofnode_read_bool(fl, "full-duplex");
++	if (p.half_duplex && speed == 1000) {
++		printf("  DT: 1000M half duplex is not supported\n");
++		return -EINVAL;
++	}
++
++	return alpine_v2_eth_params_encode(&p, reg) ? -EINVAL : 0;
++}
++
++static unsigned int tlv_crc32(unsigned int crc, const unsigned char *p, unsigned int len)
++{
++	return crc32(crc, p, len);
++}
++
++int alpine_v2_eth_eeprom_mac(struct udevice *pdev, unsigned char mac[6])
++{
++	static const char * const why[] = {
++		"", "no ONIE TlvInfo header", "TlvInfo CRC mismatch",
++		"no MAC base TLV (0x24)", "TlvInfo without a CRC TLV",
++	};
++	ofnode np = ofnode_parse_phandle(dev_ofnode(pdev), "amazon,mac-eeprom", 0);
++	struct udevice *ee;
++	u8 buf[EEPROM_LEN];
++	int ret;
++
++	if (!ofnode_valid(np))
++		return -ENOENT;
++	if (!CONFIG_IS_ENABLED(I2C_EEPROM)) {
++		printf("  EEPROM %s: no I2C_EEPROM support\n", ofnode_get_name(np));
++		return -ENOSYS;
++	}
++	ret = uclass_get_device_by_ofnode(UCLASS_I2C_EEPROM, np, &ee);
++	if (!ret)
++		ret = i2c_eeprom_read(ee, 0, buf, sizeof(buf));
++	if (ret) {
++		printf("  EEPROM %s: read failed (%d)\n", ofnode_get_name(np), ret);
++		return ret;
++	}
++	ret = alpine_v2_onie_tlv_mac(buf, sizeof(buf), mac, tlv_crc32);
++	if (ret) {
++		printf("  EEPROM %s: %s\n", ofnode_get_name(np), why[-ret]);
++		return -EINVAL;
++	}
++	if (!is_valid_ethaddr(mac)) {
++		printf("  EEPROM %s: MAC base %pM is not a unicast address\n",
++		       ofnode_get_name(np), mac);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static void mac_read(void __iomem *ec, u8 mac[6])
++{
++	alpine_v2_eth_mac_decode(readl(ec + ALPINE_V2_ETH_FWD_MAC0_L),
++				 readl(ec + ALPINE_V2_ETH_FWD_MAC0_H), mac);
++}
++
++static void mac_write(void __iomem *ec, const u8 mac[6])
++{
++	unsigned int lo, hi;
++
++	alpine_v2_eth_mac_encode(mac, &lo, &hi);
++	writel(lo, ec + ALPINE_V2_ETH_FWD_MAC0_L);
++	writel(hi, ec + ALPINE_V2_ETH_FWD_MAC0_H);
++}
++
++/* A 32-bit memory BAR (64-bit type allowed, upper half 0), assigned. */
++static void __iomem *bar_map(struct udevice *pdev, int bar)
++{
++	u32 lo, hi = 0;
++
++	dm_pci_read_config32(pdev, bar, &lo);
++	if (lo & PCI_BASE_ADDRESS_SPACE_IO)
++		return NULL;
++	if ((lo & PCI_BASE_ADDRESS_MEM_TYPE_MASK) == PCI_BASE_ADDRESS_MEM_TYPE_64)
++		dm_pci_read_config32(pdev, bar + 4, &hi);
++	if (hi || !(lo & PCI_BASE_ADDRESS_MEM_MASK)) {
++		printf("  BAR at %#x not assigned (%08x %08x)\n", bar, hi, lo);
++		return NULL;
++	}
++
++	return dm_pci_map_bar(pdev, bar, 0, 0, PCI_REGION_TYPE, PCI_REGION_MEM);
++}
++
++static int handoff_one(struct udevice *pdev, int index, bool verbose)
++{
++	char envname[16];
++	pci_dev_t bdf = dm_pci_get_bdf(pdev);
++	ofnode node = dev_ofnode(pdev);
++	void __iomem *mac_base, *ec_base;
++	u8 mac[6], want[6];
++	const char *mac_src = NULL;
++	u32 cur[3], dt[3];
++	bool have_dt;
++	u16 cmd;
++	int ret = 0;
++
++	printf("al_eth %02x:%02x.%x:", PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf));
++	if (ofnode_valid(node) && !ofnode_is_enabled(node)) {
++		printf(" disabled in DT, left alone\n");
++		return 0;
++	}
++	printf("\n");
++
++	mac_base = bar_map(pdev, PCI_BASE_ADDRESS_2);
++	ec_base = bar_map(pdev, PCI_BASE_ADDRESS_4);
++	if (!mac_base || !ec_base) {
++		printf("  MAC/EC BARs unusable: params and MAC NOT handed over\n");
++		return -ENXIO;
++	}
++	dm_pci_read_config16(pdev, PCI_COMMAND, &cmd);
++	if (!(cmd & PCI_COMMAND_MEMORY))
++		dm_pci_write_config16(pdev, PCI_COMMAND, cmd | PCI_COMMAND_MEMORY);
++
++	/* Board params */
++	cur[0] = readl(mac_base + ALPINE_V2_ETH_PARAMS1);
++	cur[1] = readl(mac_base + ALPINE_V2_ETH_PARAMS2);
++	cur[2] = readl(mac_base + ALPINE_V2_ETH_PARAMS3);
++	have_dt = ofnode_valid(node) && !params_from_dt(node, dt);
++	if (cur[0]) {
++		if (verbose)
++			params_print("kept, from firmware", cur);
++		/* Compare only the fields this code knows how to set. */
++		if (have_dt && ((cur[0] ^ dt[0]) & 0x0070c3ff ||
++				(cur[1] ^ dt[1]) & 0x3c)) {
++			params_print("firmware", cur);
++			params_print("DT would give", dt);
++			printf("  note: firmware params differ from the DT; keeping firmware's\n");
++		}
++	} else if (have_dt) {
++		writel(dt[0], mac_base + ALPINE_V2_ETH_PARAMS1);
++		writel(dt[1], mac_base + ALPINE_V2_ETH_PARAMS2);
++		writel(dt[2], mac_base + ALPINE_V2_ETH_PARAMS3);
++		params_print("written, from DT", dt);
++		if (readl(mac_base + ALPINE_V2_ETH_PARAMS1) != dt[0]) {
++			printf("  params1 did not stick\n");
++			ret = -EIO;
++		}
++	} else {
++		printf("  board params missing and no usable DT node: Linux al_eth will not probe\n");
++		ret = -ENOENT;
++	}
++
++	/* MAC address. The env name follows U-Boot's eth numbering. */
++	if (index)
++		snprintf(envname, sizeof(envname), "eth%daddr", index);
++	else
++		strcpy(envname, "ethaddr");
++	mac_read(ec_base, mac);
++	if (!eth_env_get_enetaddr(envname, want)) {
++		if (is_valid_ethaddr(mac)) {
++			memcpy(want, mac, 6);
++			mac_src = "kept, already in the EC";
++		} else if (!alpine_v2_eth_eeprom_mac(pdev, want)) {
++			mac_src = "from the board EEPROM";
++		}
++	} else {
++		mac_src = envname;
++	}
++	if (!mac_src) {
++		printf("  no MAC address (EC empty, no ethaddr, no EEPROM): Linux will pick a random one\n");
++		return ret ? ret : -ENOENT;
++	}
++	if (memcmp(mac, want, 6))
++		mac_write(ec_base, want);
++	if (verbose || memcmp(mac, want, 6))
++		printf("  MAC %pM (%s%s)\n", want,
++		       mac_src == envname ? "from env " : "", mac_src);
++
++	return ret;
++}
++
++int alpine_v2_eth_handoff_one(struct udevice *pdev, bool verbose)
++{
++	struct udevice *d;
++	int i;
++
++	for (i = 0; !dm_pci_find_device(ALPINE_V2_ETH_VENDOR, ALPINE_V2_ETH_DEVICE,
++					i, &d); i++)
++		if (d == pdev)
++			return handoff_one(pdev, i, verbose);
++
++	return -ENODEV;
++}
++
++int alpine_v2_eth_handoff(bool verbose)
++{
++	struct udevice *pdev;
++	int i, ret, err = 0;
++
++	for (i = 0; !dm_pci_find_device(ALPINE_V2_ETH_VENDOR, ALPINE_V2_ETH_DEVICE,
++					i, &pdev); i++) {
++		ret = handoff_one(pdev, i, verbose);
++		if (ret && !err)
++			err = ret;
++	}
++	if (!i)
++		printf("al_eth: no 1c36:0001 function on the PCI bus\n");
++
++	return i ? err : -ENODEV;
++}
++
++/* Last thing before Linux: it reads both during al_eth probe. */
++void board_prep_linux(struct bootm_headers *images)
++{
++	alpine_v2_eth_handoff(false);
++}
++
++#if IS_ENABLED(CONFIG_CMD_ALPINE_V2_ETH)
++static int do_aleth(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
++{
++	struct udevice *pdev;
++	int i;
++
++	if (argc != 2)
++		return CMD_RET_USAGE;
++	if (!strcmp(argv[1], "handoff"))
++		return alpine_v2_eth_handoff(true) ? CMD_RET_FAILURE : 0;
++	if (strcmp(argv[1], "info"))
++		return CMD_RET_USAGE;
++
++	/* Read-only: BARs, raw params, MAC validity, EEPROM MAC. */
++	for (i = 0; !dm_pci_find_device(ALPINE_V2_ETH_VENDOR, ALPINE_V2_ETH_DEVICE,
++					i, &pdev); i++) {
++		pci_dev_t bdf = dm_pci_get_bdf(pdev);
++		void __iomem *mac_base = bar_map(pdev, PCI_BASE_ADDRESS_2);
++		void __iomem *ec_base = bar_map(pdev, PCI_BASE_ADDRESS_4);
++		u8 mac[6];
++		u32 r[3];
++		u16 cmd;
++
++		dm_pci_read_config16(pdev, PCI_COMMAND, &cmd);
++		printf("al_eth %02x:%02x.%x: MAC BAR %p, EC BAR %p, command %04x, DT node %s\n",
++		       PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), mac_base, ec_base,
++		       cmd, ofnode_valid(dev_ofnode(pdev)) ?
++		       ofnode_get_name(dev_ofnode(pdev)) : "none");
++		if (!mac_base || !ec_base || !(cmd & PCI_COMMAND_MEMORY)) {
++			printf("  memory decode off or BARs unassigned: not reading\n");
++			continue;
++		}
++		r[0] = readl(mac_base + ALPINE_V2_ETH_PARAMS1);
++		r[1] = readl(mac_base + ALPINE_V2_ETH_PARAMS2);
++		r[2] = readl(mac_base + ALPINE_V2_ETH_PARAMS3);
++		if (r[0])
++			params_print("present", r);
++		else
++			printf("  board params: not set (%08x %08x %08x)\n", r[0], r[1], r[2]);
++		mac_read(ec_base, mac);
++		printf("  EC MAC: %pM%s\n", mac, is_valid_ethaddr(mac) ? "" : " (not valid)");
++		if (!alpine_v2_eth_eeprom_mac(pdev, mac))
++			printf("  EEPROM MAC: %pM\n", mac);
++	}
++	if (!i)
++		printf("al_eth: no 1c36:0001 function on the PCI bus\n");
++
++	return 0;
++}
++
++U_BOOT_CMD(aleth, 2, 0, do_aleth,
++	   "Alpine V2 al_eth board params / MAC handoff to Linux",
++	   "info    - show BARs, board params and MAC (read-only)\n"
++	   "aleth handoff - write missing params / MAC now (as before booting Linux)");
++#endif
+diff --git a/include/alpine_v2_eth.h b/include/alpine_v2_eth.h
+new file mode 100644
+index 00000000..b36446e9
+--- /dev/null
++++ b/include/alpine_v2_eth.h
+@@ -0,0 +1,175 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Annapurna Labs Alpine V2 integrated Ethernet (PCI 1c36:0001): the state
++ * the vendor al_eth driver (Linux, and the vendor U-Boot) expects a boot
++ * loader to leave behind.
++ *
++ * "Board params" are three scratch registers in the MAC BAR (BAR 2) that
++ * describe how the port is wired; al_eth refuses to probe without them
++ * ("board info not available"). The MAC address is forwarding MAC entry 0
++ * in the EC BAR (BAR 4); without it al_eth picks a random address. An FLR
++ * clears both, so whoever resets the function saves and restores them.
++ *
++ * Register offsets and field layout are those of the Annapurna HAL
++ * (al_hal_eth_main.c: al_eth_board_params_set/get, al_eth_mac_addr_store/
++ * read) for Ethernet unit revisions 1 to 3; Alpine V2 is revision 2. The
++ * encoder below is pure C so it can be checked against the HAL on a host.
++ */
++#ifndef __ALPINE_V2_ETH_H
++#define __ALPINE_V2_ETH_H
++
++#define ALPINE_V2_ETH_VENDOR		0x1c36
++#define ALPINE_V2_ETH_DEVICE		0x0001	/* integrated "standard" Ethernet */
++
++/* MAC BAR (BAR 2) */
++#define ALPINE_V2_ETH_PARAMS1		0x004	/* mac_1g.scratch */
++#define ALPINE_V2_ETH_PARAMS2		0x404	/* mac_10g.scratch */
++#define ALPINE_V2_ETH_PARAMS3		0x00c	/* mac_1g.mac_0 */
++/* EC BAR (BAR 4) */
++#define ALPINE_V2_ETH_FWD_MAC0_L	0x868	/* fwd_mac[0].data_l: MAC bytes 2..5 */
++#define ALPINE_V2_ETH_FWD_MAC0_H	0x86c	/* fwd_mac[0].data_h: MAC bytes 0..1 */
++
++/* enum al_eth_board_media_type */
++#define ALPINE_V2_ETH_MEDIA_RGMII	1
++#define ALPINE_V2_ETH_MEDIA_SGMII	3
++/* enum al_eth_board_ext_phy_if, al_eth_board_1g_speed, al_eth_board_mdio_freq */
++#define ALPINE_V2_ETH_PHY_IF_MDIO	0
++#define ALPINE_V2_ETH_SPEED_1000M	0
++#define ALPINE_V2_ETH_SPEED_100M	1
++#define ALPINE_V2_ETH_SPEED_10M		2
++#define ALPINE_V2_ETH_MDIO_2_5MHZ	0
++/* enum al_eth_ref_clk_freq */
++#define ALPINE_V2_ETH_REF_CLK_500MHZ	3
++
++/* The fields a 1G port (RGMII/SGMII, no SerDes, no retimer) uses. */
++struct alpine_v2_eth_params {
++	unsigned int media_type;	/* params1 [3:0] */
++	unsigned int phy_exist;		/* params1 [4] */
++	unsigned int phy_mdio_addr;	/* params1 [9:5] */
++	unsigned int mdio_freq;		/* params1 [15:14] */
++	unsigned int phy_if;		/* params1 [21:20] */
++	unsigned int an_mode_in_band;	/* params1 [22] */
++	unsigned int ref_clk_freq;	/* params1 [31:29] */
++	unsigned int an_disable;	/* params2 [2]: 1G autoneg off */
++	unsigned int speed;		/* params2 [4:3]: ALPINE_V2_ETH_SPEED_* */
++	unsigned int half_duplex;	/* params2 [5] */
++};
++
++/*
++ * Encode as al_eth_board_params_set() does. All other fields (SFP, KR,
++ * SerDes group/lane, retimer, GPIOs: params3) are zero. Returns 0, or -1
++ * if a value does not fit its field (nothing is written then) or params1
++ * would be 0, which the HAL reads as "not set".
++ */
++static inline int alpine_v2_eth_params_encode(const struct alpine_v2_eth_params *p,
++					      unsigned int reg[3])
++{
++	if (p->media_type > 0xf || p->phy_exist > 1 || p->phy_mdio_addr > 0x1f ||
++	    p->mdio_freq > 3 || p->phy_if > 3 || p->an_mode_in_band > 1 ||
++	    p->ref_clk_freq > 7 || p->an_disable > 1 || p->speed > 3 ||
++	    p->half_duplex > 1)
++		return -1;
++
++	reg[0] = p->media_type << 0 | p->phy_exist << 4 | p->phy_mdio_addr << 5 |
++		 p->mdio_freq << 14 | p->phy_if << 20 | p->an_mode_in_band << 22 |
++		 p->ref_clk_freq << 29;
++	reg[1] = p->an_disable << 2 | p->speed << 3 | p->half_duplex << 5;
++	reg[2] = 0;
++
++	return reg[0] ? 0 : -1;
++}
++
++/* fwd_mac[0] as al_eth_mac_addr_store() writes it / _read() reads it. */
++static inline void alpine_v2_eth_mac_encode(const unsigned char mac[6],
++					    unsigned int *lo, unsigned int *hi)
++{
++	*lo = (unsigned int)mac[2] << 24 | mac[3] << 16 | mac[4] << 8 | mac[5];
++	*hi = mac[0] << 8 | mac[1];
++}
++
++static inline void alpine_v2_eth_mac_decode(unsigned int lo, unsigned int hi,
++					    unsigned char mac[6])
++{
++	mac[0] = (hi >> 8) & 0xff;
++	mac[1] = hi & 0xff;
++	mac[2] = (lo >> 24) & 0xff;
++	mac[3] = (lo >> 16) & 0xff;
++	mac[4] = (lo >> 8) & 0xff;
++	mac[5] = lo & 0xff;
++}
++
++/*
++ * MAC base address (TLV 0x24) from an ONIE TlvInfo image (header
++ * "TlvInfo\0", version 1, big-endian total length, TLVs, CRC-32 TLV 0xfe
++ * over everything before its value). @crc is zlib/U-Boot crc32().
++ * Returns 0, -1 bad header, -2 CRC mismatch, -3 no MAC TLV, -4 no CRC TLV.
++ */
++#define ALPINE_V2_TLV_HDR_LEN	11
++static inline int alpine_v2_onie_tlv_mac(const unsigned char *buf, unsigned int size,
++					 unsigned char mac[6],
++					 unsigned int (*crc)(unsigned int,
++							     const unsigned char *,
++							     unsigned int))
++{
++	static const char sig[8] = "TlvInfo";
++	unsigned int len, end, pos, i;
++	int found = 0;
++
++	if (size < ALPINE_V2_TLV_HDR_LEN)
++		return -1;
++	for (i = 0; i < 8; i++)
++		if (buf[i] != (unsigned char)sig[i])
++			return -1;
++	len = buf[9] << 8 | buf[10];
++	if (buf[8] != 1 || len > size - ALPINE_V2_TLV_HDR_LEN)
++		return -1;
++	end = ALPINE_V2_TLV_HDR_LEN + len;
++	for (pos = ALPINE_V2_TLV_HDR_LEN; pos + 2 <= end; pos += 2 + buf[pos + 1]) {
++		unsigned int type = buf[pos], tlen = buf[pos + 1];
++
++		if (pos + 2 + tlen > end)
++			return -1;
++		if (type == 0x24 && tlen == 6) {
++			for (i = 0; i < 6; i++)
++				mac[i] = buf[pos + 2 + i];
++			found = 1;
++		} else if (type == 0xfe && tlen == 4) {
++			unsigned int want = (unsigned int)buf[pos + 2] << 24 |
++					    buf[pos + 3] << 16 | buf[pos + 4] << 8 |
++					    buf[pos + 5];
++
++			if (crc(0, buf, pos + 2) != want)
++				return -2;
++			return found ? 0 : -3;
++		}
++	}
++
++	return -4;
++}
++
++#ifdef __UBOOT__
++#include <linux/types.h>
++
++struct udevice;
++
++/*
++ * Make sure function @pdev (1c36:0001) carries board params and a MAC
++ * address before an OS sees it. Params already present are kept (the
++ * firmware's are authoritative); missing ones are written from the PCI
++ * device's DT node (phy-mode + fixed-link). MAC: env "ethaddr" if set,
++ * else the one already in the EC, else the board EEPROM. Prints what it
++ * found and did. Returns 0 when both are in place afterwards.
++ */
++int alpine_v2_eth_handoff_one(struct udevice *pdev, bool verbose);
++
++/* alpine_v2_eth_handoff_one() for every 1c36:0001 function. */
++int alpine_v2_eth_handoff(bool verbose);
++
++/*
++ * MAC base address from the ONIE TlvInfo EEPROM that the device's DT node
++ * names in "amazon,mac-eeprom" (TLV 0x24, CRC checked). 0 or -errno.
++ */
++int alpine_v2_eth_eeprom_mac(struct udevice *pdev, unsigned char mac[6]);
++#endif
++
++#endif
+-- 
+2.56.0
+

@@ -5,7 +5,8 @@
      banner, entry report, relocation below the /reserved-memory top range,
      then bootflow scan over ECAM -> AHCI -> SCSI -> GPT -> ext4 -> extlinux
      -> booti of a probe "kernel", which must see EL2, a valid DTB and the
-     reserved ranges in its memreserve map (ft_board_setup).
+     reserved ranges in its memreserve map (ft_board_setup). On the way the
+     al_eth handoff (board_prep_linux) must run and report no NIC.
   2. From that U-Boot's prompt (MMU and caches on), "go" to a second copy
      loaded elsewhere: it must report the MMU-on entry and reach a prompt.
 usage: qemu-test.py <qemu-system-aarch64> <u-boot.bin> <disk.img>
@@ -76,6 +77,8 @@ try:
     r.buf = b""
     r.send("bootflow scan -lb")
     r.until(r"ahci_scsi\S* /boot/extlinux/extlinux\.conf", 60)
+    # board_prep_linux: the al_eth handoff runs and copes with no NIC.
+    r.until(r"al_eth: no 1c36:0001 function on the PCI bus", 60)
     r.until(r"Starting kernel", 60)
     r.until(r"PROBE: EL2 x0=0x[0-9a-f]{16} magic=ok", 30)
     r.until(r"PROBE: rsv 0x0000000040000000 0x0000000000100000", 10)
