@@ -27,7 +27,13 @@
   the PSU1 alarm. Disk install not done yet. Raw report: `inventory/u01/nixos-first-boot-private.txt`.
   Open from that boot: kernel was misaligned at 0x04080000 (now 0x04200000); `show power`
   INA219 on i2c-7 reads 0 (unverified); tpm_i2c_infineon "could not request locality";
-  al_eth "serdes regs base failed" (harmless, RGMII); `reboot` not yet tested.
+  al_eth "serdes regs base failed" (harmless, RGMII).
+- 2026-11-15 round 2 (lean kernel, 1454 modules): `smoke.py --reboot` **18/18**. Reboot is a full
+  CPLD board reset from the kernel module `dmc12_cpld_reset` (reboot notifier; WDT flag 0x03 after).
+  A systemd-shutdown hook never ran in NixOS's exitrd. Fan policy uC 60 C / board 45 C holds the 2000 RPM
+  floor (uC ~53 C). node_exporter + dmc12-metrics serve (182 dmc12_* series); `dmc12_cpld_alarm`
+  reads 0 for alarms interruptmon has masked (PSU1), so use `dmc12_psu_present`. Chainload
+  U-Boot with patch 0017: fdt/initrd_high 64-bit, coherency regs 0xf0090004=7, 0xf0094000=0xc0000001.
 - Monitoring (built + offline-tested, not yet imported or run on u01): `boards/dmc12/monitoring.nix` =
   upstream node_exporter :9100 + read-only `dmc12_*` producer (`nix/packages/dmc12-metrics`), Grafana `ai-re-dmc12`.
 - **Upstream U-Boot 2026.10** chainloads into RAM from the factory `bootm` and works on
