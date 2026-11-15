@@ -26,8 +26,8 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
 
 - `nix build path:./nix#uboot-dmc12-chainload` → `u-boot.uimage` (for `bootm`),
   `u-boot.bin` (for `go`/`booti`), `u-boot`, `.map`, `.dtb`, `.config`.
-  Current (with Ethernet, = `eth-b`): `/nix/store/rn2wy3hjmd08qnfp03hvd53fkd6h16wg-…-2026.10`,
-  `u-boot.uimage` sha256 `95f8f510…`, `u-boot.bin` `1f485be5…`. `eth-a` (0018+0019
+  Current (with Ethernet, = `eth-b`): `/nix/store/5ivzlvicrzwnhyf7vpgja1zrk0s0kcva-…-2026.10`,
+  `u-boot.uimage` sha256 `062428a9…`, `u-boot.bin` `f4b4b4f3…`. `eth-a` (0018+0019
   only, built at commit 7e438d0; the later 0018 change only matters with the driver):
   `/nix/store/2j3xfn9znz0wavzxg3b3j80k4dmbh102-…`, uimage `6e16f48b…`. The
   hardware-tested build (no network): `/nix/store/7w61vis50vjz9p5vjm4vs4czbn0wsjba-…`,

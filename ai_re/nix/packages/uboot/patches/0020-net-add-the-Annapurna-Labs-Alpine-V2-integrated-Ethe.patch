@@ -40,7 +40,7 @@ Scope: alpine-v2.
  drivers/net/Kconfig                           |   11 +
  drivers/net/Makefile                          |    1 +
  drivers/net/al_eth/Makefile                   |   13 +
- drivers/net/al_eth/al_eth.c                   |  681 ++
+ drivers/net/al_eth/al_eth.c                   |  688 ++
  drivers/net/al_eth/al_hal_common.h            |   83 +
  drivers/net/al_eth/al_hal_eth.h               | 2749 +++++++
  drivers/net/al_eth/al_hal_eth_alu.h           |   95 +
@@ -66,7 +66,7 @@ Scope: alpine-v2.
  drivers/net/al_eth/al_hal_udma_regs_m2s.h     | 1158 +++
  drivers/net/al_eth/al_hal_udma_regs_s2m.h     |  997 +++
  drivers/net/al_eth/al_hal_unit_adapter_regs.h |  433 ++
- 29 files changed, 24881 insertions(+)
+ 29 files changed, 24888 insertions(+)
  create mode 100644 drivers/net/al_eth/Makefile
  create mode 100644 drivers/net/al_eth/al_eth.c
  create mode 100644 drivers/net/al_eth/al_hal_common.h
@@ -150,10 +150,10 @@ index 00000000..4866e9e6
 +CFLAGS_al_hal_eth_main.o += -Wno-unused-function -Wno-unused-variable
 diff --git a/drivers/net/al_eth/al_eth.c b/drivers/net/al_eth/al_eth.c
 new file mode 100644
-index 00000000..f1c573d6
+index 00000000..a5e5d3db
 --- /dev/null
 +++ b/drivers/net/al_eth/al_eth.c
-@@ -0,0 +1,681 @@
+@@ -0,0 +1,688 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Annapurna Labs Alpine V2 integrated Ethernet (PCI 1c36:0001), U-Boot
@@ -579,9 +579,14 @@ index 00000000..f1c573d6
 +		if (done >= descs)
 +			break;
 +		if (timer_get_us() - start > AL_ETH_TX_TIMEOUT_US) {
++			/*
++			 * The queue's state is unknown now: stop using it
++			 * until the next start() resets the function.
++			 */
 +			priv->tx_timeouts++;
-+			printf("%s: TX timeout (%d of %d descriptors done, %u so far)\n",
-+			       priv->name, done, descs, priv->tx_timeouts);
++			priv->running = false;
++			printf("%s: TX timeout (%d of %d descriptors done); port stopped until the next network command\n",
++			       priv->name, done, descs);
 +			return -ETIMEDOUT;
 +		}
 +		udelay(1);
@@ -605,7 +610,9 @@ index 00000000..f1c573d6
 +	if (!n)
 +		return -EAGAIN;
 +
-+	if (n != 1 || (pkt.flags & AL_ETH_RX_ERROR) || !pkt.bufs[0].len ||
++	/* As Linux al_eth: L2 error (FCS, length) or UDMA completion error. */
++	if (n != 1 || (pkt.flags & (AL_ETH_RX_ERROR | AL_UDMA_CDESC_ERROR)) ||
++	    !pkt.bufs[0].len ||
 +	    pkt.bufs[0].len > AL_ETH_BUF_LEN) {
 +		/* Drop: hand the buffers straight back, in ring order. */
 +		if (n != 1)
