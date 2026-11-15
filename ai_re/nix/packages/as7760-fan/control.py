@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Initial bring-up: hold full speed, expose RPM/temperatures and manual duty.
+"""AS7760 fan duty with a temperature guard; exposes RPM/temperatures.
 
-No automatic quiet curve: ASIC die temperature is not yet available. The
-monitor resets duty to 100%; stop it before an intentional manual adjustment.
+The monitor holds a fixed quiet duty (default 80%) while everything is
+healthy and cool, and goes to 100% on any sensor/fan error or when a board
+sensor reaches --hot; it returns to the quiet duty only after all sensors
+have been at or below --cool for a minute. This is a guard, not a tuned
+curve: the ASIC die temperature is not available, only four board sensors.
+Stop the service before an intentional manual adjustment.
 """
 import argparse
 import json
@@ -75,7 +79,10 @@ def main():
     sub.add_parser("status")
     setter = sub.add_parser("set")
     setter.add_argument("percent", type=int)
-    sub.add_parser("monitor")
+    mon = sub.add_parser("monitor")
+    mon.add_argument("--duty", type=int, default=80, help="quiet duty in percent (50..100)")
+    mon.add_argument("--hot", type=float, default=45.0, help="any board sensor at/above this (C): full speed")
+    mon.add_argument("--cool", type=float, default=40.0, help="all sensors at/below this (C) for a minute: quiet again")
     args = parser.parse_args()
     if args.command == "status":
         print(json.dumps(snapshot(), indent=2))
@@ -86,12 +93,29 @@ def main():
             raise SystemExit(0)
         signal.signal(signal.SIGTERM, stop)
         signal.signal(signal.SIGINT, stop)
+        if not 50 <= args.duty <= 100 or args.cool >= args.hot:
+            raise ValueError("need 50 <= duty <= 100 and cool < hot")
         try:
             counter = 0
+            calm = 0          # consecutive healthy+cool readings
+            target = 100      # start at full speed until proven calm
+            set_percent(100)
             while True:
-                set_percent(100)
                 data = snapshot()
-                if data["errors"] or counter % 12 == 0:
+                temps = data["temperatures_mC"].values()
+                hot = any(t >= args.hot * 1000 for t in temps)
+                cool = bool(temps) and all(t <= args.cool * 1000 for t in temps)
+                if data["errors"] or hot:
+                    calm = 0
+                    new = 100
+                else:
+                    calm = calm + 1 if cool else 0
+                    new = args.duty if calm >= 12 else target
+                changed = new != target
+                target = new
+                set_percent(target)   # re-assert every cycle
+                data["duty_percent"] = target
+                if data["errors"] or changed or counter % 12 == 0:
                     print(json.dumps(data), flush=True)
                 counter += 1
                 time.sleep(5)

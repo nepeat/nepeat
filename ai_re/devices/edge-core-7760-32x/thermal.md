@@ -85,7 +85,12 @@ as7760-fan set 70
 systemctl start as7760-thermal
 ```
 
-The monitor sets 100% every five seconds, including on exit via ExecStopPost.
+Since 2026-11-14 the monitor holds a quiet duty (default 80%, option
+`hardware.as7760Fan.duty`) while all four board sensors are healthy and at or
+below 40 °C, and goes to 100% on any error or at 45 °C (`hotC`/`coolC`). At
+80%: rotors about 15,100–18,800 rpm, board 29–31.5 °C with the ASIC
+initialised and idle. Not a tuned curve; ASIC die temperature is not used yet.
+It still sets 100% on exit via ExecStopPost.
 It reports missing/unreadable board sensors, a missing/stopped rotor, RPM below
 500, or board temperature ≥60 °C. This is monitoring with a fixed safe initial
 setting, not a verified thermal model or autonomous ASIC cooling algorithm.
