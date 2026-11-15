@@ -14,6 +14,8 @@ disassembled yet.
 - **I2C faces:** it emulates an **LM75A at 0x4A** (the "K2 SoC (uC)" sensor at Linux
   5-004a is the uC), and has a **management interface**, default slave **0x46**.
   Both can be switched on and off from U-Boot (`<enable/disable> [i2c slave address]`).
+  The uC also has a **FRU interface at I2C 0x30** (reported enabled on u01 by the owner's
+  `uc_fru*` query, 2026-11-15).
 - U-Boot links Annapurna's HAL for it: `al_uc_cmd_*` (command channel with a
   GPIO handshake: `uc_cmd_gpio`), `al_uc_shared_*` (shared data: FRU and "vt
   sensor" voltage/temperature records with valid flags), `al_uc_fru_burn`,

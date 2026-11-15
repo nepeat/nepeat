@@ -21,6 +21,9 @@
   `packages/{linux-alpine,al-eth}` (mainline 7.3.4, new DTS, CPLD reboot hook,
   interrupt monitor). Outputs `dmc12-netboot` (TFTP RAM boot) and `dmc12-disk-image`.
   Reimaging: `reimage.py` / `reimage.md`. **Not booted on hardware yet.**
+- **Upstream U-Boot 2026.10** chainloads into RAM from the factory `bootm` and works on
+  u01 (console, I2C/CPLD, PCIe, AHCI/SSD, CPLD reset): `u-boot-port.md`, `chainload_uboot.py`.
+  Nothing flashed.
 - **Left in:** the rdinit shell, powered on, at 10.60.2.10, with nothing mounted from disk.
   So no ser2net, and the AS7760's console on port 48 isn't served. A
   power-cycle returns it to the factory OS.

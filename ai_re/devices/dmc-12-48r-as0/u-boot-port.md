@@ -5,8 +5,14 @@ U-Boot 2026.10 into RAM and jumps to it. The new U-Boot boots Linux the modern w
 raw arm64 `Image` + `booti`, extlinux via `bootflow scan`, from the SATA SSD's ext4.
 Nothing is flashed. SPI NOR, the env and the SSD are only ever read.
 
-**Status:** builds, and passes static checks and a QEMU run of the same board code.
-**Not yet run on the DMC-12.** The first hardware test is below.
+**Status (2026-11-15, u01): RAM chainload works on hardware.** The factory `bootm`
+entered at EL2 with MMU+caches off. Console at 500 MHz, `DRAM: 3 GiB (total 4 GiB)`,
+relocated to 0xaff6a000. I2C through both muxes to the CPLD (0x01 = 0x88), internal
+PCIe ECAM (4 SoC devices), AHCI + SSD, GPT read. `bootflow scan -l` finds none (the
+factory SSD has no extlinux). `reset` → CPLD → stage2 in 2 s. Not run: `--go`,
+`--boot`, booting Linux. Missing: the `dm` command (the test script expects it), and
+external PCIe (the USB bridge; not needed in U-Boot). Transcript:
+`serial-chainload-20261115-042317.txt` (git-ignored).
 
 ## what exists
 
