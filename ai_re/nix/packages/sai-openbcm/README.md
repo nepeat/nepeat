@@ -7,7 +7,9 @@ BCM56960_A0) of the AS7760-32X from its big-endian ppc64 control plane, where
 no vendor SAI binary exists. Status: builds natively (fake) and cross
 (openbcm); everything above the SDK is tested on x86_64 with the fake
 backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF;
-[sonic-nixos PROGRESS](../../../devices/sonic-nixos/PROGRESS.md)).
+[sonic-nixos PROGRESS](../../../devices/sonic-nixos/PROGRESS.md)). LAG, SAI
+temperatures, the syncd temperature publisher and `--shutdown-at` are
+fake-tested only.
 
 ## Design
 
@@ -15,7 +17,7 @@ backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF
  syncd (sairedis-openbcm)
    | sai_api_query / generic create,get,set,remove (C ABI, SAI 1.19)
  SAI layer  src/sai_*.cpp      object model, OIDs, attribute handling, events
-   | ob::Backend (src/backend.h): ~50 operations, SAI status codes
+   | ob::Backend (src/backend.h): ~55 operations, SAI status codes
    +-- fake     src/fake_backend.cpp   in-memory, deterministic, no hardware
    +-- openbcm  src/openbcm_backend.cpp -> src/sdk_glue.c -> libsdk.so (BCM API, diag shell, KNET kcom)
 ```
@@ -56,6 +58,8 @@ backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF
 | `SAI_OPENBCM_UNIT` | 0 | SDK unit |
 | `SAI_OPENBCM_RIF_VLAN_BASE` | 4094 | port router interfaces take internal VLANs counting down from here |
 | `SAI_OPENBCM_LOG_STDERR` | 0 | also log to stderr (always syslog, `sai-openbcm` prefix, per-API level from `sai_log_set`, default WARN) |
+| `SAI_OPENBCM_TEMP_FILE` / `_PROM` | none | while the switch exists, publish the ASIC temperature to these files, exactly as `openbcm-asic-temp --out/--prom` (same code, `src/temp_files.c`); neither set: no publisher thread |
+| `SAI_OPENBCM_TEMP_INTERVAL` | 5 | publisher period in seconds (1..3600) |
 | `SAI_OPENBCM_FAKE_PORTS` / `_LANES` / `_SPEED` | 32 / 4 / 100000 | fake: port count, lanes per port, initial speed |
 | `SAI_OPENBCM_FAKE_LINK` | `admin` | fake: link follows admin state; `none`: never (loopback still links) |
 
@@ -78,6 +82,16 @@ backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF
   holder (`openbcm-asic-temp`, the wrapped `bcm.user`, another syncd) has it.
 - Tomahawk management ports (`PBMP_MANAGEMENT`, xe0/xe1 in the factory
   configs) are not exposed as SAI ports.
+- **Temperature files** (`src/sai_temp.cpp`): written only after a
+  successful switch create, removed on switch remove, at `exit()` and after
+  a failed or implausible read (outside -40..150 C), so fand sees "no
+  sensor" (fans to 100%), never an old reading. The fake never publishes on
+  a host with BDE devices. No over-temperature action in SAI mode: "init
+  all" armed the SDK's own handler (core PLL off at 125 C).
+- **LAG members** carry no L2/L3 state of their own: `create_lag_member`
+  fails (`OBJECT_IN_USE`) while the port has a bridge port or router
+  interface (orchagent removes the default ones first). A port's hostif and
+  KNET netdev are untouched by LAG membership.
 
 ## Supported objects and attributes
 
@@ -85,25 +99,26 @@ C/S/G = create/set/get. *stub* = stored and returned, not programmed.
 
 | object | supported | stubbed | not supported |
 | --- | --- | --- | --- |
-| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES; C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, ACL/temperature/resource counters, switch stats, INIT_SWITCH=false |
+| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES, MAX_NUMBER_OF_TEMP_SENSORS, TEMP_LIST / MAX_TEMP / AVERAGE_TEMP (live PVTMON read, whole C rounded); C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, ACL/resource counters, switch stats, INIT_SWITCH=false |
 | PORT | G: TYPE, HW_LANE_LIST (SDK physical lanes), OPER_STATUS (live), SPEED/OPER_SPEED (live), SUPPORTED_SPEED, SUPPORTED_FEC_MODE, SUPPORTED_AUTO_NEG_MODE, QOS_NUMBER_OF_QUEUES, QOS_QUEUE_LIST, NUMBER_OF_INGRESS_PRIORITY_GROUPS, INGRESS_PRIORITY_GROUP_LIST, QOS_NUMBER_OF_SCHEDULER_GROUPS (0); S/G: ADMIN_STATE, SPEED, MTU (frame max = MTU + 8), FEC_MODE (NONE/RS/FC), AUTO_NEG_MODE, PORT_VLAN_ID, LOOPBACK_MODE (NONE/MAC/PHY); stats: IF_IN/OUT_{OCTETS,UCAST,NON_UCAST,BROADCAST,MULTICAST,DISCARDS,ERRORS}, IF_IN_UNKNOWN_PROTOS (read; clear-all) | MEDIA_TYPE, INTERFACE_TYPE, DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, LINK_TRAINING_ENABLE, GLOBAL_FLOW_CONTROL_MODE, PRIORITY_FLOW_CONTROL, UPDATE_DSCP, FULL_DUPLEX_MODE, IPG, PKT_TX_ENABLE, HOST_TX_SIGNAL_ENABLE, AUTO_NEG_FEC_MODE_OVERRIDE | create/remove (breakout), ADVERTISED_SPEED, PORT_SERDES, QoS map/policer/buffer bindings, PFC, per-counter clear, stats_ext READ_AND_CLEAR |
 | QUEUE / INGRESS_PRIORITY_GROUP | 8 + 8 per port, G: TYPE, INDEX, PORT, PARENT_SCHEDULER_NODE / PORT, INDEX, BUFFER_PROFILE (null) | | set, stats, scheduler groups |
 | VLAN | C/R; C/G VLAN_ID; G MEMBER_LIST, STP_INSTANCE (default); the CPU is a tagged member of every VLAN | LEARN_DISABLE, MAX_LEARNED_ADDRESSES, flood control types, MCAST lookup key types, META_DATA, CUSTOM_IGMP_SNOOPING_ENABLE | stats, flood groups, ACL bindings |
 | VLAN_MEMBER | C/R/G; VLAN_TAGGING_MODE UNTAGGED/TAGGED (S re-programs) | | PRIORITY_TAGGED |
 | BRIDGE | default .1Q only; G TYPE, PORT_LIST | MAX_LEARNED_ADDRESSES, LEARN_DISABLE, flood control | .1D bridges |
-| BRIDGE_PORT | type PORT, C/R/G; S/G ADMIN_STATE (kept), FDB_LEARNING_MODE (HW/DISABLE/DROP/CPU -> bcm_port_learn) | MAX_LEARNED_ADDRESSES, INGRESS/EGRESS_FILTERING, TAGGING_MODE, limit violation action | SUB_PORT, 1D_ROUTER, 1Q_ROUTER, TUNNEL |
-| FDB_ENTRY | C/R/S/G on .1Q VLANs: TYPE (STATIC/DYNAMIC), BRIDGE_PORT_ID, PACKET_ACTION (FORWARD/DROP); flush by bridge port / VLAN / type; LEARNED/MOVE/AGED notifications from the SDK's L2 callbacks | META_DATA, ALLOW_MAC_MOVE | .1D (bridge bv_id), flush of static-only on hardware (SDK has no static-only delete) |
+| BRIDGE_PORT | type PORT on a PORT or a LAG (VLAN membership and learning applied to every member), C/R/G; S/G ADMIN_STATE (kept), FDB_LEARNING_MODE (HW/DISABLE/DROP/CPU -> bcm_port_learn) | MAX_LEARNED_ADDRESSES, INGRESS/EGRESS_FILTERING, TAGGING_MODE, limit violation action | SUB_PORT, 1D_ROUTER, 1Q_ROUTER, TUNNEL |
+| FDB_ENTRY | C/R/S/G on .1Q VLANs (port or trunk destination): TYPE (STATIC/DYNAMIC), BRIDGE_PORT_ID, PACKET_ACTION (FORWARD/DROP); flush by bridge port / VLAN / type; LEARNED/MOVE/AGED notifications from the SDK's L2 callbacks | META_DATA, ALLOW_MAC_MOVE | .1D (bridge bv_id), flush of static-only on hardware (SDK has no static-only delete) |
 | STP | default instance G: VLAN_LIST, BRIDGE_ID, PORT_LIST (empty) | | create, STP ports |
-| HOSTIF | type NETDEV on a front-panel PORT = KNET netif (TX to the port) + RX filter on the ingress port; C/G NAME, OBJ_ID, TYPE; C/S/G OPER_STATUS (netdev carrier via /proc/bcm/knet/link), VLAN_TAG (STRIP/KEEP/ORIGINAL: filter re-created), QUEUE (kept) | | FD, GENETLINK, LAG/VLAN objects, packet RX/TX API |
+| HOSTIF | type NETDEV on a front-panel PORT = KNET netif (TX to the port) + RX filter on the ingress port (LAG members keep theirs: teamd runs on them); C/G NAME, OBJ_ID, TYPE; C/S/G OPER_STATUS (netdev carrier via /proc/bcm/knet/link), VLAN_TAG (STRIP/KEEP/ORIGINAL: filter re-created), QUEUE (kept) | | FD, GENETLINK, LAG/VLAN objects, packet RX/TX API |
 | HOSTIF_TRAP_GROUP | default + C/R/S/G: ADMIN_STATE, QUEUE (kept) | | POLICER (no policer objects) |
-| HOSTIF_TRAP | C/R/S/G TRAP_TYPE, PACKET_ACTION, TRAP_PRIORITY, TRAP_GROUP. Programmed (switch controls): ARP request/response, DHCP, IGMP, MLD, IPv6 ND | all other trap types are kept but **not programmed** (LLDP, LACP, BGP, ... rely on SDK defaults / routes to CPU) | user-defined traps |
+| HOSTIF_TRAP | C/R/S/G TRAP_TYPE, PACKET_ACTION, TRAP_PRIORITY, TRAP_GROUP. Programmed: ARP request/response, DHCP, IGMP, MLD, IPv6 ND (switch controls); LACP, LLDP (exact L2 user entry, BPDU flag: CPU only, or discard when not trapped; removed: discard) | all other trap types are kept but **not programmed** (BGP, ... rely on SDK defaults / routes to CPU) | user-defined traps |
 | HOSTIF_TABLE_ENTRY | C/R/G (kept): WILDCARD + NETDEV_PHYSICAL/LOGICAL_PORT is what the per-port KNET filters already do | other types/channels kept, not programmed | set |
 | VIRTUAL_ROUTER | default only; G ADMIN_V4/V6_STATE, SRC_MAC_ADDRESS | | create (VRFs) |
-| ROUTER_INTERFACE (M2) | PORT (internal VLAN from 4094 down, port untagged member + PVID, L3 intf), VLAN, LOOPBACK (no SDK object); C/S/G SRC_MAC_ADDRESS (my-station entries), MTU; ADMIN_V4/V6_STATE kept | NEIGHBOR_MISS_PACKET_ACTION, V4/V6_MCAST_ENABLE, LOOPBACK_PACKET_ACTION, IS_VIRTUAL, NAT_ZONE_ID, DISABLE_DECREMENT_TTL, ADMIN_MPLS_STATE | SUB_PORT, BRIDGE, MPLS, stats |
+| ROUTER_INTERFACE (M2) | PORT on a port or a LAG (internal VLAN from 4094 down, port / every member untagged + PVID, L3 intf; neighbors egress to the trunk), VLAN, LOOPBACK (no SDK object); C/S/G SRC_MAC_ADDRESS (my-station entries), MTU; ADMIN_V4/V6_STATE kept | NEIGHBOR_MISS_PACKET_ACTION, V4/V6_MCAST_ENABLE, LOOPBACK_PACKET_ACTION, IS_VIRTUAL, NAT_ZONE_ID, DISABLE_DECREMENT_TTL, ADMIN_MPLS_STATE | SUB_PORT, BRIDGE, MPLS, stats |
 | NEIGHBOR_ENTRY (M2) | C/R/G DST_MAC_ADDRESS (S: egress replace), PACKET_ACTION FORWARD/DROP/TRAP, NO_HOST_ROUTE; egress port from the port RIF, or the FDB for VLAN RIFs (CPU until known) | | remove_all, encap index |
 | NEXT_HOP (M2) | type IP, C/R/G; uses the neighbor's egress object (CPU until the neighbor exists, then routes are re-pointed) | | other types |
 | ROUTE_ENTRY (M2) | default VR, IPv4/IPv6, C/R/S/G PACKET_ACTION (FORWARD/DROP/TRAP), NEXT_HOP_ID = next hop, RIF (connected: to CPU), CPU port (IP2ME) | META_DATA | next-hop groups (ECMP) |
-| LAG | | | all (NOT_IMPLEMENTED) |
+| LAG | SDK trunk (bcm_trunk_*, PSC RTAG 6 = src+dst IP); C/R; G PORT_LIST (LAG_MEMBER ids); C/S/G PORT_VLAN_ID (every member); INGRESS/EGRESS_ACL null only | DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, TPID | SYSTEM_PORT_AGGREGATE_ID, hash/ARS, labels, sampling, ACLs |
+| LAG_MEMBER | C/R/G LAG_ID, PORT_ID; C/S/G EGRESS_DISABLE, INGRESS_DISABLE (BCM_TRUNK_MEMBER_*); a joining port takes the LAG's VLANs, PVID, learning and RIF VLAN, a leaving one drops them (PVID 1, learning HW) | WEIGHT | bulk create/remove |
 | everything else (ACL, QoS maps, buffers, policers, mirror, tunnels, ...) | | | `sai_api_query` -> NOT_IMPLEMENTED |
 
 Global: `sai_api_initialize/query/uninitialize`, `sai_log_set`,
@@ -145,8 +160,11 @@ CXXFLAGS=-I<SAI/experimental> check`.
   default membership and removal, VLAN/bridge-port/member semantics, FDB
   static/dynamic/flush and learn/age notifications, hostif/KNET mapping,
   traps, L3 (port RIF internal VLAN, next hop before neighbor, IP2ME, default
-  drop, prefix canonicalisation, in-use checks), capability table, dump,
-  remove/re-create.
+  drop, prefix canonicalisation, in-use checks), LAG (members and disable
+  flags, PVID, bridge port + VLAN + FDB on the trunk, join/leave, port RIF +
+  neighbor on the trunk, LACP trap, member hostifs), temperature attributes
+  and rounding, the temperature publisher (files, failed/implausible read,
+  removal), capability table, dump, remove/re-create.
 - `test-syncd.nix` (NixOS VM): redis on `/var/run/redis/redis.sock`, syncd
   (`-SUu -z redis_sync`) on the fake, `tests/sai_smoke.py` (the
   sai_smoke.py calls with assertions, plus admin-up of port 0), then ASIC_DB:
@@ -162,7 +180,8 @@ swss-common `database_config.json`, and the factory SDK config
 repo**; copy it from the extracted factory image (`nixos-build/vendor-root/etc/knet/`).
 
 1. Nothing else may own the ASIC: `systemctl stop openbcm-asic-temp` (fand
-   goes to 100% until it is started again), no `bcm.user` running. On the
+   goes to 100% until syncd's publisher writes the file, see step 3), no
+   `bcm.user` running. On the
    NixOS system the modules and nodes are already there; by hand:
    `insmod linux-kernel-bde.ko himem=0 maxpayload=128 dmasize=16M`,
    `insmod linux-user-bde.ko`, `insmod linux-bcm-knet.ko`;
@@ -175,7 +194,11 @@ repo**; copy it from the extracted factory image (`nixos-build/vendor-root/etc/k
    SAI_OPENBCM_BACKEND=openbcm
    SAI_INIT_CONFIG_FILE=/root/config-32x100.bcm
    SAI_OPENBCM_LOG_STDERR=1
+   SAI_OPENBCM_TEMP_FILE=/run/asic/temperature
+   SAI_OPENBCM_TEMP_PROM=/run/prometheus-textfile/asic.prom
    ```
+   (the paths [switch/openbcm.nix](../../modules/switch/openbcm.nix) gives
+   openbcm-asic-temp; fand keeps its sensor while syncd runs).
 4. syncd in the foreground (logs to the terminal and syslog):
    `cd /root && <sairedis-openbcm>/bin/syncd -SUu -z redis_sync -p /root/sai-openbcm.profile`.
    It waits for the client's switch create.
@@ -201,14 +224,25 @@ repo**; copy it from the extracted factory image (`nixos-build/vendor-root/etc/k
 `bin/openbcm-asic-temp` (SDK builds only, [src/asic_temp.c](src/asic_temp.c)):
 the ASIC die temperature monitors via `ob_sdk_attach` (attach only, no
 `init all`) + `ob_sdk_temperatures`. `--once` prints them; `--out FILE
-[--prom FILE] [--interval S]` publishes the hottest (C) and `switch_asic_*`
-metrics, removes both on exit or a failed read, exits after 3 failed reads.
+[--prom FILE] [--interval S] [--shutdown-at C]` publishes the hottest (C) and
+`switch_asic_*` metrics, removes both on exit or a failed read, exits 4 after
+3 failed reads.
 On a Tomahawk that nothing initialised since power-on it first programs the
 S-bus ring map and PVTMON trim exactly as `soc_tomahawk_chip_reset` does
 (without that, S-channel reads time out). Run as `openbcm-asic-temp.service`
 by [switch/openbcm.nix](../../modules/switch/openbcm.nix); fand reads its file.
-Not yet: SAI `TEMP_LIST`/`MAX_TEMP` and publishing the same file from syncd, so
-the fans run at 100% while syncd owns the chip.
+Under syncd the same files come from libsai (`SAI_OPENBCM_TEMP_*`, same writer).
+
+Over-temperature: only "init all" arms the chip's own protection, so the
+reader does it in software: `--shutdown-at C` (default 125, the SDK's
+`_SOC_TH_DEF_TEMP_MAX`; 0 = off). Any current monitor at or above C on 2
+consecutive good reads: a CRITICAL line on stderr, both files removed, the
+core PLL powered down exactly as `soc_tomahawk_temperature_intr` does
+(`TOP_CORE_PLL0_CTRL_1` ISO_IN=1, PWRON=0, PWRON_LDO=0; Tomahawk only), exit
+5. The ASIC then needs a power cycle. Only the PLL step: the SDK handler also
+resets the pipelines and powers down the serdes first. Not in `--once`; the
+glue refuses after `init all` (SAI mode has the SDK handler). Untested on
+hardware.
 
 ## Known gaps and risks
 
@@ -223,17 +257,27 @@ the fans run at 100% while syncd owns the chip.
   the target, no on-wire structs are exchanged.
 - **KNET**: netifs are TX_LOCAL_PORT on the port (bypass switch logic) with the
   port's PVID; RX only for packets the ASIC sends to the CPU, which needs traps
-  or CPU VLAN membership. LLDP/LACP/BGP traps are not programmed (no switch
-  control on this path; would need FP rules), so control-plane protocols
-  will be incomplete until then. Packets not taken by a KNET filter are
-  dropped by our RX handler (no SAI packet API).
+  or CPU VLAN membership. LACP and LLDP are trapped (L2 user entries; "init
+  all" already sends 01:80:c2:00:00:0x to the CPU); BGP and other L3
+  protocol traps are not programmed (no switch control on this path; would
+  need FP rules), so those control-plane protocols are incomplete. Packets
+  not taken by a KNET filter are dropped by our RX handler (no SAI packet API).
+- **LAG**: `INGRESS_DISABLE` is the SDK's `BCM_TRUNK_MEMBER_INGRESS_DISABLE`:
+  frames received on that member are handled as from a plain port (not
+  dropped, learned on the port, which has no SAI bridge port, so no FDB
+  event). Trunk hashing is fixed (RTAG 6); LAG hash attributes are stubs.
+  Not run on hardware or under orchagent yet.
+- **orchagent on big-endian**: PortsOrch writes `attr.value.u32` for the
+  `sai_uint16_t` PORT_VLAN_ID (port and LAG); sairedis serializes `.u16`,
+  which on ppc64 is the upper half, i.e. 0. We reject VLAN 0
+  (`INVALID_ATTR_VALUE`); orchagent needs a patch (`.u16 = pvid`).
 - **Threads**: SDK linkscan, counter, L2X and RX threads run inside syncd; our
   callbacks only queue. `remove_switch` unregisters callbacks but cannot
   detach the SDK (no clean detach path); a second create in the same process
   re-runs `init all` only (untested on hardware).
 - **DMA**: KNET + SDK RX use the BDE DMA pool (`dmasize=16M` factory value);
   untested under load with syncd.
-- **Not implemented**: LAG, ECMP (next-hop groups), ACL, QoS/buffers/
+- **Not implemented**: ECMP (next-hop groups), ACL, QoS/buffers/
   schedulers/policers (CoPP has no rate limits), port breakout, warm boot
   (`RESTART_WARM` is only stored), mirror, tunnels, sFlow. orchagent has not
   been run against this SAI; its init will hit some of these as errors.

@@ -1,0 +1,36 @@
+# sai_lag_temp_smoke.py on the AS7760 through syncd (sai-openbcm, openbcm backend), 2026-11-15
+# profile: SAI_INIT_CONFIG_FILE=<factory 32x100 config>, SAI_OPENBCM_TEMP_FILE=/run/asic/temperature, SAI_OPENBCM_TEMP_PROM=/run/prometheus-textfile/asic.prom
+PASS create_switch 0
+PASS max temp sensors 0
+  sensors 8
+PASS temp list (count probe) 0
+  needs 8
+PASS max temp 0
+  max 39
+PASS average temp 0
+  avg 37
+PASS remove vlan1 member 0
+PASS remove bridge port 0
+PASS remove vlan1 member 0
+PASS remove bridge port 0
+PASS create lag 0
+  lag 0x2000000000267
+PASS create lag member 0x1000000000004 0
+PASS create lag member 0x1000000000005 0
+PASS lag port list 0
+  members ['0x1b000000000268', '0x1b000000000269']
+PASS member egress disable 0
+PASS member egress disable readback 0
+PASS remove lag member 0
+PASS remove lag member 0
+PASS remove lag 0
+SMOKE_OK
+--- syncd log (sai-openbcm lines)
+sai-openbcm NOTICE api=1: initializing backend openbcm
+sai-openbcm NOTICE api=1: SDK init: unit 0, config /root/config-32x100.bcm, rc (none)
+sai-openbcm NOTICE api=1: SDK init: ok: stale KNET netifs 0 filters 0 destroyed
+sai-openbcm NOTICE api=1: switch created: 32 front-panel ports, backend openbcm
+sai-openbcm NOTICE api=1: ASIC temperature: 8 monitors, max 38.4 C; every 5 s to /run/asic/temperature and /run/prometheus-textfile/asic.prom
+sai-openbcm NOTICE api=16: LAG created (trunk 0)
+sai-openbcm NOTICE api=16: LAG trunk 0: member ce30 (egress on, ingress on)
+sai-openbcm NOTICE api=16: LAG trunk 0: member ce31 (egress on, ingress on)

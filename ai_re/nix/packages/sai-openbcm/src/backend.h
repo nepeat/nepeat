@@ -8,6 +8,11 @@
 // 802.1Q VIDs, MACs are 6 bytes in network order, IP addresses are in
 // network byte order inside IpAddr (as in SAI). Every call returns a
 // sai_status_t; the openbcm backend maps BCM_E_* codes (see sdk_glue.c).
+//
+// Destinations: L2 entries, L2 flushes, L3 egress objects and FDB events
+// take a "dest": an SDK logical port, or lag_dest(trunk id) for a LAG.
+// Per-port settings (VLAN membership, PVID, learning) stay per physical
+// port; the SAI layer applies them to every LAG member.
 #pragma once
 
 extern "C" {
@@ -58,11 +63,22 @@ enum class PortStat {
 // Host-interface trap kinds the backend may know how to steer to the CPU.
 enum class TrapKind { ArpRequest, ArpResponse, Dhcp, Dhcpv6, Igmp, Mld, Nd, Lldp, Lacp, Stp, Other };
 
+constexpr int LAG_DEST_BIT = 0x40000000;   // = OB_LAG_DEST_BIT (sdk_glue.h)
+inline int lag_dest(int tid) { return LAG_DEST_BIT | tid; }
+inline bool is_lag_dest(int d) { return d >= 0 && (d & LAG_DEST_BIT) != 0; }
+inline int lag_tid(int d) { return d & ~LAG_DEST_BIT; }
+
+struct LagMember {
+    int hw = -1;
+    bool egress_disable = false;    // not in the distribution (hash) set
+    bool ingress_disable = false;   // SDK: received as a non-trunk port (not a drop)
+};
+
 struct FdbEvent {
     bool learned = true;            // false = aged / deleted by hardware
     uint8_t mac[6] = {0};
     uint16_t vid = 0;
-    int hw_port = -1;
+    int hw_port = -1;               // dest (port or lag_dest)
 };
 
 struct BackendConfig {
@@ -93,6 +109,10 @@ public:
     virtual int cpu_port() const = 0;
     virtual std::vector<PortInfo> ports() = 0;                   // front panel, SDK order
     virtual std::string hardware_info() = 0;
+    // ASIC die temperature monitors, tenths of a degree C (current, and the
+    // peak since the previous read). Thread-safe: the temperature publisher
+    // calls it without the SAI lock.
+    virtual sai_status_t asic_temperatures(std::vector<int>& cur, std::vector<int>& peak) = 0;
 
     // ports
     virtual sai_status_t port_admin_set(int hw, bool up) = 0;
@@ -118,10 +138,15 @@ public:
     // Front-panel members of a VLAN as the SDK has them (for the default VLAN).
     virtual sai_status_t vlan_members(uint16_t vid, std::vector<std::pair<int, bool>>& out) = 0;
 
-    // L2 table
+    // LAGs (SDK trunks). lag_set_members replaces the whole member list.
+    virtual sai_status_t lag_create(int& tid) = 0;
+    virtual sai_status_t lag_destroy(int tid) = 0;
+    virtual sai_status_t lag_set_members(int tid, const std::vector<LagMember>& members) = 0;
+
+    // L2 table (hw: dest)
     virtual sai_status_t l2_add(const uint8_t mac[6], uint16_t vid, int hw, bool is_static, bool discard) = 0;
     virtual sai_status_t l2_delete(const uint8_t mac[6], uint16_t vid) = 0;
-    // port/vid < 0: any. Static and/or dynamic entries.
+    // dest/vid < 0: any. Static and/or dynamic entries.
     virtual sai_status_t l2_flush(int hw, int vid, bool statics, bool dynamics) = 0;
     virtual sai_status_t l2_age_set(uint32_t seconds) = 0;
 
@@ -147,6 +172,7 @@ public:
     virtual sai_status_t l3_intf_destroy(int intf_id) = 0;
     virtual sai_status_t l3_station_add(const uint8_t mac[6], int& station_id) = 0;
     virtual sai_status_t l3_station_delete(int station_id) = 0;
+    // hw: dest (port or LAG)
     virtual sai_status_t l3_egress_create(int intf_id, const uint8_t dmac[6], int hw, uint16_t vid, int& egress_id) = 0;
     virtual sai_status_t l3_egress_update(int egress_id, int intf_id, const uint8_t dmac[6], int hw, uint16_t vid) = 0;
     virtual sai_status_t l3_egress_destroy(int egress_id) = 0;

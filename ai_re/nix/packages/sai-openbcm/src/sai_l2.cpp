@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// VLAN, VLAN_MEMBER, BRIDGE (default .1Q only), BRIDGE_PORT (type PORT),
-// FDB_ENTRY and STP (default instance only).
+// VLAN, VLAN_MEMBER, BRIDGE (default .1Q only), BRIDGE_PORT (type PORT, on
+// a port or a LAG), FDB_ENTRY and STP (default instance only).
 #include "sai_internal.h"
 
 namespace ob {
@@ -37,23 +37,37 @@ static const StubDef fdb_stubs[] = {
 #define NSTUB(x) (sizeof(x) / sizeof((x)[0]))
 
 // ---------------------------------------------------------------- helpers
-int bridge_port_hw(sai_object_id_t bport)
+int bridge_port_dest(sai_object_id_t bport)
 {
-    auto& c = ctx();
-    BridgePortObj* b = lookup(c.bridge_ports, bport);
+    BridgePortObj* b = lookup(ctx().bridge_ports, bport);
     if (!b || b->type != SAI_BRIDGE_PORT_TYPE_PORT) return -1;
-    PortObj* p = lookup(c.ports, b->port);
-    return p ? p->hw : -1;
+    return attach_dest(b->port);
 }
 
-sai_object_id_t bridge_port_of_hw(int hw)
+std::vector<int> bridge_port_phys(sai_object_id_t bport)
+{
+    BridgePortObj* b = lookup(ctx().bridge_ports, bport);
+    if (!b || b->type != SAI_BRIDGE_PORT_TYPE_PORT) return {};
+    return attach_phys(b->port);
+}
+
+sai_object_id_t bridge_port_of(sai_object_id_t obj)
+{
+    for (auto& b : ctx().bridge_ports)
+        if (b.second.type == SAI_BRIDGE_PORT_TYPE_PORT && b.second.port == obj) return b.first;
+    return 0;
+}
+
+sai_object_id_t bridge_port_of_dest(int dest)
 {
     auto& c = ctx();
-    auto it = c.hw2port.find(hw);
-    if (it == c.hw2port.end()) return 0;
-    for (auto& b : c.bridge_ports)
-        if (b.second.type == SAI_BRIDGE_PORT_TYPE_PORT && b.second.port == it->second) return b.first;
-    return 0;
+    if (is_lag_dest(dest)) {
+        for (auto& l : c.lags)
+            if (l.second.tid == lag_tid(dest)) return bridge_port_of(l.first);
+        return 0;
+    }
+    auto it = c.hw2port.find(dest);
+    return it == c.hw2port.end() ? 0 : bridge_port_of(it->second);
 }
 
 static Learn to_learn(int32_t m)
@@ -92,6 +106,34 @@ static sai_status_t stub_set(const StubDef (&defs)[N], StubMap& m, const sai_att
     if (!d) return attr_not_supported(i);
     m[a.id] = a.value;
     return SAI_STATUS_SUCCESS;
+}
+
+// A port joins / leaves a LAG that has a bridge port.
+sai_status_t bridge_port_member_join(sai_object_id_t lag, int hw)
+{
+    auto& c = ctx();
+    sai_object_id_t bp = bridge_port_of(lag);
+    BridgePortObj* b = lookup(c.bridge_ports, bp);
+    if (!b) return SAI_STATUS_SUCCESS;
+    sai_status_t st = c.be->port_learn_set(hw, to_learn(b->learn));
+    for (auto m : b->vlan_members) {
+        if (st != SAI_STATUS_SUCCESS) break;
+        VlanMemberObj& vm = c.vlan_members[m];
+        if (VlanObj* v = vlan_of(vm.vlan))
+            st = c.be->vlan_port_add(v->vid, hw, vm.tagging != SAI_VLAN_TAGGING_MODE_TAGGED);
+    }
+    if (st != SAI_STATUS_SUCCESS) bridge_port_member_leave(lag, hw);
+    return st;
+}
+
+void bridge_port_member_leave(sai_object_id_t lag, int hw)
+{
+    auto& c = ctx();
+    BridgePortObj* b = lookup(c.bridge_ports, bridge_port_of(lag));
+    if (!b) return;
+    for (auto m : b->vlan_members)
+        if (VlanObj* v = vlan_of(c.vlan_members[m].vlan)) c.be->vlan_port_remove(v->vid, hw);
+    c.be->port_learn_set(hw, Learn::Hw);
 }
 
 // ------------------------------------------------------------------- VLAN
@@ -198,13 +240,19 @@ sai_status_t vlan_member_create_internal(sai_object_id_t vlan, sai_object_id_t b
     VlanObj* v = vlan_of(vlan);
     BridgePortObj* b = lookup(c.bridge_ports, bport);
     if (!v || !b) return SAI_STATUS_INVALID_PARAMETER;
-    int hw = bridge_port_hw(bport);
-    if (hw < 0) return SAI_STATUS_NOT_SUPPORTED;
+    if (bridge_port_dest(bport) < 0) return SAI_STATUS_NOT_SUPPORTED;
     for (auto m : v->members)
         if (c.vlan_members[m].bport == bport) return SAI_STATUS_ITEM_ALREADY_EXISTS;
     if (program) {
-        sai_status_t st = c.be->vlan_port_add(v->vid, hw, tagging != SAI_VLAN_TAGGING_MODE_TAGGED);
-        if (st != SAI_STATUS_SUCCESS) return st;
+        std::vector<int> done;
+        for (int hw : bridge_port_phys(bport)) {   // a LAG: every member port
+            sai_status_t st = c.be->vlan_port_add(v->vid, hw, tagging != SAI_VLAN_TAGGING_MODE_TAGGED);
+            if (st != SAI_STATUS_SUCCESS) {
+                for (int d : done) c.be->vlan_port_remove(v->vid, d);
+                return st;
+            }
+            done.push_back(hw);
+        }
     }
     sai_object_id_t oid = c.alloc(SAI_OBJECT_TYPE_VLAN_MEMBER);
     VlanMemberObj m;
@@ -251,11 +299,11 @@ static sai_status_t remove_vlan_member(_In_ sai_object_id_t id)
         VlanMemberObj* m = lookup(c.vlan_members, id);
         if (!m) return SAI_STATUS_INVALID_OBJECT_ID;
         VlanObj* v = vlan_of(m->vlan);
-        int hw = bridge_port_hw(m->bport);
-        if (v && hw >= 0) {
-            sai_status_t st = c.be->vlan_port_remove(v->vid, hw);
-            if (st != SAI_STATUS_SUCCESS) return st;
-        }
+        if (v)
+            for (int hw : bridge_port_phys(m->bport)) {
+                sai_status_t st = c.be->vlan_port_remove(v->vid, hw);
+                if (st != SAI_STATUS_SUCCESS) return st;
+            }
         if (v) v->members.erase(id);
         if (BridgePortObj* b = lookup(c.bridge_ports, m->bport)) b->vlan_members.erase(id);
         c.vlan_members.erase(id);
@@ -274,11 +322,13 @@ static sai_status_t set_vlan_member_attribute(_In_ sai_object_id_t id, _In_ cons
         int32_t t = attr->value.s32;
         if (t != SAI_VLAN_TAGGING_MODE_UNTAGGED && t != SAI_VLAN_TAGGING_MODE_TAGGED) return attr_not_supported(0);
         VlanObj* v = vlan_of(m->vlan);
-        int hw = bridge_port_hw(m->bport);
-        if (!v || hw < 0) return SAI_STATUS_FAILURE;
-        sai_status_t st = c.be->vlan_port_add(v->vid, hw, t == SAI_VLAN_TAGGING_MODE_UNTAGGED);
-        if (st == SAI_STATUS_SUCCESS) m->tagging = t;
-        return st;
+        if (!v || bridge_port_dest(m->bport) < 0) return SAI_STATUS_FAILURE;
+        for (int hw : bridge_port_phys(m->bport)) {
+            sai_status_t st = c.be->vlan_port_add(v->vid, hw, t == SAI_VLAN_TAGGING_MODE_UNTAGGED);
+            if (st != SAI_STATUS_SUCCESS) return st;
+        }
+        m->tagging = t;
+        return SAI_STATUS_SUCCESS;
     });
 }
 
@@ -401,11 +451,16 @@ static sai_status_t create_bridge_port(_Out_ sai_object_id_t* id, _In_ sai_objec
             }
         }
         if (!ht || !b.port) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
-        PortObj* p = lookup(c.ports, b.port);
-        if (!p || p->cpu) return SAI_STATUS_INVALID_PARAMETER;
-        if (bridge_port_of_hw(p->hw)) return SAI_STATUS_ITEM_ALREADY_EXISTS;
-        sai_status_t st = c.be->port_learn_set(p->hw, to_learn(b.learn));
-        if (st != SAI_STATUS_SUCCESS) return st;
+        if (!attach_valid(b.port)) {
+            PortObj* p = lookup(c.ports, b.port);
+            if (p && p->lag) OB_ERR(SAI_API_BRIDGE, "bridge port: port %s is a LAG member", p->sdk_name.c_str());
+            return SAI_STATUS_INVALID_PARAMETER;
+        }
+        if (bridge_port_of(b.port)) return SAI_STATUS_ITEM_ALREADY_EXISTS;
+        for (int hw : attach_phys(b.port)) {
+            sai_status_t st = c.be->port_learn_set(hw, to_learn(b.learn));
+            if (st != SAI_STATUS_SUCCESS) return st;
+        }
         sai_object_id_t oid = c.alloc(SAI_OBJECT_TYPE_BRIDGE_PORT);
         c.bridge_ports[oid] = b;
         c.bridges[c.default_bridge].ports.insert(oid);
@@ -423,8 +478,8 @@ static sai_status_t remove_bridge_port(_In_ sai_object_id_t id)
         if (!b->vlan_members.empty()) return SAI_STATUS_OBJECT_IN_USE;
         for (auto& f : c.fdbs)
             if (f.second.bport == id && f.second.type == SAI_FDB_ENTRY_TYPE_STATIC) return SAI_STATUS_OBJECT_IN_USE;
-        int hw = bridge_port_hw(id);
-        if (hw >= 0) c.be->l2_flush(hw, -1, false, true);
+        int dest = bridge_port_dest(id);
+        if (dest >= 0) c.be->l2_flush(dest, -1, false, true);
         for (auto it = c.fdbs.begin(); it != c.fdbs.end();)
             it = it->second.bport == id ? c.fdbs.erase(it) : std::next(it);
         c.bridges[b->bridge].ports.erase(id);
@@ -443,8 +498,9 @@ static sai_status_t set_bridge_port_attribute(_In_ sai_object_id_t id, _In_ cons
         switch (attr->id) {
         case SAI_BRIDGE_PORT_ATTR_ADMIN_STATE: b->admin = attr->value.booldata; return SAI_STATUS_SUCCESS;
         case SAI_BRIDGE_PORT_ATTR_FDB_LEARNING_MODE: {
-            int hw = bridge_port_hw(id);
-            sai_status_t st = hw < 0 ? SAI_STATUS_FAILURE : c.be->port_learn_set(hw, to_learn(attr->value.s32));
+            sai_status_t st = bridge_port_dest(id) < 0 ? SAI_STATUS_FAILURE : SAI_STATUS_SUCCESS;
+            for (int hw : bridge_port_phys(id))
+                if (st == SAI_STATUS_SUCCESS) st = c.be->port_learn_set(hw, to_learn(attr->value.s32));
             if (st == SAI_STATUS_SUCCESS) b->learn = attr->value.s32;
             return attr_backend_status(st, 0);
         }
@@ -517,7 +573,7 @@ static sai_status_t fdb_program(const FdbKey& k, const FdbObj& o)
     VlanObj* v = vlan_of(k.bv);
     if (!v) return SAI_STATUS_INVALID_PARAMETER;
     bool drop = o.action == SAI_PACKET_ACTION_DROP;
-    int hw = o.bport ? bridge_port_hw(o.bport) : -1;
+    int hw = o.bport ? bridge_port_dest(o.bport) : -1;
     if (!drop && hw < 0) return SAI_STATUS_INVALID_PARAMETER;
     if (drop && hw < 0) hw = c.be->cpu_port();   // discard entry needs some port
     return c.be->l2_add(k.mac, v->vid, hw, o.type == SAI_FDB_ENTRY_TYPE_STATIC, drop);
@@ -531,7 +587,7 @@ static sai_status_t fdb_attr(FdbObj& o, const sai_attribute_t& a, uint32_t i)
         o.type = a.value.s32;
         return SAI_STATUS_SUCCESS;
     case SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID:
-        if (a.value.oid && bridge_port_hw(a.value.oid) < 0) return attr_invalid(i);
+        if (a.value.oid && bridge_port_dest(a.value.oid) < 0) return attr_invalid(i);
         o.bport = a.value.oid;
         return SAI_STATUS_SUCCESS;
     case SAI_FDB_ENTRY_ATTR_PACKET_ACTION:
@@ -644,7 +700,7 @@ static sai_status_t flush_fdb_entries(_In_ sai_object_id_t, _In_ uint32_t n, _In
         }
         int hw = -1, vid = -1;
         if (bport) {
-            hw = bridge_port_hw(bport);
+            hw = bridge_port_dest(bport);
             if (hw < 0) return SAI_STATUS_INVALID_PARAMETER;
         }
         if (bv) {

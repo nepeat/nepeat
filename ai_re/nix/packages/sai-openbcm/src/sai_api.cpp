@@ -268,7 +268,10 @@ sai_status_t sai_dbg_generate_dump(_In_ const char* dump_file_name)
         for (auto& v : c.vlans) f << "vlan " << v.second.vid << " members " << v.second.members.size() << "\n";
         f << "bridge_ports " << c.bridge_ports.size() << " fdb " << c.fdbs.size() << " hostifs " << c.hostifs.size()
           << " traps " << c.traps.size() << " rifs " << c.rifs.size() << " neighbors " << c.neighbors.size()
-          << " next_hops " << c.next_hops.size() << " routes " << c.routes.size() << "\n";
+          << " next_hops " << c.next_hops.size() << " routes " << c.routes.size() << " lags " << c.lags.size()
+          << " lag_members " << c.lag_members.size() << "\n";
+        for (auto& l : c.lags) f << "lag " << std::hex << l.first << std::dec << " trunk " << l.second.tid
+                                 << " members " << l.second.members.size() << " pvid " << l.second.pvid << "\n";
         for (auto& h : c.hostifs)
             f << "hostif " << h.second.name << " netif " << h.second.netif << " filter " << h.second.filter << "\n";
         return SAI_STATUS_SUCCESS;

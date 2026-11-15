@@ -7,6 +7,8 @@
 //   SAI_OPENBCM_FAKE_SPEED   initial speed in Mb/s (default 100000)
 //   SAI_OPENBCM_FAKE_LINK    "admin": link follows admin state (default);
 //                            "none": links never come up
+// Temperatures: 8 monitors, current 40.0, 41.5, ... 50.5 C, peak = current
+// + 0.5 C (test hooks: temps, temp_fail).
 #pragma once
 #include "backend.h"
 
@@ -43,6 +45,11 @@ public:
     int cpu_port() const override { return 0; }
     std::vector<PortInfo> ports() override;
     std::string hardware_info() override { return "fake"; }
+    sai_status_t asic_temperatures(std::vector<int>& cur, std::vector<int>& peak) override;
+
+    sai_status_t lag_create(int& tid) override;
+    sai_status_t lag_destroy(int tid) override;
+    sai_status_t lag_set_members(int tid, const std::vector<LagMember>& members) override;
 
     sai_status_t port_admin_set(int hw, bool up) override;
     sai_status_t port_link_get(int hw, bool& up) override;
@@ -97,6 +104,9 @@ public:
     void inject_fdb(const FdbEvent& ev);               // hardware learn/age
     void set_stat(int hw, PortStat s, uint64_t v);
     std::mutex mu;                                     // guards everything below
+    std::vector<int> temps;                            // current, tenths of C
+    bool temp_fail = false;                            // reads fail (sensor gone)
+    std::map<int, std::vector<LagMember>> lags;        // tid -> members
     std::map<int, Port> port_state;
     std::map<uint16_t, std::map<int, bool>> vlans;     // vid -> hw -> untagged (cpu = 0)
     std::map<std::pair<std::vector<uint8_t>, uint16_t>, L2> l2;
@@ -113,11 +123,13 @@ public:
 
 private:
     Port* port(int hw);
+    bool dest_ok(int d);                               // a port, or an existing LAG
     void update_link(Port& p, std::vector<std::pair<int, bool>>& changes);
     void report(const std::vector<std::pair<int, bool>>& changes);
     LinkCallback link_cb_;
     FdbCallback fdb_cb_;
     bool link_follows_admin_ = true;
+    int next_tid_ = 1;
     int next_netif_ = 1, next_filter_ = 2, next_intf_ = 1, next_station_ = 1, next_egress_ = 100002;
     int cpu_egress_ = -1, drop_egress_ = -1;
 };

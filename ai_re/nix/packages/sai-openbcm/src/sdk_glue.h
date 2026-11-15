@@ -40,6 +40,10 @@ typedef struct {
     char name[16];
 } ob_port_info_t;
 
+/* Destinations ("port" arguments of the L2 / L3 egress calls and of the L2
+ * callback): an SDK logical port, or OB_LAG_DEST_BIT | trunk id. */
+#define OB_LAG_DEST_BIT 0x40000000
+
 typedef void (*ob_link_cb_t)(void* ctx, int port, int up);
 typedef void (*ob_l2_cb_t)(void* ctx, const uint8_t mac[6], int vid, int port, int learned);
 
@@ -58,6 +62,12 @@ int ob_sdk_attach(int unit, char* err, int errlen);
  * ob_sdk_attach (Tomahawk family, through the S-channel) or ob_sdk_init
  * (BCM API, any chip with monitors). Returns BCM_E_*; *count monitors. */
 int ob_sdk_temperatures(int unit, int* cur, int* peak, int max, int* count);
+/* Over-temperature protection for the attach-only reader: power down the
+ * core PLL exactly as the SDK's Tomahawk handler (soc_tomahawk_temperature_intr)
+ * does; every S-channel access fails afterwards, the chip needs a power
+ * cycle. Tomahawk only (not TH2). Refused (BCM_E_BUSY) after ob_sdk_init:
+ * "init all" armed the SDK's own interrupt handler. */
+int ob_sdk_th_overtemp_shutdown(int unit);
 void ob_sdk_shutdown(int unit);
 int ob_sdk_shell(int unit, const char* cmd);
 const char* ob_sdk_errmsg(int rv);
@@ -101,6 +111,12 @@ int ob_sdk_netif_destroy(int unit, int netif_id, int filter_id);
 int ob_sdk_netif_filter_set(int unit, int netif_id, int port, int keep_tag, int* filter_id);
 
 int ob_sdk_trap_set(int unit, int kind, int to_cpu);              /* kind: ob::TrapKind */
+
+/* Trunks (SAI LAG). Members: ports[i] with flags[i] (1 egress disable,
+ * 2 ingress disable); n == 0 empties the trunk. */
+int ob_sdk_trunk_create(int unit, int* tid);
+int ob_sdk_trunk_destroy(int unit, int tid);
+int ob_sdk_trunk_set(int unit, int tid, const int* ports, const int* flags, int n);
 
 int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int* intf_id);
 int ob_sdk_l3_intf_update(int unit, int intf_id, const uint8_t mac[6], int vid, int mtu);

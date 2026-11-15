@@ -24,6 +24,8 @@ namespace ob {
 #define ROUTE_ENTRY_ATTR(a) SAI_ROUTE_ENTRY_ATTR_##a
 #define QUEUE_ATTR(a) SAI_QUEUE_ATTR_##a
 #define STP_ATTR(a) SAI_STP_ATTR_##a
+#define LAG_ATTR(a) SAI_LAG_ATTR_##a
+#define LAG_MEMBER_ATTR(a) SAI_LAG_MEMBER_ATTR_##a
 
 const std::vector<AttrCap>& attr_caps()
 {
@@ -45,6 +47,10 @@ const std::vector<AttrCap>& attr_caps()
         C(SWITCH, FDB_EVENT_NOTIFY, true, true, true),
         C(SWITCH, SHUTDOWN_REQUEST_NOTIFY, true, true, true),
         C(SWITCH, SWITCH_STATE_CHANGE_NOTIFY, true, true, true),
+        C(SWITCH, MAX_NUMBER_OF_TEMP_SENSORS, false, false, true),
+        C(SWITCH, TEMP_LIST, false, false, true),
+        C(SWITCH, MAX_TEMP, false, false, true),
+        C(SWITCH, AVERAGE_TEMP, false, false, true),
 
         C(PORT, TYPE, false, false, true),
         C(PORT, HW_LANE_LIST, false, false, true),
@@ -64,6 +70,13 @@ const std::vector<AttrCap>& attr_caps()
         C(PORT, QOS_QUEUE_LIST, false, false, true),
         C(PORT, NUMBER_OF_INGRESS_PRIORITY_GROUPS, false, false, true),
         C(PORT, INGRESS_PRIORITY_GROUP_LIST, false, false, true),
+
+        C(LAG, PORT_LIST, false, false, true),
+        C(LAG, PORT_VLAN_ID, true, true, true),
+        C(LAG_MEMBER, LAG_ID, true, false, true),
+        C(LAG_MEMBER, PORT_ID, true, false, true),
+        C(LAG_MEMBER, EGRESS_DISABLE, true, true, true),
+        C(LAG_MEMBER, INGRESS_DISABLE, true, true, true),
 
         C(VLAN, VLAN_ID, true, false, true),
         C(VLAN, MEMBER_LIST, false, false, true),

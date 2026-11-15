@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <fstream>
 #include <functional>
+#include <iterator>
 #include <map>
 #include <string>
 #include <thread>
@@ -97,6 +98,7 @@ static sai_next_hop_api_t* nha;
 static sai_route_api_t* rta;
 static sai_queue_api_t* qa;
 static sai_stp_api_t* sta;
+static sai_lag_api_t* la;
 
 static void query_apis()
 {
@@ -112,6 +114,7 @@ static void query_apis()
     OK(sai_api_query(SAI_API_ROUTE, (void**)&rta));
     OK(sai_api_query(SAI_API_QUEUE, (void**)&qa));
     OK(sai_api_query(SAI_API_STP, (void**)&sta));
+    OK(sai_api_query(SAI_API_LAG, (void**)&la));
 }
 
 static FakeBackend& fake() { return *dynamic_cast<FakeBackend*>(ctx().be.get()); }
@@ -873,12 +876,22 @@ static void test_l3()
 
 static void test_capabilities()
 {
-    // Every advertised get on SWITCH / PORT works on a live object.
+    // Every advertised get on SWITCH / PORT / LAG / LAG_MEMBER works on a live object.
+    sai_object_id_t lag, lm;
+    OK(la->create_lag(&lag, g_sw, 0, nullptr));
+    sai_attribute_t ma[2];
+    ma[0].id = SAI_LAG_MEMBER_ATTR_LAG_ID;
+    ma[0].value.oid = lag;
+    ma[1].id = SAI_LAG_MEMBER_ATTR_PORT_ID;
+    ma[1].value.oid = g_ports[4];   // freed by test_lag
+    OK(la->create_lag_member(&lm, g_sw, 2, ma));
     for (auto& c : attr_caps()) {
         if (!c.get) continue;
         sai_object_id_t oid;
         if (c.ot == SAI_OBJECT_TYPE_SWITCH) oid = g_sw;
         else if (c.ot == SAI_OBJECT_TYPE_PORT) oid = g_ports[0];
+        else if (c.ot == SAI_OBJECT_TYPE_LAG) oid = lag;
+        else if (c.ot == SAI_OBJECT_TYPE_LAG_MEMBER) oid = lm;
         else continue;
         sai_attribute_t a;
         std::memset(&a, 0, sizeof(a));
@@ -887,10 +900,14 @@ static void test_capabilities()
         a.value.objlist.count = 64;   // works for every list type (same layout: count + pointer)
         a.value.objlist.list = (sai_object_id_t*)buf;
         sai_status_t st = c.ot == SAI_OBJECT_TYPE_SWITCH ? sw->get_switch_attribute(oid, 1, &a)
-                                                         : pa->get_port_attribute(oid, 1, &a);
+                          : c.ot == SAI_OBJECT_TYPE_PORT ? pa->get_port_attribute(oid, 1, &a)
+                          : c.ot == SAI_OBJECT_TYPE_LAG  ? la->get_lag_attribute(oid, 1, &a)
+                                                         : la->get_lag_member_attribute(oid, 1, &a);
         if (st != SAI_STATUS_SUCCESS) std::fprintf(stderr, "  capability get ot=%d attr=%d -> %d\n", c.ot, c.id, st);
         CHECK_EQ(st, SAI_STATUS_SUCCESS);
     }
+    OK(la->remove_lag_member(lm));
+    OK(la->remove_lag(lag));
     sai_attr_capability_t cap;
     OK(sai_query_attribute_capability(g_sw, SAI_OBJECT_TYPE_PORT, SAI_PORT_ATTR_ADMIN_STATE, &cap));
     CHECK(cap.set_implemented && cap.get_implemented && !cap.create_implemented);
@@ -905,6 +922,332 @@ static void test_capabilities()
     uint64_t cnt;
     CHECK_EQ(sai_object_type_get_availability(g_sw, SAI_OBJECT_TYPE_ROUTE_ENTRY, 0, nullptr, &cnt), SAI_STATUS_NOT_SUPPORTED);
 }
+
+// orchagent's init for a port that joins a LAG: no VLAN 1 member, no bridge port.
+static void free_port(sai_object_id_t port)
+{
+    sai_object_id_t bp = bport_of(port);
+    if (!bp) return;
+    sai_object_id_t vlan1 = get_oid(g_sw, SAI_SWITCH_ATTR_DEFAULT_VLAN_ID);
+    sai_object_id_t members[64];
+    sai_attribute_t a;
+    a.id = SAI_VLAN_ATTR_MEMBER_LIST;
+    a.value.objlist.count = 64;
+    a.value.objlist.list = members;
+    OK(va->get_vlan_attribute(vlan1, 1, &a));
+    for (uint32_t i = 0; i < a.value.objlist.count; i++) {
+        sai_attribute_t b;
+        b.id = SAI_VLAN_MEMBER_ATTR_BRIDGE_PORT_ID;
+        OK(va->get_vlan_member_attribute(members[i], 1, &b));
+        if (b.value.oid == bp) OK(va->remove_vlan_member(members[i]));
+    }
+    OK(ba->remove_bridge_port(bp));
+}
+
+static void test_temperature()
+{
+    // fake: 8 monitors at 40.0, 41.5, ... 50.5 C
+    sai_attribute_t a;
+    a.id = SAI_SWITCH_ATTR_MAX_NUMBER_OF_TEMP_SENSORS;
+    OK(sw->get_switch_attribute(g_sw, 1, &a));
+    CHECK_EQ(a.value.u8, 8);
+    int32_t t[16];
+    a.id = SAI_SWITCH_ATTR_TEMP_LIST;
+    a.value.s32list.count = 2;
+    a.value.s32list.list = t;
+    CHECK_EQ(sw->get_switch_attribute(g_sw, 1, &a), SAI_STATUS_BUFFER_OVERFLOW);
+    CHECK_EQ(a.value.s32list.count, 8u);
+    a.value.s32list.count = 16;
+    OK(sw->get_switch_attribute(g_sw, 1, &a));
+    CHECK_EQ(a.value.s32list.count, 8u);
+    CHECK_EQ(t[0], 40);
+    CHECK_EQ(t[1], 42);   // 41.5 rounds away from zero
+    CHECK_EQ(t[7], 51);
+    sai_attribute_t mx[2];
+    mx[0].id = SAI_SWITCH_ATTR_MAX_TEMP;
+    mx[1].id = SAI_SWITCH_ATTR_AVERAGE_TEMP;
+    OK(sw->get_switch_attribute(g_sw, 2, mx));
+    CHECK_EQ(mx[0].value.s32, 51);   // 50.5
+    CHECK_EQ(mx[1].value.s32, 45);   // 45.25
+    fake().temps = {-55, 1205};      // below zero rounds away from zero too
+    OK(sw->get_switch_attribute(g_sw, 2, mx));
+    CHECK_EQ(mx[0].value.s32, 121);
+    CHECK_EQ(mx[1].value.s32, 58);   // 57.5
+    a.value.s32list.count = 16;
+    OK(sw->get_switch_attribute(g_sw, 1, &a));
+    CHECK_EQ(t[0], -6);
+    // sensor read fails: the error, index-encoded, no stale values
+    fake().temp_fail = true;
+    mx[0].id = SAI_SWITCH_ATTR_PORT_NUMBER;
+    mx[1].id = SAI_SWITCH_ATTR_MAX_TEMP;
+    CHECK_EQ(sw->get_switch_attribute(g_sw, 2, mx), SAI_STATUS_FAILURE);
+    fake().temp_fail = false;
+    fake().temps.clear();
+    for (int i = 0; i < 8; i++) fake().temps.push_back(400 + 15 * i);
+    a.id = SAI_SWITCH_ATTR_MAX_TEMP;
+    CHECK(sw->set_switch_attribute(g_sw, &a) != SAI_STATUS_SUCCESS);   // read-only
+}
+
+static void test_lag()
+{
+    sai_object_id_t p4 = g_ports[4], p5 = g_ports[5], p6 = g_ports[6];   // hw 17, 21, 25
+    free_port(p4);
+    free_port(p5);
+    free_port(p6);
+    sai_object_id_t lag, dup;
+    OK(la->create_lag(&lag, g_sw, 0, nullptr));
+    CHECK_EQ(sai_object_type_query(lag), SAI_OBJECT_TYPE_LAG);
+    int tid = ctx().lags[lag].tid;
+    CHECK(fake().lags.count(tid));
+    sai_attribute_t a;
+    a.id = SAI_LAG_ATTR_PORT_VLAN_ID;
+    OK(la->get_lag_attribute(lag, 1, &a));
+    CHECK_EQ(a.value.u16, 1);
+    a.id = SAI_LAG_ATTR_TPID;
+    OK(la->get_lag_attribute(lag, 1, &a));
+    CHECK_EQ(a.value.u16, 0x8100);   // stub
+    a.id = SAI_LAG_ATTR_SYSTEM_PORT_AGGREGATE_ID;
+    a.value.u32 = 1;
+    CHECK(SAI_STATUS_IS_ATTR_NOT_SUPPORTED(la->create_lag(&dup, g_sw, 1, &a)));
+
+    // member, created disabled as orchagent does before LACP converges
+    sai_attribute_t ma[4];
+    ma[0].id = SAI_LAG_MEMBER_ATTR_LAG_ID;
+    ma[0].value.oid = lag;
+    ma[1].id = SAI_LAG_MEMBER_ATTR_PORT_ID;
+    ma[1].value.oid = p4;
+    ma[2].id = SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE;
+    ma[2].value.booldata = true;
+    ma[3].id = SAI_LAG_MEMBER_ATTR_INGRESS_DISABLE;
+    ma[3].value.booldata = true;
+    sai_object_id_t m4, m5, m6;
+    OK(la->create_lag_member(&m4, g_sw, 4, ma));
+    CHECK_EQ(sai_object_type_query(m4), SAI_OBJECT_TYPE_LAG_MEMBER);
+    CHECK_EQ(fake().lags[tid].size(), 1u);
+    CHECK(fake().lags[tid][0].hw == 17 && fake().lags[tid][0].egress_disable && fake().lags[tid][0].ingress_disable);
+    CHECK_EQ(la->create_lag_member(&dup, g_sw, 4, ma), SAI_STATUS_ITEM_ALREADY_EXISTS);
+    sai_attribute_t g4[4];
+    g4[0].id = SAI_LAG_MEMBER_ATTR_LAG_ID;
+    g4[1].id = SAI_LAG_MEMBER_ATTR_PORT_ID;
+    g4[2].id = SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE;
+    g4[3].id = SAI_LAG_MEMBER_ATTR_INGRESS_DISABLE;
+    OK(la->get_lag_member_attribute(m4, 4, g4));
+    CHECK(g4[0].value.oid == lag && g4[1].value.oid == p4 && g4[2].value.booldata && g4[3].value.booldata);
+    // collecting, then distributing (setCollectionOnLagMember / setDistributionOnLagMember)
+    a.id = SAI_LAG_MEMBER_ATTR_INGRESS_DISABLE;
+    a.value.booldata = false;
+    OK(la->set_lag_member_attribute(m4, &a));
+    CHECK(!fake().lags[tid][0].ingress_disable && fake().lags[tid][0].egress_disable);
+    a.id = SAI_LAG_MEMBER_ATTR_EGRESS_DISABLE;
+    OK(la->set_lag_member_attribute(m4, &a));
+    CHECK(!fake().lags[tid][0].egress_disable);
+    a.id = SAI_LAG_MEMBER_ATTR_PORT_ID;
+    a.value.oid = p5;
+    CHECK(SAI_STATUS_IS_INVALID_ATTR_VALUE(la->set_lag_member_attribute(m4, &a)));   // create-only
+
+    // bad members
+    ma[1].value.oid = get_oid(g_sw, SAI_SWITCH_ATTR_CPU_PORT);
+    CHECK(SAI_STATUS_IS_INVALID_ATTR_VALUE(la->create_lag_member(&dup, g_sw, 2, ma)));
+    ma[1].value.oid = g_ports[7];   // still has its default bridge port
+    CHECK_EQ(la->create_lag_member(&dup, g_sw, 2, ma), SAI_STATUS_OBJECT_IN_USE);
+    CHECK_EQ(la->create_lag_member(&dup, g_sw, 1, ma), SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING);
+    ma[1].value.oid = p5;
+    OK(la->create_lag_member(&m5, g_sw, 2, ma));
+    sai_object_id_t ml[8];
+    a.id = SAI_LAG_ATTR_PORT_LIST;
+    a.value.objlist.count = 8;
+    a.value.objlist.list = ml;
+    OK(la->get_lag_attribute(lag, 1, &a));
+    CHECK_EQ(a.value.objlist.count, 2u);
+    CHECK(ml[0] == m4 && ml[1] == m5);
+    CHECK_EQ(la->remove_lag(lag), SAI_STATUS_OBJECT_IN_USE);
+
+    // LAG PVID goes to every member
+    a.id = SAI_LAG_ATTR_PORT_VLAN_ID;
+    a.value.u16 = 300;
+    OK(la->set_lag_attribute(lag, &a));
+    CHECK(fake().port_state[17].pvid == 300 && fake().port_state[21].pvid == 300);
+    a.value.u16 = 0;   // orchagent writes .u32 into this u16 attribute: on big-endian it reads as 0
+    CHECK(SAI_STATUS_IS_INVALID_ATTR_VALUE(la->set_lag_attribute(lag, &a)));
+
+    // bridge port on the LAG + VLAN member: applied to every member port
+    sai_attribute_t bpa[3];
+    bpa[0].id = SAI_BRIDGE_PORT_ATTR_TYPE;
+    bpa[0].value.s32 = SAI_BRIDGE_PORT_TYPE_PORT;
+    bpa[1].id = SAI_BRIDGE_PORT_ATTR_PORT_ID;
+    bpa[1].value.oid = lag;
+    bpa[2].id = SAI_BRIDGE_PORT_ATTR_FDB_LEARNING_MODE;
+    bpa[2].value.s32 = SAI_BRIDGE_PORT_FDB_LEARNING_MODE_DISABLE;
+    sai_object_id_t lbp;
+    OK(ba->create_bridge_port(&lbp, g_sw, 3, bpa));
+    CHECK(fake().port_state[17].learn == Learn::Disable && fake().port_state[21].learn == Learn::Disable);
+    CHECK_EQ(ba->create_bridge_port(&dup, g_sw, 3, bpa), SAI_STATUS_ITEM_ALREADY_EXISTS);
+    bpa[1].value.oid = p4;   // a member cannot have its own
+    CHECK_EQ(ba->create_bridge_port(&dup, g_sw, 3, bpa), SAI_STATUS_INVALID_PARAMETER);
+    a.id = SAI_BRIDGE_PORT_ATTR_FDB_LEARNING_MODE;
+    a.value.s32 = SAI_BRIDGE_PORT_FDB_LEARNING_MODE_HW;
+    OK(ba->set_bridge_port_attribute(lbp, &a));
+    CHECK(fake().port_state[17].learn == Learn::Hw && fake().port_state[21].learn == Learn::Hw);
+    sai_object_id_t v300, vm;
+    a.id = SAI_VLAN_ATTR_VLAN_ID;
+    a.value.u16 = 300;
+    OK(va->create_vlan(&v300, g_sw, 1, &a));
+    sai_attribute_t vma[3];
+    vma[0].id = SAI_VLAN_MEMBER_ATTR_VLAN_ID;
+    vma[0].value.oid = v300;
+    vma[1].id = SAI_VLAN_MEMBER_ATTR_BRIDGE_PORT_ID;
+    vma[1].value.oid = lbp;
+    vma[2].id = SAI_VLAN_MEMBER_ATTR_VLAN_TAGGING_MODE;
+    vma[2].value.s32 = SAI_VLAN_TAGGING_MODE_TAGGED;
+    OK(va->create_vlan_member(&vm, g_sw, 3, vma));
+    CHECK(fake().vlans[300].count(17) && !fake().vlans[300][17] && fake().vlans[300].count(21));
+    a.id = SAI_VLAN_MEMBER_ATTR_VLAN_TAGGING_MODE;
+    a.value.s32 = SAI_VLAN_TAGGING_MODE_UNTAGGED;
+    OK(va->set_vlan_member_attribute(vm, &a));
+    CHECK(fake().vlans[300][17] && fake().vlans[300][21]);
+
+    // a port joining later gets the LAG's VLANs, PVID and learning; leaving undoes them
+    a.id = SAI_BRIDGE_PORT_ATTR_FDB_LEARNING_MODE;
+    a.value.s32 = SAI_BRIDGE_PORT_FDB_LEARNING_MODE_DISABLE;
+    OK(ba->set_bridge_port_attribute(lbp, &a));
+    ma[1].value.oid = p6;
+    OK(la->create_lag_member(&m6, g_sw, 2, ma));
+    CHECK(fake().vlans[300].count(25) && fake().vlans[300][25]);
+    CHECK_EQ(fake().port_state[25].pvid, 300);
+    CHECK(fake().port_state[25].learn == Learn::Disable);
+    CHECK_EQ(fake().lags[tid].size(), 3u);
+    OK(la->remove_lag_member(m6));
+    CHECK(!fake().vlans[300].count(25));
+    CHECK_EQ(fake().port_state[25].pvid, 1);
+    CHECK(fake().port_state[25].learn == Learn::Hw);
+    CHECK_EQ(fake().lags[tid].size(), 2u);
+    CHECK_EQ(la->remove_lag_member(m6), SAI_STATUS_INVALID_OBJECT_ID);
+
+    // FDB on the LAG: the entry points at the trunk; hardware learning on
+    // the trunk is reported with the LAG's bridge port
+    sai_fdb_entry_t e = fdb_key(v300, 0x91);
+    sai_attribute_t fat[2];
+    fat[0].id = SAI_FDB_ENTRY_ATTR_TYPE;
+    fat[0].value.s32 = SAI_FDB_ENTRY_TYPE_STATIC;
+    fat[1].id = SAI_FDB_ENTRY_ATTR_BRIDGE_PORT_ID;
+    fat[1].value.oid = lbp;
+    OK(fa->create_fdb_entry(&e, 2, fat));
+    {
+        auto it = fake().l2.find({std::vector<uint8_t>(e.mac_address, e.mac_address + 6), 300});
+        CHECK(it != fake().l2.end() && it->second.hw == lag_dest(tid));
+    }
+    FdbEvent ev;
+    uint8_t mac[6] = {0x00, 0xaa, 0xbb, 0xcc, 0xdd, 0x92};
+    std::memcpy(ev.mac, mac, 6);
+    ev.vid = 300;
+    ev.hw_port = lag_dest(tid);
+    ev.learned = true;
+    fake().inject_fdb(ev);
+    CHECK(wait_for([&] { return !g_fdb_events.empty(); }));
+    {
+        std::lock_guard<std::mutex> l(g_nmu);
+        CHECK_EQ(g_fdb_events[0].first, SAI_FDB_EVENT_LEARNED);
+        CHECK_EQ(g_fdb_events[0].second, lbp);
+        g_fdb_events.clear();
+    }
+    sai_attribute_t fl[2];
+    fl[0].id = SAI_FDB_FLUSH_ATTR_BRIDGE_PORT_ID;
+    fl[0].value.oid = lbp;
+    fl[1].id = SAI_FDB_FLUSH_ATTR_ENTRY_TYPE;
+    fl[1].value.s32 = SAI_FDB_FLUSH_ENTRY_TYPE_DYNAMIC;
+    OK(fa->flush_fdb_entries(g_sw, 2, fl));
+    CHECK_EQ(fake().l2.size(), 1u);   // the static one stays
+    CHECK_EQ(ba->remove_bridge_port(lbp), SAI_STATUS_OBJECT_IN_USE);
+    OK(fa->remove_fdb_entry(&e));
+    OK(va->remove_vlan_member(vm));
+    CHECK(!fake().vlans[300].count(17) && !fake().vlans[300].count(21));
+    OK(va->remove_vlan(v300));
+    OK(ba->remove_bridge_port(lbp));
+    CHECK(fake().port_state[17].learn == Learn::Disable);   // removing a bridge port does not touch learning
+
+    // router interface on the LAG: internal VLAN on every member, egress to the trunk
+    sai_attribute_t rat[3];
+    rat[0].id = SAI_ROUTER_INTERFACE_ATTR_VIRTUAL_ROUTER_ID;
+    rat[0].value.oid = get_oid(g_sw, SAI_SWITCH_ATTR_DEFAULT_VIRTUAL_ROUTER_ID);
+    rat[1].id = SAI_ROUTER_INTERFACE_ATTR_TYPE;
+    rat[1].value.s32 = SAI_ROUTER_INTERFACE_TYPE_PORT;
+    rat[2].id = SAI_ROUTER_INTERFACE_ATTR_PORT_ID;
+    rat[2].value.oid = lag;
+    sai_object_id_t rif;
+    OK(ra->create_router_interface(&rif, g_sw, 3, rat));
+    uint16_t ivid = ctx().rifs[rif].vid;
+    CHECK(fake().vlans[ivid].count(17) && fake().vlans[ivid][17] && fake().vlans[ivid].count(21));
+    CHECK(fake().port_state[17].pvid == ivid && fake().port_state[21].pvid == ivid);
+    a.id = SAI_LAG_ATTR_PORT_VLAN_ID;
+    OK(la->get_lag_attribute(lag, 1, &a));
+    CHECK_EQ(a.value.u16, ivid);
+    rat[2].value.oid = p4;   // not on a member
+    CHECK_EQ(ra->create_router_interface(&dup, g_sw, 3, rat), SAI_STATUS_INVALID_PARAMETER);
+    OK(la->create_lag_member(&m6, g_sw, 2, ma));   // joins the internal VLAN
+    CHECK(fake().vlans[ivid].count(25) && fake().port_state[25].pvid == ivid);
+    OK(la->remove_lag_member(m6));
+    CHECK(!fake().vlans[ivid].count(25));
+    sai_neighbor_entry_t ne;
+    std::memset(&ne, 0, sizeof(ne));
+    ne.switch_id = g_sw;
+    ne.rif_id = rif;
+    ne.ip_address = ip4(10, 1, 0, 2);
+    sai_attribute_t na1;
+    na1.id = SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS;
+    uint8_t nmac[6] = {0x00, 0x00, 0x5e, 0x00, 0x53, 0x07};
+    std::memcpy(na1.value.mac, nmac, 6);
+    OK(na->create_neighbor_entry(&ne, 1, &na1));
+    CHECK_EQ(fake().egress[fake().hosts.begin()->second].hw, lag_dest(tid));
+    CHECK_EQ(la->remove_lag(lag), SAI_STATUS_OBJECT_IN_USE);
+    OK(na->remove_neighbor_entry(&ne));
+    OK(ra->remove_router_interface(rif));
+    CHECK(!fake().vlans.count(ivid));
+    CHECK(fake().port_state[17].pvid == 1 && fake().port_state[21].pvid == 1);
+
+    // LACP to the CPU; the members' own netdevs (KNET on the physical port) stay
+    sai_attribute_t at[3];
+    at[0].id = SAI_HOSTIF_ATTR_TYPE;
+    at[0].value.s32 = SAI_HOSTIF_TYPE_NETDEV;
+    at[1].id = SAI_HOSTIF_ATTR_OBJ_ID;
+    at[1].value.oid = p4;
+    name_attr(at[2], "Ethernet16");
+    sai_object_id_t h;
+    OK(ha->create_hostif(&h, g_sw, 3, at));
+    at[1].value.oid = lag;
+    name_attr(at[2], "PortChannel1");
+    CHECK_EQ(ha->create_hostif(&dup, g_sw, 3, at), SAI_STATUS_NOT_SUPPORTED);   // teamd makes that netdev
+    bool found = false;
+    for (auto& n : fake().netifs) found |= n.second.name == "Ethernet16" && n.second.hw == 17;
+    CHECK(found);
+    sai_attribute_t ta[2];
+    ta[0].id = SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE;
+    ta[0].value.s32 = SAI_HOSTIF_TRAP_TYPE_LACP;
+    ta[1].id = SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION;
+    ta[1].value.s32 = SAI_PACKET_ACTION_TRAP;
+    sai_object_id_t lt;
+    OK(ha->create_hostif_trap(&lt, g_sw, 2, ta));
+    CHECK(fake().traps[TrapKind::Lacp]);
+    CHECK(ctx().traps[lt].programmed);
+    OK(ha->remove_hostif_trap(lt));
+    CHECK(!fake().traps[TrapKind::Lacp]);
+    OK(ha->remove_hostif(h));
+
+    OK(la->remove_lag_member(m4));
+    OK(la->remove_lag_member(m5));
+    CHECK_EQ(fake().lags[tid].size(), 0u);
+    CHECK_EQ(ctx().ports[p4].lag, (sai_object_id_t)0);
+    OK(la->remove_lag(lag));
+    CHECK(!fake().lags.count(tid));
+    CHECK_EQ(la->remove_lag(lag), SAI_STATUS_INVALID_OBJECT_ID);
+}
+
+static std::string slurp(const std::string& p)
+{
+    std::ifstream f(p);
+    if (!f) return "";
+    return std::string((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+}
+static bool exists(const std::string& p) { return std::ifstream(p).good(); }
 
 static void test_dump_and_teardown()
 {
@@ -921,13 +1264,61 @@ static void test_dump_and_teardown()
     sai_attribute_t a;
     a.id = SAI_SWITCH_ATTR_PORT_NUMBER;
     CHECK_EQ(sw->get_switch_attribute(g_sw, 1, &a), SAI_STATUS_UNINITIALIZED);
-    // re-create works (state fully reset), then uninitialize removes it
+    // re-create works (state fully reset), then uninitialize removes it.
+    // This time with the temperature publisher (fan control's files).
     g_profile["SAI_OPENBCM_FAKE_PORTS"] = "4";
     g_profile["SAI_OPENBCM_FAKE_LANES"] = "1";
     g_profile["SAI_OPENBCM_FAKE_SPEED"] = "25000";
+    const std::string tdir = "test-temp", out = tdir + "/temperature", prom = tdir + "/asic.prom";
+    std::remove(out.c_str());
+    std::remove(prom.c_str());
+    std::remove(tdir.c_str());   // the publisher creates a missing parent directory
+    g_profile["SAI_OPENBCM_TEMP_FILE"] = out;
+    g_profile["SAI_OPENBCM_TEMP_PROM"] = prom;
+    g_profile["SAI_OPENBCM_TEMP_INTERVAL"] = "1";
     OK(create_switch_default());
     OK(sw->get_switch_attribute(g_sw, 1, &a));
     CHECK_EQ(a.value.u32, 4u);
+    auto poll = [](std::function<bool()> f) {
+        for (int i = 0; i < 400; i++) {
+            if (f()) return true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        return false;
+    };
+    CHECK(poll([&] { return exists(out) && exists(prom); }));
+    CHECK(slurp(out) == "50.5\n");
+    std::string p = slurp(prom);
+    CHECK(p.find("switch_asic_temperature_max_celsius{unit=\"0\"} 50.5\n") != std::string::npos);
+    CHECK(p.find("switch_asic_temperature_celsius{unit=\"0\",sensor=\"pvtmon7\"} 50.5\n") != std::string::npos);
+    CHECK(p.find("switch_asic_temperature_peak_celsius{unit=\"0\",sensor=\"pvtmon0\"} 40.5\n") != std::string::npos);
+    CHECK(p.find("switch_asic_temperature_read_timestamp_seconds{unit=\"0\"} ") != std::string::npos);
+    {
+        std::lock_guard<std::mutex> g(fake().mu);
+        fake().temp_fail = true;   // failed read: both files go
+    }
+    CHECK(poll([&] { return !exists(out) && !exists(prom); }));
+    {
+        std::lock_guard<std::mutex> g(fake().mu);
+        fake().temp_fail = false;
+        fake().temps = {612, 2000};   // 200 C: implausible, still no file
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    CHECK(!exists(out));
+    {
+        std::lock_guard<std::mutex> g(fake().mu);
+        fake().temps = {612, 433};
+    }
+    CHECK(poll([&] { return slurp(out) == "61.2\n"; }));
+    OK(sw->remove_switch(g_sw));   // removes the files
+    CHECK(!exists(out) && !exists(prom));
+    g_profile.erase("SAI_OPENBCM_TEMP_FILE");
+    g_profile.erase("SAI_OPENBCM_TEMP_PROM");
+    g_profile["SAI_OPENBCM_TEMP_INTERVAL"] = "1";
+    OK(create_switch_default());   // no file keys: no publisher
+    std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+    CHECK(!exists(out));
+    std::remove(tdir.c_str());
     OK(sai_api_uninitialize());
     CHECK(!ctx().switch_created);
     CHECK_EQ(sai_api_uninitialize(), SAI_STATUS_UNINITIALIZED);
@@ -943,6 +1334,8 @@ int main()
     test_fdb();
     test_hostif();
     test_l3();
+    test_lag();
+    test_temperature();
     test_capabilities();
     test_dump_and_teardown();
     std::printf("%d checks, %d failures\n", g_checks, g_fail);

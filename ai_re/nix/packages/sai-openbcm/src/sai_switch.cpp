@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // SWITCH object: backend selection and bring-up, default objects, event
-// delivery (link scan / L2 learn -> SAI notifications).
+// delivery (link scan / L2 learn -> SAI notifications). Temperatures: sai_temp.cpp.
 #include "sai_internal.h"
 
 #include <sys/stat.h>
@@ -144,7 +144,7 @@ static void deliver_fdb(const FdbEvent& ev)
         auto& c = ctx();
         if (!c.switch_created) return;
         auto vit = c.vid2vlan.find(ev.vid);
-        sai_object_id_t bport = bridge_port_of_hw(ev.hw_port);
+        sai_object_id_t bport = bridge_port_of_dest(ev.hw_port);   // port or LAG
         if (vit == c.vid2vlan.end()) return;     // internal (port RIF) VLAN: not visible to SAI
         FdbKey k;
         std::memcpy(k.mac, ev.mac, 6);
@@ -310,7 +310,7 @@ void switch_build_objects()
     std::vector<std::pair<int, bool>> members;
     if (be.vlan_members(1, members) == SAI_STATUS_SUCCESS) {
         for (auto& m : members) {
-            sai_object_id_t bp = bridge_port_of_hw(m.first);
+            sai_object_id_t bp = bridge_port_of_dest(m.first);
             if (!bp) continue;
             vlan_member_create_internal(v1.oid, bp,
                                         m.second ? SAI_VLAN_TAGGING_MODE_UNTAGGED : SAI_VLAN_TAGGING_MODE_TAGGED,
@@ -326,7 +326,8 @@ void switch_clear_objects()
         for (auto& h : c.hostifs)
             if (h.second.netif >= 0) c.be->netif_destroy(h.second.netif, h.second.filter);
     }
-    c.ports.clear(); c.hw2port.clear(); c.port_list.clear(); c.vlans.clear(); c.vid2vlan.clear();
+    c.ports.clear(); c.hw2port.clear(); c.port_list.clear(); c.lags.clear(); c.lag_members.clear();
+    c.vlans.clear(); c.vid2vlan.clear();
     c.vlan_members.clear(); c.bridges.clear(); c.bridge_ports.clear(); c.fdbs.clear(); c.hostifs.clear();
     c.trap_groups.clear(); c.traps.clear(); c.table_entries.clear(); c.queues.clear(); c.ipgs.clear();
     c.rifs.clear(); c.neighbors.clear(); c.next_hops.clear(); c.routes.clear(); c.internal_vlans.clear();
@@ -357,7 +358,8 @@ static BackendConfig collect_profile()
     static const char* keys[] = {"SAI_INIT_CONFIG_FILE", "SAI_OPENBCM_BACKEND", "SAI_OPENBCM_RC_FILE",
                                  "SAI_OPENBCM_UNIT", "SAI_OPENBCM_KNET", "SAI_OPENBCM_FAKE_PORTS",
                                  "SAI_OPENBCM_FAKE_LANES", "SAI_OPENBCM_FAKE_SPEED", "SAI_OPENBCM_FAKE_LINK",
-                                 "SAI_OPENBCM_FAKE_ON_HARDWARE", "SAI_OPENBCM_RIF_VLAN_BASE"};
+                                 "SAI_OPENBCM_FAKE_ON_HARDWARE", "SAI_OPENBCM_RIF_VLAN_BASE",
+                                 "SAI_OPENBCM_TEMP_FILE", "SAI_OPENBCM_TEMP_PROM", "SAI_OPENBCM_TEMP_INTERVAL"};
     for (const char* k : keys) {
         std::string v = profile_get(k, "\x01");
         if (v != "\x01") cfg.profile[k] = v;
@@ -471,6 +473,11 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
         }
         c.switch_created = true;
         events_start();
+        // Temperature files for fan control. Never from the fake on a host
+        // with a switch ASIC: fand would trust made-up readings.
+        if (!c.be->is_fake() || !hardware_present()) temp_publisher_start(cfg, c.be.get());
+        else if (!cfg.get("SAI_OPENBCM_TEMP_FILE").empty() || !cfg.get("SAI_OPENBCM_TEMP_PROM").empty())
+            OB_WARN(SAI_API_SWITCH, "fake backend on hardware: not publishing ASIC temperature files");
         *switch_id = c.switch_oid;
         OB_NOTICE(SAI_API_SWITCH, "switch created: %zu front-panel ports, backend %s", c.port_list.size(),
                   c.be->name());
@@ -486,6 +493,7 @@ static sai_status_t remove_switch(_In_ sai_object_id_t switch_id)
         return SAI_STATUS_SUCCESS;
     });
     if (st != SAI_STATUS_SUCCESS) return st;
+    temp_publisher_stop();   // removes the files; before the backend goes away
     events_stop();   // without the API lock: the notifier may be waiting for it
     try {
         std::lock_guard<std::recursive_mutex> g(ctx().mu);
@@ -535,6 +543,7 @@ static sai_status_t get_one(uint32_t i, sai_attribute_t& a)
     default:
         break;
     }
+    if (is_temp_attr(a.id)) return switch_temp_get(i, a);
     if (is_notify_attr(a.id)) {
         auto it = c.notify.find(a.id);
         a.value.ptr = it == c.notify.end() ? nullptr : it->second;

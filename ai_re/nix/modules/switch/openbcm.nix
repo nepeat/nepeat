@@ -69,7 +69,11 @@ in {
       wantedBy = [ "multi-user.target" ];
       requires = [ "openbcm-devices.service" ];
       after = [ "openbcm-devices.service" ];
+      # fand waits for the first reading instead of starting in failsafe.
+      before = lib.optional (config.services.fand.enable or false) "fand.service";
       serviceConfig = {
+        # "started" = the first reading is on disk (or 30 s passed).
+        ExecStartPost = "${pkgs.bash}/bin/bash -c 'for i in $(seq 60); do [ -s ${cfg.temperature.file} ] && exit 0; sleep 0.5; done; echo no reading after 30 s >&2'";
         ExecStart = lib.concatStringsSep " " [
           "${sai}/bin/openbcm-asic-temp --interval ${toString cfg.temperature.interval}"
           "--out ${cfg.temperature.file}"

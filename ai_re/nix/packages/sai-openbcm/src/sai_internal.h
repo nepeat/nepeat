@@ -116,8 +116,24 @@ struct PortObj {
     bool autoneg = false;
     int32_t loopback = SAI_PORT_LOOPBACK_MODE_NONE;
     uint16_t pvid = 1;
+    sai_object_id_t lag = 0;        // LAG this port is a member of
     sai_port_oper_status_t oper = SAI_PORT_OPER_STATUS_DOWN;
     std::vector<sai_object_id_t> queues, ipgs;
+    StubMap stub;
+};
+
+// LAG = SDK trunk. Bridge ports, port RIFs and FDB entries may sit on a LAG;
+// VLAN membership, PVID and learning are then applied to every member port.
+struct LagObj {
+    sai_object_id_t oid = 0;
+    int tid = -1;
+    std::vector<sai_object_id_t> members;   // LAG_MEMBER oids, creation order
+    uint16_t pvid = 1;
+    StubMap stub;
+};
+struct LagMemberObj {
+    sai_object_id_t lag = 0, port = 0;
+    bool egress_disable = false, ingress_disable = false;
     StubMap stub;
 };
 
@@ -247,6 +263,8 @@ struct Ctx {
     std::map<int, sai_object_id_t> hw2port;
     std::vector<sai_object_id_t> port_list;            // front panel, SDK order
     sai_object_id_t cpu_port = 0;
+    std::map<sai_object_id_t, LagObj> lags;
+    std::map<sai_object_id_t, LagMemberObj> lag_members;
     std::map<sai_object_id_t, VlanObj> vlans;
     std::map<uint16_t, sai_object_id_t> vid2vlan;
     std::map<sai_object_id_t, VlanMemberObj> vlan_members;
@@ -342,8 +360,26 @@ void events_stop();
 void push_event(const Event& e);
 sai_status_t port_stats_get(int hw, uint32_t n, const sai_stat_id_t* ids, uint64_t* out);
 bool port_stat_supported(sai_stat_id_t id);
-int bridge_port_hw(sai_object_id_t bport);           // -1 if not a port bridge port
-sai_object_id_t bridge_port_of_hw(int hw);           // 0 if none
+// Attachments: a front-panel PORT that is not a LAG member, or a LAG.
+bool attach_valid(sai_object_id_t obj);
+int attach_dest(sai_object_id_t obj);                // port hw or lag_dest(tid); -1 if neither
+std::vector<int> attach_phys(sai_object_id_t obj);   // the port, or the LAG's member ports
+sai_status_t attach_pvid_set(sai_object_id_t obj, uint16_t vid);
+int bridge_port_dest(sai_object_id_t bport);         // -1 if not a PORT/LAG bridge port
+std::vector<int> bridge_port_phys(sai_object_id_t bport);
+sai_object_id_t bridge_port_of(sai_object_id_t obj); // bridge port on a PORT or LAG, 0 if none
+sai_object_id_t bridge_port_of_dest(int dest);       // 0 if none
+// A port joins / leaves a LAG: apply / undo the LAG's bridge port (VLAN
+// membership, learning) and port-RIF VLAN on that port.
+sai_status_t bridge_port_member_join(sai_object_id_t lag, int hw);
+void bridge_port_member_leave(sai_object_id_t lag, int hw);
+sai_status_t rif_member_join(sai_object_id_t lag, int hw);
+void rif_member_leave(sai_object_id_t lag, int hw);
+// ASIC temperature: SWITCH TEMP attributes, and the file publisher thread.
+bool is_temp_attr(sai_attr_id_t id);
+sai_status_t switch_temp_get(uint32_t i, sai_attribute_t& a);
+void temp_publisher_start(const BackendConfig& cfg, Backend* be);
+void temp_publisher_stop();
 sai_status_t vlan_member_create_internal(sai_object_id_t vlan, sai_object_id_t bport, int32_t tagging,
                                          bool program, sai_object_id_t* out);
 sai_status_t l3_switch_mac_changed(const uint8_t old_mac[6]);

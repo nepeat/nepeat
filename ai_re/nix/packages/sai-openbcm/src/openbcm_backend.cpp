@@ -13,9 +13,12 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <mutex>
 #include <unistd.h>
 
 namespace ob {
+
+static_assert(LAG_DEST_BIT == OB_LAG_DEST_BIT, "LAG destination encoding differs from sdk_glue.h");
 
 static sai_status_t map_rv(int rv)
 {
@@ -99,6 +102,31 @@ public:
     }
 
     int cpu_port() const override { return ob_sdk_cpu_port(unit_); }
+
+    sai_status_t asic_temperatures(std::vector<int>& cur, std::vector<int>& peak) override
+    {
+        // Not RV(): the publisher would log every interval while reads fail.
+        std::lock_guard<std::mutex> g(temp_mu_);
+        int c[16], p[16], n = 0;
+        int rv = ob_sdk_temperatures(unit_, c, p, 16, &n);
+        if (rv < 0) return map_rv(rv);
+        cur.assign(c, c + n);
+        peak.assign(p, p + n);
+        return SAI_STATUS_SUCCESS;
+    }
+
+    sai_status_t lag_create(int& tid) override { RV(ob_sdk_trunk_create(unit_, &tid)); return SAI_STATUS_SUCCESS; }
+    sai_status_t lag_destroy(int tid) override { RV(ob_sdk_trunk_destroy(unit_, tid)); return SAI_STATUS_SUCCESS; }
+    sai_status_t lag_set_members(int tid, const std::vector<LagMember>& m) override
+    {
+        std::vector<int> ports, flags;
+        for (auto& x : m) {
+            ports.push_back(x.hw);
+            flags.push_back((x.egress_disable ? 1 : 0) | (x.ingress_disable ? 2 : 0));
+        }
+        RV(ob_sdk_trunk_set(unit_, tid, ports.data(), flags.data(), (int)m.size()));
+        return SAI_STATUS_SUCCESS;
+    }
 
     std::vector<PortInfo> ports() override
     {
@@ -264,6 +292,7 @@ private:
     }
 
     int unit_ = 0;
+    std::mutex temp_mu_;
     LinkCallback link_;
     FdbCallback fdb_;
     int cpu_egress_ = -1, drop_egress_ = -1;

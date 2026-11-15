@@ -12,6 +12,8 @@
  *   KNET: destroy stale netifs/filters (they survive SDK restarts)
  *   bcm_rx_start (KNET needs the SDK's RX DMA running), drop-all RX handler
  *   L3 egress mode on
+ * Destinations with OB_LAG_DEST_BIT are trunks (SAI LAGs): L2 entries, L2
+ * flushes, L3 egress objects and the L2 callback carry the trunk id.
  * Endianness: all conversions to SDK types happen here; bcm_ip_t is a host
  * integer built from network-order bytes, so this is byte-order agnostic.
  */
@@ -39,6 +41,7 @@
 #include <bcm/switch.h>
 #include <bcm/link.h>
 #include <bcm/stack.h>
+#include <bcm/trunk.h>
 #include <bcm_int/control.h>
 #include <appl/diag/shell.h>
 #include <bcm-knet-kcom.h>
@@ -69,6 +72,12 @@ static ob_l2_cb_t g_l2_cb;
 static void* g_cb_ctx;
 static volatile unsigned long g_rx_dropped;
 static int g_cpu_egress = -1, g_drop_egress = -1;
+static int g_l2c_index[2] = {-1, -1};   /* our L2 user entries: LLDP, LACP */
+#define OB_MAX_TRUNKS 1024
+static unsigned char g_trunk_used[OB_MAX_TRUNKS];   /* trunks we created (global L2 flush) */
+
+static int is_lag(int dest) { return dest >= 0 && (dest & OB_LAG_DEST_BIT); }
+static int lag_tid(int dest) { return dest & ~OB_LAG_DEST_BIT; }
 
 static soc_knet_vectors_t knet_vect = {
     {bcm_knet_kcom_open, bcm_knet_kcom_close, bcm_knet_kcom_msg_send, bcm_knet_kcom_msg_recv},
@@ -259,6 +268,28 @@ int ob_sdk_temperatures(int unit, int* cur, int* peak, int max, int* count)
     return BCM_E_NONE;
 }
 
+int ob_sdk_th_overtemp_shutdown(int unit)
+{
+#ifdef BCM_TOMAHAWK_SUPPORT
+    uint32 rval = 0;
+    int rv, rv2;
+    if (!sdk_booted || unit < 0 || unit >= soc_ndev || !soc_attached(unit)) return BCM_E_UNIT;
+    if (sdk_inited) return BCM_E_BUSY;
+    if (!SOC_IS_TOMAHAWK(unit) || SOC_IS_TOMAHAWK2(unit)) return BCM_E_UNAVAIL;
+    /* As soc_tomahawk_temperature_intr: the write is attempted even when
+     * the read fails. */
+    rv = READ_TOP_CORE_PLL0_CTRL_1r(unit, &rval);
+    soc_reg_field_set(unit, TOP_CORE_PLL0_CTRL_1r, &rval, ISO_INf, 1);
+    soc_reg_field_set(unit, TOP_CORE_PLL0_CTRL_1r, &rval, PWRONf, 0);
+    soc_reg_field_set(unit, TOP_CORE_PLL0_CTRL_1r, &rval, PWRON_LDOf, 0);
+    rv2 = WRITE_TOP_CORE_PLL0_CTRL_1r(unit, rval);
+    return rv2 < 0 ? rv2 : rv;
+#else
+    (void)unit;
+    return BCM_E_UNAVAIL;
+#endif
+}
+
 int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* err, int errlen)
 {
     int rv, nn = 0, nf = 0;
@@ -316,6 +347,8 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
         return rv;
     }
     g_cpu_egress = g_drop_egress = -1;
+    g_l2c_index[0] = g_l2c_index[1] = -1;   /* "init all" rebuilt the L2 user table */
+    memset(g_trunk_used, 0, sizeof(g_trunk_used));
     sdk_inited = 1;
     if (err && errlen > 0) snprintf(err, errlen, "ok: stale KNET netifs %d filters %d destroyed", nn, nf);
     return BCM_E_NONE;
@@ -331,14 +364,15 @@ static void l2_handler(int unit, bcm_l2_addr_t* l2, int op, void* ud)
 {
     int learned;
     (void)unit; (void)ud;
-    if (!g_l2_cb || !l2 || (l2->flags & BCM_L2_STATIC) || (l2->flags & BCM_L2_TRUNK_MEMBER)) return;
+    if (!g_l2_cb || !l2 || (l2->flags & BCM_L2_STATIC)) return;
     if (op == BCM_L2_CALLBACK_ADD || op == BCM_L2_CALLBACK_LEARN_EVENT || op == BCM_L2_CALLBACK_MOVE_EVENT)
         learned = 1;
     else if (op == BCM_L2_CALLBACK_DELETE || op == BCM_L2_CALLBACK_AGE_EVENT)
         learned = 0;
     else
         return;
-    g_l2_cb(g_cb_ctx, l2->mac, l2->vid, l2->port, learned);
+    g_l2_cb(g_cb_ctx, l2->mac, l2->vid,
+            (l2->flags & BCM_L2_TRUNK_MEMBER) ? (OB_LAG_DEST_BIT | l2->tgid) : l2->port, learned);
 }
 
 int ob_sdk_register_callbacks(int unit, ob_link_cb_t link, ob_l2_cb_t l2, void* ctx)
@@ -570,8 +604,13 @@ int ob_sdk_l2_add(int unit, const uint8_t mac[6], int vid, int port, int is_stat
     bcm_mac_t m;
     memcpy(m, mac, 6);
     bcm_l2_addr_t_init(&l2, m, (bcm_vlan_t)vid);
-    l2.port = port;
-    l2.modid = my_modid(unit);
+    if (is_lag(port)) {
+        l2.flags |= BCM_L2_TRUNK_MEMBER;
+        l2.tgid = lag_tid(port);
+    } else {
+        l2.port = port;
+        l2.modid = my_modid(unit);
+    }
     if (is_static) l2.flags |= BCM_L2_STATIC;
     if (discard) l2.flags |= BCM_L2_DISCARD_DST;
     return bcm_l2_addr_add(unit, &l2);
@@ -591,6 +630,10 @@ int ob_sdk_l2_flush(int unit, int port, int vid, int statics, int dynamics)
     if (statics && !dynamics) return BCM_E_UNAVAIL;   /* SDK deletes dynamic with static, never static alone */
     if (!statics && !dynamics) return BCM_E_NONE;
     flags = statics ? BCM_L2_DELETE_STATIC : 0;
+    if (is_lag(port)) {
+        if (vid >= 0) return bcm_l2_addr_delete_by_vlan_trunk(unit, (bcm_vlan_t)vid, lag_tid(port), flags);
+        return bcm_l2_addr_delete_by_trunk(unit, lag_tid(port), flags);
+    }
     if (port >= 0 && vid >= 0) return bcm_l2_addr_delete_by_vlan_port(unit, (bcm_vlan_t)vid, modid, port, flags);
     if (port >= 0) return bcm_l2_addr_delete_by_port(unit, modid, port, flags);
     if (vid >= 0) return bcm_l2_addr_delete_by_vlan(unit, (bcm_vlan_t)vid, flags);
@@ -601,6 +644,11 @@ int ob_sdk_l2_flush(int unit, int port, int vid, int statics, int dynamics)
         if (rv < 0) return rv;
         BCM_PBMP_ITER(cfg.port, p) {
             rv = bcm_l2_addr_delete_by_port(unit, modid, p, flags);
+            if (rv < 0 && rv != BCM_E_NOT_FOUND) return rv;
+        }
+        for (p = 0; p < OB_MAX_TRUNKS; p++) {
+            if (!g_trunk_used[p]) continue;
+            rv = bcm_l2_addr_delete_by_trunk(unit, p, flags);
             if (rv < 0 && rv != BCM_E_NOT_FOUND) return rv;
         }
     }
@@ -671,14 +719,77 @@ int ob_sdk_netif_filter_set(int unit, int netif_id, int port, int keep_tag, int*
     return BCM_E_NONE;
 }
 
+/* An exact L2 user ("cache") entry for a link-local protocol MAC: BPDU (so
+ * it also passes on blocked / not-collecting ports) and either to the CPU
+ * only or discarded. The SDK's own entries from "init all" (01:80:c2:00:00:0x
+ * masked, to the CPU) sit at the end of the table; exact ones match first. */
+static int l2cache_trap(int unit, int which, const uint8_t mac[6], int to_cpu)
+{
+    bcm_l2_cache_addr_t a;
+    int used = -1, rv;
+    bcm_l2_cache_addr_t_init(&a);
+    memcpy(a.mac, mac, 6);
+    memset(a.mac_mask, 0xff, 6);
+    a.flags = BCM_L2_CACHE_BPDU | (to_cpu ? BCM_L2_CACHE_CPU : BCM_L2_CACHE_DISCARD);
+    a.dest_modid = my_modid(unit);
+    a.dest_port = CMIC_PORT(unit);
+    rv = bcm_l2_cache_set(unit, g_l2c_index[which], &a, &used);
+    if (rv >= 0) g_l2c_index[which] = used;
+    return rv;
+}
+
 int ob_sdk_trap_set(int unit, int kind, int to_cpu)
 {
+    static const uint8_t lldp[6] = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e};
+    static const uint8_t lacp[6] = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x02};   /* slow protocols */
+    if (kind == 7) return l2cache_trap(unit, 0, lldp, to_cpu);           /* ob::TrapKind::Lldp */
+    if (kind == 8) return l2cache_trap(unit, 1, lacp, to_cpu);           /* ob::TrapKind::Lacp */
     /* Order of ob::TrapKind. -1: no switch control on this SDK path. */
     static const int ctl[] = {
         bcmSwitchArpRequestToCpu, bcmSwitchArpReplyToCpu, bcmSwitchDhcpPktToCpu, -1, bcmSwitchIgmpPktToCpu,
         bcmSwitchMldPktToCpu, bcmSwitchNdPktToCpu, -1, -1, -1, -1};
     if (kind < 0 || kind >= (int)(sizeof(ctl) / sizeof(ctl[0])) || ctl[kind] < 0) return BCM_E_UNAVAIL;
     return bcm_switch_control_set(unit, (bcm_switch_control_t)ctl[kind], to_cpu ? 1 : 0);
+}
+
+int ob_sdk_trunk_create(int unit, int* tid)
+{
+    bcm_trunk_t t = 0;
+    int rv = bcm_trunk_create(unit, 0, &t);
+    if (rv < 0) return rv;
+    if (t < 0 || t >= OB_MAX_TRUNKS) {
+        bcm_trunk_destroy(unit, t);
+        return BCM_E_RESOURCE;
+    }
+    g_trunk_used[t] = 1;
+    *tid = t;
+    return BCM_E_NONE;
+}
+
+int ob_sdk_trunk_destroy(int unit, int tid)
+{
+    int rv = bcm_trunk_destroy(unit, (bcm_trunk_t)tid);
+    if (rv >= 0 && tid >= 0 && tid < OB_MAX_TRUNKS) g_trunk_used[tid] = 0;
+    return rv;
+}
+
+int ob_sdk_trunk_set(int unit, int tid, const int* ports, const int* flags, int n)
+{
+    bcm_trunk_info_t info;
+    bcm_trunk_member_t m[64];
+    int i, modid = my_modid(unit);
+    if (n < 0 || n > 64) return BCM_E_PARAM;
+    if (n == 0) return bcm_trunk_member_delete_all(unit, (bcm_trunk_t)tid);   /* trunk_set needs >= 1 */
+    bcm_trunk_info_t_init(&info);
+    info.psc = BCM_TRUNK_PSC_SRCDSTIP;   /* RTAG 6, source + destination IP (not tuned) */
+    info.dlf_index = info.mc_index = info.ipmc_index = BCM_TRUNK_UNSPEC_INDEX;
+    for (i = 0; i < n; i++) {
+        bcm_trunk_member_t_init(&m[i]);
+        BCM_GPORT_MODPORT_SET(m[i].gport, modid, ports[i]);
+        if (flags[i] & 1) m[i].flags |= BCM_TRUNK_MEMBER_EGRESS_DISABLE;
+        if (flags[i] & 2) m[i].flags |= BCM_TRUNK_MEMBER_INGRESS_DISABLE;
+    }
+    return bcm_trunk_set(unit, (bcm_trunk_t)tid, &info, n, m);
 }
 
 int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int* intf_id)
@@ -731,8 +842,13 @@ static void egress_fill(int unit, bcm_l3_egress_t* e, int intf, const uint8_t ma
     bcm_l3_egress_t_init(e);
     e->intf = intf;
     memcpy(e->mac_addr, mac, 6);
-    e->port = port;
-    e->module = my_modid(unit);
+    if (is_lag(port)) {
+        e->flags |= BCM_L3_TGID;
+        e->trunk = lag_tid(port);
+    } else {
+        e->port = port;
+        e->module = my_modid(unit);
+    }
     e->vlan = (bcm_vlan_t)vid;
 }
 

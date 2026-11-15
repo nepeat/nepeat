@@ -14,7 +14,7 @@ WARN = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 
 SAI_CPPFLAGS = -I$(SAI_INC) -Isrc
 CORE = src/sai_api.cpp src/sai_switch.cpp src/sai_port.cpp src/sai_l2.cpp src/sai_hostif.cpp \
-       src/sai_l3.cpp src/sai_caps.cpp src/fake_backend.cpp
+       src/sai_l3.cpp src/sai_lag.cpp src/sai_temp.cpp src/sai_caps.cpp src/fake_backend.cpp
 
 ifneq ($(OPENBCM),)
 BACKEND_OBJS = build/openbcm_backend.o build/sdk_glue.o
@@ -29,7 +29,7 @@ SDK_LIBS =
 TOOLS =
 endif
 
-OBJS = $(patsubst src/%.cpp,build/%.o,$(CORE)) $(BACKEND_OBJS)
+OBJS = $(patsubst src/%.cpp,build/%.o,$(CORE)) build/temp_files.o $(BACKEND_OBJS)
 
 all: build/libsai.so.1.0.0 build/test_sai $(TOOLS)
 
@@ -37,14 +37,19 @@ build/%.o: src/%.cpp src/*.h
 	@mkdir -p build
 	$(CXX) -std=c++17 -fPIC $(WARN) $(CXXFLAGS) $(SAI_CPPFLAGS) -c $< -o $@
 
+# Temperature files (fand / Prometheus), shared by libsai and openbcm-asic-temp.
+build/temp_files.o: src/temp_files.c src/temp_files.h
+	@mkdir -p build
+	$(CC) -std=gnu11 -fPIC $(WARN) $(CFLAGS) -Isrc -c $< -o $@
+
 # The SDK glue is C, compiled with exactly the SDK's own defines.
 build/sdk_glue.o: src/sdk_glue.c src/sdk_glue.h
 	@mkdir -p build
 	$(CC) -std=gnu11 -fPIC -Wall -Wno-unused-function $(CFLAGS) $(SDK_CFLAGS) -Isrc -c $< -o $@
 
 # ASIC die temperature reader (attach only), see src/asic_temp.c.
-build/openbcm-asic-temp: src/asic_temp.c src/sdk_glue.h build/sdk_glue.o
-	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc $(LDFLAGS) -o $@ src/asic_temp.c build/sdk_glue.o $(SDK_LIBS) -lpthread
+build/openbcm-asic-temp: src/asic_temp.c src/sdk_glue.h src/temp_files.h build/sdk_glue.o build/temp_files.o
+	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc $(LDFLAGS) -o $@ src/asic_temp.c build/sdk_glue.o build/temp_files.o $(SDK_LIBS) -lpthread
 
 build/libsai.a: $(OBJS)
 	$(AR) rcs $@ $^

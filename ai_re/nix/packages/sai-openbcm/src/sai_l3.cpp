@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Milestone 2: VIRTUAL_ROUTER (default only), ROUTER_INTERFACE (PORT, VLAN,
 // LOOPBACK), NEIGHBOR_ENTRY, NEXT_HOP (IP), ROUTE_ENTRY on SDK L3 egress
-// objects. LAG and next-hop groups are not implemented.
+// objects. Next-hop groups are not implemented.
 //
 // SDK mapping: a port RIF gets an internal VLAN (counting down from
 // SAI_OPENBCM_RIF_VLAN_BASE, default 4094) with the port as untagged member
@@ -10,7 +10,8 @@
 // object (+ host entry unless NO_HOST_ROUTE); a next hop reuses its
 // neighbor's egress object (or the shared CPU egress until the neighbor
 // exists); routes point at an egress object (CPU for IP2ME / connected /
-// TRAP, drop for DROP).
+// TRAP, drop for DROP). A port RIF may sit on a LAG: every member port is
+// in the internal VLAN, the egress objects point at the trunk.
 #include "sai_internal.h"
 
 #include <cstdlib>
@@ -117,16 +118,34 @@ static int alloc_internal_vlan()
     return -1;
 }
 
-static void rif_undo_port_vlan(RifObj& r, int hw)
+static void rif_undo_port_vlan(RifObj& r)
 {
     auto& c = ctx();
     if (!r.internal_vlan) return;
-    c.be->vlan_port_remove(r.vid, hw);
-    c.be->port_pvid_set(hw, 1);
-    if (PortObj* p = lookup(c.ports, r.port)) p->pvid = 1;
+    for (int hw : attach_phys(r.port)) c.be->vlan_port_remove(r.vid, hw);
+    attach_pvid_set(r.port, 1);
     c.be->vlan_destroy(r.vid);
     c.internal_vlans.erase(r.vid);
     r.internal_vlan = false;
+}
+
+// A port joins / leaves a LAG with a port RIF: internal VLAN membership
+// (the PVID is the LAG's, set by the LAG code).
+sai_status_t rif_member_join(sai_object_id_t lag, int hw)
+{
+    auto& c = ctx();
+    for (auto& r : c.rifs)
+        if (r.second.type == SAI_ROUTER_INTERFACE_TYPE_PORT && r.second.port == lag && r.second.internal_vlan)
+            return c.be->vlan_port_add(r.second.vid, hw, true);
+    return SAI_STATUS_SUCCESS;
+}
+
+void rif_member_leave(sai_object_id_t lag, int hw)
+{
+    auto& c = ctx();
+    for (auto& r : c.rifs)
+        if (r.second.type == SAI_ROUTER_INTERFACE_TYPE_PORT && r.second.port == lag && r.second.internal_vlan)
+            c.be->vlan_port_remove(r.second.vid, hw);
 }
 
 static sai_status_t create_rif(_Out_ sai_object_id_t* id, _In_ sai_object_id_t, _In_ uint32_t n,
@@ -159,29 +178,26 @@ static sai_status_t create_rif(_Out_ sai_object_id_t* id, _In_ sai_object_id_t, 
             }
         }
         if (!hvr || !ht) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
-        int hw = -1;
         if (r.type == SAI_ROUTER_INTERFACE_TYPE_PORT) {
-            PortObj* p = r.port ? lookup(c.ports, r.port) : nullptr;
             if (!r.port) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
-            if (!p || p->cpu) return SAI_STATUS_INVALID_PARAMETER;
+            if (!attach_valid(r.port)) return SAI_STATUS_INVALID_PARAMETER;   // CPU, LAG member, unknown
             for (auto& o : c.rifs)
                 if (o.second.type == SAI_ROUTER_INTERFACE_TYPE_PORT && o.second.port == r.port)
                     return SAI_STATUS_ITEM_ALREADY_EXISTS;
             int v = alloc_internal_vlan();
             if (v < 0) return SAI_STATUS_INSUFFICIENT_RESOURCES;
-            hw = p->hw;
             sai_status_t st = c.be->vlan_create((uint16_t)v);
             if (st != SAI_STATUS_SUCCESS) return st;
             r.vid = (uint16_t)v;
             r.internal_vlan = true;
             c.internal_vlans.insert(r.vid);
-            st = c.be->vlan_port_add(r.vid, hw, true);
-            if (st == SAI_STATUS_SUCCESS) st = c.be->port_pvid_set(hw, r.vid);
+            for (int hw : attach_phys(r.port))   // a LAG: every member port
+                if (st == SAI_STATUS_SUCCESS) st = c.be->vlan_port_add(r.vid, hw, true);
+            if (st == SAI_STATUS_SUCCESS) st = attach_pvid_set(r.port, r.vid);
             if (st != SAI_STATUS_SUCCESS) {
-                rif_undo_port_vlan(r, hw);
+                rif_undo_port_vlan(r);
                 return st;
             }
-            p->pvid = r.vid;
         } else if (r.type == SAI_ROUTER_INTERFACE_TYPE_VLAN) {
             if (!r.vlan) return SAI_STATUS_MANDATORY_ATTRIBUTE_MISSING;
             VlanObj* v = oid_type(r.vlan) == SAI_OBJECT_TYPE_VLAN ? lookup(c.vlans, r.vlan) : nullptr;
@@ -201,7 +217,7 @@ static sai_status_t create_rif(_Out_ sai_object_id_t* id, _In_ sai_object_id_t, 
             if (st == SAI_STATUS_SUCCESS) st = c.be->l3_intf_create(r.mac, r.vid, r.mtu, r.intf);
             if (st != SAI_STATUS_SUCCESS) {
                 if (r.station >= 0) c.be->l3_station_delete(r.station);
-                if (hw >= 0) rif_undo_port_vlan(r, hw);
+                rif_undo_port_vlan(r);
                 return st;
             }
         }
@@ -230,10 +246,7 @@ static sai_status_t remove_rif(_In_ sai_object_id_t id)
             if (st != SAI_STATUS_SUCCESS) return st;
         }
         if (r->station >= 0) c.be->l3_station_delete(r->station);
-        if (r->internal_vlan) {
-            PortObj* p = lookup(c.ports, r->port);
-            if (p) rif_undo_port_vlan(*r, p->hw);
-        }
+        rif_undo_port_vlan(*r);
         c.rifs.erase(id);
         return SAI_STATUS_SUCCESS;
     });
@@ -352,16 +365,15 @@ static sai_status_t neighbor_egress(const NeighborKey& k, NeighborObj& o, int32_
     if (!r || r->intf < 0) return SAI_STATUS_INVALID_PARAMETER;
     if (action == SAI_PACKET_ACTION_DROP) return c.be->l3_egress_drop(o.egress);
     if (action == SAI_PACKET_ACTION_TRAP) return c.be->l3_egress_cpu(o.egress);
-    int hw = -1;
+    int hw = -1;   // dest: port or LAG
     if (r->type == SAI_ROUTER_INTERFACE_TYPE_PORT) {
-        PortObj* p = lookup(c.ports, r->port);
-        hw = p ? p->hw : -1;
+        hw = attach_dest(r->port);
     } else {
         FdbKey fk;
         std::memcpy(fk.mac, o.mac, 6);
         fk.bv = r->vlan;
         auto it = c.fdbs.find(fk);
-        if (it != c.fdbs.end()) hw = bridge_port_hw(it->second.bport);
+        if (it != c.fdbs.end()) hw = bridge_port_dest(it->second.bport);
     }
     if (hw < 0) {
         OB_WARN(SAI_API_NEIGHBOR, "neighbor %s: egress port unknown (no FDB entry yet); sending to CPU",
@@ -709,30 +721,5 @@ static sai_route_api_t make_route_api()
 }
 const sai_route_api_t route_api = make_route_api();
 
-// -------------------------------------------------------------------- LAG
-static sai_status_t lag_ns(_Out_ sai_object_id_t*, _In_ sai_object_id_t, _In_ uint32_t, _In_ const sai_attribute_t*)
-{
-    OB_ERR(SAI_API_LAG, "LAG not implemented");
-    return SAI_STATUS_NOT_IMPLEMENTED;
-}
-static sai_status_t lag_rm(_In_ sai_object_id_t) { return SAI_STATUS_NOT_IMPLEMENTED; }
-static sai_status_t lag_set(_In_ sai_object_id_t, _In_ const sai_attribute_t*) { return SAI_STATUS_NOT_IMPLEMENTED; }
-static sai_status_t lag_get(_In_ sai_object_id_t, _In_ uint32_t, _Inout_ sai_attribute_t*) { return SAI_STATUS_NOT_IMPLEMENTED; }
-
-static sai_lag_api_t make_lag_api()
-{
-    sai_lag_api_t a;
-    std::memset(&a, 0, sizeof(a));
-    a.create_lag = lag_ns;
-    a.remove_lag = lag_rm;
-    a.set_lag_attribute = lag_set;
-    a.get_lag_attribute = lag_get;
-    a.create_lag_member = lag_ns;
-    a.remove_lag_member = lag_rm;
-    a.set_lag_member_attribute = lag_set;
-    a.get_lag_member_attribute = lag_get;
-    return a;
-}
-const sai_lag_api_t lag_api = make_lag_api();
 
 } // namespace ob
