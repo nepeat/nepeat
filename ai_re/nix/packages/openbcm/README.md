@@ -6,7 +6,7 @@ Switch Software License; kernel modules GPL-2). Not vendored here.
 
 | piece | state |
 | --- | --- |
-| `kmods.nix` | Nix derivation; BDE modules for the target kernel. Loads on the AS7760. |
+| `kmods.nix` | Nix derivation; BDE + KNET modules for the target kernel. Load and pass traffic on the AS7760. |
 | userspace `bcm.user` | Builds by hand (below), **not yet a derivation**. Attaches to the BCM56930 on the AS7760. |
 
 Hand build of the diag shell, from a full `sdk-6.5.27` tree:
@@ -21,7 +21,11 @@ Hand build of the diag shell, from a full `sdk-6.5.27` tree:
    `SDK=$PWD make -C systems/linux/user/ppc64be bcm -j$(nproc)`.
 
 Result: `build/linux/user/ppc64be/bcm.user` (about 100 MB, dynamic).
-On the target: load `linux-kernel-bde` (`dmasize=32M`) and `linux-user-bde`,
-`mknod /dev/linux-kernel-bde c 127 0`, `mknod /dev/linux-user-bde c 126 0`.
+On the target: `insmod linux-kernel-bde.ko himem=0 maxpayload=128 dmasize=16M`
+(the factory's values), then `linux-user-bde` and `linux-bcm-knet`;
+`mknod /dev/linux-kernel-bde c 127 0`, `/dev/linux-user-bde c 126 0`,
+`/dev/linux-bcm-knet c 122 0`. KNET receive only starts once the SDK's RX
+is started (`pw start` in the diag shell). Sync after copying test binaries:
+a crash before writeback leaves zero-length files.
 Without `rc.soc`/`config.bcm` in the working directory it only attaches;
 it does not initialise the chip or touch ports.

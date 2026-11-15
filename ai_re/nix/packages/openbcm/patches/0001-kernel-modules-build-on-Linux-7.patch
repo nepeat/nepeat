@@ -1,16 +1,100 @@
 From: as7760 bring-up
-Subject: [PATCH] linux kernel modules: build against Linux 6.8+/7.x
+Subject: [PATCH] linux kernel modules: build and run on Linux 6.8+/7.x
 
-Renamed timer helpers and MAX_ORDER via a compat header (force-included by
-the Kbuild file), explicit module_init/module_exit instead of the magic
-init_module/cleanup_module names. No functional change.
+BDE: renamed timer helpers and MAX_ORDER via a compat header (force-included
+by the Kbuild file), explicit module_init/module_exit instead of the magic
+init_module/cleanup_module names.
+KNET: strlcpy/strncpy replacements, dma_set_mask, netif_napi_add_weight,
+kernel_ethtool_ts_info, dev_addr_set (dev->dev_addr is const and checked).
+No functional change intended.
 
+diff --git a/systems/linux/kernel/modules/bcm-knet/bcm-knet.c b/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
+index b2736bf..e8a7472 100755
+--- a/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
++++ b/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
+@@ -5651,6 +5651,17 @@ bkn_open(struct net_device *dev)
+ }
+ 
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
++/* dev->dev_addr is const since Linux 5.17 and tracked by dev_addr_check(). */
++static inline void
++bkn_dev_addr_set(struct net_device *dev, const void *addr)
++{
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0))
++    dev_addr_set(dev, addr);
++#else
++    memcpy(dev->dev_addr, addr, dev->addr_len);
++#endif
++}
++
+ static int
+ bkn_set_mac_address(struct net_device *dev, void *addr)
+ {
+@@ -5661,7 +5672,7 @@ bkn_set_mac_address(struct net_device *dev, void *addr)
+ #endif
+         return -EINVAL;
+     }
+-    memcpy(dev->dev_addr, ((struct sockaddr *)addr)->sa_data, dev->addr_len);
++    bkn_dev_addr_set(dev, ((struct sockaddr *)addr)->sa_data);
+     return 0;
+ }
+ #endif
+@@ -6830,8 +6841,15 @@ bkn_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *drvinfo)
+ }
+ 
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,5,0))
++/* Linux 6.11 split the kernel-internal timestamping info from the uAPI struct. */
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6,11,0))
++#define BKN_ETHTOOL_TS_INFO struct kernel_ethtool_ts_info
++#else
++#define BKN_ETHTOOL_TS_INFO struct ethtool_ts_info
++#endif
++
+ static int
+-bkn_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
++bkn_get_ts_info(struct net_device *dev, BKN_ETHTOOL_TS_INFO *info)
+ {
+     bkn_priv_t *priv;
+     bkn_switch_info_t *sinfo;
+@@ -6960,7 +6978,7 @@ bkn_init_ndev(u8 *mac, char *name)
+ #endif
+ 
+     /* Set the device MAC address */
+-    memcpy(dev->dev_addr, mac, 6);
++    bkn_dev_addr_set(dev, mac);
+ 
+     /* Device information -- not available right now */
+     dev->irq = 0;
+@@ -8502,7 +8520,11 @@ bkn_knet_hw_init(kcom_msg_hw_init_t *kmsg, int len)
+     /* Ensure 32-bit PCI DMA is mapped properly on 64-bit platforms */
+     dev_type = kernel_bde->get_dev_type(sinfo->dev_no);
+     if (dev_type & BDE_PCI_DEV_TYPE && sinfo->cmic_type != 'x') {
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))
++        if (dma_set_mask(&sinfo->pdev->dev, 0xffffffff)) {
++#else
+         if (pci_set_dma_mask(sinfo->pdev, 0xffffffff)) {
++#endif
+             cfg_api_unlock(sinfo, &flags);
+             gprintk("No suitable DMA available for SKBs\n");
+             kmsg->hdr.status = KCOM_E_RESOURCE;
+@@ -9656,7 +9678,11 @@ bkn_knet_dev_init(int d)
+     }
+ 
+     if (use_napi) {
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0))
++        netif_napi_add_weight(dev, &sinfo->napi, bkn_poll, napi_weight);
++#else
+         netif_napi_add(dev, &sinfo->napi, bkn_poll, napi_weight);
++#endif
+     }
+     return 0;
+ }
 diff --git a/systems/linux/kernel/modules/include/linux7-compat.h b/systems/linux/kernel/modules/include/linux7-compat.h
 new file mode 100644
-index 0000000..3b06612
+index 0000000..0a7a13c
 --- /dev/null
 +++ b/systems/linux/kernel/modules/include/linux7-compat.h
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,27 @@
 +/* Linux >= 6.8 / 7.x API compatibility for the SDK 6.5.27 kernel modules.
 + * Renames only; semantics are unchanged.
 + */
@@ -26,6 +110,14 @@ index 0000000..3b06612
 +#endif
 +/* MAX_ORDER changed meaning in 6.4 and became MAX_PAGE_ORDER in 6.8; the SDK
 + * uses the old exclusive meaning (MAX_ORDER - 1 = largest order). */
++/* strlcpy was removed in 6.8; open-coded strncpy is no longer usable for
++ * NUL-terminated names. Both callers copy interface/driver names. */
++#include <linux/string.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
++#define strlcpy(d, s, n) strscpy((d), (s), (n))
++#undef strncpy
++#define strncpy(d, s, n) ({ strscpy_pad((d), (s), (n)); (d); })
++#endif
 +#if !defined(MAX_ORDER) && defined(MAX_PAGE_ORDER)
 +#define MAX_ORDER (MAX_PAGE_ORDER + 1)
 +#endif

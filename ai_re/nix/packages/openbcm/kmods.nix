@@ -1,8 +1,8 @@
-# Broadcom OpenBCM (SDK 6.5.27) Linux kernel modules: BDE (device access) and,
-# later, KNET. GPL-2 parts of the SDK. Built with a generated Kbuild file
+# Broadcom OpenBCM (SDK 6.5.27) Linux kernel modules: BDE (device access) and
+# KNET (front-panel ports as Linux netdevs). GPL-2 parts of the SDK. Built with a generated Kbuild file
 # instead of the vendor makefiles, which assume WindRiver/ELDK toolchains and
 # 2.6-era kernels. endian: "be" for big-endian hosts (PowerPC), "le" otherwise.
-{ lib, stdenv, kernel, src, modules ? [ "linux-kernel-bde" "linux-user-bde" ] }:
+{ lib, stdenv, kernel, src, modules ? [ "linux-kernel-bde" "linux-user-bde" "linux-bcm-knet" ] }:
 let
   be = stdenv.hostPlatform.isBigEndian;
   is64 = stdenv.hostPlatform.is64bit;
