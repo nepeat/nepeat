@@ -283,6 +283,8 @@ void switch_build_objects()
     }
 
     c.default_vr = make_oid(SAI_OBJECT_TYPE_VIRTUAL_ROUTER, 1);
+    c.next_index[SAI_OBJECT_TYPE_VIRTUAL_ROUTER] = 1;
+    c.vrs[c.default_vr] = VrObj();   // SDK VRF 0
     c.default_stp = make_oid(SAI_OBJECT_TYPE_STP, 1);
     c.default_trap_group = make_oid(SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP, 1);
     c.next_index[SAI_OBJECT_TYPE_HOSTIF_TRAP_GROUP] = 1;
@@ -332,6 +334,7 @@ void switch_clear_objects()
     c.vlan_members.clear(); c.bridges.clear(); c.bridge_ports.clear(); c.fdbs.clear(); c.hostifs.clear();
     c.trap_groups.clear(); c.traps.clear(); c.table_entries.clear(); c.queues.clear(); c.ipgs.clear();
     c.rifs.clear(); c.neighbors.clear(); c.next_hops.clear(); c.routes.clear(); c.internal_vlans.clear();
+    c.vrs.clear(); c.nhgs.clear(); c.nhg_members.clear();
     c.next_index.clear(); c.switch_stub.clear(); c.notify.clear();
     c.port_state_cb = nullptr; c.fdb_cb = nullptr;
     c.switch_station = -1;
@@ -542,13 +545,26 @@ static sai_status_t get_capacity(uint32_t i, sai_attribute_t& a, bool& handled)
         return fill_list(a.value.aclcapability.action_list, none);
     }
     case SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS:
-    case SAI_SWITCH_ATTR_MAX_ECMP_MEMBER_COUNT:
-    case SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_ENTRY:
-    case SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY:
-        // No next-hop groups in this SAI (the chip has ECMP): RouteOrch then
-        // installs multipath routes with one next hop instead of creating groups.
-        a.value.u32 = 0;
+    case SAI_SWITCH_ATTR_ECMP_MEMBERS:
+    case SAI_SWITCH_ATTR_MAX_ECMP_MEMBER_COUNT: {
+        // SDK ECMP limits: groups, members per group, member entries in all.
+        ChipLimits l;
+        sai_status_t st = c.be->chip_limits(l);
+        if (st != SAI_STATUS_SUCCESS) return attr_backend_status(st, i);
+        a.value.u32 = a.id == SAI_SWITCH_ATTR_NUMBER_OF_ECMP_GROUPS ? l.ecmp_groups
+                    : a.id == SAI_SWITCH_ATTR_ECMP_MEMBERS ? l.ecmp_paths : l.ecmp_members;
         return SAI_STATUS_SUCCESS;
+    }
+    case SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_ENTRY:
+    case SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_MEMBER_ENTRY: {
+        // Free SDK ECMP groups / member entries. An empty (or unresolved)
+        // next-hop group holds no SDK group yet.
+        TableUsage u;
+        sai_status_t st = c.be->table_usage(u);
+        if (st != SAI_STATUS_SUCCESS) return attr_backend_status(st, i);
+        a.value.u32 = a.id == SAI_SWITCH_ATTR_AVAILABLE_NEXT_HOP_GROUP_ENTRY ? u.ecmp_groups_free : u.ecmp_members_free;
+        return SAI_STATUS_SUCCESS;
+    }
     case SAI_SWITCH_ATTR_TOTAL_BUFFER_SIZE: {
         ChipLimits l;
         sai_status_t st = c.be->chip_limits(l);

@@ -219,6 +219,7 @@ sai_status_t sai_api_query(_In_ sai_api_t api, _Out_ void** api_method_table)
     case SAI_API_NEXT_HOP: t = &next_hop_api; break;
     case SAI_API_ROUTE: t = &route_api; break;
     case SAI_API_LAG: t = &lag_api; break;
+    case SAI_API_NEXT_HOP_GROUP: t = &nhg_api; break;
     default:
         *api_method_table = nullptr;
         return SAI_STATUS_NOT_IMPLEMENTED;
@@ -269,7 +270,8 @@ sai_status_t sai_dbg_generate_dump(_In_ const char* dump_file_name)
         f << "bridge_ports " << c.bridge_ports.size() << " fdb " << c.fdbs.size() << " hostifs " << c.hostifs.size()
           << " traps " << c.traps.size() << " rifs " << c.rifs.size() << " neighbors " << c.neighbors.size()
           << " next_hops " << c.next_hops.size() << " routes " << c.routes.size() << " lags " << c.lags.size()
-          << " lag_members " << c.lag_members.size() << "\n";
+          << " lag_members " << c.lag_members.size() << " virtual_routers " << c.vrs.size()
+          << " next_hop_groups " << c.nhgs.size() << " next_hop_group_members " << c.nhg_members.size() << "\n";
         for (auto& l : c.lags) f << "lag " << std::hex << l.first << std::dec << " trunk " << l.second.tid
                                  << " members " << l.second.members.size() << " pvid " << l.second.pvid << "\n";
         for (auto& h : c.hostifs)

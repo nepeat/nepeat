@@ -1,0 +1,12 @@
+# VRF / ECMP / flex counters / show alias lists: builds and regression tests, 2026-11-15
+# (each under the shared build lock; expressions as in the sai-openbcm and switch/sonic READMEs)
+sai-openbcm fake + unit tests: /nix/store/9cc6kn9jfy2d5kbqix4pg48hqdsx5l3b-sai-openbcm-fake-0.1.0
+  checkPhase: 2005 checks, 0 failures (test_vrf, test_ecmp new; capabilities incl. VR/NHG/NHGM)
+sai-openbcm openbcm (ppc64be, sdk_glue with l3a_vrf / ECMP): /nix/store/j12bgr7f4r18i4z556yg151ck89q7jjj-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+tests/vm-openbcm-fake-l3.nix (new): 37 PASS, 0 FAIL -> sonic-l3-fake-vm-20261115.txt
+tests/vm-openbcm-fake.nix: 86 PASS, 3 N/A, FAILED CHECKS: 0 (/nix/store/c68y6qxlvvi7r7d8nrgqikyl356123c3-vm-test-run-sonic-control-plane-openbcm-fake)
+tests/vm.nix (vs SAI): 92 PASS, FAILED CHECKS: 0 (/nix/store/vk7vzdnxd9xp5a88d0lnj88jhvyxs6a1-vm-test-run-sonic-control-plane)
+tests/eval.nix: ok (/nix/store/7j97wa25bxasglpkn031w7plhvi5cz8c-sonic-module-eval-tests)
+nixosConfigurations.as7760 (path:./nix, no fand): /nix/store/cdx699vzc1a3d0mfs1srig6lzr4wkm8l-nixos-system-as7760-26.11.20261111.d4f25a3
+  kernel-modules/.../drivers/net/vrf.ko present; modules-load.d has vrf; sonic-vrfmgrd.service (BindsTo orchagent,
+  in orchagent's Upholds); syncd on the libsai above; Nix base FLEX_COUNTER_TABLE {'PORT': {'FLEX_COUNTER_STATUS': 'enable'}}, mode seed

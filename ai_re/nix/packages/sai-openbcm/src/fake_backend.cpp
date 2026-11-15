@@ -28,6 +28,9 @@ static std::vector<uint8_t> macv(const uint8_t m[6]) { return std::vector<uint8_
 // reports the SDK's). Free = capacity - what the model holds.
 static constexpr uint32_t FAKE_V4_ROUTES = 16384, FAKE_V6_ROUTES = 8192, FAKE_HOSTS = 16384,
                           FAKE_EGRESS = 32768, FAKE_FDB = 32768;
+// VRF ids 1..FAKE_VRF_MAX; ECMP: groups, members per group, member entries.
+static constexpr uint32_t FAKE_VRF_MAX = 1023, FAKE_ECMP_GROUPS = 4096, FAKE_ECMP_PATHS = 64,
+                          FAKE_ECMP_MEMBERS = 16384;
 // Chip limits: the BCM56960's (20165 cells x 4 XPEs x 208 B; SDK field entry
 // priorities BCM_FIELD_ENTRY_PRIO_LOWEST..HIGHEST).
 static constexpr uint64_t FAKE_BUFFER_BYTES = 20165ull * 4 * 208;
@@ -75,7 +78,7 @@ sai_status_t FakeBackend::init(const BackendConfig& cfg, LinkCallback link_cb, F
     link_cb_ = std::move(link_cb);
     fdb_cb_ = std::move(fdb_cb);
     port_state.clear(); vlans.clear(); l2.clear(); netifs.clear(); traps.clear();
-    intfs.clear(); stations.clear(); egress.clear(); hosts.clear(); routes.clear(); lags.clear();
+    intfs.clear(); stations.clear(); egress.clear(); hosts.clear(); routes.clear(); ecmps.clear(); lags.clear();
     temps.clear();
     for (int i = 0; i < 8; i++) temps.push_back(400 + 15 * i);
     temp_fail = false;
@@ -146,14 +149,18 @@ sai_status_t FakeBackend::table_usage(TableUsage& u)
 {
     std::lock_guard<std::mutex> g(mu);
     uint32_t v4 = 0, v6 = 0, host_units = 0;
-    for (auto& r : routes) (r.first.addr.v6 ? v6 : v4)++;
-    for (auto& h : hosts) host_units += h.first.v6 ? 2 : 1;
+    for (auto& r : routes) (r.first.second.addr.v6 ? v6 : v4)++;
+    for (auto& h : hosts) host_units += h.first.second.v6 ? 2 : 1;
+    size_t members = 0;
+    for (auto& e : ecmps) members += e.second.size();
     auto left = [](uint32_t cap, size_t used) { return used >= cap ? 0u : cap - (uint32_t)used; };
     u.v4_routes_free = left(FAKE_V4_ROUTES, v4);
     u.v6_routes_free = left(FAKE_V6_ROUTES, v6);
     u.hosts_free = left(FAKE_HOSTS, host_units);
     u.egress_free = left(FAKE_EGRESS, egress.size());
     u.fdb_free = left(FAKE_FDB, l2.size());
+    u.ecmp_groups_free = left(FAKE_ECMP_GROUPS, ecmps.size());
+    u.ecmp_members_free = left(FAKE_ECMP_MEMBERS, members);
     return SAI_STATUS_SUCCESS;
 }
 
@@ -162,6 +169,10 @@ sai_status_t FakeBackend::chip_limits(ChipLimits& l)
     l.buffer_bytes = FAKE_BUFFER_BYTES;
     l.acl_prio_min = FAKE_ACL_PRIO_MIN;
     l.acl_prio_max = FAKE_ACL_PRIO_MAX;
+    l.vrf_max = FAKE_VRF_MAX;
+    l.ecmp_groups = FAKE_ECMP_GROUPS;
+    l.ecmp_paths = FAKE_ECMP_PATHS;
+    l.ecmp_members = FAKE_ECMP_MEMBERS;
     return SAI_STATUS_SUCCESS;
 }
 
@@ -599,18 +610,19 @@ sai_status_t FakeBackend::trap_set(TrapKind kind, bool to_cpu)
     return SAI_STATUS_SUCCESS;
 }
 
-sai_status_t FakeBackend::l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int& intf_id)
+sai_status_t FakeBackend::l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf, int& intf_id)
 {
     std::lock_guard<std::mutex> g(mu);
     if (!vlans.count(vid)) return SAI_STATUS_INVALID_PARAMETER;
-    Intf i{{0}, vid, mtu};
+    if (vrf < 0 || (uint32_t)vrf > FAKE_VRF_MAX) return SAI_STATUS_INVALID_PARAMETER;
+    Intf i{{0}, vid, mtu, vrf};
     std::memcpy(i.mac, mac, 6);
     intf_id = next_intf_++;
     intfs[intf_id] = i;
     return SAI_STATUS_SUCCESS;
 }
 
-sai_status_t FakeBackend::l3_intf_update(int intf_id, const uint8_t mac[6], uint16_t vid, uint32_t mtu)
+sai_status_t FakeBackend::l3_intf_update(int intf_id, const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf)
 {
     std::lock_guard<std::mutex> g(mu);
     auto it = intfs.find(intf_id);
@@ -618,6 +630,7 @@ sai_status_t FakeBackend::l3_intf_update(int intf_id, const uint8_t mac[6], uint
     std::memcpy(it->second.mac, mac, 6);
     it->second.vid = vid;
     it->second.mtu = mtu;
+    it->second.vrf = vrf;
     return SAI_STATUS_SUCCESS;
 }
 
@@ -676,6 +689,8 @@ sai_status_t FakeBackend::l3_egress_destroy(int egress_id)
     if (egress_id == cpu_egress_ || egress_id == drop_egress_) return SAI_STATUS_INVALID_PARAMETER;
     for (auto& h : hosts) if (h.second == egress_id) return SAI_STATUS_OBJECT_IN_USE;
     for (auto& r : routes) if (r.second == egress_id) return SAI_STATUS_OBJECT_IN_USE;
+    for (auto& e : ecmps)
+        for (int m : e.second) if (m == egress_id) return SAI_STATUS_OBJECT_IN_USE;
     if (!egress.erase(egress_id)) return SAI_STATUS_ITEM_NOT_FOUND;
     return SAI_STATUS_SUCCESS;
 }
@@ -702,36 +717,79 @@ sai_status_t FakeBackend::l3_egress_drop(int& egress_id)
     return SAI_STATUS_SUCCESS;
 }
 
-sai_status_t FakeBackend::l3_host_add(const IpAddr& ip, int egress_id)
+sai_status_t FakeBackend::l3_host_add(int vrf, const IpAddr& ip, int egress_id)
 {
     std::lock_guard<std::mutex> g(mu);
     if (!egress.count(egress_id)) return SAI_STATUS_INVALID_PARAMETER;
-    if (hosts.count(ip)) return SAI_STATUS_ITEM_ALREADY_EXISTS;
-    hosts[ip] = egress_id;
+    if (vrf < 0 || (uint32_t)vrf > FAKE_VRF_MAX) return SAI_STATUS_INVALID_PARAMETER;
+    if (hosts.count({vrf, ip})) return SAI_STATUS_ITEM_ALREADY_EXISTS;
+    hosts[{vrf, ip}] = egress_id;
     return SAI_STATUS_SUCCESS;
 }
 
-sai_status_t FakeBackend::l3_host_delete(const IpAddr& ip)
+sai_status_t FakeBackend::l3_host_delete(int vrf, const IpAddr& ip)
 {
     std::lock_guard<std::mutex> g(mu);
-    if (!hosts.erase(ip)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (!hosts.erase({vrf, ip})) return SAI_STATUS_ITEM_NOT_FOUND;
     return SAI_STATUS_SUCCESS;
 }
 
-sai_status_t FakeBackend::l3_route_add(const IpPrefix& p, int egress_id, bool replace)
+sai_status_t FakeBackend::l3_route_add(int vrf, const IpPrefix& p, int target, bool ecmp, bool replace)
 {
     std::lock_guard<std::mutex> g(mu);
-    if (!egress.count(egress_id)) return SAI_STATUS_INVALID_PARAMETER;
-    if (routes.count(p) && !replace) return SAI_STATUS_ITEM_ALREADY_EXISTS;
-    if (!routes.count(p) && replace) return SAI_STATUS_ITEM_NOT_FOUND;
-    routes[p] = egress_id;
+    if (ecmp ? !ecmps.count(target) : !egress.count(target)) return SAI_STATUS_INVALID_PARAMETER;
+    if (vrf < 0 || (uint32_t)vrf > FAKE_VRF_MAX) return SAI_STATUS_INVALID_PARAMETER;
+    RouteKey k{vrf, p};
+    if (routes.count(k) && !replace) return SAI_STATUS_ITEM_ALREADY_EXISTS;
+    if (!routes.count(k) && replace) return SAI_STATUS_ITEM_NOT_FOUND;
+    routes[k] = target;
     return SAI_STATUS_SUCCESS;
 }
 
-sai_status_t FakeBackend::l3_route_delete(const IpPrefix& p)
+sai_status_t FakeBackend::l3_route_delete(int vrf, const IpPrefix& p)
 {
     std::lock_guard<std::mutex> g(mu);
-    if (!routes.erase(p)) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (!routes.erase({vrf, p})) return SAI_STATUS_ITEM_NOT_FOUND;
+    return SAI_STATUS_SUCCESS;
+}
+
+// The SDK's rules as far as the SAI layer can hit them: members are existing
+// egress objects that forward (not the CPU / drop ones), 1..paths of them.
+sai_status_t FakeBackend::l3_ecmp_create(const std::vector<int>& members, int& ecmp_id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    if (members.empty() || members.size() > FAKE_ECMP_PATHS) return SAI_STATUS_INVALID_PARAMETER;
+    for (int m : members) {
+        auto it = egress.find(m);
+        if (it == egress.end() || it->second.cpu || it->second.drop) return SAI_STATUS_INVALID_PARAMETER;
+    }
+    size_t used = 0;
+    for (auto& e : ecmps) used += e.second.size();
+    if (ecmps.size() >= FAKE_ECMP_GROUPS || used + members.size() > FAKE_ECMP_MEMBERS) return SAI_STATUS_TABLE_FULL;
+    ecmp_id = next_ecmp_++;
+    ecmps[ecmp_id] = members;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::l3_ecmp_update(int ecmp_id, const std::vector<int>& members)
+{
+    std::lock_guard<std::mutex> g(mu);
+    auto it = ecmps.find(ecmp_id);
+    if (it == ecmps.end()) return SAI_STATUS_ITEM_NOT_FOUND;
+    if (members.empty() || members.size() > FAKE_ECMP_PATHS) return SAI_STATUS_INVALID_PARAMETER;
+    for (int m : members) {
+        auto e = egress.find(m);
+        if (e == egress.end() || e->second.cpu || e->second.drop) return SAI_STATUS_INVALID_PARAMETER;
+    }
+    it->second = members;
+    return SAI_STATUS_SUCCESS;
+}
+
+sai_status_t FakeBackend::l3_ecmp_destroy(int ecmp_id)
+{
+    std::lock_guard<std::mutex> g(mu);
+    for (auto& r : routes) if (r.second == ecmp_id) return SAI_STATUS_OBJECT_IN_USE;
+    if (!ecmps.erase(ecmp_id)) return SAI_STATUS_ITEM_NOT_FOUND;
     return SAI_STATUS_SUCCESS;
 }
 

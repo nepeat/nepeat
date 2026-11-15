@@ -79,15 +79,17 @@ int ob_sdk_hw_info(int unit, char* buf, int len);
  * bcm_l3_info; hosts in IPv4 units, an IPv6 host takes 2). */
 typedef struct {
     uint32_t v4_routes_free, v6_routes_free, hosts_free, egress_free, fdb_free;
+    uint32_t ecmp_groups_free, ecmp_members_free;   /* multipath groups, L3_ECMP entries */
 } ob_table_usage_t;
 int ob_sdk_table_usage(int unit, ob_table_usage_t* u);
 /* Chip limits: packet buffer (Tomahawk: MMU cells x cell size, else
- * BCM_E_UNAVAIL), field entry priority range, and for the log the table
- * sizes and ECMP limits the SAI does not expose. */
+ * BCM_E_UNAVAIL), field entry priority range, VRF ids, ECMP groups / paths
+ * per group / member entries, and for the log the table sizes. */
 typedef struct {
     uint64_t buffer_bytes;
     uint32_t acl_prio_min, acl_prio_max;
     int max_host, max_route, max_nexthop, max_l2, ecmp_groups, ecmp_paths;
+    int ecmp_members, vrf_max;
 } ob_chip_limits_t;
 int ob_sdk_chip_limits(int unit, ob_chip_limits_t* l);
 
@@ -134,8 +136,9 @@ int ob_sdk_trunk_create(int unit, int* tid);
 int ob_sdk_trunk_destroy(int unit, int tid);
 int ob_sdk_trunk_set(int unit, int tid, const int* ports, const int* flags, int n);
 
-int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int* intf_id);
-int ob_sdk_l3_intf_update(int unit, int intf_id, const uint8_t mac[6], int vid, int mtu);
+/* vrf: the VRF the interface's VLAN routes in (0 = default). */
+int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int vrf, int* intf_id);
+int ob_sdk_l3_intf_update(int unit, int intf_id, const uint8_t mac[6], int vid, int mtu, int vrf);
 int ob_sdk_l3_intf_destroy(int unit, int intf_id);
 int ob_sdk_l3_station_add(int unit, const uint8_t mac[6], int* station_id);
 int ob_sdk_l3_station_delete(int unit, int station_id);
@@ -143,11 +146,16 @@ int ob_sdk_l3_egress_create(int unit, int intf, const uint8_t mac[6], int port, 
 int ob_sdk_l3_egress_update(int unit, int egress_id, int intf, const uint8_t mac[6], int port, int vid);
 int ob_sdk_l3_egress_special(int unit, int drop, int* egress_id);   /* to CPU, or drop */
 int ob_sdk_l3_egress_destroy(int unit, int egress_id);
-int ob_sdk_l3_host_add(int unit, int v6, const uint8_t* addr, int egress_id);
-int ob_sdk_l3_host_delete(int unit, int v6, const uint8_t* addr);
-int ob_sdk_l3_route_add(int unit, int v6, const uint8_t* addr, const uint8_t* mask, int egress_id,
-                        int drop, int replace);
-int ob_sdk_l3_route_delete(int unit, int v6, const uint8_t* addr, const uint8_t* mask);
+int ob_sdk_l3_host_add(int unit, int vrf, int v6, const uint8_t* addr, int egress_id);
+int ob_sdk_l3_host_delete(int unit, int vrf, int v6, const uint8_t* addr);
+/* egress_id: an egress object, or with ecmp an ECMP group (BCM_L3_MULTIPATH). */
+int ob_sdk_l3_route_add(int unit, int vrf, int v6, const uint8_t* addr, const uint8_t* mask, int egress_id,
+                        int ecmp, int drop, int replace);
+int ob_sdk_l3_route_delete(int unit, int vrf, int v6, const uint8_t* addr, const uint8_t* mask);
+/* ECMP group over n egress objects: replace == 0 creates (*ecmp_id out),
+ * else replaces the members of *ecmp_id. */
+int ob_sdk_l3_ecmp_set(int unit, int* ecmp_id, int replace, const int* egress, int n);
+int ob_sdk_l3_ecmp_destroy(int unit, int ecmp_id);
 
 #ifdef __cplusplus
 }

@@ -103,8 +103,14 @@ pkgs.linux_latest.override {
     NET_TEAM_MODE_ROUNDROBIN = module;
     NET_TEAM_MODE_BROADCAST = module;
     DUMMY = module;
-    # NET_VRF left out: not accepted with this allnoconfig base (Kconfig
-    # dependency not found yet); SONiC's vrfmgrd is not run.
+    # VRF devices (SONiC's vrfmgrd). NET_VRF depends on IP_MULTIPLE_TABLES
+    # (which depends on IP_ADVANCED_ROUTER), NET_L3_MASTER_DEV and, with
+    # IPv6, IPV6_MULTIPLE_TABLES; allnoconfig has none of them.
+    IP_ADVANCED_ROUTER = yes;
+    IP_MULTIPLE_TABLES = yes;
+    IPV6_MULTIPLE_TABLES = yes;
+    NET_L3_MASTER_DEV = yes;
+    NET_VRF = module;
     # SoC PCIe, storage and diagnostic buses.
     PCI = yes;
     PCI_MSI = yes;

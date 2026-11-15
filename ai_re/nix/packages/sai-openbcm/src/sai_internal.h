@@ -208,8 +208,16 @@ struct QueueObj { int32_t type = SAI_QUEUE_TYPE_UNICAST; uint8_t index = 0; sai_
 struct IpgObj { uint8_t index = 0; sai_object_id_t port = 0; StubMap stub; };
 
 // L3
+// Virtual router = SDK VRF (vrf 0: the default VR, created with the switch).
+struct VrObj {
+    int vrf = 0;
+    bool v4 = true, v6 = true;
+    uint8_t mac[6] = {0};         // kept: RIFs carry their own SRC_MAC (orchagent sets it)
+    StubMap stub;
+};
 struct RifObj {
     int32_t type = SAI_ROUTER_INTERFACE_TYPE_PORT;
+    int vrf = 0;                  // the VR's SDK VRF
     sai_object_id_t vr = 0, port = 0, vlan = 0;
     uint8_t mac[6] = {0};
     uint32_t mtu = 1514;
@@ -225,14 +233,34 @@ struct NeighborKey {
     IpAddr ip;
     bool operator<(const NeighborKey& o) const { return rif != o.rif ? rif < o.rif : ip < o.ip; }
 };
-struct NeighborObj { uint8_t mac[6] = {0}; bool no_host = false; int egress = -1; int hw = -1; bool host = false; };
+struct NeighborObj { uint8_t mac[6] = {0}; bool no_host = false; int egress = -1; int hw = -1; bool host = false; int vrf = 0; };
 struct NextHopObj { int32_t type = SAI_NEXT_HOP_TYPE_IP; IpAddr ip; sai_object_id_t rif = 0; int egress = -1; };
 struct RouteKey {
     sai_object_id_t vr;
     IpPrefix p;
     bool operator<(const RouteKey& o) const { return vr != o.vr ? vr < o.vr : p < o.p; }
 };
-struct RouteObj { int32_t action = SAI_PACKET_ACTION_FORWARD; sai_object_id_t nh = 0; int egress = -1; StubMap stub; };
+struct RouteObj {
+    int32_t action = SAI_PACKET_ACTION_FORWARD;
+    sai_object_id_t nh = 0;
+    int egress = -1;              // programmed target: egress object, or ECMP group if ecmp
+    bool ecmp = false;
+    StubMap stub;
+};
+// Next-hop group = SDK ECMP group over the members' egress objects, only
+// while at least one member's next hop is resolved (has its neighbor's
+// egress object); otherwise no SDK group and routes on it drop.
+struct NhgObj {
+    int32_t type = SAI_NEXT_HOP_GROUP_TYPE_ECMP;
+    std::vector<sai_object_id_t> members;   // NEXT_HOP_GROUP_MEMBER oids, creation order
+    int ecmp = -1;                          // SDK ECMP id, -1 = none
+    std::vector<int> programmed;            // egress ids in the SDK group
+};
+struct NhgMemberObj {
+    sai_object_id_t group = 0, nh = 0;
+    uint32_t weight = 1;                    // programmed as repetitions of the egress object
+    StubMap stub;
+};
 
 // --------------------------------------------------------------- events
 struct Event {
@@ -283,6 +311,9 @@ struct Ctx {
     std::map<NeighborKey, NeighborObj> neighbors;
     std::map<sai_object_id_t, NextHopObj> next_hops;
     std::map<RouteKey, RouteObj> routes;
+    std::map<sai_object_id_t, VrObj> vrs;
+    std::map<sai_object_id_t, NhgObj> nhgs;
+    std::map<sai_object_id_t, NhgMemberObj> nhg_members;
     std::set<uint16_t> internal_vlans;                  // allocated for port RIFs
     int switch_station = -1;
     std::map<sai_object_type_t, uint64_t> next_index;
@@ -350,6 +381,7 @@ extern const sai_router_interface_api_t rif_api;
 extern const sai_neighbor_api_t neighbor_api;
 extern const sai_next_hop_api_t next_hop_api;
 extern const sai_route_api_t route_api;
+extern const sai_next_hop_group_api_t nhg_api;
 extern const sai_lag_api_t lag_api;
 
 // Cross-object helpers implemented in the object files.

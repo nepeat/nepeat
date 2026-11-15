@@ -1,0 +1,35 @@
+diff --git a/show/interfaces/__init__.py b/show/interfaces/__init__.py
+--- a/show/interfaces/__init__.py
++++ b/show/interfaces/__init__.py
+@@ -5,6 +5,7 @@
+ import subprocess
+ import click
+ from utilities_common import constants
++from utilities_common.intf_filter import expand_alias_range
+ import utilities_common.cli as clicommon
+ import utilities_common.multi_asic as multi_asic_util
+ from natsort import natsorted
+@@ -55,6 +56,23 @@
+     """try to convert interface name from alias"""
+ 
+     if clicommon.get_interface_naming_mode() == "alias":
++        # A filter (comma list, alias range Ethernet1/1-4, as the commands
++        # taking -i/--interface accept): convert each alias; subports a
++        # range names that do not exist are gaps, as in name ranges.
++        if ',' in interfacename or expand_alias_range(interfacename) is not None:
++            converter = clicommon.InterfaceAliasConverter()
++            names = []
++            for part in interfacename.split(','):
++                expanded = expand_alias_range(part)
++                for alias in (expanded if expanded is not None else [part]):
++                    name = converter.alias_to_name(alias)
++                    if name != alias:
++                        names.append(name)
++                    elif expanded is None:
++                        ctx.fail("cannot find interface name for alias {}".format(alias))
++            if not names:
++                ctx.fail("cannot find interface names for aliases {}".format(interfacename))
++            return ','.join(names)
+         alias = interfacename
+         interfacename = clicommon.InterfaceAliasConverter().alias_to_name(alias)
+         # TODO: ideally alias_to_name should return None when it cannot find

@@ -98,6 +98,8 @@ struct TableUsage {
     uint32_t hosts_free = 0;        // host table in IPv4 entries (an IPv6 host takes 2)
     uint32_t egress_free = 0;       // L3 egress objects (one per neighbor)
     uint32_t fdb_free = 0;          // L2 table
+    uint32_t ecmp_groups_free = 0;  // ECMP (multipath egress) groups
+    uint32_t ecmp_members_free = 0; // ECMP member table entries
 };
 
 // Fixed properties of the chip.
@@ -105,6 +107,10 @@ struct ChipLimits {
     uint64_t buffer_bytes = 0;      // shared packet buffer (MMU)
     uint32_t acl_prio_min = 0;      // field entry priority range (higher wins)
     uint32_t acl_prio_max = 0;
+    uint32_t vrf_max = 0;           // highest VRF id (0 = default VRF only)
+    uint32_t ecmp_groups = 0;       // ECMP groups
+    uint32_t ecmp_paths = 0;        // members per group
+    uint32_t ecmp_members = 0;      // member entries across all groups
 };
 
 using LinkCallback = std::function<void(int hw_port, bool up)>;
@@ -186,8 +192,11 @@ public:
     virtual sai_status_t trap_set(TrapKind kind, bool to_cpu) = 0;
 
     // L3 (SDK "egress mode": egress objects referenced by host/route entries).
-    virtual sai_status_t l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int& intf_id) = 0;
-    virtual sai_status_t l3_intf_update(int intf_id, const uint8_t mac[6], uint16_t vid, uint32_t mtu) = 0;
+    // vrf: SDK VRF id, 0 = the default virtual router; an L3 interface
+    // binds its VLAN (ingress) to its VRF. Host and route entries are per VRF;
+    // egress objects and ECMP groups are not (a route may leak to another VRF).
+    virtual sai_status_t l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf, int& intf_id) = 0;
+    virtual sai_status_t l3_intf_update(int intf_id, const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf) = 0;
     virtual sai_status_t l3_intf_destroy(int intf_id) = 0;
     virtual sai_status_t l3_station_add(const uint8_t mac[6], int& station_id) = 0;
     virtual sai_status_t l3_station_delete(int station_id) = 0;
@@ -197,10 +206,17 @@ public:
     virtual sai_status_t l3_egress_destroy(int egress_id) = 0;
     virtual sai_status_t l3_egress_cpu(int& egress_id) = 0;     // shared, never destroyed
     virtual sai_status_t l3_egress_drop(int& egress_id) = 0;    // shared, never destroyed
-    virtual sai_status_t l3_host_add(const IpAddr& ip, int egress_id) = 0;
-    virtual sai_status_t l3_host_delete(const IpAddr& ip) = 0;
-    virtual sai_status_t l3_route_add(const IpPrefix& p, int egress_id, bool replace) = 0;
-    virtual sai_status_t l3_route_delete(const IpPrefix& p) = 0;
+    virtual sai_status_t l3_host_add(int vrf, const IpAddr& ip, int egress_id) = 0;
+    virtual sai_status_t l3_host_delete(int vrf, const IpAddr& ip) = 0;
+    // target: an egress object, or an ECMP group when ecmp is set.
+    virtual sai_status_t l3_route_add(int vrf, const IpPrefix& p, int target, bool ecmp, bool replace) = 0;
+    virtual sai_status_t l3_route_delete(int vrf, const IpPrefix& p) = 0;
+    // ECMP groups (SDK multipath egress objects) over egress objects; a
+    // repeated egress object weighs more. Never empty: the SAI layer keeps an
+    // empty next-hop group without an SDK group.
+    virtual sai_status_t l3_ecmp_create(const std::vector<int>& egress, int& ecmp_id) = 0;
+    virtual sai_status_t l3_ecmp_update(int ecmp_id, const std::vector<int>& egress) = 0;
+    virtual sai_status_t l3_ecmp_destroy(int ecmp_id) = 0;
 };
 
 // Factories. make_openbcm_backend() returns nullptr when this libsai was

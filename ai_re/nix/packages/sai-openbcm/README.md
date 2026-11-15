@@ -10,7 +10,9 @@ backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF
 [sonic-nixos PROGRESS](../../../devices/sonic-nixos/PROGRESS.md)). LAG, SAI
 temperatures, the syncd temperature publisher and `--shutdown-at` are
 fake-tested only. orchagent and the rest of `services.sonic` run on the fake
-backend (VM test, [below](#what-orchagent-reads)); not yet on the switch.
+backend (VM test, [below](#what-orchagent-reads)) and on the switch (sonic-nixos
+PROGRESS). VRFs and next-hop groups (ECMP), 2026-11-15: fake-tested (unit + VM),
+not yet on the switch.
 
 ## Design
 
@@ -18,7 +20,7 @@ backend (VM test, [below](#what-orchagent-reads)); not yet on the switch.
  syncd (sairedis-openbcm)
    | sai_api_query / generic create,get,set,remove (C ABI, SAI 1.19)
  SAI layer  src/sai_*.cpp      object model, OIDs, attribute handling, events
-   | ob::Backend (src/backend.h): ~55 operations, SAI status codes
+   | ob::Backend (src/backend.h): ~60 operations, SAI status codes
    +-- fake     src/fake_backend.cpp   in-memory, deterministic, no hardware
    +-- openbcm  src/openbcm_backend.cpp -> src/sdk_glue.c -> libsdk.so (BCM API, diag shell, KNET kcom)
 ```
@@ -102,7 +104,7 @@ C/S/G = create/set/get. *stub* = stored and returned, not programmed.
 
 | object | supported | stubbed | not supported |
 | --- | --- | --- | --- |
-| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES, MAX_NUMBER_OF_TEMP_SENSORS, TEMP_LIST / MAX_TEMP / AVERAGE_TEMP (live PVTMON read, whole C rounded); the capacity attributes orchagent reads ([table below](#what-orchagent-reads)): ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY, TOTAL_BUFFER_SIZE, AVAILABLE_IPV4/IPV6_ROUTE/NEXTHOP/NEIGHBOR_ENTRY, AVAILABLE_FDB_ENTRY (live), and the honest zeros MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS (no actions), NUMBER_OF_ECMP_GROUPS, MAX_ECMP_MEMBER_COUNT, AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY; C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, MAX_STP_INSTANCE, ACL resource lists (AVAILABLE_ACL_TABLE*), NAT/IPMC/L2MC/MY_SID available counts, ACL table priority range, switch stats, INIT_SWITCH=false |
+| SWITCH | create (INIT_SWITCH=true only), remove; G: TYPE, PORT_NUMBER, PORT_LIST, CPU_PORT, MAX_NUMBER_OF_SUPPORTED_PORTS, DEFAULT_VIRTUAL_ROUTER_ID, DEFAULT_VLAN_ID, DEFAULT_1Q_BRIDGE_ID, DEFAULT_STP_INST_ID, DEFAULT_TRAP_GROUP, PORT_MAX_MTU, OPER_STATUS, QOS_MAX_NUMBER_OF_TRAFFIC_CLASSES, NUMBER_OF_(UNICAST_)QUEUES, MAX_NUMBER_OF_TEMP_SENSORS, TEMP_LIST / MAX_TEMP / AVERAGE_TEMP (live PVTMON read, whole C rounded); the capacity attributes orchagent reads ([table below](#what-orchagent-reads)): ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY, TOTAL_BUFFER_SIZE, AVAILABLE_IPV4/IPV6_ROUTE/NEXTHOP/NEIGHBOR_ENTRY, AVAILABLE_FDB_ENTRY, AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY (live), NUMBER_OF_ECMP_GROUPS, ECMP_MEMBERS, MAX_ECMP_MEMBER_COUNT (SDK), and the honest zeros MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS (no actions); C/S/G: SRC_MAC_ADDRESS, FDB_AGING_TIME, all *_NOTIFY pointers (port state + FDB events are raised) | ECMP/LAG hash seed/algorithm/offset, RESTART_WARM, WARM_RECOVER, PRE_SHUTDOWN, FAST_API_ENABLE, UNINIT_DATA_PLANE_ON_REMOVAL, VXLAN_DEFAULT_PORT, BCAST/MCAST_CPU_FLOOD_ENABLE, SWITCHING_MODE, FDB_*_MISS_PACKET_ACTION, COUNTER_REFRESH_INTERVAL, SWITCH_ID, SWITCH_PROFILE_ID; HARDWARE_ACCESS_BUS etc. ignored at create; SWITCH_HARDWARE_INFO returns empty | ECMP_HASH/LAG_HASH objects, VXLAN_DEFAULT_ROUTER_MAC, MAX_STP_INSTANCE, ACL resource lists (AVAILABLE_ACL_TABLE*), NAT/IPMC/L2MC/MY_SID available counts, ACL table priority range, switch stats, INIT_SWITCH=false |
 | PORT | G: TYPE, HW_LANE_LIST (SDK physical lanes), OPER_STATUS (live), SPEED/OPER_SPEED (live), SUPPORTED_SPEED, SUPPORTED_FEC_MODE, SUPPORTED_AUTO_NEG_MODE, QOS_NUMBER_OF_QUEUES, QOS_QUEUE_LIST, NUMBER_OF_INGRESS_PRIORITY_GROUPS, INGRESS_PRIORITY_GROUP_LIST, QOS_NUMBER_OF_SCHEDULER_GROUPS (0); S/G: ADMIN_STATE, SPEED, MTU (frame max = MTU + 8), FEC_MODE (NONE/RS/FC), AUTO_NEG_MODE, PORT_VLAN_ID, LOOPBACK_MODE (NONE/MAC/PHY); stats: IF_IN/OUT_{OCTETS,UCAST,NON_UCAST,BROADCAST,MULTICAST,DISCARDS,ERRORS}, IF_IN_UNKNOWN_PROTOS (read; clear-all) | MEDIA_TYPE, INTERFACE_TYPE, DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, LINK_TRAINING_ENABLE, GLOBAL_FLOW_CONTROL_MODE, PRIORITY_FLOW_CONTROL, UPDATE_DSCP, FULL_DUPLEX_MODE, IPG, PKT_TX_ENABLE, HOST_TX_SIGNAL_ENABLE, AUTO_NEG_FEC_MODE_OVERRIDE | create/remove (breakout), ADVERTISED_SPEED, PORT_SERDES, QoS map/policer/buffer bindings, PFC, per-counter clear, stats_ext READ_AND_CLEAR |
 | QUEUE / INGRESS_PRIORITY_GROUP | 8 + 8 per port, G: TYPE, INDEX, PORT, PARENT_SCHEDULER_NODE / PORT, INDEX, BUFFER_PROFILE (null) | | set, stats, scheduler groups |
 | VLAN | C/R; C/G VLAN_ID; G MEMBER_LIST, STP_INSTANCE (default); the CPU is a tagged member of every VLAN | LEARN_DISABLE, MAX_LEARNED_ADDRESSES, flood control types, MCAST lookup key types, META_DATA, CUSTOM_IGMP_SNOOPING_ENABLE | stats, flood groups, ACL bindings |
@@ -115,11 +117,13 @@ C/S/G = create/set/get. *stub* = stored and returned, not programmed.
 | HOSTIF_TRAP_GROUP | default + C/R/S/G: ADMIN_STATE, QUEUE (kept) | | POLICER (no policer objects) |
 | HOSTIF_TRAP | C/R/S/G TRAP_TYPE, PACKET_ACTION, TRAP_PRIORITY, TRAP_GROUP. Programmed: ARP request/response, DHCP, IGMP, MLD, IPv6 ND (switch controls); LACP, LLDP (exact L2 user entry, BPDU flag: CPU only, or discard when not trapped; removed: discard) | all other trap types are kept but **not programmed** (BGP, ... rely on SDK defaults / routes to CPU) | user-defined traps |
 | HOSTIF_TABLE_ENTRY | C/R/G (kept): WILDCARD + NETDEV_PHYSICAL/LOGICAL_PORT is what the per-port KNET filters already do | other types/channels kept, not programmed | set |
-| VIRTUAL_ROUTER | default only; G ADMIN_V4/V6_STATE, SRC_MAC_ADDRESS | | create (VRFs) |
-| ROUTER_INTERFACE (M2) | PORT on a port or a LAG (internal VLAN from 4094 down, port / every member untagged + PVID, L3 intf; neighbors egress to the trunk), VLAN, LOOPBACK (no SDK object); C/S/G SRC_MAC_ADDRESS (my-station entries), MTU; ADMIN_V4/V6_STATE kept | NEIGHBOR_MISS_PACKET_ACTION, V4/V6_MCAST_ENABLE, LOOPBACK_PACKET_ACTION, IS_VIRTUAL, NAT_ZONE_ID, DISABLE_DECREMENT_TTL, ADMIN_MPLS_STATE | SUB_PORT, BRIDGE, MPLS, stats |
-| NEIGHBOR_ENTRY (M2) | C/R/G DST_MAC_ADDRESS (S: egress replace), PACKET_ACTION FORWARD/DROP/TRAP, NO_HOST_ROUTE; egress port from the port RIF, or the FDB for VLAN RIFs (CPU until known) | | remove_all, encap index |
+| VIRTUAL_ROUTER | SDK VRF id (default VR = VRF 0, others 1..`l3info_max_vrf`); C/R; C/S/G SRC_MAC_ADDRESS (default for RIFs created without one), ADMIN_V4/V6_STATE (true only) | VIOLATION_TTL1/IP_OPTIONS_PACKET_ACTION, UNKNOWN_L3_MULTICAST_PACKET_ACTION | ADMIN_V4/V6_STATE false, labels |
+| ROUTER_INTERFACE (M2) | in any VR (the L3 interface binds its VLAN to the VR's VRF); PORT on a port or a LAG (internal VLAN from 4094 down, port / every member untagged + PVID, L3 intf; neighbors egress to the trunk), VLAN, LOOPBACK (no SDK object); C/S/G SRC_MAC_ADDRESS (my-station entries), MTU; ADMIN_V4/V6_STATE kept | NEIGHBOR_MISS_PACKET_ACTION, V4/V6_MCAST_ENABLE, LOOPBACK_PACKET_ACTION, IS_VIRTUAL, NAT_ZONE_ID, DISABLE_DECREMENT_TTL, ADMIN_MPLS_STATE | SUB_PORT, BRIDGE, MPLS, stats |
+| NEIGHBOR_ENTRY (M2) | host entry in the RIF's VRF; C/R/G DST_MAC_ADDRESS (S: egress replace), PACKET_ACTION FORWARD/DROP/TRAP, NO_HOST_ROUTE; egress port from the port RIF, or the FDB for VLAN RIFs (CPU until known) | | remove_all, encap index |
 | NEXT_HOP (M2) | type IP, C/R/G; uses the neighbor's egress object (CPU until the neighbor exists, then routes are re-pointed) | | other types |
-| ROUTE_ENTRY (M2) | default VR, IPv4/IPv6, C/R/S/G PACKET_ACTION (FORWARD/DROP/TRAP), NEXT_HOP_ID = next hop, RIF (connected: to CPU), CPU port (IP2ME) | META_DATA | next-hop groups (ECMP) |
+| ROUTE_ENTRY (M2) | any VR (route in its VRF), IPv4/IPv6, C/R/S/G PACKET_ACTION (FORWARD/DROP/TRAP), NEXT_HOP_ID = next hop (may sit in another VR: route leak), next-hop group (ECMP group; drop while it has no resolved member), RIF (connected: to CPU), CPU port (IP2ME) | META_DATA | |
+| NEXT_HOP_GROUP | type ECMP: SDK ECMP group (`bcm_l3_egress_ecmp_create`, routes BCM_L3_MULTIPATH) over the egress objects of the members' resolved next hops, created with the first resolved member, updated in place, destroyed with the last; C/R; G TYPE, NEXT_HOP_COUNT, NEXT_HOP_MEMBER_LIST | | other types (ordered, fine-grain, protection, ...), counters, bulk APIs |
+| NEXT_HOP_GROUP_MEMBER | C/R/G NEXT_HOP_GROUP_ID; C/S/G NEXT_HOP_ID, WEIGHT (repetitions of the egress object; more paths than the chip's group size are cut, with a warning); unresolved next hops are kept and join when their neighbor appears | SEQUENCE_ID | CONFIGURED/OBSERVED_ROLE, MONITORED_OBJECT, bulk create/remove |
 | LAG | SDK trunk (bcm_trunk_*, PSC RTAG 6 = src+dst IP); C/R; G PORT_LIST (LAG_MEMBER ids); C/S/G PORT_VLAN_ID (every member); INGRESS/EGRESS_ACL null only | DEFAULT_VLAN_PRIORITY, DROP_(UN)TAGGED, TPID | SYSTEM_PORT_AGGREGATE_ID, hash/ARS, labels, sampling, ACLs |
 | LAG_MEMBER | C/R/G LAG_ID, PORT_ID; C/S/G EGRESS_DISABLE, INGRESS_DISABLE (BCM_TRUNK_MEMBER_*); a joining port takes the LAG's VLANs, PVID, learning and RIF VLAN, a leaving one drops them (PVID 1, learning HW) | WEIGHT | bulk create/remove |
 | everything else (ACL, QoS maps, buffers, policers, mirror, tunnels, ...) | | | `sai_api_query` -> NOT_IMPLEMENTED |
@@ -147,7 +151,8 @@ orchagent does later. Values: openbcm = SDK at run time, fake = constants in
 | ACL_ENTRY_MINIMUM/MAXIMUM_PRIORITY | openbcm: BCM_FIELD_ENTRY_PRIO_LOWEST..HIGHEST (0..0x7fffffff); fake: same | AclOrch::init, fatal if the get fails. A chip fact; ACL objects stay NOT_IMPLEMENTED (sai_api_query) |
 | MAX_ACL_ACTION_COUNT, ACL_STAGE_INGRESS/EGRESS | 0, empty action lists | queryAclActionCapability: records no supported actions in STATE_DB (NOT_SUPPORTED would make it assume the default set); MAC-move guard soft-disables itself |
 | ACL table match fields (attribute capability) | not advertised | AclTableTypeBuilder skips every match field ("not supported by the platform") |
-| NUMBER_OF_ECMP_GROUPS, MAX_ECMP_MEMBER_COUNT, AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY | 0 | RouteOrch caps groups at this number and installs a multipath route with one next hop when it is reached. A failed get means 128 groups and `create_next_hop_group` failures (no NHG API). The chip's ECMP size goes to syncd's log at init (openbcm) |
+| NUMBER_OF_ECMP_GROUPS, ECMP_MEMBERS, MAX_ECMP_MEMBER_COUNT | openbcm: bcm_l3_info max ECMP groups / paths per group, L3_ECMP table entries; fake: 4096 / 64 / 16384 | RouteOrch caps its groups at NUMBER_OF_ECMP_GROUPS (beyond: a multipath route on one next hop) and logs MAX_ECMP_MEMBER_COUNT. All three go to syncd's log at init (openbcm) |
+| AVAILABLE_NEXT_HOP_GROUP(_MEMBER)_ENTRY | openbcm: bcmSwitchObjectEcmpMax - EcmpCurrent; L3_ECMP entries without a reference in the SDK's L3 software table (what a group reserves, not only its members); fake: capacity minus groups / member entries | CRM |
 | TOTAL_BUFFER_SIZE | openbcm: `_TH_MMU_TOTAL_CELLS` x `_TH_MMU_BYTES_PER_CELL` (16384 KB, Tomahawk only, else not supported); fake: same | BufferOrch: STATE_DB BUFFER_MAX_PARAM_TABLE mmu_size, read by buffermgrd (not run). No buffer pools/profiles are implemented |
 | AVAILABLE_IPV4/IPV6_ROUTE_ENTRY | openbcm: bcmSwitchObjectL3RouteV4RoutesFree / V6Routes64bFree; fake: 16384 / 8192 minus routes | CrmOrch counters |
 | AVAILABLE_IPV4/IPV6_NEXTHOP_ENTRY | free L3 egress objects (bcm_l3_info max - used nexthop); fake: 32768 minus egress | CRM. A next hop uses its neighbor's egress object |
@@ -188,7 +193,11 @@ CXXFLAGS=-I<SAI/experimental> check`.
   default membership and removal, VLAN/bridge-port/member semantics, FDB
   static/dynamic/flush and learn/age notifications, hostif/KNET mapping,
   traps, L3 (port RIF internal VLAN, next hop before neighbor, IP2ME, default
-  drop, prefix canonicalisation, in-use checks), LAG (members and disable
+  drop, prefix canonicalisation, in-use checks), VRFs (VR create/remove, RIF
+  VRF binding and MAC default, the same neighbor and prefix in two VRFs, IP2ME
+  and route leaking, VRF id exhaustion), ECMP (group lifecycle, route on an
+  empty group drops, unresolved members join with their neighbor, weights,
+  path limit, member next-hop change, in-use checks, free counts), LAG (members and disable
   flags, PVID, bridge port + VLAN + FDB on the trunk, join/leave, port RIF +
   neighbor on the trunk, LACP trap, member hostifs), temperature attributes
   and rounding, the temperature publisher (files, failed/implausible read,
@@ -307,7 +316,14 @@ hardware.
   re-runs `init all` only (untested on hardware).
 - **DMA**: KNET + SDK RX use the BDE DMA pool (`dmasize=16M` factory value);
   untested under load with syncd.
-- **Not implemented**: ECMP (next-hop groups), ACL, QoS/buffers/
+- **VRF / ECMP on hardware** (2026-11-15: fake only): the VRF binding is the
+  SDK's (`l3a_vrf` on the L3 interface: VLAN_TAB VRF_ID or the L3_IIF entry of
+  the internal VLAN); ECMP groups use the SDK's default group size
+  (`max_paths` 0) and are replaced in place (`BCM_L3_REPLACE|WITH_ID`).
+  Neither is proven on the BCM56930 yet; the free ECMP member count reads the
+  SDK's L3 software table (`bcm_int/esw/firebolt.h`), an internal structure.
+  ECMP hashing is the SDK default (no hash attributes programmed).
+- **Not implemented**: ACL, QoS/buffers/
   schedulers/policers (CoPP has no rate limits), port breakout, warm boot
   (`RESTART_WARM` is only stored), mirror, tunnels, sFlow, STP instances.
   orchagent survives all of them (VM test): it reads the

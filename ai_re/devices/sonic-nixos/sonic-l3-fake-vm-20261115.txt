@@ -1,0 +1,49 @@
+# vm-openbcm-fake-l3.nix (services.sonic on sai-openbcm's fake backend), 2026-11-15
+# out: /nix/store/w2yr27xcifwzzz5j7ws80462n4b9cahy-vm-test-run-sonic-l3-openbcm-fake
+PASS units active, no restarts (vrfmgrd included)
+PASS RouteOrch: ECMP groups from the SAI
+PASS RouteOrch: ECMP group size from the SAI
+PASS CONFIG_DB FLEX_COUNTER_TABLE|PORT seeded
+PASS syncd polls SAI_PORT_STAT_IF_IN_OCTETS for Ethernet8
+PASS show interfaces counters -i <alias>,<alias>
+PASS show interfaces counters -i <alias range>
+PASS show interfaces counters -i <alias>
+PASS unknown alias in a list still fails
+PASS one virtual router before
+PASS config vrf add Vrf-test
+PASS ASIC_DB: second virtual router
+PASS config interface vrf bind Ethernet32/1 Vrf-test
+PASS config interface ip add Ethernet32/1 10.0.0.1/31
+PASS config interface ip add Ethernet1/1 10.0.0.0/31
+PASS exactly one port RIF in Vrf-test
+PASS IP2ME 10.0.0.0/32 in the default VR
+PASS no 10.0.0.1/32 in the default VR
+PASS swssconfig ROUTE_TABLE:Vrf-test:198.51.100.0/24
+PASS its next hop is 10.0.0.0
+PASS 198.51.100.0/24 not in the default VR
+PASS config interface ip add Ethernet3/1 10.1.1.0/31
+PASS config interface ip add Ethernet4/1 10.1.2.0/31
+PASS swssconfig ROUTE_TABLE:192.0.2.0/24
+PASS RouteOrch created a next-hop group
+PASS with two members
+PASS 192.0.2.0/24 points at the group
+PASS members belong to it
+PASS swssconfig ROUTE_TABLE:192.0.2.0/24
+PASS route on a single next hop
+PASS swssconfig ROUTE_TABLE:192.0.2.0/24
+PASS swssconfig ROUTE_TABLE:192.0.2.0/24
+PASS swssconfig ROUTE_TABLE:Vrf-test:198.51.100.0/24
+PASS config interface vrf unbind
+PASS config vrf del Vrf-test
+PASS no VR/NHG create failures in the logs
+PASS units active, no restarts at the end
+SUMMARY: 0 failures: []
+## orchagent / syncd log lines
+syncd[680]: sai-openbcm NOTICE api=9: rif type 2 vid 0 intf -1 vrf 0
+orchagent[683]: :- RouteOrch: Maximum number of ECMP groups supported is 4096
+orchagent[683]: :- RouteOrch: Switch Type: switch, Max ECMP Group Size supported: 16384
+syncd[680]: sai-openbcm NOTICE api=5: virtual router: SDK VRF 1
+syncd[680]: sai-openbcm NOTICE api=9: rif type 0 vid 4094 intf 1 vrf 1
+syncd[680]: sai-openbcm NOTICE api=9: rif type 0 vid 4093 intf 2 vrf 0
+syncd[680]: sai-openbcm NOTICE api=9: rif type 0 vid 4092 intf 3 vrf 0
+syncd[680]: sai-openbcm NOTICE api=9: rif type 0 vid 4091 intf 4 vrf 0

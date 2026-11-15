@@ -88,9 +88,10 @@ public:
         ob_chip_limits_t lim;
         if (ob_sdk_chip_limits(unit_, &lim) == OB_E_NONE)
             OB_NOTICE(SAI_API_SWITCH, "SDK tables: host %d, route %d, egress %d, L2 %d; buffer %llu B; "
-                      "ECMP %d groups x %d paths (not exposed: no next-hop groups in this SAI)",
+                      "ECMP %d groups x %d paths, %d member entries; VRF ids up to %d",
                       lim.max_host, lim.max_route, lim.max_nexthop, lim.max_l2,
-                      (unsigned long long)lim.buffer_bytes, lim.ecmp_groups, lim.ecmp_paths);
+                      (unsigned long long)lim.buffer_bytes, lim.ecmp_groups, lim.ecmp_paths,
+                      lim.ecmp_members, lim.vrf_max);
         return SAI_STATUS_SUCCESS;
     }
 
@@ -130,6 +131,8 @@ public:
         u.hosts_free = t.hosts_free;
         u.egress_free = t.egress_free;
         u.fdb_free = t.fdb_free;
+        u.ecmp_groups_free = t.ecmp_groups_free;
+        u.ecmp_members_free = t.ecmp_members_free;
         return SAI_STATUS_SUCCESS;
     }
 
@@ -140,6 +143,10 @@ public:
         l.buffer_bytes = c.buffer_bytes;
         l.acl_prio_min = c.acl_prio_min;
         l.acl_prio_max = c.acl_prio_max;
+        l.vrf_max = c.vrf_max > 0 ? (uint32_t)c.vrf_max : 0;
+        l.ecmp_groups = c.ecmp_groups > 0 ? (uint32_t)c.ecmp_groups : 0;
+        l.ecmp_paths = c.ecmp_paths > 0 ? (uint32_t)c.ecmp_paths : 0;
+        l.ecmp_members = c.ecmp_members > 0 ? (uint32_t)c.ecmp_members : 0;
         return SAI_STATUS_SUCCESS;
     }
 
@@ -276,8 +283,8 @@ public:
 
     sai_status_t trap_set(TrapKind kind, bool to_cpu) override { RV(ob_sdk_trap_set(unit_, (int)kind, to_cpu)); return SAI_STATUS_SUCCESS; }
 
-    sai_status_t l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int& id) override { RV(ob_sdk_l3_intf_create(unit_, mac, vid, (int)mtu, &id)); return SAI_STATUS_SUCCESS; }
-    sai_status_t l3_intf_update(int id, const uint8_t mac[6], uint16_t vid, uint32_t mtu) override { RV(ob_sdk_l3_intf_update(unit_, id, mac, vid, (int)mtu)); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf, int& id) override { RV(ob_sdk_l3_intf_create(unit_, mac, vid, (int)mtu, vrf, &id)); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_intf_update(int id, const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf) override { RV(ob_sdk_l3_intf_update(unit_, id, mac, vid, (int)mtu, vrf)); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_intf_destroy(int id) override { RV(ob_sdk_l3_intf_destroy(unit_, id)); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_station_add(const uint8_t mac[6], int& id) override { RV(ob_sdk_l3_station_add(unit_, mac, &id)); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_station_delete(int id) override { RV(ob_sdk_l3_station_delete(unit_, id)); return SAI_STATUS_SUCCESS; }
@@ -291,14 +298,18 @@ public:
     }
     sai_status_t l3_egress_cpu(int& id) override { id = cpu_egress_; return id >= 0 ? SAI_STATUS_SUCCESS : SAI_STATUS_FAILURE; }
     sai_status_t l3_egress_drop(int& id) override { id = drop_egress_; return id >= 0 ? SAI_STATUS_SUCCESS : SAI_STATUS_FAILURE; }
-    sai_status_t l3_host_add(const IpAddr& ip, int egress) override { RV(ob_sdk_l3_host_add(unit_, ip.v6, ip.addr, egress)); return SAI_STATUS_SUCCESS; }
-    sai_status_t l3_host_delete(const IpAddr& ip) override { RV(ob_sdk_l3_host_delete(unit_, ip.v6, ip.addr)); return SAI_STATUS_SUCCESS; }
-    sai_status_t l3_route_add(const IpPrefix& p, int egress, bool replace) override
+    sai_status_t l3_host_add(int vrf, const IpAddr& ip, int egress) override { RV(ob_sdk_l3_host_add(unit_, vrf, ip.v6, ip.addr, egress)); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_host_delete(int vrf, const IpAddr& ip) override { RV(ob_sdk_l3_host_delete(unit_, vrf, ip.v6, ip.addr)); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_route_add(int vrf, const IpPrefix& p, int target, bool ecmp, bool replace) override
     {
-        RV(ob_sdk_l3_route_add(unit_, p.addr.v6, p.addr.addr, p.mask.addr, egress, egress == drop_egress_, replace));
+        RV(ob_sdk_l3_route_add(unit_, vrf, p.addr.v6, p.addr.addr, p.mask.addr, target, ecmp,
+                               !ecmp && target == drop_egress_, replace));
         return SAI_STATUS_SUCCESS;
     }
-    sai_status_t l3_route_delete(const IpPrefix& p) override { RV(ob_sdk_l3_route_delete(unit_, p.addr.v6, p.addr.addr, p.mask.addr)); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_route_delete(int vrf, const IpPrefix& p) override { RV(ob_sdk_l3_route_delete(unit_, vrf, p.addr.v6, p.addr.addr, p.mask.addr)); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_ecmp_create(const std::vector<int>& m, int& id) override { RV(ob_sdk_l3_ecmp_set(unit_, &id, 0, m.data(), (int)m.size())); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_ecmp_update(int id, const std::vector<int>& m) override { RV(ob_sdk_l3_ecmp_set(unit_, &id, 1, m.data(), (int)m.size())); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_ecmp_destroy(int id) override { RV(ob_sdk_l3_ecmp_destroy(unit_, id)); return SAI_STATUS_SUCCESS; }
 
 private:
     // Called from SDK threads (linkscan, L2X): only queue.

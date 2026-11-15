@@ -45,6 +45,7 @@
 #include <bcm/field.h>
 #include <soc/tomahawk.h>
 #include <bcm_int/control.h>
+#include <bcm_int/esw/firebolt.h>   /* L3 software tables: ECMP member accounting */
 #include <appl/diag/shell.h>
 #include <bcm-knet-kcom.h>
 
@@ -436,6 +437,23 @@ int ob_sdk_table_usage(int unit, ob_table_usage_t* u)
     u->hosts_free = left(li.l3info_max_host, li.l3info_occupied_host);
     u->egress_free = left(li.l3info_max_nexthop, li.l3info_used_nexthop);
     u->fdb_free = left(l2max, l2cur);
+    {
+        int gmax = 0, gcur = 0;
+        if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectEcmpMax, &gmax)) < 0) return rv;
+        if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectEcmpCurrent, &gcur)) < 0) return rv;
+        u->ecmp_groups_free = left(gmax, gcur);
+    }
+    {
+        /* L3_ECMP entries the SDK has handed out (a group reserves its
+         * entries), as bcmSwitchObjectEcmpMembersUsed counts them on the
+         * chips that support that object (not the BCM56960). */
+        _bcm_l3_tbl_t* t = BCM_XGS3_L3_TBL_PTR(unit, ecmp);
+        int i, used = 0;
+        if (t == NULL || t->ext_arr == NULL) return BCM_E_INIT;
+        for (i = 0; i <= t->idx_max; i++)
+            if (BCM_XGS3_L3_ENT_REF_CNT(t, i)) used++;
+        u->ecmp_members_free = left(t->idx_max + 1, used);
+    }
     return BCM_E_NONE;
 }
 
@@ -455,6 +473,11 @@ int ob_sdk_chip_limits(int unit, ob_chip_limits_t* l)
     l->max_nexthop = li.l3info_max_nexthop;
     l->ecmp_groups = li.l3info_max_ecmp_groups;
     l->ecmp_paths = li.l3info_max_ecmp;
+    l->vrf_max = li.l3info_max_vrf;
+    {
+        _bcm_l3_tbl_t* t = BCM_XGS3_L3_TBL_PTR(unit, ecmp);
+        l->ecmp_members = (t != NULL && t->ext_arr != NULL) ? t->idx_max + 1 : 0;
+    }
     if ((rv = bcm_switch_object_count_get(unit, bcmSwitchObjectL2EntryMax, &l->max_l2)) < 0) return rv;
     return BCM_E_NONE;
 }
@@ -835,7 +858,9 @@ int ob_sdk_trunk_set(int unit, int tid, const int* ports, const int* flags, int 
     return bcm_trunk_set(unit, (bcm_trunk_t)tid, &info, n, m);
 }
 
-int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int* intf_id)
+/* The SDK binds the interface's VLAN to l3a_vrf (VLAN_TAB VRF_ID or the
+ * L3_IIF entry of the VLAN): packets routed in on that VLAN look up that VRF. */
+int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int vrf, int* intf_id)
 {
     bcm_l3_intf_t i;
     int rv;
@@ -843,12 +868,13 @@ int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int*
     memcpy(i.l3a_mac_addr, mac, 6);
     i.l3a_vid = (bcm_vlan_t)vid;
     i.l3a_mtu = mtu;
+    i.l3a_vrf = (bcm_vrf_t)vrf;
     rv = bcm_l3_intf_create(unit, &i);
     if (rv >= 0) *intf_id = i.l3a_intf_id;
     return rv;
 }
 
-int ob_sdk_l3_intf_update(int unit, int intf_id, const uint8_t mac[6], int vid, int mtu)
+int ob_sdk_l3_intf_update(int unit, int intf_id, const uint8_t mac[6], int vid, int mtu, int vrf)
 {
     bcm_l3_intf_t i;
     bcm_l3_intf_t_init(&i);
@@ -857,6 +883,7 @@ int ob_sdk_l3_intf_update(int unit, int intf_id, const uint8_t mac[6], int vid, 
     memcpy(i.l3a_mac_addr, mac, 6);
     i.l3a_vid = (bcm_vlan_t)vid;
     i.l3a_mtu = mtu;
+    i.l3a_vrf = (bcm_vrf_t)vrf;
     return bcm_l3_intf_create(unit, &i);
 }
 
@@ -936,28 +963,31 @@ static bcm_ip_t ip4_host(const uint8_t* a)
     return ((bcm_ip_t)a[0] << 24) | ((bcm_ip_t)a[1] << 16) | ((bcm_ip_t)a[2] << 8) | (bcm_ip_t)a[3];
 }
 
-int ob_sdk_l3_host_add(int unit, int v6, const uint8_t* addr, int egress_id)
+int ob_sdk_l3_host_add(int unit, int vrf, int v6, const uint8_t* addr, int egress_id)
 {
     bcm_l3_host_t h;
     bcm_l3_host_t_init(&h);
+    h.l3a_vrf = (bcm_vrf_t)vrf;
     if (v6) { h.l3a_flags |= BCM_L3_IP6; memcpy(h.l3a_ip6_addr, addr, 16); }
     else h.l3a_ip_addr = ip4_host(addr);
     h.l3a_intf = egress_id;
     return bcm_l3_host_add(unit, &h);
 }
 
-int ob_sdk_l3_host_delete(int unit, int v6, const uint8_t* addr)
+int ob_sdk_l3_host_delete(int unit, int vrf, int v6, const uint8_t* addr)
 {
     bcm_l3_host_t h;
     bcm_l3_host_t_init(&h);
+    h.l3a_vrf = (bcm_vrf_t)vrf;
     if (v6) { h.l3a_flags |= BCM_L3_IP6; memcpy(h.l3a_ip6_addr, addr, 16); }
     else h.l3a_ip_addr = ip4_host(addr);
     return bcm_l3_host_delete(unit, &h);
 }
 
-static void route_fill(bcm_l3_route_t* r, int v6, const uint8_t* addr, const uint8_t* mask)
+static void route_fill(bcm_l3_route_t* r, int vrf, int v6, const uint8_t* addr, const uint8_t* mask)
 {
     bcm_l3_route_t_init(r);
+    r->l3a_vrf = (bcm_vrf_t)vrf;
     if (v6) {
         r->l3a_flags |= BCM_L3_IP6;
         memcpy(r->l3a_ip6_net, addr, 16);
@@ -968,20 +998,48 @@ static void route_fill(bcm_l3_route_t* r, int v6, const uint8_t* addr, const uin
     }
 }
 
-int ob_sdk_l3_route_add(int unit, int v6, const uint8_t* addr, const uint8_t* mask, int egress_id, int drop,
-                        int replace)
+int ob_sdk_l3_route_add(int unit, int vrf, int v6, const uint8_t* addr, const uint8_t* mask, int egress_id,
+                        int ecmp, int drop, int replace)
 {
     bcm_l3_route_t r;
-    route_fill(&r, v6, addr, mask);
+    route_fill(&r, vrf, v6, addr, mask);
     r.l3a_intf = egress_id;
+    if (ecmp) r.l3a_flags |= BCM_L3_MULTIPATH;
     if (drop) r.l3a_flags |= BCM_L3_DST_DISCARD;
     if (replace) r.l3a_flags |= BCM_L3_REPLACE;
     return bcm_l3_route_add(unit, &r);
 }
 
-int ob_sdk_l3_route_delete(int unit, int v6, const uint8_t* addr, const uint8_t* mask)
+int ob_sdk_l3_route_delete(int unit, int vrf, int v6, const uint8_t* addr, const uint8_t* mask)
 {
     bcm_l3_route_t r;
-    route_fill(&r, v6, addr, mask);
+    route_fill(&r, vrf, v6, addr, mask);
     return bcm_l3_route_delete(unit, &r);
+}
+
+/* ECMP groups: multipath egress objects (max_paths 0 = the SDK's default
+ * group size, bcm_l3_route_max_ecmp_set). */
+int ob_sdk_l3_ecmp_set(int unit, int* ecmp_id, int replace, const int* egress, int n)
+{
+    bcm_l3_egress_ecmp_t e;
+    bcm_if_t members[256];
+    int i, rv;
+    if (n <= 0 || n > (int)(sizeof(members) / sizeof(members[0]))) return BCM_E_PARAM;
+    for (i = 0; i < n; i++) members[i] = (bcm_if_t)egress[i];
+    bcm_l3_egress_ecmp_t_init(&e);
+    if (replace) {
+        e.flags = BCM_L3_REPLACE | BCM_L3_WITH_ID;
+        e.ecmp_intf = (bcm_if_t)*ecmp_id;
+    }
+    rv = bcm_l3_egress_ecmp_create(unit, &e, n, members);
+    if (rv >= 0) *ecmp_id = e.ecmp_intf;
+    return rv;
+}
+
+int ob_sdk_l3_ecmp_destroy(int unit, int ecmp_id)
+{
+    bcm_l3_egress_ecmp_t e;
+    bcm_l3_egress_ecmp_t_init(&e);
+    e.ecmp_intf = (bcm_if_t)ecmp_id;
+    return bcm_l3_egress_ecmp_destroy(unit, &e);
 }

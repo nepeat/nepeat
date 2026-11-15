@@ -18,7 +18,8 @@
 //                            port (what KNET carries), no switching. One
 //                            thread per wired netif.
 // Tables: fixed capacities (FAKE_* in fake_backend.cpp) minus what the model
-// holds; chip limits: the Tomahawk's values.
+// holds; chip limits: the Tomahawk's values (VRF and ECMP sizes: fake
+// constants of the same order; the openbcm backend reads the SDK's).
 // Temperatures: 8 monitors, current 40.0, 41.5, ... 50.5 C, peak = current
 // + 0.5 C (test hooks: temps, temp_fail).
 #pragma once
@@ -49,7 +50,9 @@ public:
     struct L2 { int hw; bool is_static; bool discard; };
     struct Netif { std::string name; int hw; uint16_t vid; uint8_t mac[6]; bool keep_tag; bool carrier; int filter; };
     struct Egress { int intf; uint8_t mac[6]; int hw; uint16_t vid; bool cpu; bool drop; };
-    struct Intf { uint8_t mac[6]; uint16_t vid; uint32_t mtu; };
+    struct Intf { uint8_t mac[6]; uint16_t vid; uint32_t mtu; int vrf; };
+    using HostKey = std::pair<int, IpAddr>;            // vrf, address
+    using RouteKey = std::pair<int, IpPrefix>;         // vrf, prefix
 
     ~FakeBackend() override;
     const char* name() const override { return "fake"; }
@@ -101,8 +104,8 @@ public:
 
     sai_status_t trap_set(TrapKind kind, bool to_cpu) override;
 
-    sai_status_t l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int& intf_id) override;
-    sai_status_t l3_intf_update(int intf_id, const uint8_t mac[6], uint16_t vid, uint32_t mtu) override;
+    sai_status_t l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf, int& intf_id) override;
+    sai_status_t l3_intf_update(int intf_id, const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf) override;
     sai_status_t l3_intf_destroy(int intf_id) override;
     sai_status_t l3_station_add(const uint8_t mac[6], int& station_id) override;
     sai_status_t l3_station_delete(int station_id) override;
@@ -111,10 +114,13 @@ public:
     sai_status_t l3_egress_destroy(int egress_id) override;
     sai_status_t l3_egress_cpu(int& egress_id) override;
     sai_status_t l3_egress_drop(int& egress_id) override;
-    sai_status_t l3_host_add(const IpAddr& ip, int egress_id) override;
-    sai_status_t l3_host_delete(const IpAddr& ip) override;
-    sai_status_t l3_route_add(const IpPrefix& p, int egress_id, bool replace) override;
-    sai_status_t l3_route_delete(const IpPrefix& p) override;
+    sai_status_t l3_host_add(int vrf, const IpAddr& ip, int egress_id) override;
+    sai_status_t l3_host_delete(int vrf, const IpAddr& ip) override;
+    sai_status_t l3_route_add(int vrf, const IpPrefix& p, int target, bool ecmp, bool replace) override;
+    sai_status_t l3_route_delete(int vrf, const IpPrefix& p) override;
+    sai_status_t l3_ecmp_create(const std::vector<int>& egress, int& ecmp_id) override;
+    sai_status_t l3_ecmp_update(int ecmp_id, const std::vector<int>& egress) override;
+    sai_status_t l3_ecmp_destroy(int ecmp_id) override;
 
     // ---- test hooks (not part of the backend interface) ----
     void inject_link(int hw, bool up);                 // e.g. cable pulled
@@ -132,8 +138,9 @@ public:
     std::map<int, Intf> intfs;
     std::map<int, std::vector<uint8_t>> stations;
     std::map<int, Egress> egress;
-    std::map<IpAddr, int> hosts;
-    std::map<IpPrefix, int> routes;
+    std::map<HostKey, int> hosts;
+    std::map<RouteKey, int> routes;                    // -> egress id, or ECMP id (ecmps)
+    std::map<int, std::vector<int>> ecmps;             // ECMP id -> egress ids
     uint32_t age_seconds = 300;
     bool tap_mode = false;                             // SAI_OPENBCM_FAKE_NETDEV=tap
     std::map<std::string, std::string> wire;           // netif name -> host ifname
@@ -161,6 +168,7 @@ private:
     bool link_follows_admin_ = true;
     int next_tid_ = 1;
     int next_netif_ = 1, next_filter_ = 2, next_intf_ = 1, next_station_ = 1, next_egress_ = 100002;
+    int next_ecmp_ = 200000;                           // the SDK's multipath id range
     int cpu_egress_ = -1, drop_egress_ = -1;
 };
 

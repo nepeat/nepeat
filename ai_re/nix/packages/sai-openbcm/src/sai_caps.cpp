@@ -22,6 +22,9 @@ namespace ob {
 #define NEIGHBOR_ENTRY_ATTR(a) SAI_NEIGHBOR_ENTRY_ATTR_##a
 #define NEXT_HOP_ATTR(a) SAI_NEXT_HOP_ATTR_##a
 #define ROUTE_ENTRY_ATTR(a) SAI_ROUTE_ENTRY_ATTR_##a
+#define VIRTUAL_ROUTER_ATTR(a) SAI_VIRTUAL_ROUTER_ATTR_##a
+#define NEXT_HOP_GROUP_ATTR(a) SAI_NEXT_HOP_GROUP_ATTR_##a
+#define NEXT_HOP_GROUP_MEMBER_ATTR(a) SAI_NEXT_HOP_GROUP_MEMBER_ATTR_##a
 #define QUEUE_ATTR(a) SAI_QUEUE_ATTR_##a
 #define STP_ATTR(a) SAI_STP_ATTR_##a
 #define LAG_ATTR(a) SAI_LAG_ATTR_##a
@@ -63,6 +66,7 @@ const std::vector<AttrCap>& attr_caps()
         C(SWITCH, ACL_STAGE_INGRESS, false, false, true),
         C(SWITCH, ACL_STAGE_EGRESS, false, false, true),
         C(SWITCH, NUMBER_OF_ECMP_GROUPS, false, false, true),
+        C(SWITCH, ECMP_MEMBERS, false, false, true),
         C(SWITCH, MAX_ECMP_MEMBER_COUNT, false, false, true),
         C(SWITCH, TOTAL_BUFFER_SIZE, false, false, true),
         C(SWITCH, AVAILABLE_IPV4_ROUTE_ENTRY, false, false, true),
@@ -129,6 +133,9 @@ const std::vector<AttrCap>& attr_caps()
         C(HOSTIF_TRAP, PACKET_ACTION, true, true, true),
         C(HOSTIF_TRAP_GROUP, QUEUE, true, true, true),
 
+        C(VIRTUAL_ROUTER, ADMIN_V4_STATE, true, true, true),
+        C(VIRTUAL_ROUTER, ADMIN_V6_STATE, true, true, true),
+        C(VIRTUAL_ROUTER, SRC_MAC_ADDRESS, true, true, true),
         C(ROUTER_INTERFACE, VIRTUAL_ROUTER_ID, true, false, true),
         C(ROUTER_INTERFACE, TYPE, true, false, true),
         C(ROUTER_INTERFACE, PORT_ID, true, false, true),
@@ -142,6 +149,12 @@ const std::vector<AttrCap>& attr_caps()
         C(NEXT_HOP, ROUTER_INTERFACE_ID, true, false, true),
         C(ROUTE_ENTRY, PACKET_ACTION, true, true, true),
         C(ROUTE_ENTRY, NEXT_HOP_ID, true, true, true),
+        C(NEXT_HOP_GROUP, TYPE, true, false, true),
+        C(NEXT_HOP_GROUP, NEXT_HOP_COUNT, false, false, true),
+        C(NEXT_HOP_GROUP, NEXT_HOP_MEMBER_LIST, false, false, true),
+        C(NEXT_HOP_GROUP_MEMBER, NEXT_HOP_GROUP_ID, true, false, true),
+        C(NEXT_HOP_GROUP_MEMBER, NEXT_HOP_ID, true, true, true),
+        C(NEXT_HOP_GROUP_MEMBER, WEIGHT, true, true, true),
     };
     return caps;
 }
