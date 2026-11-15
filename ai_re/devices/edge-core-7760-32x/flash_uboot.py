@@ -7,7 +7,8 @@ FMan microcode, ONIE, the environment and the NOS are not touched.
   ./flash_uboot.py --port /dev/ttyUSB0 --image u-boot.bin --tftp-server 192.0.2.10
   ./flash_uboot.py --port /dev/ttyUSB0 --image u-boot.bin --mmc u-boot-nor.bin
   ./flash_uboot.py ... --dry-run            # every check + RAM load, no flash write
-  ./flash_uboot.py ... --image backup/uboot-before.bin --restore   # go back
+  ./flash_uboot.py ... --image backup/uboot-before.bin --restore   # back to an earlier upstream build
+                                            # (the factory 2014 U-Boot is refused: unsupported)
 
 What it does, in order (anything unexpected aborts BEFORE the flash is touched):
   1. checks the image file (size, reset vector, board strings)
@@ -152,6 +153,9 @@ def check_image(path, restore):
         problems.append("last word is not the e6500 reset-vector branch (4bfff004): not a NOR boot image")
     if b"U-Boot 20" not in data:
         problems.append("no U-Boot version string inside")
+    if b"U-Boot 2014." in data or (zlib.crc32(data) & 0xFFFFFFFF) in KNOWN_IMAGES:
+        problems.append("this is the factory U-Boot (2014.07): going back to it is unsupported "
+                        "(upstream -> upstream only; dumps/mtd7.bin stays as evidence, see u-boot-port.md)")
     if not restore and b"AS7760-32X" not in data:
         problems.append("no AS7760-32X board string inside (wrong board build? stock T2080RDB images must NOT be flashed)")
     if problems:

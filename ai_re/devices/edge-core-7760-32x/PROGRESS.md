@@ -13,9 +13,11 @@ longer background.
 - **Change it:** Nix is in [ai_re/nix](../../nix/README.md);
   `./deploy.sh` (system), `./flash_uboot.py` (U-Boot, with checks + backup),
   `./chainload_uboot.py` (try a U-Boot build in RAM first).
-- **Recover:** factory U-Boot `dumps/mtd7.bin`, previous upstream build + env in
+- **Recover:** previous upstream build + env in
   `dumps/flash-backup-20261114-pre-0013/`; restore with `flash_uboot.py --restore`
-  from a working prompt, else flash clip/JTAG at NOR offset 0x7F40000.
+  from a working prompt, else flash clip/JTAG at NOR offset 0x7F40000. Going back
+  to the factory U-Boot (`dumps/mtd7.bin`, kept as evidence) is **unsupported**
+  since 2026-11-15; flash_uboot.py refuses it.
   SD original: `dumps/mmcblk0.img`. ONIE in NOR is untouched (`run onie_bootcmd`).
 - **ASIC:** PCIe MMIO to the BCM56930 works since the device-tree aperture fix
   (0xc_4000_0000, matching U-Boot's LAW); OpenBCM BDE modules load and
@@ -27,9 +29,8 @@ longer background.
   node-exporter on :9100 (+ `switch_*`, `fand_*` metrics) is scraped by the lab
   VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
-  behaviour (lowmem cap), harmless; restoring the *factory* image with
-  flash_uboot.py is untested (upstream→upstream is tested); other T2080 boards
-  need their own DDR/DT patches. Details: [u-boot-port.md](u-boot-port.md).
+  behaviour (lowmem cap), harmless; other T2080 boards (K2 cards) need their
+  own DDR/DT patches, later. Details: [u-boot-port.md](u-boot-port.md).
 
 ## 2026-11-15 (later) — ASIC die temperature drives the fans
 

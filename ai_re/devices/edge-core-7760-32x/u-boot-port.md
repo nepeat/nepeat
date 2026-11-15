@@ -217,7 +217,7 @@ mapping of the UART overlaps the 16M CCSR entry in AS0 (multi-hit) — both
 produced false "it dies here" readings.
 
 Open: `WARNING: adjusting available memory` (stock lowmem cap, harmless);
-restoring the factory image through flash_uboot.py untested; SPL `spltest`
+restoring the factory image is unsupported (flash_uboot.py refuses it); SPL `spltest`
 fault (moot); U-Boot update from Linux (mtd7 write path unproven).
 
 ## proposed path (nixpkgs `buildUBoot`, patches only)
