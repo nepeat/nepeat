@@ -1,0 +1,33 @@
+diff --git a/config/main.py b/config/main.py
+index 6ff0e24..af2b527 100644
+--- a/config/main.py
++++ b/config/main.py
+@@ -104,6 +104,8 @@ INTF_KEY = "interfaces"
+ DEFAULT_GOLDEN_CONFIG_DB_FILE = '/etc/sonic/golden_config_db.json'
+ 
+ INIT_CFG_FILE = '/etc/sonic/init_cfg.json'
++# NixOS: the config loader of the sonic module (see "config reload").
++NIXOS_SONIC_LOADER = '/run/current-system/sw/bin/sonic-nix'
+ 
+ DEFAULT_NAMESPACE = ''
+ CFG_LOOPBACK_PREFIX = "Loopback"
+@@ -2447,6 +2449,19 @@ def reload(db, filename, yes, load_sysinfo, no_service_restart, force, file_form
+         else:
+             config_file_yang_validation(filename)
+ 
++    # NixOS (ai_re nix/modules/switch/sonic): the NixOS config loader owns
++    # the merge of the Nix base with the saved file (enforce/seed rules,
++    # host tables dropped, conflicts reported). Hand the reload over to it:
++    # it stops sonic.target, flushes and loads CONFIG_DB, starts it again.
++    if os.access(NIXOS_SONIC_LOADER, os.X_OK) and file_format == 'config_db' and not multi_asic.is_multi_asic():
++        command = [NIXOS_SONIC_LOADER, 'reload']
++        if cfg_files:
++            command += ['--user-file', cfg_files[0]]
++        if no_service_restart:
++            command += ['--no-service-restart']
++        clicommon.run_command(command, display_cmd=True)
++        return
++
+     #Stop services before config push
+     if not no_service_restart:
+         try:

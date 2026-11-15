@@ -1,0 +1,47 @@
+diff --git a/config/main.py b/config/main.py
+index 6ff0e24..213b574 100644
+--- a/config/main.py
++++ b/config/main.py
+@@ -3223,6 +3223,13 @@ def portchannel_member(ctx):
+ @click.pass_context
+ def add_portchannel_member(ctx, portchannel_name, port_name):
+     """Add member to port channel"""
++    # Alias naming mode: the member is given by its alias (all other port
++    # commands convert it; these two wrote the alias into PORTCHANNEL_MEMBER).
++    if clicommon.get_interface_naming_mode() == "alias":
++        alias = port_name
++        port_name = interface_alias_to_name(None, alias)
++        if port_name is None:
++            ctx.fail("cannot find port name for alias {}".format(alias))
+     db = ValidatedConfigDBConnector(ctx.obj['db'])
+ 
+     if ADHOC_VALIDATION:
+@@ -3333,6 +3340,13 @@ def add_portchannel_member(ctx, portchannel_name, port_name):
+ @click.pass_context
+ def del_portchannel_member(ctx, portchannel_name, port_name):
+     """Remove member from portchannel"""
++    # Alias naming mode: the member is given by its alias (all other port
++    # commands convert it; these two wrote the alias into PORTCHANNEL_MEMBER).
++    if clicommon.get_interface_naming_mode() == "alias":
++        alias = port_name
++        port_name = interface_alias_to_name(None, alias)
++        if port_name is None:
++            ctx.fail("cannot find port name for alias {}".format(alias))
+     # Dont proceed if the port channel name is not valid
+     if is_portchannel_name_valid(portchannel_name) is False:
+         ctx.fail("{} is invalid!, name should have prefix '{}' and suffix '{}'"
+diff --git a/utilities_common/cli.py b/utilities_common/cli.py
+index c053816..9b4d5bd 100644
+--- a/utilities_common/cli.py
++++ b/utilities_common/cli.py
+@@ -772,7 +772,9 @@ def run_command(command, display_cmd=False, ignore_error=False, return_cmd=False
+     # both SONiC interface name and alias name for all interfaces.
+     # IP route table cannot be handled in function run_command_in_alias_mode since it is in JSON format
+     # with a list for next hops
+-    if (get_interface_naming_mode() == "alias" and not command_str.startswith("intfutil") and not re.search(
++    # return_cmd callers parse the raw output: never divert them to the alias
++    # printer, which returns None (TypeError in every caller in alias mode).
++    if (get_interface_naming_mode() == "alias" and not return_cmd and not command_str.startswith("intfutil") and not re.search(
+             "show ip|ipv6 route", command_str)):
+         return run_command_in_alias_mode(command, shell=shell)
+ 

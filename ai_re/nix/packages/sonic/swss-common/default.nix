@@ -33,6 +33,10 @@ stdenv.mkDerivation {
     # sonic-yang-models instead; see gen-cfg-schema.py for how it differs.
     perl -0pi -e 's|(# Generate minimal static schema.*?\ncommon/cfg_schema.h: FORCE\n).*?\nendif|$1\t\$(AM_V_GEN)python3 -I ${./gen-cfg-schema.py} -o \$@ ${yangModels}/yang-models ${yangModels}/yang-templates\nendif|s' common/Makefile.am
     grep -q gen-cfg-schema.py common/Makefile.am
+    # ... and give the Python bindings those macros too (upstream wraps
+    # cfg_schema.h only with YANG support; sonic-utilities imports them).
+    perl -0pi -e 's|#ifdef ENABLE_YANG_MODULES\n%include "cfg_schema.h"|%include "cfg_schema.h"\n#ifdef ENABLE_YANG_MODULES|' pyext/swsscommon.i
+    grep -B1 -A1 '^%include "cfg_schema.h"' pyext/swsscommon.i | grep -q '^#ifdef ENABLE_YANG_MODULES'
   '';
 
   # Upstream builds with -Werror against Debian's compiler; newer GCCs add warnings.

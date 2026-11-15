@@ -2,15 +2,24 @@
 
 Plan (living doc): "NixOS-native SONiC switch stack — build plan" (Claude
 Docs; adapted to this tree by suggestion cards on 2026-11-14).
-Code: [ai_re/nix/packages/sonic](../../nix/packages/sonic/default.nix); modules
-will go in `ai_re/nix/modules/switch/sonic/`. First hardware target: the
+Code: [ai_re/nix/packages/sonic](../../nix/packages/sonic/default.nix), NixOS
+module [ai_re/nix/modules/switch/sonic](../../nix/modules/switch/sonic/README.md)
+(`services.sonic`). First hardware target: the
 Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
-- **Config ownership decided** (not built): hybrid, NixOS enforces declared
-  keys, the SONiC CLI owns the rest, conflicts warn + show in `/etc/issue`;
-  hwsku 32x100G with per-port breakout in Nix ([config-ownership.md](config-ownership.md)).
+- **Control plane as NixOS services, VM-tested** (x86_64, virtual SAI):
+  `services.sonic` runs redis, syncd, orchagent, port/intf/vlan/nbr/team
+  managers and syncers, the show/config CLI in alias mode
+  (`Ethernet<cage>/<sub>`), with the [config ownership](config-ownership.md)
+  rules (enforce/seed/unmanaged, conflicts in `/etc/issue`, motd and
+  `sonic-nix-diff`). All 77 VM checks pass, incl. a 4x25G split, VLAN,
+  LACP PortChannel to a peer VM, reboot and `nixos-rebuild switch`
+  ([VM](sonic-module-vm-20261115.txt), [eval](sonic-module-eval-20261115.txt)).
+  Cross-builds into the AS7760 system with the openbcm syncd, +240 MiB
+  ([cross](sonic-module-cross-20261115.txt)). **Not on the switch yet**: its
+  kernel lacks bridge/8021q/team/dummy, and it needs the board wiring.
 
 - **Real ASIC through SONiC's syncd:** the thin SAI ([sai-openbcm](../../nix/packages/sai-openbcm/README.md))
   drives the BCM56930 on the AS7760: switch create, 32 front-panel ports from
@@ -24,8 +33,8 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   SONiC's teamd patches and `sonic.dash-api`): native build passes upstream's
   gtest suites, cross-builds for ppc64 BE, and the same tests pass on BE under
   qemu except 4 test-only artifacts ([evidence](swss-build-20261115.txt)).
-  Not yet run on the switch or in a VM. Big-endian fixes carried as patches
-  (2026-11-15 entry).
+  Runs in the VM test above; not yet on the switch. Big-endian fixes carried
+  as patches (2026-11-15 entry).
 - **One SDK process per unit** (2026-11-15): the switch boots with
   `openbcm-asic-temp` holding `/run/openbcm-unit0.lock` for fan control;
   `systemctl stop openbcm-asic-temp` before syncd/`bcm.user` (fans go to 100%
@@ -92,6 +101,30 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-15 — services.sonic: control plane + config ownership, VM-tested
+
+- New: `nix/packages/sonic/python` (sonic-py-common, sonic-config-engine,
+  sonic-yang-models + sonic-yang-mgmt on CESNET libyang-python 3.1.0 with
+  SONiC's patches, pinned in `sources.json`; sonic-platform-common,
+  sonic-utilities) and `nix/modules/switch/sonic` ([README](../../nix/modules/switch/sonic/README.md)).
+  YANG validation is real (libyang 3.13.6 from nixpkgs; SONiC's NOEXTDEPS
+  patch is unused by the Python side): Nix base at build time, merged config
+  at boot.
+- swss-common: the Python bindings now carry the `CFG_*_TABLE_NAME` macros
+  (sonic-utilities imports them); changes every SONiC store path (intended).
+- sonic-utilities patches: 0001 `config reload` -> `sonic-nix reload`;
+  0002 alias mode (`portchannel member add/del` wrote the alias as key;
+  `run_command(return_cmd=True)` returned None). Caveat review of the
+  `Ethernet<cage>/<sub>` aliases: [naming-caveats.md](naming-caveats.md).
+- Gotchas found: orchagent needs `/zmq_swss` (crash otherwise); show
+  portchannel needs `tlm_teamd`; Linux 802.3ad needs a slave speed (virtio
+  has none: `ethtool -s` in the peer VM); kernel messages hide agetty's
+  issue on tty1 in test VMs.
+- Deviation from the request: syncd always `Conflicts=openbcm-asic-temp`
+  (both open the SDK; one process per unit), not only without
+  `SAI_OPENBCM_TEMP_FILE`; without it a NixOS warning says fans lose the
+  ASIC sensor while syncd runs.
 
 ## 2026-11-15 — sonic-swss packaged; big-endian fixes in orchagent and SAI meta
 

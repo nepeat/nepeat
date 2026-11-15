@@ -1,0 +1,28 @@
+Cross builds for the AS7760 (nixosConfigurations.as7760.pkgs,
+powerpc64-unknown-linux-gnuabielfv2), 2026-11-15, one build at a time.
+
+Packages in that system (all cross-built here):
+  d9jzqwjzqf5794aqi71yldl6gvdiirwg-sonic-swss-common-powerpc64-unknown-linux-gnuabielfv2-0-77634bd
+  0h0w56mjrc9czr2df8smnba0a2fxz63v-sonic-sairedis-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c
+  qngdxyr8czipmmk544yiqggw7649j1bd-libteam-sonic-powerpc64-unknown-linux-gnuabielfv2-1.31
+  ycyzfagp1fwdr3jfyjr8z4l2pjbgsp8s-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc
+  6bndaspivq5j762z84mqd64rv05l7z5j-python3.14-sonic-py-common-0-47fcc8d-powerpc64-unknown-linux-gnuabielfv2
+  dwl07syy1c8dmgax48imk6sx6j12mdvb-python3.14-libyang-3.1.0-powerpc64-unknown-linux-gnuabielfv2
+  5my9c85bsd6ysswmnhv6p1r18klvs39r-python3.14-sonic-yang-mgmt-0-47fcc8d-powerpc64-unknown-linux-gnuabielfv2
+  q5h7mc4np39di7bb5cr95vrgz4ynz8x4-python3.14-sonic-config-engine-0-47fcc8d-powerpc64-unknown-linux-gnuabielfv2
+  3r3x3k8rp720cjraskf50kfyrjsv4m9s-python3.14-sonic-yang-models-0-47fcc8d-powerpc64-unknown-linux-gnuabielfv2
+  ax08zrf42ajqgsmg1kq5kwzm584dglwm-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+  cj8dbps9ikk7kc0kqm5144fssn8hswhn-python3.14-sonic-utilities-0-31df09e-powerpc64-unknown-linux-gnuabielfv2
+  x9xvbcybz2dkc9zraahvz7wlsifr6sqp-sonic-sairedis-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0-57dc35c
+
+Whole system: nixosConfigurations.as7760.extendModules with services.sonic
+(sai.kind = vendor, sonic.sairedis-openbcm, sai-openbcm profile with
+SAI_OPENBCM_TEMP_FILE) builds: vyw6k3shdln0vhmkdjl9nymm0n064qqx-nixos-system-as7760-26.11.20261111.d4f25a3
+closure 1917 MiB vs 1677 MiB without (+240 MiB). Largest additions
+(nix store diff-closures): sonic-sairedis 49.0 MiB twice (vs package linked
+by swss + the openbcm syncd), sonic-swss 28.7, boost 19.1, protobuf 9.6,
+netaddr 9.9, python redis 9.1, lxml 8.2, redis 7.1, swss-common 7.1,
+zeromq 6.3, pyroute2 6.3; python3 itself was already there.
+Fixed on the way: ndisc6's dnssort script dragged the build machine's
+perl + glibc in (only the binary is used now); redis linked a second, full
+systemd (now the system's); natsort's optional PyICU (icu4c 41 MiB) dropped.

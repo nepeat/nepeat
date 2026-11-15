@@ -11,6 +11,12 @@
     "rev": "2ce7ce648ee77a76fcf567191eb4b9ed6cfeed38",
     "hash": "sha256-BHOoMFcbiqHAoDkFA+BlGvWIRapDcQt6F2w/B9IseXo="
   },
+  "libyang-python": {
+    "owner": "CESNET",
+    "repo": "libyang-python",
+    "rev": "d8acc345aeb8d5b9644f7f2197ba6d8733e86378",
+    "hash": "sha256-++2WwuravTosyeqKfD7rq3O91QzH+CAyWVUkPYfYASU="
+  },
   "platform-common": {
     "owner": "sonic-net",
     "repo": "sonic-platform-common",

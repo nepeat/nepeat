@@ -1,0 +1,17 @@
+Eval-time tests nix/modules/switch/sonic/tests/eval.nix, 2026-11-15: each bad
+breakout override (cage 1 of the AS7712/AS7760 map) must fail with its
+assertion; a VLAN name out of range must fail the build-time YANG check.
+
+PASS bad-speed: services.sonic.breakout."1": port "Ethernet1/1": speed 100000 is not valid for 1 lane(s) (valid: 10000, 25000)
+PASS empty: services.sonic.breakout."1": an override must list every resulting port (alias, lanes, speed); remove it for the 1x100G default | services.sonic.breakout."1": lanes 49,50,51,52 of cage 1 are not assigned (left over from the default port): list every port
+PASS foreign-lane: services.sonic.breakout."1": lanes 53 are not lanes of cage 1 (49,50,51,52) | services.sonic.breakout."1": lanes 52 of cage 1 are not assigned (left over from the default port): list every port | services.sonic.cages: lanes 53 belong to more than one port
+PASS lane-left-over: services.sonic.breakout."1": lanes 51,52 of cage 1 are not assigned (left over from the default port): list every port
+PASS lane-twice: services.sonic.breakout."1": lanes used more than once: 50 (each lane of the cage exactly once) | services.sonic.breakout."1": port "Ethernet1/2": speed 40000 is not valid for 3 lane(s) (valid: none) | services.sonic.cages: lanes 50 belong to more than one port
+PASS name-twice: services.sonic.breakout."1": port names used twice: Ethernet1/1 | services.sonic: generated SONiC port names collide: Ethernet0
+PASS no-such-cage: services.sonic.breakout."33": no such cage (this board has cages 1..32)
+PASS no-such-port-setting: services.sonic.settings.PORT."Ethernet1/9": no such port (ports come from cages/breakout)
+PASS subport-5: services.sonic.breakout."1": port "Ethernet1/5": name must be Ethernet1/<1..4> (front-panel alias) | services.sonic: generated SONiC port names collide: Ethernet4
+PASS wrong-cage-name: services.sonic.breakout."1": port "Ethernet2/1": name must be Ethernet1/<1..4> (front-panel alias)
+good config failed assertions: []
+YANG negative: fails YANG validation: Data Loading Failed
+all 10 negative cases fail as expected; good config passes

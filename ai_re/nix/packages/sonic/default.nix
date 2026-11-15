@@ -29,5 +29,8 @@ let
     # syncd linked against a vendor libsai instead of the virtual SAI, e.g.
     #   sairedis-openbcm (pkgs.callPackage ../sai-openbcm { sonic = self; libsdk = ...; })
     sairedis-openbcm = libsai: pkgs.callPackage ./sairedis { sonic = self; inherit libsai; };
+    # Python side: sonic-py-common, sonic-cfggen, YANG models + validator,
+    # sonic-utilities (show/config). See ./python/default.nix.
+    python = pkgs.callPackage ./python { sonic = self; };
   };
 in self
