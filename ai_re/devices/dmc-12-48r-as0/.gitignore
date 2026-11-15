@@ -2,8 +2,10 @@
 *-private.txt
 serial-*.txt
 # Disk/flash images (raw and .zst) and build outputs stay local.
-dumps/*
-!dumps/manifest.jsonl
-!dumps/SHA256SUMS
+# Per unit: dumps/<unit>/; only the manifest and hash list are tracked.
+dumps/**
+!dumps/*/
+!dumps/*/manifest.jsonl
+!dumps/*/SHA256SUMS
 nixos-build/
 __pycache__/

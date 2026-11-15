@@ -6,19 +6,32 @@ from disk (U-Boot: `setenv bootargsextra rdinit=/bin/sh; run dmc12_bootdisk`,
 not saved), /proc /sys /dev mounted, eth0 up. See PROGRESS.md.
 
 Per item: box streams it with socat; host hashes while receiving into
-dumps/<name>.partial; box sha256 == transfer sha256 == reread sha256, or it
+dumps/<unit>/<name>.partial; box sha256 == transfer sha256 == reread sha256, or it
 stays .partial and fails. Then: zstd, `zstd -t`, decompress-and-hash must equal
 the raw hash, and only then is the raw file removed. Results append to
-dumps/manifest.jsonl and dumps/SHA256SUMS.
-  acquire.py                 # everything not yet captured
-  acquire.py mtd0.bin        # one item
-  acquire.py --compress sda.img <sha256>   # resume: raw verified, zstd not done
+dumps/<unit>/manifest.jsonl and SHA256SUMS. Add the unit's row to units.md.
+  acquire.py --unit u02 --host 10.60.2.x              # everything not yet captured
+  acquire.py --unit u02 --host 10.60.2.x mtd0.bin     # one item
+  acquire.py --unit u01 --compress sda.img <sha256>   # resume: raw verified, zstd not done
 """
 import hashlib, json, pathlib, socket, subprocess, sys, time
 
 ROOT = pathlib.Path(__file__).resolve().parent
-DUMPS = ROOT / "dumps"
-HOST = "10.60.2.10"  # DHCP lease in the rdinit shell, 2026-11-15
+
+def take(flag):
+    if flag not in sys.argv:
+        raise SystemExit(f"{flag} is required (see --help in the docstring)")
+    i = sys.argv.index(flag)
+    value = sys.argv[i + 1]
+    del sys.argv[i:i + 2]
+    return value
+
+
+UNIT = take("--unit")
+if not (len(UNIT) == 3 and UNIT[0] == "u" and UNIT[1:].isdigit()):
+    raise SystemExit("--unit must look like u01")
+DUMPS = ROOT / "dumps" / UNIT
+HOST = take("--host") if "--compress" not in sys.argv else None  # rdinit-shell DHCP lease
 SECTOR = 512
 ITEMS = [  # (source, file, size in bytes, as reported by the box)
     ("/dev/mtd0", "mtd0.bin", 16777216),

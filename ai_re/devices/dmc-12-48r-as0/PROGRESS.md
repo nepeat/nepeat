@@ -16,7 +16,7 @@
   Commands go through `./console.py`.
 - Before cutting power under the factory OS: serial break + SysRq `s`, `u` (works).
 - Recovery: boot stages are A/B in SPI NOR, with a second SPI image (mtd1) holding
-  older al-boot. The M.2 SATA SSD is removable. Full images in `dumps/`.
+  older al-boot. The M.2 SATA SSD is removable. Full images in `dumps/u01/`.
 - NixOS module: `ai_re/nix/modules/boards/dmc12` (verbatim import of the first
   iteration; see its README for what still has to change).
 - **Left in:** the rdinit shell, powered on, at 10.60.2.10, with nothing mounted from disk.
@@ -25,14 +25,19 @@
 - **How this unit differs from the first iteration's:** see "This unit vs the
   first iteration" below. In short: it was deployed in a fleet, boots an older OS
   (1.0.457, while the old module ported ≥1.0.526), and only PSU2 is detected.
-- Open: fan state with no OS, what selects CS1 (mtd1), the PSU1 status,
-  a diff of the factory configs in `/etc` and `/workdir`, random-access image tooling.
+- **Units:** many more boxes are coming in. `units.md` has per-unit versions and the
+  collection steps; serials are in `units-private.txt` (ignored). This box is **u01**.
+- **Factory hardware tooling vs the module:** `vendor-tooling.md` (CPLD register map,
+  reboot via CPLD/sp805, interrupt monitor, uplink re-sync, GPIO lines). Read it before
+  reworking `board-dmc12`.
+- Open: does mainline reboot work (PSCI v0.1, no SYSTEM_RESET), fan state with no OS,
+  what selects CS1 (mtd1), the PSU1 alarm, random-access image tooling.
 
 ## Identity
 - Board EEPROM (ONIE TLV, 24c02 @ I2C 7-0051): **Accton / Edgecore**,
   `DMC-12-48R-AS0`, part `FU2AOS481000A`, label R02E, platform
   `K2C-AB-T2_DMC-12-48R-AS0`, ONIE V1.0.0.1, diag V1.0.3.0, made 2020-09-10.
-  Serial, MAC and service tag are only in `inventory/board-eeprom-private.txt`.
+  Serial, MAC and service tag are only in `inventory/u01/board-eeprom-private.txt`.
 - I2C (factory kernel): SPD 24c64 @0-0057, pca9548 @0-0070, ds1339 RTC @2-0068,
   TPM `tpm_i2c_infineon` @3-0020, pca9546 @4-0071, lm75 @5-004a, tmp75
   @7-0048/49, board EEPROM 24c02 @7-0051. Board CPLD at bus 4 / 0x68 (raw, no driver).
@@ -43,11 +48,11 @@
 - PCI (U-Boot): 1c36:0001 eth, 1c36:0022 ×2 (crypto, mass storage),
   1c36:0031 AHCI, behind PCIE_0 12d8:400c bridge. 48 ports = 12× CP2108 quad
   UART on USB hubs (`ttyUSB0…47`).
-- CPLD (I2C 4/0x68, read-only SMBus reads, `inventory/cpld-regs.txt`): version 0x88,
+- CPLD (I2C 4/0x68, read-only SMBus reads, `inventory/u01/cpld-regs.txt`): version 0x88,
   fan PWM reg 0x50 = 0x2a (step 41 ≈ 68%, U-Boot's `fan_speed_70`), fans 1–3 = 0x57
   (≈ 8700 RPM at the old tool's ×100 scale), WDT flag 0x2a = 0x01, LED 0x17 = 0x20.
 - PCI (Linux): al_eth, 2× al-ssm, AHCI, and a Pericom 12d8:400c bridge to OHCI ×2 + EHCI
-  (12d8:400e/400f) feeding the USB hubs. USB tree: `inventory/usb-tree.txt`.
+  (12d8:400e/400f) feeding the USB hubs. USB tree: `inventory/u01/usb-tree.txt`.
 - uC on the SoC card: bootloader 1.13, app 1.35.0. Secure state **NOT-SECURE**,
   recovery disabled, nitro mode disabled, physical-presence 0. Watchdog enabled
   (10 s, reset count 0). It didn't fire after minutes in U-Boot or the
@@ -106,8 +111,8 @@
 - U-Boot env: `uboot-printenv-private.txt` (git-ignored). Interesting vars: `bootcmd=run dmc12_bootdisk`,
   `bootdelay=5`, `$bootargsextra` hook, fan presets via CPLD (I2C bus 4, 0x68).
 
-## Dumps (`dumps/`, git-ignored; zstd per the runbook)
-`dumps/manifest.jsonl` + `dumps/SHA256SUMS` hold raw and `.zst` hashes.
+## Dumps (`dumps/u01/`, git-ignored; zstd per the runbook)
+`dumps/u01/manifest.jsonl` + `dumps/u01/SHA256SUMS` hold raw and `.zst` hashes.
 - `mtd0.bin` sha256 `b66dbca586b8189a4ea0e2241d7a07642223154ea6466d7570e384c6f4462b39`
 - `mtd1.bin` sha256 `9c3a95563313cdc4ae9c9840e2f1b75cfe5ffdeec2aa7052cd61c0f860178705`
 - `sda.img` sha256 `46dac8f9585ee113c13e250317f07e6724d1464c2ea8e2f479148d786feedffa`
@@ -136,6 +141,11 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 03:40: factory tooling pass (`vendor-tooling.md`). Found the CPLD reboot
+  driver (0x29/0x28, disassembled from the vendor kernel via vmlinux-to-elf), the
+  interrupt monitor + GPIO lines, and that uplink re-sync is ≥526-only. Kept the factory OS
+  images, symbol ELF and burn-in logs in `dumps/u01/factory-os/`. Moved everything to
+  per-unit `dumps/u01/` and `inventory/u01/`, added `units.md`.
 - 2026-11-15 03:20: inventory + offline analysis (above). Also learned: plain `.zst`
   can't be mounted. nbdkit 1.48 has no zstd decompress filter, but its `qcow2dec` (nixpkgs build) and
   qemu read zstd-compressed qcow2, so that's the random-access format (runbook).

@@ -41,3 +41,8 @@ Device notes, dumps and the bring-up checklist: `devices/dmc-12-48r-as0/`
   factory OS **≥1.0.526**. The second unit (2026-11-15) boots 1.0.457, which
   has neither. Our module enforces both itself, so this is no blocker, but
   don't treat "factory behaviour" as a single version.
+- **Hardware the module doesn't drive yet:** CPLD board reboot (0x29/0x28;
+  firmware PSCI v0.1 has no SYSTEM_RESET), the CPLD interrupt monitor
+  (PL061 @0xfd897000 line 1) and the uplink re-sync it triggers, the sp805,
+  and SoC thermal. Register map and the full factory-vs-module table:
+  `devices/dmc-12-48r-as0/vendor-tooling.md`.

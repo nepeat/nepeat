@@ -1,0 +1,14 @@
+gpiochip464 base=464 ngpio=8 label=fd897000.gpio5 dev=fd897000.gpio5
+gpiochip472 base=472 ngpio=8 label=fd88b000.gpio4 dev=fd88b000.gpio4
+gpiochip480 base=480 ngpio=8 label=fd88a000.gpio3 dev=fd88a000.gpio3
+gpiochip488 base=488 ngpio=8 label=fd889000.gpio2 dev=fd889000.gpio2
+gpiochip496 base=496 ngpio=8 label=fd888000.gpio1 dev=fd888000.gpio1
+gpiochip504 base=504 ngpio=8 label=fd887000.gpio0 dev=fd887000.gpio0
+/dev/gpiochip0  /dev/gpiochip2  /dev/gpiochip4
+/dev/gpiochip1  /dev/gpiochip3  /dev/gpiochip5
+gpiochip0 -> fd887000.gpio0
+gpiochip1 -> fd888000.gpio1
+gpiochip2 -> fd889000.gpio2
+gpiochip3 -> fd88a000.gpio3
+gpiochip4 -> fd88b000.gpio4
+gpiochip5 -> fd897000.gpio5
