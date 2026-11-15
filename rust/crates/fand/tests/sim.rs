@@ -631,3 +631,153 @@ fn zone_targets_include_the_hardware_minimum_and_clamps_are_logged_once() {
     );
     assert!(!rig.engine.status(rig.t).outputs["fans"].clamped);
 }
+
+/// First-order thermal plant for the PI tests: equilibrium 25 C at 100 %
+/// duty, 65 C at 0 % (40 C needs 62.5 %), time constant 20 s.
+fn plant_step(temp: f64, duty: f64) -> f64 {
+    let eq = 25.0 + 40.0 * (1.0 - duty / 100.0);
+    temp + (eq - temp) * (1.0 - (-DT / 20.0f64).exp())
+}
+
+const PI_RIG: &str = r#"
+sysfs_root: "{root}"
+interval: 2s
+profile: none
+runtime: { state_file: null, socket: null, calibration_file: null }
+sensors:
+  board: { type: hwmon, hwmon: { name: lm75, of_node: "temperature-sensor@48" } }
+  other: { type: hwmon, hwmon: { name: lm75, of_node: "temperature-sensor@49" } }
+outputs:
+  fans: { type: hwmon, hwmon: as7760_fan, raw_min: 0, min_duty: 20 }
+zones:
+  pi:
+    outputs: [fans]
+    sensors: [board]
+    policy: { target: 40, kp: 4, ki: 0.1 }
+  other:
+    outputs: [fans]
+    sensors: [other]
+    policy: { curve: { points: [[30, 0], [50, 85]] } }
+"#;
+
+impl Rig {
+    /// One tick with the PI zone's sensor following `plant_step`.
+    fn plant_tick(&mut self, temp: &mut f64) -> f64 {
+        self.fs
+            .set(&self.lm75[0], "temp1_input", &format!("{}", (*temp * 1000.0) as i64));
+        let d = self.tick();
+        *temp = plant_step(*temp, d);
+        d
+    }
+}
+
+#[test]
+fn pi_zone_takes_over_from_a_higher_zone_without_overshoot() {
+    let mut rig = Rig::new(PI_RIG);
+    let mut temp = 35.0;
+    // Another zone holds 85 % for 10 minutes: the PI zone sits 9 C below its
+    // setpoint the whole time. Its integral follows the applied duty instead
+    // of sinking to the 20 % floor.
+    rig.fs.set(&rig.lm75[1], "temp1_input", "55000");
+    for _ in 0..300 {
+        rig.plant_tick(&mut temp);
+    }
+    assert_eq!(rig.zone_duty("other"), 85.0);
+    let pi = rig.engine.zone("pi").unwrap();
+    assert!(pi.demand.unwrap() > 85.0 - 4.0 * 9.0 - 1.0, "{:?}", pi.demand);
+    // The other zone lets go (its default dwell, then 1 %/s down). The PI
+    // zone takes over at the duty the fans are at, before its sensor passes
+    // the setpoint.
+    rig.fs.set(&rig.lm75[1], "temp1_input", "20000");
+    let hist: Vec<(f64, f64)> = (0..300).map(|_| (rig.plant_tick(&mut temp), temp)).collect();
+    let peak = hist.iter().map(|(_, t)| *t).fold(f64::MIN, f64::max);
+    assert!(peak < 40.5, "overshoot to {peak} C");
+    for (d, t) in &hist[200..] {
+        assert!((t - 40.0).abs() < 0.5, "temperature {t} not held at 40");
+        assert!((d - 62.5).abs() < 2.5, "duty {d} not near the 62.5 % equilibrium");
+    }
+}
+
+#[test]
+fn pi_integral_does_not_wind_up_while_ramp_and_dwell_hold() {
+    // Explicit ramp/dwell on a target zone (they default to off there): the
+    // startup duty is held for 60 s, then descends at 0.5 %/s.
+    let yaml = PI_RIG
+        .replace("ki: 0.1 }\n", "ki: 0.1 }\n    ramp_down: 0.5\n    dwell: 60s\n")
+        .replace("[30, 0], [50, 85]", "[60, 0], [70, 85]");
+    let mut rig = Rig::new(&yaml);
+    let mut temp = 45.0;
+    let mut hist = Vec::new();
+    for k in 0..400 {
+        let d = rig.plant_tick(&mut temp);
+        hist.push((d, temp));
+        let z = rig.engine.zone("pi").unwrap();
+        if k < 30 {
+            assert_eq!(d, 100.0, "held by the dwell");
+            // The operating point (output minus P) never sinks while the fans
+            // are held at 100 %: it relaxes toward 100 from its bumpless start
+            // at 80 (100 % minus P at 45 C).
+            let (demand, pv) = (z.demand.unwrap(), z.smoothed.unwrap());
+            if demand < 100.0 && demand > 20.0 {
+                let op = demand - 4.0 * (pv - 40.0);
+                assert!(op > 80.0 - 1e-6, "integral wound down to {op} at tick {k}");
+            }
+        }
+    }
+    // After the hold the fans come down to the PI's level and stop there:
+    // no undershoot of the duty, so no temperature overshoot.
+    let first_cool = hist.iter().position(|(_, t)| *t < 40.0).unwrap();
+    let peak = hist[first_cool..].iter().map(|(_, t)| *t).fold(f64::MIN, f64::max);
+    assert!(peak < 40.5, "overshoot to {peak} C after the hold");
+    let low = hist.iter().map(|(d, _)| *d).fold(f64::MAX, f64::min);
+    assert!(low > 62.5 - 2.5, "duty undershot to {low}");
+    for (d, t) in &hist[300..] {
+        assert!((t - 40.0).abs() < 0.5, "temperature {t} not held at 40");
+        assert!((d - 62.5).abs() < 2.5, "duty {d}");
+    }
+}
+
+#[test]
+fn curve_and_fixed_zones_keep_their_ramp_and_dwell_defaults() {
+    // asic (delta-asic) and a fixed zone use the defaults (10 %/s up,
+    // 1 %/s down, 10 s dwell), next to a target zone (no ramp, no dwell by
+    // default) on the same output.
+    let yaml = format!(
+        "{AS7760}  fixed:\n    outputs: [fans]\n    policy: {{ fixed: 60 }}\n  \
+         pi:\n    outputs: [fans]\n    sensors: [board_1]\n    policy: {{ target: 45 }}\n"
+    );
+    let mut rig = Rig::new(&yaml);
+    let mut asic = Vec::new();
+    let mut fixed = Vec::new();
+    let mut pi = Vec::new();
+    for _ in 0..40 {
+        rig.tick();
+        asic.push(rig.zone_duty("asic"));
+        fixed.push(rig.zone_duty("fixed"));
+        pi.push(rig.zone_duty("pi"));
+    }
+    for z in [&asic, &fixed] {
+        assert!(z[..5].iter().all(|d| *d == 100.0), "dwell: {:?}", &z[..6]);
+        assert!(approx(z[5], 98.0) && approx(z[6], 96.0), "1 %/s down: {:?}", &z[..8]);
+    }
+    assert_eq!(fixed[39], 60.0);
+    assert!(approx(asic[39], 50.196));
+    // The target zone (30 C, 15 C below target) leaves the startup duty on
+    // the first tick, straight to the hardware minimum.
+    assert!(approx(pi[0], 50.196), "{:?}", &pi[..3]);
+    // Heating: +20 % per 2 s tick; cooling: the 10 s dwell again, then 2 % per tick.
+    rig.asic(85.0); // delta-asic: 80 %
+    rig.tick();
+    assert!(approx(rig.zone_duty("asic"), 70.196), "{}", rig.zone_duty("asic"));
+    rig.tick();
+    assert!(approx(rig.zone_duty("asic"), 80.0));
+    rig.asic(55.0);
+    let down: Vec<f64> = (0..7)
+        .map(|_| {
+            rig.tick();
+            rig.zone_duty("asic")
+        })
+        .collect();
+    assert!(down[..4].iter().all(|d| approx(*d, 80.0)), "{down:?}");
+    assert!(approx(down[4], 78.0) && approx(down[5], 76.0), "{down:?}");
+}

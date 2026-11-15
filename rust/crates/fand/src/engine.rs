@@ -1115,7 +1115,10 @@ impl ZoneRt {
             failsafe_duty: z.failsafe_duty.unwrap_or(cfg.failsafe_duty).0,
             critical: z.critical,
             ema: Ema::new(z.smoothing.0),
-            ramp: Ramp::new(z.ramp_up, z.ramp_down, z.dwell.0),
+            ramp: {
+                let (up, down, dwell) = z.ramp();
+                Ramp::new(up, down, dwell)
+            },
             guard: FailGuard::new(z.calm_period.unwrap_or(cfg.calm_period).0),
             temperature: None,
             smoothed: None,
@@ -1294,6 +1297,18 @@ impl ZoneRt {
         let target = demand.max(lo);
         self.duty = self.ramp.step(self.duty, target, now, dt);
     }
+
+    /// Anti-windup for target zones: feed back the duty the zone's fans
+    /// actually got this tick (after its ramp, the max over zones and the
+    /// output clamp). Of several outputs the least driven one counts: there
+    /// the zone has the most say, the others may be held up by other zones.
+    fn track(&mut self, outputs: &[OutputRt]) {
+        if let PolicyRt::Target(pid) = &mut self.policy {
+            if let Some(a) = self.outputs.iter().filter_map(|&o| outputs[o].duty).reduce(f64::min) {
+                pid.track(a);
+            }
+        }
+    }
 }
 
 // ---------------------------------------------------------------- engine
@@ -1388,6 +1403,9 @@ impl Engine {
                 .unwrap_or(failsafe);
             o.track_min(demand, || requesters(zones, i));
             o.apply(demand, now, &self.root, self.dry_run, failsafe);
+        }
+        for z in &mut self.zones {
+            z.track(&self.outputs);
         }
     }
 

@@ -167,8 +167,8 @@ output needs.
 | `aggregate` | `max` | `max`, `min`, `mean`, `weighted_mean`, `first` over `value + offset` |
 | `policy` | required | a curve name, or exactly one of `curve`, `target`, `fixed` (below) |
 | `profile` | global | per-zone floor override |
-| `ramp_up` / `ramp_down` | `10` / `1` %/s | slew limits (0 = unlimited). Up fast, down slowly |
-| `dwell` | `10s` | after any increase, hold this long before decreasing |
+| `ramp_up` / `ramp_down` | `10` / `1` %/s; target: `0` | slew limits (0 = unlimited). Up fast, down slowly |
+| `dwell` | `10s`; target: `0s` | after any increase, hold this long before decreasing |
 | `smoothing` | `0s` | EMA time constant on the aggregated temperature |
 | `hysteresis` | the curve's | deadband (C) for curve policies |
 | `critical` | none | aggregated temperature at/above which the zone goes failsafe |
@@ -184,9 +184,18 @@ Policies:
   more than the band below the level held.
 - `policy: {target: 45, kp: 4, ki: 0.05, kd: 0, d_filter: 5s}`: PI(D) that holds a
   temperature. Error = temperature − target (hot → faster). The integral
-  carries the operating point and is clamped to the output range
-  (anti-windup); the derivative acts on the filtered measurement; output is
-  limited to [floor, 100] and then by the zone's ramp. Per-sensor setpoints:
+  carries the operating point and stays within the output range; the
+  derivative acts on the filtered measurement; output is limited to
+  [floor, 100]. Anti-windup is back-calculation: each tick the duty the
+  fans actually ran at (after ramp, max over zones and output clamp; of
+  several outputs, the least driven one) is fed back, and the integral
+  moves by (applied − output) · dt / Ti, Ti = kp/ki. That tracking time
+  cancels the P term, so while another zone, an override or a ramp holds
+  the fans, the integral relaxes toward the applied duty instead of winding
+  down (or up, from a large negative P), and the zone takes over from where
+  the fans are, without overshoot. While its own output runs it is a plain
+  PI. Ramp and dwell default to off here: inside the loop they make it
+  hunt. Per-sensor setpoints:
   `sensors: [{sensor: asic, target: 85}, {sensor: board, target: 45}]` with
   `target: 45` on the zone turn into offsets, so the zone tracks whichever
   sensor is furthest above its own setpoint.
@@ -194,8 +203,9 @@ Policies:
 
 Per tick a zone computes: policy demand → max with the profile floor and
 the highest hardware minimum of its outputs (`stop: true` outputs excluded)
-→ ramp/dwell → zone duty. A manual override replaces the policy and floor
-(not the output's hardware minimum); failsafe replaces everything.
+→ ramp/dwell → zone duty; target zones then get the applied duty back. A
+manual override replaces the policy and floor (not the output's hardware
+minimum); failsafe replaces everything.
 
 ## Built-in curves
 
@@ -235,10 +245,10 @@ reasons. A failed write additionally tries the failsafe duty on the spot.
 **Startup.** Missing devices are faults, not fatal errors: the daemon
 starts, writes the failsafe duty where it can and keeps retrying
 resolution every 10 s. Every zone starts at `startup_duty` (100 %) and
-holds it for the dwell time. The only startup failures that exit are an
-unparsable config (prevented by the build-time check under NixOS) and a
-second instance (the control socket answers), which exits before touching
-any fan.
+holds it for its dwell time (none by default for target zones). The only
+startup failures that exit are an unparsable config (prevented by the
+build-time check under NixOS) and a second instance (the control socket
+answers), which exits before touching any fan.
 
 **Exit.** On SIGTERM, SIGINT or SIGQUIT the loop stops and every output
 gets `exit_duty` (then `exit_enable`). The engine lives in a guard whose
@@ -392,8 +402,8 @@ AS7760-like box (12 rotors following the pwm, four lm75s, an exec ASIC
 sensor) covering sensor loss, implausible values, exec failures, fan fault
 flags, stalls, rotors not following, write failures, readback mismatches,
 overrides, rpm floors, hardware-minimum warnings, dry run, PI convergence
-and panic unwinding. The CLI
-tests run the real binary under a fake `NOTIFY_SOCKET` and check READY,
+and anti-windup (taking over from a higher zone, ramp/dwell holds) and
+panic unwinding. The CLI tests run the real binary under a fake `NOTIFY_SOCKET` and check READY,
 WATCHDOG, the control socket, SIGTERM → exit duty, single-instance, failsafe
 and calibration. They need only `/bin/sh`.
 
@@ -421,8 +431,5 @@ from source), and the dependency set has no build scripts that compile C.
 - Exec outputs have no readback; rely on tach feedback.
 - The follow check assumes RPM rises with duty; uncalibrated models are
   linear, so keep `follow_tolerance` generous until `fand calibrate` has run.
-- The PI integral does not track the applied duty when another zone wins
-  the output's max or ramp/dwell hold it (no back-calculation yet), so a
-  target zone can lag after such periods.
 - Calibration samples steady-state RPM only (no spin-up or stall-point
   search) and never goes below an output's `min_duty`.

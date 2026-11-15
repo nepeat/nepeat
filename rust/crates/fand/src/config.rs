@@ -838,15 +838,12 @@ pub struct ZoneConfig {
     pub policy: PolicyConfig,
     /// Overrides the global profile.
     pub profile: Option<Profile>,
-    /// Max duty increase, %/s (0 = unlimited).
-    #[serde(default = "d_ramp_up")]
-    pub ramp_up: f64,
+    /// Max duty increase, %/s (0 = unlimited). See [`ZoneConfig::ramp`].
+    pub ramp_up: Option<f64>,
     /// Max duty decrease, %/s (0 = unlimited).
-    #[serde(default = "d_ramp_down")]
-    pub ramp_down: f64,
+    pub ramp_down: Option<f64>,
     /// Hold after an increase before decreasing.
-    #[serde(default = "d_dwell")]
-    pub dwell: Secs,
+    pub dwell: Option<Secs>,
     /// EMA time constant on the aggregated temperature (0 = off).
     #[serde(default)]
     pub smoothing: Secs,
@@ -861,14 +858,20 @@ pub struct ZoneConfig {
     pub min_sensors: Option<usize>,
 }
 
-fn d_ramp_up() -> f64 {
-    10.0
-}
-fn d_ramp_down() -> f64 {
-    1.0
-}
-fn d_dwell() -> Secs {
-    Secs(10.0)
+impl ZoneConfig {
+    /// (ramp_up %/s, ramp_down %/s, dwell s) with defaults filled in. Curve
+    /// and fixed zones: 10, 1, 10 s (up fast, down slowly). Target zones: 0,
+    /// 0, 0 (off): a PI loop wants a linear actuator, and rate limits or a
+    /// hold inside the loop make it hunt slowly. Explicit settings win.
+    pub fn ramp(&self) -> (f64, f64, f64) {
+        let pi = self.policy.target.is_some();
+        let (up, down, dwell) = if pi { (0.0, 0.0, 0.0) } else { (10.0, 1.0, 10.0) };
+        (
+            self.ramp_up.unwrap_or(up),
+            self.ramp_down.unwrap_or(down),
+            self.dwell.map_or(dwell, |s| s.0),
+        )
+    }
 }
 
 // ---------------------------------------------------------------- loading
@@ -1183,7 +1186,8 @@ impl Config {
             if z.aggregate == Aggregate::First && z.sensors.len() > 1 {
                 // Allowed, but only meaningful as "primary with fallbacks".
             }
-            if !(z.ramp_up.is_finite() && z.ramp_up >= 0.0 && z.ramp_down.is_finite() && z.ramp_down >= 0.0) {
+            let (up, down, _) = z.ramp();
+            if !(up.is_finite() && up >= 0.0 && down.is_finite() && down >= 0.0) {
                 e(format!("{p}: ramp_up / ramp_down must be >= 0 (0 = unlimited)"));
             }
             if let Some(h) = z.hysteresis {
@@ -1335,6 +1339,14 @@ zones:
         assert_eq!(c.sensors["b"].max_age(), Some(35.0));
         assert_eq!(c.outputs["o1"].reassert(), 60.0);
         assert!(c.curve(&CurveRef::Named("mine".into())).is_some());
+        // Ramp/dwell defaults: on for curve and fixed zones, off for target
+        // zones; explicit settings win either way.
+        assert_eq!(c.zones["z1"].ramp(), (10.0, 1.0, 10.0));
+        assert_eq!(c.zones["z3"].ramp(), (10.0, 1.0, 10.0));
+        assert_eq!(c.zones["z2"].ramp(), (0.0, 0.0, 0.0));
+        let explicit = y.replace("kp: 2 } }", "kp: 2 }, ramp_down: 0.5, dwell: 5s }");
+        let c = Config::parse(&explicit).unwrap();
+        assert_eq!(c.zones["z2"].ramp(), (0.0, 0.5, 5.0));
     }
 
     #[test]

@@ -64,8 +64,22 @@ impl Hysteresis {
 
 /// PI(D) controller holding a temperature setpoint. The output is a duty in
 /// percent; a positive error (too hot) raises it. The integral term carries
-/// the operating point (it starts at the initial duty), anti-windup clamps
-/// the integral to the output range, and the derivative acts on the (filtered) measurement, not the error.
+/// the operating point (it starts at the initial duty) and is clamped to the
+/// output range; the derivative acts on the (filtered) measurement, not the
+/// error.
+///
+/// Anti-windup is back-calculation ([`Pid::track`]): the duty the fans
+/// actually ran at is fed back, and the integral moves by
+/// `(applied - output) * dt / Tt` with the tracking time `Tt = Ti = kp/ki`.
+/// That choice makes the correction cancel the proportional (and
+/// derivative) part exactly, so while something else holds the fans
+/// (another zone winning the max, a ramp or dwell, an override, the output
+/// clamp) the integral relaxes toward the applied duty with the integral
+/// time instead of integrating an error the fans never acted on. While the
+/// controller's own output is what runs, the correction is zero and it is a
+/// plain PI(D). A faster `Tt` would also absorb the P term, so a zone sitting
+/// below its setpoint would wind *up* toward the applied duty and push the
+/// fans up before it is warm; a slower one leaves part of the windup.
 #[derive(Debug, Clone)]
 pub struct Pid {
     pub setpoint: f64,
@@ -77,6 +91,10 @@ pub struct Pid {
     integral: Option<f64>,
     prev_pv: Option<f64>,
     d_filtered: f64,
+    /// Unclamped output of the last update and the duty that actually ran
+    /// (`track`); the next update consumes both.
+    last_out: Option<f64>,
+    applied: Option<f64>,
 }
 
 impl Pid {
@@ -90,6 +108,8 @@ impl Pid {
             integral: None,
             prev_pv: None,
             d_filtered: 0.0,
+            last_out: None,
+            applied: None,
         }
     }
 
@@ -99,6 +119,8 @@ impl Pid {
         self.integral = Some(duty - p);
         self.prev_pv = pv;
         self.d_filtered = 0.0;
+        self.last_out = None;
+        self.applied = None;
     }
 
     pub fn initialized(&self) -> bool {
@@ -123,14 +145,40 @@ impl Pid {
                 self.d_filtered += alpha * (raw - self.d_filtered);
                 d = self.kd * self.d_filtered;
             }
-            // Anti-windup: the integral (the operating point) can never leave
-            // the actuator range, so after a long saturation it is at most
-            // one range away from the right answer and P reacts at once.
-            integral = (integral + self.ki * e * dt).clamp(lo, hi);
+            let mut di = self.ki * e * dt;
+            // Back-calculation with Tt = Ti = kp/ki (see the type's docs);
+            // dt/Ti is capped at 1, and kp = 0 (pure I, Ti = 0) tracks fully.
+            if let (Some(a), Some(out)) = (self.applied, self.last_out) {
+                if self.ki > 0.0 {
+                    let k = if self.kp > 0.0 {
+                        (dt * self.ki / self.kp).min(1.0)
+                    } else {
+                        1.0
+                    };
+                    di += k * (a - out);
+                }
+            }
+            // The integral (the operating point) also never leaves the
+            // actuator range, so P reacts at once after a saturation.
+            integral = (integral + di).clamp(lo, hi);
         }
+        self.applied = None;
         self.integral = Some(integral);
         self.prev_pv = Some(pv);
-        (p + integral + d).clamp(lo, hi)
+        let out = p + integral + d;
+        self.last_out = Some(out);
+        out.clamp(lo, hi)
+    }
+
+    /// Back-calculation input: the last update's output actually ran at
+    /// `applied` (after ramp, max over zones and the output clamp). The next
+    /// update folds the correction into its integration step, before the
+    /// range clamp, so the two cancel exactly where they should. One value
+    /// per update; ignored after a reset until the next update.
+    pub fn track(&mut self, applied: f64) {
+        if self.last_out.is_some() && self.applied.is_none() && applied.is_finite() {
+            self.applied = Some(applied);
+        }
     }
 }
 
@@ -319,6 +367,51 @@ mod tests {
         // Integral sits at the floor, so heating reacts immediately.
         let out = pid.update(47.0, 1.0, 40.0, 100.0);
         assert!(out > 40.0 + 8.0 - 1e-9, "{out}");
+    }
+
+    #[test]
+    fn pid_tracking_follows_the_applied_duty_without_absorbing_p() {
+        // Not in control (applied above its output, too cold): the integral
+        // relaxes toward the applied duty with Ti = kp/ki = 40 s, so the
+        // output sits at applied + P, below applied while cold.
+        let mut pid = Pid::new(45.0, 4.0, 0.1, 0.0, 0.0);
+        pid.reset_to(30.0, Some(40.0));
+        let mut out = 0.0;
+        for _ in 0..400 {
+            out = pid.update(40.0, 1.0, 20.0, 100.0);
+            pid.track(80.0);
+        }
+        assert!((out - (80.0 - 20.0)).abs() < 0.1, "{out}");
+        // Without tracking the same history sinks to the floor.
+        let mut plain = Pid::new(45.0, 4.0, 0.1, 0.0, 0.0);
+        plain.reset_to(30.0, Some(40.0));
+        for _ in 0..200 {
+            out = plain.update(40.0, 1.0, 20.0, 100.0);
+        }
+        assert_eq!(out, 20.0);
+        // In control (applied == its output): tracking changes nothing.
+        let mut a = Pid::new(45.0, 4.0, 0.1, 0.0, 0.0);
+        let mut b = a.clone();
+        a.reset_to(50.0, Some(46.0));
+        b.reset_to(50.0, Some(46.0));
+        for k in 0..50 {
+            let pv = 46.0 + f64::from(k % 7) * 0.3;
+            let oa = a.update(pv, 1.0, 20.0, 100.0);
+            a.track(oa);
+            assert_eq!(oa, b.update(pv, 1.0, 20.0, 100.0));
+        }
+        // At the floor while cold: the integral settles at the floor (it
+        // starts at 80 here: bumpless at 20 % with P = -60), it does not
+        // climb by the P term. Back at the setpoint the output is within
+        // one tick's lag (ki * 15 C * 1 s) of the floor, not at 80 %.
+        let mut f = Pid::new(45.0, 4.0, 0.1, 0.0, 0.0);
+        f.reset_to(20.0, Some(30.0));
+        for _ in 0..200 {
+            let o = f.update(30.0, 1.0, 20.0, 100.0);
+            f.track(o);
+        }
+        let o = f.update(45.0, 1.0, 20.0, 100.0);
+        assert!(o < 20.0 + 1.5 + 0.5, "{o}");
     }
 
     #[test]
