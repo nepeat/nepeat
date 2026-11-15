@@ -29,6 +29,10 @@ longer background.
   (`openbcm-asic-temp`) holds the SDK lock: stop it before `bcm.user`/syncd.
   node-exporter on :9100 (+ `switch_*`, `fand_*` metrics) is scraped by the lab
   VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
+- **Todo (held, needs the console back):** thermal load test under traffic
+  (through syncd, now that it publishes the ASIC temperature); one-time test of
+  the software over-temperature PLL shutdown (low `--shutdown-at`, then a power
+  cycle). LPMODE on an active module needs an optic/AOC.
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; other T2080 boards (K2 cards) need their
   own DDR/DT patches, later. Details: [u-boot-port.md](u-boot-port.md).

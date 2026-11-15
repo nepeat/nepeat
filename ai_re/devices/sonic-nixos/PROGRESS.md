@@ -12,7 +12,9 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   drives the BCM56930 on the AS7760: switch create, 32 front-panel ports from
   the SDK (lanes match the factory port map), ports left admin-down, VLAN 100
   and a router interface created, ASIC_DB populated ([transcript](sai-openbcm-hw-20261115.txt)).
-  Not yet: swss/orchagent on the switch, traffic through SAI-created objects, LAG/ACL/QoS.
+  Since then also through syncd: ASIC temperature attributes and LAG (2 members,
+  egress disable) ([transcript](sai-lag-temp-hw-20261115.txt)). Not yet:
+  swss/orchagent on the switch, traffic through SAI-created objects, ACL/QoS.
 - **swss packaged** (`sonic.swss`: orchagent, port/intf/vlan/team managers,
   portsyncd, teamsyncd, neighsyncd, fdbsyncd, ...; plus `sonic.libteam` with
   SONiC's teamd patches and `sonic.dash-api`): native build passes upstream's
@@ -23,7 +25,8 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 - **One SDK process per unit** (2026-11-15): the switch boots with
   `openbcm-asic-temp` holding `/run/openbcm-unit0.lock` for fan control;
   `systemctl stop openbcm-asic-temp` before syncd/`bcm.user` (fans go to 100%
-  meanwhile). ASIC temperature over SAI is not implemented yet.
+  meanwhile, until syncd's profile sets `SAI_OPENBCM_TEMP_FILE`, which keeps
+  fand's ASIC sensor alive).
 
 ## Status (2026-11-14, earlier)
 
