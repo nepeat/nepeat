@@ -115,7 +115,7 @@ and tested offline 2026-11-15; nothing flashed.
   - Not done: SGPO (the DMC-12 board-cfg has no `sgpo_init`, so the factory never
     writes it; `alpine state` only reads it), GPIO 22 (stage2 drives it), USB in
     U-Boot, the fan/WDT CPLD preamble.
-- `#uboot-dmc12-stage3app` (`/nix/store/hg0jfn5zkxnw2xr0ndm694lhhn75bmya-uboot-dmc12-stage3app`):
+- `#uboot-dmc12-stage3app` (`/nix/store/bw8c7y9kak9yp85wb2j4wzjxrsw6bnkh-uboot-dmc12-stage3app`):
   that u-boot.bin, byte for byte, wrapped by [alboot.py](../../nix/packages/alboot/alboot.py)
   (moved into nix so the build can use it; the device copy is a symlink) as IPXE
   objects (id 0x110), load = exec = 0x08000000 (`u-boot-ipxe-08000000.fimg`, sha256
