@@ -184,4 +184,10 @@
   # of near-duplicate trees (source snapshots, toolchains); this dedupes them
   # continuously instead of needing a manual `nix-store --optimise`.
   nix.settings.auto-optimise-store = true;
+
+  # 62 GB, no swap: the default (32 jobs x 32 cores each) OOM'd the host on
+  # 2026-11-15 compiling SONiC's C++ (orchagent). 16-core CPU: 4 jobs x 16
+  # cores = 64 compilers at most.
+  nix.settings.max-jobs = 4;
+  nix.settings.cores = 16;
 }
