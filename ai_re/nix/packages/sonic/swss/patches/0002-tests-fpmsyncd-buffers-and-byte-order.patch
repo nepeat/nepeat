@@ -1,0 +1,185 @@
+From: ai_re sonic-nixos <noreply@localhost>
+Subject: [PATCH] tests: fpmsyncd: fix a stack overflow and two little-endian assumptions
+
+- parseEncap/encap tests build netlink attributes after a single
+  "struct nlmsghdr" on the stack (16 bytes) with room assumed for
+  MAX_PAYLOAD: a stack buffer overflow. With GCC 16 the RMAC attribute
+  lands on reused stack and the tests read garbage. Use an aligned
+  NLMSG_SPACE(MAX_PAYLOAD) buffer, as the other tests do.
+- nl_attr_put8() took a uint16_t and copied its first byte: the high byte
+  (0) on big-endian, so every SRv6 SID format length became 0.
+- TestParseEncapLwtunnelPath built the be64 tunnel id as
+  (htonl(vni) << 32), which is htobe64(vni) on little-endian only.
+
+---
+diff --git a/tests/mock_tests/fpmsyncd/test_routesync.cpp b/tests/mock_tests/fpmsyncd/test_routesync.cpp
+index fab6356..9423d66 100644
+--- a/tests/mock_tests/fpmsyncd/test_routesync.cpp
++++ b/tests/mock_tests/fpmsyncd/test_routesync.cpp
+@@ -3038,8 +3038,8 @@ TEST_F(FpmSyncdResponseTest, TestFpmConnectionState)
+ TEST_F(FpmSyncdResponseTest, TestParseEncapVxlanVniPath)
+ {
+     /* Test parseEncap with VXLAN_VNI path (NH_ENCAP_VXLAN) */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3071,8 +3071,8 @@ TEST_F(FpmSyncdResponseTest, TestParseEncapVxlanVniPath)
+ TEST_F(FpmSyncdResponseTest, TestParseEncapLwtunnelPath)
+ {
+     /* Test parseEncap with LWTUNNEL_IP_ID path (LWTUNNEL_ENCAP_IP) */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3086,7 +3086,7 @@ TEST_F(FpmSyncdResponseTest, TestParseEncapLwtunnelPath)
+     // The code does: encap_value = ntohll((*(uint64_t *)RTA_DATA(...))) & 0xFFFFFFFF
+     // So we need to provide VNI in the upper 32 bits in big-endian format
+     uint32_t vni = 10000;
+-    uint64_t vni_64 = ((uint64_t)htonl(vni) << 32) | htonl(0);
++    uint64_t vni_64 = htobe64((uint64_t)vni);
+     ut_fpmsyncd::nl_attr_put(nlh, MAX_PAYLOAD, 1, &vni_64, sizeof(uint64_t)); // LWTUNNEL_IP_ID = 1
+ 
+     // Add RMAC at index 3 (VXLAN_RMAC)
+@@ -3107,8 +3107,8 @@ TEST_F(FpmSyncdResponseTest, TestParseEncapLwtunnelPath)
+ TEST_F(FpmSyncdResponseTest, TestParseEncapMissingVni)
+ {
+     /* Test parseEncap with missing VNI - should return early */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3137,8 +3137,8 @@ TEST_F(FpmSyncdResponseTest, TestParseEncapMissingVni)
+ TEST_F(FpmSyncdResponseTest, TestParseEncapMissingRmac)
+ {
+     /* Test parseEncap with missing RMAC - should return early */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3166,8 +3166,8 @@ TEST_F(FpmSyncdResponseTest, TestParseEncapMissingRmac)
+ TEST_F(FpmSyncdResponseTest, TestParseEncapDifferentRmacValues)
+ {
+     /* Test parseEncap with different RMAC values */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3196,8 +3196,8 @@ TEST_F(FpmSyncdResponseTest, TestParseEncapDifferentRmacValues)
+ TEST_F(FpmSyncdResponseTest, TestParseEncapBroadcastRmac)
+ {
+     /* Test parseEncap with broadcast RMAC */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3228,8 +3228,8 @@ TEST_F(FpmSyncdResponseTest, TestParseEncapBroadcastRmac)
+ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopSingleIPv4Gateway)
+ {
+     /* Test getEvpnNextHop with single IPv4 gateway */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3274,8 +3274,8 @@ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopSingleIPv4Gateway)
+ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopSingleIPv6Gateway)
+ {
+     /* Test getEvpnNextHop with single IPv6 gateway */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3317,8 +3317,8 @@ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopSingleIPv6Gateway)
+ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopWithRtaVia)
+ {
+     /* Test getEvpnNextHop with RTA_VIA instead of RTA_GATEWAY */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3407,8 +3407,8 @@ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopIPv6V4Mapped)
+ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopMissingEncap)
+ {
+     /* Test getEvpnNextHop returns false when encap_value is 0 */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3438,8 +3438,8 @@ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopMissingEncap)
+ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopZeroRmac)
+ {
+     /* Test getEvpnNextHop returns false when RMAC is all zeros */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+@@ -3520,8 +3520,8 @@ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopUnknownInterface)
+ TEST_F(FpmSyncdResponseTest, TestGetEvpnNextHopMultipath)
+ {
+     /* Test getEvpnNextHop with multipath (RTA_MULTIPATH with 2 nexthops) */
+-    struct nlmsghdr nlh_storage;
+-    struct nlmsghdr *nlh = &nlh_storage;
++    alignas(struct nlmsghdr) char nlh_storage[NLMSG_SPACE(MAX_PAYLOAD)];
++    struct nlmsghdr *nlh = reinterpret_cast<struct nlmsghdr *>(nlh_storage);
+ 
+     memset(nlh, 0, sizeof(*nlh));
+     nlh->nlmsg_len = NLMSG_LENGTH(0);
+diff --git a/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.cpp b/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.cpp
+index 4740403..f014367 100644
+--- a/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.cpp
++++ b/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.cpp
+@@ -65,7 +65,7 @@ namespace ut_fpmsyncd
+ 
+     /* Add 8 bit integer attribute to netlink message */
+     bool nl_attr_put8(struct nlmsghdr *n, unsigned int maxlen, int type,
+-                      uint16_t data)
++                      uint8_t data)
+     {
+         return nl_attr_put(n, maxlen, type, &data, sizeof(uint8_t));
+     }
+diff --git a/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.h b/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.h
+index 614202c..50e98f9 100644
+--- a/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.h
++++ b/tests/mock_tests/fpmsyncd/ut_helpers_fpmsyncd.h
+@@ -86,7 +86,7 @@ namespace ut_fpmsyncd
+                      const void *data, unsigned int alen);
+     /* Add 8 bit integer attribute to netlink message */
+     bool nl_attr_put8(struct nlmsghdr *n, unsigned int maxlen, int type,
+-                      uint16_t data);
++                      uint8_t data);
+     /* Add 16 bit integer attribute to netlink message */
+     bool nl_attr_put16(struct nlmsghdr *n, unsigned int maxlen, int type,
+                        uint16_t data);

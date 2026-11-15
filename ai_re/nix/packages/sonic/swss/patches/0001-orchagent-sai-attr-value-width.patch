@@ -1,0 +1,254 @@
+From: ai_re sonic-nixos <noreply@localhost>
+Subject: [PATCH] orchagent: write SAI attribute values through the member that matches the attribute type
+
+sai_attribute_value_t is a union. Writing value.u32 for a sai_uint16_t
+attribute works on little-endian hosts only: on big-endian the SAI reads
+value.u16, i.e. the upper half of the u32, which is 0. Found on ppc64 BE
+(NXP T2080 + BCM56930), where every port/LAG PVID became 0.
+
+Attribute types taken from the SAI headers (@type). Changed:
+- portsorch.cpp: SAI_PORT_ATTR_PORT_VLAN_ID, SAI_LAG_ATTR_PORT_VLAN_ID
+  (sai_uint16_t; was u32, also in the log lines)
+- portsorch.cpp: SAI_PORT_ATTR_PATH_TRACING_TIMESTAMP_TYPE (enum, s32; was u16)
+- intfsorch.cpp: SAI_ROUTER_INTERFACE_ATTR_NAT_ZONE_ID (sai_uint8_t; was u32), 2 places
+- qosorch.cpp: SAI_WRED_ATTR_WEIGHT (sai_uint8_t; was s32, value 0)
+- mirrororch.cpp: SAI_MIRROR_SESSION_ATTR_TOS (sai_uint8_t; was u16)
+- mplsrouteorch.cpp: SAI_INSEG_ENTRY_ATTR_NUM_OF_POP (sai_uint8_t; was u32)
+- dtelorch.cpp: SAI_DTEL_ATTR_LATENCY_SENSITIVITY (2 places),
+  SAI_DTEL_INT_SESSION_ATTR_MAX_HOP_COUNT (sai_uint8_t; were u16)
+- dash/dashhaorch.cpp: SAI_HA_SCOPE_ATTR_DASH_HA_ROLE (enum, s32; was u16)
+- dash/dashorch.cpp: SAI_DASH_APPLIANCE_ATTR_LOCAL_REGION_ID (sai_uint8_t; was u32)
+- dash/dashportmaporch.cpp: SAI_OUTBOUND_PORT_MAP_PORT_RANGE_ENTRY_ATTR_{MATCH,BACKEND}_PORT_BASE
+  (sai_uint16_t; were u32), and the unit test reading them back
+- dash/dashhafloworch.cpp: SAI_FLOW_ENTRY_BULK_GET_SESSION_FILTER_ATTR_INT_VALUE
+  (sai_uint64_t; was u32)
+Same-width mix-ups (enum via u32, u32 via s32) are harmless and left alone.
+
+---
+diff --git a/orchagent/dash/dashhafloworch.cpp b/orchagent/dash/dashhafloworch.cpp
+index 9108a4d..831967c 100644
+--- a/orchagent/dash/dashhafloworch.cpp
++++ b/orchagent/dash/dashhafloworch.cpp
+@@ -188,7 +188,7 @@ sai_object_id_t FlowDumpFilterManager::createFilterSAI(const FlowDumpFilterEntry
+                  filter_key == SAI_DASH_FLOW_ENTRY_BULK_GET_SESSION_FILTER_KEY_KEY_VERSION)
+         {
+             attrs[attr_count].id = SAI_FLOW_ENTRY_BULK_GET_SESSION_FILTER_ATTR_INT_VALUE;
+-            attrs[attr_count].value.u32 = static_cast<uint32_t>(stoul(filter.value));
++            attrs[attr_count].value.u64 = stoull(filter.value);
+             attr_count++;
+         }
+         else if (filter_key == SAI_DASH_FLOW_ENTRY_BULK_GET_SESSION_FILTER_KEY_SRC_IP_ADDR ||
+diff --git a/orchagent/dash/dashhaorch.cpp b/orchagent/dash/dashhaorch.cpp
+index 52643ce..f21ea85 100644
+--- a/orchagent/dash/dashhaorch.cpp
++++ b/orchagent/dash/dashhaorch.cpp
+@@ -562,7 +562,7 @@ bool DashHaOrch::addHaScopeEntry(const std::string &key, const dash::ha_scope::H
+ 
+     sai_attribute_t ha_role_attr = {};
+     ha_role_attr.id = SAI_HA_SCOPE_ATTR_DASH_HA_ROLE;
+-    ha_role_attr.value.u16 = to_sai(entry.ha_role());
++    ha_role_attr.value.s32 = to_sai(entry.ha_role());
+     ha_scope_attrs.push_back(ha_role_attr);
+ 
+     if (isHaScopeAdminStateAttrSupported())
+diff --git a/orchagent/dash/dashorch.cpp b/orchagent/dash/dashorch.cpp
+index 6c77ae0..a0a11d7 100644
+--- a/orchagent/dash/dashorch.cpp
++++ b/orchagent/dash/dashorch.cpp
+@@ -185,7 +185,7 @@ bool DashOrch::createApplianceSaiObjects(const string& appliance_id, const dash:
+         vector<sai_attribute_t> appliance_attrs;
+         sai_attribute_t attr;
+         attr.id = SAI_DASH_APPLIANCE_ATTR_LOCAL_REGION_ID;
+-        attr.value.u32 = entry.local_region_id();
++        attr.value.u8 = static_cast<uint8_t>(entry.local_region_id());
+         appliance_attrs.push_back(attr);
+ 
+         status = sai_dash_appliance_api->create_dash_appliance(&sai_appliance_id, gSwitchId, (uint32_t)appliance_attrs.size(), appliance_attrs.data());
+diff --git a/orchagent/dash/dashportmaporch.cpp b/orchagent/dash/dashportmaporch.cpp
+index b2b774b..441b831 100644
+--- a/orchagent/dash/dashportmaporch.cpp
++++ b/orchagent/dash/dashportmaporch.cpp
+@@ -510,11 +510,11 @@ bool DashPortMapOrch::addPortMapRange(DashPortMapRangeBulkContext &ctxt)
+     attrs.push_back(attr);
+ 
+     attr.id = SAI_OUTBOUND_PORT_MAP_PORT_RANGE_ENTRY_ATTR_MATCH_PORT_BASE;
+-    attr.value.u32 = ctxt.start_port;
++    attr.value.u16 = ctxt.start_port;
+     attrs.push_back(attr);
+ 
+     attr.id = SAI_OUTBOUND_PORT_MAP_PORT_RANGE_ENTRY_ATTR_BACKEND_PORT_BASE;
+-    attr.value.u32 = ctxt.metadata.backend_port_base();
++    attr.value.u16 = static_cast<uint16_t>(ctxt.metadata.backend_port_base());
+     attrs.push_back(attr);
+ 
+     auto &object_statuses = ctxt.port_map_range_statuses;
+diff --git a/orchagent/dtelorch.cpp b/orchagent/dtelorch.cpp
+index 084d078..ae60464 100644
+--- a/orchagent/dtelorch.cpp
++++ b/orchagent/dtelorch.cpp
+@@ -694,7 +694,7 @@ void DTelOrch::doDtelTableTask(Consumer &consumer)
+                 FieldValueTuple e = kfvFieldsValues(t)[0];
+ 
+                 attr.id = SAI_DTEL_ATTR_LATENCY_SENSITIVITY;
+-                attr.value.u16 = to_uint<uint16_t>(fvValue(e));
++                attr.value.u8 = to_uint<uint8_t>(fvValue(e));
+                 status = sai_dtel_api->set_dtel_attribute(dtelId, &attr);
+                 if (status != SAI_STATUS_SUCCESS)
+                 {
+@@ -983,7 +983,7 @@ void DTelOrch::doDtelTableTask(Consumer &consumer)
+                 auto i = kfvFieldsValues(t);
+ 
+                 attr.id = SAI_DTEL_ATTR_LATENCY_SENSITIVITY;
+-                attr.value.u16 = 0;
++                attr.value.u8 = 0;
+                 status = sai_dtel_api->set_dtel_attribute(dtelId, &attr);
+                 if (status != SAI_STATUS_SUCCESS)
+                 {
+@@ -1328,7 +1328,7 @@ void DTelOrch::doDtelINTSessionTableTask(Consumer &consumer)
+                 else if (fvField(i) == MAX_HOP_COUNT)
+                 {
+                     s_attr.id = SAI_DTEL_INT_SESSION_ATTR_MAX_HOP_COUNT;
+-                    s_attr.value.u16 = to_uint<uint16_t>(fvValue(i));
++                    s_attr.value.u8 = to_uint<uint8_t>(fvValue(i));
+                     int_session_attr.push_back(s_attr);
+                 }
+             }
+diff --git a/orchagent/intfsorch.cpp b/orchagent/intfsorch.cpp
+index cc1a0d8..fc4e206 100644
+--- a/orchagent/intfsorch.cpp
++++ b/orchagent/intfsorch.cpp
+@@ -291,7 +291,7 @@ bool IntfsOrch::setRouterIntfsNatZoneId(Port &port)
+ 
+     sai_attribute_t attr;
+     attr.id = SAI_ROUTER_INTERFACE_ATTR_NAT_ZONE_ID;
+-    attr.value.u32 = port.m_nat_zone_id;
++    attr.value.u8 = static_cast<sai_uint8_t>(port.m_nat_zone_id);
+ 
+     sai_status_t status = sai_router_intfs_api->
+             set_router_interface_attribute(port.m_rif_id, &attr);
+@@ -1520,9 +1520,9 @@ bool IntfsOrch::addRouterIntfs(sai_object_id_t vrf_id, Port &port, string loopba
+     if (gIsNatSupported)
+     {
+         attr.id = SAI_ROUTER_INTERFACE_ATTR_NAT_ZONE_ID;
+-        attr.value.u32 = port.m_nat_zone_id;
++        attr.value.u8 = static_cast<sai_uint8_t>(port.m_nat_zone_id);
+ 
+-        SWSS_LOG_INFO("Assigning NAT zone id %d to interface %s\n", attr.value.u32, port.m_alias.c_str());
++        SWSS_LOG_INFO("Assigning NAT zone id %d to interface %s\n", attr.value.u8, port.m_alias.c_str());
+         attrs.push_back(attr);
+     }
+ 
+diff --git a/orchagent/mirrororch.cpp b/orchagent/mirrororch.cpp
+index b8357dc..309ffdf 100644
+--- a/orchagent/mirrororch.cpp
++++ b/orchagent/mirrororch.cpp
+@@ -1163,7 +1163,7 @@ bool MirrorOrch::activateSession(const string& name, MirrorEntry& session)
+         // TOS value format is the following:
+         // DSCP 6 bits | ECN 2 bits
+         attr.id = SAI_MIRROR_SESSION_ATTR_TOS;
+-        attr.value.u16 = (uint16_t)(session.dscp << MIRROR_SESSION_DSCP_SHIFT);
++        attr.value.u8 = (uint8_t)(session.dscp << MIRROR_SESSION_DSCP_SHIFT);
+         attrs.push_back(attr);
+ 
+         attr.id = SAI_MIRROR_SESSION_ATTR_TTL;
+diff --git a/orchagent/mplsrouteorch.cpp b/orchagent/mplsrouteorch.cpp
+index cce3fe5..c2c7c5c 100644
+--- a/orchagent/mplsrouteorch.cpp
++++ b/orchagent/mplsrouteorch.cpp
+@@ -619,7 +619,7 @@ bool RouteOrch::addLabelRoute(LabelRouteBulkContext& ctx, const NextHopGroupKey
+         }
+         inseg_attrs.push_back(inseg_attr);
+         inseg_attr.id = SAI_INSEG_ENTRY_ATTR_NUM_OF_POP;
+-        inseg_attr.value.u32 = ctx.pop_count;
++        inseg_attr.value.u8 = ctx.pop_count;
+         inseg_attrs.push_back(inseg_attr);
+ 
+         /* Default SAI_INSEG_ENTRY_ATTR_PACKET_ACTION is SAI_PACKET_ACTION_FORWARD */
+diff --git a/orchagent/portsorch.cpp b/orchagent/portsorch.cpp
+index 4071ddf..12a013f 100644
+--- a/orchagent/portsorch.cpp
++++ b/orchagent/portsorch.cpp
+@@ -1495,7 +1495,7 @@ bool PortsOrch::addPortBulk(const std::vector<PortConfig> &portList, std::vector
+             }
+ 
+             attr.id = SAI_PORT_ATTR_PATH_TRACING_TIMESTAMP_TYPE;
+-            attr.value.u16 = cit.pt_timestamp_template.value;
++            attr.value.s32 = cit.pt_timestamp_template.value;
+             attrList.push_back(attr);
+         }
+ 
+@@ -3074,37 +3074,37 @@ bool PortsOrch::setPortPvid(Port &port, sai_uint32_t pvid)
+     {
+         sai_attribute_t attr;
+         attr.id = SAI_PORT_ATTR_PORT_VLAN_ID;
+-        attr.value.u32 = pvid;
++        attr.value.u16 = static_cast<sai_uint16_t>(pvid);
+ 
+         sai_status_t status = sai_port_api->set_port_attribute(port.m_port_id, &attr);
+         if (status != SAI_STATUS_SUCCESS)
+         {
+-            SWSS_LOG_ERROR("Failed to set pvid %u to port: %s", attr.value.u32, port.m_alias.c_str());
++            SWSS_LOG_ERROR("Failed to set pvid %u to port: %s", attr.value.u16, port.m_alias.c_str());
+             task_process_status handle_status = handleSaiSetStatus(SAI_API_PORT, status);
+             if (handle_status != task_success)
+             {
+                 return parseHandleSaiStatusFailure(handle_status);
+             }
+         }
+-        SWSS_LOG_NOTICE("Set pvid %u to port: %s", attr.value.u32, port.m_alias.c_str());
++        SWSS_LOG_NOTICE("Set pvid %u to port: %s", attr.value.u16, port.m_alias.c_str());
+     }
+     else if (port.m_type == Port::LAG)
+     {
+         sai_attribute_t attr;
+         attr.id = SAI_LAG_ATTR_PORT_VLAN_ID;
+-        attr.value.u32 = pvid;
++        attr.value.u16 = static_cast<sai_uint16_t>(pvid);
+ 
+         sai_status_t status = sai_lag_api->set_lag_attribute(port.m_lag_id, &attr);
+         if (status != SAI_STATUS_SUCCESS)
+         {
+-            SWSS_LOG_ERROR("Failed to set pvid %u to lag: %s", attr.value.u32, port.m_alias.c_str());
++            SWSS_LOG_ERROR("Failed to set pvid %u to lag: %s", attr.value.u16, port.m_alias.c_str());
+             task_process_status handle_status = handleSaiSetStatus(SAI_API_LAG, status);
+             if (handle_status != task_success)
+             {
+                 return parseHandleSaiStatusFailure(handle_status);
+             }
+         }
+-        SWSS_LOG_NOTICE("Set pvid %u to lag: %s", attr.value.u32, port.m_alias.c_str());
++        SWSS_LOG_NOTICE("Set pvid %u to lag: %s", attr.value.u16, port.m_alias.c_str());
+     }
+     else
+     {
+diff --git a/orchagent/qosorch.cpp b/orchagent/qosorch.cpp
+index 12c2a3e..2b52c2e 100644
+--- a/orchagent/qosorch.cpp
++++ b/orchagent/qosorch.cpp
+@@ -792,7 +792,7 @@ sai_object_id_t WredMapHandler::addQosItem(const vector<sai_attribute_t> &attrib
+     uint8_t wred_enable_set = 0;
+ 
+     attr.id = SAI_WRED_ATTR_WEIGHT;
+-    attr.value.s32 = 0;
++    attr.value.u8 = 0;
+     attrs.push_back(attr);
+ 
+     for(auto attrib : attribs)
+diff --git a/tests/mock_tests/dashportmaporch_ut.cpp b/tests/mock_tests/dashportmaporch_ut.cpp
+index 368e064..b27c7f9 100644
+--- a/tests/mock_tests/dashportmaporch_ut.cpp
++++ b/tests/mock_tests/dashportmaporch_ut.cpp
+@@ -144,11 +144,11 @@ namespace dashportmaporch_test
+             }
+             else if (attr.id == SAI_OUTBOUND_PORT_MAP_PORT_RANGE_ENTRY_ATTR_MATCH_PORT_BASE)
+             {
+-                EXPECT_EQ(attr.value.u32, port_map1_start_port);
++                EXPECT_EQ(attr.value.u16, port_map1_start_port);
+             }
+             else if (attr.id == SAI_OUTBOUND_PORT_MAP_PORT_RANGE_ENTRY_ATTR_BACKEND_PORT_BASE)
+             {
+-                EXPECT_EQ(attr.value.u32, port_map1_backend_port_base);
++                EXPECT_EQ(attr.value.u16, port_map1_backend_port_base);
+             }
+         }
+ 

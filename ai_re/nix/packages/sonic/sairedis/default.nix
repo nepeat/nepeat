@@ -17,6 +17,8 @@ stdenv.mkDerivation {
   pname = if vendor then "sonic-sairedis-${libsai.pname}" else "sonic-sairedis";
   version = sonic.version "sairedis";
   src = sonic.sources.sairedis;
+  # Big-endian: SAI's mask (de)serializers swap bytes unconditionally.
+  patches = [ ./patches/0001-SAI-meta-saiserialize-mask-byte-order.patch ];
 
   nativeBuildInputs = [
     autoreconfHook autoconf-archive pkg-config swig
@@ -77,9 +79,13 @@ stdenv.mkDerivation {
   makeFlags = [ "PYTHON3_BLDLIBRARY=-l${python3.libPrefix}" ];
   enableParallelBuilding = true;
 
+  # Headers as debian/libsai{redis,metadata,vs}-dev.install ship them (swss
+  # includes sairedis.h, sai_serialize.h, SaiAttributeList.h, ... from there).
   postInstall = ''
     mkdir -p $out/include/sai
-    cp SAI/inc/*.h SAI/experimental/*.h SAI/meta/saimetadata*.h SAI/meta/saiserialize.h $out/include/sai/
+    cp SAI/inc/*.h SAI/experimental/*.h SAI/meta/sai*.h $out/include/sai/
+    cp lib/sairedis.h meta/sai*.h meta/Sai*.h meta/Meta.h meta/AttrKeyMap.h meta/MetaKeyHasher.h \
+      meta/OidRefCounter.h meta/PortRelatedSet.h meta/Notification*.h meta/Globals.h $out/include/sai/
   '';
 
   meta = {

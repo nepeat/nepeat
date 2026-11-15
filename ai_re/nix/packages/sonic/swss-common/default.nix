@@ -1,14 +1,15 @@
 # libswsscommon, its Python bindings (SWIG) and sonic-db-cli.
 # Upstream recipe: debian/rules (--disable-static --disable-python2).
-{ lib, stdenv, autoreconfHook, pkg-config, swig, python3, autoconf-archive
+{ lib, stdenv, autoreconfHook, pkg-config, swig, python3, autoconf-archive, perl
 , hiredis, boost, nlohmann_json, libuuid, zlib, zeromq, libyang, pcre2
 , sonic, withYang ? false }:
+let yangModels = "${sonic.sources.buildimage}/src/sonic-yang-models"; in
 stdenv.mkDerivation {
   pname = "sonic-swss-common";
   version = sonic.version "swss-common";
   src = sonic.sources.swss-common;
 
-  nativeBuildInputs = [ autoreconfHook autoconf-archive pkg-config swig python3 ];
+  nativeBuildInputs = [ autoreconfHook autoconf-archive pkg-config swig python3 perl ];
   buildInputs = [ hiredis sonic.libnl-sonic boost nlohmann_json libuuid zlib zeromq python3 ]
     ++ lib.optionals withYang [ libyang pcre2 ];
 
@@ -22,8 +23,16 @@ stdenv.mkDerivation {
   # built; the stack is exercised by the NixOS VM tests instead.
   postPatch = ''
     sed -i '/include tests\/Makefile.am/d' Makefile.am
-    # Lua scripts are read at runtime from a hard-coded /usr/share/swss.
-    substituteInPlace common/redisapi.h --replace-fail '"/usr/share/swss/"' "\"$out/share/swss/\""
+    # Lua scripts are read at runtime from a hard-coded /usr/share/swss. Use our
+    # store path, overridable per consumer (-DSWSS_LUA_DIR=...; swss does that
+    # for its own scripts, since loadLuaScript is inline in this header).
+    substituteInPlace common/redisapi.h --replace-fail '"/usr/share/swss/" + path' 'SWSS_LUA_DIR + path'
+    sed -i "0,/^#include/s||#ifndef SWSS_LUA_DIR\n#define SWSS_LUA_DIR \"$out/share/swss/\"\n#endif\n&|" common/redisapi.h
+    # Without YANG support upstream writes an empty cfg_schema.h, so consumers
+    # (swss) lose every CFG_*_TABLE_NAME macro. Generate it from the pinned
+    # sonic-yang-models instead; see gen-cfg-schema.py for how it differs.
+    perl -0pi -e 's|(# Generate minimal static schema.*?\ncommon/cfg_schema.h: FORCE\n).*?\nendif|$1\t\$(AM_V_GEN)python3 -I ${./gen-cfg-schema.py} -o \$@ ${yangModels}/yang-models ${yangModels}/yang-templates\nendif|s' common/Makefile.am
+    grep -q gen-cfg-schema.py common/Makefile.am
   '';
 
   # Upstream builds with -Werror against Debian's compiler; newer GCCs add warnings.

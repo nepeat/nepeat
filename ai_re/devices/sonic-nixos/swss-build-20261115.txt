@@ -1,0 +1,66 @@
+sonic-swss build + test evidence, 2026-11-15
+(pins: nix/packages/sonic/sources.json; swss d9684cc, sairedis 57dc35c, swss-common 77634bd, dash-api 2ce7ce6, libteam v1.31)
+
+== native x86_64: nix build sonic.swss (doCheck = make check, gtest)
+store path: /nix/store/k69jjd99cvdqga39rzl60km1spr8dj6b-sonic-swss-0-d9684cc
+Making check in fpmsyncd
+Making check in neighsyncd
+Making check in portsyncd
+Making check in mclagsyncd
+Making check in natsyncd
+Making check in fdbsyncd
+Making check in orchagent
+Making check in p4orch/tests
+# TOTAL: 802
+# PASS:  800
+# SKIP:  2
+# FAIL:  0
+# ERROR: 0
+Making check in swssconfig
+Making check in cfgmgr
+Making check in tests
+Making check in mock_tests
+# TOTAL: 1787
+# PASS:  1786
+# SKIP:  1
+# FAIL:  0
+# ERROR: 0
+# TOTAL: 70
+# PASS:  70
+# SKIP:  0
+# FAIL:  0
+# ERROR: 0
+Making check in gearsyncd
+Making check in teamsyncd
+Making check in tlm_teamd
+== cross ppc64 BE (nixosConfigurations.as7760.pkgs): sonic.swss
+store path: /nix/store/6mmzmnqci6cvgzvnz0b12ddl7kd1h50v-sonic-swss-powerpc64-unknown-linux-gnuabielfv2-0-d9684cc
+orchagent: ELF 64-bit MSB pie executable, 64-bit PowerPC
+
+== the same unit tests built for ppc64 BE (swss-be-tests.nix), run under qemu-ppc64 -cpu e6500
+(binaries built before a comment-only change in swss postPatch; same sources and patches)
+./orchagent/p4orch/tests/p4orch_tests.be.txt: 800 tests. passed; 
+./tests/mock_tests/tests.be.txt: 1355 tests. passed;  2 FAILED TESTS
+[  FAILED  ] DashPortMapOrchTest.AddRemovePortMapRange
+[  FAILED  ] SwitchOrchTest.SwitchOrchTestHandleEvent
+./tests/mock_tests/tests_fdbsyncd.be.txt: 86 tests. passed; 
+./tests/mock_tests/tests_fpmsyncd.be.txt: 249 tests. passed;  2 FAILED TESTS
+[  FAILED  ] FpmLinkTest.SingleNlMessageInFpmMessage
+[  FAILED  ] FpmLinkTest.TwoNlMessagesInFpmMessage
+./tests/mock_tests/tests_intfmgrd.be.txt: 11 tests. passed; 
+./tests/mock_tests/tests_macsecmgrd.be.txt: 14 tests. passed; 
+./tests/mock_tests/tests_nbrmgrd.be.txt: 13 tests. passed; 
+./tests/mock_tests/tests_neighsyncd.be.txt: 11 tests. passed; 
+./tests/mock_tests/tests_portsyncd.be.txt: 4 tests. passed; 
+./tests/mock_tests/tests_response_publisher.be.txt: 17 tests. passed; 
+./tests/mock_tests/tests_teammgrd.be.txt: 12 tests. passed; 
+./tests/mock_tests/tests_teamsyncd.be.txt: 10 tests. passed; 
+./tests/tests.be.txt: 70 tests. passed;
+Remaining 4 BE failures are test artifacts, not daemon bugs:
+- SwitchOrchTest.SwitchOrchTestHandleEvent: expected key is local time; passes with TZ=UTC under qemu.
+- DashPortMapOrchTest.AddRemovePortMapRange: reads the attr array through a pointer saved from a
+  mocked call after the call returned (dangling; value differs run to run). DASH unused here.
+- FpmLinkTest.{Single,Two}NlMessage(s)InFpmMessage: hand-written netlink bytes are little-endian
+  (nlmsg_len 3C 00 00 00); netlink is host-endian.
+Before sairedis patch 0001 (mask byte order) the BE mock suite died in AclOrchTest
+("ipv6 mask ffc0:: has holes", then SIGSEGV); before swss patch 0002 25 fpmsyncd tests failed.

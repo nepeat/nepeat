@@ -1,0 +1,75 @@
+From: ai_re sonic-nixos <noreply@localhost>
+Subject: [PATCH] meta: saiserialize: convert IP masks from network order, don't swap unconditionally
+
+sai_serialize_ip4_mask/ip6_mask and their deserializers turn the mask
+(network byte order) into a host integer with __builtin_bswap32/64. That
+is ntohl/be64toh only on little-endian hosts; on big-endian it scrambles
+every mask that is not all-zeros or all-ones, so serializing route
+entries fails ("ipv6 mask ffc0:: has holes", "ipv4 mask ... has holes").
+Found running sonic-swss's unit tests for ppc64 big-endian under qemu.
+Upstream: opencomputeproject/SAI (meta/saiserialize.c).
+
+---
+diff --git a/SAI/meta/saiserialize.c b/SAI/meta/saiserialize.c
+index d586d6a..0709365 100644
+--- a/SAI/meta/saiserialize.c
++++ b/SAI/meta/saiserialize.c
+@@ -36,6 +36,17 @@
+ #include "saimetadata.h"
+ #include "saiserialize.h"
+ 
++/* Big-endian (network order) 64-bit value to and from host order. */
++static uint64_t sai_be64_swap(
++        _In_ uint64_t value)
++{
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++    return __builtin_bswap64(value);
++#else
++    return value;
++#endif
++}
++
+ #define MAX_CHARS_PRINT 25
+ 
+ /* Expect macros */
+@@ -966,7 +977,7 @@ int sai_serialize_ip4_mask(
+     uint32_t n = 32;
+     uint32_t tmp = 0xFFFFFFFF;
+ 
+-    mask = __builtin_bswap32(mask);
++    mask = ntohl(mask);
+ 
+     for (; (tmp != mask) && tmp; tmp <<= 1, n--);
+ 
+@@ -1006,7 +1017,7 @@ int sai_deserialize_ip4_mask(
+         value = 0xFFFFFFFF << (32 - value);
+     }
+ 
+-    *mask = __builtin_bswap32(value);
++    *mask = htonl(value);
+ 
+     return res;
+ }
+@@ -1023,8 +1034,8 @@ int sai_serialize_ip6_mask(
+     memcpy(&high, (const uint8_t*)mask, sizeof(uint64_t));
+     memcpy(&low, ((const uint8_t*)mask + sizeof(uint64_t)), sizeof(uint64_t));
+ 
+-    high = __builtin_bswap64(high);
+-    low = __builtin_bswap64(low);
++    high = sai_be64_swap(high);
++    low = sai_be64_swap(low);
+ 
+     if (high == tmp)
+     {
+@@ -1094,9 +1105,9 @@ int sai_deserialize_ip6_mask(
+         low = 0;
+     }
+ 
+-    tmp = __builtin_bswap64(high);
++    tmp = sai_be64_swap(high);
+     memcpy((uint8_t*)mask, &tmp, sizeof(uint64_t));
+-    tmp = __builtin_bswap64(low);
++    tmp = sai_be64_swap(low);
+     memcpy(((uint8_t*)mask + sizeof(uint64_t)), &tmp, sizeof(uint64_t));
+ 
+     return res;

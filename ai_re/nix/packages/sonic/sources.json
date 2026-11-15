@@ -5,6 +5,12 @@
     "rev": "47fcc8d38855f80bb4e2d568bf42a0d91cfe4f61",
     "hash": "sha256-nzUdaoUcuS06/k7zYjTzPQUM3ZBWfcaYUWpKSD3W9TE="
   },
+  "dash-api": {
+    "owner": "sonic-net",
+    "repo": "sonic-dash-api",
+    "rev": "2ce7ce648ee77a76fcf567191eb4b9ed6cfeed38",
+    "hash": "sha256-BHOoMFcbiqHAoDkFA+BlGvWIRapDcQt6F2w/B9IseXo="
+  },
   "platform-common": {
     "owner": "sonic-net",
     "repo": "sonic-platform-common",

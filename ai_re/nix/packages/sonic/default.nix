@@ -22,6 +22,10 @@ let
     nhIdAlias = "-Drtnl_route_get_nh_id=rtnl_route_get_nhid -Drtnl_route_set_nh_id=rtnl_route_set_nhid";
     swss-common = pkgs.callPackage ./swss-common { sonic = self; };
     sairedis = pkgs.callPackage ./sairedis { sonic = self; };
+    # libteam 1.31 + SONiC's teamd patches (nixpkgs has no libteam).
+    libteam = pkgs.callPackage ./libteam { sonic = self; };
+    dash-api = pkgs.callPackage ./dash-api { sonic = self; };
+    swss = pkgs.callPackage ./swss { sonic = self; };
     # syncd linked against a vendor libsai instead of the virtual SAI, e.g.
     #   sairedis-openbcm (pkgs.callPackage ../sai-openbcm { sonic = self; libsdk = ...; })
     sairedis-openbcm = libsai: pkgs.callPackage ./sairedis { sonic = self; inherit libsai; };

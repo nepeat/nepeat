@@ -12,7 +12,14 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   drives the BCM56930 on the AS7760: switch create, 32 front-panel ports from
   the SDK (lanes match the factory port map), ports left admin-down, VLAN 100
   and a router interface created, ASIC_DB populated ([transcript](sai-openbcm-hw-20261115.txt)).
-  Not yet: swss/orchagent, traffic through SAI-created objects, LAG/ACL/QoS.
+  Not yet: swss/orchagent on the switch, traffic through SAI-created objects, LAG/ACL/QoS.
+- **swss packaged** (`sonic.swss`: orchagent, port/intf/vlan/team managers,
+  portsyncd, teamsyncd, neighsyncd, fdbsyncd, ...; plus `sonic.libteam` with
+  SONiC's teamd patches and `sonic.dash-api`): native build passes upstream's
+  gtest suites, cross-builds for ppc64 BE, and the same tests pass on BE under
+  qemu except 4 test-only artifacts ([evidence](swss-build-20261115.txt)).
+  Not yet run on the switch or in a VM. Big-endian fixes carried as patches
+  (2026-11-15 entry).
 - **One SDK process per unit** (2026-11-15): the switch boots with
   `openbcm-asic-temp` holding `/run/openbcm-unit0.lock` for fan control;
   `systemctl stop openbcm-asic-temp` before syncd/`bcm.user` (fans go to 100%
@@ -63,8 +70,7 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 - **Thin SAI over OpenBCM** (`nix/packages/sai-openbcm`): written and tested
   against its fake backend and through syncd in a VM; cross-builds; **not yet
   run on the AS7760** (2026-11-15 entry).
-- **Next:** hardware test of sai-openbcm, then swss/orchagent (`--with-sai=vs`), then swss;
-  `/usr/share/swss` path shim (Lua scripts are loaded from that absolute path).
+- **Next:** hardware test of sai-openbcm, then swss/orchagent against it.
 - **Open:**
   - `sonic-db-cli PING` (TCP to every instance in database_config.json) failed
     on the switch while unix-socket access worked. Not diagnosed: could be the
@@ -79,6 +85,40 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-15 — sonic-swss packaged; big-endian fixes in orchagent and SAI meta
+
+- New: `nix/packages/sonic/{swss,libteam,dash-api}`, wired into
+  `sonic/default.nix`; `dash-api` pin added to `sources.json` (buildimage
+  submodule SHA). [Evidence](swss-build-20261115.txt); BE test runner
+  [swss-be-tests.nix](swss-be-tests.nix).
+- **BE bugs fixed (patches, upstreamable):**
+  - swss 0001: SAI attribute values written through a union member of the
+    wrong width. PORT/LAG `PORT_VLAN_ID` (u16 written as u32: every PVID 0 on
+    BE, found by the sai-openbcm work), plus NAT zone id, WRED weight, mirror
+    TOS, MPLS pop count, DTEL latency/hop count, three DASH attrs, path-tracing
+    timestamp type. Found with `swss/check-sai-value-types.py` (header @type
+    vs `.value.<member>`). Not fixed (no BE effect or not used here): enums via
+    u32, u32 via s32, bufferorch u32/u64 on pool type/mode (checker false positive:
+    .value set before .id), p4orch policer attrs.
+  - sairedis 0001: SAI `saiserialize.c` IPv4/IPv6 mask (de)serializers byte-swap
+    unconditionally; on BE every non-trivial mask failed ("has holes"), so
+    route/ACL entries with prefixes could not be serialized. Changes the vs
+    `sairedis` (and sairedis-openbcm) store paths: intended.
+  - swss 0002 (tests only): fpmsyncd test helpers (stack overflow; `nl_attr_put8`
+    taking a u16; LE-only be64 construction).
+- swss-common: `cfg_schema.h` (CFG_*_TABLE_NAME macros, empty upstream without
+  libyang) generated from the pinned sonic-yang-models by a text parser
+  (`gen-cfg-schema.py`); Lua dir overridable (`SWSS_LUA_DIR`). sairedis installs
+  the meta headers swss needs.
+- Deviations (all commented in the derivations): C++17, protobuf 3.21 (current
+  protobuf needs abseil/C++20), libteam from the v1.31 tag without D-Bus/ZMQ,
+  shell commands at store paths (iptables/conntrack/brctl/ndisc6 from PATH),
+  countersyncd (Rust) and the warm-reboot Python helpers not built.
+- Open: run orchagent + managers in a NixOS VM (vs SAI) and on the AS7760;
+  4 remaining BE test failures are test artifacts (see evidence); my first
+  attempt ran native and cross builds plus 13 qemu test runs at once and ran
+  the build host out of memory. Run one build at a time.
 
 ## 2026-11-15 — thin SAI over OpenBCM (sai-openbcm), not yet on hardware
 
