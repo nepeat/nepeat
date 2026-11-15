@@ -51,8 +51,8 @@ recorded); gate 4 is a `rehearsal` record of the same payload + BOOT_MODE hashes
 | 2 | identify + env backup (`printenv` → `inventory/<unit>/…-private.txt`) | factory | [hw] reimage.py |
 | 3 | `sf probe 0`; `sf read` all CS0; `crc32` == current-state record (first time: == mtd0 backup); **stop on any difference** | factory | [hw] reads; note `sf probe` rewrites SR=0 (already 0) |
 | 4 | TFTP the `.fimg` and the BOOT_MODE object to RAM; `crc32` each vs host | factory | [hw] TFTP |
-| 5 | `sf erase` the whole IPXE n slot, `sf write` the `.fimg`; `sf read` the slot, `crc32` == model; `flash_contents_obj_validate IPXE n` | factory | [code] |
-| 6 | `sf erase 0x340000 0x1000`, `sf write` BOOT_MODE; read back + `crc32`; validate | factory | [code] |
+| 5 | `sf erase` the whole IPXE n slot, `sf write` data+sum then header; `sf read` the slot, `crc32` == model; `flash_contents_obj_validate IPXE n` | factory | [code] |
+| 6 | `sf erase 0x340000 0x1000`, `sf write` data+sum then header; read back + `crc32` (no factory validate: BOOT_MODE load = 0) | factory | [code] |
 | 7 | re-read all CS0; diff vs step 3 must be **only** the IPXE slot + BOOT_MODE sector | factory | – |
 | 8 | power-cycle, no keys; expect `U-Boot 2026.10-dmc12-…` and `Entry: EL2 … x0=0x0` | stage3 → ours | [hw] Route A exp 4 |
 | 9 | boot NixOS (`bootflow scan -lb`), wait for 48 ports, `smoke.py` | ours | [hw] |
@@ -66,11 +66,22 @@ the write commands are printed; `status` and `rehearse` never write SPI.
 
 ## Failure handling
 - Any CRC/validate mismatch before step 6: stop; nothing boots IPXE yet, the write is harmless.
-- Step 6 torn write: BOOT_MODE invalid → stage3 boots factory UBOOT [inf]; rerun step 6.
+- **A good BOOT_MODE header with bad data hangs stage3 after its key poll** ("al_flash_obj_data_load
+  failed (boot mode)!" → the TOC-failed path; review 2026-11-15, stage3 disassembly): `u` can't help, only
+  the clip. Hence data first, header last (a torn write leaves a bad header → app 5), and on a BOOT_MODE
+  read-back mismatch the script re-erases the sector at once, still at the factory prompt.
+- Every destructive command is typed, its echo compared exactly, then sent (Ctrl-C otherwise); only the
+  three regions IPXE 0/1 and the BOOT_MODE sector are accepted. Read-back mismatch: **don't power off**;
+  the running factory U-Boot can restore from the backup (`spi-recovery.md`, `sf update`).
+- Journal: `intent` (with the region's expected bytes) before, `done` after a matching read-back. An
+  intent without done is an unknown range: left out of comparisons, so `rollback` (gate-free) still runs.
 - Step 8 no banner / hang: power-cycle with `u` → factory → `--rollback`.
 - `u` not working either (stage3 itself broken: impossible from these writes, but): clip + backup
   (`spi-recovery.md` ladder).
 - Never `saveenv`, `env default`, `delenv` at any prompt (BOOT_APP reroute script, `board-notes.md`).
+
+- After install, IPXE 1 is blank: if stage2 instance 1 ever boots (ladder rung 4), stage3 looks for
+  IPXE 1 → bad object; `u` still reaches the factory U-Boot.
 
 ## Reuse
 Console + prompt handling: `console.py`; power: `tools/lab_power.py`; stage3 keys: `stage3keys.py`

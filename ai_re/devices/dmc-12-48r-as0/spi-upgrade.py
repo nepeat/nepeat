@@ -18,13 +18,18 @@ With --write each write asks for the unit id (--yes: no questions, for agents).
   spi-upgrade.py --unit u01 --plug 2 install --ip 10.60.2.10           # dry run
   spi-upgrade.py --unit u01 --plug 2 install --ip 10.60.2.10 --write
 
-Host model of CS0 = dumps/<unit>/mtd0.bin (verified against its manifest) with every write in
-inventory/<unit>/spi-upgrade.jsonl replayed ("kind": "write", journaled *before* the command is
-sent; the written bytes are kept in dumps/<unit>/spi-writes/). Every flash read is compared with
-the model, so a torn or unexpected write stops the script. Only 0..0xfd0000 is modelled: the env
-pair above it changes with every saveenv. Never `saveenv`/`env default`/`delenv` here.
+Host model of CS0 = dumps/<unit>/mtd0.bin (verified against its manifest) with every verified
+region write in inventory/<unit>/spi-upgrade.jsonl replayed. A region is journaled as `intent`
+(with its expected content in dumps/<unit>/spi-writes/) before the first command and `done` after
+its read-back matched; an intent without done is an *unknown* range, left out of the comparisons
+(rollback still works) and allowed in install/update only inside the region being rewritten.
+Destructive commands are typed, their echo checked character for character, and only then sent.
+Objects are written data first, header last: a torn write leaves a bad header (stage3: app 5),
+never a good header with bad data (stage3 hangs past its key poll, so no `u`; uart-boot.md).
+Only 0..0xfd0000 is modelled (the env pair above changes with every saveenv).
+Never `saveenv`/`env default`/`delenv` here.
 """
-import argparse, hashlib, json, pathlib, re, struct, subprocess, sys, time, zlib
+import argparse, hashlib, json, pathlib, re, struct, subprocess, sys, time, uuid, zlib
 
 ROOT = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -33,17 +38,26 @@ import reimage    # noqa: E402  (console, pane, manifest + identity helpers)
 import uartboot   # noqa: E402  (TOC slots, object wrapper, Route A)
 
 Fail = reimage.Fail
+SESSION = reimage.SESSION
+PROMPT = "ALPINE_DB>"
 MODEL_END = 0xFD0000                     # env pair 0xfd0000..0xffffff is not modelled
 BOOT_MODE_OFF, SECTOR = 0x340000, 0x1000
+IPXE_SLOTS = {0: (0x2C0000, 0x80000), 1: (0x580000, 0x80000)}
+WRITABLE = {*IPXE_SLOTS.values(), (BOOT_MODE_OFF, SECTOR)}   # the only (off, len) ever erased
 IPXE, BOOT_MODE, UBOOT_ID = 0x110, 0, 5
+BM_DATA = 0x40                           # stage3 loads at most 0x40 B of BOOT_MODE data
 PAYLOAD_LOAD = 0x08000000                # IPXE object: load = exec (stage3 jumps there at EL2)
 # Factory U-Boot RAM staging (below its relocated self, above the 0x01xxxxxx stage3 area).
 A_PAYLOAD, A_BOOTMODE, A_READBACK, A_CS0 = 0x09000000, 0x09F00000, 0x0C000000, 0x0A000000
 OURS = r"U-Boot 2026\.10-dmc12-selfinit"
 FACTORY = r"U-Boot 2015\.07"
+USER_U = r"User request for loading U-Boot"
+BAD = r"Kernel panic|Synchronous Abort|### ERROR|Unknown command|Wrong Image"
 GATES = ROOT / "spi-upgrade-gates.json"
 GATE_NAMES = ("clip_read", "review", "gpio22", "cold_pcie")
 WRITE_MODES = ("install", "update", "rollback")
+DONT_POWER_OFF = ("do NOT power off: the factory U-Boot is still running and can restore the region "
+                  "from the backup (spi-recovery.md, the `sf update` recipe)")
 
 
 def say(a, msg):
@@ -75,54 +89,60 @@ def log(unit, rec):
 
 # ---- host model ---------------------------------------------------------------------------
 def model(unit):
-    """Expected CS0 0..MODEL_END: the verified backup plus every journaled write."""
+    """(expected CS0 0..MODEL_END, unknown ranges): the verified backup plus every verified write."""
     have, missing = reimage.manifest_ok(unit)
     if "mtd0.bin" in missing:
         raise Fail(f"no verified mtd0.bin for {unit} in dumps/{unit}/manifest.jsonl (acquire.py first)")
     raw = alboot.load(str(ROOT / "dumps" / unit / "mtd0.bin.zst"))
     if sha(raw) != have["mtd0.bin"]["sha256"]:
         raise Fail(f"dumps/{unit}/mtd0.bin.zst does not match its manifest sha256")
-    img = bytearray(raw[:MODEL_END])
-    for r in journal(unit):
-        if r.get("kind") != "write":
+    img, unknown = bytearray(raw[:MODEL_END]), []
+    recs = journal(unit)
+    done = {r["id"] for r in recs if r.get("kind") == "write" and r.get("phase") == "done"}
+    for r in recs:
+        if r.get("kind") != "write" or r.get("phase") != "intent":
             continue
-        off = r["off"]
-        if "erase" in r:
-            img[off:off + r["erase"]] = b"\xff" * r["erase"]
-        else:
-            data = (ROOT / r["file"]).read_bytes()
-            if sha(data) != r["sha256"]:
-                raise Fail(f"{r['file']} does not match its journal sha256")
-            img[off:off + len(data)] = data
-    return img
+        off, n = r["off"], r["len"]
+        if r["id"] not in done:
+            unknown.append((off, off + n))
+            continue
+        data = (ROOT / r["file"]).read_bytes()
+        if len(data) != n or sha(data) != r["sha256"]:
+            raise Fail(f"{r['file']} does not match its journal record")
+        img[off:off + n] = data
+        unknown = [u for u in unknown if not (off <= u[0] and u[1] <= off + n)]
+    return img, unknown
 
 
 def boot_mode_app(img):
-    """App stage3 will load per the model (5 = factory U-Boot when BOOT_MODE is blank/invalid)."""
+    """App stage3 will load (5 = factory U-Boot: BOOT_MODE blank, bad header or data > 0x40 B).
+    A good header with bad data hangs stage3 after its key poll: refuse to call that bootable."""
     off, mx = uartboot.slot(img, BOOT_MODE, 0)
     st, f = alboot.check_object(img, off, mx, BOOT_MODE)
-    if st != "OK":
+    if st == "OK" and f["size"] <= BM_DATA:
+        return struct.unpack_from("<I", img, off + alboot.HDR + 4)[0]
+    if f is None or f["size"] > BM_DATA:
         return UBOOT_ID
-    return struct.unpack_from("<I", img, off + alboot.HDR + 4)[0]
+    raise Fail(f"BOOT_MODE has a valid header but {st}: stage3 hangs before the `u` poll. Erase "
+               f"{BOOT_MODE_OFF:#x} from a running factory U-Boot, or use the clip")
 
 
 def boot_mode_obj(app):
     # 0x40 B of data like the factory object (0x8c B wrapped); stage3 reads word +4 only.
-    return uartboot.obj(BOOT_MODE, 0, struct.pack("<II", 0, app).ljust(0x40, b"\0"))
+    return uartboot.obj(BOOT_MODE, 0, struct.pack("<II", 0, app).ljust(BM_DATA, b"\0"))
 
 
 def check_layout(img):
-    """No unknown (e.g. SIG/PUK) objects; BOOT_MODE and both IPXE slots where we expect them."""
+    """No unknown (e.g. SIG/PUK) objects; BOOT_MODE and both IPXE slots exactly where we expect."""
     unknown = [hex(i) for i, n, off, mx in uartboot.toc_entries(img) if i not in alboot.NAMES]
     if unknown:
         raise Fail(f"TOC has unknown object ids {unknown}: not a layout this script knows")
     off, mx = uartboot.slot(img, BOOT_MODE, 0)    # 64 KiB slot; only its first sector is used
     if off != BOOT_MODE_OFF or mx < SECTOR:
         raise Fail(f"BOOT_MODE slot is {off:#x}/{mx:#x}, expected 0x340000 and >= 4 KiB")
-    for n in (0, 1):
-        off, mx = uartboot.slot(img, IPXE, n)
-        if off % SECTOR or mx % SECTOR or off + mx > MODEL_END:
-            raise Fail(f"IPXE {n} slot {off:#x}/{mx:#x} is not sector aligned")
+    for n, want in IPXE_SLOTS.items():
+        if uartboot.slot(img, IPXE, n) != want:
+            raise Fail(f"IPXE {n} slot is {uartboot.slot(img, IPXE, n)}, expected {want}")
 
 
 def payload_ok(a):
@@ -149,29 +169,27 @@ def plan(a, img):
         if cur & 0x0FFFFFFF != IPXE:
             raise Fail(f"BOOT_MODE selects app {cur:#x}, not IPXE: use install")
         inst = 1 - (cur >> 28)
-    off, mx = uartboot.slot(img, IPXE, inst)
+    off, mx = IPXE_SLOTS[inst]
     if len(data) > mx:
         raise Fail(f"payload {len(data):#x} B does not fit IPXE {inst} ({mx:#x} B)")
     app = IPXE | inst << 28
     return inst, app, data, boot_mode_obj(app)
 
 
-def expected_after(img, writes):
-    out = bytearray(img)
-    for off, data, erase in writes:
-        if erase:
-            out[off:off + erase] = b"\xff" * erase
-        else:
-            out[off:off + len(data)] = data
-    return out
+def region(img, off, length, obj):
+    """Expected content of [off, off+length) after erasing it and writing `obj` at its start."""
+    return obj + b"\xff" * (length - len(obj))
+
+
+def overlaps(r, lo, hi):
+    return r[0] < hi and lo < r[1]
 
 
 # ---- gates --------------------------------------------------------------------------------
 def gates(a):
     g = json.loads(GATES.read_text()) if GATES.exists() else {}
     over = dict(o.split("=", 1) for o in a.override_gate)
-    open_ = [n for n in GATE_NAMES if not g.get(n) and n not in over]
-    return open_, over
+    return [n for n in GATE_NAMES if not g.get(n) and n not in over], over
 
 
 def rehearsed(unit, data, bm):
@@ -187,8 +205,43 @@ def con(cmd, timeout=30):
     return reimage.console(cmd, timeout=timeout)
 
 
-def crc(cmd_addr, size, timeout=120):
-    return uartboot.crc_of(con(f"crc32 {cmd_addr:#x} {size:#x}", timeout))
+def tmux(*args):
+    subprocess.run(["tmux", *args], check=True, capture_output=True)
+
+
+def con_checked(cmd, timeout):
+    """Destructive command: type it, require the echoed line to equal it exactly, then Enter.
+    A garbled echo gets Ctrl-C and nothing is executed."""
+    tmux("clear-history", "-t", SESSION)
+    if not reimage.pane().rstrip().endswith(PROMPT):
+        raise Fail(f"not at an idle {PROMPT} prompt; {cmd!r} not sent")
+    for byte in cmd.encode():
+        tmux("send-keys", "-t", SESSION, "-H", f"{byte:02x}")
+        time.sleep(0.02)
+    want = f"{PROMPT} {cmd}"
+    deadline = time.monotonic() + 5
+    while True:
+        lines = reimage.pane().rstrip("\n").splitlines()
+        last = lines[-1].rstrip() if lines else ""
+        if last == want:
+            break
+        if time.monotonic() > deadline:
+            tmux("send-keys", "-t", SESSION, "C-c")
+            raise Fail(f"echo {last!r} != {want!r}: Ctrl-C sent, command NOT executed")
+        time.sleep(0.1)
+    base = len(lines)
+    tmux("send-keys", "-t", SESSION, "Enter")
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        new = reimage.pane().rstrip("\n").splitlines()[base:]
+        if new and new[-1].rstrip() == PROMPT:
+            return "\n".join(new[:-1])
+        time.sleep(0.2)
+    raise Fail(f"{cmd!r}: no prompt after {timeout}s. " + DONT_POWER_OFF)
+
+
+def crc(addr, size, timeout=120):
+    return uartboot.crc_of(con(f"crc32 {addr:#x} {size:#x}", timeout))
 
 
 def run(cmd, timeout):
@@ -196,7 +249,14 @@ def run(cmd, timeout):
 
 
 def power(a, state):
-    run([sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), str(a.plug), state], 30)
+    if state == "off" and a.ip:          # a running NixOS: flush the SSD first (best effort)
+        try:
+            run(reimage.SSH + [f"root@{a.ip}", "sync"], 15)
+        except subprocess.TimeoutExpired:
+            pass
+    r = run([sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), str(a.plug), state], 30)
+    if r.returncode:
+        raise Fail(f"lab_power {a.plug} {state} failed: {r.stdout[-200:]}{r.stderr[-200:]}")
 
 
 def counts(pats):
@@ -204,17 +264,46 @@ def counts(pats):
     return {p: len(re.findall(p, t)) for p in pats}
 
 
-def to_factory(a, img):
+def stage3_u(a):
+    """Power-cycle sending `u` to stage3 (stage3keys.py timing), stop the autoboot that follows.
+    Returns which of: user request / factory banner / our banner appeared (new matches only)."""
+    pats = {"user": USER_U, "factory": FACTORY, "ours": OURS, "exec": "Executing next",
+            "loading": "Loading application", "hit": "Hit any key"}
+    power(a, "off")
+    time.sleep(a.off)
+    tmux("clear-history", "-t", SESSION)
+    base = counts(pats.values())
+    power(a, "on")
+    t0, seen = time.monotonic(), set()
+    while time.monotonic() - t0 < 120:
+        c = counts(pats.values())
+        seen = {k for k, p in pats.items() if c[p] > base[p]}
+        if "exec" in seen and "loading" not in seen:
+            tmux("send-keys", "-t", SESSION, "-l", "u")
+        if "hit" in seen:
+            tmux("send-keys", "-t", SESSION, "-l", " ")
+            break
+        time.sleep(0.02)
+    deadline = time.monotonic() + 20
+    while not reimage.pane().rstrip().endswith(PROMPT) and time.monotonic() < deadline:
+        time.sleep(0.2)
+    c = counts(pats.values())
+    seen = {k for k, p in pats.items() if c[p] > base[p]}
+    seen.add("prompt") if reimage.pane().rstrip().endswith(PROMPT) else None
+    return seen
+
+
+def to_factory(a, img, unknown):
     """Stop at the factory prompt. With our U-Boot selected, the `u` key is the only way there."""
-    if boot_mode_app(img) == UBOOT_ID:
+    bm_unknown = any(overlaps(u, BOOT_MODE_OFF, BOOT_MODE_OFF + SECTOR) for u in unknown)
+    if not bm_unknown and boot_mode_app(img) == UBOOT_ID:
         r = run([sys.executable, str(ROOT / "powercycle_to_uboot.py"), "--plug", str(a.plug)], 240)
-        ok = "ALPINE_DB>" in r.stdout
-    else:
-        r = run([sys.executable, str(ROOT / "stage3keys.py"), "--plug", str(a.plug), "--key", "u",
-                 "--off", str(a.off)], 240)
-        ok = "User request" in r.stdout and reimage.pane().rstrip().endswith("ALPINE_DB>")
-    if r.returncode or not ok:
-        raise Fail(f"did not reach the factory prompt: {r.stdout[-300:]}{r.stderr[-300:]}")
+        if r.returncode or PROMPT not in r.stdout:
+            raise Fail(f"did not reach the factory prompt: {r.stdout[-300:]}{r.stderr[-300:]}")
+        return
+    seen = stage3_u(a)       # `u` is silent when BOOT_MODE is blank: the banner + prompt decide
+    if not {"factory", "prompt"} <= seen or "ours" in seen:
+        raise Fail(f"`u` did not reach the factory prompt: {sorted(seen)}")
 
 
 def identify(a, st):
@@ -234,22 +323,32 @@ def identify(a, st):
 
 
 def state_checks(a, st):
-    otp = con("otp show direct")
-    if "- Secure boot: disabled" not in otp:
+    if "- Secure boot: disabled" not in con("otp show direct"):
         raise Fail("OTP does not say 'Secure boot: disabled': stop (spi-uboot-replacement.md §6)")
     st["otp"] = "secure boot disabled"
 
 
-def read_cs0(a, img, what):
-    """sf probe + full read of 0..MODEL_END; crc32 must equal the model."""
+def segments(unknown):
+    """[lo, hi) pieces of 0..MODEL_END outside the unknown ranges."""
+    out, lo = [], 0
+    for u0, u1 in sorted(unknown):
+        if u0 > lo:
+            out.append((lo, u0))
+        lo = max(lo, u1)
+    return out + ([(lo, MODEL_END)] if lo < MODEL_END else [])
+
+
+def read_cs0(a, img, unknown, what):
+    """sf probe + full read of 0..MODEL_END; crc32 of every known piece must equal the model."""
     if "mx25u12835f" not in con("sf probe 0:0").lower():
         raise Fail("sf probe 0:0 did not detect the MX25U12835F")
     con(f"sf read {A_CS0:#x} 0 {MODEL_END:#x}", a.read_timeout)
-    got, want = crc(A_CS0, MODEL_END, 300), zlib.crc32(img)
-    if got != want:
-        raise Fail(f"CS0 {what}: crc32 {got:08x} != model {want:08x}. STOP: the flash is not what the "
-                   "journal says (spi-upgrade-plan.md, failure handling)")
-    return got
+    for lo, hi in segments(unknown):
+        got, want = crc(A_CS0 + lo, hi - lo, 300), zlib.crc32(img[lo:hi])
+        if got != want:
+            raise Fail(f"CS0 {what} {lo:#x}..{hi:#x}: crc32 {got:08x} != model {want:08x}. STOP: the "
+                       "flash is not what the journal says (spi-upgrade-plan.md, failure handling)")
+    return f"{zlib.crc32(img):08x}" if not unknown else f"known pieces match, unknown {unknown}"
 
 
 # ---- steps ----------------------------------------------------------------------------------
@@ -258,6 +357,7 @@ def stage(a, files):
     d.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (d / name).write_bytes(data)
+    con("setenv autoload no")
     if "bound to address" not in con("dhcp", 60):
         raise Fail("dhcp failed")
     con(f"setenv serverip {a.server}")          # after dhcp: it overwrites serverip
@@ -287,38 +387,58 @@ def keep(a, data):
     return str(p.relative_to(ROOT))
 
 
-def write_region(a, img, off, data, ram, label, erase=None):
-    """Erase the region's sectors, write `data` from RAM `ram`, read back, crc vs host."""
-    erase = erase or -(-len(data) // SECTOR) * SECTOR
-    cmds = [f"sf erase {off:#x} {erase:#x}"] + ([f"sf write {ram:#x} {off:#x} {len(data):#x}"] if data else [])
+def write_region(a, img, off, length, obj, ram, label):
+    """Erase [off, off+length), write `obj` (in RAM at `ram`) data first, header last; read back.
+    Returns the new model. Dry run: prints the commands and returns the expected model."""
+    if (off, length) not in WRITABLE:
+        raise Fail(f"refusing to write {off:#x}/{length:#x}: not one of {sorted(WRITABLE)}")
+    want = region(img, off, length, obj)
+    cmds = [f"sf erase {off:#x} {length:#x}"]
+    if obj:
+        h = alboot.HDR
+        cmds += [f"sf write {ram + h:#x} {off + h:#x} {len(obj) - h:#x}", f"sf write {ram:#x} {off:#x} {h:#x}"]
+    new = bytearray(img)
+    new[off:off + length] = want
     if not a.write:
         say(a, f"dry run, would send ({label}): " + "; ".join(cmds))
-        return expected_after(img, [(off, b"", erase), (off, data, 0)])
+        return new
     confirm(a, f"[WRITES SPI] {label}: {'; '.join(cmds)}")
-    log(a.unit, {"kind": "write", "label": label, "off": off, "erase": erase})
-    con(cmds[0], 120)
-    if data:
-        log(a.unit, {"kind": "write", "label": label, "off": off, "sha256": sha(data), "file": keep(a, data)})
-        con(cmds[1], 120)
-    new = model(a.unit)
-    con(f"sf read {A_READBACK:#x} {off:#x} {erase:#x}", 120)
-    if crc(A_READBACK, erase) != zlib.crc32(new[off:off + erase]):
-        raise Fail(f"{label}: read-back crc32 differs from what was written. STOP")
+    rid = uuid.uuid4().hex[:12]
+    log(a.unit, {"kind": "write", "phase": "intent", "id": rid, "label": label, "off": off,
+                 "len": length, "sha256": sha(want), "file": keep(a, want), "cmds": cmds})
+    if "mx25u12835f" not in con("sf probe 0:0").lower():   # fresh handle (the validator re-probes)
+        raise Fail("sf probe 0:0 did not detect the MX25U12835F")
+    if obj and crc(ram, len(obj)) != zlib.crc32(obj):
+        raise Fail(f"{label}: RAM copy changed since TFTP; nothing written")
+    for c in cmds:
+        out = con_checked(c, 180)
+        if "OK" not in out or re.search(r"ERROR|FAIL", out, re.I):
+            raise Fail(f"{c!r}: {out.strip()[-200:]!r}. " + DONT_POWER_OFF)
+    con(f"sf read {A_READBACK:#x} {off:#x} {length:#x}", 120)
+    if crc(A_READBACK, length) != zlib.crc32(want):
+        raise Fail(f"{label}: read-back crc32 differs from what was written. " + DONT_POWER_OFF)
+    log(a.unit, {"kind": "write", "phase": "done", "id": rid, "label": label})
     return new
 
 
-def validate(a, oid, inst, label, control=False):
-    if not a.write and not control:      # nothing was written: the slot is still blank
-        return
+def validate(a, oid, inst, label, expect=True):
     out = con(f"flash_contents_obj_validate {alboot.NAMES[oid]} {inst} && echo VALID-OK || echo VALID-FAIL")
-    if "VALID-OK" not in out or "failed" in out:
-        raise Fail(f"{label}: factory flash_contents_obj_validate rejects it: {out.strip()[-200:]}")
+    ok = "VALID-OK" in out and "failed" not in out
+    bad = "VALID-FAIL" in out
+    if (expect and not ok) or (not expect and not bad):
+        raise Fail(f"{label}: factory flash_contents_obj_validate gave {out.strip()[-200:]!r}, "
+                   f"expected {'OK' if expect else 'FAIL'}")
+
+
+def bootmode_clear(a, img, why):
+    """Erase the BOOT_MODE sector again (stage3 -> factory U-Boot) after a failed BOOT_MODE step."""
+    say(a, f"{why}: erasing BOOT_MODE again so stage3 boots the factory U-Boot")
+    return write_region(a, img, BOOT_MODE_OFF, SECTOR, b"", 0, "erase BOOT_MODE (recovery)")
 
 
 def wait_boot(a, base, timeout, want_ours=True):
     """After a power-on: which U-Boot came up, then the NixOS login prompt."""
-    pats = {"ours": OURS, "factory": FACTORY, "x0": r"x0=0x0\b", "login": r"root@dmc12[^\n]*#",
-            "bad": r"Kernel panic|Synchronous Abort|### ERROR|Unknown command|Wrong Image"}
+    pats = {"ours": OURS, "factory": FACTORY, "x0": r"x0=0x0\b", "login": r"root@dmc12[^\n]*#", "bad": BAD}
     t0, seen = time.monotonic(), {}
     while time.monotonic() - t0 < timeout:
         t = reimage.pane()
@@ -328,7 +448,7 @@ def wait_boot(a, base, timeout, want_ours=True):
         if "bad" in seen or "login" in seen:
             break
         time.sleep(0.5)
-    if "bad" in seen:
+    if "bad" in seen and (want_ours or "login" not in seen):
         raise Fail(f"bad console output during boot: {seen}")
     if want_ours and ("ours" not in seen or "factory" in seen or "x0" not in seen):
         raise Fail(f"expected our U-Boot straight from stage3 (banner + x0=0x0, no factory U-Boot): {seen}")
@@ -342,9 +462,8 @@ def wait_boot(a, base, timeout, want_ours=True):
 def power_cycle(a, want_ours, timeout=420):
     power(a, "off")
     time.sleep(a.off)
-    subprocess.run(["tmux", "clear-history", "-t", reimage.SESSION], check=True)
-    base = counts([OURS, FACTORY, r"x0=0x0\b", r"root@dmc12[^\n]*#",
-                   r"Kernel panic|Synchronous Abort|### ERROR|Unknown command|Wrong Image"])
+    tmux("clear-history", "-t", SESSION)
+    base = counts([OURS, FACTORY, r"x0=0x0\b", r"root@dmc12[^\n]*#", BAD])
     power(a, "on")
     return wait_boot(a, base, timeout, want_ours)
 
@@ -352,9 +471,11 @@ def power_cycle(a, want_ours, timeout=420):
 def smoke(a, st):
     deadline = time.monotonic() + 180
     while time.monotonic() < deadline:
-        r = run(reimage.SSH + [f"root@{a.ip}", "ls /dev/P* | wc -l"], 40)
-        if r.stdout.strip() == "48":
-            break
+        try:
+            if run(reimage.SSH + [f"root@{a.ip}", "ls /dev/P* | wc -l"], 40).stdout.strip() == "48":
+                break
+        except subprocess.TimeoutExpired:
+            pass
         time.sleep(5)
     r = run([sys.executable, str(ROOT / "smoke.py"), "--ip", a.ip, "--json"], 600)
     res = json.loads(r.stdout) if r.stdout.strip().startswith("{") else {"pass": False, "results": []}
@@ -366,34 +487,41 @@ def smoke(a, st):
 
 def escape(a, st):
     """Power-cycle holding `u`: the factory U-Boot must come up, then boot normally again."""
-    r = run([sys.executable, str(ROOT / "stage3keys.py"), "--plug", str(a.plug), "--key", "u",
-             "--off", str(a.off)], 240)
-    if "User request for loading U-Boot" not in r.stdout:
-        raise Fail(f"`u` escape not seen: {r.stdout[-400:]}")
-    st["escape"] = "factory U-Boot via u"
+    seen = stage3_u(a)
+    if not {"user", "factory", "prompt"} <= seen or "ours" in seen:
+        raise Fail(f"`u` escape not seen (new matches: {sorted(seen)})")
+    identify(a, st)                      # a usable prompt, not just a banner
+    if "mx25u12835f" not in con("sf probe 0:0").lower():
+        raise Fail("escape: factory prompt up but sf probe failed")
+    st["escape"] = "factory U-Boot via u, prompt + sf probe OK"
     st["boot_after_escape"] = power_cycle(a, want_ours=True)
 
 
 # ---- modes ------------------------------------------------------------------------------------
-def mode_status(a, st, img):
-    to_factory(a, img)
+def mode_status(a, st, img, unknown):
+    to_factory(a, img, unknown)
     identify(a, st)
     state_checks(a, st)
-    st["cs0_crc"] = f"{read_cs0(a, img, 'now'):08x}"
+    st["cs0"] = read_cs0(a, img, unknown, "now")
+    st["unknown"] = unknown
     st["boot_mode_app"] = hex(boot_mode_app(img))
-    for n in (0, 1):
-        off, mx = uartboot.slot(img, IPXE, n)
+    for n, (off, mx) in IPXE_SLOTS.items():
         s, f = alboot.check_object(img, off, mx, IPXE)
         st[f"ipxe{n}"] = s if s != "OK" else f"OK sha256 {sha(bytes(img[off:off + alboot.HDR + f['size'] + 4]))[:16]}"
-    # control: the factory validator on a known-good object, so a later IPXE failure means something
-    validate(a, UBOOT_ID, 0, "UBOOT 0 (control)", control=True)
+    # controls: the factory validator accepts a good object and rejects a blank slot
+    validate(a, UBOOT_ID, 0, "UBOOT 0 (control)")
+    for n, (off, mx) in IPXE_SLOTS.items():
+        if img[off:off + mx] == b"\xff" * mx:
+            validate(a, IPXE, n, f"blank IPXE {n} (negative control)", expect=False)
+            break
 
 
-def mode_rehearse(a, st, img):
+def mode_rehearse(a, st, img, unknown):
+    if unknown:
+        raise Fail(f"unknown flash ranges {unknown}: run status/rollback first")
     inst, app, data, bm = plan(a, img)
     st.update(inst=inst, app=hex(app), payload_sha256=sha(data), bootmode_sha256=sha(bm))
     ram = bytearray(img[:uartboot.IMG_SIZE])
-    ram.extend(b"\xff" * (uartboot.IMG_SIZE - len(ram)))
     for n in (0, 1):
         uartboot.put(ram, img, 6, n, b"")        # UBOOT_SCRIPT blank (RAM-load mode would run it)
     uartboot.put(ram, img, IPXE, inst, data)
@@ -413,11 +541,10 @@ def mode_rehearse(a, st, img):
     tdir = a.tftp_root / "dmc12" / "route-a"
     try:
         for key in (None, "u"):
-            to_factory(a, img)
+            to_factory(a, img, unknown)
             identify(a, st)
-            pats = [OURS, FACTORY, r"x0=0x0\b", r"root@dmc12[^\n]*#", "User request for loading U-Boot",
-                    r"Kernel panic|Synchronous Abort|### ERROR|Unknown command|Wrong Image"]
-            subprocess.run(["tmux", "clear-history", "-t", reimage.SESSION], check=True)
+            pats = [OURS, FACTORY, r"x0=0x0\b", r"root@dmc12[^\n]*#", USER_U, BAD]
+            tmux("clear-history", "-t", SESSION)
             base = counts(pats)
             r = run(ra + (["--key", key] if key else []), 600)
             if r.returncode:
@@ -430,7 +557,7 @@ def mode_rehearse(a, st, img):
                 deadline = time.monotonic() + 120
                 while time.monotonic() < deadline:
                     c = counts(pats)
-                    if all(c[p] > base[p] for p in ("User request for loading U-Boot", FACTORY)):
+                    if all(c[p] > base[p] for p in (USER_U, FACTORY)):
                         st["escape_pass"] = True
                         break
                     time.sleep(0.5)
@@ -445,15 +572,22 @@ def mode_rehearse(a, st, img):
     st["image"] = str(image.relative_to(ROOT))
 
 
-def mode_write(a, st, img):
+def mode_write(a, st, img, unknown):
+    bm_lo, bm_hi = BOOT_MODE_OFF, BOOT_MODE_OFF + SECTOR
     if a.mode == "rollback":
-        if boot_mode_app(img) == UBOOT_ID:
+        targets = [(bm_lo, bm_hi)]
+        if not any(overlaps(u, bm_lo, bm_hi) for u in unknown) and boot_mode_app(img) == UBOOT_ID:
             raise Fail("BOOT_MODE is already blank/invalid: stage3 boots the factory U-Boot")
     else:
         inst, app, data, bm = plan(a, img)
+        off, mx = IPXE_SLOTS[inst]
+        targets = [(off, off + mx), (bm_lo, bm_hi)]
         st.update(inst=inst, app=hex(app), payload_sha256=sha(data), bootmode_sha256=sha(bm))
+        stray = [u for u in unknown if not any(t[0] <= u[0] and u[1] <= t[1] for t in targets)]
+        if stray:
+            raise Fail(f"unknown flash ranges {stray} outside this run's targets: status/rollback first")
     open_, over = gates(a)
-    blockers = [f"gate {g} open in {GATES.name}" for g in open_]
+    blockers = [] if a.mode == "rollback" else [f"gate {g} open in {GATES.name}" for g in open_]
     if a.mode != "rollback" and not rehearsed(a.unit, data, bm):
         blockers.append("no passing rehearsal (boot + escape) of these exact bytes on this unit")
     st["gate_overrides"] = over
@@ -461,30 +595,41 @@ def mode_write(a, st, img):
         raise Fail("; ".join(blockers) + " (spi-upgrade-plan.md preconditions; --override-gate NAME=REASON)")
     if blockers:
         st["would_refuse"] = blockers
-    to_factory(a, img)
+    to_factory(a, img, unknown)
     identify(a, st)
     state_checks(a, st)
-    st["cs0_before"] = f"{read_cs0(a, img, 'before'):08x}"
-    if a.mode == "rollback":
-        new = write_region(a, img, BOOT_MODE_OFF, b"", 0, "erase BOOT_MODE", erase=SECTOR)
-    else:
-        off, mx = uartboot.slot(img, IPXE, inst)
-        stage(a, {"spi-upgrade-ipxe.fimg": data, "spi-upgrade-bootmode.obj": bm})
-        tftp(a, A_PAYLOAD, "spi-upgrade-ipxe.fimg", data)
-        tftp(a, A_BOOTMODE, "spi-upgrade-bootmode.obj", bm)
-        # the whole inactive slot is erased: no stale tail from an older, longer build
-        new = write_region(a, img, off, data, A_PAYLOAD, f"IPXE {inst}", erase=mx)
-        validate(a, IPXE, inst, f"IPXE {inst}")
-        new = write_region(a, new, BOOT_MODE_OFF, bm, A_BOOTMODE, f"BOOT_MODE app {app:#x}", erase=SECTOR)
-        validate(a, BOOT_MODE, 0, "BOOT_MODE")
-        for p in (a.tftp_root / a.tftp_dir).glob("spi-upgrade-*"):
+    st["cs0_before"] = read_cs0(a, img, unknown, "before")
+    rest = [u for u in unknown if not any(t[0] <= u[0] and u[1] <= t[1] for t in targets)]
+    d = a.tftp_root / a.tftp_dir
+    try:
+        if a.mode == "rollback":
+            new = write_region(a, img, bm_lo, SECTOR, b"", 0, "erase BOOT_MODE")
+        else:
+            stage(a, {"spi-upgrade-ipxe.fimg": data, "spi-upgrade-bootmode.obj": bm})
+            tftp(a, A_PAYLOAD, "spi-upgrade-ipxe.fimg", data)
+            tftp(a, A_BOOTMODE, "spi-upgrade-bootmode.obj", bm)
+            # The whole inactive slot is erased: no stale tail from an older, longer build.
+            # Harmless if it fails: BOOT_MODE does not point at this instance yet.
+            new = write_region(a, img, off, mx, data, A_PAYLOAD, f"IPXE {inst}")
+            if a.write:
+                validate(a, IPXE, inst, f"IPXE {inst}")
+            try:
+                # No factory validate here: its load address is 0 and what the validator does with
+                # that is unknown; read-back crc + the rehearsal of these exact bytes cover it.
+                new = write_region(a, new, bm_lo, SECTOR, bm, A_BOOTMODE, f"BOOT_MODE app {app:#x}")
+                st["bootmode_live"] = True
+            except Fail as e:
+                if a.write:
+                    new = bootmode_clear(a, new, str(e))
+                    st["bootmode_recovered"] = True
+                raise
+    finally:
+        for p in d.glob("spi-upgrade-*"):
             p.unlink()
     if not a.write:
         st["dry_run"] = True
         return
-    # The new model differs from the old only in the written regions (by construction); the
-    # full re-read proves the flash agrees and nothing else changed.
-    st["cs0_after"] = f"{read_cs0(a, new, 'after'):08x}"
+    st["cs0_after"] = read_cs0(a, new, rest, "after")   # nothing outside the targets changed
     st["boot"] = power_cycle(a, want_ours=a.mode != "rollback")
     if a.ip:
         smoke(a, st)
@@ -517,13 +662,19 @@ def main():
             p.error(f"--override-gate NAME=REASON, NAME in {GATE_NAMES}")
     st = {"unit": a.unit, "mode": a.mode, "write": a.write}
     try:
-        img = model(a.unit)
+        img, unknown = model(a.unit)
         check_layout(img)
-        {"status": mode_status, "rehearse": mode_rehearse}.get(a.mode, mode_write)(a, st, img)
-    except (Fail, subprocess.TimeoutExpired, SystemExit) as e:
-        if isinstance(e, SystemExit) and not isinstance(e.code, str):
+        {"status": mode_status, "rehearse": mode_rehearse}.get(a.mode, mode_write)(a, st, img, unknown)
+    except KeyboardInterrupt:
+        st["failed"] = "interrupted. " + (DONT_POWER_OFF if a.write else "")
+    except (Fail, subprocess.SubprocessError, OSError, KeyError, ValueError) as e:
+        st["failed"] = f"{type(e).__name__}: {e}"
+    except SystemExit as e:             # uartboot/alboot helpers raise SystemExit(str)
+        if not isinstance(e.code, str):
             raise
-        st["failed"] = str(e)
+        st["failed"] = e.code
+    if "failed" in st and st.get("bootmode_live") and a.mode != "rollback":
+        st["hint"] = "BOOT_MODE is live: power-cycle with `u` (stage3keys.py --key u), then `rollback --write`"
     if a.mode == "rehearse" or a.write:
         log(a.unit, {"kind": "rehearsal" if a.mode == "rehearse" else a.mode,
                      **{k: v for k, v in st.items() if k != "unit"}})

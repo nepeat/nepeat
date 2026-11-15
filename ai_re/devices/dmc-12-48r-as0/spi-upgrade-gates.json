@@ -1,11 +1,23 @@
 {
   "_doc": "spi-upgrade.py refuses --write while any gate below is null. Set one to {date, by, evidence} when it is met (spi-upgrade-plan.md, preconditions 2, 5, 6). Per-unit rehearsals live in inventory/<unit>/spi-upgrade.jsonl, not here.",
-  "clip_read": null,
-  "review": null,
+  "clip_read": {
+    "date": "2026-11-15",
+    "by": "owner override",
+    "evidence": "owner, 2026-11-15: \"yolo - apply it either way. review the script, test cold pcie live. goal is to apply it. if it breaks, we have the clips and spare units\". No clip read done before the first write; clip + mtd0 backup are the recovery."
+  },
+  "review": {
+    "date": "2026-11-15",
+    "by": "two independent agent reviews (Opus, Fable) of spi-upgrade.py; owner asked for both",
+    "evidence": "Must-fixes from both applied: echo-checked destructive commands + region allow-list, data-before-header writes and BOOT_MODE re-erase on mismatch (torn header-OK/data-bad hangs stage3 past the key poll), intent/done journal with unknown ranges, gate-free rollback, escape proven to a usable prompt. Fake-flash simulation of install/update/update/rollback/torn write/interrupted journal passes. Patch series not re-reviewed (selfinit checklist + rehearsal on hardware)."
+  },
   "gpio22": {
     "date": "2026-11-15",
     "by": "agent",
     "evidence": "683d033 drives GPIO 22 out 1 at board_init like the factory (dt.0 gpio_init <0x16 1 1>); RAM test serial-chainload-20261115-143753.txt PASS; rehearsal in inventory/u01/spi-upgrade.jsonl. The value on a truly cold start is part of cold_pcie."
   },
-  "cold_pcie": null
+  "cold_pcie": {
+    "date": "2026-11-15",
+    "by": "owner override",
+    "evidence": "owner, 2026-11-15: \"yolo - apply it either way. review the script, test cold pcie live. goal is to apply it. if it breaks, we have the clips and spare units\". Tested live by the first SPI boot; `u` escape rehearsed."
+  }
 }
