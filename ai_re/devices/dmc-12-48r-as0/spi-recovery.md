@@ -212,7 +212,7 @@ answers to the read-only questions below.
   RAM +0x1800000; `bootcmd=echo recovery boot command!`) all support a UART boot device.
   It is chosen by straps or a stage2 shared-data flag, not by anything we can set from
   software today. It would be a real unbrick path if the K2 card's boot-device strap
-  resistors can be found.
+  resistors can be found. Detail and corrections (both stage2s set SPI_LOAD_ENFORCE): [uart-boot.md](uart-boot.md).
 - **Restore from software (works only while a good loader is still running):**
   - Factory U-Boot: `tftpboot 0x08000000 mtd0.bin; sf probe 0:0; sf update 0x08000000 0 0x1000000; sf read 0x0a000000 0 0x1000000; cmp.b 0x08000000 0x0a000000 0x1000000`.
     `sf update` skips identical sectors. Note: `bootupdspi` erases from 0 for `$filesize`:
