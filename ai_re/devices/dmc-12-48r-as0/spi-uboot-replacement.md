@@ -262,6 +262,23 @@ At `ALPINE_DB>` right after `./powercycle_to_uboot.py` (before any `bootm`/`dhcp
    `i2c dev 4; i2c md 0x68 0x2a 1`.
 6. Step 0 of §7 (send `p` during stage3). Does stage3 see the key? (No flash write.)
 
+## 8a. Answers (u01, 2026-11-15; raw: `inventory/u01/spi-uboot-regs.txt`)
+- **Step 0 passed:** `p` sent during stage3 printed "User request for skipping APCEA!", so stage3
+  reads the console and the `u` escape is reachable. Timing on this cold boot: stage2 at 2.1 s, stage3 at
+  3.3 s, app load at 4.2 s after power-on; a 50 ms key repeat from the stage3 banner was enough.
+- **One pass** after 130 s with AC off (no double stage2/U-Boot): the double banner seen before is
+  not a regular cold-boot event.
+- CCU at the factory prompt, before any bootm: `0xf0090004 = 0`, `0xf0094000 = 0xc0000000`,
+  `0xf00700d0 = 0x001d0102`. After the factory bootm (our chainload): 7 and `0xc0000001`. So an SPI
+  U-Boot must do the CCU writes itself.
+- `0xfbff40f8 = 01100000 00000000` (stage3's app address, as predicted).
+- External PCIe port 0 is already up at the factory prompt: `pci 1` lists 12d8:400c (after a CRS
+  wait), i.e. the factory U-Boot's init links it. This is the main work for an SPI build.
+- MUIO/SGPO/PCIe-controller register dumps are saved (`md.l 0xfd8a8000 0x80`, `0xfd8b4000 0x10`,
+  `0xfd800000 0x40`) for replay.
+- CPLD WDT flag `0x2a = 0x01` after a true cold boot (0x03 only after a CPLD reset); uC watchdog
+  still reset count 0.
+
 ## 9. Open questions / risks
 - The al_pcie RC init has to be ported from a HAL we don't have in source. Mainline
   `pcie-al` won't do it.
