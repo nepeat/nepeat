@@ -7,6 +7,12 @@
   # The Broadcom SDK is source-available, not free software.
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "openbcm-bcm-user" "openbcm-libsdk" "sai-openbcm" ];
   networking.hostName = "as7760";
+  # SONiC switch stack (modules/boards/as7760 wires it to sai-openbcm). Off
+  # until orchagent runs against sai-openbcm: 2026-11-15 first try on the
+  # switch, orchagent exits on SWITCH_ATTR_ACL_ENTRY_MIN/MAX_PRIORITY.
+  services.sonic.enable = false;
+  # Base MAC from the board's ONIE EEPROM (TlvInfo 0x24).
+  services.sonic.macAddress = "8c:ea:1b:89:c9:3c";
   time.timeZone = "America/Los_Angeles";
   # Same root keys as tn48m/cs8210: https://github.com/nepeat.keys (fetched
   # 2026-11-09) plus root on sea420-desktop, the build/deploy host.

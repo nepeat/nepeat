@@ -12,6 +12,7 @@
   thermal-as7760-fan = ./thermal/as7760-fan.nix;
   thermal-dmc12-fan = ./thermal/dmc12-fan.nix;
   switch-openbcm = ./switch/openbcm.nix;
+  switch-sonic = ./switch/sonic;
   monitoring-node-exporter = ./monitoring/node-exporter.nix;
   board-as7760 = ./boards/as7760;
   board-as7760-sd-install = ./boards/as7760/sd-install.nix;

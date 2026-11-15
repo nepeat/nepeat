@@ -92,6 +92,19 @@ pkgs.linux_latest.override {
     NFT_FIB_IPV4 = yes;
     NFT_FIB_IPV6 = yes;
     NFT_FIB_INET = yes;
+    # Switch control planes (SONiC's vlanmgrd/teammgrd/intfmgrd, also plain
+    # Linux bridging): modules, loaded only when used.
+    BRIDGE = module;
+    BRIDGE_VLAN_FILTERING = yes;
+    VLAN_8021Q = module;
+    NET_TEAM = module;
+    NET_TEAM_MODE_LOADBALANCE = module;
+    NET_TEAM_MODE_ACTIVEBACKUP = module;
+    NET_TEAM_MODE_ROUNDROBIN = module;
+    NET_TEAM_MODE_BROADCAST = module;
+    DUMMY = module;
+    # NET_VRF left out: not accepted with this allnoconfig base (Kconfig
+    # dependency not found yet); SONiC's vrfmgrd is not run.
     # SoC PCIe, storage and diagnostic buses.
     PCI = yes;
     PCI_MSI = yes;

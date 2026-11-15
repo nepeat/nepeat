@@ -49,6 +49,7 @@ appear once `nix/` is committed; `path:./nix` always works.
 | profile | `profile-netboot-root` | whole system in the initramfs (squashfs + tmpfs), nothing on disk touched |
 | platform | `platform-qoriq-t2080` | NXP T2080/e6500: allnoconfig kernel, legacy uImage, serial console; option `hardware.qoriqT2080.kernelPatches` |
 | function | `thermal-as7760-fan` | Accton fan-CPLD hwmon driver, sensor labels, monitor service |
+| function | `switch-sonic` | SONiC control plane as NixOS services (`services.sonic`): redis, syncd, orchagent + managers, Nix/CLI config ownership; [README](modules/switch/sonic/README.md) |
 | function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader (`hardware.openbcm`) |
 | function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
