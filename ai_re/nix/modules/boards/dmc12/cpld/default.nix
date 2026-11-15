@@ -44,7 +44,13 @@ in
   };
 
   config = lib.mkMerge [
-    (lib.mkIf cfg.reboot { systemd.shutdown."dmc12-cpld-reboot" = cpldReboot; })
+    (lib.mkIf cfg.reboot {
+      # The final step runs from NixOS's shutdown ramfs, where /nix/store is gone
+      # and hooks are read from /lib/systemd/system-shutdown (u01 2026-11-15: as
+      # systemd.shutdown, i.e. /etc/systemd/system-shutdown, it never ran and the
+      # sp805 did a SoC-only reset). contents' store closures go into the ramfs.
+      systemd.shutdownRamfs.contents."/lib/systemd/system-shutdown/dmc12-cpld-reboot".source = cpldReboot;
+    })
     (lib.mkIf cfg.interruptmon.enable {
       environment.systemPackages = [ interruptmon ];
       systemd.services.dmc12-interruptmon = {

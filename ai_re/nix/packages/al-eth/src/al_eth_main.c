@@ -4122,7 +4122,15 @@ static int al_eth_close(struct net_device *netdev)
 
 	netdev_dbg(adapter->netdev, "%s\n", __func__);
 
-	cancel_delayed_work_sync(&adapter->link_status_task);
+	/*
+	 * al_eth_open() only sets up link_status_task on the LM / MAC-poll
+	 * paths; ports that just get netif_carrier_on() (DMC-12 RGMII) never
+	 * initialise it, and cancelling it trips a workqueue WARNING at
+	 * shutdown (u01, 2026-11-15). netdev_priv is zeroed, so func == NULL
+	 * means "never initialised".
+	 */
+	if (adapter->link_status_task.work.func)
+		cancel_delayed_work_sync(&adapter->link_status_task);
 	cancel_work_sync(&adapter->reset_task);
 
 #if defined(CONFIG_ARCH_ALPINE)
