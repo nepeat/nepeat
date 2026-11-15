@@ -36,8 +36,11 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
   - **v4** added one-character print hooks along the AArch64 agent's CPU0 path. **On hardware (2e,
     twice) not one of them printed.** So CPU0 never reaches the agent's entry after stage3's reset
     request.
-  - **v5** adds hooks on the 32-bit side: just before stage3's reset request, and on the ROM's
-    32-bit resume path. It also sets RMR.AA64 = 1 before the reset (§5). The next experiment is in §6.
+  - **v5** added hooks on the 32-bit side. **On hardware (2f):** `R` fired once, as expected, and
+    stage3 ran to "Executing application...". Then `w` printed, followed by a flood of `0x95` bytes:
+    the hook's RMR read is UNDEFINED there, because stage3 runs in Non-secure SVC by then.
+  - **v5b** moves the RMR read/set to stage3's entry, which is still Secure, as a new hook `P`. The
+    next experiment is in §6.
 - **The `u` escape:** the key path is proven on hardware (`p` and `e`, 4/4). The app ≠ 5 branch is
   tested by Route A with a RAM BOOT_MODE (§6, experiment 3), with no SPI write.
 - **UART boot is real in the ROM, and so is the instance fallback.**
@@ -282,12 +285,29 @@ the same `0x13` (`cpu_poreset`) brings CPU0 up in AArch64. So that reset should 
 AA64nAA32 input (config_aarch64 = 1), not RMR. *Unverified:* whether the RMR-requested warm reset we
 added leaves the SoC's reset/width logic in another state.
 
-**v5 hooks** (on with the agent trace; all in the 0x400-byte blob at 0x01060000; ARM/A64 encodings
+**2f (v5): stage3 runs its main in Non-secure SVC.**
+- The raw tio log (`serial-20261115-025824.txt`, the last `go`) shows: `#`, the banner,
+  "agent_wakeup v2.10", **`R`**, "UART recovery!" … "Executing application...", **`w`**, then about
+  935 000 bytes of `0x95` until the power-cycle.
+- The tmux matcher missed it all because the flood scrolled the pane. Use the tio log.
+- `w`'s next instruction was `mrc` RMR. RMR only exists for Secure PL1, and the code there runs
+  Non-secure: stage3's main is reached through the SRAM agent ("exec via agent"). Stage3 left that
+  agent's flags at 0 (struct+4: `SWITCH_TO_NS_DIS` clear), so the agent switches to Non-secure
+  before calling main.
+- The UNDEF went to the Non-secure vectors, which aren't set up for this. *Inferred:* the flood comes
+  from there.
+- Stage3's own NB writes still work from Non-secure, because TZ is off.
+
+**v5b hooks** (on with the agent trace; all in the 0x400-byte blob at 0x01060000; ARM/A64 encodings
 checked in Ghidra):
-- **`w` + 2 digits**, at stage3's `bl 0x01023da0` (0x010294b4, just before its WFI):
-  - prints `w`, then RMR.AA64 and config_aarch64 (0xf0072004 bit 0) as `0`/`1`;
-  - then (default; `--no-rmr-fix` to skip) writes **RMR = 1**: AA64 = 1, no reset request, harmless
-    for a cold reset. Only then does it request the reset.
+- **`P` + 2 digits**, at stage3's first instruction (0x01000000, patched to `b 0x01060380`).
+  - This runs right after our stub's RMR warm reset, in Secure SVC.
+  - It prints `P`, then RMR.AA64 (expect `0`, from the stub). By default (`--no-rmr-fix` to skip) it
+    writes **RMR = 1** (AA64 = 1, no reset request; harmless for a cold reset) and prints it again
+    (expect `1`).
+  - Then it runs the displaced `ldr r3, =0x01059020` and continues at 0x01000004.
+- **`w` + 1 digit**, at stage3's `bl 0x01023da0` (0x010294b4, just before its WFI): prints `w` and
+  config_aarch64 (0xf0072004 bit 0), then requests the reset as before.
 - **`R`**, on the ROM's AArch32 resume path:
   - the SRAM agent's resume-address literal (stg3 0x01047dc0, 0xfbff423c) is patched to 0x01060200.
     That hook prints `R` and then jumps to 0xfbff423c, so all 4 CPUs resume through it;
@@ -298,10 +318,11 @@ checked in Ghidra):
 
 | output | meaning |
 | --- | --- |
-| `w01` then `AMgrDWSE` | the RMR fix worked. With `--no-rmr-fix` the same result would rule out RMR |
-| `w01` then `R` | back in AArch32 through the ROM despite the fix: the width comes from somewhere else |
-| `w01` then nothing | the reset isn't applied (b), or it lands outside both paths (c) |
+| `w1` then `AMgrDWSE` | the RMR fix worked (it had printed `P01`). With `--no-rmr-fix` the same result would rule out RMR |
+| `w1` then `R` | back in AArch32 through the ROM despite the fix: the width comes from somewhere else |
+| `w1` then nothing | the reset isn't applied (b), or it lands outside both paths (c) |
 | no `w` | stage3 doesn't reach its reset request |
+| `P` with no digits, or an "Exception!" | RMR isn't accessible even at stage3's entry |
 
 From there on everything is the production binary:
 - "UART recovery!", BOOT_MODE/DT/app read from RAM;
@@ -349,7 +370,8 @@ All at the factory `ALPINE_DB>` after a normal cold boot. Power-cycle after each
 | 2b | done (trampoline v2) | `#` (EL3 stub), then stage3's first banner line: **RMR_EL3 → AArch32 → ROM resume → production stage3 works**. Then a silent hang: VFP off (above) | — |
 | 2d | done (v3) | `#`, then **all of production stage3 from RAM** ("UART recovery!" … "Executing application..."), then silence before the factory U-Boot banner. No "Exception!" | — |
 | 2e | done twice (v4) | **no agent hook printed** at all; pre-`go` reads normal (above) | — |
-| 2f | `image --app none` + `route-a --run` (v5: trace + RMR fix on) | see the table above. Also note whether exactly one `R` appears before "agent_wakeup" | hang → power-cycle |
+| 2f | done (v5) | `R` once (hook OK), stage3 to "Executing application...", then `w` and a `0x95` flood: RMR UNDEF in Non-secure (above) | — |
+| 2g | `image --app none` + `route-a --run` (v5b). **Read the result from the tio log** after the last `go`, not from tmux | `#P01`, banner, `R`, … "Executing application...", then the `w1…` line per the table above | hang/flood → power-cycle |
 | 3 | `image --app 0x10000005`, `route-a --run`, then again with `--key u` | **the `u` escape for app ≠ 5**: without the key UBOOT 1 boots (`md.l 0x0105d268 1` = `10000005`); with it, "User request for loading U-Boot!" and `00000005` | same; both outcomes are the factory U-Boot |
 | 4 | `image --app 0x110 --uboot <ours>` + `route-a --run` (and with `--key u`) | **our U-Boot as the stage3 app** via the production agent handoff (expect `Entry: EL2, MMU+caches were off, x0=0`), and the escape back to the factory U-Boot | same |
 | 5 | (spare unit, owner) strap 4, then `uartboot.py s2` + `xmodem` | the ROM's UART boot end to end with the factory stage2 | a solder change |
