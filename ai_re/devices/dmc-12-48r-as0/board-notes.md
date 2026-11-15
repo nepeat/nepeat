@@ -45,6 +45,8 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
 - **al_eth board params + MAC** are written by stage3 (present at the factory prompt before any dhcp);
   our U-Boot keeps or rewrites them. [hw/code] `u-boot-port.md`
 - **Fans fail safe:** with no OS the CPLD runs them full speed until the WDT flag 0x2a is cleared. [hw]
+- **SPI upgrade path:** our U-Boot in IPXE 0/1 + BOOT_MODE (64 KiB TOC slot, first sector used); factory
+  UBOOT stays as the `u` escape. Rehearsed in RAM [hw]; `spi-upgrade.py`, `spi-upgrade-plan.md`.
 
 ## Linux / NixOS quirks
 - Firmware PSCI is **v0.1** (cpu_on/off only, no SYSTEM_RESET). sbclk is **500 MHz** (mainline dtsi

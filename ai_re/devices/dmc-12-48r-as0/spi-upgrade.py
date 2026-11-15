@@ -242,7 +242,7 @@ def state_checks(a, st):
 
 def read_cs0(a, img, what):
     """sf probe + full read of 0..MODEL_END; crc32 must equal the model."""
-    if "mx25u12835f" not in con("sf probe 0:0"):
+    if "mx25u12835f" not in con("sf probe 0:0").lower():
         raise Fail("sf probe 0:0 did not detect the MX25U12835F")
     con(f"sf read {A_CS0:#x} 0 {MODEL_END:#x}", a.read_timeout)
     got, want = crc(A_CS0, MODEL_END, 300), zlib.crc32(img)

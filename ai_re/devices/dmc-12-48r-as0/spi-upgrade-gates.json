@@ -2,6 +2,10 @@
   "_doc": "spi-upgrade.py refuses --write while any gate below is null. Set one to {date, by, evidence} when it is met (spi-upgrade-plan.md, preconditions 2, 5, 6). Per-unit rehearsals live in inventory/<unit>/spi-upgrade.jsonl, not here.",
   "clip_read": null,
   "review": null,
-  "gpio22": null,
+  "gpio22": {
+    "date": "2026-11-15",
+    "by": "agent",
+    "evidence": "683d033 drives GPIO 22 out 1 at board_init like the factory (dt.0 gpio_init <0x16 1 1>); RAM test serial-chainload-20261115-143753.txt PASS; rehearsal in inventory/u01/spi-upgrade.jsonl. The value on a truly cold start is part of cold_pcie."
+  },
   "cold_pcie": null
 }

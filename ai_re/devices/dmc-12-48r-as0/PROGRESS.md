@@ -5,7 +5,7 @@
   power-cycle to smoke PASS): factory U-Boot → preamble (bootp) → `scsi read` of our U-Boot 2026.10
   (al_eth) from raw sda1 → extlinux on sda2 → root sda3. Env: `nixos_boot` + `bootcmd` only, factory
   chain kept as fallback. Original state: `dumps/u01/` (restore: `reimage.md` "Back to factory").
-- **Board quirks/features at a glance:** `board-notes.md`. **SPI U-Boot upgrade script spec:** `spi-upgrade-plan.md`.
+- **Board quirks/features at a glance:** `board-notes.md`.
 - **Self-init U-Boot (RAM, 2026-11-15, transcript `serial-chainload-20261115-123112.txt`): full checklist
   passes.** Read-only `sf read` of CS0/CS1 CRC-exact vs the backups (08145ce6, 3d086ac6, whole CS1
   db9e4937; ~60 KB/s, 260 s per chip), MUIO as the DT wants, CCU set from cleared, `alpcie reinit`
@@ -19,8 +19,10 @@
   U-Boot!")**, i.e. the escape hatch is proven; **exp 4: our self-init U-Boot as stage3's app (x0=0, EL2) →
   alpcie reinit → extlinux → NixOS: smoke 15/15, 4 CPUs, no dmesg warnings.** Caveat: the factory U-Boot ran
   once before each Route A test, so a PCIe start with no factory init at all is still untested.
-- Next: replacing the boot U-Boot in SPI itself (investigation: `spi-uboot-replacement.md`,
-  `spi-recovery.md`, in progress). Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
+- **SPI upgrade: `spi-upgrade.py` written and rehearsed on u01 (2026-11-15), no SPI write yet.**
+  `status` and `rehearse` pass (exact install bytes via Route A → NixOS, smoke 15/15; `u` escape).
+  `--write` is blocked by gates in `spi-upgrade-gates.json`: clip read of CS0, independent review,
+  cold PCIe (owner accepts or tests). Spec: `spi-upgrade-plan.md`. Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
   `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
 - Console: tmux `serial-dmc12`, tio on the FTDI `B0016Y5Q` (by-id path) at **115200 8N1**,
   confirmed from a readable boot. Captures go to `serial-*.txt` (git-ignored, may
@@ -200,6 +202,16 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 14:50: `spi-upgrade.py` (189696e; spec `spi-upgrade-plan.md`), first runs on u01, zero
+  SPI writes. Selfinit build with GPIO 22 (683d033, stage3app `.fimg` sha256 `2c00d920…`, 3884 B
+  left in the 512 KiB IPXE slot): chainload RAM test PASS, `GPIO:  22 out 1 (was out 1)`, readback
+  `dir 40 data cf` = factory (`serial-chainload-20261115-143753.txt`). `status`: CS0 crc32 08145ce6 ==
+  model, OTP secure boot off, IPXE 0/1 + BOOT_MODE blank, factory `obj_validate UBOOT 0` OK (fixed: the
+  factory prints `MX25U12835F` in caps). `rehearse`: RAM image with IPXE 0 + 0x40-B BOOT_MODE (app 0x110)
+  → our U-Boot from stage3 (x0=0x0) → NixOS, smoke 15/15; same image with `u` → "User request for
+  loading U-Boot" + factory 2015.07. Record: `inventory/u01/spi-upgrade.jsonl`. Found: the BOOT_MODE TOC
+  slot is 64 KiB (docs said 4 KiB; only its first sector is written). GPIO 22 was already out 1 on the
+  stage3-app path too, but the factory U-Boot ran earlier in that power-on (Route A), so cold is untested.
 - 2026-11-15 13:00: chainload disk image finished (`u-boot-port.md` "on-disk boot").
   `hardware.dmc12.bootLoader = "chainload"` → output `dmc12-disk-image-chainload`
   (`/nix/store/9kfqi1zd…-dmc12-disk-image`, disk.img sha256 `f5e6c1ea…`, U-Boot uImage
