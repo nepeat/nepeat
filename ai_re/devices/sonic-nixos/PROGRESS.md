@@ -9,6 +9,17 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
+- **SONiC runs at boot on the AS7760** (generated config.bcm with cages 1/32
+  split 4x25G, kernel with bridge/VLAN/team): syncd, orchagent and all
+  managers up with 0 restarts, 38 ports; the lab loop links at 25G
+  (Ethernet1/1 <-> Ethernet32/1); LACP PortChannels on both ends come up
+  (members selected, LAG members in the ASIC) once one end gets its own
+  system MAC (same-switch loop: libteam refuses to aggregate with itself);
+  VLAN 100 on a PortChannel with an SVI reaches the kernel bridge and the
+  ASIC ([evidence](sonic-as7760-lacp-vlan-20261115.txt)). fand gets the ASIC
+  temperature from syncd. Not yet: data-plane traffic between hosts, FRR
+  (`config interface ip remove` calls vtysh, missing), ECMP/ACL/QoS/policers.
+
 - **SONiC control plane on the real chip** (2026-11-15, `test` activation,
   old kernel): `services.sonic` with sai-openbcm: syncd, orchagent,
   portsyncd, portmgrd, intfmgrd, teammgrd active with 0 restarts,

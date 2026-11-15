@@ -1,0 +1,111 @@
+# SONiC on the AS7760, 2026-11-15: generated config.bcm (cages 1/32 split 4x25G), new kernel
+## ports / link
+Id=sonic-syncd.service	ActiveState=active	NRestarts=0
+	Id=sonic-orchagent.service	ActiveState=active
+NRestarts=0		Id=sonic-portsyncd.service
+ActiveState=active	NRestarts=0	
+Id=sonic-vlanmgrd.service	ActiveState=active	NRestarts=0
+	Id=sonic-teammgrd.service	ActiveState=active
+NRestarts=0		Id=sonic-intfmgrd.service
+ActiveState=active	NRestarts=0	
+Id=sonic-portmgrd.service	ActiveState=active	NRestarts=0
+:- apiInitialize: sai_api_query failed for 64 apis
+sai-openbcm NOTICE api=1: switch created: 38 front-panel ports, backend openbcm
+:- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_OVERRIDE_VIRTUAL_ROUTER_ID: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+:- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_ECMP_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+:- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_LAG_HASH: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+:- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_INGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+:- helperGetSwitchAttrOid: failed to get SAI_SWITCH_ATTR_DEFAULT_CPU_EGRESS_BUFFER_POOL: SAI_STATUS_ATTR_NOT_SUPPORTED_0
+:- saiGetVxlanDefaultRouterMacAddress: failed to obtain SAI_SWITCH_ATTR_VXLAN_DEFAULT_ROUTER_MAC, setting to 00:00:00:00:00:00
+1
+38
+36
+Environment=LD_LIBRARY_PATH=/nix/store/7ccqhpcz8rqdhshm08xqp48ah997s9fj-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0/lib LOCALE_ARCHIVE=/nix/store/783wv58h0nvv4zg6w7ldw8msm8jpy1ns-glibc-locales-powerpc64-unknown-linux-gnuabielfv2-2.44-57/lib/locale/locale-archive PATH=/nix/store/n40igf3y3cz
+  Ethernet0               49      25G   9100    N/A   Ethernet1/1  routed    down     down     N/A         N/A
+  Ethernet1               50      25G   9100    N/A   Ethernet1/2  routed    down     down     N/A         N/A
+  Ethernet2               51      25G   9100    N/A   Ethernet1/3  routed    down     down     N/A         N/A
+  Ethernet3               52      25G   9100    N/A   Ethernet1/4  routed    down     down     N/A         N/A
+Ethernet124               13      25G   9100    N/A  Ethernet32/1  routed    down     down     N/A         N/A
+Ethernet125               14      25G   9100    N/A  Ethernet32/2  routed    down     down     N/A         N/A
+Ethernet126               15      25G   9100    N/A  Ethernet32/3  routed    down     down     N/A         N/A
+Ethernet127               16      25G   9100    N/A  Ethernet32/4  routed    down     down     N/A         N/A
+temp=40.8 pwm=136
+## Ethernet1/1 <-> Ethernet32/1 (breakout leg 1 into QSA in cage 32)
+  Ethernet0               49      25G   9100    N/A   Ethernet1/1  routed      up       up     N/A         N/A
+Ethernet124               13      25G   9100    N/A  Ethernet32/1  routed      up       up     N/A         N/A
+
+
+Ethernet0        UP             8c:ea:1b:89:c9:3c <BROADCAST,MULTICAST,UP,LOWER_UP> 
+Ethernet124      UP             8c:ea:1b:89:c9:3c <BROADCAST,MULTICAST,UP,LOWER_UP> 
+sai-openbcm NOTICE api=2: port xe0 admin up
+sai-openbcm NOTICE api=2: port xe4 admin up
+sai-openbcm NOTICE api=2: port xe4 (hw 13) oper up
+sai-openbcm NOTICE api=2: port xe0 (hw 50) oper up
+## LACP, same system MAC on both ends (libteam loop protection: not selected)
+== PortChannel0001
+setup:
+  runner: lacp
+ports:
+  Ethernet0
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+    runner:
+      aggregator ID: 0
+      selected: no
+      state: current
+runner:
+  active: yes
+  fast rate: no
+  fallback: no
+== PortChannel0002
+setup:
+  runner: lacp
+ports:
+  Ethernet124
+    link watches:
+      link summary: up
+      instance[link_watch_0]:
+        name: ethtool
+        link: up
+        down count: 0
+    runner:
+      aggregator ID: 0
+      selected: no
+      state: current
+runner:
+  active: yes
+  fast rate: no
+  fallback: no
+PortChannel0001  DOWN           8c:ea:1b:89:c9:3c <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+PortChannel0002  DOWN           8c:ea:1b:89:c9:3c <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+4
+Flags: A - active, I - inactive, Up - up, Dw - Down, N/A - not available,
+       S - selected, D - deselected, * - not synced
+  No.  Team Dev         Protocol     Ports
+-----  ---------------  -----------  ---------------
+ 0001  PortChannel0001  LACP(A)(Dw)  Ethernet1/1(D)
+ 0002  PortChannel0002  LACP(A)(Dw)  Ethernet32/1(D)
+## LACP, PortChannel0002 given 02:00:00:00:76:02 (test only)
+actor 8c:ea:1b:89:c9:3c 1 partner 8c:ea:1b:89:c9:3c 125 state current selected False
+PortChannel0001 Ethernet0 selected True partner 02:00:00:00:76:02
+PortChannel0002 Ethernet124 selected True partner 8c:ea:1b:89:c9:3c
+PortChannel0001  UP             8c:ea:1b:89:c9:3c <BROADCAST,MULTICAST,UP,LOWER_UP> 
+PortChannel0002  UP             02:00:00:00:76:02 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+ 0001  PortChannel0001  LACP(A)(Up)  Ethernet1/1(S)
+ 0002  PortChannel0002  LACP(A)(Up)  Ethernet32/1(S)
+2
+## VLAN 100 on PortChannel0001
+|   VLAN ID | IP Address    | Ports           | Port Tagging   | Proxy ARP   | Static Anycast Gateway   |
++===========+===============+=================+================+=============+==========================+
+|       100 | 10.251.0.1/24 | PortChannel0001 | tagged         | disabled    | disabled                 |
++-----------+---------------+-----------------+----------------+-------------+--------------------------+
+port              vlan-id  
+PortChannel0001   100
+Vlan100@Bridge   UP             10.251.0.1/24 fe80::8eea:1bff:fe89:c93c/64 
+1
+1
+temp=41.8 pwm=136

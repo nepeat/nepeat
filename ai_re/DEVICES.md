@@ -41,14 +41,14 @@ link the evidence.
 | NOS / dataplane driver | OpenBCM 6.5.27 + sai-openbcm | vendor SDK (chroot) + open ipd | mainline `prestera` + fw 4.1 | Broadcom SDK + native-network controller | stock |
 | ports up (real links) | yes: 10G + 25G (2026-11-14) [^a1] | yes: 10G breakouts (2026-11-10/11); 400G no [^c1] | no: 52 netdevs, admin-down | no: MAC loopback only [^b1] | unknown |
 | L2 VLAN | yes: SDK + SAI (2026-11-15) [^a2] | chip-capable [^c2] | unknown [^t1] | yes (2026-11-09) [^b1] | unknown |
-| LAG (hardware) | partial: SAI LAG + members on SDK trunks (2026-11-15), no traffic yet [^a2] | chip-capable [^c2] | unknown [^t1] | unknown | unknown |
+| LAG (hardware) | yes: LACP PortChannel over the lab loop, LAG members in the ASIC (2026-11-15) [^a2] | chip-capable [^c2] | unknown [^t1] | unknown | unknown |
 | LACP (control plane) | no: teamd/teammgrd packaging in progress | partial: Linux bond over CPU netdevs, failover verified [^c3] | unknown [^t1] | unknown | unknown |
 | L3 routing | partial: RIF via SAI; routes/neighbours untested [^a2] | chip-capable: Linux routes on CPU only [^c2] | unknown [^t1] | partial: IPv4 hardware routing in MAC loopback [^b1] | unknown |
 | ACL | chip-capable | unknown | unknown [^t1] | chip-capable: not offloaded [^b1] | unknown |
 | QoS | chip-capable | unknown | unknown [^t1] | unknown | unknown |
 | KNET / CPU netdevs | yes: KNET TX/RX (2026-11-14) | yes: `fpp*` via ipd, ~1.6 Gb/s CPU path [^c3] | partial: netdevs exist, no traffic | partial: SDK/TAP, KNET compiled out [^b1] | unknown |
 | SAI | partial: switch, 32 ports, VLAN, RIF [^a2] | no: vendor SAI is amd64 only | no | no | no |
-| SONiC stack | partial: NixOS services; orchagent + managers up on the chip, ports by alias (2026-11-15); VLAN/LAG need the new kernel [^a2] | no | no | no | no |
+| SONiC stack | partial: runs at boot as NixOS services; 25G link, LACP PortChannel, VLAN on the chip (2026-11-15); no FRR yet [^a2] | no | no | no | no |
 | fan control | yes: fand, board + ASIC zones [^a3] | yes: incl. ASIC die (2026-11-10) [^c4] | yes: fancontrol, PWM floor 96 | unknown | unknown |
 | ASIC temperature | yes: 8 PVTMON, also over SAI under syncd (2026-11-15) [^a3] | yes: MCP3425 diode (2026-11-10) [^c4] | unknown | unknown | unknown |
 | board sensors | yes: 4x LM75 [^a3] | yes: LM75s + I2C hwmon [^c4] | yes: tmp1075/ADT7473, 35-40 °C | unknown | unknown |

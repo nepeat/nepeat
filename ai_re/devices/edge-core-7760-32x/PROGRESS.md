@@ -29,12 +29,12 @@ longer background.
   (`openbcm-asic-temp`) holds the SDK lock: stop it before `bcm.user`/syncd.
   node-exporter on :9100 (+ `switch_*`, `fand_*` metrics) is scraped by the lab
   VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
+- **SONiC:** on at boot since 2026-11-15 (`services.sonic`, generated
+  config.bcm, cages 1/32 split 4x25G for the lab loop); see
+  [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md).
 - **Todo:** a worst-case thermal test with line-rate traffic (the
   2026-11-15 loopback storm was throttled, mild load only); the software
-  over-temperature PLL shutdown test (held, needs the console); VLAN + LACP
-  on the lab loop through SONiC (config.bcm with cages 1/32 split 4x25G is
-  generated since 2026-11-15, untested on the switch; ../sonic-nixos/PROGRESS.md).
-  Running kernel has bridge/VLAN/team modules since 2026-11-15.
+  over-temperature PLL shutdown test (held, needs the console).
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; other T2080 boards (K2 cards) need their
   own DDR/DT patches, later. Details: [u-boot-port.md](u-boot-port.md).

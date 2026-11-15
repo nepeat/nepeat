@@ -7,11 +7,9 @@
   # The Broadcom SDK is source-available, not free software.
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "openbcm-bcm-user" "openbcm-libsdk" "sai-openbcm" ];
   networking.hostName = "as7760";
-  # SONiC switch stack (modules/boards/as7760 wires it to sai-openbcm).
-  # 2026-11-15: runs on the chip (orchagent up, PortInitDone, alias CLI) in a
-  # "test" activation on the old kernel. Off here until the reboot into the
-  # kernel with bridge/VLAN/team (vlanmgrd needs it) is done with a console.
-  services.sonic.enable = false;
+  # SONiC switch stack (modules/boards/as7760 wires it to sai-openbcm); on at
+  # boot since 2026-11-15 (generated config.bcm, kernel with bridge/VLAN/team).
+  services.sonic.enable = true;
   # Base MAC from the board's ONIE EEPROM (TlvInfo 0x24).
   services.sonic.macAddress = "8c:ea:1b:89:c9:3c";
   # Lab loop: a QSFP28 4x25G breakout cable from cage 1 whose first leg sits
