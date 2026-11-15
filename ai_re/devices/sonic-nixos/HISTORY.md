@@ -2,6 +2,22 @@
 
 Entries moved verbatim from [PROGRESS.md](PROGRESS.md) (newest first).
 
+## 2026-11-14 (night, last) — module EEPROMs, 25G, SDK as Nix packages
+
+- The far ends were a loop: leg 1 of the QSFP28 breakout in port 1 goes into
+  port 32 through a QSFP-to-SFP adapter. Port 32's EEPROM read "garbled"
+  because the pca9548 muxes kept their last channel selected, so two modules
+  answered at 0x50 at once. Fixed with `i2c-mux-idle-disconnect` in the device
+  tree. New tool `as7760-qsfp` (table / details / JSON; SFF-8636 and
+  SFF-8472; port-to-mux mapping from the factory device table).
+- 25G on that loop works in the 128x25 mode (earlier failure: port 32 lanes
+  were 10G-only in the 124x25-4x10 mode, not the adapter).
+- `nix/packages/openbcm/default.nix`: pinned sparse fetch + patches; bcm.user
+  built by Nix attaches on the switch with Nix-built modules.
+
+Older entries (2026-11-14: Phase 0, first cross-built component, OpenBCM
+kernel modules, diag shell, first packets and links): [HISTORY.md](HISTORY.md).
+
 ## 2026-11-14 (night, latest) — CPU RX, KNET netdevs, first real links
 
 - RX to CPU: L2 entry pointing at cpu0, looped packets arrive in the diag

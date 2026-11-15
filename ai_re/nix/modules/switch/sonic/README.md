@@ -17,6 +17,10 @@ redis-sonic ─ sonic-config-loader (oneshot: Nix base + saved file -> CONFIG_DB
               └ sonic-syncd ─┬ sonic-portsyncd
                              └ sonic-orchagent ─ portmgrd intfmgrd vlanmgrd nbrmgrd teammgrd
                                                  teamsyncd tlm_teamd neighsyncd fdbsyncd coppmgrd
+                                                 vrfmgrd (vrf.nix)
+                                                 teamd-watch (recovery.nix, upheld by teammgrd)
+                                                 frr-config ─ frr-mgmtd ─ frr-zebra ─┬ frr-staticd ┬ bgpcfgd
+                                                 fpmsyncd  (frr.nix)                 └ frr-bgpd ───┴ bgpmon
 ```
 
 All are `sonic-*.service`, `PartOf=sonic.target`. A downstream unit
@@ -26,6 +30,15 @@ containers with syncd). Consequence: `systemctl stop sonic-orchagent` is
 undone by syncd; stop `sonic.target` instead. The loader is not restarted by
 `systemctl restart sonic.target` or `nixos-rebuild switch` (unsaved runtime
 config survives both).
+
+Crash recovery ([recovery.nix](recovery.nix)): every syncd start is a cold
+start as in swss.sh (APPL/ASIC/COUNTERS/FLEX_COUNTER/APPL_STATE DBs flushed,
+stale STATE_DB tables removed); an orchagent *failure* (crash, kill, abort;
+not a requested stop) restarts syncd and so everything below it, as SONiC
+restarts swss with syncd (orchagent alone left the KNET netdevs gone). A dead
+teamd is respawned by `sonic-teamd-watch` with its old arguments plus `-o`
+(take over the team netdev: IP, VLANs and members stay, other PortChannels
+untouched; tlm_teamd reconnects); after 3 failed tries teammgrd restarts.
 
 ## ownership
 
@@ -82,6 +95,16 @@ Setting `sai.initConfigFile` to a path still works. The module itself knows
 no chip: the AS7760 board uses
 [packages/openbcm/configs](../../../packages/openbcm/README.md#configs) (Tomahawk).
 
+## VRFs and counters
+
+`vrf.enable` (default on, [vrf.nix](vrf.nix)): vrfmgrd + the kernel's `vrf`
+module; `config vrf add Vrf-x`, `config interface vrf bind <port> Vrf-x`.
+At start vrfmgrd removes VRF devices it did not create and moves the `local`
+ip rule from pref 0 to 1001, as on SONiC. `flexCounters`
+([counters.nix](counters.nix)): FLEX_COUNTER_TABLE groups seeded into
+CONFIG_DB (default: PORT only, what sai-openbcm answers), so syncd polls port
+stats from boot; `counterpoll` + `config save` override them.
+
 ## files
 
 `/var/lib/sonic/config_db.json` (`config save`), `/usr/share/sonic` ->
@@ -100,12 +123,16 @@ ranges `Ethernet1/1-4` and `Ethernet1/3-3/1` (missing subports are gaps) in
 nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs = import f.inputs.nixpkgs { system = "x86_64-linux"; };
   in import ./nix/modules/switch/sonic/tests/eval.nix { inherit pkgs; }'   # breakout assertions, YANG failure, sdkConfig plumbing
 # same with tests/vm.nix: two VMs (switch 3 GB + LACP peer 1 GB), ~8 min
+# tests/vm-openbcm-fake-l3.nix: one VM on sai-openbcm's fake: VRF, ECMP group, flex counters, CLI lists
+# tests/vm-frr.nix: switch 3 GB + peer 1 GB (FRR): eBGP over a PortChannel, routes to APPL/ASIC_DB,
+#   static routes, config interface ip remove, crash recovery, config reload w/o saved file, ~25 min
+# tests/vm-platform.nix: one VM (3 GB, vs): pmon on the fake AS7760 board, show platform/transceiver, LLDP self-loop
 # AS7760 config.bcm generator: nix/modules/boards/as7760/sdk-config-test.nix (command in its header)
 ```
 
 ## hardware
 
-Kernel: `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
+Kernel: `NET_VRF` (vrfmgrd; module `vrf`, loaded by vrf.nix), `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
 `NET_TEAM` + `NET_TEAM_MODE_LOADBALANCE` (teamd), `DUMMY`; `TUN` for the
 virtual SAI (`kernelModules` loads them). Vendor SAI: `sai.kind = "vendor"`,
 `sai.package = sonic.sairedis-openbcm libsai`, `sai.libraryPath`,
@@ -115,8 +142,45 @@ per unit) and starts after them. `sai.restartOnStop` units are started
 again 10 s after syncd stops, unless syncd is back, queued or a
 `sonic-nix reload` runs.
 
+## routing (FRR)
+
+[frr.nix](frr.nix), `services.sonic.frr.enable` (default on, as SONiC's bgp
+feature): FRR 10.7 (zebra, mgmtd, bgpd, staticd; [packages/sonic/routing](../../../packages/sonic/routing/default.nix)
+with the SONiC patches the FPM path needs), zebra `-M dplane_fpm_nl` to
+fpmsyncd (127.0.0.1:2620 -> APPL_DB ROUTE_TABLE), bgpcfgd + bgpmon. SONiC's
+default "separated" mode: `/etc/frr/{zebra,bgpd,staticd}.conf` rendered from
+CONFIG_DB by `sonic-frr-config` at every start (docker-fpm-frr's templates,
+`/etc/sonic/constants.yml`), then bgpcfgd applies CONFIG_DB changes
+(BGP_NEIGHBOR, STATIC_ROUTE via `config route add`, ...) live through
+vtysh; never a Nix or hand-edited FRR file. Unified/frrcfgd mode is not
+built (a warning when CONFIG_DB asks for it). vtysh is on PATH (`show ip
+route`, `show ip bgp summary`, `config interface ip remove`).
+bgpcfgd configures no BGP_NEIGHBOR until these exist: `DEVICE_METADATA`
+`bgp_asn` (e.g. `settings.DEVICE_METADATA.localhost.bgp_asn`), `type` and
+`BGP_DEVICE_GLOBAL|STATE` (both seeded: LeafRouter, SONiC's init_cfg
+values) and **Loopback0** (`config loopback add Loopback0`). bgp_asn and
+Loopback0 are read into bgpd.conf at FRR start (`systemctl restart
+sonic-frr-config` after changing them).
+
+## platform (pmon) and LLDP
+
+`pmon.nix`: `services.sonic.pmon` runs xcvrd, thermalctld, psud, syseepromd
+(`sonic-<daemon>.service`, PartOf sonic.target, not bound to syncd) over
+`pmon.platformPackage`, a board's `sonic_platform` (API 2.0; AS7760:
+[boards/as7760/sonic_platform](../../boards/as7760/sonic_platform/), notes in
+devices/edge-core-7760-32x/sonic-platform.md), and installs the CLI scripts
+(fanshow, tempershow, psushow, sfpshow, decode-syseeprom, sfputil). Fan
+control is the board's: thermalctld runs a policy only if the chassis returns
+a thermal manager, and no thermal_policy.json is installed.
+`lldp.nix`: `services.sonic.lldp` runs lldpd (no SNMP, SONiC's patch 0001) on
+`lldp.interfaces` (default `Ethernet[0-9]*`), its config rendered from
+CONFIG_DB at start (docker-lldp's templates, `pause` dropped), lldpmgrd
+(port ID = alias) and lldp_syncd (APPL_DB `LLDP_ENTRY_TABLE`); seeds
+`FEATURE|lldp` enabled (coppmgrd's LLDP trap, lldpshow). `show lldp
+neighbors|table` call lldpctl directly. Packages: [packages/sonic/platform](../../../packages/sonic/platform/default.nix).
+
 ## not here (yet)
 
-buffermgrd/buffer profiles, vrfmgrd, vxlan/nat/sflow/macsec managers,
-fpmsyncd/FRR, swssconfig's switch.json, LLDP, warm reboot, multi-ASIC,
+buffermgrd/buffer profiles, vxlan/nat/sflow/macsec managers,
+frrcfgd/unified FRR mode, BFD (staticroutebfd, bfdd), swssconfig's switch.json, ledd/pcied/chassisd, SNMP, warm reboot, multi-ASIC,
 breakout at runtime (a split takes effect at the next SDK init: `sonic-nix reload`).

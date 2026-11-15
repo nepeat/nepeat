@@ -1,5 +1,5 @@
 diff --git a/config/main.py b/config/main.py
-index 6ff0e24..af2b527 100644
+index 6ff0e24..0d73e98 100644
 --- a/config/main.py
 +++ b/config/main.py
 @@ -104,6 +104,8 @@ INTF_KEY = "interfaces"
@@ -11,7 +11,19 @@ index 6ff0e24..af2b527 100644
  
  DEFAULT_NAMESPACE = ''
  CFG_LOOPBACK_PREFIX = "Loopback"
-@@ -2447,6 +2449,19 @@ def reload(db, filename, yes, load_sysinfo, no_service_restart, force, file_form
+@@ -2396,7 +2398,10 @@ def reload(db, filename, yes, load_sysinfo, no_service_restart, force, file_form
+             click.echo("Input {} config file(s) separated by comma for multiple files ".format(num_cfg_file))
+             return
+ 
+-    if filename is None and file_format == 'config_db':
++    # NixOS: the loader below reads the saved file if there is one (else the
++    # Nix base only) and YANG-validates the merged result itself.
++    nixos_loader = os.access(NIXOS_SONIC_LOADER, os.X_OK) and file_format == 'config_db' and not multi_asic.is_multi_asic()
++    if filename is None and file_format == 'config_db' and not nixos_loader:
+         if not force:
+             cfg_files_to_validate = [DEFAULT_CONFIG_DB_FILE]
+             if multi_asic.is_multi_asic():
+@@ -2447,6 +2452,19 @@ def reload(db, filename, yes, load_sysinfo, no_service_restart, force, file_form
          else:
              config_file_yang_validation(filename)
  
@@ -19,7 +31,7 @@ index 6ff0e24..af2b527 100644
 +    # the merge of the Nix base with the saved file (enforce/seed rules,
 +    # host tables dropped, conflicts reported). Hand the reload over to it:
 +    # it stops sonic.target, flushes and loads CONFIG_DB, starts it again.
-+    if os.access(NIXOS_SONIC_LOADER, os.X_OK) and file_format == 'config_db' and not multi_asic.is_multi_asic():
++    if nixos_loader:
 +        command = [NIXOS_SONIC_LOADER, 'reload']
 +        if cfg_files:
 +            command += ['--user-file', cfg_files[0]]

@@ -9,6 +9,21 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
+- **VRF, ECMP, flex counters** (2026-11-15, fake-tested, not on the switch):
+  kernel NET_VRF, `sonic-vrfmgrd`, sai-openbcm virtual routers (SDK VRFs)
+  and next-hop groups (SDK ECMP groups), real ECMP capacities;
+  FLEX_COUNTER_TABLE|PORT seeded; `show ... -i` alias lists. Switch test
+  (needs a reboot for the kernel): [vrf-ecmp-test.md](vrf-ecmp-test.md).
+
+- **Platform, LEDs, LLDP: VM-tested, not on the switch yet** (2026-11-15
+  entry): pmon (xcvrd, thermalctld monitor-only, psud, syseepromd) over an
+  AS7760 `sonic_platform`, `show platform fan|temperature|psustatus|syseeprom`,
+  `show interfaces transceiver`, the public LED program at SDK init, LLDP
+  (lldpd + lldpmgrd + lldp_syncd, `show lldp neighbors|table`). 35/35 VM checks
+  on a fake board incl. an LLDP self-loop ([VM](sonic-platform-vm-20261115.txt)); cross-builds
+  (+1.5 MB, [cross](sonic-platform-cross-20261115.txt)). Switch test and the unverified PSU
+  bits: [sonic-platform.md](../edge-core-7760-32x/sonic-platform.md).
+
 - **SONiC runs at boot on the AS7760** (generated config.bcm with cages 1/32
   split 4x25G, kernel with bridge/VLAN/team): syncd, orchagent and all
   managers up with 0 restarts, 38 ports; the lab loop links at 25G
@@ -17,8 +32,18 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   system MAC (same-switch loop: libteam refuses to aggregate with itself);
   VLAN 100 on a PortChannel with an SVI reaches the kernel bridge and the
   ASIC ([evidence](sonic-as7760-lacp-vlan-20261115.txt)). fand gets the ASIC
-  temperature from syncd. Not yet: data-plane traffic between hosts, FRR
-  (`config interface ip remove` calls vtysh, missing), ECMP/ACL/QoS/policers.
+  temperature from syncd. Not yet: data-plane traffic between hosts,
+  ECMP/ACL/QoS/policers.
+
+- **FRR routing stack + crash recovery, VM-tested, not on the switch yet**
+  (2026-11-15 entry): FRR 10.7 (zebra/mgmtd/bgpd/staticd) with zebra's FPM to
+  fpmsyncd and bgpcfgd (SONiC's default "separated" mode, config from
+  CONFIG_DB), vtysh on PATH (`config interface ip remove`, `show ip route`,
+  `show ip bgp summary`). VM: eBGP to a peer over a LACP PortChannel, learned
+  prefixes in APPL_DB, ASIC_DB and the kernel, offload acks, static routes from
+  CONFIG_DB; teamd respawn, orchagent failure -> syncd restart, `config
+  reload` without a saved file ([VM, 86 checks](sonic-frr-vm-20261115.txt)).
+  Cross-builds into the AS7760 system, 2.56 of 3 GiB budget ([cross](sonic-frr-cross-20261115.txt)).
 
 - **SONiC control plane on the real chip** (2026-11-15, `test` activation,
   old kernel): `services.sonic` with sai-openbcm: syncd, orchagent,
@@ -133,6 +158,83 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-15 — pmon platform API, front-panel LEDs, LLDP (VM only)
+
+- `nix/modules/boards/as7760/sonic_platform`: SONiC platform API 2.0 for the
+  AS7760 (fans from hwmon + fand's state file, read-only; 4 LM75 + ASIC;
+  PSUs from CPLD#1 0x02 with the AS7712/AS7716 bit layout, unverified;
+  32 cages via CPLD#1 + as7760-qsfp's bus map; ONIE TLV from NOR hw-info).
+  No thermal manager, so thermalctld never runs a fan policy; no LED or PWM
+  writes. Unit test on `fake_board.py` (13 tests). Details and the switch
+  test: [sonic-platform.md](../edge-core-7760-32x/sonic-platform.md).
+- `as7760-qsfp`: added combined I2C transfers (`read_atomic`/`write_atomic`,
+  I2C_RDWR) and a per-bus lock around page-select reads; the platform uses
+  them so xcvrd/psud/the tool cannot interleave register-pointer writes. The
+  tool's own `read()` is unchanged (still two transfers).
+- `switch/sonic/pmon.nix`, `lldp.nix`; packages `sonic.platform` (pmon
+  daemons from sonic-platform-daemons, platform CLI scripts, lldpd without
+  SNMP + SONiC patch 0001, lldpmgrd, lldp_syncd from sonic-dbsyncd, new pin
+  `dbsyncd` = buildimage's submodule 0cfeda31). lldpshow/lldp_syncd call
+  lldpctl directly (no container).
+- LEDs: `SAI_OPENBCM_RC_FILE` = public AS7712 `led_proc_init.soc` (= factory
+  portled.soc); `led auto on` makes the SDK linkscan feed link state to the
+  LED processor, so no ledd.
+- Found on the way: the board's TLV platform name is
+  `powerpc-accton_as7760_32x-r0`, while `services.sonic.platform` is
+  `powerpc64-…` (nothing reads the TLV one; left as is).
+- VM test `tests/vm-platform.nix`: 35/35 ([evidence](sonic-platform-vm-20261115.txt)); vm.nix
+  (92 PASS) and vm-openbcm-fake.nix (86 PASS) still pass with the new modules
+  imported; eval.nix builds.
+
+## 2026-11-15 — VRFs, ECMP, flex counter seed (fake + VM; switch test designed)
+
+- Kernel: NET_VRF needs IP_ADVANCED_ROUTER -> IP_MULTIPLE_TABLES,
+  NET_L3_MASTER_DEV and IPV6_MULTIPLE_TABLES (Linux 7.3.4 Kconfig); all set,
+  NET_VRF as a module (vrf.ko in the as7760 closure).
+- `services.sonic.vrf.enable` (vrfmgrd), `services.sonic.flexCounters` (PORT
+  seeded: syncd polls from boot), sonic-utilities patch 0004 (alias comma
+  lists/ranges in `show ... -i`).
+- sai-openbcm: VIRTUAL_ROUTER = SDK VRF (RIF VLAN bound via `l3a_vrf`, host
+  and route entries per VRF, route leaking), NEXT_HOP_GROUP(_MEMBER) = SDK
+  ECMP groups (`bcm_l3_egress_ecmp_*`, BCM_L3_MULTIPATH routes), ECMP
+  capacities from the SDK instead of 0. Unit tests 2005/0; new VM test
+  (VRF + RouteOrch next-hop group + counters + CLI): 37/0; regression VMs and
+  eval pass ([builds](l3-ecmp-builds-20261115.txt), [VM](sonic-l3-fake-vm-20261115.txt)).
+- Port counters (task 2): fine on the chip once polled (coordinator, 2026-11-15).
+- Open: none of the SDK VRF/ECMP calls has run on the BCM56930 yet.
+
+## 2026-11-15 — FRR routing stack (FPM, bgpcfgd) and crash recovery
+
+- `services.sonic.frr` ([frr.nix](../../nix/modules/switch/sonic/frr.nix), on by
+  default), packages `sonic.routing` (nixpkgs FRR 10.7.1 = SONiC's release, with
+  sonic-frr patches 0008/0013/0017/0026 + one local dplane_fpm_nl patch; the
+  docker-fpm-frr templates; bgpcfgd/bgpmon). SONiC uses its own
+  `dplane_fpm_sonic` (needs libnexthopgroup); we use FRR's `dplane_fpm_nl`
+  with the same encoding: without 0008 fpmsyncd drops every default-VRF route
+  (table 254 read as a VRF ifindex), without the local patch zebra never sees
+  the offload acks (routes stay "queued").
+- bgpcfgd configures no BGP_NEIGHBOR until DEVICE_METADATA `type`,
+  `BGP_DEVICE_GLOBAL|STATE` (now seeded) and Loopback0 exist.
+- Upstream sonic-utilities bug fixed (python patch 0005): in alias mode
+  `show ip bgp summary` crashed (BGP JSON fed to the route-alias rewrite).
+- Crash recovery from the hardware run ([recovery.nix](../../nix/modules/switch/sonic/recovery.nix),
+  [hardware evidence](sonic-as7760-counters-recovery-20261115.txt)): (a) teamd
+  respawned with `-o` by `sonic-teamd-watch` (IP/members kept, other
+  PortChannels untouched); (b) orchagent failure restarts syncd + everything
+  below; every syncd start flushes APPL/ASIC/COUNTERS DBs as swss.sh does
+  (without it a restarted syncd's APPLY VIEW failed and orchagent aborted in a
+  loop until start-limit); (c) `config reload` with no saved file loads the
+  Nix base (python patch 0001).
+- VM: [sonic-frr-vm-20261115.txt](sonic-frr-vm-20261115.txt) (86 checks, 0
+  failed); vm.nix (92) and vm-openbcm-fake.nix (86, 3 N/A) still pass with FRR
+  and recovery in. Cross: [sonic-frr-cross-20261115.txt](sonic-frr-cross-20261115.txt)
+  (FRR's installed headers/libtool files had pulled the build machine's
+  x86_64 clippy helper, 235 MiB, into the switch closure; now stripped and a
+  disallowed reference). Open: frrcfgd/unified mode, BFD; static routes show
+  protocol `196` in APPL_DB (iproute2's rt_protos has no name; SONiC alike);
+  an APPL_DB flush also drops lldp_syncd's LLDP_ENTRY_TABLE until its next
+  change (lldp is not restarted with syncd).
 
 ## 2026-11-15 — config.bcm generated from the Nix ports (per-cage breakout)
 
@@ -281,18 +383,4 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 - Hardware test procedure: the README's "Running on the AS7760". Nothing was
   run on the switch for this entry.
 
-## 2026-11-14 (night, last) — module EEPROMs, 25G, SDK as Nix packages
-
-- The far ends were a loop: leg 1 of the QSFP28 breakout in port 1 goes into
-  port 32 through a QSFP-to-SFP adapter. Port 32's EEPROM read "garbled"
-  because the pca9548 muxes kept their last channel selected, so two modules
-  answered at 0x50 at once. Fixed with `i2c-mux-idle-disconnect` in the device
-  tree. New tool `as7760-qsfp` (table / details / JSON; SFF-8636 and
-  SFF-8472; port-to-mux mapping from the factory device table).
-- 25G on that loop works in the 128x25 mode (earlier failure: port 32 lanes
-  were 10G-only in the 124x25-4x10 mode, not the adapter).
-- `nix/packages/openbcm/default.nix`: pinned sparse fetch + patches; bcm.user
-  built by Nix attaches on the switch with Nix-built modules.
-
-Older entries (2026-11-14: Phase 0, first cross-built component, OpenBCM
-kernel modules, diag shell, first packets and links): [HISTORY.md](HISTORY.md).
+Older entries: [HISTORY.md](HISTORY.md).

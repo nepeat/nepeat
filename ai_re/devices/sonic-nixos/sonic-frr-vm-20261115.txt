@@ -1,0 +1,176 @@
+# vm-frr.nix (services.sonic.frr + recovery.nix), virtual SAI, x86_64 VMs (switch 3 GB, peer 1 GB); 2026-11-15
+# nix build -L --impure --expr '... import ./nix/modules/switch/sonic/tests/vm-frr.nix { inherit pkgs; }'
+# test-script lines only (VM console noise dropped)
+additionally exposed symbols:
+    peer, switch,
+    vlan1, vlan2,
+    start_all, test_script, machines, machines_qemu, machines_nspawn, vlans, driver, log, os, create_machine, subtest, run_tests, join_all, retry, serial_stdout_off, serial_stdout_on, polling_condition, BaseMachine, QemuMachine, NspawnMachine, t, debug, dump_machine_ssh
+{
+ "sonic-frr-config": "active exited 0",
+ "sonic-frr-mgmtd": "active running 0",
+ "sonic-frr-zebra": "active running 0",
+ "sonic-frr-staticd": "active running 0",
+ "sonic-frr-bgpd": "active running 0",
+ "sonic-fpmsyncd": "active running 0",
+ "sonic-bgpcfgd": "active running 0",
+ "sonic-bgpmon": "active running 0",
+ "sonic-orchagent": "active running 0",
+ "sonic-syncd": "active running 0"
+}
+PASS FRR/fpmsyncd/bgpcfgd units active, no restarts
+PASS vtysh on PATH (also via sudo), daemons mgmtd zebra bgpd staticd
+PASS bgpd.conf rendered from CONFIG_DB: router bgp 65100
+PASS zebra.conf: FPM to 127.0.0.1, no next-hop groups
+PASS config files owned by frr
+PASS running bgpd: router bgp 65100, no ebgp-requires-policy
+ Address to connect to         127.0.0.1
+ Port                          2620
+ Connected                     Yes
+ Use Nexthop Groups            No
+ Use Route Replace Semantics   Yes
+ Disabled                      No
+
+
+PASS zebra's FPM connected to fpmsyncd
+PASS config portchannel add PortChannel0001
+PASS config portchannel member add PortChannel0001 Ethernet5/1
+PASS config portchannel member add PortChannel0001 Ethernet6/1
+PASS config interface startup Ethernet5/1
+PASS config interface startup Ethernet6/1
+PASS config interface ip add PortChannel0001 10.0.0.1/24
+PASS ping across the PortChannel (peer -> 10.0.0.1)
+PASS seeded: DEVICE_METADATA type LeafRouter, BGP_DEVICE_GLOBAL|STATE
+PASS config loopback add Loopback0
+PASS config interface ip add Loopback0 10.255.0.1/32
+PASS Loopback0 in the kernel
+PASS BGP_NEIGHBOR|10.0.0.2 written to CONFIG_DB
+PASS bgpcfgd configured the neighbor in bgpd
+PASS BGP session Established
+
+IPv4 Unicast Summary:
+BGP router identifier 10.255.0.1, local AS number 65100 VRF default vrf-id 0
+BGP table version 0
+RIB entries 0, using 0 bytes of memory
+Peers 1, using 30 KiB of memory
+Peer groups 3, using 216 bytes of memory
+
+Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down State/PfxRcd   PfxSnt Desc
+10.0.0.2        4      65200         2         2        0    0    0 00:00:00            0        0 peer
+
+Total number of neighbors 1
+
+PASS show ip bgp summary (CLI)
+PASS bgpmon: STATE_DB NEIGH_STATE_TABLE|10.0.0.2 Established
+PASS zebra RIB: 192.0.2.0/24 via BGP
+PASS APPL_DB ROUTE_TABLE:192.0.2.0/24
+PASS APPL_DB route: nexthop 10.0.0.2 ifname PortChannel0001 protocol bgp
+PASS ASIC_DB ROUTE_ENTRY 192.0.2.0/24
+PASS ASIC_DB: route next hop is 10.0.0.2
+PASS ASIC_DB ROUTE_ENTRY 198.51.100.0/24 (second prefix)
+PASS kernel: 192.0.2.0/24 via 10.0.0.2 proto bgp
+PASS zebra marks the route offloaded (fpmsyncd ack)
+PASS connected 10.0.0.0/24 not duplicated as a /32 local route in APPL_DB
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued route, r - rejected route
+
+K>*0.0.0.0/0 [0/1002] via 10.0.2.2, eth0,, src 10.0.2.15 00:00:32
+C>*10.0.0.0/24 is directly connected, PortChannel0001, 00:00:11
+C>*10.0.2.0/24 [0/1002] is directly connected, eth0, 00:00:32
+C>*10.255.0.1/32 is directly connected, Loopback0, 00:00:10
+B>*192.0.2.0/24 [20/0] via 10.0.0.2, PortChannel0001, 00:00:05
+B>*198.51.100.0/24 [20/0] via 10.0.0.2, PortChannel0001, 00:00:05
+
+PASS show ip route (CLI, alias mode) lists 192.0.2.0/24 via 10.0.0.2
+PASS show ip route 192.0.2.0/24 (CLI)
+PASS config route add prefix 203.0.113.0/24 nexthop 10.0.0.2
+PASS CONFIG_DB STATIC_ROUTE|default|203.0.113.0/24
+PASS staticd route 203.0.113.0/24 in zebra
+PASS APPL_DB ROUTE_TABLE:203.0.113.0/24 (static, via 10.0.0.2)
+static route in APPL_DB: protocol
+0xc4
+nexthop
+10.0.0.2
+ifname
+PortChannel0001
+weight
+1
+PASS ASIC_DB ROUTE_ENTRY 203.0.113.0/24
+PASS ip remove refused while a static route uses the RIF (SONiC's vtysh check)
+PASS ... and the address stays
+PASS config route del prefix 203.0.113.0/24
+PASS static route gone from APPL_DB
+PASS static route gone from ASIC_DB
+PASS config interface ip add Ethernet7/1 10.1.0.1/24
+PASS config interface ip remove Ethernet7/1 10.1.0.1/24
+PASS ... gone from CONFIG_DB
+PASS ... gone from the kernel
+PASS after zebra restart: BGP Established again
+PASS after zebra restart: route back in APPL_DB and ASIC_DB
+PASS after zebra restart: all FRR units active
+PASS after zebra restart: orchagent not restarted
+PASS config portchannel add PortChannel0002
+PASS teamd killed: respawned for PortChannel0001
+PASS teamd respawn: both members selected again
+PASS teamd respawn: PortChannel0001 kept its IP (netdev taken over)
+PASS teamd respawn: ping peer
+PASS teamd respawn: PortChannel0002's teamd untouched
+PASS teamd respawn: teammgrd not restarted
+PASS teamd respawn: new teamd in teammgrd's cgroup
+PASS teamd respawn: BGP Established
+PASS teamd respawn: APPL_DB LAG members kept
+PASS teamd respawn: show interfaces portchannel shows members
+PASS orchagent killed: syncd restarted
+PASS after orchagent kill: Ethernet netdevs back (35)
+PASS after orchagent kill: LACP + ping peer
+PASS after orchagent kill: BGP route back in ASIC_DB
+PASS after orchagent kill: fake-asic-temp stays stopped (syncd is back)
+PASS after orchagent kill: all units active
+PASS syncd killed: orchagent restarted
+PASS after syncd kill: Ethernet netdevs back (35)
+PASS after syncd kill: ping peer
+PASS after syncd kill: fake-asic-temp stays stopped
+PASS stop sonic.target: fake-asic-temp started again (syncd's 10 s grace)
+PASS stop sonic.target: syncd stays down (no restart from the orchagent hook)
+PASS after sonic.target restart: BGP Established
+PASS after sonic.target restart: route back in ASIC_DB
+PASS withdrawn prefix leaves APPL_DB
+PASS withdrawn prefix leaves ASIC_DB
+PASS other prefix still in ASIC_DB
+PASS config interface ip remove PortChannel0001 10.0.0.1/24 (no static route left)
+PASS routes via the removed RIF leave ASIC_DB
+:- getPortOperSpeed: Port Ethernet24 operational speed is 0
+:- getPortOperSpeed: Port Ethernet28 operational speed is 0
+:- getPortOperSpeed: Port Ethernet48 operational speed is 0
+:- getPortOperSpeed: Port Ethernet52 operational speed is 0
+:- getPortOperSpeed: Port Ethernet56 operational speed is 0
+:- getPortOperSpeed: Port Ethernet60 operational speed is 0
+:- getPortOperSpeed: Port Ethernet64 operational speed is 0
+:- getPortOperSpeed: Port Ethernet68 operational speed is 0
+:- getPortOperSpeed: Port Ethernet72 operational speed is 0
+:- getPortOperSpeed: Port Ethernet76 operational speed is 0
+:- getPortOperSpeed: Port Ethernet96 operational speed is 0
+:- getPortOperSpeed: Port Ethernet100 operational speed is 0
+:- getPortOperSpeed: Port Ethernet104 operational speed is 0
+:- getPortOperSpeed: Port Ethernet108 operational speed is 0
+:- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000027 (name:default).
+:- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000684 (name:queue1_group1).
+:- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000687 (name:queue1_group3).
+:- trapGroupUpdatePolicer: Creating policer for existing Trap group: 1100000000068a (name:queue3_group1).
+:- trapGroupUpdatePolicer: Creating policer for existing Trap group: 1100000000068d (name:queue4_group1).
+:- trapGroupUpdatePolicer: Creating policer for existing Trap group: 11000000000690 (name:queue4_group2).
+
+Acquired lock on /etc/sonic/reload.lock
+Running command: /run/current-system/sw/bin/sonic-nix reload
+Released lock on /etc/sonic/reload.lock
+
+PASS config reload -y with no saved file: handed to sonic-nix reload, not aborted
+PASS reload: runtime config gone (PortChannel0001, BGP_NEIGHBOR)
+PASS reload: Nix base loaded (bgp_asn 65100, ports)
+PASS reload: bgpd running with router bgp 65100 and no neighbor
+FAILED CHECKS: 0 []
+EXIT 0 Sun Nov 15 01:23:40 PM PST 2026
+
+# regression, same tree: vm.nix 92 PASS, FAILED CHECKS: 0 []; vm-openbcm-fake.nix 86 PASS, FAILED CHECKS: 0 [], SAI openbcm-fake: N/A CHECKS: 3 ['4x25G split ports Ethernet0..3', 'lanemap.ini', 'Ethernet1/3-3/1 left Ethernet1/1, 1/2 alone']; eval.nix ok

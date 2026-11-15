@@ -14,6 +14,16 @@ owns the rest.
 | unmanaged | user (`config ...`, `config save`) | VLAN, PORTCHANNEL, INTERFACE, BGP, ... unless declared in Nix |
 
 - Persistent user layer: `config save` writes `/var/lib/sonic/config_db.json`.
+- FRR (2026-11-15, [frr.nix](../../nix/modules/switch/sonic/frr.nix)): no FRR
+  file is owned by Nix or edited by hand. `/etc/frr/*.conf` are rendered
+  from CONFIG_DB at every FRR start and bgpcfgd applies BGP_NEIGHBOR,
+  STATIC_ROUTE, ... live (SONiC's "separated" mode); `vtysh` changes are
+  runtime only. Nix seeds what bgpcfgd needs before it configures a
+  neighbor: `DEVICE_METADATA|localhost` `type` (LeafRouter) and
+  `BGP_DEVICE_GLOBAL|STATE` (SONiC's init_cfg values); `bgp_asn` and
+  Loopback0 are the user's (or `settings`).
+- `config reload` with no saved file loads the Nix base only (2026-11-15; it
+  used to abort on the missing file).
 - Boot: Nix base + user file merged by the rules above, YANG-validated,
   loaded into CONFIG_DB. `nixos-rebuild switch` writes only changed
   enforced/seeded keys into the running CONFIG_DB (no restart).

@@ -31,7 +31,8 @@ longer background.
   VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
 - **SONiC:** on at boot since 2026-11-15 (`services.sonic`, generated
   config.bcm, cages 1/32 split 4x25G for the lab loop); see
-  [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md).
+  [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md). pmon, LED program
+  and LLDP are built in but untested on the switch: [sonic-platform.md](sonic-platform.md).
 - **Todo:** a worst-case thermal test with line-rate traffic (the
   2026-11-15 loopback storm was throttled, mild load only); the software
   over-temperature PLL shutdown test (held, needs the console).

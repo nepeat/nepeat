@@ -1,0 +1,18 @@
+Alias mode: only "show ip route"/"show ipv6 route" output is route JSON.
+The regex "show ip|ipv6 route" matched every "show ip ..." command, so in
+alias mode "show ip bgp summary" fed BGP JSON to the route-alias rewrite
+and crashed (TypeError: object of type 'int' has no len()).
+
+diff --git a/utilities_common/bgp_util.py b/utilities_common/bgp_util.py
+index 4763a71..3889aec 100644
+--- a/utilities_common/bgp_util.py
++++ b/utilities_common/bgp_util.py
+@@ -312,7 +312,7 @@ def run_bgp_show_command(vtysh_cmd, bgp_namespace=multi_asic.DEFAULT_NAMESPACE,
+     output = run_bgp_command(vtysh_cmd, bgp_namespace, get_vtysh_shell_cmd(), exit_on_fail)
+     # handle the the alias mode in the following code
+     if output is not None:
+-        if clicommon.get_interface_naming_mode() == "alias" and re.search("show ip|ipv6 route", vtysh_cmd):
++        if clicommon.get_interface_naming_mode() == "alias" and re.search(r"show (ip|ipv6) route", vtysh_cmd):
+             iface_alias_converter = clicommon.InterfaceAliasConverter()
+             route_info =json.loads(output)
+             for route, info in route_info.items():

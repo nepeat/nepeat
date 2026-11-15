@@ -32,5 +32,7 @@ let
     # Python side: sonic-py-common, sonic-cfggen, YANG models + validator,
     # sonic-utilities (show/config). See ./python/default.nix.
     python = pkgs.callPackage ./python { sonic = self; };
+    routing = import ./routing { inherit pkgs; sonic = self; };   # FRR + bgpcfgd (./routing/default.nix)
+    platform = pkgs.callPackage ./platform { sonic = self; };      # pmon daemons, platform CLI, LLDP (./platform/default.nix)
   };
 in self

@@ -39,6 +39,13 @@ in py.buildPythonPackage {
     # startup/shutdown): Ethernet1/1-4, Ethernet1/1-3/1; filters resolved to
     # SONiC names in alias mode (comma lists of aliases wrote alias keys).
     ./patches/0003-alias-ranges.patch
+    # show: -i/--interface filters in alias mode (comma lists, alias ranges)
+    # were looked up as one alias ("cannot find interface name for alias
+    # Ethernet1/1,Ethernet32/1"); each alias is converted now.
+    ./patches/0004-show-alias-interface-lists.patch
+    # Alias mode: "show ip bgp ..." output was rewritten as route JSON
+    # (regex "show ip|ipv6 route") and crashed. Upstreamable.
+    ./patches/0005-alias-mode-bgp-show-json.patch
   ];
 
   postPatch = ''
