@@ -29,7 +29,7 @@ and LM75_CPU at 0x48–0x4b behind channel 1 of the same mux.
 | 0x11 | common fan duty, 0–15 |
 | 0x12–0x17 | front rotor tachometers, register × 100 rpm |
 | 0x22–0x27 | rear rotor tachometers, register × 100 rpm |
-| 0x33 | vendor `CPLD_SetFanSpeed` writes zero before writing duty |
+| 0x33 | vendor `CPLD_SetFanSpeed` writes zero before writing duty; most likely the fan-speed **watchdog** enable (the public AS7712-32X fan driver writes 0x33=0 to turn the watchdog off) |
 
 `CPLD_SetFanSpeed` at 0x10001800 writes 0x33=0 and then
 0x11=floor(percent*15/100). The diagnostic high/low scripts request 100/50%.
@@ -53,7 +53,7 @@ EEPROM, or environment writes.**
 - 0x10 = 0x3f; 0x11 = 0x0f: maximum duty.
 - Front tachometers: d4 d8 d5 d4 d7 d6 → 21,200–21,600 rpm.
 - Rear tachometers: b4 b4 b3 b4 b3 b4 → 17,900–18,000 rpm.
-- 0x33 = 0x01 in firmware. Its exact mode semantics remain unknown.
+- 0x33 = 0x01 in firmware: watchdog on, if the AS7712 reading holds (not tested here; see [qsfp-control.md](qsfp-control.md) for the source).
 - Temperature words: 1ac0, 1a80, 19e0, 1880: roughly 24.5–27 °C.
   They are LM75-compatible; the exact sensor variant/resolution is not yet
   identified. The initial Linux binding uses the conservative LM75 format.
