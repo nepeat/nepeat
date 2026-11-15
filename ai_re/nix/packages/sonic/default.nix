@@ -22,5 +22,8 @@ let
     nhIdAlias = "-Drtnl_route_get_nh_id=rtnl_route_get_nhid -Drtnl_route_set_nh_id=rtnl_route_set_nhid";
     swss-common = pkgs.callPackage ./swss-common { sonic = self; };
     sairedis = pkgs.callPackage ./sairedis { sonic = self; };
+    # syncd linked against a vendor libsai instead of the virtual SAI, e.g.
+    #   sairedis-openbcm (pkgs.callPackage ../sai-openbcm { sonic = self; libsdk = ...; })
+    sairedis-openbcm = libsai: pkgs.callPackage ./sairedis { sonic = self; inherit libsai; };
   };
 in self

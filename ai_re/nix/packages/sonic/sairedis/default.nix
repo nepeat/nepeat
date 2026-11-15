@@ -1,11 +1,20 @@
 # libsairedis, libsaimeta(data), libsaivs (virtual-switch SAI), syncd and the
 # sai* tools; also installs the SAI headers it was built against.
 # Upstream recipe: debian/rules with the "syncd vs" profiles.
+# libsai = null: syncd on the virtual SAI (--with-sai=vs). libsai = a vendor
+# libsai package (e.g. sai-openbcm): syncd links that instead, as for a
+# hardware platform build (no --with-sai).
 { lib, stdenv, buildPackages, autoreconfHook, autoconf-archive, pkg-config, swig, python3
 , doxygen, graphviz, which, hiredis, zeromq, boost, nlohmann_json, libuuid, zlib
-, sonic }:
+, sonic, libsai ? null }:
+let
+  vendor = libsai != null;
+  # libsai's own dependency (libsdk.so) must be findable when linking
+  # executables against libsai; a cross ld does not follow DT_RUNPATH.
+  libsdk = if vendor then libsai.passthru.libsdk or null else null;
+in
 stdenv.mkDerivation {
-  pname = "sonic-sairedis";
+  pname = if vendor then "sonic-sairedis-${libsai.pname}" else "sonic-sairedis";
   version = sonic.version "sairedis";
   src = sonic.sources.sairedis;
 
@@ -16,7 +25,8 @@ stdenv.mkDerivation {
     # SAI/meta generates saimetadata.c from the headers at build time.
     (buildPackages.perl.withPackages (p: [ p.XMLSimple ])) doxygen graphviz which
   ];
-  buildInputs = [ sonic.swss-common sonic.libnl-sonic hiredis zeromq boost nlohmann_json libuuid zlib python3 ];
+  buildInputs = [ sonic.swss-common sonic.libnl-sonic hiredis zeromq boost nlohmann_json libuuid zlib python3 ]
+    ++ lib.optional vendor libsai;
 
   postPatch = ''
     patchShebangs SAI/meta stub.pl
@@ -42,18 +52,28 @@ stdenv.mkDerivation {
     # exercised by NixOS VM tests instead.
     sed -i 's/ tests unittest//' Makefile.am
     sed -i 's/^SUBDIRS = \. tests/SUBDIRS = ./' syncd/Makefile.am
+  '' + lib.optionalString vendor ''
+    # The vendor-libsai version check is an AC_TRY_RUN without a
+    # cross-compiling branch; give it one (native builds still run it).
+    substituteInPlace configure.ac --replace-fail \
+      'AC_MSG_ERROR("SAI headers API version and library version mismatch")])],' \
+      'AC_MSG_ERROR("SAI headers API version and library version mismatch")],[AC_MSG_RESULT(cross-compiling: not run)])],'
   '';
 
   configureFlags = [
     "--disable-static"
     "--disable-python2"
-    "--with-sai=vs"
+  ] ++ lib.optional (!vendor) "--with-sai=vs" ++ [
     "--with-swss-common-inc=${sonic.swss-common}/include/swss"
     "--with-swss-common-lib=${sonic.swss-common}/lib"
   ];
-  env.NIX_CFLAGS_COMPILE = "-Wno-error -I${python3}/include/${python3.libPrefix} -I${sonic.swss-common}/include -I${lib.getDev sonic.libnl-sonic}/include/libnl3";
-  # Several headers use uint32_t & co. without <cstdint> (fine with older libstdc++).
-  env.CXXFLAGS = "-g -O2 -include cstdint -include sstream";
+  env = {
+    NIX_CFLAGS_COMPILE = "-Wno-error -I${python3}/include/${python3.libPrefix} -I${sonic.swss-common}/include -I${lib.getDev sonic.libnl-sonic}/include/libnl3";
+    # Several headers use uint32_t & co. without <cstdint> (fine with older libstdc++).
+    CXXFLAGS = "-g -O2 -include cstdint -include sstream";
+  } // lib.optionalAttrs (libsdk != null) {
+    NIX_LDFLAGS = "-rpath-link ${libsdk}/lib";
+  };
   makeFlags = [ "PYTHON3_BLDLIBRARY=-l${python3.libPrefix}" ];
   enableParallelBuilding = true;
 
@@ -63,7 +83,8 @@ stdenv.mkDerivation {
   '';
 
   meta = {
-    description = "SONiC SAI redis bridge (sairedis, syncd, virtual-switch SAI)";
+    description = if vendor then "SONiC SAI redis bridge with syncd on ${libsai.pname}"
+      else "SONiC SAI redis bridge (sairedis, syncd, virtual-switch SAI)";
     homepage = "https://github.com/sonic-net/sonic-sairedis";
     license = lib.licenses.asl20;
     platforms = lib.platforms.linux;
