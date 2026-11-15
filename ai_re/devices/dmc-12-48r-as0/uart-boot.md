@@ -285,3 +285,8 @@ untouched.
   rehearsed in RAM first. The exact IPXE + BOOT_MODE layout boots, and the `u` escape is proven.
   Our U-Boot's cold init (no factory U-Boot before it) is untested: Route A always runs after the
   factory U-Boot.
+
+### Minimal-recipe check (u01, 2026-11-15, main agent)
+- `--no-agent-trace`: our U-Boot as stage3's app boots (Entry EL2, x0=0, prompt); only the P + x hooks patched.
+- `--no-agent-trace --no-rmr-fix`: also boots. **The RMR write is not needed; the only required fix is the
+  reset request without the WFI wait (`cpus_software_reset = 0x00010013`).**
