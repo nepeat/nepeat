@@ -33,8 +33,13 @@ owns the rest.
 
 - hwsku pinned: **AS7760-32X 32x100G** (every cage 1x100G).
 - Breakout (one QSFP28 cage = 4 lanes: 1x100G, 2x50G, 4x25G, 4x10G) is a
-  per-port Nix option, enforced, because it describes cabling and needs an
-  SDK re-init. Nix generates `config.bcm` (the factory 32x100 config
+  per-port Nix override, enforced, because it describes cabling and needs an
+  SDK re-init. **The split must be explicit** (owner, 2026-11-15): an
+  overridden cage lists every resulting port (name, lanes, speed), e.g. cage
+  1 -> Ethernet0 lane 1 25G, Ethernet1 lane 2 25G, ...; no mode shorthand
+  that generates them. Build-time checks: each lane of the cage used exactly
+  once, speeds valid for the lane count, names unique, no port left over from
+  the 1x100G default. Nix generates `config.bcm` (the factory 32x100 config
   matches public sonic-buildimage AS7712 values), so no vendor file is copied
   by hand. The lab loop (port 1 breakout into port 32 via QSA) needs ports
   1 and 32 set to 4x25G (or 4x10G) to link.
