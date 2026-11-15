@@ -5,6 +5,11 @@
   power-cycle to smoke PASS): factory U-Boot → preamble (bootp) → `scsi read` of our U-Boot 2026.10
   (al_eth) from raw sda1 → extlinux on sda2 → root sda3. Env: `nixos_boot` + `bootcmd` only, factory
   chain kept as fallback. Original state: `dumps/u01/` (restore: `reimage.md` "Back to factory").
+- **Self-init U-Boot (RAM, 2026-11-15, transcript `serial-chainload-20261115-123112.txt`): full checklist
+  passes.** Read-only `sf read` of CS0/CS1 CRC-exact vs the backups (08145ce6, 3d086ac6, whole CS1
+  db9e4937; ~60 KB/s, 260 s per chip), MUIO as the DT wants, CCU set from cleared, `alpcie reinit`
+  trains the link with our init + full USB tree rescan (0 SErrors), then NixOS booted from SSD on that
+  link: smoke 15/15, 48 ports. Diff to note: AXI +0x30 = 0x3ff after our init vs 0x1ff (factory).
 - Next: replacing the boot U-Boot in SPI itself (investigation: `spi-uboot-replacement.md`,
   `spi-recovery.md`, in progress). Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
   `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
