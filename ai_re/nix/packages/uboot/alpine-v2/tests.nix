@@ -8,7 +8,8 @@
 #          the al_eth port node).
 #  eth-params: ./eth-test, the al_eth board-params/MAC handoff encoding of
 #          include/alpine_v2_eth.h (from the patch series) against the
-#          Annapurna HAL in ../../al-eth/src, compiled for the host.
+#          Annapurna HAL in ../../al-eth/src, compiled for the host; and
+#          the HAL copy inside the driver patch is verbatim.
 #  qemu:   ./qemu-test.py on QEMU virt with the same board code.
 let
   cross = pkgs.pkgsCross.aarch64-multiplatform;
@@ -45,20 +46,28 @@ let
     echo "uimage: ok"
 
     c=${d}/.config
-    for k in NET SPI_FLASH CMD_SF DM_SPI CMD_SAVEENV EFI_LOADER PSCI_RESET SYSRESET_PSCI \
+    for k in SPI_FLASH CMD_SF DM_SPI CMD_SAVEENV EFI_LOADER PSCI_RESET SYSRESET_PSCI \
              WATCHDOG_AUTOSTART MMC CMD_EXT4_WRITE FAT_WRITE CMD_MTD ENV_IS_IN_SPI_FLASH \
-             ARMV8_MULTIENTRY ARMV8_PSCI GICV3 ARM_ERRATA_828024 ARMV8_SET_SMPEN; do
+             ARMV8_MULTIENTRY ARMV8_PSCI GICV3 ARM_ERRATA_828024 ARMV8_SET_SMPEN \
+             BOOTDEV_ETH NET_RANDOM_ETHADDR CMD_NFS CMD_TLV_EEPROM CMD_EEPROM; do
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
     for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y SYSRESET_DMC12_CPLD=y \
               ALPINE_V2_ETH_HANDOFF=y CMD_ALPINE_V2_ETH=y I2C_EEPROM=y \
+              NET=y NET_LEGACY=y AL_ETH=y CMD_DHCP=y CMD_TFTPBOOT=y CMD_PING=y CMD_WGET=y \
+              PCI_INIT_R=y \
               SYSRESET_WATCHDOG=y WDT_SP805=y CMD_BOOTI=y CMD_SYSBOOT=y BOOTMETH_EXTLINUX=y \
               PCIE_ECAM_GENERIC=y AHCI_PCI=y SCSI=y CMD_EXT4=y CMD_FAT=y OF_BOARD_SETUP=y \
               NR_DRAM_BANKS=2 'DEFAULT_FDT_FILE="amazon/alpine-v2-dmc12.dtb"' \
               'BOOTCOMMAND="bootflow scan -lb"'; do
       grep -qx "CONFIG_$kv" $c || { echo "config: CONFIG_$kv missing"; exit 1; }
     done
-    echo "config: ok (RAM only: no SPI flash, no env storage, no network, no PSCI reset)"
+    echo "config: ok (RAM only: no SPI flash, no env storage, no EEPROM writer, no PSCI reset; al_eth net, no ethernet bootdev)"
+    aarch64-unknown-linux-gnu-nm ${d}/u-boot > syms.txt
+    for s in _u_boot_list_2_driver_2_al_eth board_prep_linux al_eth_flr_rmn; do
+      grep -q " $s$" syms.txt || { echo "elf: no $s"; exit 1; }
+    done
+    echo "elf: ok (al_eth driver, OS handoff hook, FLR path linked)"
 
     t=${d}/u-boot.dtb
     [ "$(fdtget -t x $t /memory@0 reg)" = "0 0 0 c0000000 2 0 0 40000000" ]
@@ -106,8 +115,25 @@ let
     done > header.diff
     mkdir ub; (cd ub && patch -s -p1 < ../header.diff)
     cp ub/include/alpine_v2_eth.h hal/
+
+    # The HAL in the U-Boot patch is the Linux driver's, byte for byte,
+    # apart from the two platform shims.
+    for p in ${toString alpine.patches}; do
+      filterdiff -i '*/drivers/net/al_eth/al_hal_*' "$p"
+    done > hal.diff
+    mkdir uh; (cd uh && patch -s -p1 < ../hal.diff)
+    n=0
+    for f in uh/drivers/net/al_eth/al_hal_*; do
+      b=$(basename $f)
+      case $b in al_hal_plat_services.h|al_hal_plat_types.h) continue;; esac
+      cmp -s $f $hal/$b || { echo "hal: $b differs from packages/al-eth/src"; exit 1; }
+      n=$((n + 1))
+    done
+    [ $n -ge 20 ] || { echo "hal: only $n files"; exit 1; }
+    echo "hal: ok ($n files in the U-Boot patch identical to packages/al-eth/src)"
     $CC -O1 -Wall -Werror -Wno-unused-function -Ihal -o t $test/eth-params-test.c -lz
     ./t | tee log.txt
+    echo "hal: ok ($n files verbatim)" >> log.txt
     mkdir $out; cp log.txt $out/
   '';
 
