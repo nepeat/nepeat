@@ -24,14 +24,18 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   front-panel ports (ce0–ce31) plus xe0/xe1 enumerate**, a port comes up at
   100G in MAC loopback, an L2 entry writes and reads back, and 5 packets sent
   from the CPU are counted out and back in on the port (640 bytes each way).
-  [Transcript](openbcm-bringup-20261114.txt). bcm.user is a hand build
-  ([recipe](../../nix/packages/openbcm/README.md)), not a derivation yet.
+  [Transcript](openbcm-bringup-20261114.txt). SDK kernel modules and bcm.user
+  are Nix packages now (`as7760-openbcm-kmods`, `as7760-bcm-user`;
+  [notes](../../nix/packages/openbcm/README.md)), verified on the switch.
 - **Also works:** packets to the CPU (RX), the KNET kernel module (front-panel
   ports as Linux netdevs, TX and RX, DMA interrupts), and **real links**: two
   breakout lanes (front port 1 and 32) link at 10G and carry frames both ways
   between two Linux netdevs, ASIC counters matching, no errors
   ([transcript](openbcm-real-links-20261114.txt)).
-- **Not tested:** 25G/100G on real cables (the live far ends are 10G), FEC,
+- **25G:** the same loop (QSFP28 breakout leg 1 into port 32 through the
+  user's QSFP/SFP+ adapter) links at 25G without FEC in the factory 128x25
+  mode and passes frames both ways; the eye is about half the 10G height.
+- **Not tested:** 100G on real cables, FEC,
   the other 126 lanes, pre-emphasis/LED scripts, SDK interrupts (factory
   config polls), throughput, long runs.
 - **Next:** sairedis with the virtual SAI (`--with-sai=vs`), then swss;
@@ -50,6 +54,19 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-14 (night, last) — module EEPROMs, 25G, SDK as Nix packages
+
+- The far ends were a loop: leg 1 of the QSFP28 breakout in port 1 goes into
+  port 32 through a QSFP-to-SFP adapter. Port 32's EEPROM read "garbled"
+  because the pca9548 muxes kept their last channel selected, so two modules
+  answered at 0x50 at once. Fixed with `i2c-mux-idle-disconnect` in the device
+  tree. New tool `as7760-qsfp` (table / details / JSON; SFF-8636 and
+  SFF-8472; port-to-mux mapping from the factory device table).
+- 25G on that loop works in the 128x25 mode (earlier failure: port 32 lanes
+  were 10G-only in the 124x25-4x10 mode, not the adapter).
+- `nix/packages/openbcm/default.nix`: pinned sparse fetch + patches; bcm.user
+  built by Nix attaches on the switch with Nix-built modules.
 
 ## 2026-11-14 (night, latest) — CPU RX, KNET netdevs, first real links
 
