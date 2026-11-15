@@ -315,6 +315,9 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - Harness printed FAIL while every check passed → a regex expected one line, or the terminal wrapped a long line → test harness matchers against saved transcripts.
 
 **Process / environment**
+- A shell that runs `pkill -f PATTERN` (or a waiter looping on `pgrep -f PATTERN`) kills or finds *itself*, because
+  its own command line contains PATTERN (hit three times on 2026-11-15) → kill by PID (`pgrep -f ... | grep -v $$`),
+  or match something only the target has (`pgrep -x`, a unit name with `systemctl`).
 - DHCP fails right after power-on → the upstream switch port was still coming up → retry for at least 90 s. It's not a bug.
 - Linux came up on a different IP → the new loader had no ethaddr, so Linux picked a random MAC → import the MAC from the vendor env.
 - Binary bytes sprayed onto the console → ran head on an ELF → never cat unknown files over serial.
