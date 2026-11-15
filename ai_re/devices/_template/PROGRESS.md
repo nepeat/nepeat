@@ -2,6 +2,10 @@
 
 Copy this directory to `ai_re/devices/<device-name>/` to start a new device.
 
+## Status
+Rewrite in place (about 15 lines): what it runs now, how to reach it, how to
+recover it, what is open. Nix for this device lives in `ai_re/nix/`.
+
 ## Identity
 - Make / model:
 - Part numbers:
