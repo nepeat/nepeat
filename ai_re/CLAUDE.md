@@ -41,6 +41,7 @@ Everything Nix that *runs on or is built for a device* (kernels, bootloaders, dr
   - What's been tried and what worked / failed (dated entries).
   - Dumps, captures, and firmware live in the subdir too — but keep large binaries out of git unless intentional.
 - Keep general/reusable RE technique notes at the project root; keep everything device-specific in the device subdir. Don't mix.
+- **Porting a switch or similar appliance?** Follow `switch-porting-runbook.md` (phased checklist with gates, gotchas, and the decisions that need the owner). Tick it per device in that device's PROGRESS.md, and add new gotchas to the runbook when you hit them.
 
 ## Keeping docs current and lean
 
