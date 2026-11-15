@@ -17,16 +17,20 @@ would otherwise run it, and with a default env the script ends in `saveenv` (an 
 route-a, at the factory `ALPINE_DB>` prompt, through console.py and the tmux pane `serial-dmc12`:
 TFTP the image to 0x01800000 and the trampoline to 0x01700000, copy a clean stage3 out of the
 image to 0x01000000 and zero its .bss, set the stage2 shared-data flags to RAM load
-(0xfbff41c1: bit0 on, bit1 off), then `go 0x01700000` (trampoline v2, uart-boot.md section 5):
+(0xfbff41c1: bit0 on, bit1 off), invalidate the SRAM cpu-resume watermark (0xfbff4120 = 0) so
+stage3 takes its cold-boot path (it enables VFP/NEON there; v2 hung on the first NEON instruction),
+optionally enable the boot ROM's debug print (0xfbff4020 = 1: a stage3 exception then prints
+"Exception! LR=..., CPSR=..." instead of a silent hang), then `go 0x01700000` (trampoline v3,
+uart-boot.md section 5):
 - EL2: copy a 48-byte EL3 stub over the agent's entry at 0x1000, clean D-cache (0x1000 line,
-  0x01000000-0x02000000, the flags line), set the boot-ROM resume address 0xf0072028 =
+  0x01000000-0x02000000, the SRAM lines 0xfbff4000/4100/41c0), set the boot-ROM resume address 0xf0072028 =
   0x01000000, CPU0 power-on reset (0xf0070024 = 0x13). config_aarch64 (0xf0072004) and RVBAR are
   write-once and stage3 already set them to AArch64 / 0x1000, so CPU0 comes back at the stub, at EL3.
 - EL3 stub: print '#' on UART0, then RMR_EL3 = AA64 0 | RR 1 and WFI: a warm reset into AArch32.
 - AArch32 reset -> ROM vectors (VINITHI) -> resume address -> stage3 in secure SVC. Stage3
   re-copies the agent to 0x1000 itself, which removes the stub.
-Afterwards **power-cycle** (AC off >= 10 s): 0xf0072028 stays set until then (normally 0xfbff423c,
-stage3's SRAM cpu-resume agent).
+Afterwards **power-cycle** (AC off >= 10 s). Stage3's cold-boot path re-installs the SRAM agent, which
+sets 0xf0072028 back to 0xfbff423c; if stage3 dies before that, 0x01000000 stays set until power-off.
 """
 import argparse, os, pathlib, struct, subprocess, sys, termios, time, zlib
 
@@ -42,10 +46,10 @@ FLAGS = 0xFBFF41C1             # al_stage2_shared_data.flags (magic at 0xfbff41c
 SESSION = "serial-dmc12"
 
 # AArch64, position independent; disassembly checked in Ghidra (uart-boot.md section 5).
-# v1 (2026-11-15, experiment 2) also wrote config_aarch64 = 0: ignored (write-once), so CPU0
-# came back in AArch64 at the agent, which re-ran the factory U-Boot.
+# v1 also wrote config_aarch64 = 0: ignored (write-once), CPU0 came back at the agent (exp. 2).
+# v2 reached stage3 via RMR_EL3 (exp. 2b); v3 adds the cache clean of the SRAM 0xfbff4000/4100 lines.
 TRAMP = [
-    0x10000405,  # adr  x5, stub (+0x80)
+    0x10000505,  # adr  x5, stub (+0xa0)
     0xD2820006,  # mov  x6, #0x1000        agent entry = CPU0 RVBAR (write-once)
     0xA94020A7,  # ldp  x7, x8, [x5]
     0xA90020C7,  # stp  x7, x8, [x6]
@@ -60,9 +64,13 @@ TRAMP = [
     0x91010000,  # add  x0, x0, #64
     0xEB01001F,  # cmp  x0, x1
     0x54FFFFA3,  # b.lo 1b
-    0xD2883804,  # mov  x4, #0x41c0
+    0xD2880004,  # mov  x4, #0x4000
     0xF2BF7FE4,  # movk x4, #0xfbff, lsl #16
-    0xD50B7E24,  # dc civac, x4            (shared-data flags line)
+    0xD50B7E24,  # dc civac, x4            0xfbff4000 line (ROM state, debug flag)
+    0x91040084,  # add  x4, x4, #0x100
+    0xD50B7E24,  # dc civac, x4            0xfbff4100 line (cpu-resume watermark 0xfbff4120)
+    0x91030084,  # add  x4, x4, #0xc0
+    0xD50B7E24,  # dc civac, x4            0xfbff41c0 line (shared-data flags)
     0xD5033F9F,  # dsb  sy
     0xD2BE00E2,  # mov  x2, #0xf0070000    (NB service)
     0x52A02003,  # mov  w3, #0x01000000
@@ -74,7 +82,7 @@ TRAMP = [
     0xD5033FDF,  # isb
     0xD503207F,  # 2: wfi
     0x17FFFFFF,  # b    2b
-] + [0xD503201F] * 3  # nop padding to +0x80
+] + [0xD503201F] * 7  # nop padding to +0xa0
 STUB = [                # runs at 0x1000, EL3 AArch64, MMU off
     0xD2860001,  # mov  x1, #0x3000
     0xF2BFB101,  # movk x1, #0xfd88, lsl #16   UART0 THR
@@ -204,6 +212,8 @@ def cmd_route_a(a):
              f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}",
              "md.b 0xfbff41c0 4", "mw.b 0xfbff41c1 <old & ~3 | 1>", "md.b 0xfbff41c0 4",
              "md.l 0xf0072000 0x14", "md.l 0x1000 4   (expect the agent: " + AGENT_HEAD + ")",
+             "md.l 0xfbff4120 2", "mw.l 0xfbff4120 0   (stage3 cold-boot path: VFP on, SRAM agent re-installed)",
+             "md.l 0xfbff4010 0xc", "mw.l 0xfbff4020 1   (ROM debug print, only if 0xfbff4014 and 0xfbff4038/403c are 0)",
              f"go {TRAMP_ADDR:#x}   (then key {a.key!r} every 20 ms)" if a.key
              else f"go {TRAMP_ADDR:#x}"]
     print(f"image crc32 {meta['crc']:08x}, tramp crc32 {zlib.crc32(tramp):08x}, "
@@ -237,33 +247,53 @@ def cmd_route_a(a):
     console("md.l 0xf0072000 0x14")
     if AGENT_HEAD not in console("md.l 0x1000 4"):
         raise SystemExit("0x1000 does not hold stage3's agent: refusing to patch it")
-    subprocess.run(["tmux", "clear-history", "-t", SESSION], check=True)
-    marks = ("#", "Stage 3 version", "UART recovery!", "User request", "Loading application",
+    console("md.l 0xfbff4120 2")
+    console("mw.l 0xfbff4120 0")
+    if "fbff4120: 00000000" not in console("md.l 0xfbff4120 1"):
+        raise SystemExit("cpu-resume watermark did not clear")
+    if a.rom_debug:
+        w = {}
+        for l in console("md.l 0xfbff4010 0xc").splitlines():
+            if l[:8] in ("fbff4010", "fbff4020", "fbff4030"):
+                for i, v in enumerate(l[9:].split()[:4]):
+                    w[int(l[:8], 16) + 4 * i] = int(v, 16)
+        if w.get(0xFBFF4014) == 0 and w.get(0xFBFF4038) == 0 and w.get(0xFBFF403C) == 0:
+            console("mw.l 0xfbff4020 1")
+        else:
+            print("ROM debug print not enabled: unexpected ROM state words", {hex(k): hex(v) for k, v in w.items()})
+    marks = ("Stage 3 version", "UART recovery!", "User request", "Loading application",
              "Executing application", "U-Boot 20", "recovery boot command", "Entry: EL",
-             "Hit any key")
-    base = pane()  # the visible screen survives clear-history: count only new matches
-    b = {m: base.count(m) for m in marks}
-    for byte in f"go {TRAMP_ADDR:#x}".encode():
+             "Exception!", "Hit any key")
+    go = f"go {TRAMP_ADDR:#x}"
+
+    def after_go():
+        # only the text after the last `go` line counts (the visible screen survives clear-history)
+        t = pane()
+        i = t.rfind(go)
+        return t[i + len(go):] if i >= 0 else ""
+    subprocess.run(["tmux", "clear-history", "-t", SESSION], check=True)
+    for byte in go.encode():
         subprocess.run(["tmux", "send-keys", "-t", SESSION, "-H", f"{byte:02x}"], check=True)
         time.sleep(0.02)
     subprocess.run(["tmux", "send-keys", "-t", SESSION, "Enter"], check=True)
     t0, sent = time.monotonic(), 0
     while time.monotonic() - t0 < a.timeout:
-        t = pane()
-        new = {m: t.count(m) - b[m] for m in marks}
-        if a.key and new["Loading application"] <= 0:
+        t = after_go()
+        if a.key and "Loading application" not in t:
             subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", a.key], check=True)
             sent += 1
-        if new["Hit any key"] > 0:
+        if "Hit any key" in t or "Exception!" in t:
             break
         time.sleep(0.02)
     time.sleep(2)
-    t = pane()
+    t = after_go()
     print(f"key {a.key!r} sent {sent}x" if a.key else "no key")
+    stub = [l.strip() for l in t.splitlines() if l.strip().startswith("#") and not l.strip().startswith("##")]
+    print(f"  {'# (EL3 stub)':22s} {stub[0] if stub else '-- not seen'}")
     for m in marks:
-        hits = [l.strip() for l in t.splitlines() if m in l][b[m]:]
+        hits = [l.strip() for l in t.splitlines() if m in l]
         print(f"  {m:22s} {hits[0] if hits else '-- not seen'}")
-    print("Done. Power-cycle (AC off >= 10 s) before anything else: 0xf0072028 is still set.")
+    print("Done. Power-cycle (AC off >= 10 s) before anything else.")
 
 
 def cmd_s2(a):
@@ -387,6 +417,8 @@ p.add_argument("--server", default="10.60.2.208")
 p.add_argument("--tftp-root", type=pathlib.Path, default=pathlib.Path("/srv/tftpboot"))
 p.add_argument("--tftp-dir", default="dmc12/route-a")
 p.add_argument("--timeout", type=float, default=60)
+p.add_argument("--no-rom-debug", dest="rom_debug", action="store_false",
+               help="don't set the boot ROM's debug-print flag (0xfbff4020)")
 p = sub.add_parser("s2")
 p.add_argument("mtd", type=pathlib.Path)
 p.add_argument("out", type=pathlib.Path)
