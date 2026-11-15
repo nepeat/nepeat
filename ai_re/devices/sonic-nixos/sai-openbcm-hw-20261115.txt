@@ -1,0 +1,35 @@
+sai-openbcm (thin SAI over OpenBCM 6.5.27) on the AS7760-32X, 2026-11-15.
+syncd -SUu -z redis_sync, profile: SAI_OPENBCM_BACKEND=openbcm,
+SAI_INIT_CONFIG_FILE=<factory config-32x100.bcm, not in repo>.
+Client: sai_smoke.py with EXPECT_LANES0=1,2,3,4 EXPECT_SPEED0= ADMIN_UP_PORT0=0.
+
+=== smoke test ===
+initialize 0 / comm_mode 0 / init_view 0 / create_switch 0 / apply_view 0
+port_list 0 ports 32
+port0_lanes 0 [1, 2, 3, 4]
+port0_speed 0 25000        (SDK post-init state, as bcm.user's ps shows before rc scripts)
+port0_admin 0 False
+default_vr 0 / create_vlan_100 0 / create_rif 0 / uninitialize 0
+SMOKE_OK
+
+=== ASIC_DB ===
+1 BRIDGE, 32 BRIDGE_PORT, 1 HOSTIF_TRAP_GROUP, 256 INGRESS_PRIORITY_GROUP,
+33 PORT, 256 QUEUE, 1 ROUTER_INTERFACE, 1 STP, 1 SWITCH, 1 VIRTUAL_ROUTER,
+2 VLAN, 32 VLAN_MEMBER
+
+=== syncd log (head) ===
+sai-openbcm NOTICE api=1: initializing backend openbcm
+sai-openbcm NOTICE api=1: SDK init: unit 0, config /root/config-32x100.bcm, rc (none)
+Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Release: sdk-6.5.27 built 20261115 (Sun Nov 15 06:26:43 2026)
+From nixbld@localhost:/build/openbcm-sdk-6.5.27-patched
+Platform: PPC64BE
+OS: Unix (Posix)
+linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+DMA pool size: 16777216 bytes.
+BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+SOC unit 0 attached to PCI device BCM56930_B1
+Boot flags: initialization scripts NOT loaded
+sai-openbcm NOTICE api=1: SDK init: ok: stale KNET netifs 0 filters 0 destroyed
+sai-openbcm NOTICE api=1: switch created: 32 front-panel ports, backend openbcm
+sai-openbcm NOTICE api=9: rif type 0 vid 4094 intf 0

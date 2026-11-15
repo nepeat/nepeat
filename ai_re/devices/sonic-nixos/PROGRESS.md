@@ -6,7 +6,15 @@ Code: [ai_re/nix/packages/sonic](../../nix/packages/sonic/default.nix); modules
 will go in `ai_re/nix/modules/switch/sonic/`. First hardware target: the
 Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
-## Status (2026-11-14)
+## Status (2026-11-15)
+
+- **Real ASIC through SONiC's syncd:** the thin SAI ([sai-openbcm](../../nix/packages/sai-openbcm/README.md))
+  drives the BCM56930 on the AS7760: switch create, 32 front-panel ports from
+  the SDK (lanes match the factory port map), ports left admin-down, VLAN 100
+  and a router interface created, ASIC_DB populated ([transcript](sai-openbcm-hw-20261115.txt)).
+  Not yet: swss/orchagent, traffic through SAI-created objects, LAG/ACL/QoS.
+
+## Status (2026-11-14, earlier)
 
 - **Phase:** 0 done (pins + target answers), Phase 1 started.
 - **Works:** `sonic-swss-common` builds natively (x86_64) and **cross-builds for
@@ -48,8 +56,10 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   [sai_smoke.py](sai_smoke.py) with [vsprofile.ini](vsprofile.ini); run
   `syncd -SUu -z redis_sync -p vsprofile.ini` against a redis on
   /var/run/redis/redis.sock first.
-- **Next:** thin SAI over OpenBCM (the SDK builds as libsdk.so via
-  BCM_COMPILE_SHARED_LIB), then swss/orchagent (`--with-sai=vs`), then swss;
+- **Thin SAI over OpenBCM** (`nix/packages/sai-openbcm`): written and tested
+  against its fake backend and through syncd in a VM; cross-builds; **not yet
+  run on the AS7760** (2026-11-15 entry).
+- **Next:** hardware test of sai-openbcm, then swss/orchagent (`--with-sai=vs`), then swss;
   `/usr/share/swss` path shim (Lua scripts are loaded from that absolute path).
 - **Open:**
   - `sonic-db-cli PING` (TCP to every instance in database_config.json) failed
@@ -65,6 +75,32 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-15 — thin SAI over OpenBCM (sai-openbcm), not yet on hardware
+
+- New package [sai-openbcm](../../nix/packages/sai-openbcm/README.md): an
+  Apache-2.0 `libsai.so` (SAI 1.19) with two backends behind one interface:
+  `openbcm` (OpenBCM via the new `libsdk` output of
+  `nix/packages/openbcm`) and an in-memory `fake`. M1 (switch, ports with
+  lanes from the SDK, VLAN/bridge/FDB, KNET hostifs, traps) and M2 (port/VLAN
+  router interfaces, neighbors, next hops, routes) are implemented; LAG,
+  ECMP, ACL, QoS are not. Supported/stubbed table in its README.
+- `sonic.sairedis-openbcm libsai`: syncd linked against it (configure's
+  version check given a cross-compiling branch). The vs `sairedis` is
+  unchanged (same drvPath native and cross).
+- Tests without hardware: 449 unit checks against the fake; a NixOS VM test
+  (redis + syncd -SUu on the fake + an asserting copy of sai_smoke.py) passes:
+  32 ports, lanes 1-4, VLAN 100, router interface created, a port oper-up
+  notification reaches the Python client, ASIC_DB has 33 ports / 256 queues /
+  2 VLANs / 32 VLAN members / 32 bridge ports / 1 RIF.
+- Cross builds for the AS7760 succeed: libsdk.so, libsai (openbcm), syncd.
+- Safety choices: ports are disabled right after SDK init (SAI default
+  admin-down), VLAN 1 keeps the SDK's default membership for orchagent to
+  manage, stale KNET netifs/filters are destroyed at init, no
+  `SAI_INIT_CONFIG_FILE` means no init, the fake refuses to run where BDE
+  devices exist.
+- Hardware test procedure: the README's "Running on the AS7760". Nothing was
+  run on the switch for this entry.
 
 ## 2026-11-14 (night, last) — module EEPROMs, 25G, SDK as Nix packages
 
