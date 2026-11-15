@@ -3,7 +3,11 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.hardware.alpineV2;
-  linuxAlpine = import ../../packages/linux-alpine { inherit pkgs lib; };
+  linuxAlpine = import ../../packages/linux-alpine {
+    inherit pkgs lib;
+    boardConfig = cfg.kernelConfig;
+    variant = cfg.kernelVariant;
+  };
 in
 {
   options.hardware.alpineV2 = {
@@ -15,6 +19,17 @@ in
     dts = lib.mkOption {
       type = lib.types.path;
       description = "Board .dts; may #include \"alpine-v2.dtsi\" and dt-bindings.";
+    };
+    kernelVariant = lib.mkOption {
+      type = lib.types.enum [ "trimmed" "minimal" ];
+      default = "trimmed";
+      description = "packages/linux-alpine variant: nixpkgs config minus foreign SoCs, or allnoconfig + explicit.";
+    };
+    kernelConfig = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = { };
+      example = lib.literalExpression "with lib.kernel; { USB_SERIAL_CP210X = yes; }";
+      description = "Board drivers on top of the minimal Alpine kernel (structuredExtraConfig).";
     };
     console = lib.mkOption {
       type = lib.types.str;
