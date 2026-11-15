@@ -220,6 +220,15 @@ let
              alpine_v2_ccu_io_coherency spi_nor_ro_erase spi_nor_ro_write board_prep_linux; do
       grep -q " $s$" syms.txt || { echo "elf: no $s"; exit 1; }
     done
+    # u01 run 2: U-Boot runs with SErrors unmasked and routed to EL2, so the
+    # downstream config accessors must mask PSTATE.A around the access + drain,
+    # and "alpcie reinit" must unbind the old children (bus numbering).
+    fn() { awk -v f="<$1>:" '$2 == f {p=1; next} p && /^$/ {exit} p' dis.txt; }
+    for f in alpine_pcie_read_config alpine_pcie_write_config; do
+      fn $f | grep -q 'msr.daifset, #0x4' || { echo "elf: $f does not mask SError"; exit 1; }
+      fn $f | grep -q 'bl.*<alpine_v2_serror_drain>' || { echo "elf: $f does not drain"; exit 1; }
+    done
+    fn do_alpcie | grep -q 'bl.*<device_chld_unbind>' || { echo "elf: reinit keeps stale children"; exit 1; }
     # SPI NOR program/erase/lock code and the sf write paths are not linked
     # (the uclass erase/write ops remain as thin calls into the -EROFS stubs)
     for s in spi_nor_erase spi_nor_write spi_nor_write_data sst_write sst_write_byteprogram \

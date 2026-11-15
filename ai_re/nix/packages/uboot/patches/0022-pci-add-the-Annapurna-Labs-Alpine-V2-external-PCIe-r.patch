@@ -33,9 +33,11 @@ memory window 1:1, as Linux dwc does.
 
 With the AXI slave error response on, a failed downstream config read
 (CRS, UR) is an asynchronous SError on this SoC. Like the factory U-Boot,
-the driver drains it after each downstream access (HCR_EL2.AMO + a
-vector table whose SError entry returns), returns all ones, and retries a
-vendor ID read while the device answers CRS (30 s, ctrl-c).
+the driver masks SErrors (U-Boot runs with them unmasked at EL2) around
+each downstream access, drains a pending one (a vector table whose SError
+entry returns), returns all ones, and retries a vendor ID read while the
+device answers CRS (30 s, ctrl-c). Reinit unbinds the old child bridges
+so pci_auto numbers the buses from scratch.
 
 "alpcie status" shows port, link and unit registers; "alpcie reinit"
 removes the bus, runs the full init from a torn-down port and
@@ -71,9 +73,9 @@ Scope: alpine-v2.
  .../pci/al_pcie/al_hal_unit_adapter_regs.h    |  943 +++
  drivers/pci/al_pcie/al_init_pcie_rc.c         |  186 +
  drivers/pci/al_pcie/al_init_pcie_rc.h         |   54 +
- drivers/pci/pcie_alpine_v2.c                  |  419 ++
+ drivers/pci/pcie_alpine_v2.c                  |  464 ++
  drivers/pci/pcie_alpine_v2_serror.S           |   89 +
- 30 files changed, 20628 insertions(+)
+ 30 files changed, 20673 insertions(+)
  create mode 100644 drivers/pci/al_pcie/Makefile
  create mode 100644 drivers/pci/al_pcie/al_hal_common.h
  create mode 100644 drivers/pci/al_pcie/al_hal_pbs_regs.h
@@ -20403,10 +20405,10 @@ index 00000000..40cc748d
 +#endif
 diff --git a/drivers/pci/pcie_alpine_v2.c b/drivers/pci/pcie_alpine_v2.c
 new file mode 100644
-index 00000000..a25f6d13
+index 00000000..adc2ea20
 --- /dev/null
 +++ b/drivers/pci/pcie_alpine_v2.c
-@@ -0,0 +1,419 @@
+@@ -0,0 +1,464 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Annapurna Labs Alpine V2 external PCIe root complex ("amazon,al-alpine-v2-pcie",
@@ -20424,9 +20426,10 @@ index 00000000..a25f6d13
 + * Config space: the root port's own header is the DesignWare core ("dbi"),
 + * everything behind it goes through the 1 MiB "config" window with the
 + * target bus in the unit's cfg_target_bus register (as pcie-al does).
-+ * Downstream accesses that fail raise an SError on this SoC; it is drained
-+ * (pcie_alpine_v2_serror.S) and the read returns all ones, or, for a
-+ * vendor ID read, is retried while the device answers CRS.
++ * Downstream accesses that fail raise an SError on this SoC; they run with
++ * SErrors masked, a pending one is drained (pcie_alpine_v2_serror.S) and
++ * the read returns all ones, or, for a vendor ID read, is retried while
++ * the device answers CRS.
 + */
 +
 +#include <command.h>
@@ -20492,6 +20495,25 @@ index 00000000..a25f6d13
 +	return r;
 +}
 +
++/*
++ * U-Boot's start.S routes SErrors to EL2 (HCR_EL2.AMO) and unmasks them,
++ * so an error response would be taken at once (and end in panic). Mask
++ * PSTATE.A around each downstream access; alpine_pcie_drain() then takes a
++ * pending one with its own vector, and the caller's mask is restored.
++ */
++static inline ulong serror_mask(void)
++{
++	ulong daif;
++
++	asm volatile("mrs %0, daif\n\tmsr daifset, #4\n\tisb" : "=r" (daif) : : "memory");
++	return daif;
++}
++
++static inline void serror_restore(ulong daif)
++{
++	asm volatile("msr daif, %0\n\tisb" : : "r" (daif) : "memory");
++}
++
 +static int alpine_pcie_addr(const struct udevice *bus, pci_dev_t bdf,
 +			    uint offset, void **paddr)
 +{
@@ -20532,9 +20554,18 @@ index 00000000..a25f6d13
 +	int ret;
 +
 +	for (;;) {
++		ulong daif;
++		int err;
++
++		if (!downstream)
++			return pci_generic_mmap_read_config(bus, alpine_pcie_addr, bdf,
++							    offset, valuep, size);
++		daif = serror_mask();
 +		ret = pci_generic_mmap_read_config(bus, alpine_pcie_addr, bdf,
 +						   offset, valuep, size);
-+		if (ret || !downstream || alpine_pcie_drain(priv) != 1)
++		err = alpine_pcie_drain(priv);
++		serror_restore(daif);
++		if (ret || err != 1)
 +			return ret;
 +		/* error completion: all ones, except a vendor ID read under CRS */
 +		*valuep = pci_get_ff(size);
@@ -20561,11 +20592,18 @@ index 00000000..a25f6d13
 +	struct alpine_pcie_priv *priv = dev_get_priv(bus);
 +	int ret;
 +
++	ulong daif;
++
++	if (PCI_BUS(bdf) == dev_seq(bus))
++		return pci_generic_mmap_write_config(bus, alpine_pcie_addr, bdf,
++						     offset, value, size);
++	daif = serror_mask();
 +	ret = pci_generic_mmap_write_config(bus, alpine_pcie_addr, bdf, offset,
 +					    value, size);
-+	if (!ret && PCI_BUS(bdf) != dev_seq(bus) && alpine_pcie_drain(priv) == 1)
++	if (alpine_pcie_drain(priv) == 1)
 +		debug("PCIe %d: config write %x@%x: error response\n",
 +		      priv->port_id, bdf, offset);
++	serror_restore(daif);
 +	return ret;
 +}
 +
@@ -20771,8 +20809,9 @@ index 00000000..a25f6d13
 +	       readl(r + 0x30), readl(r + 0x34), readl(r + 0xc8), readl(r + 0xe0),
 +	       readl(r + 0xe8), readl(r + 0xec));
 +	if (en) {
-+		printf("  RC %08x, class %08x, AMBA err %08x, iATU viewport %08x\n",
-+		       readl(priv->dbi), readl(priv->dbi + 8),
++		printf("  RC %08x, class %08x, BAR0/1 %08x %08x, bus %06x, AMBA err %08x, iATU viewport %08x\n",
++		       readl(priv->dbi), readl(priv->dbi + 8), readl(priv->dbi + 0x10),
++		       readl(priv->dbi + 0x14), readl(priv->dbi + 0x18) & 0xffffff,
 +		       readl(priv->dbi + DW_AMBA_ERR_RESP), readl(priv->dbi + DW_ATU_VIEWPORT));
 +	}
 +	if (st.link_up) {
@@ -20800,8 +20839,16 @@ index 00000000..a25f6d13
 +		return 0;
 +	}
 +	if (!strcmp(op, "reinit")) {
-+		/* drop the enumeration below us, init from scratch, enumerate again */
++		/*
++		 * Drop the enumeration below us, init from scratch, enumerate
++		 * again. The child devices must be unbound too: pci_auto numbers a
++		 * bridge's secondary bus as the highest bound bus seq + 1, so
++		 * stale children would shift every bus number (u01, 2026-11-15:
++		 * root port secondary 3 instead of 1, then an SError).
++		 */
 +		ret = device_remove(dev, DM_REMOVE_NORMAL);
++		if (!ret)
++			ret = device_chld_unbind(dev, NULL);
 +		if (ret) {
 +			printf("remove failed: %d\n", ret);
 +			return CMD_RET_FAILURE;
@@ -20828,7 +20875,7 @@ index 00000000..a25f6d13
 +#endif
 diff --git a/drivers/pci/pcie_alpine_v2_serror.S b/drivers/pci/pcie_alpine_v2_serror.S
 new file mode 100644
-index 00000000..ac98ba94
+index 00000000..42b8f9f8
 --- /dev/null
 +++ b/drivers/pci/pcie_alpine_v2_serror.S
 @@ -0,0 +1,89 @@
@@ -20837,15 +20884,15 @@ index 00000000..ac98ba94
 + * Alpine V2 external PCIe: with the AXI slave error response on (as the
 + * factory configures the port), a config read that ends in an error
 + * completion (CRS while the device is not ready, UR) is answered with
-+ * SLVERR, which this core reports as an asynchronous SError. U-Boot runs
-+ * with SErrors masked, so it would stay pending and hit the OS as soon as
-+ * that unmasks them.
++ * SLVERR, which this core reports as an asynchronous SError. U-Boot's
++ * start.S routes SErrors to EL2 and unmasks them, so the driver masks
++ * PSTATE.A around each downstream access and calls this before unmasking.
 + *
 + * alpine_v2_serror_drain() does what the factory U-Boot does after every
 + * external config read (0x0110cef8 / 0x011058ec there): if ISR_EL1.A shows
 + * a pending SError, route it to EL2 (HCR_EL2.AMO), unmask it with a vector
 + * table whose SError entry just returns, wait until it has been taken,
-+ * then put HCR_EL2, VBAR_EL2 and PSTATE.A back. Returns 1 if an SError was
++ * then put HCR_EL2, VBAR_EL2 and PSTATE.A (the caller's, i.e. masked) back. Returns 1 if an SError was
 + * drained, 0 if none was pending. EL2 only (returns 2 elsewhere, without
 + * touching anything).
 + */

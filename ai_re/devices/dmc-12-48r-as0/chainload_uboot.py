@@ -61,14 +61,10 @@ CRC_CS0_BELOW_ENV = "08145ce6"   # mtd0[0:0xfd0000]
 CRC_CS1_FULL = "db9e4937"        # mtd1[0:0x1000000]
 CRC_CS1_BELOW_ENV = "3d086ac6"   # mtd1[0:0xfd0000]
 SELFINIT_STEPS = [
-    # the factory U-Boot trained the link; boot kept it
-    ("alpcie status", "link up 2.5GT/s x1"),
-    # teardown + full RC init by our HAL code, then a fresh enumeration
-    ("alpcie reinit", "x1 (our init after teardown"),
-    ("alpcie status", "link partner (bus 2): 12d8:400c"),
-    ("pci 2", "0x400c"),
-    ("pci 3", ""),                              # OHCI/EHCI behind the Pericom bridge
-    ("alpcie status", "SErrors drained: "),
+    # Read-only and state steps first, the PCIe teardown last: a crash there
+    # (u01 run 2) must not hide the rest.
+    ("alpcie status", "link up 2.5GT/s x1"),    # the factory U-Boot trained the link; boot kept it
+    ("pci 2", "0x400c"),                        # the Pericom bridge as the factory left it
     # SPI NOR, read-only build: probe writes nothing, only read opcodes leave the SSI
     ("sf probe 0:0", "mx25u12835f"),
     ("sf read 0x40000000 0 0xfd0000", "Read: OK"),
@@ -77,12 +73,19 @@ SELFINIT_STEPS = [
     ("sf read 0x40000000 0 0x1000000", "Read: OK"),
     ("crc32 0x40000000 0xfd0000", "==> " + CRC_CS1_BELOW_ENV),
     ("crc32 0x40000000 0x1000000", ""),         # full CS1; expect CRC_CS1_FULL if its env is untouched
+    # MUIO: board_init replayed the DT pins (0 changed after the factory init)
+    ("alpine state", "pin 21: function 2 (DT wants 2)"),
     # CCU: the factory bootm left 7 / c0000001; put the factory-prompt values back, apply ours
     ("alpine state", "SI4 snoop c0000001"),
     ("mw.l 0xf0090004 0; mw.l 0xf0094000 0xc0000000", ""),
     ("alpine ccu", "snoop c0000000 -> c0000001, speculation 0 -> 7"),
-    # MUIO: board_init replayed the DT pins (0 changed after the factory init)
-    ("alpine state", "pin 21: function 2 (DT wants 2)"),
+    # teardown + full RC init by our HAL code, then a fresh enumeration
+    ("alpcie reinit", "x1 (our init after teardown"),
+    ("alpcie status", "link partner (bus 2): 12d8:400c"),
+    ("pci 2", "0x400c"),
+    ("pci 3", ""),
+    ("pci 4", "0x400e"),                        # the USB host functions behind it
+    ("alpcie status", "SErrors drained: "),
 ]
 
 log = HERE / time.strftime("serial-chainload-%Y%m%d-%H%M%S.txt")
