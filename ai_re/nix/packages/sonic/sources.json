@@ -1,0 +1,44 @@
+{
+  "buildimage": {
+    "owner": "sonic-net",
+    "repo": "sonic-buildimage",
+    "rev": "47fcc8d38855f80bb4e2d568bf42a0d91cfe4f61",
+    "hash": "sha256-nzUdaoUcuS06/k7zYjTzPQUM3ZBWfcaYUWpKSD3W9TE="
+  },
+  "platform-common": {
+    "owner": "sonic-net",
+    "repo": "sonic-platform-common",
+    "rev": "3374ab3a56036062ef05ce731e9133e79a03cab6",
+    "hash": "sha256-Qn9ruvuv+L9gNvnqskiwxc/HbRlMmf4T6EdJx+5TI6k="
+  },
+  "platform-daemons": {
+    "owner": "sonic-net",
+    "repo": "sonic-platform-daemons",
+    "rev": "31d94a8856e27d1d3a86a16e7cf5ef75dd744ae5",
+    "hash": "sha256-fE1ZsPRXVmEmevR6N4449K5zDoF7TlhTSCpdIzjvBMw="
+  },
+  "sairedis": {
+    "owner": "sonic-net",
+    "repo": "sonic-sairedis",
+    "rev": "57dc35cd6350a7c5ca5d3f0f90e6b30ad6add71b",
+    "hash": "sha256-SDsPNQB1crGzmco6mklCUB2rYtwnW6yUzrHHFvvfoJ8="
+  },
+  "swss": {
+    "owner": "sonic-net",
+    "repo": "sonic-swss",
+    "rev": "d9684ccd1e404c908321f193f700939bf6703827",
+    "hash": "sha256-7Jvj5MkyMwjBS0F69vgtCsgeZxetUc4vdXBym70iwLA="
+  },
+  "swss-common": {
+    "owner": "sonic-net",
+    "repo": "sonic-swss-common",
+    "rev": "77634bd6c1c4327f8f3ac110e9f06d4be7fb9f7b",
+    "hash": "sha256-O2VyOdUnEqurpKD++prklyf858/f/akSTOlO1w073hg="
+  },
+  "utilities": {
+    "owner": "sonic-net",
+    "repo": "sonic-utilities",
+    "rev": "31df09e10cd153ab0f3a32b939fc595e05dc1525",
+    "hash": "sha256-yE/6jt6oH13Fl/iMeXbsIM7DaWAizl4lSG7MZtnUnJI="
+  }
+}
