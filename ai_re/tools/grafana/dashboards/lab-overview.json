@@ -979,7 +979,7 @@
             "type": "prometheus",
             "uid": "victoriametrics"
           },
-          "expr": "max(switch_fan_duty_percent{job=\"$job\"}) or max(fand_output_duty_percent{job=\"$job\"}) or 100 * max(node_hwmon_pwm{job=\"$job\"}) / 255",
+          "expr": "max(switch_fan_duty_percent{job=\"$job\"}) or max(fand_output_duty_percent{job=\"$job\"}) or max(dmc12_fan_duty_percent{job=\"$job\"}) or 100 * max(node_hwmon_pwm{job=\"$job\"}) / 255",
           "legendFormat": "",
           "range": true,
           "instant": false,
@@ -987,7 +987,7 @@
           "refId": "A"
         }
       ],
-      "description": "Fan PWM read back from the fan controller (switch_fan_duty_percent), else fand's commanded duty, else hwmon pwm.",
+      "description": "Fan PWM read back from the fan controller (switch_fan_duty_percent), else fand's commanded duty, else the DMC-12 CPLD step (dmc12_fan_duty_percent), else hwmon pwm.",
       "fieldConfig": {
         "defaults": {
           "unit": "percent",

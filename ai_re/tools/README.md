@@ -225,6 +225,7 @@ The tool finds the directory from the working directory (or
 | `ai-re-switch-thermals` | board/optic temperatures, temperature trend, fan duty, rotors, faults, fan-control state (as7760-thermal, fand) |
 | `ai-re-switch-optics` | module inventory with DDM, RX power (dBm) and TX bias per lane |
 | `ai-re-node` | node_exporter host view: CPU, load, memory, PSI, disk, filesystems, network, systemd, textfile collector |
+| `ai-re-dmc12` | DMC-12 console server: fan rpm/duty, CPLD watchdog failsafe, board temperatures, PSUs, CPLD alarms, serial ports present/in use, port map |
 
 The node_exporter interface/disk label is `exported_device` because targets
 carry `device=<name>` (the target's label wins).

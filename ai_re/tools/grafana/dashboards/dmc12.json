@@ -1,0 +1,1202 @@
+{
+  "uid": "ai-re-dmc12",
+  "title": "DMC-12 console server",
+  "description": "Edgecore DMC-12-48R-AS0: CPLD fans, PSUs and alarms, board temperatures, serial ports (dmc12_* from dmc12-metrics).",
+  "tags": [
+    "ai_re"
+  ],
+  "editable": false,
+  "graphTooltip": 1,
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "weekStart": "",
+  "schemaVersion": 41,
+  "version": 1,
+  "id": null,
+  "links": [
+    {
+      "title": "ai_re dashboards",
+      "type": "dashboards",
+      "tags": [
+        "ai_re"
+      ],
+      "asDropdown": true,
+      "includeVars": false,
+      "keepTime": true,
+      "icon": "external link",
+      "targetBlank": false,
+      "tooltip": "",
+      "url": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "job",
+        "label": "Job",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
+        },
+        "query": {
+          "query": "label_values(dmc12_board_info, job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery",
+          "qryType": 1
+        },
+        "definition": "label_values(dmc12_board_info, job)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "options": [],
+        "regex": "",
+        "hide": 0
+      },
+      {
+        "name": "instance",
+        "label": "Instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
+        },
+        "query": {
+          "query": "label_values(dmc12_board_info{job=\"$job\"}, instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery",
+          "qryType": 1
+        },
+        "definition": "label_values(dmc12_board_info{job=\"$job\"}, instance)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": true,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "options": [],
+        "regex": "",
+        "hide": 0,
+        "allValue": ".*"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Fans",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Fan speed",
+      "description": "CPLD tachs (x100 rpm). Roughly 2000 rpm at the step-9 floor, 14400 at 100 %; 0 is a stalled or missing fan.",
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "dmc12_fan_rpm{job=\"$job\",instance=~\"$instance\"}",
+          "legendFormat": "fan {{fan}}",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "rotrpm",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "lineInterpolation": "linear",
+            "axisSoftMin": 0
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Fan duty",
+      "description": "Shared PWM duty from CPLD 0x50 (one register for all three fans); fand's own view if fand runs.",
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "dmc12_fan_duty_percent{job=\"$job\",instance=~\"$instance\"}",
+          "legendFormat": "duty %",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(fand_output_duty_percent{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "fand output %",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "lineInterpolation": "linear",
+            "axisSoftMin": 0,
+            "axisSoftMax": 100
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Fan step / duty",
+      "description": "Current PWM step and duty.",
+      "gridPos": {
+        "x": 20,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(dmc12_fan_pwm_step{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "step",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(dmc12_fan_duty_percent{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "duty %",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "CPLD watchdog failsafe",
+      "description": "0x2a bit 1: the CPLD forces full fan speed until fan control takes over (set after every reset).",
+      "gridPos": {
+        "x": 20,
+        "y": 5,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(dmc12_fan_watchdog_failsafe{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "released",
+                  "color": "green",
+                  "index": 0
+                },
+                "1": {
+                  "text": "full speed",
+                  "color": "orange",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "type": "row",
+      "title": "Temperatures",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Board temperatures",
+      "description": "k2_uc = LM75 on the K2 SoC card (CPU proxy), sfp_console = TMP75 U38, m2 = TMP75 U10 by the SSD. Dashed: fan setpoint 45 C, fand failsafe 60 C.",
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 18,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "dmc12_temperature_celsius{job=\"$job\",instance=~\"$instance\"}",
+          "legendFormat": "{{sensor}}",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "showPoints": "never",
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "lineInterpolation": "linear",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            },
+            "axisSoftMin": 20,
+            "axisSoftMax": 60
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 45
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Hottest sensor",
+      "description": "",
+      "gridPos": {
+        "x": 18,
+        "y": 10,
+        "w": 6,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(dmc12_temperature_celsius{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 45
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 9,
+      "type": "row",
+      "title": "Power and alarms",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Power inputs",
+      "description": "CPLD 0x11. A unit with one PSU cabled shows the other absent (u01: PSU2 only).",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 8,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max by (psu) (dmc12_psu_present{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "PSU{{psu}}",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(dmc12_dc_input_present{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "12 V DC",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "absent",
+                  "color": "text",
+                  "index": 0
+                },
+                "1": {
+                  "text": "present",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Unmasked alarms",
+      "description": "CPLD interrupt bits asserted (0x20, active low) and not masked by dmc12-interruptmon (0x21). It masks a handled alarm for 60 s, then re-checks.",
+      "gridPos": {
+        "x": 8,
+        "y": 19,
+        "w": 4,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "sum(dmc12_cpld_alarm{job=\"$job\",instance=~\"$instance\"} > bool dmc12_cpld_alarm_masked{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "CPLD read / version",
+      "description": "0 = the producer could not read the CPLD (I2C bus 4 / 0x68). Version 0x88 = 136 on u01.",
+      "gridPos": {
+        "x": 12,
+        "y": 19,
+        "w": 4,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "min(dmc12_cpld_scrape_success{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "read ok",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max(dmc12_cpld_version{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "version",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 13,
+      "type": "state-timeline",
+      "title": "CPLD alarms",
+      "description": "Asserted interrupt status bits, masked or not (a missing PSU stays asserted).",
+      "gridPos": {
+        "x": 16,
+        "y": 19,
+        "w": 8,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max by (alarm) (dmc12_cpld_alarm{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "{{alarm}}",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "ok",
+                  "color": "green",
+                  "index": 0
+                },
+                "1": {
+                  "text": "asserted",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showValue": "never",
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "alignValue": "left",
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "row",
+      "title": "Serial ports",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 25,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 15,
+      "type": "stat",
+      "title": "Ports present / in use",
+      "description": "/dev/P1..P48 that resolve to a tty, and those some process holds open (best effort, from /proc/*/fd).",
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 6,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "sum(dmc12_serial_port_present{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "present",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "count(dmc12_serial_port_open_processes{job=\"$job\",instance=~\"$instance\"} > 0) or vector(0)",
+          "legendFormat": "open",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 16,
+      "type": "state-timeline",
+      "title": "Ports in use",
+      "description": "Ports held open by at least one process (ser2net, conserver, picocom, ...); value = number of processes.",
+      "gridPos": {
+        "x": 6,
+        "y": 26,
+        "w": 18,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max by (port) (dmc12_serial_port_open_processes{job=\"$job\",instance=~\"$instance\"} > 0)",
+          "legendFormat": "P{{port}}",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showValue": "never",
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "alignValue": "left",
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 17,
+      "type": "table",
+      "title": "Port map",
+      "description": "Front-panel port to tty and CP2108 USB interface (hub.port:iface), and how many processes hold it.",
+      "gridPos": {
+        "x": 0,
+        "y": 34,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max by (port, tty, usb) (dmc12_serial_port_info{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "max by (port) (dmc12_serial_port_open_processes{job=\"$job\",instance=~\"$instance\"})",
+          "legendFormat": "",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "refId": "B"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #A": true
+            },
+            "renameByName": {
+              "Value #B": "open by"
+            },
+            "indexByName": {
+              "port": 0,
+              "tty": 1,
+              "usb": 2,
+              "Value #B": 3
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "targetField": "port",
+                "destinationType": "number"
+              }
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "port"
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      }
+    }
+  ]
+}
