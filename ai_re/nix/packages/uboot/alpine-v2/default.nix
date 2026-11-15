@@ -29,6 +29,7 @@ let
     CONFIG_PCIE_ALPINE_V2=y
     CONFIG_CMD_ALPINE_V2_PCIE=y
     CONFIG_ALPINE_V2_MUIO_INIT=y
+    CONFIG_ALPINE_V2_GPIO_INIT=y
     CONFIG_ALPINE_V2_CCU_IO_COHERENCY=y
     CONFIG_CMD_ALPINE_V2=y
     CONFIG_MTD=y
@@ -90,9 +91,9 @@ in rec {
   };
 
   # The chainload build plus what the vendor U-Boot does for us today
-  # (patches 0022-0026): external PCIe port 0 RC init (kept if the
+  # (patches 0022-0028): external PCIe port 0 RC init (kept if the
   # firmware already trained the link, "alpcie reinit" redoes it), MUIO
-  # pinmux replay, CCU writes before Linux, read-only SPI NOR (sf probe/read
+  # pinmux replay, SoC GPIO 22 high, CCU writes before Linux, read-only SPI NOR (sf probe/read
   # only, no write/erase code, non-read SPI commands refused). One binary
   # for both entries: chainloaded in RAM after the vendor U-Boot (test) and
   # as al-boot stage3's application (dmc12-stage3app). Never flashed.

@@ -59,7 +59,8 @@ let
              WATCHDOG_AUTOSTART MMC CMD_EXT4_WRITE FAT_WRITE CMD_MTD ENV_IS_IN_SPI_FLASH \
              ARMV8_MULTIENTRY ARMV8_PSCI GICV3 ARM_ERRATA_828024 ARMV8_SET_SMPEN \
              BOOTDEV_ETH NET_RANDOM_ETHADDR CMD_NFS CMD_TLV_EEPROM CMD_EEPROM \
-             PCIE_ALPINE_V2 ALPINE_V2_MUIO_INIT ALPINE_V2_CCU_IO_COHERENCY CMD_ALPINE_V2; do
+             PCIE_ALPINE_V2 ALPINE_V2_MUIO_INIT ALPINE_V2_GPIO_INIT ALPINE_V2_CCU_IO_COHERENCY \
+             CMD_ALPINE_V2; do
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
     for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y SYSRESET_DMC12_CPLD=y \
@@ -200,7 +201,7 @@ let
     done
     for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y \
               'LOCALVERSION="-dmc12-selfinit"' PCIE_ALPINE_V2=y CMD_ALPINE_V2_PCIE=y PCI_INIT_R=y \
-              ALPINE_V2_MUIO_INIT=y ALPINE_V2_CCU_IO_COHERENCY=y CMD_ALPINE_V2=y \
+              ALPINE_V2_MUIO_INIT=y ALPINE_V2_GPIO_INIT=y ALPINE_V2_CCU_IO_COHERENCY=y CMD_ALPINE_V2=y \
               DESIGNWARE_SPI=y DM_SPI_FLASH=y SPI_FLASH_MACRONIX=y CMD_SF=y \
               SPI_FLASH_READ_ONLY=y SPI_MEM_READ_ONLY=y AL_ETH=y SYSRESET_DMC12_CPLD=y; do
       grep -qx "CONFIG_$kv" $c || { echo "config: CONFIG_$kv missing"; exit 1; }
@@ -216,7 +217,7 @@ let
     aarch64-unknown-linux-gnu-nm ${si}/u-boot > syms.txt
     for s in _u_boot_list_2_driver_2_pcie_alpine_v2 _u_boot_list_2_driver_2_dw_spi \
              _u_boot_list_2_cmd_2_sf _u_boot_list_2_cmd_2_alpcie _u_boot_list_2_cmd_2_alpine \
-             al_init_pcie_rc al_pcie_port_config alpine_v2_serror_drain alpine_v2_muio_init \
+             al_init_pcie_rc al_pcie_port_config alpine_v2_serror_drain alpine_v2_muio_init alpine_v2_gpio_init \
              alpine_v2_ccu_io_coherency spi_nor_ro_erase spi_nor_ro_write board_prep_linux; do
       grep -q " $s$" syms.txt || { echo "elf: no $s"; exit 1; }
     done
@@ -229,6 +230,9 @@ let
       fn $f | grep -q 'bl.*<alpine_v2_serror_drain>' || { echo "elf: $f does not drain"; exit 1; }
     done
     fn do_alpcie | grep -q 'bl.*<device_chld_unbind>' || { echo "elf: reinit keeps stale children"; exit 1; }
+    # board_init: MUIO pin functions, then the GPIO list (the vendor order)
+    [ "$(fn board_init | grep -oE 'bl.*<alpine_v2_(muio|gpio)_init>' | sed 's/.*<//; s/>//' | tr '\n' ' ')" = \
+      "alpine_v2_muio_init alpine_v2_gpio_init " ] || { echo "elf: board_init order"; exit 1; }
     # SPI NOR program/erase/lock code and the sf write paths are not linked
     # (the uclass erase/write ops remain as thin calls into the -EROFS stubs)
     for s in spi_nor_erase spi_nor_write spi_nor_write_data sst_write sst_write_byteprogram \
@@ -244,7 +248,21 @@ let
     echo "elf: ok (PCIe/SPI drivers, alpcie/alpine/sf commands; no SPI NOR write, erase, lock or quad-enable code; sf read-only)"
 
     t=${si}/u-boot.dtb
-    [ "$(fdtget -t x $t /muio@fd8a8000 amazon,pins)" = "0 2 1 2 14 2 15 2" ]
+    [ "$(fdtget -t x $t /muio@fd8a8000 amazon,pins)" = "0 2 1 2 14 2 15 2 16 0" ]
+    # GPIO 22 = bank 2 line 6, out, high (dt.0 board-cfg gpio-list <0x16 1 1>)
+    [ "$(fdtget $t /gpio-init compatible)" = amazon,alpine-v2-gpio-init ]
+    [ "$(fdtget $t /gpio-init amazon,gpio-list)" = "22 1 1" ]
+    i=0
+    for ph in $(fdtget $t /gpio-init gpio-controllers); do
+      n=$(fdtget -l $t /soc/io-bus@fc000000 | while read c; do
+            if [ "$(fdtget $t /soc/io-bus@fc000000/$c phandle 2>/dev/null || true)" = "$ph" ]; then
+              echo $c; fi; done)
+      want=$(printf 'gpio@%x' $(( i < 5 ? 0x1887000 + i * 0x1000 : 0x1897000 )))
+      [ "$n" = "$want" ] || { echo "dt: gpio bank $i is '$n', want $want"; exit 1; }
+      fdtget $t /soc/io-bus@fc000000/$n compatible | grep -q arm,pl061
+      i=$((i + 1))
+    done
+    [ $i = 6 ] || { echo "dt: $i gpio banks"; exit 1; }
     [ "$(fdtget $t /muio@fd8a8000 compatible)" = amazon,alpine-v2-muio ]
     p=/pcie@fb600000
     [ "$(fdtget $t $p compatible)" = amazon,al-alpine-v2-pcie ]
@@ -258,7 +276,8 @@ let
     # the chainload DTB has none of it
     ! fdtget -l ${d}/u-boot.dtb / | grep -qx muio@fd8a8000
     ! fdtget ${d}/u-boot.dtb $p amazon,link-gen 2>/dev/null
-    echo "dt: ok (MUIO pins 0,1,20,21 fn 2; PCIe port 0 gen1 x1; SPI NOR CS0/CS1 and the SSI at 25 MHz; chainload DT unchanged)"
+    ! fdtget -l ${d}/u-boot.dtb / | grep -qx gpio-init
+    echo "dt: ok (MUIO pins 0,1,20,21 fn 2, 22 fn 0; GPIO 22 out 1 on PL061 0xfd889000 line 6; PCIe port 0 gen1 x1; SPI NOR CS0/CS1 and the SSI at 25 MHz; chainload DT unchanged)"
 
     python3 - ${si}/u-boot.bin ${s3} <<'PY'
     import struct, sys, glob

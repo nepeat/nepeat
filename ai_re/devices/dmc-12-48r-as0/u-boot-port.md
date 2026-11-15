@@ -41,7 +41,7 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
   - 0019 `dmc12`: the port's DT node (00:01.0, rgmii fixed-link 1000, EEPROM MAC).
   - 0020 `alpine-v2`: the al_eth network driver (HAL copied verbatim from `packages/al-eth/src`).
   - 0021 `dmc12`: network on in the defconfig, no ethernet bootdev.
-  - 0022–0026: the [self-init build](#self-init-build-pcie-muio-ccu-read-only-spi-ram-tested-on-u01)
+  - 0022–0028: the [self-init build](#self-init-build-pcie-muio-ccu-read-only-spi-ram-tested-on-u01)
     (external PCIe RC, Alpine SSI CS override, read-only SPI NOR, MUIO/CCU, DT bits).
     All default off: `#uboot-dmc12-chainload` is byte-identical with them applied
     (u-boot.bin `f4b4b4f3…`, uimage `062428a9…`, same DTB; `.config` gains only
@@ -121,9 +121,9 @@ stage3's application ([spi-uboot-replacement.md](spi-uboot-replacement.md) §4).
     (and Linux pcie-al) rewrites per access. Not a configuration difference. `+0x34` =
     `cfg_control` sec 1 / sub 0xff, as pcie-al sets it.
 
-- `#uboot-dmc12-selfinit` (`/nix/store/ancdwhyzzmihxjixhqgsdgkb42b64w2a-…-2026.10`,
-  u-boot.bin `e2a8266a…`, 519848 B, uimage `8440b366…`; run 3 was `vq5f68zs…`, which
-  differs only by the SSI frequency): the chainload build plus
+- `#uboot-dmc12-selfinit` (`/nix/store/8jzhzl8wviki8p9szn87784scys8idh1-…-2026.10`,
+  u-boot.bin `f8edf702…`, 520328 B, uimage `b275b066…`; run 3 was `vq5f68zs…`, which
+  lacks the SSI frequency and GPIO 22): the chainload build plus
   - **0022 `alpine-v2`, external PCIe RC** (`pcie_alpine_v2`, on the mainline
     `amazon,al-alpine-v2-pcie` node). Annapurna PCIe HAL 3.4 copied verbatim from the
     MikroTik GPL drop (`devices/cs8210-32x/analysis/research/mikrotik-added/drivers/soc/alpine/HAL`,
@@ -150,16 +150,26 @@ stage3's application ([spi-uboot-replacement.md](spi-uboot-replacement.md) §4).
   - **0026 `dmc12`:** DT under `#ifdef`: MUIO pins 0, 1 (SPI CS1/CS2), 20, 21 (UART1)
     fn 2 = the factory's `pinctrl_init` result (u01 dump: mux_sel_0 0x22, mux_sel_2
     0x00220000); PCIe port 0 gen1 x1.
+  - **0027 `alpine-v2` / 0028 `dmc12`, SoC GPIO 22 high** (not yet run on hardware). The
+    factory `board_init` runs `dt_based_init_gpio` (0x01101d50) right after the pinctrl
+    and before SGPO and PCIe: for each dt.0 `gpio_init gpio-list` triplet (only
+    `<0x16 0x01 0x01>`: GPIO 22, out, 1) `gpio_board_init` (0x01107f50) gives MUIO pin 22
+    the GPIO function (iface 0x3a, fn 0), then `gpio_direction_output` (0x0115d998)
+    sets PL061 DIR, then DATA. Ours: MUIO list gets `<22 0>`, and an
+    `amazon,alpine-v2-gpio-init` node (same triplet, the 6 PL061 banks by phandle) is
+    applied in board_init after the MUIO, before PCI, value first, then direction (no
+    glitch to the stale latch). Boot line `GPIO:  22 out 1 (was out 1)` after the factory;
+    `alpine state` shows `GPIO 22: out 1 (DT wants out 1)`. GPIO 22 is PL061 @0xfd889000
+    line 6 = `CPLD_JTAG_EN`, the line `cpldupd` uses around MachXO3 JTAG updates;
+    the factory-initialised state is `dir 40 data cf` (line 6 out, high).
   - Not done: SGPO (the DMC-12 board-cfg has no `sgpo_init`, so the factory never
-    writes it; `alpine state` only reads it), GPIO 22 (only the factory U-Boot drives it high; stage2 does not, see
-    spi-uboot-replacement.md §4 item 4), USB in
-    U-Boot, the fan/WDT CPLD preamble.
-- `#uboot-dmc12-stage3app` (`/nix/store/mz5z0zksrnxaifwb2fqx8dn14zrw5xj0-uboot-dmc12-stage3app`):
+    writes it; `alpine state` only reads it), USB in U-Boot, the fan/WDT CPLD preamble.
+- `#uboot-dmc12-stage3app` (`/nix/store/30jizg0ps4098axaxif9vyddxksqyadx-uboot-dmc12-stage3app`):
   that u-boot.bin, byte for byte, wrapped by [alboot.py](../../nix/packages/alboot/alboot.py)
   (moved into nix so the build can use it; the device copy is a symlink) as IPXE
   objects (id 0x110), load = exec = 0x08000000 (`u-boot-ipxe-08000000.fimg`, sha256
-  `4dbf63f0…`) and 0x01100000 (`…-01100000.fimg`, `8cc89aff…`). 0x7eef4 B each:
-  4364 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
+  `2c00d920…`) and 0x01100000 (`…-01100000.fimg`, `be4995ac…`). 0x7f0d4 B each:
+  3884 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
   trimming (MTD core, `mii`, LZMA are candidates). Same binary as the RAM test: the
   probe policy (keep / init) and the idempotent MUIO/CCU make it entry-agnostic.
 - Offline tests (`#uboot-alpine-v2-tests`):
@@ -193,7 +203,7 @@ read-only, SPI and CCU steps first and `alpcie reinit` last (the table's order d
 
 | `=>` command | expect |
 | --- | --- |
-| (boot log) | `U-Boot 2026.10-dmc12-selfinit`, `MUIO:  4 pins from the DT, 0 changed`, `PCIe 0: link up 2.5GT/s x1 (firmware init, kept)` |
+| (boot log) | `U-Boot 2026.10-dmc12-selfinit`, `MUIO:  5 pins from the DT, 0 changed`, `GPIO:  22 out 1 (was out 1)`, `PCIe 0: link up 2.5GT/s x1 (firmware init, kept)` |
 | `alpcie status` | `port enabled, link up 2.5GT/s x1, LTSSM 0x11`, link partner `12d8:400c` |
 | `alpcie reinit` | `PCIe 0: link up 2.5GT/s x1 (our init after teardown, LTSSM 0x11)` and the status block; exit 0 |
 | `pci 2` | `02.00.00 0x12d8 0x400c Bridge device` |

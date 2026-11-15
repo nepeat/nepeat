@@ -75,6 +75,7 @@ SELFINIT_STEPS = [
     ("crc32 0x40000000 0x1000000", ""),         # full CS1; expect CRC_CS1_FULL if its env is untouched
     # MUIO: board_init replayed the DT pins (0 changed after the factory init)
     ("alpine state", "pin 21: function 2 (DT wants 2)"),
+    ("alpine state", "GPIO 22: out 1 (DT wants out 1)"),
     # CCU: the factory bootm left 7 / c0000001; put the factory-prompt values back, apply ours
     ("alpine state", "SI4 snoop c0000001"),
     ("mw.l 0xf0090004 0; mw.l 0xf0094000 0xc0000000", ""),
@@ -210,7 +211,8 @@ steps = [
     ("cmp.l 0x40000000 0x40000004 0xfff", "Total of 4095 word(s) were the same"),
 ]
 if args.selfinit:
-    checks["MUIO replay at board_init"] = "MUIO:  4 pins from the DT, 0 changed" in text
+    checks["MUIO replay at board_init"] = "MUIO:  5 pins from the DT, 0 changed" in text
+    checks["GPIO 22 at board_init"] = "GPIO:  22 out 1 (was out 1)" in text
     checks["PCIe kept at boot"] = "PCIe 0: link up 2.5GT/s x1 (firmware init, kept)" in text
     steps += SELFINIT_STEPS
 steps += [tuple(s.split("::", 1)) if "::" in s else (s, "") for s in args.cmd]

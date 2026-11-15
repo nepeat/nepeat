@@ -1,0 +1,50 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 13:00:00 -0800
+Subject: [PATCH 28/28] board: dmc12: SoC GPIO 22 high, as the vendor board-cfg
+ gpio_init
+
+dt.0 board-cfg gpio_init gpio-list = <0x16 0x01 0x01>: SoC GPIO 22
+(PL061 @0xfd889000 line 6, the line cpldupd uses around CPLD JTAG updates,
+CPLD_JTAG_EN in the Linux DTS) output, high. The vendor gpio_board_init
+also gives MUIO pin 22 the GPIO function (0) first; the MUIO list gets
+<22 0> for that. Only with ALPINE_V2_GPIO_INIT / ALPINE_V2_MUIO_INIT.
+
+Scope: dmc12.
+---
+ arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi b/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
+index 0ad6d289..2b3f4c59 100644
+--- a/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
++++ b/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
+@@ -92,7 +92,8 @@
+ 	muio@fd8a8000 {
+ 		compatible = "amazon,alpine-v2-muio";
+ 		reg = <0x0 0xfd8a8000 0x0 0x1000>;
+-		amazon,pins = <0 2>, <1 2>, <20 2>, <21 2>;
++		amazon,pins = <0 2>, <1 2>, <20 2>, <21 2>,
++			      <22 0>;	/* GPIO 22: GPIO function, as gpio_board_init */
+ 	};
+ };
+ #endif
+@@ -119,3 +120,18 @@
+ 	spi-max-frequency = <25000000>;
+ };
+ #endif
++
++#ifdef CONFIG_ALPINE_V2_GPIO_INIT
++/ {
++	/*
++	 * dt.0 board-cfg gpio_init gpio-list = <0x16 0x01 0x01>: SoC GPIO 22
++	 * (PL061 gpio2 line 6, CPLD_JTAG_EN, cpldupd's line) output, high.
++	 * Only the vendor U-Boot sets it; stage2 and stage3 do not.
++	 */
++	gpio-init {
++		compatible = "amazon,alpine-v2-gpio-init";
++		gpio-controllers = <&gpio0 &gpio1 &gpio2 &gpio3 &gpio4 &gpio5>;
++		amazon,gpio-list = <22 1 1>;
++	};
++};
++#endif

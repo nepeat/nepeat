@@ -47,6 +47,8 @@ let
     { scope = "alpine-v2"; file = "0024-mtd-spi-optional-read-only-SPI-NOR.patch"; }
     { scope = "alpine-v2"; file = "0025-board-alpine-v2-MUIO-pinmux-and-CCU-setup-in-place-o.patch"; }
     { scope = "dmc12"; file = "0026-board-dmc12-MUIO-pins-and-external-PCIe-port-0-param.patch"; }
+    { scope = "alpine-v2"; file = "0027-board-alpine-v2-SoC-GPIO-lines-from-the-DT-at-board-.patch"; }
+    { scope = "dmc12"; file = "0028-board-dmc12-SoC-GPIO-22-high-as-the-vendor-board-cfg.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

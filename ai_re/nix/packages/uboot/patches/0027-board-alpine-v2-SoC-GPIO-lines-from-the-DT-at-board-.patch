@@ -1,0 +1,207 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 13:00:00 -0800
+Subject: [PATCH 27/28] board: alpine-v2: SoC GPIO lines from the DT at board
+ init
+
+The vendor U-Boot's board_init applies the board-cfg gpio_init gpio-list
+(<gpio dir value> triplets; dir 0 = input) after the pinctrl setup and
+before PCIe, and al-boot stage3 does not (the k2 stage2 reads only a
+gpio-list-s2, which the DMC-12 DT lacks). ALPINE_V2_GPIO_INIT does the same
+from an "amazon,alpine-v2-gpio-init" node: amazon,gpio-list in that format,
+the PL061 banks (8 lines each, SoC numbering) by phandle in
+gpio-controllers. The vendor code sets the direction, then the value
+(0x0115d998); here an output gets its value first, so it cannot glitch to
+the stale data latch. Each line is reported ("GPIO:  22 out 1 (was ...)");
+"alpine state" shows each listed line against the DT. Default off.
+
+Scope: alpine-v2.
+---
+ board/amazon/alpine-v2/Kconfig     |  9 +++
+ board/amazon/alpine-v2/Makefile    |  2 +-
+ board/amazon/alpine-v2/alpine-v2.c |  3 +
+ board/amazon/alpine-v2/soc-init.c  | 92 ++++++++++++++++++++++++++++++
+ board/amazon/alpine-v2/soc-init.h  |  1 +
+ 5 files changed, 106 insertions(+), 1 deletion(-)
+
+diff --git a/board/amazon/alpine-v2/Kconfig b/board/amazon/alpine-v2/Kconfig
+index 828c2187..d35f09f5 100644
+--- a/board/amazon/alpine-v2/Kconfig
++++ b/board/amazon/alpine-v2/Kconfig
+@@ -40,6 +40,15 @@ config ALPINE_V2_MUIO_INIT
+ 	  vendor U-Boot's board-cfg pinctrl_init does. Needed when this
+ 	  U-Boot runs instead of the vendor one; a no-op after it.
+ 
++config ALPINE_V2_GPIO_INIT
++	bool "Set SoC GPIO lines from the DT at board init"
++	help
++	  Apply the <gpio dir value> triplets of an "amazon,alpine-v2-gpio-init"
++	  DT node (the vendor board-cfg gpio_init gpio-list format) to the
++	  PL061 banks it names, after the MUIO setup and before PCI, as the
++	  vendor U-Boot's board_init does. Outputs get their value before the
++	  direction. Idempotent after the vendor U-Boot.
++
+ config ALPINE_V2_CCU_IO_COHERENCY
+ 	bool "Enable CCI snoop and speculation control before Linux"
+ 	help
+diff --git a/board/amazon/alpine-v2/Makefile b/board/amazon/alpine-v2/Makefile
+index e0ae1df8..0c3406c2 100644
+--- a/board/amazon/alpine-v2/Makefile
++++ b/board/amazon/alpine-v2/Makefile
+@@ -2,6 +2,6 @@
+ 
+ obj-y	:= alpine-v2.o lowlevel.o
+ obj-$(CONFIG_ALPINE_V2_ETH_HANDOFF) += eth-handoff.o
+-ifneq ($(CONFIG_ALPINE_V2_MUIO_INIT)$(CONFIG_ALPINE_V2_CCU_IO_COHERENCY)$(CONFIG_CMD_ALPINE_V2),)
++ifneq ($(CONFIG_ALPINE_V2_MUIO_INIT)$(CONFIG_ALPINE_V2_GPIO_INIT)$(CONFIG_ALPINE_V2_CCU_IO_COHERENCY)$(CONFIG_CMD_ALPINE_V2),)
+ obj-y	+= soc-init.o
+ endif
+diff --git a/board/amazon/alpine-v2/alpine-v2.c b/board/amazon/alpine-v2/alpine-v2.c
+index ab72861f..9394e6c2 100644
+--- a/board/amazon/alpine-v2/alpine-v2.c
++++ b/board/amazon/alpine-v2/alpine-v2.c
+@@ -212,5 +212,8 @@ int board_init(void)
+ {
+ 	if (IS_ENABLED(CONFIG_ALPINE_V2_MUIO_INIT))
+ 		alpine_v2_muio_init(false);
++	/* after the pin functions, before PCI: as the vendor board_init orders it */
++	if (IS_ENABLED(CONFIG_ALPINE_V2_GPIO_INIT))
++		alpine_v2_gpio_init(false);
+ 	return 0;
+ }
+diff --git a/board/amazon/alpine-v2/soc-init.c b/board/amazon/alpine-v2/soc-init.c
+index 35d3c1b8..540573b1 100644
+--- a/board/amazon/alpine-v2/soc-init.c
++++ b/board/amazon/alpine-v2/soc-init.c
+@@ -9,6 +9,11 @@
+  *    "amazon,alpine-v2-muio" DT node: <pin function> pairs, written with
+  *    read-modify-write of only those fields. On the DMC-12 this is what the
+  *    vendor board-cfg pinctrl_init allocates (SPI CS1/CS2, UART1).
++ *  - SoC GPIO lines from a "amazon,alpine-v2-gpio-init" DT node: <gpio dir
++ *    value> triplets as in the vendor board-cfg gpio_init gpio-list, the
++ *    PL061 banks (8 lines each, SoC GPIO numbering) named by phandle in
++ *    "gpio-controllers". The vendor U-Boot sets the direction first, then
++ *    the value; this writes the value first, so an output never glitches.
+  *  - CCI snoop and speculation control as the vendor bootm leaves them for
+  *    Linux (its DT /soc/ccu io_coherency): slave interface 4 snoop enable,
+  *    speculation control 7. Idempotent; run before Linux.
+@@ -85,6 +90,73 @@ int alpine_v2_muio_init(bool verbose)
+ 	return 0;
+ }
+ 
++#define PL061_DATA(line)	(4U << (line))	/* masked data address */
++#define PL061_DIR		0x400
++
++static int gpio_line(ofnode node, u32 gpio, ulong *base, unsigned int *line)
++{
++	u32 ph;
++	fdt_addr_t a;
++
++	if (ofnode_read_u32_index(node, "gpio-controllers", gpio / 8, &ph))
++		return -EINVAL;
++	a = ofnode_get_addr(ofnode_get_by_phandle(ph));
++	if (a == FDT_ADDR_T_NONE)
++		return -EINVAL;
++	*base = a;
++	*line = gpio % 8;
++	return 0;
++}
++
++static int gpio_list(ofnode *node, u32 *t, int max)
++{
++	int n;
++
++	*node = ofnode_by_compatible(ofnode_null(), "amazon,alpine-v2-gpio-init");
++	if (!ofnode_valid(*node))
++		return 0;
++	n = ofnode_read_size(*node, "amazon,gpio-list");
++	if (n <= 0 || n % 12 || n > max * 4 ||
++	    ofnode_read_u32_array(*node, "amazon,gpio-list", t, n / 4))
++		return -EINVAL;
++	return n / 12;
++}
++
++int alpine_v2_gpio_init(bool verbose)
++{
++	ofnode node;
++	u32 t[3 * 16];
++	int n = gpio_list(&node, t, ARRAY_SIZE(t)), i;
++
++	if (n < 0) {
++		printf("GPIO:  bad amazon,alpine-v2-gpio-init node\n");
++		return n;
++	}
++	for (i = 0; i < n; i++) {
++		u32 gpio = t[3 * i], out = t[3 * i + 1], val = !!t[3 * i + 2];
++		unsigned int line;
++		u32 dir, data;
++		ulong base;
++
++		if (gpio_line(node, gpio, &base, &line)) {
++			printf("GPIO:  %u: no PL061 bank in the DT\n", gpio);
++			return -EINVAL;
++		}
++		dir = readl(base + PL061_DIR);
++		data = readl(base + PL061_DATA(line)) >> line & 1;
++		if (out) {
++			writel(val << line, base + PL061_DATA(line));
++			writel(dir | BIT(line), base + PL061_DIR);
++		} else {
++			writel(dir & ~BIT(line), base + PL061_DIR);
++		}
++		printf("GPIO:  %u %s%s (was %s %lu)\n", gpio, out ? "out " : "in",
++		       out ? (val ? "1" : "0") : "", dir & BIT(line) ? "out" : "in",
++		       (ulong)data);
++	}
++	return 0;
++}
++
+ void alpine_v2_ccu_io_coherency(void)
+ {
+ 	u32 snoop = readl(CCI_SI4_SNOOP), spec = readl(CCI_SPEC_CTRL);
+@@ -137,6 +209,25 @@ static void muio_show(void)
+ 	}
+ }
+ 
++static void gpio_show(void)
++{
++	ofnode node;
++	u32 t[3 * 16];
++	int n = gpio_list(&node, t, ARRAY_SIZE(t)), i;
++
++	for (i = 0; i < n; i++) {
++		unsigned int line;
++		ulong base;
++
++		if (gpio_line(node, t[3 * i], &base, &line))
++			continue;
++		printf("  GPIO %u: %s %u (DT wants %s %u)\n", t[3 * i],
++		       readl(base + PL061_DIR) & BIT(line) ? "out" : "in",
++		       readl(base + PL061_DATA(line)) >> line & 1,
++		       t[3 * i + 1] ? "out" : "in", !!t[3 * i + 2]);
++	}
++}
++
+ static int do_alpine(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+ {
+ 	if (argc < 2 || !strcmp(argv[1], "state")) {
+@@ -148,6 +239,7 @@ static int do_alpine(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv
+ 		       readl(SGPO_BASE + 8), readl(SGPO_BASE + 12));
+ 		printf("GPIO 16-23: dir %02x data %02x\n", readl(GPIO2_BASE + 0x400) & 0xff,
+ 		       readl(GPIO2_BASE + 0x3fc) & 0xff);
++		gpio_show();
+ 		return 0;
+ 	}
+ 	if (!strcmp(argv[1], "ccu")) {
+diff --git a/board/amazon/alpine-v2/soc-init.h b/board/amazon/alpine-v2/soc-init.h
+index f6e5b4fe..15d4444e 100644
+--- a/board/amazon/alpine-v2/soc-init.h
++++ b/board/amazon/alpine-v2/soc-init.h
+@@ -3,6 +3,7 @@
+ #define __ALPINE_V2_SOC_INIT_H
+ 
+ int alpine_v2_muio_init(bool verbose);
++int alpine_v2_gpio_init(bool verbose);
+ void alpine_v2_ccu_io_coherency(void);
+ void alpine_v2_soc_prep_linux(void);
+ 
