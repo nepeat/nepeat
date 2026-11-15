@@ -42,6 +42,9 @@
 - **Units:** many more boxes are coming in. `units.md` has per-unit versions and the
   collection steps; serials are in `units-private.txt` (ignored). This box is **u01**.
 - **K2 uC + factory U-Boot internals** (for future U-Boot patches): `k2-uc.md`.
+- **Factory U-Boot vendor commands** (disassembled), what the boot path does for Linux, and
+  port verdicts: `uboot-vendor-commands.md`. Before any on-disk boot, read its Ethernet
+  board-params gap. Also: never reset the env, and uC GPIO 2.2 is the likely CS1 select.
 - **Factory hardware tooling vs the module:** `vendor-tooling.md` (CPLD register map,
   reboot via CPLD/sp805, interrupt monitor, uplink re-sync, GPIO lines). Read it before
   reworking `board-dmc12`.

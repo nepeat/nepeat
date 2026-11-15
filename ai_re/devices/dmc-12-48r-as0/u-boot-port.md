@@ -206,12 +206,17 @@ atomically and only when they change, keeping the previous U-Boot as `.prev`.
   prints `<debug_uart>` first.
 - PCI: U-Boot re-assigns BARs on the internal ECAM bus inside 0xfe000000 +16 MiB. Linux
   does this again anyway (`pci=realloc`). External PCIe (USB hubs) is not touched.
-- The firmware ranges' contents are unknown, and so is whether other Alpine units or
+- 0x02000000 +1 MiB holds the al-boot trace buffer (`uboot-vendor-commands.md`). The
+  other ranges' contents are unknown, and so is whether other Alpine units or
   al-boot versions use the same ones. They stay board-level (dmc12 dtsi) until then.
 - Old kernels without Image-header flag bit 3 would be relocated by `booti` to DRAM base
   0x0, which is firmware. Every current kernel sets the bit.
 - If the SSD holds a `boot.scr`, `bootflow scan -lb` runs it. The first iteration's
   script calls `bootmenu`, which isn't compiled in, so it fails without effect. u01's
   sda1 is not known to have one.
-- The uC watchdog (10 s, "enabled") never fired in the factory U-Boot. Watch for an
-  unexpected reset while sitting at `=>`.
+- The uC watchdog (10 s, "enabled") never fired in the factory U-Boot, which never
+  services it either (disassembly). Watch for an unexpected reset while sitting at `=>`.
+- **On-disk boot gaps** (`uboot-vendor-commands.md`, "What the factory boot path does"):
+  - Linux al_eth needs the board params and MAC that the factory U-Boot writes only after
+    a network command. The proposed `/boot.scr` runs none.
+  - DN0-variant units need the preamble's SATA SerDes write.
