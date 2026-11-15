@@ -617,7 +617,7 @@ def mode_write(a, st, img, unknown):
                 # No factory validate here: its load address is 0 and what the validator does with
                 # that is unknown; read-back crc + the rehearsal of these exact bytes cover it.
                 new = write_region(a, new, bm_lo, SECTOR, bm, A_BOOTMODE, f"BOOT_MODE app {app:#x}")
-                st["bootmode_live"] = True
+                st["bootmode_live"] = a.write
             except Fail as e:
                 if a.write:
                     new = bootmode_clear(a, new, str(e))
