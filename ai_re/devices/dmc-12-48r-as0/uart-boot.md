@@ -30,7 +30,11 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
   - The cause is read from the code: stage3 found the SRAM cpu-resume struct valid and skipped its
     cold-boot VFP/NEON enable. Its first trace timestamp then hit a NEON instruction (UNDEF), and the
     ROM's exception vector hangs silently.
-  - **v3** invalidates that struct first. The tool is `uartboot.py`; the next experiment is in §6.
+  - **v3** invalidates that struct first. **On hardware (2d) it ran all of production stage3 from
+    RAM:** "UART recovery!", DT, DRAM clear, "Loading application", "Executing application...".
+    Then it went silent before the factory U-Boot banner.
+  - **v4** adds one-character print hooks along the AArch64 agent's CPU0 path to find that hang. The
+    next experiment is in §6.
 - **The `u` escape:** the key path is proven on hardware (`p` and `e`, 4/4). The app ≠ 5 branch is
   tested by Route A with a RAM BOOT_MODE (§6, experiment 3), with no SPI write.
 - **UART boot is real in the ROM, and so is the instance fallback.**
@@ -230,6 +234,34 @@ With the watermark cleared, stage3 runs its **cold-boot path**, as after a power
   print-mode words (0xfbff4014, 0xfbff4038, 0xfbff403c) are 0. A later exception before stage3 has
   its own vectors then prints LR/CPSR instead of hanging silently.
 
+**Where v3 stopped (2d): between stage3's "Executing application..." and the app's banner.**
+- **Statically, the second stage3 → agent hop matches the first.**
+  - Stage3 re-copies the agent to 0x1000.
+  - The agent clears its own .bss: magic 0x7db8 is in .data, which is freshly copied.
+  - It rebuilds its PSCI state, and takes the app address from 0xfbff40f8, which stage3 writes just
+    before the reset.
+  - CPU0 never waits for the secondaries (they are powered off from the first boot). The write-once
+    AArch64 select and RVBAR hold the right values.
+- **So the suspects are hardware state that persists from the first boot, or the app itself.**
+  An AArch64 fault at EL3/EL2 doesn't reach the ROM's AArch32 handler, so silence is expected.
+  - The agent's **DFX handshake** (0x4018): it writes 0xfd8e0000 = 1 and spins until 0xfd8e0080 == 2.
+    The ROM writes the same register on a normal reset. Then it writes L2ACTLR/L2CTLR.
+  - **GICR_WAKER** (0x54ac): it clears ProcessorSleep and spins on ChildrenAsleep, at 0xf0280014.
+  - The GIC distributor/redistributor init (0x53d8, 0x5404).
+  - The factory U-Boot's code before its banner, in RAM-load mode.
+- **v4 visibility (`route-a`, on by default; `--no-agent-trace` to skip).** One character per step:
+  - It tftps a 0x120-byte hook blob to 0x01060000. Each hook prints its character on UART0 using only
+    x16/x17 (no stack) and polling LSR.THRE, then jumps on.
+  - It patches 9 call sites of the agent inside the stage3 copy (0x01048ccc + offset). Each site is
+    checked against the image's word before it is patched.
+  - The order is `A` entry (0x1000), `M` main, `g` GICD init, `r` GICR init, `D` DFX handshake,
+    `W` GICR_WAKER, `S` SCR/VBAR, `E` ERET to the app. `Z` means CPU0 parked because 0xfbff40f8
+    read 0.
+  - The disassembly of the hooks and patched sites was checked in Ghidra.
+  - `route-a` also prints `md.l 0xfd8e0000 0x24` and `md.l 0xf0280014 1` before `go`.
+  - The hooks stay resident and are reached again only by the agent's entry, e.g. a PSCI `cpu_on`.
+    So this is for diagnostic runs only.
+
 From there on everything is the production binary:
 - "UART recovery!", BOOT_MODE/DT/app read from RAM;
 - the DRAM clear;
@@ -274,7 +306,8 @@ All at the factory `ALPINE_DB>` after a normal cold boot. Power-cycle after each
 | 2 | done with trampoline v1 | **failed as predicted in "Risks"**: factory U-Boot banner directly, no stage3. config_aarch64 is write-once | — |
 | 2a | done | config_aarch64 still 1 after a write of 0: **write-once confirmed** | — |
 | 2b | done (trampoline v2) | `#` (EL3 stub), then stage3's first banner line: **RMR_EL3 → AArch32 → ROM resume → production stage3 works**. Then a silent hang: VFP off (above) | — |
-| 2d | `image --app none` + `route-a --run` (trampoline v3; it clears 0xfbff4120 and sets the ROM debug flag) | stage3's full banner, "UART recovery!", the DT/app lines, the factory U-Boot from RAM, "recovery boot command!". If something faults early, an "Exception! LR=…, CPSR=…" line: send me LR/CPSR | hang → power-cycle |
+| 2d | done (v3) | `#`, then **all of production stage3 from RAM** ("UART recovery!" … "Executing application..."), then silence before the factory U-Boot banner. No "Exception!" | — |
+| 2e | `image --app none` + `route-a --run` (v4: agent trace on) | the characters after "Executing application...", order `AMgrDWSE`, locate the hang. All 8 then silence = the factory U-Boot before its banner. Also send the pre-`go` reads of 0xfd8e0000.. and 0xf0280014 | hang → power-cycle |
 | 3 | `image --app 0x10000005`, `route-a --run`, then again with `--key u` | **the `u` escape for app ≠ 5**: without the key UBOOT 1 boots (`md.l 0x0105d268 1` = `10000005`); with it, "User request for loading U-Boot!" and `00000005` | same; both outcomes are the factory U-Boot |
 | 4 | `image --app 0x110 --uboot <ours>` + `route-a --run` (and with `--key u`) | **our U-Boot as the stage3 app** via the production agent handoff (expect `Entry: EL2, MMU+caches were off, x0=0`), and the escape back to the factory U-Boot | same |
 | 5 | (spare unit, owner) strap 4, then `uartboot.py s2` + `xmodem` | the ROM's UART boot end to end with the factory stage2 | a solder change |

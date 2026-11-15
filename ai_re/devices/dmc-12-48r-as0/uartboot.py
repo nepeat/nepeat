@@ -100,6 +100,53 @@ STUB = [                # runs at 0x1000, EL3 AArch64, MMU off
 TRAMP_BYTES = b"".join(struct.pack("<I", w) for w in TRAMP + STUB)
 AGENT_HEAD = "58000904 f9000080 58000904 f9000080"   # stage3's agent at 0x1000 (stg3 +0x48ccc)
 
+# --- agent trace (uart-boot.md section 5, "v4"): print one char at each step of the AArch64
+# agent's CPU0 path, so a hang between stage3's "Executing application..." and the app is located.
+# Stage3 copies the agent from its own image (0x01048ccc, 0x6dc9 B) to 0x1000, so the call sites
+# are patched in the stage3 copy at 0x01000000; the hooks live at HOOK_ADDR (inside the range the
+# trampoline cleans; nothing in stage3 uses it). Hooks use only x16/x17 (no stack) and poll LSR.THRE.
+AGENT_SRC, AGENT_DST = 0x01048CCC, 0x1000
+HOOK_ADDR = 0x01060000
+AGENT_TRACE = [   # (agent address, char, kind): 'entry' = first instruction, else a `bl` site
+    (0x1000, "A", "entry"),     # ldr x4, =0x7dc0 (displaced: mov x4, #0x7dc0)
+    (0x1068, "M", 0x5930),      # agent main
+    (0x611c, "Z", 0x5044),      # CPU0 parks: app entry 0xfbff40f8 read as 0
+    (0x6188, "g", 0x53d8),      # GIC distributor init
+    (0x61ac, "r", 0x5404),      # GIC redistributor SGI/PPI init
+    (0x61fc, "D", 0x4018),      # DFX handshake (0xfd8e0000 = 1, wait 0xfd8e0080 == 2) + L2 regs
+    (0x623c, "W", 0x54ac),      # GICR_WAKER wake + wait
+    (0x6244, "S", 0x569c),      # SCR_EL3 / VBAR_EL3
+    (0x6278, "E", 0x5720),      # ERET towards the app (EL2)
+]
+
+
+def _b(src, dst, link=False):
+    off = (dst - src) // 4
+    return (0x94000000 if link else 0x14000000) | (off & 0x3FFFFFF)
+
+
+def agent_trace():
+    """-> (hook blob for HOOK_ADDR, [(stage3 address, original word or None, new word)])."""
+    blob, patches = [], []
+    for i, (site, ch, kind) in enumerate(AGENT_TRACE):
+        h = HOOK_ADDR + 0x20 * i
+        w = [0xD2860010,                       # mov  x16, #0x3000
+             0xF2BFB110,                       # movk x16, #0xfd88, lsl #16   (UART0)
+             0xB9401611,                       # 1: ldr w17, [x16, #0x14]     (LSR)
+             0x362FFFF1,                       # tbz  w17, #5, 1b             (THRE)
+             0x52800011 | (ord(ch) << 5),      # mov  w17, #ch
+             0xB9000211]                       # str  w17, [x16]
+        if kind == "entry":
+            w += [0xD28FB804,                  # mov  x4, #0x7dc0  (the displaced literal load)
+                  _b(h + 0x1C, site + 4)]      # b    site + 4
+            new = _b(site, h)                  # b    hook
+        else:
+            w += [_b(h + 0x18, kind), 0xD503201F]   # b F (x30 = site + 4 from the patched bl); nop
+            new = _b(site, h, link=True)       # bl   hook
+        blob += w
+        patches.append((AGENT_SRC + site - AGENT_DST, new))
+    return b"".join(struct.pack("<I", x) for x in blob), patches
+
 
 def toc_entries(d):
     o, n, ok = alboot.find_toc(d)
@@ -210,6 +257,10 @@ def cmd_route_a(a):
              f"cp.b {meta['stg3_src']:#x} {STG3_ADDR:#x} {meta['stg3_size']:#x}",
              f"crc32 {STG3_ADDR:#x} {meta['stg3_size']:#x}",
              f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}",
+             *([f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/agent-trace.bin; crc32",
+                "mw.l <9 agent call sites in the stage3 copy> (see AGENT_TRACE)"] if a.trace_agent else []),
+             "md.l 0xfd8e0000 0x24   (DFX: the agent waits for 0xfd8e0080 == 2)",
+             "md.l 0xf0280014 1   (GICR_WAKER CPU0)",
              "md.b 0xfbff41c0 4", "mw.b 0xfbff41c1 <old & ~3 | 1>", "md.b 0xfbff41c0 4",
              "md.l 0xf0072000 0x14", "md.l 0x1000 4   (expect the agent: " + AGENT_HEAD + ")",
              "md.l 0xfbff4120 2", "mw.l 0xfbff4120 0   (stage3 cold-boot path: VFP on, SRAM agent re-installed)",
@@ -238,6 +289,22 @@ def cmd_route_a(a):
     if crc_of(console(f"crc32 {STG3_ADDR:#x} {meta['stg3_size']:#x}")) != meta["stg3_crc"]:
         raise SystemExit("stage3 copy: crc mismatch")
     console(f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}")
+    if a.trace_agent:
+        hooks, patches = agent_trace()
+        (d / "agent-trace.bin").write_bytes(hooks)
+        console(f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/agent-trace.bin", 60)
+        if crc_of(console(f"crc32 {HOOK_ADDR:#x} {len(hooks):#x}")) != zlib.crc32(hooks):
+            raise SystemExit("agent-trace.bin: crc mismatch")
+        img = a.image.read_bytes()
+        for addr, new in patches:
+            old, = struct.unpack_from("<I", img, meta["stg3_src"] - IMG_ADDR + addr - STG3_ADDR)
+            if f"{old:08x}" not in console(f"md.l {addr:#x} 1"):
+                raise SystemExit(f"{addr:#x}: stage3 copy does not hold {old:08x}")
+            console(f"mw.l {addr:#x} {new:#010x}")
+            if f"{new:08x}" not in console(f"md.l {addr:#x} 1"):
+                raise SystemExit(f"{addr:#x}: patch did not stick")
+    console("md.l 0xfd8e0000 0x24")
+    console("md.l 0xf0280014 1")
     line = [l for l in console("md.b 0xfbff41c0 4").splitlines() if l.startswith("fbff41c0:")][0]
     magic, old = int(line.split()[1], 16), int(line.split()[2], 16)
     if magic < 0x3B:
@@ -290,6 +357,12 @@ def cmd_route_a(a):
     print(f"key {a.key!r} sent {sent}x" if a.key else "no key")
     stub = [l.strip() for l in t.splitlines() if l.strip().startswith("#") and not l.strip().startswith("##")]
     print(f"  {'# (EL3 stub)':22s} {stub[0] if stub else '-- not seen'}")
+    if a.trace_agent:
+        # the agent prints its chars right after stage3's "Executing application..." line
+        i = t.find("Executing application")
+        tail = t[i:].split("\n", 1)[1][:200] if i >= 0 and "\n" in t[i:] else ""
+        print(f"  {'agent trace chars':22s} {tail.splitlines()[0] if tail.strip() else '-- none'}"
+              f"   (order: {''.join(c for _, c, _ in AGENT_TRACE)}; Z = parked)")
     for m in marks:
         hits = [l.strip() for l in t.splitlines() if m in l]
         print(f"  {m:22s} {hits[0] if hits else '-- not seen'}")
@@ -417,6 +490,8 @@ p.add_argument("--server", default="10.60.2.208")
 p.add_argument("--tftp-root", type=pathlib.Path, default=pathlib.Path("/srv/tftpboot"))
 p.add_argument("--tftp-dir", default="dmc12/route-a")
 p.add_argument("--timeout", type=float, default=60)
+p.add_argument("--no-agent-trace", dest="trace_agent", action="store_false",
+               help="don't patch print hooks into the agent copy (they stay resident: debug runs only)")
 p.add_argument("--no-rom-debug", dest="rom_debug", action="store_false",
                help="don't set the boot ROM's debug-print flag (0xfbff4020)")
 p = sub.add_parser("s2")
