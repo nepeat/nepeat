@@ -17,6 +17,9 @@ longer background.
   `dumps/flash-backup-20261114-pre-0013/`; restore with `flash_uboot.py --restore`
   from a working prompt, else flash clip/JTAG at NOR offset 0x7F40000.
   SD original: `dumps/mmcblk0.img`. ONIE in NOR is untouched (`run onie_bootcmd`).
+- **ASIC:** PCIe MMIO to the BCM56930 works since the device-tree aperture fix
+  (0xc_4000_0000, matching U-Boot's LAW); OpenBCM BDE modules load and
+  enumerate it. See [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md).
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; restoring the *factory* image with
   flash_uboot.py is untested (upstream→upstream is tested); other T2080 boards
