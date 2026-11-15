@@ -26,6 +26,21 @@ Reach CPLD#1 through the channel-2 child adapter, and never by writing the
 mux register from userspace (the fan and LM75 drivers share that mux). Nothing
 binds 0x60 today.
 
+## hardware results (2026-11-15, `as7760-qsfp --status/--reset/--lpmode`)
+
+- Read-only first: CPLD#1 is `i2c-6` (0x76 channel 2, created by the mux
+  driver without a DT node), model ID reg 0x00 = 0x03, version 0x09; CPLD#2/#3
+  version 0x08. ModPrsL 0x30 = 0xfe, 0x33 = 0x7f: ports 1 and 32 present,
+  exactly what the EEPROM reader finds. ResetL 0x04-0x07 = 0xff (all running),
+  IntL 0x10-0x13 = 0xff. Bit order and polarity confirmed.
+- `--reset 1` (passive DAC, lab loop only): pulse done read-modify-write,
+  register reads back 0xff, module EEPROM readable right after. IntL never
+  asserted, so latched vs level is still unknown (passive copper has no IntL
+  source).
+- `--lpmode 1 on|off`: the passive DAC keeps byte 93 at 0x00; the tool reports
+  the readback mismatch as an error. **Software low power is untested on an
+  active module**; needs an optic/AOC.
+
 ## CPLD#1 register map
 
 Port p is 1..32, using front-panel numbering (`sfpN` in the vendor device tree).
