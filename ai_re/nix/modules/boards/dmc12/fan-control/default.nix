@@ -28,6 +28,9 @@ let
     target_temperature=${toString cfg.targetTemperature}
     Kp=${toString cfg.Kp}
     Ki=${toString cfg.Ki}
+
+    [targets]
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (label: t: "${lib.toLower label}=${toString t}") cfg.sensorTargets)}
   '';
 in
 {
@@ -49,6 +52,16 @@ in
       type = lib.types.int;
       default = 45;
       description = "Setpoint (°C) for the PI loop. Minimum sustainable temp at 100% fan is ~35 °C; factory recommends 10 °C above that.";
+    };
+
+    sensorTargets = lib.mkOption {
+      type = lib.types.attrsOf lib.types.int;
+      # The K2 uC (CPU proxy) is passively cooled and sits ~52 C at idle no matter
+      # the fan speed (u01 step test, 2026-11-15: 51.5-53.5 C from 2000 to 3300 RPM),
+      # so the stock 45 C-on-hottest policy drives the fans to 100% for nothing.
+      # Board sensors keep the stock 45 C. 60 is the owner's first guess; tune it.
+      default = { "K2 SoC (uC)" = 60; };
+      description = "Per-sensor setpoints (sensors.d label -> degC); others use targetTemperature.";
     };
 
     timer = lib.mkOption {

@@ -10,6 +10,7 @@
     ./fan-control   # services.dmc12-fancontrol (CPLD PWM via I2C)
     ./dmc12-tools   # show/setled/setphyspeed/onieeeprom + boot oneshots
     ./cpld          # CPLD board reset, interrupt monitor
+    ./monitoring.nix   # node_exporter :9100 + dmc12-metrics (read-only)
   ];
 
   hardware.alpineV2 = {

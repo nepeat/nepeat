@@ -45,6 +45,8 @@ MIN_FAN_STEP = 0x09  # 16.92% PWM ~= 2000 RPM, above AS0's RPM alarm floor
 # are followed by ", " not " (").  The optional `°` covers post-3.5 lm-sensors
 # (UTF-8 degree sign in front of C); pre-3.5 builds emit a literal space C.
 TEMP_PATTERN = re.compile(r"\+(\d+\.*\d*)\s*°?C\s+\(", re.UNICODE)
+# Same, with the sensors.d label in front: `M.2 (U10):    +28.0°C  (high = ...`
+LABELLED_PATTERN = re.compile(r"^(.+?):\s+\+(\d+\.*\d*)\s*°?C\s+\(", re.UNICODE | re.MULTILINE)
 
 
 class PI:
@@ -83,12 +85,13 @@ def load_config(path):
         "Kp": "3.0",
         "Ki": "0.1",
     }
+    cfg["targets"] = {}
     try:
         cfg.read(path)
         syslog(LOG_INFO, f"loaded config: {path}")
     except Exception as ex:
         syslog(LOG_ERR, f"falling back to defaults; could not read {path}: {ex}")
-    return cfg["fancontrol"]
+    return cfg["fancontrol"], {k: float(v) for k, v in cfg["targets"].items()}
 
 
 def clear_wdt(bus):
@@ -106,8 +109,19 @@ def adjust_fans(bus, step):
         bus.write_byte_data(CPLD_ADDR, REG_FAN_PWM, step)
 
 
-def hottest_sensor(sensors_cmd):
+def hottest_sensor(sensors_cmd, targets=None, default=45.0):
+    """Worst sensor, as a temperature on the default target's scale.
+
+    Without per-label targets this is the factory behaviour (the hottest
+    reading). With targets (label -> degC, e.g. the K2 uC at 60 while the
+    board sensors keep the stock 45), each reading counts by how far it is
+    above its own target: returns default + max(temp - target(label)).
+    """
     out = subprocess.check_output(sensors_cmd, text=True)
+    if targets:
+        pairs = [(label.strip().lower(), float(t)) for label, t in LABELLED_PATTERN.findall(out)]
+        if pairs:
+            return default + max(t - targets.get(label, default) for label, t in pairs)
     temps = [float(m) for m in TEMP_PATTERN.findall(out)]
     if not temps:
         raise RuntimeError(f"no temperatures parsed from `{' '.join(sensors_cmd)}` output")
@@ -127,7 +141,7 @@ def main():
     a = ap.parse_args()
 
     openlog("dmc12-fancontrol")
-    cfg = load_config(a.config)
+    cfg, targets = load_config(a.config)
     timer = cfg.getint("timer")
     target = cfg.getfloat("target_temperature")
     Kp = cfg.getfloat("Kp")
@@ -142,9 +156,11 @@ def main():
     # has only 16 PWM steps instead of 64.
     upper = 63 if cpld_version > 134 else 15
     controller = PI(target, Kp, Ki, upper)
+    if targets:
+        syslog(LOG_INFO, f"per-sensor targets: {targets} (others {target})")
 
     if a.once:
-        temp = hottest_sensor([a.sensors_cmd])
+        temp = hottest_sensor([a.sensors_cmd], targets, target)
         step = controller.step(temp)
         adjust_fans(bus, step)
         syslog(LOG_INFO, f"oneshot: T={temp:.1f}C step={step}/{upper}")
@@ -158,7 +174,7 @@ def main():
             if elapsed < timer:
                 continue
             elapsed = 0
-            temp = hottest_sensor([a.sensors_cmd])
+            temp = hottest_sensor([a.sensors_cmd], targets, target)
             step = controller.step(temp)
             adjust_fans(bus, step)
         except KeyboardInterrupt:

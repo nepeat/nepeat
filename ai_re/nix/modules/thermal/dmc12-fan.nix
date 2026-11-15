@@ -66,7 +66,21 @@ in {
     criticalC = lib.mkOption {
       type = lib.types.int;
       default = 60;
-      description = "Hottest board sensor (C) at which fand goes failsafe (100 %).";
+      description = "Board sensor (C) at which fand goes failsafe (100 %).";
+    };
+    # The K2 uC (CPU proxy) is passively cooled: on u01 it sat at 52.5 C at the
+    # 2000 RPM floor and 50 C at 5700 RPM (step test, 2026-11-15). A 45 C target
+    # on it would pin the fans at 100 % for ~2.5 C. Owner: keep the CPU < 60 C
+    # to start (maybe 70); tune from data.
+    cpuTargetC = lib.mkOption {
+      type = lib.types.int;
+      default = 60;
+      description = "Setpoint (C) for the K2 uC sensor; board sensors use targetC.";
+    };
+    cpuCriticalC = lib.mkOption {
+      type = lib.types.int;
+      default = 75;
+      description = "K2 uC temperature (C) at which fand goes failsafe (its LM75 alarm is 80/75).";
     };
   };
 
@@ -96,9 +110,9 @@ in {
           calm_period = "60s";
           sensors = {
             # Labels: boards/dmc12/conf/dmc12_sensors.conf.
-            k2_uc = sensor "lm75" "5-004a";
-            sfp_console = sensor "tmp75" "7-0048";
-            m2 = sensor "tmp75" "7-0049";
+            k2_uc = sensor "lm75" "5-004a" // { critical = cfg.cpuCriticalC; };
+            sfp_console = sensor "tmp75" "7-0048" // { critical = cfg.criticalC; };
+            m2 = sensor "tmp75" "7-0049" // { critical = cfg.criticalC; };
           };
           outputs.fans = {
             type = "i2c";
@@ -124,10 +138,11 @@ in {
           };
           zones.board = {
             outputs = [ "fans" ];
-            sensors = [ "k2_uc" "sfp_console" "m2" ];
+            # Per-sensor setpoint: the zone tracks whichever sensor is furthest
+            # above its own target (board sensors: targetC).
+            sensors = [ { sensor = "k2_uc"; target = cfg.cpuTargetC; } "sfp_console" "m2" ];
             # The factory PI (Kp 3 steps/C, Ki 0.1 steps/(C * 10 s)) in percent.
             policy = { target = cfg.targetC; kp = 3 * stepPct; ki = 0.01 * stepPct; };
-            critical = cfg.criticalC;
           };
         } // lib.optionalAttrs prom { runtime.prometheus_file = "${promDir}/fand.prom"; };
       };
