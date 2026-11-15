@@ -17,7 +17,15 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   kernel modules build for ppc64 BE / Linux 7.3.4 (`nix/packages/openbcm`) and
   load on the AS7760: `linux-kernel-bde` enumerates `14e4:b930` rev 0x12 as
   unit 0 (iProc PAXB init OK, 32 MB DMA pool), `linux-user-bde` reports
-  "Interrupt mode CMICd". Userspace SDK (bcm.user) for ppc64 BE: not built yet.
+  "Interrupt mode CMICd". The SDK userspace (`bcm.user` diag shell) builds for
+  ppc64 BE (1887 objects, Tomahawk only) and **attaches on the switch**:
+  `Chip BCM56930_B1, Driver BCM56960_A0`; `CMIC_DEV_REV_ID = 0x12b930` decodes
+  correctly, so register byte order is right. Attach only: no `init soc`, no
+  ports, no DMA or packet I/O tested yet. bcm.user is a hand build
+  ([recipe](../../nix/packages/openbcm/README.md)), not a derivation yet.
+- **Decision needed before going further:** chip init and port bring-up need
+  the board's port/lane config (only in the factory NOS image, kept private)
+  and a check that no front-panel ports are cabled into a live network.
 - **Next:** sairedis with the virtual SAI (`--with-sai=vs`), then swss;
   `/usr/share/swss` path shim (Lua scripts are loaded from that absolute path).
 - **Open:**
@@ -31,6 +39,16 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   gitignored `dumps/`: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-14 (night) — OpenBCM diag shell attaches to the ASIC from ppc64 BE
+
+- New SDK userspace platform `ppc64be` (patch 0002): SDK's PowerPC endian
+  flags + 64-bit word-size flags, dynamic link, no -Werror, `-fpermissive` for
+  GCC 16. The SDK makefiles hard-code `/bin/echo` etc. (`fixpaths.pl`).
+- On the AS7760: `BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1,
+  Driver BCM56960_A0`, `SOC unit 0 attached`. `getreg CMIC_DEV_REV_ID` =
+  `0x12b930`. This is route 1 of the research working further than any
+  public report found for an e6500 host. OpenMDK (route 2) not needed so far.
 
 ## 2026-11-14 (late) — OpenBCM kernel modules load; PCIe aperture bug found
 

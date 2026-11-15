@@ -1,0 +1,6 @@
+# Appended to make/Make.local.template -> make/Make.local for the AS7760-32X
+# (BCM56930, handled by the Tomahawk BCM56960 driver): build only that chip.
+BCM_PTL_SPT = 1
+BCM_56960_A0 = 1
+FEATURE_LIST = L3 EDITLINE PHYMOD
+DEBUG_OPTIMIZE = -O1

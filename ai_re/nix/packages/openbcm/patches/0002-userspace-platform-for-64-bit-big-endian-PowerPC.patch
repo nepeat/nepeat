@@ -1,0 +1,86 @@
+From: as7760 bring-up
+Subject: [PATCH] linux user: platform "ppc64be" (64-bit big-endian PowerPC)
+
+New userspace platform for QorIQ e5500/e6500 hosts built with a plain cross
+GCC: endian settings of the SDK's own PowerPC target (linux-gto), word size
+of its 64-bit targets, no -Werror, GCC >= 14 dialect relaxations. Link
+dynamically and without libnsl (gone from glibc). The Makefile.unix-user hunk
+also contains tool-path edits made by fixpaths.pl (apply that script first).
+
+diff --git a/make/Makefile.linux-ppc64be b/make/Makefile.linux-ppc64be
+new file mode 100644
+index 0000000..13b0999
+--- /dev/null
++++ b/make/Makefile.linux-ppc64be
+@@ -0,0 +1,28 @@
++# 64-bit big-endian PowerPC Linux userspace (NXP QorIQ e5500/e6500 hosts),
++# built with a plain cross GCC. Endian settings as the SDK's own PowerPC
++# target (Makefile.linux-gto); word-size settings as its 64-bit targets.
++# Kernel modules are built separately (Kbuild), never from here.
++
++ifeq (,$(CROSS_COMPILE))
++CROSS_COMPILE := powerpc64-unknown-linux-gnuabielfv2-
++endif
++
++CFGFLAGS += -DSYS_BE_PIO=1 -DSYS_BE_PACKET=0 -DSYS_BE_OTHER=1
++ENDIAN = BE_HOST=1
++CFGFLAGS += -D$(ENDIAN)
++CFGFLAGS += -DBCM_PLATFORM_STRING=\"PPC64BE\"
++CFGFLAGS += -DSAL_BDE_DMA_MEM_DEFAULT=32
++
++CFLAGS += -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS
++CFLAGS += -DPHYS_ADDRS_ARE_64BITS
++CFLAGS += -fno-aggressive-loop-optimizations -fno-strict-overflow
++CFLAGS += -fgnu89-inline -fcommon -std=gnu11
++# The SDK predates current GCC diagnostics: no -Werror (Makefile.unix-user
++# only sets it when BCM_CFLAGS is empty), and let GCC >= 14 accept the old
++# C dialect (implicit declarations, int/pointer and enum/int mismatches).
++BCM_CFLAGS = -Wall -fno-strict-aliasing
++CFLAGS += -Wno-error -fpermissive
++
++ARCH = powerpc
++KBUILD_VERBOSE = 1
++export ARCH KBUILD_VERBOSE
+diff --git a/systems/linux/user/ppc64be/Makefile b/systems/linux/user/ppc64be/Makefile
+new file mode 100644
+index 0000000..fc2efa6
+--- /dev/null
++++ b/systems/linux/user/ppc64be/Makefile
+@@ -0,0 +1,13 @@
++# -*- Makefile -*-
++# 64-bit big-endian PowerPC userspace; see make/Makefile.linux-ppc64be.
++# SDK must be set in the environment.
++ifeq ($(SDK),)
++$(error SDK is not set)
++endif
++export SDK
++
++override kernel_version=3_6
++platform=ppc64be
++LINUX_MAKE_USER=1
++
++include ${SDK}/make/Make.linux
+Unknown regexp modifier "/b" at -e line 1, at end of line
+Execution of -e aborted due to compilation errors.
+diff --git a/make/Makefile.unix-user b/make/Makefile.unix-user
+index c2d6210..a8cf8e6 100644
+--- a/make/Makefile.unix-user
++++ b/make/Makefile.unix-user
+@@ -57,7 +57,7 @@ OPTFLAGS_DEFAULT = -O2
+ OSTYPE = LINUX
+ 
+ # Linux
+-LIBS =-lnsl -pthread -lm -lrt
++LIBS = -pthread -lm -lrt
+ ifeq (${LINK_UBSAN},1)
+ LIBS += -lubsan
+ endif
+@@ -164,7 +164,7 @@ endif
+ endif
+ 
+ ifeq (${LINK_STATIC},1)
+-LDFLAGS += -static
++# dynamic link: no static glibc in the cross toolchain (was: LDFLAGS += -static)
+ endif
+ 
+ LDFLAGS += ${LIBS} ${EXTRA_USER_LDFLAGS}
