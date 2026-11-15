@@ -109,6 +109,22 @@ Goal: every board device is bound, monitored, or listed as absent or unknown. Fa
 - [ ] Watchdog (SoC or CPLD), PSU status, TPM, GPIO/SPI wiring *(not yet done on AS7760)*.
 - **Gate:** a service watches fans and temperatures and fails to full speed, and the I2C map in PROGRESS marks each device bound, absent or unknown.
 
+## Phase 4b: Monitoring (do before changing fan policy)
+Goal: the device's health is scraped and kept, so thermal and fan changes are judged on trends, not single reads.
+
+- [ ] node-exporter on the device (shared module `monitoring-node-exporter`, port 9100, firewall opened), cross-built for the target. Collectors: hwmon, thermal_zone, cpu, loadavg, meminfo, pressure, filesystem, diskstats, netdev, netclass, systemd, textfile, time, uname; drop noisy/useless ones.
+- [ ] Board producer writing textfile metrics (atomic write, timeout, delete on failure, a `_last_success_timestamp` per producer), best effort:
+  - optics per port: presence, info (type, vendor, part), temperature, supply voltage, and for active optics per-lane rx power / tx bias;
+  - fans: controller duty in percent, per-rotor rpm and fault with front/rear labels, thermal-service failsafe state;
+  - board/CPU temperatures with friendly labels (the sensors.d names);
+  - ASIC die temperature (needs the SDK running) *(not yet done on AS7760)*;
+  - PSU presence/status, CPLD/board health registers where known *(not yet done on AS7760)*;
+  - load, memory, uptime, disk and NIC counters come from node-exporter itself.
+  Prefer generic names (`switch_optic_temperature_celsius{port=}`, `switch_fan_rpm{rotor=}`) with board specifics in labels, so dashboards carry over between boards.
+- [ ] Register a scrape target in the lab VictoriaMetrics (`ai-re-metrics target add <device> <host>:9100`) and confirm `up == 1` and the custom series exist.
+- [ ] Baseline: at least an hour (ideally a day) of temperatures and fan rpm at the current fan policy, with the ASIC idle and initialised, before lowering fan duty. Record min/avg/max in PROGRESS (`ai-re-metrics range ... --since`).
+- **Gate:** the device is scraped, a baseline is recorded, and the fan policy change can be compared against it.
+
 ## Phase 5: Switch chip
 Goal: front-panel ports as Linux netdevs passing frames over real cables, all built by Nix.
 
