@@ -17,8 +17,10 @@
 - Before cutting power under the factory OS: serial break + SysRq `s`, `u` (works).
 - Recovery: boot stages are A/B in SPI NOR, with a second SPI image (mtd1) holding
   older al-boot. The M.2 SATA SSD is removable. Full images in `dumps/u01/`.
-- NixOS module: `ai_re/nix/modules/boards/dmc12` (verbatim import of the first
-  iteration; see its README for what still has to change).
+- NixOS: generic image `nix/configs/dmc12` on `boards/dmc12` + `platforms/alpine-v2` +
+  `packages/{linux-alpine,al-eth}` (mainline 7.3.4, new DTS, CPLD reboot hook,
+  interrupt monitor). Outputs `dmc12-netboot` (TFTP RAM boot) and `dmc12-disk-image`.
+  Reimaging: `reimage.py` / `reimage.md`. **Not booted on hardware yet.**
 - **Left in:** the rdinit shell, powered on, at 10.60.2.10, with nothing mounted from disk.
   So no ser2net, and the AS7760's console on port 48 isn't served. A
   power-cycle returns it to the factory OS.
@@ -30,8 +32,13 @@
 - **Factory hardware tooling vs the module:** `vendor-tooling.md` (CPLD register map,
   reboot via CPLD/sp805, interrupt monitor, uplink re-sync, GPIO lines). Read it before
   reworking `board-dmc12`.
-- Open: does mainline reboot work (PSCI v0.1, no SYSTEM_RESET), fan state with no OS,
-  what selects CS1 (mtd1), the PSU1 alarm, random-access image tooling.
+- Reboot: the **CPLD reset works** (0x29←1, 0x28←1 from Linux: full board reset, stage2 in
+  under 1 s, U-Boot in about 7 s). Whether mainline's own `reboot` works is still to test.
+- U-Boot netboot: `setenv autoload no; dhcp` (lab LAN lease) reaches the TFTP host
+  10.60.2.208. No env writes needed for RAM boots.
+- Open: what selects CS1 (mtd1), the PSU1 alarm (CPLD IRQ line gpio465 is held low by it).
+  **After NixOS:** back up and analyse the CPLD (MachXO3 JTAG readback, cf. `cpldupd`), the uC
+  firmware and the SPI `APCEA`/`APCEA_CFG` objects.
 
 ## Identity
 - Board EEPROM (ONIE TLV, 24c02 @ I2C 7-0051): **Accton / Edgecore**,
@@ -125,8 +132,9 @@ Phase 0
 - [x] logged tmux/tio session, by-id path; [x] baud from a readable boot
 - [x] paced input (`console.py`); [x] scripted power + power-cycle to U-Boot
 - [ ] logic levels: the console is the external port on the user's cable; no internal header probed
-- [ ] fans with no OS: the bootcmd preamble sets `fan_speed_70`; behaviour when stopped
-  before the preamble is unmeasured
+- [x] fans with no OS: **full speed**. After reset the CPLD WDT flag 0x2a = 3 and the tachs read
+  0x90/0x8f/0x8f (≈14.4k RPM) while PWM 0x50 = 0x09, i.e. the CPLD fails safe until software
+  clears 0x2a. The bootcmd preamble then sets 70%.
 - [x] network: mgmt on the lab LAN (DHCP); [x] recovery inventory (above; JTAG unknown)
 - [x] dir 0700 + `.gitignore`
 - Gate: met, except for the two open safety notes above.

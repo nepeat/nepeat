@@ -11,7 +11,9 @@ import pathlib, subprocess, sys, time
 
 ROOT = pathlib.Path(__file__).resolve().parent
 SESSION = "serial-dmc12"
-POWER = [sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), "2"]
+# Lab plug (default 2 = u01's); `--plug N` for other units.
+PLUG = sys.argv[sys.argv.index("--plug") + 1] if "--plug" in sys.argv else "2"
+POWER = [sys.executable, str(ROOT.parents[1] / "tools" / "lab_power.py"), PLUG]
 AUTOBOOT = b"Hit any key to stop autoboot"
 
 
@@ -29,11 +31,15 @@ def wait_for(needle, baseline, timeout):
     raise SystemExit(f"timed out waiting for {needle!r} in pane {SESSION}")
 
 
+# --no-power: only wait for the next autoboot (after a software reset you
+# triggered yourself), e.g. testing the CPLD reboot path.
+no_power = "--no-power" in sys.argv
 subprocess.run(["tmux", "clear-history", "-t", SESSION], check=True)
 baseline = pane().count(AUTOBOOT)
-subprocess.run(POWER + ["off"], check=True)
-time.sleep(5)
-subprocess.run(POWER + ["on"], check=True)
+if not no_power:
+    subprocess.run(POWER + ["off"], check=True)
+    time.sleep(5)
+    subprocess.run(POWER + ["on"], check=True)
 # The board runs stage2/stage3 twice before U-Boot's countdown (see initial boot).
 wait_for(AUTOBOOT, baseline, 120)
 subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", " "], check=True)
