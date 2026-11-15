@@ -1,0 +1,23 @@
+From: as7760 bring-up
+Subject: [PATCH] board: t208xrdb: honour CONFIG_VID and CONFIG_PCI
+
+board_early_init_r() calls adjust_vdd() and pci_init() unconditionally, so a
+config without VID (no IR36021 regulator) or PCI fails to link.
+
+--- a/board/nxp/t208xrdb/t208xrdb.c	2026-11-14 12:42:33.556902645 -0800
++++ b/board/nxp/t208xrdb/t208xrdb.c	2026-11-14 12:42:33.612902886 -0800
+@@ -112,10 +112,14 @@
+ 	 * Adjust core voltage according to voltage ID
+ 	 * This function changes I2C mux to channel 2.
+ 	 */
++#ifdef CONFIG_VID
+ 	if (adjust_vdd(0))
+ 		printf("Warning: Adjusting core voltage failed.\n");
++#endif
+ 
++#ifdef CONFIG_PCI
+ 	pci_init();
++#endif
+ 
+ 	return 0;
+ }

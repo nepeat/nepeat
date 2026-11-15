@@ -1,0 +1,119 @@
+From: as7760 bring-up
+Subject: [PATCH] mpc85xx: optionally skip CCSR relocation for chainloading
+
+Test-only: lets a RAMBOOT_PBL U-Boot be started with "go" from a U-Boot that
+already relocated CCSR (AS7760 factory U-Boot 2014.07).
+
+--- a/arch/powerpc/cpu/mpc85xx/Kconfig	2026-11-14 17:54:26.209417063 -0800
++++ b/arch/powerpc/cpu/mpc85xx/Kconfig	2026-11-14 17:54:26.213417076 -0800
+@@ -1023,6 +1023,14 @@
+ 	  cores, count the reserved ports. This will allocate enough memory
+ 	  in spin table to properly handle all cores.
+ 
++config CHAINLOAD_CCSR_RELOCATED
++	bool "CCSR already relocated by a previous boot stage"
++	depends on RAMBOOT_PBL
++	help
++	  Skip the early CCSR relocation in start.S. For testing a RAM-linked
++	  U-Boot that is started with "go" from another U-Boot which has already
++	  moved CCSR to CFG_SYS_CCSRBAR_PHYS. Not for normal boot images.
++
+ config SYS_CCSRBAR_DEFAULT
+ 	hex "Default CCSRBAR address"
+ 	default	0xff700000 if	ARCH_BSC9131	|| \
+--- a/arch/powerpc/cpu/mpc85xx/cpu_init.c	2026-11-14 18:10:34.759542712 -0800
++++ b/arch/powerpc/cpu/mpc85xx/cpu_init.c	2026-11-14 18:10:34.805542928 -0800
+@@ -278,6 +278,18 @@
+ 		if (in_be32(&cpc->cpcsrcr0) & CPC_SRCR0_SRAMEN)
+ 			continue;
+ 		/* Flash invalidate the CPC and clear all the locks */
++#ifdef CONFIG_CHAINLOAD_CCSR_RELOCATED
++		/*
++		 * DDR is live and the previous loader may have left the CPC
++		 * enabled with modified lines (our own image among them):
++		 * write them back before the flash invalidate.
++		 */
++		if (in_be32(&cpc->cpccsr0) & CPC_CSR0_CE) {
++			setbits_be32(&cpc->cpccsr0, CPC_CSR0_FL);
++			while (in_be32(&cpc->cpccsr0) & CPC_CSR0_FL)
++				;
++		}
++#endif
+ 		out_be32(&cpc->cpccsr0, CPC_CSR0_FI | CPC_CSR0_LFC);
+ 		while (in_be32(&cpc->cpccsr0) & (CPC_CSR0_FI | CPC_CSR0_LFC))
+ 			;
+--- a/arch/powerpc/cpu/mpc85xx/cpu_init_early.c	2026-11-14 18:06:18.356287278 -0800
++++ b/arch/powerpc/cpu/mpc85xx/cpu_init_early.c	2026-11-14 18:06:18.402287514 -0800
+@@ -176,6 +176,24 @@
+ 	out_be32(&l2cache->l2srbar0, 0x0);
+ #endif
+ 
++#ifdef CONFIG_CHAINLOAD_CCSR_RELOCATED
++	/*
++	 * start.S shrank the previous loader's DDR TLB (IPROT) to the 4K page
++	 * it ran from. It would overlap our own DDR entry once the table is
++	 * loaded (multi-hit, silent hang when started from upstream U-Boot,
++	 * whose DDR entry sits in a slot the table does not overwrite). Drop
++	 * every TLB1 entry but the AS1 temporaries we run on: 13 CCSR, 14
++	 * stack, 15 text.
++	 */
++	{
++		int i;
++
++		for (i = 0; i < CONFIG_SYS_NUM_TLBCAMS; i++)
++			if (i < 13 || i > 15)
++				disable_tlb(i);
++	}
++#endif
++
+ 	invalidate_tlb(1);
+ 
+ #if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && \
+--- a/arch/powerpc/cpu/mpc85xx/start.S	2026-11-14 17:54:26.209417063 -0800
++++ b/arch/powerpc/cpu/mpc85xx/start.S	2026-11-14 17:54:26.285417313 -0800
+@@ -573,7 +573,13 @@
+  * As a general rule, TLB0 is used for short-term TLBs, and TLB1 is used for
+  * long-term TLBs, so we use TLB0 here.
+  */
+-#if (CONFIG_SYS_CCSRBAR_DEFAULT != CFG_SYS_CCSRBAR_PHYS)
++/*
++ * CHAINLOAD_CCSR_RELOCATED: entered from a previous U-Boot that already moved
++ * CCSR to CFG_SYS_CCSRBAR_PHYS. The default window then aliases DDR, the
++ * check below can never match and we would spin in infinite_debug_loop.
++ */
++#if (CONFIG_SYS_CCSRBAR_DEFAULT != CFG_SYS_CCSRBAR_PHYS) && \
++	!defined(CONFIG_CHAINLOAD_CCSR_RELOCATED)
+ 
+ #if !defined(CFG_SYS_CCSRBAR_PHYS_HIGH) || !defined(CFG_SYS_CCSRBAR_PHYS_LOW)
+ #error "CFG_SYS_CCSRBAR_PHYS_HIGH and CFG_SYS_CCSRBAR_PHYS_LOW) must be defined."
+@@ -773,6 +779,30 @@
+ 	/* enable L2 cache */
+ 	lis	r3, (CFG_SYS_CCSRBAR + 0xC20000)@h
+ 	ori	r3, r3, (CFG_SYS_CCSRBAR + 0xC20000)@l
++#ifdef CONFIG_CHAINLOAD_CCSR_RELOCATED
++	/*
++	 * The previous loader left the L2 enabled, and unless it called
++	 * flush_cache() on our image (tftp does, fatload/cp do not) parts of
++	 * this very code only exist as dirty L2 lines. Invalidating would
++	 * destroy them (seen as a silent hang after "go"), and keeping the
++	 * used L2 makes the cache-as-RAM stack below unreliable (seen when
++	 * started from upstream U-Boot): write the L2 back, then go on with
++	 * the normal invalidate + enable.
++	 */
++	lwz	r4, 0(r3)
++	andis.	r0, r4, L2CSR0_L2E@h
++	beq	2f
++	ori	r4, r4, L2CSR0_L2FL@l
++	sync
++	stw	r4, 0(r3)	/* flush L2 */
++1:	sync
++	lwz	r0, 0(r3)
++	twi	0, r0, 0
++	isync
++	andi.	r0, r0, L2CSR0_L2FL@l
++	bne	1b
++2:
++#endif
+ 	li	r4, 33	/* stash id */
+ 	stw	r4, 4(r3)
+ 	lis	r4, (L2CSR0_L2FI|L2CSR0_L2LFC)@h

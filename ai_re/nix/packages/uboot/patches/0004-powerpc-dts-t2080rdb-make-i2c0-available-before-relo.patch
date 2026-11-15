@@ -1,0 +1,19 @@
+From: as7760 bring-up
+Subject: [PATCH] powerpc: dts: t2080rdb: make i2c0 available before relocation
+
+dram_init() runs before relocation and reads the DIMM SPD over I2C bus 0, on
+RAMBOOT_PBL builds too (fsl_ddr_sdram_size()). Without bootph on i2c0 this
+fails with "__get_spd: Cannot find udev for a bus 0".
+
+--- a/arch/powerpc/dts/t2080rdb-u-boot.dtsi	2026-11-14 13:06:15.675493434 -0800
++++ b/arch/powerpc/dts/t2080rdb-u-boot.dtsi	2026-11-14 13:06:15.743493704 -0800
+@@ -9,4 +9,9 @@
+ 	bootph-all;
+ };
+ 
++/* dram_init() reads the DIMM SPD before relocation (also on RAMBOOT_PBL). */
++&i2c0 {
++	bootph-all;
++};
++
+ #include "u-boot.dtsi"

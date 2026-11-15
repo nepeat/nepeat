@@ -1,0 +1,103 @@
+From: as7760 bring-up
+Subject: [PATCH] board: t208xrdb: AS7760-32X DDR setup as the factory loader does it
+
+Replicates the sequence of the AS7760 factory U-Boot (2014.07), established
+by comparing live controller registers (ddrcmp) and by disassembling it:
+ - train with computed 1T / full-strength settings, no chip-select
+   interleaving, the board's write-leveling start values, BSTOPRE 0x100 and read-capture CPO 0x4d (debug[28] = 0x0070004d);
+ - no A-008109 workaround (the factory code has none; live debug[18] and
+   sdram_cfg_2 confirm);
+ - after initialisation, switch the controller to 2T + half-strength and
+   write the factory's final timing_cfg_0 and mode register shadows. The
+   DIMMs keep the mode registers they were trained with.
+The half-strength bit follows a GPIO1 strap in the factory code; the unit
+this was developed on reads the "set it" value. Tuned for its two dual-rank
+UDIMMs: do not move or swap DIMMs without re-checking.
+
+--- a/board/nxp/t208xrdb/Kconfig	2026-11-14 16:41:41.802991774 -0800
++++ b/board/nxp/t208xrdb/Kconfig	2026-11-14 16:41:45.677005940 -0800
+@@ -12,4 +12,10 @@
+ config T2080RDB_REV_D
+ 	bool "Support for T2080RDB revisions D and up"
+ 
++config AS7760_DDR
++	bool "Accton AS7760-32X DDR setup"
++	help
++	  Initialise DDR3 the way the Accton AS7760-32X factory loader does
++	  (two dual-rank UDIMMs) instead of using the T2080RDB board defaults.
++
+ endif
+--- a/board/nxp/t208xrdb/ddr.c	2026-11-14 16:41:41.802991774 -0800
++++ b/board/nxp/t208xrdb/ddr.c	2026-11-14 16:41:46.550009133 -0800
+@@ -12,6 +12,8 @@
+ #include <fsl_ddr_sdram.h>
+ #include <fsl_ddr_dimm_params.h>
+ #include <asm/fsl_law.h>
++#include <asm/io.h>
++#include <fsl_immap.h>
+ #include "ddr.h"
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -96,7 +98,41 @@
+ 
+ 	/* optimize cpo for erratum A-009942 */
+ 	popts->cpo_sample = 0x54;
++
++#ifdef CONFIG_AS7760_DDR
++	/* Training-time settings of the AS7760-32X factory loader. */
++	popts->ba_intlv_ctl = 0;
++	popts->bstopre = 0x100;
++	popts->wrlvl_start = 7;
++	popts->wrlvl_ctl_2 = 0x0608060d;
++	popts->wrlvl_ctl_3 = 0x090c0a09;
++	popts->cpo_sample = 0x4d;
++#endif
++}
++
++#ifdef CONFIG_AS7760_DDR
++/*
++ * What the AS7760-32X factory loader writes once initialisation is done:
++ * 2T timing + half-strength drivers, its final turnaround timings and the
++ * matching mode register shadows (no MRS is sent to the DIMMs).
++ */
++#define AS7760_SDRAM_CFG_POST	0x00008008
++#define AS7760_TIMING_CFG_0	0xda11000c
++#define AS7760_SDRAM_MODE	0x00421c70	/* also mode_5 */
++#define AS7760_SDRAM_MODE_3	0x02061c70	/* also mode_7 */
++
++static void as7760_ddr_post_init(void)
++{
++	struct ccsr_ddr __iomem *ddr = (void *)CFG_SYS_FSL_DDR_ADDR;
++
++	setbits_be32(&ddr->sdram_cfg, AS7760_SDRAM_CFG_POST);
++	out_be32(&ddr->timing_cfg_0, AS7760_TIMING_CFG_0);
++	out_be32(&ddr->sdram_mode, AS7760_SDRAM_MODE);
++	out_be32(&ddr->sdram_mode_3, AS7760_SDRAM_MODE_3);
++	out_be32(&ddr->sdram_mode_5, AS7760_SDRAM_MODE);
++	out_be32(&ddr->sdram_mode_7, AS7760_SDRAM_MODE_3);
+ }
++#endif
+ 
+ int dram_init(void)
+ {
+@@ -105,6 +141,9 @@
+ #if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
+ 	puts("Initializing....using SPD\n");
+ 	dram_size = fsl_ddr_sdram();
++#ifdef CONFIG_AS7760_DDR
++	as7760_ddr_post_init();
++#endif
+ #else
+ 	/* DDR has been initialised by first stage boot loader */
+ 	dram_size = fsl_ddr_sdram_size();
+--- a/drivers/ddr/fsl/mpc85xx_ddr_gen3.c	2026-11-14 16:41:43.388997573 -0800
++++ b/drivers/ddr/fsl/mpc85xx_ddr_gen3.c	2026-11-14 16:41:45.677005940 -0800
+@@ -364,7 +364,8 @@
+ 	}
+ #endif
+ 
+-#if defined(CONFIG_SYS_FSL_ERRATUM_A008109)
++	/* The AS7760-32X factory loader trains without this workaround. */
++#if defined(CONFIG_SYS_FSL_ERRATUM_A008109) && !defined(CONFIG_AS7760_DDR)
+ 	val32 = in_be32(&ddr->sdram_cfg_2) | 0x800; /* DDR_SLOW */
+ 	out_be32(&ddr->sdram_cfg_2, val32);

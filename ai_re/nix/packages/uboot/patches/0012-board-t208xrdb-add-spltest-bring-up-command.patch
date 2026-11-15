@@ -1,0 +1,145 @@
+From: as7760 bring-up
+Subject: [PATCH] board: t208xrdb: add "spltest" bring-up command
+
+Run an SPL from CPC SRAM to exercise a cold DDR init without writing boot
+flash (AS7760 port). Experimental: the SPL currently faults in its reset path.
+
+--- a/cmd/Kconfig	2026-11-14 16:36:52.774964186 -0800
++++ b/cmd/Kconfig	2026-11-14 16:36:53.024965045 -0800
+@@ -1186,6 +1186,13 @@
+ 	  environment variable be set and define the alt settings to expose to
+ 	  the host.
+ 
++config CMD_SPLTEST
++	bool "spltest - run an SPL from CPC SRAM (cold DDR init test)"
++	depends on TARGET_T2080RDB && SYS_FSL_CPC
++	help
++	  Board bring-up aid (AS7760 port): turn the CPC into SRAM, copy an
++	  SPL image into it and jump there. Destroys all DDR contents.
++
+ config CMD_DDRCMP
+ 	bool "ddrcmp - compare computed DDR setup with the live controller"
+ 	depends on SYS_FSL_DDR && TARGET_T2080RDB
+--- a/board/nxp/t208xrdb/Makefile	2026-11-14 16:36:52.901964622 -0800
++++ b/board/nxp/t208xrdb/Makefile	2026-11-14 16:36:53.066965189 -0800
+@@ -8,6 +8,7 @@
+ obj-y	+= spl.o
+ else
+ obj-$(CONFIG_TARGET_T2080RDB) += t208xrdb.o eth_t208xrdb.o cpld.o
++obj-$(CONFIG_CMD_SPLTEST) += spltest.o
+ endif
+ 
+ obj-y   += ddr.o
+--- a/board/nxp/t208xrdb/spltest.c	1969-12-31 16:00:00.000000000 -0800
++++ b/board/nxp/t208xrdb/spltest.c	1969-12-31 16:00:00.000000000 -0800
+@@ -0,0 +1,110 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * spltest: exercise a cold DDR init without touching boot flash.
++ *
++ * Converts the CoreNet platform cache (CPC) into 512 KiB SRAM at 0xfff80000
++ * (the values the T2080RDB PBI uses for SD/SPI boot), copies an SPL image to
++ * its link address 0xfffd8000 and jumps to it. The SPL then re-initialises
++ * the DDR controller from SPD and loads U-Boot from its boot medium, as on a
++ * PBL boot. Secondary cores are held in reset first (their spin loop lives in
++ * DDR); a U-Boot carrying the chainload secondary-restart patch releases them.
++ * Boot page translation is switched off so 0xfffff000 (the SPL's _start in
++ * .bootpg) reaches SRAM; that U-Boot's plat_mp_up() programs it again.
++ */
++#include <command.h>
++#include <irq_func.h>
++#include <cpu_func.h>
++#include <vsprintf.h>
++#include <linux/string.h>
++#include <asm/io.h>
++#include <asm/processor.h>
++#include <asm/immap_85xx.h>
++#include <asm/fsl_law.h>
++#include <asm/mmu.h>
++
++#define SPLTEST_SRAM_BASE	0xfff80000
++#define SPLTEST_SPL_BASE	0xfffd8000
++#define SPLTEST_SPL_MAX		0x28000		/* up to 0xffffffff (bootpg, resetvec) */
++
++static int do_spltest(struct cmd_tbl *cmdtp, int flag, int argc,
++		      char *const argv[])
++{
++	cpc_corenet_t *cpc = (void *)CFG_SYS_FSL_CPC_ADDR;
++	volatile ccsr_local_t *ccm = (void *)CFG_SYS_FSL_CORENET_CCM_ADDR;
++	volatile ccsr_pic_t *pic = (void *)CFG_SYS_MPC8xxx_PIC_ADDR;
++	u32 __iomem *l2csr0 = (u32 __iomem *)(CFG_SYS_CCSRBAR + 0xc20000);
++	int tpc = CONFIG_SYS_FSL_THREADS_PER_CORE;
++	ulong src, len, entry;
++	u32 rst;
++
++	int dry;
++
++	if (argc < 4)
++		return CMD_RET_USAGE;
++	dry = argc > 4 && !strcmp(argv[4], "dry");
++	src = hextoul(argv[1], NULL);
++	len = hextoul(argv[2], NULL);
++	entry = hextoul(argv[3], NULL);
++	if (!len || len > SPLTEST_SPL_MAX || entry < SPLTEST_SPL_BASE ||
++	    entry - SPLTEST_SPL_BASE >= len) {
++		puts("spltest: bad size or entry\n");
++		return CMD_RET_FAILURE;
++	}
++
++	rst = ((1 << (cpu_numcores() * tpc)) - 1) & ~((1 << tpc) - 1);
++	printf("spltest: hold secondaries (PIR 0x%x), CPC -> SRAM 0x%x, SPL %lu bytes, entry 0x%lx\n",
++	       rst, SPLTEST_SRAM_BASE, len, entry);
++
++	disable_interrupts();
++	out_be32(&pic->pir, rst);
++	(void)in_be32(&pic->pir);
++
++	/* write back the cluster L2 (e6500 L1D is write-through) */
++	out_be32(l2csr0, in_be32(l2csr0) | L2CSR0_L2FL);
++	while (in_be32(l2csr0) & L2CSR0_L2FL)
++		;
++
++	/* flush + disable the CPC, invalidate it, then re-enable as SRAM */
++	setbits_be32(&cpc->cpccsr0, CPC_CSR0_FL);
++	while (in_be32(&cpc->cpccsr0) & CPC_CSR0_FL)
++		;
++	out_be32(&cpc->cpccsr0, 0);
++	(void)in_be32(&cpc->cpccsr0);
++	out_be32(&cpc->cpccsr0, CPC_CSR0_FI | CPC_CSR0_LFC);
++	while (in_be32(&cpc->cpccsr0) & (CPC_CSR0_FI | CPC_CSR0_LFC))
++		;
++	out_be32(&cpc->cpcsrcr1, 0);
++	out_be32(&cpc->cpcsrcr0, SPLTEST_SRAM_BASE | CPC_SRCR0_SRAMSZ_16_WAY |
++				 CPC_SRCR0_SRAMEN);
++	out_be32(&cpc->cpchdbcr0, CPC_HDBCR0_CDQ_SPEC_DIS);
++	out_be32(&cpc->cpccsr0, CPC_CSR0_CE);
++	(void)in_be32(&cpc->cpccsr0);
++	asm volatile("sync; isync");
++
++	/* let 0xfffff000-0xffffffff reach the SRAM instead of the boot page */
++	clrbits_be32(&ccm->bstrar, LAW_EN);
++	(void)in_be32(&ccm->bstrar);
++
++	/*
++	 * Map the SRAM 1:1, cache-inhibited (the RAMBOOT L3 TLB entry is gone
++	 * after relocation). The SPL keeps executing from this entry.
++	 */
++	set_tlb(1, 0xfff00000, 0xfff00000, MAS3_SX | MAS3_SW | MAS3_SR,
++		MAS2_I | MAS2_G, 0, find_free_tlbcam(), BOOKE_PAGESZ_1M, 1);
++	memcpy((void *)SPLTEST_SPL_BASE, (void *)src, len);
++	asm volatile("sync; isync");
++
++	if (dry) {
++		printf("spltest dry: bstrar=%08x cpccsr0=%08x cpcsrcr0=%08x sram[0]=%08x sram[entry]=%08x\n",
++		       in_be32(&ccm->bstrar), in_be32(&cpc->cpccsr0),
++		       in_be32(&cpc->cpcsrcr0), *(u32 *)SPLTEST_SPL_BASE,
++		       *(u32 *)entry);
++		return 0;
++	}
++	((void (*)(void))entry)();
++	return CMD_RET_FAILURE;	/* not reached */
++}
++
++U_BOOT_CMD(spltest, 5, 0, do_spltest,
++	   "run an SPL from CPC SRAM (destroys DDR contents)",
++	   "<spl image addr> <size> <entry> [dry]");

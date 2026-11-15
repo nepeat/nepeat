@@ -1,0 +1,19 @@
+From: as7760 bring-up
+Subject: [PATCH] AS7760 test hack: SPD EEPROMs at 0x52/0x53
+
+NOT upstreamable: retargets the T208xRDB SPD addresses for the AS7760-32X
+chainload tests (two UDIMMs). Belongs in a proper AS7760 board target.
+
+--- a/include/configs/T208xRDB.h	2026-11-14 13:06:15.677493442 -0800
++++ b/include/configs/T208xRDB.h	2026-11-14 13:06:15.862494175 -0800
+@@ -74,8 +74,9 @@
+ #define CFG_SYS_DDR_SDRAM_BASE	0x00000000
+ #define CFG_SYS_SDRAM_BASE		CFG_SYS_DDR_SDRAM_BASE
+ #define CFG_SYS_SDRAM_SIZE	2048	/* for fixed parameter use */
+-#define SPD_EEPROM_ADDRESS1	0x51
+-#define SPD_EEPROM_ADDRESS2	0x52
++/* AS7760-32X: two UDIMMs, SPD at 0x52/0x53 (RDB: 0x51/0x52). TEST HACK. */
++#define SPD_EEPROM_ADDRESS1	0x52
++#define SPD_EEPROM_ADDRESS2	0x53
+ #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1
+ #define CTRL_INTLV_PREFERED	cacheline

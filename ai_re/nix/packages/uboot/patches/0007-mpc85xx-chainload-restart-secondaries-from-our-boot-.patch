@@ -1,0 +1,38 @@
+From: as7760 bring-up
+Subject: [PATCH] mpc85xx: chainload: restart secondaries from our boot page
+
+With CHAINLOAD_CCSR_RELOCATED the secondary cores are already spinning in the
+previous U-Boot's boot page near the top of RAM, which relocation overwrites
+(seen on an AS7760: "CPU up timeout", then Linux oopsing on corrupted memory).
+Pulse their MPIC reset once boot page translation points at our own spin loop.
+
+--- a/arch/powerpc/cpu/mpc85xx/mp.c	2026-11-14 13:55:55.593201223 -0800
++++ b/arch/powerpc/cpu/mpc85xx/mp.c	2026-11-14 14:01:40.280080580 -0800
+@@ -282,6 +282,28 @@
+ 	/* readback to sync write */
+ 	in_be32(&ccm->bstrar);
+ 
++#ifdef CONFIG_CHAINLOAD_CCSR_RELOCATED
++	/*
++	 * The previous loader already released the secondaries into its own
++	 * spin loop, which relocation has overwritten. Pulse their reset (one
++	 * MPIC PIR bit per hardware thread, never our own core's threads):
++	 * boot release is still set, so they restart from our boot page.
++	 */
++	{
++		int tpc = CONFIG_SYS_FSL_THREADS_PER_CORE;
++		u32 rst = ((1 << (cpu_numcores() * tpc)) - 1) & ~((1 << tpc) - 1);
++		int n;
++
++		printf("chainload: restarting secondaries (PIR 0x%x)\n", rst);
++		out_be32(&pic->pir, rst);
++		(void)in_be32(&pic->pir);
++		udelay(10);
++		out_be32(&pic->pir, 0);
++		for (n = 0; n < 15; n++)
++			(void)in_be32(&pic->pir);
++	}
++#endif
++
+ 	/* disable time base at the platform */
+ 	out_be32(&rcpm->ctbenrl, cpu_up_mask);

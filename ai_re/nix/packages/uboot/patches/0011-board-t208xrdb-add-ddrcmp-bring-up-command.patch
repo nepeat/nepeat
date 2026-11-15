@@ -1,0 +1,147 @@
+From: as7760 bring-up
+Subject: [PATCH] board: t208xrdb: add "ddrcmp" bring-up command
+
+Compute the DDR controller setup from SPD + board options and compare it
+register by register with the live controller, including the read-capture
+CPO in debug[28]; dumps the live debug registers. Read-only.
+
+--- a/cmd/Kconfig	2026-11-14 16:41:44.708002396 -0800
++++ b/cmd/Kconfig	2026-11-14 16:41:48.498016260 -0800
+@@ -1186,6 +1186,14 @@
+ 	  environment variable be set and define the alt settings to expose to
+ 	  the host.
+ 
++config CMD_DDRCMP
++	bool "ddrcmp - compare computed DDR setup with the live controller"
++	depends on SYS_FSL_DDR && TARGET_T2080RDB
++	help
++	  Board bring-up aid (AS7760 port): computes the Freescale DDR
++	  controller configuration from SPD and prints it next to the live
++	  register values. Read-only.
++
+ config CMD_DM
+ 	bool "dm - Access to driver model information"
+ 	depends on DM
+--- a/board/nxp/t208xrdb/ddr.c	2026-11-14 16:41:46.550009133 -0800
++++ b/board/nxp/t208xrdb/ddr.c	2026-11-14 16:41:50.137022259 -0800
+@@ -155,3 +155,120 @@
+ 
+ 	return 0;
+ }
++
++#if defined(CONFIG_CMD_DDRCMP) && !defined(CONFIG_XPL_BUILD)
++#include <command.h>
++#include <malloc.h>
++#include <fsl_ddr.h>
++#include <fsl_immap.h>
++
++/*
++ * Bring-up aid: compute the controller setup this U-Boot would program from
++ * SPD + board options (exactly what a cold boot does) and compare it with the
++ * live, already-working controller. Read-only: nothing is written to the DDRC.
++ */
++static int do_ddrcmp(struct cmd_tbl *cmdtp, int flag, int argc,
++		     char *const argv[])
++{
++	struct ccsr_ddr __iomem *ddr = (void *)CFG_SYS_FSL_DDR_ADDR;
++	fsl_ddr_info_t *info = malloc(sizeof(*info));
++	fsl_ddr_cfg_regs_t *r;
++	unsigned long long total;
++	int i, diff = 0;
++
++	if (!info)
++		return CMD_RET_FAILURE;
++	memset(info, 0, sizeof(*info));
++	info->mem_base = CFG_SYS_DDR_SDRAM_BASE;
++	info->first_ctrl = 0;
++	info->num_ctrls = 1;
++	info->dimm_slots_per_ctrl = CONFIG_DIMM_SLOTS_PER_CTLR;
++	total = fsl_ddr_compute(info, STEP_GET_SPD, 0);
++	printf("computed size %llu MiB\n", total >> 20);
++	r = &info->fsl_ddr_config_reg[0];
++#ifdef CONFIG_AS7760_DDR
++	/* expected end state = computed training values + post-init writes */
++	r->ddr_sdram_cfg |= AS7760_SDRAM_CFG_POST;
++	r->timing_cfg_0 = AS7760_TIMING_CFG_0;
++	r->ddr_sdram_mode = AS7760_SDRAM_MODE;
++	r->ddr_sdram_mode_5 = AS7760_SDRAM_MODE;
++	r->ddr_sdram_mode_3 = AS7760_SDRAM_MODE_3;
++	r->ddr_sdram_mode_7 = AS7760_SDRAM_MODE_3;
++#endif
++
++#define DDRCMP(label, comp, live) do { \
++		u32 a_ = (comp), b_ = in_be32(&(live)); \
++		printf("%-16s comp %08x live %08x%s\n", label, a_, b_, \
++		       a_ == b_ ? "" : "  <-- differs"); \
++		diff += a_ != b_; \
++	} while (0)
++
++	for (i = 0; i < 4; i++) {
++		char n[16];
++
++		snprintf(n, sizeof(n), "cs%d_bnds", i);
++		DDRCMP(n, r->cs[i].bnds, (&ddr->cs0_bnds)[2 * i]);
++		snprintf(n, sizeof(n), "cs%d_config", i);
++		DDRCMP(n, r->cs[i].config, (&ddr->cs0_config)[i]);
++		snprintf(n, sizeof(n), "cs%d_config_2", i);
++		DDRCMP(n, r->cs[i].config_2, (&ddr->cs0_config_2)[i]);
++	}
++	DDRCMP("timing_cfg_0", r->timing_cfg_0, ddr->timing_cfg_0);
++	DDRCMP("timing_cfg_1", r->timing_cfg_1, ddr->timing_cfg_1);
++	DDRCMP("timing_cfg_2", r->timing_cfg_2, ddr->timing_cfg_2);
++	DDRCMP("timing_cfg_3", r->timing_cfg_3, ddr->timing_cfg_3);
++	DDRCMP("timing_cfg_4", r->timing_cfg_4, ddr->timing_cfg_4);
++	DDRCMP("timing_cfg_5", r->timing_cfg_5, ddr->timing_cfg_5);
++	DDRCMP("timing_cfg_6", r->timing_cfg_6, ddr->timing_cfg_6);
++	DDRCMP("timing_cfg_7", r->timing_cfg_7, ddr->timing_cfg_7);
++	DDRCMP("timing_cfg_8", r->timing_cfg_8, ddr->timing_cfg_8);
++	DDRCMP("timing_cfg_9", r->timing_cfg_9, ddr->timing_cfg_9);
++	DDRCMP("sdram_cfg", r->ddr_sdram_cfg, ddr->sdram_cfg);
++	/*
++	 * DLL_RST_DIS, DQS_CFG and the self-clearing D_INIT do not read back
++	 * (the factory loader writes 0x24401110 too; live shows 0x00401100).
++	 */
++	DDRCMP("sdram_cfg_2", r->ddr_sdram_cfg_2 & ~0x2c000010, ddr->sdram_cfg_2);
++	DDRCMP("sdram_cfg_3", r->ddr_sdram_cfg_3, ddr->sdram_cfg_3);
++	DDRCMP("sdram_mode", r->ddr_sdram_mode, ddr->sdram_mode);
++	DDRCMP("sdram_mode_2", r->ddr_sdram_mode_2, ddr->sdram_mode_2);
++	DDRCMP("sdram_mode_3", r->ddr_sdram_mode_3, ddr->sdram_mode_3);
++	DDRCMP("sdram_mode_4", r->ddr_sdram_mode_4, ddr->sdram_mode_4);
++	DDRCMP("sdram_mode_5", r->ddr_sdram_mode_5, ddr->sdram_mode_5);
++	DDRCMP("sdram_mode_6", r->ddr_sdram_mode_6, ddr->sdram_mode_6);
++	DDRCMP("sdram_mode_7", r->ddr_sdram_mode_7, ddr->sdram_mode_7);
++	DDRCMP("sdram_mode_8", r->ddr_sdram_mode_8, ddr->sdram_mode_8);
++	DDRCMP("sdram_md_cntl", r->ddr_sdram_md_cntl, ddr->sdram_md_cntl);
++	DDRCMP("sdram_interval", r->ddr_sdram_interval, ddr->sdram_interval);
++	DDRCMP("sdram_data_init", r->ddr_data_init, ddr->sdram_data_init);
++	DDRCMP("sdram_clk_cntl", r->ddr_sdram_clk_cntl, ddr->sdram_clk_cntl);
++	DDRCMP("init_addr", r->ddr_init_addr, ddr->init_addr);
++	DDRCMP("init_ext_addr", r->ddr_init_ext_addr, ddr->init_ext_addr);
++	DDRCMP("zq_cntl", r->ddr_zq_cntl, ddr->ddr_zq_cntl);
++	DDRCMP("wrlvl_cntl", r->ddr_wrlvl_cntl, ddr->ddr_wrlvl_cntl);
++	DDRCMP("wrlvl_cntl_2", r->ddr_wrlvl_cntl_2, ddr->ddr_wrlvl_cntl_2);
++	DDRCMP("wrlvl_cntl_3", r->ddr_wrlvl_cntl_3, ddr->ddr_wrlvl_cntl_3);
++	DDRCMP("sr_cntr", r->ddr_sr_cntr, ddr->ddr_sr_cntr);
++	DDRCMP("sdram_rcw_1", r->ddr_sdram_rcw_1, ddr->ddr_sdram_rcw_1);
++	DDRCMP("sdram_rcw_2", r->ddr_sdram_rcw_2, ddr->ddr_sdram_rcw_2);
++	DDRCMP("cdr1", r->ddr_cdr1, ddr->ddr_cdr1);
++	DDRCMP("cdr2", r->ddr_cdr2, ddr->ddr_cdr2);
++	DDRCMP("eor", r->ddr_eor, ddr->eor);
++	/* read-capture point: board CPO vs live (A-009942 keeps bits above) */
++	printf("%-16s comp %08x live %08x%s\n", "debug[28].cpo",
++	       r->debug[28] & 0xff, in_be32(&ddr->debug[28]) & 0xff,
++	       (r->debug[28] & 0xff) == (in_be32(&ddr->debug[28]) & 0xff) ?
++	       "" : "  <-- differs");
++	diff += (r->debug[28] & 0xff) != (in_be32(&ddr->debug[28]) & 0xff);
++	puts("live debug[0..31]:");
++	for (i = 0; i < 32; i++)
++		printf("%s%08x", i % 8 ? " " : "\n  ", in_be32(&ddr->debug[i]));
++	putc('\n');
++	printf("%d register(s) differ\n", diff);
++	free(info);
++	return 0;
++}
++
++U_BOOT_CMD(ddrcmp, 1, 0, do_ddrcmp,
++	   "compare computed DDR controller setup with the live controller", "");
++#endif

@@ -1,0 +1,24 @@
+From: as7760 bring-up
+Subject: [PATCH] board: t208xrdb: report all DDR to the OS
+
+ft_cpu_setup() already sizes the memory node from gd->ram_size (all DDR), but
+ft_board_setup() then overwrites it with env_get_bootm_size(), which is
+clamped to what the 32-bit U-Boot maps (2 GiB). An AS7760 with 16 GiB booted
+Linux with 2 GiB. Keep the full size unless bootm_size is set explicitly.
+(Applies on top of 0002.)
+
+--- a/board/nxp/t208xrdb/t208xrdb.c	2026-11-14 16:36:23.741864904 -0800
++++ b/board/nxp/t208xrdb/t208xrdb.c	2026-11-14 16:36:23.786865057 -0800
+@@ -152,6 +152,13 @@
+ 
+ 	base = env_get_bootm_low();
+ 	size = env_get_bootm_size();
++	/*
++	 * env_get_bootm_size() is clamped to what U-Boot maps (2 GiB on a
++	 * 32-bit build); gd->ram_size is all of DDR. Give the OS everything
++	 * unless the user set bootm_size.
++	 */
++	if (!env_get("bootm_size"))
++		size = gd->ram_size - (base - gd->ram_base);
+ 
+ 	fdt_fixup_memory(blob, (u64)base, (u64)size);

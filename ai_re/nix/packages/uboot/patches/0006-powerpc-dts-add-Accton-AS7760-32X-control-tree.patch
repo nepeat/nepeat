@@ -1,0 +1,99 @@
+From: as7760 bring-up
+Subject: [PATCH] powerpc: dts: add Accton AS7760-32X control tree
+
+T2080-based switch control plane: DTSEC1 SGMII management port with a
+BCM54616S at MDIO address 0x1f; RDB-only PHYs/RTC/SPI flash removed.
+Built alongside t2080rdb.dtb for the T2080RDB board code for now.
+
+diff --color -uN a/arch/powerpc/dts/as7760-32x.dts b/arch/powerpc/dts/as7760-32x.dts
+--- a/arch/powerpc/dts/as7760-32x.dts	1969-12-31 16:00:00.000000000 -0800
++++ b/arch/powerpc/dts/as7760-32x.dts	2026-11-14 13:37:52.148247753 -0800
+@@ -0,0 +1,56 @@
++// SPDX-License-Identifier: GPL-2.0+ OR X11
++/*
++ * Edgecore (Accton) AS7760-32X: T2080 control plane of a BCM56930 switch.
++ * U-Boot control tree. Differs from the T2080RDB in: management port is
++ * DTSEC1 SGMII to a BCM54616S at MDIO 0x1f (SerDes1 protocol 0x6c); no
++ * 10G/RGMII PHYs, no RDB CPLD, no SPI NOR, no DS1339 (a DS1672 sits at 0x68).
++ */
++
++/include/ "t2080.dtsi"
++
++/ {
++	model = "Accton AS7760-32X";
++	compatible = "accton,as7760_32x", "fsl,T2080RDB";
++	#address-cells = <2>;
++	#size-cells = <2>;
++	interrupt-parent = <&mpic>;
++
++	aliases {
++		serial0 = &serial0;
++		serial1 = &serial1;
++		serial2 = &serial2;
++		serial3 = &serial3;
++		ethernet0 = &enet0;
++	};
++};
++
++&soc {
++	fman@400000 {
++		ethernet@e0000 {
++			phy-handle = <&mgmt_phy>;
++			phy-connection-type = "sgmii";
++		};
++
++		ethernet@e2000 { status = "disabled"; };
++		ethernet@e4000 { status = "disabled"; };
++		ethernet@e6000 { status = "disabled"; };
++		ethernet@f0000 { status = "disabled"; };
++		ethernet@f2000 { status = "disabled"; };
++
++		mdio@fc000 {
++			mgmt_phy: ethernet-phy@1f {
++				reg = <0x1f>;
++			};
++		};
++	};
++};
++
++&espi0 {
++	status = "disabled";
++};
++
++&i2c0 {
++	status = "okay";
++};
++
++/include/ "t2080si-post.dtsi"
+diff --color -uN a/arch/powerpc/dts/as7760-32x-u-boot.dtsi b/arch/powerpc/dts/as7760-32x-u-boot.dtsi
+--- a/arch/powerpc/dts/as7760-32x-u-boot.dtsi	1969-12-31 16:00:00.000000000 -0800
++++ b/arch/powerpc/dts/as7760-32x-u-boot.dtsi	2026-11-14 13:37:52.282248395 -0800
+@@ -0,0 +1,16 @@
++// SPDX-License-Identifier: GPL-2.0+
++
++&serial0 {
++	bootph-all;
++};
++
++&serial1 {
++	bootph-all;
++};
++
++/* dram_init() reads both UDIMM SPDs (0x52/0x53) before relocation. */
++&i2c0 {
++	bootph-all;
++};
++
++#include "u-boot.dtsi"
+diff --color -uN a/arch/powerpc/dts/Makefile b/arch/powerpc/dts/Makefile
+--- a/arch/powerpc/dts/Makefile	2026-11-14 13:37:52.027247172 -0800
++++ b/arch/powerpc/dts/Makefile	2026-11-14 13:37:52.103247537 -0800
+@@ -22,7 +22,7 @@
+ dtb-$(CONFIG_TARGET_T1024RDB) += t1024rdb.dtb
+ dtb-$(CONFIG_TARGET_T1042D4RDB) += t1042d4rdb.dtb
+ dtb-$(CONFIG_TARGET_T2080QDS) += t2080qds.dtb
+-dtb-$(CONFIG_TARGET_T2080RDB) += t2080rdb.dtb
++dtb-$(CONFIG_TARGET_T2080RDB) += t2080rdb.dtb as7760-32x.dtb
+ dtb-$(CONFIG_TARGET_T4240RDB) += t4240rdb.dtb
+ dtb-$(CONFIG_TARGET_TUGE1) += kmtuge1.dtb
+ dtb-$(CONFIG_TARGET_TURRIS_1X) += turris1x.dtb

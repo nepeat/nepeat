@@ -1,0 +1,26 @@
+From: as7760 bring-up
+Subject: [PATCH] configs: T208xRDB: provide the NS16550 clock for DM serial
+
+CFG_SYS_NS16550_CLK was only defined for !DM_SERIAL. The DM ns16550 driver
+then falls back to asm/config.h's get_bus_freq(0), twice the DUART clock, so
+the main (DM) U-Boot console runs at half the configured baud rate. Seen on
+an AS7760-32X (T2080, 600 MHz platform clock): 115200 configured, ~57600 on
+the wire; the factory U-Boot's divisor (0xa3) confirms a 300 MHz DUART clock.
+
+--- a/include/configs/T208xRDB.h	2026-11-14 13:02:56.969709116 -0800
++++ b/include/configs/T208xRDB.h	2026-11-14 13:02:57.017709305 -0800
+@@ -215,9 +215,12 @@
+ /*
+  * Serial Port
+  */
+-#if !CONFIG_IS_ENABLED(DM_SERIAL)
++/*
++ * The DUART runs from platform clock / 2. DM serial also needs this: the
++ * T2080 DT has clock-frequency = <0>, so ns16550 falls back to this define,
++ * and the generic asm/config.h default (get_bus_freq(0)) is twice too fast.
++ */
+ #define CFG_SYS_NS16550_CLK		(get_bus_freq(0)/2)
+-#endif
+ #define CFG_SYS_BAUDRATE_TABLE	\
+ 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
+ #define CFG_SYS_NS16550_COM1 (CFG_SYS_CCSRBAR+0x11C500)

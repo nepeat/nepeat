@@ -1,0 +1,21 @@
+From: as7760 bring-up
+Subject: [PATCH] ddr: fsl: honour the board CPO in the A009942 workaround
+
+popts->cpo_sample is copied into regs->debug[28] and written to the
+controller, but the A-009942 block then masks the low byte and ORs in a
+frequency default, so the board value never takes effect (and
+erratum_a009942_check_cpo() can only warn). Keep the board's CPO when set.
+The AS7760-32X factory loader uses 0x4d at 1600 MT/s where the table says 0x6f.
+
+--- a/drivers/ddr/fsl/mpc85xx_ddr_gen3.c	2026-11-14 16:36:24.254866650 -0800
++++ b/drivers/ddr/fsl/mpc85xx_ddr_gen3.c	2026-11-14 16:36:24.294866787 -0800
+@@ -387,6 +387,9 @@
+ 		val32 |= 0x00700076;
+ 	else if (ddr_freq <= 2133)
+ 		val32 |= 0x0060007b;
++	/* a board-provided CPO (popts->cpo_sample) wins over the default */
++	if (regs->debug[28] & 0xff)
++		val32 = (val32 & ~0xff) | (regs->debug[28] & 0xff);
+ 
+ 	out_be32(&ddr->debug[28], val32);
+ 	debug("Applied errata CONFIG_SYS_FSL_ERRATUM_A009942\n");

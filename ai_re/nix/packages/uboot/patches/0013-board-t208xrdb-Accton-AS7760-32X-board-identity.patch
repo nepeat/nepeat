@@ -1,0 +1,125 @@
+From: as7760 bring-up
+Subject: [PATCH] board: t208xrdb: Accton AS7760-32X board identity
+
+The AS7760-32X has no T2080RDB CPLD (IFC CS3 reads 0xff) and no system ID
+EEPROM. With AS7760_BOARD: never read or write the CPLD, drop the "cpld"
+command (its "reset" would write CPLD registers that do not exist here),
+print the real board name instead of "T2080RDB ... boot from NAND", and
+supply the standard-boot load addresses when the saved (factory)
+environment has none.
+
+--- a/board/nxp/t208xrdb/Kconfig	2026-11-14 17:42:13.758130432 -0800
++++ b/board/nxp/t208xrdb/Kconfig	2026-11-14 17:42:15.985136792 -0800
+@@ -9,6 +9,16 @@
+ config SYS_CONFIG_NAME
+ 	default "T208xRDB"
+ 
++config AS7760_BOARD
++	bool "Accton AS7760-32X board (no T2080RDB CPLD / ID EEPROM)"
++	select LAST_STAGE_INIT
++	help
++	  The Accton/Edgecore AS7760-32X reuses the T2080RDB port but has no
++	  RDB CPLD at IFC CS3 and no system ID EEPROM: do not read or write
++	  the CPLD, drop the "cpld" command, print the real board name and
++	  provide the standard-boot load addresses when the (factory) saved
++	  environment lacks them.
++
+ config T2080RDB_REV_D
+ 	bool "Support for T2080RDB revisions D and up"
+ 
+--- a/board/nxp/t208xrdb/t208xrdb.c	2026-11-14 17:42:13.756130426 -0800
++++ b/board/nxp/t208xrdb/t208xrdb.c	2026-11-14 17:42:37.923199731 -0800
+@@ -30,7 +30,12 @@
+ 
+ u8 get_hw_revision(void)
+ {
+-	u8 ver = CPLD_READ(hw_ver);
++	u8 ver;
++
++	/* no RDB CPLD: behave like the rev C board this port was tested as */
++	if (IS_ENABLED(CONFIG_AS7760_BOARD))
++		return 'C';
++	ver = CPLD_READ(hw_ver);
+ 
+ 	switch (ver) {
+ 	default:
+@@ -55,6 +60,13 @@
+ 	struct cpu_type *cpu = gd->arch.cpu;
+ 	static const char *freq[3] = {"100.00MHZ", "125.00MHz", "156.25MHZ"};
+ 
++#ifdef CONFIG_AS7760_BOARD
++	printf("Board: Accton AS7760-32X (%s, T2080RDB port)\n", cpu->name);
++	puts("SERDES Reference Clocks:\n");
++	printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[2], freq[0]);
++	printf("SD2_CLK1=%s, SD2_CLK2=%s\n", freq[0], freq[0]);
++	return 0;
++#endif
+ 	printf("Board: %sRDB, ", cpu->name);
+ 	printf("Board rev: %c CPLD ver: 0x%02x, boot from ",
+ 	       get_hw_revision(), CPLD_READ(sw_ver));
+@@ -124,10 +136,41 @@
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_AS7760_BOARD
++#include <event.h>
++
++/*
++ * The factory environment (kept in NOR, same location and format) knows
++ * nothing about standard boot: give bootflow/extlinux/script their load
++ * addresses unless the user set them.
++ */
++static int as7760_bootstd_env(void)
++{
++	static const char *const def[][2] = {
++		{ "kernel_addr_r", "0x10000000" },
++		{ "ramdisk_addr_r", "0x20000000" },
++		{ "fdt_addr_r", "0x08000000" },
++		{ "pxefile_addr_r", "0x07000000" },
++		{ "scriptaddr", "0x07100000" },
++	};
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(def); i++)
++		if (!env_get(def[i][0]))
++			env_set(def[i][0], def[i][1]);
++
++	return 0;
++}
++EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, as7760_bootstd_env);
++#endif
++
+ int misc_init_r(void)
+ {
+ 	u8 reg;
+ 
++	if (IS_ENABLED(CONFIG_AS7760_BOARD))
++		return 0;
++
+ 	/* Reset CS4315 PHY */
+ 	reg = CPLD_READ(reset_ctl);
+ 	reg |= CPLD_RSTCON_EDC_RST;
+@@ -184,6 +227,8 @@
+ #ifdef CONFIG_SYS_CORTINA_FW_IN_NOR
+ 	u8 reg;
+ 
++	if (IS_ENABLED(CONFIG_AS7760_BOARD))
++		return (ulong *)cortina_fw_addr;
+ 	reg = CPLD_READ(flash_csr);
+ 	if (!(reg & CPLD_BOOT_SEL)) {
+ 		reg = ((reg & CPLD_LBMAP_MASK) >> CPLD_LBMAP_SHIFT);
+--- a/board/nxp/t208xrdb/cpld.c	2026-11-14 17:42:12.183125938 -0800
++++ b/board/nxp/t208xrdb/cpld.c	2026-11-14 17:42:37.883199616 -0800
+@@ -45,6 +45,7 @@
+ 	CPLD_WRITE(reset_ctl, CPLD_LBMAP_RESET);
+ }
+ 
++#ifndef CONFIG_AS7760_BOARD	/* no RDB CPLD: writes would hit thin air */
+ int do_cpld(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+ {
+ 	int rc = 0;
+@@ -70,3 +71,4 @@
+ 	"reset: reset to default bank\n"
+ 	"cpld reset altbank: reset to alternate bank\n"
+ );
++#endif
