@@ -21,7 +21,8 @@
     "owner": "sonic-net",
     "repo": "sonic-sairedis",
     "rev": "57dc35cd6350a7c5ca5d3f0f90e6b30ad6add71b",
-    "hash": "sha256-SDsPNQB1crGzmco6mklCUB2rYtwnW6yUzrHHFvvfoJ8="
+    "hash": "sha256-sa4ww+AF/JUjG1C8f1pPDLFW2YVg+tg+DHwWqtrUZmg=",
+    "fetchSubmodules": true
   },
   "swss": {
     "owner": "sonic-net",
