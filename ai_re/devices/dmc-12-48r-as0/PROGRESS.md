@@ -27,6 +27,8 @@
 - **How this unit differs from the first iteration's:** see "This unit vs the
   first iteration" below. In short: it was deployed in a fleet, boots an older OS
   (1.0.457, while the old module ported ≥1.0.526), and only PSU2 is detected.
+- **Images:** `ai-re-images` (tools/README) catalogs, tags and verifies every dump across devices;
+  tags for this device are in `images.jsonl`. `export-qcow2` makes a zstd qcow2 for read-only nbd attach.
 - **Units:** many more boxes are coming in. `units.md` has per-unit versions and the
   collection steps; serials are in `units-private.txt` (ignored). This box is **u01**.
 - **Factory hardware tooling vs the module:** `vendor-tooling.md` (CPLD register map,
@@ -37,6 +39,8 @@
 - U-Boot netboot: `setenv autoload no; dhcp` (lab LAN lease) reaches the TFTP host
   10.60.2.208. No env writes needed for RAM boots.
 - Open: what selects CS1 (mtd1), the PSU1 alarm (CPLD IRQ line gpio465 is held low by it).
+  **Next kernel:** trim to allnoconfig + explicit (as linux-qoriq-t2080), from the drivers
+  the first boot binds. Owner: the full nixpkgs module set is unnecessary.
   **After NixOS:** back up and analyse the CPLD (MachXO3 JTAG readback, cf. `cpldupd`), the uC
   firmware and the SPI `APCEA`/`APCEA_CFG` objects.
 

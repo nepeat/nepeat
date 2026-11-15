@@ -4,6 +4,9 @@
 # Alpine v3) and codeberg dma/dmc12-nixos (Alpine v2).
 #   linuxAlpine = import ./linux-alpine { inherit pkgs lib; };
 #   linuxAlpine.kernelPackages, linuxAlpine.alEth, linuxAlpine.dtbs { name; dts; }
+# TODO (owner, 2026-11-15): this is nixpkgs' full config (thousands of modules).
+# Next: allnoconfig + explicit enables like packages/linux-qoriq-t2080, using
+# the drivers the first DMC-12 boot actually binds (lsmod + /sys/bus/*/drivers).
 { pkgs, lib, kernelPackages ? pkgs.linuxPackages_latest }:
 let
   kernel = kernelPackages.kernel.override {
