@@ -66,6 +66,7 @@ not yet on the switch.
 | `SAI_OPENBCM_FAKE_PORTS` / `_LANES` / `_SPEED` | 32 / 4 / 100000 | fake: port count, lanes per port, initial speed |
 | `SAI_OPENBCM_FAKE_LINK` | `admin` | fake: link follows admin state; `none`: never (loopback still links) |
 | `SAI_OPENBCM_FAKE_NETDEV` | `none` | fake: `tap` makes every hostif netif a Linux TAP netdev of that name (MAC set, carrier = hostif OPER_STATUS), as KNET does on the switch; needs CAP_NET_ADMIN and `/dev/net/tun`. For running swss on the fake. |
+| `SAI_OPENBCM_DIAG_SOCKET` | none | debug: unix socket path; syncd then runs SDK diag-shell commands sent to it (one line per connection, output back), under the SAI lock; root (or syncd's uid) only, socket 0600 in a 0700 directory; `exit`/`quit`/`init`/`reset`/`rcload`/`!`..., and `;` chains are refused. Client `bin/openbcm-diag <cmd>` (default socket `/run/sai-openbcm/diag.sock`, `$OPENBCM_DIAG_SOCKET`, `-s`). On in the AS7760 board config |
 | `SAI_OPENBCM_FAKE_WIRE` | none | fake, `tap` only: `<netif>:<ifname>,...`; while the port is admin up, frames the TAP sends leave through host interface `<ifname>` and everything `<ifname>` receives goes up the TAP: the CPU path of that port (what KNET carries), no switching between ports. One thread per wire. |
 
 ## Safety rules (code + this doc)
@@ -197,7 +198,8 @@ CXXFLAGS=-I<SAI/experimental> check`.
   VRF binding and MAC default, the same neighbor and prefix in two VRFs, IP2ME
   and route leaking, VRF id exhaustion), ECMP (group lifecycle, route on an
   empty group drops, unresolved members join with their neighbor, weights,
-  path limit, member next-hop change, in-use checks, free counts), LAG (members and disable
+  path limit, member next-hop change, in-use checks, free counts), the diag
+  socket (permissions, one command per connection, refused commands), LAG (members and disable
   flags, PVID, bridge port + VLAN + FDB on the trunk, join/leave, port RIF +
   neighbor on the trunk, LACP trap, member hostifs), temperature attributes
   and rounding, the temperature publisher (files, failed/implausible read,
@@ -316,6 +318,16 @@ hardware.
   re-runs `init all` only (untested on hardware).
 - **DMA**: KNET + SDK RX use the BDE DMA pool (`dmasize=16M` factory value);
   untested under load with syncd.
+- **L3 termination** (2026-11-15, after the first hardware try dropped every
+  unicast frame to the router MAC): the router MAC is one my-station entry
+  (`bcm_l2_station_add`, any VLAN) with IPv4, IPv6 and ARP_RARP termination
+  (the ARP reply trap needs the last); SDK init sets `bcmPortControlIP4/IP6`
+  on every front-panel port (PORT_TAB V4L3/V6L3_ENABLE); an L3 interface's
+  VLAN has IPv4/IPv6 L3 enabled. Not an L2 entry with the L3 bit
+  (`BCM_L3_ADD_TO_ARL`): it sits on the CPU port, and PORT_TAB's static-move
+  drop would discard every frame with SA = router MAC, which on the
+  same-switch loop is all of them. Unverified on the chip; check with
+  `openbcm-diag` (sonic-nixos vrf-ecmp-test.md, "debug").
 - **VRF / ECMP on hardware** (2026-11-15: fake only): the VRF binding is the
   SDK's (`l3a_vrf` on the L3 interface: VLAN_TAB VRF_ID or the L3_IIF entry of
   the internal VLAN); ECMP groups use the SDK's default group size

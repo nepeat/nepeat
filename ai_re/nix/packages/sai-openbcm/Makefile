@@ -14,7 +14,7 @@ WARN = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 
 SAI_CPPFLAGS = -I$(SAI_INC) -Isrc
 CORE = src/sai_api.cpp src/sai_switch.cpp src/sai_port.cpp src/sai_l2.cpp src/sai_hostif.cpp \
-       src/sai_l3.cpp src/sai_lag.cpp src/sai_temp.cpp src/sai_caps.cpp src/fake_backend.cpp
+       src/sai_l3.cpp src/sai_lag.cpp src/sai_temp.cpp src/sai_caps.cpp src/sai_diag.cpp src/fake_backend.cpp
 
 ifneq ($(OPENBCM),)
 BACKEND_OBJS = build/openbcm_backend.o build/sdk_glue.o
@@ -22,11 +22,11 @@ SDK_CFLAGS = $(shell cat $(OPENBCM)/share/openbcm/cflags) \
   -I$(OPENBCM)/include/openbcm/include -I$(OPENBCM)/include/openbcm/bde \
   -I$(OPENBCM)/include/openbcm/kmod -I$(OPENBCM)/include/openbcm/phymod
 SDK_LIBS = -L$(OPENBCM)/lib -lsdk -Wl,-rpath,$(OPENBCM)/lib
-TOOLS = build/openbcm-asic-temp
+TOOLS = build/openbcm-asic-temp build/openbcm-diag
 else
 BACKEND_OBJS = build/backend_none.o
 SDK_LIBS =
-TOOLS =
+TOOLS = build/openbcm-diag
 endif
 
 OBJS = $(patsubst src/%.cpp,build/%.o,$(CORE)) build/temp_files.o $(BACKEND_OBJS)
@@ -50,6 +50,11 @@ build/sdk_glue.o: src/sdk_glue.c src/sdk_glue.h
 # ASIC die temperature reader (attach only), see src/asic_temp.c.
 build/openbcm-asic-temp: src/asic_temp.c src/sdk_glue.h src/temp_files.h build/sdk_glue.o build/temp_files.o
 	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc $(LDFLAGS) -o $@ src/asic_temp.c build/sdk_glue.o build/temp_files.o $(SDK_LIBS) -lpthread
+
+# Client of SAI_OPENBCM_DIAG_SOCKET (no SDK code; also in fake builds).
+build/openbcm-diag: src/openbcm_diag.c
+	@mkdir -p build
+	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 build/libsai.a: $(OBJS)
 	$(AR) rcs $@ $^

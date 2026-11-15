@@ -295,7 +295,7 @@ int ob_sdk_th_overtemp_shutdown(int unit)
 
 int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* err, int errlen)
 {
-    int rv, nn = 0, nf = 0;
+    int rv, nn = 0, nf = 0, l3_ports = 0;
     char cmd[512];
 
     if (!config_file || !*config_file || access(config_file, R_OK) != 0) {
@@ -349,11 +349,35 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
         seterr(err, errlen, "L3 egress mode failed%s: %d", "", rv);
         return rv;
     }
+    /* IPv4/IPv6 routing on every front-panel port (PORT_TAB V4L3_ENABLE /
+     * V6L3_ENABLE; nothing in "init all" sets them). Whether a frame is
+     * routed is then decided by the router MAC (my-station entry) and the
+     * L3 interface of its VLAN. */
+    {
+        bcm_port_config_t pc;
+        bcm_port_t p;
+        l3_ports = 0;
+        rv = bcm_port_config_get(unit, &pc);
+        if (rv < 0) {
+            seterr(err, errlen, "port config failed%s: %d", "", rv);
+            return rv;
+        }
+        BCM_PBMP_ITER(pc.port, p) {
+            rv = bcm_port_control_set(unit, p, bcmPortControlIP4, 1);
+            if (rv >= 0) rv = bcm_port_control_set(unit, p, bcmPortControlIP6, 1);
+            if (rv < 0 && rv != BCM_E_UNAVAIL) {
+                seterr(err, errlen, "L3 enable on port %s failed: %d", SOC_PORT_NAME(unit, p), rv);
+                return rv;
+            }
+            if (rv >= 0) l3_ports++;
+        }
+    }
     g_cpu_egress = g_drop_egress = -1;
     g_l2c_index[0] = g_l2c_index[1] = -1;   /* "init all" rebuilt the L2 user table */
     memset(g_trunk_used, 0, sizeof(g_trunk_used));
     sdk_inited = 1;
-    if (err && errlen > 0) snprintf(err, errlen, "ok: stale KNET netifs %d filters %d destroyed", nn, nf);
+    if (err && errlen > 0)
+        snprintf(err, errlen, "ok: stale KNET netifs %d filters %d destroyed; IPv4/IPv6 L3 on %d ports", nn, nf, l3_ports);
     return BCM_E_NONE;
 }
 
@@ -411,6 +435,26 @@ int ob_sdk_shell(int unit, const char* cmd)
     char buf[1024];
     snprintf(buf, sizeof(buf), "%s", cmd);
     return sh_process_command(unit, buf) == CMD_OK ? BCM_E_NONE : BCM_E_FAIL;
+}
+
+/* One diag shell command with the shell's output (it prints to stdout)
+ * going to fd. Callers serialize (one command at a time). Output other
+ * threads print meanwhile lands in fd too. */
+int ob_sdk_shell_to(int unit, const char* cmd, int fd)
+{
+    int saved, rv;
+    fflush(stdout);
+    saved = dup(1);
+    if (saved < 0) return BCM_E_INTERNAL;
+    if (dup2(fd, 1) < 0) {
+        close(saved);
+        return BCM_E_INTERNAL;
+    }
+    rv = ob_sdk_shell(unit, cmd);
+    fflush(stdout);
+    dup2(saved, 1);
+    close(saved);
+    return rv;
 }
 
 int ob_sdk_hw_info(int unit, char* buf, int len)
@@ -858,12 +902,33 @@ int ob_sdk_trunk_set(int unit, int tid, const int* ports, const int* flags, int 
     return bcm_trunk_set(unit, (bcm_trunk_t)tid, &info, n, m);
 }
 
+/* The VLAN of an L3 interface routes IPv4 and IPv6 (VLAN profile
+ * IPV4L3_ENABLE / IPV6L3_ENABLE); changed only when the VLAN has it off. */
+static int vlan_l3_enable(int unit, int vid)
+{
+    bcm_vlan_control_vlan_t vc;
+    int rv;
+    bcm_vlan_control_vlan_t_init(&vc);
+    rv = bcm_vlan_control_vlan_get(unit, (bcm_vlan_t)vid, &vc);
+    if (rv < 0) return rv;
+    if (!(vc.flags & (BCM_VLAN_IP4_DISABLE | BCM_VLAN_IP6_DISABLE))) return BCM_E_NONE;
+    vc.flags &= ~(BCM_VLAN_IP4_DISABLE | BCM_VLAN_IP6_DISABLE);
+    return bcm_vlan_control_vlan_set(unit, (bcm_vlan_t)vid, vc);
+}
+
 /* The SDK binds the interface's VLAN to l3a_vrf (VLAN_TAB VRF_ID or the
- * L3_IIF entry of the VLAN): packets routed in on that VLAN look up that VRF. */
+ * L3_IIF entry of the VLAN): packets routed in on that VLAN look up that VRF.
+ * The router MAC is a my-station entry (ob_sdk_l3_station_add), not an L2
+ * entry with the L3 bit (BCM_L3_ADD_TO_ARL): such a static entry sits on the
+ * CPU port, and PORT_TAB's static-move drop would then discard every frame
+ * arriving with SA = router MAC (all of them on a cable looped between two
+ * ports of this switch). */
 int ob_sdk_l3_intf_create(int unit, const uint8_t mac[6], int vid, int mtu, int vrf, int* intf_id)
 {
     bcm_l3_intf_t i;
     int rv;
+    rv = vlan_l3_enable(unit, vid);
+    if (rv < 0) return rv;
     bcm_l3_intf_t_init(&i);
     memcpy(i.l3a_mac_addr, mac, 6);
     i.l3a_vid = (bcm_vlan_t)vid;
@@ -901,7 +966,10 @@ int ob_sdk_l3_station_add(int unit, const uint8_t mac[6], int* station_id)
     bcm_l2_station_t_init(&s);
     memcpy(s.dst_mac, mac, 6);
     memset(s.dst_mac_mask, 0xff, 6);
-    s.flags = BCM_L2_STATION_IPV4 | BCM_L2_STATION_IPV6;
+    /* ARP_RARP: ARP to the router MAC is terminated, which the ARP reply
+     * trap (bcmSwitchArpReplyToCpu) needs; without it unicast ARP replies to
+     * the router MAC were L2-switched (and dropped on the looped cable). */
+    s.flags = BCM_L2_STATION_IPV4 | BCM_L2_STATION_IPV6 | BCM_L2_STATION_ARP_RARP;
     return bcm_l2_station_add(unit, station_id, &s);
 }
 

@@ -16,7 +16,11 @@ in {
   # BCM56930: SDK modules at boot and the die temperature reader (fan control input).
   hardware.openbcm = { enable = true; temperature.enable = true; };
   # Front-panel module EEPROM reader (works for hot-plugged modules).
-  environment.systemPackages = [ (pkgs.callPackage ../../../packages/as7760-qsfp { }) ];
+  environment.systemPackages = [ (pkgs.callPackage ../../../packages/as7760-qsfp { }) ]
+    # openbcm-diag <cmd>: SDK diag shell inside syncd (SAI_OPENBCM_DIAG_SOCKET below).
+    ++ lib.optional config.services.sonic.enable (pkgs.runCommand "openbcm-diag" { } ''
+      install -D ${sai}/bin/openbcm-diag $out/bin/openbcm-diag
+    '');
   hardware.qoriqT2080.kernelPatches = [ {
     name = "accton-as7760-corenet-machine";
     patch = pkgs.writeText "as7760-machine.patch"
@@ -47,6 +51,9 @@ in {
         SAI_OPENBCM_BACKEND = "openbcm";
         SAI_OPENBCM_TEMP_FILE = config.hardware.openbcm.temperature.file;
         SAI_OPENBCM_TEMP_PROM = "/run/prometheus-textfile/asic.prom";
+        # Debug: root-only socket for diag-shell commands while syncd owns
+        # the chip (client: openbcm-diag). See the sai-openbcm README.
+        SAI_OPENBCM_DIAG_SOCKET = "/run/sai-openbcm/diag.sock";
       };
     };
   };

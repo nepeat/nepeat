@@ -60,6 +60,7 @@ public:
     sai_status_t init(const BackendConfig& cfg, LinkCallback link_cb, FdbCallback fdb_cb) override;
     void shutdown() override;
     sai_status_t run_shell(const std::string& cmd) override;
+    sai_status_t run_shell_to(const std::string& cmd, int fd) override;   // logs it, writes "fake: <cmd>"
     int cpu_port() const override { return 0; }
     std::vector<PortInfo> ports() override;
     std::string hardware_info() override { return "fake"; }

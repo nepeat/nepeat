@@ -10,3 +10,11 @@ tests/eval.nix: ok (/nix/store/7j97wa25bxasglpkn031w7plhvi5cz8c-sonic-module-eva
 nixosConfigurations.as7760 (path:./nix, no fand): /nix/store/cdx699vzc1a3d0mfs1srig6lzr4wkm8l-nixos-system-as7760-26.11.20261111.d4f25a3
   kernel-modules/.../drivers/net/vrf.ko present; modules-load.d has vrf; sonic-vrfmgrd.service (BindsTo orchagent,
   in orchagent's Upholds); syncd on the libsai above; Nix base FLEX_COUNTER_TABLE {'PORT': {'FLEX_COUNTER_STATUS': 'enable'}}, mode seed
+
+# after hardware try 1 (router-MAC drops): L3 termination fixes + diag socket
+sai-openbcm fake + unit tests: /nix/store/45b26zc1k794ivdn2dpdr5p5g3g5sibx-sai-openbcm-fake-0.1.0 (rebuilt after; 2021 checks, 0 failures incl. test_diag)
+sai-openbcm openbcm: /nix/store/4xaxgqxfr898yq0w331grk85jr3vcj4p-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0 (bin/openbcm-diag, bin/openbcm-asic-temp)
+tests/vm-openbcm-fake-l3.nix: SUMMARY 0 failures (/nix/store/65mg5ll4rwfh4h2hl5g74lnwydi82128-vm-test-run-sonic-l3-openbcm-fake)
+tests/vm-openbcm-fake.nix: 86 PASS, FAILED CHECKS: 0 (/nix/store/a9nsaqjxw2w0fwn48fhkd46ng6nmkxfc-vm-test-run-sonic-control-plane-openbcm-fake)
+nixosConfigurations.as7760: /nix/store/c2fcdcz50sjmx90djafppfipx1w5aivj-nixos-system-as7760-26.11.20261111.d4f25a3
+  syncd on the libsai above, sai.profile SAI_OPENBCM_DIAG_SOCKET=/run/sai-openbcm/diag.sock, openbcm-diag in sw/bin

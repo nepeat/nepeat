@@ -482,6 +482,7 @@ static sai_status_t create_switch(_Out_ sai_object_id_t* switch_id, _In_ uint32_
         if (!c.be->is_fake() || !hardware_present()) temp_publisher_start(cfg, c.be.get());
         else if (!cfg.get("SAI_OPENBCM_TEMP_FILE").empty() || !cfg.get("SAI_OPENBCM_TEMP_PROM").empty())
             OB_WARN(SAI_API_SWITCH, "fake backend on hardware: not publishing ASIC temperature files");
+        diag_start(cfg, c.be.get());
         *switch_id = c.switch_oid;
         OB_NOTICE(SAI_API_SWITCH, "switch created: %zu front-panel ports, backend %s", c.port_list.size(),
                   c.be->name());
@@ -498,6 +499,7 @@ static sai_status_t remove_switch(_In_ sai_object_id_t switch_id)
     });
     if (st != SAI_STATUS_SUCCESS) return st;
     temp_publisher_stop();   // removes the files; before the backend goes away
+    diag_stop();
     events_stop();   // without the API lock: the notifier may be waiting for it
     try {
         std::lock_guard<std::recursive_mutex> g(ctx().mu);

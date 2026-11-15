@@ -108,6 +108,12 @@ public:
         return SAI_STATUS_SUCCESS;
     }
 
+    sai_status_t run_shell_to(const std::string& cmd, int fd) override
+    {
+        RV(ob_sdk_shell_to(unit_, cmd.c_str(), fd));
+        return SAI_STATUS_SUCCESS;
+    }
+
     int cpu_port() const override { return ob_sdk_cpu_port(unit_); }
 
     sai_status_t asic_temperatures(std::vector<int>& cur, std::vector<int>& peak) override
@@ -286,7 +292,12 @@ public:
     sai_status_t l3_intf_create(const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf, int& id) override { RV(ob_sdk_l3_intf_create(unit_, mac, vid, (int)mtu, vrf, &id)); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_intf_update(int id, const uint8_t mac[6], uint16_t vid, uint32_t mtu, int vrf) override { RV(ob_sdk_l3_intf_update(unit_, id, mac, vid, (int)mtu, vrf)); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_intf_destroy(int id) override { RV(ob_sdk_l3_intf_destroy(unit_, id)); return SAI_STATUS_SUCCESS; }
-    sai_status_t l3_station_add(const uint8_t mac[6], int& id) override { RV(ob_sdk_l3_station_add(unit_, mac, &id)); return SAI_STATUS_SUCCESS; }
+    sai_status_t l3_station_add(const uint8_t mac[6], int& id) override
+    {
+        RV(ob_sdk_l3_station_add(unit_, mac, &id));
+        OB_NOTICE(SAI_API_ROUTER_INTERFACE, "my-station %d: %s (IPv4, IPv6, ARP)", id, mac_str(mac).c_str());
+        return SAI_STATUS_SUCCESS;
+    }
     sai_status_t l3_station_delete(int id) override { RV(ob_sdk_l3_station_delete(unit_, id)); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_egress_create(int intf, const uint8_t dmac[6], int hw, uint16_t vid, int& id) override { RV(ob_sdk_l3_egress_create(unit_, intf, dmac, hw, vid, &id)); return SAI_STATUS_SUCCESS; }
     sai_status_t l3_egress_update(int id, int intf, const uint8_t dmac[6], int hw, uint16_t vid) override { RV(ob_sdk_l3_egress_update(unit_, id, intf, dmac, hw, vid)); return SAI_STATUS_SUCCESS; }

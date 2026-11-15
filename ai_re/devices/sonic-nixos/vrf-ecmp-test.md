@@ -106,3 +106,58 @@ Open on hardware: the BCM56930 VRF binding (`l3a_vrf` on the L3
 interface of the internal VLAN), ECMP group create/replace with the SDK's
 default group size, and the free ECMP member count (SDK software table) are
 unproven; step 0's log lines give the chip's real ECMP and VRF limits.
+
+## debug: SDK state while syncd owns the chip (2026-11-15)
+
+First try ([vrf-hw-try1-20261115.txt](vrf-hw-try1-20261115.txt)): every
+unicast frame to the router MAC (IPv4, ARP replies) was dropped in the chip,
+broadcast ARP and a unicast ARP request got through. Fixed in sai-openbcm
+(unverified): IPv4/IPv6 L3 enabled on every front-panel port at SDK init
+(PORT_TAB V4L3/V6L3_ENABLE, nothing set them before), the RIF VLAN's L3
+enable checked, and the my-station entry also terminates ARP (ARP_RARP, which
+the ARP reply trap needs). syncd's start log now says "IPv4/IPv6 L3 on N
+ports" and "my-station <sid>: 8c:ea:1b:89:c9:3c (IPv4, IPv6, ARP)".
+
+`openbcm-diag <command>` runs one SDK diag-shell command inside syncd
+(`SAI_OPENBCM_DIAG_SOCKET=/run/sai-openbcm/diag.sock`, root only; exit,
+init, reset, rcload, `!` and `;` are refused). The output comes back on
+stdout; if a command prints nothing, look in `journalctl -u sonic-syncd`.
+Ethernet1/1 = xe0 (logical port 50), Ethernet32/1 = xe4 (logical 13) per the
+syncd log; `openbcm-diag ps` confirms.
+
+```sh
+D=openbcm-diag
+SID=$(journalctl -b -u sonic-syncd | grep -o 'my-station [0-9]*' | tail -1 | cut -d' ' -f2)
+$D l2 station show id=$SID       # MAC=8c:ea:1b:89:c9:3c, MAC MASK=ff:ff:ff:ff:ff:ff, VLAN MASK=0x0,
+                                 # Flags include 0x1c (IPV4|IPV6|ARP_RARP; the old build 0xc)
+$D dump chg MY_STATION_TCAM      # one valid entry, IPV4/IPV6/ARP_RARP_TERMINATION_ALLOWED=1
+$D dump chg PORT_TAB 50 1        # V4L3_ENABLE=1 V6L3_ENABLE=1 (absent = 0 = the old bug)
+$D dump chg PORT_TAB 13 1
+$D l3 intf show                  # 2 interfaces, VLAN 4093 (xe0, VRF 0) and 4094 (xe4, VRF 1), MAC 8c:ea:1b:89:c9:3c
+$D vlan show 4093                # xe0 untagged + cpu0
+$D vlan show 4094                # xe4 untagged + cpu0
+$D dump chg VLAN_TAB 4093 2      # VRF_ID (or L3_IIF) for 4093 -> 0, 4094 -> 1; note VLAN_PROFILE_PTR
+$D dump chg VLAN_PROFILE_TAB     # that profile: IPV4L3_ENABLE=1 IPV6L3_ENABLE=1
+$D dump chg L3_IIF 4093 2        # VRF 0 / VRF 1 if the chip binds the VRF here
+$D l3 defip show                 # VRF 0: 10.0.0.0/31, 10.0.0.0/32; VRF 1: 10.0.0.0/31, 10.0.0.1/32 (all to the CPU egress)
+$D l3 l3table show               # learned neighbors (10.0.0.1 in VRF 0, 10.0.0.0 in VRF 1) once ARP works
+$D l3 egress show                # CPU egress (L2TOCPU, port cpu0), drop egress, one per neighbor
+$D l2 show                       # the router MAC learned on xe0/xe4 in 4093/4094 from the looped frames:
+                                 # expected, harmless while the my-station entry hits
+$D sc ArpRequestToCpu; $D sc ArpReplyToCpu; $D sc L3EgressMode   # all 1
+$D sc DosAttackMACSAEqualMACDA   # 1 would drop SA == DA (every looped unicast frame: both ends share the MAC)
+
+# which counter takes the drops
+$D clear c
+ping -c 20 -i 0.05 10.0.0.1; ip vrf exec Vrf-test ping -c 20 -i 0.05 10.0.0.0
+$D show c ch xe0; $D show c ch xe4; $D show c ch cpu0
+#   working: RIPC4 (IPv4 routed/terminated) +20 and more on xe0 and xe4, cpu0 transmit +~40,
+#   pings 0% loss. Broken: RIPD4 (IPv4 L3 discard), RDBGC*, RPORTD or RDISC grow instead:
+#   send the three outputs.
+```
+
+Experiment if pings still fail and DosAttackMACSAEqualMACDA reads 1:
+`$D sc DosAttackMACSAEqualMACDA=0`, ping again, set it back to 1 (a lab-loop
+artefact, not a SAI bug, if that fixes it). `clear c` also zeroes what
+syncd's counter polling reads.
+

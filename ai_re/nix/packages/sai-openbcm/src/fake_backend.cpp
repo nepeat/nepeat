@@ -116,6 +116,16 @@ sai_status_t FakeBackend::run_shell(const std::string& cmd)
     return SAI_STATUS_SUCCESS;
 }
 
+sai_status_t FakeBackend::run_shell_to(const std::string& cmd, int fd)
+{
+    {
+        std::lock_guard<std::mutex> g(mu);
+        shell_log.push_back(cmd);
+    }
+    std::string out = "fake: " + cmd + "\n";
+    return ::write(fd, out.data(), out.size()) == (ssize_t)out.size() ? SAI_STATUS_SUCCESS : SAI_STATUS_FAILURE;
+}
+
 std::vector<PortInfo> FakeBackend::ports()
 {
     std::lock_guard<std::mutex> g(mu);

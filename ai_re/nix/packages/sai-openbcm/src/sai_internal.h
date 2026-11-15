@@ -412,6 +412,9 @@ bool is_temp_attr(sai_attr_id_t id);
 sai_status_t switch_temp_get(uint32_t i, sai_attribute_t& a);
 void temp_publisher_start(const BackendConfig& cfg, Backend* be);
 void temp_publisher_stop();
+// SAI_OPENBCM_DIAG_SOCKET: diag-shell commands over a root-only unix socket.
+void diag_start(const BackendConfig& cfg, Backend* be);
+void diag_stop();                                    // without the SAI lock
 sai_status_t vlan_member_create_internal(sai_object_id_t vlan, sai_object_id_t bport, int32_t tagging,
                                          bool program, sai_object_id_t* out);
 sai_status_t l3_switch_mac_changed(const uint8_t old_mac[6]);

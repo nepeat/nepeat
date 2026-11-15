@@ -202,7 +202,13 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   (VRF + RouteOrch next-hop group + counters + CLI): 37/0; regression VMs and
   eval pass ([builds](l3-ecmp-builds-20261115.txt), [VM](sonic-l3-fake-vm-20261115.txt)).
 - Port counters (task 2): fine on the chip once polled (coordinator, 2026-11-15).
-- Open: none of the SDK VRF/ECMP calls has run on the BCM56930 yet.
+- Hardware try 1 ([evidence](vrf-hw-try1-20261115.txt)): VRF objects in the chip,
+  but every unicast frame to the router MAC dropped (IPv4, ARP replies).
+  Fix (unverified): L3 enabled on all front-panel ports at SDK init (PORT_TAB
+  V4L3/V6L3_ENABLE were never set), RIF VLAN L3 enable, my-station entry also
+  terminates ARP. Debug hook: `openbcm-diag <cmd>` (SAI_OPENBCM_DIAG_SOCKET, on
+  in the AS7760 board); checks in [vrf-ecmp-test.md](vrf-ecmp-test.md#debug-sdk-state-while-syncd-owns-the-chip-2026-11-15).
+- Open: L3 termination, VRF binding and ECMP are unproven on the BCM56930.
 
 ## 2026-11-15 — FRR routing stack (FPM, bgpcfgd) and crash recovery
 

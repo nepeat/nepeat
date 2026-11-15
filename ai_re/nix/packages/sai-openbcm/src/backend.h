@@ -128,6 +128,8 @@ public:
     virtual sai_status_t init(const BackendConfig& cfg, LinkCallback link_cb, FdbCallback fdb_cb) = 0;
     virtual void shutdown() = 0;
     virtual sai_status_t run_shell(const std::string& cmd) = 0;   // diag shell command
+    // The same with the command's output written to fd (SAI_OPENBCM_DIAG_SOCKET).
+    virtual sai_status_t run_shell_to(const std::string& cmd, int fd) = 0;
 
     virtual int cpu_port() const = 0;
     virtual std::vector<PortInfo> ports() = 0;                   // front panel, SDK order

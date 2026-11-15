@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <iterator>
@@ -13,6 +14,11 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/un.h>
+#include <unistd.h>
 
 using namespace ob;
 
@@ -1834,6 +1840,55 @@ static void test_capacity()
     CHECK_EQ(get(SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEIGHBOR_ENTRY).value.u32, n4);
 }
 
+// SAI_OPENBCM_DIAG_SOCKET: one command per connection, output back, a few refused.
+static std::string diag_cmd(const std::string& path, const std::string& line)
+{
+    int fd = ::socket(AF_UNIX, SOCK_STREAM, 0);
+    struct sockaddr_un a;
+    std::memset(&a, 0, sizeof(a));
+    a.sun_family = AF_UNIX;
+    std::snprintf(a.sun_path, sizeof(a.sun_path), "%s", path.c_str());
+    if (fd < 0 || ::connect(fd, (struct sockaddr*)&a, sizeof(a)) != 0) {
+        if (fd >= 0) ::close(fd);
+        return "(no connect)";
+    }
+    (void)!::write(fd, line.data(), line.size());
+    ::shutdown(fd, SHUT_WR);
+    std::string out;
+    char buf[256];
+    ssize_t n;
+    while ((n = ::read(fd, buf, sizeof(buf))) > 0) out.append(buf, (size_t)n);
+    ::close(fd);
+    return out;
+}
+
+static void test_diag()
+{
+    const char* tmp = std::getenv("TMPDIR");
+    std::string dir = std::string(tmp && *tmp ? tmp : "/tmp") + "/sai-openbcm-test-" + std::to_string(::getpid());
+    std::string path = dir + "/diag.sock";
+    BackendConfig none;
+    diag_start(none, ctx().be.get());   // no key: nothing
+    struct stat sb;
+    CHECK(::stat(path.c_str(), &sb) != 0);
+    BackendConfig cfg;
+    cfg.profile["SAI_OPENBCM_DIAG_SOCKET"] = path;
+    diag_start(cfg, ctx().be.get());
+    CHECK(::stat(path.c_str(), &sb) == 0 && S_ISSOCK(sb.st_mode) && (sb.st_mode & 0777) == 0600);
+    CHECK(::stat(dir.c_str(), &sb) == 0 && (sb.st_mode & 0777) == 0700);
+    size_t before = fake().shell_log.size();
+    CHECK(diag_cmd(path, "l2 station show\n") == "fake: l2 station show\n");
+    CHECK(diag_cmd(path, "  l3 intf show  \r\n") == "fake: l3 intf show\n");
+    CHECK_EQ(fake().shell_log.size(), before + 2);
+    for (const char* bad : {"exit\n", "Quit\n", "init all\n", "rcload x\n", "!ls\n", "ps; exit\n", "\n"})
+        CHECK(diag_cmd(path, bad).rfind("openbcm-diag: ", 0) == 0);
+    CHECK_EQ(fake().shell_log.size(), before + 2);
+    diag_stop();
+    CHECK(::stat(path.c_str(), &sb) != 0);
+    CHECK(diag_cmd(path, "l2 show\n") == "(no connect)");
+    ::rmdir(dir.c_str());
+}
+
 int main()
 {
     test_oid_encoding();
@@ -1850,6 +1905,7 @@ int main()
     test_temperature();
     test_capabilities();
     test_capacity();
+    test_diag();
     test_dump_and_teardown();
     std::printf("%d checks, %d failures\n", g_checks, g_fail);
     return g_fail ? 1 : 0;

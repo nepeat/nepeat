@@ -70,6 +70,8 @@ int ob_sdk_temperatures(int unit, int* cur, int* peak, int max, int* count);
 int ob_sdk_th_overtemp_shutdown(int unit);
 void ob_sdk_shutdown(int unit);
 int ob_sdk_shell(int unit, const char* cmd);
+/* The same with the shell's stdout output sent to fd (diag socket). */
+int ob_sdk_shell_to(int unit, const char* cmd, int fd);
 const char* ob_sdk_errmsg(int rv);
 int ob_sdk_register_callbacks(int unit, ob_link_cb_t link, ob_l2_cb_t l2, void* ctx);
 void ob_sdk_unregister_callbacks(int unit);
