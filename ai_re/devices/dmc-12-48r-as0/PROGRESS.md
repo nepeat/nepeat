@@ -11,9 +11,13 @@
   trains the link with our init + full USB tree rescan (0 SErrors), then NixOS booted from SSD on that
   link: smoke 15/15, 48 ports. (AXI +0x30 differs only as the last config bus accessed.) SPI at
   25 MHz (09baad0): 16 MiB in 6.2 s, CRCs still exact; whole checklist passes unattended.
-- **Route A (zero-write re-entry of production stage3 from RAM, `uartboot.py`):** v3 runs the whole
-  stage3 from a RAM copy of the flash ("UART recovery!", DT, DRAM clear, app load, "Executing
-  application..."); the app (factory U-Boot) then stays silent. Hop stage3 → agent → app under analysis.
+- **Route A works (2026-11-15, `uartboot.py`, zero SPI writes):** production stage3 re-entered from a RAM
+  copy of the flash. Fix chain: clear the resume watermark (FPU), RMR.AA64=1 at stage3 entry, and request
+  stage3's CPU0 reset without the WFI wait (0x00010013). Results: factory U-Boot from RAM ("recovery boot
+  command!"); **exp 3: BOOT_MODE app 0x10000005 honoured, `u` forces app 5 back ("User request for loading
+  U-Boot!")**, i.e. the escape hatch is proven; **exp 4: our self-init U-Boot as stage3's app (x0=0, EL2) →
+  alpcie reinit → extlinux → NixOS: smoke 15/15, 4 CPUs, no dmesg warnings.** Caveat: the factory U-Boot ran
+  once before each Route A test, so a PCIe start with no factory init at all is still untested.
 - Next: replacing the boot U-Boot in SPI itself (investigation: `spi-uboot-replacement.md`,
   `spi-recovery.md`, in progress). Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
   `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
