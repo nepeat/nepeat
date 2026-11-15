@@ -8,6 +8,10 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
+- **Config ownership decided** (not built): hybrid, NixOS enforces declared
+  keys, the SONiC CLI owns the rest, conflicts warn + show in `/etc/issue`;
+  hwsku 32x100G with per-port breakout in Nix ([config-ownership.md](config-ownership.md)).
+
 - **Real ASIC through SONiC's syncd:** the thin SAI ([sai-openbcm](../../nix/packages/sai-openbcm/README.md))
   drives the BCM56930 on the AS7760: switch create, 32 front-panel ports from
   the SDK (lanes match the factory port map), ports left admin-down, VLAN 100
