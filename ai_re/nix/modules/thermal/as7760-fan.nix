@@ -6,6 +6,8 @@ let
   inherit (import ../../packages/as7760-fan { inherit pkgs kernel; }) driver tool;
   cfg = config.hardware.as7760Fan;
   board = id: { type = "hwmon"; hwmon = { name = "lm75"; of_node = "pca9548@76/i2c@1/temperature-sensor@${id}"; }; plausible = [ (-10) 110 ]; };
+  # Die temperature from openbcm-asic-temp (modules/switch/openbcm.nix).
+  asicTemp = config.hardware.openbcm.temperature.enable or false;
 in {
   # fand (rust/crates/fand) when the monorepo's rust flake is available.
   imports = lib.optional (aiReRust != null) aiReRust.nixosModules.fand;
@@ -61,28 +63,47 @@ in {
   };
   } // lib.optionalAttrs (aiReRust != null) {
   # services.fand exists only when the fand module is imported (aiReRust).
-  # Tested 2026-11-15: 10 min at the curve's floor (53% duty, ~12.4k rpm)
+  # Tested 2026-11-15: 10 min at the hardware minimum (53% duty, ~12.4k rpm)
   # warmed the hottest board sensor by ~1.3 C, then flat (0.0 C/min).
   services.fand = lib.mkIf (cfg.controller == "fand") {
     enable = true;
-    profile = "medium";
+    # No extra floor: the hardware minimum (53.3%) is the floor.
+    profile = "none";
     extraReadWritePaths = [ "/run/prometheus-textfile" ];
     settings = {
       interval = "2s";
       calm_period = "60s";
       runtime.prometheus_file = "/run/prometheus-textfile/fand.prom";
-      sensors = { board_1 = board "48"; board_2 = board "49"; board_3 = board "4a"; cpu_board = board "4b"; };
+      sensors = { board_1 = board "48"; board_2 = board "49"; board_3 = board "4a"; cpu_board = board "4b"; }
+        // lib.optionalAttrs asicTemp {
+          # Required: no reading (reader stopped, e.g. for a bcm.user session,
+          # or failing) means failsafe, fans at 100%.
+          asic = { type = "file"; path = config.hardware.openbcm.temperature.file; max_age = "20s";
+                   plausible = [ 0 130 ]; critical = 100; };
+        };
       outputs.fans = {
         type = "hwmon"; hwmon = "as7760_fan"; pwm = "pwm1";
-        raw_min = 128; raw_max = 255;   # the driver rejects < 128 (50%)
+        # Hardware minimum: the driver rejects < 128 and the CPLD has 16 steps
+        # (raw = step * 17, rounded up), so 128 always reads back as 136 (53.3%).
+        raw_min = 136; raw_max = 255;
         readback = "at_least";          # 16-step CPLD register, rounded up
         tach = { auto = true; max_rpm_by_label = { front = 21000; rear = 18000; }; min_rpm = 1000; follow_tolerance = 0.35; follow_grace = "20s"; };
       };
       zones.board = {
         outputs = [ "fans" ]; sensors = [ "board_1" "board_2" "board_3" "cpu_board" ];
-        aggregate = "max"; policy = "delta-balanced";
-        critical = 45;   # full speed long before the 60 C the curve tops out near
+        aggregate = "max";
+        # A real curve to 100% at 45 C (where the old monitor went to full
+        # speed), so heat is handled by control, not failsafe. Idle (~31 C)
+        # sits at the hardware minimum.
+        # 53% writes raw 136, the hardware minimum; anything above it rounds up
+        # to the next CPLD step (raw 153 = 60%), so the idle point must be 53.
+        policy.curve = { points = [ [ 35 53 ] [ 40 70 ] [ 45 100 ] ]; hysteresis = 2; };
+        critical = 50;   # emergency only: above the curve's 100% point
       };
+      # Built-in curve: floor below 60 C, 100% at 95 C. Failsafe at 100 C
+      # (the SDK's own over-temperature shutdown, armed only by "init all",
+      # defaults to 125 C). Not validated against a datasheet limit.
+      zones.asic = lib.mkIf asicTemp { outputs = [ "fans" ]; sensors = [ "asic" ]; policy = "delta-asic"; };
     };
   };
   };

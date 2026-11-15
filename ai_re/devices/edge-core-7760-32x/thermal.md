@@ -3,9 +3,9 @@
 NixOS has LM75 + I2C mux + hwmon support, a small AS7760 fan CPLD driver,
 `sensors` and `as7760-fan`. Since 2026-11-15 fans are run by **fand**
 (`rust/crates/fand`, `fand.service`): a temperature curve over the four board
-sensors, at the 50% hardware floor when cool, 100% on any fault, on exit, or at
-45 °C. ASIC die temperature is **not** an input yet. The CPLD itself powers up at
-full speed (the state with no OS driver).
+sensors and the switch ASIC's die temperature, at the hardware minimum (53.3%)
+when cool, 100% on any fault, on exit, at 45 °C board or 95 °C ASIC. The CPLD
+itself powers up at full speed (the state with no OS driver).
 
 ## evidence
 
@@ -86,11 +86,43 @@ fand set 80% --for 10m            # override through the daemon; failsafe still 
 systemctl stop fand               # ExecStopPost sets 100%
 ```
 
-fand config: zone `board` = max of board_1..3 + cpu_board, `delta-balanced`
-policy, `medium` profile, critical 45 °C, interval 2 s; output `pwm1` raw
-128–255, readback "at least" (the CPLD has 16 steps), tach follow check
-(front 21k / rear 18k rpm max). Metrics go to
-`/run/prometheus-textfile/fand.prom` (`fand_*`, scraped with node-exporter).
+fand config (interval 2 s, profile `none`: the hardware minimum is the floor):
+
+- output `pwm1`, hardware minimum raw 136 (the driver rejects < 128 and the
+  CPLD has 16 steps of 17 raw, so 128 reads back as 136 = 53.3%); readback
+  "at least"; tach follow check (front 21k / rear 18k rpm max). The idle curve
+  point is 53% on purpose: anything above 53.3% rounds up to the next step
+  (raw 153 = 60%, audibly louder).
+- zone `board` = max of board_1..3 + cpu_board, curve 35 °C→53%, 40→70,
+  45→100 (hysteresis 2), critical 50 °C. Until 2026-11-15 it was
+  `delta-balanced` with critical 45, which jumped from ~55% straight to
+  failsafe 100% at 45 °C (failsafe used as a control step).
+- zone `asic` = `/run/asic/temperature` (below), built-in `delta-asic`
+  (flat at the minimum below ~74 °C, 100% at 95), critical 100 °C. **Not
+  checked against a datasheet junction limit.** The sensor is required: no
+  reading (reader stopped or failing) = failsafe 100%.
+
+Metrics go to `/run/prometheus-textfile/fand.prom` (`fand_*`, scraped with
+node-exporter).
+
+**ASIC die temperature** (`openbcm-asic-temp.service`,
+[module](../../nix/modules/switch/openbcm.nix), [tool](../../nix/packages/sai-openbcm/src/asic_temp.c)):
+the Tomahawk's eight PVTMON monitors through the Broadcom SDK, every 5 s, attach
+only (no `init all`, ports untouched). Writes the hottest to
+`/run/asic/temperature` and `switch_asic_*` to the textfile collector; both
+files disappear when it stops or a read fails. It holds the SDK lock
+(`/run/openbcm-unit0.lock`), so **stop it before `bcm.user` or syncd** (fans go
+to 100% meanwhile). Findings, 2026-11-15:
+
+- After a cold power cycle the CMIC S-bus ring map is all zero and every TOP
+  register read times out (fand correctly went to failsafe). The reader now
+  programs the ring map exactly as the SDK's `soc_tomahawk_chip_reset` does,
+  plus the PVTMON band-gap trim `BG_ADJ` (power-on 3, SDK 0; 3 reads ~3 °C
+  low), only when the ring map is zero. Re-verified with a second cold cycle.
+- Readings at idle, fans at the minimum: 37–40 °C uninitialised chip,
+  40–43 °C after `init all` (peak 45). The SDK's own over-temperature
+  shutdown (default 125 °C) is armed only by `init all`; the reader does not
+  arm it.
 
 Measured (ASIC initialised, idle; VictoriaMetrics, 10 s scrape):
 
@@ -99,8 +131,7 @@ Measured (ASIC initialised, idle; VictoriaMetrics, 10 s scrape):
 | monitor at 80% | 8 min | ~16.9k rpm | avg 29.7 °C, slope −0.08 °C/min |
 | fand floor (pwm 136, 53%) | 10 min test unit, then deployed | ~11–14k rpm | avg 31.0 °C (peak 31.5), flat after a ~1.3 °C rise |
 
-fand asks for less than the floor (zone duty 45%) at these temperatures, so it
-sits at the floor; the curve only matters when the board warms. Not yet tried
+Both zones sit at the hardware minimum at these temperatures. Not yet tried
 under traffic load.
 
 **Older policy (`controller = "monitor"`):** `as7760-thermal` holds a quiet duty (default 80%, option

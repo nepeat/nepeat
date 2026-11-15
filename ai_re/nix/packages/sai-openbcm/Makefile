@@ -22,14 +22,16 @@ SDK_CFLAGS = $(shell cat $(OPENBCM)/share/openbcm/cflags) \
   -I$(OPENBCM)/include/openbcm/include -I$(OPENBCM)/include/openbcm/bde \
   -I$(OPENBCM)/include/openbcm/kmod -I$(OPENBCM)/include/openbcm/phymod
 SDK_LIBS = -L$(OPENBCM)/lib -lsdk -Wl,-rpath,$(OPENBCM)/lib
+TOOLS = build/openbcm-asic-temp
 else
 BACKEND_OBJS = build/backend_none.o
 SDK_LIBS =
+TOOLS =
 endif
 
 OBJS = $(patsubst src/%.cpp,build/%.o,$(CORE)) $(BACKEND_OBJS)
 
-all: build/libsai.so.1.0.0 build/test_sai
+all: build/libsai.so.1.0.0 build/test_sai $(TOOLS)
 
 build/%.o: src/%.cpp src/*.h
 	@mkdir -p build
@@ -39,6 +41,10 @@ build/%.o: src/%.cpp src/*.h
 build/sdk_glue.o: src/sdk_glue.c src/sdk_glue.h
 	@mkdir -p build
 	$(CC) -std=gnu11 -fPIC -Wall -Wno-unused-function $(CFLAGS) $(SDK_CFLAGS) -Isrc -c $< -o $@
+
+# ASIC die temperature reader (attach only), see src/asic_temp.c.
+build/openbcm-asic-temp: src/asic_temp.c src/sdk_glue.h build/sdk_glue.o
+	$(CC) -std=gnu11 -Wall -Wextra $(CFLAGS) -Isrc $(LDFLAGS) -o $@ src/asic_temp.c build/sdk_glue.o $(SDK_LIBS) -lpthread
 
 build/libsai.a: $(OBJS)
 	$(AR) rcs $@ $^
@@ -55,8 +61,9 @@ build/test_sai: tests/test_sai.cpp build/libsai.a
 check: build/test_sai
 	./build/test_sai
 
-install: build/libsai.so.1.0.0
+install: build/libsai.so.1.0.0 $(TOOLS)
 	install -Dm755 build/libsai.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libsai.so.1.0.0
+	for t in $(TOOLS); do install -Dm755 $$t $(DESTDIR)$(PREFIX)/bin/$$(basename $$t); done
 	ln -sf libsai.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libsai.so.1
 	ln -sf libsai.so.1 $(DESTDIR)$(PREFIX)/lib/libsai.so
 

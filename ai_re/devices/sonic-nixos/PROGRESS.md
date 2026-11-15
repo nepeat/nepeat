@@ -13,6 +13,10 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   the SDK (lanes match the factory port map), ports left admin-down, VLAN 100
   and a router interface created, ASIC_DB populated ([transcript](sai-openbcm-hw-20261115.txt)).
   Not yet: swss/orchagent, traffic through SAI-created objects, LAG/ACL/QoS.
+- **One SDK process per unit** (2026-11-15): the switch boots with
+  `openbcm-asic-temp` holding `/run/openbcm-unit0.lock` for fan control;
+  `systemctl stop openbcm-asic-temp` before syncd/`bcm.user` (fans go to 100%
+  meanwhile). ASIC temperature over SAI is not implemented yet.
 
 ## Status (2026-11-14, earlier)
 

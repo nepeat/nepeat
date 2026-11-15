@@ -16,6 +16,8 @@
  * integer built from network-order bytes, so this is byte-order agnostic.
  */
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/file.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -60,6 +62,8 @@ _Static_assert(BCM_E_NONE == OB_E_NONE && BCM_E_PARAM == OB_E_PARAM && BCM_E_NOT
                "BCM_E_* values differ from sdk_glue.h");
 
 static int sdk_booted;
+static int sdk_inited;      /* "init all" succeeded at least once */
+static int sdk_lock_fd = -1;
 static ob_link_cb_t g_link_cb;
 static ob_l2_cb_t g_l2_cb;
 static void* g_cb_ctx;
@@ -120,11 +124,145 @@ int ob_sdk_knet_cleanup(int unit, int* netifs, int* filters)
     return BCM_E_NONE;
 }
 
+/* One SDK process per unit: take /run/openbcm-unit<N>.lock for the life of
+ * the process (bcm.user is wrapped with the same lock by the NixOS module). */
+static int sdk_lock(int unit, char* err, int errlen)
+{
+    char path[64];
+    if (sdk_lock_fd >= 0) return BCM_E_NONE;
+    snprintf(path, sizeof(path), "/run/openbcm-unit%d.lock", unit);
+    sdk_lock_fd = open(path, O_RDWR | O_CREAT | O_CLOEXEC, 0600);
+    if (sdk_lock_fd < 0) {
+        seterr(err, errlen, "cannot open SDK lock %s (%d)", path, errno);
+        return BCM_E_INIT;
+    }
+    if (flock(sdk_lock_fd, LOCK_EX | LOCK_NB) != 0) {
+        close(sdk_lock_fd);
+        sdk_lock_fd = -1;
+        seterr(err, errlen, "another SDK process owns the switch (lock %s held; "
+               "e.g. systemctl stop openbcm-asic-temp)", path, 0);
+        return BCM_E_BUSY;
+    }
+    return BCM_E_NONE;
+}
+
+/* SAL, BDE probe and attach, once per process. */
+static int sdk_boot(int unit, const char* config_file, char* err, int errlen)
+{
+    static char tmpname[600];
+    int rv;
+    if (sdk_booted) return BCM_E_NONE;
+    rv = sdk_lock(unit, err, errlen);
+    if (rv < 0) return rv;
+    snprintf(tmpname, sizeof(tmpname), "/tmp/sai-openbcm-config-%d.bcm.tmp", (int)getpid());
+    if (sal_config_file_set(config_file, tmpname) < 0) {
+        seterr(err, errlen, "sal_config_file_set(%s) failed (%d)", config_file, -1);
+        return BCM_E_CONFIG;
+    }
+    if (sal_core_init() < 0 || sal_appl_init() < 0) {
+        seterr(err, errlen, "SAL initialization failed%s (%d)", "", -1);
+        return BCM_E_INIT;
+    }
+    soc_knet_config(&knet_vect);
+    soc_chip_info_vect_config(&chip_info_vect);
+    sal_boot_flags_set(sal_boot_flags_get() | BOOT_F_NO_RC);
+    diag_sdk_init();   /* bde_create, probe, attach */
+    sdk_booted = 1;
+    return BCM_E_NONE;
+}
+
+#ifdef BCM_TOMAHAWK_SUPPORT
+/* A chip nothing has initialised since power-on has an all-zero S-bus ring
+ * map, so S-channel accesses to most blocks (TOP, where the PVTMONs are)
+ * time out (seen on the AS7760 after a cold power cycle). Program the ring
+ * map exactly as soc_tomahawk_chip_reset does, plus the PVTMON band-gap trim
+ * it sets (BG_ADJ: 3 at power-on, SDK 0; reads ~3 C lower at 3). Routing and
+ * sensor trim only: no PLL, port or forwarding change. Skipped when the ring
+ * map is already set (the chip was initialised before). */
+static int th_sbus_wake(int unit, int* woke)
+{
+    uint32 rval = 0;
+    *woke = 0;
+    if (!SOC_IS_TOMAHAWK(unit) || !soc_feature(unit, soc_feature_cmicm)) return BCM_E_NONE;
+    SOC_IF_ERROR_RETURN(READ_CMIC_SBUS_RING_MAP_0_7r(unit, &rval));
+    if (rval != 0) return BCM_E_NONE;
+    WRITE_CMIC_SBUS_RING_MAP_0_7r(unit, 0x55222100);
+    WRITE_CMIC_SBUS_RING_MAP_8_15r(unit, 0x30004005);
+    WRITE_CMIC_SBUS_RING_MAP_16_23r(unit, 0x43333333);
+    WRITE_CMIC_SBUS_RING_MAP_24_31r(unit, 0x44444444);
+    WRITE_CMIC_SBUS_RING_MAP_32_39r(unit, 0x34444444);
+    WRITE_CMIC_SBUS_RING_MAP_40_47r(unit, 0x03333333);
+    WRITE_CMIC_SBUS_RING_MAP_48_55r(unit, 0x30000000);
+    WRITE_CMIC_SBUS_RING_MAP_56_63r(unit, 0x00005000);
+    WRITE_CMIC_SBUS_TIMEOUTr(unit, 0x7d0);
+    sal_usleep(10000);
+    SOC_IF_ERROR_RETURN(READ_TOP_PVTMON_CTRL_0r(unit, &rval));
+    soc_reg_field_set(unit, TOP_PVTMON_CTRL_0r, &rval, BG_ADJf, 0);
+    SOC_IF_ERROR_RETURN(WRITE_TOP_PVTMON_CTRL_0r(unit, rval));
+    *woke = 1;
+    return BCM_E_NONE;
+}
+#endif
+
+int ob_sdk_attach(int unit, char* err, int errlen)
+{
+    /* No config: attach needs none, and nothing here may init the chip. */
+    int rv = sdk_boot(unit, "/dev/null", err, errlen), woke = 0;
+    if (rv < 0) return rv;
+    if (unit < 0 || unit >= soc_ndev || !soc_attached(unit)) {
+        seterr(err, errlen, "no attached switch unit%s (soc_ndev %d)", "", soc_ndev);
+        return BCM_E_UNIT;
+    }
+#ifdef BCM_TOMAHAWK_SUPPORT
+    rv = th_sbus_wake(unit, &woke);
+    if (rv < 0) {
+        seterr(err, errlen, "S-bus ring map setup failed%s: %d", "", rv);
+        return rv;
+    }
+#endif
+    if (err && errlen > 0)
+        snprintf(err, errlen, "attached %s%s", soc_dev_name(unit),
+                 woke ? " (uninitialised chip: S-bus ring map and PVTMON trim programmed)" : "");
+    return BCM_E_NONE;
+}
+
+#ifdef BCM_TOMAHAWK_SUPPORT
+extern int soc_tomahawk_temperature_monitor_get(int unit, int temperature_max,
+    soc_switch_temperature_monitor_t* temperature_array, int* temperature_count);
+#endif
+
+int ob_sdk_temperatures(int unit, int* cur, int* peak, int max, int* count)
+{
+    bcm_switch_temperature_monitor_t t[16];
+    int i, n = 0, rv;
+    *count = 0;
+    if (max > 16) max = 16;
+    if (max <= 0) return BCM_E_PARAM;
+    if (!sdk_booted || unit < 0 || unit >= soc_ndev || !soc_attached(unit)) return BCM_E_UNIT;
+    if (sdk_inited) {
+        rv = bcm_switch_temperature_monitor_get(unit, max, t, &n);
+    } else {
+#ifdef BCM_TOMAHAWK_SUPPORT
+        /* Same struct (both are _shr_switch_temperature_monitor_t). */
+        if (!SOC_IS_TOMAHAWK(unit)) return BCM_E_UNAVAIL;
+        rv = soc_tomahawk_temperature_monitor_get(unit, max, (soc_switch_temperature_monitor_t*)t, &n);
+#else
+        return BCM_E_UNAVAIL;
+#endif
+    }
+    if (rv < 0) return rv;
+    for (i = 0; i < n && i < max; i++) {
+        cur[i] = t[i].curr;
+        peak[i] = t[i].peak;
+    }
+    *count = i;
+    return BCM_E_NONE;
+}
+
 int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* err, int errlen)
 {
     int rv, nn = 0, nf = 0;
     char cmd[512];
-    static char tmpname[600];
 
     if (!config_file || !*config_file || access(config_file, R_OK) != 0) {
         seterr(err, errlen, "SDK config file '%s' missing or unreadable (%d)", config_file, errno);
@@ -134,22 +272,8 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
         seterr(err, errlen, "rc file '%s' missing or unreadable (%d)", rc_file, errno);
         return BCM_E_CONFIG;
     }
-    if (!sdk_booted) {
-        snprintf(tmpname, sizeof(tmpname), "/tmp/sai-openbcm-config-%d.bcm.tmp", (int)getpid());
-        if (sal_config_file_set(config_file, tmpname) < 0) {
-            seterr(err, errlen, "sal_config_file_set(%s) failed (%d)", config_file, -1);
-            return BCM_E_CONFIG;
-        }
-        if (sal_core_init() < 0 || sal_appl_init() < 0) {
-            seterr(err, errlen, "SAL initialization failed%s (%d)", "", -1);
-            return BCM_E_INIT;
-        }
-        soc_knet_config(&knet_vect);
-        soc_chip_info_vect_config(&chip_info_vect);
-        sal_boot_flags_set(sal_boot_flags_get() | BOOT_F_NO_RC);
-        diag_sdk_init();   /* bde_create, probe, attach */
-        sdk_booted = 1;
-    }
+    rv = sdk_boot(unit, config_file, err, errlen);
+    if (rv < 0) return rv;
     if (unit < 0 || unit >= soc_ndev || !soc_attached(unit)) {
         seterr(err, errlen, "no attached switch unit%s (soc_ndev %d)", "", soc_ndev);
         return BCM_E_UNIT;
@@ -192,6 +316,7 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
         return rv;
     }
     g_cpu_egress = g_drop_egress = -1;
+    sdk_inited = 1;
     if (err && errlen > 0) snprintf(err, errlen, "ok: stale KNET netifs %d filters %d destroyed", nn, nf);
     return BCM_E_NONE;
 }

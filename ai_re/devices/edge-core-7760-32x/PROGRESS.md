@@ -20,14 +20,36 @@ longer background.
 - **ASIC:** PCIe MMIO to the BCM56930 works since the device-tree aperture fix
   (0xc_4000_0000, matching U-Boot's LAW); OpenBCM BDE modules load and
   enumerate it. See [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md).
-- **Fans / health:** `fand.service` (Rust, temperature curve, 100% on fault or
-  exit) holds the 53% floor at ~31 °C board max; see [thermal.md](thermal.md).
+- **Fans / health:** `fand.service` (Rust; board + ASIC die temperature zones,
+  100% on fault or exit) holds the 53.3% hardware minimum at ~31 °C board /
+  ~40 °C ASIC; see [thermal.md](thermal.md). The ASIC reader
+  (`openbcm-asic-temp`) holds the SDK lock: stop it before `bcm.user`/syncd.
   node-exporter on :9100 (+ `switch_*`, `fand_*` metrics) is scraped by the lab
   VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; restoring the *factory* image with
   flash_uboot.py is untested (upstream→upstream is tested); other T2080 boards
   need their own DDR/DT patches. Details: [u-boot-port.md](u-boot-port.md).
+
+## 2026-11-15 (later) — ASIC die temperature drives the fans
+
+- SDK kmods load at boot now (module `switch/openbcm.nix`); `openbcm-asic-temp`
+  reads the eight PVTMON monitors every 5 s, attach only, and feeds fand zone
+  `asic` (required sensor: no reading = 100%). One-SDK-process lock
+  `/run/openbcm-unit0.lock` (refused a second instance in a live test).
+- Cold power cycle found the reader broken: S-bus ring map zero on a chip
+  nothing initialised, every TOP read timed out (fand went to failsafe as
+  designed). Fixed by programming the ring map + PVTMON trim as the SDK's chip
+  reset does, only when zero; a second cold cycle reads 37–40 °C. Details:
+  [thermal.md](thermal.md).
+- fand: hardware minimum folded into zone targets, start-up warnings for
+  settings below it, `max_duty` capping failsafe/exit is a config error.
+  AS7760: raw_min 136, profile none, board curve to 100% at 45 °C with
+  critical 50 (was a jump to failsafe at 45), idle point on 53% (54% rounded up
+  to the 60% CPLD step). Deployed `qy2gw3ys…-nixos-system-as7760`; 0 failed units,
+  fans raw 136. Grafana thermals dashboard has ASIC panels.
+- Open: SAI `TEMP_LIST` and publishing the temperature from syncd (fans go to
+  100% while syncd owns the chip); traffic-load thermal test.
 
 ## 2026-11-15 — monitoring, then fand as the fan controller
 

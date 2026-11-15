@@ -49,10 +49,20 @@ appear once `nix/` is committed; `path:./nix` always works.
 | profile | `profile-netboot-root` | whole system in the initramfs (squashfs + tmpfs), nothing on disk touched |
 | platform | `platform-qoriq-t2080` | NXP T2080/e6500: allnoconfig kernel, legacy uImage, serial console; option `hardware.qoriqT2080.kernelPatches` |
 | function | `thermal-as7760-fan` | Accton fan-CPLD hwmon driver, sensor labels, monitor service |
+| function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader (`hardware.openbcm`) |
 | function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
 | package | `uboot-*` | upstream U-Boot for T208x; patch series with a per-patch `scope` (`t208x` reusable, `as7760` board-only) in [packages/uboot/default.nix](packages/uboot/default.nix) |
 | package | `fastfetch-tiny` | fastfetch without optional libraries (cross-builds everywhere) |
+
+**fand and `path:./nix`.** fand lives in `rust/` of the monorepo, outside this
+directory. A `path:./nix` build copies only `ai_re/nix` into the store, so
+`rust/` is not there to import (a relative input fails with "access to absolute
+path '/nix/rust/...' is forbidden"); those builds keep the older 80% monitor.
+The root flake `ai_re/flake.nix`, used as `git+file://<monorepo>?dir=ai_re` (what
+`.#` inside the repo and the device `deploy.sh` do), copies the whole repository
+(tracked files only, `git add -N` new ones) and passes fand in. Deploy with
+`deploy.sh`, not `path:./nix`.
 
 Monitoring: `board-as7760` enables `monitoring-node-exporter` with the
 [as7760-metrics](packages/as7760-metrics/README.md) producer (`switch_*` optics,

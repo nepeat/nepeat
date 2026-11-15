@@ -10,6 +10,7 @@
   profile-netboot-root = ./profiles/netboot-root.nix;
   platform-qoriq-t2080 = ./platforms/qoriq-t2080.nix;
   thermal-as7760-fan = ./thermal/as7760-fan.nix;
+  switch-openbcm = ./switch/openbcm.nix;
   monitoring-node-exporter = ./monitoring/node-exporter.nix;
   board-as7760 = ./boards/as7760;
   board-as7760-sd-install = ./boards/as7760/sd-install.nix;

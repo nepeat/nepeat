@@ -23,10 +23,13 @@ on Linux 7), `fixpaths.pl` (the makefiles hard-code `/bin/echo`,
 `/usr/bin/test`, ...), patch 0002 (user platform `ppc64be`), then
 `Make.local.as7760` selects the chip drivers. The build takes a few minutes.
 
-On the target: `insmod linux-kernel-bde.ko himem=0 maxpayload=128 dmasize=16M`
-(the factory's values), then `linux-user-bde` and `linux-bcm-knet`;
-`mknod /dev/linux-kernel-bde c 127 0`, `/dev/linux-user-bde c 126 0`,
-`/dev/linux-bcm-knet c 122 0`. KNET receive only starts once the SDK's RX
+On the target the NixOS module [switch/openbcm.nix](../../modules/switch/openbcm.nix)
+(`hardware.openbcm.enable`) loads the modules at boot with the factory's
+`himem=0 maxpayload=128 dmasize=16M`, creates `/dev/linux-kernel-bde` (127),
+`/dev/linux-user-bde` (126) and `/dev/linux-bcm-knet` (122), and puts a
+`bcm.user` on PATH that takes the one-SDK-process lock
+(`/run/openbcm-unit0.lock`). Only one SDK process may use a unit: two would
+share the DMA pool and the S-channel. KNET receive only starts once the SDK's RX
 is started (`pw start` in the diag shell). Sync after copying test binaries:
 a crash before writeback leaves zero-length files.
 Without `rc.soc`/`config.bcm` in the working directory it only attaches;

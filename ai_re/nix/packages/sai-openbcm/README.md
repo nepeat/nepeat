@@ -6,7 +6,8 @@ SDK 6.5.27, so SONiC's `syncd` can drive the BCM56930 (Tomahawk, driver
 BCM56960_A0) of the AS7760-32X from its big-endian ppc64 control plane, where
 no vendor SAI binary exists. Status: builds natively (fake) and cross
 (openbcm); everything above the SDK is tested on x86_64 with the fake
-backend; **not yet run on hardware**.
+backend; smoke-tested on the AS7760 (2026-11-15: switch create, ports, VLAN, RIF;
+[sonic-nixos PROGRESS](../../../devices/sonic-nixos/PROGRESS.md)).
 
 ## Design
 
@@ -72,6 +73,9 @@ backend; **not yet run on hardware**.
   restarts; a stale filter once delivered frames to the wrong netdev). The
   SDK's own default filter to the RX API is kept.
 - No config file, no init. No fake on a host with BDE devices.
+- **One SDK process per unit**: the SDK boot takes `/run/openbcm-unit<N>.lock`
+  (flock, held for the process's life) and fails with BCM_E_BUSY when another
+  holder (`openbcm-asic-temp`, the wrapped `bcm.user`, another syncd) has it.
 - Tomahawk management ports (`PBMP_MANAGEMENT`, xe0/xe1 in the factory
   configs) are not exposed as SAI ports.
 
@@ -157,8 +161,9 @@ swss-common `database_config.json`, and the factory SDK config
 (`config-32x100.bcm` or the 128x25 one). **The config file is not in this
 repo**; copy it from the extracted factory image (`nixos-build/vendor-root/etc/knet/`).
 
-1. Nothing else may own the ASIC: no `bcm.user` running. Modules, factory
-   parameters, device nodes:
+1. Nothing else may own the ASIC: `systemctl stop openbcm-asic-temp` (fand
+   goes to 100% until it is started again), no `bcm.user` running. On the
+   NixOS system the modules and nodes are already there; by hand:
    `insmod linux-kernel-bde.ko himem=0 maxpayload=128 dmasize=16M`,
    `insmod linux-user-bde.ko`, `insmod linux-bcm-knet.ko`;
    `mknod /dev/linux-kernel-bde c 127 0; mknod /dev/linux-user-bde c 126 0; mknod /dev/linux-bcm-knet c 122 0`.
@@ -191,9 +196,23 @@ repo**; copy it from the extracted factory image (`nixos-build/vendor-root/etc/k
    SAI start (cleanup) or `rmmod linux-bcm-knet linux-user-bde linux-kernel-bde`.
    A new syncd re-runs `init all`.
 
+## openbcm-asic-temp
+
+`bin/openbcm-asic-temp` (SDK builds only, [src/asic_temp.c](src/asic_temp.c)):
+the ASIC die temperature monitors via `ob_sdk_attach` (attach only, no
+`init all`) + `ob_sdk_temperatures`. `--once` prints them; `--out FILE
+[--prom FILE] [--interval S]` publishes the hottest (C) and `switch_asic_*`
+metrics, removes both on exit or a failed read, exits after 3 failed reads.
+On a Tomahawk that nothing initialised since power-on it first programs the
+S-bus ring map and PVTMON trim exactly as `soc_tomahawk_chip_reset` does
+(without that, S-channel reads time out). Run as `openbcm-asic-temp.service`
+by [switch/openbcm.nix](../../modules/switch/openbcm.nix); fand reads its file.
+Not yet: SAI `TEMP_LIST`/`MAX_TEMP` and publishing the same file from syncd, so
+the fans run at 100% while syncd owns the chip.
+
 ## Known gaps and risks
 
-- **Never run on hardware.** First real test: steps above. Expect SDK API
+- **Hardware coverage is one smoke test** (2026-11-15, steps above). Expect SDK API
   return codes to need tuning (e.g. FEC controls, port speed changes that need
   FlexPort, `bcm_port_resource` vs `SOC_INFO` lanes).
 - **Endianness**: only `sdk_glue.c` converts to SDK types; IPv4 addresses

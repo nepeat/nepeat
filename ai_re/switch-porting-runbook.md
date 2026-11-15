@@ -98,7 +98,8 @@ Goal: every board device is bound, monitored, or listed as absent or unknown. Fa
 - [ ] Temperature sensors bound and labelled, cross-checked against a bootloader-prompt readout.
 - [ ] Monitor service: 100% on any sensor/rotor fault or on exit (`ExecStopPost`). Hold a guarded quiet duty only once measured.
   - e.g. on the AS7760: 80% while all board sensors read ≤40 °C, 100% at 45 °C. Not a tuned curve.
-- [ ] Feed ASIC die temperature (SerDes/ASIC sensor via the SDK) into the fan policy *(not yet done on AS7760)*.
+- [ ] Feed ASIC die temperature (on-die PVTMON via the SDK) into the fan policy as a required sensor: no reading = full speed.
+  - e.g. on the AS7760: `openbcm-asic-temp` (attach only) → `/run/asic/temperature` → fand zone `asic`. Test it after a cold power cycle, not only after an SDK session.
 - [ ] Module EEPROM tool: port → mux/channel map from the vendor table, SFF-8636/SFF-8472 decode, JSON output, hot-inserted modules.
   - how: open /dev/i2c-N with `I2C_SLAVE_FORCE` next to at24. at24 binds only at boot, and "busy" is not "empty".
 - [ ] QSFP reset/LPMode/presence/interrupt lines via the CPLD *(not yet done on AS7760)*.
@@ -282,6 +283,9 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 **Hardware and thermal**
 - sensors printed PWM 255 as 128% → generic display bug → trust raw sysfs and the board tool.
 - Fans pinned at 100% for days → no validated policy → guarded quiet duty with fault-to-full, and ASIC temperature later.
+- ASIC temperature reader worked all day, then timed out after a cold power cycle → Tomahawk's S-bus ring map is zero until the SDK's chip reset programs it, and every earlier test ran after an `init all` → program the ring map (same values as the SDK) when it is zero, and test sensors from a cold boot.
+- A fan curve whose idle point is a hair above the hardware minimum ran one CPLD step louder (54% → raw 153 = 60%) → coarse duty steps round up → put idle points exactly on the minimum.
+- `critical` set where the curve was still at ~55% → bang-bang between quiet and failsafe 100% → let the curve reach 100% first and keep critical as an emergency.
 
 **Build / Nix**
 - A tiny cross package pulled in nss/libdrm and failed → optional features enabled for the target → a trimmed local package.

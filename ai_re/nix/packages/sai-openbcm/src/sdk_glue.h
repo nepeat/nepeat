@@ -43,8 +43,21 @@ typedef struct {
 typedef void (*ob_link_cb_t)(void* ctx, int port, int up);
 typedef void (*ob_l2_cb_t)(void* ctx, const uint8_t mac[6], int vid, int port, int learned);
 
-/* Bring-up, see sdk_glue.c for the exact sequence. err receives a message. */
+/* Bring-up, see sdk_glue.c for the exact sequence. err receives a message.
+ * Both take the per-unit SDK lock (/run/openbcm-unit<N>.lock) for the life of
+ * the process and fail with OB_E_BUSY while another SDK process holds it:
+ * two processes on one unit would share the DMA pool and the S-channel. */
 int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* err, int errlen);
+/* Attach only: probe and attach the unit, no "init all", no chip reset,
+ * ports and forwarding state untouched. Enough for register reads. On a
+ * Tomahawk nothing has initialised since power-on it also programs the S-bus
+ * ring map and the PVTMON trim (see sdk_glue.c th_sbus_wake). */
+int ob_sdk_attach(int unit, char* err, int errlen);
+/* Die temperature monitors in tenths of a degree C: current, and the highest
+ * since the previous call (reading resets the hardware peak). Works after
+ * ob_sdk_attach (Tomahawk family, through the S-channel) or ob_sdk_init
+ * (BCM API, any chip with monitors). Returns BCM_E_*; *count monitors. */
+int ob_sdk_temperatures(int unit, int* cur, int* peak, int max, int* count);
 void ob_sdk_shutdown(int unit);
 int ob_sdk_shell(int unit, const char* cmd);
 const char* ob_sdk_errmsg(int rv);
