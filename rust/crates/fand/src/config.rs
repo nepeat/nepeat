@@ -88,6 +88,10 @@ impl fmt::Display for DutySpec {
     }
 }
 
+/// A non-negative integer, decimal or "0x" hex (register numbers, addresses).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Int(pub u64);
+
 /// A percentage only (no rpm), "80" or "80%".
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Pct(pub f64);
@@ -182,6 +186,8 @@ scalar_deserialize!(
     "a profile (none, slow, medium, fast or a duty)",
     Profile::parse
 );
+scalar_deserialize!(Int, "an integer (e.g. 104 or \"0x68\")", |s| crate::i2c::parse_int(s)
+    .map(Int));
 scalar_deserialize!(Pct, "a percentage 0..100", |s| match DutySpec::parse(s)? {
     DutySpec::Percent(p) => Ok(Pct(p)),
     DutySpec::Rpm(_) => Err("an rpm value is not allowed here, use a percentage".into()),
@@ -462,6 +468,7 @@ pub enum SensorKind {
     File,
     Exec,
     ThermalZone,
+    I2c,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
@@ -512,6 +519,8 @@ pub struct SensorConfig {
     pub parse: Option<ParseSpec>,
     /// thermal_zone: zone type (e.g. "x86_pkg_temp"), "thermal_zone3" or "3".
     pub zone: Option<String>,
+    /// i2c: the register to read.
+    pub i2c: Option<I2cRegConfig>,
     /// Multiply the raw number (default 0.001 for hwmon/thermal_zone, else 1).
     pub scale: Option<f64>,
     /// Add after scaling (C).
@@ -536,7 +545,7 @@ impl SensorConfig {
     pub fn scale(&self) -> f64 {
         self.scale.unwrap_or(match self.kind {
             SensorKind::Hwmon | SensorKind::ThermalZone => 0.001,
-            SensorKind::File | SensorKind::Exec => 1.0,
+            SensorKind::File | SensorKind::Exec | SensorKind::I2c => 1.0,
         })
     }
     pub fn plausible(&self) -> (f64, f64) {
@@ -565,6 +574,7 @@ pub enum OutputKind {
     Hwmon,
     File,
     Exec,
+    I2c,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
@@ -629,6 +639,17 @@ pub struct OutputConfig {
     /// 60s for exec).
     pub reassert: Option<Secs>,
     pub tach: Option<TachConfig>,
+    /// i2c: the duty register.
+    pub i2c: Option<I2cRegConfig>,
+    /// i2c: raw value <-> duty table, instead of the linear raw_min..raw_max.
+    pub map: Option<MapConfig>,
+    /// i2c: a register that must hold `value` (under `mask`) for the duty
+    /// register to take effect; `write` is written when it does not, checked
+    /// before every duty write.
+    pub arm: Option<I2cRegConfig>,
+    /// i2c: identity checks (e.g. a version register) before any write.
+    #[serde(default)]
+    pub expect: Vec<I2cRegConfig>,
 }
 
 fn d_raw_max() -> u32 {
@@ -639,6 +660,10 @@ impl OutputConfig {
     /// The output's hardware minimum: raw_min as a percentage, or min_duty
     /// if higher. Every command is clamped to it (see `crate::hwmin`).
     pub fn min_duty(&self) -> f64 {
+        if let Some(m) = self.raw_map() {
+            let from_map = m.duty(m.min);
+            return self.min_duty.map_or(from_map, |p| p.0.max(from_map));
+        }
         let from_raw = if self.raw_max > 0 {
             f64::from(self.raw_min) * 100.0 / f64::from(self.raw_max)
         } else {
@@ -648,6 +673,10 @@ impl OutputConfig {
     }
     pub fn max_duty(&self) -> f64 {
         self.max_duty.map_or(100.0, |p| p.0)
+    }
+    /// The `map` of an i2c output, when it is valid (see [`RawMap`]).
+    pub fn raw_map(&self) -> Option<RawMap> {
+        self.map.as_ref().and_then(|m| RawMap::new(m).ok())
     }
     pub fn reassert(&self) -> f64 {
         self.reassert
@@ -688,6 +717,240 @@ pub struct TachConfig {
     /// failsafe (default) or warn.
     #[serde(default)]
     pub on_fault: FaultAction,
+    /// I2C tach registers (bus/address default to the output's `i2c`).
+    #[serde(default)]
+    pub i2c: Vec<I2cRegConfig>,
+    /// i2c tachs: RPM = register value * scale (default 1).
+    pub scale: Option<f64>,
+}
+
+// ---------------------------------------------------------------- i2c
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum I2cWidth {
+    #[default]
+    Byte,
+    Word,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ByteOrder {
+    /// SMBus order (low byte first).
+    #[default]
+    Little,
+    Big,
+}
+
+/// An I2C/SMBus register. One shape for every use (sensor, output, `arm`,
+/// `expect`, tach); `validate` rejects the keys a use does not take.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct I2cRegConfig {
+    /// Linux bus number (/dev/i2c-N).
+    pub bus: Option<Int>,
+    /// 7-bit address.
+    pub address: Option<Int>,
+    pub register: Int,
+    #[serde(default)]
+    pub width: I2cWidth,
+    #[serde(default)]
+    pub byte_order: ByteOrder,
+    /// Two's complement (sensors).
+    #[serde(default)]
+    pub signed: bool,
+    /// Use the address even if a kernel driver has claimed it.
+    pub force: Option<bool>,
+    /// tach: rotor label (default fan1, fan2, ...).
+    pub label: Option<String>,
+    /// arm/expect: bits compared (default all).
+    pub mask: Option<Int>,
+    /// arm: the armed value; expect: the exact expected value.
+    pub value: Option<Int>,
+    /// arm: written when not armed (default `value`).
+    pub write: Option<Int>,
+    /// expect: inclusive range.
+    pub min: Option<Int>,
+    pub max: Option<Int>,
+}
+
+impl I2cRegConfig {
+    /// The runtime register; bus, address and force fall back to `base`.
+    pub fn to_reg(&self, base: Option<&I2cRegConfig>) -> std::result::Result<crate::i2c::Reg, String> {
+        let bus = self.bus.or(base.and_then(|b| b.bus)).ok_or("needs 'bus'")?;
+        let address = self.address.or(base.and_then(|b| b.address)).ok_or("needs 'address'")?;
+        let bus = u32::try_from(bus.0).map_err(|_| "bus is out of range".to_string())?;
+        if address.0 > 0x7f {
+            return Err(format!("address 0x{:x} is not a 7-bit address", address.0));
+        }
+        if self.register.0 > 0xff {
+            return Err(format!("register 0x{:x} is above 0xff", self.register.0));
+        }
+        Ok(crate::i2c::Reg {
+            target: crate::i2c::Target {
+                bus,
+                address: address.0 as u16,
+                force: self.force.or(base.and_then(|b| b.force)).unwrap_or(false),
+            },
+            reg: self.register.0 as u8,
+            width: match self.width {
+                I2cWidth::Byte => crate::i2c::Width::Byte,
+                I2cWidth::Word => crate::i2c::Width::Word,
+            },
+            big_endian: self.byte_order == ByteOrder::Big,
+            signed: self.signed,
+        })
+    }
+
+    fn width_max(&self) -> u64 {
+        match self.width {
+            I2cWidth::Byte => 0xff,
+            I2cWidth::Word => 0xffff,
+        }
+    }
+
+    pub fn mask_or_all(&self) -> u32 {
+        self.mask.map_or(self.width_max(), |m| m.0) as u32
+    }
+
+    /// Check a use: `allowed` lists the optional keys it takes (besides
+    /// bus/address/register/width/byte_order/force). Values must fit the width.
+    fn check(&self, p: &str, allowed: &[&str], base: Option<&I2cRegConfig>, errs: &mut Vec<String>) {
+        if let Err(m) = self.to_reg(base) {
+            errs.push(format!("{p}: {m}"));
+        }
+        let given = [
+            ("signed", self.signed),
+            ("label", self.label.is_some()),
+            ("mask", self.mask.is_some()),
+            ("value", self.value.is_some()),
+            ("write", self.write.is_some()),
+            ("min", self.min.is_some()),
+            ("max", self.max.is_some()),
+        ];
+        for (k, set) in given {
+            if set && !allowed.contains(&k) {
+                errs.push(format!("{p}: '{k}' is not valid here"));
+            }
+        }
+        for (k, v) in [
+            ("mask", self.mask),
+            ("value", self.value),
+            ("write", self.write),
+            ("min", self.min),
+            ("max", self.max),
+        ] {
+            if v.is_some_and(|v| v.0 > self.width_max()) {
+                errs.push(format!("{p}: {k} does not fit a {:?} register", self.width).to_lowercase());
+            }
+        }
+    }
+}
+
+/// `map` of an i2c output: duty per raw value, piecewise linear.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct MapConfig {
+    /// [[raw, percent], ...]: raw strictly increasing, percent
+    /// non-decreasing, the last at 100.
+    pub points: Vec<(f64, f64)>,
+    /// Lowest raw value ever written while running: the hardware minimum
+    /// (default: the first point).
+    pub min: Option<Int>,
+    /// Raw value written to stop (`stop: true` outputs only; default 0).
+    pub off: Option<Int>,
+}
+
+/// Validated [`MapConfig`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct RawMap {
+    pub points: Vec<(f64, f64)>,
+    pub min: u32,
+    pub max: u32,
+    pub off: u32,
+}
+
+impl RawMap {
+    pub fn new(m: &MapConfig) -> std::result::Result<RawMap, String> {
+        let p = &m.points;
+        if p.len() < 2 {
+            return Err("map needs at least two points".into());
+        }
+        for &(r, d) in p {
+            if !(r.is_finite() && r >= 0.0 && r.fract() == 0.0 && r <= 65535.0) {
+                return Err(format!("map: raw value {r} is not an integer 0..65535"));
+            }
+            if !(0.0..=100.0).contains(&d) {
+                return Err(format!("map: duty {d} is outside 0..100"));
+            }
+        }
+        for w in p.windows(2) {
+            if w[1].0 <= w[0].0 {
+                return Err("map: raw values must increase".into());
+            }
+            if w[1].1 < w[0].1 {
+                return Err("map: duties must not decrease".into());
+            }
+        }
+        let (lo, hi) = (p[0].0 as u32, p[p.len() - 1].0 as u32);
+        if p[p.len() - 1].1 != 100.0 {
+            return Err("map: the last point must be 100%".into());
+        }
+        let min = m.min.map_or(u64::from(lo), |v| v.0);
+        if min < u64::from(lo) || min > u64::from(hi) {
+            return Err(format!("map: min {min} is outside the map's raw range {lo}..{hi}"));
+        }
+        let off = m.off.map_or(0, |v| v.0);
+        if off > 65535 {
+            return Err(format!("map: off {off} is out of range"));
+        }
+        Ok(RawMap {
+            points: p.clone(),
+            min: min as u32,
+            max: hi,
+            off: off as u32,
+        })
+    }
+
+    /// Duty of a raw value (flat beyond the ends).
+    pub fn duty(&self, raw: u32) -> f64 {
+        let r = f64::from(raw);
+        let p = &self.points;
+        if r <= p[0].0 {
+            return p[0].1;
+        }
+        for w in p.windows(2) {
+            let ((r0, d0), (r1, d1)) = (w[0], w[1]);
+            if r <= r1 {
+                return d0 + (r - r0) * (d1 - d0) / (r1 - r0);
+            }
+        }
+        p[p.len() - 1].1
+    }
+
+    /// Smallest raw value in [min, max] giving at least `duty` (never less
+    /// air than asked for).
+    pub fn raw_for(&self, duty: f64) -> u32 {
+        let p = &self.points;
+        let mut r = p[p.len() - 1].0;
+        if duty <= p[0].1 {
+            r = p[0].0;
+        } else {
+            for w in p.windows(2) {
+                let ((r0, d0), (r1, d1)) = (w[0], w[1]);
+                if duty <= d1 {
+                    r = r0 + (duty - d0) * (r1 - r0) / (d1 - d0);
+                    break;
+                }
+            }
+        }
+        let mut raw = ((r - 1e-9).ceil().max(0.0) as u32).clamp(self.min, self.max);
+        while raw < self.max && self.duty(raw) < duty - 1e-9 {
+            raw += 1;
+        }
+        raw
+    }
 }
 
 fn d_follow() -> Option<f64> {
@@ -1036,6 +1299,19 @@ impl Config {
                     has(s.path.is_some(), "path", &mut local);
                     has(s.command.is_some(), "command", &mut local);
                 }
+                SensorKind::I2c => {
+                    match &s.i2c {
+                        None => local.push(format!("{p}: type i2c needs 'i2c' (bus, address, register)")),
+                        Some(r) => r.check(&format!("{p}.i2c"), &["signed"], None, &mut local),
+                    }
+                    has(s.hwmon.is_some(), "hwmon", &mut local);
+                    has(s.path.is_some(), "path", &mut local);
+                    has(s.command.is_some(), "command", &mut local);
+                    has(s.zone.is_some(), "zone", &mut local);
+                }
+            }
+            if s.kind != SensorKind::I2c {
+                has(s.i2c.is_some(), "i2c", &mut local);
             }
             if s.kind != SensorKind::Exec {
                 has(s.interval.is_some(), "interval", &mut local);
@@ -1103,6 +1379,17 @@ impl Config {
                         e(format!("{p}: exec outputs have no readback"));
                     }
                 }
+                // Checked below (validate_i2c_output).
+                OutputKind::I2c => {}
+            }
+            if o.kind == OutputKind::I2c {
+                let mut local = Vec::new();
+                validate_i2c_output(&p, o, &mut local);
+                for m in local {
+                    e(m);
+                }
+            } else if o.i2c.is_some() || o.map.is_some() || o.arm.is_some() || !o.expect.is_empty() {
+                e(format!("{p}: 'i2c'/'map'/'arm'/'expect' are only valid for type i2c"));
             }
             if o.kind != OutputKind::Exec && o.timeout.is_some() {
                 e(format!("{p}: 'timeout' is only valid for type exec"));
@@ -1117,7 +1404,17 @@ impl Config {
                     o.max_duty()
                 ));
             }
-            if let Some(t) = &o.tach {
+            if let Some(t) = o.tach.as_ref().filter(|t| !t.i2c.is_empty()) {
+                let mut local = Vec::new();
+                validate_i2c_tach(&p, o, t, &mut local);
+                for m in local {
+                    e(m);
+                }
+            }
+            if let Some(t) = o.tach.as_ref().filter(|t| t.i2c.is_empty()) {
+                if t.scale.is_some() {
+                    e(format!("{p}: tach.scale only applies to i2c tach inputs"));
+                }
                 if t.hwmon.is_none() && o.hwmon.is_none() {
                     e(format!("{p}: tach needs 'hwmon' when the output is not a hwmon device"));
                 }
@@ -1265,6 +1562,96 @@ impl Config {
             Ok(())
         } else {
             Err(Error(format!("invalid configuration:\n  - {}", errs.join("\n  - "))))
+        }
+    }
+}
+
+/// Checks of a `type: i2c` output beyond the common ones.
+fn validate_i2c_output(p: &str, o: &OutputConfig, errs: &mut Vec<String>) {
+    let Some(reg) = &o.i2c else {
+        errs.push(format!("{p}: type i2c needs 'i2c' (bus, address, register)"));
+        return;
+    };
+    reg.check(&format!("{p}.i2c"), &[], None, errs);
+    if o.hwmon.is_some() || o.path.is_some() || o.command.is_some() || o.pwm.is_some() {
+        errs.push(format!(
+            "{p}: 'hwmon'/'path'/'command'/'pwm' are not valid for type i2c"
+        ));
+    }
+    if o.enable.is_some() || o.exit_enable.is_some() {
+        errs.push(format!(
+            "{p}: 'enable'/'exit_enable' need a sysfs output; i2c outputs use 'arm'"
+        ));
+    }
+    let top = match &o.map {
+        Some(m) => {
+            if o.raw_min != 0 || o.raw_max != d_raw_max() {
+                errs.push(format!(
+                    "{p}: with 'map' the raw range comes from the map (map.min for the hardware minimum); \
+                     raw_min/raw_max are not used"
+                ));
+            }
+            match RawMap::new(m) {
+                Ok(rm) => u64::from(rm.max.max(rm.off)),
+                Err(msg) => {
+                    errs.push(format!("{p}: {msg}"));
+                    0
+                }
+            }
+        }
+        None => u64::from(o.raw_max),
+    };
+    if top > reg.width_max() {
+        errs.push(format!("{p}: raw value {top} does not fit the {:?} register", reg.width).to_lowercase());
+    }
+    if let Some(a) = &o.arm {
+        a.check(&format!("{p}.arm"), &["mask", "value", "write"], Some(reg), errs);
+        if a.value.is_none() {
+            errs.push(format!("{p}.arm: needs 'value' (the armed state)"));
+        }
+    }
+    for (i, x) in o.expect.iter().enumerate() {
+        let q = format!("{p}.expect[{i}]");
+        x.check(&q, &["mask", "value", "min", "max"], Some(reg), errs);
+        if x.value.is_none() && x.min.is_none() && x.max.is_none() {
+            errs.push(format!("{q}: needs 'value', 'min' or 'max'"));
+        }
+        if x.value.is_some() && (x.min.is_some() || x.max.is_some()) {
+            errs.push(format!("{q}: give 'value' or 'min'/'max', not both"));
+        }
+    }
+}
+
+/// Checks of a tach with `i2c` inputs.
+fn validate_i2c_tach(p: &str, o: &OutputConfig, t: &TachConfig, errs: &mut Vec<String>) {
+    if t.auto || !t.inputs.is_empty() || t.hwmon.is_some() {
+        errs.push(format!(
+            "{p}: tach takes 'i2c' inputs or hwmon ('auto'/'inputs'/'hwmon'), not both"
+        ));
+    }
+    let mut labels = std::collections::BTreeSet::new();
+    for (i, r) in t.i2c.iter().enumerate() {
+        r.check(&format!("{p}.tach.i2c[{i}]"), &["label"], o.i2c.as_ref(), errs);
+        let l = r.label.clone().unwrap_or_else(|| format!("fan{}", i + 1));
+        if !labels.insert(l.clone()) {
+            errs.push(format!("{p}: tach label {l:?} is used twice"));
+        }
+    }
+    if t.scale.is_some_and(|s| !(s.is_finite() && s > 0.0)) {
+        errs.push(format!("{p}: tach.scale must be > 0"));
+    }
+    if let Some(f) = t.follow_tolerance {
+        if !(0.0..1.0).contains(&f) {
+            errs.push(format!("{p}: tach.follow_tolerance must be within 0..1"));
+        }
+    }
+    for (k, v) in t.max_rpm.iter().map(|v| ("max_rpm".to_string(), v)).chain(
+        t.max_rpm_by_label
+            .iter()
+            .map(|(k, v)| (format!("max_rpm_by_label.{k}"), v)),
+    ) {
+        if !(v.is_finite() && *v > 0.0) {
+            errs.push(format!("{p}: tach.{k} must be > 0"));
         }
     }
 }
@@ -1459,5 +1846,136 @@ zones:
         );
         assert!(Config::parse(&bad_curve).unwrap_err().0.contains("must not decrease"));
         assert!(Config::parse("sensors: [").is_err());
+    }
+
+    const I2C: &str = r#"
+sensors:
+  t: { type: i2c, i2c: { bus: 7, address: 0x48, register: 0, width: word, byte_order: big, signed: true }, scale: 0.00390625 }
+outputs:
+  fans:
+    type: i2c
+    i2c: { bus: 4, address: "0x68", register: "0x50" }
+    map: { points: [[1, 4.6], [63, 100]], min: 9 }
+    expect: [{ register: "0x01", min: 135 }]
+    arm: { register: "0x2a", mask: "0x02", value: 0 }
+    tach: { i2c: [{ register: 0x60 }, { register: 0x61, label: rear }], scale: 100, max_rpm: 14400 }
+zones:
+  z: { outputs: [fans], sensors: [t], policy: { target: 45 } }
+"#;
+
+    #[test]
+    fn i2c_sensor_and_output_parse() {
+        let c = Config::parse(I2C).unwrap();
+        let s = &c.sensors["t"];
+        assert_eq!(s.scale(), 0.00390625);
+        let r = s.i2c.as_ref().unwrap().to_reg(None).unwrap();
+        assert_eq!(
+            (r.target.bus, r.target.address, r.reg, r.big_endian, r.signed),
+            (7, 0x48, 0, true, true)
+        );
+        let o = &c.outputs["fans"];
+        let base = o.i2c.as_ref().unwrap();
+        assert_eq!(base.to_reg(None).unwrap().to_string(), "4-0068:0x50");
+        let arm = o.arm.as_ref().unwrap();
+        assert_eq!(
+            arm.to_reg(Some(base)).unwrap().to_string(),
+            "4-0068:0x2a",
+            "bus/address inherited"
+        );
+        assert_eq!(arm.mask_or_all(), 2);
+        assert!(
+            (o.min_duty() - 16.909).abs() < 0.01,
+            "map.min 9 is the hardware minimum"
+        );
+        let t = o.tach.as_ref().unwrap();
+        assert_eq!(t.i2c[1].label.as_deref(), Some("rear"));
+        assert_eq!(t.scale, Some(100.0));
+    }
+
+    #[test]
+    fn raw_map_rounds_up_within_its_range() {
+        let m = RawMap::new(&MapConfig {
+            points: vec![(1.0, 4.6), (63.0, 100.0)],
+            min: Some(Int(9)),
+            off: None,
+        })
+        .unwrap();
+        assert_eq!((m.min, m.max, m.off), (9, 63, 0));
+        assert!((m.duty(9) - 16.909).abs() < 0.001);
+        assert_eq!(m.duty(63), 100.0);
+        assert_eq!(m.duty(0), 4.6, "flat below the first point");
+        assert_eq!(m.raw_for(0.0), 9, "never below min");
+        assert_eq!(m.raw_for(16.9), 9);
+        assert_eq!(m.raw_for(16.95), 10, "rounds up: never less air");
+        assert_eq!(m.raw_for(m.duty(42)), 42, "an exact step stays");
+        assert_eq!(m.raw_for(100.0), 63);
+        // A table with a flat part: the first raw value reaching the duty.
+        let t = RawMap::new(&MapConfig {
+            points: vec![(0.0, 0.0), (10.0, 50.0), (20.0, 50.0), (30.0, 100.0)],
+            min: None,
+            off: None,
+        })
+        .unwrap();
+        assert_eq!(t.raw_for(50.0), 10);
+        assert_eq!(t.raw_for(51.0), 21);
+        for bad in [
+            vec![(1.0, 4.6)],
+            vec![(1.0, 4.6), (1.0, 100.0)],
+            vec![(1.0, 50.0), (63.0, 40.0)],
+            vec![(1.0, 4.6), (63.0, 90.0)],
+            vec![(1.5, 4.6), (63.0, 100.0)],
+        ] {
+            let m = MapConfig {
+                points: bad.clone(),
+                min: None,
+                off: None,
+            };
+            assert!(RawMap::new(&m).is_err(), "{bad:?}");
+        }
+    }
+
+    #[test]
+    fn i2c_misuse_is_reported() {
+        let y = r#"
+sensors:
+  a: { type: i2c }
+  b: { type: hwmon, hwmon: lm75, i2c: { bus: 1, address: 0x48, register: 0 } }
+  c: { type: i2c, i2c: { bus: 1, address: 0x90, register: 0x100, label: x } }
+outputs:
+  o1: { type: hwmon, hwmon: x, map: { points: [[0, 0], [255, 100]] } }
+  o2:
+    type: i2c
+    i2c: { bus: 4, address: 0x68, register: 0x50 }
+    raw_min: 9
+    map: { points: [[1, 4.6], [300, 100]], min: 0 }
+    arm: { register: 0x2a, label: x }
+    expect: [{ register: 1 }, { register: 1, value: 3, min: 1 }]
+    enable: 1
+    tach: { auto: true, i2c: [{ register: 0x60 }, { register: 0x61, label: fan1 }] }
+  o3: { type: i2c, raw_max: 1000, i2c: { register: 0x50 } }
+zones:
+  z: { outputs: [o1, o2, o3], policy: { fixed: 50 } }
+"#;
+        let err = Config::parse(y).unwrap_err().0;
+        for needle in [
+            "sensors.a: type i2c needs 'i2c'",
+            "sensors.b: 'i2c' is not valid for type Hwmon",
+            "sensors.c.i2c: address 0x90 is not a 7-bit address",
+            "sensors.c.i2c: 'label' is not valid here",
+            "outputs.o1: 'i2c'/'map'/'arm'/'expect' are only valid for type i2c",
+            "outputs.o2: with 'map' the raw range comes from the map",
+            "outputs.o2: map: min 0 is outside the map's raw range 1..300",
+            "outputs.o2.arm: 'label' is not valid here",
+            "outputs.o2.arm: needs 'value'",
+            "outputs.o2.expect[0]: needs 'value', 'min' or 'max'",
+            "outputs.o2.expect[1]: give 'value' or 'min'/'max', not both",
+            "outputs.o2: 'enable'/'exit_enable' need a sysfs output; i2c outputs use 'arm'",
+            "outputs.o2: tach takes 'i2c' inputs or hwmon",
+            "outputs.o2: tach label \"fan1\" is used twice",
+            "outputs.o3.i2c: needs 'bus'",
+            "outputs.o3: raw value 1000 does not fit the byte register",
+        ] {
+            assert!(err.contains(needle), "missing {needle:?} in:\n{err}");
+        }
     }
 }

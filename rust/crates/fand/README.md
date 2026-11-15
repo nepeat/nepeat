@@ -7,8 +7,9 @@ serde-saphyr, regex-lite, signal-hook, libc), no async runtime and no C
 libraries, so it cross-compiles to embedded targets such as big-endian
 ppc64.
 
-Inputs are **sensors** (hwmon, plain files, commands, thermal zones);
-outputs are **fans** (hwmon pwm, plain files, commands such as IPMI tools).
+Inputs are **sensors** (hwmon, plain files, commands, thermal zones, I2C
+registers); outputs are **fans** (hwmon pwm, plain files, commands such as
+IPMI tools, I2C registers of a board CPLD).
 **Zones** connect sensors to outputs through a **policy** (curve, target
 temperature, or fixed duty). An output driven by several zones runs at the
 highest duty any of them asks for.
@@ -78,7 +79,7 @@ output through its RPM model.
 
 | key | applies to | default | meaning |
 |---|---|---|---|
-| `type` | all | required | `hwmon`, `file`, `exec`, `thermal_zone` |
+| `type` | all | required | `hwmon`, `file`, `exec`, `thermal_zone`, `i2c` |
 | `hwmon` | hwmon | required | device selector, see below |
 | `input` / `label` | hwmon | `temp1` | attribute (`temp2`, `temp2_input`) or the `tempN` whose `tempN_label` equals this |
 | `path` | file | required | file holding a number |
@@ -87,6 +88,7 @@ output through its RPM model.
 | `timeout` | exec | `5s` | the command's process group is killed after this |
 | `parse` | exec | first number | `{regex: "...", aggregate: max}` (every match; group 1 if present) or `{json: "ports[].temp", aggregate: max}` |
 | `zone` | thermal_zone | required | zone `type` (`x86_pkg_temp`), `thermal_zone3` or `3` |
+| `i2c` | i2c | required | the register, see [I2C registers](#i2c-registers); `signed` allowed |
 | `scale` | all | `0.001` hwmon/thermal, else `1` | multiply the raw number |
 | `offset` | all | `0` | add after scaling (C) |
 | `plausible` | all | `[-20, 150]` | readings outside are errors |
@@ -119,7 +121,7 @@ picked up; until then they are faults.
 
 | key | default | meaning |
 |---|---|---|
-| `type` | required | `hwmon`, `file` or `exec` |
+| `type` | required | `hwmon`, `file`, `exec` or `i2c` |
 | `hwmon`, `pwm` | –, `pwm1` | hwmon: selector and pwm attribute |
 | `path` | – | file: the raw duty file |
 | `command`, `timeout` | –, `5s` | exec: argv template with `{percent}` (integer, rounded up) and `{raw}` |
@@ -133,9 +135,11 @@ picked up; until then they are faults.
 | `readback_tolerance` | `0` | raw units of slack |
 | `reassert` | sysfs: every tick, exec: `60s` | rewrite an unchanged value this often |
 | `tach` | none | RPM feedback, below |
+| `i2c` | – | i2c: the duty register, see [I2C registers](#i2c-registers) |
+| `map`, `arm`, `expect` | none | i2c only, see [I2C registers](#i2c-registers) |
 
 Percent → raw rounds *up* (never less air than asked for) and is clamped to
-`[raw_min, raw_max]`.
+`[raw_min, raw_max]` (or to a `map`).
 
 **Tach (`outputs.<name>.tach`).**
 
@@ -151,6 +155,8 @@ Percent → raw rounds *up* (never less air than asked for) and is clamped to
 | `follow_grace` | `20s` | time after a duty change before that check applies |
 | `fault_attrs` | `true` | read `fanN_fault` / `fanN_alarm` when present (non-zero = fault) |
 | `on_fault` | `failsafe` | or `warn`: tach problems are reported but do not cause failsafe |
+| `i2c` | `[]` | I2C tach registers instead of hwmon (`{register, label}`; bus/address from the output's `i2c`; labels default `fan1`, `fan2`, ...) |
+| `scale` | `1` | i2c tachs: RPM = register value × scale |
 
 RPM model per rotor, best first: the calibration file (measured
 duty→rpm points, interpolated), then `max_rpm_by_label`, then `max_rpm`
@@ -159,6 +165,50 @@ expectation). The model converts both ways: expected RPM for the follow
 check and status, and rpm duties (`profile: 9000rpm`, `fixed: 12000rpm`,
 `fand set 12000rpm`) to percent, taking the *largest* duty any rotor of the
 output needs.
+
+### I2C registers
+
+For hardware without a kernel driver, typically a board CPLD read and
+written raw from userspace. Access is Linux i2c-dev (`/dev/i2c-N`, SMBus
+byte or word data, through `libc` ioctls); every transfer opens the device
+afresh, so a bus that appears late needs no retry logic. Numbers may be
+written as `104` or `"0x68"`.
+
+| key (in `i2c`, `arm`, `expect`, tach `i2c`) | default | meaning |
+|---|---|---|
+| `bus`, `address` | required in a sensor's or output's `i2c`; elsewhere the output's | `/dev/i2c-<bus>`, 7-bit address |
+| `register` | required | register (command) number |
+| `width` | `byte` | or `word` (SMBus word, little-endian) |
+| `byte_order` | `little` | `big` for words with the high byte first (LM75-style) |
+| `signed` | `false` | sensors: two's complement |
+| `force` | `false` | `I2C_SLAVE_FORCE`: use the address even if a kernel driver owns it (careful) |
+
+Output keys:
+
+- `map: {points: [[raw, percent], ...], min, off}`: duty per raw value,
+  piecewise linear, instead of the linear `raw_min..raw_max` (which must
+  then be left unset). Raw values increase, duties do not decrease and the
+  last is 100. Percent → raw takes the smallest raw value reaching the
+  duty. `min` (default: the first point) is the lowest raw value written
+  while running, i.e. the hardware minimum; `off` (default 0) is what
+  `stop: true` writes for 0.
+- `arm: {register, value, mask, write}`: a handshake register that must
+  hold `value` under `mask` (default all bits) for the duty register to take
+  effect, e.g. a "hardware has taken over" flag. Before every duty write it
+  is read; if it does not hold, `write` (default `value`) is written and
+  read back. The first time is normal (one INFO line). Later it means the
+  hardware took control back: that write counts as failed, so the zone goes
+  failsafe for its calm period (one ERROR line). If the register will not
+  arm, the duty is still written and the output stays faulted.
+- `expect: [{register, value | min, max, mask}]`: identity checks (a
+  version or ID register). Read before every write; while one fails nothing
+  at all is written to the device, not even `arm`, so the hardware's own
+  failsafe stays in charge, and the output is faulted.
+
+Readback (`readback`, default `at_least`) re-reads the duty register. In a
+test root (`sysfs_root` not `/`), a *directory* `<root>/dev/i2c-N` stands in
+for the bus: `0x68/0x50` under it is register 0x50 of address 0x68, holding
+a number; a missing file is a NACK.
 
 ### Zones (`zones.<name>`)
 
@@ -238,7 +288,9 @@ Fail safe, never fail silent. A zone enters **failsafe** (its
 - on any output it drives: an unresolvable pwm, a failed write, a readback
   mismatch, a fan fault/alarm flag, a rotor below `min_rpm` while commanded
   above `check_above_duty`, or a rotor not following its command (below the
-  expected RPM by more than `follow_tolerance`, after `follow_grace`).
+  expected RPM by more than `follow_tolerance`, after `follow_grace`); for
+  `type: i2c`, any I2C error, a failed `expect`, an `arm` register that will
+  not arm or had to be re-armed (see [I2C registers](#i2c-registers)).
 
 **Sensor grace.** With `grace` set, a failed reading (any of the first
 bullet) keeps the last good value for up to `grace` after that value was
@@ -300,7 +352,8 @@ only explicit settings below it:
 
 **Robustness.** No `unwrap` on input, configuration errors carry their
 path, all byte handling is text (big-endian clean), and the only `unsafe`
-is one `kill(2)` to end a timed-out command's process group.
+is one `kill(2)` to end a timed-out command's process group and the i2c-dev
+ioctls (`src/i2c.rs`).
 
 ## Examples
 
@@ -309,6 +362,11 @@ is one `kill(2)` to end a timed-out command's process group.
   (`max_rpm_by_label: {front: 21000, rear: 18000}`), four `lm75` told apart
   by `of_node`, the ASIC die temperature from a command (regex), optics
   from a JSON tool (optional). Three zones on the same output, max wins.
+- [examples/dmc12.yaml](examples/dmc12.yaml): Edgecore DMC-12-48R-AS0.
+  Three fans on a board CPLD over I2C: a 64-step register via `map` with
+  step 9 as the hardware minimum, the CPLD's WDT flag as `arm`, its version
+  register as `expect`, i2c tachs (×100 rpm), and a PI zone (the factory's
+  45 C target and gains) over three lm75/tmp75.
 - [examples/x86-appliance.yaml](examples/x86-appliance.yaml): Super I/O
   pwm channels with `enable`/`exit_enable`, coretemp by label, an optional
   NVMe sensor with an offset, a PI target zone for the CPU, and a
@@ -418,7 +476,11 @@ sensor) covering sensor loss, implausible values, exec failures, fan fault
 flags, stalls, rotors not following, write failures, readback mismatches,
 overrides, rpm floors, hardware-minimum warnings, dry run, PI convergence
 and anti-windup (taking over from a higher zone, ramp/dwell holds), sensor
-grace and panic unwinding. The CLI tests run the real binary under a fake
+grace and panic unwinding. A second simulation drives a DMC-12-like board
+CPLD (`fakesys::FakeCpld`, an injected I2C backend): the WDT-flag
+handshake at start, after a mid-run reset and when the flag will not clear,
+an unexpected CPLD version, a dead bus, a stalled fan, dry run and exit.
+The CLI tests run the real binary under a fake
 `NOTIFY_SOCKET` and check READY,
 WATCHDOG, the control socket, SIGTERM → exit duty, single-instance, failsafe
 and calibration. They need only `/bin/sh`.

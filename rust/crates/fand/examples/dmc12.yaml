@@ -1,0 +1,48 @@
+# Edgecore DMC-12-48R-AS0 console server (aarch64), as a worked example.
+# The NixOS module ai_re/nix/modules/thermal/dmc12-fan.nix generates this.
+#
+# Hardware: three fans share one PWM step register on the board CPLD at I2C
+# 4-0068, raw from userspace (no kernel driver). On a v7+ CPLD (version
+# register 0x01 > 134) register 0x50 takes steps 1..63 with
+# duty = 4.6 + (step - 1) * 1.54 %, 0 = off; tachs 0x60..0x62 read RPM / 100.
+# After a reset the CPLD's WDT flag 0x2a reads 3 and the CPLD runs the fans
+# at full speed whatever 0x50 says, until software writes 0 (it then reads
+# 1). Step 9 (16.9 %, ~2000 rpm) is the floor: the AS0 chassis raises fan
+# alarms below ~2000 rpm. Temperatures: lm75/tmp75 in hwmon.
+#
+# A pre-v7 CPLD (16 steps) fails the `expect` check: nothing is written and
+# the zone stays failsafe. Use points [[1, 17.6], [15, 100]], expect max 134
+# and a suitable min there.
+
+interval: 2s
+profile: none              # the hardware minimum (step 9) is the floor
+calm_period: 60s
+
+sensors:
+  k2_uc:       { type: hwmon, hwmon: { name: lm75, device: "5-004a" }, plausible: [-10, 110] }
+  sfp_console: { type: hwmon, hwmon: { name: tmp75, device: "7-0048" }, plausible: [-10, 110] }
+  m2:          { type: hwmon, hwmon: { name: tmp75, device: "7-0049" }, plausible: [-10, 110] }
+
+outputs:
+  fans:
+    type: i2c
+    i2c: { bus: 4, address: "0x68", register: "0x50" }
+    map: { points: [[1, 4.6], [63, 100]], min: 9 }
+    expect: [{ register: "0x01", min: 135 }]   # v7+ CPLD: 64 steps
+    arm: { register: "0x2a", mask: "0x02", value: 0 }
+    tach:
+      i2c:
+        - { register: "0x60", label: fan1 }
+        - { register: "0x61", label: fan2 }
+        - { register: "0x62", label: fan3 }
+      scale: 100
+      max_rpm: 14400
+      min_rpm: 1000
+
+zones:
+  board:
+    outputs: [fans]
+    sensors: [k2_uc, sfp_console, m2]
+    # The factory PI (45 C, Kp 3 steps/C, Ki 0.1 steps/(C * 10 s)) in percent.
+    policy: { target: 45, kp: 4.6, ki: 0.015 }
+    critical: 60

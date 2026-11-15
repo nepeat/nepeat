@@ -15,13 +15,14 @@
 use crate::calibration::{Calibration, OutputCal, RotorModel};
 use crate::config::{
     Aggregate, Config, DEFAULT_KD, DEFAULT_KI, DEFAULT_KP, DutySpec, FaultAction, HwmonSelector, OutputConfig,
-    OutputKind, Profile, ProfileDuties, Readback, SensorConfig, SensorKind, ZoneConfig,
+    OutputKind, Profile, ProfileDuties, RawMap, Readback, SensorConfig, SensorKind, ZoneConfig,
 };
 use crate::control::{Ema, FailGuard, Hysteresis, Pid, Ramp, Transition};
 use crate::curves::Curve;
 use crate::error::{Error, Result};
 use crate::exec::{self, Parser};
 use crate::hwmin;
+use crate::i2c::{self, Bus};
 use crate::sysfs::{self, ReadError};
 use crate::{log_error, log_info, log_notice, log_warn};
 use serde::Serialize;
@@ -52,6 +53,8 @@ pub struct Options {
     pub calibration: Calibration,
     /// Time origin for `now` values (worker threads timestamp with it).
     pub epoch: Instant,
+    /// I2C backend for `type: i2c` (default: i2c-dev under `root`).
+    pub i2c: Option<Arc<dyn Bus>>,
 }
 
 impl Options {
@@ -62,6 +65,7 @@ impl Options {
             exec_mode: ExecMode::Inline,
             calibration: Calibration::default(),
             epoch: Instant::now(),
+            i2c: None,
         }
     }
 }
@@ -223,6 +227,7 @@ impl Drop for ExecSensor {
 enum Source {
     Sysfs(Locator, Resolver),
     Exec(ExecSensor),
+    I2c(i2c::Reg, Arc<dyn Bus>),
 }
 
 pub struct SensorRt {
@@ -252,7 +257,7 @@ pub struct SensorRt {
 }
 
 impl SensorRt {
-    fn new(name: &str, c: &SensorConfig, grace: f64, mode: ExecMode) -> Result<SensorRt> {
+    fn new(name: &str, c: &SensorConfig, grace: f64, mode: ExecMode, bus: &Arc<dyn Bus>) -> Result<SensorRt> {
         let sel = || c.hwmon.clone().map(|s| s.0).unwrap_or_default();
         let src = match c.kind {
             SensorKind::Hwmon => Source::Sysfs(
@@ -281,6 +286,14 @@ impl SensorRt {
                 started: false,
                 last_run: None,
             }),
+            SensorKind::I2c => Source::I2c(
+                c.i2c
+                    .as_ref()
+                    .ok_or_else(|| Error(format!("sensors.{name}: no i2c register")))?
+                    .to_reg(None)
+                    .map_err(|e| Error(format!("sensors.{name}.i2c: {e}")))?,
+                bus.clone(),
+            ),
         };
         let (lo, hi) = c.plausible();
         Ok(SensorRt {
@@ -309,14 +322,22 @@ impl SensorRt {
     pub fn path(&self) -> Option<&Path> {
         match &self.src {
             Source::Sysfs(_, r) => r.resolved.as_deref(),
-            Source::Exec(_) => None,
+            Source::Exec(_) | Source::I2c(..) => None,
         }
     }
 
     pub fn command(&self) -> Option<&[String]> {
         match &self.src {
             Source::Exec(x) => Some(&x.argv),
-            Source::Sysfs(..) => None,
+            Source::Sysfs(..) | Source::I2c(..) => None,
+        }
+    }
+
+    /// Where the value comes from: the resolved path, or "i2c 4-0068:0x50".
+    pub fn location(&self) -> Option<String> {
+        match &self.src {
+            Source::I2c(r, _) => Some(format!("i2c {r}")),
+            _ => self.path().map(|p| p.display().to_string()),
         }
     }
 
@@ -324,7 +345,7 @@ impl SensorRt {
     pub fn resolve(&mut self, now: f64, root: &Path) -> std::result::Result<Option<PathBuf>, String> {
         match &mut self.src {
             Source::Sysfs(loc, res) => res.get(now, || loc.resolve(root)).map(Some),
-            Source::Exec(_) => Ok(None),
+            Source::Exec(_) | Source::I2c(..) => Ok(None),
         }
     }
 
@@ -342,6 +363,7 @@ impl SensorRt {
                 },
             },
             Source::Exec(x) => x.read(now).map_err(|e| ("exec", e)),
+            Source::I2c(r, bus) => r.read(bus.as_ref()).map(|v| (v, now)).map_err(|e| ("i2c", e)),
         };
         let checked = raw.and_then(|(raw, at)| {
             let age = (now - at).max(0.0);
@@ -455,13 +477,182 @@ impl OutLoc {
 enum Sink {
     Sysfs(OutLoc, Resolver),
     Exec { argv: Vec<String>, timeout: f64 },
+    I2c(Box<I2cSink>),
+}
+
+/// A `type: i2c` output: the duty register, its handshake and identity checks.
+struct I2cSink {
+    reg: i2c::Reg,
+    bus: Arc<dyn Bus>,
+    arm: Option<Arm>,
+    expect: Vec<Expect>,
+}
+
+/// `arm`: a register that must hold `value` (under `mask`) for the duty
+/// register to take effect. Checked before every duty write; when it does
+/// not hold, `write` is written. The first time that is normal (the
+/// hardware's power-on state); later it means the hardware took control
+/// back, which is an error for that write (so the zone goes failsafe).
+struct Arm {
+    reg: i2c::Reg,
+    mask: u32,
+    value: u32,
+    write: u32,
+    checked: bool,
+}
+
+impl Arm {
+    fn holds(&self, v: u32) -> bool {
+        v & self.mask == self.value & self.mask
+    }
+
+    fn want(&self) -> String {
+        format!("0x{:02x} under mask 0x{:02x}", self.value, self.mask)
+    }
+
+    fn assert(&mut self, bus: &dyn Bus, output: &str) -> std::result::Result<(), String> {
+        let cur = self.reg.read_raw(bus)?;
+        if self.holds(cur) {
+            self.checked = true;
+            return Ok(());
+        }
+        self.reg.write(bus, self.write)?;
+        let after = self.reg.read_raw(bus)?;
+        if !self.holds(after) {
+            return Err(format!(
+                "arm register {}: wrote 0x{:02x} but it reads 0x{after:02x} (want {}); the hardware keeps control",
+                self.reg,
+                self.write,
+                self.want()
+            ));
+        }
+        let first = !self.checked;
+        self.checked = true;
+        if first {
+            log_info!(
+                "output {output}: arm register {} read 0x{cur:02x}, wrote 0x{:02x}: armed",
+                self.reg,
+                self.write
+            );
+            Ok(())
+        } else {
+            Err(format!(
+                "arm register {} read 0x{cur:02x} (want {}): the hardware had taken control; wrote 0x{:02x}, armed again",
+                self.reg,
+                self.want(),
+                self.write
+            ))
+        }
+    }
+}
+
+/// `expect`: a read-only identity check; while it fails nothing is written.
+struct Expect {
+    reg: i2c::Reg,
+    mask: u32,
+    lo: u32,
+    hi: u32,
+}
+
+impl Expect {
+    fn desc(&self) -> String {
+        let m = if self.mask == self.reg.width.max() {
+            String::new()
+        } else {
+            format!(" under mask 0x{:02x}", self.mask)
+        };
+        if self.lo == self.hi {
+            format!("0x{:02x}{m}", self.lo)
+        } else {
+            format!("0x{:02x}..0x{:02x}{m}", self.lo, self.hi)
+        }
+    }
+
+    fn check(&self, bus: &dyn Bus) -> std::result::Result<u32, String> {
+        let v = self.reg.read_raw(bus)? & self.mask;
+        if (self.lo..=self.hi).contains(&v) {
+            Ok(v)
+        } else {
+            Err(format!(
+                "expect {}: reads 0x{v:02x}, expected {}; not writing to this device",
+                self.reg,
+                self.desc()
+            ))
+        }
+    }
+}
+
+impl I2cSink {
+    fn new(c: &OutputConfig, bus: &Arc<dyn Bus>) -> std::result::Result<Option<I2cSink>, String> {
+        let Some(base) = &c.i2c else { return Ok(None) };
+        let reg = base.to_reg(None)?;
+        let arm = match &c.arm {
+            None => None,
+            Some(a) => {
+                let value = a.value.map_or(0, |v| v.0) as u32;
+                Some(Arm {
+                    reg: a.to_reg(Some(base))?,
+                    mask: a.mask_or_all(),
+                    value,
+                    write: a.write.map_or(value, |v| v.0 as u32),
+                    checked: false,
+                })
+            }
+        };
+        let expect = c
+            .expect
+            .iter()
+            .map(|x| {
+                let r = x.to_reg(Some(base))?;
+                let (lo, hi) = match x.value {
+                    Some(v) => (v.0 as u32, v.0 as u32),
+                    None => (
+                        x.min.map_or(0, |v| v.0 as u32),
+                        x.max.map_or(r.width.max(), |v| v.0 as u32),
+                    ),
+                };
+                Ok(Expect {
+                    reg: r,
+                    mask: x.mask_or_all(),
+                    lo,
+                    hi,
+                })
+            })
+            .collect::<std::result::Result<Vec<_>, String>>()?;
+        Ok(Some(I2cSink {
+            reg,
+            bus: bus.clone(),
+            arm,
+            expect,
+        }))
+    }
+}
+
+/// A bus that fails every transfer (unit tests of non-i2c outputs).
+#[cfg(test)]
+struct NoBus;
+
+#[cfg(test)]
+impl Bus for NoBus {
+    fn read(&self, _: i2c::Target, _: u8, _: i2c::Width) -> std::result::Result<u16, String> {
+        Err("no i2c backend".into())
+    }
+    fn write(&self, _: i2c::Target, _: u8, _: i2c::Width, _: u16) -> std::result::Result<(), String> {
+        Err("no i2c backend".into())
+    }
+}
+
+#[derive(Debug, Clone)]
+enum RotorSrc {
+    Path(PathBuf),
+    I2c(i2c::Reg),
 }
 
 #[derive(Debug, Clone)]
 pub struct Rotor {
     pub input: String,
     pub label: String,
-    input_path: PathBuf,
+    src: RotorSrc,
     fault_paths: Vec<PathBuf>,
     pub model: Option<RotorModel>,
     pub rpm: Option<f64>,
@@ -486,6 +677,8 @@ pub struct Tach {
     fault_attrs: bool,
     pub on_fault: FaultAction,
     pub rotors: Vec<Rotor>,
+    /// i2c tach: fixed rotors read through this bus, RPM = value * scale.
+    i2c: Option<(Arc<dyn Bus>, f64)>,
 }
 
 impl Tach {
@@ -526,7 +719,7 @@ impl Tach {
                 Rotor {
                     input,
                     label,
-                    input_path,
+                    src: RotorSrc::Path(input_path),
                     fault_paths,
                     model,
                     rpm: None,
@@ -562,26 +755,36 @@ impl Tach {
 
     /// Read every rotor and check it against the commanded duty.
     fn check(&mut self, now: f64, root: &Path, commanded: Option<f64>, since_change: f64) -> Vec<Fault> {
-        let sel = &self.sel;
-        let dir = match self.res.get(now, || sysfs::find_hwmon(root, sel)) {
-            Ok(d) => d,
-            Err(e) => {
-                self.rotors.clear();
-                self.discovered_for = None;
-                return vec![Fault::new("tach", format!("tach: {e}"))];
-            }
-        };
-        if self.discovered_for.as_deref() != Some(dir.as_path()) {
-            if let Err(e) = self.discover(&dir) {
-                self.res.invalidate();
-                return vec![Fault::new("tach", format!("tach: {e}"))];
+        if self.i2c.is_none() {
+            let sel = &self.sel;
+            let dir = match self.res.get(now, || sysfs::find_hwmon(root, sel)) {
+                Ok(d) => d,
+                Err(e) => {
+                    self.rotors.clear();
+                    self.discovered_for = None;
+                    return vec![Fault::new("tach", format!("tach: {e}"))];
+                }
+            };
+            if self.discovered_for.as_deref() != Some(dir.as_path()) {
+                if let Err(e) = self.discover(&dir) {
+                    self.res.invalidate();
+                    return vec![Fault::new("tach", format!("tach: {e}"))];
+                }
             }
         }
         let mut faults = Vec::new();
         let mut gone = false;
+        let i2c = &self.i2c;
         for r in &mut self.rotors {
             r.expected = None;
-            match sysfs::read_number(&r.input_path) {
+            let reading = match (&r.src, i2c) {
+                (RotorSrc::I2c(reg), Some((bus, scale))) => {
+                    reg.read(bus.as_ref()).map(|v| v * scale).map_err(ReadError::Other)
+                }
+                (RotorSrc::Path(p), _) => sysfs::read_number(p),
+                (RotorSrc::I2c(_), None) => Err(ReadError::Other("no i2c backend".into())),
+            };
+            match reading {
                 Ok(v) => {
                     r.rpm = Some(v);
                     r.error = None;
@@ -642,6 +845,8 @@ pub struct OutputRt {
     pub name: String,
     pub kind: OutputKind,
     sink: Sink,
+    /// i2c `map`: raw <-> duty table instead of linear raw_min..raw_max.
+    map: Option<RawMap>,
     enable: Option<u32>,
     exit_enable: Option<u32>,
     raw_min: u32,
@@ -670,9 +875,15 @@ pub struct OutputRt {
 }
 
 impl OutputRt {
-    fn new(name: &str, c: &OutputConfig, cal: &Calibration) -> OutputRt {
+    fn new(name: &str, c: &OutputConfig, cal: &Calibration, bus: &Arc<dyn Bus>) -> Result<OutputRt> {
         let sel = c.hwmon.clone().map(|s| s.0);
         let sink = match c.kind {
+            OutputKind::I2c => {
+                let x = I2cSink::new(c, bus)
+                    .and_then(|x| x.ok_or_else(|| "no i2c register".to_string()))
+                    .map_err(|e| Error(format!("outputs.{name}.i2c: {e}")))?;
+                Sink::I2c(Box::new(x))
+            }
             OutputKind::Hwmon => Sink::Sysfs(
                 OutLoc::Hwmon {
                     sel: sel.clone().unwrap_or_default(),
@@ -702,10 +913,35 @@ impl OutputRt {
             fault_attrs: t.fault_attrs,
             on_fault: t.on_fault,
             rotors: Vec::new(),
+            i2c: None,
         });
-        OutputRt {
+        let mut tach = tach;
+        if let (Some(t), Some(tc)) = (&mut tach, c.tach.as_ref().filter(|t| !t.i2c.is_empty())) {
+            let mut rotors = Vec::new();
+            for (n, rc) in tc.i2c.iter().enumerate() {
+                let reg = rc
+                    .to_reg(c.i2c.as_ref())
+                    .map_err(|e| Error(format!("outputs.{name}.tach.i2c[{n}]: {e}")))?;
+                let label = rc.label.clone().unwrap_or_else(|| format!("fan{}", n + 1));
+                rotors.push(Rotor {
+                    input: reg.to_string(),
+                    model: t.model_for(&label, &reg.to_string()),
+                    label,
+                    src: RotorSrc::I2c(reg),
+                    fault_paths: Vec::new(),
+                    rpm: None,
+                    fault_flag: false,
+                    error: None,
+                    expected: None,
+                });
+            }
+            t.rotors = rotors;
+            t.i2c = Some((bus.clone(), tc.scale.unwrap_or(1.0)));
+        }
+        Ok(OutputRt {
             name: name.to_string(),
             kind: c.kind,
+            map: if c.kind == OutputKind::I2c { c.raw_map() } else { None },
             sink,
             enable: c.enable,
             exit_enable: c.exit_enable,
@@ -729,11 +965,14 @@ impl OutputRt {
             min_desc: hwmin::describe(c),
             demand: None,
             clamped: false,
-        }
+        })
     }
 
     /// Is a demand below the hardware minimum (so the clamp raises it)?
     pub fn below_min(&self, demand: f64) -> bool {
+        if let Some(m) = &self.map {
+            return hwmin::below_map(demand, self.min_duty, self.stop, m);
+        }
         hwmin::below(demand, self.min_duty, self.stop, self.raw_max)
     }
 
@@ -780,6 +1019,13 @@ impl OutputRt {
     /// Percent -> raw, rounding up (never less air than asked for) and
     /// respecting the hardware's raw range.
     pub fn to_raw(&self, duty: f64) -> u32 {
+        if let Some(m) = &self.map {
+            return if self.stop && duty <= 0.0 {
+                m.off
+            } else {
+                m.raw_for(duty)
+            };
+        }
         if self.stop && duty <= 0.0 {
             return 0;
         }
@@ -793,6 +1039,10 @@ impl OutputRt {
     }
 
     pub fn raw_to_duty(&self, raw: u32) -> f64 {
+        if let Some(m) = &self.map {
+            let off = f64::from(raw) < m.points[0].0 || (self.stop && raw == m.off);
+            return if off { 0.0 } else { m.duty(raw) };
+        }
         f64::from(raw) * 100.0 / f64::from(self.raw_max.max(1))
     }
 
@@ -809,22 +1059,67 @@ impl OutputRt {
     pub fn path(&self) -> Option<&Path> {
         match &self.sink {
             Sink::Sysfs(_, r) => r.resolved.as_deref(),
-            Sink::Exec { .. } => None,
+            Sink::Exec { .. } | Sink::I2c(_) => None,
         }
     }
 
     pub fn command(&self) -> Option<&[String]> {
         match &self.sink {
             Sink::Exec { argv, .. } => Some(argv),
-            Sink::Sysfs(..) => None,
+            Sink::Sysfs(..) | Sink::I2c(_) => None,
         }
+    }
+
+    /// Where duties go: the resolved path, or "i2c 4-0068:0x50".
+    pub fn location(&self) -> Option<String> {
+        match &self.sink {
+            Sink::I2c(x) => Some(format!("i2c {}", x.reg)),
+            _ => self.path().map(|p| p.display().to_string()),
+        }
+    }
+
+    /// Read-only report of an i2c output for `fand check`: (ok, line) for the
+    /// duty register, every `expect` and the `arm` register. None otherwise.
+    pub fn i2c_report(&self) -> Option<Vec<(bool, String)>> {
+        let Sink::I2c(x) = &self.sink else { return None };
+        let bus = x.bus.as_ref();
+        let mut out = Vec::new();
+        out.push(match x.reg.read_raw(bus) {
+            Ok(v) => (
+                true,
+                format!("i2c {} = {v} ({})", x.reg, hwmin::pct(self.raw_to_duty(v))),
+            ),
+            Err(e) => (false, format!("ERROR {e}")),
+        });
+        for ex in &x.expect {
+            out.push(match ex.check(bus) {
+                Ok(v) => (true, format!("expect {} = 0x{v:02x} (ok: {})", ex.reg, ex.desc())),
+                Err(e) => (false, format!("ERROR {e}")),
+            });
+        }
+        if let Some(a) = &x.arm {
+            out.push(match a.reg.read_raw(bus) {
+                Ok(v) if a.holds(v) => (true, format!("arm {} = 0x{v:02x} (armed)", a.reg)),
+                Ok(v) => (
+                    true,
+                    format!(
+                        "arm {} = 0x{v:02x} (not armed, want {}; fand run writes 0x{:02x})",
+                        a.reg,
+                        a.want(),
+                        a.write
+                    ),
+                ),
+                Err(e) => (false, format!("ERROR {e}")),
+            });
+        }
+        Some(out)
     }
 
     /// Resolve the pwm path (sysfs outputs).
     pub fn resolve(&mut self, now: f64, root: &Path) -> std::result::Result<Option<PathBuf>, String> {
         match &mut self.sink {
             Sink::Sysfs(loc, res) => res.get(now, || loc.resolve(root)).map(Some),
-            Sink::Exec { .. } => Ok(None),
+            Sink::Exec { .. } | Sink::I2c(_) => Ok(None),
         }
     }
 
@@ -884,6 +1179,33 @@ impl OutputRt {
                     .collect();
                 exec::run(&args, Duration::from_secs_f64(*timeout)).map(|_| ())
             }
+            Sink::I2c(x) => {
+                let bus = x.bus.clone();
+                let bus = bus.as_ref();
+                // Identity first: on an unexpected device nothing is written,
+                // not even the arm register (its failsafe stays in charge).
+                for ex in &x.expect {
+                    ex.check(bus)?;
+                }
+                // The duty is written even if arming failed: a failsafe duty
+                // must always be attempted. The arm error is still returned.
+                let arm_err = x.arm.as_mut().and_then(|a| a.assert(bus, &self.name).err());
+                x.reg.write(bus, raw)?;
+                if self.readback != Readback::Off {
+                    let got = x.reg.read_raw(bus)?;
+                    self.observed_raw = Some(got);
+                    let (got_i, want, tol) = (i64::from(got), i64::from(raw), i64::from(self.tol));
+                    let ok = match self.readback {
+                        Readback::AtLeast => got_i + tol >= want,
+                        Readback::Exact => (got_i - want).abs() <= tol,
+                        Readback::Off => true,
+                    };
+                    if !ok {
+                        return Err(format!("readback mismatch on i2c {}: wrote {raw}, read {got}", x.reg));
+                    }
+                }
+                arm_err.map_or(Ok(()), Err)
+            }
         }
     }
 
@@ -906,6 +1228,17 @@ impl OutputRt {
                 }
                 Ok(None) => {}
                 Err(e) => faults.push(Fault::new("resolve", e)),
+            }
+        }
+        if let Sink::I2c(x) = &self.sink {
+            match x.reg.read_raw(x.bus.as_ref()) {
+                Ok(v) => {
+                    if dry_run && Some(v) != self.observed_raw {
+                        self.last_change = now;
+                    }
+                    self.observed_raw = Some(v);
+                }
+                Err(e) => faults.push(Fault::new("i2c", e)),
             }
         }
         let commanded = if dry_run {
@@ -1378,17 +1711,21 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(cfg: Config, opts: Options) -> Result<Engine> {
+        let bus: Arc<dyn Bus> = opts
+            .i2c
+            .clone()
+            .unwrap_or_else(|| Arc::new(i2c::System::new(&opts.root)));
         let mut sensors = Vec::new();
         let mut sensor_idx = BTreeMap::new();
         for (name, sc) in &cfg.sensors {
             sensor_idx.insert(name.clone(), sensors.len());
-            sensors.push(SensorRt::new(name, sc, cfg.sensor_grace(sc), opts.exec_mode)?);
+            sensors.push(SensorRt::new(name, sc, cfg.sensor_grace(sc), opts.exec_mode, &bus)?);
         }
         let mut outputs = Vec::new();
         let mut output_idx = BTreeMap::new();
         for (name, oc) in &cfg.outputs {
             output_idx.insert(name.clone(), outputs.len());
-            outputs.push(OutputRt::new(name, oc, &opts.calibration));
+            outputs.push(OutputRt::new(name, oc, &opts.calibration, &bus)?);
         }
         let zones = cfg
             .zones
@@ -1625,7 +1962,7 @@ impl Engine {
                         value: s.value.map(r1),
                         error: s.error.clone(),
                         required: s.required,
-                        path: s.path().map(|p| p.display().to_string()),
+                        path: s.location(),
                         age: s.age.map(r1),
                         in_grace: s.in_grace,
                     },
@@ -1668,7 +2005,7 @@ impl Engine {
                         clamped: o.clamped,
                         raw: o.raw,
                         observed_raw: o.observed_raw,
-                        path: o.path().map(|p| p.display().to_string()),
+                        path: o.location(),
                         faults: o.faults.iter().map(|f| f.msg.clone()).collect(),
                         warnings: o.warnings.iter().map(|f| f.msg.clone()).collect(),
                         rotors,
@@ -1695,7 +2032,8 @@ mod tests {
 
     fn output(yaml: &str) -> OutputRt {
         let c: OutputConfig = serde_saphyr::from_str(yaml).unwrap();
-        OutputRt::new("o", &c, &Calibration::default())
+        let bus: Arc<dyn Bus> = Arc::new(NoBus);
+        OutputRt::new("o", &c, &Calibration::default(), &bus).unwrap()
     }
 
     #[test]
@@ -1717,6 +2055,29 @@ mod tests {
         let o = output("{ type: exec, command: [x, '{raw}'], raw_max: 100 }");
         assert_eq!(o.to_raw(42.2), 43);
         assert_eq!(o.to_raw(100.0), 100);
+    }
+
+    #[test]
+    fn i2c_map_converts_both_ways() {
+        let o = output(
+            "{ type: i2c, i2c: { bus: 4, address: 0x68, register: 0x50 }, map: { points: [[1, 4.6], [63, 100]], min: 9 } }",
+        );
+        assert_eq!(o.to_raw(0.0), 9, "hardware minimum, no stop");
+        assert_eq!(o.to_raw(17.0), 10);
+        assert_eq!(o.to_raw(100.0), 63);
+        assert!((o.clamp(5.0) - 16.909).abs() < 0.01);
+        assert!((o.raw_to_duty(42) - 67.69).abs() < 0.01, "u01's 0x2a = 68 %");
+        assert_eq!(o.raw_to_duty(0), 0.0, "below the map = off");
+        assert!(
+            o.below_min(10.0) && !o.below_min(16.9),
+            "16.9 % rounds up to step 9 anyway"
+        );
+        assert_eq!(o.location().as_deref(), Some("i2c 4-0068:0x50"));
+        let o = output(
+            "{ type: i2c, i2c: { bus: 4, address: 0x68, register: 0x50 }, stop: true, map: { points: [[1, 4.6], [63, 100]], min: 9 } }",
+        );
+        assert_eq!(o.to_raw(0.0), 0, "off");
+        assert!(!o.below_min(0.0));
     }
 }
 

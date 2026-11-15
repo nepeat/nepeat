@@ -88,7 +88,7 @@ fn wait_for(what: &str, timeout: Duration, mut f: impl FnMut() -> bool) {
 #[test]
 fn examples_pass_the_syntax_check() {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("examples");
-    for ex in ["as7760.yaml", "x86-appliance.yaml"] {
+    for ex in ["as7760.yaml", "x86-appliance.yaml", "dmc12.yaml"] {
         let (code, out, err) = fand(&["check", "--syntax-only", "--config", dir.join(ex).to_str().unwrap()]);
         assert_eq!(code, 0, "{ex}: {out}{err}");
         assert!(out.contains(": ok ("), "{out}");
@@ -404,4 +404,80 @@ fn usage_errors() {
     let (code, out, _) = fand(&["curves"]);
     assert_eq!(code, 0);
     assert!(out.contains("delta-balanced"));
+}
+
+/// `type: i2c` end to end against the register-file fake (`crate::i2c`):
+/// check is read-only and reports identity and arm state; failsafe arms and
+/// writes the top step.
+#[test]
+fn i2c_output_check_and_failsafe() {
+    let fs = FakeSys::new("cli-i2c");
+    let lm = fs.hwmon(1, "lm75", "platform/i2c-5/5-004a", None);
+    fs.set(&lm, "temp1_input", "31000");
+    let ver = fs.i2c_reg(4, 0x68, 0x01, 0x88);
+    let flag = fs.i2c_reg(4, 0x68, 0x2a, 3);
+    let step = fs.i2c_reg(4, 0x68, 0x50, 9);
+    for r in 0x60..=0x62 {
+        fs.i2c_reg(4, 0x68, r, 0x90);
+    }
+    let r = fs.root.display().to_string();
+    let cfg = fs.write(
+        "etc/fand.yaml",
+        &format!(
+            r#"
+sysfs_root: "{r}"
+runtime: {{ state_file: null, socket: null, calibration_file: null }}
+profile: none
+sensors:
+  k2: {{ type: hwmon, hwmon: {{ name: lm75, device: 5-004a }} }}
+outputs:
+  fans:
+    type: i2c
+    i2c: {{ bus: 4, address: "0x68", register: "0x50" }}
+    map: {{ points: [[1, 4.6], [63, 100]], min: 9 }}
+    expect: [{{ register: "0x01", min: 135 }}]
+    arm: {{ register: "0x2a", mask: "0x02", value: 0 }}
+    tach: {{ i2c: [{{ register: "0x60" }}, {{ register: "0x61" }}, {{ register: "0x62" }}], scale: 100, max_rpm: 14400, min_rpm: 1000 }}
+zones:
+  board: {{ outputs: [fans], sensors: [k2], policy: {{ target: 45, kp: 4.6, ki: 0.015 }} }}
+"#
+        ),
+    );
+    let read = |p: &Path| std::fs::read_to_string(p).unwrap().trim().to_string();
+    let c = cfg.to_str().unwrap();
+    let (code, out, err) = fand(&["check", "--syntax-only", "--config", c]);
+    assert_eq!(code, 0, "{out}{err}");
+    let (code, out, err) = fand(&["check", "--config", c]);
+    assert_eq!(code, 0, "{out}{err}");
+    for needle in [
+        "fans           i2c    i2c 4-0068:0x50 = 9 (16.9%)  (hardware minimum 16.9%, map.min 9 of 1..63, max 100%)",
+        "expect 4-0068:0x01 = 0x88 (ok: 0x87..0xff)",
+        "arm 4-0068:0x2a = 0x03 (not armed, want 0x00 under mask 0x02; fand run writes 0x00)",
+        "fan1         4-0068:0x60 14400 rpm",
+        "k2             hwmon",
+    ] {
+        assert!(out.contains(needle), "missing {needle:?} in:\n{out}");
+    }
+    assert_eq!(
+        (read(&flag), read(&step)),
+        ("3".into(), "9".into()),
+        "check writes nothing"
+    );
+    let (code, out, err) = fand(&["failsafe", "--config", c]);
+    assert_eq!(code, 0, "{out}{err}");
+    assert_eq!((read(&flag), read(&step)), ("0".into(), "63".into()));
+    assert!(
+        err.contains("arm register 4-0068:0x2a read 0x03, wrote 0x00: armed"),
+        "{err}"
+    );
+    // A device that is not the expected one: check fails, failsafe writes nothing.
+    fs.i2c_reg(4, 0x68, 0x01, 0x80);
+    fs.i2c_reg(4, 0x68, 0x50, 9);
+    let (code, out, _) = fand(&["check", "--config", c]);
+    assert_eq!(code, 2, "{out}");
+    assert!(out.contains("ERROR expect 4-0068:0x01: reads 0x80"), "{out}");
+    let (code, _, err) = fand(&["failsafe", "--config", c]);
+    assert_eq!(code, 1, "{err}");
+    assert_eq!(read(&step), "9");
+    let _ = ver;
 }

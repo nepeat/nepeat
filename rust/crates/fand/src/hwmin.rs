@@ -7,7 +7,7 @@
 //! only makes explicit settings below it visible ([`static_warnings`], logged
 //! at start and printed by `fand check`) and holds the predicate [`below`].
 
-use crate::config::{Config, CurveRef, DutySpec, OutputConfig, Profile};
+use crate::config::{Config, CurveRef, DutySpec, OutputConfig, OutputKind, Profile, RawMap};
 use crate::curves::Curve;
 use std::fmt;
 
@@ -59,13 +59,32 @@ pub fn below(duty: f64, min: f64, stop: bool, raw_max: u32) -> bool {
     up(duty) < up(min)
 }
 
+/// [`below`] for an i2c output with a `map`: compared in map raw values.
+pub fn below_map(duty: f64, min: f64, stop: bool, map: &RawMap) -> bool {
+    if (stop && duty <= 0.0) || duty >= min {
+        return false;
+    }
+    let free = RawMap { min: 0, ..map.clone() };
+    free.raw_for(duty) < free.raw_for(min)
+}
+
 fn below_cfg(duty: f64, o: &OutputConfig) -> bool {
+    if let Some(m) = o.raw_map().filter(|_| o.kind == OutputKind::I2c) {
+        return below_map(duty, o.min_duty(), o.stop, &m);
+    }
     below(duty, o.min_duty(), o.stop, o.raw_max)
 }
 
 /// An output's hardware minimum and where it comes from, for messages:
 /// "50.2%, raw_min 128 of 255" or "20%, min_duty".
 pub fn describe(o: &OutputConfig) -> String {
+    if let Some(m) = o.raw_map().filter(|_| o.kind == OutputKind::I2c) {
+        let src = match o.min_duty {
+            Some(p) if p.0 >= m.duty(m.min) && p.0 > 0.0 => "min_duty".to_string(),
+            _ => format!("map.min {} of {}..{}", m.min, m.points[0].0, m.max),
+        };
+        return format!("{}, {src}", pct(o.min_duty()));
+    }
     let from_raw = if o.raw_max > 0 {
         f64::from(o.raw_min) * 100.0 / f64::from(o.raw_max)
     } else {

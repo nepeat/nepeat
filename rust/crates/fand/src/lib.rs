@@ -2,7 +2,8 @@
 //!
 //! See README.md for the configuration reference and the safety model.
 
-// The only unsafe block is the kill(2) call in exec::kill_group.
+// Unsafe code: the kill(2) call in exec::kill_group and the i2c-dev ioctls
+// in i2c::linux.
 #![deny(unsafe_code)]
 
 pub mod error;
@@ -19,5 +20,6 @@ pub mod engine;
 pub mod exec;
 pub mod fakesys;
 pub mod hwmin;
+pub mod i2c;
 pub mod notify;
 pub mod sysfs;

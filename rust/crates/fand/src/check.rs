@@ -70,7 +70,10 @@ pub fn report(cfg: Config, run_exec: bool) -> Result<(String, bool)> {
                     }
                     _ => "?".into(),
                 };
-                let p = p.map(|p| p.display().to_string()).unwrap_or_default();
+                let p = p
+                    .map(|p| p.display().to_string())
+                    .or_else(|| s.location())
+                    .unwrap_or_default();
                 let _ = writeln!(out, "  {:<14} {kind:<6} {p}  = {val}", s.name);
             }
             Err(e) => {
@@ -92,7 +95,17 @@ pub fn report(cfg: Config, run_exec: bool) -> Result<(String, bool)> {
             crate::hwmin::pct(o.max_duty),
             if o.stop { ", may stop" } else { "" }
         );
-        if let Some(cmd) = o.command() {
+        if let Some(lines) = o.i2c_report() {
+            // Read-only: the duty register, identity checks, arm state.
+            for (i, (good, line)) in lines.iter().enumerate() {
+                ok &= good;
+                if i == 0 {
+                    let _ = writeln!(out, "  {:<14} i2c    {line}  ({range})", o.name);
+                } else {
+                    let _ = writeln!(out, "      {line}");
+                }
+            }
+        } else if let Some(cmd) = o.command() {
             let _ = writeln!(out, "  {:<14} exec   {}  ({range})", o.name, cmd.join(" "));
         } else {
             match o.resolve(0.0, &root) {
