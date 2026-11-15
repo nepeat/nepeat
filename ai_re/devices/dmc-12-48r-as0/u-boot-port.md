@@ -84,8 +84,17 @@ What the factory U-Boot does for us today, done by ours, so it can one day be al
 stage3's application ([spi-uboot-replacement.md](spi-uboot-replacement.md) §4). Built
 and tested offline 2026-11-15; nothing flashed.
 
-- `#uboot-dmc12-selfinit` (`/nix/store/0x8v9isdjfii8790svy7415axxwfkzgn-…-2026.10`,
-  u-boot.bin `9eaf94ff…`, 519808 B, uimage `2876b704…`): the chainload build plus
+- **u01 RAM run 1 (2026-11-15 12:17, `serial-chainload-20261115-121717.txt`): abort at
+  PCIe probe** (esr 0x96000004, far 0xfffffffffd8a815c, in `al_pbs_dev_id_get` called
+  from `al_pcie_port_handle_init`). Cause: the glue read the PBS base with
+  `dev_read_u32_default()`, which returns `int`, so 0xfd8a8000 was sign-extended. Fixed in
+  0022 (u32 + `map_sysmem`); the HAL was not at fault. Banner, EL2, DRAM and the MUIO
+  replay (`4 pins from the DT, 0 changed`) were fine. Factory prompt reads:
+  `0xfd8108d0` (DW AMBA error response) = 1, `0xfd810900` (iATU viewport) = 0, as the
+  driver assumes.
+
+- `#uboot-dmc12-selfinit` (`/nix/store/296437y7ad21ddx05hsff80gkr5xp073-…-2026.10`,
+  u-boot.bin `309e89fa…`, 519808 B, uimage `23fcce50…`): the chainload build plus
   - **0022 `alpine-v2`, external PCIe RC** (`pcie_alpine_v2`, on the mainline
     `amazon,al-alpine-v2-pcie` node). Annapurna PCIe HAL 3.4 copied verbatim from the
     MikroTik GPL drop (`devices/cs8210-32x/analysis/research/mikrotik-added/drivers/soc/alpine/HAL`,
@@ -115,11 +124,11 @@ and tested offline 2026-11-15; nothing flashed.
   - Not done: SGPO (the DMC-12 board-cfg has no `sgpo_init`, so the factory never
     writes it; `alpine state` only reads it), GPIO 22 (stage2 drives it), USB in
     U-Boot, the fan/WDT CPLD preamble.
-- `#uboot-dmc12-stage3app` (`/nix/store/bw8c7y9kak9yp85wb2j4wzjxrsw6bnkh-uboot-dmc12-stage3app`):
+- `#uboot-dmc12-stage3app` (`/nix/store/fkpazlr3msbfjn8356bhmybxgiw8vsrn-uboot-dmc12-stage3app`):
   that u-boot.bin, byte for byte, wrapped by [alboot.py](../../nix/packages/alboot/alboot.py)
   (moved into nix so the build can use it; the device copy is a symlink) as IPXE
   objects (id 0x110), load = exec = 0x08000000 (`u-boot-ipxe-08000000.fimg`, sha256
-  `bdf86893…`) and 0x01100000 (`…-01100000.fimg`, `82c4e37f…`). 0x7eecc B each:
+  `a9d94e3c…`) and 0x01100000 (`…-01100000.fimg`, `3fcb94e2…`). 0x7eecc B each:
   4404 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
   trimming (MTD core, `mii`, LZMA are candidates). Same binary as the RAM test: the
   probe policy (keep / init) and the idempotent MUIO/CCU make it entry-agnostic.

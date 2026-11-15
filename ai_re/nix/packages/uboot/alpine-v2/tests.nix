@@ -276,6 +276,13 @@ let
       filterdiff -i '*/drivers/pci/al_pcie/*' "$p"
     done > al.diff
     mkdir ub; (cd ub && patch -s -p1 < ../al.diff)
+    # u01 2026-11-15: an int-returning DT read of a 0xfd8xxxxx base sign-extended
+    # into the PBS pointer (abort at probe). No register base may come that way.
+    for p in ${toString alpine.patches}; do
+      filterdiff -i '*/drivers/pci/pcie_alpine_v2.c' -i '*/board/amazon/alpine-v2/*' "$p"
+    done > glue.diff
+    ! grep -nE '^\+.*\*\)\s*\(u?intptr_t\)\s*dev_read_u32_default' glue.diff || \
+      { echo "glue: register base through dev_read_u32_default (int)"; exit 1; }
     a=ub/drivers/pci/al_pcie
     n=0
     for f in $a/al_hal_*; do

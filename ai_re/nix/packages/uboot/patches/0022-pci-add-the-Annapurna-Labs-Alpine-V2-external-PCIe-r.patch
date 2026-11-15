@@ -71,9 +71,9 @@ Scope: alpine-v2.
  .../pci/al_pcie/al_hal_unit_adapter_regs.h    |  943 +++
  drivers/pci/al_pcie/al_init_pcie_rc.c         |  186 +
  drivers/pci/al_pcie/al_init_pcie_rc.h         |   54 +
- drivers/pci/pcie_alpine_v2.c                  |  411 ++
+ drivers/pci/pcie_alpine_v2.c                  |  419 ++
  drivers/pci/pcie_alpine_v2_serror.S           |   89 +
- 30 files changed, 20620 insertions(+)
+ 30 files changed, 20628 insertions(+)
  create mode 100644 drivers/pci/al_pcie/Makefile
  create mode 100644 drivers/pci/al_pcie/al_hal_common.h
  create mode 100644 drivers/pci/al_pcie/al_hal_pbs_regs.h
@@ -20403,10 +20403,10 @@ index 00000000..40cc748d
 +#endif
 diff --git a/drivers/pci/pcie_alpine_v2.c b/drivers/pci/pcie_alpine_v2.c
 new file mode 100644
-index 00000000..731c539b
+index 00000000..a25f6d13
 --- /dev/null
 +++ b/drivers/pci/pcie_alpine_v2.c
-@@ -0,0 +1,411 @@
+@@ -0,0 +1,419 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Annapurna Labs Alpine V2 external PCIe root complex ("amazon,al-alpine-v2-pcie",
@@ -20437,6 +20437,7 @@ index 00000000..731c539b
 +#include <pci.h>
 +#include <time.h>
 +#include <asm/io.h>
++#include <mapmem.h>
 +#include <linux/delay.h>
 +#include <linux/ioport.h>
 +
@@ -20634,6 +20635,7 @@ index 00000000..731c539b
 +	struct al_pcie_link_status st;
 +	bool force = alpine_pcie_force_init;
 +	ulong unit;
++	u32 pbs;
 +	int i, rc;
 +
 +	alpine_pcie_force_init = false;
@@ -20642,8 +20644,14 @@ index 00000000..731c539b
 +	priv->dbi = dev_remap_addr_name(dev, "dbi");
 +	if (!priv->ecam || !priv->regs || !priv->dbi)
 +		return -EINVAL;
-+	priv->pbs = (void __iomem *)(uintptr_t)dev_read_u32_default(dev, "amazon,pbs",
-+								    AL_PBS_REGFILE_BASE);
++	/*
++	 * u32, not dev_read_u32_default(): that returns int, and 0xfd8a8000
++	 * through an int sign-extends to 0xfffffffffd8a8000 (u01, 2026-11-15:
++	 * synchronous abort in al_pbs_dev_id_get at probe).
++	 */
++	pbs = AL_PBS_REGFILE_BASE;
++	dev_read_u32(dev, "amazon,pbs", &pbs);
++	priv->pbs = map_sysmem(pbs, 0x1000);
 +	unit = (ulong)priv->regs;
 +	priv->port_id = dev_read_u32_default(dev, "amazon,port-id",
 +		unit == AL_PCIE_UNIT3 ? 3 : (unit - AL_PCIE_UNIT0) / AL_PCIE_UNIT_STRIDE);
