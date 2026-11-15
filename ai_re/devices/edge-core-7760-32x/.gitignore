@@ -1,0 +1,9 @@
+# Private to this unit: raw console captures and inventories contain the
+# U-Boot environment (dropbear host keys, hex dumps of the env sector).
+*-private.txt
+serial-*.txt
+ram-probe-boot-*.txt
+# Dumps (NOR/SD images, env backups) and build outputs stay local.
+dumps/
+nixos-build/
+__pycache__/

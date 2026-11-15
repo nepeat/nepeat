@@ -1,0 +1,10 @@
+make: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/user/x86-6_10'
+make  -C /home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/user/common platform=x86-6_10 kernel_version=6_10 bldroot_suffix=/x86-6_10
+make[1]: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/user/common'
+INFO from make/Makefile.linux-x86-6_10. GCCVER is 14.1.0. BINUTILSVER is 2.41. TOOLCHAIN_DIR is /projects/ntsw-tools/linux/gcc/14.1.0
+sed: can't read /etc/redhat-release: No such file or directory
+make[1]: /usr/bin/perl: No such file or directory
+make[1]: *** [/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/make/Make.config:331: /home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/build/linux-x86-6_10/x86-6_10/.tree] Error 127
+make[1]: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/user/common'
+make: *** [/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/make/Make.linux:68: build] Error 2
+make: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/user/x86-6_10'

@@ -1,0 +1,40 @@
+make: Entering directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'
+make[1]: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+warning: pahole version differs from the one used to build the kernel
+  The kernel was built with: 132
+  You are using:             0
+  CC [M]  kernel-main.o
+  CC [M]  linux_shbde.o
+  CC [M]  linux_dma.o
+  CC [M]  mpool.o
+  CC [M]  shbde_pci.o
+  CC [M]  shbde_iproc.o
+  CC [M]  shbde_mdio.o
+  CC [M]  kernel-gmodule.o
+  CC [M]  user-main.o
+  CC [M]  user-gmodule.o
+  CC [M]  knet-main.o
+  CC [M]  knet-gmodule.o
+  LD [M]  linux-kernel-bde.o
+linux-kernel-bde.o: error: objtool: cleanup_module(): Magic init_module() function name is deprecated, use module_init(fn) instead
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:510: linux-kernel-bde.o] Error 255
+make[3]: *** Deleting file 'linux-kernel-bde.o'
+make[3]: *** Waiting for unfinished jobs....
+knet-main.c: In function ‘bkn_init_ndev’:
+knet-main.c:8207:9: error: implicit declaration of function ‘strncpy’ [-Wimplicit-function-declaration]
+ 8207 |         strncpy(dev->name, name, IFNAMSIZ-1);
+      |         ^~~~~~~
+knet-main.c:546:1: note: include ‘<string.h>’ or provide a declaration of ‘strncpy’
+  545 | #include <linux/net_tstamp.h>
+  +++ |+#include <string.h>
+  546 | 
+knet-main.c:8207:9: warning: incompatible implicit declaration of built-in function ‘strncpy’ [-Wbuiltin-declaration-mismatch]
+ 8207 |         strncpy(dev->name, name, IFNAMSIZ-1);
+      |         ^~~~~~~
+knet-main.c:8207:9: note: include ‘<string.h>’ or provide a declaration of ‘strncpy’
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: knet-main.o] Error 1
+make[2]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:2229: .] Error 2
+make[1]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make[1]: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+make: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make: Leaving directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'

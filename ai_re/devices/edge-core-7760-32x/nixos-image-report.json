@@ -1,0 +1,101 @@
+{
+  "built": "2026-11-14",
+  "nixpkgs_revision": "d4f25a3e562008648d45bcf2d70bcc7422cad84e",
+  "image_bytes": 7516192768,
+  "card_bytes": 7948206080,
+  "image_sha256": "2198b9765ef0befec4c740ee1627b41e8b88af4314ce9da4d6b049ada8632816",
+  "runtime": {
+    "closure_bytes_upper_estimate": 950710272,
+    "limit_bytes": 3221225472,
+    "within_budget": true
+  },
+  "boot": {
+    "hardware_boot_verified": false,
+    "dt_status": "adapted vendor DT; RAM boot verifies management Ethernet, PCI enumeration, SD, NOR, USB hub, GPIO and hwmon; ASIC DMA and SPI unverified",
+    "files": {
+      "uImage": {
+        "bytes": 4922999,
+        "uncompressed_bytes": 10876380,
+        "sha256": "257a0f6949e17f82332164b5d2b64aa837284f673325c82bb335aa20b9df9571"
+      },
+      "uInitrd": {
+        "bytes": 25139325,
+        "uncompressed_bytes": 80352256,
+        "sha256": "e3584bcb62d74066b524325b2ed77274276efcbebc9fc67b826ce64aa1ed00c3"
+      },
+      "as7760.dtb": {
+        "bytes": 36904,
+        "sha256": "0a5e6673c68cd081eb92c7d49cf5f3b2d5c2ce78e0840a3de68c48fe2ca1e06d"
+      }
+    }
+  },
+  "architecture_check": {
+    "store_paths": 428,
+    "elf_counts": {
+      "class2-endian2-machine21-type3": 1902,
+      "class2-endian2-machine21-type1": 23,
+      "class2-endian2-machine21-type2": 14
+    },
+    "unexpected_runtime_elf": [],
+    "scope": "previous clean candidate; subsequent changes affect kernel/DT, network service and RAM init, not target toolchain or utility packages"
+  },
+  "root_free_bytes": 6337105920,
+  "root_available_excluding_reserve_bytes": 6263300096,
+  "filesystem_checks_passed": true,
+  "sampled_root_ownership_verified": true,
+  "installed_to_device": false,
+  "hardware_boot_verified": false,
+  "image_store_path": "/nix/store/cm3312cj0brwgghbycd0ych0mrrywgk2-as7760-nixos-sd-image",
+  "ram_kernel_boot_verified": true,
+  "ram_boot_evidence": "linux-7.3.4-network-boot-20261114.txt",
+  "sampled_root_ownership_scope": "previous clean candidate using the same image builder",
+  "ram_checks": {
+    "memory_mib": 15976,
+    "cpu_threads": 8,
+    "management_address": "10.60.2.253/24",
+    "management_rxhash": false,
+    "workstation_ping": "4/4",
+    "gateway_ping": "3/3",
+    "transfer_bytes": 4922999,
+    "transfer_sha256": "257a0f6949e17f82332164b5d2b64aa837284f673325c82bb335aa20b9df9571",
+    "rx_dma_errors": 0,
+    "rx_frame_physical_errors": 0,
+    "rx_stack_drops_observed": true,
+    "fan_rotors": 12,
+    "lm75_sensors": 4,
+    "fan_pwm_raw": 255,
+    "pcie_functions": [
+      "14e4:b930",
+      "14e4:b930"
+    ],
+    "pcie_irqs": [
+      43,
+      17
+    ],
+    "unattended_dhcp_verified": true
+  },
+  "ram_probe_manifest": {
+    "hardware_boot_verified": false,
+    "dt_status": "captured vendor DT; modern driver bindings unverified",
+    "files": {
+      "uImage": {
+        "bytes": 4922999,
+        "uncompressed_bytes": 10876380,
+        "sha256": "257a0f6949e17f82332164b5d2b64aa837284f673325c82bb335aa20b9df9571"
+      },
+      "uInitrd": {
+        "bytes": 42906561,
+        "uncompressed_bytes": 158076416,
+        "sha256": "97a6b59687015440c6454efe03b43c6dc3e43b4a3f675d28617ca053aa01039d"
+      },
+      "as7760.dtb": {
+        "bytes": 36904,
+        "sha256": "0a5e6673c68cd081eb92c7d49cf5f3b2d5c2ce78e0840a3de68c48fe2ca1e06d"
+      }
+    }
+  },
+  "ram_probe_store_path": "/nix/store/dkpli52angyg0y0a0yd3ivgfdy6i24nj-as7760-ram-probe",
+  "build_manifest_note": "Build-time hardware flags are conservatively false; external RAM hardware evidence is tracked separately in this report.",
+  "ram_probe_hardware_boot_verified": true,
+  "ram_probe_boot_evidence": "linux-7.3.4-final-boot-20261114.txt"
+}

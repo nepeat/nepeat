@@ -1,0 +1,4 @@
+make: Entering directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'
+make[1]: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+make[1]: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+make: Leaving directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'

@@ -1,0 +1,222 @@
+make: Entering directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'
+make[1]: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+warning: pahole version differs from the one used to build the kernel
+  The kernel was built with: 132
+  You are using:             0
+  CC [M]  kernel-gmodule.o
+  CC [M]  user-gmodule.o
+  CC [M]  knet-main.o
+  CC [M]  knet-gmodule.o
+In file included from /home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/kernel/modules/include/lkm.h:56,
+                 from kernel-gmodule.c:36:
+kernel-gmodule.c: In function ‘_gmodule_mmap’:
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:132:49: error: invalid storage class for function ‘__inittest’
+  132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+      |                                                 ^~~~~~~~~~
+kernel-gmodule.c:305:1: note: in expansion of macro ‘module_init’
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+In file included from /home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/kernel/modules/include/lkm.h:56,
+                 from knet-gmodule.c:36:
+knet-gmodule.c: In function ‘_gmodule_mmap’:
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:132:49: error: invalid storage class for function ‘__inittest’
+  132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+      |                                                 ^~~~~~~~~~
+knet-gmodule.c:305:1: note: in expansion of macro ‘module_init’
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+In file included from /home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/sources/saibcm-modules/systems/linux/kernel/modules/include/lkm.h:56,
+                 from user-gmodule.c:36:
+user-gmodule.c: In function ‘_gmodule_mmap’:
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:132:49: error: invalid storage class for function ‘__inittest’
+  132 |         static inline initcall_t __maybe_unused __inittest(void)                \
+      |                                                 ^~~~~~~~~~
+user-gmodule.c:305:1: note: in expansion of macro ‘module_init’
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+kernel-gmodule.c: In function ‘__inittest’:
+kernel-gmodule.c:305:13: error: ‘_gmodule_init’ undeclared (first use in this function); did you mean ‘module_init’?
+  305 | module_init(_gmodule_init);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:133:18: note: in definition of macro ‘module_init’
+  133 |         { return initfn; }                                      \
+      |                  ^~~~~~
+kernel-gmodule.c:305:13: note: each undeclared identifier is reported only once for each function it appears in
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:133:18: note: in definition of macro ‘module_init’
+  133 |         { return initfn; }                                      \
+      |                  ^~~~~~
+knet-gmodule.c: In function ‘__inittest’:
+knet-gmodule.c:305:13: error: ‘_gmodule_init’ undeclared (first use in this function); did you mean ‘module_init’?
+  305 | module_init(_gmodule_init);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:133:18: note: in definition of macro ‘module_init’
+  133 |         { return initfn; }                                      \
+      |                  ^~~~~~
+knet-gmodule.c:305:13: note: each undeclared identifier is reported only once for each function it appears in
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:133:18: note: in definition of macro ‘module_init’
+  133 |         { return initfn; }                                      \
+      |                  ^~~~~~
+user-gmodule.c: In function ‘__inittest’:
+user-gmodule.c:305:13: error: ‘_gmodule_init’ undeclared (first use in this function); did you mean ‘module_init’?
+  305 | module_init(_gmodule_init);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:133:18: note: in definition of macro ‘module_init’
+  133 |         { return initfn; }                                      \
+      |                  ^~~~~~
+user-gmodule.c:305:13: note: each undeclared identifier is reported only once for each function it appears in
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:133:18: note: in definition of macro ‘module_init’
+  133 |         { return initfn; }                                      \
+      |                  ^~~~~~
+In file included from /nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_types.h:88,
+                 from <command-line>:
+kernel-gmodule.c: In function ‘_gmodule_mmap’:
+kernel-gmodule.c:305:13: error: ‘_gmodule_init’ undeclared (first use in this function); did you mean ‘module_init’?
+  305 | module_init(_gmodule_init);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_attributes.h:92:65: note: in definition of macro ‘__copy’
+   92 | # define __copy(symbol)                 __attribute__((__copy__(symbol)))
+      |                                                                 ^~~~~~
+kernel-gmodule.c:305:1: note: in expansion of macro ‘module_init’
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+kernel-gmodule.c:305:1: warning: ‘alias’ attribute ignored [-Wattributes]
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:140:49: error: invalid storage class for function ‘__exittest’
+  140 |         static inline exitcall_t __maybe_unused __exittest(void)                \
+      |                                                 ^~~~~~~~~~
+kernel-gmodule.c:306:1: note: in expansion of macro ‘module_exit’
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+In file included from /nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_types.h:88,
+                 from <command-line>:
+knet-gmodule.c: In function ‘_gmodule_mmap’:
+knet-gmodule.c:305:13: error: ‘_gmodule_init’ undeclared (first use in this function); did you mean ‘module_init’?
+  305 | module_init(_gmodule_init);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_attributes.h:92:65: note: in definition of macro ‘__copy’
+   92 | # define __copy(symbol)                 __attribute__((__copy__(symbol)))
+      |                                                                 ^~~~~~
+knet-gmodule.c:305:1: note: in expansion of macro ‘module_init’
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+knet-gmodule.c:305:1: warning: ‘alias’ attribute ignored [-Wattributes]
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:140:49: error: invalid storage class for function ‘__exittest’
+  140 |         static inline exitcall_t __maybe_unused __exittest(void)                \
+      |                                                 ^~~~~~~~~~
+knet-gmodule.c:306:1: note: in expansion of macro ‘module_exit’
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+In file included from /nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_types.h:88,
+                 from <command-line>:
+user-gmodule.c: In function ‘_gmodule_mmap’:
+user-gmodule.c:305:13: error: ‘_gmodule_init’ undeclared (first use in this function); did you mean ‘module_init’?
+  305 | module_init(_gmodule_init);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_attributes.h:92:65: note: in definition of macro ‘__copy’
+   92 | # define __copy(symbol)                 __attribute__((__copy__(symbol)))
+      |                                                                 ^~~~~~
+user-gmodule.c:305:1: note: in expansion of macro ‘module_init’
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+user-gmodule.c:305:1: warning: ‘alias’ attribute ignored [-Wattributes]
+  305 | module_init(_gmodule_init);
+      | ^~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:140:49: error: invalid storage class for function ‘__exittest’
+  140 |         static inline exitcall_t __maybe_unused __exittest(void)                \
+      |                                                 ^~~~~~~~~~
+user-gmodule.c:306:1: note: in expansion of macro ‘module_exit’
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+kernel-gmodule.c: In function ‘__exittest’:
+kernel-gmodule.c:306:13: error: ‘_gmodule_exit’ undeclared (first use in this function); did you mean ‘module_exit’?
+  306 | module_exit(_gmodule_exit);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:141:18: note: in definition of macro ‘module_exit’
+  141 |         { return exitfn; }                                      \
+      |                  ^~~~~~
+knet-gmodule.c: In function ‘__exittest’:
+knet-gmodule.c:306:13: error: ‘_gmodule_exit’ undeclared (first use in this function); did you mean ‘module_exit’?
+  306 | module_exit(_gmodule_exit);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:141:18: note: in definition of macro ‘module_exit’
+  141 |         { return exitfn; }                                      \
+      |                  ^~~~~~
+user-gmodule.c: In function ‘__exittest’:
+user-gmodule.c:306:13: error: ‘_gmodule_exit’ undeclared (first use in this function); did you mean ‘module_exit’?
+  306 | module_exit(_gmodule_exit);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/module.h:141:18: note: in definition of macro ‘module_exit’
+  141 |         { return exitfn; }                                      \
+      |                  ^~~~~~
+kernel-gmodule.c: In function ‘_gmodule_mmap’:
+kernel-gmodule.c:306:13: error: ‘_gmodule_exit’ undeclared (first use in this function); did you mean ‘module_exit’?
+  306 | module_exit(_gmodule_exit);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_attributes.h:92:65: note: in definition of macro ‘__copy’
+   92 | # define __copy(symbol)                 __attribute__((__copy__(symbol)))
+      |                                                                 ^~~~~~
+kernel-gmodule.c:306:1: note: in expansion of macro ‘module_exit’
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+kernel-gmodule.c:306:1: warning: ‘alias’ attribute ignored [-Wattributes]
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+kernel-gmodule.c: At top level:
+kernel-gmodule.c:342:1: warning: ‘_gmodule_init’ defined but not used [-Wunused-function]
+  342 | _gmodule_init(void)
+      | ^~~~~~~~~~~~~
+kernel-gmodule.c:323:1: warning: ‘_gmodule_exit’ defined but not used [-Wunused-function]
+  323 | _gmodule_exit(void)
+      | ^~~~~~~~~~~~~
+knet-gmodule.c: In function ‘_gmodule_mmap’:
+knet-gmodule.c:306:13: error: ‘_gmodule_exit’ undeclared (first use in this function); did you mean ‘module_exit’?
+  306 | module_exit(_gmodule_exit);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_attributes.h:92:65: note: in definition of macro ‘__copy’
+   92 | # define __copy(symbol)                 __attribute__((__copy__(symbol)))
+      |                                                                 ^~~~~~
+knet-gmodule.c:306:1: note: in expansion of macro ‘module_exit’
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+knet-gmodule.c:306:1: warning: ‘alias’ attribute ignored [-Wattributes]
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+user-gmodule.c: In function ‘_gmodule_mmap’:
+user-gmodule.c:306:13: error: ‘_gmodule_exit’ undeclared (first use in this function); did you mean ‘module_exit’?
+  306 | module_exit(_gmodule_exit);
+      |             ^~~~~~~~~~~~~
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/include/linux/compiler_attributes.h:92:65: note: in definition of macro ‘__copy’
+   92 | # define __copy(symbol)                 __attribute__((__copy__(symbol)))
+      |                                                                 ^~~~~~
+user-gmodule.c:306:1: note: in expansion of macro ‘module_exit’
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+user-gmodule.c:306:1: warning: ‘alias’ attribute ignored [-Wattributes]
+  306 | module_exit(_gmodule_exit);
+      | ^~~~~~~~~~~
+knet-gmodule.c: At top level:
+knet-gmodule.c:342:1: warning: ‘_gmodule_init’ defined but not used [-Wunused-function]
+  342 | _gmodule_init(void)
+      | ^~~~~~~~~~~~~
+knet-gmodule.c:323:1: warning: ‘_gmodule_exit’ defined but not used [-Wunused-function]
+  323 | _gmodule_exit(void)
+      | ^~~~~~~~~~~~~
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: kernel-gmodule.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+user-gmodule.c: At top level:
+user-gmodule.c:342:1: warning: ‘_gmodule_init’ defined but not used [-Wunused-function]
+  342 | _gmodule_init(void)
+      | ^~~~~~~~~~~~~
+user-gmodule.c:323:1: warning: ‘_gmodule_exit’ defined but not used [-Wunused-function]
+  323 | _gmodule_exit(void)
+      | ^~~~~~~~~~~~~
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: knet-gmodule.o] Error 1
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: user-gmodule.o] Error 1
+make[2]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:2229: .] Error 2
+make[1]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make[1]: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+make: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make: Leaving directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'

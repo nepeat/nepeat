@@ -1,0 +1,30 @@
+make: Entering directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'
+make[1]: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+warning: pahole version differs from the one used to build the kernel
+  The kernel was built with: 132
+  You are using:             0
+  CC [M]  kernel-main.o
+  CC [M]  linux_shbde.o
+  CC [M]  linux_dma.o
+  CC [M]  mpool.o
+kernel-main.c: In function ‘_pci_remove’:
+kernel-main.c:3145:9: error: implicit declaration of function ‘del_timer_sync’ [-Wimplicit-function-declaration]
+ 3145 |         del_timer_sync(&ctrl->isr_tick);
+      |         ^~~~~~~~~~~~~~
+kernel-main.c: In function ‘lkbde_isrtick’:
+kernel-main.c:4210:24: error: implicit declaration of function ‘from_timer’; did you mean ‘mod_timer’? [-Wimplicit-function-declaration]
+ 4210 |     bde_ctrl_t *ctrl = from_timer(ctrl, t, isr_tick);
+      |                        ^~~~~~~~~~
+      |                        mod_timer
+kernel-main.c:4210:44: error: ‘isr_tick’ undeclared (first use in this function); did you mean ‘isrtickms’?
+ 4210 |     bde_ctrl_t *ctrl = from_timer(ctrl, t, isr_tick);
+      |                                            ^~~~~~~~
+      |                                            isrtickms
+kernel-main.c:4210:44: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: kernel-main.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+make[2]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:2229: .] Error 2
+make[1]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make[1]: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+make: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make: Leaving directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'

@@ -1,0 +1,31 @@
+make: Entering directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'
+make[1]: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+warning: pahole version differs from the one used to build the kernel
+  The kernel was built with: 132
+  You are using:             0
+  CC [M]  kernel-main.o
+  CC [M]  linux_shbde.o
+  CC [M]  linux_dma.o
+  CC [M]  mpool.o
+cc1: error: code model ‘kernel’ not supported in the 32 bit mode
+cc1: sorry, unimplemented: 64-bit mode not compiled in
+cc1: warning: ‘-pg’ without ‘-mfentry’ may be unreliable with shrink wrapping
+cc1: error: code model ‘kernel’ not supported in the 32 bit mode
+cc1: sorry, unimplemented: 64-bit mode not compiled in
+cc1: warning: ‘-pg’ without ‘-mfentry’ may be unreliable with shrink wrapping
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: linux_shbde.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: kernel-main.o] Error 1
+cc1: error: code model ‘kernel’ not supported in the 32 bit mode
+cc1: sorry, unimplemented: 64-bit mode not compiled in
+cc1: warning: ‘-pg’ without ‘-mfentry’ may be unreliable with shrink wrapping
+cc1: error: code model ‘kernel’ not supported in the 32 bit mode
+cc1: sorry, unimplemented: 64-bit mode not compiled in
+cc1: warning: ‘-pg’ without ‘-mfentry’ may be unreliable with shrink wrapping
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: linux_dma.o] Error 1
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.build:290: mpool.o] Error 1
+make[2]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:2229: .] Error 2
+make[1]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make[1]: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+make: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make: Leaving directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'

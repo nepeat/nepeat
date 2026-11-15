@@ -1,0 +1,46 @@
+diff --git a/systems/linux/kernel/modules/bcm-knet/bcm-knet.c b/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
+index e6b9ed2..086827f 100644
+--- a/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
++++ b/systems/linux/kernel/modules/bcm-knet/bcm-knet.c
+@@ -8204,7 +8204,7 @@ bkn_init_ndev(u8 *mac, char *name)
+ #endif
+     dev->ethtool_ops = &bkn_ethtool_ops;
+     if (name && *name) {
+-        strncpy(dev->name, name, IFNAMSIZ-1);
++        strscpy(dev->name, name, sizeof(dev->name));
+     }
+     DBG_VERB(("Created Ethernet device %s.\n", dev->name));
+ 
+diff --git a/systems/linux/kernel/modules/shared/gmodule.c b/systems/linux/kernel/modules/shared/gmodule.c
+index 08b9ea6..c902ca0 100644
+--- a/systems/linux/kernel/modules/shared/gmodule.c
++++ b/systems/linux/kernel/modules/shared/gmodule.c
+@@ -317,8 +317,8 @@ struct file_operations _gmodule_fops = {
+ };
+ 
+ 
+-void __exit
+-cleanup_module(void)
++static void __exit
++_gmodule_exit(void)
+ {
+     if(!_gmodule) return;
+ 
+@@ -336,8 +336,8 @@ cleanup_module(void)
+     }
+ }
+ 
+-int __init
+-init_module(void)
++static int __init
++_gmodule_init(void)
+ {  
+     int rc;
+ 
+@@ -376,3 +376,6 @@ init_module(void)
+ 
+     return 0; /* succeed */
+ }
++
++module_init(_gmodule_init);
++module_exit(_gmodule_exit);

@@ -1,0 +1,37 @@
+make: Entering directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'
+make[1]: Entering directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+warning: pahole version differs from the one used to build the kernel
+  The kernel was built with: 132
+  You are using:             0
+  CC [M]  kernel-gmodule.o
+  CC [M]  user-gmodule.o
+  CC [M]  knet-gmodule.o
+  LD [M]  linux-user-bde.o
+  LD [M]  linux-kernel-bde.o
+  LD [M]  linux-bcm-knet.o
+  MODPOST Module.symvers
+  CC [M]  linux-kernel-bde.mod.o
+  CC [M]  .module-common.o
+  CC [M]  linux-user-bde.mod.o
+  CC [M]  linux-bcm-knet.mod.o
+  LD [M]  linux-bcm-knet.ko
+  LD [M]  linux-kernel-bde.ko
+  LD [M]  linux-user-bde.ko
+  BTF [M] linux-user-bde.ko
+  BTF [M] linux-kernel-bde.ko
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/gen-btf.sh: line 72: pahole: command not found
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/gen-btf.sh: line 72: pahole: command not found
+  BTF [M] linux-bcm-knet.ko
+/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/gen-btf.sh: line 72: pahole: command not found
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.modfinal:52: linux-user-bde.ko] Error 127
+make[3]: *** Deleting file 'linux-user-bde.ko'
+make[3]: *** Waiting for unfinished jobs....
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.modfinal:52: linux-kernel-bde.ko] Error 127
+make[3]: *** Deleting file 'linux-kernel-bde.ko'
+make[3]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/scripts/Makefile.modfinal:52: linux-bcm-knet.ko] Error 127
+make[3]: *** Deleting file 'linux-bcm-knet.ko'
+make[2]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:2160: modules] Error 2
+make[1]: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make[1]: Leaving directory '/home/erin/nepeat/ai_re/devices/edge-core-7760-32x/sdk-research/build/kbuild-7.3.4'
+make: *** [/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/source/Makefile:248: __sub-make] Error 2
+make: Leaving directory '/nix/store/ab1lk2mn87zinp5z9czj222p7sqydg11-linux-7.3.4-dev/lib/modules/7.3.4/build'
