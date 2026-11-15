@@ -141,11 +141,13 @@
             ghidraPy
           ] ++ (with pkgs; [
             # Lab metrics: single-node VictoriaMetrics as a user service with
-            # drop-in scrape targets (tools/metrics.py, see tools/README.md).
+            # drop-in scrape targets, plus Grafana with dashboards provisioned
+            # from tools/grafana/dashboards (tools/metrics.py, tools/README.md).
             victoriametrics
+            grafana
             (writeShellApplication {
               name = "ai-re-metrics";
-              runtimeInputs = [ python3 ];
+              runtimeInputs = [ python3 victoriametrics grafana ];
               text = ''exec python3 ${./tools/metrics.py} "$@"'';
             })
 

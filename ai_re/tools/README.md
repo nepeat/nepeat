@@ -118,3 +118,39 @@ Agents: add a target when you bring up an exporter on a device and remove it
 when the device goes away; the NAME becomes the `job` label, so use the device
 directory name. Targets are picked up within about 10 s, no restart. The web
 UI (vmui) is at http://127.0.0.1:8428/vmui.
+
+### Grafana
+
+`ai-re-metrics start` also starts Grafana (nixpkgs, user unit `ai-re-grafana`;
+`stop`/`restart`/`status` cover both). Open **http://<workstation>:3000**:
+anyone on the LAN can view (anonymous Viewer); sign in as `admin` to
+administer. The admin password is generated on first start and kept in
+`~/.local/state/ai_re-metrics/grafana/admin-password` (mode 0600, never in
+the repo). Grafana's config, database and logs are generated under that
+`grafana/` directory on every start; nothing there needs editing. Every outbound
+call (usage stats, update/plugin checks, news, gravatar, external snapshots,
+plugin installs) is switched off. The LAN needs 3000/tcp open in the
+workstation's firewall. The first start takes about two minutes (database
+migrations).
+
+Dashboards are the JSON files in `tools/grafana/dashboards/`, provisioned
+read-only into the `ai_re` folder (`allowUiUpdates: false`: the repo is the
+source of truth, the UI cannot save them). Grafana re-reads the directory
+every 30 s, so editing a file needs no restart. To add or change one: build it
+in the UI ("Save as copy" or Export > JSON), write the JSON to
+`tools/grafana/dashboards/<name>.json` with a fixed `uid`, tag `ai_re` and the
+datasource `{"type": "prometheus", "uid": "victoriametrics"}`. Keep them
+public: no IPs or hostnames, select devices with the `$job`/`$instance`
+variables. Check it with `curl -s localhost:3000/api/dashboards/uid/<uid>`.
+The tool finds the directory from the working directory (or
+`AI_RE_GRAFANA_DASHBOARDS`), else reuses the path of the last start.
+
+| uid | dashboard |
+| --- | --- |
+| `ai-re-lab-overview` | home page: one row per job (up, uptime, load, CPU, memory, root fs, NIC, max board temp, fan duty, optics, data age, failed units) |
+| `ai-re-switch-thermals` | board/optic temperatures, temperature trend, fan duty, rotors, faults, fan-control state (as7760-thermal, fand) |
+| `ai-re-switch-optics` | module inventory with DDM, RX power (dBm) and TX bias per lane |
+| `ai-re-node` | node_exporter host view: CPU, load, memory, PSI, disk, filesystems, network, systemd, textfile collector |
+
+The node_exporter interface/disk label is `exported_device` because targets
+carry `device=<name>` (the target's label wins).
