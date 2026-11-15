@@ -17,11 +17,16 @@ would otherwise run it, and with a default env the script ends in `saveenv` (an 
 route-a, at the factory `ALPINE_DB>` prompt, through console.py and the tmux pane `serial-dmc12`:
 TFTP the image to 0x01800000 and the trampoline to 0x01700000, copy a clean stage3 out of the
 image to 0x01000000 and zero its .bss, set the stage2 shared-data flags to RAM load
-(0xfbff41c1: bit0 on, bit1 off), then `go 0x01700000`. The trampoline cleans D-cache over
-0x01000000-0x02000000 and the flags line, sets CPU0 to AArch32 (NB 0xf0072004 = 0) with the
-boot ROM resume address 0xf0072028 = 0x01000000, and warm-resets CPU0 (0xf0070024 = 0x13).
-The ROM's reset handler jumps to the resume address; stage3 then reads the "flash" from RAM.
-Afterwards **power-cycle** (AC off >= 10 s): 0xf0072028 stays set until then.
+(0xfbff41c1: bit0 on, bit1 off), then `go 0x01700000` (trampoline v2, uart-boot.md section 5):
+- EL2: copy a 48-byte EL3 stub over the agent's entry at 0x1000, clean D-cache (0x1000 line,
+  0x01000000-0x02000000, the flags line), set the boot-ROM resume address 0xf0072028 =
+  0x01000000, CPU0 power-on reset (0xf0070024 = 0x13). config_aarch64 (0xf0072004) and RVBAR are
+  write-once and stage3 already set them to AArch64 / 0x1000, so CPU0 comes back at the stub, at EL3.
+- EL3 stub: print '#' on UART0, then RMR_EL3 = AA64 0 | RR 1 and WFI: a warm reset into AArch32.
+- AArch32 reset -> ROM vectors (VINITHI) -> resume address -> stage3 in secure SVC. Stage3
+  re-copies the agent to 0x1000 itself, which removes the stub.
+Afterwards **power-cycle** (AC off >= 10 s): 0xf0072028 stays set until then (normally 0xfbff423c,
+stage3's SRAM cpu-resume agent).
 """
 import argparse, os, pathlib, struct, subprocess, sys, termios, time, zlib
 
@@ -36,8 +41,19 @@ STG3_BSS_END = 0x0105E000      # stage3 .bss ends ~0x0105d322 (highest reference
 FLAGS = 0xFBFF41C1             # al_stage2_shared_data.flags (magic at 0xfbff41c0)
 SESSION = "serial-dmc12"
 
-# AArch64, position independent; disassembly checked in Ghidra (uart-boot.md section 4).
+# AArch64, position independent; disassembly checked in Ghidra (uart-boot.md section 5).
+# v1 (2026-11-15, experiment 2) also wrote config_aarch64 = 0: ignored (write-once), so CPU0
+# came back in AArch64 at the agent, which re-ran the factory U-Boot.
 TRAMP = [
+    0x10000405,  # adr  x5, stub (+0x80)
+    0xD2820006,  # mov  x6, #0x1000        agent entry = CPU0 RVBAR (write-once)
+    0xA94020A7,  # ldp  x7, x8, [x5]
+    0xA90020C7,  # stp  x7, x8, [x6]
+    0xA94120A7,  # ldp  x7, x8, [x5, #16]
+    0xA90120C7,  # stp  x7, x8, [x6, #16]
+    0xA94220A7,  # ldp  x7, x8, [x5, #32]
+    0xA90220C7,  # stp  x7, x8, [x6, #32]
+    0xD50B7E26,  # dc civac, x6            (one 64-byte line: the whole stub)
     0xD2A02000,  # mov  x0, #0x01000000
     0xD2A04001,  # mov  x1, #0x02000000
     0xD50B7E20,  # 1: dc civac, x0
@@ -49,18 +65,32 @@ TRAMP = [
     0xD50B7E24,  # dc civac, x4            (shared-data flags line)
     0xD5033F9F,  # dsb  sy
     0xD2BE00E2,  # mov  x2, #0xf0070000    (NB service)
-    0x52800003,  # mov  w3, #0
-    0xB9200443,  # str  w3, [x2, #0x2004]  CPU0: AArch32 at next warm reset
     0x52A02003,  # mov  w3, #0x01000000
-    0xB9202843,  # str  w3, [x2, #0x2028]  CPU0: boot-ROM resume address (ARM)
+    0xB9202843,  # str  w3, [x2, #0x2028]  CPU0 resume_addr_l: the ROM jumps here on AArch32 reset
     0xD5033F9F,  # dsb  sy
     0x52800263,  # mov  w3, #0x13
-    0xB9002443,  # str  w3, [x2, #0x24]    CPU0 warm reset (stage3 0x01023da0 value)
+    0xB9002443,  # str  w3, [x2, #0x24]    cpus_software_reset: CPU0, level cpu_poreset (as stage3)
     0xD5033F9F,  # dsb  sy
     0xD5033FDF,  # isb
     0xD503207F,  # 2: wfi
     0x17FFFFFF,  # b    2b
+] + [0xD503201F] * 3  # nop padding to +0x80
+STUB = [                # runs at 0x1000, EL3 AArch64, MMU off
+    0xD2860001,  # mov  x1, #0x3000
+    0xF2BFB101,  # movk x1, #0xfd88, lsl #16   UART0 THR
+    0x52800462,  # mov  w2, #'#'
+    0xB9000022,  # str  w2, [x1]              marker: "reached EL3 at the stub"
+    0xD2800040,  # mov  x0, #2                 RMR_EL3: AA64 = 0, RR = 1
+    0xD5033F9F,  # dsb  sy
+    0xD5033FDF,  # isb
+    0xD51EC040,  # msr  rmr_el3, x0
+    0xD5033FDF,  # isb
+    0xD503207F,  # 3: wfi                      warm reset is applied in WFI
+    0x17FFFFFF,  # b    3b
+    0xD503201F,  # nop (pad to 48 bytes)
 ]
+TRAMP_BYTES = b"".join(struct.pack("<I", w) for w in TRAMP + STUB)
+AGENT_HEAD = "58000904 f9000080 58000904 f9000080"   # stage3's agent at 0x1000 (stg3 +0x48ccc)
 
 
 def toc_entries(d):
@@ -129,8 +159,8 @@ def cmd_image(a):
 def cmd_tramp(a):
     if a.out.exists():
         raise SystemExit(f"refusing to replace {a.out}")
-    a.out.write_bytes(b"".join(struct.pack("<I", w) for w in TRAMP))
-    print(f"{a.out}: {4 * len(TRAMP)} B crc32 {zlib.crc32(a.out.read_bytes()):08x}")
+    a.out.write_bytes(TRAMP_BYTES)
+    print(f"{a.out}: {len(TRAMP_BYTES)} B crc32 {zlib.crc32(a.out.read_bytes()):08x}")
 
 
 def console(c, timeout=30):
@@ -162,7 +192,7 @@ def cmd_route_a(a):
     meta = {k: int(v, 0) for k, v in meta.items()}
     if zlib.crc32(a.image.read_bytes()) != meta["crc"]:
         raise SystemExit("image does not match its .txt")
-    tramp = b"".join(struct.pack("<I", w) for w in TRAMP)
+    tramp = TRAMP_BYTES
     d = a.tftp_root / a.tftp_dir
     steps = ["dhcp", f"setenv serverip {a.server}",
              f"tftpboot {IMG_ADDR:#x} {a.tftp_dir}/{a.image.name}",
@@ -173,7 +203,8 @@ def cmd_route_a(a):
              f"crc32 {STG3_ADDR:#x} {meta['stg3_size']:#x}",
              f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}",
              "md.b 0xfbff41c0 4", "mw.b 0xfbff41c1 <old & ~3 | 1>", "md.b 0xfbff41c0 4",
-             "md.l 0xf0072000 0x14", f"go {TRAMP_ADDR:#x}   (then key {a.key!r} every 20 ms)" if a.key
+             "md.l 0xf0072000 0x14", "md.l 0x1000 4   (expect the agent: " + AGENT_HEAD + ")",
+             f"go {TRAMP_ADDR:#x}   (then key {a.key!r} every 20 ms)" if a.key
              else f"go {TRAMP_ADDR:#x}"]
     print(f"image crc32 {meta['crc']:08x}, tramp crc32 {zlib.crc32(tramp):08x}, "
           f"stage3 crc32 {meta['stg3_crc']:08x}; TFTP dir {d}")
@@ -204,8 +235,10 @@ def cmd_route_a(a):
     console(f"mw.b {FLAGS:#x} {(old & ~3) | 1:#x}")
     console("md.b 0xfbff41c0 4")
     console("md.l 0xf0072000 0x14")
+    if AGENT_HEAD not in console("md.l 0x1000 4"):
+        raise SystemExit("0x1000 does not hold stage3's agent: refusing to patch it")
     subprocess.run(["tmux", "clear-history", "-t", SESSION], check=True)
-    marks = ("Stage 3 version", "UART recovery!", "User request", "Loading application",
+    marks = ("#", "Stage 3 version", "UART recovery!", "User request", "Loading application",
              "Executing application", "U-Boot 20", "recovery boot command", "Entry: EL",
              "Hit any key")
     base = pane()  # the visible screen survives clear-history: count only new matches

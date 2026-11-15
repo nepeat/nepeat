@@ -18,12 +18,14 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
 *Inferred* means not read from code or hardware.
 
 ## Verdict
-- **Route A works on paper: production stage3 can be re-entered from a RAM flash image, with zero SPI
-  writes.**
+- **Route A (production stage3 re-entered from a RAM flash image, zero SPI writes): the first
+  attempt failed, and the corrected version (trampoline v2) is untested.**
   - The ROM's reset handler jumps to a per-CPU resume address on any AArch32 reset.
-  - A warm reset of CPU0 from the factory U-Boot, with that address set to stage3, runs stage3 → agent →
-    the app named in a BOOT_MODE object in RAM.
-  - The tool is `uartboot.py`. It has not been run; the experiments are in §6.
+  - **v1 failed (experiment 2).** CPU0's AArch64 select and RVBAR are write-once, and stage3 has
+    already set them to AArch64 / 0x1000. So an NB core reset always comes back in AArch64 at the agent.
+  - **v2** puts a small EL3 stub at the agent's entry (0x1000). The stub asks the core for a warm
+    reset into AArch32 through `RMR_EL3`, which lands in the ROM and so at stage3 (§5). The tool is
+    `uartboot.py`; the next experiment is in §6.
 - **The `u` escape:** the key path is proven on hardware (`p` and `e`, 4/4). The app ≠ 5 branch is
   tested by Route A with a RAM BOOT_MODE (§6, experiment 3), with no SPI write.
 - **UART boot is real in the ROM, and so is the instance fallback.**
@@ -146,19 +148,58 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
   `saveenv`, an SPI write. So `uartboot.py image` always blanks UBOOT_SCRIPT 0/1 in the RAM image.
 
 ## 5. Routes to "stage3 → our app" without SPI writes
+**The CPU0 reset registers** (`HAL/include/sys_fabric/al_hal_nb_regs_v1_v2.h`,
+`cpun_config_status[n]` at NB 0xf0072000 + n*0x100; u01 values in `inventory/u01/route-a-regs.txt`):
+
+| off | name | u01 | meaning |
+| --- | --- | --- | --- |
+| +0x00 | config | 0x24 | bit 2 VINITHI (vectors at 0xffff0000), **bit 5 FORCE_WONCE**: config_aarch64 and RVBAR become write-once |
+| +0x04 | config_aarch64 | 1 | AA64nAA32, sampled at CPU power-on reset. Stage3 wrote 1 (0x01028054); **later writes are ignored** (*inferred* from FORCE_WONCE and experiment 2; 2a checks it) |
+| +0x20/+0x24 | power_ctrl / power_status | 0/0 (CPU1: 3/7) | CPU1 is powered off and in WFI |
+| +0x28/+0x2c | resume_addr_l/h | 0xfbff423c | the ROM's AArch32 resume address. Stage3's **SRAM cpu-resume agent** sets it for all 4 CPUs (see below) |
+| +0x40 | warm_rst_ctl | 0 | an `RMR` warm-reset request is honoured, once the core is in WFI |
+| +0x48/+0x4c | rvbar | 0x1000 | AArch64 reset address (write-once), the DRAM agent |
+
+- **The SRAM cpu-resume agent** is the Annapurna `cpu_resume` service (`HAL/services/cpu_resume/`).
+  - Stage3's early init (0x0102818c) checks for a resume struct at 0xfbff4120 (watermark
+    `0xf0e1d2xx`, xx ≥ 0xc3). If there isn't one, it copies a 0x15fc-byte AArch32 agent
+    (stg3 0x010476d0) to **0xfbff4200** and runs it once.
+  - That agent fills the struct (flags plus a per-CPU {flags, resume_addr}) and sets every CPU's
+    resume_addr to its entry, 0xfbff423c (agent code at stg3 0x01047d70, setter 0x01048224).
+  - On a later AArch32 reset, the ROM jumps there and that agent resumes the CPU, optionally switching
+    to NS/HYP.
+- **The CPU reset recipes.**
+  - Stage2 → stage3 is a plain jump: AArch32 EL3, `mov pc` to 0x01000000.
+  - Stage3 → agent (AArch32 → AArch64) is `config_aarch64 = 1` + RVBAR 0x1000 + `cpus_software_reset
+    = 0x13`. That value is CPU0 at level 1, `cpu_poreset`, which samples AA64nAA32.
+  - Nothing on this box ever goes AArch64 → AArch32. The architectural way is `RMR_EL3` {AA64 = 0,
+    RR = 1} at EL3 followed by WFI. The SoC turns that WARMRSTREQ into a core warm reset with the new
+    register width (HAL note on warm_rst_ctl).
+- **Other resets don't help.**
+  - A SoC reset (sp805, uC 0x0101, `reset`) re-runs the ROM and stage2. Stage2 re-initialises the shared
+    data and sets `SPI_LOAD_ENFORCE`, so the RAM image is ignored. *Inferred:* it also resets the NB
+    registers.
+  - PSCI `cpu_on` only starts other cores at EL2.
+
 **Route A (no strap; `uartboot.py route-a`).** At the factory prompt:
 1. TFTP the RAM image to 0x01800000. It is 8 MiB: everything the app path reads lies below flash
    0x800000, and stage3 clears DRAM from 0x02000000.
 2. Copy a clean stage3 out of it to 0x01000000 and zero its .bss (to 0x0105e000).
 3. Set `0xfbff41c1 = (old & ~3) | 1`. Magic 0x3b ≥ 0x3b, so stage3 honours it.
-4. `go 0x01700000`: the trampoline.
-   - The factory U-Boot has no `dcache` command, so the trampoline cleans D-cache over
-     0x01000000–0x02000000 and the flags line itself.
-   - It writes NB `0xf0072004 = 0` (CPU0 AArch32), `0xf0072028 = 0x01000000` (ROM resume) and
-     `0xf0070024 = 0x13` (CPU0 warm reset). That is stage3's own reset recipe (0x01023da0, 0x01023e9c)
-     with AArch32 instead of AArch64.
+4. `go 0x01700000`: **trampoline v2** (176 bytes, disassembly checked in Ghidra).
+   - **At EL2:** copy a 48-byte EL3 stub over the agent's entry at 0x1000. TZ is off, so EL2 can
+     write the EL3 agent's DRAM. `route-a` first checks that 0x1000 reads the agent's first words.
+     The secondaries park at 0x218c/0x5adc/0x5cac/0x6120, not in 0x1000–0x1030.
+   - The factory U-Boot has no `dcache` command, so the trampoline cleans D-cache over the stub
+     line, 0x01000000–0x02000000 and the flags line itself.
+   - Then `0xf0072028 = 0x01000000` and `0xf0070024 = 0x13`: stage3's own reset recipe.
+   - CPU0 comes back at EL3 AArch64 at 0x1000, the stub.
+5. **The stub** writes `#` to UART0, then `RMR_EL3 = 2` (AArch32, reset request) and WFI. CPU0
+   warm-resets in AArch32 EL3, starts at the ROM vectors (VINITHI = 1), and the ROM jumps to 0x01000000.
 
-The ROM then jumps to stage3 in SVC mode. Stage3 stores r0 and never reads it again (stage2 passes
+The ROM then jumps to stage3 in SVC mode. Stage3 re-copies the agent to 0x1000 (main 0x010296b4,
+always), which removes the stub. It finds the resume struct valid, so it doesn't re-copy the SRAM
+agent. Stage3 stores r0 and never reads it again (stage2 passes
 0x01000000, the ROM passes 0). From there on everything is the production binary:
 - "UART recovery!", BOOT_MODE/DT/app read from RAM;
 - the DRAM clear;
@@ -171,10 +212,10 @@ The ROM then jumps to stage3 in SVC mode. Stage3 stores r0 and never reads it ag
 - the secondaries sit in agent WFI instead of reset.
 
 **Risks.** Each only hangs the box; a power-cycle recovers, and SPI is untouched.
-- NS writes to NB service may be ignored: the trampoline then sits in WFI.
-- If 0xf0072004 isn't the AArch64 select, CPU0 comes back in AArch64 at RVBAR 0x1000. The agent then
-  re-runs whatever is at 0x01100000: the factory U-Boot's load image, so you'd see a U-Boot banner and
-  no stage3 banner.
+- **What the console shows tells the failure apart:**
+  - no `#`: CPU0 didn't reach the stub (cache or reset problem);
+  - `#` then silence: the RMR warm reset wasn't taken, or the ROM didn't resume to 0x01000000;
+  - `#` then the stage3 banner: Route A works.
 - Stage3's SerDes re-init may hang on the already-trained links.
 - **0xf0072028 stays set until power is removed.** *Unknown:* whether a watchdog/SoC reset clears it.
   So power-cycle after every run, and never `reset` first.
@@ -198,9 +239,12 @@ All at the factory `ALPINE_DB>` after a normal cold boot. Power-cycle after each
 
 | # | do | proves | risk |
 | --- | --- | --- | --- |
-| 0 | `md.l 0xf0072000 0x14`, `md.l 0xf0072100 0x14`, `md.l 0xf0070000 0x10`, `md.l 0xfbff40b8 2`, then `md.l 0xf2000000 4` last | core-0/1 blocks: expect +0x04 = 1, +0x28 = 0, +0x48 = 0x1000 (stage3's RVBAR). ROM retry counters 0 0. 0xf2000000 = 0xfbff4000 (alias) | reads only; the last one may abort → power-cycle |
-| 1 | `mw.l 0xf0072028 0x01000000; md.l 0xf0072028 1; mw.l 0xf0072028 0; md.l 0xf0072028 1` | NB service is writable from NS EL2 (Route A's precondition) | nothing reads it until a CPU0 AArch32 reset |
-| 2 | `uartboot.py image --app none` + `route-a --run` | the ROM resume path and stage3 from RAM: stage3 banner, "UART recovery!", factory U-Boot from RAM, "recovery boot command!" | hang → power-cycle |
+| 0 | done (`inventory/u01/route-a-regs.txt`) | +0x28 = 0xfbff423c (the SRAM agent), +0x04 = 1, +0x48 = 0x1000, ROM retry counters 0 0. **0xf2000000 = 0xfbff4000: the ROM state block is the word stage2 reads** | — |
+| 1 | done | 0xf0072028 is writable from NS EL2 | — |
+| 2 | done with trampoline v1 | **failed as predicted in "Risks"**: factory U-Boot banner directly, no stage3. config_aarch64 is write-once | — |
+| 2a | `mw.l 0xf0072004 0; md.l 0xf0072004 1` (if it reads 0, write 1 back at once) | the write-once lock: expect it to still read `00000001` | only sampled at a CPU0 reset |
+| 2b | `md.l 0x1000 4` (expect `58000904 f9000080 58000904 f9000080`), then `image --app none` + `route-a --run` (trampoline v2) | `#` = EL3 reached through RVBAR; then stage3 banner, "UART recovery!", factory U-Boot from RAM, "recovery boot command!" | hang → power-cycle |
+| 2c | only if 2b shows `#` and then silence: `mw.l 0xf0072000 0x04` (clear FORCE_WONCE), then the 2a write/read | whether the lock can be lifted, which would allow the v1-style reset with config_aarch64 = 0 | only sampled at a CPU0 reset |
 | 3 | `image --app 0x10000005`, `route-a --run`, then again with `--key u` | **the `u` escape for app ≠ 5**: without the key UBOOT 1 boots (`md.l 0x0105d268 1` = `10000005`); with it, "User request for loading U-Boot!" and `00000005` | same; both outcomes are the factory U-Boot |
 | 4 | `image --app 0x110 --uboot <ours>` + `route-a --run` (and with `--key u`) | **our U-Boot as the stage3 app** via the production agent handoff (expect `Entry: EL2, MMU+caches were off, x0=0`), and the escape back to the factory U-Boot | same |
 | 5 | (spare unit, owner) strap 4, then `uartboot.py s2` + `xmodem` | the ROM's UART boot end to end with the factory stage2 | a solder change |
