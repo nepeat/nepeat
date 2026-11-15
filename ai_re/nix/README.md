@@ -52,6 +52,7 @@ appear once `nix/` is committed; `path:./nix` always works.
 | function | `switch-openbcm` | Broadcom SDK kmods at boot + /dev nodes, locked `bcm.user`, ASIC die temperature reader (`hardware.openbcm`) |
 | function | `monitoring-node-exporter` | Prometheus :9100, control-plane collector set, timer-driven textfile producers; [README](modules/monitoring/README.md) |
 | board | `board-as7760` (+ `-sd-install`, `-sd-persist`) | Accton AS7760-32X |
+| board | `board-dmc12` | DMC-12-48R-AS0 console server (Alpine V2): verbatim import of the first iteration, not yet on the shared layers; [README](modules/boards/dmc12/README.md) |
 | package | `uboot-*` | upstream U-Boot for T208x; patch series with a per-patch `scope` (`t208x` reusable, `as7760` board-only) in [packages/uboot/default.nix](packages/uboot/default.nix) |
 | package | `fastfetch-tiny` | fastfetch without optional libraries (cross-builds everywhere) |
 

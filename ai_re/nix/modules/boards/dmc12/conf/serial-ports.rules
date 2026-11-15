@@ -1,0 +1,63 @@
+# DMC-12-48R-AS0 — verbatim port of the factory /etc/udev/rules.d/99-usb-serial.rules.
+#
+# Creates /dev/P1 .. /dev/P48 symlinks pointing at the actual /dev/ttyUSBN that
+# udev allocated for each (hub.port:cp2108_interface). The kernel USB path
+# syntax hasn't changed between the factory 4.19 build and mainline 7.0, so
+# these rules apply unchanged.
+#
+# Physical layout:
+#   hub 1.{1..4} -> CP2108 quad UARTs -> P1..P16
+#   hub 2.{1..4} -> CP2108 quad UARTs -> P17..P32
+#   hub 3.{1..4} -> CP2108 quad UARTs -> P33..P48
+#
+# Group `dialout` instead of factory's `OWNER="ser2net"` because ser2net is not
+# yet shipped on our build; once it is, switch to `OWNER="ser2net", GROUP=...`.
+
+KERNEL=="ttyUSB*", KERNELS=="*-1.1:1.0", GROUP="dialout", SYMLINK+="P1"
+KERNEL=="ttyUSB*", KERNELS=="*-1.1:1.1", GROUP="dialout", SYMLINK+="P2"
+KERNEL=="ttyUSB*", KERNELS=="*-1.1:1.2", GROUP="dialout", SYMLINK+="P3"
+KERNEL=="ttyUSB*", KERNELS=="*-1.1:1.3", GROUP="dialout", SYMLINK+="P4"
+KERNEL=="ttyUSB*", KERNELS=="*-1.2:1.0", GROUP="dialout", SYMLINK+="P5"
+KERNEL=="ttyUSB*", KERNELS=="*-1.2:1.1", GROUP="dialout", SYMLINK+="P6"
+KERNEL=="ttyUSB*", KERNELS=="*-1.2:1.2", GROUP="dialout", SYMLINK+="P7"
+KERNEL=="ttyUSB*", KERNELS=="*-1.2:1.3", GROUP="dialout", SYMLINK+="P8"
+KERNEL=="ttyUSB*", KERNELS=="*-1.3:1.0", GROUP="dialout", SYMLINK+="P9"
+KERNEL=="ttyUSB*", KERNELS=="*-1.3:1.1", GROUP="dialout", SYMLINK+="P10"
+KERNEL=="ttyUSB*", KERNELS=="*-1.3:1.2", GROUP="dialout", SYMLINK+="P11"
+KERNEL=="ttyUSB*", KERNELS=="*-1.3:1.3", GROUP="dialout", SYMLINK+="P12"
+KERNEL=="ttyUSB*", KERNELS=="*-1.4:1.0", GROUP="dialout", SYMLINK+="P13"
+KERNEL=="ttyUSB*", KERNELS=="*-1.4:1.1", GROUP="dialout", SYMLINK+="P14"
+KERNEL=="ttyUSB*", KERNELS=="*-1.4:1.2", GROUP="dialout", SYMLINK+="P15"
+KERNEL=="ttyUSB*", KERNELS=="*-1.4:1.3", GROUP="dialout", SYMLINK+="P16"
+KERNEL=="ttyUSB*", KERNELS=="*-2.1:1.0", GROUP="dialout", SYMLINK+="P17"
+KERNEL=="ttyUSB*", KERNELS=="*-2.1:1.1", GROUP="dialout", SYMLINK+="P18"
+KERNEL=="ttyUSB*", KERNELS=="*-2.1:1.2", GROUP="dialout", SYMLINK+="P19"
+KERNEL=="ttyUSB*", KERNELS=="*-2.1:1.3", GROUP="dialout", SYMLINK+="P20"
+KERNEL=="ttyUSB*", KERNELS=="*-2.2:1.0", GROUP="dialout", SYMLINK+="P21"
+KERNEL=="ttyUSB*", KERNELS=="*-2.2:1.1", GROUP="dialout", SYMLINK+="P22"
+KERNEL=="ttyUSB*", KERNELS=="*-2.2:1.2", GROUP="dialout", SYMLINK+="P23"
+KERNEL=="ttyUSB*", KERNELS=="*-2.2:1.3", GROUP="dialout", SYMLINK+="P24"
+KERNEL=="ttyUSB*", KERNELS=="*-2.3:1.0", GROUP="dialout", SYMLINK+="P25"
+KERNEL=="ttyUSB*", KERNELS=="*-2.3:1.1", GROUP="dialout", SYMLINK+="P26"
+KERNEL=="ttyUSB*", KERNELS=="*-2.3:1.2", GROUP="dialout", SYMLINK+="P27"
+KERNEL=="ttyUSB*", KERNELS=="*-2.3:1.3", GROUP="dialout", SYMLINK+="P28"
+KERNEL=="ttyUSB*", KERNELS=="*-2.4:1.0", GROUP="dialout", SYMLINK+="P29"
+KERNEL=="ttyUSB*", KERNELS=="*-2.4:1.1", GROUP="dialout", SYMLINK+="P30"
+KERNEL=="ttyUSB*", KERNELS=="*-2.4:1.2", GROUP="dialout", SYMLINK+="P31"
+KERNEL=="ttyUSB*", KERNELS=="*-2.4:1.3", GROUP="dialout", SYMLINK+="P32"
+KERNEL=="ttyUSB*", KERNELS=="*-3.1:1.0", GROUP="dialout", SYMLINK+="P33"
+KERNEL=="ttyUSB*", KERNELS=="*-3.1:1.1", GROUP="dialout", SYMLINK+="P34"
+KERNEL=="ttyUSB*", KERNELS=="*-3.1:1.2", GROUP="dialout", SYMLINK+="P35"
+KERNEL=="ttyUSB*", KERNELS=="*-3.1:1.3", GROUP="dialout", SYMLINK+="P36"
+KERNEL=="ttyUSB*", KERNELS=="*-3.2:1.0", GROUP="dialout", SYMLINK+="P37"
+KERNEL=="ttyUSB*", KERNELS=="*-3.2:1.1", GROUP="dialout", SYMLINK+="P38"
+KERNEL=="ttyUSB*", KERNELS=="*-3.2:1.2", GROUP="dialout", SYMLINK+="P39"
+KERNEL=="ttyUSB*", KERNELS=="*-3.2:1.3", GROUP="dialout", SYMLINK+="P40"
+KERNEL=="ttyUSB*", KERNELS=="*-3.3:1.0", GROUP="dialout", SYMLINK+="P41"
+KERNEL=="ttyUSB*", KERNELS=="*-3.3:1.1", GROUP="dialout", SYMLINK+="P42"
+KERNEL=="ttyUSB*", KERNELS=="*-3.3:1.2", GROUP="dialout", SYMLINK+="P43"
+KERNEL=="ttyUSB*", KERNELS=="*-3.3:1.3", GROUP="dialout", SYMLINK+="P44"
+KERNEL=="ttyUSB*", KERNELS=="*-3.4:1.0", GROUP="dialout", SYMLINK+="P45"
+KERNEL=="ttyUSB*", KERNELS=="*-3.4:1.1", GROUP="dialout", SYMLINK+="P46"
+KERNEL=="ttyUSB*", KERNELS=="*-3.4:1.2", GROUP="dialout", SYMLINK+="P47"
+KERNEL=="ttyUSB*", KERNELS=="*-3.4:1.3", GROUP="dialout", SYMLINK+="P48"

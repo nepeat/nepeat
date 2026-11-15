@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# DMC-12 boot-info populator — minimal replacement for the factory envmon
+# daemon's boot.env writer. Parses the kernel cmdline + U-Boot env hints
+# (everything the original envmon used) and writes /run/dmc12/boot.env so
+# `show boot` can report active boot location, primary/secondary/recovery
+# image identifiers, etc.
+#
+# We don't emulate envmon's continuous SNMP MIB updates — that's not needed
+# on a NixOS-managed netboot box. Just the static state the operator sees in
+# `show boot`.
+set -u
+
+ENVFILE=/run/dmc12/boot.env
+mkdir -p "$(dirname "$ENVFILE")"
+
+# Kernel cmdline has ACTIVEBOOTLOCATION=... in the factory bootloader path.
+# Our cmdline doesn't include it (U-Boot's dmc12_bootnet/dmc12_bootdisk
+# scripts set it when booting disk; we netboot via tftp + bootm so the
+# variable is whatever someone passed). Try /proc/cmdline first, fall
+# back to a synthesised value.
+active=""
+for tok in $(< /proc/cmdline); do
+  case "$tok" in
+    ACTIVEBOOTLOCATION=*) active="${tok#ACTIVEBOOTLOCATION=}";;
+  esac
+done
+
+if [ -z "$active" ]; then
+  # Synthesise something useful for `show boot`. nfsroot= is the netboot
+  # case; root=/dev/nfs without nfsroot= means kernel-DHCP-supplied root.
+  for tok in $(< /proc/cmdline); do
+    case "$tok" in
+      nfsroot=*) active="nfs://${tok#nfsroot=}";;
+      root=/dev/nfs) [ -z "$active" ] && active="nfs://kernel-dhcp" ;;
+    esac
+  done
+fi
+
+# Fallback if everything else missed: name the running toplevel.
+if [ -z "$active" ] && [ -L /run/current-system ]; then
+  active=$(readlink /run/current-system)
+fi
+active=${active:-unknown}
+
+cat > "$ENVFILE" <<EOF
+ACTIVEBOOTLOCATION=$active
+PRIMARYIMAGE=N/A
+SECONDARYIMAGE=N/A
+RECOVERYIMAGE=N/A
+EOF
+
+# `show boot`'s original output also wants ACTIVEIMAGE, PRIMARYIMAGE,
+# SECONDARYIMAGE, RECOVERYIMAGE. We don't have a dual-bank disk install on
+# a netbooted system, so report N/A and let the active boot location carry
+# the real info.
+echo "ACTIVEIMAGE=netboot" >> "$ENVFILE"

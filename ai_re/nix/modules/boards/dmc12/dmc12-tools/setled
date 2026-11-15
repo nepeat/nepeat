@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# DMC-12 status LED setter — direct port of the factory /usr/bin/setled.
+#
+# Reads /etc/deviceconfigured (a marker file the operator's setup script is
+# supposed to create when the box is fully configured). If present, sets the
+# CPLD status LED to solid green (i2c bus 4 addr 0x68 reg 0x17 = 0x10).
+# If absent, warns and sanity-checks that the LED is still blinking-green
+# (0x20) — the CPLD's power-on state.
+#
+# LED bitfield (CPLD reg 0x17):
+#   bit 4 (0x10): green
+#   bit 5 (0x20): green blink
+#   bit 2 (0x04): red
+#   bit 0 (0x01): yellow
+#   (combine for additional states; see uboot_vars.txt status_led_* helpers)
+set -u
+
+CPLD_BUS=4
+CPLD_ADDR=0x68
+REG_LED=0x17
+SOLID_GREEN=0x10
+BLINK_GREEN=0x20
+
+if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+  echo "** setled must run as root (i2cset on /dev/i2c-${CPLD_BUS})." >&2
+  exit 1
+fi
+
+if [ -f /etc/deviceconfigured ]; then
+  i2cset -f -y "$CPLD_BUS" "$CPLD_ADDR" "$REG_LED" "$SOLID_GREEN"
+  echo "Scripted config flag detected: status LED set to solid green."
+  logger -t setled "Set status LED solid green (deviceconfigured present)."
+else
+  echo "/etc/deviceconfigured missing — leaving LED in blinking-green (default)."
+  logger -t setled "/etc/deviceconfigured missing, LED unchanged."
+  led=$(i2cget -f -y "$CPLD_BUS" "$CPLD_ADDR" "$REG_LED" 2>/dev/null || true)
+  if [ -n "${led:-}" ] && [ "$led" != "$BLINK_GREEN" ]; then
+    echo "WARNING: expected LED state ${BLINK_GREEN} (blinking green) but got ${led}" >&2
+    logger -t setled "Unexpected LED state ${led} (expected ${BLINK_GREEN})."
+  fi
+fi

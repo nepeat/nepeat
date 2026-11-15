@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+# DMC-12-48R-AS0 hardware info — direct port of the factory /usr/bin/show.
+#
+# Subcommands that hit the CPLD/INA219 over /dev/i2c-4 require root.
+# Per-boot state files all live under $DMC12_STATE_DIR (default /run/dmc12),
+# populated by the dmc12-* systemd oneshots.
+set -u
+
+STATE=${DMC12_STATE_DIR:-/run/dmc12}
+
+usage() {
+  cat <<EOF
+Usage: show {cpld | fan | power | temperature | version | boot | eeprom | uplink}
+
+  cpld         CPLD firmware version byte (i2c bus 4 addr 0x68 reg 0x01)
+  fan          Fan PWM duty cycle + Fan{1,2,3} RPM (regs 0x50/0x60/0x61/0x62)
+  power        12VDC pass-through, PSU{1,2} status, INA219 V/A/W (addr 0x44)
+  temperature  Reformat \`sensors\` to one line per label
+  version      uname + os-release + ONIE EEPROM dump (if /etc/eeprom.json)
+  boot         /var/lib/envmon/boot.env (if envmon daemon ran)
+  eeprom       /etc/eeprom.json (if onieeeprom ran)
+  uplink       /var/lib/setphyspeed/uplink.env (if setphyspeed ran)
+EOF
+}
+
+require_root() {
+  if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+    echo "** show $1 must run as root (CPLD/INA219 access)." >&2
+    exit 1
+  fi
+}
+
+# Helper: hex value at reg N from CPLD (i2c bus 4, addr 0x68) -> decimal.
+cpld_dec() {
+  local hex
+  hex=$(i2cget -y 4 0x68 "$1" 2>/dev/null) || return 1
+  printf '%d\n' "$hex"
+}
+
+case "${1:-}" in
+  c|cpld)
+    require_root cpld
+    echo "CPLD FW version: $(i2cget -y 4 0x68 0x01)"
+    ;;
+
+  f|fan)
+    require_root fan
+    duty_dec=$(($(cpld_dec 0x50) - 1))
+    ver=$(cpld_dec 0x01)
+    if [ "$ver" -gt 134 ]; then
+      awk -v d="$duty_dec" 'BEGIN { printf "Fan duty cycle: %.2f%% (step %d / 63, CPLD v7+)\n", d * 1.54 + 4.6, d }'
+    else
+      awk -v d="$duty_dec" 'BEGIN { printf "Fan duty cycle: %.2f%% (step %d / 15, CPLD <v7)\n",  d * 5.88 + 17.6, d }'
+    fi
+    for i in 1 2 3; do
+      rpm=$(($(cpld_dec $((0x5f + i))) * 100))
+      echo "Fan${i} speed: ${rpm}RPM"
+    done
+    ;;
+
+  p|pow|power)
+    require_root power
+    # PSU status bits in CPLD reg 0x11.
+    pwr=$(cpld_dec 0x11)
+    # /etc/interrupt.cfg may have masked an individual PSU; factory honoured that.
+    psu1cfg=0; psu2cfg=0
+    if [ -f /etc/interrupt.cfg ]; then
+      grep -iq '^psu1' /etc/interrupt.cfg && psu1cfg=64
+      grep -iq '^psu2' /etc/interrupt.cfg && psu2cfg=128
+    fi
+    [ $((pwr & 0x20)) -ne 0 ] \
+      && echo '12VDC Pass-through detected.' \
+      || echo '12VDC Pass-through NOT detected.'
+    if [ "$psu1cfg" = 64 ]; then echo 'PSU1 Interrupt disabled.'
+    elif [ $((pwr & 0x08)) -ne 0 ]; then echo 'PSU1 Detected.'
+    else echo 'PSU1 Failure / not detected.'; fi
+    if [ "$psu2cfg" = 128 ]; then echo 'PSU2 Interrupt disabled.'
+    elif [ $((pwr & 0x10)) -ne 0 ]; then echo 'PSU2 Detected.'
+    else echo 'PSU2 Failure / not detected.'; fi
+    # INA219 at i2c bus 4 addr 0x44 behind mux 0x71. Configure + read shunt-V,
+    # bus-V, power, current. Words are little-endian on the wire; flip bytes.
+    i2cset -f -y 4 0x71 0x04
+    i2cset -f -y 4 0x44 0x00 0x9f01 w
+    i2cset -f -y 4 0x44 0x05 0x00a0 w
+    i2cget -f -y 4 0x44 0x00 w >/dev/null 2>&1
+    i2cget -f -y 4 0x44 0x05 w >/dev/null 2>&1
+    i2cget -f -y 4 0x44 0x01 w >/dev/null 2>&1
+    flip() {
+      printf '0x%s\n' "$(printf '%s' "${1#0x}" | fold -w 2 | tac | tr -d '\n')"
+    }
+    v_raw=$(i2cget -f -y 4 0x44 0x02 w); v_inv=$(flip "$v_raw")
+    p_raw=$(i2cget -f -y 4 0x44 0x03 w); p_inv=$(flip "$p_raw")
+    c_raw=$(i2cget -f -y 4 0x44 0x04 w); c_inv=$(flip "$c_raw")
+    awk -v v="$v_inv" -v p="$p_inv" -v c="$c_inv" 'BEGIN {
+      printf "VOLTAGE: %.3fV\nPOWER:   %.2fW\nCURRENT: %.3fA\n", v/8*0.004, p*0.02, c*0.001
+    }'
+    ;;
+
+  t|temp|temperature)
+    sensors 2>/dev/null | awk -F: 'NF==2 && /\+[0-9]/ { gsub(/^ +| +$/, "", $1); gsub(/ +/, " ", $2); printf "%-25s %s\n", $1, $2 }'
+    ;;
+
+  v|ver|version|o|os)
+    if [ -r /etc/os-release ]; then
+      . /etc/os-release
+      echo "Version:        $PRETTY_NAME"
+    fi
+    echo "Running kernel: $(uname -r)"
+    # $STATE/eeprom.json is populated at boot by dmc12-onieeeprom.service
+    # from the 24c02 at i2c-7 addr 0x51. Fall back to the factory's
+    # /etc/eeprom.json if anyone ever migrates a factory rootfs in.
+    for ej in "$STATE/eeprom.json" /etc/eeprom.json; do
+      if [ -r "$ej" ]; then
+        echo "EEPROM ($ej):"
+        awk '!/\{|}/ { gsub(/[",]/, ""); {$1=$1}; print "  " $0 }' "$ej"
+        break
+      fi
+    done
+    ;;
+
+  b|boot)
+    if [ -r "$STATE/boot.env" ]; then
+      cat "$STATE/boot.env"
+    else
+      echo "boot info N/A  ($STATE/boot.env missing — dmc12-envmon-boot.service didn't run)"
+    fi
+    ;;
+
+  eeprom)
+    for ej in "$STATE/eeprom.json" /etc/eeprom.json; do
+      if [ -r "$ej" ]; then
+        awk '!/\{|}/ { gsub(/[",]/, ""); {$1=$1}; print }' "$ej"
+        exit 0
+      fi
+    done
+    echo "$STATE/eeprom.json missing  (dmc12-onieeeprom.service didn't run yet)"
+    ;;
+
+  u|up|uplink)
+    if [ -r "$STATE/uplink.env" ]; then
+      . "$STATE/uplink.env"
+      echo "Uplink speed: ${UPLINKSPEED:-unknown}"
+      echo "Uplink media: ${UPLINKMEDIA:-unknown}"
+    else
+      echo "uplink info N/A  ($STATE/uplink.env missing — dmc12-setphyspeed.service didn't run)"
+    fi
+    ;;
+
+  a|all)
+    # Walk every subcommand in turn with a banner per section. Subcommands
+    # that need root print their own "must run as root" notice; we don't gate
+    # the whole thing so non-root users still see version/temperature/etc.
+    for sub in version eeprom cpld fan temperature power uplink boot; do
+      printf '\n=== %s ===\n' "$sub"
+      "$0" "$sub" 2>&1 || true
+    done
+    ;;
+
+  ''|*)
+    usage
+    exit 1
+    ;;
+esac

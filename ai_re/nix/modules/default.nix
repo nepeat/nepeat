@@ -15,4 +15,6 @@
   board-as7760 = ./boards/as7760;
   board-as7760-sd-install = ./boards/as7760/sd-install.nix;
   board-as7760-sd-persist = ./boards/as7760/sd-persist.nix;
+  # Verbatim import of codeberg dma/dmc12-nixos; see boards/dmc12/README.md.
+  board-dmc12 = ./boards/dmc12;
 }
