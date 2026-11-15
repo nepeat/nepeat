@@ -20,7 +20,14 @@
 - NixOS: generic image `nix/configs/dmc12` on `boards/dmc12` + `platforms/alpine-v2` +
   `packages/{linux-alpine,al-eth}` (mainline 7.3.4, new DTS, CPLD reboot hook,
   interrupt monitor). Outputs `dmc12-netboot` (TFTP RAM boot) and `dmc12-disk-image`.
-  Reimaging: `reimage.py` / `reimage.md`. **Not booted on hardware yet.**
+  Reimaging: `reimage.py` / `reimage.md`. **RAM-booted on u01 2026-11-15** (TFTP, kernel
+  variant `trimmed`): system `running`, 0 failed units; eth0 al_eth 1G up via DHCP; 48 cp210x +
+  /dev/P1..48; I2C numbering = factory; lm75/tmp75 read; GPIO lines named; both SPI NOR
+  read-only; sp805 bound; fancontrol PI holds step 21 (3200 RPM); interruptmon logs + masks
+  the PSU1 alarm. Disk install not done yet. Raw report: `inventory/u01/nixos-first-boot-private.txt`.
+  Open from that boot: kernel was misaligned at 0x04080000 (now 0x04200000); `show power`
+  INA219 on i2c-7 reads 0 (unverified); tpm_i2c_infineon "could not request locality";
+  al_eth "serdes regs base failed" (harmless, RGMII); `reboot` not yet tested.
 - **Upstream U-Boot 2026.10** chainloads into RAM from the factory `bootm` and works on
   u01 (console, I2C/CPLD, PCIe, AHCI/SSD, CPLD reset): `u-boot-port.md`, `chainload_uboot.py`.
   Nothing flashed.

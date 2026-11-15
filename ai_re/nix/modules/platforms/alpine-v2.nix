@@ -21,9 +21,10 @@ in
       description = "Board .dts; may #include \"alpine-v2.dtsi\" and dt-bindings.";
     };
     kernelVariant = lib.mkOption {
-      type = lib.types.enum [ "trimmed" "minimal" ];
-      default = "trimmed";
-      description = "packages/linux-alpine variant: nixpkgs config minus foreign SoCs, or allnoconfig + explicit.";
+      type = lib.types.enum [ "trimmed" "lean" "minimal" ];
+      # trimmed booted on DMC-12 u01 (2026-11-15); lean is the next run's.
+      default = "lean";
+      description = "packages/linux-alpine variant: trimmed (nixpkgs minus foreign SoCs), lean (+ per-family cuts), minimal (allnoconfig + explicit).";
     };
     kernelConfig = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;

@@ -33,7 +33,8 @@ STEPS = ["preflight", "stage", "uboot", "identify", "envbackup", "netboot",
          "write", "setenv", "boot", "record"]
 NIXOS_BOOT = "scsi init; ext4load scsi 0:1 0x07000000 /boot.scr && source 0x07000000"
 BOOTCMD = "run nixos_boot; run dmc12_bootdisk"
-SSH = ["ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=no",
+# Through sudo: the image trusts root@sea420-desktop (as the AS7760 deploy does), not erin.
+SSH = ["sudo", "-n", "ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=no",
        "-o", "UserKnownHostsFile=/dev/null", "-o", "LogLevel=ERROR", "-o", "ConnectTimeout=10"]
 
 
@@ -188,6 +189,12 @@ def step_envbackup(args, st):
 
 
 def step_netboot(args, st):
+    if "ip" in st:  # resuming: reuse a box that is already netbooted
+        r = subprocess.run(SSH + [f"root@{st['ip']}", "cat /proc/device-tree/model; uname -r"],
+                           capture_output=True, text=True, timeout=60)
+        if r.returncode == 0:
+            st["netboot_model"], st["netboot_kernel"] = (r.stdout.replace("\0", "\n").split("\n") + ["", ""])[:2]
+            return
     lines = (args.netboot / "uboot-commands.txt").read_text().splitlines()
     for line in lines:
         line = line.replace("<SERVER>", args.server).replace("<DIR>", args.tftp_dir)
@@ -218,7 +225,7 @@ def step_netboot(args, st):
                        capture_output=True, text=True, timeout=60)
     if r.returncode:
         raise Fail(f"ssh to the netbooted system failed: {r.stderr.strip()}")
-    st["netboot_model"], st["netboot_kernel"] = (r.stdout.replace("\0", "").split("\n") + ["", ""])[:2]
+    st["netboot_model"], st["netboot_kernel"] = (r.stdout.replace("\0", "\n").split("\n") + ["", ""])[:2]
 
 
 def ssh(st, cmd, **kw):
