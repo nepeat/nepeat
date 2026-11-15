@@ -26,9 +26,14 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   from the CPU are counted out and back in on the port (640 bytes each way).
   [Transcript](openbcm-bringup-20261114.txt). bcm.user is a hand build
   ([recipe](../../nix/packages/openbcm/README.md)), not a derivation yet.
-- **Not tested:** packets *to* the CPU (RX DMA), KNET netdevs, real links
-  (no optics/DACs attached; lane map and polarity are only proven by the
-  SDK accepting them), interrupts (factory config polls), long runs.
+- **Also works:** packets to the CPU (RX), the KNET kernel module (front-panel
+  ports as Linux netdevs, TX and RX, DMA interrupts), and **real links**: two
+  breakout lanes (front port 1 and 32) link at 10G and carry frames both ways
+  between two Linux netdevs, ASIC counters matching, no errors
+  ([transcript](openbcm-real-links-20261114.txt)).
+- **Not tested:** 25G/100G on real cables (the live far ends are 10G), FEC,
+  the other 126 lanes, pre-emphasis/LED scripts, SDK interrupts (factory
+  config polls), throughput, long runs.
 - **Next:** sairedis with the virtual SAI (`--with-sai=vs`), then swss;
   `/usr/share/swss` path shim (Lua scripts are loaded from that absolute path).
 - **Open:**
@@ -45,6 +50,29 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-14 (night, latest) — CPU RX, KNET netdevs, first real links
+
+- RX to CPU: L2 entry pointing at cpu0, looped packets arrive in the diag
+  shell's packet watcher with correct port/VLAN metadata.
+- KNET ported to Linux 7 (five API fixes + dev_addr_set; patch 0001). Netdev
+  for a port transmits and, once the SDK's RX is started, receives.
+- User cabled front port 1 (QSFP28→4×SFP28 passive breakout, 3 m, read from
+  its EEPROM on i2c bus 24) and front port 32 (4×10G breakout; EEPROM on bus
+  47 reads garbled). Used the factory `124x25-4x10` mode. Kept each port in
+  its own VLAN (ports removed from VLAN 1 first) so nothing could bridge.
+  No link with autoneg or at 25G (with/without FEC); SerDes diag showed signal
+  but no lock on one lane; at 10G both lanes linked (eyes open). Frames with
+  ethertype 0x88b5: 5/5 each way between the two netdevs.
+- Mistake worth remembering: KNET keeps netifs across SDK restarts, so IDs are
+  not 1,2 unless stale ones are destroyed first; my first run delivered frames
+  to the wrong netdev. Also a second SDK instance launched through a FIFO did
+  not start; the test silently ran against the old one.
+- The Falcon SerDes reports die temperature (41–42 °C here): a usable ASIC
+  temperature source for fan control later.
+- QSFP EEPROMs of modules inserted after boot are not bound (at24 probes at
+  boot only); read with i2ctransfer for now. Module reset/low-power lines via
+  the CPLD are not handled.
 
 ## 2026-11-14 (night, later) — full SDK init and first packets
 

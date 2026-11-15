@@ -1,0 +1,85 @@
+OpenBCM 6.5.27 + KNET on the AS7760-32X, real 10G links, 2026-11-14.
+Front port 1 (QSFP28->4xSFP28 CU 3 m breakout, lane 1) and front port 32
+(4x10G breakout, lane 1), far ends joined by the user's setup. Factory
+124x25-4x10 config.bcm (not in this repo). Each port in its own VLAN with the
+CPU only; test frames: ethertype 0x88b5, sent from Linux netdevs fp1c1/fp32c1.
+
+Linux side:
+  fp1c1->fp32c1 sent 5, received 5
+  fp32c1->fp1c1 sent 5, received 5
+
+=== commands ===
+init all
+for i=1,8 'knetctrl netif destroy $i'
+for i=2,16 'knetctrl filter destroy $i'
+vlan remove 1 pbm=all
+port xe en=off
+port ce en=off
+vlan create 101 pbm=xe0,cpu0 ubm=xe0
+pvlan set xe0 101
+vlan create 102 pbm=xe124,cpu0 ubm=xe124
+pvlan set xe124 102
+port xe0 an=off sp=10000 if=cr en=on
+port xe124 an=off sp=10000 if=cr en=on
+knetctrl netif create vlan=101 port=xe0 ifname=fp1c1
+knetctrl filter create striptag=yes ingport=xe0 desttype=netif destid=1 description=fp1c1
+knetctrl netif create vlan=102 port=xe124 ifname=fp32c1
+knetctrl filter create striptag=yes ingport=xe124 desttype=netif destid=2 description=fp32c1
+knetctrl netif show
+knetctrl filter show
+pw start
+clear c
+sleep 4
+ps xe0
+ps xe124
+echo READY2
+sleep 25
+show c xe0
+show c xe124
+echo CNT_DONE
+port xe en=off
+exit
+=== output (from port enable) ===
+Interface ID 1: name=fp1c1 type=Port vlan=101 port=xe0
+Filter ID 2: prio=0 dest=NetIF(1) desc='fp1c1' striptag ingport=xe0
+Interface ID 2: name=fp32c1 type=Port vlan=102 port=xe124
+Filter ID 3: prio=0 dest=NetIF(2) desc='fp32c1' striptag ingport=xe124
+Interface ID 1: name=fp1c1 type=Port vlan=101 port=xe0
+Interface ID 2: name=fp32c1 type=Port vlan=102 port=xe124
+Filter ID 2: prio=0 dest=NetIF(1) desc='fp1c1' striptag ingport=xe0
+Filter ID 3: prio=0 dest=NetIF(2) desc='fp32c1' striptag ingport=xe124
+Filter ID 1: prio=255 dest=RxAPI(0) desc='DefaultRxAPI'
+Sleeping for 4 seconds
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       xe0( 50)  up     1   10G  FD   SW  No   Forward  TX RX   None   FA     CR  9412    No      
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+     xe124( 13)  up     1   10G  FD   SW  No   Forward  TX RX   None   FA     CR  9412    No      
+READY2
+Sleeping for 25 seconds
+R127.xe0		    :			  5		     +5
+RPKT.xe0		    :			  5		     +5
+RBCA.xe0		    :			  5		     +5
+RPOK.xe0		    :			  5		     +5
+RBYT.xe0		    :			390		   +390
+T127.xe0		    :			  5		     +5
+TPOK.xe0		    :			  5		     +5
+TPKT.xe0		    :			  5		     +5
+TBCA.xe0		    :			  5		     +5
+TBYT.xe0		    :			390		   +390
+UC_PERQ_PKT(0).xe0	    :			  5		     +5
+UC_PERQ_BYTE(0).xe0	    :			390		   +390
+R127.xe124		    :			  5		     +5
+RPKT.xe124		    :			  5		     +5
+RBCA.xe124		    :			  5		     +5
+RPOK.xe124		    :			  5		     +5
+RBYT.xe124		    :			390		   +390
+T127.xe124		    :			  5		     +5
+TPOK.xe124		    :			  5		     +5
+TPKT.xe124		    :			  5		     +5
+TBCA.xe124		    :			  5		     +5
+TBYT.xe124		    :			390		   +390
+UC_PERQ_PKT(0).xe124	    :			  5		     +5
+UC_PERQ_BYTE(0).xe124	    :			390		   +390
+CNT_DONE
