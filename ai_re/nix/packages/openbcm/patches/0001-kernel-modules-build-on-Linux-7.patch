@@ -1,0 +1,65 @@
+From: as7760 bring-up
+Subject: [PATCH] linux kernel modules: build against Linux 6.8+/7.x
+
+Renamed timer helpers and MAX_ORDER via a compat header (force-included by
+the Kbuild file), explicit module_init/module_exit instead of the magic
+init_module/cleanup_module names. No functional change.
+
+diff --git a/systems/linux/kernel/modules/include/linux7-compat.h b/systems/linux/kernel/modules/include/linux7-compat.h
+new file mode 100644
+index 0000000..3b06612
+--- /dev/null
++++ b/systems/linux/kernel/modules/include/linux7-compat.h
+@@ -0,0 +1,19 @@
++/* Linux >= 6.8 / 7.x API compatibility for the SDK 6.5.27 kernel modules.
++ * Renames only; semantics are unchanged.
++ */
++#ifndef BCM_LINUX7_COMPAT_H
++#define BCM_LINUX7_COMPAT_H
++#include <linux/version.h>
++#include <linux/timer.h>
++#include <linux/mmzone.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++#define del_timer_sync timer_delete_sync
++#define del_timer timer_delete
++#define from_timer timer_container_of
++#endif
++/* MAX_ORDER changed meaning in 6.4 and became MAX_PAGE_ORDER in 6.8; the SDK
++ * uses the old exclusive meaning (MAX_ORDER - 1 = largest order). */
++#if !defined(MAX_ORDER) && defined(MAX_PAGE_ORDER)
++#define MAX_ORDER (MAX_PAGE_ORDER + 1)
++#endif
++#endif
+diff --git a/systems/linux/kernel/modules/shared/gmodule.c b/systems/linux/kernel/modules/shared/gmodule.c
+index ce668a8..c7ffa15 100644
+--- a/systems/linux/kernel/modules/shared/gmodule.c
++++ b/systems/linux/kernel/modules/shared/gmodule.c
+@@ -292,8 +292,8 @@ struct file_operations _gmodule_fops = {
+ };
+ 
+ 
+-void __exit
+-cleanup_module(void)
++static void __exit
++_gmodule_exit(void)
+ {
+     if(!_gmodule) return;
+   
+@@ -311,8 +311,8 @@ cleanup_module(void)
+     unregister_chrdev(_gmodule->major, _gmodule->name);
+ }
+ 
+-int __init
+-init_module(void)
++static int __init
++_gmodule_init(void)
+ {  
+     int rc;
+ 
+@@ -351,3 +351,6 @@ init_module(void)
+ 
+     return 0; /* succeed */
+ }
++
++module_init(_gmodule_init);
++module_exit(_gmodule_exit);
