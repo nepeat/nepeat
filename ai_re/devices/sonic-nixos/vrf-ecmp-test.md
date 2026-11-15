@@ -118,6 +118,14 @@ enable checked, and the my-station entry also terminates ARP (ARP_RARP, which
 the ARP reply trap needs). syncd's start log now says "IPv4/IPv6 L3 on N
 ports" and "my-station <sid>: 8c:ea:1b:89:c9:3c (IPv4, IPv6, ARP)".
 
+Second try ([vrf-hw-try2-20261115.txt](vrf-hw-try2-20261115.txt)): L3 enable,
+ARP and the VRF binding work (neighbors REACHABLE, l3table right), but `l3 defip
+show` was empty: the public AS7712 config sets `l3_alpm_enable=2`, our libsdk
+is built without the SDK's ALPM feature, so the chip's LPM was laid out for
+ALPM (98304 "DEFIP entries") while the BCM layer wrote plain TCAM routes that
+nothing looks up. Fix: the AS7760 config.bcm drops `l3_alpm_enable` (routes
+in the DEFIP TCAM), and syncd refuses a config that sets it.
+
 `openbcm-diag <command>` runs one SDK diag-shell command inside syncd
 (`SAI_OPENBCM_DIAG_SOCKET=/run/sai-openbcm/diag.sock`, root only; exit,
 init, reset, rcload, `!` and `;` are refused). The output comes back on
@@ -139,7 +147,11 @@ $D vlan show 4094                # xe4 untagged + cpu0
 $D dump chg VLAN_TAB 4093 2      # VRF_ID (or L3_IIF) for 4093 -> 0, 4094 -> 1; note VLAN_PROFILE_PTR
 $D dump chg VLAN_PROFILE_TAB     # that profile: IPV4L3_ENABLE=1 IPV6L3_ENABLE=1
 $D dump chg L3_IIF 4093 2        # VRF 0 / VRF 1 if the chip binds the VRF here
-$D l3 defip show                 # VRF 0: 10.0.0.0/31, 10.0.0.0/32; VRF 1: 10.0.0.0/31, 10.0.0.1/32 (all to the CPU egress)
+grep l3_alpm "$(sed -n 's/^SAI_INIT_CONFIG_FILE=//p' /usr/share/sonic/hwsku/sai.profile)"   # nothing
+$D l3 info                       # max route entries = the TCAM size (thousands), not 98304
+$D l3 defip show                 # VRF 0: 0.0.0.0/0 (drop), 10.0.0.0/31, 10.0.0.0/32; VRF 1: 10.0.0.0/31,
+                                 # 10.0.0.1/32; /32s and /31s to egress 100002 (CPU), the default to 100003 (drop)
+$D l3 ip6route show              # fe80::/10 in VRF 0 and 1 (to the CPU), ::/0 drop in VRF 0
 $D l3 l3table show               # learned neighbors (10.0.0.1 in VRF 0, 10.0.0.0 in VRF 1) once ARP works
 $D l3 egress show                # CPU egress (L2TOCPU, port cpu0), drop egress, one per neighbor
 $D l2 show                       # the router MAC learned on xe0/xe4 in 4093/4094 from the looped frames:
@@ -151,8 +163,8 @@ $D sc DosAttackMACSAEqualMACDA   # 1 would drop SA == DA (every looped unicast f
 $D clear c
 ping -c 20 -i 0.05 10.0.0.1; ip vrf exec Vrf-test ping -c 20 -i 0.05 10.0.0.0
 $D show c ch xe0; $D show c ch xe4; $D show c ch cpu0
-#   working: RIPC4 (IPv4 routed/terminated) +20 and more on xe0 and xe4, cpu0 transmit +~40,
-#   pings 0% loss. Broken: RIPD4 (IPv4 L3 discard), RDBGC*, RPORTD or RDISC grow instead:
+#   working: RIPC4 (IPv4 routed/terminated) +20 and more on xe0 and xe4, cpu0 transmit +~40
+#   (echo requests + replies trapped to the CPU), pings 0% loss. Broken: RIPD4 (IPv4 L3 discard), RDBGC*, RPORTD or RDISC grow instead:
 #   send the three outputs.
 ```
 

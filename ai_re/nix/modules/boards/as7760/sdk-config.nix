@@ -23,8 +23,14 @@
 #   ccm_dma_enable=0, ccmdma_intr_enable=0, mem_cache_enable=0
 #                     kept: what every hardware run so far used (no SDK table
 #                     cache in host memory).
-# The public file's own globals (L3 ALPM, bcm_num_cos=10, timeouts, ...)
-# stay; none of them ran on this switch before. settings (from
+#   l3_alpm_enable    (public: 2) removed: our libsdk is built without the
+#                     SDK's ALPM feature (FEATURE_LIST in packages/openbcm),
+#                     so with it the chip's LPM was set up for ALPM while the
+#                     BCM layer wrote plain DEFIP TCAM routes: no route worked
+#                     and "l3 defip show" was empty (hardware try 2,
+#                     2026-11-15). Routes go to the DEFIP TCAM instead.
+# The public file's other globals (bcm_num_cos=10, timeouts, ...) stay; none
+# of them ran on this switch before. settings (from
 # services.sonic.sai.sdkConfig.settings) wins; null removes a key.
 { openbcm, sonic }:
 { ports, settings ? { } }:
@@ -42,5 +48,6 @@ openbcm.configs.tomahawk {
     ccm_dma_enable = "0";
     ccmdma_intr_enable = "0";
     mem_cache_enable = "0";
+    l3_alpm_enable = null;
   } // settings;
 }

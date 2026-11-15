@@ -208,7 +208,12 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   V4L3/V6L3_ENABLE were never set), RIF VLAN L3 enable, my-station entry also
   terminates ARP. Debug hook: `openbcm-diag <cmd>` (SAI_OPENBCM_DIAG_SOCKET, on
   in the AS7760 board); checks in [vrf-ecmp-test.md](vrf-ecmp-test.md#debug-sdk-state-while-syncd-owns-the-chip-2026-11-15).
-- Open: L3 termination, VRF binding and ECMP are unproven on the BCM56930.
+- Hardware try 2 ([evidence](vrf-hw-try2-20261115.txt)): L3 enable, ARP and the
+  VRF binding work; no route was in hardware (`l3 defip show` empty): the
+  public config's `l3_alpm_enable=2` with a libsdk built without ALPM. The
+  AS7760 config.bcm now drops it (routes in the DEFIP TCAM) and syncd refuses
+  such a config ([builds](l3-ecmp-builds-20261115.txt)).
+- Open: routes, ping across the VRFs and ECMP unproven on the BCM56930.
 
 ## 2026-11-15 — FRR routing stack (FPM, bgpcfgd) and crash recovery
 

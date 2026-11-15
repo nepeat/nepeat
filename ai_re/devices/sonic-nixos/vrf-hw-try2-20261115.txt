@@ -1,0 +1,91 @@
+# AS7760 after bb06d32 (L3 enable + ARP station), 2026-11-15
+ActiveState=active	NRestarts=0		ActiveState=active
+NRestarts=0			
+sai-openbcm NOTICE api=1: SDK init: ok: stale KNET netifs 38 filters 0 destroyed; IPv4/IPv6 L3 on 40 ports
+Interface Ethernet124 IP disabled and address(es) removed due to binding VRF Vrf-test.
+== ping default->Vrf-test
+20 packets transmitted, 0 received, 100% packet loss, time 1063ms
+
+== ping Vrf-test->default
+20 packets transmitted, 0 received, 100% packet loss, time 1063ms
+
+10.0.0.1 lladdr 8c:ea:1b:89:c9:3c REACHABLE 
+10.0.0.0 lladdr 8c:ea:1b:89:c9:3c REACHABLE 
+== diag
+V4L3_ENABLE=1
+V6L3_ENABLE=1
+0x0
+-- xe0
+RDBGC0.xe0		    :			 40		    +40
+RPKT.xe0		    :			 43		    +43
+TPKT.xe0		    :			 23		    +23
+-- xe4
+RIPC4.xe4		    :			 20		    +20
+RPKT.xe4		    :			 23		    +23
+TPKT.xe4		    :			 43		    +43
+-- cpu0
+## diag
+== getreg RDBGC0_SELECT
+RDBGC0_SELECT.ipipe0[1][0x56002600]=0x400ad11: <BITMAP=0x400ad11>
+== l3 intf show
+Free L3INTF entries: 8189
+Unit  Intf  VRF Group VLAN    Source Mac     MTU TTL Tunnel InnerVlan  NATRealm
+------------------------------------------------------------------
+0     0     1     0     4094 8c:ea:1b:89:c9:3c  9100 0    0     0     0    
+0     1     0     0     4093 8c:ea:1b:89:c9:3c  9100 0    0     0     0    
+== l3 defip show
+Unit 0, Total Number of DEFIP entries: 98304
+#     VRF     Net addr             Next Hop Mac        INTF MODID PORT PRIO CLASS HIT VLAN
+== l3 l3table show
+Unit 0, free L3 table entries: 40958
+Entry VRF IP address       Mac Address           INTF MOD PORT    CLASS HIT    H/W Index
+1     0    10.0.0.1         00:00:00:00:00:00  100004    0    0         0 y      19904
+2     1    10.0.0.0         00:00:00:00:00:00  100005    0    0         0 y      26144
+== l3 egress show
+Entry  Mac                 Vlan INTF PORT MOD MPLS_LABEL ToCpu Drop RefCount L3MC
+100002  00:00:00:00:00:00    0 8191     0    0        -1   no   no    7   no
+100003  00:00:00:00:00:00    0 8191     0    0        -1   no  yes   18   no
+100004  8c:ea:1b:89:c9:3c 4093    1    50    0        -1   no   no    1   no
+100005  8c:ea:1b:89:c9:3c 4094    0    13    0        -1   no   no    1   no
+== dump chg L3_IIF 4093 2
+L3_IIF_ATTRS_2.ipipe0[4093]: <IPMC_L3_IIF=0xffd,>
+L3_IIF_ATTRS_2.ipipe0[4094]: <VRF=1,IPMC_L3_IIF=0xffe,>
+== dump chg VLAN_TAB 4093 2
+VLAN.ipipe0[4093]: <VALID=1,STG=1,PORT_BITMAP=0x0000000000000000000004000000000001,ING_PORT_BITMAP_P1=0x0000010000,ING_PORT_BITMAP_P0=0x0000000001,ING_PORT_BITMAP=0x0000000000000000000004000000000001,>
+VLAN.ipipe0[4094]: <VALID=1,STG=1,PORT_BITMAP=0x0000000000000000000000000000002001,ING_PORT_BITMAP_P0=0x0000002001,ING_PORT_BITMAP=0x0000000000000000000000000000002001,>
+== dump chg VLAN_TAB 4094 1
+VLAN.ipipe0[4094]: <VALID=1,STG=1,PORT_BITMAP=0x0000000000000000000000000000002001,ING_PORT_BITMAP_P0=0x0000002001,ING_PORT_BITMAP=0x0000000000000000000000000000002001,>
+== l2 show
+mac=8c:ea:1b:89:c9:3c vlan=1 GPORT=0x32 modid=0 port=50/xe0 Hit
+mac=8c:ea:1b:89:c9:3c vlan=4093 GPORT=0x32 modid=0 port=50/xe0 Hit
+mac=8c:ea:1b:89:c9:3c vlan=4094 GPORT=0xd modid=0 port=13/xe4 Hit
+## syncd route log / ALPM
+sai-openbcm NOTICE api=12: hostif Ethernet28 on ce6 (netif 26, filter 27)
+sai-openbcm NOTICE api=12: hostif Ethernet48 on ce11 (netif 27, filter 28)
+sai-openbcm NOTICE api=12: hostif Ethernet52 on ce12 (netif 28, filter 29)
+sai-openbcm NOTICE api=12: hostif Ethernet56 on ce13 (netif 29, filter 30)
+sai-openbcm NOTICE api=12: hostif Ethernet60 on ce14 (netif 30, filter 31)
+sai-openbcm NOTICE api=12: hostif Ethernet64 on ce15 (netif 31, filter 32)
+sai-openbcm NOTICE api=12: hostif Ethernet68 on ce16 (netif 32, filter 33)
+sai-openbcm NOTICE api=12: hostif Ethernet72 on ce17 (netif 33, filter 34)
+sai-openbcm NOTICE api=12: hostif Ethernet76 on ce18 (netif 34, filter 35)
+sai-openbcm NOTICE api=12: hostif Ethernet96 on ce23 (netif 35, filter 36)
+sai-openbcm NOTICE api=12: hostif Ethernet100 on ce24 (netif 36, filter 37)
+sai-openbcm NOTICE api=12: hostif Ethernet104 on ce25 (netif 37, filter 38)
+sai-openbcm NOTICE api=12: hostif Ethernet108 on ce26 (netif 38, filter 39)
+sai-openbcm NOTICE api=5: virtual router: SDK VRF 1
+sai-openbcm NOTICE api=1: diag socket: l3 defip show
+== l3 alpm
+Usage (L3): Usages:
+	  l3 init    - Init L3 function.
+	  l3 detach  - Detach L3 function.
+	  l3 info    - Display the capacity and status of the L3 resources.
+
+	  l3 intf add <Vlan>=<val> <Mac>=<val> [<INtf>=<val>] [<VRF>=<val>]
+	                   [<Mtu>=<val>] [<Group>=<val>]
+	                   - Add an entry into l3 interface table
+	  l3 intf destroy <INtf>=<val>
+	                   - Destroy an entry in l3 interface table
+    l3_alpm_enable=2
+ipv6_lpm_128b_enable=1
+l3_alpm_enable=2

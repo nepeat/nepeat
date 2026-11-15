@@ -18,3 +18,10 @@ tests/vm-openbcm-fake-l3.nix: SUMMARY 0 failures (/nix/store/65mg5ll4rwfh4h2hl5g
 tests/vm-openbcm-fake.nix: 86 PASS, FAILED CHECKS: 0 (/nix/store/a9nsaqjxw2w0fwn48fhkd46ng6nmkxfc-vm-test-run-sonic-control-plane-openbcm-fake)
 nixosConfigurations.as7760: /nix/store/c2fcdcz50sjmx90djafppfipx1w5aivj-nixos-system-as7760-26.11.20261111.d4f25a3
   syncd on the libsai above, sai.profile SAI_OPENBCM_DIAG_SOCKET=/run/sai-openbcm/diag.sock, openbcm-diag in sw/bin
+
+# after hardware try 2 (no routes in hardware): l3_alpm_enable dropped from config.bcm, ALPM guard in syncd
+config.bcm lab layout: /nix/store/vpg5b1lg4hcggn39yzbwpgham5jjg511-as7760-32x-config.bcm (diff to the deployed one: "< l3_alpm_enable=2" only)
+sdk-config-test.nix (with the as7760 system): "default aeb00e550c1205b1 lab 4824eef552c54a98: all checks pass" (old pins = new + that line)
+sai-openbcm fake + unit tests: 2021 checks, 0 failures
+sai-openbcm openbcm: /nix/store/8p082w3b8ld9hd35cp616kgk0rcsbfp6-sai-openbcm-powerpc64-unknown-linux-gnuabielfv2-0.1.0
+nixosConfigurations.as7760: /nix/store/ldgvmf3imd5mzvliz1agy4zr3hbydkyx-nixos-system-as7760-26.11.20261111.d4f25a3 (SAI_INIT_CONFIG_FILE = the lab config above)

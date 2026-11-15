@@ -312,6 +312,15 @@ int ob_sdk_init(int unit, const char* config_file, const char* rc_file, char* er
         seterr(err, errlen, "no attached switch unit%s (soc_ndev %d)", "", soc_ndev);
         return BCM_E_UNIT;
     }
+#ifndef ALPM_ENABLE
+    /* The soc layer sizes the LPM tables for ALPM from l3_alpm_enable even
+     * when the BCM layer is built without ALPM, which then programs routes
+     * the chip never looks up. Refuse instead of routing nothing. */
+    if (soc_property_get(unit, spn_L3_ALPM_ENABLE, 0)) {
+        seterr(err, errlen, "config sets l3_alpm_enable but this SDK build has no ALPM%s (%d)", "", 0);
+        return BCM_E_CONFIG;
+    }
+#endif
     system_shutdown(unit, 0);
     system_init(unit);   /* "init all"; result is kept in BCM_CONTROL */
     rv = BCM_CONTROL(unit) ? BCM_CONTROL(unit)->system_initialized_rv : BCM_E_INIT;

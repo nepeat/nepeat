@@ -82,7 +82,10 @@ not yet on the switch.
 - **KNET**: stale netifs and filters are destroyed at init (IDs survive SDK
   restarts; a stale filter once delivered frames to the wrong netdev). The
   SDK's own default filter to the RX API is kept.
-- No config file, no init. No fake on a host with BDE devices.
+- No config file, no init. No fake on a host with BDE devices. A config with
+  `l3_alpm_enable` is refused while libsdk is built without ALPM (the soc layer
+  would lay out the LPM for ALPM and every route add would land where the chip
+  never looks: hardware try 2, 2026-11-15).
 - **One SDK process per unit**: the SDK boot takes `/run/openbcm-unit<N>.lock`
   (flock, held for the process's life) and fails with BCM_E_BUSY when another
   holder (`openbcm-asic-temp`, the wrapped `bcm.user`, another syncd) has it.

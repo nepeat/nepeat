@@ -58,8 +58,9 @@ in pkgs.runCommand "as7760-sdk-config-tests" ({
   }) ''
   set -euo pipefail
   # Stability: change these only with a reviewed generator change.
-  echo "c6342e9856f481c190566455f4930ed5db0a1d76694c4eb18eca1186fa405948  $default" | sha256sum -c
-  echo "c1ed67378bc5b0897c0efc3efe6ac67b35cbcf7d68889daea1858a3dddc6bcd8  $labCfg" | sha256sum -c
+  # (2026-11-15: l3_alpm_enable dropped; the old pins c6342e98.../c1ed6737... differ by that line only)
+  echo "aeb00e550c1205b1df57a76a1325c23a05affc26ddb1b31d6f8ca95526003b10  $default" | sha256sum -c
+  echo "4824eef552c54a98132df0e6e478e26f6a765e184e7d76200cf80c3d3c8df280  $labCfg" | sha256sum -c
 
   pm() { grep -E '^portmap_[0-9]+=' "$1" | sort; }
   # Every portmap: logical number in its pipe's range, never a fixed port.
