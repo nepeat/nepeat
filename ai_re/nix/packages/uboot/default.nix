@@ -37,6 +37,7 @@ let
     { scope = "alpine-v2"; file = "0014-arm-add-a-chainloaded-Annapurna-Labs-Alpine-V2-targe.patch"; }
     { scope = "dmc12"; file = "0015-sysreset-add-the-Edgecore-DMC-12-board-CPLD-reset.patch"; }
     { scope = "dmc12"; file = "0016-board-Edgecore-DMC-12-48R-AS0-on-the-Alpine-V2-chain.patch"; }
+    { scope = "alpine-v2"; file = "0017-board-alpine-v2-boot-the-initrd-and-FDT-in-place.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

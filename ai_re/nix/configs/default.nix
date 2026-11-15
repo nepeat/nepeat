@@ -27,6 +27,10 @@ let
 
   # --- Edgecore DMC-12-48R-AS0 (Alpine V2) ---------------------------------
   dmc12 = mkHost "aarch64-linux" [ ./dmc12/configuration.nix ../modules/boards/dmc12/disk.nix ];
+  # Same, booted by the chainloaded upstream U-Boot (raw sda1, extlinux on sda2).
+  dmc12Chainload = mkHost "aarch64-linux" [
+    ./dmc12/configuration.nix ../modules/boards/dmc12/disk.nix { hardware.dmc12.bootLoader = "chainload"; }
+  ];
   # Same system, root in RAM, for TFTP boots and as the reimaging environment.
   dmc12Netboot = mkHost "aarch64-linux" [
     ./dmc12/configuration.nix ../modules/profiles/netboot-root.nix { boot.loader.grub.enable = false; }
@@ -39,6 +43,7 @@ in {
     dmc12-kernel = dmc12.config.boot.kernelPackages.kernel;
     dmc12-dtbs = dmc12.config.system.build.alpineDtbs;
     dmc12-disk-image = dmc12.config.system.build.diskImage;
+    dmc12-disk-image-chainload = dmc12Chainload.config.system.build.diskImage;
     dmc12-netboot = dmc12NetbootFiles;
     as7760-system = as7760.config.system.build.toplevel;
     as7760-kernel = kernel;

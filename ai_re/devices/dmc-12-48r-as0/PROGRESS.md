@@ -32,7 +32,8 @@
   upstream node_exporter :9100 + read-only `dmc12_*` producer (`nix/packages/dmc12-metrics`), Grafana `ai-re-dmc12`.
 - **Upstream U-Boot 2026.10** chainloads into RAM from the factory `bootm` and works on
   u01 (console, I2C/CPLD, PCIe, AHCI/SSD, CPLD reset): `u-boot-port.md`, `chainload_uboot.py`.
-  Nothing flashed.
+  Nothing flashed. On-disk boot through it (raw sda1 U-Boot slots, extlinux on sda2):
+  `dmc12-disk-image-chainload`, built + offline-checked, not yet written to an SSD.
 - **Left in:** the rdinit shell, powered on, at 10.60.2.10, with nothing mounted from disk.
   So no ser2net, and the AS7760's console on port 48 isn't served. A
   power-cycle returns it to the factory OS.
@@ -169,6 +170,18 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 13:00: chainload disk image finished (`u-boot-port.md` "on-disk boot").
+  `hardware.dmc12.bootLoader = "chainload"` → output `dmc12-disk-image-chainload`
+  (`/nix/store/9kfqi1zd…-dmc12-disk-image`, disk.img sha256 `f5e6c1ea…`, U-Boot uImage
+  `3851ae72…`, new because patch 0017 sets 64-bit `fdt_high`/`initrd_high`). No kernel
+  rebuilt. Offline: MBR sda1 type da 2048+16384, sda2 18432+1048576 bootable, sda3;
+  `dumpimage -l` on both slots = the uImage (byte-equal); extlinux.conf names the raw
+  `Image`, initrd, `FDT …/amazon/alpine-v2-dmc12.dtb`; root ext4 DMC12ROOT holds the
+  toplevel, both fs `e2fsck -n` clean; QEMU alpine-v2 tests pass ("Using Device Tree in
+  place"). uboot-menu image: same `.drvPath` as before. The factory env now runs
+  `dmc12_boot_preamble` first (al_eth params via `bootp`). reimage.py/md changes for the
+  image's `factory-env.txt` are with the main agent. Dropped the previous agent's
+  unfinished QEMU network stage (needed a test e1000 + www dir, not wired up).
 - 2026-11-15 03:40: factory tooling pass (`vendor-tooling.md`). Found the CPLD reboot
   driver (0x29/0x28, disassembled from the vendor kernel via vmlinux-to-elf), the
   interrupt monitor + GPIO lines, and that uplink re-sync is ≥526-only. Kept the factory OS

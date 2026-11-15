@@ -54,15 +54,18 @@ path skips today.
    Our chainload `bootm … - ${fdtaddr}` passes the vendor DT, so the CCI is set before
    upstream starts. Our Linux DTS marks nothing `dma-coherent`. That is correct, just
    slower. Don't add `dma-coherent` unless the snoop state is known.
-3. **`dmc12_boot_preamble`** (env macro; interrupting autoboot skips it):
+3. **`dmc12_boot_preamble`** (env macro; interrupting autoboot skips it). Both on-disk
+   loaders now run the whole macro before anything else (uboot-menu: `/boot.scr`;
+   chainload: the factory `nixos_boot`, `u-boot-port.md`), so the gaps below are closed
+   on paper, not yet on hardware:
 
    | step | what | our path |
    | --- | --- | --- |
-   | `check_pci_for_sata_voltage` | Compares the external-PCIe device ID at 0xfb600000 with 104c:8241 (TI xHCI = a "DN0" box). If it matches, runs `serdes wr 1 p0 pma 21 2 0 5`, the SATA lane TX setting. u01 has 12d8:400c, so it is skipped there. | **gap on DN0 units**: add `run check_pci_for_sata_voltage` to `/boot.scr` |
-   | `clear_wdt_flag`, `fan_speed_70` | CPLD 0x2a←0, 0x50←0x2a (`vendor-tooling.md`) | in `/boot.scr` |
+   | `check_pci_for_sata_voltage` | Compares the external-PCIe device ID at 0xfb600000 with 104c:8241 (TI xHCI = a "DN0" box). If it matches, runs `serdes wr 1 p0 pma 21 2 0 5`, the SATA lane TX setting. u01 has 12d8:400c, so it is skipped there. | via the preamble |
+   | `clear_wdt_flag`, `fan_speed_70` | CPLD 0x2a←0, 0x50←0x2a (`vendor-tooling.md`) | via the preamble |
    | `status_led_yellow_blink` | CPLD 0x17←0x02 | cosmetic; NixOS sets the LED |
    | `set_uplink_speed` | Uplink PHY sync over I2C 0x40 from CPLD 0x18 | NixOS module does it at boot |
-   | `bootp` | DHCP. Its **side effect** matters, see 4. | **gap: needed** |
+   | `bootp` | DHCP. Its **side effect** matters, see 4. | via the preamble (needed) |
    | `dmc12_load_dt`, `scsi init` | copy the DTB to 0x04078000; AHCI | upstream does its own |
 4. **Ethernet handoff (needed).** The vendor and our Linux `al_eth`
    (`nix/packages/al-eth`, `al_eth_board_params_init`) read the port's **board params
@@ -73,11 +76,10 @@ path skips today.
      every network command when `skip_eth_halt` is unset or `0`, and the `eth_*` commands
      also write the params.
    - No board-params code exists in stage2 or stage3 (strings checked).
-   - So the TFTP chainload (it runs `dhcp`) is fine. The proposed on-disk `/boot.scr`
-     runs no network command: **expect no Ethernet in NixOS**.
-   - Fixes, pick one: run `setenv autoload no; dhcp` (or `bootp`) in `/boot.scr` before
-     `bootm`; or make upstream's al_eth write the params and MAC (layout:
-     `al_eth_board_params_set` in the al-eth HAL); or teach Linux al_eth a DT fallback.
+   - So the TFTP chainload (it runs `dhcp`) is fine, and both on-disk paths run the
+     preamble's `bootp` (factory env has `autoload=n`). Alternatives, if that proves
+     unreliable: make upstream's al_eth write the params and MAC (layout:
+     `al_eth_board_params_set` in the al-eth HAL), or teach Linux al_eth a DT fallback.
    - Port1 (RGMII, 1G, autoneg off, `allow-random-mac`) is the only enabled port in
      board-cfg.
 5. **uC watchdog.** The factory U-Boot never talks to the uC except inside the `uc_*`
