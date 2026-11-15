@@ -41,7 +41,15 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 - **sairedis** (syncd, libsairedis, libsaivs = virtual SAI, SAI 1.19 headers)
   builds natively and cross-builds for ppc64 BE. The SAI metadata generator
   needed its XML::Simple mode with current doxygen (see the derivation).
-- **Next:** sairedis smoke test on the switch, then swss (`--with-sai=vs`), then swss;
+- **SAI pipeline runs on the AS7760** with the virtual SAI: Python client →
+  libsairedis → redis → syncd → libsaivs, all ppc64 BE: switch create, 32
+  ports with lanes/speed, default VR, VLAN 100, a router interface; ASIC_DB
+  holds the expected objects (33 ports, 672 queues, ...). Script:
+  [sai_smoke.py](sai_smoke.py) with [vsprofile.ini](vsprofile.ini); run
+  `syncd -SUu -z redis_sync -p vsprofile.ini` against a redis on
+  /var/run/redis/redis.sock first.
+- **Next:** thin SAI over OpenBCM (the SDK builds as libsdk.so via
+  BCM_COMPILE_SHARED_LIB), then swss/orchagent (`--with-sai=vs`), then swss;
   `/usr/share/swss` path shim (Lua scripts are loaded from that absolute path).
 - **Open:**
   - `sonic-db-cli PING` (TCP to every instance in database_config.json) failed
