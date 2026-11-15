@@ -9,6 +9,16 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
+- **SONiC control plane on the real chip** (2026-11-15, `test` activation,
+  old kernel): `services.sonic` with sai-openbcm: syncd, orchagent,
+  portsyncd, portmgrd, intfmgrd, teammgrd active with 0 restarts,
+  `PortInitDone`, 32 KNET netdevs, `show interfaces status` in alias mode,
+  `config interface startup Ethernet3/1` reaches the chip (ce2 admin up). fand
+  keeps the ASIC temperature from syncd. vlanmgrd needs the new kernel
+  (bridge/VLAN/team), which needs a reboot: held until the console is back;
+  `configs/as7760` keeps SONiC disabled until then. Not yet: traffic, VLAN and
+  PortChannel on the chip, ECMP/ACL/QoS/policers (unsupported in sai-openbcm).
+
 - **Control plane as NixOS services, VM-tested** (x86_64, virtual SAI):
   `services.sonic` runs redis, syncd, orchagent, port/intf/vlan/nbr/team
   managers and syncers, the show/config CLI in alias mode

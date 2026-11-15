@@ -48,7 +48,7 @@ link the evidence.
 | QoS | chip-capable | unknown | unknown [^t1] | unknown | unknown |
 | KNET / CPU netdevs | yes: KNET TX/RX (2026-11-14) | yes: `fpp*` via ipd, ~1.6 Gb/s CPU path [^c3] | partial: netdevs exist, no traffic | partial: SDK/TAP, KNET compiled out [^b1] | unknown |
 | SAI | partial: switch, 32 ports, VLAN, RIF [^a2] | no: vendor SAI is amd64 only | no | no | no |
-| SONiC stack | partial: syncd yes; orchagent + managers packaged (native tests pass, cross ppc64 BE builds), not run yet [^a2] | no | no | no | no |
+| SONiC stack | partial: NixOS services; orchagent + managers up on the chip, ports by alias (2026-11-15); VLAN/LAG need the new kernel [^a2] | no | no | no | no |
 | fan control | yes: fand, board + ASIC zones [^a3] | yes: incl. ASIC die (2026-11-10) [^c4] | yes: fancontrol, PWM floor 96 | unknown | unknown |
 | ASIC temperature | yes: 8 PVTMON, also over SAI under syncd (2026-11-15) [^a3] | yes: MCP3425 diode (2026-11-10) [^c4] | unknown | unknown | unknown |
 | board sensors | yes: 4x LM75 [^a3] | yes: LM75s + I2C hwmon [^c4] | yes: tmp1075/ADT7473, 35-40 °C | unknown | unknown |
