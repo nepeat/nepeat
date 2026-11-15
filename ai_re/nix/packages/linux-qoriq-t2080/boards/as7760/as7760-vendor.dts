@@ -2038,7 +2038,15 @@
 
 	pcie@ffe270000 {
 		reg = <0x0f 0xfe270000 0x00 0x10000>;
-		ranges = <0x2000000 0x00 0xd8000000 0x0c 0x60000000 0x00 0x8000000 0x1000000 0x00 0x00 0x0f 0xf8030000 0x00 0x10000>;
+		/*
+		 * CPU aperture 0xc_4000_0000: where U-Boot (upstream T2080RDB map)
+		 * opens the local access window for this controller. Linux programs
+		 * the PCIe ATMUs but never the LAWs, so an aperture without a LAW
+		 * machine-checks on the first MMIO read (seen 2026-11-14 with the
+		 * earlier 0xc_6000_0000 choice). The factory U-Boot used 0xd8000000,
+		 * which collides with 16 GiB of RAM.
+		 */
+		ranges = <0x2000000 0x00 0xd8000000 0x0c 0x40000000 0x00 0x8000000 0x1000000 0x00 0x00 0x0f 0xf8030000 0x00 0x10000>;
 		compatible = "fsl,t2080-pcie", "fsl,qoriq-pcie-v3.0", "fsl,qoriq-pcie";
 		device_type = "pci";
 		#size-cells = <0x02>;
