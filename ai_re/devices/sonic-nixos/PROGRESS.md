@@ -20,12 +20,15 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   "Interrupt mode CMICd". The SDK userspace (`bcm.user` diag shell) builds for
   ppc64 BE (1887 objects, Tomahawk only) and **attaches on the switch**:
   `Chip BCM56930_B1, Driver BCM56960_A0`; `CMIC_DEV_REV_ID = 0x12b930` decodes
-  correctly, so register byte order is right. Attach only: no `init soc`, no
-  ports, no DMA or packet I/O tested yet. bcm.user is a hand build
+  correctly. With the factory 32x100G `config.bcm`: **`init all` passes, all 32
+  front-panel ports (ce0–ce31) plus xe0/xe1 enumerate**, a port comes up at
+  100G in MAC loopback, an L2 entry writes and reads back, and 5 packets sent
+  from the CPU are counted out and back in on the port (640 bytes each way).
+  [Transcript](openbcm-bringup-20261114.txt). bcm.user is a hand build
   ([recipe](../../nix/packages/openbcm/README.md)), not a derivation yet.
-- **Decision needed before going further:** chip init and port bring-up need
-  the board's port/lane config (only in the factory NOS image, kept private)
-  and a check that no front-panel ports are cabled into a live network.
+- **Not tested:** packets *to* the CPU (RX DMA), KNET netdevs, real links
+  (no optics/DACs attached; lane map and polarity are only proven by the
+  SDK accepting them), interrupts (factory config polls), long runs.
 - **Next:** sairedis with the virtual SAI (`--with-sai=vs`), then swss;
   `/usr/share/swss` path shim (Lua scripts are loaded from that absolute path).
 - **Open:**
@@ -34,11 +37,26 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
     unresolvable `redis_chassis.server` instance, or a TCP/port problem on BE.
   - No SAI for this ASIC on PowerPC exists (research below). Until that is
     solved, the hardware target runs the stack with the virtual SAI only.
-- **Not in the repo (review later for what can be public):** nothing copied
-  yet. Candidates when hardware work starts, all still only in the AS7760's
-  gitignored `dumps/`: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
+- **Not in the repo (review later for what can be public):** in use now, read
+  from the extracted factory image under the AS7760's gitignored
+  `nixos-build/vendor-root/etc/knet/`: `config-32x100.bcm` (port map, lane
+  maps, polarity; Accton copyright header in its scripts) and, not used yet,
+  its `rc-*.soc`, `portled.soc` (LED program) and pre-emphasis scripts. Other
+  port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-14 (night, later) — full SDK init and first packets
+
+- User confirmed no front-panel ports are cabled and approved reading the
+  factory port map. Factory image has per-mode SDK configs and init scripts;
+  used `config-32x100.bcm` unchanged (written for SDK 6.4.8, accepted by 6.5.27).
+- `init soc`, then `init all`: no errors. `ps`: 32 ce ports + 2 xe.
+  `port ce0 lb=mac sp=100000`: link up 100G. `l2 add`/`l2 show`: OK.
+  `tx 5 pbm=ce0`: TPKT=5, RPKT=5, 640 bytes each direction.
+- Factory loads the BDE with `himem=0 maxpayload=128 dmasize=16M`; we used
+  dmasize=32M and the default maxpayload (driver logs "exceeds device
+  capability (256)"). Align with the factory values next.
 
 ## 2026-11-14 (night) — OpenBCM diag shell attaches to the ASIC from ppc64 BE
 

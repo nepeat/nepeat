@@ -1,0 +1,93 @@
+OpenBCM 6.5.27 bcm.user on the AS7760-32X (ppc64 big-endian, Linux 7.3.4), 2026-11-14.
+Config: the factory NOS's 32x100G config.bcm (not in this repo). No cables attached.
+
+=== init all + ps ===
+Broadcom Command Monitor: Copyright (c) 1998-2026 Broadcom
+Release: sdk-6.5.27 built 20261114 (Sat Nov 14 20:18:41 2026)
+Platform: PPC64BE
+OS: Unix (Posix)
+linux-user-bde:new probed device unit 0 dev_no 0 _ndevices 1
+DMA pool size: 33554432 bytes.
+BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1, Driver BCM56960_A0
+SOC unit 0 attached to PCI device BCM56930_B1
+ERROR loading rc script on unit 0
+ALL_DONE
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce1( 54)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce2( 58)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce3( 62)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce4( 68)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce5( 72)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce6( 76)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce7( 80)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce8( 34)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       ce9( 38)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce10( 42)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce11( 46)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce12( 84)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce13( 88)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce14( 92)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce15( 96)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce16(102)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce17(106)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce18(110)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce19(114)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce20( 17)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce21( 21)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce22( 25)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce23( 29)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce24(118)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce25(122)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce26(126)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce27(130)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce28(  1)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce29(  5)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce30(  9)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+      ce31( 13)  down   4   25G  FD   SW  Yes  Forward  TX RX   None   FA    KR2  9412    No      
+       xe0( 66)  down   1     -       SW  Yes  Forward  TX RX   None   FA  SGMII  9412    No      
+       xe1(100)  down   1    1G  FD   SW  Yes  Forward  TX RX   None   FA     KX  9412    No      
+
+=== loopback / L2 / CPU TX test ===
+init all
+port ce0 lb=mac an=off sp=100000
+sleep 2
+ps ce0
+l2 add mac=00:11:22:33:44:55 vlan=1 pbm=ce0 static=true
+l2 show
+vlan show
+clear c
+tx 5 pbm=ce0 length=128
+sleep 1
+show c ce0
+show c cpu0
+echo TEST_DONE
+port ce0 lb=none
+exit
+--- output ---
+                 ena/        speed/ link auto    STP                  lrn  inter   max   cut   loop
+           port  link  Lns   duplex scan neg?   state   pause  discrd ops   face frame  thru?  back
+       ce0( 50)  up     4  100G  FD   SW  No   Forward  TX RX   None   FA    KR4  9412    No   MAC
+ADD: mac=00:11:22:33:44:55 vlan=1 GPORT=0x32 modid=0 port=50/ce0 Static ReplacePriority
+mac=00:11:22:33:44:55 vlan=1 GPORT=0x32 modid=0 port=50/ce0 Static ReplacePriority
+vlan 1	ports cpu,ce,xe (0x0000000000000000000000000000000444444451111111144444444422222223), untagged ce,xe (0x0000000000000000000000000000000444444451111111144444444422222222) MCAST_FLOOD_UNKNOWN
+Sleeping for 1 second
+RUC.ce0 		    :			  5		     +5 	      5/s
+ING_NIV_RX_FRAMES_VL.ce0    :			  5		     +5 	      5/s
+R255.ce0		    :			  5		     +5 	      5/s
+RPKT.ce0		    :			  5		     +5 	      5/s
+RUCA.ce0		    :			  5		     +5 	      5/s
+RPRM.ce0		    :			  5		     +5 	      5/s
+RVLN.ce0		    :			  5		     +5 	      5/s
+RPOK.ce0		    :			  5		     +5 	      5/s
+RBYT.ce0		    :			640		   +640 	    606/s
+T255.ce0		    :			  5		     +5 	      5/s
+TPOK.ce0		    :			  5		     +5 	      5/s
+TPKT.ce0		    :			  5		     +5 	      5/s
+TUCA.ce0		    :			  5		     +5 	      5/s
+TVLN.ce0		    :			  5		     +5 	      5/s
+TBYT.ce0		    :			640		   +640 	    606/s
+UC_PERQ_PKT(0).ce0	    :			  5		     +5 	      5/s
+UC_PERQ_BYTE(0).ce0	    :			640		   +640 	    606/s
+TEST_DONE
