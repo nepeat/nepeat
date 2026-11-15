@@ -206,10 +206,10 @@ Run each step only after the one before it passed. Start from an idle `ALPINE_DB
    host: `python3 -c 'import zlib,sys;print(hex(zlib.crc32(open(sys.argv[1],"rb").read())))' <file>`.
    Then repeat with a large file, `dmc12/uInitrd` (~300 MB), and note the rate U-Boot prints.
 6. **HTTP:**
-   1. On the host: `python3 -m http.server 8608 --bind 10.60.2.208 --directory
-      /srv/tftpboot`. Any free port works; 8608 is free on the host today. Check the
+   1. On the host: `python3 -m http.server 8000 --bind 10.60.2.208 --directory
+      /srv/tftpboot`. Any free port works; 8000 is free on the host today. Check the
       host firewall.
-   2. At `=>`: `setenv httpdstp 8608; wget ${kernel_addr_r}
+   2. At `=>`: `setenv httpdstp 8000; wget ${kernel_addr_r}
       10.60.2.208:/dmc12-uboot/eth-b/u-boot.bin`, then `crc32` as in step 5.
    3. Then the uInitrd, for the rate.
 7. **Linux after U-Boot networking (the handoff end to end):** netboot NixOS as below.
@@ -244,7 +244,7 @@ boot.scr. Take the bootargs from the bundle's `bootargs.txt`; the console buffer
 1024 B, so typing them works when paced (console.py).
 
 ```
-=> setenv autoload no; dhcp; setenv httpdstp 8608
+=> setenv autoload no; dhcp; setenv httpdstp 8000
 => wget 0x10000000 10.60.2.208:/dmc12/uImage
 => wget 0x20000000 10.60.2.208:/dmc12/uInitrd
 => wget 0x04078000 10.60.2.208:/dmc12/dmc12.dtb
