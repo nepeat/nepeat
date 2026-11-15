@@ -10,8 +10,10 @@ entered at EL2 with MMU+caches off. Console at 500 MHz, `DRAM: 3 GiB (total 4 Gi
 relocated to 0xaff6a000. I2C through both muxes to the CPLD (0x01 = 0x88), internal
 PCIe ECAM (4 SoC devices), AHCI + SSD, GPT read. `bootflow scan -l` finds none (the
 factory SSD has no extlinux). `reset` → CPLD → stage2 in 2 s. Not run: `--go`,
-`--boot`, booting Linux. Missing: the `dm` command (the test script expects it), and
-external PCIe (the USB bridge; not needed in U-Boot). Transcript:
+`--boot`, booting Linux. Not in this build: the `dm` command (dropped from the harness
+since), external PCIe (the USB bridge: no U-Boot driver for `al-alpine-v2-pcie`, not
+needed). SCSI capacity reads one sector high (62533297 vs Linux 62533296; QEMU shows the
+same +1), harmless for partition reads. Transcript:
 `serial-chainload-20261115-042317.txt` (git-ignored).
 
 ## what exists
@@ -127,7 +129,7 @@ The `- ${fdtaddr}` (the factory's live DTB) is only there because the 2015 arm64
 no ATAGS fallback and stops without an FDT (from the 2015 source, not tried). The new
 U-Boot ignores it and uses its own DT. Expect `U-Boot 2026.10-dmc12-chainload`, the `Entry:` line,
 `DRAM: 4 GiB`, a 3 s countdown (any key), then `=>`. Useful read-only checks: `bdinfo`
-(relocaddr < 0xb0000000), `dm tree`, `i2c dev 4; i2c md 0x68 0x01 1` (CPLD version 0x88),
+(relocaddr < 0xb0000000), `i2c dev 4; i2c md 0x68 0x01 1` (CPLD version 0x88),
 `pci` (1c36:0031 AHCI), `scsi scan`, `part list scsi 0`, `ls scsi 0:1 /boot`,
 `bootflow scan -l`.
 
@@ -148,9 +150,47 @@ I2C writes to the CPLD) quiets them first, if wanted.
   ${fdt_addr_r} /boot/alpine-v2-dmc12.dtb; setenv bootargs console=ttyS0,115200
   earlycon=uart,mmio32,0xfd883000 …; booti ${kernel_addr_r} ${ramdisk_addr_r}:${rd_size}
   ${fdt_addr_r}`.
-- NixOS side (not done here): `boot.loader.generic-extlinux-compatible` with the kernel's
-  `Image` replaces the uImage/bootmenu builder in `modules/boards/dmc12/uboot-menu`. The
-  initrd can then be any format the kernel unpacks, as now.
+
+## on-disk boot (proposed, build-checked only)
+
+[nix/modules/boards/dmc12/boot-chainload.nix](../../nix/modules/boards/dmc12/boot-chainload.nix),
+an alternative to `uboot-menu`. The chain:
+
+1. **Factory U-Boot**, with the reimage.md env change (`bootcmd=run nixos_boot; run
+   dmc12_bootdisk`, `nixos_boot` sources `/boot.scr` from sda1). The env change is the
+   same for both loaders: only `/boot.scr` differs.
+2. **`/boot.scr`** (2015 hush): `run clear_wdt_flag; run fan_speed_70` (the factory
+   preamble's fan/WDT writes), `scsi init`, then
+   `ext4load scsi 0:1 0x10000000 /u-boot-dmc12.uimage && iminfo` →
+   `bootm 0x10000000 - ${fdtaddr}`. This is the same entry as the tested TFTP path.
+   If the load or checksum fails, it tries `/u-boot-dmc12.prev.uimage`, then returns, and
+   the env falls through to `dmc12_bootdisk`.
+   - The upstream U-Boot's script bootmeth would also find `/boot.scr` (after extlinux).
+     A `kernel_comp_addr_r` guard (only in the upstream env) stops it from chainloading
+     itself in a loop.
+3. **Upstream U-Boot**: `bootflow scan -lb` → sda1 (MBR, bootable flag) →
+   `/extlinux/extlinux.conf`, written by nixpkgs' own extlinux builder. That file has
+   `LINUX`/`INITRD` as raw `Image` and initrd, `FDT …/amazon/alpine-v2-dmc12.dtb`, a 3 s
+   menu and 10 generations. U-Boot then `booti`s it at EL2, with the memreserves copied in.
+
+The installer (activation, and `dmc12BootBuilderNative <toplevel> -d <dir>` for
+disk.nix) runs that builder. It then puts `u-boot-dmc12.uimage` and `boot.scr` on /boot,
+atomically and only when they change, keeping the previous U-Boot as `.prev`.
+
+- **Checked:** the module evaluates for the dmc12 system. It ships the hardware-tested
+  uImage (sha256 `7634a36c…`). In a sandbox, staging a fake toplevel gives the expected
+  /boot layout and extlinux.conf.
+- **Not yet run:** the factory `ext4load` of a 368 KiB file from our ext4. It reads
+  `/boot.scr` there already (first iteration). The real kernel through `booti` also
+  hasn't run.
+- **Recovery:** the factory countdown (5 s) still comes before `bootcmd`. From that
+  prompt, `run dmc12_bootdisk` or the TFTP chainload above work. A U-Boot that hangs after
+  `bootm` can't fall back by itself; power-cycle and interrupt.
+- **To switch a system over:** `disk.nix` imports `./uboot-menu` unconditionally, and
+  both modules force `installBootLoader`. Import `./boot-chainload.nix` there instead (or
+  gate both behind an option). Its mkfs features stay: the factory loader still reads
+  sda1. Nothing in `default.nix`, `disk.nix` or the platform module is changed yet. The
+  platform comment "vendor U-Boot hands the kernel a legacy uImage" would then be stale.
 
 ## risks / unverified
 

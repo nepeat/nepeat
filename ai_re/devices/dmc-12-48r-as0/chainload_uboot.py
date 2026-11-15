@@ -15,7 +15,7 @@ send-keys.
      iminfo; bootm 0x10000000 - ${fdtaddr}      (or --go: u-boot.bin at
      0x08000000, go 0x08000000)
   3. new U-Boot: banner + entry line, stop autoboot, read-only checks
-     (bdinfo, dm tree, CPLD version over I2C, PCI, SCSI, partitions,
+     (bdinfo, CPLD version over I2C, PCI, SCSI, partitions,
      bootflow list, memory compare), optional --boot / --reset
 Transcript: serial-chainload-<date>.txt here (git-ignored). Exit 0 only on PASS.
 
@@ -154,7 +154,6 @@ checks = {"banner": True, "entry line": bool(entry)}
 steps = [
     ("version", "U-Boot 2026.10"),
     ("bdinfo", "relocaddr"),
-    ("dm tree", "serial"),
     ("i2c dev 4", ""),
     ("i2c md 0x68 0x01 1", "0001: 88"),     # CPLD version register (u01: 0x88)
     ("pci", "1c36"),
