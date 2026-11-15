@@ -93,9 +93,54 @@ fn examples_pass_the_syntax_check() {
         assert_eq!(code, 0, "{ex}: {out}{err}");
         assert!(out.contains(": ok ("), "{out}");
     }
-    let (code, _, err) = fand(&["check", "--syntax-only", "--config", "/nonexistent/fand.yaml"]);
+    let (code, out, _) = fand(&[
+        "check",
+        "--syntax-only",
+        "--config",
+        dir.join("x86-appliance.yaml").to_str().unwrap(),
+    ]);
+    assert!(!out.contains("warning:"), "{out}");
+    let (code2, _, err) = fand(&["check", "--syntax-only", "--config", "/nonexistent/fand.yaml"]);
+    assert_eq!(code, 0);
+    let code = code2;
     assert_eq!(code, 1);
     assert!(err.contains("/nonexistent/fand.yaml"), "{err}");
+}
+
+#[test]
+fn syntax_check_prints_hardware_minimum_warnings_and_exits_0() {
+    // profile medium (45 %) and delta-balanced's low end are below raw_min 128.
+    let (_fs, _fan, cfg) = tree("cli-hwmin");
+    let (code, out, err) = fand(&["check", "--syntax-only", "--config", cfg.to_str().unwrap()]);
+    assert_eq!(code, 0, "{out}{err}");
+    assert!(out.contains(": ok ("), "{out}");
+    assert!(
+        out.contains(
+            "\nwarning: profile: profile medium (45%) is below the hardware minimum of output fans \
+             (50.2%, raw_min 128 of 255); it runs at 50.2% instead (zone board)\n"
+        ),
+        "{out}"
+    );
+    // A built-in curve under the minimum is by design: info, not a warning.
+    assert!(
+        out.contains(
+            "\ninfo: zones.board.policy: curve delta-balanced is flat at the hardware minimum of output fans \
+             (50.2%, raw_min 128 of 255) below 42.6 C\n"
+        ),
+        "{out}"
+    );
+    assert_eq!(out.matches("warning:").count(), 1, "{out}");
+    // The full check lists them too, and they do not count as problems.
+    let (code, out, err) = fand(&["check", "--config", cfg.to_str().unwrap()]);
+    assert_eq!(code, 0, "{out}{err}");
+    assert!(
+        out.contains("\nhardware minimum:\n  warning: profile: profile medium (45%)"),
+        "{out}"
+    );
+    assert!(
+        out.contains("(hardware minimum 50.2%, raw_min 128 of 255, max 100%)"),
+        "{out}"
+    );
 }
 
 #[test]
@@ -203,6 +248,24 @@ fn daemon_notifies_serves_overrides_and_sets_exit_duty_on_sigterm() {
     let st: serde_json::Value = serde_json::from_str(&out).unwrap();
     assert_eq!(st["zones"]["board"]["state"], "normal");
     assert_eq!(st["outputs"]["fans"]["rotors"][0]["label"], "fan1_front");
+    // The zone target includes the hardware minimum (45 % floor < raw_min 128).
+    assert_eq!(st["zones"]["board"]["duty"], 50.2);
+    assert_eq!(st["outputs"]["fans"]["clamped"], false);
+    assert_eq!(st["outputs"]["fans"]["demand"], 50.2);
+    assert_eq!(st["outputs"]["fans"]["hardware_min"], 50.2);
+
+    // Below the hardware minimum: accepted, clamped, and the reply says so.
+    let (code, out, err) = fand(&["set", "30%", "--zone", "board", "--config", cfg.to_str().unwrap()]);
+    assert_eq!(code, 0, "{out}{err}");
+    assert!(
+        out.contains("override 30% for 600s on board; below the hardware minimum, raised to it on output fans"),
+        "{out}"
+    );
+    let state = fs.root.join("run/state.json");
+    wait_for("the override to be clamped", Duration::from_secs(5), || {
+        std::fs::read_to_string(&state).is_ok_and(|s| s.contains("\"clamped\": true"))
+    });
+    assert_eq!(pwm(&fan), "128");
 
     let (code, out, err) = fand(&[
         "set",
@@ -249,6 +312,19 @@ fn daemon_notifies_serves_overrides_and_sets_exit_duty_on_sigterm() {
     assert!(!fs.root.join("run/fand.sock").exists(), "socket removed on exit");
     let log = d.log();
     assert!(log.contains("stopping: setting fans to the exit duty"), "{log}");
+    for needle in [
+        "fand warn: profile: profile medium (45%) is below the hardware minimum of output fans",
+        "fand warn: override 30% for 600s on board; below the hardware minimum",
+        "fand warn: output fans: requested 30% (zone board 30% override) is below its hardware minimum \
+         (50.2%, raw_min 128 of 255); running at 50.2%",
+        "fand info: output fans: requested 70% (zone board 70% override) is at or above its hardware minimum",
+    ] {
+        assert!(log.contains(needle), "missing {needle:?} in:\n{log}");
+    }
+    assert!(
+        !log.contains("delta-balanced"),
+        "built-in curves are not logged:\n{log}"
+    );
     // Logging is on state changes, not per tick: a few seconds of running
     // with an override must stay a handful of lines.
     assert!(log.lines().count() < 30, "too chatty:\n{log}");
@@ -264,6 +340,15 @@ fn failsafe_command_and_calibration() {
     let (code, _, _) = fand(&["failsafe", "--duty", "60", "--config", c]);
     assert_eq!(code, 0);
     assert_eq!(pwm(&fan), "153");
+    let (code, _, err) = fand(&["failsafe", "--duty", "10", "--config", c]);
+    assert_eq!(code, 0, "{err}");
+    assert_eq!(pwm(&fan), "128", "clamped to raw_min");
+    assert!(
+        err.contains(
+            "output fans: 10% is below its hardware minimum (50.2%, raw_min 128 of 255); set to 50.2% (raw 128)"
+        ),
+        "{err}"
+    );
 
     let (code, out, err) = fand(&[
         "calibrate",

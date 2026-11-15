@@ -180,12 +180,13 @@ fn startup_full_then_ramps_down_to_the_floor_with_dwell() {
         assert!(w[1] <= w[0] + 1e-9 && w[0] - w[1] <= 2.0 + 1e-9, "{w:?}");
     }
     // 30 C on delta-balanced = 35 %, below the medium floor (45 %) and below
-    // the hardware minimum (raw 128 = 50.2 %): the output settles at 128.
-    assert_eq!(rig.zone_duty("board"), 45.0);
+    // the hardware minimum (raw 128 = 50.2 %), which the zone target includes:
+    // the zone and the output settle at 50.2 % (raw 128).
+    assert!(approx(rig.zone_duty("board"), 50.196), "{}", rig.zone_duty("board"));
     assert_eq!(rig.raw(), 128);
     assert!(approx(*duties.last().unwrap(), 50.196));
-    // The ASIC zone (55-56 C on delta-asic = 35 %) is also at its floor.
-    assert_eq!(rig.zone_duty("asic"), 45.0);
+    // The ASIC zone (55-56 C on delta-asic = 35 %) is also at the minimum.
+    assert!(approx(rig.zone_duty("asic"), 50.196));
 }
 
 #[test]
@@ -512,6 +513,10 @@ zones:
     let mut rig = Rig::new(yaml);
     rig.run(2);
     assert_eq!(rig.raw(), 0, "30 C demands 0 % and the output may stop");
+    assert!(
+        !rig.engine.status(rig.t).outputs["fans"].clamped,
+        "0 is legal with stop: true"
+    );
     rig.fs.remove(&rig.lm75[0], "temp1_input");
     rig.run(1);
     assert_eq!(
@@ -557,4 +562,72 @@ fn startup_resolution_of_ambiguous_hwmon_is_a_fault() {
             .contains("4 hwmon devices match")
     );
     assert_eq!(st.zones["board"].state, "failsafe");
+}
+
+fn lines(level: fand::log::Level) -> Vec<String> {
+    fand::log::captured()
+        .into_iter()
+        .filter(|(l, _)| *l == level)
+        .map(|(_, m)| m)
+        .collect()
+}
+
+#[test]
+fn zone_targets_include_the_hardware_minimum_and_clamps_are_logged_once() {
+    use fand::log::Level;
+    let mut rig = Rig::new(AS7760);
+    fand::log::capture();
+    // Idle at the hardware minimum is normal: no warning, nothing clamped.
+    rig.run(60);
+    assert!(lines(Level::Warn).is_empty());
+    let st = rig.engine.status(rig.t);
+    assert_eq!(st.zones["board"].duty, 50.2);
+    assert!(!st.outputs["fans"].clamped);
+    assert_eq!(st.outputs["fans"].demand, Some(50.2));
+    assert_eq!(st.outputs["fans"].hardware_min, 50.2);
+    let prom = fand::daemon::prometheus(&st);
+    assert!(prom.contains("fand_output_clamped{output=\"fans\"} 0"), "{prom}");
+    assert!(
+        prom.contains("fand_output_demand_percent{output=\"fans\"} 50.2"),
+        "{prom}"
+    );
+
+    // An override below the minimum is accepted, clamped, and says so.
+    let now = rig.t;
+    let msg = rig
+        .engine
+        .set_override(None, DutySpec::Percent(30.0), 3600.0, now)
+        .unwrap();
+    assert_eq!(
+        msg,
+        "override 30% for 3600s on asic, board; below the hardware minimum, raised to it on output fans \
+         (50.2%, raw_min 128 of 255)"
+    );
+    assert_eq!(lines(Level::Warn), [msg]);
+    // One line when the clamp starts, none while it lasts (here 20 min).
+    rig.run(600);
+    assert_eq!(rig.raw(), 128);
+    assert_eq!(
+        lines(Level::Warn),
+        [
+            "output fans: requested 30% (zones asic 30% override, board 30% override) is below its hardware minimum \
+          (50.2%, raw_min 128 of 255); running at 50.2%"
+        ]
+    );
+    let st = rig.engine.status(rig.t);
+    assert!(st.outputs["fans"].clamped);
+    assert_eq!(st.outputs["fans"].demand, Some(30.0));
+    assert!(fand::daemon::prometheus(&st).contains("fand_output_clamped{output=\"fans\"} 1"));
+
+    // And one info line when it ends: ramping up from 30 % (+20 % per tick),
+    // 50 % already writes raw 128.
+    rig.engine.clear_override(None).unwrap();
+    rig.tick();
+    let info = lines(Level::Info);
+    assert_eq!(
+        info,
+        ["output fans: requested 50% (zones asic 50%, board 50%) is at or above its hardware minimum (50.2%) again"],
+        "{info:?}"
+    );
+    assert!(!rig.engine.status(rig.t).outputs["fans"].clamped);
 }

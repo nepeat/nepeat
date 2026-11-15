@@ -215,6 +215,24 @@ pub fn prometheus(s: &Status) -> String {
             .collect(),
     );
     metric(
+        "fand_output_demand_percent",
+        "duty requested by the zones before the hardware limits",
+        "gauge",
+        s.outputs
+            .iter()
+            .filter_map(|(n, o)| o.demand.map(|d| (ol(n), d)))
+            .collect(),
+    );
+    metric(
+        "fand_output_clamped",
+        "1 while the request is below the hardware minimum and raised to it",
+        "gauge",
+        s.outputs
+            .iter()
+            .map(|(n, o)| (ol(n), f64::from(u8::from(o.clamped))))
+            .collect(),
+    );
+    metric(
         "fand_output_raw",
         "raw value written",
         "gauge",
@@ -385,7 +403,11 @@ pub fn run(cfg: Config, force_dry_run: bool) -> Result<i32> {
         None => None,
     };
 
+    let min_warnings = crate::hwmin::static_warnings(&cfg);
     let engine = Engine::new(cfg, opts)?;
+    for w in min_warnings.iter().filter(|w| w.warn) {
+        log_warn!("{w}");
+    }
     log_notice!(
         "starting{}: {} zone(s), {} sensor(s), {} output(s), interval {interval}s, exit duty {exit_duty}%",
         if dry { " (dry run: nothing is written)" } else { "" },

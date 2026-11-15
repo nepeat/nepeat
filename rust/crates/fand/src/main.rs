@@ -164,6 +164,10 @@ fn real_main() -> Result<i32> {
                     cfg.sensors.len(),
                     cfg.outputs.len()
                 );
+                // Warnings never change the exit code (this runs at NixOS build time).
+                for w in fand::hwmin::static_warnings(&cfg) {
+                    println!("{}", fand::hwmin::line(&w));
+                }
                 return Ok(0);
             }
             log::set_quiet(true);

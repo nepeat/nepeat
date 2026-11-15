@@ -33,9 +33,9 @@ the cases the process cannot handle itself. See [Safety model](#safety-model).
 | command | what it does |
 |---|---|
 | `fand run [--dry-run]` | the daemon (systemd `Type=notify`); `--dry-run` computes and logs but never writes |
-| `fand check [--syntax-only] [--exec]` | validate the config and print resolved devices and current readings, read-only. `--syntax-only` touches nothing (used at NixOS build time); `--exec` also runs exec sensors once. Exit 2 if something does not resolve |
+| `fand check [--syntax-only] [--exec]` | validate the config and print resolved devices and current readings, read-only. `--syntax-only` touches nothing (used at NixOS build time); `--exec` also runs exec sensors once. Exit 2 if something does not resolve. Both print [hardware minimum](#safety-model) warnings, which never change the exit code |
 | `fand status` | the running daemon's state as JSON (control socket; falls back to the state file) |
-| `fand set 80% [--zone Z] [--for 10m]` | manual override through the daemon (also `60`, `12000rpm`); `fand set clear` ends it. Failsafe still wins; capped by `max_override` |
+| `fand set 80% [--zone Z] [--for 10m]` | manual override through the daemon (also `60`, `12000rpm`); `fand set clear` ends it. Failsafe still wins; capped by `max_override`; a duty below an output's hardware minimum is accepted and raised to it, and the reply says so |
 | `fand calibrate [--output O] [--steps 100,80,60] [--settle 8s] [--samples 3] [--max-temp 70] [--write PATH\|-] [--force]` | step an output's duty, record every rotor's RPM, write the calibration file. Refuses to run while the daemon's socket answers |
 | `fand failsafe [--duty N]` | set every output to the exit duty now (the systemd `ExecStopPost` safety net). Touches no sensor |
 | `fand curves` | print the built-in curves |
@@ -58,7 +58,7 @@ output through its RPM model.
 | `interval` | `2s` | control loop period (0.1..60 s) |
 | `profile` | `medium` | global speed floor: `none`, `slow`, `medium`, `fast`, or a duty (percent or rpm). Applied after the policy |
 | `profiles` | `{slow: 30, medium: 45, fast: 65}` | duties behind the profile names (percent or rpm) |
-| `failsafe_duty` | `100` | duty of a zone in failsafe |
+| `failsafe_duty` | `100` | duty of a zone in failsafe (and of an output whose write failed). This, `exit_duty` and `startup_duty` above an output's `max_duty` are config errors |
 | `exit_duty` | `100` | duty written on exit and by `fand failsafe` |
 | `startup_duty` | `failsafe_duty` | duty every zone starts from; it ramps down from there after the dwell time |
 | `calm_period` | `60s` | fault-free time before a zone leaves failsafe |
@@ -123,7 +123,7 @@ picked up; until then they are faults.
 | `command`, `timeout` | –, `5s` | exec: argv template with `{percent}` (integer, rounded up) and `{raw}` |
 | `raw_max` | `255` | raw value meaning 100 % |
 | `raw_min` | `0` | lowest raw value the hardware accepts (e.g. `128`) |
-| `min_duty` / `max_duty` | from `raw_min` / `100` | never command outside this; `min_duty` is at least `raw_min` as a percentage |
+| `min_duty` / `max_duty` | from `raw_min` / `100` | never command outside this. The **hardware minimum** is `raw_min` as a percentage, or `min_duty` if higher |
 | `stop` | `false` | the fan may stop (0) when the demand is 0; otherwise `min_duty` is the bottom |
 | `enable` | none | value written to `pwmN_enable` (or `<path>_enable`) before duties, and re-asserted if firmware changes it (1 = manual on most drivers) |
 | `exit_enable` | none | written after the exit duty (e.g. 2 or 5 = automatic on many Super I/O chips) |
@@ -192,8 +192,9 @@ Policies:
   sensor is furthest above its own setpoint.
 - `policy: {fixed: 60}` (or `"12000rpm"`).
 
-Per tick a zone computes: policy demand → max with the profile floor →
-ramp/dwell → zone duty. A manual override replaces the policy and floor
+Per tick a zone computes: policy demand → max with the profile floor and
+the highest hardware minimum of its outputs (`stop: true` outputs excluded)
+→ ramp/dwell → zone duty. A manual override replaces the policy and floor
 (not the output's hardware minimum); failsafe replaces everything.
 
 ## Built-in curves
@@ -253,9 +254,24 @@ sysfs read stops the pings), `Restart=always` without a start limit, and
 crash or watchdog kill. If you run fand outside the NixOS module, keep that
 `ExecStopPost` line.
 
-**Hardware limits.** Outputs are never commanded below `min_duty` (or
-`raw_min`) or above `max_duty` (`raw_max`); 0 only with `stop: true`.
-Overrides cannot go below the hardware minimum and lose against failsafe.
+**Hardware limits.** Outputs are never commanded below their hardware
+minimum (`raw_min` as a percentage, or `min_duty` if higher) or above
+`max_duty` (`raw_max`); 0 only with `stop: true`. Overrides cannot go below
+the hardware minimum and lose against failsafe. Zone targets already
+include the minimum, so running at it is normal and silent. fand reports
+only explicit settings below it:
+
+- once at start (WARN) and in `fand check` (also `--syntax-only`): a
+  profile floor (named or a percentage, with what it resolves to), fixed
+  duties, points of inline or `curves:` curves, `failsafe_duty`,
+  `startup_duty`, `exit_duty`. A built-in curve's low end under the minimum
+  is by design: one `info:` line in `fand check` only. rpm values are not
+  checked.
+- at run time, one WARN line when an output's request (max over its zones)
+  starts being raised (an override, or a failsafe/startup duty below the
+  minimum) and one INFO line when it ends; `fand set` says so in its reply.
+  0 on a `stop: true` output, and a request that rounds up to the same raw
+  value (50 % with `raw_min: 128`), do not count.
 
 **Robustness.** No `unwrap` on input, configuration errors carry their
 path, all byte handling is text (big-endian clean), and the only `unsafe`
@@ -345,18 +361,22 @@ is added to `ReadWritePaths` automatically.
 - Logs go to stderr; under systemd each line carries a `<N>` priority prefix
   for journald. Lines are written on state changes (failsafe enter /
   recovering / leave with reasons, sensor errors and recoveries, output
-  faults set/cleared, overrides) plus one summary line every
-  `runtime.log_interval` (or on SIGHUP/SIGUSR1), never every tick.
+  faults set/cleared, overrides, outputs held at their hardware minimum)
+  plus one summary line every `runtime.log_interval` (or on SIGHUP/SIGUSR1),
+  never every tick.
 - `STATUS=` of the unit shows the summary (`systemctl status fand`).
 - `fand status`: JSON with every zone (state, reasons, temperature,
   demand, floor, duty, override), sensor (value, error, path, age) and
-  output (duty, raw written/observed, faults, rotors with rpm, expected rpm,
-  max rpm, percent of max, calibrated, fault).
+  output (duty, demand before the clamp, hardware_min, clamped, raw
+  written/observed, faults, rotors with rpm, expected rpm, max rpm, percent
+  of max, calibrated, fault).
 - `runtime.state_file`: the same JSON, rewritten atomically every tick.
 - `runtime.prometheus_file`: `fand_zone_duty_percent`,
   `fand_zone_temperature_celsius`, `fand_zone_failsafe`,
   `fand_sensor_temperature_celsius`, `fand_sensor_ok`,
-  `fand_output_duty_percent`, `fand_output_raw`, `fand_output_faults`,
+  `fand_output_duty_percent`, `fand_output_demand_percent` (requested,
+  before the hardware limits), `fand_output_clamped` (1 while raised to the
+  hardware minimum), `fand_output_raw`, `fand_output_faults`,
   `fand_fan_rpm`, `fand_fan_expected_rpm`, `fand_fan_fault`, `fand_up`.
 
 ## Building, testing, cross compiling
@@ -371,7 +391,8 @@ transitions, config parsing, and a closed-loop simulation of an
 AS7760-like box (12 rotors following the pwm, four lm75s, an exec ASIC
 sensor) covering sensor loss, implausible values, exec failures, fan fault
 flags, stalls, rotors not following, write failures, readback mismatches,
-overrides, rpm floors, dry run, PI convergence and panic unwinding. The CLI
+overrides, rpm floors, hardware-minimum warnings, dry run, PI convergence
+and panic unwinding. The CLI
 tests run the real binary under a fake `NOTIFY_SOCKET` and check READY,
 WATCHDOG, the control socket, SIGTERM → exit duty, single-instance, failsafe
 and calibration. They need only `/bin/sh`.
@@ -400,5 +421,8 @@ from source), and the dependency set has no build scripts that compile C.
 - Exec outputs have no readback; rely on tach feedback.
 - The follow check assumes RPM rises with duty; uncalibrated models are
   linear, so keep `follow_tolerance` generous until `fand calibrate` has run.
+- The PI integral does not track the applied duty when another zone wins
+  the output's max or ramp/dwell hold it (no back-calculation yet), so a
+  target zone can lag after such periods.
 - Calibration samples steady-state RPM only (no spin-up or stall-point
   search) and never goes below an output's `min_duty`.

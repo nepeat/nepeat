@@ -5,6 +5,7 @@
 //! prefixed with the level name. Rate limiting is done by the callers, which
 //! log on state changes and on a periodic summary rather than every tick.
 
+use std::cell::RefCell;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -21,6 +22,20 @@ static JOURNAL: OnceLock<bool> = OnceLock::new();
 static DEBUG: AtomicBool = AtomicBool::new(false);
 static QUIET: AtomicBool = AtomicBool::new(false);
 
+thread_local! {
+    static CAPTURE: RefCell<Option<Vec<(Level, String)>>> = const { RefCell::new(None) };
+}
+
+/// Tests: from now on also record this thread's log lines (see [`captured`]).
+pub fn capture() {
+    CAPTURE.with(|c| *c.borrow_mut() = Some(Vec::new()));
+}
+
+/// Tests: the lines recorded since [`capture`] (or the last call).
+pub fn captured() -> Vec<(Level, String)> {
+    CAPTURE.with(|c| c.borrow_mut().as_mut().map(std::mem::take).unwrap_or_default())
+}
+
 pub fn set_debug(on: bool) {
     DEBUG.store(on, Ordering::Relaxed);
 }
@@ -34,6 +49,11 @@ pub fn log(level: Level, msg: &str) {
     if level == Level::Debug && !DEBUG.load(Ordering::Relaxed) {
         return;
     }
+    CAPTURE.with(|c| {
+        if let Some(v) = c.borrow_mut().as_mut() {
+            v.push((level, msg.to_string()));
+        }
+    });
     if level > Level::Warn && QUIET.load(Ordering::Relaxed) {
         return;
     }

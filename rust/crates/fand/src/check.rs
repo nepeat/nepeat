@@ -25,6 +25,7 @@ pub fn report(cfg: Config, run_exec: bool) -> Result<(String, bool)> {
         cfg.calm_period.0,
         if cfg.dry_run { ", DRY RUN" } else { "" }
     );
+    let min_warnings = crate::hwmin::static_warnings(&cfg);
     let mut engine = Engine::new(cfg, opts)?;
     let root = engine.root().to_path_buf();
     let _ = writeln!(out, "\nsensors:");
@@ -86,9 +87,9 @@ pub fn report(cfg: Config, run_exec: bool) -> Result<(String, bool)> {
     let _ = writeln!(out, "\noutputs:");
     for o in &mut engine.outputs {
         let range = format!(
-            "{:.1}..{:.1}%{}",
-            o.min_duty,
-            o.max_duty,
+            "hardware minimum {}, max {}{}",
+            o.min_desc,
+            crate::hwmin::pct(o.max_duty),
             if o.stop { ", may stop" } else { "" }
         );
         if let Some(cmd) = o.command() {
@@ -179,6 +180,14 @@ pub fn report(cfg: Config, run_exec: bool) -> Result<(String, bool)> {
         }
     }
     let _ = (names, sensor_names);
+    // Settings below a hardware minimum; they never change `ok`.
+    let _ = writeln!(out, "\nhardware minimum:");
+    if min_warnings.is_empty() {
+        let _ = writeln!(out, "  no setting asks an output for less than its hardware minimum");
+    }
+    for w in &min_warnings {
+        let _ = writeln!(out, "  {}", crate::hwmin::line(w));
+    }
     Ok((out, ok))
 }
 

@@ -18,5 +18,6 @@ pub mod daemon;
 pub mod engine;
 pub mod exec;
 pub mod fakesys;
+pub mod hwmin;
 pub mod notify;
 pub mod sysfs;

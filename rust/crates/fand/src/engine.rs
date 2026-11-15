@@ -21,6 +21,7 @@ use crate::control::{Ema, FailGuard, Hysteresis, Pid, Ramp, Transition};
 use crate::curves::Curve;
 use crate::error::{Error, Result};
 use crate::exec::{self, Parser};
+use crate::hwmin;
 use crate::sysfs::{self, ReadError};
 use crate::{log_error, log_info, log_notice, log_warn};
 use serde::Serialize;
@@ -609,6 +610,12 @@ pub struct OutputRt {
     pub write_error: Option<String>,
     pub faults: Vec<Fault>,
     pub warnings: Vec<Fault>,
+    /// "50.2%, raw_min 128 of 255": the hardware minimum and its source.
+    pub min_desc: String,
+    /// Duty requested this tick before the clamp (max over its zones).
+    pub demand: Option<f64>,
+    /// The request is below the hardware minimum and was raised to it.
+    pub clamped: bool,
 }
 
 impl OutputRt {
@@ -668,6 +675,44 @@ impl OutputRt {
             write_error: None,
             faults: Vec::new(),
             warnings: Vec::new(),
+            min_desc: hwmin::describe(c),
+            demand: None,
+            clamped: false,
+        }
+    }
+
+    /// Is a demand below the hardware minimum (so the clamp raises it)?
+    pub fn below_min(&self, demand: f64) -> bool {
+        hwmin::below(demand, self.min_duty, self.stop, self.raw_max)
+    }
+
+    /// Record the tick's demand; log when it starts or stops being raised to
+    /// the hardware minimum (zone targets already include the minimum, so
+    /// this means an override, a failsafe/startup duty below it, or a value
+    /// between 0 and the minimum on a stop-capable output). `who` names the
+    /// requesting zones.
+    fn track_min(&mut self, demand: f64, who: impl FnOnce() -> String) {
+        self.demand = Some(demand);
+        let below = self.below_min(demand);
+        if below && !self.clamped {
+            self.clamped = true;
+            log_warn!(
+                "output {}: requested {} ({}) is below its hardware minimum ({}); running at {}",
+                self.name,
+                hwmin::pct(demand),
+                who(),
+                self.min_desc,
+                hwmin::pct(self.clamp(demand))
+            );
+        } else if !below && self.clamped {
+            self.clamped = false;
+            log_info!(
+                "output {}: requested {} ({}) is at or above its hardware minimum ({}) again",
+                self.name,
+                hwmin::pct(demand),
+                who(),
+                hwmin::pct(self.min_duty)
+            );
         }
     }
 
@@ -968,6 +1013,25 @@ pub struct ZoneRt {
     started: bool,
 }
 
+/// "zones board 45%, asic 45% override": the zones driving output `i`.
+fn requesters(zones: &[ZoneRt], i: usize) -> String {
+    let list: Vec<String> = zones
+        .iter()
+        .filter(|z| z.outputs.contains(&i))
+        .map(|z| {
+            let tag = if z.guard.active() {
+                " failsafe"
+            } else if z.override_.is_some() {
+                " override"
+            } else {
+                ""
+            };
+            format!("{} {}{tag}", z.name, hwmin::pct(z.duty))
+        })
+        .collect();
+    format!("zone{} {}", if list.len() > 1 { "s" } else { "" }, list.join(", "))
+}
+
 fn spec_to_pct(d: DutySpec, zone_outputs: &[usize], outputs: &[OutputRt]) -> Option<f64> {
     match d {
         DutySpec::Percent(p) => Some(p),
@@ -1174,15 +1238,16 @@ impl ZoneRt {
 
         let floor_spec = self.profile.floor(table);
         self.floor = self.pct(floor_spec, outputs);
+        // The highest hardware minimum of the zone's outputs (stop-capable
+        // ones may go to 0, so they do not count): the zone's target never
+        // goes below it, so its duty is what the fans actually get and the
+        // ramp does not spend time in a range where nothing changes.
         let out_min = self
             .outputs
             .iter()
             .map(|&o| if outputs[o].stop { 0.0 } else { outputs[o].min_duty })
-            .fold(f64::INFINITY, f64::min);
-        let lo = self
-            .floor
-            .max(if out_min.is_finite() { out_min } else { 0.0 })
-            .min(100.0);
+            .fold(0.0, f64::max);
+        let lo = self.floor.max(out_min).min(100.0);
 
         if self.guard.active() {
             self.demand = None;
@@ -1226,7 +1291,7 @@ impl ZoneRt {
                 return;
             }
         }
-        let target = demand.max(self.floor);
+        let target = demand.max(lo);
         self.duty = self.ramp.step(self.duty, target, now, dt);
     }
 }
@@ -1313,14 +1378,15 @@ impl Engine {
             z.update(now, dt, &self.sensors, &self.outputs, &self.cfg.profiles);
         }
         let failsafe = self.cfg.failsafe_duty.0;
+        let zones = &self.zones;
         for (i, o) in self.outputs.iter_mut().enumerate() {
-            let demand = self
-                .zones
+            let demand = zones
                 .iter()
                 .filter(|z| z.outputs.contains(&i))
                 .map(|z| z.duty)
                 .reduce(f64::max)
                 .unwrap_or(failsafe);
+            o.track_min(demand, || requesters(zones, i));
             o.apply(demand, now, &self.root, self.dry_run, failsafe);
         }
     }
@@ -1339,6 +1405,13 @@ impl Engine {
                 continue;
             }
             match o.force(duty, now, &self.root) {
+                Ok(raw) if o.below_min(duty) => log_warn!(
+                    "output {}: {} is below its hardware minimum ({}); set to {} (raw {raw})",
+                    o.name,
+                    hwmin::pct(duty),
+                    o.min_desc,
+                    hwmin::pct(o.clamp(duty))
+                ),
                 Ok(raw) => log_info!("output {}: set to {:.0}% (raw {raw})", o.name, o.clamp(duty)),
                 Err(e) => {
                     log_error!("output {}: could not set exit duty: {e}", o.name);
@@ -1381,8 +1454,32 @@ impl Engine {
             });
         }
         let names: Vec<&str> = idx.iter().map(|i| self.zones[*i].name.as_str()).collect();
-        let msg = format!("override {duty} for {secs:.0}s on {}", names.join(", "));
-        log_notice!("{msg}");
+        let mut msg = format!("override {duty} for {secs:.0}s on {}", names.join(", "));
+        // Still accepted; the outputs clamp it. Say so.
+        let mut raised: Vec<String> = Vec::new();
+        for i in &idx {
+            let z = &self.zones[*i];
+            let Some(p) = spec_to_pct(duty, &z.outputs, &self.outputs) else {
+                continue;
+            };
+            for &oi in &z.outputs {
+                let o = &self.outputs[oi];
+                let d = format!("{} ({})", o.name, o.min_desc);
+                if o.below_min(p.clamp(0.0, 100.0)) && !raised.contains(&d) {
+                    raised.push(d);
+                }
+            }
+        }
+        if raised.is_empty() {
+            log_notice!("{msg}");
+        } else {
+            msg.push_str(&format!(
+                "; below the hardware minimum, raised to it on output{} {}",
+                if raised.len() > 1 { "s" } else { "" },
+                raised.join(", ")
+            ));
+            log_warn!("{msg}");
+        }
         Ok(msg)
     }
 
@@ -1485,6 +1582,9 @@ impl Engine {
                     o.name.clone(),
                     OutputStatus {
                         duty: o.duty.map(r1),
+                        demand: o.demand.map(r1),
+                        hardware_min: r1(o.min_duty),
+                        clamped: o.clamped,
                         raw: o.raw,
                         observed_raw: o.observed_raw,
                         path: o.path().map(|p| p.display().to_string()),
@@ -1578,6 +1678,11 @@ pub struct SensorStatus {
 #[derive(Debug, Serialize)]
 pub struct OutputStatus {
     pub duty: Option<f64>,
+    /// Requested duty before the hardware limits (max over the zones).
+    pub demand: Option<f64>,
+    pub hardware_min: f64,
+    /// The request is below the hardware minimum and was raised to it.
+    pub clamped: bool,
     pub raw: Option<u32>,
     pub observed_raw: Option<u32>,
     pub path: Option<String>,

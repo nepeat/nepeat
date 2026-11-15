@@ -604,6 +604,7 @@ pub struct OutputConfig {
     #[serde(default = "d_raw_max")]
     pub raw_max: u32,
     /// Lowest raw value the hardware accepts (e.g. 128 for "50..100 % only").
+    /// Part of the hardware minimum, see [`OutputConfig::min_duty`].
     #[serde(default)]
     pub raw_min: u32,
     /// Never command less than this (default: raw_min as a percentage).
@@ -629,6 +630,8 @@ fn d_raw_max() -> u32 {
 }
 
 impl OutputConfig {
+    /// The output's hardware minimum: raw_min as a percentage, or min_duty
+    /// if higher. Every command is clamped to it (see `crate::hwmin`).
     pub fn min_duty(&self) -> f64 {
         let from_raw = if self.raw_max > 0 {
             f64::from(self.raw_min) * 100.0 / f64::from(self.raw_max)
@@ -1189,6 +1192,31 @@ impl Config {
                 }
             }
         }
+        // max_duty would silently cap these: a failsafe that is not what it says is an error.
+        let mut capped = |key: &str, duty: f64, outs: &mut dyn Iterator<Item = &String>| {
+            for on in outs {
+                if let Some(o) = self.outputs.get(on) {
+                    if duty > o.max_duty() + 1e-9 {
+                        e(format!(
+                            "{key}: {duty}% is above the max_duty {}% of output {on}, which would cap it there \
+                             (lower {key} or raise outputs.{on}.max_duty)",
+                            o.max_duty()
+                        ));
+                    }
+                }
+            }
+        };
+        // The global failsafe also covers write failures on every output.
+        capped("failsafe_duty", self.failsafe_duty.0, &mut self.outputs.keys());
+        capped("exit_duty", self.exit_duty.0, &mut self.outputs.keys());
+        if let Some(s) = self.startup_duty {
+            capped("startup_duty", s.0, &mut self.outputs.keys());
+        }
+        for (name, z) in &self.zones {
+            if let Some(f) = z.failsafe_duty {
+                capped(&format!("zones.{name}.failsafe_duty"), f.0, &mut z.outputs.iter());
+            }
+        }
         for o in self.outputs.keys() {
             if !used_outputs.contains(o) {
                 e(format!(
@@ -1335,6 +1363,35 @@ zones:
         ] {
             assert!(err.contains(needle), "missing {needle:?} in:\n{err}");
         }
+    }
+
+    #[test]
+    fn duties_above_max_duty_are_errors() {
+        let capped = MINIMAL.replace("raw_min: 128 }", "raw_min: 128, max_duty: 80 }");
+        let err = Config::parse(&capped).unwrap_err().0;
+        for needle in [
+            "failsafe_duty: 100% is above the max_duty 80% of output fans, which would cap it there \
+             (lower failsafe_duty or raise outputs.fans.max_duty)",
+            "exit_duty: 100% is above the max_duty 80% of output fans",
+        ] {
+            assert!(err.contains(needle), "missing {needle:?} in:\n{err}");
+        }
+        let ok = format!("failsafe_duty: 80\nexit_duty: 75\n{capped}");
+        assert!(Config::parse(&ok).is_ok());
+        let bad = format!(
+            "failsafe_duty: 80\nexit_duty: 80\nstartup_duty: 90\n{}",
+            capped.replace(
+                "policy: delta-balanced",
+                "policy: delta-balanced\n    failsafe_duty: 85"
+            )
+        );
+        let err = Config::parse(&bad).unwrap_err().0;
+        assert!(err.contains("startup_duty: 90% is above the max_duty 80%"), "{err}");
+        assert!(
+            err.contains("zones.chassis.failsafe_duty: 85% is above the max_duty 80%"),
+            "{err}"
+        );
+        assert!(!err.contains("exit_duty"), "{err}");
     }
 
     #[test]
