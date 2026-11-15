@@ -207,7 +207,7 @@ Run each step only after the one before it passed. Start from an idle `ALPINE_DB
    Then repeat with a large file, `dmc12/uInitrd` (~300 MB), and note the rate U-Boot prints.
 6. **HTTP:**
    1. On the host: `python3 -m http.server 8000 --bind 10.60.2.208 --directory
-      /srv/tftpboot`. Any free port works; 8000 is free on the host today. Check the
+      /srv/tftpboot`. The port must be open in the host firewall (8000 and 8080 are; 8608 was not, 2026-11-15). Check the
       host firewall.
    2. At `=>`: `setenv httpdstp 8000; wget ${kernel_addr_r}
       10.60.2.208:/dmc12-uboot/eth-b/u-boot.bin`, then `crc32` as in step 5.
