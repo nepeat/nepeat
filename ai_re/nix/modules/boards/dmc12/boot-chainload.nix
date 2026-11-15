@@ -88,7 +88,7 @@ let
     '';
 in
 {
-  config = {
+  config = lib.mkIf (config.hardware.dmc12.bootLoader == "chainload") {
     # No generic-extlinux-compatible.enable: its installBootLoader would clash
     # with ours. We call the same builder (same extlinux.conf layout).
     system.build.installBootLoader = lib.mkForce (mkBuilder pkgs);

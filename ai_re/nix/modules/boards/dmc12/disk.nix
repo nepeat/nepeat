@@ -21,7 +21,7 @@ let
   bb = pkgs.buildPackages;
 in
 {
-  imports = [ ./uboot-menu ];
+  imports = [ ./bootloader.nix ./uboot-menu ./boot-chainload.nix ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-label/DMC12ROOT";

@@ -102,7 +102,7 @@ let
   };
   builder = mkBuilder pkgs;
 in {
-  config = {
+  config = lib.mkIf (config.hardware.dmc12.bootLoader == "uboot-menu") {
     # NixOS's activation calls this with the new toplevel as $1.
     # mkForce so we win over any default (extlinux-compat etc.) that
     # might also bind to system.build.installBootLoader.

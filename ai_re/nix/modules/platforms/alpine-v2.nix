@@ -44,8 +44,8 @@ in
     # Boot-critical drivers are built in (packages/linux-alpine), so the initrd
     # carries no modules; listing built-ins here would fail the initrd build.
     boot.initrd.availableKernelModules = lib.mkForce [ ];
-    # Vendor U-Boot hands the kernel a legacy uImage; the kernel, not
-    # U-Boot, unpacks the initrd, so any compressor the kernel has works.
+    # The kernel, not U-Boot, unpacks the initrd (legacy uImage via the factory
+    # loader, or raw via upstream U-Boot's booti), so any compressor it has works.
     boot.initrd.compressor = "zstd";
     boot.kernelParams = [
       "console=${cfg.console}"
