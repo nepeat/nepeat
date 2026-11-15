@@ -77,16 +77,14 @@ stageKernel() {
     local dst="$target/nixos/$(cleanName "$src").uImage"
     if ! test -e "$dst"; then
         local dstTmp="$dst.tmp.$$"
-        local gzTmp="$dst.tmp.$$.gz"
-        gzip -9 -c "$src" > "$gzTmp"
-        # mkimage prints a "Image Name: ... Data Size: ..." block to
-        # stdout — silence it so it doesn't leak into the menu file
-        # (addEntry runs inside a `{ ... } > $tmpFile` block).
-        mkimage -A arm64 -O linux -T kernel -C gzip \
+        # Uncompressed (-C none): bootm only memmoves it to 0x04080000, so the
+        # factory U-Boot's gunzip size limit never applies (a full-config 7.3
+        # Image is 68 MiB). Load plan: kernel 0x10000000, initrd 0x20000000,
+        # DTB 0x04078000 (see packages/dmc12-images/netboot-files.nix).
+        mkimage -A arm64 -O linux -T kernel -C none \
             -a 0x04080000 -e 0x04080000 \
             -n "DMC-12 NixOS kernel" \
-            -d "$gzTmp" "$dstTmp" > /dev/null
-        rm -f "$gzTmp"
+            -d "$src" "$dstTmp" > /dev/null
         mv "$dstTmp" "$dst"
     fi
     filesCopied[$dst]=1
@@ -154,13 +152,13 @@ addEntry() {
     # spaces — the inner quotes don't conflict because the outer
     # bootmenu_N= record is a single env var, NOT a shell word.
     local cmd
-    cmd="ext4load scsi 0:1 0x08000000 /nixos/$kernel"
-    cmd="$cmd; ext4load scsi 0:1 0x0fd00000 /nixos/$initrd"
+    cmd="ext4load scsi 0:1 0x10000000 /nixos/$kernel"
+    cmd="$cmd; ext4load scsi 0:1 0x20000000 /nixos/$initrd"
     cmd="$cmd; ext4load scsi 0:1 0x04078000 /nixos/$dtb"
     cmd="$cmd; setenv bootargs 'init=$path/init $extraParams'"
     cmd="$cmd; setenv initrd_high 0xffffffff"
     cmd="$cmd; setenv fdt_high 0xffffffff"
-    cmd="$cmd; bootm 0x08000000 0x0fd00000 0x04078000"
+    cmd="$cmd; bootm 0x10000000 0x20000000 0x04078000"
 
     printf 'bootmenu_%d=%s=%s\n' "$idx" "$label" "$cmd"
 }

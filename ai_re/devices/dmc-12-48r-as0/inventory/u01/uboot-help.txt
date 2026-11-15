@@ -1,0 +1,169 @@
+# Factory U-Boot 2015.07-alpine_db-2.60.4 `help` output, unit u01, 2026-11-15 (from the serial capture).
+?       - alias for 'help'
+al_pcie_ext- Enable AL PCIe external
+base    - print or set address offset
+bdinfo  - print Board Info structure
+boot    - boot default, i.e., run 'bootcmd'
+bootd   - boot default, i.e., run 'bootcmd'
+bootm   - boot application image from memory
+bootmenu- ANSI terminal bootmenu
+bootp   - boot image via network using BOOTP/TFTP protocol
+bootz   - boot Linux zImage image from memory
+cmp     - memory compare
+confirm_msg- get user input and updates "?" varialbe to 0 if 'y' was entered
+coninfo - print console devices and information
+cp      - memory copy
+cpu_aborts_enable_set- Set enabling state of CPU aborts
+cpu_set_speed- Set CPU speed
+crc32   - checksum calculation
+ddr_ecc_poison- DDR ECC poisoning
+ddr_ecc_stats- DDR ECC statistics
+ddr_training_results- DDR training results
+dev_info- Show the device configuration values
+dhcp    - boot image via network using DHCP/TFTP protocol
+dhcprelease- release IP address previously leased by DHCP server
+dram_margins- The command provides current DRAM RDQS/WDQS margins by running a shmoo based on the DDR controller BIST feature
+echo    - echo args to console
+editenv - edit environment variable
+eeprom_per_device- EEPROM per device operations
+env     - environment handling commands
+erase   - erase FLASH memory
+eth_1g_params_set- configure 1G link parameters.these parameters will also be applied in Linux
+
+eth_freeze_serdes_settings- freeze serdes parameters to be used in the upper layer (disable by default)
+* enabling it will cause the upper layer to avoid replacing these parameters
+* enabled mode should be used in case the serdes parameter were set in the u-boot
+
+eth_link_training_enable- enable / disable link training
+
+eth_lm_debug_enable- enable / disable link management debug enable
+
+eth_mac_mode_set- override the mac mode from the device tree
+
+eth_retimer_config- override retimer configuration
+
+exit    - exit script
+ext4load- load binary file from a Ext4 filesystem
+ext4ls  - list files in a directory (default /)
+ext4size- determine a file's size
+false   - do nothing, unsuccessfully
+fdt     - flattened device tree utility commands
+flash_contents_boot_mode_default_app_set- Set default application loaded by the pre-boot code
+flash_contents_boot_mode_default_app_show- Show default application loaded by the pre-boot code
+flash_contents_instance_invalidate- Invalidate a boot instance
+flash_contents_instance_revalidate- Revalidate a boot instance
+flash_contents_obj_info_print- Print a specific flash object information
+flash_contents_obj_read- Read a specific flash object
+flash_contents_obj_read_mem- Read a specific flash object from memory
+flash_contents_obj_update- Update a specific flash object
+flash_contents_obj_validate- Validate a specific flash object
+flash_contents_set_dev- Set flash contents current device
+flash_contents_toc_print- Print the flash contents TOC
+flinfo  - print FLASH memory information
+fru     - FRU operations
+go      - start application at address 'addr'
+gpio    - query and control gpio pins
+grepenv - search environment variables
+help    - print command description/usage
+i2c     - I2C sub-system
+iminfo  - print header information for application image
+imxtract- extract a part of a multi-image
+incenv  - increment environment variable
+iodma_init- Initialize the RAID and memory services accelerator
+iodma_memcpy- Memory copy using the RAID and memory services accelerator
+iodma_memset- Memory set using the RAID and memory services accelerator
+iodma_terminate- Terminates the RAID and memory services accelerator
+is_nand_boot- Returns 1 if boot device is NAND
+itest   - return true/false on integer compare
+lcd_print- Clears LCD display
+loadb   - load binary file over serial line (kermit mode)
+loads   - load S-Record file over serial line
+loadx   - load binary file over serial line (xmodem mode)
+loady   - load binary file over serial line (ymodem mode)
+loop    - infinite loop on address range
+md      - memory display
+md5sum  - compute MD5 message digest
+mdio    - MDIO utility commands
+mem_pattern_set- set values alternately according to the even and odd values
+mii     - MII utility commands
+mm      - memory modify (auto-incrementing address)
+mtest   - simple RAM read/write test
+muio_mux- Multi usage I/O pins (MUIO) multiplexing control - debug
+mw      - memory write (fill)
+nand    - NAND sub-system
+nboot   - boot from NAND device
+nfs     - boot image via network using NFS protocol
+nm      - memory modify (constant address)
+nvme    - NVME sub system
+nvmeboot- boot from NVME device
+otp     - OTP services
+pca953x - pca953x gpio access
+pci     - list and access PCI Configuration Space
+ping    - send ICMP ECHO_REQUEST to network host
+printenv- print environment variables
+protect - enable or disable FLASH write protection
+pxe     - commands to get and boot from pxe files
+reset   - Perform RESET of the CPU
+run     - run commands in an environment variable
+saveenv - save environment variables to persistent storage
+scripth - Show help menu for available scripts
+scsi    - SCSI sub-system
+scsiboot- boot from SCSI device
+serdes  - Serdes debug
+setenv  - set environment variables
+setenvmem- set environment variable from memory
+setexpr - set environment variable as the result of eval expression
+sf      - SPI flash sub-system
+sgpo    - control SGPO pins
+showvar - print local hushshell variables
+sleep   - delay execution for some time
+source  - run script from memory
+sysboot - command to get and boot from syslinux files
+test    - minimal test like /bin/sh
+tftpboot- boot image via network using TFTP protocol
+tftpput - TFTP put command, for uploading files to a server
+thermal_get- Thermal sensor get readout
+thermal_init- Initialize the thermal sensor
+tpm     - Issue a TPM command
+trace_dump- Trace dump
+true    - do nothing, successfully
+uc_clear_secure_log- 
+uc_fru  - Get fru Status
+uc_fru_burn- Burn fru
+uc_fru_erase- 
+uc_fru_print- print fru
+uc_fru_unlock- 
+uc_fru_valid_get- 
+uc_get_flash_booted_from- 
+uc_get_nitro_mode- 
+uc_get_pp- 
+uc_get_recovery- 
+uc_get_secure- 
+uc_get_secure_log- 
+uc_get_version- 
+uc_gpio_get_dir- Get gpio dir
+uc_gpio_read- Read gpio
+uc_gpio_set_dir- Set gpio dir
+uc_gpio_write- Write to gpio
+uc_mgmt - Get mgmt Status
+uc_reset- UC reset
+uc_sdr  - Get sdr Status
+uc_sdr_clear_mask_reg- UC sdr clear mask reg - Supported for V3
+uc_sdr_get_version- 
+uc_sdr_print- print sdr
+uc_sdr_reset- 
+uc_sdr_set_fw_update- 
+uc_sdr_set_mask_reg- UC sdr set mask reg - Supported for V3
+uc_set_nitro_mode- 
+uc_set_pp- UC set pp
+uc_set_recovery- UC set recovery
+uc_set_secure- UC set secure mode
+uc_set_spi_buffer- UC set spi buffer
+uc_thermal- Get thermal interface status.
+uc_thermal_shutdown- UC thermal shutdown
+uc_thermal_shutdown_set_temp- UC set thermal shutdown temprature
+uc_update- UC update
+uc_watchdog_get_status- 
+uc_watchdog_set_enabled- Set watchdog enabled
+version - print monitor, compiler and linker version
+wfi     - CPU wait for interrupt CPU idle)

@@ -108,11 +108,12 @@ def expected_serial(unit):
 
 
 def step_preflight(args, st):
-    for name in ("uImage", "uInitrd", "dmc12.dtb", "uboot-commands.txt", "SHA256SUMS"):
+    for name in ("uImage", "uInitrd", "dmc12.dtb", "boot.scr", "uboot-commands.txt", "SHA256SUMS"):
         if not (args.netboot / name).exists():
             raise Fail(f"netboot bundle incomplete: {args.netboot}/{name} (nix build path:./nix#dmc12-netboot)")
+    needs_disk = "write" in args.steps
     for name in ("disk.img.zst", "disk.img.sha256", "disk.img.bytes"):
-        if not (args.image / name).exists():
+        if needs_disk and not (args.image / name).exists():
             raise Fail(f"disk image incomplete: {args.image}/{name} (nix build path:./nix#dmc12-disk-image)")
     if subprocess.run(["tmux", "has-session", "-t", SESSION], capture_output=True).returncode:
         raise Fail(f"no tmux session {SESSION}; start tio on the console first (PROGRESS.md)")
@@ -123,9 +124,10 @@ def step_preflight(args, st):
                    "or pass --no-backup-gate REASON")
     st["backups"] = sorted(have) if have else []
     st["backup_gate"] = "skipped: " + args.no_backup_gate if missing else "ok"
-    st["image_sha256"] = (args.image / "disk.img.sha256").read_text().strip()
-    st["image_bytes"] = int((args.image / "disk.img.bytes").read_text())
-    st["toplevel"] = (args.image / "toplevel").read_text().strip()
+    if needs_disk:
+        st["image_sha256"] = (args.image / "disk.img.sha256").read_text().strip()
+        st["image_bytes"] = int((args.image / "disk.img.bytes").read_text())
+    st["toplevel"] = (args.netboot / "toplevel").read_text().strip()
 
 
 def step_stage(args, st):
@@ -133,7 +135,7 @@ def step_stage(args, st):
     if not d.exists():
         subprocess.run(["sudo", "-n", "install", "-d", "-o", str(pathlib.Path.home().owner()),
                         str(d)], check=True)
-    for name in ("uImage", "uInitrd", "dmc12.dtb", "SHA256SUMS"):
+    for name in ("uImage", "uInitrd", "dmc12.dtb", "boot.scr", "SHA256SUMS"):
         dst = d / name
         tmp = d / (name + ".tmp")
         shutil.copyfile(args.netboot / name, tmp)
@@ -189,7 +191,7 @@ def step_netboot(args, st):
     lines = (args.netboot / "uboot-commands.txt").read_text().splitlines()
     for line in lines:
         line = line.replace("<SERVER>", args.server).replace("<DIR>", args.tftp_dir)
-        if line.startswith("bootm"):
+        if line.startswith(("bootm", "source")):  # boots: no prompt comes back
             clear_pane()
             subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", line], check=True)
             subprocess.run(["tmux", "send-keys", "-t", SESSION, "Enter"], check=True)
@@ -317,6 +319,7 @@ def main():
     if args.plug is None and not args.no_power:
         p.error("give --plug N or --no-power")
     steps = STEPS[STEPS.index(args.start):STEPS.index(args.stop) + 1]
+    args.steps = steps
     st = {"unit": args.unit, "steps": []}
     if args.ip:
         st["ip"] = args.ip

@@ -31,6 +31,7 @@
   tags for this device are in `images.jsonl`. `export-qcow2` makes a zstd qcow2 for read-only nbd attach.
 - **Units:** many more boxes are coming in. `units.md` has per-unit versions and the
   collection steps; serials are in `units-private.txt` (ignored). This box is **u01**.
+- **K2 uC + factory U-Boot internals** (for future U-Boot patches): `k2-uc.md`.
 - **Factory hardware tooling vs the module:** `vendor-tooling.md` (CPLD register map,
   reboot via CPLD/sp805, interrupt monitor, uplink re-sync, GPIO lines). Read it before
   reworking `board-dmc12`.

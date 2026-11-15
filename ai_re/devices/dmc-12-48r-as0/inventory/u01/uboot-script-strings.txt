@@ -1,0 +1,15 @@
+# Strings of SPI CS0 object UBOOT_SCRIPT (both instances identical), unit u01, 2026-11-15.
+init_script
+if test $boot_app_toc -ne 10; then
+echo "Performing one time update of uboot macros to load boot app using TOC object"
+# Macro to update boot app
+setenv app_updspi 'env default loadaddr ; env default loadaddr_payload ; echo "Updating bootapp.fimg"; loady $loadaddr_payload ; flash_contents_obj_update BOOT_APP $boot_instance_active $loadaddr_payload $filesize;  echo app_updspi done;'
+setenv load_boot_app_spi 'env default loadaddr ; flash_contents_obj_read BOOT_APP $boot_instance_active; bootm $loadaddr - $fdtaddr'
+setenv boot_app_args_addr 0x9000000
+setenv boot_app_args_spi_loc 0x480000
+setenv load_boot_args_spi 'sf probe; sf read $boot_app_args_addr $boot_app_args_spi_loc 0x1000'
+setenv boot_app_toc 10
+setenv bootcmd_ep 'al_pcie_ext; run load_boot_args_spi; run load_boot_app_spi'
+setenv bootcmd "$bootcmd_ep"
+setenv bootdelay 0
+saveenv
