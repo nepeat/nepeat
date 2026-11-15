@@ -211,7 +211,7 @@ and no `rc-manual-init`. So the factory U-Boot's own init boils down to:
   junk. A new U-Boot (and every env edit, already done by reimage) changes the PCRs. That
   only matters for secrets sealed by the factory OS. It is no boot risk.
 
-## 7. Flashing concept (not executed; owner decision)
+## 7. Flashing concept (owner decision; implemented as `spi-upgrade.py`, with `sf erase`/`sf write`)
 The factory `flash_contents_obj_update <OBJ> <inst> <addr> <size>` (0x1104ecc → 0x011043a4):
 - Looks the slot up in the TOC and refuses anything over `max_size`.
 - Erases only the 4 KiB sectors it covers (it keeps the partial head/tail sectors), then
@@ -236,7 +236,7 @@ review first):
    IPXE 0` and an `sf read` + `cmp.b` of the slot.
    - Nothing boots IPXE yet: a bad write here is harmless.
    - The blank IPXE 1 at 0x580000 can hold a second copy for our own A/B.
-2. Write BOOT_MODE (app 0x110). It is a single 4 KiB sector at 0x340000. A torn write
+2. Write BOOT_MODE (app 0x110): the first 4 KiB sector of its 64 KiB slot at 0x340000. A torn write
    leaves it invalid, and stage3 then boots the factory UBOOT. Validate + `cmp.b`.
 3. Cold boot. Stage3 loads our U-Boot from IPXE 0.
    - **Bad object or hang:** power-cycle while sending `u`. Stage3 loads the factory

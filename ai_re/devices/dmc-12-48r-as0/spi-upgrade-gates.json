@@ -1,0 +1,7 @@
+{
+  "_doc": "spi-upgrade.py refuses --write while any gate below is null. Set one to {date, by, evidence} when it is met (spi-upgrade-plan.md, preconditions 2, 5, 6). Per-unit rehearsals live in inventory/<unit>/spi-upgrade.jsonl, not here.",
+  "clip_read": null,
+  "review": null,
+  "gpio22": null,
+  "cold_pcie": null
+}

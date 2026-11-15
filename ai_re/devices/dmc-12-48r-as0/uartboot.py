@@ -628,39 +628,44 @@ def cmd_xmodem(a):
     os.close(fd)
 
 
-ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-sub = ap.add_subparsers(dest="cmd", required=True)
-p = sub.add_parser("image")
-p.add_argument("--mtd", type=pathlib.Path, default=MTD0)
-p.add_argument("--app", required=True, help="BOOT_MODE app id (0x110, 0x10000005, ...) or 'none'")
-p.add_argument("--uboot", type=pathlib.Path, help="u-boot.bin linked at 0x08000000 (for 0x110)")
-p.add_argument("out", type=pathlib.Path)
-p = sub.add_parser("tramp")
-p.add_argument("out", type=pathlib.Path)
-p = sub.add_parser("route-a")
-p.add_argument("--image", type=pathlib.Path, required=True)
-p.add_argument("--key", help="stage3 key to send from `go` on (u, p, e)")
-p.add_argument("--run", action="store_true", help="drive the factory prompt (default: dry run)")
-p.add_argument("--server", default="10.60.2.208")
-p.add_argument("--tftp-root", type=pathlib.Path, default=pathlib.Path("/srv/tftpboot"))
-p.add_argument("--tftp-dir", default="dmc12/route-a")
-p.add_argument("--timeout", type=float, default=60)
-p.add_argument("--no-agent-trace", dest="trace_agent", action="store_false",
-               help="no trace prints (agent hooks, R, P/x prints); the reset fix (x) and RMR fix (P) stay")
-p.add_argument("--no-rmr-fix", dest="rmr_fix", action="store_false",
-               help="trace only: don't set RMR.AA64 = 1 in the stage3-entry hook (P)")
-p.add_argument("--no-rom-debug", dest="rom_debug", action="store_false",
-               help="don't set the boot ROM's debug-print flag (0xfbff4020)")
-p = sub.add_parser("s2")
-p.add_argument("mtd", type=pathlib.Path)
-p.add_argument("out", type=pathlib.Path)
-p = sub.add_parser("xmodem", description="Stop tio first: tmux send-keys -t serial-dmc12 C-t q "
-                   "(the pane exits). Restart it afterwards with the same tio command and a new "
-                   "--log-file (PROGRESS Status). Needs root for the tty, like tio.")
-p.add_argument("--tty", required=True)
-p.add_argument("--wait", type=float, default=600, help="seconds to wait for the receiver")
-p.add_argument("--listen", type=float, default=20, help="seconds to echo output afterwards")
-p.add_argument("file", type=pathlib.Path)
-a = ap.parse_args()
-{"image": cmd_image, "tramp": cmd_tramp, "route-a": cmd_route_a, "s2": cmd_s2,
- "xmodem": cmd_xmodem}[a.cmd](a)
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("image")
+    p.add_argument("--mtd", type=pathlib.Path, default=MTD0)
+    p.add_argument("--app", required=True, help="BOOT_MODE app id (0x110, 0x10000005, ...) or 'none'")
+    p.add_argument("--uboot", type=pathlib.Path, help="u-boot.bin linked at 0x08000000 (for 0x110)")
+    p.add_argument("out", type=pathlib.Path)
+    p = sub.add_parser("tramp")
+    p.add_argument("out", type=pathlib.Path)
+    p = sub.add_parser("route-a")
+    p.add_argument("--image", type=pathlib.Path, required=True)
+    p.add_argument("--key", help="stage3 key to send from `go` on (u, p, e)")
+    p.add_argument("--run", action="store_true", help="drive the factory prompt (default: dry run)")
+    p.add_argument("--server", default="10.60.2.208")
+    p.add_argument("--tftp-root", type=pathlib.Path, default=pathlib.Path("/srv/tftpboot"))
+    p.add_argument("--tftp-dir", default="dmc12/route-a")
+    p.add_argument("--timeout", type=float, default=60)
+    p.add_argument("--no-agent-trace", dest="trace_agent", action="store_false",
+                   help="no trace prints (agent hooks, R, P/x prints); the reset fix (x) and RMR fix (P) stay")
+    p.add_argument("--no-rmr-fix", dest="rmr_fix", action="store_false",
+                   help="trace only: don't set RMR.AA64 = 1 in the stage3-entry hook (P)")
+    p.add_argument("--no-rom-debug", dest="rom_debug", action="store_false",
+                   help="don't set the boot ROM's debug-print flag (0xfbff4020)")
+    p = sub.add_parser("s2")
+    p.add_argument("mtd", type=pathlib.Path)
+    p.add_argument("out", type=pathlib.Path)
+    p = sub.add_parser("xmodem", description="Stop tio first: tmux send-keys -t serial-dmc12 C-t q "
+                       "(the pane exits). Restart it afterwards with the same tio command and a new "
+                       "--log-file (PROGRESS Status). Needs root for the tty, like tio.")
+    p.add_argument("--tty", required=True)
+    p.add_argument("--wait", type=float, default=600, help="seconds to wait for the receiver")
+    p.add_argument("--listen", type=float, default=20, help="seconds to echo output afterwards")
+    p.add_argument("file", type=pathlib.Path)
+    a = ap.parse_args()
+    {"image": cmd_image, "tramp": cmd_tramp, "route-a": cmd_route_a, "s2": cmd_s2,
+     "xmodem": cmd_xmodem}[a.cmd](a)
+
+
+if __name__ == "__main__":
+    main()
