@@ -1,0 +1,9 @@
+{"cycle": 1, "kind": "power", "t": "2026-11-15T11:34:39-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 64.0, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "48000"}
+{"cycle": 2, "kind": "power", "t": "2026-11-15T11:35:54-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 64.1, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "47000"}
+{"cycle": 3, "kind": "warm", "t": "2026-11-15T11:37:10-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 66.7, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "45500"}
+{"cycle": 4, "kind": "power", "t": "2026-11-15T11:38:20-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 63.8, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "45500"}
+{"cycle": 5, "kind": "cold", "t": "2026-11-15T11:39:35-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 64.0, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "43000"}
+{"cycle": 6, "kind": "warm", "t": "2026-11-15T11:42:53-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 66.7, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "43500"}
+{"cycle": 7, "kind": "power", "t": "2026-11-15T11:44:03-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 65.3, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "43500"}
+{"cycle": 8, "kind": "power", "t": "2026-11-15T11:45:20-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 64.8, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "44000"}
+{"cycle": 9, "kind": "warm", "t": "2026-11-15T11:46:37-0800", "times": {"login": 0.0}, "bad": [], "ready_s": 66.7, "smoke_failed": [], "pass": true, "cpld_wdt_flag": "0x01", "uc_mC": "44000"}

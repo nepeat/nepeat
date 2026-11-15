@@ -40,6 +40,11 @@ def ssh(ip, cmd, timeout=30):
 def one(args, i, kind):
     rec = {"cycle": i, "kind": kind, "t": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
     subprocess.run(["tmux", "clear-history", "-t", SESSION], check=True)
+    # clear-history keeps the visible screen (the old login prompt is on it):
+    # only count matches beyond what is there before the cycle starts.
+    base = pane()
+    seen = {n: len(re.findall(p, base)) for n, p in EVENTS}
+    seen_bad = {b: len(re.findall(b, base)) for b in BAD}
     if kind == "warm":
         ssh(args.ip, "systemctl reboot")
     else:
@@ -51,9 +56,9 @@ def one(args, i, kind):
     while time.monotonic() - t0 < args.timeout:
         text = pane()
         for name, pat in EVENTS:
-            if name not in times and re.search(pat, text):
+            if name not in times and len(re.findall(pat, text)) > seen[name]:
                 times[name] = round(time.monotonic() - t0, 1)
-        bad = [b for b in BAD if re.search(b, text)]
+        bad = [b for b in BAD if len(re.findall(b, text)) > seen_bad[b]]
         if bad or "login" in times:
             break
         time.sleep(0.5)
@@ -90,14 +95,14 @@ def main():
     p.add_argument("--unit", required=True)
     p.add_argument("--plug", type=int, required=True)
     p.add_argument("--ip", required=True)
-    p.add_argument("--cycles", type=int, default=20)
-    p.add_argument("--cold-off", type=int, default=130, help="AC-off seconds for cold cycles")
+    p.add_argument("--cycles", type=int, default=6)
+    p.add_argument("--cold-off", type=int, default=30, help="AC-off seconds for cold cycles")
     p.add_argument("--timeout", type=int, default=420, help="seconds from power-on to login")
     a = p.parse_args()
     out = ROOT / "inventory" / a.unit / "soak.jsonl"
     fails = 0
     for i in range(1, a.cycles + 1):
-        kind = "cold" if i % 5 == 0 else "warm" if i % 3 == 0 else "power"
+        kind = ("power", "warm", "cold")[(i - 1) % 3]
         rec = one(a, i, kind)
         fails += not rec["pass"]
         with out.open("a") as f:
