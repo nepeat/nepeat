@@ -301,8 +301,8 @@ added leaves the SoC's reset/width logic in another state.
   from there.
 - Stage3's own NB writes still work from Non-secure, because TZ is off.
 
-**v5b hooks** (on with the agent trace; all in the 0x400-byte blob at 0x01060000; ARM/A64 encodings
-checked in Ghidra):
+**v5b hooks** (on with the agent trace; in the blob at 0x01060000; ARM/A64 encodings checked in
+Ghidra; `w` is replaced by `x` in v6):
 - **`P` + 2 digits**, at stage3's first instruction (0x01000000, patched to `b 0x01060380`).
   - This runs right after our stub's RMR warm reset, in Secure SVC.
   - It prints `P`, then RMR.AA64 (expect `0`, from the stub). By default (`--no-rmr-fix` to skip) it
@@ -342,16 +342,6 @@ The `P`, `R` and AArch64 agent hooks are unchanged.
 | `q…`, dots, `!`s | WFI wakes at once (a pending interrupt): the reset waits for a WFI it never gets |
 | `q…`, dots, `!`×8 | the request is never applied. The hex words show the reset/power state |
 | `A…` | the AArch64 agent path runs (then `MgrDWSE`, or a stop that shows the next problem) |
-
-**v5b hooks, kept in v6** (except `w`):
-
-| output | meaning |
-| --- | --- |
-| `w1` then `AMgrDWSE` | the RMR fix worked (it had printed `P01`). With `--no-rmr-fix` the same result would rule out RMR |
-| `w1` then `R` | back in AArch32 through the ROM despite the fix: the width comes from somewhere else |
-| `w1` then nothing | the reset isn't applied (b), or it lands outside both paths (c) |
-| no `w` | stage3 doesn't reach its reset request |
-| `P` with no digits, or an "Exception!" | RMR isn't accessible even at stage3's entry |
 
 From there on everything is the production binary:
 - "UART recovery!", BOOT_MODE/DT/app read from RAM;
