@@ -136,7 +136,8 @@ and tested offline 2026-11-15; nothing flashed.
     fn 2 = the factory's `pinctrl_init` result (u01 dump: mux_sel_0 0x22, mux_sel_2
     0x00220000); PCIe port 0 gen1 x1.
   - Not done: SGPO (the DMC-12 board-cfg has no `sgpo_init`, so the factory never
-    writes it; `alpine state` only reads it), GPIO 22 (stage2 drives it), USB in
+    writes it; `alpine state` only reads it), GPIO 22 (only the factory U-Boot drives it high; stage2 does not, see
+    spi-uboot-replacement.md §4 item 4), USB in
     U-Boot, the fan/WDT CPLD preamble.
 - `#uboot-dmc12-stage3app` (`/nix/store/4j3znl4pvf412q58q81j1vs6l7s8rqgh-uboot-dmc12-stage3app`):
   that u-boot.bin, byte for byte, wrapped by [alboot.py](../../nix/packages/alboot/alboot.py)

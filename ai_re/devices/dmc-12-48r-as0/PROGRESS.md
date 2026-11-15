@@ -6,7 +6,8 @@
   (al_eth) from raw sda1 → extlinux on sda2 → root sda3. Env: `nixos_boot` + `bootcmd` only, factory
   chain kept as fallback. Original state: `dumps/u01/` (restore: `reimage.md` "Back to factory").
 - Next: replacing the boot U-Boot in SPI itself (investigation: `spi-uboot-replacement.md`,
-  `spi-recovery.md`, in progress).
+  `spi-recovery.md`, in progress). Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
+  `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
 - Console: tmux `serial-dmc12`, tio on the FTDI `B0016Y5Q` (by-id path) at **115200 8N1**,
   confirmed from a readable boot. Captures go to `serial-*.txt` (git-ignored, may
   hold env/keys). The AS7760's console is cabled to **DMC-12 port 48**: read-only

@@ -62,14 +62,16 @@ answers to the read-only questions below.
     U-Boot 2.44 runs on its compiled-in default env.
 - **Would CS1 boot this board to a prompt? Unproven, and the risks are concrete.**
   - UART: same (ttyS0 @0xfd883000). DDR: the 2.44 DT has **no** `board-cfg/dram/channel0`
-    and no SPD location. 2.44 stage2 gets them from "early init" data, *inferred* to be
-    the I2C preloader EEPROM. If that guess is wrong: "no valid dimms!" and a hang in
-    stage2. The 2.60 DMC-12 DT points at SPD 0x57 offset 0x440.
+    and no SPD location. 2.44 stage2 then reads the early-init info in the preloader EEPROM
+    (0x400: SPD at 0x57/0x440 plus impedance), which u01 has (*code* + data,
+    [boot-chain-details.md](boot-chain-details.md) §1). So DDR should come up.
   - SerDes: PCIe x8 on groups 0 and 1, so no SATA and no SSD. PCIe port 0 is set up as an
     **endpoint** (`ep-ports = <0>`), and `if_pci_ep_int_a` is pinmuxed.
-  - `gpio_init` drives SoC GPIO 23–41 low as outputs (37 excepted) and 34 high. GPIO 41
-    is the **CPLD interrupt input** (PL061 @0xfd897000 line 1), so the SoC would fight the
-    CPLD. GPIO 22, the CPLD-JTAG-related line that the DMC-12 DT drives high, is left alone.
+  - `gpio_init` makes SoC GPIO 23–41 **inputs** (37 excepted) and drives 34 high: triplets are
+    `<gpio, dir, value>`, dir 0 = input (*code*: U-Boot 2.60 0x01107f50; 2.44 assumed the same).
+    So GPIO 41 (the CPLD interrupt) is not fought. GPIO 34 is *inferred* to be the K2C-AB's
+    preload-EEPROM write protect; what it drives on the DMC-12 is unknown. GPIO 22, which the
+    DMC-12 DT drives high, is left alone.
   - U-Boot 2.44 has **no `uc_*` commands**, so it can't set the select back.
   - Its `UBOOT_SCRIPT` (the same one as CS0's) finds no `boot_app_toc`. It then sets
     `bootcmd` = `al_pcie_ext; … bootm BOOT_APP`, sets `bootdelay 0`, and runs
@@ -229,7 +231,7 @@ answers to the read-only questions below.
 | 2 | Bad U-Boot that still prints and reads keys: its own prompt → restore from TFTP as in §6 | the new U-Boot has net + `sf` | depends on the new U-Boot |
 | 3 | Bad app object with stage3 still intact: Route A tests the app with no write; stage3 keys `p`/`e`/`u` force UBOOT 0 when BOOT_MODE names another app | BOOT_MODE ≠ app 5 (the planned IPXE layout) | keys proven on hardware; Route A untested (uart-boot.md §6) |
 | 4 | Invalidate instance 0's stage2 so the ROM boots instance 1; revalidate from the instance-1 U-Boot | instance 1 holds a good stg2 + DMC-12 DT + U-Boot (writes to 0x40000 and 0x350000 first) | **ROM fallback proven from code**; a 4 KiB rewrite of sector 0 |
-| 5 | `uc_set_recovery 1` → CS1 boots (generic 2.44) → abort at bootdelay 0 → `sf probe 0:1` → rewrite the DMC-12 chip | the select is volatile; CS1 boots DDR; owner accepts the GPIO 41 contention and the CS1 env `saveenv` | inferred, risky |
+| 5 | `uc_set_recovery 1` → CS1 boots (generic 2.44) → abort at bootdelay 0 → `sf probe 0:1` → rewrite the DMC-12 chip | the select is volatile; CS1 boots DDR; owner accepts GPIO 34 driven high, no SATA, and the CS1 env `saveenv` | inferred, risky |
 | 6 | External 1.8 V programmer on the bad chip (clip or pogo, SoC quiet), write `mtd0.bin` back | package known, programmer, SoC held off the bus or chip removed | standard technique, nothing rehearsed |
 | 7 | ROM UART boot (`uartboot.py s2` + `xmodem`): factory stage2 for broken stage2 copies; a patched stage2 (Route B) for a broken UBOOT 0 | strap 4 located on the K2 card, or no valid S2 in CS0's first 2 MiB | ROM protocol proven from code; nothing run |
 

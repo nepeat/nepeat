@@ -39,10 +39,9 @@ object starts with the al-boot header magic `c7 9e 0b 00`. On CS0,
 has data there. `uboot_script` (`inventory/u01/uboot-script-strings.txt`) runs on
 **every** boot. It is guarded only by `boot_app_toc`, so an env reset reroutes boot to
 `BOOT_APP`: see the hazards in [uboot-vendor-commands.md](uboot-vendor-commands.md).
-`BOOT_APP` (A/B, about 4.8 MiB) is a separately bootable app loaded with `bootm`,
-not identified yet.
+`BOOT_APP` (A/B 4.8 MiB slots, a 463 KiB image) is the K2C-AB `eth_fast_path` CVOS NIC firmware, loaded
+with `bootm`; `APCEA` is a PCIe-endpoint early app: [boot-chain-details.md](boot-chain-details.md) §4.
 
 ## Next
 Read `uc_fru_print` / `uc_sdr_print` (read-only, but the FRU output holds identifiers:
-save it to `*-private.txt`). Identify `BOOT_APP` (the strings say K2 firmware,
-`k2_firmware_bin_release_V2_k2c_ab`) and `APCEA` (CS1).
+save it to `*-private.txt`).

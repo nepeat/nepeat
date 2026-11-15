@@ -75,7 +75,8 @@ Every checksum is a plain 32-bit **byte sum**. There is no CRC and no hash.
    - Then `f2200020 f2200020 fd883000` follow.
 2. **Stage2** (main 0xf220bd88): TOC search, then the instance from 0xfbff4000
    (0xf2208718). Offset 0 matches the TOC's STG2 entry 0, so active = fallback = 0.
-   - Loads DT 0 for DRAM and `gpio_init` (0xf220c644), then DDR init and the TPM flow.
+   - Loads DT 0 (`dt_read_from_flash`, 0xf220c644) and applies its `gpio-list-s2` (absent here;
+     0xf220c818), then DDR init and the TPM flow.
    - Then **measured boot** (0xf220d1a4, "Performing measurement"), see §5.
    - Then PRE_BOOT_V2 0, else STG3 0: header + data sum, load 0x01000000.
      `Executing next at` jumps there (0xf220bcc8).
@@ -162,7 +163,7 @@ and no `rc-manual-init`. So the factory U-Boot's own init boils down to:
 | 1 | **External PCIe port 0 RC** (0xfd800000 regs, ECAM 0xfb600000, mem 0xc0010000): port config gen1 x1, link start + wait (`pci_init_board_external`, same code as `al_pcie_ext`) | U-Boot init (`PCIE_0: Link up 2.5GT/s x1`) | **yes**: the Pericom bridge → OHCI/EHCI → all 48 ports. Mainline `pcie-al` assumes the link is up. **Built** (patch 0022, Annapurna HAL 3.4 verbatim; RAM test pending, [u-boot-port.md](u-boot-port.md#self-init-build-pcie-muio-ccu-read-only-spi-not-yet-run-on-hardware)) |
 | 2 | **MUIO pinmux**: `if_uart_1`, `if_spim_a_ss_1`, `if_spim_a_ss_2` (PBS 0xfd8a8000) | `dt_based_init_pinctrl` | **yes** for SPI CS1 (mtd1) and CS2 (SPI TPM); UART1 (LCD) optional. **Built**: DT-driven replay of those 4 pins (0025/0026) |
 | 3 | CCU 0xf0094000←1, 0xf0090004←7 | factory `bootm` (DT `io_coherency`) | recommended in `board_prep_linux`, so Linux sees today's tested state. Our Linux DTS is non-coherent, so it is not strictly needed. **Built** (0025) |
-| 4 | `gpio_init` (GPIO 22 high) | stage2 already (`stage2_gpio_init`), the factory again | no (verify, question 2) |
+| 4 | `gpio_init` (GPIO 22 high) | the factory U-Boot only: k2 stage2 reads `gpio-list-s2`, which the DT lacks (0xf220c818) | **yes**, if GPIO 22 matters (CPLD JTAG-related); one `gpio` write |
 | 5 | Fans/WDT flag (CPLD 0x2a←0, 0x50←0x2a), LED | env preamble | optional: fans stay at full speed (fail-safe) until NixOS fancontrol. Could go in `board_late_init` |
 | 6 | DN0 SATA SerDes fix (`serdes wr 1 p0 pma 21 2 0 5` if 0xfb600000 = 0x8241104c) | env preamble | per unit, **only after item 1** (it reads the external PCIe ID). u01 has none |
 | 7 | MAC into EC entry 0 | factory al_eth | done: patch 0018 (EEPROM MAC); params are stage3's |
