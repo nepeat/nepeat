@@ -14,23 +14,22 @@ Background and evidence: uart-boot.md. Offline subcommands never touch hardware.
 Every image blanks UBOOT_SCRIPT 0/1: in RAM-load ("UART recovery") mode the factory U-Boot
 would otherwise run it, and with a default env the script ends in `saveenv` (an SPI write).
 
-route-a, at the factory `ALPINE_DB>` prompt, through console.py and the tmux pane `serial-dmc12`:
-TFTP the image to 0x01800000 and the trampoline to 0x01700000, copy a clean stage3 out of the
-image to 0x01000000 and zero its .bss, set the stage2 shared-data flags to RAM load
-(0xfbff41c1: bit0 on, bit1 off), invalidate the SRAM cpu-resume watermark (0xfbff4120 = 0) so
-stage3 takes its cold-boot path (it enables VFP/NEON there; v2 hung on the first NEON instruction),
-optionally enable the boot ROM's debug print (0xfbff4020 = 1: a stage3 exception then prints
-"Exception! LR=..., CPSR=..." instead of a silent hang), then `go 0x01700000` (trampoline v3,
-uart-boot.md section 5):
-- EL2: copy a 48-byte EL3 stub over the agent's entry at 0x1000, clean D-cache (0x1000 line,
-  0x01000000-0x02000000, the SRAM lines 0xfbff4000/4100/41c0), set the boot-ROM resume address 0xf0072028 =
-  0x01000000, CPU0 power-on reset (0xf0070024 = 0x13). config_aarch64 (0xf0072004) and RVBAR are
-  write-once and stage3 already set them to AArch64 / 0x1000, so CPU0 comes back at the stub, at EL3.
-- EL3 stub: print '#' on UART0, then RMR_EL3 = AA64 0 | RR 1 and WFI: a warm reset into AArch32.
-- AArch32 reset -> ROM vectors (VINITHI) -> resume address -> stage3 in secure SVC. Stage3
-  re-copies the agent to 0x1000 itself, which removes the stub.
-Afterwards **power-cycle** (AC off >= 10 s). Stage3's cold-boot path re-installs the SRAM agent, which
-sets 0xf0072028 back to 0xfbff423c; if stage3 dies before that, 0x01000000 stays set until power-off.
+route-a (works on u01; recipe and evidence: uart-boot.md section 5), at the factory `ALPINE_DB>`
+prompt through console.py and the tmux pane `serial-dmc12`, every transfer and patch CRC/read-back
+checked: TFTP the image to 0x01800000 and the trampoline to 0x01700000; copy a clean stage3 to
+0x01000000 and zero its .bss; load the hook blob (route-a-hooks.bin) to 0x01060000 and patch the
+stage3 copy:
+- x at stage3's reset call: cpus_software_reset = 0x00010013 (WFI_MASK; stage3's own 0x13 never
+  fires on this path because WFI doesn't hold) - always;
+- P at stage3's entry: RMR.AA64 = 1 (--no-rmr-fix to skip);
+- with the trace (default; --no-agent-trace drops it): AArch64 agent hooks A M g r D W S E, R on the
+  ROM's AArch32 resume path, and the prints in P and x. Hooks stay resident: diagnostic runs.
+Then flags 0xfbff41c1 = RAM load, cpu-resume watermark 0xfbff4120 = 0 (stage3's cold-boot path:
+VFP on, SRAM agent re-installed), ROM debug print 0xfbff4020 = 1, and `go 0x01700000`: the
+trampoline puts an EL3 stub at the agent entry (0x1000), cleans D-cache, sets the ROM resume address
+0xf0072028 = 0x01000000 and resets CPU0; the stub prints '#' and warm-resets to AArch32 via RMR_EL3;
+the ROM resumes stage3, which runs unmodified to the app. Read results from the tio log.
+Afterwards **power-cycle** (AC off >= 10 s).
 """
 import argparse, os, pathlib, struct, subprocess, sys, termios, time, zlib
 
