@@ -203,6 +203,12 @@
 		#gpio-cells = <2>;
 		interrupt-controller;
 		#interrupt-cells = <2>;
+		/*
+		 * Line 5 = SoC GPIO 37: doorbell of the K2 uC mailbox (0xfd8a4170). Toggling
+		 * it sends the uC a command. Never claim or drive it from Linux
+		 * (devices/dmc-12-48r-as0/uboot-vendor-commands.md).
+		 */
+		gpio-line-names = "", "", "", "", "", "UC_MAILBOX_DOORBELL_DO_NOT_USE", "", "";
 	};
 
 	gpio5: gpio@1897000 {

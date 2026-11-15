@@ -63,6 +63,12 @@ let
     # init'd controller and errors with "Invalid port number" on cold
     # entry.
     echo "== DMC-12 NixOS bootmenu =="
+    # The factory preamble, as the stock bootcmd runs it before Linux: SATA
+    # SerDes fix on DN0 boxes, CPLD WDT flag clear, fans 70%, LED, uplink PHY
+    # sync, and `bootp` (autoload=n). bootp is what makes the factory U-Boot
+    # write the al_eth board-info + MAC scratch registers; without a network
+    # command Linux al_eth fails to probe (uboot-vendor-commands.md).
+    run dmc12_boot_preamble
     scsi init
     if ext4load scsi 0:1 0x07000000 /u-boot.menu; then
       env import -t 0x07000000 ''${filesize}
