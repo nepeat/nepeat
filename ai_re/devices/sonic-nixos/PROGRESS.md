@@ -9,6 +9,17 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 
 ## Status (2026-11-15)
 
+- **Routing through the AS7760's chip works** (2026-11-15,
+  [evidence](sonic-as7760-l3-ecmp-bgp-20261115.txt)): VRFs (pings across
+  VRF 0 / Vrf-test over the lab cable, 0% loss), frames routed by the ASIC
+  (TTL 63) via one next hop and via an ECMP group (SDK ECMP egress object, 2
+  members), iBGP between the VRFs over the cable with the learned prefix in
+  APPL_DB and the ASIC, static routes from FRR in the ASIC. Fixes that got
+  there: per-port L3 enable + ARP in the my-station entry (sai-openbcm),
+  no ALPM in config.bcm (our libsdk has none: routes were silently never
+  looked up), BGP allowed through the host firewall on switch interfaces.
+  Debug: `openbcm-diag <cmd>` runs SDK diag commands inside syncd.
+
 - **VRF, ECMP, flex counters** (2026-11-15, fake-tested, not on the switch):
   kernel NET_VRF, `sonic-vrfmgrd`, sai-openbcm virtual routers (SDK VRFs)
   and next-hop groups (SDK ECMP groups), real ECMP capacities;

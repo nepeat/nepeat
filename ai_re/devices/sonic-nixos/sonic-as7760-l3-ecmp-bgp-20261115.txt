@@ -1,0 +1,93 @@
+# AS7760 routed traffic, ECMP and BGP through the chip, 2026-11-15 (3982c39 + BGP firewall rule)
+## VRF pings (after the ALPM fix)
+ActiveState=active	NRestarts=0		ActiveState=active
+NRestarts=0			
+0
+Ethernet0        UP             10.0.0.0/31 fe80::8eea:1bff:fe89:c93c/64 
+Ethernet124      UP             10.0.0.1/31 fe80::8eea:1bff:fe89:c93c/64 
+master Vrf-test
+1024  0        10.0.0.0/32          00:00:00:00:00:00 100002    0     0     0    0 n
+1024  1        10.0.0.1/32          00:00:00:00:00:00 100002    0     0     0    0 n
+1536  0        10.0.0.0/31          00:00:00:00:00:00 100002    0     0     0    0 n
+1536  1        10.0.0.0/31          00:00:00:00:00:00 100002    0     0     0    0 n
+2048  0        0.0.0.0/0            00:00:00:00:00:00 100003    0     0     0    0 n
+== ping default->Vrf-test
+20 packets transmitted, 20 received, 0% packet loss, time 1061ms
+rtt min/avg/max/mdev = 0.117/0.185/0.438/0.065 ms
+== ping Vrf-test->default
+20 packets transmitted, 20 received, 0% packet loss, time 1063ms
+rtt min/avg/max/mdev = 0.123/0.164/0.246/0.032 ms
+-- xe0
+RIPC4.xe0		    :			 29		    +29 	     18/s
+RPKT.xe0		    :			 30		    +30 	     18/s
+TPKT.xe0		    :			 30		    +30 	     18/s
+-- xe4
+RIPC4.xe4		    :			 29		    +29 	     18/s
+RPKT.xe4		    :			 30		    +30 	     18/s
+TPKT.xe4		    :			 30		    +30 	     18/s
+-- cpu0
+PERQ_PKT(0).cpu0	    :			 60		    +60 	     36/s
+PERQ_BYTE(0).cpu0	    :		      6,284		 +6,284 	  3,800/s
+## step 3: routed in the chip (single next hop, ECMP, negative)
+rtt min/avg/max/mdev = 0.236/0.239/0.242/0.003 ms
+rtt min/avg/max/mdev = 0.213/0.314/0.416/0.101 ms
+== 3a single next hop
+sent 20 frames 10.0.0.1 -> 192.0.2.1 on Ethernet0 (dmac 8c:ea:1b:89:c9:3c)
+ttl63 in: 13  ttl64: 27
+RIPC4.xe0 20
+RPKT.xe0 20
+TPKT.xe0 40
+RIPC4.xe4 40
+RPKT.xe4 41
+TPKT.xe4 21
+== 3b ECMP
+NHG 1 members 2
+route nh: oid:0x500000000031b
+ECMP Egress Object 200000
+Interfaces: 100004 100007
+Use count: 1
+sent 20 frames 10.0.0.1 -> 192.0.2.1 on Ethernet0 (dmac 8c:ea:1b:89:c9:3c)
+ttl63 in: 13  ttl64: 27
+sai-openbcm NOTICE api=1: diag socket: l3 ecmp egress show
+== 3c negative
+sent 20 frames 10.0.0.1 -> 192.0.2.1 on Ethernet0 (dmac 8c:ea:1b:89:c9:3c)
+ttl63 in after delete: 0
+## BGP across the VRFs: firewall dropped TCP 179
+BGP router identifier 10.255.0.1, local AS number 65100 VRF default vrf-id 0
+Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down State/PfxRcd   PfxSnt Desc
+10.0.0.1        4      65100         0         0        0    0    0    never      Connect        0 a
+BGP router identifier 10.0.0.1, local AS number 65100 VRF Vrf-test vrf-id 170
+Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down State/PfxRcd   PfxSnt Desc
+10.0.0.0        4      65100         0         0        0    0    0    never      Connect        0 b
+% Network not in table
+APPL: 
+ASIC: ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"198.51.100.0/24","switch_id":"oid:0x21000000000000","vr":"oid:0x3000000000302"}
+1793  1        198.51.100.0/24      00:00:00:00:00:00 100003    0     0     0    0 n
+## temporary nft accept 179
+10:		meta nfproto ipv4 udp sport . udp dport { 67 . 68, 68 . 67 } accept comment "DHCPv4 client/server"
+18:	chain input {
+25:	chain input-allow {
+26:		tcp dport { 22, 9100 } accept
+27:		meta l4proto . th dport @temp-ports accept
+30:		ip6 daddr fe80::/64 udp dport 546 accept comment "DHCPv6 client"
+10.0.0.1        4      65100         4         4        2    0    0 00:00:43            1        1 a
+10.0.0.0        4      65100         4         5        2    0    0 00:00:43            1        1 b
+APPL: protocol bgp nexthop 10.0.0.1 ifname Ethernet0 weight 1
+ASIC VR0: 2 entries
+1793  1        198.51.100.0/24      00:00:00:00:00:00 100003    0     0     0    0 n
+1793  0        198.51.100.0/24      00:00:00:00:00:00 100005    0     0     0    0 n
+## permanent rule (services.sonic.frr.openFirewall)
+31:		iifname != "eth0" tcp dport 179 accept comment "BGP on switch interfaces"
+10.0.0.1        4      65100         6         6        2    0    0 00:02:58            1        1 a
+10.0.0.0        4      65100         6         7        2    0    0 00:02:58            1        1 b
+APPL: protocol bgp nexthop 10.0.0.1 ifname Ethernet0 weight 1
+## teardown
+Usage: config loopback del [OPTIONS] <loopback_name>
+Try 'config loopback del --help' for help.
+
+Error: Loopback0 does not exist
+Interface Ethernet124 IP disabled and address(es) removed due to unbinding VRF.
+VRF Vrf-test deleted and all associated IP addresses removed.
+VRFs: 0  BGP nbrs: 0
+No conflicts with enforced Nix settings.
+pwm=136 temp=41.3

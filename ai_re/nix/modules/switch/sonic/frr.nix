@@ -125,9 +125,27 @@ in {
       description = "zebra arguments (SONiC's, with FRR's dplane_fpm_nl in place of dplane_fpm_sonic).";
     };
     bgpmon = mkOption { type = types.bool; default = true; description = "Run bgpmon (BGP neighbor state into STATE_DB NEIGH_STATE_TABLE)."; };
+    openFirewall = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Accept BGP (TCP 179) on every interface except the management ones
+        (`managementInterfaces`): front-panel ports, PortChannels, VLANs,
+        loopbacks and VRF devices. Without it the host firewall drops BGP
+        and sessions stay in Connect (seen on the AS7760, 2026-11-15).
+      '';
+    };
+    managementInterfaces = mkOption {
+      type = types.listOf types.str;
+      default = [ "eth0" ];
+      description = "Interfaces where BGP is NOT opened (the out-of-band management network).";
+    };
   };
 
   config = mkIf (cfg.enable && fcfg.enable) {
+    networking.firewall.extraInputRules = mkIf (fcfg.openFirewall && config.networking.nftables.enable) ''
+      iifname != { ${concatStringsSep ", " (map (i: "\"${i}\"") fcfg.managementInterfaces)} } tcp dport 179 accept comment "BGP on switch interfaces"
+    '';
     users.users.frr = { isSystemUser = true; group = "frr"; extraGroups = [ "frrvty" ]; description = "FRR daemons"; };
     users.groups.frr = { };
     users.groups.frrvty = { };
