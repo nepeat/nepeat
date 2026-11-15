@@ -34,6 +34,16 @@ runs the command under `timeout`, writes `.<name>.prom.tmp`, appends
 once it is older than `staleAfter` (e.g. the timer was stopped). Each producer
 gets `/run/prometheus-textfile-<name>/` (kept between runs) for caches.
 
+## board producers
+
+| board module | producer | families |
+| --- | --- | --- |
+| `boards/as7760/monitoring.nix` | [as7760-metrics](../../packages/as7760-metrics/README.md) | `switch_*`: optics, fans, board LM75s (board-neutral names) |
+| `boards/dmc12/monitoring.nix` | [dmc12-metrics](../../packages/dmc12-metrics/README.md) | `dmc12_*`: CPLD fans/PSUs/alarms/WDT flag, labelled temperatures, P1..P48 |
+
+Producers are read-only and cheap (one run per interval, no daemon); a
+board's hardware owner (fan control, interrupt monitor) keeps every write.
+
 ## implementation: upstream vs lite
 
 Go's `ppc64` port needs POWER8 (ISA 2.07): there is no `GOPPC64` below

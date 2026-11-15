@@ -28,6 +28,8 @@
   Open from that boot: kernel was misaligned at 0x04080000 (now 0x04200000); `show power`
   INA219 on i2c-7 reads 0 (unverified); tpm_i2c_infineon "could not request locality";
   al_eth "serdes regs base failed" (harmless, RGMII); `reboot` not yet tested.
+- Monitoring (built + offline-tested, not yet imported or run on u01): `boards/dmc12/monitoring.nix` =
+  upstream node_exporter :9100 + read-only `dmc12_*` producer (`nix/packages/dmc12-metrics`), Grafana `ai-re-dmc12`.
 - **Upstream U-Boot 2026.10** chainloads into RAM from the factory `bootm` and works on
   u01 (console, I2C/CPLD, PCIe, AHCI/SSD, CPLD reset): `u-boot-port.md`, `chainload_uboot.py`.
   Nothing flashed.

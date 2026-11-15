@@ -68,7 +68,9 @@ The root flake `ai_re/flake.nix`, used as `git+file://<monorepo>?dir=ai_re` (wha
 Monitoring: `board-as7760` enables `monitoring-node-exporter` with the
 [as7760-metrics](packages/as7760-metrics/README.md) producer (`switch_*` optics,
 fan and board-temperature metrics); on e6500 the exporter is
-`node-exporter-lite` because Go binaries need POWER8. `curl http://<switch>:9100/metrics`.
+`node-exporter-lite` because Go binaries need POWER8. The DMC-12's
+`boards/dmc12/monitoring.nix` runs upstream node_exporter with
+[dmc12-metrics](packages/dmc12-metrics/README.md). `curl http://<switch>:9100/metrics`.
 
 ## adding a board on a platform that exists (e.g. another T2080 card)
 

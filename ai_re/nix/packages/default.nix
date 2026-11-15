@@ -23,7 +23,8 @@ in {
   uboot-alpine-v2-qemu = ubootsAlpine.qemu-virt;     # test fixture build
   uboot-alpine-v2-tests = import ./uboot/alpine-v2/tests.nix { inherit pkgs; alpine = ubootsAlpine; };
 
-  # Offline tests (native): monitoring exporter and the AS7760 metrics producer.
+  # Offline tests (native): monitoring exporter and the board metrics producers.
   node-exporter-lite-test = pkgs.callPackage ./node-exporter-lite/test.nix { };
   as7760-metrics-test = pkgs.callPackage ./as7760-metrics/test.nix { };
+  dmc12-metrics-test = pkgs.callPackage ./dmc12-metrics/test.nix { };
 }
