@@ -4,10 +4,29 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    # Systems exported from ./nix track nixos-unstable, pinned apart from the
+    # devshell so a devshell bump never rebuilds a switch (and vice versa).
+    nixpkgs-systems.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, nixpkgs-systems, flake-utils }:
+    let
+      # Shared packages / NixOS modules / system configs: see nix/README.md.
+      # A git flake only sees tracked files: until ./nix is committed (or
+      # "git add -N"ed) the exports are simply absent and the devshell still
+      # works. "nix build path:./nix#..." works either way.
+      shared = nixpkgs.lib.optionalAttrs (builtins.pathExists ./nix/default.nix) (
+        let
+          aiRe = import ./nix;
+          systems = aiRe.systemsFor { nixpkgs = nixpkgs-systems; };
+        in {
+          inherit (aiRe) nixosModules;
+          inherit (systems) nixosConfigurations;
+          packages.x86_64-linux =
+            aiRe.packagesFor (import nixpkgs-systems { system = "x86_64-linux"; }) // systems.packages;
+        });
+    in
+    nixpkgs.lib.recursiveUpdate shared (flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
         # OpenWrt's host tools and downloaded cross-toolchains expect an FHS
@@ -234,5 +253,5 @@
             echo "ports : ls /dev/tty.* (macOS) | ls /dev/ttyUSB* /dev/ttyACM* (linux)"
           '';
         };
-      });
+      }));
 }
