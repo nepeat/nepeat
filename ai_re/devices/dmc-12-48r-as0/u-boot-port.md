@@ -92,9 +92,23 @@ and tested offline 2026-11-15; nothing flashed.
   replay (`4 pins from the DT, 0 changed`) were fine. Factory prompt reads:
   `0xfd8108d0` (DW AMBA error response) = 1, `0xfd810900` (iATU viewport) = 0, as the
   driver assumes.
+- **u01 RAM run 2 (12:22, `serial-chainload-20261115-122243.txt`):** probe, kept link and
+  enumeration fine (`02.00.00 12d8:400c`, `03.03.00 12d8:400c`, `04.00.00/01 12d8:400e`,
+  `04.00.02 12d8:400f`; SErrors drained 0). `alpcie reinit` **trained the link with our
+  init** (`our init after teardown, LTSSM 0x11`), then an SError ("Error" handler, esr
+  0xbf000000) in the rescan. Two bugs, both fixed in 0022:
+  - `alpcie reinit` left the old child bridges bound; `pci_auto` numbers a bridge's
+    secondary bus as the highest bound seq + 1, so the root port got secondary 3, not 1,
+    and the scan hit buses nothing answered. Reinit now unbinds the children.
+  - U-Boot's start.S routes SErrors to EL2 and unmasks them (the factory U-Boot keeps
+    them masked), so an error response is taken at once, before the drain. The
+    downstream accessors now mask PSTATE.A around the access and drain before unmasking.
+  - `PCI: Failed autoconfig bar 10/14` (both runs, also at boot) is the root port's own
+    BAR0/1 not fitting the window: harmless, Linux reassigns; `alpcie status` now
+    prints BAR0/1 and the bus numbers.
 
-- `#uboot-dmc12-selfinit` (`/nix/store/296437y7ad21ddx05hsff80gkr5xp073-…-2026.10`,
-  u-boot.bin `309e89fa…`, 519808 B, uimage `23fcce50…`): the chainload build plus
+- `#uboot-dmc12-selfinit` (`/nix/store/vq5f68zs354040r6n4rnjr3kh5bsf36s-…-2026.10`,
+  u-boot.bin `21f7ba17…`, 519832 B, uimage `163a6c19…`): the chainload build plus
   - **0022 `alpine-v2`, external PCIe RC** (`pcie_alpine_v2`, on the mainline
     `amazon,al-alpine-v2-pcie` node). Annapurna PCIe HAL 3.4 copied verbatim from the
     MikroTik GPL drop (`devices/cs8210-32x/analysis/research/mikrotik-added/drivers/soc/alpine/HAL`,
@@ -124,12 +138,12 @@ and tested offline 2026-11-15; nothing flashed.
   - Not done: SGPO (the DMC-12 board-cfg has no `sgpo_init`, so the factory never
     writes it; `alpine state` only reads it), GPIO 22 (stage2 drives it), USB in
     U-Boot, the fan/WDT CPLD preamble.
-- `#uboot-dmc12-stage3app` (`/nix/store/fkpazlr3msbfjn8356bhmybxgiw8vsrn-uboot-dmc12-stage3app`):
+- `#uboot-dmc12-stage3app` (`/nix/store/4j3znl4pvf412q58q81j1vs6l7s8rqgh-uboot-dmc12-stage3app`):
   that u-boot.bin, byte for byte, wrapped by [alboot.py](../../nix/packages/alboot/alboot.py)
   (moved into nix so the build can use it; the device copy is a symlink) as IPXE
   objects (id 0x110), load = exec = 0x08000000 (`u-boot-ipxe-08000000.fimg`, sha256
-  `a9d94e3c…`) and 0x01100000 (`…-01100000.fimg`, `3fcb94e2…`). 0x7eecc B each:
-  4404 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
+  `3b0ab933…`) and 0x01100000 (`…-01100000.fimg`, `027bf920…`). 0x7eee4 B each:
+  4380 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
   trimming (MTD core, `mii`, LZMA are candidates). Same binary as the RAM test: the
   probe policy (keep / init) and the idempotent MUIO/CCU make it entry-agnostic.
 - Offline tests (`#uboot-alpine-v2-tests`):
@@ -158,7 +172,8 @@ and tested offline 2026-11-15; nothing flashed.
 From an idle `ALPINE_DB>` (`./powercycle_to_uboot.py`):
 `./chainload_uboot.py nixos-build/result-uboot-dmc12-selfinit --selfinit` (add `--boot`
 for a disk boot). By hand, after the usual factory-side `dhcp; tftpboot 0x10000000
-dmc12-uboot/u-boot.uimage; bootm 0x10000000 - ${fdtaddr}`:
+dmc12-uboot/u-boot.uimage; bootm 0x10000000 - ${fdtaddr}`. The harness runs the
+read-only, SPI and CCU steps first and `alpcie reinit` last (the table's order differs):
 
 | `=>` command | expect |
 | --- | --- |
