@@ -1,0 +1,63 @@
+# alboot.py list on the u01 SPI dumps (2026-11-15). mtd0 sha256 b66dbca5..., mtd1 9c3a9556... (dumps/u01/SHA256SUMS).
+# Contents of env/EEPROM/config objects are not printed. Reproduce: ./alboot.py list dumps/u01/mtd0.bin.zst dumps/u01/mtd1.bin.zst
+== dumps/u01/mtd0.bin.zst (0x1000000 bytes)
+  TOC @0x80000: magic 070c070c, header sum OK, 27 entries, entries sum OK
+   #       id inst name       offset      max  state / header
+   0      0x1    0 stg2            0    40000  STG2 OK; S2 payload 0x17225 exec 0xf2200020; RSA blob 0x200 B; al-boot hdr v0.0.0 size 0x17447
+   1      0x1    1 stg2        40000    40000  STG2 OK; S2 payload 0x20051 exec 0xf2200020; RSA blob 0x200 B; al-boot hdr v2.60.4 size 0x20273
+   2      0x2    0 dt          90000    10000  DT OK: v0.0.0 size 0x675c load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x2f3 dsum 0xda518
+   3      0x4    0 stg3        a0000    70000  STG3 OK: v2.60.4 size 0x59275 load 0x1000000 exec 0x1000000 flags 0x0 desc 'N/A' hsum 0x382 dsum 0x2347c84
+   4    0x100    0 apcea      110000    80000  APCEA blank(ff)
+   5    0x101    0 apcea.cf   190000    30000  APCEA_CFG OK: v2.7.1 size 0x7600 hsum 0x2b0 dsum 0x6be6
+   6      0x5    0 uboot      1c0000    e0000  UBOOT OK: v2.60.4 size 0xc8050 load 0x1100000 exec 0x1100000 flags 0x0 desc 'N/A' hsum 0x373 dsum 0x3e00fa2
+   7      0x6    0 u-boot-s   2a0000    10000  UBOOT_SCRIPT OK: v2.60.4 size 0x3a2 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x31b dsum 0x13f7c
+   8      0xb    0 toc2       2b0000    10000  2ND_TOC blank(ff)
+   9    0x110    0 ipxe       2c0000    80000  IPXE blank(ff)
+  10      0x0    0 boot-mod   340000    10000  BOOT_MODE blank(ff)
+  11      0x2    1 dt         350000    10000  DT OK: v2.60.4 size 0x6710 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x2e9 dsum 0xd9f2f
+  12      0x4    1 stg3       360000    70000  STG3 OK: v2.60.4 size 0x59275 load 0x1000000 exec 0x1000000 flags 0x0 desc 'N/A' hsum 0x382 dsum 0x2347c84
+  13    0x100    1 apcea      3d0000    80000  APCEA blank(ff)
+  14    0x101    1 apcea.cf   450000    30000  APCEA_CFG OK: v2.7.1 size 0x7600 hsum 0x2b0 dsum 0x6be6
+  15      0x5    1 uboot      480000    e0000  UBOOT OK: v2.60.4 size 0xc8050 load 0x1100000 exec 0x1100000 flags 0x0 desc 'N/A' hsum 0x373 dsum 0x3e00fa2
+  16      0x6    1 u-boot-s   560000    10000  UBOOT_SCRIPT OK: v2.60.4 size 0x3a2 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x31b dsum 0x13f7c
+  17      0xb    1 toc2       570000    10000  2ND_TOC blank(ff)
+  18    0x110    1 ipxe       580000    80000  IPXE blank(ff)
+  19    0x200    0 bootapp    600000   4d0000  BOOT_APP OK: v3.15.14 size 0x739c5 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x355 dsum 0x1d62be7
+  20    0x201    0 b.a.cfg    ad0000    10000  BOOT_APP_CFG blank(ff)
+  21    0x200    1 bootapp    ae0000   4d0000  BOOT_APP OK: v3.15.14 size 0x739c5 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x355 dsum 0x1d62be7
+  22    0x201    1 b.a.cfg    fb0000    10000  BOOT_APP_CFG blank(ff)
+  23    0x700    0 eeprom.i   fc0000     1000  EEPROM blank(ff)
+  24    0x700    1 eeprom.i   fc1000     1000  EEPROM blank(ff)
+  25      0x7    0 uboot-en   fd0000    10000  UBOOT_ENV raw U-Boot env, 0x4000 B, CRC32 OK, redundancy flag 0
+  26      0x8    0 uboot-re   fe0000    10000  UBOOT_ENV_RED raw U-Boot env, 0x4000 B, CRC32 OK, redundancy flag 1
+== dumps/u01/mtd1.bin.zst (0x1000000 bytes)
+  TOC @0x80000: magic 070c070c, header sum OK, 27 entries, entries sum OK
+   #       id inst name       offset      max  state / header
+   0      0x1    0 stg2            0    40000  STG2 OK; S2 payload 0x1efa5 exec 0xf2200020; RSA blob 0x200 B; al-boot hdr v2.44.0 size 0x1f1c7
+   1      0x1    1 stg2        40000    40000  STG2 OK; S2 payload 0x1efa5 exec 0xf2200020; RSA blob absent; al-boot hdr v2.44.0 size 0x1efc7
+   2      0x2    0 dt          90000    10000  DT OK: v2.44.0 size 0x5737 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x2ec dsum 0xb8504
+   3      0x4    0 stg3        a0000    70000  STG3 OK: v2.44.0 size 0x50db8 load 0x1000000 exec 0x1000000 flags 0x0 desc 'N/A' hsum 0x32c dsum 0x1fac1ea
+   4    0x100    0 apcea      110000    80000  APCEA OK: v1.15.10 size 0x3f2dc load 0xb8000000 exec 0xb8000000 flags 0x0 desc 'N/A' hsum 0x58a dsum 0x152d70b
+   5    0x101    0 apcea.cf   190000    30000  APCEA_CFG OK: v1.15.10 size 0x7600 hsum 0x2c0 dsum 0x6b65
+   6      0x5    0 uboot      1c0000    e0000  UBOOT OK: v2.44.0 size 0xa5510 load 0x1100000 exec 0x1100000 flags 0x0 desc 'N/A' hsum 0x2f2 dsum 0x3257708
+   7      0x6    0 u-boot-s   2a0000    10000  UBOOT_SCRIPT OK: v2.44.0 size 0x3a2 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x307 dsum 0x13fb2
+   8      0xb    0 toc2       2b0000    10000  2ND_TOC blank(ff)
+   9    0x110    0 ipxe       2c0000    80000  IPXE blank(ff)
+  10      0x0    0 boot-mod   340000    10000  BOOT_MODE blank(ff)
+  11      0x2    1 dt         350000    10000  DT OK: v2.44.0 size 0x5737 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x2ec dsum 0xb8504
+  12      0x4    1 stg3       360000    70000  STG3 OK: v2.44.0 size 0x50db8 load 0x1000000 exec 0x1000000 flags 0x0 desc 'N/A' hsum 0x32c dsum 0x1fac1ea
+  13    0x100    1 apcea      3d0000    80000  APCEA OK: v1.15.10 size 0x3f2dc load 0xb8000000 exec 0xb8000000 flags 0x0 desc 'N/A' hsum 0x58a dsum 0x152d70b
+  14    0x101    1 apcea.cf   450000    30000  APCEA_CFG OK: v1.15.10 size 0x7600 hsum 0x2c0 dsum 0x6b65
+  15      0x5    1 uboot      480000    e0000  UBOOT OK: v2.44.0 size 0xa5510 load 0x1100000 exec 0x1100000 flags 0x0 desc 'N/A' hsum 0x2f2 dsum 0x3257708
+  16      0x6    1 u-boot-s   560000    10000  UBOOT_SCRIPT OK: v2.44.0 size 0x3a2 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x307 dsum 0x13fb2
+  17      0xb    1 toc2       570000    10000  2ND_TOC blank(ff)
+  18    0x110    1 ipxe       580000    80000  IPXE blank(ff)
+  19    0x200    0 bootapp    600000   4d0000  BOOT_APP OK: v3.14.6 size 0x9e0d4 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x404 dsum 0x20a1150
+  20    0x201    0 b.a.cfg    ad0000    10000  BOOT_APP_CFG blank(ff)
+  21    0x200    1 bootapp    ae0000   4d0000  BOOT_APP OK: v3.14.6 size 0x9e0d4 load 0x0 exec 0x0 flags 0x0 desc 'N/A' hsum 0x404 dsum 0x20a1150
+  22    0x201    1 b.a.cfg    fb0000    10000  BOOT_APP_CFG zero
+  23    0x700    0 eeprom.i   fc0000     1000  EEPROM zero
+  24    0x700    1 eeprom.i   fc1000     1000  EEPROM zero
+  25      0x7    0 uboot-en   fd0000    10000  UBOOT_ENV zero
+  26      0x8    0 uboot-re   fe0000    10000  UBOOT_ENV_RED zero
+  (not in TOC) S2 image @0x20000: OK, payload 0x1efa5
