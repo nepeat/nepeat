@@ -19,6 +19,12 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   `configs/as7760` keeps SONiC disabled until then. Not yet: traffic, VLAN and
   PortChannel on the chip, ECMP/ACL/QoS/policers (unsupported in sai-openbcm).
 
+- **SDK config from the Nix ports** (2026-11-15, not on hardware yet): the
+  AS7760's `config.bcm` is generated from the SONiC ports (public AS7712-32X
+  values, per-cage breakout) and is syncd's `SAI_INIT_CONFIG_FILE`; the lab
+  config splits cages 1 and 32 4x25G for the QSA loop. The hand-copied factory
+  file is no longer used (2026-11-15 entry).
+
 - **Control plane as NixOS services, VM-tested** (x86_64, virtual SAI):
   `services.sonic` runs redis, syncd, orchagent, port/intf/vlan/nbr/team
   managers and syncers, the show/config CLI in alias mode
@@ -108,14 +114,40 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
     unresolvable `redis_chassis.server` instance, or a TCP/port problem on BE.
   - No SAI for this ASIC on PowerPC exists (research below). Until that is
     solved, the hardware target runs the stack with the virtual SAI only.
-- **Not in the repo (review later for what can be public):** in use now, read
-  from the extracted factory image under the AS7760's gitignored
-  `nixos-build/vendor-root/etc/knet/`: `config-32x100.bcm` (port map, lane
-  maps, polarity; Accton copyright header in its scripts) and, not used yet,
+- **Not in the repo (review later for what can be public):** in the
+  extracted factory image under the AS7760's gitignored
+  `nixos-build/vendor-root/etc/knet/`: `config-*.bcm` (no longer used since
+  2026-11-15: Nix generates the SDK config from public values) and, not used,
   its `rc-*.soc`, `portled.soc` (LED program) and pre-emphasis scripts. Other
   port modes exist there too (128x25, 128x10, mixed). Also still private: factory `bcm.user` (SDK 6.4.8 binary), the SDK config
   / port map and LED programs inside the factory NOS image, Broadcom SAI
   `.deb`s (amd64 only; referenced by URL, never stored).
+
+## 2026-11-15 — config.bcm generated from the Nix ports (per-cage breakout)
+
+- `services.sonic.sai.sdkConfig.generator` (generic: a board function
+  `{ ports, settings } -> file`; its file is the default `sai.initConfigFile`).
+  AS7760: [sdk-config.nix](../../nix/modules/boards/as7760/sdk-config.nix) over
+  [openbcm/configs](../../nix/packages/openbcm/README.md#configs) (Tomahawk rules
+  from the OpenBCM 6.5.27 source: logical = physical + 0/1/3/5 per pipe, lanes
+  per speed, one VCO per core, per-lane keys split as the SDK reads them).
+  Base: sonic-buildimage's AS7712-32X 32x100G file (already pinned). Per-key
+  decisions in sdk-config.nix (management ports kept, factory's 67/101
+  portmaps dropped as SDK no-ops, driver current left at the SDK default).
+- Checked locally against the factory 32x100G and 128x25G configs (not in the
+  repo): every portmap, lane map and polarity key agrees (except the two
+  no-op portmaps); the public pre-emphasis equals the factory script's
+  pre/main/post on all 128 lanes in both modes. Not reproduced: the factory
+  script's post2 taps (no config.bcm key), 10G-specific taps.
+- Lab config: cages 1 and 32 split 4x25G, every subport listed. Tests
+  ([log](sdk-config-20261115.txt)): pinned output, split = 4 valid portmaps,
+  other modes build, impossible layouts fail, the system's sai.profile points
+  at the generated file; module eval test passes; VM tests unchanged
+  (same derivations). Sonic-off system drvPath unchanged; sonic-on cross-builds.
+- **Untested on the switch.** New vs every earlier hardware run: the public
+  file's globals (L3 ALPM, `bcm_num_cos=10`, timeouts, ...) and the
+  pre-emphasis at init. `sai.sdkConfig.settings` overrides globals (`null`
+  removes). New files need `git add -N` before a git-flake deploy.
 
 ## 2026-11-15 — orchagent runs on sai-openbcm (fake backend VM test)
 
@@ -251,50 +283,5 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 - `nix/packages/openbcm/default.nix`: pinned sparse fetch + patches; bcm.user
   built by Nix attaches on the switch with Nix-built modules.
 
-## 2026-11-14 (night, latest) — CPU RX, KNET netdevs, first real links
-
-- RX to CPU: L2 entry pointing at cpu0, looped packets arrive in the diag
-  shell's packet watcher with correct port/VLAN metadata.
-- KNET ported to Linux 7 (five API fixes + dev_addr_set; patch 0001). Netdev
-  for a port transmits and, once the SDK's RX is started, receives.
-- User cabled front port 1 (QSFP28→4×SFP28 passive breakout, 3 m, read from
-  its EEPROM on i2c bus 24) and front port 32 (4×10G breakout; EEPROM on bus
-  47 reads garbled). Used the factory `124x25-4x10` mode. Kept each port in
-  its own VLAN (ports removed from VLAN 1 first) so nothing could bridge.
-  No link with autoneg or at 25G (with/without FEC); SerDes diag showed signal
-  but no lock on one lane; at 10G both lanes linked (eyes open). Frames with
-  ethertype 0x88b5: 5/5 each way between the two netdevs.
-- Mistake worth remembering: KNET keeps netifs across SDK restarts, so IDs are
-  not 1,2 unless stale ones are destroyed first; my first run delivered frames
-  to the wrong netdev. Also a second SDK instance launched through a FIFO did
-  not start; the test silently ran against the old one.
-- The Falcon SerDes reports die temperature (41–42 °C here): a usable ASIC
-  temperature source for fan control later.
-- QSFP EEPROMs of modules inserted after boot are not bound (at24 probes at
-  boot only); read with i2ctransfer for now. Module reset/low-power lines via
-  the CPLD are not handled.
-
-## 2026-11-14 (night, later) — full SDK init and first packets
-
-- User confirmed no front-panel ports are cabled and approved reading the
-  factory port map. Factory image has per-mode SDK configs and init scripts;
-  used `config-32x100.bcm` unchanged (written for SDK 6.4.8, accepted by 6.5.27).
-- `init soc`, then `init all`: no errors. `ps`: 32 ce ports + 2 xe.
-  `port ce0 lb=mac sp=100000`: link up 100G. `l2 add`/`l2 show`: OK.
-  `tx 5 pbm=ce0`: TPKT=5, RPKT=5, 640 bytes each direction.
-- Factory loads the BDE with `himem=0 maxpayload=128 dmasize=16M`; we used
-  dmasize=32M and the default maxpayload (driver logs "exceeds device
-  capability (256)"). Align with the factory values next.
-
-## 2026-11-14 (night) — OpenBCM diag shell attaches to the ASIC from ppc64 BE
-
-- New SDK userspace platform `ppc64be` (patch 0002): SDK's PowerPC endian
-  flags + 64-bit word-size flags, dynamic link, no -Werror, `-fpermissive` for
-  GCC 16. The SDK makefiles hard-code `/bin/echo` etc. (`fixpaths.pl`).
-- On the AS7760: `BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1,
-  Driver BCM56960_A0`, `SOC unit 0 attached`. `getreg CMIC_DEV_REV_ID` =
-  `0x12b930`. This is route 1 of the research working further than any
-  public report found for an e6500 host. OpenMDK (route 2) not needed so far.
-
 Older entries (2026-11-14: Phase 0, first cross-built component, OpenBCM
-kernel modules): [HISTORY.md](HISTORY.md).
+kernel modules, diag shell, first packets and links): [HISTORY.md](HISTORY.md).

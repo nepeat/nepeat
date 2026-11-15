@@ -32,7 +32,8 @@ longer background.
 - **Todo:** a worst-case thermal test with line-rate traffic (the
   2026-11-15 loopback storm was throttled, mild load only); the software
   over-temperature PLL shutdown test (held, needs the console); VLAN + LACP
-  on the lab loop through SONiC (needs the generated config.bcm split).
+  on the lab loop through SONiC (config.bcm with cages 1/32 split 4x25G is
+  generated since 2026-11-15, untested on the switch; ../sonic-nixos/PROGRESS.md).
   Running kernel has bridge/VLAN/team modules since 2026-11-15.
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; other T2080 boards (K2 cards) need their

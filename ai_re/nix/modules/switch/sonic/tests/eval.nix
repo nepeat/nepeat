@@ -43,16 +43,34 @@ let
     && namesGood == [ "Ethernet1/1=Ethernet0" "Ethernet1/2=Ethernet1" "Ethernet1/3=Ethernet2" "Ethernet1/4=Ethernet3" "Ethernet2/1=Ethernet4" "Ethernet3/1=Ethernet8" ]
     && failed (cage1 [ (p "Ethernet1/1" [ 49 50 ] 50000) (p "Ethernet1/2" [ 51 52 ] 50000) ]) == [ ];
   yangBad = (eval { services.sonic.settings.VLAN.Vlan5000.vlanid = "5000"; }).config.system.build.sonic.base;
+  # SDK config plumbing (generic): the board's generator gets the ports and
+  # settings, its file becomes SAI_INIT_CONFIG_FILE; none without a generator.
+  sdk = (eval {
+    services.sonic.sai.sdkConfig.generator = { ports, settings }:
+      pkgs.writeText "sdk-config-probe.json" (builtins.toJSON { inherit ports settings; });
+    services.sonic.sai.sdkConfig.settings.probe_key = "1";
+  }).config;
+  sdkOk = sdk.services.sonic.sai.initConfigFile == "${sdk.system.build.sonic.sdkConfig}"
+    && (eval { }).config.services.sonic.sai.initConfigFile == null;
 in pkgs.runCommand "sonic-module-eval-tests" {
   passAsFile = [ "report" ];
   report = builtins.toJSON { inherit results good namesGood names2x50; };
   yangFailure = pkgs.testers.testBuildFailure yangBad;
   goodBase = goodSys.base;
+  goodProfile = goodSys.saiProfile;
+  sdkProbe = sdk.system.build.sonic.sdkConfig;
+  sdkProfile = sdk.system.build.sonic.saiProfile;
 } ''
   cat $reportPath
   echo
   ${lib.optionalString (good != [ ]) "echo 'good config has failed assertions'; exit 1"}
   ${lib.optionalString (!namesOk) "echo 'port names not generated from the first lane'; exit 1"}
+  ${lib.optionalString (!sdkOk) "echo 'sai.initConfigFile is not the generated SDK config'; exit 1"}
+  grep -qx "SAI_INIT_CONFIG_FILE=$sdkProbe" $sdkProfile
+  grep -q '"alias":"Ethernet1/2","lanes":\[50\],"name":"Ethernet1","speed":25000' $sdkProbe
+  grep -q '"probe_key":"1"' $sdkProbe
+  ! grep -q SAI_INIT_CONFIG_FILE $goodProfile
+  echo "SDK config: generator gets the ports and settings, its file is SAI_INIT_CONFIG_FILE"
   echo "names 4x25G: ${toString namesGood}"
   echo "names 2x50G: ${toString names2x50}"
   ${lib.optionalString (bad != { }) "echo 'cases without the expected message: ${toString (lib.attrNames bad)}'; exit 1"}

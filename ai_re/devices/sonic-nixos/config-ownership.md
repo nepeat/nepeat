@@ -49,8 +49,8 @@ owns the rest.
   PORT `alias`, and the CLI defaults to `interface_naming_mode alias`.
 - Build-time checks: each lane of the cage used exactly
   once, speeds valid for the lane count, names unique, no port left over from
-  the 1x100G default. **Planned, not built:** Nix generates `config.bcm` (the
-  factory 32x100 config matches public sonic-buildimage AS7712 values); until
-  then the SDK uses the factory file copied by hand, so only 32x100G matches
-  the hardware. The lab loop (port 1 breakout into port 32 via QSA) needs ports
-  1 and 32 set to 4x25G (or 4x10G) to link.
+  the 1x100G default. The SDK's `config.bcm` is generated from the same ports
+  (2026-11-15; public sonic-buildimage AS7712 values, the build fails unless its
+  ports equal the SONiC ports), so any declared split reaches the hardware at
+  the next SDK init. The lab loop (port 1 breakout into port 32 via QSA) has
+  ports 1 and 32 split 4x25G in `configs/as7760`.

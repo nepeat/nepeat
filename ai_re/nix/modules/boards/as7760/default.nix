@@ -39,9 +39,9 @@ in {
       kind = "vendor";
       package = sonic.sairedis-openbcm sai;
       libraryPath = [ "${sai}/lib" ];
-      # Factory 32x100G SDK config, copied by hand (not in the repo or store)
-      # until Nix generates config.bcm; only the 32x100G layout matches it.
-      initConfigFile = lib.mkDefault "/var/lib/sonic/config-32x100.bcm";
+      # config.bcm generated from the SONiC ports (cages + breakout), public
+      # AS7712-32X values; sai.initConfigFile can still point at a file.
+      sdkConfig.generator = import ./sdk-config.nix { inherit openbcm sonic; };
       restartOnStop = [ "openbcm-asic-temp.service" ];
       profile = {
         SAI_OPENBCM_BACKEND = "openbcm";

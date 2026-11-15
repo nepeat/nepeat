@@ -7,6 +7,7 @@
 #     .bcm-user   the diag shell (links the whole SDK; proves the userspace port)
 #     .libsdk     the SDK userspace as one shared library + headers + the
 #                 compiler flags it was built with (for sai-openbcm)
+#     .configs    config.bcm generators (configs/: Tomahawk from SONiC ports)
 { pkgs }:
 let
   inherit (pkgs) lib stdenv;
@@ -35,6 +36,7 @@ let
   userMake = "make -C systems/linux/user/ppc64be -j$NIX_BUILD_CORES CROSS_COMPILE=${stdenv.cc.targetPrefix} HCC=gcc";
 in rec {
   inherit src;
+  configs = import ./configs { inherit pkgs; };
   kmodsFor = kernel: pkgs.callPackage ./kmods.nix { inherit kernel src; };
 
   # chips: Make.local fragment selecting the chip drivers to build.

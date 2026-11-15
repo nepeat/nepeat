@@ -72,6 +72,16 @@ and unique, speed valid for the lane count (`validSpeeds`), cage exists,
 A breakout change on `nixos-rebuild switch` is not applied live:
 `sonic-nix reload` (restarts the stack).
 
+Vendor SDK config: a board sets `sai.sdkConfig.generator`, a function
+`{ ports, settings } -> file` called with these ports (name, alias, lanes,
+speed) and `sai.sdkConfig.settings` (global SDK keys; `null` removes one).
+Its file (`system.build.sonic.sdkConfig`) is the default
+`sai.initConfigFile`, so the SDK always initialises the ports SONiC has; the
+generator's build must fail unless the config's ports equal the given ones.
+Setting `sai.initConfigFile` to a path still works. The module itself knows
+no chip: the AS7760 board uses
+[packages/openbcm/configs](../../../packages/openbcm/README.md#configs) (Tomahawk).
+
 ## files
 
 `/var/lib/sonic/config_db.json` (`config save`), `/usr/share/sonic` ->
@@ -88,8 +98,9 @@ ranges `Ethernet1/1-4` and `Ethernet1/3-3/1` (missing subports are gaps) in
 ```sh
 # from ai_re/, one at a time
 nix build -L --impure --expr 'let f = builtins.getFlake "path:'$PWD'/nix"; pkgs = import f.inputs.nixpkgs { system = "x86_64-linux"; };
-  in import ./nix/modules/switch/sonic/tests/eval.nix { inherit pkgs; }'   # breakout assertions + YANG failure
+  in import ./nix/modules/switch/sonic/tests/eval.nix { inherit pkgs; }'   # breakout assertions, YANG failure, sdkConfig plumbing
 # same with tests/vm.nix: two VMs (switch 3 GB + LACP peer 1 GB), ~8 min
+# AS7760 config.bcm generator: nix/modules/boards/as7760/sdk-config-test.nix (command in its header)
 ```
 
 ## hardware
@@ -98,7 +109,7 @@ Kernel: `BRIDGE` + `BRIDGE_VLAN_FILTERING` (vlanmgrd), `VLAN_8021Q`,
 `NET_TEAM` + `NET_TEAM_MODE_LOADBALANCE` (teamd), `DUMMY`; `TUN` for the
 virtual SAI (`kernelModules` loads them). Vendor SAI: `sai.kind = "vendor"`,
 `sai.package = sonic.sairedis-openbcm libsai`, `sai.libraryPath`,
-`sai.initConfigFile`, `sai.profile`. syncd `Conflicts=` the units in
+`sai.sdkConfig` / `sai.initConfigFile`, `sai.profile`. syncd `Conflicts=` the units in
 `sai.conflicts` (default: openbcm-asic-temp when enabled; one SDK process
 per unit) and starts after them. `sai.restartOnStop` units are started
 again 10 s after syncd stops, unless syncd is back, queued or a
@@ -108,5 +119,4 @@ again 10 s after syncd stops, unless syncd is back, queued or a
 
 buffermgrd/buffer profiles, vrfmgrd, vxlan/nat/sflow/macsec managers,
 fpmsyncd/FRR, swssconfig's switch.json, LLDP, warm reboot, multi-ASIC,
-config.bcm generation for breakouts (`sai.initConfigFile` points at an SDK
-config kept outside the store).
+breakout at runtime (a split takes effect at the next SDK init: `sonic-nix reload`).

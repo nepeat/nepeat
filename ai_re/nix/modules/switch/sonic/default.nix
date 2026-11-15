@@ -89,6 +89,11 @@ let
   '';
 
   vs = cfg.sai.kind == "vs";
+  # Vendor SDK config from the ports (a board function; Tomahawk etc. live there).
+  sdkConfig = if cfg.sai.sdkConfig.generator == null then null else cfg.sai.sdkConfig.generator {
+    ports = map (p: { inherit (p) name alias lanes speed; }) P.ports;
+    inherit (cfg.sai.sdkConfig) settings;
+  };
   vsIfname = p: cfg.sai.vs.interfaces.${p.alias} or "sw${lib.removePrefix "Ethernet" p.name}";
   laneMap = pkgs.writeText "lanemap.ini" (concatMapStringsSep "\n" (p: "${vsIfname p}:${concatMapStringsSep "," str p.lanes}") P.ports + "\n");
   saiProfileAttrs = optionalAttrs vs {
@@ -244,7 +249,33 @@ in {
         description = "sairedis package whose bin/syncd runs, e.g. sonic.sairedis-openbcm libsai.";
       };
       libraryPath = mkOption { type = types.listOf types.str; default = [ ]; description = "LD_LIBRARY_PATH for syncd (vendor libsai and its SDK)."; };
-      initConfigFile = mkOption { type = types.nullOr types.str; default = null; example = "/var/lib/sonic/config-32x100.bcm"; description = "SAI_INIT_CONFIG_FILE (SDK config, e.g. the factory config.bcm, kept outside the store)."; };
+      initConfigFile = mkOption {
+        type = types.nullOr types.str;
+        default = if sdkConfig != null then "${sdkConfig}" else null;
+        defaultText = lib.literalExpression "the file sdkConfig.generator makes, else null";
+        example = "/var/lib/sonic/config.bcm";
+        description = "SAI_INIT_CONFIG_FILE (vendor SDK config, e.g. Broadcom config.bcm). Default: generated from the ports by sdkConfig.generator; a path outside the store works too.";
+      };
+      sdkConfig = {
+        generator = mkOption {
+          type = types.nullOr (types.functionTo types.package);
+          default = null;
+          example = lib.literalExpression "import ai_re/nix/modules/boards/as7760/sdk-config.nix { inherit openbcm sonic; }";
+          description = ''
+            Board function { ports, settings } -> SDK config file (a derivation),
+            called with the front-panel ports (name, alias, lanes, speed, the
+            same as CONFIG_DB PORT) and sdkConfig.settings. It must fail its
+            build unless the config's ports are exactly these (lanes, speeds).
+            Its file is the default sai.initConfigFile and system.build.sonic.sdkConfig.
+          '';
+        };
+        settings = mkOption {
+          type = types.attrsOf (types.nullOr types.str);
+          default = { };
+          example = { l3_alpm_enable = null; bcm_num_cos = "8"; };
+          description = "Global SDK config keys for the generator (override the board's; null removes one).";
+        };
+      };
       profile = mkOption { type = types.attrsOf types.str; default = { }; example = { SAI_OPENBCM_BACKEND = "openbcm"; SAI_OPENBCM_TEMP_FILE = "/run/asic/temperature"; }; description = "Extra sai.profile keys (override the generated ones)."; };
       conflicts = mkOption {
         type = types.listOf types.str;
@@ -281,7 +312,7 @@ in {
     system.build.sonic = {
       base = validatedBase;
       modes = modesJson;
-      inherit saiProfile portConfigIni dbConfig shareSonic laneMap coppCfg sonicNix;
+      inherit saiProfile portConfigIni dbConfig shareSonic laneMap coppCfg sonicNix sdkConfig;
       ports = P.ports;
     };
 

@@ -2,6 +2,51 @@
 
 Entries moved verbatim from [PROGRESS.md](PROGRESS.md) (newest first).
 
+## 2026-11-14 (night, latest) — CPU RX, KNET netdevs, first real links
+
+- RX to CPU: L2 entry pointing at cpu0, looped packets arrive in the diag
+  shell's packet watcher with correct port/VLAN metadata.
+- KNET ported to Linux 7 (five API fixes + dev_addr_set; patch 0001). Netdev
+  for a port transmits and, once the SDK's RX is started, receives.
+- User cabled front port 1 (QSFP28→4×SFP28 passive breakout, 3 m, read from
+  its EEPROM on i2c bus 24) and front port 32 (4×10G breakout; EEPROM on bus
+  47 reads garbled). Used the factory `124x25-4x10` mode. Kept each port in
+  its own VLAN (ports removed from VLAN 1 first) so nothing could bridge.
+  No link with autoneg or at 25G (with/without FEC); SerDes diag showed signal
+  but no lock on one lane; at 10G both lanes linked (eyes open). Frames with
+  ethertype 0x88b5: 5/5 each way between the two netdevs.
+- Mistake worth remembering: KNET keeps netifs across SDK restarts, so IDs are
+  not 1,2 unless stale ones are destroyed first; my first run delivered frames
+  to the wrong netdev. Also a second SDK instance launched through a FIFO did
+  not start; the test silently ran against the old one.
+- The Falcon SerDes reports die temperature (41–42 °C here): a usable ASIC
+  temperature source for fan control later.
+- QSFP EEPROMs of modules inserted after boot are not bound (at24 probes at
+  boot only); read with i2ctransfer for now. Module reset/low-power lines via
+  the CPLD are not handled.
+
+## 2026-11-14 (night, later) — full SDK init and first packets
+
+- User confirmed no front-panel ports are cabled and approved reading the
+  factory port map. Factory image has per-mode SDK configs and init scripts;
+  used `config-32x100.bcm` unchanged (written for SDK 6.4.8, accepted by 6.5.27).
+- `init soc`, then `init all`: no errors. `ps`: 32 ce ports + 2 xe.
+  `port ce0 lb=mac sp=100000`: link up 100G. `l2 add`/`l2 show`: OK.
+  `tx 5 pbm=ce0`: TPKT=5, RPKT=5, 640 bytes each direction.
+- Factory loads the BDE with `himem=0 maxpayload=128 dmasize=16M`; we used
+  dmasize=32M and the default maxpayload (driver logs "exceeds device
+  capability (256)"). Align with the factory values next.
+
+## 2026-11-14 (night) — OpenBCM diag shell attaches to the ASIC from ppc64 BE
+
+- New SDK userspace platform `ppc64be` (patch 0002): SDK's PowerPC endian
+  flags + 64-bit word-size flags, dynamic link, no -Werror, `-fpermissive` for
+  GCC 16. The SDK makefiles hard-code `/bin/echo` etc. (`fixpaths.pl`).
+- On the AS7760: `BDE dev 0 (PCI), Dev 0xb930, Rev 0x12, Chip BCM56930_B1,
+  Driver BCM56960_A0`, `SOC unit 0 attached`. `getreg CMIC_DEV_REV_ID` =
+  `0x12b930`. This is route 1 of the research working further than any
+  public report found for an e6500 host. OpenMDK (route 2) not needed so far.
+
 ## 2026-11-14 (late) — OpenBCM kernel modules load; PCIe aperture bug found
 
 - First `insmod linux-kernel-bde` machine-checked the kernel (panic, automatic

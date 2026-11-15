@@ -1,0 +1,36 @@
+# config.bcm generated from SONiC ports: tests, 2026-11-15 (sea420-desktop)
+
+## nix/modules/boards/as7760/sdk-config-test.nix (with system = nixosConfigurations.as7760)
+original builder: config.bcm: core of lanes 49-52: mixes 20.625G and 25.78G (one VCO per core): Ethernet1/1 10G, Ethernet1/2 25G, Ethernet1/3 25G, Ethernet1/4 25G
+config.bcm check: 40 front-panel ports match the SONiC ports; lane maps, polarity and pre-emphasis match the base on every lane in use
+config.bcm check: 35 front-panel ports match the SONiC ports; lane maps, polarity and pre-emphasis match the base on every lane in use
+original builder: config.bcm: Ethernet1/2 (Ethernet1): lanes [50, 51]: a 2-lane port must start at lane 0 or 2 of its core
+original builder: config.bcm: core of lanes 49-52: lane 49 unused while others are (TDM rule)
+config.bcm check: 38 front-panel ports match the SONiC ports; lane maps, polarity and pre-emphasis match the base on every lane in use
+/nix/store/gl80f8qp48dyjr5l2pwh3x8wa5rly9p1-as7760-32x-config.bcm: OK
+/nix/store/dljvh3jc0xv9ximliknhw8pijzym1nvb-as7760-32x-config.bcm: OK
+fails as expected (lane_0_unused): config.bcm: core of lanes 49-52: lane 49 unused while others are (TDM rule)
+fails as expected (mixed_10g_25g): config.bcm: core of lanes 49-52: mixes 20.625G and 25.78G (one VCO per core): Ethernet1/1 10G, Ethernet1/2 25G, Ethernet1/3 25G, Ethernet1/4 25G
+fails as expected (two_lanes_at_lane_1): config.bcm: Ethernet1/2 (Ethernet1): lanes [50, 51]: a 2-lane port must start at lane 0 or 2 of its core
+wiring: /nix/store/ablpxjmk8wm4m8jqhvl2jc84jwkqqxca-sai.profile -> /nix/store/5yzzxs99r0s0y7ha8w5hzl4myd0rx8xx-as7760-32x-config.bcm
+default c6342e9856f481c1 lab c1ed67378bc5b089: all checks pass
+result: /nix/store/9fyvqb2p9qblwbp8ybqlwrlvna9cyk97-as7760-sdk-config-tests
+
+## nix/modules/switch/sonic/tests/eval.nix
+SDK config: generator gets the ports and settings, its file is SAI_INIT_CONFIG_FILE
+YANG negative: fails YANG validation: Data Loading Failed
+all 11 negative cases fail as expected; good config passes
+result: /nix/store/q9210gqvsixm48gyc26lxzar9aalrbr4-sonic-module-eval-tests
+
+## VM tests (vs, openbcm fake): derivations unchanged by this work (no generator there)
+tests/vm.nix -> /nix/store/kjqvj6hdnzn95pal24c4kknj0gs1g5kg-vm-test-run-sonic-control-plane (already built = passed; nothing to build)
+tests/vm-openbcm-fake.nix: nix build --dry-run: nothing to build (same derivation as the passing run)
+
+## AS7760 system (path:./nix#nixosConfigurations.as7760)
+services.sonic.enable = false (as configured): toplevel drvPath unchanged vs HEAD 4f1b226
+  /nix/store/kwz31ykjjlnn6jcrjhdhs9f49q51rf4c-nixos-system-as7760-26.11.20261111.d4f25a3.drv (both)
+services.sonic.enable = true (extendModules): cross-built, 27 small derivations
+  /nix/store/vhfrvwcjb3169a0r41i5hbx8jj7h8l2w-nixos-system-as7760-26.11.20261111.d4f25a3
+  sai.profile: SAI_INIT_CONFIG_FILE=/nix/store/5yzzxs99r0s0y7ha8w5hzl4myd0rx8xx-as7760-32x-config.bcm
+  config.bcm: 10952 bytes, no store references, 40 portmaps (38 front-panel + 2 management):
+    portmap_50..53 = 49..52:25 (Ethernet1/1-1/4), portmap_13..16 = 13..16:25 (Ethernet32/1-32/4)

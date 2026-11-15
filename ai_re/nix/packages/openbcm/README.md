@@ -9,6 +9,7 @@ Switch Software License; kernel modules GPL-2). Not vendored here.
 | `default.nix` | pinned sparse fetch of `sdk-6.5.27`, patches applied; `kmodsFor kernel`, `bcm-user { }`, `libsdk { }` |
 | `kmods.nix` | BDE + KNET modules for the target kernel. Load and pass traffic on the AS7760. |
 | `bcm-user` | the diag shell, linking the whole SDK (ppc64 big-endian only so far). Attaches, inits and switches on the AS7760. |
+| `configs` | `config.bcm` generators: `configs.tomahawk` makes a Tomahawk config from SONiC ports and a public reference config ([below](#configs)). Used by the AS7760 board for SAI_INIT_CONFIG_FILE. |
 | `libsdk { }` | the same SDK userspace as `lib/libsdk.so` (the SDK's own `BCM_COMPILE_SHARED_LIB` rule, objects built `-fPIC`), public headers under `include/openbcm/`, and the exact `-D` flags it was compiled with in `share/openbcm/cflags`. Used by [sai-openbcm](../sai-openbcm/README.md). Cross-builds; not run on hardware yet. |
 
 ```sh
@@ -34,3 +35,32 @@ is started (`pw start` in the diag shell). Sync after copying test binaries:
 a crash before writeback leaves zero-length files.
 Without `rc.soc`/`config.bcm` in the working directory it only attaches;
 it does not initialise the chip or touch ports.
+
+## configs
+
+`configs.tomahawk { base; label; ports; management; settings; laneKeys; }`
+(`configs/default.nix`, logic in `configs/tomahawk.py`): `base` is a public
+config with one 4-lane 100G port per core (the AS7760 uses sonic-buildimage's
+AS7712-32X file); it gives the global keys and the per-core lane maps and
+polarity and per-lane pre-emphasis. `ports` (SONiC PORT entries) become one
+`portmap_<logical>=<first lane>:<Gb/s>` each, with the per-lane keys split
+the way the SDK reads them. The build reads the result back with the SDK's
+rules and fails unless the ports (lanes, speeds) and the effective lane maps,
+polarity and pre-emphasis are the requested/base ones. Tomahawk rules
+(OpenBCM 6.5.27 sources, details in the script header):
+
+- logical port = physical + 0/1/3/5 for pipes 0-3 (allowed ranges 1-32,
+  34-66, 68-100, 102-133; 0 CPU, 33/67/101/135 loopback, 134 unused;
+  management 129 and 131 go to pipes 1 and 2), as the public TH configs do.
+  Stable: a split never renumbers another port.
+- lanes per port from the speed (100G 4, 50G 2, 40G 4 or 2, 25/10G 1); a
+  core uses lane 0 if any lane; 2-lane ports start at lane 0 or 2; one VCO per
+  core (no 10G next to 25G in one cage).
+- every port in `pbmp_xport_xe` (else HiGig) and in `pbmp_oversubscribe`.
+- polarity: a 1-lane port's value is bit 0 for its lane, a 2/4-lane port's a
+  core-relative mask; the lane map is read from the port on the core's lane 0.
+- pre-emphasis `serdes_preemphasis_lane<i>_<port>` per lane of the port;
+  the base's (25.78G-lane) values only go to ports on that VCO (25/50/100G,
+  2-lane 40G); 10G and 4-lane 40G lanes keep the SDK defaults.
+
+Tests: `nix/modules/boards/as7760/sdk-config-test.nix`.

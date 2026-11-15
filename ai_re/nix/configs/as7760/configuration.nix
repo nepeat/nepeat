@@ -14,6 +14,24 @@
   services.sonic.enable = false;
   # Base MAC from the board's ONIE EEPROM (TlvInfo 0x24).
   services.sonic.macAddress = "8c:ea:1b:89:c9:3c";
+  # Lab loop: a QSFP28 4x25G breakout cable from cage 1 whose first leg sits
+  # in cage 32 through a QSFP-to-SFP28 adapter (QSA, lane 1), so both cages
+  # are split 4x25G (every subport listed, config-ownership.md "ports"; the
+  # SDK config follows from these).
+  services.sonic.breakout = {
+    "1" = [
+      { alias = "Ethernet1/1"; lanes = [ 49 ]; speed = 25000; }
+      { alias = "Ethernet1/2"; lanes = [ 50 ]; speed = 25000; }
+      { alias = "Ethernet1/3"; lanes = [ 51 ]; speed = 25000; }
+      { alias = "Ethernet1/4"; lanes = [ 52 ]; speed = 25000; }
+    ];
+    "32" = [
+      { alias = "Ethernet32/1"; lanes = [ 13 ]; speed = 25000; }
+      { alias = "Ethernet32/2"; lanes = [ 14 ]; speed = 25000; }
+      { alias = "Ethernet32/3"; lanes = [ 15 ]; speed = 25000; }
+      { alias = "Ethernet32/4"; lanes = [ 16 ]; speed = 25000; }
+    ];
+  };
   time.timeZone = "America/Los_Angeles";
   # Same root keys as tn48m/cs8210: https://github.com/nepeat.keys (fetched
   # 2026-11-09) plus root on sea420-desktop, the build/deploy host.
