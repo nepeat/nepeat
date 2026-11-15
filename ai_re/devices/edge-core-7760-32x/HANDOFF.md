@@ -190,7 +190,7 @@ loader allows about 120 seconds per command.
    `fsl,fman-ports`, channel range and management SGMII PCS are necessary.
    Keep old RX compatible strings secondary so factory U-Boot injects LIODNs
    (live RX LIODN 0x425). See the DTS and bring-up notes before editing.
-3. PCIe4 CPU aperture `0xc60000000`, 128 MiB, replaces `0xd8000000` which overlaps
+3. PCIe4 CPU aperture `0xc40000000` (must match U-Boot's LAW; `0xc60000000` machine-checked), 128 MiB, replaces `0xd8000000` which overlaps
    RAM; PCI bus address remains `0xd8000000`. Nested bridge range also corrected.
 4. `pcie_aspm.policy=performance` keeps the FSL link check in L0, avoiding
    intermittent config read failures/missing IRQs. `pcie_aspm=off` is not a

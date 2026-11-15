@@ -38,7 +38,10 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
 - **Not tested:** 100G on real cables, FEC,
   the other 126 lanes, pre-emphasis/LED scripts, SDK interrupts (factory
   config polls), throughput, long runs.
-- **Next:** sairedis with the virtual SAI (`--with-sai=vs`), then swss;
+- **sairedis** (syncd, libsairedis, libsaivs = virtual SAI, SAI 1.19 headers)
+  builds natively and cross-builds for ppc64 BE. The SAI metadata generator
+  needed its XML::Simple mode with current doxygen (see the derivation).
+- **Next:** sairedis smoke test on the switch, then swss (`--with-sai=vs`), then swss;
   `/usr/share/swss` path shim (Lua scripts are loaded from that absolute path).
 - **Open:**
   - `sonic-db-cli PING` (TCP to every instance in database_config.json) failed

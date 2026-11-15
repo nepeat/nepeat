@@ -21,7 +21,9 @@ uses `serial-7760` tmux/tio, 115200 8N1, with captures in this directory.
   use those strings when injecting DMA identifiers. Modern names alone omit
   the RX LIODN. Live readback after restoration is 0x425 (973 + 88).
 - The old PCIe4 CPU window at 0xd8000000 overlaps the 16-GiB RAM map. Move its
-  128-MiB CPU aperture to 0xc60000000 and correct the nested bridge range;
+  128-MiB CPU aperture out of RAM and correct the nested bridge range
+  (first to 0xc60000000, which had no local access window and machine-checked
+  on the first MMIO read; since 2026-11-14 0xc40000000, where U-Boot opens it);
   retain PCI bus addresses 0xd8000000–0xdfffffff. Both BCM56930 functions have
   32-KiB BAR0 and 8-MiB BAR2 assigned afterward.
 - `pcie_aspm.policy=performance` prevents intermittent PCI config failures.
