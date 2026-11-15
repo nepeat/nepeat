@@ -80,6 +80,7 @@ extern "C" {
 #define AL_ETH_REV_ID_1			1 /* Alpine V1 */
 #define AL_ETH_REV_ID_2			2 /* Alpine V2 basic */
 #define AL_ETH_REV_ID_3			3 /* Alpine V2 advanced */
+#define AL_ETH_REV_ID_4			4 /* Alpine V3 (standard dev runs rev-2 compatible) */
 
 /* PCI BARs */
 #define AL_ETH_UDMA_BAR			0

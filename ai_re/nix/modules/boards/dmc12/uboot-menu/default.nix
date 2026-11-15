@@ -73,25 +73,26 @@ let
   '';
 
   bootScr = pkgs.runCommand "dmc12-boot-scr" {
-    nativeBuildInputs = [ pkgs.ubootTools ];
+    nativeBuildInputs = [ pkgs.buildPackages.ubootTools ];
   } ''
     mkimage -A arm64 -O linux -T script -C none -a 0 -e 0 \
       -n "DMC-12 NixOS bootmenu launcher" \
       -d ${bootCmd} $out
   '';
 
-  builder = pkgs.replaceVarsWith {
+  # p = pkgs (runs on the box at activation) or pkgs.buildPackages (runs on
+  # the build host when the disk image stages /boot).
+  mkBuilder = p: p.replaceVarsWith {
     src = ./builder.sh;
     isExecutable = true;
     replacements = {
-      bash = pkgs.bash;
-      # Tools the builder shell script invokes. Keep this list tight —
-      # adding to PATH means a rebuild of every dmc12 system.
+      bash = p.bash;
+      # Tools the builder shell script invokes. Keep this list tight.
       path = lib.makeBinPath [
-        pkgs.coreutils    # stat, basename, cat, cp, mv, install, ls, mkdir, rm, chmod, date
-        pkgs.gnused       # sed
-        pkgs.gzip         # gzip the raw Image before mkimage-wrapping
-        pkgs.ubootTools   # mkimage — wraps Image as a U-Boot legacy kernel uImage
+        p.coreutils    # stat, basename, cat, cp, mv, install, ls, mkdir, rm, chmod, date
+        p.gnused       # sed
+        p.gzip         # gzip the raw Image before mkimage-wrapping
+        p.ubootTools   # mkimage: wraps Image as a U-Boot legacy kernel uImage
       ];
       timeout = toString timeout;
       numGenerations = toString numGenerations;
@@ -99,12 +100,15 @@ let
       bootScr = "${bootScr}";
     };
   };
+  builder = mkBuilder pkgs;
 in {
   config = {
     # NixOS's activation calls this with the new toplevel as $1.
     # mkForce so we win over any default (extlinux-compat etc.) that
     # might also bind to system.build.installBootLoader.
     system.build.installBootLoader = lib.mkForce builder;
+    # Same builder for the build host: disk.nix runs it with -d to stage /boot.
+    system.build.dmc12BootBuilderNative = mkBuilder pkgs.buildPackages;
 
     # Quietens NixOS's "no bootloader configured" warning. The id is
     # cosmetic — only system.build.installBootLoader is load-bearing.

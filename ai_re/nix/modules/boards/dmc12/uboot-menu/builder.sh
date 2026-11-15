@@ -21,7 +21,7 @@ shopt -s nullglob
 export PATH=/empty:@path@
 
 usage() {
-    echo "usage: $0 <toplevel>" >&2
+    echo "usage: $0 <toplevel> [-d <boot dir>]" >&2
     exit 1
 }
 
@@ -29,6 +29,11 @@ default="${1:-}"
 [ -z "$default" ] && usage
 
 target=/boot
+# -d: stage into another directory (disk-image build: no /boot, no profiles).
+if [ "${2:-}" = "-d" ]; then
+    [ -n "${3:-}" ] || usage
+    target="$3"
+fi
 timeout=@timeout@
 numGenerations=@numGenerations@
 dtbName=@dtbName@
@@ -167,7 +172,7 @@ tmpFile="$target/u-boot.menu.tmp.$$"
     echo "bootmenu_delay=$timeout"
     addEntry "$default" default 0
     idx=1
-    if [ "$numGenerations" -gt 0 ]; then
+    if [ "$numGenerations" -gt 0 ] && [ -d /nix/var/nix/profiles ]; then
         for generation in $(
                 (cd /nix/var/nix/profiles && ls -d system-*-link) \
                 | sed 's/system-\([0-9]\+\)-link/\1/' \

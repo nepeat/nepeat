@@ -1,0 +1,331 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Edgecore (Accton) DMC-12-48R-AS0: 48-port serial console server,
+ * Annapurna Labs Alpine V2 K2C-AB (4x Cortex-A57).
+ *
+ * Starts from the first iteration (codeberg dma/dmc12-nixos 5d02d1b). Additions are
+ * from the factory kernel's live DT and disassembly (unit u01, 2026-11-15;
+ * see ai_re/devices/dmc-12-48r-as0/vendor-tooling.md):
+ *   - sbclk is 500 MHz (mainline dtsi: 1 MHz placeholder). It feeds I2C, SPI,
+ *     GPIO and the sp805; a wrong rate breaks SPI dividers and I2C timing.
+ *   - The firmware's PSCI is v0.1 (cpu_on/cpu_off only, no SYSTEM_RESET).
+ *   - PL061 GPIO 0..5, the sp805 watchdog (mainline restart handler), and
+ *     the SPI NOR pair (CS0 booted, CS1 second image), read-only to Linux.
+ *   - i2c aliases pin bus numbers to the factory kernel's (CPLD = i2c-4,
+ *     sensors/EEPROM/INA219 = i2c-7, uplink PHY = i2c-8) so tools agree.
+ */
+/dts-v1/;
+
+#include "alpine-v2.dtsi"
+
+/ {
+	model = "Edgecore DMC-12-48R-AS0";
+	compatible = "edgecore,dmc-12-48r-as0", "al,alpine-v2";
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		i2c0 = &i2c0;
+		i2c1 = &mux70_0;
+		i2c2 = &mux70_1;
+		i2c3 = &mux70_2;
+		i2c4 = &mux70_3;
+		i2c5 = &mux71_0;
+		i2c6 = &mux71_1;
+		i2c7 = &mux71_2;
+		i2c8 = &mux71_3;
+		i2c9 = &mux70_4;
+		i2c10 = &mux70_5;
+		i2c11 = &mux70_6;
+		i2c12 = &mux70_7;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+};
+
+&sbclk {
+	clock-frequency = <500000000>;
+};
+
+/* Vendor firmware: PSCI v0.1 function IDs only. */
+&{/psci} {
+	compatible = "arm,psci";
+	/delete-property/ cpu_suspend;
+};
+
+&uart0 { status = "okay"; };
+
+&msix {
+	interrupt-controller;
+	#interrupt-cells = <1>;
+};
+
+/ {
+	/* External PCIe port 0: Pericom 12d8:400c bridge -> OHCI/EHCI -> USB hubs -> 12x CP2108. */
+	pcie_external0: pcie@fb600000 {
+		compatible = "amazon,al-alpine-v2-pcie";
+		device_type = "pci";
+		#size-cells = <2>;
+		#address-cells = <3>;
+		#interrupt-cells = <1>;
+		reg = <0x0 0xfb600000 0x0 0x00100000
+		       0x0 0xfd800000 0x0 0x00010000
+		       0x0 0xfd810000 0x0 0x00001000>;
+		reg-names = "config", "controller", "dbi";
+		bus-range = <0x00 0xff>;
+		interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-map-mask = <0x00 0 0 7>;
+		interrupt-map = <0x0000 0 0 1 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 2 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 3 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+				<0x0000 0 0 4 &gic GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+		ranges = <0x02000000 0x0 0xc0010000 0x0 0xc0010000 0x0 0x07ff0000>;
+		msi-parent = <&msix>;
+	};
+};
+
+&{/soc/io-bus@fc000000} {
+	/* Boot flash pair. Read-only to Linux: back up with dd, never write here. */
+	spi0: spi@1882000 {
+		compatible = "amazon,alpine-dw-apb-ssi", "snps,dw-apb-ssi";
+		reg = <0x1882000 0x1000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		num-cs = <4>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		flash@0 {
+			compatible = "jedec,spi-nor";
+			reg = <0>;
+			spi-max-frequency = <25000000>;
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				partition@0 {
+					label = "spi0-boot";
+					reg = <0x0 0x1000000>;
+					read-only;
+				};
+			};
+		};
+
+		flash@1 {
+			compatible = "jedec,spi-nor";
+			reg = <1>;
+			spi-max-frequency = <25000000>;
+
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+				partition@0 {
+					label = "spi1-alt";
+					reg = <0x0 0x1000000>;
+					read-only;
+				};
+			};
+		};
+	};
+
+	/* SoC watchdog. Mainline sp805 registers a restart handler. */
+	watchdog@188c000 {
+		compatible = "arm,sp805", "arm,primecell";
+		reg = <0x188c000 0x1000>;
+		interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>, <&sbclk>;
+		clock-names = "wdog_clk", "apb_pclk";
+	};
+
+	gpio0: gpio@1887000 {
+		compatible = "arm,pl061", "arm,primecell";
+		reg = <0x1887000 0x1000>;
+		interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-names = "apb_pclk";
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio1: gpio@1888000 {
+		compatible = "arm,pl061", "arm,primecell";
+		reg = <0x1888000 0x1000>;
+		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-names = "apb_pclk";
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio2: gpio@1889000 {
+		compatible = "arm,pl061", "arm,primecell";
+		reg = <0x1889000 0x1000>;
+		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-names = "apb_pclk";
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		/* Line 6 = factory GPIO 494, toggled by cpldupd around CPLD JTAG updates. */
+		gpio-line-names = "", "", "", "", "", "", "CPLD_JTAG_EN", "";
+	};
+
+	gpio3: gpio@188a000 {
+		compatible = "arm,pl061", "arm,primecell";
+		reg = <0x188a000 0x1000>;
+		interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-names = "apb_pclk";
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio4: gpio@188b000 {
+		compatible = "arm,pl061", "arm,primecell";
+		reg = <0x188b000 0x1000>;
+		interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-names = "apb_pclk";
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+
+	gpio5: gpio@1897000 {
+		compatible = "arm,pl061", "arm,primecell";
+		reg = <0x1897000 0x1000>;
+		interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-names = "apb_pclk";
+		gpio-controller;
+		#gpio-cells = <2>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		/* Line 1: CPLD interrupt, active low (factory interruptmon: gpiochip5 line 1). */
+		gpio-line-names = "", "CPLD_INT_N", "", "", "", "", "", "";
+	};
+
+	i2c0: i2c@1880000 {
+		compatible = "snps,designware-i2c";
+		reg = <0x1880000 0x1000>;
+		interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&sbclk>;
+		clock-frequency = <100000>;
+		i2c-sda-hold-time-ns = <300>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/* SPD of the soldered DDR. */
+		eeprom@57 {
+			compatible = "atmel,24c64";
+			reg = <0x57>;
+			read-only;
+		};
+
+		i2c-mux@70 {
+			compatible = "nxp,pca9548";
+			reg = <0x70>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			i2c-mux-idle-disconnect;
+
+			mux70_0: i2c@0 { reg = <0>; #address-cells = <1>; #size-cells = <0>; };
+
+			mux70_1: i2c@1 {
+				reg = <1>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				rtc@68 {
+					compatible = "dallas,ds1339";
+					reg = <0x68>;
+					trickle-resistor-ohms = <2000>;
+				};
+			};
+
+			mux70_2: i2c@2 {
+				reg = <2>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				tpm@20 {
+					compatible = "infineon,slb9645tt";
+					reg = <0x20>;
+				};
+			};
+
+			/* i2c-4: board CPLD at 0x68, accessed raw from userspace (no driver). */
+			mux70_3: i2c@3 {
+				reg = <3>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				i2c-mux@71 {
+					compatible = "nxp,pca9546";
+					reg = <0x71>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+					/*
+					 * Factory tools wrote this mux's control register by hand; with
+					 * idle-disconnect the kernel reselects on every transfer, so a
+					 * stray manual write can't leave it on the wrong channel.
+					 */
+					i2c-mux-idle-disconnect;
+
+					mux71_0: i2c@0 {
+						reg = <0>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+						/* On the K2 SoC card's microcontroller. */
+						temp-sensor@4a {
+							compatible = "national,lm75";
+							reg = <0x4a>;
+						};
+					};
+
+					mux71_1: i2c@1 { reg = <1>; #address-cells = <1>; #size-cells = <0>; };
+
+					/* i2c-7: board EEPROM, TMP75 x2, INA219 at 0x44 (raw, `show power`). */
+					mux71_2: i2c@2 {
+						reg = <2>;
+						#address-cells = <1>;
+						#size-cells = <0>;
+						eeprom@51 {
+							compatible = "atmel,24c02";
+							reg = <0x51>;
+							read-only;
+						};
+						temp-sensor@48 {
+							compatible = "ti,tmp75";
+							reg = <0x48>;
+						};
+						temp-sensor@49 {
+							compatible = "ti,tmp75";
+							reg = <0x49>;
+						};
+					};
+
+					/* i2c-8: uplink "upper" PHY at 0x40 (setphyspeed). */
+					mux71_3: i2c@3 { reg = <3>; #address-cells = <1>; #size-cells = <0>; };
+				};
+			};
+
+			mux70_4: i2c@4 { reg = <4>; #address-cells = <1>; #size-cells = <0>; };
+			mux70_5: i2c@5 { reg = <5>; #address-cells = <1>; #size-cells = <0>; };
+			mux70_6: i2c@6 { reg = <6>; #address-cells = <1>; #size-cells = <0>; };
+			mux70_7: i2c@7 { reg = <7>; #address-cells = <1>; #size-cells = <0>; };
+		};
+	};
+};

@@ -949,13 +949,29 @@ static int al_eth_hw_init(struct al_eth_adapter *adapter)
 
 	if ((adapter->mac_mode == AL_ETH_MAC_MODE_SGMII) ||
 		(adapter->mac_mode == AL_ETH_MAC_MODE_RGMII && adapter->phy_exist == AL_FALSE)) {
-		netdev_err(adapter->netdev, "link config (0x%x)\n", adapter->mac_mode);
+		int speed = adapter->link_config.active_speed;
+		int duplex = adapter->link_config.active_duplex;
+
+		netdev_dbg(adapter->netdev, "link config (0x%x)\n", adapter->mac_mode);
+
+		/*
+		 * After a close with no cable attached phylib leaves the speed
+		 * at SPEED_UNKNOWN, the HAL rejects it, and the interface could
+		 * not be opened again until reboot (seen when enslaving enp0s1
+		 * to a bond on the CS8210). Program 1G/full as a placeholder;
+		 * al_eth_adjust_link reprograms the MAC once the PHY has a link,
+		 * because active_speed is left unknown here.
+		 */
+		if (speed <= 0) {
+			speed = SPEED_1000;
+			duplex = DUPLEX_FULL;
+		}
 
 		rc = al_eth_mac_link_config(&adapter->hal_adapter,
 			adapter->link_config.force_1000_base_x,
 			adapter->link_config.autoneg,
-			adapter->link_config.active_speed,
-			adapter->link_config.active_duplex);
+			speed,
+			duplex);
 		if (rc) {
 			netdev_err(adapter->netdev,
 				"%s failed to configure link parameters!\n", __func__);
@@ -1969,6 +1985,22 @@ static void al_eth_mdiobus_teardown(struct al_eth_adapter *adapter)
 	phy_device_free(adapter->phydev);
 }
 
+/*
+ * Clause-22 accessors. The CS8210 management PHY (Marvell, MDIO address 0) is
+ * a plain C22 device; with only the C45 hooks registered phylib probes it as
+ * a C45 PHY and the attach fails. The HAL ignores the device argument when
+ * the MAC is configured for clause 22.
+ */
+static int al_mdio_read_c22(struct mii_bus *bp, int mii_id, int reg)
+{
+	return al_mdio_read_c45(bp, mii_id, 0, reg);
+}
+
+static int al_mdio_write_c22(struct mii_bus *bp, int mii_id, int reg, u16 val)
+{
+	return al_mdio_write_c45(bp, mii_id, 0, reg, val);
+}
+
 /**
  * al_eth_mdiobus_setup - initialize mdiobus and register to kernel
  *
@@ -1997,8 +2029,13 @@ static int al_eth_mdiobus_setup(struct al_eth_adapter *adapter)
 #else
 	adapter->mdio_bus->parent    = &adapter->pdev->dev;
 #endif
-	adapter->mdio_bus->read_c45  = &al_mdio_read_c45;
-	adapter->mdio_bus->write_c45 = &al_mdio_write_c45;
+	if (adapter->phy_if == AL_ETH_BOARD_PHY_IF_XMDIO) {
+		adapter->mdio_bus->read_c45  = &al_mdio_read_c45;
+		adapter->mdio_bus->write_c45 = &al_mdio_write_c45;
+	} else {
+		adapter->mdio_bus->read  = &al_mdio_read_c22;
+		adapter->mdio_bus->write = &al_mdio_write_c22;
+	}
 
 	/* Initialise the interrupts to polling */
 	for (i = 0; i < PHY_MAX_ADDR; i++)
@@ -2174,10 +2211,17 @@ static int al_eth_phy_init(struct al_eth_adapter *adapter)
 	adapter->link_config.active_speed = SPEED_UNKNOWN;
 
 	/* Attach the MAC to the PHY. */
+	if (!phydev) {
+		netdev_err(adapter->netdev, "no PHY found on the MDIO bus\n");
+		return -ENODEV;
+	}
+
 	phydev = phy_connect(adapter->netdev, dev_name(&phydev->mdio.dev), al_eth_adjust_link,
-		PHY_INTERFACE_MODE_RGMII_ID);
+		adapter->mac_mode == AL_ETH_MAC_MODE_SGMII ?
+			PHY_INTERFACE_MODE_SGMII : PHY_INTERFACE_MODE_RGMII_ID);
 	if (IS_ERR(phydev)) {
-		netdev_err(adapter->netdev, "Could not attach to PHY\n");
+		netdev_err(adapter->netdev, "Could not attach to PHY (%ld)\n",
+			   PTR_ERR(phydev));
 		return PTR_ERR(phydev);
 	}
 
@@ -3715,7 +3759,9 @@ static void al_eth_link_status_task(struct work_struct *work)
 		schedule_delayed_work(&adapter->link_status_task, delay);
 	}
 }
-#else /* defined(CONFIG_ARCH_ALPINE) */
+#endif /* defined(CONFIG_ARCH_ALPINE) */
+
+/* Carrier from the MAC's link status, for ports without PHY or LM. */
 static void al_eth_link_status_task_nic(struct work_struct *work)
 {
 	struct al_eth_adapter *adapter = container_of(to_delayed_work(work),
@@ -3745,7 +3791,6 @@ static void al_eth_link_status_task_nic(struct work_struct *work)
 		schedule_delayed_work(&adapter->link_status_task, delay);
 	}
 }
-#endif /* defined(CONFIG_ARCH_ALPINE) */
 
 #ifdef CONFIG_ARCH_ALPINE
 static unsigned int al_eth_systime_msec_get(void)
@@ -3952,6 +3997,22 @@ static int al_eth_open(struct net_device *netdev)
 	adapter->last_establish_failed = false;
 
 	if (adapter->phy_exist == false) {
+#if defined(CONFIG_ARCH_ALPINE)
+		if (adapter->use_lm && !adapter->serdes_init) {
+			/*
+			 * Link management drives the SerDes directly, and this
+			 * driver only knows the Alpine V1/V2 SerDes, not the V3
+			 * AVG one (CS8210: the second NIC, 10G serial towards the
+			 * switch board). Run the port without link management
+			 * instead: the SerDes stays as the boot firmware set it
+			 * up, and carrier follows the MAC's own link status.
+			 */
+			netdev_warn(adapter->netdev,
+				    "no SerDes support for this port: running without link management, carrier from MAC link status\n");
+			adapter->use_lm = false;
+			adapter->mac_link_poll = true;
+		}
+#endif
 		if (adapter->use_lm) {
 #if defined(CONFIG_ARCH_ALPINE)
 			/** Driver is running LM */
@@ -4024,6 +4085,12 @@ static int al_eth_open(struct net_device *netdev)
 	if ((adapter->board_type == ALPINE_INTEGRATED) && (adapter->use_lm)) {
 		INIT_DELAYED_WORK(&adapter->link_status_task,
 				al_eth_link_status_task);
+		schedule_delayed_work(&adapter->link_status_task, delay);
+	} else if (adapter->mac_link_poll) {
+		netif_carrier_off(adapter->netdev);
+		adapter->last_link = false;
+		INIT_DELAYED_WORK(&adapter->link_status_task,
+				al_eth_link_status_task_nic);
 		schedule_delayed_work(&adapter->link_status_task, delay);
 	} else
 		netif_carrier_on(adapter->netdev);
@@ -4747,6 +4814,7 @@ static void al_eth_get_strings(struct net_device *netdev, u32 sset, u8 *data)
 
 /****************** ETHTOOL_STATS END ******************/
 
+
 static const struct ethtool_ops al_eth_ethtool_ops = {
 	.get_settings		= al_eth_get_settings,
 	.set_settings		= al_eth_set_settings,
@@ -5077,6 +5145,12 @@ static u16 al_eth_select_queue(struct net_device *dev, struct sk_buff *skb,
 #endif /* CONFIG_ARCH_ALPINE */
 		pr_debug("sel_smp_qid=%d\n", qid);
 	}
+	/*
+	 * The CPU number is only a valid queue id while there are at least
+	 * as many TX queues as CPUs. The CS8210 has 16 cores and 4 queues.
+	 */
+	if (qid >= dev->real_num_tx_queues)
+		qid %= dev->real_num_tx_queues;
 	return qid;
 }
 
@@ -5170,6 +5244,52 @@ static void al_eth_set_rx_mode(struct net_device *netdev)
 /** HAVE_NET_DEVICE_OPS is defined above KERNEL_VERSION(2,6,29) */
 /** CONFIG_ARCH_ALPINE assumes that we are on a kernel above that! */
 #ifdef HAVE_NET_DEVICE_OPS
+static void al_eth_min_get_drvinfo(struct net_device *netdev,
+				   struct ethtool_drvinfo *info)
+{
+	struct al_eth_adapter *adapter = netdev_priv(netdev);
+
+	strscpy(info->driver, DRV_MODULE_NAME, sizeof(info->driver));
+	strscpy(info->bus_info, pci_name(adapter->pdev), sizeof(info->bus_info));
+}
+
+static int al_eth_min_get_link_ksettings(struct net_device *netdev,
+					 struct ethtool_link_ksettings *cmd)
+{
+	struct al_eth_adapter *adapter = netdev_priv(netdev);
+
+	if (adapter->phydev) {
+		phy_ethtool_ksettings_get(adapter->phydev, cmd);
+		return 0;
+	}
+
+	/* No PHY: a fixed serial link (CS8210 enp0s3: 10G towards the ASIC). */
+	ethtool_link_ksettings_zero_link_mode(cmd, supported);
+	ethtool_link_ksettings_zero_link_mode(cmd, advertising);
+	cmd->base.port = PORT_OTHER;
+	cmd->base.autoneg = AUTONEG_DISABLE;
+	if (adapter->mac_mode == AL_ETH_MAC_MODE_10GbE_Serial) {
+		ethtool_link_ksettings_add_link_mode(cmd, supported, 10000baseKR_Full);
+		ethtool_link_ksettings_add_link_mode(cmd, advertising, 10000baseKR_Full);
+	}
+	if (netif_carrier_ok(netdev)) {
+		/* link_config.active_speed is only maintained by LM / phylib. */
+		cmd->base.speed = adapter->mac_mode == AL_ETH_MAC_MODE_10GbE_Serial ?
+				  SPEED_10000 : adapter->link_config.active_speed;
+		cmd->base.duplex = DUPLEX_FULL;
+	} else {
+		cmd->base.speed = SPEED_UNKNOWN;
+		cmd->base.duplex = DUPLEX_UNKNOWN;
+	}
+	return 0;
+}
+
+static const struct ethtool_ops al_eth_min_ethtool_ops = {
+	.get_drvinfo		= al_eth_min_get_drvinfo,
+	.get_link		= ethtool_op_get_link,
+	.get_link_ksettings	= al_eth_min_get_link_ksettings,
+};
+
 static const struct net_device_ops al_eth_netdev_ops = {
 	.ndo_open		= al_eth_open,
 	.ndo_stop		= al_eth_close,
@@ -5306,6 +5426,21 @@ al_eth_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 		pci_read_config_word(pdev, PCI_DEVICE_ID, &dev_id);
 		pci_read_config_byte(pdev, PCI_REVISION_ID, &rev_id);
+
+		/*
+		 * Alpine V3 (CS8210): the integrated standard Ethernet unit
+		 * reports PCI revision 4. Annapurna's later HAL
+		 * (al_eth_adapter_handle_init, HAL 2.6) keeps the original
+		 * revision and runs such a unit as effective revision 2; the
+		 * stock 4.9 kernel logs exactly that ("eth rev_id 2
+		 * (orig_rev_id 4) dev_id 1"). Do the same here.
+		 */
+		if (dev_id == AL_ETH_DEV_ID_STANDARD && rev_id == AL_ETH_REV_ID_4) {
+			dev_info(&pdev->dev,
+				 "eth rev_id %d (orig_rev_id %d) dev_id %d\n",
+				 AL_ETH_REV_ID_2, rev_id, dev_id);
+			rev_id = AL_ETH_REV_ID_2;
+		}
 	} else {
 		u16 adapter_pci_cmd;
 
@@ -5440,9 +5575,12 @@ al_eth_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	netdev->netdev_ops = &al_eth_netdev_ops;
 
 	netdev->watchdog_timeo = TX_TIMEOUT;
-#if 0
-	netdev->ethtool_ops = &al_eth_ethtool_ops;
-#endif
+	/*
+	 * The original ethtool table above uses get_settings/set_settings,
+	 * which no longer exist, so it stays compiled out. This minimal one
+	 * reports what the hardware is actually doing.
+	 */
+	netdev->ethtool_ops = &al_eth_min_ethtool_ops;
 
 	if (!is_valid_ether_addr(adapter->mac_addr)) {
 		eth_hw_addr_random(netdev);

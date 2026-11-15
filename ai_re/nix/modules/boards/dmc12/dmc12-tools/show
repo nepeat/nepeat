@@ -79,18 +79,18 @@ case "${1:-}" in
     else echo 'PSU2 Failure / not detected.'; fi
     # INA219 at i2c bus 4 addr 0x44 behind mux 0x71. Configure + read shunt-V,
     # bus-V, power, current. Words are little-endian on the wire; flip bytes.
-    i2cset -f -y 4 0x71 0x04
-    i2cset -f -y 4 0x44 0x00 0x9f01 w
-    i2cset -f -y 4 0x44 0x05 0x00a0 w
-    i2cget -f -y 4 0x44 0x00 w >/dev/null 2>&1
-    i2cget -f -y 4 0x44 0x05 w >/dev/null 2>&1
-    i2cget -f -y 4 0x44 0x01 w >/dev/null 2>&1
+    # INA219 0x44 is on mux 0x71 ch2 = i2c-7 (DT aliases); no manual mux write.
+    i2cset -f -y 7 0x44 0x00 0x9f01 w
+    i2cset -f -y 7 0x44 0x05 0x00a0 w
+    i2cget -f -y 7 0x44 0x00 w >/dev/null 2>&1
+    i2cget -f -y 7 0x44 0x05 w >/dev/null 2>&1
+    i2cget -f -y 7 0x44 0x01 w >/dev/null 2>&1
     flip() {
       printf '0x%s\n' "$(printf '%s' "${1#0x}" | fold -w 2 | tac | tr -d '\n')"
     }
-    v_raw=$(i2cget -f -y 4 0x44 0x02 w); v_inv=$(flip "$v_raw")
-    p_raw=$(i2cget -f -y 4 0x44 0x03 w); p_inv=$(flip "$p_raw")
-    c_raw=$(i2cget -f -y 4 0x44 0x04 w); c_inv=$(flip "$c_raw")
+    v_raw=$(i2cget -f -y 7 0x44 0x02 w); v_inv=$(flip "$v_raw")
+    p_raw=$(i2cget -f -y 7 0x44 0x03 w); p_inv=$(flip "$p_raw")
+    c_raw=$(i2cget -f -y 7 0x44 0x04 w); c_inv=$(flip "$c_raw")
     awk -v v="$v_inv" -v p="$p_inv" -v c="$c_inv" 'BEGIN {
       printf "VOLTAGE: %.3fV\nPOWER:   %.2fW\nCURRENT: %.3fA\n", v/8*0.004, p*0.02, c*0.001
     }'

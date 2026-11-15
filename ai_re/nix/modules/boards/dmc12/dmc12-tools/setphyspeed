@@ -39,22 +39,21 @@ UPLINKMEDIA=$media
 EOF
 }
 
+# Upper PHY 0x40 sits behind mux 0x70 ch3 -> 0x71 ch3 = i2c-8 (DT aliases). The
+# factory script selected both muxes by hand (i2cset 0x70/0x71 0x08), behind the
+# pca954x driver's back; going through the channel bus lets the kernel do it.
 setphy_100m() {
-  i2cset -f -y 4 0x70 0x08
-  i2cset -f -y 4 0x71 0x08
-  i2cset -f -y 4 0x40 0x16 0x0000 w
-  i2cset -f -y 4 0x40 0x09 0x000c w
-  i2cset -f -y 4 0x40 0x00 0x4091 w
+  i2cset -f -y 8 0x40 0x16 0x0000 w
+  i2cset -f -y 8 0x40 0x09 0x000c w
+  i2cset -f -y 8 0x40 0x00 0x4091 w
   echo "Upper PHY: set to 100Mbps."
   logger -t setphyspeed "Forced upper PHY to 100Mbps."
 }
 
 setphy_1g() {
-  i2cset -f -y 4 0x70 0x08
-  i2cset -f -y 4 0x71 0x08
-  i2cset -f -y 4 0x40 0x16 0x0000 w
-  i2cset -f -y 4 0x40 0x09 0x000f w
-  i2cset -f -y 4 0x40 0x00 0x4091 w
+  i2cset -f -y 8 0x40 0x16 0x0000 w
+  i2cset -f -y 8 0x40 0x09 0x000f w
+  i2cset -f -y 8 0x40 0x00 0x4091 w
   echo "Upper PHY: set to 1Gbps."
   logger -t setphyspeed "Forced upper PHY to 1Gbps."
 }

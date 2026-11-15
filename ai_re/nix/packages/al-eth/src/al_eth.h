@@ -415,6 +415,7 @@ struct al_eth_adapter {
 	bool				last_establish_failed;
 	struct al_eth_lm_context	lm_context;
 	bool				use_lm;
+	bool mac_link_poll;	/* no PHY, no LM: carrier from MAC link status */
 
 	struct al_eth_group_lm_context	*group_lm_context;
 
