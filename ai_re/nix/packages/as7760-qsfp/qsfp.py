@@ -6,7 +6,9 @@
   as7760-qsfp --json     everything, machine readable
 
 Works for modules inserted after boot (talks to /dev/i2c-N directly).
-QSFP/QSFP28 (SFF-8636) and SFP/SFP28 in an adapter (SFF-8472) are decoded.
+QSFP/QSFP28 (SFF-8636) and SFP/SFP28 in an adapter (SFF-8472) are decoded,
+the latter with digital diagnostics when the module implements them.
+Other tools (as7760-metrics) import bus_for/read/static_fields/dynamic_fields.
 """
 import argparse, fcntl, json, os, sys
 from pathlib import Path
@@ -54,6 +56,81 @@ def text(b):
     return b.decode("ascii", "replace").strip(" \x00")
 
 
+def select_page0(bus):
+    """SFF-8636: select upper page 0 (harmless on flat-memory modules)."""
+    fd = os.open(f"/dev/i2c-{bus}", os.O_RDWR)
+    try:
+        fcntl.ioctl(fd, I2C_SLAVE, 0x50); os.write(fd, bytes([127, 0]))
+    finally:
+        os.close(fd)
+
+
+def static_fields(bus, lo):
+    """Identity fields that do not change while a module stays plugged in.
+
+    lo: the first bytes (at least 96) of the lower page / A0h. Keys starting
+    with "_" are decode hints for dynamic_fields(), not printed or exported.
+    """
+    ident = lo[0]
+    if ident in (0x0c, 0x0d, 0x11):
+        select_page0(bus)
+        up = read(bus, 0x50, 128, 128)
+        passive = (up[19] >> 4) in (0xa, 0xb)
+        return dict(vendor=text(up[20:36]), part=text(up[40:56]), rev=text(up[56:58]),
+                    serial=text(up[68:84]), date=text(up[84:92]),
+                    compliance=EXT.get(up[64], f"ext {up[64]:#04x}") or f"spec {up[3]:#04x}",
+                    copper_m=up[18] or None, breakout=bool(up[113] & 0x70) or None,
+                    media="passive copper" if passive else "active/optical",
+                    _passive=passive, _tx_power=bool(up[92] & 0x04))
+    if ident == 0x03:
+        if len(lo) < 128:
+            lo = read(bus, 0x50, 0, 128)
+        passive = bool(lo[8] & 0x04)
+        # SFF-8472 byte 92: bit 6 DDM implemented, bit 5 internally
+        # calibrated, bit 2 needs an address-change sequence (not supported).
+        ddm = (lo[92] & 0x64) == 0x60 and not passive
+        return dict(vendor=text(lo[20:36]), part=text(lo[40:56]), rev=text(lo[56:60]),
+                    serial=text(lo[68:84]), date=text(lo[84:92]),
+                    compliance=EXT.get(lo[36], f"ext {lo[36]:#04x}") or f"10G {lo[3]:#04x}",
+                    copper_m=lo[18] or None,
+                    media="passive copper" if passive else ("active copper" if lo[8] & 0x08 else "optical"),
+                    note="SFP-type module in a QSFP cage (adapter): lane 1 only",
+                    _passive=passive, _ddm=ddm)
+    return {}
+
+
+def dynamic_fields(bus, lo, static):
+    """Monitor values (temperature, supply, per-lane power/bias).
+
+    lo: the lower page / A0h, at least its first 58 bytes, read just now.
+    """
+    ident = lo[0]
+    info = {}
+    if ident in (0x0c, 0x0d, 0x11):
+        info.update(temp_c=round(int.from_bytes(lo[22:24], "big", signed=True) / 256, 1),
+                    vcc_v=round(int.from_bytes(lo[26:28], "big") / 10000, 2))
+        if not static.get("_passive"):
+            info["rx_power_mw"] = [round(int.from_bytes(lo[34 + 2 * i:36 + 2 * i], "big") / 10000, 3) for i in range(4)]
+            info["tx_bias_ma"] = [round(int.from_bytes(lo[42 + 2 * i:44 + 2 * i], "big") / 500, 2) for i in range(4)]
+            if static.get("_tx_power"):
+                info["tx_power_mw"] = [round(int.from_bytes(lo[50 + 2 * i:52 + 2 * i], "big") / 10000, 3) for i in range(4)]
+    elif ident == 0x03 and static.get("_ddm"):
+        try:
+            a2 = read(bus, 0x51, 96, 10)
+        except OSError:
+            return info
+        info.update(temp_c=round(int.from_bytes(a2[0:2], "big", signed=True) / 256, 1),
+                    vcc_v=round(int.from_bytes(a2[2:4], "big") / 10000, 2),
+                    tx_bias_ma=[round(int.from_bytes(a2[4:6], "big") / 500, 2)],
+                    tx_power_mw=[round(int.from_bytes(a2[6:8], "big") / 10000, 3)],
+                    rx_power_mw=[round(int.from_bytes(a2[8:10], "big") / 10000, 3)])
+    return info
+
+
+def public(fields):
+    return {k: v for k, v in fields.items() if not k.startswith("_")}
+
+
 def decode(port):
     info = {"port": port, "present": False}
     try:
@@ -64,31 +141,9 @@ def decode(port):
         return info                      # no ACK: nothing plugged in
     ident = lo[0]
     info.update(present=True, id=ident, type=IDS.get(ident, f"unknown {ident:#04x}"))
-    if ident in (0x0c, 0x0d, 0x11):
-        fd = os.open(f"/dev/i2c-{bus}", os.O_RDWR)
-        try:                                # select upper page 0
-            fcntl.ioctl(fd, I2C_SLAVE, 0x50); os.write(fd, bytes([127, 0]))
-        finally:
-            os.close(fd)
-        up = read(bus, 0x50, 128, 128)
-        info.update(vendor=text(up[20:36]), part=text(up[40:56]), rev=text(up[56:58]),
-                    serial=text(up[68:84]), date=text(up[84:92]),
-                    compliance=EXT.get(up[64], f"ext {up[64]:#04x}") or f"spec {up[3]:#04x}",
-                    copper_m=up[18] or None, breakout=bool(up[113] & 0x70) or None,
-                    temp_c=round(int.from_bytes(lo[22:24], "big", signed=True) / 256, 1),
-                    vcc_v=round(int.from_bytes(lo[26:28], "big") / 10000, 2))
-        passive = (up[19] >> 4) in (0xa, 0xb)
-        info["media"] = "passive copper" if passive else "active/optical"
-        if not passive:
-            info["rx_power_mw"] = [round(int.from_bytes(lo[34 + 2 * i:36 + 2 * i], "big") / 10000, 3) for i in range(4)]
-            info["tx_bias_ma"] = [round(int.from_bytes(lo[42 + 2 * i:44 + 2 * i], "big") / 500, 2) for i in range(4)]
-    elif ident == 0x03:
-        info.update(vendor=text(lo[20:36]), part=text(lo[40:56]), rev=text(lo[56:60]),
-                    serial=text(lo[68:84]), date=text(lo[84:92]),
-                    compliance=EXT.get(lo[36], f"ext {lo[36]:#04x}") or f"10G {lo[3]:#04x}",
-                    copper_m=lo[18] or None,
-                    media="passive copper" if lo[8] & 0x04 else ("active copper" if lo[8] & 0x08 else "optical"),
-                    note="SFP-type module in a QSFP cage (adapter): lane 1 only")
+    static = static_fields(bus, lo)
+    info.update(public(static))
+    info.update(dynamic_fields(bus, lo, static))
     return info
 
 
