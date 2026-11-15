@@ -1,0 +1,10 @@
+--- a/arch/powerpc/platforms/85xx/corenet_generic.c
++++ b/arch/powerpc/platforms/85xx/corenet_generic.c
+@@ -121,6 +121,7 @@
+ machine_arch_initcall(corenet_generic, corenet_gen_publish_devices);
+ 
+ static const char * const boards[] __initconst = {
++	"accton,as7760_32x",
+ 	"fsl,P2041RDB",
+ 	"fsl,P3041DS",
+ 	"fsl,OCA4080",
