@@ -4,6 +4,8 @@
 {
   imports = [ ../../modules/profiles/appliance.nix ../../modules/boards/as7760 ];
   system.stateVersion = "26.11";
+  # The Broadcom SDK is source-available, not free software.
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "openbcm-bcm-user" ];
   networking.hostName = "as7760";
   time.timeZone = "America/Los_Angeles";
   # Same root keys as tn48m/cs8210: https://github.com/nepeat.keys (fetched

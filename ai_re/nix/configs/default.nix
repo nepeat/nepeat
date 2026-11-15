@@ -19,6 +19,7 @@ let
   img = ../packages/as7760-images;
   kernel = as7760.config.boot.kernelPackages.kernel;
   fanDriver = builtins.head as7760.config.boot.extraModulePackages;
+  openbcm = import ../packages/openbcm { pkgs = as7760.pkgs; };
   kernelImage = import ../packages/linux-qoriq-t2080/uimage.nix { pkgs = native; targetPkgs = as7760.pkgs; inherit kernel; };
   netboot = import (img + "/netboot-files.nix") { pkgs = native; config = as7760Netboot.config; inherit kernelImage; };
 in {
@@ -29,6 +30,9 @@ in {
     as7760-kernel-config = kernel.configfile;
     as7760-kernel-image = kernelImage;
     as7760-fan-driver = fanDriver;
+    # Broadcom OpenBCM SDK for this board's kernel/userspace (see packages/openbcm).
+    as7760-openbcm-kmods = openbcm.kmodsFor kernel;
+    as7760-bcm-user = openbcm.bcm-user { };
     # Installed system image (first install; later: nixos-rebuild in place).
     as7760-sd-image = as7760.config.system.build.sdImage;
     as7760-boot-files = import (img + "/boot-files.nix") { pkgs = native; targetPkgs = as7760.pkgs; config = as7760.config; inherit kernelImage; };

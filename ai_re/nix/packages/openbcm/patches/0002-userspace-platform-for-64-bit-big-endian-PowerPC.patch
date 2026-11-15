@@ -4,14 +4,11 @@ Subject: [PATCH] linux user: platform "ppc64be" (64-bit big-endian PowerPC)
 New userspace platform for QorIQ e5500/e6500 hosts built with a plain cross
 GCC: endian settings of the SDK's own PowerPC target (linux-gto), word size
 of its 64-bit targets, no -Werror, GCC >= 14 dialect relaxations. Link
-dynamically and without libnsl (gone from glibc). The Makefile.unix-user hunk
-also contains tool-path edits made by fixpaths.pl (apply that script first).
+dynamically and without libnsl (gone from glibc). Apply after fixpaths.pl.
 
-diff --git a/make/Makefile.linux-ppc64be b/make/Makefile.linux-ppc64be
-new file mode 100644
-index 0000000..13b0999
---- /dev/null
-+++ b/make/Makefile.linux-ppc64be
+diff --color -urN a/make/Makefile.linux-ppc64be b/make/Makefile.linux-ppc64be
+--- a/make/Makefile.linux-ppc64be	1969-12-31 16:00:00.000000000 -0800
++++ b/make/Makefile.linux-ppc64be	2026-11-14 21:21:47.020723167 -0800
 @@ -0,0 +1,28 @@
 +# 64-bit big-endian PowerPC Linux userspace (NXP QorIQ e5500/e6500 hosts),
 +# built with a plain cross GCC. Endian settings as the SDK's own PowerPC
@@ -41,11 +38,30 @@ index 0000000..13b0999
 +ARCH = powerpc
 +KBUILD_VERBOSE = 1
 +export ARCH KBUILD_VERBOSE
-diff --git a/systems/linux/user/ppc64be/Makefile b/systems/linux/user/ppc64be/Makefile
-new file mode 100644
-index 0000000..fc2efa6
---- /dev/null
-+++ b/systems/linux/user/ppc64be/Makefile
+diff --color -urN a/make/Makefile.unix-user b/make/Makefile.unix-user
+--- a/make/Makefile.unix-user	2026-11-14 21:21:47.011723119 -0800
++++ b/make/Makefile.unix-user	2026-11-14 21:21:47.019723162 -0800
+@@ -57,7 +57,7 @@
+ OSTYPE = LINUX
+ 
+ # Linux
+-LIBS =-lnsl -pthread -lm -lrt
++LIBS = -pthread -lm -lrt
+ ifeq (${LINK_UBSAN},1)
+ LIBS += -lubsan
+ endif
+@@ -164,7 +164,7 @@
+ endif
+ 
+ ifeq (${LINK_STATIC},1)
+-LDFLAGS += -static
++# dynamic link: no static glibc in the cross toolchain (was: LDFLAGS += -static)
+ endif
+ 
+ LDFLAGS += ${LIBS} ${EXTRA_USER_LDFLAGS}
+diff --color -urN a/systems/linux/user/ppc64be/Makefile b/systems/linux/user/ppc64be/Makefile
+--- a/systems/linux/user/ppc64be/Makefile	1969-12-31 16:00:00.000000000 -0800
++++ b/systems/linux/user/ppc64be/Makefile	2026-11-14 21:21:47.022723178 -0800
 @@ -0,0 +1,13 @@
 +# -*- Makefile -*-
 +# 64-bit big-endian PowerPC userspace; see make/Makefile.linux-ppc64be.
@@ -60,27 +76,3 @@ index 0000000..fc2efa6
 +LINUX_MAKE_USER=1
 +
 +include ${SDK}/make/Make.linux
-Unknown regexp modifier "/b" at -e line 1, at end of line
-Execution of -e aborted due to compilation errors.
-diff --git a/make/Makefile.unix-user b/make/Makefile.unix-user
-index c2d6210..a8cf8e6 100644
---- a/make/Makefile.unix-user
-+++ b/make/Makefile.unix-user
-@@ -57,7 +57,7 @@ OPTFLAGS_DEFAULT = -O2
- OSTYPE = LINUX
- 
- # Linux
--LIBS =-lnsl -pthread -lm -lrt
-+LIBS = -pthread -lm -lrt
- ifeq (${LINK_UBSAN},1)
- LIBS += -lubsan
- endif
-@@ -164,7 +164,7 @@ endif
- endif
- 
- ifeq (${LINK_STATIC},1)
--LDFLAGS += -static
-+# dynamic link: no static glibc in the cross toolchain (was: LDFLAGS += -static)
- endif
- 
- LDFLAGS += ${LIBS} ${EXTRA_USER_LDFLAGS}

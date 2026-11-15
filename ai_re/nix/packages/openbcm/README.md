@@ -6,21 +6,19 @@ Switch Software License; kernel modules GPL-2). Not vendored here.
 
 | piece | state |
 | --- | --- |
-| `kmods.nix` | Nix derivation; BDE + KNET modules for the target kernel. Load and pass traffic on the AS7760. |
-| userspace `bcm.user` | Builds by hand (below), **not yet a derivation**. Attaches to the BCM56930 on the AS7760. |
+| `default.nix` | pinned sparse fetch of `sdk-6.5.27`, patches applied; `kmodsFor kernel`, `bcm-user { }` |
+| `kmods.nix` | BDE + KNET modules for the target kernel. Load and pass traffic on the AS7760. |
+| `bcm-user` | the diag shell, linking the whole SDK (ppc64 big-endian only so far). Attaches, inits and switches on the AS7760. |
 
-Hand build of the diag shell, from a full `sdk-6.5.27` tree:
+```sh
+nix build path:./nix#as7760-openbcm-kmods path:./nix#as7760-bcm-user
+```
 
-1. apply `patches/0001` (kernel modules, Linux 7);
-2. `perl fixpaths.pl $(find . -name 'Makefile*' -o -name 'Make.*' -o -name '*.mk')`
-   (the makefiles hard-code `/bin/echo`, `/usr/bin/test`, ...);
-3. apply `patches/0002` (platform `ppc64be`);
-4. `cat make/Make.local.template Make.local.as7760 > make/Make.local`;
-5. `mkdir -p build/linux/user/ppc64be` (the makefile does not create it);
-6. with a ppc64 BE cross GCC + perl on PATH:
-   `SDK=$PWD make -C systems/linux/user/ppc64be bcm -j$(nproc)`.
+How the source is prepared (all in `default.nix`): patch 0001 (kernel modules
+on Linux 7), `fixpaths.pl` (the makefiles hard-code `/bin/echo`,
+`/usr/bin/test`, ...), patch 0002 (user platform `ppc64be`), then
+`Make.local.as7760` selects the chip drivers. The build takes a few minutes.
 
-Result: `build/linux/user/ppc64be/bcm.user` (about 100 MB, dynamic).
 On the target: `insmod linux-kernel-bde.ko himem=0 maxpayload=128 dmasize=16M`
 (the factory's values), then `linux-user-bde` and `linux-bcm-knet`;
 `mknod /dev/linux-kernel-bde c 127 0`, `/dev/linux-user-bde c 126 0`,
