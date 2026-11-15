@@ -22,6 +22,8 @@ stdenv.mkDerivation {
   # built; the stack is exercised by the NixOS VM tests instead.
   postPatch = ''
     sed -i '/include tests\/Makefile.am/d' Makefile.am
+    # Lua scripts are read at runtime from a hard-coded /usr/share/swss.
+    substituteInPlace common/redisapi.h --replace-fail '"/usr/share/swss/"' "\"$out/share/swss/\""
   '';
 
   # Upstream builds with -Werror against Debian's compiler; newer GCCs add warnings.
