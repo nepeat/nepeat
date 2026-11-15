@@ -37,3 +37,7 @@ Device notes, dumps and the bring-up checklist: `devices/dmc-12-48r-as0/`
   match the *factory* kernel's mux enumeration (pca9548 @0-0070, pca9546
   @4-0071). Mainline numbering can differ, so use names or aliases, not
   hard-coded bus numbers.
+- The ported factory scripts (fan floor at step 9, `setphyspeed -q`) match
+  factory OS **≥1.0.526**. The second unit (2026-11-15) boots 1.0.457, which
+  has neither. Our module enforces both itself, so this is no blocker, but
+  don't treat "factory behaviour" as a single version.

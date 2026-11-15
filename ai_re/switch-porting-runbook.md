@@ -50,8 +50,10 @@ Goal: know exactly what is there and hold verified copies of every byte before w
     32 GB image next to a big nix build ran the host out of memory and the OOM killer took the whole user session
     (tmux, tio, every agent) on 2026-11-15. Keep
     the raw image's sha256 in the manifest next to the `.zst` hash so a
-    decompressed copy can be checked. Then remove the raw file. Tooling that reads
-    compressed images directly (no full decompress) is a later concern.
+    decompressed copy can be checked. Then remove the raw file. A `.zst` can't be mounted or seeked
+    (losetup has no compression; nbdkit 1.48 has no zstd filter). For random access, convert to qcow2 with
+    zstd clusters (`qemu-img convert -c -O qcow2 -o compression_type=zstd`). Serve it with `qemu-nbd --read-only` or
+    `nbdkit --readonly file x.qcow2 --filter=qcow2dec` (nixpkgs builds both with zstd). Tooling for that is still to do.
 - [ ] Unpack offline, never mounting the source: FIT/legacy multi-images (kernel, initramfs, DTB), JFFS2 (jefferson), FAT (mtools).
 - [ ] Mine the vendor diag/NOS userspace for board tables: CPLD register maps, I2C device tables, fan and
   thermal routing, SDK config.bcm/rc.soc for each port mode, LED programs, pre-emphasis scripts.

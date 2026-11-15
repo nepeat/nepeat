@@ -1,0 +1,1 @@
+00:05 01:88 02:cc 03:cc 04:cc 05:cc 06:cc 07:cc 08:cc 09:cc 0a:cc 0b:cc 0c:cc 0d:cc 0e:cc 0f:cc 10:3f 11:17 12:07 13:00 14:1f 15:ff 16:03 17:20 18:12 19:cc 1a:cc 1b:cc 1c:cc 1d:cc 1e:cc 1f:cc 20:bf 21:00 22:cc 23:cc 24:cc 25:cc 26:cc 27:cc 28:00 29:ff 2a:01 2b:cc 2c:cc 2d:cc 2e:cc 2f:cc 50:2a 5f:cc 60:57 61:57 62:57

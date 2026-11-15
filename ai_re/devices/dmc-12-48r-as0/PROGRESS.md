@@ -22,8 +22,11 @@
 - **Left in:** the rdinit shell, powered on, at 10.60.2.10, with nothing mounted from disk.
   So no ser2net, and the AS7760's console on port 48 isn't served. A
   power-cycle returns it to the factory OS.
-- Open: CPLD version, USB/PCI inventory from Linux, fan state with no OS,
-  mtd1's role, unpacking the images offline.
+- **How this unit differs from the first iteration's:** see "This unit vs the
+  first iteration" below. In short: it was deployed in a fleet, boots an older OS
+  (1.0.457, while the old module ported ≥1.0.526), and only PSU2 is detected.
+- Open: fan state with no OS, what selects CS1 (mtd1), the PSU1 status,
+  a diff of the factory configs in `/etc` and `/workdir`, random-access image tooling.
 
 ## Identity
 - Board EEPROM (ONIE TLV, 24c02 @ I2C 7-0051): **Accton / Edgecore**,
@@ -40,12 +43,43 @@
 - PCI (U-Boot): 1c36:0001 eth, 1c36:0022 ×2 (crypto, mass storage),
   1c36:0031 AHCI, behind PCIE_0 12d8:400c bridge. 48 ports = 12× CP2108 quad
   UART on USB hubs (`ttyUSB0…47`).
+- CPLD (I2C 4/0x68, read-only SMBus reads, `inventory/cpld-regs.txt`): version 0x88,
+  fan PWM reg 0x50 = 0x2a (step 41 ≈ 68%, U-Boot's `fan_speed_70`), fans 1–3 = 0x57
+  (≈ 8700 RPM at the old tool's ×100 scale), WDT flag 0x2a = 0x01, LED 0x17 = 0x20.
+- PCI (Linux): al_eth, 2× al-ssm, AHCI, and a Pericom 12d8:400c bridge to OHCI ×2 + EHCI
+  (12d8:400e/400f) feeding the USB hubs. USB tree: `inventory/usb-tree.txt`.
 - uC on the SoC card: bootloader 1.13, app 1.35.0. Secure state **NOT-SECURE**,
   recovery disabled, nitro mode disabled, physical-presence 0. Watchdog enabled
   (10 s, reset count 0). It didn't fire after minutes in U-Boot or the
   rdinit shell.
 - Interrupting autoboot prints `TPM: u-boot interrupted, extending TPM PCRs!`
   (affects that boot only).
+
+## This unit vs the first iteration (2026-11-15, offline from the SSD image)
+- **A deployed fleet unit, not new-in-box.** sda1 has operator config dated Feb 2022:
+  hostname, hosts, ntp, `ser2net.conf`, `users/`, `passwd`/`shadow` (changed
+  2022-02-09), ssh. Not reproduced here (private). The first iteration's notes describe
+  sealed liquidation units. Its env is **stock** (`bootcmd=run dmc12_bootdisk`); the
+  first unit's had been rewritten to load `/boot.scr`.
+- **Older OS than the one ported.** It boots `/boot/primary` = OS **1.0.457.0**
+  (Mar 2020) + kernel 1.0.99.0. `/boot/secondary` is **empty**. sda1's root `/`
+  (boot fallback 3) holds a newer **1.0.526.0** (Jul 2020) + kernel 1.0.101.0 that never
+  boots while primary is good. The old module's fan floor (step 9 ≈ 2000 RPM, "AS0")
+  and `setphyspeed -q` exist only in 1.0.526, so the first unit ran ≥1.0.526.
+  1.0.526 adds nftables, sysctl and the factory tools `changemac`, `eepromer`, `fru_gen_bin`.
+  It changes `fancontrol`, `setphyspeed`, `interruptmon`, `updbootenv`, `show`, `envmon` and `bindserial`.
+- **Two SPI NOR chips** (live DT: dw-apb-ssi CS0/CS1). CS0 = mtd0 = booted DMC-12
+  al-boot 2.60.4. CS1 = mtd1 = generic Annapurna al-boot 2.44 (Jul 2018). Unknown
+  whether the first unit had the same.
+- **Power:** CPLD reg 0x11 = 0x17 → PSU2 detected, **PSU1 not detected**, 12 V
+  pass-through not detected. It could just be one PSU cabled; check physically.
+- **Hardware otherwise matches** the old module: CPLD at bus 4 / 0x68 is version
+  **0x88** (v7+, 64 PWM steps), the USB tree is 3× hub (05e3:0608) × 4 CP2108 = P1–P48 exactly as
+  `serial-ports.rules` has it, and the sensors/EEPROM sit on the same buses (factory enumeration).
+- Factory burn-in log on sda1 (`/dmc12_diag_log`, serial matches the EEPROM):
+  **port 30 failed one serial loopback run**, then passed two reruns (48/48).
+  Treat port 30 as suspect if it misbehaves.
+- sda2 (14.8 GiB) is empty apart from `lost+found` and flags "needs journal recovery".
 
 ## Versions
 | part | version |
@@ -95,13 +129,16 @@ Phase 0
 Phase 1
 - [x] clean cold boot: `serial-20261115-initial-boot.txt` (sha256 `9d8d47aa…`)
 - [x] versions (table), board EEPROM; [ ] CPLD version, uC FRU
-- [~] inventory: I2C devices (sysfs) and live DTB done; lspci, USB tree to do
+- [x] inventory: I2C (sysfs), PCI, USB tree, CPLD registers, live DTB
 - [x] SSD identify (`hdparm -I`)
 - [x] dumps: mtd0, mtd1, sda, all triple-hashed and zstd-verified
-- [ ] unpack offline (uImages, initramfs, DT, ext4 via read-only tools)
+- [x] unpack offline: GPT, both ext4 (debugfs, read-only), all 4 uImages, both initramfs
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-15 03:20: inventory + offline analysis (above). Also learned: plain `.zst`
+  can't be mounted. nbdkit 1.48 has no zstd decompress filter, but its `qcow2dec` (nixpkgs build) and
+  qemu read zstd-compressed qcow2, so that's the random-access format (runbook).
 - 2026-11-15 03:00: SSD image done. The first run verified the raw image, but its zstd step
   (`-T0`) died at 02:56 in a host-wide OOM: a `cc1plus` nix build plus zstd. The OOM
   killer took `sd-pam` and with it the whole user session (tmux, tio, every Claude
