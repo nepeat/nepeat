@@ -14,10 +14,12 @@ Steps (see reimage.md):
   uboot      power-cycle (lab plug) and stop the factory autoboot
   identify   board serial from the U-Boot env must match units-private.txt
   envbackup  printenv -> inventory/<unit>/uboot-printenv-before-reimage-private.txt
-  netboot    TFTP-boot NixOS into RAM (no writes), learn its IP from the console
+  chainload  factory U-Boot TFTPs our U-Boot 2026.10 (al_eth) into RAM and bootm's it; stop at =>
+  netboot    our U-Boot fetches kernel/initrd/DTB over HTTP and boots NixOS into RAM (no writes)
+             (--via factory: the old path, factory U-Boot + TFTP, no chainload)
   write      [WRITES SSD] stream disk.img.zst to /dev/sda over ssh, verify sha256 on the box
   setenv     [WRITES SPI ENV] nixos_boot (from the image) + bootcmd = run nixos_boot; run dmc12_bootdisk
-  boot       boot from the SSD, check NixOS came up on the board DT
+  boot       boot from the SSD, check NixOS came up on the board DT, then smoke.py
   record     append the result to inventory/<unit>/reimage.jsonl
 
 Gates: no `write` unless dumps/<unit>/manifest.jsonl lists verified sda.img,
@@ -29,8 +31,10 @@ import argparse, json, pathlib, re, shutil, subprocess, sys, time
 ROOT = pathlib.Path(__file__).resolve().parent
 AIRE = ROOT.parents[1]
 SESSION = "serial-dmc12"
-STEPS = ["preflight", "stage", "uboot", "identify", "envbackup", "netboot",
+STEPS = ["preflight", "stage", "uboot", "identify", "envbackup", "chainload", "netboot",
          "write", "setenv", "boot", "record"]
+NEW = "=>"  # upstream U-Boot prompt
+UBOOT_BANNER = r"U-Boot 2026\.10-dmc12-chainload"
 # uboot-menu images; a chainload image ships its own values in factory-env.txt.
 NIXOS_BOOT = "scsi init; ext4load scsi 0:1 0x07000000 /boot.scr && source 0x07000000"
 BOOTCMD = "run nixos_boot; run dmc12_bootdisk"
@@ -41,6 +45,33 @@ SSH = ["sudo", "-n", "ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=
 
 class Fail(Exception):
     pass
+
+
+HTTP = {"proc": None}
+
+
+def http_up(args):
+    """Temporary HTTP server for our U-Boot's wget: serves the TFTP dir (public build artefacts only)."""
+    if HTTP["proc"] and HTTP["proc"].poll() is None:
+        return
+    HTTP["proc"] = subprocess.Popen([sys.executable, "-m", "http.server", str(args.http_port), "--bind", args.server,
+                                     "--directory", str(args.tftp_root)],
+                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    import urllib.request
+    url = f"http://{args.server}:{args.http_port}/{args.tftp_dir}/SHA256SUMS"
+    for _ in range(20):
+        try:
+            urllib.request.urlopen(url, timeout=2).read()
+            return
+        except OSError:
+            time.sleep(0.3)
+    raise Fail(f"HTTP server not reachable at {url} (port open in the host firewall? 8000/8080 are)")
+
+
+def http_down():
+    if HTTP["proc"] and HTTP["proc"].poll() is None:
+        HTTP["proc"].terminate()
+        HTTP["proc"].wait(timeout=10)
 
 
 def say(args, msg):
@@ -124,6 +155,13 @@ def step_preflight(args, st):
     for name in ("uImage", "uInitrd", "dmc12.dtb", "boot.scr", "uboot-commands.txt", "SHA256SUMS"):
         if not (args.netboot / name).exists():
             raise Fail(f"netboot bundle incomplete: {args.netboot}/{name} (nix build path:./nix#dmc12-netboot)")
+    if args.via == "chainload" and not (args.uboot / "u-boot.uimage").exists():
+        raise Fail(f"no {args.uboot}/u-boot.uimage (nix build path:./nix#uboot-dmc12-chainload)")
+    if args.via == "chainload":
+        blob = (args.uboot / "u-boot.uimage").read_bytes()
+        if b"al_eth" not in blob or b"wget" not in blob:
+            raise Fail(f"{args.uboot}/u-boot.uimage has no al_eth/wget (stale build link? "
+                       "nix build path:./nix#uboot-dmc12-chainload -o ...)")
     needs_disk = "write" in args.steps
     for name in ("disk.img.zst", "disk.img.sha256", "disk.img.bytes"):
         if needs_disk and not (args.image / name).exists():
@@ -149,10 +187,13 @@ def step_stage(args, st):
     if not d.exists():
         subprocess.run(["sudo", "-n", "install", "-d", "-o", str(pathlib.Path.home().owner()),
                         str(d)], check=True)
-    for name in ("uImage", "uInitrd", "dmc12.dtb", "boot.scr", "SHA256SUMS"):
+    files = [(args.netboot / n, n) for n in ("uImage", "uInitrd", "dmc12.dtb", "boot.scr", "SHA256SUMS")]
+    if args.via == "chainload":
+        files.append((args.uboot / "u-boot.uimage", "u-boot.uimage"))
+    for src, name in files:
         dst = d / name
         tmp = d / (name + ".tmp")
-        shutil.copyfile(args.netboot / name, tmp)
+        shutil.copyfile(src, tmp)
         tmp.replace(dst)
     r = subprocess.run(["sha256sum", "-c", "--quiet", "SHA256SUMS"], cwd=d, capture_output=True, text=True)
     if r.returncode:
@@ -204,6 +245,35 @@ def step_envbackup(args, st):
     st["envbackup"] = out.name
 
 
+def send_line(line):
+    subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", line], check=True)
+    subprocess.run(["tmux", "send-keys", "-t", SESSION, "Enter"], check=True)
+
+
+def step_chainload(args, st):
+    if args.via != "chainload" or "ip" in st:
+        return
+    if pane().rstrip().endswith(NEW):
+        st["chainload"] = "already at our U-Boot"
+        return
+    console("setenv autoload no")
+    if "bound to address" not in console("dhcp", timeout=60):
+        raise Fail("factory U-Boot DHCP failed")
+    console(f"setenv serverip {args.server}")
+    out = console(f"tftpboot 0x10000000 {args.tftp_dir}/u-boot.uimage", timeout=120)
+    if "Bytes transferred" not in out:
+        raise Fail(f"TFTP of u-boot.uimage failed: {out[-200:]}")
+    if "Verifying Checksum ... OK" not in console("iminfo 0x10000000"):
+        raise Fail("u-boot.uimage checksum bad after TFTP")
+    clear_pane()
+    send_line("bootm 0x10000000 - ${fdtaddr}")
+    wait_pane(UBOOT_BANNER, 60)
+    wait_pane(r"Hit any key to stop autoboot", 60)
+    subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", " "], check=True)
+    wait_pane(r"\n=> ?\s*$", 30)
+    st["chainload"] = "ok"
+
+
 def step_netboot(args, st):
     if "ip" in st:  # resuming: reuse a box that is already netbooted
         r = subprocess.run(SSH + [f"root@{st['ip']}", "cat /proc/device-tree/model; uname -r"],
@@ -211,7 +281,27 @@ def step_netboot(args, st):
         if r.returncode == 0:
             st["netboot_model"], st["netboot_kernel"] = (r.stdout.replace("\0", "\n").split("\n") + ["", ""])[:2]
             return
-    lines = (args.netboot / "uboot-commands.txt").read_text().splitlines()
+    if args.via == "chainload":
+        http_up(args)
+        console("setenv autoload no", NEW)
+        if "bound to address" not in console("dhcp", NEW, timeout=60):
+            raise Fail("U-Boot DHCP failed (al_eth)")
+        console(f"setenv serverip {args.server}", NEW)
+        console(f"setenv httpdstp {args.http_port}", NEW)
+        for addr, name in (("0x10000000", "uImage"), ("0x20000000", "uInitrd"), ("0x04078000", "dmc12.dtb")):
+            out = console(f"wget {addr} {args.server}:/{args.tftp_dir}/{name}", NEW, timeout=600)
+            want = (args.netboot / name).stat().st_size
+            if "Transfer Successful" not in out or f"Bytes transferred = {want} " not in out:
+                raise Fail(f"HTTP wget of {name} failed or short: {out[-200:]}")
+        bootargs = (args.netboot / "bootargs.txt").read_text().strip()
+        console("setenv initrd_high 0xffffffffffffffff", NEW)
+        console("setenv fdt_high 0xffffffffffffffff", NEW)
+        console(f"setenv bootargs '{bootargs}'", NEW)
+        clear_pane()
+        send_line("bootm 0x10000000 0x20000000 0x04078000")
+        lines = []
+    else:
+        lines = (args.netboot / "uboot-commands.txt").read_text().splitlines()
     for line in lines:
         line = line.replace("<SERVER>", args.server).replace("<DIR>", args.tftp_dir)
         if line.startswith(("bootm", "source")):  # boots: no prompt comes back
@@ -313,6 +403,28 @@ def step_boot(args, st):
     if "DMC-12" not in out or not re.search(r"DMC12ROOT|/dev/sda[23]\b", out):
         raise Fail(f"did not come up on the SSD with the board DT: {out[-300:]}")
     st["boot"] = out.strip().splitlines()
+    ip = None
+    deadline = time.monotonic() + 180
+    while not ip and time.monotonic() < deadline:
+        m = re.search(r"inet (\d+\.\d+\.\d+\.\d+)/",
+                      console("ip -4 -o addr show eth0 | head -1", prompt="# ", timeout=30))
+        ip = m and m.group(1)
+        if not ip:
+            time.sleep(5)
+    if not ip:
+        raise Fail("installed system got no IPv4 address on eth0")
+    st["ip"] = ip
+    # USB serial (48 ports) takes ~25 s to enumerate after boot.
+    deadline = time.monotonic() + 120
+    while ssh(st, "ls /dev/P* | wc -l", timeout=30).stdout.strip() != "48" and time.monotonic() < deadline:
+        time.sleep(5)
+    r = subprocess.run([sys.executable, str(ROOT / "smoke.py"), "--ip", ip, "--json"],
+                       capture_output=True, text=True, timeout=600)
+    res = json.loads(r.stdout) if r.stdout.strip().startswith("{") else {"pass": False}
+    st["smoke"] = {"pass": res.get("pass"),
+                   "failed": [c["check"] for c in res.get("results", []) if not c["pass"]]}
+    if not res.get("pass"):
+        raise Fail(f"installed system failed smoke checks: {st['smoke']['failed']}")
 
 
 def step_record(args, st):
@@ -330,7 +442,12 @@ def main():
     p.add_argument("--plug", type=int, help="lab-power plug number (else --no-power)")
     p.add_argument("--no-power", action="store_true", help="you reset the box yourself")
     p.add_argument("--netboot", type=pathlib.Path, default=ROOT / "nixos-build/result-netboot")
-    p.add_argument("--image", type=pathlib.Path, default=ROOT / "nixos-build/result-disk")
+    p.add_argument("--image", type=pathlib.Path, default=ROOT / "nixos-build/result-disk-chainload")
+    p.add_argument("--uboot", type=pathlib.Path, default=ROOT / "nixos-build/result-uboot-dmc12-chainload",
+                   help="upstream U-Boot build (u-boot.uimage) for the chainload")
+    p.add_argument("--via", choices=["chainload", "factory"], default="chainload",
+                   help="RAM boot through our U-Boot + HTTP (default) or the factory U-Boot + TFTP")
+    p.add_argument("--http-port", type=int, default=8000, help="must be open in this host's firewall")
     p.add_argument("--tftp-root", type=pathlib.Path, default=pathlib.Path("/srv/tftpboot"))
     p.add_argument("--tftp-dir", default="dmc12")
     p.add_argument("--server", default="10.60.2.208", help="this host as U-Boot sees it")
@@ -361,7 +478,10 @@ def main():
             say(args, f"== {name}")
             globals()[f"step_{name}"](args, st)
             st["steps"].append(name)
+            if name == "netboot":
+                http_down()
     except (Fail, subprocess.TimeoutExpired) as e:
+        http_down()
         st["failed"] = {"step": name, "error": str(e)}
         if args.json:
             print(json.dumps(st))
