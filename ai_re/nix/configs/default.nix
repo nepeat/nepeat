@@ -1,10 +1,12 @@
 # Complete systems built from ../modules, plus the images derived from them.
 #   import ./configs { inherit nixpkgs; }  ->  { nixosConfigurations, packages }
 # nixpkgs: a nixpkgs flake/input (needs .lib.nixosSystem and to be importable).
-{ nixpkgs, buildSystem ? "x86_64-linux" }:
+# rust: the monorepo's rust flake (fand); null keeps the older fan monitor.
+{ nixpkgs, buildSystem ? "x86_64-linux", rust ? null }:
 let
   native = import nixpkgs { system = buildSystem; };
   mkHost = platform: modules: nixpkgs.lib.nixosSystem {
+    specialArgs.aiReRust = rust;
     modules = modules ++ [ { nixpkgs.buildPlatform = buildSystem; nixpkgs.hostPlatform = platform; } ];
   };
 

@@ -1,12 +1,25 @@
 # AS7760-32X fan CPLD driver, sensor labels and the thermal monitor service.
 # Other boards with the same Accton fan CPLD can import this as is.
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, aiReRust ? null, ... }:
 let
   kernel = config.boot.kernelPackages.kernel;
   inherit (import ../../packages/as7760-fan { inherit pkgs kernel; }) driver tool;
   cfg = config.hardware.as7760Fan;
+  board = id: { type = "hwmon"; hwmon = { name = "lm75"; of_node = "pca9548@76/i2c@1/temperature-sensor@${id}"; }; plausible = [ (-10) 110 ]; };
 in {
+  # fand (rust/crates/fand) when the monorepo's rust flake is available.
+  imports = lib.optional (aiReRust != null) aiReRust.nixosModules.fand;
+
   options.hardware.as7760Fan = {
+    controller = lib.mkOption {
+      type = lib.types.enum [ "monitor" "fand" ];
+      default = if aiReRust != null then "fand" else "monitor";
+      description = ''
+        "fand": the fan daemon with a temperature curve (quietest; 50% floor
+        set by the hardware). "monitor": the original guard that holds
+        `duty` and goes to 100% at `hotC`.
+      '';
+    };
     duty = lib.mkOption {
       type = lib.types.ints.between 50 100;
       default = 80;
@@ -29,7 +42,7 @@ in {
     chip "lm75-i2c-*-4b"
       label temp1 "cpu_board"
   '';
-  systemd.services.as7760-thermal = {
+  systemd.services.as7760-thermal = lib.mkIf (cfg.controller == "monitor") {
     description = "AS7760 fan duty with temperature guard and monitoring";
     wantedBy = [ "multi-user.target" ];
     after = [ "systemd-modules-load.service" ];
@@ -44,6 +57,32 @@ in {
       NoNewPrivileges = true;
       PrivateTmp = true;
       ProtectHome = true;
+    };
+  };
+  } // lib.optionalAttrs (aiReRust != null) {
+  # services.fand exists only when the fand module is imported (aiReRust).
+  # Tested 2026-11-15: 10 min at the curve's floor (53% duty, ~12.4k rpm)
+  # warmed the hottest board sensor by ~1.3 C, then flat (0.0 C/min).
+  services.fand = lib.mkIf (cfg.controller == "fand") {
+    enable = true;
+    profile = "medium";
+    extraReadWritePaths = [ "/run/prometheus-textfile" ];
+    settings = {
+      interval = "2s";
+      calm_period = "60s";
+      runtime.prometheus_file = "/run/prometheus-textfile/fand.prom";
+      sensors = { board_1 = board "48"; board_2 = board "49"; board_3 = board "4a"; cpu_board = board "4b"; };
+      outputs.fans = {
+        type = "hwmon"; hwmon = "as7760_fan"; pwm = "pwm1";
+        raw_min = 128; raw_max = 255;   # the driver rejects < 128 (50%)
+        readback = "at_least";          # 16-step CPLD register, rounded up
+        tach = { auto = true; max_rpm_by_label = { front = 21000; rear = 18000; }; min_rpm = 1000; follow_tolerance = 0.35; follow_grace = "20s"; };
+      };
+      zones.board = {
+        outputs = [ "fans" ]; sensors = [ "board_1" "board_2" "board_3" "cpu_board" ];
+        aggregate = "max"; policy = "delta-balanced";
+        critical = 45;   # full speed long before the 60 C the curve tops out near
+      };
     };
   };
   };

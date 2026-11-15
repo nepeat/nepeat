@@ -3,7 +3,7 @@
 Start with Status below; [HANDOFF.md](HANDOFF.md) has console/build recipes and
 longer background.
 
-## Status (2026-11-14)
+## Status (2026-11-15)
 
 - **Runs:** upstream U-Boot 2026.10 in boot NOR (`uboot-as7760-nor`, sha256
   `2c0d7387…`, crc32 `31a7d1c9`) → standard boot (`nos_bootcmd=bootflow scan
@@ -20,10 +20,31 @@ longer background.
 - **ASIC:** PCIe MMIO to the BCM56930 works since the device-tree aperture fix
   (0xc_4000_0000, matching U-Boot's LAW); OpenBCM BDE modules load and
   enumerate it. See [../sonic-nixos/PROGRESS.md](../sonic-nixos/PROGRESS.md).
+- **Fans / health:** `fand.service` (Rust, temperature curve, 100% on fault or
+  exit) holds the 53% floor at ~31 °C board max; see [thermal.md](thermal.md).
+  node-exporter on :9100 (+ `switch_*`, `fand_*` metrics) is scraped by the lab
+  VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; restoring the *factory* image with
   flash_uboot.py is untested (upstream→upstream is tested); other T2080 boards
   need their own DDR/DT patches. Details: [u-boot-port.md](u-boot-port.md).
+
+## 2026-11-15 — monitoring, then fand as the fan controller
+
+- node-exporter (`monitoring-node-exporter`, `node-exporter-lite`: Go
+  node_exporter dies with SIGILL on e6500) + `as7760-metrics` textfile producer
+  (`switch_*`: optics, fans, board temps). 20 collectors OK, ~1170 series.
+  Scraped every 10 s by the workstation VictoriaMetrics; Grafana dashboards.
+- Baseline at 80% (8 min), then fand at its floor as a `systemd-run` test unit
+  (10 min): board max +1.3 °C then flat. Numbers in [thermal.md](thermal.md).
+- `hardware.as7760Fan.controller = "fand"` (default from the root flake);
+  `deploy.sh` now builds `git+file://<monorepo>?dir=ai_re#as7760` so the flake
+  reaches `rust/` (tracked files only: `git add -N` new ones).
+- Workstation nix store was purged first, so the build rebuilt the whole
+  cross toolchain (local log `nixos-build/build-as7760-fand-20261115.txt`, git-ignored, EXIT 0).
+  Deployed `ikibc7z7…-nixos-system-as7760`: fand started at 100%, ramped to
+  pwm 136 in < 2.5 min, board max 30.5 °C; test unit stopped first so two
+  controllers never ran; `as7760-thermal` inactive; 0 failed units.
 
 ## 2026-11-14 (night, late) — standard boot complete, reflash tool, shared Nix tree
 

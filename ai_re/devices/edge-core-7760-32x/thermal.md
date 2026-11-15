@@ -1,11 +1,11 @@
-# sensors and fan control — 2026-11-14
+# sensors and fan control — 2026-11-15
 
-The initial NixOS build includes LM75/LM90, I2C mux and hwmon support, a new
-small AS7760 fan CPLD driver, `sensors`, and `as7760-fan`. The systemd
-`as7760-thermal` service holds **100% duty**, checks temperatures and all twelve
-rotors every five seconds, and reports faults. No automatic quiet curve is
-enabled: ASIC die temperature and load-dependent cooling requirements remain
-unverified. Defaulting to full speed matches the live firmware state.
+NixOS has LM75 + I2C mux + hwmon support, a small AS7760 fan CPLD driver,
+`sensors` and `as7760-fan`. Since 2026-11-15 fans are run by **fand**
+(`rust/crates/fand`, `fand.service`): a temperature curve over the four board
+sensors, at the 50% hardware floor when cool, 100% on any fault, on exit, or at
+45 °C. ASIC die temperature is **not** an input yet. The CPLD itself powers up at
+full speed (the state with no OS driver).
 
 ## evidence
 
@@ -72,20 +72,38 @@ read-only. Writes follow the vendor's manual sequence, verify duty readback,
 and attempt full speed if duty programming fails. An unusable bus cannot be
 made safe by software alone.
 
-[Service and tool](../../nix/modules/thermal/as7760-fan.nix):
+[Service and tool](../../nix/modules/thermal/as7760-fan.nix), option
+`hardware.as7760Fan.controller` = `fand` (default when built from the root
+`ai_re` flake, which can reach `rust/`) or `monitor` (the older guard below;
+the default for `path:./nix` builds, which cannot):
 
 ```sh
 sensors
 as7760-fan status
-journalctl -u as7760-thermal
-# Intentional manual experiment: stopping first resets duty to 100%.
-systemctl stop as7760-thermal
-as7760-fan set 70
-# Restore the full-speed monitoring policy:
-systemctl start as7760-thermal
+fand status                       # JSON: zone state, reasons, readings
+journalctl -u fand
+fand set 80% --for 10m            # override through the daemon; failsafe still wins
+systemctl stop fand               # ExecStopPost sets 100%
 ```
 
-Since 2026-11-14 the monitor holds a quiet duty (default 80%, option
+fand config: zone `board` = max of board_1..3 + cpu_board, `delta-balanced`
+policy, `medium` profile, critical 45 °C, interval 2 s; output `pwm1` raw
+128–255, readback "at least" (the CPLD has 16 steps), tach follow check
+(front 21k / rear 18k rpm max). Metrics go to
+`/run/prometheus-textfile/fand.prom` (`fand_*`, scraped with node-exporter).
+
+Measured (ASIC initialised, idle; VictoriaMetrics, 10 s scrape):
+
+| policy | duration | rotors | hottest board sensor |
+| --- | --- | --- | --- |
+| monitor at 80% | 8 min | ~16.9k rpm | avg 29.7 °C, slope −0.08 °C/min |
+| fand floor (pwm 136, 53%) | 10 min test unit, then deployed | ~11–14k rpm | avg 31.0 °C (peak 31.5), flat after a ~1.3 °C rise |
+
+fand asks for less than the floor (zone duty 45%) at these temperatures, so it
+sits at the floor; the curve only matters when the board warms. Not yet tried
+under traffic load.
+
+**Older policy (`controller = "monitor"`):** `as7760-thermal` holds a quiet duty (default 80%, option
 `hardware.as7760Fan.duty`) while all four board sensors are healthy and at or
 below 40 °C, and goes to 100% on any error or at 45 °C (`hotC`/`coolC`). At
 80%: rotors about 15,100–18,800 rpm, board 29–31.5 °C with the ASIC
@@ -104,8 +122,8 @@ Linux 7.3.4 e6500 kernel. `modinfo` reports `7.3.4 SMP preempt mod_unload`;
 the object is ELF64 big-endian PowerPC ELFv2. Linux hardware execution passed on the actual switch: the module loaded,
 all twelve rotors reported about 17,900–21,600 RPM, and four LM75 sensors
 reported 24.5–26.5 C. A write of 255 to `pwm1` read back 255; all rotors
-continued running. Reduced duty and the full systemd monitoring service have
-not yet been exercised on hardware. No module was loaded on the workstation.
+continued running. (Reduced duty and both services were exercised on
+hardware later, see the table above.) No module was loaded on the workstation.
 
 Packaging correction: directly copying the `.ko` passed compilation but failed
 NixOS's module aggregation because its per-module `.ko.cer` was missing. Using

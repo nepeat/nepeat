@@ -130,7 +130,9 @@ the repo). Grafana's config, database and logs are generated under that
 `grafana/` directory on every start; nothing there needs editing. Every outbound
 call (usage stats, update/plugin checks, news, gravatar, external snapshots,
 plugin installs) is switched off. The LAN needs 3000/tcp open in the
-workstation's firewall. The first start takes about two minutes (database
+workstation's firewall (or, tailnet-only and without opening it:
+`sudo tailscale serve --bg --https=443 http://127.0.0.1:3000`; undo with
+`sudo tailscale serve --https=443 off`). The first start takes about two minutes (database
 migrations).
 
 Dashboards are the JSON files in `tools/grafana/dashboards/`, provisioned

@@ -9,7 +9,11 @@
 set -euo pipefail
 host=${AS7760_HOST:-10.60.2.253}
 action=${1:-switch}
-flake="path:$(cd "$(dirname "$0")/../../nix" && pwd)#as7760"
+# The ai_re root flake, as a git flake over the whole monorepo: it can reach
+# rust/ (fand). It sees tracked files only (uncommitted edits to them count);
+# "git add -N" new files before deploying.
+repo=$(git -C "$(dirname "$0")" rev-parse --show-toplevel)
+flake="git+file://$repo?dir=ai_re#as7760"
 export NIX_SSHOPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10"
 exec sudo --preserve-env=NIX_SSHOPTS nixos-rebuild "$action" --flake "$flake" \
   --target-host "root@$host" --no-reexec

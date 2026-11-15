@@ -11,8 +11,9 @@ in {
     command = lib.concatStringsSep " " [
       "${metrics}/bin/as7760-metrics"
       "--cache /run/prometheus-textfile-as7760/optics-static.json"
-      "--quiet-duty ${toString config.hardware.as7760Fan.duty}"
-      "--thermal-unit as7760-thermal.service"
+      (if config.hardware.as7760Fan.controller == "fand"
+       then "--thermal-unit fand.service"   # fand exports its own fand_* metrics (fand.prom)
+       else "--quiet-duty ${toString config.hardware.as7760Fan.duty} --thermal-unit as7760-thermal.service")
     ];
     interval = 30;
     timeout = 20;
