@@ -1,0 +1,98 @@
+# Accton AS7760-32X (ppc64 big-endian), as a worked example.
+#
+# Hardware: one hwmon device "as7760_fan" with a single shared pwm1 for six
+# fan modules (12 rotors: fanN_front ~21000 rpm, fanN_rear ~18000 rpm at
+# 100 %), fan1..12_input/_fault/_label; pwm1 accepts raw 128..255 only and
+# the driver verifies its own write. Four lm75 board sensors (all hwmon name
+# "lm75"), told apart by their devicetree node. The switch ASIC die
+# temperature is not in hwmon and comes from a command; optics temperatures
+# come from a tool printing JSON.
+#
+# The two commands below are placeholders: provide scripts that print the
+# ASIC temperature / optics JSON. A required sensor whose command is missing
+# keeps its zone in failsafe (fans at 100 %), which is loud but safe.
+#
+# The previous stop-gap policy (80 % while everything is <= 40 C, 100 % at
+# >= 45 C or on any error, back after 60 s calm) is roughly:
+#   profile: 80        and keep the board zone, critical: 45
+# Prefer the curves below once the ASIC sensor is available.
+
+interval: 2s
+profile: medium            # floor 45 %; this pwm cannot go below 50 % anyway
+failsafe_duty: 100
+exit_duty: 100
+calm_period: 60s
+
+runtime:
+  prometheus_file: /run/fand/metrics.prom
+
+sensors:
+  board_1:
+    type: hwmon
+    hwmon: { name: lm75, of_node: "pca9548@76/i2c@1/temperature-sensor@48" }
+    plausible: [-10, 110]
+  board_2:
+    type: hwmon
+    hwmon: { name: lm75, of_node: "pca9548@76/i2c@1/temperature-sensor@49" }
+    plausible: [-10, 110]
+  board_3:
+    type: hwmon
+    hwmon: { name: lm75, of_node: "pca9548@76/i2c@1/temperature-sensor@4a" }
+    plausible: [-10, 110]
+  cpu_board:
+    type: hwmon
+    hwmon: { name: lm75, of_node: "pca9548@76/i2c@1/temperature-sensor@4b" }
+    plausible: [-10, 110]
+  asic:
+    type: exec
+    # Must print e.g. "average current temperature is 61.2 ..." or similar;
+    # the regex takes the largest "current=<n>" value of all monitors.
+    command: ["/etc/fand/asic-temp"]
+    interval: 10s
+    timeout: 5s
+    parse: { regex: "current=\\s*([0-9.]+)", aggregate: max }
+    plausible: [0, 130]
+    critical: 105
+  optics:
+    type: exec
+    command: ["/etc/fand/optics-json"]
+    interval: 30s
+    timeout: 10s
+    parse: { json: "ports[].temperature", aggregate: max }
+    plausible: [-10, 100]
+    required: false        # empty cages are normal; a broken tool is not fatal
+
+outputs:
+  fans:
+    type: hwmon
+    hwmon: as7760_fan
+    pwm: pwm1
+    raw_max: 255
+    raw_min: 128           # the driver rejects < 128 (50 %)
+    readback: at_least     # 16-step CPLD register, the driver rounds up
+    tach:
+      auto: true
+      max_rpm_by_label: { front: 21000, rear: 18000 }
+      min_rpm: 1000        # any rotor below this while running = fault
+      follow_tolerance: 0.35
+      follow_grace: 20s
+
+zones:
+  board:
+    outputs: [fans]
+    sensors: [board_1, board_2, board_3, cpu_board]
+    aggregate: max
+    policy: delta-balanced
+    critical: 60
+  asic:
+    outputs: [fans]
+    sensors: [asic]
+    policy: delta-asic
+  optics:
+    outputs: [fans]
+    sensors: [optics]
+    min_sensors: 0         # no readable optics: this zone asks for nothing
+    policy:
+      curve:
+        points: [[45, 50], [60, 75], [70, 100]]
+        hysteresis: 2

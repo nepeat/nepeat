@@ -1,0 +1,61 @@
+# A generic x86 appliance (firewall / NAS class): Super I/O pwm channels
+# (nct6775 family, hwmon name "nct6798" here), coretemp, NVMe.
+# Check names with: ls /sys/class/hwmon/*/name, and run "fand check".
+
+interval: 2s
+profile: slow
+calm_period: 30s
+
+sensors:
+  cpu:
+    type: hwmon
+    hwmon: coretemp
+    label: "Package id 0"
+    plausible: [0, 110]
+    critical: 95
+  board:
+    type: hwmon
+    hwmon: nct6798
+    label: SYSTIN
+  nvme:
+    type: hwmon
+    hwmon: nvme            # add device: "0000:01:00.0" when there are several
+    label: Composite
+    required: false
+
+outputs:
+  cpu_fan:
+    type: hwmon
+    hwmon: nct6798
+    pwm: pwm2
+    enable: 1              # manual mode while fand runs
+    exit_enable: 5         # back to the firmware's automatic mode on exit
+    min_duty: 20
+    tach: { inputs: [fan2], max_rpm: 2000, min_rpm: 300, check_above_duty: 30 }
+  case_fans:
+    type: hwmon
+    hwmon: nct6798
+    pwm: pwm1
+    enable: 1
+    exit_enable: 5
+    min_duty: 25
+    tach: { inputs: [fan1], max_rpm: 1500, min_rpm: 200, check_above_duty: 30, on_fault: warn }
+  # Fans behind a BMC instead (Supermicro-style; check your board's docs):
+  # bmc_fans:
+  #   type: exec
+  #   command: [ipmitool, raw, "0x30", "0x70", "0x66", "0x01", "0x00", "{percent}"]
+  #   raw_max: 100
+  #   reassert: 30s
+
+zones:
+  cpu:
+    outputs: [cpu_fan, case_fans]
+    sensors: [cpu]
+    policy: { target: 70, kp: 3, ki: 0.05 }
+    smoothing: 4s
+    profile: none
+  system:
+    outputs: [case_fans]
+    sensors: [board, { sensor: nvme, offset: -15 }]
+    policy: delta-quiet
+    ramp_down: 0.5

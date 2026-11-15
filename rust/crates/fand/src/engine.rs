@@ -1,0 +1,1600 @@
+//! The control engine: sensors -> zones -> outputs, one tick at a time.
+//!
+//! Every tick:
+//! 1. read all sensors (scale, offset, plausibility, staleness);
+//! 2. read output feedback (tach RPM, fault flags) against the duty that
+//!    was commanded, and collect output faults (including the last write);
+//! 3. each zone aggregates its sensors, collects faults, runs its failsafe
+//!    guard, then its policy, floor and ramp, producing a duty;
+//! 4. each output takes the max duty of the zones driving it, clamps it to
+//!    its hardware range and writes it (with readback).
+//!
+//! Time is passed in explicitly (seconds since an epoch) so the engine can
+//! be driven by a simulated clock in tests.
+
+use crate::calibration::{Calibration, OutputCal, RotorModel};
+use crate::config::{
+    Aggregate, Config, DEFAULT_KD, DEFAULT_KI, DEFAULT_KP, DutySpec, FaultAction, HwmonSelector, OutputConfig,
+    OutputKind, Profile, ProfileDuties, Readback, SensorConfig, SensorKind, ZoneConfig,
+};
+use crate::control::{Ema, FailGuard, Hysteresis, Pid, Ramp, Transition};
+use crate::curves::Curve;
+use crate::error::{Error, Result};
+use crate::exec::{self, Parser};
+use crate::sysfs::{self, ReadError};
+use crate::{log_error, log_info, log_notice, log_warn};
+use serde::Serialize;
+use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex, MutexGuard};
+use std::thread;
+use std::time::{Duration, Instant};
+
+/// Seconds between attempts to resolve a missing device.
+pub const RESOLVE_RETRY: f64 = 10.0;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExecMode {
+    /// Run exec sensors synchronously from `tick` when their interval is due
+    /// (tests, `check`, `calibrate`).
+    Inline,
+    /// One worker thread per exec sensor; `tick` only reads the latest
+    /// result, so a slow vendor tool never stalls the control loop.
+    Threaded,
+}
+
+pub struct Options {
+    pub root: PathBuf,
+    pub dry_run: bool,
+    pub exec_mode: ExecMode,
+    pub calibration: Calibration,
+    /// Time origin for `now` values (worker threads timestamp with it).
+    pub epoch: Instant,
+}
+
+impl Options {
+    pub fn new(cfg: &Config) -> Options {
+        Options {
+            root: cfg.sysfs_root(),
+            dry_run: cfg.dry_run,
+            exec_mode: ExecMode::Inline,
+            calibration: Calibration::default(),
+            epoch: Instant::now(),
+        }
+    }
+}
+
+/// A fault with a stable key (for change detection / logging) and a message.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Fault {
+    pub key: String,
+    pub msg: String,
+}
+
+impl Fault {
+    fn new(key: impl Into<String>, msg: impl Into<String>) -> Fault {
+        Fault {
+            key: key.into(),
+            msg: msg.into(),
+        }
+    }
+}
+
+fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
+    m.lock().unwrap_or_else(|p| p.into_inner())
+}
+
+fn r1(x: f64) -> f64 {
+    (x * 10.0).round() / 10.0
+}
+
+/// Caches a resolved path; retries a failed resolution every RESOLVE_RETRY s.
+#[derive(Debug, Default)]
+struct Resolver {
+    resolved: Option<PathBuf>,
+    last_try: Option<f64>,
+    err: String,
+}
+
+impl Resolver {
+    fn get(
+        &mut self,
+        now: f64,
+        f: impl FnOnce() -> std::result::Result<PathBuf, String>,
+    ) -> std::result::Result<PathBuf, String> {
+        if let Some(p) = &self.resolved {
+            return Ok(p.clone());
+        }
+        if self.last_try.is_none_or(|t| now - t >= RESOLVE_RETRY || now < t) {
+            self.last_try = Some(now);
+            match f() {
+                Ok(p) => {
+                    self.resolved = Some(p.clone());
+                    self.err.clear();
+                    return Ok(p);
+                }
+                Err(e) => self.err = e,
+            }
+        }
+        Err(self.err.clone())
+    }
+
+    fn invalidate(&mut self) {
+        self.resolved = None;
+        self.last_try = None;
+    }
+}
+
+// ---------------------------------------------------------------- sensors
+
+enum Locator {
+    Hwmon {
+        sel: HwmonSelector,
+        input: Option<String>,
+        label: Option<String>,
+    },
+    Thermal(String),
+    File(PathBuf),
+}
+
+impl Locator {
+    fn resolve(&self, root: &Path) -> std::result::Result<PathBuf, String> {
+        match self {
+            Locator::Hwmon { sel, input, label } => {
+                let dir = sysfs::find_hwmon(root, sel)?;
+                sysfs::find_temp_input(&dir, input.as_deref(), label.as_deref())
+            }
+            Locator::Thermal(z) => sysfs::find_thermal_zone(root, z),
+            Locator::File(p) => Ok(sysfs::rebase(root, p)),
+        }
+    }
+}
+
+type Shared = Arc<Mutex<Option<(f64, std::result::Result<f64, String>)>>>;
+
+struct ExecSensor {
+    argv: Vec<String>,
+    interval: f64,
+    timeout: f64,
+    parser: Arc<Parser>,
+    shared: Shared,
+    stop: Arc<AtomicBool>,
+    threaded: bool,
+    started: bool,
+    last_run: Option<f64>,
+}
+
+impl ExecSensor {
+    fn run_once(argv: &[String], timeout: f64, parser: &Parser) -> std::result::Result<f64, String> {
+        exec::run(argv, Duration::from_secs_f64(timeout)).and_then(|out| parser.parse(&out))
+    }
+
+    fn start(&mut self, epoch: Instant, name: &str) {
+        if !self.threaded || self.started {
+            return;
+        }
+        self.started = true;
+        let (argv, interval, timeout) = (self.argv.clone(), self.interval, self.timeout);
+        let (parser, shared, stop) = (self.parser.clone(), self.shared.clone(), self.stop.clone());
+        let spawned = thread::Builder::new().name(format!("exec-{name}")).spawn(move || {
+            while !stop.load(Ordering::Relaxed) {
+                let r = Self::run_once(&argv, timeout, &parser);
+                *lock(&shared) = Some((epoch.elapsed().as_secs_f64(), r));
+                let until = Instant::now() + Duration::from_secs_f64(interval);
+                while !stop.load(Ordering::Relaxed) {
+                    let left = until.saturating_duration_since(Instant::now());
+                    if left.is_zero() {
+                        break;
+                    }
+                    thread::sleep(left.min(Duration::from_millis(100)));
+                }
+            }
+        });
+        if let Err(e) = spawned {
+            *lock(&self.shared) = Some((
+                epoch.elapsed().as_secs_f64(),
+                Err(format!("cannot start worker thread: {e}")),
+            ));
+        }
+    }
+
+    fn read(&mut self, now: f64) -> std::result::Result<(f64, f64), String> {
+        if !self.threaded && self.last_run.is_none_or(|t| now - t >= self.interval || now < t) {
+            self.last_run = Some(now);
+            let r = Self::run_once(&self.argv, self.timeout, &self.parser);
+            *lock(&self.shared) = Some((now, r));
+        }
+        match &*lock(&self.shared) {
+            None => Err("waiting for the first reading".into()),
+            Some((at, Ok(v))) => Ok((*v, *at)),
+            Some((_, Err(e))) => Err(e.clone()),
+        }
+    }
+}
+
+impl Drop for ExecSensor {
+    fn drop(&mut self) {
+        self.stop.store(true, Ordering::Relaxed);
+    }
+}
+
+enum Source {
+    Sysfs(Locator, Resolver),
+    Exec(ExecSensor),
+}
+
+pub struct SensorRt {
+    pub name: String,
+    pub kind: SensorKind,
+    src: Source,
+    scale: f64,
+    offset: f64,
+    lo: f64,
+    hi: f64,
+    pub required: bool,
+    max_age: Option<f64>,
+    pub critical: Option<f64>,
+    pub value: Option<f64>,
+    pub error: Option<String>,
+    error_kind: Option<&'static str>,
+    pub age: Option<f64>,
+}
+
+impl SensorRt {
+    fn new(name: &str, c: &SensorConfig, mode: ExecMode) -> Result<SensorRt> {
+        let sel = || c.hwmon.clone().map(|s| s.0).unwrap_or_default();
+        let src = match c.kind {
+            SensorKind::Hwmon => Source::Sysfs(
+                Locator::Hwmon {
+                    sel: sel(),
+                    input: c.input.clone(),
+                    label: c.label.clone(),
+                },
+                Resolver::default(),
+            ),
+            SensorKind::File => Source::Sysfs(Locator::File(c.path.clone().unwrap_or_default()), Resolver::default()),
+            SensorKind::ThermalZone => Source::Sysfs(
+                Locator::Thermal(c.zone.clone().unwrap_or_default()),
+                Resolver::default(),
+            ),
+            SensorKind::Exec => Source::Exec(ExecSensor {
+                argv: c.command.clone().unwrap_or_default(),
+                interval: c.exec_interval(),
+                timeout: c.exec_timeout(),
+                parser: Arc::new(
+                    Parser::from_spec(c.parse.as_ref()).map_err(|e| Error(format!("sensors.{name}: {e}")))?,
+                ),
+                shared: Arc::new(Mutex::new(None)),
+                stop: Arc::new(AtomicBool::new(false)),
+                threaded: mode == ExecMode::Threaded,
+                started: false,
+                last_run: None,
+            }),
+        };
+        let (lo, hi) = c.plausible();
+        Ok(SensorRt {
+            name: name.to_string(),
+            kind: c.kind,
+            src,
+            scale: c.scale(),
+            offset: c.offset,
+            lo,
+            hi,
+            required: c.required,
+            max_age: c.max_age(),
+            critical: c.critical,
+            value: None,
+            error: None,
+            error_kind: None,
+            age: None,
+        })
+    }
+
+    /// Resolved path (sysfs-backed sensors only).
+    pub fn path(&self) -> Option<&Path> {
+        match &self.src {
+            Source::Sysfs(_, r) => r.resolved.as_deref(),
+            Source::Exec(_) => None,
+        }
+    }
+
+    pub fn command(&self) -> Option<&[String]> {
+        match &self.src {
+            Source::Exec(x) => Some(&x.argv),
+            Source::Sysfs(..) => None,
+        }
+    }
+
+    /// Resolve without reading (for `check`).
+    pub fn resolve(&mut self, now: f64, root: &Path) -> std::result::Result<Option<PathBuf>, String> {
+        match &mut self.src {
+            Source::Sysfs(loc, res) => res.get(now, || loc.resolve(root)).map(Some),
+            Source::Exec(_) => Ok(None),
+        }
+    }
+
+    pub fn update(&mut self, now: f64, root: &Path) {
+        let raw: std::result::Result<(f64, f64), (&'static str, String)> = match &mut self.src {
+            Source::Sysfs(loc, res) => match res.get(now, || loc.resolve(root)) {
+                Err(e) => Err(("resolve", e)),
+                Ok(p) => match sysfs::read_number(&p) {
+                    Ok(v) => Ok((v, now)),
+                    Err(ReadError::NotFound(m)) => {
+                        res.invalidate();
+                        Err(("read", m))
+                    }
+                    Err(ReadError::Other(m)) => Err(("read", m)),
+                },
+            },
+            Source::Exec(x) => x.read(now).map_err(|e| ("exec", e)),
+        };
+        let checked = raw.and_then(|(raw, at)| {
+            let age = (now - at).max(0.0);
+            self.age = Some(age);
+            if let Some(ma) = self.max_age {
+                if age > ma {
+                    return Err((
+                        "stale",
+                        format!("stale: last reading is {age:.0}s old (max_age {ma:.0}s)"),
+                    ));
+                }
+            }
+            let v = raw * self.scale + self.offset;
+            if !v.is_finite() || v < self.lo || v > self.hi {
+                return Err((
+                    "implausible",
+                    format!("implausible reading {v:.1} C (plausible {}..{} C)", self.lo, self.hi),
+                ));
+            }
+            Ok(v)
+        });
+        match checked {
+            Ok(v) => {
+                if self.error.take().is_some() {
+                    log_info!("sensor {}: recovered, {v:.1} C", self.name);
+                }
+                self.error_kind = None;
+                self.value = Some(v);
+            }
+            Err((kind, msg)) => {
+                if self.error_kind != Some(kind) {
+                    let level = if self.required {
+                        crate::log::Level::Warn
+                    } else {
+                        crate::log::Level::Notice
+                    };
+                    crate::log::log(level, &format!("sensor {}: {msg}", self.name));
+                }
+                self.error_kind = Some(kind);
+                self.error = Some(msg);
+                self.value = None;
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------- outputs
+
+enum OutLoc {
+    Hwmon { sel: HwmonSelector, pwm: String },
+    File(PathBuf),
+}
+
+impl OutLoc {
+    fn resolve(&self, root: &Path) -> std::result::Result<PathBuf, String> {
+        match self {
+            OutLoc::Hwmon { sel, pwm } => {
+                let dir = sysfs::find_hwmon(root, sel)?;
+                sysfs::attr(&dir, pwm).ok_or_else(|| format!("{}: no attribute {pwm}", dir.display()))
+            }
+            OutLoc::File(p) => {
+                let p = sysfs::rebase(root, p);
+                if p.exists() {
+                    Ok(p)
+                } else {
+                    Err(format!("{}: no such file", p.display()))
+                }
+            }
+        }
+    }
+}
+
+enum Sink {
+    Sysfs(OutLoc, Resolver),
+    Exec { argv: Vec<String>, timeout: f64 },
+}
+
+#[derive(Debug, Clone)]
+pub struct Rotor {
+    pub input: String,
+    pub label: String,
+    input_path: PathBuf,
+    fault_paths: Vec<PathBuf>,
+    pub model: Option<RotorModel>,
+    pub rpm: Option<f64>,
+    pub fault_flag: bool,
+    pub error: Option<String>,
+    pub expected: Option<f64>,
+}
+
+pub struct Tach {
+    sel: HwmonSelector,
+    res: Resolver,
+    discovered_for: Option<PathBuf>,
+    auto: bool,
+    inputs: Vec<String>,
+    default_max: Option<f64>,
+    by_label: BTreeMap<String, f64>,
+    cal: Option<OutputCal>,
+    min_rpm: Option<f64>,
+    check_above: f64,
+    follow_tol: Option<f64>,
+    grace: f64,
+    fault_attrs: bool,
+    pub on_fault: FaultAction,
+    pub rotors: Vec<Rotor>,
+}
+
+impl Tach {
+    fn discover(&mut self, dir: &Path) -> std::result::Result<(), String> {
+        let list: Vec<(String, PathBuf)> = if self.auto {
+            sysfs::list_fans(dir)
+        } else {
+            self.inputs
+                .iter()
+                .map(|i| {
+                    let a = sysfs::normalize_input(i);
+                    let short = a.strip_suffix("_input").unwrap_or(&a).to_string();
+                    sysfs::attr(dir, &a)
+                        .map(|p| (short, p))
+                        .ok_or_else(|| format!("{}: no attribute {a}", dir.display()))
+                })
+                .collect::<std::result::Result<_, _>>()?
+        };
+        if list.is_empty() {
+            return Err(format!("{}: no fanN_input attributes", dir.display()));
+        }
+        let rotors = list
+            .into_iter()
+            .map(|(input, input_path)| {
+                let label = sysfs::attr(dir, &format!("{input}_label"))
+                    .and_then(|p| sysfs::read_trim(&p).ok())
+                    .filter(|s| !s.is_empty())
+                    .unwrap_or_else(|| input.clone());
+                let fault_paths = if self.fault_attrs {
+                    ["fault", "alarm"]
+                        .iter()
+                        .filter_map(|k| sysfs::attr(dir, &format!("{input}_{k}")))
+                        .collect()
+                } else {
+                    Vec::new()
+                };
+                let model = self.model_for(&label, &input);
+                Rotor {
+                    input,
+                    label,
+                    input_path,
+                    fault_paths,
+                    model,
+                    rpm: None,
+                    fault_flag: false,
+                    error: None,
+                    expected: None,
+                }
+            })
+            .collect();
+        self.rotors = rotors;
+        self.discovered_for = Some(dir.to_path_buf());
+        Ok(())
+    }
+
+    fn model_for(&self, label: &str, input: &str) -> Option<RotorModel> {
+        if let Some(rc) = self
+            .cal
+            .as_ref()
+            .and_then(|c| c.rotors.get(label).or_else(|| c.rotors.get(input)))
+        {
+            if let Some(m) = RotorModel::from_cal(rc) {
+                return Some(m);
+            }
+        }
+        let by_label = self
+            .by_label
+            .iter()
+            .filter(|(k, _)| label.contains(k.as_str()))
+            .max_by_key(|(k, _)| k.len())
+            .map(|(_, v)| *v);
+        by_label.or(self.default_max).map(RotorModel::linear)
+    }
+
+    /// Read every rotor and check it against the commanded duty.
+    fn check(&mut self, now: f64, root: &Path, commanded: Option<f64>, since_change: f64) -> Vec<Fault> {
+        let sel = &self.sel;
+        let dir = match self.res.get(now, || sysfs::find_hwmon(root, sel)) {
+            Ok(d) => d,
+            Err(e) => {
+                self.rotors.clear();
+                self.discovered_for = None;
+                return vec![Fault::new("tach", format!("tach: {e}"))];
+            }
+        };
+        if self.discovered_for.as_deref() != Some(dir.as_path()) {
+            if let Err(e) = self.discover(&dir) {
+                self.res.invalidate();
+                return vec![Fault::new("tach", format!("tach: {e}"))];
+            }
+        }
+        let mut faults = Vec::new();
+        let mut gone = false;
+        for r in &mut self.rotors {
+            r.expected = None;
+            match sysfs::read_number(&r.input_path) {
+                Ok(v) => {
+                    r.rpm = Some(v);
+                    r.error = None;
+                }
+                Err(e) => {
+                    gone |= matches!(e, ReadError::NotFound(_));
+                    let m = e.message();
+                    faults.push(Fault::new(format!("{}/read", r.label), format!("{}: {m}", r.label)));
+                    r.rpm = None;
+                    r.error = Some(m);
+                    continue;
+                }
+            }
+            r.fault_flag = r
+                .fault_paths
+                .iter()
+                .any(|p| sysfs::read_number(p).is_ok_and(|v| v != 0.0));
+            if r.fault_flag {
+                faults.push(Fault::new(
+                    format!("{}/fault", r.label),
+                    format!("{}: fault flag set", r.label),
+                ));
+            }
+            let rpm = r.rpm.unwrap_or(0.0);
+            let Some(d) = commanded.filter(|d| *d > 0.0) else {
+                continue;
+            };
+            r.expected = r.model.as_ref().map(|m| m.expected(d));
+            if let Some(min) = self.min_rpm {
+                if d >= self.check_above && rpm < min {
+                    faults.push(Fault::new(
+                        format!("{}/min_rpm", r.label),
+                        format!("{}: {rpm:.0} rpm is below the minimum {min:.0} rpm at {d:.0}%", r.label),
+                    ));
+                }
+            }
+            if let (Some(tol), Some(exp)) = (self.follow_tol, r.expected) {
+                if since_change >= self.grace && rpm < exp * (1.0 - tol) {
+                    faults.push(Fault::new(
+                        format!("{}/follow", r.label),
+                        format!(
+                            "{}: {rpm:.0} rpm, expected about {exp:.0} rpm at {d:.0}% (not following its command)",
+                            r.label
+                        ),
+                    ));
+                }
+            }
+        }
+        if gone {
+            self.res.invalidate();
+            self.discovered_for = None;
+        }
+        faults
+    }
+}
+
+pub struct OutputRt {
+    pub name: String,
+    pub kind: OutputKind,
+    sink: Sink,
+    enable: Option<u32>,
+    exit_enable: Option<u32>,
+    raw_min: u32,
+    raw_max: u32,
+    pub min_duty: f64,
+    pub max_duty: f64,
+    pub stop: bool,
+    readback: Readback,
+    tol: u32,
+    reassert: f64,
+    pub tach: Option<Tach>,
+    pub duty: Option<f64>,
+    pub raw: Option<u32>,
+    pub observed_raw: Option<u32>,
+    last_write: Option<f64>,
+    last_change: f64,
+    pub write_error: Option<String>,
+    pub faults: Vec<Fault>,
+    pub warnings: Vec<Fault>,
+}
+
+impl OutputRt {
+    fn new(name: &str, c: &OutputConfig, cal: &Calibration) -> OutputRt {
+        let sel = c.hwmon.clone().map(|s| s.0);
+        let sink = match c.kind {
+            OutputKind::Hwmon => Sink::Sysfs(
+                OutLoc::Hwmon {
+                    sel: sel.clone().unwrap_or_default(),
+                    pwm: c.pwm.clone().unwrap_or_else(|| "pwm1".into()),
+                },
+                Resolver::default(),
+            ),
+            OutputKind::File => Sink::Sysfs(OutLoc::File(c.path.clone().unwrap_or_default()), Resolver::default()),
+            OutputKind::Exec => Sink::Exec {
+                argv: c.command.clone().unwrap_or_default(),
+                timeout: c.timeout.map_or(5.0, |t| t.0),
+            },
+        };
+        let tach = c.tach.as_ref().map(|t| Tach {
+            sel: t.hwmon.clone().map(|s| s.0).or(sel).unwrap_or_default(),
+            res: Resolver::default(),
+            discovered_for: None,
+            auto: t.auto,
+            inputs: t.inputs.clone(),
+            default_max: t.max_rpm,
+            by_label: t.max_rpm_by_label.clone(),
+            cal: cal.outputs.get(name).cloned(),
+            min_rpm: t.min_rpm,
+            check_above: t.check_above_duty,
+            follow_tol: t.follow_tolerance,
+            grace: t.follow_grace.0,
+            fault_attrs: t.fault_attrs,
+            on_fault: t.on_fault,
+            rotors: Vec::new(),
+        });
+        OutputRt {
+            name: name.to_string(),
+            kind: c.kind,
+            sink,
+            enable: c.enable,
+            exit_enable: c.exit_enable,
+            raw_min: c.raw_min,
+            raw_max: c.raw_max,
+            min_duty: c.min_duty(),
+            max_duty: c.max_duty(),
+            stop: c.stop,
+            readback: c.readback,
+            tol: c.readback_tolerance,
+            reassert: c.reassert(),
+            tach,
+            duty: None,
+            raw: None,
+            observed_raw: None,
+            last_write: None,
+            last_change: 0.0,
+            write_error: None,
+            faults: Vec::new(),
+            warnings: Vec::new(),
+        }
+    }
+
+    /// Duty the output will actually run at for a demand: within
+    /// [min_duty, max_duty], or 0 if stopping is allowed and asked for.
+    pub fn clamp(&self, demand: f64) -> f64 {
+        if self.stop && demand <= 0.0 {
+            0.0
+        } else {
+            demand.clamp(self.min_duty, self.max_duty)
+        }
+    }
+
+    /// Percent -> raw, rounding up (never less air than asked for) and
+    /// respecting the hardware's raw range.
+    pub fn to_raw(&self, duty: f64) -> u32 {
+        if self.stop && duty <= 0.0 {
+            return 0;
+        }
+        let r = (duty * f64::from(self.raw_max) / 100.0 - 1e-9).ceil().max(0.0);
+        let r = if r >= f64::from(self.raw_max) {
+            self.raw_max
+        } else {
+            r as u32
+        };
+        r.clamp(self.raw_min, self.raw_max)
+    }
+
+    pub fn raw_to_duty(&self, raw: u32) -> f64 {
+        f64::from(raw) * 100.0 / f64::from(self.raw_max.max(1))
+    }
+
+    /// Duty needed for every rotor to reach `rpm` (None without an RPM model).
+    pub fn duty_for_rpm(&self, rpm: f64) -> Option<f64> {
+        self.tach
+            .as_ref()?
+            .rotors
+            .iter()
+            .filter_map(|r| r.model.as_ref().map(|m| m.duty_for(rpm)))
+            .reduce(f64::max)
+    }
+
+    pub fn path(&self) -> Option<&Path> {
+        match &self.sink {
+            Sink::Sysfs(_, r) => r.resolved.as_deref(),
+            Sink::Exec { .. } => None,
+        }
+    }
+
+    pub fn command(&self) -> Option<&[String]> {
+        match &self.sink {
+            Sink::Exec { argv, .. } => Some(argv),
+            Sink::Sysfs(..) => None,
+        }
+    }
+
+    /// Resolve the pwm path (sysfs outputs).
+    pub fn resolve(&mut self, now: f64, root: &Path) -> std::result::Result<Option<PathBuf>, String> {
+        match &mut self.sink {
+            Sink::Sysfs(loc, res) => res.get(now, || loc.resolve(root)).map(Some),
+            Sink::Exec { .. } => Ok(None),
+        }
+    }
+
+    fn enable_path(pwm: &Path) -> PathBuf {
+        let mut s = pwm.as_os_str().to_os_string();
+        s.push("_enable");
+        PathBuf::from(s)
+    }
+
+    fn write_raw(&mut self, raw: u32, duty: f64, now: f64, root: &Path) -> std::result::Result<(), String> {
+        match &mut self.sink {
+            Sink::Sysfs(loc, res) => {
+                let p = res.get(now, || loc.resolve(root))?;
+                if let Some(ev) = self.enable {
+                    let ep = Self::enable_path(&p);
+                    let cur = sysfs::read_number(&ep);
+                    if !matches!(cur, Ok(v) if v == f64::from(ev)) {
+                        sysfs::write_value(&ep, &ev.to_string())
+                            .map_err(|e| format!("writing {ev} to {}: {e}", ep.display()))?;
+                        if let Ok(v) = cur {
+                            log_notice!("output {}: {} was {v}, set to {ev}", self.name, ep.display());
+                        }
+                    }
+                }
+                if let Err(e) = sysfs::write_value(&p, &raw.to_string()) {
+                    if e.kind() == std::io::ErrorKind::NotFound {
+                        res.invalidate();
+                    }
+                    return Err(format!("writing {raw} to {}: {e}", p.display()));
+                }
+                if self.readback == Readback::Off {
+                    return Ok(());
+                }
+                let got =
+                    sysfs::read_number(&p).map_err(|e| format!("readback of {}: {}", p.display(), e.message()))?;
+                let (got_i, want, tol) = (got.round() as i64, i64::from(raw), i64::from(self.tol));
+                self.observed_raw = u32::try_from(got_i).ok();
+                let ok = match self.readback {
+                    Readback::AtLeast => got_i + tol >= want,
+                    Readback::Exact => (got_i - want).abs() <= tol,
+                    Readback::Off => true,
+                };
+                if ok {
+                    Ok(())
+                } else {
+                    Err(format!(
+                        "readback mismatch on {}: wrote {raw}, read {got_i}",
+                        p.display()
+                    ))
+                }
+            }
+            Sink::Exec { argv, timeout } => {
+                let pct = format!("{:.0}", duty.ceil());
+                let args: Vec<String> = argv
+                    .iter()
+                    .map(|a| a.replace("{percent}", &pct).replace("{raw}", &raw.to_string()))
+                    .collect();
+                exec::run(&args, Duration::from_secs_f64(*timeout)).map(|_| ())
+            }
+        }
+    }
+
+    /// Read feedback and collect faults for this tick.
+    fn feedback(&mut self, now: f64, root: &Path, dry_run: bool) {
+        let mut faults = Vec::new();
+        if let Some(e) = &self.write_error {
+            faults.push(Fault::new("write", e.clone()));
+        }
+        if matches!(self.sink, Sink::Sysfs(..)) {
+            match self.resolve(now, root) {
+                Ok(Some(p)) => {
+                    let obs = sysfs::read_number(&p)
+                        .ok()
+                        .and_then(|v| u32::try_from(v.round() as i64).ok());
+                    if dry_run && obs != self.observed_raw {
+                        self.last_change = now;
+                    }
+                    self.observed_raw = obs;
+                }
+                Ok(None) => {}
+                Err(e) => faults.push(Fault::new("resolve", e)),
+            }
+        }
+        let commanded = if dry_run {
+            self.observed_raw.map(|r| self.raw_to_duty(r))
+        } else {
+            self.duty
+        };
+        let since = now - self.last_change;
+        let mut warnings = Vec::new();
+        if let Some(t) = &mut self.tach {
+            let tf = t.check(now, root, commanded, since);
+            match t.on_fault {
+                FaultAction::Failsafe => faults.extend(tf),
+                FaultAction::Warn => warnings.extend(tf),
+            }
+        }
+        for f in faults.iter().chain(&warnings) {
+            if !self.faults.iter().chain(&self.warnings).any(|o| o.key == f.key) && f.key != "write" {
+                log_warn!("output {}: {}", self.name, f.msg);
+            }
+        }
+        for o in self.faults.iter().chain(&self.warnings) {
+            if !faults.iter().chain(&warnings).any(|f| f.key == o.key) && o.key != "write" {
+                log_info!("output {}: cleared: {}", self.name, o.msg);
+            }
+        }
+        self.faults = faults;
+        self.warnings = warnings;
+    }
+
+    /// Command a demand (percent). Writes when the raw value changes or the
+    /// reassert interval is due. On failure the failsafe duty is attempted
+    /// at once and the error becomes a fault for the next tick.
+    fn apply(&mut self, demand: f64, now: f64, root: &Path, dry_run: bool, failsafe_duty: f64) {
+        let duty = self.clamp(demand);
+        let raw = self.to_raw(duty);
+        if self.raw != Some(raw) && !dry_run {
+            self.last_change = now;
+        }
+        let due = self.raw != Some(raw)
+            || self.write_error.is_some()
+            || self.last_write.is_none_or(|t| now - t >= self.reassert);
+        if dry_run || !due {
+            self.duty = Some(duty);
+            self.raw = Some(raw);
+            return;
+        }
+        self.last_write = Some(now);
+        match self.write_raw(raw, duty, now, root) {
+            Ok(()) => {
+                if self.write_error.take().is_some() {
+                    log_info!("output {}: writes work again", self.name);
+                }
+                self.duty = Some(duty);
+                self.raw = Some(raw);
+            }
+            Err(e) => {
+                if self.write_error.as_ref() != Some(&e) {
+                    log_error!("output {}: {e}", self.name);
+                }
+                self.write_error = Some(e);
+                let fs_duty = self.clamp(failsafe_duty);
+                let fs_raw = self.to_raw(fs_duty);
+                if fs_raw != raw && self.write_raw(fs_raw, fs_duty, now, root).is_ok() {
+                    self.duty = Some(fs_duty);
+                    self.raw = Some(fs_raw);
+                } else {
+                    self.duty = Some(duty);
+                    self.raw = Some(raw);
+                }
+            }
+        }
+    }
+
+    /// Write a duty now, bypassing zones (exit, failsafe command, calibration).
+    pub fn force(&mut self, duty: f64, now: f64, root: &Path) -> std::result::Result<u32, String> {
+        let d = self.clamp(duty);
+        let raw = self.to_raw(d);
+        self.write_raw(raw, d, now, root)?;
+        self.duty = Some(d);
+        self.raw = Some(raw);
+        self.last_write = Some(now);
+        self.last_change = now;
+        Ok(raw)
+    }
+
+    /// Write exit_enable (if configured), e.g. to hand control back to firmware.
+    pub fn restore_enable(&mut self, now: f64, root: &Path) -> std::result::Result<(), String> {
+        let Some(v) = self.exit_enable else { return Ok(()) };
+        if let Sink::Sysfs(loc, res) = &mut self.sink {
+            let p = res.get(now, || loc.resolve(root))?;
+            let ep = Self::enable_path(&p);
+            sysfs::write_value(&ep, &v.to_string()).map_err(|e| format!("writing {v} to {}: {e}", ep.display()))?;
+        }
+        Ok(())
+    }
+
+    /// Current rotor readings without fault evaluation (calibration).
+    pub fn read_rotors(&mut self, now: f64, root: &Path) -> std::result::Result<Vec<(String, String, f64)>, String> {
+        let Some(t) = &mut self.tach else {
+            return Err("output has no tach".into());
+        };
+        let faults = t.check(now, root, None, 0.0);
+        if t.rotors.is_empty() {
+            return Err(faults.into_iter().map(|f| f.msg).collect::<Vec<_>>().join("; "));
+        }
+        Ok(t.rotors
+            .iter()
+            .filter_map(|r| r.rpm.map(|rpm| (r.label.clone(), r.input.clone(), rpm)))
+            .collect())
+    }
+}
+
+// ---------------------------------------------------------------- zones
+
+enum PolicyRt {
+    Curve(Curve, Hysteresis),
+    Target(Pid),
+    Fixed(DutySpec),
+}
+
+struct ZSensor {
+    idx: usize,
+    offset: f64,
+    weight: f64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Override {
+    pub duty: DutySpec,
+    pub until: f64,
+}
+
+pub struct ZoneRt {
+    pub name: String,
+    sensors: Vec<ZSensor>,
+    pub outputs: Vec<usize>,
+    aggregate: Aggregate,
+    policy: PolicyRt,
+    pub policy_desc: String,
+    pub profile: Profile,
+    failsafe_duty: f64,
+    critical: Option<f64>,
+    min_sensors: usize,
+    ema: Ema,
+    ramp: Ramp,
+    pub guard: FailGuard,
+    pub temperature: Option<f64>,
+    pub smoothed: Option<f64>,
+    pub demand: Option<f64>,
+    pub floor: f64,
+    pub duty: f64,
+    pub override_: Option<Override>,
+    fault_keys: Vec<String>,
+    warned_rpm: bool,
+    started: bool,
+}
+
+fn spec_to_pct(d: DutySpec, zone_outputs: &[usize], outputs: &[OutputRt]) -> Option<f64> {
+    match d {
+        DutySpec::Percent(p) => Some(p),
+        DutySpec::Rpm(r) => zone_outputs
+            .iter()
+            .filter_map(|&o| outputs[o].duty_for_rpm(r))
+            .reduce(f64::max),
+    }
+}
+
+impl ZoneRt {
+    fn new(
+        name: &str,
+        z: &ZoneConfig,
+        cfg: &Config,
+        sensor_idx: &BTreeMap<String, usize>,
+        output_idx: &BTreeMap<String, usize>,
+    ) -> Result<ZoneRt> {
+        let zone_target = z.policy.target;
+        let mut sensors = Vec::new();
+        for s in &z.sensors {
+            let idx = *sensor_idx
+                .get(&s.sensor)
+                .ok_or_else(|| Error(format!("zones.{name}: unknown sensor {}", s.sensor)))?;
+            let extra = match (zone_target, s.target) {
+                (Some(zt), Some(st)) => zt - st,
+                _ => 0.0,
+            };
+            sensors.push(ZSensor {
+                idx,
+                offset: s.offset + extra,
+                weight: s.weight,
+            });
+        }
+        let outputs = z
+            .outputs
+            .iter()
+            .map(|o| {
+                output_idx
+                    .get(o)
+                    .copied()
+                    .ok_or_else(|| Error(format!("zones.{name}: unknown output {o}")))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let pol = &z.policy;
+        let (policy, policy_desc) = if let Some(c) = &pol.curve {
+            let curve = cfg
+                .curve(c)
+                .ok_or_else(|| Error(format!("zones.{name}: unknown curve")))?;
+            let band = z.hysteresis.unwrap_or(curve.hysteresis);
+            let desc = match c {
+                crate::config::CurveRef::Named(n) => format!("curve {n}"),
+                crate::config::CurveRef::Inline { .. } => "curve (inline)".to_string(),
+            };
+            (PolicyRt::Curve(curve, Hysteresis::new(band)), desc)
+        } else if let Some(t) = pol.target {
+            let (kp, ki, kd) = (
+                pol.kp.unwrap_or(DEFAULT_KP),
+                pol.ki.unwrap_or(DEFAULT_KI),
+                pol.kd.unwrap_or(DEFAULT_KD),
+            );
+            let d_tau = pol.d_filter.map_or(5.0, |s| s.0);
+            (
+                PolicyRt::Target(Pid::new(t, kp, ki, kd, d_tau)),
+                format!("target {t} C (kp {kp}, ki {ki}, kd {kd})"),
+            )
+        } else if let Some(d) = pol.fixed {
+            (PolicyRt::Fixed(d), format!("fixed {d}"))
+        } else {
+            return Err(Error(format!("zones.{name}: no policy")));
+        };
+        Ok(ZoneRt {
+            name: name.to_string(),
+            min_sensors: z.min_sensors.unwrap_or(if sensors.is_empty() { 0 } else { 1 }),
+            sensors,
+            outputs,
+            aggregate: z.aggregate,
+            policy,
+            policy_desc,
+            profile: z.profile.unwrap_or(cfg.profile),
+            failsafe_duty: z.failsafe_duty.unwrap_or(cfg.failsafe_duty).0,
+            critical: z.critical,
+            ema: Ema::new(z.smoothing.0),
+            ramp: Ramp::new(z.ramp_up, z.ramp_down, z.dwell.0),
+            guard: FailGuard::new(z.calm_period.unwrap_or(cfg.calm_period).0),
+            temperature: None,
+            smoothed: None,
+            demand: None,
+            floor: 0.0,
+            duty: cfg.startup_duty(),
+            override_: None,
+            fault_keys: Vec::new(),
+            warned_rpm: false,
+            started: false,
+        })
+    }
+
+    fn pct(&mut self, d: DutySpec, outputs: &[OutputRt]) -> f64 {
+        match spec_to_pct(d, &self.outputs, outputs) {
+            Some(p) => p.clamp(0.0, 100.0),
+            None => {
+                if !self.warned_rpm {
+                    log_warn!(
+                        "zone {}: cannot convert {d} to a duty (no RPM model on its outputs); using 100%",
+                        self.name
+                    );
+                    self.warned_rpm = true;
+                }
+                100.0
+            }
+        }
+    }
+
+    fn update(&mut self, now: f64, dt: f64, sensors: &[SensorRt], outputs: &[OutputRt], table: &ProfileDuties) {
+        if !self.started {
+            // The startup duty counts as an increase: hold it for the dwell
+            // time while the first readings settle.
+            self.started = true;
+            self.ramp.mark_increase(now);
+        }
+        let mut faults: Vec<Fault> = Vec::new();
+        let mut vals = Vec::new();
+        for zs in &self.sensors {
+            let s = &sensors[zs.idx];
+            match s.value {
+                Some(v) => {
+                    if let Some(c) = s.critical {
+                        if v >= c {
+                            faults.push(Fault::new(
+                                format!("sensor/{}/critical", s.name),
+                                format!("sensor {} at {v:.1} C, critical is {c:.1} C", s.name),
+                            ));
+                        }
+                    }
+                    vals.push((v + zs.offset, zs.weight));
+                }
+                None if s.required => faults.push(Fault::new(
+                    format!("sensor/{}", s.name),
+                    format!("sensor {}: {}", s.name, s.error.as_deref().unwrap_or("no reading")),
+                )),
+                None => {}
+            }
+        }
+        if vals.len() < self.min_sensors {
+            faults.push(Fault::new(
+                "sensors",
+                format!(
+                    "only {} of {} sensors usable (need {})",
+                    vals.len(),
+                    self.sensors.len(),
+                    self.min_sensors
+                ),
+            ));
+        }
+        for &oi in &self.outputs {
+            let o = &outputs[oi];
+            for f in &o.faults {
+                faults.push(Fault::new(
+                    format!("output/{}/{}", o.name, f.key),
+                    format!("output {}: {}", o.name, f.msg),
+                ));
+            }
+        }
+        self.temperature = exec::aggregate_weighted(&vals, self.aggregate);
+        if let (Some(t), Some(c)) = (self.temperature, self.critical) {
+            if t >= c {
+                faults.push(Fault::new(
+                    "critical",
+                    format!("zone temperature {t:.1} C is at/above critical {c:.1} C"),
+                ));
+            }
+        }
+        self.smoothed = match self.temperature {
+            Some(t) => Some(self.ema.update(t, dt)),
+            None => {
+                self.ema.reset();
+                None
+            }
+        };
+
+        let msgs: Vec<String> = faults.iter().map(|f| f.msg.clone()).collect();
+        let keys: Vec<String> = faults.iter().map(|f| f.key.clone()).collect();
+        let tr = self.guard.update(&msgs, now);
+        match tr {
+            Transition::Entered => log_error!(
+                "zone {}: FAILSAFE ({}%): {}",
+                self.name,
+                self.failsafe_duty,
+                msgs.join("; ")
+            ),
+            Transition::Recovering => log_notice!(
+                "zone {}: faults cleared, holding failsafe for the {:.0}s calm period",
+                self.name,
+                self.guard.calm
+            ),
+            Transition::Left => log_notice!("zone {}: leaving failsafe, resuming {}", self.name, self.policy_desc),
+            Transition::None => {
+                if self.guard.active() && !keys.is_empty() && keys != self.fault_keys {
+                    log_warn!("zone {}: still failsafe: {}", self.name, msgs.join("; "));
+                }
+            }
+        }
+        self.fault_keys = keys;
+
+        let floor_spec = self.profile.floor(table);
+        self.floor = self.pct(floor_spec, outputs);
+        let out_min = self
+            .outputs
+            .iter()
+            .map(|&o| if outputs[o].stop { 0.0 } else { outputs[o].min_duty })
+            .fold(f64::INFINITY, f64::min);
+        let lo = self
+            .floor
+            .max(if out_min.is_finite() { out_min } else { 0.0 })
+            .min(100.0);
+
+        if self.guard.active() {
+            self.demand = None;
+            self.duty = self.failsafe_duty;
+            self.ramp.mark_increase(now);
+            return;
+        }
+
+        let pv = self.smoothed;
+        let current = self.duty;
+        let demand = match &mut self.policy {
+            PolicyRt::Curve(c, h) => pv.map(|t| c.eval(h.apply(t))),
+            PolicyRt::Target(pid) => pv.map(|t| {
+                if !pid.initialized() || tr == Transition::Left {
+                    pid.reset_to(current, Some(t));
+                }
+                pid.update(t, dt, lo, 100.0)
+            }),
+            PolicyRt::Fixed(_) => None,
+        };
+        let fixed = match &self.policy {
+            PolicyRt::Fixed(spec) => Some(*spec),
+            _ => None,
+        };
+        let demand = match (fixed, demand) {
+            (Some(spec), _) => self.pct(spec, outputs),
+            (None, Some(d)) => d,
+            // No usable reading but no fault either: only optional sensors and
+            // min_sensors allows that, so this zone asks for nothing beyond its floor.
+            (None, None) => 0.0,
+        };
+        self.demand = Some(demand);
+
+        if let Some(ov) = self.override_ {
+            if now >= ov.until {
+                log_info!("zone {}: manual override expired", self.name);
+                self.override_ = None;
+            } else {
+                self.duty = self.pct(ov.duty, outputs);
+                self.ramp.mark_increase(now);
+                return;
+            }
+        }
+        let target = demand.max(self.floor);
+        self.duty = self.ramp.step(self.duty, target, now, dt);
+    }
+}
+
+// ---------------------------------------------------------------- engine
+
+pub struct Engine {
+    pub cfg: Config,
+    root: PathBuf,
+    pub dry_run: bool,
+    epoch: Instant,
+    pub sensors: Vec<SensorRt>,
+    pub outputs: Vec<OutputRt>,
+    pub zones: Vec<ZoneRt>,
+    last_tick: Option<f64>,
+    pub ticks: u64,
+}
+
+impl Engine {
+    pub fn new(cfg: Config, opts: Options) -> Result<Engine> {
+        let mut sensors = Vec::new();
+        let mut sensor_idx = BTreeMap::new();
+        for (name, sc) in &cfg.sensors {
+            sensor_idx.insert(name.clone(), sensors.len());
+            sensors.push(SensorRt::new(name, sc, opts.exec_mode)?);
+        }
+        let mut outputs = Vec::new();
+        let mut output_idx = BTreeMap::new();
+        for (name, oc) in &cfg.outputs {
+            output_idx.insert(name.clone(), outputs.len());
+            outputs.push(OutputRt::new(name, oc, &opts.calibration));
+        }
+        let zones = cfg
+            .zones
+            .iter()
+            .map(|(n, z)| ZoneRt::new(n, z, &cfg, &sensor_idx, &output_idx))
+            .collect::<Result<Vec<_>>>()?;
+        Ok(Engine {
+            root: opts.root,
+            dry_run: opts.dry_run,
+            epoch: opts.epoch,
+            sensors,
+            outputs,
+            zones,
+            cfg,
+            last_tick: None,
+            ticks: 0,
+        })
+    }
+
+    pub fn root(&self) -> &Path {
+        &self.root
+    }
+
+    /// Seconds since the engine's epoch (the daemon's `now`).
+    pub fn now(&self) -> f64 {
+        self.epoch.elapsed().as_secs_f64()
+    }
+
+    /// Start exec sensor workers (threaded mode only).
+    pub fn start(&mut self) {
+        for s in &mut self.sensors {
+            if let Source::Exec(x) = &mut s.src {
+                x.start(self.epoch, &s.name);
+            }
+        }
+    }
+
+    pub fn read_sensors(&mut self, now: f64) {
+        for s in &mut self.sensors {
+            s.update(now, &self.root);
+        }
+    }
+
+    pub fn tick(&mut self, now: f64) {
+        let dt = self.last_tick.map_or(self.cfg.interval.0, |t| (now - t).max(0.0));
+        self.last_tick = Some(now);
+        self.ticks += 1;
+        self.read_sensors(now);
+        for o in &mut self.outputs {
+            o.feedback(now, &self.root, self.dry_run);
+        }
+        for z in &mut self.zones {
+            z.update(now, dt, &self.sensors, &self.outputs, &self.cfg.profiles);
+        }
+        let failsafe = self.cfg.failsafe_duty.0;
+        for (i, o) in self.outputs.iter_mut().enumerate() {
+            let demand = self
+                .zones
+                .iter()
+                .filter(|z| z.outputs.contains(&i))
+                .map(|z| z.duty)
+                .reduce(f64::max)
+                .unwrap_or(failsafe);
+            o.apply(demand, now, &self.root, self.dry_run, failsafe);
+        }
+    }
+
+    /// Any zone in failsafe?
+    pub fn failsafe(&self) -> bool {
+        self.zones.iter().any(|z| z.guard.active())
+    }
+
+    /// Write `duty` to every output (then exit_enable). Returns the errors.
+    pub fn shutdown(&mut self, duty: f64, now: f64) -> Vec<String> {
+        let mut errs = Vec::new();
+        for o in &mut self.outputs {
+            if self.dry_run {
+                log_info!("output {}: dry run, would set {duty}%", o.name);
+                continue;
+            }
+            match o.force(duty, now, &self.root) {
+                Ok(raw) => log_info!("output {}: set to {:.0}% (raw {raw})", o.name, o.clamp(duty)),
+                Err(e) => {
+                    log_error!("output {}: could not set exit duty: {e}", o.name);
+                    errs.push(format!("{}: {e}", o.name));
+                    continue;
+                }
+            }
+            if let Err(e) = o.restore_enable(now, &self.root) {
+                log_error!("output {}: {e}", o.name);
+                errs.push(format!("{}: {e}", o.name));
+            }
+        }
+        errs
+    }
+
+    fn zone_indices(&self, zone: Option<&str>) -> Result<Vec<usize>> {
+        match zone {
+            None => Ok((0..self.zones.len()).collect()),
+            Some(z) => self
+                .zones
+                .iter()
+                .position(|x| x.name == z)
+                .map(|i| vec![i])
+                .ok_or_else(|| Error(format!("unknown zone {z:?}"))),
+        }
+    }
+
+    /// Manual override of one or all zones for `secs` (capped by max_override).
+    /// Failsafe still wins over an override.
+    pub fn set_override(&mut self, zone: Option<&str>, duty: DutySpec, secs: f64, now: f64) -> Result<String> {
+        if secs.is_nan() || secs <= 0.0 {
+            return Err(Error("override duration must be > 0".into()));
+        }
+        let secs = secs.min(self.cfg.max_override.0);
+        let idx = self.zone_indices(zone)?;
+        for i in &idx {
+            self.zones[*i].override_ = Some(Override {
+                duty,
+                until: now + secs,
+            });
+        }
+        let names: Vec<&str> = idx.iter().map(|i| self.zones[*i].name.as_str()).collect();
+        let msg = format!("override {duty} for {secs:.0}s on {}", names.join(", "));
+        log_notice!("{msg}");
+        Ok(msg)
+    }
+
+    pub fn clear_override(&mut self, zone: Option<&str>) -> Result<String> {
+        let idx = self.zone_indices(zone)?;
+        for i in &idx {
+            self.zones[*i].override_ = None;
+        }
+        let msg = format!(
+            "override cleared on {}",
+            idx.iter()
+                .map(|i| self.zones[*i].name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
+        log_notice!("{msg}");
+        Ok(msg)
+    }
+
+    pub fn zone(&self, name: &str) -> Option<&ZoneRt> {
+        self.zones.iter().find(|z| z.name == name)
+    }
+
+    pub fn output(&self, name: &str) -> Option<&OutputRt> {
+        self.outputs.iter().find(|o| o.name == name)
+    }
+
+    pub fn status(&self, now: f64) -> Status {
+        let zones = self
+            .zones
+            .iter()
+            .map(|z| {
+                let (state, reasons) = match z.guard.state() {
+                    None => ("normal", Vec::new()),
+                    Some(s) if s.calm_since.is_some() => ("recovering", s.reasons.clone()),
+                    Some(s) => ("failsafe", s.reasons.clone()),
+                };
+                (
+                    z.name.clone(),
+                    ZoneStatus {
+                        state,
+                        reasons,
+                        temperature: z.temperature.map(r1),
+                        smoothed: z.smoothed.map(r1),
+                        policy: z.policy_desc.clone(),
+                        profile: z.profile.to_string(),
+                        demand: z.demand.map(r1),
+                        floor: r1(z.floor),
+                        duty: r1(z.duty),
+                        override_duty: z.override_.map(|o| o.duty.to_string()),
+                        override_remaining: z.override_.map(|o| (o.until - now).max(0.0).round()),
+                    },
+                )
+            })
+            .collect();
+        let sensors = self
+            .sensors
+            .iter()
+            .map(|s| {
+                (
+                    s.name.clone(),
+                    SensorStatus {
+                        value: s.value.map(r1),
+                        error: s.error.clone(),
+                        required: s.required,
+                        path: s.path().map(|p| p.display().to_string()),
+                        age: s.age.map(r1),
+                    },
+                )
+            })
+            .collect();
+        let outputs = self
+            .outputs
+            .iter()
+            .map(|o| {
+                let rotors = o
+                    .tach
+                    .as_ref()
+                    .map(|t| {
+                        t.rotors
+                            .iter()
+                            .map(|r| RotorStatus {
+                                input: r.input.clone(),
+                                label: r.label.clone(),
+                                rpm: r.rpm,
+                                expected: r.expected.map(f64::round),
+                                max_rpm: r.model.as_ref().map(|m| m.max_rpm().round()),
+                                percent_of_max: match (r.rpm, r.model.as_ref()) {
+                                    (Some(rpm), Some(m)) if m.max_rpm() > 0.0 => Some(r1(rpm * 100.0 / m.max_rpm())),
+                                    _ => None,
+                                },
+                                calibrated: r.model.as_ref().is_some_and(|m| m.calibrated),
+                                fault: r.fault_flag,
+                                error: r.error.clone(),
+                            })
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                (
+                    o.name.clone(),
+                    OutputStatus {
+                        duty: o.duty.map(r1),
+                        raw: o.raw,
+                        observed_raw: o.observed_raw,
+                        path: o.path().map(|p| p.display().to_string()),
+                        faults: o.faults.iter().map(|f| f.msg.clone()).collect(),
+                        warnings: o.warnings.iter().map(|f| f.msg.clone()).collect(),
+                        rotors,
+                    },
+                )
+            })
+            .collect();
+        Status {
+            version: env!("CARGO_PKG_VERSION"),
+            uptime: r1(now),
+            dry_run: self.dry_run,
+            ticks: self.ticks,
+            failsafe: self.failsafe(),
+            zones,
+            sensors,
+            outputs,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn output(yaml: &str) -> OutputRt {
+        let c: OutputConfig = serde_saphyr::from_str(yaml).unwrap();
+        OutputRt::new("o", &c, &Calibration::default())
+    }
+
+    #[test]
+    fn percent_to_raw_rounds_up_and_respects_hardware_range() {
+        let o = output("{ type: file, path: /x, raw_min: 128 }");
+        assert_eq!(o.to_raw(100.0), 255);
+        assert_eq!(o.to_raw(80.0), 204);
+        assert_eq!(o.to_raw(50.0), 128);
+        assert_eq!(o.to_raw(10.0), 128, "never below raw_min");
+        assert_eq!(o.to_raw(0.0), 128, "no stop capability");
+        assert!((o.clamp(10.0) - 50.196).abs() < 0.01);
+        assert_eq!(o.clamp(150.0), 100.0);
+        let o = output("{ type: file, path: /x, stop: true, min_duty: 20, max_duty: 90 }");
+        assert_eq!(o.to_raw(0.0), 0);
+        assert_eq!(o.clamp(0.0), 0.0);
+        assert_eq!(o.clamp(5.0), 20.0);
+        assert_eq!(o.clamp(95.0), 90.0);
+        assert_eq!(o.to_raw(20.0), 51);
+        let o = output("{ type: exec, command: [x, '{raw}'], raw_max: 100 }");
+        assert_eq!(o.to_raw(42.2), 43);
+        assert_eq!(o.to_raw(100.0), 100);
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct Status {
+    pub version: &'static str,
+    pub uptime: f64,
+    pub dry_run: bool,
+    pub ticks: u64,
+    pub failsafe: bool,
+    pub zones: BTreeMap<String, ZoneStatus>,
+    pub sensors: BTreeMap<String, SensorStatus>,
+    pub outputs: BTreeMap<String, OutputStatus>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ZoneStatus {
+    pub state: &'static str,
+    pub reasons: Vec<String>,
+    pub temperature: Option<f64>,
+    pub smoothed: Option<f64>,
+    pub policy: String,
+    pub profile: String,
+    pub demand: Option<f64>,
+    pub floor: f64,
+    pub duty: f64,
+    pub override_duty: Option<String>,
+    pub override_remaining: Option<f64>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SensorStatus {
+    pub value: Option<f64>,
+    pub error: Option<String>,
+    pub required: bool,
+    pub path: Option<String>,
+    pub age: Option<f64>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct OutputStatus {
+    pub duty: Option<f64>,
+    pub raw: Option<u32>,
+    pub observed_raw: Option<u32>,
+    pub path: Option<String>,
+    pub faults: Vec<String>,
+    pub warnings: Vec<String>,
+    pub rotors: Vec<RotorStatus>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RotorStatus {
+    pub input: String,
+    pub label: String,
+    pub rpm: Option<f64>,
+    pub expected: Option<f64>,
+    pub max_rpm: Option<f64>,
+    pub percent_of_max: Option<f64>,
+    pub calibrated: bool,
+    pub fault: bool,
+    pub error: Option<String>,
+}

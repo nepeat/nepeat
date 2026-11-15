@@ -1,0 +1,20 @@
+[package]
+name = "fand"
+version = "0.1.0"
+description = "Vendor-neutral fan control daemon for network appliances"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+readme = "README.md"
+
+[[bin]]
+name = "fand"
+path = "src/main.rs"
+
+[dependencies]
+libc.workspace = true
+regex-lite.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde-saphyr.workspace = true
+signal-hook.workspace = true
