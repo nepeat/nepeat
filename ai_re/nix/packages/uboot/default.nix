@@ -15,7 +15,7 @@ let
   # the numbering is the apply order. scope says who can reuse a patch:
   #   t208x  - any T208x / e6500 board built from the T208xRDB port
   #   as7760 - Accton AS7760-32X only (DDR tuning, DT, SPD addresses, identity)
-  #   alpine-v2 - any Annapurna Alpine V2 board chainloaded by the vendor U-Boot
+  #   alpine-v2 - any Annapurna Alpine V2 board started by the vendor U-Boot or by al-boot stage3
   #   dmc12  - Edgecore DMC-12-48R-AS0 only (CPLD reset, U-Boot DT bits, defconfig)
   # A sibling board takes the t208x ones and replaces the as7760 ones.
   # Platforms touch disjoint files: each build applies only its scopes, and
@@ -42,6 +42,11 @@ let
     { scope = "dmc12"; file = "0019-board-dmc12-describe-al_eth-port-1-for-the-board-par.patch"; }
     { scope = "alpine-v2"; file = "0020-net-add-the-Annapurna-Labs-Alpine-V2-integrated-Ethe.patch"; }
     { scope = "dmc12"; file = "0021-configs-alpine_v2_dmc12-network-through-al_eth.patch"; }
+    { scope = "alpine-v2"; file = "0022-pci-add-the-Annapurna-Labs-Alpine-V2-external-PCIe-r.patch"; }
+    { scope = "alpine-v2"; file = "0023-spi-designware-Annapurna-Alpine-chip-select-override.patch"; }
+    { scope = "alpine-v2"; file = "0024-mtd-spi-optional-read-only-SPI-NOR.patch"; }
+    { scope = "alpine-v2"; file = "0025-board-alpine-v2-MUIO-pinmux-and-CCU-setup-in-place-o.patch"; }
+    { scope = "dmc12"; file = "0026-board-dmc12-MUIO-pins-and-external-PCIe-port-0-param.patch"; }
   ];
   patchesFor = scopes: map (s: builtins.path { path = ./patches + "/${s.file}"; name = s.file; })
     (builtins.filter (s: builtins.elem s.scope scopes) series);

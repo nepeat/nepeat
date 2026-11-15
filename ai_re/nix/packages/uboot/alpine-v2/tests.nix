@@ -11,6 +11,15 @@
 #          Annapurna HAL in ../../al-eth/src, compiled for the host; and
 #          the HAL copy inside the driver patch is verbatim.
 #  qemu:   ./qemu-test.py on QEMU virt with the same board code.
+#  selfinit: dmc12-selfinit (external PCIe init, MUIO/CCU, read-only SPI
+#          NOR): config, linked/absent code (no SPI write/erase path, no
+#          sf write/erase/update/protect), DT additions, IPXE slot fit;
+#          dmc12-stage3app: alboot.py check, the wrapped data is that
+#          u-boot.bin byte for byte.
+#  pcie-init: ./pcie-test, al_init_pcie_rc.c (from the series) on the
+#          verbatim HAL (./al-pcie-hal) against a register model: cold,
+#          warm (factory state) and stuck-link runs, factory AXI words
+#          reproduced; and the HAL copy inside patch 0022 is verbatim.
 let
   cross = pkgs.pkgsCross.aarch64-multiplatform;
   binutils = cross.buildPackages.binutils-unwrapped;
@@ -49,7 +58,8 @@ let
     for k in SPI_FLASH CMD_SF DM_SPI CMD_SAVEENV EFI_LOADER PSCI_RESET SYSRESET_PSCI \
              WATCHDOG_AUTOSTART MMC CMD_EXT4_WRITE FAT_WRITE CMD_MTD ENV_IS_IN_SPI_FLASH \
              ARMV8_MULTIENTRY ARMV8_PSCI GICV3 ARM_ERRATA_828024 ARMV8_SET_SMPEN \
-             BOOTDEV_ETH NET_RANDOM_ETHADDR CMD_NFS CMD_TLV_EEPROM CMD_EEPROM; do
+             BOOTDEV_ETH NET_RANDOM_ETHADDR CMD_NFS CMD_TLV_EEPROM CMD_EEPROM \
+             PCIE_ALPINE_V2 ALPINE_V2_MUIO_INIT ALPINE_V2_CCU_IO_COHERENCY CMD_ALPINE_V2; do
       ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
     done
     for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y SYSRESET_DMC12_CPLD=y \
@@ -175,8 +185,121 @@ let
       ${alpine.qemu-virt}/u-boot.bin disk.img | tee log.txt
     mkdir $out; cp log.txt $out/
   '';
+  si = alpine.dmc12-selfinit;
+  s3 = alpine.dmc12-stage3app;
+  selfinit = pkgs.runCommand "alpine-v2-uboot-selfinit-checks" {
+    nativeBuildInputs = [ binutils pkgs.python3 pkgs.gnugrep pkgs.dtc ];
+  } ''
+    set -euo pipefail
+    c=${si}/.config
+    for k in SPI_FLASH_LOCK SPI_FLASH_UNLOCK_ALL SPI_FLASH_SFDP_SUPPORT SPI_FLASH_SOFT_RESET \
+             SPI_FLASH_BAR SPI_FLASH_MTD CMD_SF_TEST CMD_SPI CMD_MTD CMD_MTDPARTS DM_MTD \
+             MTD_NOR_FLASH ENV_IS_IN_SPI_FLASH CMD_SAVEENV EFI_LOADER PSCI_RESET SYSRESET_PSCI \
+             WATCHDOG_AUTOSTART MMC CMD_EXT4_WRITE FAT_WRITE BOOTDEV_ETH CMD_EEPROM; do
+      ! grep -q "^CONFIG_$k=y" $c || { echo "config: CONFIG_$k is on"; exit 1; }
+    done
+    for kv in TEXT_BASE=0x08000000 POSITION_INDEPENDENT=y ENV_IS_NOWHERE=y \
+              'LOCALVERSION="-dmc12-selfinit"' PCIE_ALPINE_V2=y CMD_ALPINE_V2_PCIE=y PCI_INIT_R=y \
+              ALPINE_V2_MUIO_INIT=y ALPINE_V2_CCU_IO_COHERENCY=y CMD_ALPINE_V2=y \
+              DESIGNWARE_SPI=y DM_SPI_FLASH=y SPI_FLASH_MACRONIX=y CMD_SF=y \
+              SPI_FLASH_READ_ONLY=y SPI_MEM_READ_ONLY=y AL_ETH=y SYSRESET_DMC12_CPLD=y; do
+      grep -qx "CONFIG_$kv" $c || { echo "config: CONFIG_$kv missing"; exit 1; }
+    done
+    echo "config: ok (PCIe RC init, MUIO/CCU, read-only SF; no SF write/lock/unlock, no env storage)"
+
+    h=$(aarch64-unknown-linux-gnu-readelf -h ${si}/u-boot)
+    grep -qi 'Entry point address:.*0x8000000$' <<<"$h"
+    aarch64-unknown-linux-gnu-objdump -d ${si}/u-boot > dis.txt
+    # the only smc/hvc-free rule still holds; eret only in the SError vector
+    n=$(grep -cE '\s(smc|hvc)\s' dis.txt || true)
+    [ "$n" = 0 ] || { echo "$n smc/hvc instructions"; exit 1; }
+    aarch64-unknown-linux-gnu-nm ${si}/u-boot > syms.txt
+    for s in _u_boot_list_2_driver_2_pcie_alpine_v2 _u_boot_list_2_driver_2_dw_spi \
+             _u_boot_list_2_cmd_2_sf _u_boot_list_2_cmd_2_alpcie _u_boot_list_2_cmd_2_alpine \
+             al_init_pcie_rc al_pcie_port_config alpine_v2_serror_drain alpine_v2_muio_init \
+             alpine_v2_ccu_io_coherency spi_nor_ro_erase spi_nor_ro_write board_prep_linux; do
+      grep -q " $s$" syms.txt || { echo "elf: no $s"; exit 1; }
+    done
+    # SPI NOR program/erase/lock code and the sf write paths are not linked
+    # (the uclass erase/write ops remain as thin calls into the -EROFS stubs)
+    for s in spi_nor_erase spi_nor_write spi_nor_write_data sst_write sst_write_byteprogram \
+             spi_nor_erase_sector write_sr write_sr_and_check macronix_quad_enable stm_lock \
+             stm_unlock spi_flash_update spi_flash_update_block do_spi_flash_erase do_spi_protect \
+             do_spi_flash_test; do
+      ! grep -q " $s$" syms.txt || { echo "elf: $s is linked"; exit 1; }
+    done
+    b=${si}/u-boot.bin
+    ! grep -aqE 'sf (write|erase|update|protect) |destructive test' $b || { echo "sf write help present"; exit 1; }
+    grep -aq 'read-only build: no write, erase, update or protect' $b
+    grep -aq 'spi-mem: read-only build, opcode %02x refused' $b
+    echo "elf: ok (PCIe/SPI drivers, alpcie/alpine/sf commands; no SPI NOR write, erase, lock or quad-enable code; sf read-only)"
+
+    t=${si}/u-boot.dtb
+    [ "$(fdtget -t x $t /muio@fd8a8000 amazon,pins)" = "0 2 1 2 14 2 15 2" ]
+    [ "$(fdtget $t /muio@fd8a8000 compatible)" = amazon,alpine-v2-muio ]
+    p=/pcie@fb600000
+    [ "$(fdtget $t $p compatible)" = amazon,al-alpine-v2-pcie ]
+    [ "$(fdtget $t $p reg-names)" = "config controller dbi" ]
+    [ "$(fdtget $t $p amazon,link-gen) $(fdtget $t $p amazon,link-lanes) $(fdtget $t $p amazon,port-id)" = "1 1 0" ]
+    sp=/soc/io-bus@fc000000/spi@1882000
+    fdtget $t $sp compatible | grep -q amazon,alpine-dw-apb-ssi
+    [ "$(fdtget $t $sp/flash@0 spi-max-frequency) $(fdtget $t $sp/flash@1 spi-max-frequency)" = "25000000 25000000" ]
+    # the chainload DTB has none of it
+    ! fdtget -l ${d}/u-boot.dtb / | grep -qx muio@fd8a8000
+    ! fdtget ${d}/u-boot.dtb $p amazon,link-gen 2>/dev/null
+    echo "dt: ok (MUIO pins 0,1,20,21 fn 2; PCIe port 0 gen1 x1; SPI NOR CS0/CS1 25 MHz; chainload DT unchanged)"
+
+    python3 - ${si}/u-boot.bin ${s3} <<'PY'
+    import struct, sys, glob
+    b = open(sys.argv[1], "rb").read()
+    for f in sorted(glob.glob(sys.argv[2] + "/*.fimg")):
+        o = open(f, "rb").read()
+        magic, _, oid = struct.unpack_from("<3I", o)
+        size, load, ex = struct.unpack_from("<3Q", o, 0x28)
+        assert magic == 0x000B9EC7 and oid == 0x110, f
+        assert o[0x48:0x48 + size] == b and size == len(b), f + ": data is not u-boot.bin"
+        assert len(o) <= 0x80000, f"{f}: {len(o):#x} B > IPXE slot 0x80000"
+        assert load == ex and load in (0x08000000, 0x01100000), f
+        print(f"stage3app: ok ({f.split('/')[-1]}: {len(o):#x} B, {0x80000 - len(o)} B left in the IPXE slot, load = exec = {load:#x})")
+    PY
+    grep -c ': OK$' ${s3}/check.txt | grep -qx 2
+    mkdir $out; echo pass > $out/result
+  '';
+
+  pcieInit = pkgs.runCommandCC "alpine-v2-uboot-pcie-init" {
+    nativeBuildInputs = [ pkgs.patchutils ];
+    hal = builtins.path { path = ./al-pcie-hal; name = "al-pcie-hal"; };
+    test = builtins.path { path = ./pcie-test; name = "alpine-v2-pcie-test"; };
+  } ''
+    set -euo pipefail
+    for p in ${toString alpine.patches}; do
+      filterdiff -i '*/drivers/pci/al_pcie/*' "$p"
+    done > al.diff
+    mkdir ub; (cd ub && patch -s -p1 < ../al.diff)
+    a=ub/drivers/pci/al_pcie
+    n=0
+    for f in $a/al_hal_*; do
+      b=$(basename $f)
+      case $b in al_hal_plat_services.h|al_hal_plat_types.h) continue;; esac
+      cmp -s $f $hal/$b || { echo "hal: $b differs from al-pcie-hal/"; exit 1; }
+      n=$((n + 1))
+    done
+    [ $n = $(ls $hal | grep -c '^al_hal_') ] || { echo "hal: $n files in the patch"; exit 1; }
+    mkdir t; cp $hal/* $test/*.h $a/al_init_pcie_rc.[ch] t/
+    $CC -O1 -Wall -Werror -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable \
+      -Wno-address-of-packed-member -It \
+      -DAL_DEV_ID_ALPINE_V1=0 -DAL_DEV_ID_ALPINE_V2=1 -DAL_DEV_ID_ALPINE_V3=2 \
+      -DAL_DEV_ID_ALPINE_V4=3 -DAL_DEV_ID=AL_DEV_ID_ALPINE_V2 -o run $test/pcie-init-test.c \
+      t/al_init_pcie_rc.c t/al_hal_pcie.c t/al_hal_pbs_utils.c \
+      t/al_hal_pcie_reg_ptr_set_rev2.c t/al_hal_pcie_reg_ptr_set_rev3.c
+    ./run | tee log.txt
+    echo "hal: ok ($n files in patch 0022 identical to al-pcie-hal/)" | tee -a log.txt
+    mkdir $out; cp log.txt $out/
+  '';
 in pkgs.linkFarm "alpine-v2-uboot-tests" [
   { name = "static"; path = static; }
   { name = "eth-params"; path = ethParams; }
   { name = "qemu-virt"; path = qemu; }
+  { name = "selfinit"; path = selfinit; }
+  { name = "pcie-init"; path = pcieInit; }
 ]

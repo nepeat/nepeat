@@ -18,6 +18,43 @@ let
   # well under 2 MiB; tests.nix checks that.
   loadAddr = "0x08000000";
 
+  dmc12Dts = builtins.path {
+    path = ../../linux-alpine/boards/dmc12/alpine-v2-dmc12.dts;
+    name = "alpine-v2-dmc12.dts";
+  };
+
+  # Kconfig of dmc12-selfinit on top of alpine_v2_dmc12_defconfig.
+  selfinitConfig = ''
+    CONFIG_LOCALVERSION="-dmc12-selfinit"
+    CONFIG_PCIE_ALPINE_V2=y
+    CONFIG_CMD_ALPINE_V2_PCIE=y
+    CONFIG_ALPINE_V2_MUIO_INIT=y
+    CONFIG_ALPINE_V2_CCU_IO_COHERENCY=y
+    CONFIG_CMD_ALPINE_V2=y
+    CONFIG_MTD=y
+    # CONFIG_CMD_MTD is not set
+    # CONFIG_CMD_MTDPARTS is not set
+    # CONFIG_MTD_NOR_FLASH is not set
+    # CONFIG_DM_MTD is not set
+    CONFIG_SPI=y
+    CONFIG_DM_SPI=y
+    CONFIG_DESIGNWARE_SPI=y
+    CONFIG_SPI_FLASH=y
+    CONFIG_DM_SPI_FLASH=y
+    CONFIG_SPI_FLASH_MACRONIX=y
+    # CONFIG_SPI_FLASH_LOCK is not set
+    # CONFIG_SPI_FLASH_UNLOCK_ALL is not set
+    # CONFIG_SPI_FLASH_SFDP_SUPPORT is not set
+    # CONFIG_SPI_FLASH_SOFT_RESET is not set
+    # CONFIG_SPI_FLASH_BAR is not set
+    # CONFIG_SPI_FLASH_MTD is not set
+    CONFIG_SPI_FLASH_READ_ONLY=y
+    CONFIG_CMD_SF=y
+    # CONFIG_CMD_SF_TEST is not set
+    # CONFIG_CMD_SPI is not set
+    # CONFIG_ENV_IS_IN_SPI_FLASH is not set
+  '';
+
   mk = { defconfig, dtsName, dts, extraConfig ? "", uimageName }:
     (cross.buildUBoot {
       inherit defconfig extraConfig;
@@ -37,22 +74,55 @@ let
         ./tools/mkimage -l $out/u-boot.uimage > $out/u-boot.uimage.txt
       '';
     });
-in {
+  alboot = builtins.path { path = ../../alboot/alboot.py; name = "alboot.py"; };
+in rec {
   inherit loadAddr patches;
 
   # RAM-only second stage for the DMC-12. Never flashed.
   dmc12-chainload = mk {
     defconfig = "alpine_v2_dmc12_defconfig";
     dtsName = "alpine-v2-dmc12";
-    dts = builtins.path {
-      path = ../../linux-alpine/boards/dmc12/alpine-v2-dmc12.dts;
-      name = "alpine-v2-dmc12.dts";
-    };
+    dts = dmc12Dts;
     uimageName = "U-Boot 2026.10 dmc12 chainload";
     extraConfig = ''
       CONFIG_LOCALVERSION="-dmc12-chainload"
     '';
   };
+
+  # The chainload build plus what the vendor U-Boot does for us today
+  # (patches 0022-0026): external PCIe port 0 RC init (kept if the
+  # firmware already trained the link, "alpcie reinit" redoes it), MUIO
+  # pinmux replay, CCU writes before Linux, read-only SPI NOR (sf probe/read
+  # only, no write/erase code, non-read SPI commands refused). One binary
+  # for both entries: chainloaded in RAM after the vendor U-Boot (test) and
+  # as al-boot stage3's application (dmc12-stage3app). Never flashed.
+  dmc12-selfinit = mk {
+    defconfig = "alpine_v2_dmc12_defconfig";
+    dtsName = "alpine-v2-dmc12";
+    dts = dmc12Dts;
+    uimageName = "U-Boot 2026.10 dmc12 selfinit";
+    extraConfig = selfinitConfig;
+  };
+
+  # dmc12-selfinit's u-boot.bin, byte for byte, as an al-boot application
+  # object for stage3 (spi-uboot-replacement.md section 5): id 0x110 (IPXE,
+  # the blank 512 KiB slot), load = exec = 0x08000000 (the RAM-tested
+  # address, no PIE fixups), plus the same at 0x01100000 (the factory
+  # U-Boot's address, fallback if stage3 cannot reach 0x08000000). Never
+  # flashed; see the flashing concept in that doc.
+  dmc12-stage3app = pkgs.runCommand "uboot-dmc12-stage3app" {
+    nativeBuildInputs = [ pkgs.python3 ];
+  } ''
+    set -euo pipefail
+    mkdir $out
+    cp ${dmc12-selfinit}/u-boot.bin ${dmc12-selfinit}/u-boot.dtb ${dmc12-selfinit}/.config $out/
+    python3 ${alboot} wrap --id 0x110 --load 0x08000000 --version 2026.10.0 \
+      ${dmc12-selfinit}/u-boot.bin $out/u-boot-ipxe-08000000.fimg | tee $out/wrap.txt
+    python3 ${alboot} wrap --id 0x110 --load 0x01100000 --version 2026.10.0 \
+      ${dmc12-selfinit}/u-boot.bin $out/u-boot-ipxe-01100000.fimg | tee -a $out/wrap.txt
+    python3 ${alboot} check $out/*.fimg | tee $out/check.txt
+    (cd $out && sha256sum u-boot.bin *.fimg > SHA256SUMS)
+  '';
 
   # Same board code on QEMU virt (test fixture DT; see ./qemu-virt.dts).
   qemu-virt = mk {

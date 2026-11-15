@@ -20,6 +20,10 @@ in {
   # scopes; see ./uboot/alpine-v2/default.nix. RAM only, started by the
   # vendor U-Boot: u-boot.uimage for "bootm", u-boot.bin for "go"/booti.
   uboot-dmc12-chainload = ubootsAlpine.dmc12-chainload;
+  # + external PCIe init, MUIO/CCU, read-only SPI NOR (RAM test build), and
+  # the same u-boot.bin wrapped as an al-boot stage3 application (not flashed).
+  uboot-dmc12-selfinit = ubootsAlpine.dmc12-selfinit;
+  uboot-dmc12-stage3app = ubootsAlpine.dmc12-stage3app;
   uboot-alpine-v2-qemu = ubootsAlpine.qemu-virt;     # test fixture build
   uboot-alpine-v2-tests = import ./uboot/alpine-v2/tests.nix { inherit pkgs; alpine = ubootsAlpine; };
 

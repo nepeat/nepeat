@@ -1,0 +1,304 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 12:00:00 -0800
+Subject: [PATCH 25/26] board: alpine-v2: MUIO pinmux and CCU setup in place of
+ the vendor U-Boot
+
+Two things the vendor U-Boot does that al-boot stage3 does not, for when
+this U-Boot is stage3's application:
+- ALPINE_V2_MUIO_INIT: at board_init, write the <pin function> pairs of
+  an "amazon,alpine-v2-muio" DT node into the PBS mux_sel registers
+  (4 bits per pin, 8 pins per register, as HAL al_hal_muio_mux.c does on
+  Alpine V2), read-modify-write of only those fields;
+- ALPINE_V2_CCU_IO_COHERENCY: right before Linux (board_prep_linux, after
+  the al_eth handoff), CCI slave interface 4 snoop enable (polling the
+  change-pending bit) and speculation control 7, the state the vendor
+  bootm leaves for its DT io_coherency. Idempotent.
+CMD_ALPINE_V2: "alpine state" prints CCU, NB, MUIO, SGPO and GPIO 16-23
+(read-only); "alpine ccu" and "alpine muio" apply the settings by hand.
+All three default off; the calls are compiled out then.
+
+Scope: alpine-v2.
+---
+ board/amazon/alpine-v2/Kconfig       |  23 ++++
+ board/amazon/alpine-v2/Makefile      |   3 +
+ board/amazon/alpine-v2/alpine-v2.c   |   3 +
+ board/amazon/alpine-v2/eth-handoff.c |   3 +
+ board/amazon/alpine-v2/soc-init.c    | 167 +++++++++++++++++++++++++++
+ board/amazon/alpine-v2/soc-init.h    |   9 ++
+ 6 files changed, 208 insertions(+)
+ create mode 100644 board/amazon/alpine-v2/soc-init.c
+ create mode 100644 board/amazon/alpine-v2/soc-init.h
+
+diff --git a/board/amazon/alpine-v2/Kconfig b/board/amazon/alpine-v2/Kconfig
+index 710f0f3f..828c2187 100644
+--- a/board/amazon/alpine-v2/Kconfig
++++ b/board/amazon/alpine-v2/Kconfig
+@@ -32,4 +32,27 @@ config CMD_ALPINE_V2_ETH
+ 	  "aleth info" shows the board params and MAC of each al_eth
+ 	  function (read-only); "aleth handoff" writes missing ones now.
+ 
++config ALPINE_V2_MUIO_INIT
++	bool "Set the MUIO pin functions from the DT at board init"
++	help
++	  Write the <pin function> pairs of the "amazon,alpine-v2-muio" DT
++	  node into the PBS mux_sel registers (only those fields), as the
++	  vendor U-Boot's board-cfg pinctrl_init does. Needed when this
++	  U-Boot runs instead of the vendor one; a no-op after it.
++
++config ALPINE_V2_CCU_IO_COHERENCY
++	bool "Enable CCI snoop and speculation control before Linux"
++	help
++	  Set CCI slave interface 4 snoop enable and speculation control 7
++	  right before Linux, as the vendor bootm does for its DT
++	  io_coherency. Idempotent.
++
++config CMD_ALPINE_V2
++	bool "alpine command"
++	depends on CMDLINE
++	help
++	  "alpine state" prints the CCU, NB, MUIO, SGPO and GPIO registers
++	  that the vendor U-Boot sets up; "alpine ccu" and "alpine muio"
++	  apply the settings above by hand.
++
+ endif
+diff --git a/board/amazon/alpine-v2/Makefile b/board/amazon/alpine-v2/Makefile
+index 0bdf963d..e0ae1df8 100644
+--- a/board/amazon/alpine-v2/Makefile
++++ b/board/amazon/alpine-v2/Makefile
+@@ -2,3 +2,6 @@
+ 
+ obj-y	:= alpine-v2.o lowlevel.o
+ obj-$(CONFIG_ALPINE_V2_ETH_HANDOFF) += eth-handoff.o
++ifneq ($(CONFIG_ALPINE_V2_MUIO_INIT)$(CONFIG_ALPINE_V2_CCU_IO_COHERENCY)$(CONFIG_CMD_ALPINE_V2),)
++obj-y	+= soc-init.o
++endif
+diff --git a/board/amazon/alpine-v2/alpine-v2.c b/board/amazon/alpine-v2/alpine-v2.c
+index 115d4379..ab72861f 100644
+--- a/board/amazon/alpine-v2/alpine-v2.c
++++ b/board/amazon/alpine-v2/alpine-v2.c
+@@ -23,6 +23,7 @@
+ #include <linux/kernel.h>
+ #include <linux/libfdt.h>
+ #include <linux/sizes.h>
++#include "soc-init.h"
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -209,5 +210,7 @@ int print_cpuinfo(void)
+ 
+ int board_init(void)
+ {
++	if (IS_ENABLED(CONFIG_ALPINE_V2_MUIO_INIT))
++		alpine_v2_muio_init(false);
+ 	return 0;
+ }
+diff --git a/board/amazon/alpine-v2/eth-handoff.c b/board/amazon/alpine-v2/eth-handoff.c
+index 5d979c1a..7b087149 100644
+--- a/board/amazon/alpine-v2/eth-handoff.c
++++ b/board/amazon/alpine-v2/eth-handoff.c
+@@ -27,6 +27,7 @@
+ #include <dm/ofnode.h>
+ #include <linux/errno.h>
+ #include <net-common.h>
++#include "soc-init.h"
+ 
+ struct bootm_headers;
+ 
+@@ -327,6 +328,8 @@ int alpine_v2_eth_handoff(bool verbose)
+ void board_prep_linux(struct bootm_headers *images)
+ {
+ 	alpine_v2_eth_handoff(false);
++	if (IS_ENABLED(CONFIG_ALPINE_V2_CCU_IO_COHERENCY))
++		alpine_v2_soc_prep_linux();
+ }
+ 
+ #if IS_ENABLED(CONFIG_CMD_ALPINE_V2_ETH)
+diff --git a/board/amazon/alpine-v2/soc-init.c b/board/amazon/alpine-v2/soc-init.c
+new file mode 100644
+index 00000000..35d3c1b8
+--- /dev/null
++++ b/board/amazon/alpine-v2/soc-init.c
+@@ -0,0 +1,167 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Alpine V2 SoC setup that the vendor U-Boot does and al-boot stage3 does
++ * not, for when this U-Boot is stage3's application instead of being
++ * chainloaded by the vendor one:
++ *
++ *  - MUIO pin multiplexing (PBS mux_sel registers, 4 bits per pin, 8 pins
++ *    per register on Alpine V2; HAL al_hal_muio_mux.c), from a
++ *    "amazon,alpine-v2-muio" DT node: <pin function> pairs, written with
++ *    read-modify-write of only those fields. On the DMC-12 this is what the
++ *    vendor board-cfg pinctrl_init allocates (SPI CS1/CS2, UART1).
++ *  - CCI snoop and speculation control as the vendor bootm leaves them for
++ *    Linux (its DT /soc/ccu io_coherency): slave interface 4 snoop enable,
++ *    speculation control 7. Idempotent; run before Linux.
++ *
++ * "alpine state" prints all of it, read-only.
++ */
++
++#include <command.h>
++#include <dm.h>
++#include <log.h>
++#include <asm/io.h>
++#include <dm/ofnode.h>
++#include <linux/delay.h>
++#include "soc-init.h"
++
++#define CCI_BASE		0xf0090000UL
++#define CCI_SPEC_CTRL		(CCI_BASE + 0x0004)
++#define CCI_STATUS		(CCI_BASE + 0x000c)	/* bit 0: change pending */
++#define CCI_SI4_SNOOP		(CCI_BASE + 0x4000)	/* bit 0: snoop enable */
++#define NB_CONF_D0		0xf00700d0UL
++#define SGPO_BASE		0xfd8b4000UL
++#define GPIO2_BASE		0xfd889000UL		/* PL061, SoC GPIO 16..23 */
++
++#define MUIO_PINS_PER_REG	8
++#define MUIO_BITS		4
++static const u16 muio_sel_off[] = { 0x138, 0x13c, 0x140, 0x144, 0x220, 0x224 };
++
++static int muio_reg(phys_addr_t pbs, unsigned int pin, ulong *addr, int *shift)
++{
++	unsigned int r = pin / MUIO_PINS_PER_REG;
++
++	if (r >= ARRAY_SIZE(muio_sel_off))
++		return -EINVAL;
++	*addr = pbs + muio_sel_off[r];
++	*shift = (pin % MUIO_PINS_PER_REG) * MUIO_BITS;
++	return 0;
++}
++
++int alpine_v2_muio_init(bool verbose)
++{
++	ofnode node = ofnode_by_compatible(ofnode_null(), "amazon,alpine-v2-muio");
++	phys_addr_t pbs;
++	u32 pins[32];
++	int n, i, changed = 0;
++
++	if (!ofnode_valid(node))
++		return 0;
++	pbs = ofnode_get_addr(node);
++	n = ofnode_read_size(node, "amazon,pins");
++	if (pbs == FDT_ADDR_T_NONE || n <= 0 || n % 8 || n > sizeof(pins) ||
++	    ofnode_read_u32_array(node, "amazon,pins", pins, n / 4)) {
++		printf("MUIO: bad amazon,alpine-v2-muio node\n");
++		return -EINVAL;
++	}
++	for (i = 0; i < n / 4; i += 2) {
++		ulong addr;
++		int shift;
++		u32 v, old;
++
++		if (muio_reg(pbs, pins[i], &addr, &shift) || pins[i + 1] > 0xf) {
++			printf("MUIO: pin %u function %u: out of range\n", pins[i], pins[i + 1]);
++			return -EINVAL;
++		}
++		v = readl(addr);
++		old = (v >> shift) & 0xf;
++		if (old != pins[i + 1]) {
++			writel((v & ~(0xfU << shift)) | (pins[i + 1] << shift), addr);
++			changed++;
++		}
++		if (verbose)
++			printf("MUIO: pin %2u function %u (was %u)\n", pins[i], pins[i + 1], old);
++	}
++	printf("MUIO:  %d pins from the DT, %d changed\n", n / 8, changed);
++	return 0;
++}
++
++void alpine_v2_ccu_io_coherency(void)
++{
++	u32 snoop = readl(CCI_SI4_SNOOP), spec = readl(CCI_SPEC_CTRL);
++	int t;
++
++	if (!(snoop & 1)) {
++		writel(snoop | 1, CCI_SI4_SNOOP);
++		for (t = 0; t < 1000 && (readl(CCI_STATUS) & 1); t++)
++			udelay(1);
++	}
++	if (spec != 7)
++		writel(7, CCI_SPEC_CTRL);
++	printf("CCU:   snoop %08x -> %08x, speculation %x -> %x\n", snoop,
++	       readl(CCI_SI4_SNOOP), spec, readl(CCI_SPEC_CTRL));
++}
++
++void alpine_v2_soc_prep_linux(void)
++{
++	if (IS_ENABLED(CONFIG_ALPINE_V2_CCU_IO_COHERENCY))
++		alpine_v2_ccu_io_coherency();
++}
++
++#if IS_ENABLED(CONFIG_CMD_ALPINE_V2)
++static void muio_show(void)
++{
++	ofnode node = ofnode_by_compatible(ofnode_null(), "amazon,alpine-v2-muio");
++	phys_addr_t pbs = ofnode_valid(node) ? ofnode_get_addr(node) : 0xfd8a8000;
++	int i;
++
++	printf("MUIO  (PBS %#llx):", (unsigned long long)pbs);
++	for (i = 0; i < ARRAY_SIZE(muio_sel_off); i++)
++		printf(" +%03x %08x", muio_sel_off[i], readl(pbs + muio_sel_off[i]));
++	printf("\n");
++	if (ofnode_valid(node)) {
++		u32 pins[32];
++		int n = ofnode_read_size(node, "amazon,pins");
++
++		if (n > 0 && n % 8 == 0 && n <= sizeof(pins) &&
++		    !ofnode_read_u32_array(node, "amazon,pins", pins, n / 4)) {
++			for (i = 0; i < n / 4; i += 2) {
++				ulong addr;
++				int shift;
++
++				if (muio_reg(pbs, pins[i], &addr, &shift))
++					continue;
++				printf("  pin %2u: function %u (DT wants %u)\n", pins[i],
++				       (readl(addr) >> shift) & 0xf, pins[i + 1]);
++			}
++		}
++	}
++}
++
++static int do_alpine(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
++{
++	if (argc < 2 || !strcmp(argv[1], "state")) {
++		printf("CCU:  spec %08lx  status %08lx  SI4 snoop %08lx   NB +0xd0 %08lx\n",
++		       (ulong)readl(CCI_SPEC_CTRL), (ulong)readl(CCI_STATUS),
++		       (ulong)readl(CCI_SI4_SNOOP), (ulong)readl(NB_CONF_D0));
++		muio_show();
++		printf("SGPO: %08x %08x %08x %08x\n", readl(SGPO_BASE), readl(SGPO_BASE + 4),
++		       readl(SGPO_BASE + 8), readl(SGPO_BASE + 12));
++		printf("GPIO 16-23: dir %02x data %02x\n", readl(GPIO2_BASE + 0x400) & 0xff,
++		       readl(GPIO2_BASE + 0x3fc) & 0xff);
++		return 0;
++	}
++	if (!strcmp(argv[1], "ccu")) {
++		alpine_v2_ccu_io_coherency();
++		return 0;
++	}
++	if (!strcmp(argv[1], "muio"))
++		return alpine_v2_muio_init(true) ? CMD_RET_FAILURE : 0;
++	return CMD_RET_USAGE;
++}
++
++U_BOOT_CMD(alpine, 2, 0, do_alpine,
++	   "Alpine V2 SoC setup done in place of the vendor U-Boot",
++	   "state - CCU, NB, MUIO, SGPO and GPIO 16-23 registers (read-only)\n"
++	   "alpine ccu   - apply the CCU snoop/speculation settings for Linux now\n"
++	   "alpine muio  - apply the DT MUIO pin functions now (verbose)");
++#endif
+diff --git a/board/amazon/alpine-v2/soc-init.h b/board/amazon/alpine-v2/soc-init.h
+new file mode 100644
+index 00000000..f6e5b4fe
+--- /dev/null
++++ b/board/amazon/alpine-v2/soc-init.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++#ifndef __ALPINE_V2_SOC_INIT_H
++#define __ALPINE_V2_SOC_INIT_H
++
++int alpine_v2_muio_init(bool verbose);
++void alpine_v2_ccu_io_coherency(void);
++void alpine_v2_soc_prep_linux(void);
++
++#endif

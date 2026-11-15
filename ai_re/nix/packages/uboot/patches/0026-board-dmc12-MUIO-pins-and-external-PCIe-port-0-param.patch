@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ai_re <ai_re@localhost>
+Date: Sun, 15 Nov 2026 12:00:00 -0800
+Subject: [PATCH 26/26] board: dmc12: MUIO pins and external PCIe port 0
+ parameters
+
+Only when the matching options are on (the DT of a build without them
+is unchanged):
+- ALPINE_V2_MUIO_INIT: the pin functions the vendor board-cfg
+  pinctrl_init allocates: pin 0 fn 2 (if_spim_a_ss_1, SPI CS1 = the
+  second boot flash), pin 1 fn 2 (if_spim_a_ss_2, SPI CS2 = TPM), pins
+  20/21 fn 2 (if_uart_1, the front LCD). u01 at the factory prompt:
+  mux_sel_0 0x22, mux_sel_2 0x00220000.
+- PCIE_ALPINE_V2: port 0 is gen 1, width 1 (board-cfg pcie/port0), the
+  Pericom 12d8:400c bridge to the USB hosts of the 48 CP2108 ports.
+
+Scope: dmc12.
+---
+ arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi | 30 ++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi b/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
+index 2a1cf1c9..24593524 100644
+--- a/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
++++ b/arch/arm/dts/alpine-v2-dmc12-u-boot.dtsi
+@@ -78,3 +78,33 @@
+ 		reg = <0x68>;
+ 	};
+ };
++
++#ifdef CONFIG_ALPINE_V2_MUIO_INIT
++/ {
++	/*
++	 * MUIO functions the vendor board-cfg pinctrl_init allocates
++	 * (dt.0 board-cfg, factory U-Boot iface table): if_spim_a_ss_1 =
++	 * pin 0 fn 2 (SPI CS1, the second boot flash), if_spim_a_ss_2 =
++	 * pin 1 fn 2 (SPI CS2, the TPM), if_uart_1 = pins 20/21 fn 2 (the
++	 * front LCD). u01 at the factory prompt: mux_sel_0 = 0x22,
++	 * mux_sel_2 = 0x00220000.
++	 */
++	muio@fd8a8000 {
++		compatible = "amazon,alpine-v2-muio";
++		reg = <0x0 0xfd8a8000 0x0 0x1000>;
++		amazon,pins = <0 2>, <1 2>, <20 2>, <21 2>;
++	};
++};
++#endif
++
++#ifdef CONFIG_PCIE_ALPINE_V2
++/*
++ * External PCIe port 0 (Pericom 12d8:400c -> OHCI/EHCI -> CP2108s):
++ * board-cfg pcie/port0 is gen 1, width 1.
++ */
++&pcie_external0 {
++	amazon,port-id = <0>;
++	amazon,link-gen = <1>;
++	amazon,link-lanes = <1>;
++};
++#endif
