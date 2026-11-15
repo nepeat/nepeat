@@ -12,7 +12,7 @@ let
   sai = pkgs.callPackage ../../../packages/sai-openbcm { inherit sonic; libsdk = openbcm.libsdk { }; };
 in {
   imports = [ ../../platforms/qoriq-t2080.nix ../../thermal/as7760-fan.nix ../../switch/openbcm.nix
-              ../../switch/sonic ./monitoring.nix ];
+              ../../switch/sonic ./monitoring.nix ./sonic-platform.nix ];
   # BCM56930: SDK modules at boot and the die temperature reader (fan control input).
   hardware.openbcm = { enable = true; temperature.enable = true; };
   # Front-panel module EEPROM reader (works for hot-plugged modules).

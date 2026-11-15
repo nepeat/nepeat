@@ -106,6 +106,9 @@ fand config (interval 2 s, profile `none`: the hardware minimum is the floor):
   the minimum). Under syncd, sai-openbcm writes the same file
   (`SAI_OPENBCM_TEMP_FILE`); fans stayed at the minimum there too.
 
+SONiC's thermalctld (pmon) only reads hwmon and `/run/fand/state.json`; it runs
+no fan policy ([sonic-platform.md](sonic-platform.md)).
+
 Metrics go to `/run/prometheus-textfile/fand.prom` (`fand_*`, scraped with
 node-exporter).
 

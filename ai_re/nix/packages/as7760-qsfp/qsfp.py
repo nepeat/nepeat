@@ -18,7 +18,7 @@ Control lines: CPLD#1 at 0x60 behind PCA9548 0x76 channel 2 on i2c@119000
 bit (p-1)%8, all active low. ResetL 0x04-0x07 (RW), IntL 0x10-0x13, ModPrsL
 0x30-0x33. Writes are read-modify-write under a lock and touch ResetL only.
 """
-import argparse, fcntl, json, os, sys, time
+import argparse, contextlib, ctypes, fcntl, json, os, sys, time
 from pathlib import Path
 
 # _FORCE: the kernel's at24 driver binds 0x50 for modules present at boot;
@@ -58,6 +58,60 @@ def read(bus, addr, offset, length):
         return os.read(fd, length)
     finally:
         os.close(fd)
+
+
+# Combined transfers (I2C_RDWR: offset write + read with a repeated start, as
+# the kernel's at24/SMBus reads do): another process cannot move the device's
+# register pointer between the two halves, unlike read() above. Used by the
+# SONiC platform package (nix/modules/boards/as7760/sonic_platform), where
+# xcvrd, psud and this tool can run at the same time.
+I2C_RDWR, I2C_M_RD = 0x0707, 0x0001
+
+
+class _I2cMsg(ctypes.Structure):
+    _fields_ = [("addr", ctypes.c_uint16), ("flags", ctypes.c_uint16),
+                ("len", ctypes.c_uint16), ("buf", ctypes.c_void_p)]
+
+
+class _I2cRdwr(ctypes.Structure):
+    _fields_ = [("msgs", ctypes.POINTER(_I2cMsg)), ("nmsgs", ctypes.c_uint32)]
+
+
+def _rdwr(bus, msgs):
+    arr = (_I2cMsg * len(msgs))(*msgs)
+    req = _I2cRdwr(arr, len(msgs))
+    fd = os.open(f"/dev/i2c-{bus}", os.O_RDWR)
+    try:
+        fcntl.ioctl(fd, I2C_RDWR, req)
+    finally:
+        os.close(fd)
+
+
+def read_atomic(bus, addr, offset, length):
+    wbuf, rbuf = ctypes.create_string_buffer(bytes([offset]), 1), ctypes.create_string_buffer(length)
+    _rdwr(bus, [_I2cMsg(addr, 0, 1, ctypes.addressof(wbuf)),
+                _I2cMsg(addr, I2C_M_RD, length, ctypes.addressof(rbuf))])
+    return rbuf.raw[:length]
+
+
+def write_atomic(bus, addr, offset, data):
+    data = bytes([offset]) + bytes(data)
+    wbuf = ctypes.create_string_buffer(data, len(data))
+    _rdwr(bus, [_I2cMsg(addr, 0, len(data), ctypes.addressof(wbuf))])
+
+
+@contextlib.contextmanager
+def bus_lock(bus):
+    """Serialise page-select sequences on one module's bus between processes
+    (best effort: no lock when /run is not writable)."""
+    try:
+        lk = open(f"/run/as7760-i2c-{bus}.lock", "w")
+    except OSError:
+        yield
+        return
+    with lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        yield
 
 
 CPLD1, RESET_L, INT_L, MODPRS_L = 0x60, 0x04, 0x10, 0x30
@@ -162,8 +216,9 @@ def static_fields(bus, lo):
     """
     ident = lo[0]
     if ident in (0x0c, 0x0d, 0x11):
-        select_page0(bus)
-        up = read(bus, 0x50, 128, 128)
+        with bus_lock(bus):
+            select_page0(bus)
+            up = read(bus, 0x50, 128, 128)
         passive = (up[19] >> 4) in (0xa, 0xb)
         return dict(vendor=text(up[20:36]), part=text(up[40:56]), rev=text(up[56:58]),
                     serial=text(up[68:84]), date=text(up[84:92]),

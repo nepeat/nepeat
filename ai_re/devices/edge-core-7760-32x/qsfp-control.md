@@ -23,8 +23,9 @@ attributes. Module EEPROMs are on the other controller (`i2c@119100`, muxes
 Under NixOS the 0x76 mux belongs to the kernel (`i2c-mux-idle-disconnect`,
 [device tree](../../nix/packages/linux-qoriq-t2080/boards/as7760/as7760-vendor.dts)).
 Reach CPLD#1 through the channel-2 child adapter, and never by writing the
-mux register from userspace (the fan and LM75 drivers share that mux). Nothing
-binds 0x60 today.
+mux register from userspace (the fan and LM75 drivers share that mux). No
+kernel driver binds 0x60; userspace readers are as7760-qsfp and, under SONiC,
+the platform package's psud/xcvrd (combined transfers; [sonic-platform.md](sonic-platform.md)).
 
 ## hardware results (2026-11-15, `as7760-qsfp --status/--reset/--lpmode`)
 

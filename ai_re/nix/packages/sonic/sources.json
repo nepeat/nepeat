@@ -11,6 +11,12 @@
     "rev": "2ce7ce648ee77a76fcf567191eb4b9ed6cfeed38",
     "hash": "sha256-BHOoMFcbiqHAoDkFA+BlGvWIRapDcQt6F2w/B9IseXo="
   },
+  "dbsyncd": {
+    "owner": "sonic-net",
+    "repo": "sonic-dbsyncd",
+    "rev": "0cfeda31b3e031c3d8e964f5ae11af8a590fc3b8",
+    "hash": "sha256-l6SjlPkONAXXJLKVqCJONfl1877Tmh+KarDAgl7VLSM="
+  },
   "libyang-python": {
     "owner": "CESNET",
     "repo": "libyang-python",

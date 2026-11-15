@@ -1,0 +1,29 @@
+# AS7760 cross build with pmon + LEDs + LLDP, 2026-11-15
+# nix build path:./nix#as7760-system  (from ai_re/, x86_64 -> powerpc64 BE; path:./nix = no fand, older monitor)
+# also contained other agents' in-flight changes (sai-openbcm L3, FRR, VRF, counters) at that time
+system: /nix/store/cdx699vzc1a3d0mfs1srig6lzr4wkm8l-nixos-system-as7760-26.11.20261111.d4f25a3  (closure 2331679568 bytes)
+
+units added: sonic-xcvrd sonic-thermalctld sonic-psud sonic-syseepromd sonic-lldpd sonic-lldpmgrd sonic-lldp-syncd
+sonic-lldpd ExecStart: lldpd -d -I Ethernet[0-9]*   (+ ExecStartPost sonic-lldpd-configure)
+sonic-xcvrd env: PLATFORM=powerpc64-accton_as7760_32x-r0 AS7760_ASIC_TEMP_FILE=/run/asic/temperature
+
+syncd sai.profile:
+SAI_INIT_CONFIG_FILE=/nix/store/5yzzxs99r0s0y7ha8w5hzl4myd0rx8xx-as7760-32x-config.bcm
+SAI_OPENBCM_BACKEND=openbcm
+SAI_OPENBCM_RC_FILE=/nix/store/kc5liyi6xh5l91cmf6yxnsgwxqxc0fk3-as7760-32x-led_proc_init.soc
+SAI_OPENBCM_TEMP_FILE=/run/asic/temperature
+SAI_OPENBCM_TEMP_PROM=/run/prometheus-textfile/asic.prom
+LED program sha256 3f6fda1d66a1dcd1f3b80c02a8bfb731b31f947ba4e75cdb3c4f2d28bb0bc20c
+  = sonic-buildimage 47fcc8d device/accton/x86_64-accton_as7712_32x-r0/led_proc_init.soc, unchanged
+
+new store paths (NAR bytes; all their dependencies, libxml2 included, were already in the closure: ~1.5 MB added):
+48728 /nix/store/h1kipffsbkcw234p5hjxr2v89d17ccxp-python3.14-sonic-platform-accton-as7760-32x-0.1-powerpc64-unknown-linux-gnuabielfv2
+538152 /nix/store/0fk9bn0bx5m81v7i5r8d7d5caby15hzi-python3.14-sonic-pmon-0-31d94a8-powerpc64-unknown-linux-gnuabielfv2
+129504 /nix/store/grllha7g65r91fcbh0sbyc30yr48y3n1-python3.14-sonic-platform-cli-0-31df09e-powerpc64-unknown-linux-gnuabielfv2
+5256 /nix/store/kc5liyi6xh5l91cmf6yxnsgwxqxc0fk3-as7760-32x-led_proc_init.soc
+760256 /nix/store/pq6kjk1nh3px6y5qrmfg5bn4wfpids97-lldpd-sonic-powerpc64-unknown-linux-gnuabielfv2-1.0.22
+21280 /nix/store/nc9gv68rk3gdlm86kz92rbh180i1h8b2-python3.14-sonic-lldpshow-0-31df09e-powerpc64-unknown-linux-gnuabielfv2
+19888 /nix/store/qpx8x6kb9akidmzqrl7zl04yg060ks4z-python3.14-sonic-lldpmgrd-0-47fcc8d-powerpc64-unknown-linux-gnuabielfv2
+32640 /nix/store/vfy22lah8lipqmc896kcam0qzzpnryaf-python3.14-sonic-lldp-syncd-0-0cfeda3-powerpc64-unknown-linux-gnuabielfv2
+1555704 total bytes
+lldpd references: glibc libevent readline libxml2 (no net-snmp)
