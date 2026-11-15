@@ -125,6 +125,56 @@ def _b(src, dst, link=False):
     return (0x94000000 if link else 0x14000000) | (off & 0x3FFFFFF)
 
 
+def _arm_b(src, dst, link=False, cond=0xE):
+    return (cond << 28) | (0x0B000000 if link else 0x0A000000) | (((dst - src - 8) >> 2) & 0xFFFFFF)
+
+
+def _arm_movw(rd, imm):
+    return 0xE3000000 | ((imm >> 12) & 0xF) << 16 | rd << 12 | (imm & 0xFFF)
+
+
+def _arm_movt(rd, imm):
+    return 0xE3400000 | ((imm >> 12) & 0xF) << 16 | rd << 12 | (imm & 0xFFF)
+
+
+def _arm_putc(base, tmp, val_insns, at):
+    """ARM: wait LSR.THRE on UART0 (base reg already set), then store the char made by val_insns."""
+    w = [0xE5900014 | base << 16 | tmp << 12,          # 1: ldr tmp, [base, #0x14]
+         0xE3100020 | tmp << 16,                        # tst tmp, #0x20
+         0]                                             # beq 1b (filled below)
+    w[2] = _arm_b(at + 8, at, cond=0x0)
+    return w + val_insns + [0xE5800000 | base << 16 | (val_reg(val_insns)) << 12]
+
+
+def val_reg(insns):
+    return (insns[-1] >> 12) & 0xF
+
+
+# AArch32 hooks (v5): R = the boot ROM's AArch32 resume path (via the SRAM agent's resume address),
+# w = stage3 right before its CPU0 reset request, then RMR.AA64 and config_aarch64 as '0'/'1'.
+HOOK32_R, HOOK32_W = HOOK_ADDR + 0x200, HOOK_ADDR + 0x300
+RESUME_LITERAL = 0x01047DC0       # SRAM agent init: resume address it gives all 4 CPUs (0xfbff423c)
+STG3_RESET_CALL = 0x010294B4      # stage3 exec: bl 0x01023da0 (core warm reset), then wfi
+
+
+def hooks32(rmr_fix):
+    r = [_arm_movw(0, 0x3000), _arm_movt(0, 0xFD88)]  # r0/r1 are dead at 0xfbff423c's entry
+    r += _arm_putc(0, 1, [0xE3A01000 | ord("R")], HOOK32_R + 4 * len(r))
+    r += [_arm_movw(0, 0x423C), _arm_movt(0, 0xFBFF), 0xE12FFF10]   # bx r0 -> 0xfbff423c (ARM)
+    w = [_arm_movw(2, 0x3000), _arm_movt(2, 0xFD88)]  # r2/r3/r12 are caller-saved at the bl
+    w += _arm_putc(2, 12, [0xE3A03000 | ord("w")], HOOK32_W + 4 * len(w))
+    w += _arm_putc(2, 12, [0xEE1C3F50,                  # mrc p15, 0, r3, c12, c0, 2  (RMR)
+                           0xE2033001, 0xE2833030],     # and r3, #1; add r3, #'0'
+                   HOOK32_W + 4 * len(w))
+    w += _arm_putc(2, 12, [_arm_movw(3, 0x2004), _arm_movt(3, 0xF007), 0xE5933000,  # ldr r3, [r3]
+                           0xE2033001, 0xE2833030],     # config_aarch64 & 1 -> '0'/'1'
+                   HOOK32_W + 4 * len(w))
+    if rmr_fix:
+        w += [0xE3A03001, 0xEE0C3F50, 0xF57FF06F]       # mov r3, #1; mcr RMR (AA64=1, RR=0); isb
+    w.append(_arm_b(HOOK32_W + 4 * len(w), 0x01023DA0))  # b 0x01023da0 (lr = site + 4)
+    return (b"".join(struct.pack("<I", x) for x in r), b"".join(struct.pack("<I", x) for x in w))
+
+
 def agent_trace():
     """-> (hook blob for HOOK_ADDR, [(stage3 address, original word or None, new word)])."""
     blob, patches = [], []
@@ -146,6 +196,19 @@ def agent_trace():
         blob += w
         patches.append((AGENT_SRC + site - AGENT_DST, new))
     return b"".join(struct.pack("<I", x) for x in blob), patches
+
+
+def trace_blob(rmr_fix=True):
+    """The whole 0x400-byte blob at HOOK_ADDR and every patch in the stage3 copy."""
+    a64, patches = agent_trace()
+    r, w = hooks32(rmr_fix)
+    blob = bytearray(0x400)
+    blob[:len(a64)] = a64
+    blob[0x200:0x200 + len(r)] = r
+    blob[0x300:0x300 + len(w)] = w
+    patches = patches + [(RESUME_LITERAL, HOOK32_R),
+                         (STG3_RESET_CALL, _arm_b(STG3_RESET_CALL, HOOK32_W, link=True))]
+    return bytes(blob), patches
 
 
 def toc_entries(d):
@@ -258,7 +321,8 @@ def cmd_route_a(a):
              f"crc32 {STG3_ADDR:#x} {meta['stg3_size']:#x}",
              f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}",
              *([f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/agent-trace.bin; crc32",
-                "mw.l <9 agent call sites in the stage3 copy> (see AGENT_TRACE)"] if a.trace_agent else []),
+                "mw.l <11 sites in the stage3 copy: 9 agent calls, the SRAM agent resume literal, the reset call>"]
+               if a.trace_agent else []),
              "md.l 0xfd8e0000 0x24   (DFX: the agent waits for 0xfd8e0080 == 2)",
              "md.l 0xf0280014 1   (GICR_WAKER CPU0)",
              "md.b 0xfbff41c0 4", "mw.b 0xfbff41c1 <old & ~3 | 1>", "md.b 0xfbff41c0 4",
@@ -290,7 +354,7 @@ def cmd_route_a(a):
         raise SystemExit("stage3 copy: crc mismatch")
     console(f"mw.b {STG3_ADDR + meta['stg3_size']:#x} 0 {STG3_BSS_END - STG3_ADDR - meta['stg3_size']:#x}")
     if a.trace_agent:
-        hooks, patches = agent_trace()
+        hooks, patches = trace_blob(a.rmr_fix)
         (d / "agent-trace.bin").write_bytes(hooks)
         console(f"tftpboot {HOOK_ADDR:#x} {a.tftp_dir}/agent-trace.bin", 60)
         if crc_of(console(f"crc32 {HOOK_ADDR:#x} {len(hooks):#x}")) != zlib.crc32(hooks):
@@ -361,8 +425,11 @@ def cmd_route_a(a):
         # the agent prints its chars right after stage3's "Executing application..." line
         i = t.find("Executing application")
         tail = t[i:].split("\n", 1)[1][:200] if i >= 0 and "\n" in t[i:] else ""
-        print(f"  {'agent trace chars':22s} {tail.splitlines()[0] if tail.strip() else '-- none'}"
-              f"   (order: {''.join(c for _, c, _ in AGENT_TRACE)}; Z = parked)")
+        print(f"  {'trace after exec':22s} {tail.splitlines()[0] if tail.strip() else '-- none'}"
+              f"   (w<RMR.AA64><config_aarch64>, then AArch64 {''.join(c for _, c, _ in AGENT_TRACE)}"
+              f" (Z = parked) or R = back in AArch32 via the ROM)")
+        pre = t[:i] if i >= 0 else t
+        print(f"  {'R before exec':22s} {'yes (exec via SRAM agent, expected once)' if 'R' in pre else 'no'}")
     for m in marks:
         hits = [l.strip() for l in t.splitlines() if m in l]
         print(f"  {m:22s} {hits[0] if hits else '-- not seen'}")
@@ -492,6 +559,8 @@ p.add_argument("--tftp-dir", default="dmc12/route-a")
 p.add_argument("--timeout", type=float, default=60)
 p.add_argument("--no-agent-trace", dest="trace_agent", action="store_false",
                help="don't patch print hooks into the agent copy (they stay resident: debug runs only)")
+p.add_argument("--no-rmr-fix", dest="rmr_fix", action="store_false",
+               help="trace only: don't set RMR.AA64 = 1 in the hook before stage3's CPU0 reset")
 p.add_argument("--no-rom-debug", dest="rom_debug", action="store_false",
                help="don't set the boot ROM's debug-print flag (0xfbff4020)")
 p = sub.add_parser("s2")

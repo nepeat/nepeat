@@ -33,8 +33,11 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
   - **v3** invalidates that struct first. **On hardware (2d) it ran all of production stage3 from
     RAM:** "UART recovery!", DT, DRAM clear, "Loading application", "Executing application...".
     Then it went silent before the factory U-Boot banner.
-  - **v4** adds one-character print hooks along the AArch64 agent's CPU0 path to find that hang. The
-    next experiment is in §6.
+  - **v4** added one-character print hooks along the AArch64 agent's CPU0 path. **On hardware (2e,
+    twice) not one of them printed.** So CPU0 never reaches the agent's entry after stage3's reset
+    request.
+  - **v5** adds hooks on the 32-bit side: just before stage3's reset request, and on the ROM's
+    32-bit resume path. It also sets RMR.AA64 = 1 before the reset (§5). The next experiment is in §6.
 - **The `u` escape:** the key path is proven on hardware (`p` and `e`, 4/4). The app ≠ 5 branch is
   tested by Route A with a RAM BOOT_MODE (§6, experiment 3), with no SPI write.
 - **UART boot is real in the ROM, and so is the instance fallback.**
@@ -262,6 +265,44 @@ With the watermark cleared, stage3 runs its **cold-boot path**, as after a power
   - The hooks stay resident and are reached again only by the agent's entry, e.g. a PSCI `cpu_on`.
     So this is for diagnostic runs only.
 
+**2e: none of the v4 hooks printed.** The pre-`go` reads were normal:
+- DFX: 0xfd8e0000 = 1 and 0xfd8e0080 = 2;
+- GICR_WAKER 0xf0280014 = 0;
+- the shared data, the CPU0 block and the watermark as expected.
+
+So after stage3's `0x13` request CPU0 doesn't reach the patched agent entry. There are three ways
+that can happen:
+- **(a) it comes back in AArch32.** The ROM then jumps to CPU0's resume address. Stage3's SRAM agent
+  re-init has set it to 0xfbff423c, so CPU0 would land in the SRAM agent's resume path, silently.
+- **(b) the reset is never applied,** and CPU0 stays in stage3's WFI.
+- **(c) it comes back somewhere else.**
+
+**Against (a):** at a real cold boot, RMR.AA64 is also 0, because the core powered up in AArch32. Yet
+the same `0x13` (`cpu_poreset`) brings CPU0 up in AArch64. So that reset should sample the
+AA64nAA32 input (config_aarch64 = 1), not RMR. *Unverified:* whether the RMR-requested warm reset we
+added leaves the SoC's reset/width logic in another state.
+
+**v5 hooks** (on with the agent trace; all in the 0x400-byte blob at 0x01060000; ARM/A64 encodings
+checked in Ghidra):
+- **`w` + 2 digits**, at stage3's `bl 0x01023da0` (0x010294b4, just before its WFI):
+  - prints `w`, then RMR.AA64 and config_aarch64 (0xf0072004 bit 0) as `0`/`1`;
+  - then (default; `--no-rmr-fix` to skip) writes **RMR = 1**: AA64 = 1, no reset request, harmless
+    for a cold reset. Only then does it request the reset.
+- **`R`**, on the ROM's AArch32 resume path:
+  - the SRAM agent's resume-address literal (stg3 0x01047dc0, 0xfbff423c) is patched to 0x01060200.
+    That hook prints `R` and then jumps to 0xfbff423c, so all 4 CPUs resume through it;
+  - stage3 calls CPU0's resume entry once on its cold path ("exec via agent"). So one `R` before
+    "agent_wakeup" is expected, and it proves the hook works.
+
+**Reading the output after "Executing application...":**
+
+| output | meaning |
+| --- | --- |
+| `w01` then `AMgrDWSE` | the RMR fix worked. With `--no-rmr-fix` the same result would rule out RMR |
+| `w01` then `R` | back in AArch32 through the ROM despite the fix: the width comes from somewhere else |
+| `w01` then nothing | the reset isn't applied (b), or it lands outside both paths (c) |
+| no `w` | stage3 doesn't reach its reset request |
+
 From there on everything is the production binary:
 - "UART recovery!", BOOT_MODE/DT/app read from RAM;
 - the DRAM clear;
@@ -307,7 +348,8 @@ All at the factory `ALPINE_DB>` after a normal cold boot. Power-cycle after each
 | 2a | done | config_aarch64 still 1 after a write of 0: **write-once confirmed** | — |
 | 2b | done (trampoline v2) | `#` (EL3 stub), then stage3's first banner line: **RMR_EL3 → AArch32 → ROM resume → production stage3 works**. Then a silent hang: VFP off (above) | — |
 | 2d | done (v3) | `#`, then **all of production stage3 from RAM** ("UART recovery!" … "Executing application..."), then silence before the factory U-Boot banner. No "Exception!" | — |
-| 2e | `image --app none` + `route-a --run` (v4: agent trace on) | the characters after "Executing application...", order `AMgrDWSE`, locate the hang. All 8 then silence = the factory U-Boot before its banner. Also send the pre-`go` reads of 0xfd8e0000.. and 0xf0280014 | hang → power-cycle |
+| 2e | done twice (v4) | **no agent hook printed** at all; pre-`go` reads normal (above) | — |
+| 2f | `image --app none` + `route-a --run` (v5: trace + RMR fix on) | see the table above. Also note whether exactly one `R` appears before "agent_wakeup" | hang → power-cycle |
 | 3 | `image --app 0x10000005`, `route-a --run`, then again with `--key u` | **the `u` escape for app ≠ 5**: without the key UBOOT 1 boots (`md.l 0x0105d268 1` = `10000005`); with it, "User request for loading U-Boot!" and `00000005` | same; both outcomes are the factory U-Boot |
 | 4 | `image --app 0x110 --uboot <ours>` + `route-a --run` (and with `--key u`) | **our U-Boot as the stage3 app** via the production agent handoff (expect `Entry: EL2, MMU+caches were off, x0=0`), and the escape back to the factory U-Boot | same |
 | 5 | (spare unit, owner) strap 4, then `uartboot.py s2` + `xmodem` | the ROM's UART boot end to end with the factory stage2 | a solder change |
