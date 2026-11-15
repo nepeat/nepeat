@@ -5,6 +5,7 @@
   power-cycle to smoke PASS): factory U-Boot → preamble (bootp) → `scsi read` of our U-Boot 2026.10
   (al_eth) from raw sda1 → extlinux on sda2 → root sda3. Env: `nixos_boot` + `bootcmd` only, factory
   chain kept as fallback. Original state: `dumps/u01/` (restore: `reimage.md` "Back to factory").
+- **Board quirks/features at a glance:** `board-notes.md`. **SPI U-Boot upgrade script spec:** `spi-upgrade-plan.md`.
 - **Self-init U-Boot (RAM, 2026-11-15, transcript `serial-chainload-20261115-123112.txt`): full checklist
   passes.** Read-only `sf read` of CS0/CS1 CRC-exact vs the backups (08145ce6, 3d086ac6, whole CS1
   db9e4937; ~60 KB/s, 260 s per chip), MUIO as the DT wants, CCU set from cleared, `alpcie reinit`
