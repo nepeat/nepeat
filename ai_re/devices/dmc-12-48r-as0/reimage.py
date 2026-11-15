@@ -327,8 +327,14 @@ def step_netboot(args, st):
     if not m:
         raise Fail("netbooted NixOS got no IPv4 address on eth0")
     st["ip"] = m.group(1)
-    r = subprocess.run(SSH + [f"root@{st['ip']}", "cat /proc/device-tree/model; uname -r"],
-                       capture_output=True, text=True, timeout=60)
+    # The serial autologin can beat sshd: retry for a while.
+    deadline = time.monotonic() + 90
+    while True:
+        r = subprocess.run(SSH + [f"root@{st['ip']}", "cat /proc/device-tree/model; uname -r"],
+                           capture_output=True, text=True, timeout=60)
+        if r.returncode == 0 or time.monotonic() > deadline:
+            break
+        time.sleep(3)
     if r.returncode:
         raise Fail(f"ssh to the netbooted system failed: {r.stderr.strip()}")
     st["netboot_model"], st["netboot_kernel"] = (r.stdout.replace("\0", "\n").split("\n") + ["", ""])[:2]
