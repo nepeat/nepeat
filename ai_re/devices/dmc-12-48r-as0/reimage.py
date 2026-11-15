@@ -16,7 +16,7 @@ Steps (see reimage.md):
   envbackup  printenv -> inventory/<unit>/uboot-printenv-before-reimage-private.txt
   netboot    TFTP-boot NixOS into RAM (no writes), learn its IP from the console
   write      [WRITES SSD] stream disk.img.zst to /dev/sda over ssh, verify sha256 on the box
-  setenv     [WRITES SPI ENV] bootcmd = run nixos_boot; run dmc12_bootdisk (factory fallback kept)
+  setenv     [WRITES SPI ENV] nixos_boot (from the image) + bootcmd = run nixos_boot; run dmc12_bootdisk
   boot       boot from the SSD, check NixOS came up on the board DT
   record     append the result to inventory/<unit>/reimage.jsonl
 
@@ -31,6 +31,7 @@ AIRE = ROOT.parents[1]
 SESSION = "serial-dmc12"
 STEPS = ["preflight", "stage", "uboot", "identify", "envbackup", "netboot",
          "write", "setenv", "boot", "record"]
+# uboot-menu images; a chainload image ships its own values in factory-env.txt.
 NIXOS_BOOT = "scsi init; ext4load scsi 0:1 0x07000000 /boot.scr && source 0x07000000"
 BOOTCMD = "run nixos_boot; run dmc12_bootdisk"
 # Through sudo: the image trusts root@sea420-desktop (as the AS7760 deploy does), not erin.
@@ -108,6 +109,17 @@ def expected_serial(unit):
     return None
 
 
+def factory_env(image):
+    """The two env values this disk image needs (exact stored strings)."""
+    p = image / "factory-env.txt"
+    if not p.exists():
+        return {"nixos_boot": NIXOS_BOOT, "bootcmd": BOOTCMD, "loader": "uboot-menu"}
+    env = dict(l.split("=", 1) for l in p.read_text().splitlines() if "=" in l)
+    if set(env) != {"nixos_boot", "bootcmd"} or "'" in env["nixos_boot"] + env["bootcmd"]:
+        raise Fail(f"unexpected contents in {p}")
+    return {**env, "loader": "chainload"}
+
+
 def step_preflight(args, st):
     for name in ("uImage", "uInitrd", "dmc12.dtb", "boot.scr", "uboot-commands.txt", "SHA256SUMS"):
         if not (args.netboot / name).exists():
@@ -129,6 +141,7 @@ def step_preflight(args, st):
         st["image_sha256"] = (args.image / "disk.img.sha256").read_text().strip()
         st["image_bytes"] = int((args.image / "disk.img.bytes").read_text())
     st["toplevel"] = (args.netboot / "toplevel").read_text().strip()
+    st["loader"] = factory_env(args.image)["loader"]
 
 
 def step_stage(args, st):
@@ -267,19 +280,22 @@ def step_setenv(args, st):
         ssh(st, "systemctl reboot", timeout=30)  # CPLD board reset via the shutdown hook
         args.no_power = True
     step_uboot(args, st)
-    cur = console("printenv bootcmd")
+    env = factory_env(args.image)
+    want = [f"nixos_boot={env['nixos_boot']}", f"bootcmd={env['bootcmd']}"]
+    cur = console("printenv bootcmd nixos_boot")
     st["bootcmd_before"] = cur.strip()
-    if BOOTCMD in cur:
+    if all(w in cur.splitlines() for w in want):
         st["setenv"] = "already set"
         return
-    confirm(args, "write the U-Boot environment on SPI (bootcmd -> NixOS, factory chain as fallback)")
-    console(f"setenv nixos_boot '{NIXOS_BOOT}'")
-    console(f"setenv bootcmd '{BOOTCMD}'")
+    confirm(args, f"write the U-Boot environment on SPI ({env['loader']}: nixos_boot + bootcmd, "
+                  "factory chain as fallback)")
+    console(f"setenv nixos_boot '{env['nixos_boot']}'")
+    console(f"setenv bootcmd '{env['bootcmd']}'")
     out = console("saveenv", timeout=60)
     if "done" not in out.lower() and "OK" not in out:
         raise Fail(f"saveenv did not report success: {out[-200:]}")
     check = console("printenv bootcmd nixos_boot")
-    if BOOTCMD not in check or "boot.scr" not in check:
+    if not all(w in check.splitlines() for w in want):
         raise Fail(f"env read-back mismatch: {check}")
     st["setenv"] = "saved"
 
@@ -288,11 +304,13 @@ def step_boot(args, st):
     clear_pane()
     subprocess.run(["tmux", "send-keys", "-t", SESSION, "-l", "boot"], check=True)
     subprocess.run(["tmux", "send-keys", "-t", SESSION, "Enter"], check=True)
-    wait_pane(r"DMC-12 NixOS bootmenu", 120)
+    chain = factory_env(args.image)["loader"] == "chainload"
+    # chainload: preamble (bootp) + scsi read, then upstream U-Boot's extlinux menu
+    wait_pane(r"U-Boot 2026\.10-dmc12-chainload" if chain else r"DMC-12 NixOS bootmenu", 180)
     wait_pane(r"root@dmc12[^\n]*#", 600)
     out = console("cat /proc/device-tree/model; echo; findmnt -no SOURCE /; systemctl is-system-running",
                   prompt="# ", timeout=120)
-    if "DMC-12" not in out or "DMC12ROOT" not in out and "sda2" not in out:
+    if "DMC-12" not in out or not re.search(r"DMC12ROOT|/dev/sda[23]\b", out):
         raise Fail(f"did not come up on the SSD with the board DT: {out[-300:]}")
     st["boot"] = out.strip().splitlines()
 

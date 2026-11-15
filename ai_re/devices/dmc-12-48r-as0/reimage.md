@@ -8,7 +8,10 @@ is the generic `nix/configs/dmc12` (hardware: `nix/modules/boards/dmc12`).
 ```sh
 nix build path:./nix#dmc12-netboot    -o devices/dmc-12-48r-as0/nixos-build/result-netboot
 nix build path:./nix#dmc12-disk-image -o devices/dmc-12-48r-as0/nixos-build/result-disk
+# or, booted by the chainloaded upstream U-Boot (u-boot-port.md "on-disk boot"):
+nix build path:./nix#dmc12-disk-image-chainload -o devices/dmc-12-48r-as0/nixos-build/result-disk-chainload
 ```
+Pass the chainload one with `--image nixos-build/result-disk-chainload`.
 - Console: one logged tio in tmux `serial-dmc12` (PROGRESS Status). The FTDI
   cable goes to the unit's front console port, 115200 8N1.
 - Power: the unit's lab plug in `tools/lab_power.py` (`--plug N`), or reset it
@@ -24,10 +27,14 @@ nix build path:./nix#dmc12-disk-image -o devices/dmc-12-48r-as0/nixos-build/resu
 
 What it writes, and only after confirmation:
 - `/dev/sda`: the whole disk image, read back and sha256-checked on the box.
-- U-Boot env, two variables, nothing else:
-  `nixos_boot=scsi init; ext4load scsi 0:1 0x07000000 /boot.scr && source 0x07000000`
-  and `bootcmd=run nixos_boot; run dmc12_bootdisk`. The previous env is saved
-  first to `inventory/<unit>/uboot-printenv-before-reimage-private.txt`.
+- U-Boot env, two variables, nothing else: `bootcmd=run nixos_boot; run dmc12_bootdisk`
+  and `nixos_boot`, which depends on the image:
+  - uboot-menu: `scsi init; ext4load scsi 0:1 0x07000000 /boot.scr && source 0x07000000`
+  - chainload: the image's `factory-env.txt` (factory preamble, then `scsi read` of
+    U-Boot slot A, else B, from raw sda1, and `bootm`).
+
+  The previous env is saved first to
+  `inventory/<unit>/uboot-printenv-before-reimage-private.txt`.
 
 Everything before `write` is non-destructive: the netboot runs from RAM.
 It records the result in `inventory/<unit>/reimage.jsonl`.
@@ -36,7 +43,8 @@ It records the result in `inventory/<unit>/reimage.jsonl`.
 - Disk: netboot, then `zstd -dc --long=27 dumps/<unit>/sda.img.zst | ssh root@<ip> 'dd of=/dev/sda bs=4M conv=fsync'`.
 - Env (U-Boot): `setenv bootcmd 'run dmc12_bootdisk'; setenv nixos_boot; saveenv`.
   With the factory disk back, the old bootcmd alone would also work: `nixos_boot`
-  fails (no /boot.scr) and the chain falls through to `dmc12_bootdisk`.
+  fails (no /boot.scr, or no valid uImage at the slot LBAs) and the chain falls
+  through to `dmc12_bootdisk`.
 - SPI was never written except the env sector. `mtd0.bin.zst` is the full
   backup if anything else ever is.
 
@@ -44,4 +52,5 @@ It records the result in `inventory/<unit>/reimage.jsonl`.
 Rebuild the disk image and reimage. The appliance profile disables on-device
 switching (`system.switch.enable = false`), so an in-place update needs a deploy
 script, not written yet. It would `nix copy` the closure, then run the
-bootmenu builder (`system.build.installBootLoader <toplevel>`) and reboot.
+boot loader installer (`system.build.installBootLoader <toplevel>`) and reboot.
+In chainload mode that also writes a changed U-Boot to slot A (old A to B).
