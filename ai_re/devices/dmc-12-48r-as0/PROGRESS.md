@@ -11,6 +11,9 @@
   trains the link with our init + full USB tree rescan (0 SErrors), then NixOS booted from SSD on that
   link: smoke 15/15, 48 ports. (AXI +0x30 differs only as the last config bus accessed.) SPI at
   25 MHz (09baad0): 16 MiB in 6.2 s, CRCs still exact; whole checklist passes unattended.
+- **Route A (zero-write re-entry of production stage3 from RAM, `uartboot.py`):** v3 runs the whole
+  stage3 from a RAM copy of the flash ("UART recovery!", DT, DRAM clear, app load, "Executing
+  application..."); the app (factory U-Boot) then stays silent. Hop stage3 → agent → app under analysis.
 - Next: replacing the boot U-Boot in SPI itself (investigation: `spi-uboot-replacement.md`,
   `spi-recovery.md`, in progress). Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
   `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
