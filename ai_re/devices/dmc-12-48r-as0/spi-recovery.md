@@ -16,7 +16,8 @@ does **not** give automatic recovery today:
 - A bad object makes stage2 spin forever and stage3 go without an app.
 - No stage arms a watchdog, and nothing flips the instance.
 
-So with a bad instance-0 U-Boot, the only proven way back is an external programmer.
+So with a bad instance-0 U-Boot, the only proven way back is an external programmer (or, untested,
+the boot ROM's UART boot with a patched stage2: [uart-boot.md](uart-boot.md) §5 Route B).
 Nothing on the U-Boot flash path is one-way: no OTP, no signing, and no write-protect bit
 is in the way. But the next step needs the flash package, a 1.8 V programmer and the
 answers to the read-only questions below.
@@ -24,8 +25,8 @@ answers to the read-only questions below.
 ## Hardware answers (u01, 2026-11-15; raw: `inventory/u01/spi-recovery-queries-private.txt`)
 - **OTP (direct = shadow): secure boot disabled, all 4 public-key hashes zero and unlocked,
   minimal SW version 0, JTAG + SoC JTAG + SPI debug + CPU debug enabled, boot from SPI/NAND/UART
-  enabled, UART CLI enabled.** No signature can be enforced. Boot-ROM UART boot is a candidate
-  no-programmer recovery path (untested; ladder step 7).
+  enabled, UART CLI enabled.** No signature can be enforced. The boot ROM (ver 2.3, dumped) does
+  XMODEM boot on UART0 but has no CLI (uart-boot.md §2, §4).
 - `dev_info`: boot_device SPI(M0), i2c_preload 400K from 0x57, cpu 2000 / ddr 1066 / sb 500 MHz,
   ref 100 MHz, cores 1x4, dcache + llc disabled at U-Boot time.
 - SRAM boot word `0xfbff4000` = `00000000` (then `f2200020 f2200020 fd883000`); `0xfbff4100` holds
@@ -94,9 +95,8 @@ answers to the read-only questions below.
 - **Stage3** (0x010285a8) loads `BOOT_MODE` (absent on both chips → app 5 = U-Boot), then
   DT n, then the app (n). On an app header failure it prints "failed (app, instance n)" and
   goes on without an app. Keys during its window:
-  - `p` skips APCEA.
-  - `e`/`u` load U-Boot instead of the BOOT_MODE app. That doesn't help when U-Boot n is
-    the broken object.
+  - `p` skips APCEA, `e` keeps early APCEA; `p`, `e` and `u` all force app 5 = U-Boot
+    (uart-boot.md §1). That doesn't help when U-Boot n is the broken object.
 - **`boot_instance_active/_non_active`** are set by U-Boot at every boot (0x01102f54) from
   the decoded word. They are not state: they were in `printenv` only because a `saveenv`
   captured them. Nothing counts boots, and nothing flips the instance.
@@ -104,21 +104,20 @@ answers to the read-only questions below.
   - `flash_contents_instance_invalidate N` zeroes byte 0 (`S`) of instance N's stage2.
     It works by a read, a 4 KiB erase and a rewrite of that sector.
   - `…revalidate` writes `S` back.
-  - *Inferred:* the ROM then takes the next valid `S2` (0x40000). The stage2 header
-    carries a sum8 header checksum (byte 0x1e = sum of 0x00–0x1d, checked on all 5
-    copies), and the image ends in `sum16(payload)` plus footer `ca47 ec43 f6ce`. So the
-    ROM probably validates and may fall through on a bad stage2. That is not proven (the
-    boot ROM is not dumped).
+  - **Proven from the ROM code** (uart-boot.md §2–3). The ROM checks the S2 header sum16, a
+    nonzero size and the payload sum16; it does not check a magic. It tries each offset 4
+    times, at 0, 0x20000 … 0x1e0000.
+    - On CS0, 0x20000 fails (zero header), so the next valid image is stage2 B at 0x40000.
+      0xfbff4000 then reads 0x40000, and stages 2/3 run instance 1.
+    - If no offset passes, the ROM waits for XMODEM on UART0 at 115200.
 - **CS0 instance 1 is not a twin.** `stg2.1` is a generic 2.60.4 release, not the DMC-12
   `stage2_loader_k2 v2.60.3`. `dt.1` is the generic K2C-AB DT: same DDR block, but the
   SerDes, PCIe and `gpio_init` hazards of section 1. `stg3`, `uboot` and `uboot_script` are
   identical in both instances, and `bootapp` differs. Instance 1 has no env of its own:
   U-Boot falls back to the instance-0 env.
-- **The one cheap A/B lever** is the forced pair at 0xfbff4000 (bit0 = 1), which every
-  stage honours. 2.44 even names a helper `…_active_instance_force_temporary`. If the boot
-  ROM keeps that SRAM word across a warm reset, then a one-shot test of instance 1 gets a
-  cold-boot fallback to instance 0 for free. That is an **experiment, not read-only**
-  (rung 3 below).
+- **The forced pair at 0xfbff4000 (bit0 = 1) is not a lever.**
+  - Every stage honours it, but the ROM rebuilds that word (its state block) on every boot.
+  - It can't survive a reset that goes through the ROM (uart-boot.md §3).
 
 ## 3. Watchdogs
 - **SoC sp805:** no stage arms it. Stage2 uses wdt0 only for an intentional reset
@@ -208,11 +207,11 @@ answers to the read-only questions below.
 - **JTAG:** OTP has `jtag-soc-disable` / `jtag-debug-disable` (state unknown until
   `otp show`). No header has been identified. The CPLD's MachXO3 JTAG is bit-banged from
   SoC GPIO 22 (`cpldupd`); it is not the SoC's JTAG.
-- **UART boot:** the boot ROM, stage3 ("UART recovery!") and U-Boot (reads objects from
-  RAM +0x1800000; `bootcmd=echo recovery boot command!`) all support a UART boot device.
-  It is chosen by straps or a stage2 shared-data flag, not by anything we can set from
-  software today. It would be a real unbrick path if the K2 card's boot-device strap
-  resistors can be found. Detail and corrections (both stage2s set SPI_LOAD_ENFORCE): [uart-boot.md](uart-boot.md).
+- **UART boot** ([uart-boot.md](uart-boot.md)):
+  - **How it starts:** the ROM XMODEM-loads an S2 image to 0xf2200000 and runs it. That happens
+    with strap `boot_strap[17:15]` = 4, or by itself once no valid S2 is left in the first 2 MiB.
+  - **The factory stage2 then reads everything else from SPI**, because it sets SPI_LOAD_ENFORCE.
+    So it unbricks broken stage2 copies, not a broken UBOOT 0. That needs a patched stage2 (Route B).
 - **Restore from software (works only while a good loader is still running):**
   - Factory U-Boot: `tftpboot 0x08000000 mtd0.bin; sf probe 0:0; sf update 0x08000000 0 0x1000000; sf read 0x0a000000 0 0x1000000; cmp.b 0x08000000 0x0a000000 0x1000000`.
     `sf update` skips identical sectors. Note: `bootupdspi` erases from 0 for `$filesize`:
@@ -228,13 +227,14 @@ answers to the read-only questions below.
 | 0 | **Before any write:** fresh `sf read` of CS0 cmp'd with `mtd0.bin`; `spi-status.py`; `otp show`; `dev_info`; chip markings and photos; a 1.8 V programmer read of a CS0 chip (ideally on a second unit) | owner, hardware in hand | **not done** |
 | 1 | Don't reboot: stage the new object and the old one in RAM, write, read back, `cmp.b`; on mismatch rewrite the old object from RAM (`sf update`) | a factory U-Boot or Linux with a writable mtd still running | standard, not rehearsed |
 | 2 | Bad U-Boot that still prints and reads keys: its own prompt → restore from TFTP as in §6 | the new U-Boot has net + `sf` | depends on the new U-Boot |
-| 3 | One-shot test of instance 1: from the factory prompt `mw.l 0xfbff4000 0x00010101; reset` (warm). A cold boot then falls back to instance 0 | §2 lever confirmed (SRAM word survives warm reset) and stg2/dt instance 1 judged safe for this board | **experiment, untested**: SRAM write + reset, no flash write |
-| 4 | Invalidate instance 0's stage2 so the ROM boots instance 1; revalidate from the instance-1 U-Boot | ROM fallback proven; instance 1 holds a good stg2 + DMC-12 DT + U-Boot (writes to 0x40000 and 0x350000 first) | inferred; a 4 KiB rewrite of sector 0 |
+| 3 | Bad app object with stage3 still intact: Route A tests the app with no write; stage3 keys `p`/`e`/`u` force UBOOT 0 when BOOT_MODE names another app | BOOT_MODE ≠ app 5 (the planned IPXE layout) | keys proven on hardware; Route A untested (uart-boot.md §6) |
+| 4 | Invalidate instance 0's stage2 so the ROM boots instance 1; revalidate from the instance-1 U-Boot | instance 1 holds a good stg2 + DMC-12 DT + U-Boot (writes to 0x40000 and 0x350000 first) | **ROM fallback proven from code**; a 4 KiB rewrite of sector 0 |
 | 5 | `uc_set_recovery 1` → CS1 boots (generic 2.44) → abort at bootdelay 0 → `sf probe 0:1` → rewrite the DMC-12 chip | the select is volatile; CS1 boots DDR; owner accepts the GPIO 41 contention and the CS1 env `saveenv` | inferred, risky |
 | 6 | External 1.8 V programmer on the bad chip (clip or pogo, SoC quiet), write `mtd0.bin` back | package known, programmer, SoC held off the bus or chip removed | standard technique, nothing rehearsed |
-| 7 | UART boot via the boot-device strap | strap located on the K2 card | inferred from code only |
+| 7 | ROM UART boot (`uartboot.py s2` + `xmodem`): factory stage2 for broken stage2 copies; a patched stage2 (Route B) for a broken UBOOT 0 | strap 4 located on the K2 card, or no valid S2 in CS0's first 2 MiB | ROM protocol proven from code; nothing run |
 
-Only rungs 1 and 6 are ordinary engineering. Rungs 3–5 and 7 rest on the inferences above.
+Only rungs 1 and 6 are ordinary engineering. Rung 5 still rests on inferences. Rungs 3, 4 and 7 rest on code
+read from the ROM and stage3, and they are not rehearsed.
 
 ## Read-only commands for the main agent
 At `ALPINE_DB>` after `./powercycle_to_uboot.py` (save to `inventory/u01/`; files with

@@ -1,236 +1,208 @@
 # Boot ROM, UART boot and stage3's console keys
 
-Static analysis only (2026-11-15). Nothing was run on hardware for this file. Sources:
-- stage2 A/B and stage3 in the scratch Ghidra project (rebuild as in
-  [spi-uboot-replacement.md](spi-uboot-replacement.md)); the factory U-Boot in `ghidra/dmc12.gpr`.
-- The Annapurna HAL from the MikroTik GPL drop, already in the repo:
-  `devices/cs8210-32x/analysis/research/mikrotik-added/drivers/soc/alpine/HAL/` (called `HAL/`
-  below). It also holds `pcie/src/al_hal_pcie.c`, the al_pcie HAL that spi-uboot-replacement.md §9 lists as missing.
-- Hardware values from `inventory/u01/spi-uboot-regs.txt` and `spi-recovery-queries-private.txt`.
+The boot ROM was disassembled from `dumps/u01/bootrom/bootrom.bin`: 16 KiB, ROM ver 2.3, crc32
+`55171005`. It is git-ignored vendor code, so this file holds summaries only.
 
-*Inferred* means read from code shape or the HAL, never observed.
+**Sources.**
+- The ROM in Ghidra, ARM/Thumb, base 0xffff0000. Rebuild with
+  `tools/ghidra/import-raw.sh bootrom.bin <dir> rom 0xffff0000 ARM:LE:32:v8`.
+  Its literals point at 0xffff…, so the ROM is linked at the high-vector alias.
+- Stage2 A/B, stage3 and the factory U-Boot, as in [spi-uboot-replacement.md](spi-uboot-replacement.md).
+- The Annapurna HAL from the MikroTik GPL drop, called `HAL/` below:
+  `devices/cs8210-32x/analysis/research/mikrotik-added/drivers/soc/alpine/HAL/`.
+  It also holds `pcie/src/al_hal_pcie.c`.
+- Hardware reads in `inventory/u01/stage3-state.txt`, `spi-uboot-regs.txt` and
+  `spi-recovery-queries-private.txt`.
+
+Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U-Boot (0x011…).
+*Inferred* means not read from code or hardware.
 
 ## Verdict
-- **`u` works by construction, and `p` already ran the same code.** `p`, `e` and `u` all end
-  in one "force app 5" tail. That tail prints only when the BOOT_MODE app is not 5 already, and
-  on u01 it is 5, so `u` is silent today. The only untested piece is the compare `(c & 0xef) == 0x65`.
-  The `e` key exercises that compare and prints something (§1).
-- **The boot ROM is at 0xfbff0000, 16 KiB** (alias 0xfd8a0000). Dump it with the commands in §2.
-  **Everything below about the ROM waits for that dump.**
-- **UART boot is set by straps only, and the factory stage2s cancel it.**
-  - Boot device = `boot_strap` bits 17:15 (PBS 0xfd8a8110, read-only latch). u01 reads 7 = SPI mode 0.
-  - Both stage2 builds set `SPI_LOAD_ENFORCE` for every boot device except NAND. That turns off the
-    "UART recovery!" path in stage3 and in U-Boot.
-  - No software flag survives stage2. So today there is **no zero-write route** from a reset to
-    "ROM → stage2 → stage3 → our app over UART". The two candidates in §4 both depend on what the ROM does.
-- No `uartboot.py` yet: the ROM protocol is only inferred (XMODEM), and the tool would be a guess.
+- **Route A works on paper: production stage3 can be re-entered from a RAM flash image, with zero SPI
+  writes.**
+  - The ROM's reset handler jumps to a per-CPU resume address on any AArch32 reset.
+  - A warm reset of CPU0 from the factory U-Boot, with that address set to stage3, runs stage3 → agent →
+    the app named in a BOOT_MODE object in RAM.
+  - The tool is `uartboot.py`. It has not been run; the experiments are in §6.
+- **The `u` escape:** the key path is proven on hardware (`p` and `e`, 4/4). The app ≠ 5 branch is
+  tested by Route A with a RAM BOOT_MODE (§6, experiment 3), with no SPI write.
+- **UART boot is real in the ROM, and so is the instance fallback.**
+  - The ROM tries SPI offsets 0, 0x20000, … 0x1e0000, four times each. It takes the first one that
+    passes the checks.
+  - If all 16 offsets fail, it falls back to **XMODEM-CRC on UART0 at 115200**, whatever the straps say.
+  - Strap value 4 selects that UART boot directly.
+  - The ROM has **no UART CLI**: strap values 0, 1 and 6 make it stop with an error.
+- **The forced-instance word at 0xfbff4000 (the old rung 3 in spi-recovery.md) is dead.** The ROM rebuilds its
+  state block on every boot, and that block is what stage2 reads at 0xfbff4000 (§3).
 
-## 1. Stage3 console keys (main 0x010285a8)
-- **When stage3 polls.** One non-blocking poll of UART0 (`LSR & 1`, 0x01003f08) at 0x0102888c.
-  - It comes after the BOOT_MODE/DT/APCEA/SERDES_25G_FW lookups and before the app lookup.
-  - While characters are waiting it reads them one at a time (0x01003e78) and polls again, so a
-    burst queued in the FIFO is drained.
-  - The window is the time from stage3's UART init to that poll. On u01, keys at 50 ms from the
-    banner reached it.
-- **Keys** (all other bytes are dropped):
+## 1. Stage3 console keys
+- **The poll.** Stage3 checks the UART once (0x0102888c, `LSR & 1`), after the BOOT_MODE/DT/APCEA/
+  SERDES lookups and before the app lookup. It keeps reading while bytes are waiting. Stage3 doesn't
+  clear the RX FIFO, so keys queued earlier count.
+  - **On hardware:** keys sent every 20 ms from stage2's last line ("Executing next at 0x01000000")
+    hit every time (`stage3keys.py`).
+  - Starting from the stage3 banner as seen in tmux missed the poll 3 times in 4.
+- **The keys.**
 
-  | key | effect | message (log level 4) |
+  | key | effect | message |
   | --- | --- | --- |
-  | `p` (0x70) | skip APCEA (`0x0105a3e8 = 1`), then the force-U-Boot tail | "User request for skipping APCEA!" (once) |
-  | `e` (0x65) | keep early APCEA (`0x0105a48c = 1`: no APCEA load, no "Stopping early APCEA"), then the tail | "User request for keeping early APCEA!" (once) |
-  | `u` (0x75) | the tail only | none of its own |
-  | tail (0x01028964) | if app (`0x0105d268`) ≠ 5: print, then app = 5, poll again | "User request for loading U-Boot!" |
+  | `p` | `0x0105a3e8 = 1` (skip APCEA), then the tail | "User request for skipping APCEA!" |
+  | `e` | `0x0105a48c = 1` (keep early APCEA: no APCEA load), then the tail | "User request for keeping early APCEA!" |
+  | `u` | the tail only | — |
+  | tail 0x01028964 | if app (`0x0105d268`) ≠ 5: print, set app = 5 | "User request for loading U-Boot!" |
 
-- **After the keys.** The app lookup is `find_id_with_fallback(app | inst<<28)`. A missing ID prints
-  "App not found in TOC" and falls back to 5.
-- **No side effect tells `u` from no key while app = 5.** The app variable is 5 either way.
-- **What can be checked now, with no writes:**
-  - Send `e` and expect its message: that proves the `(c & 0xef) == 0x65` compare, the same one `u` takes.
-  - Read stage3's state back from the factory prompt (§5). Stage3's .bss at 0x0105xxxx sits below
-    U-Boot's load address, and *inferred* it survives.
-  - `e` changes nothing on u01: CS0 has no APCEA object, and no log shows an early APCEA.
-- **Smallest test of the app ≠ 5 branch (one 4 KiB SPI write; owner decision):**
-  - Write a wrapped BOOT_MODE object at 0x340000 with app `0x10000005` (UBOOT instance 1, which is
-    byte-identical to instance 0).
-  - With no key, stage3 boots UBOOT 1. With `u`, it prints the message and boots UBOOT 0. **Both
-    outcomes boot the same factory U-Boot.**
-  - Confirm at the prompt: `md.l 0x0105d268 1` reads `10000005` without the key, `00000005` with it.
-  - Revert with `sf erase 0x340000 0x1000`.
-  - The RAM-image route in §4 would make even that write unnecessary.
+  - `p` and `e` were proven 4/4 on hardware, with their flags read back.
+  - `e` passes the same `(c & 0xef) == 0x65` compare as `u`.
+  - With BOOT_MODE blank the app is already 5, so `u` is silent.
+- **BOOT_MODE data** goes to 0x0105d264, up to 0x40 bytes. Only the word at +4 (the app ID) is
+  referenced anywhere in stage3.
+- **The flags byte reads `0x82` at the factory prompt.**
+  - Bit 1 (`SPI_LOAD_ENFORCE`) is set by stage2.
+  - Bit 7 is `UBOOT_USER_BOOT_ABORT`. The factory U-Boot sets it when its autoboot is interrupted
+    (0x01141bb4 → 0x0110ed18). In the same step it extends TPM PCR 0/1 with a dummy value: the
+    measured-boot "user broke in" marker.
 
-## 2. Boot ROM: location and dump
-**Evidence.** In `HAL/platform/alpine_v2/include/al_hal_iomap.h`:
-- `AL_PBS_INT_MEM_BOOT_ROM_BASE = 0xfbff0000`, and the SRAM follows at
-  `AL_PBS_INT_MEM_SRAM_BASE = 0xfbff4000`. That is the SRAM we already read (the stage2 offset
-  word, shared data at 0xfbff4180, the agent at 0xfbff4200).
-- `AL_PBS_BOOT_ROM_BASE = 0xfd8a0000` is a PBS alias, and its SRAM alias is at 0xfd8a4000.
-- `BOOT_ROM_NAND_READ_FUNC_PTR 0xffff0021` and `BOOT_ROM_XMODEM_RECIEVE_FUNC_PTR 0xffff12f9`
-  (Thumb): the CPU also sees the ROM at the high vectors, 0xffff0000.
-- **Size: 16 KiB.** *Inferred* from the SRAM starting at +0x4000, and both function pointers fall below it.
+## 2. Boot ROM flow (ROM ver 2.3)
+- **Reset handler** (0xffff03e4, every core):
+  - CPU index `i = (MPIDR | MPIDR>>6) & 0xf`. Then `r = *(0xf0072028 + i*0x100)`.
+  - **If `r & ~1` is nonzero, `mov pc` there in ARM state** with all registers zeroed, MMU and caches
+    off, before anything else.
+  - Otherwise it enables the I-cache (unless `r` bit 0 is set) and does some PBS/DFX setup, then
+    `main` (0xffff1968).
+- **main:**
+  - Copies its initial state block to 0xf2000000: offset 0, load 0xf2200000, exec 0xf2200020, UART0
+    0xfd883000, UART1 0xfd884000. Clears 0xf2000024..+0xc8.
+  - Prints the banner only when the debug strap is on (`boot_strap` bit 18 = 0; u01 has 1, so the
+    ROM is silent).
+  - Reads OTP (0xffff2014) and decodes the straps (0xffff0600).
+  - Then the stage2 load loop.
+- **Stage2 from SPI or NAND** (0xffff07a8, non-secure path):
+  1. Read the 0x20-byte S2 header at the current offset.
+  2. Check `sum16(header[0:0x1e]) == u16 @0x1e` and that the size (word 3) is nonzero. **There is no
+     magic check.**
+  3. Load: if word 4 is `0xffffffff`, to 0xf2200020 with a size limit of 0x67fde. Otherwise to the
+     address in word 4, with **no size limit**.
+  4. Check the payload with a sum16 against the u16 that follows it.
+  5. Jump to the exec address (0xf2200020).
+  - The secure path (RSA-2048, PUK hash, min SW version, dbgen serial match) is skipped: OTP secure
+    boot is off.
+- **Retries** (0xffff19fc, `src/recovery.c`, counters at 0xf20000b8):
+  - **Four tries per offset**, then the offset moves on by 0x20000, up to 16 offsets (0..0x1e0000).
+  - After that, the boot source is set to UART and debug output moves to UART1.
+  - Four tries on UART, then a fatal stop: a GPIO blink loop, or a hang when debug is off.
+- **What the offsets hold on u01.** CS0 has valid S2 images at 0 (stage2 A) and 0x40000 (stage2 B).
+  0x20000 has an all-zero header: the sum passes but the size is 0, so it fails. Nothing else in the
+  first 2 MiB is valid. CS1 has three copies, at 0, 0x20000 and 0x40000.
 
-No stage2, stage3 or agent code calls into the ROM (no references to 0xfbff0000–0xffffffff
-other than the SRAM). So the ROM's flow has to come from the dump.
+## 3. Instance handling and 0xfbff4000
+- **The state block.** The ROM's state block at 0xf2000000 starts with {current offset, load, exec,
+  UART0}. On u01, 0xfbff4000 reads exactly that: `00000000 f2200020 f2200020 fd883000`.
+  - So stage2's "stage2 offset" word is the ROM's state block.
+  - *Inferred:* 0xf2000000 is the same SRAM as 0xfbff4000 at that point. Experiment 0 checks it.
+- **Invalidating instance 0 is a real fallback.** `flash_contents_instance_invalidate 0` zeroes the
+  'S' byte, so the header sum fails.
+  - After 4 tries at 0 and 4 at 0x20000, the ROM boots stage2 B at 0x40000. 0xfbff4000 then reads
+    offset 0x40000, so stages 2 and 3 use **instance 1**.
+  - Instance 1 is the generic K2C-AB DT. The hazards are in spi-recovery.md §1.
+- **The forced pair (bit 0 = 1) can't survive a reset through the ROM.** The ROM writes the offset
+  word on every boot. The 2.44 "force temporary" helper only makes sense for code that skips the ROM.
 
-**Commands** (factory `ALPINE_DB>`; every one only reads). Use `./console.py --timeout 60 --out <file> '<cmd>'`.
-The tmux history limit is 2000 lines and `md.l … 0x400` prints 256 lines, so dump in 0x400-word pieces.
-```
-md.l 0xfbff0000 0x10      # sanity: ARM vectors (e.g. e59ff0xx / eaxxxxxx), not bad0add1 or all-zero
-md.l 0xfd8a0000 0x10      # alias: expect the same words
-cmp.l 0xfbff0000 0xfd8a0000 0x1000
-crc32 0xfbff0000 0x4000
-md.l 0xfbff0000 0x400     # -> inventory/u01/bootrom-md-0.txt
-md.l 0xfbff1000 0x400     # -> bootrom-md-1.txt
-md.l 0xfbff2000 0x400     # -> bootrom-md-2.txt
-md.l 0xfbff3000 0x400     # -> bootrom-md-3.txt
-md.l 0xfbff3ff0 8         # boundary: the last ROM words, then SRAM fbff4000 (= 00000000 f2200020 ...)
-```
-Offline: `./md2bin.py dumps/u01/bootrom.bin inventory/u01/bootrom-md-*.txt` prints a CRC32, which must
-match the `crc32` line. Optional, last of all and may abort: `md.l 0xffff0000 0x10` (the
-high-vector alias).
+## 4. UART boot
+- **Straps:** `boot_strap` bits 17:15 (PBS 0xfd8a8110; u01 reads 7). In ROM 2.3:
 
-The ROM is Annapurna code. Keep `bootrom.bin` out of git, like the other vendor blobs: list it in
-`dumps/u01/SHA256SUMS`.
+  | value | ROM boot source |
+  | --- | --- |
+  | 7, 5 | SPI |
+  | 2 | NAND |
+  | 4 | **UART, XMODEM at 115200** |
+  | 0, 1, 6 | error `boot_options.c:92`, then a fatal stop (no CLI, no 1 M/2 M baud) |
 
-**Risks.**
-- An unclaimed PBS address reads `bad0add1` (seen at 0xfd8a8094 and 0xfd800004), not an SError.
-- If the ROM is hidden after boot, expect all `bad0add1` or zeros. Report that, and don't retry other ranges.
-- A fault at 0xffff0000 is a U-Boot "Synchronous Abort" followed by a reset or hang. Recover with a
-  power-cycle. Nothing in the flash is touched.
-- OTP "Boot rom debug: enabled" *may* be the thing that keeps it readable.
+  - Bit 18 = 0 turns on the ROM's debug prints. Bits 15 and 16 are the two to pull low for UART.
+    Which resistors those are on the K2 card is still unknown.
+- **XMODEM receiver** (0xffff12f9, Thumb): `int xmodemReceive(uint8_t *dst, int max)`. It returns
+  the byte count or a negative error. It is the classic Menie receiver:
+  - **Start:** UART0, 8N1, FIFO on. It sends `C` (CRC mode) up to 60 times, 2 s apart, then NAK
+    (8-bit sum mode) 60 times. After that it sends 3× CAN and returns -2.
+  - **Packets:** 128-byte `SOH` packets only; `STX` (1K) returns -4. Each is `SOH n ~n data[128]`
+    plus a CRC16 (CCITT 0x1021, init 0, big-endian) or an 8-bit sum. There is a 1 s timeout per byte.
+  - **Replies:** ACK `06` or NAK `15`. It accepts a duplicate of the previous block. 25 bad packets in
+    a row give -3, and `CAN CAN` gives -1. `EOT` gets an ACK and returns the length.
+  - **Data:** copied to `dst` and silently truncated at `max`.
+- **The ROM's UART load** (strap 4, or after all 16 SPI offsets failed):
+  - `xmodemReceive(0xf2200000, 0x68000)`.
+  - If the result is ≥ 0, it **jumps to 0xf2200020**. Non-secure, there is no header or payload check.
+  - So it expects an S2 image (header, payload, sum16) of at most 0x68000 bytes.
+  - `uartboot.py s2` extracts stage2 A's: 0x17247 bytes.
+- **What follows.** Both factory stage2 builds see a non-NAND strap and set `SPI_LOAD_ENFORCE`
+  (A 0xf220c230, B 0xf221135c). So a UART-loaded factory stage2 continues from SPI.
+  - That is a **real unbrick for broken stage2 copies**, as long as TOC/DT/STG3/UBOOT are good. The
+    ROM asks over XMODEM by itself once no valid S2 is left.
+  - It doesn't help with a broken UBOOT 0. That would need Route B (§5).
+- **Stage3 and U-Boot "UART recovery" mode:** `SPI_LOAD_ENFORCE` clear and (strap UART or
+  `XMODEM_LOAD_ENFORCE`, flag bit 0).
+  - Flash offset X is then read from DRAM 0x01800000 + X.
+  - Stage3 prints "UART recovery!", and U-Boot sets `bootcmd=echo recovery boot command!`.
+- **The factory U-Boot runs `UBOOT_SCRIPT` in that mode too.** With a default env, the script ends in
+  `saveenv`, an SPI write. So `uartboot.py image` always blanks UBOOT_SCRIPT 0/1 in the RAM image.
 
-## 3. UART boot: straps, flags, protocol
-**(a) Straps.**
-- `dev_info` decodes PBS `boot_strap` (0xfd8a8110). The layout is `HAL/pbs/src/al_hal_bootstrap_map.h`, and
-  stage2's own parser (0xf2206f08) matches it.
-- u01 reads `0x03bfdef5`. Bits 17:15 = **7**: SPI mode 0, as `dev_info` shows.
+## 5. Routes to "stage3 → our app" without SPI writes
+**Route A (no strap; `uartboot.py route-a`).** At the factory prompt:
+1. TFTP the RAM image to 0x01800000. It is 8 MiB: everything the app path reads lies below flash
+   0x800000, and stage3 clears DRAM from 0x02000000.
+2. Copy a clean stage3 out of it to 0x01000000 and zero its .bss (to 0x0105e000).
+3. Set `0xfbff41c1 = (old & ~3) | 1`. Magic 0x3b ≥ 0x3b, so stage3 honours it.
+4. `go 0x01700000`: the trampoline.
+   - The factory U-Boot has no `dcache` command, so the trampoline cleans D-cache over
+     0x01000000–0x02000000 and the flags line itself.
+   - It writes NB `0xf0072004 = 0` (CPU0 AArch32), `0xf0072028 = 0x01000000` (ROM resume) and
+     `0xf0070024 = 0x13` (CPU0 warm reset). That is stage3's own reset recipe (0x01023da0, 0x01023e9c)
+     with AArch32 instead of AArch64.
 
-| bits 17:15 | boot device | ROM UART baud |
-| --- | --- | --- |
-| 0 | UART CLI (ROM command line) | (stage3: "boot device isnt supported", uses SPI) |
-| 1 | UART | 2 000 000 |
-| 2 | NAND 8-bit | |
-| 4 | UART | 115 200 |
-| 5 | SPI mode 3 | |
-| 6 | UART | 1 000 000 |
-| 7 | SPI mode 0 (u01) | |
+The ROM then jumps to stage3 in SVC mode. Stage3 stores r0 and never reads it again (stage2 passes
+0x01000000, the ROM passes 0). From there on everything is the production binary:
+- "UART recovery!", BOOT_MODE/DT/app read from RAM;
+- the DRAM clear;
+- the agent warm reset into AArch64 EL2 at the app.
 
-- **Physically:** all three strap bits read 1 today. UART at 115200 means pulling bits 15 and 16 low
-  (two strap resistors on the K2 card); UART CLI means all three low.
-- Which balls and resistors those are needs the Alpine V2 datasheet or tracing. Neither is in the repo.
-- The register is a read-only latch ("Log"). OTP allows UART boot and UART CLI.
+**The differences from a real SPI boot:**
+- the reader is a memcpy instead of the SPI mmap;
+- stage2 doesn't run again;
+- the SerDes and PCIe were already brought up by the factory U-Boot;
+- the secondaries sit in agent WFI instead of reset.
 
-**(b) Software trigger.** Shared data is at 0xfbff4180 (`al_general_shared_data`).
-- **The stage2 flags.** The `stage2_shared_data` magic is at **0xfbff41c0** and its flags at
-  **0xfbff41c1**:
-  - bit0 `XMODEM_LOAD_ENFORCE`
-  - bit1 `SPI_LOAD_ENFORCE`
-  - bit2 `NITRO_MODE`
-  - bit7 `UBOOT_USER_BOOT_ABORT`
+**Risks.** Each only hangs the box; a power-cycle recovers, and SPI is untouched.
+- NS writes to NB service may be ignored: the trampoline then sits in WFI.
+- If 0xf0072004 isn't the AArch64 select, CPU0 comes back in AArch64 at RVBAR 0x1000. The agent then
+  re-runs whatever is at 0x01100000: the factory U-Boot's load image, so you'd see a U-Boot banner and
+  no stage3 banner.
+- Stage3's SerDes re-init may hang on the already-trained links.
+- **0xf0072028 stays set until power is removed.** *Unknown:* whether a watchdog/SoC reset clears it.
+  So power-cycle after every run, and never `reset` first.
 
-  Readers require magic > 0x3a. Source: `HAL/services/shared_mem/al_general_shared_data.[ch]`,
-  plus stage3 0x010257c0 and stage2 0xf2208034.
-- **The decision, made the same way in stage3 (0x01028950) and U-Boot (`board_init`, 0x011023a0):**
-  - `SPI_LOAD_ENFORCE` → read the flash by SPI.
-  - Otherwise, if the strap says UART or `XMODEM_LOAD_ENFORCE` is set → the "UART recovery" mode:
-    - flash offset X is read from **DRAM 0x01800000 + X** (stage3 0x01027fcc, U-Boot 0x01101bb4);
-    - stage3 prints "UART recovery!";
-    - U-Boot sets `bootcmd=echo recovery boot command!`.
-- **Stage2 wipes the flags and sets the SPI one.** Both stage2 builds re-init the shared data on
-  every boot (0xf220c19c). Then they call `flag_set(SPI_LOAD_ENFORCE, 1)` whenever the boot device
-  isn't NAND (A: 0xf220c230; B: 0xf221135c).
-  - So **nothing written before a reset survives into stage3**, whether by `mw`, the uC or a warm
-    reset (unless the ROM skips stage2, §4).
-  - It also means a UART-booted factory stage2 just reads the rest from SPI.
-- **No stage2 on either chip fills 0x01800000.** There is no XMODEM code in them. The stage3/U-Boot
-  recovery path needs a stage2 that does.
-- **Image size.** 0x01800000 lies just below stage3's DRAM clear, which starts at 0x02000000. So the
-  objects an app load needs must sit below flash offset 0x800000. IPXE (0x2c0000) and BOOT_MODE
-  (0x340000) do.
-- **Other levers** (an I2C preload EEPROM entry, the uC, the 0xfbff4000 forced-instance word):
-  all need the ROM dump. Any of them would be a write to something boot-critical.
+**Route B (strap 4 on a spare, or a CS0 with no valid S2): a real UART unbrick for a bad UBOOT 0.**
+- Send stage2 A **patched in RAM**: replace the body of 0xf220c230
+  (`flag_set(SPI_LOAD_ENFORCE)`) with `xmodemReceive(0x01800000, 0x800000)` (ROM 0xffff12f9) and
+  `flag_set(XMODEM_LOAD_ENFORCE)`.
+- Then send the RAM image. Stage2 still reads TOC/DT/STG3 from SPI, then stage3 and U-Boot run from RAM.
+- Not built: it needs a code cave in stage2 A, and the ROM's UART0/timer state at 0xf2000000 left
+  intact for the call (it is, right after the ROM).
+- `uartboot.py xmodem` is the sender. It is pyserial-free, was loopback-tested against a Menie-style
+  receiver on a pty, and **needs the tty to itself**:
+  - stop tio with `tmux send-keys -t serial-dmc12 C-t q` (the pane exits);
+  - run `sudo ./uartboot.py xmodem --tty /dev/serial/by-id/…B0016Y5Q… <file>` (it refuses while any
+    process holds the tty);
+  - restart tio in tmux with the PROGRESS command and a new `--log-file`.
 
-**(c) Protocol (*inferred*).**
-- The ROM receives over **XMODEM**: there is a ROM XMODEM receive entry in the V2 iomap, and the
-  factory U-Boot's own recovery scripts use `loady`.
-- The ROM baud comes from the strap. What it receives is most likely the `S2`-headed stage2, loaded
-  to SRAM 0xf2200000, the same bytes as SPI offset 0.
-- UART CLI mode is a ROM command line.
+## 6. Next hardware experiments (zero risk first)
+All at the factory `ALPINE_DB>` after a normal cold boot. Power-cycle after each `go`.
 
-The dump settles the details: block size, CRC vs checksum, what the ROM checks and the CLI commands.
-No host-side Annapurna tool is in any dump or GPL drop in the repo.
+| # | do | proves | risk |
+| --- | --- | --- | --- |
+| 0 | `md.l 0xf0072000 0x14`, `md.l 0xf0072100 0x14`, `md.l 0xf0070000 0x10`, `md.l 0xfbff40b8 2`, then `md.l 0xf2000000 4` last | core-0/1 blocks: expect +0x04 = 1, +0x28 = 0, +0x48 = 0x1000 (stage3's RVBAR). ROM retry counters 0 0. 0xf2000000 = 0xfbff4000 (alias) | reads only; the last one may abort → power-cycle |
+| 1 | `mw.l 0xf0072028 0x01000000; md.l 0xf0072028 1; mw.l 0xf0072028 0; md.l 0xf0072028 1` | NB service is writable from NS EL2 (Route A's precondition) | nothing reads it until a CPU0 AArch32 reset |
+| 2 | `uartboot.py image --app none` + `route-a --run` | the ROM resume path and stage3 from RAM: stage3 banner, "UART recovery!", factory U-Boot from RAM, "recovery boot command!" | hang → power-cycle |
+| 3 | `image --app 0x10000005`, `route-a --run`, then again with `--key u` | **the `u` escape for app ≠ 5**: without the key UBOOT 1 boots (`md.l 0x0105d268 1` = `10000005`); with it, "User request for loading U-Boot!" and `00000005` | same; both outcomes are the factory U-Boot |
+| 4 | `image --app 0x110 --uboot <ours>` + `route-a --run` (and with `--key u`) | **our U-Boot as the stage3 app** via the production agent handoff (expect `Entry: EL2, MMU+caches were off, x0=0`), and the escape back to the factory U-Boot | same |
+| 5 | (spare unit, owner) strap 4, then `uartboot.py s2` + `xmodem` | the ROM's UART boot end to end with the factory stage2 | a solder change |
 
-## 4. Zero-write test plan (gated on the ROM dump)
-Do these now, no writes: the §5 reads, the `e` key, the ROM dump.
-
-Then build a **RAM flash image** on the host:
-- a copy of the first 8 MiB of `mtd0.bin`;
-- our u-boot wrapped (`alboot.py wrap --id 0x110 --load 0x08000000`) in IPXE 0 at 0x2c0000;
-- a BOOT_MODE object at 0x340000 with app 0x110.
-
-The SPI flash is never touched. It is the image both routes below feed to stage3. It also tests `u`
-for real: with the key held, stage3 must print "User request for loading U-Boot!" and boot the
-factory UBOOT 0 out of the same image.
-
-**Route A, no strap: re-enter stage3 from the factory U-Boot.**
-1. TFTP the image to 0x01800000, then `cp.b` a clean stage3 from it to 0x01000000, and zero the
-   stage3 .bss (0x01059275–0x0105e000).
-2. `mw.b 0xfbff41c1 0x01` (XMODEM on, SPI off), then `dcache off`.
-3. Warm-reset CPU0 into AArch32 at 0x01000000. Stage3 writes SCR/MVBAR/CNTFRQ, so it must start at
-   AArch32 EL3. The AArch64 EL2 U-Boot can't just `go` to it.
-- Stage3 itself warm-resets cores this way: resume address at NB+0x2048/0x204c, AArch64 select at
-  NB+(core+0x20)*0x100+4, reset at NB+0x24 (0x01023e9c, 0x01023da0).
-- **Gate.** An AArch32 reset starts at the ROM's vectors (0xffff0000), so this works only if the ROM
-  jumps to the resume address on a core warm reset. That is the first thing to read in the dump. If
-  it does, everything from stage3 on is the production binary. The differences: the reader is a
-  memcpy instead of SPI, and the stage2 run is skipped (the cold boot already ran it).
-
-**Route B, UART strap (a hardware change on a spare): the real ROM UART boot.**
-- Send a stage2 over XMODEM. It must be stage2 A **patched in RAM** so that, after DDR init, it calls
-  the ROM's XMODEM receive into 0x01800000 and sets bit0 instead of bit1. Then send the RAM image.
-- This needs the ROM function's address and ABI from the dump. Every patch is to bytes in RAM only.
-- It is also the only real no-programmer unbrick, because it doesn't depend on anything in SPI.
-
-**The host-side tool** (`uartboot.py`, once the protocol is read from the ROM) needs **exclusive
-access to the serial port**. XMODEM is a binary handshake with tight timeouts, and tmux `send-keys`
-can't carry it.
-- Plan: stop tio (kill the `serial-dmc12` window), run `sx`/`sb` (lrzsz, add it to `flake.nix`) or
-  an equivalent pure-stdlib termios script on the tty.
-- Then restart tio. Its log file has a gap for the transfer.
-
-**What can go wrong.**
-- The SRAM/shared-data writes (Route A) and a bad reset address only hang the box. A power-cycle
-  recovers, because the SPI flash is untouched.
-- A strap change on the only working unit is a solder job. Do it on a spare.
-- If the ROM is unreadable, both routes stay hypotheses. Then the fallback is the one-write
-  BOOT_MODE test in §1.
-
-## 5. Read-only commands for the main agent
-At `ALPINE_DB>` after a normal cold boot (save to `inventory/u01/stage3-state.txt`; no identifiers expected):
-```
-md.b 0xfbff41c0 4        # expect: magic > 3a, flags 02 (SPI_LOAD_ENFORCE)
-md.l 0x0105c8f4 1        # stage3 shared-data ptr: fbff4180 (proves stage3 .bss survived)
-md.l 0x0105cacc 1        # stage3 reader: 01027f5c = SPI (01027fcc = RAM/UART, 01027fe8 = NAND)
-md.b 0x0105caf0 1        # stage3 boot device: 03 = SPI mode 0
-md.l 0x0105d260 1        # UART recovery flag: 0
-md.l 0x0105d268 1        # app ID used: 00000005
-md.l 0x0105a3e8 1        # skip-APCEA flag: 1 only if `p` was seen this boot
-md.l 0x0105a48c 1        # keep-early-APCEA flag: 1 only if `e` was seen
-md.l 0x0105d254 2        # active / fallback instance: 0 0
-```
-Then one cold boot with `e` sent the same way `p` was (16× at 50 ms from the stage3 banner):
-- expect "User request for keeping early APCEA!", then a normal factory boot;
-- `md.l 0x0105a48c 1` should then read 1.
-
-Then the ROM dump in §2.
-
-## Hardware results (u01, 2026-11-15)
-- **Stage3 keys work reliably when sent from stage2's last line** ("Executing next at 0x01000000"),
-  every 20 ms until "Loading application". `p` gives "User request for skipping APCEA!" and
-  `0x0105a3e8 = 1`; `e` gives "User request for keeping early APCEA!" and `0x0105a48c = 1` (4/4 runs).
-  Starting at the stage3 banner as seen in tmux missed the single poll 3 times in 4. `e` passes the
-  same `(c & 0xef) == 0x65` compare as `u`, so `u`'s key path is proven; its app != 5 branch is not.
-  Tool: `stage3keys.py`. Stage3 state reads: `inventory/u01/stage3-state.txt` (as predicted, except
-  `0xfbff41c1` = `0x82`, not `0x02`).
-- **Boot ROM dumped**: 0xfbff0000 = alias 0xfd8a0000 (`cmp.l`: 4096 words equal), ARM vector table
-  `ea0000f7...`, crc32 `55171005` on the box and of the rebuilt file. `dumps/u01/bootrom/bootrom.bin`
-  (git-ignored, vendor code), sha256 in `dumps/u01/SHA256SUMS`. 0xfbff3ff0.. is zero up to the SRAM.
+Never `saveenv` at a factory prompt reached in recovery mode.
