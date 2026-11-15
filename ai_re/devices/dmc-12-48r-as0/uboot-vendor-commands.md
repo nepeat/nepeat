@@ -78,8 +78,9 @@ path skips today.
      the params. Correction (2026-11-15, Ghidra on `uboot-2015-alpine.bin`): its
      `al_eth_register` (PCI probe, `FUN_01167568`) *reads* the params and fails with
      "board_params_get failed" if they're absent. So something writes them before
-     the first network command. No board-params strings exist in stage2/3, but HAL
-     asserts could be compiled out there. Hardware question 1 settles where.
+     the first network command: **stage3** does (`al_eth_board_params_store` in its
+     DT-based eth init; found 2026-11-15, `spi-recovery.md` work), which matches the
+     params being present at the prompt right after power-up.
    - So the TFTP chainload (it runs `dhcp`) is fine, and both on-disk paths run the
      preamble's `bootp` (factory env has `autoload=n`). Upstream U-Boot now also writes
      missing params and the MAC itself before Linux (`u-boot-port.md`, network).
@@ -164,7 +165,7 @@ med / **high** / **one-way**.
 | `uc_set_pp` | uC 0x1f1f physical-presence flag | W | **high** | never |
 | `uc_clear_secure_log` | uC 0x2424 | W | med (destroys evidence) | never |
 | `uc_set_nitro_mode` | uC 0x2828 disable / 0x2929 full / 0x2930 MVP+threshold / 0x2b2b IPR+PERST threshold (AWS Nitro card modes) | W | **high** | never |
-| `uc_set_spi_buffer` | uC **0xcaca3737** enable/disable ("uC config"). *Inferred*: the SPI bus buffer between the uC and the boot flash, the path to the HAL's `al_uc_spi_preloader_burn` (that string has no code reference here) | W | **high** | never |
+| `uc_set_spi_buffer` | uC **0xcaca3737** enable/disable ("uC config"). Stage2 sends the same command as `uc_enable_tpm20_access` before talking to the SPI TPM on CS2, so it gates **TPM** SPI access, not the boot flash (corrected 2026-11-15, `spi-recovery.md`) | W | **high** | never |
 | `uc_thermal_shutdown` / `_set_temp` | uC 0x2525 / 0x2626 on/off; 0x2727 max temp 51–115 °C (the help text is wrong) | W | **high** (cooks or trips the board) | never |
 | `uc_gpio_read` / `uc_gpio_get_dir` | uC 0x0909 / 0x0b0b [port, bit] | R | low | not needed |
 | `uc_gpio_write` / `uc_gpio_set_dir` | uC 0x0a0a / 0x0c0c | W uC GPIO | **high** (unknown wiring; port 2.2 = flash select) | never |

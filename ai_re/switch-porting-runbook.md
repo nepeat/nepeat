@@ -288,6 +288,10 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
   image as a **kernel-type** uImage and `bootm` it (MMU off, EL2, x0 = DTB, like Linux), or clean and turn off the caches in `save_boot_params`.
   A kernel-tree DTB lacks the firmware's memreserves → copy them in `ft_board_setup()`. A board header's `CFG_SYS_SDRAM_BASE`
   overrides the DT's DRAM base (QEMU: relocation landed below RAM) → leave it undefined when banks come from `/memory`.
+- "A/B boot flash, so a bad write is safe" turned out false (DMC-12, static analysis) → every stage loaded only its own
+  instance and hung on a bad object, with no counter or watchdog to flip it; a vendor "fallback" helper only covered
+  "object not in TOC" → before writing, trace what actually picks the instance and what happens on a checksum failure
+  (`devices/dmc-12-48r-as0/spi-recovery.md`). Also: a "read-only" `sf probe` can write the status register.
 
 **Switch chip / optics**
 - Frames went to the wrong netdev → KNET netif IDs persist across SDK restarts → destroy stale netifs before creating new ones.

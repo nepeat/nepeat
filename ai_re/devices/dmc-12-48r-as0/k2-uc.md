@@ -20,7 +20,8 @@ carved U-Boot object (`dumps/u01/spi-cs0/uboot.0.bin`, git-ignored). Disassemble
 - The SoC talks to it through a mailbox at 0xfd8a4170 plus a GPIO 37 doorbell, and
   reads its shared data (FRU, voltage/temperature) at 0xfd8a7f00. Protocol:
   [uboot-vendor-commands.md](uboot-vendor-commands.md#uc-command-channel-all-uc_).
-  The HAL also has `al_uc_spi_preloader_burn`, but no command reaches it.
+  The HAL also has `al_uc_spi_preloader_burn`, but no command reaches it. Recovery and
+  safety paths (flash select, watchdog, OTP): [spi-recovery.md](spi-recovery.md).
 
 ## Commands (factory U-Boot)
 Per-command read/write, risk and port verdict: [uboot-vendor-commands.md](uboot-vendor-commands.md).
