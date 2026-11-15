@@ -186,8 +186,9 @@
   nix.settings.auto-optimise-store = true;
 
   # 62 GB, no swap: the default (32 jobs x 32 cores each) OOM'd the host on
-  # 2026-11-15 compiling SONiC's C++ (orchagent). 16-core CPU: 4 jobs x 16
-  # cores = 64 compilers at most.
+  # 2026-11-15 compiling SONiC's C++ (orchagent). Parallel jobs are what run it
+  # out of memory, so cap those; each job may use every thread (owner, later
+  # the same day: cores back to 0 = all, max-jobs stays 4).
   nix.settings.max-jobs = 4;
-  nix.settings.cores = 16;
+  nix.settings.cores = 0;
 }
