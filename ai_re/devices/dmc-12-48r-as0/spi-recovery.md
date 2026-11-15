@@ -21,6 +21,22 @@ Nothing on the U-Boot flash path is one-way: no OTP, no signing, and no write-pr
 is in the way. But the next step needs the flash package, a 1.8 V programmer and the
 answers to the read-only questions below.
 
+## Hardware answers (u01, 2026-11-15; raw: `inventory/u01/spi-recovery-queries-private.txt`)
+- **OTP (direct = shadow): secure boot disabled, all 4 public-key hashes zero and unlocked,
+  minimal SW version 0, JTAG + SoC JTAG + SPI debug + CPU debug enabled, boot from SPI/NAND/UART
+  enabled, UART CLI enabled.** No signature can be enforced. Boot-ROM UART boot is a candidate
+  no-programmer recovery path (untested; ladder step 7).
+- `dev_info`: boot_device SPI(M0), i2c_preload 400K from 0x57, cpu 2000 / ddr 1066 / sb 500 MHz,
+  ref 100 MHz, cores 1x4, dcache + llc disabled at U-Boot time.
+- SRAM boot word `0xfbff4000` = `00000000` (then `f2200020 f2200020 fd883000`); `0xfbff4100` holds
+  `ff39a514 bffffdfd 0400fffb` + the string "v2sil-39-rc1".
+- `flash_contents_obj_validate` STG3/UBOOT/DT × instance 0/1: all rc=0 (silent on success; a bad ID
+  prints "al_flash_obj_validate failed!", rc=1).
+- uC: recovery disabled, GPIO 2[2] dir 1 (output), value 0; watchdog enabled, 10 s, reset count 0.
+  Env: boot_instance_active=0, non_active=1.
+- SPI status (Linux, `spi-status.py`, read opcodes only): both chips RDID c22538, SR 00, CR 07,
+  SCUR 00: **unprotected**, no BP bits, SRWD 0, TB/WPSEL/LDSO 0 (none of the one-way bits set).
+
 ## 1. What selects CS1 (mtd1)
 - The boot ROM boots from SPI master SS0. SS1 is a MUIO alternate function
   (`if_spim_a_ss_1`). Only firmware allocates it: the U-Boot/stage3 `pinctrl_init`, in
