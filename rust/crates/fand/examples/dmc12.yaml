@@ -38,6 +38,9 @@ outputs:
       scale: 100
       max_rpm: 14400
       min_rpm: 1000
+      # Not linear (u01: ~2000 rpm @ 16.9 %, 3200 @ 36.9 %, 8700 @ 67.7 %):
+      # mid-range is ~60 % of the linear model, under the default 0.35.
+      follow_tolerance: 0.6
 
 zones:
   board:

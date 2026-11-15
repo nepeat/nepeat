@@ -115,6 +115,11 @@ in {
               scale = 100;
               max_rpm = 14400;    # ~0x90 at full speed (u01)
               min_rpm = 1000;     # a stalled fan reads 0; ~2000 at the floor
+              # Not linear (u01: ~2000 @ 16.9 %, 3200 @ 36.9 %, 8700 @ 67.7 %,
+              # 14400 @ 100 %): 3200 is 60 % of the linear model, so the
+              # default 0.35 would fault mid-range. 0.6 still flags a fan
+              # below 40 % of it; min_rpm catches a stall.
+              follow_tolerance = 0.6;
             };
           };
           zones.board = {

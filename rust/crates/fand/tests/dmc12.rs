@@ -38,6 +38,7 @@ outputs:
       scale: 100
       max_rpm: 14400
       min_rpm: 1000
+      follow_tolerance: 0.6
       follow_grace: 10s
 zones:
   board:
@@ -333,4 +334,31 @@ fn dry_run_reads_but_never_writes() {
     let st = rig.engine.status(rig.t);
     assert_eq!(st.outputs["fans"].observed_raw, Some(9));
     assert_eq!(st.outputs["fans"].rotors[0].rpm, Some(14400.0), "CPLD at full speed");
+}
+
+#[test]
+fn measured_fan_curve_does_not_trip_the_follow_check() {
+    // u01: 3200 rpm at step 22 (36.9 %), 60 % of the linear 14400 rpm model.
+    let mut rig = Rig::new(|c| c.with(|s| s.flag = 1));
+    rig.run(60);
+    let t = rig.t;
+    rig.engine
+        .set_override(None, fand::config::DutySpec::Percent(36.9), 600.0, t)
+        .unwrap();
+    let real = 3200.0 / (14400.0 * 0.3694);
+    rig.cpld.with(|s| s.fan_factor = vec![real; 3]);
+    rig.run(30);
+    assert_eq!(rig.step(), 22);
+    assert_eq!(rig.state(), "normal", "{}", rig.reasons());
+    let rpm = rig.engine.status(rig.t).outputs["fans"].rotors[0].rpm;
+    assert_eq!(rpm, Some(3200.0));
+    // A fan at a quarter of the model is still caught.
+    rig.cpld.with(|s| s.fan_factor[1] = 0.25);
+    rig.run(10);
+    assert_eq!(rig.state(), "failsafe");
+    assert!(
+        rig.reasons().contains("fan2") && rig.reasons().contains("not following"),
+        "{}",
+        rig.reasons()
+    );
 }
