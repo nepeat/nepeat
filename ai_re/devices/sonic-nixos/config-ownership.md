@@ -37,7 +37,15 @@ owns the rest.
   SDK re-init. **The split must be explicit** (owner, 2026-11-15): an
   overridden cage lists every resulting port (name, lanes, speed), e.g. cage
   1 -> Ethernet0 lane 1 25G, Ethernet1 lane 2 25G, ...; no mode shorthand
-  that generates them. Build-time checks: each lane of the cage used exactly
+  that generates them.
+- **Naming** (owner, 2026-11-15): Nix uses front-panel aliases,
+  `Ethernet<cage>/<subport>` (1-based: `Ethernet1/1`..`Ethernet1/4` for a
+  split cage 1, `Ethernet3/1` for an unsplit cage 3). The SONiC port name
+  (= Linux netdev, which cannot contain `/`) is generated from the first lane:
+  `Ethernet<4*(cage-1) + subport-1>`, e.g. `Ethernet1/2` -> `Ethernet1`,
+  `Ethernet3/1` -> `Ethernet8`; never written by hand. The alias goes in
+  PORT `alias`, and the CLI defaults to `interface_naming_mode alias`.
+- Build-time checks: each lane of the cage used exactly
   once, speeds valid for the lane count, names unique, no port left over from
   the 1x100G default. Nix generates `config.bcm` (the factory 32x100 config
   matches public sonic-buildimage AS7712 values), so no vendor file is copied
