@@ -9,7 +9,8 @@
   passes.** Read-only `sf read` of CS0/CS1 CRC-exact vs the backups (08145ce6, 3d086ac6, whole CS1
   db9e4937; ~60 KB/s, 260 s per chip), MUIO as the DT wants, CCU set from cleared, `alpcie reinit`
   trains the link with our init + full USB tree rescan (0 SErrors), then NixOS booted from SSD on that
-  link: smoke 15/15, 48 ports. Diff to note: AXI +0x30 = 0x3ff after our init vs 0x1ff (factory).
+  link: smoke 15/15, 48 ports. (AXI +0x30 differs only as the last config bus accessed.) SPI at
+  25 MHz (09baad0): 16 MiB in 6.2 s, CRCs still exact; whole checklist passes unattended.
 - Next: replacing the boot U-Boot in SPI itself (investigation: `spi-uboot-replacement.md`,
   `spi-recovery.md`, in progress). Boot chain (preloader EEPROM, DDR, DT diff, APCEA/BOOT_APP):
   `boot-chain-details.md`; cross-device: `../../alpine-v2-boot-chain.md`.
