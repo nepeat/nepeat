@@ -17,9 +17,16 @@ send-keys.
   3. new U-Boot: banner + entry line, stop autoboot, read-only checks
      (bdinfo, CPLD version over I2C, PCI, SCSI, partitions,
      bootflow list, memory compare), optional --boot / --reset
+  --selfinit (#uboot-dmc12-selfinit): also PCIe port 0 teardown + our RC init
+     + rescan (12d8:400c), sf read + crc32 of both SPI NOR chips against the
+     u01 backups (read-only build: no write/erase code), CCU write + readback,
+     MUIO readback; with --boot, the CCU line before "Starting kernel".
+     The PCIe re-init and the CCU write change live SoC state (RAM-only, a
+     power-cycle restores the factory path); nothing is written to flash.
 Transcript: serial-chainload-<date>.txt here (git-ignored). Exit 0 only on PASS.
 
   ./chainload_uboot.py ../../devices/dmc-12-48r-as0/nixos-build/result-uboot-dmc12-chainload
+  ./chainload_uboot.py nixos-build/result-uboot-dmc12-selfinit --selfinit [--boot]
 """
 import argparse, hashlib, pathlib, re, shutil, subprocess, sys, time
 
@@ -33,7 +40,11 @@ NEW = "=>"
 ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 ap.add_argument("result", type=pathlib.Path, help="nix result dir of #uboot-dmc12-chainload")
 ap.add_argument("--go", action="store_true", help="enter with 'go' (MMU on) instead of bootm")
-ap.add_argument("--banner", default="U-Boot 2026.10-dmc12-chainload")
+ap.add_argument("--banner", default=None,
+                help="expected version banner (default: -dmc12-chainload, or -dmc12-selfinit)")
+ap.add_argument("--selfinit", action="store_true",
+                help="#uboot-dmc12-selfinit checklist: PCIe teardown + our init + bus scan, "
+                     "SPI NOR read + CRC of both chips against the u01 backups, CCU write, MUIO readback")
 ap.add_argument("--cmd", action="append", default=[],
                 help="extra step 'command::expected substring' in the new U-Boot")
 ap.add_argument("--boot", action="store_true",
@@ -41,6 +52,38 @@ ap.add_argument("--boot", action="store_true",
 ap.add_argument("--reset", action="store_true",
                 help="finish with 'reset' and wait for the board to come back (CPLD reset test)")
 args = ap.parse_args()
+if args.banner is None:
+    args.banner = "U-Boot 2026.10-dmc12-" + ("selfinit" if args.selfinit else "chainload")
+
+# u01 SPI backups (dumps/u01/SHA256SUMS: mtd0 b66dbca5..., mtd1 9c3a9556...), zlib CRC32.
+# CS0 0xfd0000-0xfeffff is the env pair, which reimage.py edits: compare below it.
+CRC_CS0_BELOW_ENV = "08145ce6"   # mtd0[0:0xfd0000]
+CRC_CS1_FULL = "db9e4937"        # mtd1[0:0x1000000]
+CRC_CS1_BELOW_ENV = "3d086ac6"   # mtd1[0:0xfd0000]
+SELFINIT_STEPS = [
+    # the factory U-Boot trained the link; boot kept it
+    ("alpcie status", "link up 2.5GT/s x1"),
+    # teardown + full RC init by our HAL code, then a fresh enumeration
+    ("alpcie reinit", "x1 (our init after teardown"),
+    ("alpcie status", "link partner (bus 2): 12d8:400c"),
+    ("pci 2", "0x400c"),
+    ("pci 3", ""),                              # OHCI/EHCI behind the Pericom bridge
+    ("alpcie status", "SErrors drained: "),
+    # SPI NOR, read-only build: probe writes nothing, only read opcodes leave the SSI
+    ("sf probe 0:0", "mx25u12835f"),
+    ("sf read 0x40000000 0 0xfd0000", "Read: OK"),
+    ("crc32 0x40000000 0xfd0000", "==> " + CRC_CS0_BELOW_ENV),
+    ("sf probe 0:1", "mx25u12835f"),
+    ("sf read 0x40000000 0 0x1000000", "Read: OK"),
+    ("crc32 0x40000000 0xfd0000", "==> " + CRC_CS1_BELOW_ENV),
+    ("crc32 0x40000000 0x1000000", ""),         # full CS1; expect CRC_CS1_FULL if its env is untouched
+    # CCU: the factory bootm left 7 / c0000001; put the factory-prompt values back, apply ours
+    ("alpine state", "SI4 snoop c0000001"),
+    ("mw.l 0xf0090004 0; mw.l 0xf0094000 0xc0000000", ""),
+    ("alpine ccu", "snoop c0000000 -> c0000001, speculation 0 -> 7"),
+    # MUIO: board_init replayed the DT pins (0 changed after the factory init)
+    ("alpine state", "pin 21: function 2 (DT wants 2)"),
+]
 
 log = HERE / time.strftime("serial-chainload-%Y%m%d-%H%M%S.txt")
 transcript = []
@@ -163,6 +206,10 @@ steps = [
     ("mw.l 0x40000000 0x5a5aa5a5 0x1000", ""),
     ("cmp.l 0x40000000 0x40000004 0xfff", "Total of 4095 word(s) were the same"),
 ]
+if args.selfinit:
+    checks["MUIO replay at board_init"] = "MUIO:  4 pins from the DT, 0 changed" in text
+    checks["PCIe kept at boot"] = "PCIe 0: link up 2.5GT/s x1 (firmware init, kept)" in text
+    steps += SELFINIT_STEPS
 steps += [tuple(s.split("::", 1)) if "::" in s else (s, "") for s in args.cmd]
 for command, want in steps:
     out = console(command, NEW, 120, bad=("Unknown command", "Synchronous Abort", "exception", "### "))
@@ -174,7 +221,10 @@ if args.boot:
     start = len(pane())
     note("=> bootflow scan -lb")
     send_nowait("bootflow scan -lb")
-    checks["Starting kernel"] = wait_pane(r"Starting kernel", start, 180) is not None
+    booted = wait_pane(r"Starting kernel", start, 180)
+    checks["Starting kernel"] = booted is not None
+    if args.selfinit:   # CCU writes run in board_prep_linux, right before
+        checks["CCU set before Linux"] = bool(booted and re.search(r"CCU:\s+snoop \w+ -> c0000001", booted))
 elif args.reset:
     start = len(pane())
     note("=> reset")

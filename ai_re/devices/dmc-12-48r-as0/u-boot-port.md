@@ -41,11 +41,17 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
   - 0019 `dmc12`: the port's DT node (00:01.0, rgmii fixed-link 1000, EEPROM MAC).
   - 0020 `alpine-v2`: the al_eth network driver (HAL copied verbatim from `packages/al-eth/src`).
   - 0021 `dmc12`: network on in the defconfig, no ethernet bootdev.
+  - 0022–0026: the [self-init build](#self-init-build-pcie-muio-ccu-read-only-spi-not-yet-run-on-hardware)
+    (external PCIe RC, Alpine SSI CS override, read-only SPI NOR, MUIO/CCU, DT bits).
+    All default off: `#uboot-dmc12-chainload` is byte-identical with them applied
+    (u-boot.bin `f4b4b4f3…`, uimage `062428a9…`, same DTB; `.config` gains only
+    "is not set" lines).
 
   The T208x builds take only their own scopes, and their `.drvPath`s are unchanged.
   The board DTS is the Linux one, `nix/packages/linux-alpine/boards/dmc12/alpine-v2-dmc12.dts`,
   copied in at build time. A DTS edit there rebuilds U-Boot.
-- Tests: `nix build path:./nix#uboot-alpine-v2-tests` (no board needed, all three pass).
+- Tests: `nix build path:./nix#uboot-alpine-v2-tests` (no board needed, all five pass;
+  `selfinit` and `pcie-init` are described in the self-init section).
   - **static:** AArch64 ELF linked at 0x08000000, Linux Image header, uImage header,
     RAM footprint, no `smc`/`hvc` instruction anywhere. The config is checked to have
     no SPI flash, env storage, MMC, EFI, PSCI reset, ethernet bootdev or EEPROM-writing
@@ -71,6 +77,109 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
     QEMU doesn't model caches, so this proves the code path, not the cache maintenance.
     Also checked: the al_eth handoff runs before "Starting kernel" and reports no NIC.
     QEMU has no al_eth model, so the network driver is tested on hardware only.
+
+## self-init build: PCIe, MUIO, CCU, read-only SPI (not yet run on hardware)
+
+What the factory U-Boot does for us today, done by ours, so it can one day be al-boot
+stage3's application ([spi-uboot-replacement.md](spi-uboot-replacement.md) §4). Built
+and tested offline 2026-11-15; nothing flashed.
+
+- `#uboot-dmc12-selfinit` (`/nix/store/0x8v9isdjfii8790svy7415axxwfkzgn-…-2026.10`,
+  u-boot.bin `9eaf94ff…`, 519808 B, uimage `2876b704…`): the chainload build plus
+  - **0022 `alpine-v2`, external PCIe RC** (`pcie_alpine_v2`, on the mainline
+    `amazon,al-alpine-v2-pcie` node). Annapurna PCIe HAL 3.4 copied verbatim from the
+    MikroTik GPL drop (`devices/cs8210-32x/analysis/research/mikrotik-added/drivers/soc/alpine/HAL`,
+    reference copy [al-pcie-hal/](../../nix/packages/uboot/alpine-v2/al-pcie-hal)).
+    `al_init_pcie_rc.c` runs the RC path of the vendor `al_init_pcie()` with the factory
+    U-Boot's parameters (Ghidra: template 0x011b3180, port params 0x011b3598, Gen3
+    0x011b3220; snoop on, AXI slave error response on, the factory EQ table, gen/lanes
+    from DT = gen1 x1). No SerDes iCal (the factory passes none for external ports).
+    Probe: a link already up is kept ("firmware init, kept"); a down link is
+    initialised. `alpcie reinit` removes the bus, tears the port down (link stop,
+    memory shutdown, port disable), runs the full init and re-enumerates. Downstream
+    config errors are SErrors on this SoC: drained like the factory does
+    (HCR_EL2.AMO + a returning vector), CRS retried 30 s. iATU region 0 = memory
+    window 1:1 (as Linux dwc).
+  - **0023 `alpine-v2`:** DW SSI `amazon,alpine-dw-apb-ssi` writes CS override 0xf
+    (+0xf4, as Linux and stage3 do).
+  - **0024 `alpine-v2` (generic code):** `SPI_FLASH_READ_ONLY`: no erase/write/lock/
+    quad-enable code linked, no SR write at probe, `sf` = probe + read only, and
+    `SPI_MEM_READ_ONLY` refuses every SPI op that isn't a read with data-in. The
+    factory `sf probe` writes SR 0x00 (spi-recovery.md §5); ours writes nothing.
+  - **0025 `alpine-v2`:** MUIO replay from a DT node at board_init (mux_sel 4 bit/pin,
+    8 pins/reg; RMW of the listed pins only), CCU (CCI SI4 snoop |= 1, speculation 7)
+    in board_prep_linux, `alpine state|ccu|muio`.
+  - **0026 `dmc12`:** DT under `#ifdef`: MUIO pins 0, 1 (SPI CS1/CS2), 20, 21 (UART1)
+    fn 2 = the factory's `pinctrl_init` result (u01 dump: mux_sel_0 0x22, mux_sel_2
+    0x00220000); PCIe port 0 gen1 x1.
+  - Not done: SGPO (the DMC-12 board-cfg has no `sgpo_init`, so the factory never
+    writes it; `alpine state` only reads it), GPIO 22 (stage2 drives it), USB in
+    U-Boot, the fan/WDT CPLD preamble.
+- `#uboot-dmc12-stage3app` (`/nix/store/hg0jfn5zkxnw2xr0ndm694lhhn75bmya-uboot-dmc12-stage3app`):
+  that u-boot.bin, byte for byte, wrapped by [alboot.py](../../nix/packages/alboot/alboot.py)
+  (moved into nix so the build can use it; the device copy is a symlink) as IPXE
+  objects (id 0x110), load = exec = 0x08000000 (`u-boot-ipxe-08000000.fimg`, sha256
+  `bdf86893…`) and 0x01100000 (`…-01100000.fimg`, `82c4e37f…`). 0x7eecc B each:
+  4404 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
+  trimming (MTD core, `mii`, LZMA are candidates). Same binary as the RAM test: the
+  probe policy (keep / init) and the idempotent MUIO/CCU make it entry-agnostic.
+- Offline tests (`#uboot-alpine-v2-tests`):
+  - **pcie-init:** `al_init_pcie_rc.c` out of patch 0022 + the verbatim HAL, host build
+    against a register model (memory-backed unit + PBS; LTSSM L0 gen1 x1 while the
+    port is enabled and LTSSM_EN set). Cold (all zero): link up, sequence
+    enable/disable/enable/start, and the AXI words the init owns equal the factory's
+    u01 dump (`+0x00 +0x14 +0x18 +0x20 +0x30 +0xc8 +0xe0 +0xe8 +0xec`, incl. IB credits
+    `02844c3c` from the HAL's own table). Warm (the dump state, link up): stop, disable,
+    enable, disable, enable, start, and those words end bit-identical. Stuck link:
+    error at "link up wait" after 1 s, port left stopped/shut down/disabled. Also: the
+    21 HAL files in patch 0022 are identical to `al-pcie-hal/`.
+  - **selfinit:** config (PCIe/MUIO/CCU/read-only SF on; no SF lock/unlock/SFDP/soft
+    reset, no `sspi`/`mtd`, env nowhere); symbols present (drivers, commands, init,
+    SError drain, -EROFS stubs) and absent (`spi_nor_erase`, `spi_nor_write`,
+    `spi_nor_write_data`, `write_sr`, `macronix_quad_enable`, `stm_lock`,
+    `spi_flash_update`, the `sf` erase/protect/test handlers); no `sf write|erase|
+    update|protect` help text; DT (MUIO, PCIe props, SSI compatible, 25 MHz flashes;
+    the chainload DT has none of it); both `.fimg` carry u-boot.bin verbatim and fit.
+  - Not covered offline: the DM PCI glue, the SError drain, the SSI and the CCI —
+    QEMU models none of them. `write_enable` is still linked (octal-DTR/4-byte paths
+    this chip never takes; SPI_MEM_READ_ONLY refuses the opcode anyway).
+
+### RAM test (main agent; nothing written to flash)
+
+From an idle `ALPINE_DB>` (`./powercycle_to_uboot.py`):
+`./chainload_uboot.py nixos-build/result-uboot-dmc12-selfinit --selfinit` (add `--boot`
+for a disk boot). By hand, after the usual factory-side `dhcp; tftpboot 0x10000000
+dmc12-uboot/u-boot.uimage; bootm 0x10000000 - ${fdtaddr}`:
+
+| `=>` command | expect |
+| --- | --- |
+| (boot log) | `U-Boot 2026.10-dmc12-selfinit`, `MUIO:  4 pins from the DT, 0 changed`, `PCIe 0: link up 2.5GT/s x1 (firmware init, kept)` |
+| `alpcie status` | `port enabled, link up 2.5GT/s x1, LTSSM 0x11`, link partner `12d8:400c` |
+| `alpcie reinit` | `PCIe 0: link up 2.5GT/s x1 (our init after teardown, LTSSM 0x11)` and the status block; exit 0 |
+| `pci 2` | `02.00.00 0x12d8 0x400c Bridge device` |
+| `pci 3` | the OHCI/EHCI functions behind the bridge |
+| `alpcie status` | `SErrors drained: N` (N > 0 = CRS/UR seen and absorbed; note it) |
+| `sf probe 0:0` | `SF: Detected mx25u12835f with page size 256 Bytes, erase size 4 KiB, total 16 MiB` |
+| `sf read 0x40000000 0 0xfd0000` then `crc32 0x40000000 0xfd0000` | `Read: OK`, `==> 08145ce6` (mtd0 below the env pair) |
+| `sf probe 0:1`, `sf read 0x40000000 0 0x1000000`, `crc32 0x40000000 0xfd0000` | `==> 3d086ac6`; full 16 MiB `db9e4937` if CS1's env is untouched |
+| `alpine state` | `SI4 snoop c0000001`, `spec 00000007` (factory bootm); pins 0/1/20/21 `function 2 (DT wants 2)` |
+| `mw.l 0xf0090004 0; mw.l 0xf0094000 0xc0000000`, `alpine ccu` | `snoop c0000000 -> c0000001, speculation 0 -> 7` |
+| `bootflow scan -lb` (or `--boot`) | `CCU:   snoop c0000001 -> c0000001, …` right before `Starting kernel`; then in Linux `./smoke.py` (48 ttyUSB = the re-initialised link works for Linux) |
+
+Stop on the first miss. If `alpcie reinit` fails, the port is left disabled (vendor
+teardown) and the USB ports are gone until a power-cycle. A `spi-mem: … refused` line
+means some code tried a non-read SPI command; capture it. Useful extra reads at the
+factory prompt for comparison: `md.l 0xfd8108d0 1` (DW AMBA error response),
+`md.l 0xfd810900 1` (iATU viewport).
+
+Risks: the factory-state model is our reading of the HAL and the Ghidra template, not a
+register dump of the DBI space (none was taken); after a PBS port disable every core
+register the HAL doesn't write is back at reset value, and that is exactly what the
+reinit test exercises. The SError drain swaps VBAR_EL2 for a few instructions. The Gen3
+EQ table has 16 entries as in the factory, which writes past the x8 lane registers (as
+the factory does). The HAL's Amazon 2017 files carry no licence header; they ship in
+MikroTik's GPL kernel source (licence call for the owner before anything is published
+upstream).
 
 ## design (why it is shaped like this)
 

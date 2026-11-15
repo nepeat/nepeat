@@ -159,9 +159,9 @@ and no `rc-manual-init`. So the factory U-Boot's own init boils down to:
 
 | # | item | factory does it in | needed? |
 | --- | --- | --- | --- |
-| 1 | **External PCIe port 0 RC** (0xfd800000 regs, ECAM 0xfb600000, mem 0xc0010000): port config gen1 x1, link start + wait (`pci_init_board_external`, same code as `al_pcie_ext`) | U-Boot init (`PCIE_0: Link up 2.5GT/s x1`) | **yes**: the Pericom bridge → OHCI/EHCI → all 48 ports. Mainline `pcie-al` assumes the link is up. The biggest piece: the al_pcie HAL is not in our tree |
-| 2 | **MUIO pinmux**: `if_uart_1`, `if_spim_a_ss_1`, `if_spim_a_ss_2` (PBS 0xfd8a8000) | `dt_based_init_pinctrl` | **yes** for SPI CS1 (mtd1) and CS2 (SPI TPM); UART1 (LCD) optional. Simplest: replay the register values (question 2) |
-| 3 | CCU 0xf0094000←1, 0xf0090004←7 | factory `bootm` (DT `io_coherency`) | recommended in `board_prep_linux`, so Linux sees today's tested state. Our Linux DTS is non-coherent, so it is not strictly needed |
+| 1 | **External PCIe port 0 RC** (0xfd800000 regs, ECAM 0xfb600000, mem 0xc0010000): port config gen1 x1, link start + wait (`pci_init_board_external`, same code as `al_pcie_ext`) | U-Boot init (`PCIE_0: Link up 2.5GT/s x1`) | **yes**: the Pericom bridge → OHCI/EHCI → all 48 ports. Mainline `pcie-al` assumes the link is up. **Built** (patch 0022, Annapurna HAL 3.4 verbatim; RAM test pending, [u-boot-port.md](u-boot-port.md#self-init-build-pcie-muio-ccu-read-only-spi-not-yet-run-on-hardware)) |
+| 2 | **MUIO pinmux**: `if_uart_1`, `if_spim_a_ss_1`, `if_spim_a_ss_2` (PBS 0xfd8a8000) | `dt_based_init_pinctrl` | **yes** for SPI CS1 (mtd1) and CS2 (SPI TPM); UART1 (LCD) optional. **Built**: DT-driven replay of those 4 pins (0025/0026) |
+| 3 | CCU 0xf0094000←1, 0xf0090004←7 | factory `bootm` (DT `io_coherency`) | recommended in `board_prep_linux`, so Linux sees today's tested state. Our Linux DTS is non-coherent, so it is not strictly needed. **Built** (0025) |
 | 4 | `gpio_init` (GPIO 22 high) | stage2 already (`stage2_gpio_init`), the factory again | no (verify, question 2) |
 | 5 | Fans/WDT flag (CPLD 0x2a←0, 0x50←0x2a), LED | env preamble | optional: fans stay at full speed (fail-safe) until NixOS fancontrol. Could go in `board_late_init` |
 | 6 | DN0 SATA SerDes fix (`serdes wr 1 p0 pma 21 2 0 5` if 0xfb600000 = 0x8241104c) | env preamble | per unit, **only after item 1** (it reads the external PCIe ID). u01 has none |
@@ -185,14 +185,15 @@ and no `rc-manual-init`. So the factory U-Boot's own init boils down to:
 - **Env: keep `ENV_IS_NOWHERE`.** Never `0xfd0000`/`0xfe0000`. That env (0x4000 B,
   redundant, holds `boot_app_toc`) must stay intact for the factory U-Boot that the `u`
   escape boots. If persistence is ever wanted, use a file on the SSD.
-- **SPI flash** only when we want updates from U-Boot: `DESIGNWARE_SPI` + `SPI_FLASH_MACRONIX`
-  + item 2's CS mux, with the DT `read-only` analogue off by default.
-  - Mind spi-recovery.md §5: `sf probe` writes the SR.
-  - Until then, update from the factory U-Boot (§6) or Linux mtd.
-- **New code:** item 1 (al_pcie RC init, ported from the Annapurna HAL; look in the
-  GPL drops listed in u-boot-port.md), item 2 (MUIO replay), item 3 (CCU), optionally item 5.
-  All can be tested now in a RAM chainload (`al_pcie_ext --reinit` exists, so re-init after
-  the factory is valid).
+- **SPI flash:** built read-only (patch 0024, `#uboot-dmc12-selfinit`): `sf probe`/`sf read`
+  only, no write/erase/lock code, no SR write at probe (unlike the factory `sf probe`,
+  spi-recovery.md §5), non-read SPI commands refused. For proving the address map with
+  `sf read` + `crc32` against the backups. Writes stay with the factory U-Boot (§6) or
+  Linux mtd.
+- **Built** (2026-11-15, offline-tested, not run on hardware): items 1–3 and the IPXE
+  object (`#uboot-dmc12-stage3app`, 4404 B left in the slot); details, tests and the RAM
+  test steps in [u-boot-port.md](u-boot-port.md#self-init-build-pcie-muio-ccu-read-only-spi-not-yet-run-on-hardware).
+  Item 5 (fans/WDT flag) is not done.
 
 ## 6. Signatures, secure boot, TPM
 - **No object is authenticated.** The flash-contents library has the code ("Authenticating
@@ -280,8 +281,8 @@ At `ALPINE_DB>` right after `./powercycle_to_uboot.py` (before any `bootm`/`dhcp
   still reset count 0.
 
 ## 9. Open questions / risks
-- The al_pcie RC init has to be ported from a HAL we don't have in source. Mainline
-  `pcie-al` won't do it.
+- The al_pcie RC init (from the Annapurna HAL in MikroTik's GPL drop) is built but
+  proven only against a register model until `alpcie reinit` runs on u01.
 - IPXE's 512 KiB caps U-Boot growth. Fallback: UBOOT 1 with app `0x10000005`, which also
   changes what the instance-1 boot runs.
 - That the `u` key reaches stage3 (UART FIFO timing) is untested; step 0 covers it.
