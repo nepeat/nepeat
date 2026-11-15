@@ -39,8 +39,11 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
   - **v5** added hooks on the 32-bit side. **On hardware (2f):** `R` fired once, as expected, and
     stage3 ran to "Executing application...". Then `w` printed, followed by a flood of `0x95` bytes:
     the hook's RMR read is UNDEFINED there, because stage3 runs in Non-secure SVC by then.
-  - **v5b** moves the RMR read/set to stage3's entry, which is still Secure, as a new hook `P`. The
-    next experiment is in §6.
+  - **v5b** moved the RMR read/set to stage3's entry, which is still Secure. **On hardware (2g):**
+    `#P01`, `R` once, `w1`, then nothing. So RMR.AA64 = 1 and config_aarch64 = 1, and CPU0 still
+    shows up on neither hooked path after the reset request.
+  - **v6** replaces `w` with a hook that makes the reset request itself and reports whether it
+    returns (§5). The next experiment is in §6.
 - **The `u` escape:** the key path is proven on hardware (`p` and `e`, 4/4). The app ≠ 5 branch is
   tested by Route A with a RAM BOOT_MODE (§6, experiment 3), with no SPI write.
 - **UART boot is real in the ROM, and so is the instance fallback.**
@@ -314,7 +317,33 @@ checked in Ghidra):
   - stage3 calls CPU0's resume entry once on its cold path ("exec via agent"). So one `R` before
     "agent_wakeup" is expected, and it proves the hook works.
 
-**Reading the output after "Executing application...":**
+**2g (v5b):** `#P01`, the banner, `R` once, … "Executing application...", `w1`, then nothing.
+- So the width settings are both 64-bit, and no AArch64 or AArch32 hook fires after the request.
+- It can't be the cache. If stage3's agent copy had stayed in a cache, DRAM 0x1000 would still hold
+  our EL3 stub, and the stub prints `#` and comes back through `R`. Neither appeared.
+- That leaves two questions: is the request applied at all, and if so, where does CPU0 go?
+- *Inferred* from the HAL: `cpus_software_reset` with WFI_MASK bits 19:16 = 0 (stage3's `0x13`) is
+  applied without waiting for WFI.
+
+**v6 hook `x`** (replaces `w` at 0x010294b4; ARM at 0x01060400; the blob is now 0x600 bytes;
+encodings checked in Ghidra). It never returns to stage3. It prints:
+1. `w<config_aarch64> <word at 0x1000>`. Expect `14417c00`, our patched agent entry, in DRAM.
+2. Then it calls stage3's reset request (0x01023da0) itself.
+3. If that call returns: `q<cpus_software_reset 0xf0070024> <CPU0 power_status 0xf0072024>
+   <cpus_hold_reset 0xf0070020>`, then 16 `.` with a delay loop between them.
+4. Then WFI, up to 8 times, with a `!` each time WFI returns, e.g. because of a pending interrupt.
+
+The `P`, `R` and AArch64 agent hooks are unchanged.
+
+| after `w1 <word>` | meaning |
+| --- | --- |
+| nothing | the request is applied at once, and CPU0 lands on neither hooked path. Look at `<word>`: if it isn't `14417c00`, DRAM 0x1000 isn't our patched agent |
+| `q…` then `.`×16 then nothing | the request is pending, and is applied only in WFI |
+| `q…`, dots, `!`s | WFI wakes at once (a pending interrupt): the reset waits for a WFI it never gets |
+| `q…`, dots, `!`×8 | the request is never applied. The hex words show the reset/power state |
+| `A…` | the AArch64 agent path runs (then `MgrDWSE`, or a stop that shows the next problem) |
+
+**v5b hooks, kept in v6** (except `w`):
 
 | output | meaning |
 | --- | --- |
@@ -371,7 +400,8 @@ All at the factory `ALPINE_DB>` after a normal cold boot. Power-cycle after each
 | 2d | done (v3) | `#`, then **all of production stage3 from RAM** ("UART recovery!" … "Executing application..."), then silence before the factory U-Boot banner. No "Exception!" | — |
 | 2e | done twice (v4) | **no agent hook printed** at all; pre-`go` reads normal (above) | — |
 | 2f | done (v5) | `R` once (hook OK), stage3 to "Executing application...", then `w` and a `0x95` flood: RMR UNDEF in Non-secure (above) | — |
-| 2g | `image --app none` + `route-a --run` (v5b). **Read the result from the tio log** after the last `go`, not from tmux | `#P01`, banner, `R`, … "Executing application...", then the `w1…` line per the table above | hang/flood → power-cycle |
+| 2g | done (v5b) | `#P01`, `R` once, `w1`, then nothing: neither hooked path after the reset request | — |
+| 2h | `image --app none` + `route-a --run` (v6). Read the tio log after the last `go` | the line after "Executing application...", per the v6 table | hang → power-cycle |
 | 3 | `image --app 0x10000005`, `route-a --run`, then again with `--key u` | **the `u` escape for app ≠ 5**: without the key UBOOT 1 boots (`md.l 0x0105d268 1` = `10000005`); with it, "User request for loading U-Boot!" and `00000005` | same; both outcomes are the factory U-Boot |
 | 4 | `image --app 0x110 --uboot <ours>` + `route-a --run` (and with `--key u`) | **our U-Boot as the stage3 app** via the production agent handoff (expect `Entry: EL2, MMU+caches were off, x0=0`), and the escape back to the factory U-Boot | same |
 | 5 | (spare unit, owner) strap 4, then `uartboot.py s2` + `xmodem` | the ROM's UART boot end to end with the factory stage2 | a solder change |

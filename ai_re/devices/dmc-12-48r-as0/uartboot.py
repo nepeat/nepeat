@@ -208,19 +208,79 @@ def agent_trace():
     return b"".join(struct.pack("<I", x) for x in blob), patches
 
 
+HOOK32_X = HOOK_ADDR + 0x400      # v6: replaces w at stage3's reset call (never returns to stage3)
+
+
+def hook_x():
+    """v6 'w' replacement, ARM, at HOOK32_X; entered by the patched `bl 0x01023da0` (r0 = handle, r1 = 0).
+    Prints: w<config_aarch64> <word at 0x1000> then calls stage3's reset request itself. If that
+    returns: q<cpus_software_reset> <cpu0 power_status> <cpus_hold_reset>, 16 dots (~a delay loop each),
+    then WFI up to 8 times, '!' after each WFI that returns. Never returns to stage3."""
+    code, labels, fix = [], {}, []
+    here = lambda: HOOK32_X + 4 * len(code)
+    def putc_r3():
+        at = here()
+        code.extend([0xE592C014, 0xE31C0020, _arm_b(at + 8, at, cond=0x0), 0xE5823000])
+    def putc(ch):
+        code.append(0xE3A03000 | ord(ch)); putc_r3()
+    def hexw(addr=None):            # print r5 (or [addr]) as 8 hex digits via the `hex` routine
+        if addr is not None:
+            code.extend([_arm_movw(4, addr & 0xFFFF), _arm_movt(4, addr >> 16), 0xE5945000])
+        fix.append((len(code), "hex", True)); code.append(0)
+    code.extend([_arm_movw(2, 0x3000), _arm_movt(2, 0xFD88)])          # r2 = UART0
+    putc("w")
+    code.extend([_arm_movw(3, 0x2004), _arm_movt(3, 0xF007), 0xE5933000, 0xE2033001, 0xE2833030])
+    putc_r3()
+    putc(" "); hexw(0x1000)
+    code.append(_arm_b(here(), 0x01023DA0, link=True))                 # stage3's reset request
+    code.extend([_arm_movw(2, 0x3000), _arm_movt(2, 0xFD88)])          # r2 is caller-saved: reload
+    putc("q"); hexw(0xF0070024); putc(" "); hexw(0xF0072024); putc(" "); hexw(0xF0070020)
+    code.append(0xE3A07010)                                            # mov r7, #16
+    labels["dots"] = len(code)
+    code.extend([_arm_movw(8, 0), _arm_movt(8, 0x80)])                 # r8 = 0x800000
+    labels["d1"] = len(code)
+    code.append(0xE2588001)                                            # subs r8, r8, #1
+    fix.append((len(code), "d1", 0x1)); code.append(0)                 # bne d1
+    putc(".")
+    code.append(0xE2577001)                                            # subs r7, r7, #1
+    fix.append((len(code), "dots", 0x1)); code.append(0)               # bne dots
+    code.append(0xE3A07008)                                            # mov r7, #8
+    labels["wl"] = len(code)
+    code.extend([0xF57FF04F, 0xF57FF06F, 0xE320F003])                  # dsb; isb; wfi
+    putc("!")
+    code.append(0xE2577001)
+    fix.append((len(code), "wl", 0x1)); code.append(0)                 # bne wl
+    code.append(_arm_b(here(), here()))                                # b .
+    labels["hex"] = len(code)                                          # hex: r5 -> 8 digits, r6 count
+    code.append(0xE3A06008)                                            # mov r6, #8
+    labels["h1"] = len(code)
+    code.extend([0xE1A03E25, 0xE353000A, 0xB2833030, 0xA2833057])      # r3 = r5>>28; <10 ? +'0' : +'a'-10
+    putc_r3()
+    code.extend([0xE1A05205, 0xE2566001])                              # r5 <<= 4; subs r6, #1
+    fix.append((len(code), "h1", 0x1)); code.append(0)                 # bne h1
+    code.append(0xE12FFF1E)                                            # bx lr
+    for i, lab, kind in fix:
+        src, dst = HOOK32_X + 4 * i, HOOK32_X + 4 * labels[lab]
+        code[i] = _arm_b(src, dst, link=True) if kind is True else _arm_b(src, dst, cond=kind)
+    return b"".join(struct.pack("<I", x) for x in code)
+
+
 def trace_blob(rmr_fix=True):
     """The whole 0x400-byte blob at HOOK_ADDR and every patch in the stage3 copy."""
     a64, patches = agent_trace()
     r, w, p = hooks32(rmr_fix)
     assert len(a64) <= 0x200 and len(r) <= 0x100 and len(w) <= 0x80 and len(p) <= 0x80
-    blob = bytearray(0x400)
+    x = hook_x()
+    assert len(x) <= 0x200
+    blob = bytearray(0x600)
+    blob[0x400:0x400 + len(x)] = x
     blob[:len(a64)] = a64
     blob[0x200:0x200 + len(r)] = r
     blob[0x300:0x300 + len(w)] = w
     blob[0x380:0x380 + len(p)] = p
     patches = patches + [(STG3_ENTRY_INSN, _arm_b(STG3_ENTRY_INSN, HOOK32_P)),
                          (RESUME_LITERAL, HOOK32_R),
-                         (STG3_RESET_CALL, _arm_b(STG3_RESET_CALL, HOOK32_W, link=True))]
+                         (STG3_RESET_CALL, _arm_b(STG3_RESET_CALL, HOOK32_X, link=True))]
     return bytes(blob), patches
 
 
