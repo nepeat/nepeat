@@ -214,9 +214,25 @@ if args.selfinit:
     checks["PCIe kept at boot"] = "PCIe 0: link up 2.5GT/s x1 (firmware init, kept)" in text
     steps += SELFINIT_STEPS
 steps += [tuple(s.split("::", 1)) if "::" in s else (s, "") for s in args.cmd]
-for command, want in steps:
-    out = console(command, NEW, 120, bad=("Unknown command", "Synchronous Abort", "exception", "### "))
-    checks[command] = (want in out) if want else True
+
+
+def step_timeout(command):
+    """sf read is bounded by the SPI clock: 16 MiB took 260 s at the old 500 kHz cap."""
+    return 600 if command.startswith("sf read") else 120
+
+
+for i, (command, want) in enumerate(steps):
+    t0 = time.monotonic()
+    out = console(command, NEW, step_timeout(command),
+                  bad=("Unknown command", "Synchronous Abort", "exception", "### "))
+    took = time.monotonic() - t0
+    # keyed by position: the same command runs more than once (status, pci, crc32)
+    checks[f"{i}:{command}"] = (want in out) if want else True
+    m = re.match(r"sf read \S+ \S+ (0x[0-9a-f]+)", command)
+    if m:
+        rate = f"sf read {int(m.group(1), 16)} B in {took:.1f} s = {int(m.group(1), 16) / took / 1024:.0f} KiB/s"
+        note(rate)
+        print(rate)
 m = re.search(r"relocaddr\s*=\s*(0x[0-9a-f]+)", "\n".join(transcript))
 checks["relocated below 0xb0000000"] = bool(m) and int(m.group(1), 16) < 0xb0000000
 

@@ -160,7 +160,7 @@ and no `rc-manual-init`. So the factory U-Boot's own init boils down to:
 
 | # | item | factory does it in | needed? |
 | --- | --- | --- | --- |
-| 1 | **External PCIe port 0 RC** (0xfd800000 regs, ECAM 0xfb600000, mem 0xc0010000): port config gen1 x1, link start + wait (`pci_init_board_external`, same code as `al_pcie_ext`) | U-Boot init (`PCIE_0: Link up 2.5GT/s x1`) | **yes**: the Pericom bridge → OHCI/EHCI → all 48 ports. Mainline `pcie-al` assumes the link is up. **Built** (patch 0022, Annapurna HAL 3.4 verbatim; RAM test pending, [u-boot-port.md](u-boot-port.md#self-init-build-pcie-muio-ccu-read-only-spi-not-yet-run-on-hardware)) |
+| 1 | **External PCIe port 0 RC** (0xfd800000 regs, ECAM 0xfb600000, mem 0xc0010000): port config gen1 x1, link start + wait (`pci_init_board_external`, same code as `al_pcie_ext`) | U-Boot init (`PCIE_0: Link up 2.5GT/s x1`) | **yes**: the Pericom bridge → OHCI/EHCI → all 48 ports. Mainline `pcie-al` assumes the link is up. **Built and RAM-tested on u01** (patch 0022, Annapurna HAL 3.4 verbatim; teardown + our init, then NixOS on that link, [u-boot-port.md](u-boot-port.md#self-init-build-pcie-muio-ccu-read-only-spi-ram-tested-on-u01)) |
 | 2 | **MUIO pinmux**: `if_uart_1`, `if_spim_a_ss_1`, `if_spim_a_ss_2` (PBS 0xfd8a8000) | `dt_based_init_pinctrl` | **yes** for SPI CS1 (mtd1) and CS2 (SPI TPM); UART1 (LCD) optional. **Built**: DT-driven replay of those 4 pins (0025/0026) |
 | 3 | CCU 0xf0094000←1, 0xf0090004←7 | factory `bootm` (DT `io_coherency`) | recommended in `board_prep_linux`, so Linux sees today's tested state. Our Linux DTS is non-coherent, so it is not strictly needed. **Built** (0025) |
 | 4 | `gpio_init` (GPIO 22 high) | the factory U-Boot only: k2 stage2 reads `gpio-list-s2`, which the DT lacks (0xf220c818) | **yes**, if GPIO 22 matters (CPLD JTAG-related); one `gpio` write |
@@ -191,9 +191,9 @@ and no `rc-manual-init`. So the factory U-Boot's own init boils down to:
   spi-recovery.md §5), non-read SPI commands refused. For proving the address map with
   `sf read` + `crc32` against the backups. Writes stay with the factory U-Boot (§6) or
   Linux mtd.
-- **Built** (2026-11-15, offline-tested, not run on hardware): items 1–3 and the IPXE
+- **Built** (2026-11-15; items 1–3 pass the u01 RAM test, chainloaded after the factory U-Boot): items 1–3 and the IPXE
   object (`#uboot-dmc12-stage3app`, 4404 B left in the slot); details, tests and the RAM
-  test steps in [u-boot-port.md](u-boot-port.md#self-init-build-pcie-muio-ccu-read-only-spi-not-yet-run-on-hardware).
+  test steps in [u-boot-port.md](u-boot-port.md#self-init-build-pcie-muio-ccu-read-only-spi-ram-tested-on-u01).
   Item 5 (fans/WDT flag) is not done.
 
 ## 6. Signatures, secure boot, TPM
@@ -282,8 +282,9 @@ At `ALPINE_DB>` right after `./powercycle_to_uboot.py` (before any `bootm`/`dhcp
   still reset count 0.
 
 ## 9. Open questions / risks
-- The al_pcie RC init (from the Annapurna HAL in MikroTik's GPL drop) is built but
-  proven only against a register model until `alpcie reinit` runs on u01.
+- The al_pcie RC init works from a torn-down port on u01 (RAM test), but always after
+  the factory U-Boot had already brought the port up once since power-on; a cold port
+  straight from stage3 is untested until the IPXE object boots.
 - IPXE's 512 KiB caps U-Boot growth. Fallback: UBOOT 1 with app `0x10000005`, which also
   changes what the instance-1 boot runs.
 - That the `u` key reaches stage3 (UART FIFO timing) is untested; step 0 covers it.

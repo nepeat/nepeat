@@ -253,10 +253,12 @@ let
     sp=/soc/io-bus@fc000000/spi@1882000
     fdtget $t $sp compatible | grep -q amazon,alpine-dw-apb-ssi
     [ "$(fdtget $t $sp/flash@0 spi-max-frequency) $(fdtget $t $sp/flash@1 spi-max-frequency)" = "25000000 25000000" ]
+    # the controller caps every transfer (500 kHz default: 16 MiB took 260 s on u01)
+    [ "$(fdtget $t $sp spi-max-frequency)" = 25000000 ]
     # the chainload DTB has none of it
     ! fdtget -l ${d}/u-boot.dtb / | grep -qx muio@fd8a8000
     ! fdtget ${d}/u-boot.dtb $p amazon,link-gen 2>/dev/null
-    echo "dt: ok (MUIO pins 0,1,20,21 fn 2; PCIe port 0 gen1 x1; SPI NOR CS0/CS1 25 MHz; chainload DT unchanged)"
+    echo "dt: ok (MUIO pins 0,1,20,21 fn 2; PCIe port 0 gen1 x1; SPI NOR CS0/CS1 and the SSI at 25 MHz; chainload DT unchanged)"
 
     python3 - ${si}/u-boot.bin ${s3} <<'PY'
     import struct, sys, glob

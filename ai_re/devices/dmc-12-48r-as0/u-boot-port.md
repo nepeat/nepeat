@@ -41,7 +41,7 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
   - 0019 `dmc12`: the port's DT node (00:01.0, rgmii fixed-link 1000, EEPROM MAC).
   - 0020 `alpine-v2`: the al_eth network driver (HAL copied verbatim from `packages/al-eth/src`).
   - 0021 `dmc12`: network on in the defconfig, no ethernet bootdev.
-  - 0022–0026: the [self-init build](#self-init-build-pcie-muio-ccu-read-only-spi-not-yet-run-on-hardware)
+  - 0022–0026: the [self-init build](#self-init-build-pcie-muio-ccu-read-only-spi-ram-tested-on-u01)
     (external PCIe RC, Alpine SSI CS override, read-only SPI NOR, MUIO/CCU, DT bits).
     All default off: `#uboot-dmc12-chainload` is byte-identical with them applied
     (u-boot.bin `f4b4b4f3…`, uimage `062428a9…`, same DTB; `.config` gains only
@@ -78,11 +78,11 @@ network stack); result links `nixos-build/result-uboot-dmc12-eth-{a,b}`.
     Also checked: the al_eth handoff runs before "Starting kernel" and reports no NIC.
     QEMU has no al_eth model, so the network driver is tested on hardware only.
 
-## self-init build: PCIe, MUIO, CCU, read-only SPI (not yet run on hardware)
+## self-init build: PCIe, MUIO, CCU, read-only SPI (RAM-tested on u01)
 
 What the factory U-Boot does for us today, done by ours, so it can one day be al-boot
 stage3's application ([spi-uboot-replacement.md](spi-uboot-replacement.md) §4). Built
-and tested offline 2026-11-15; nothing flashed.
+2026-11-15; passes the RAM test on u01 (run 3 below); nothing flashed.
 
 - **u01 RAM run 1 (2026-11-15 12:17, `serial-chainload-20261115-121717.txt`): abort at
   PCIe probe** (esr 0x96000004, far 0xfffffffffd8a815c, in `al_pbs_dev_id_get` called
@@ -106,9 +106,24 @@ and tested offline 2026-11-15; nothing flashed.
   - `PCI: Failed autoconfig bar 10/14` (both runs, also at boot) is the root port's own
     BAR0/1 not fitting the window: harmless, Linux reassigns; `alpcie status` now
     prints BAR0/1 and the bus numbers.
+- **u01 RAM run 3 (12:31, `serial-chainload-20261115-123112.txt` + a manual continuation
+  by the main agent): all checks pass.** Firmware link kept; both chips' `crc32` match
+  the backups (CS0 below env `08145ce6`, CS1 `3d086ac6` and full `db9e4937`); MUIO pins
+  as the DT wants; CCU `c0000000 -> c0000001`, `0 -> 7`; `alpcie reinit` → init ours,
+  x1, full tree (400c, 400c, 400e ×2, 400f), 0 SErrors; then `bootflow scan -lb` booted
+  NixOS on our link: smoke 15/15, 48 ports, Linux `PCIe Gen.1 x1 link up`, no PCIe errors.
+  - `sf read` of 16 MiB took ~260 s: the DW SSI caps transfers at the controller's
+    `spi-max-frequency`, 500 kHz when absent. 0026 now sets 25 MHz on the controller
+    (as Linux reads them); not yet run. The harness allows 600 s per `sf read` and
+    prints the rate.
+  - AXI `+0x30` (0x3ff now, 0x1ff or 0xff at other times) is `ob_ctrl.cfg_target_bus`:
+    mask 0xff + the bus number of the last downstream config access, which the driver
+    (and Linux pcie-al) rewrites per access. Not a configuration difference. `+0x34` =
+    `cfg_control` sec 1 / sub 0xff, as pcie-al sets it.
 
-- `#uboot-dmc12-selfinit` (`/nix/store/vq5f68zs354040r6n4rnjr3kh5bsf36s-…-2026.10`,
-  u-boot.bin `21f7ba17…`, 519832 B, uimage `163a6c19…`): the chainload build plus
+- `#uboot-dmc12-selfinit` (`/nix/store/ancdwhyzzmihxjixhqgsdgkb42b64w2a-…-2026.10`,
+  u-boot.bin `e2a8266a…`, 519848 B, uimage `8440b366…`; run 3 was `vq5f68zs…`, which
+  differs only by the SSI frequency): the chainload build plus
   - **0022 `alpine-v2`, external PCIe RC** (`pcie_alpine_v2`, on the mainline
     `amazon,al-alpine-v2-pcie` node). Annapurna PCIe HAL 3.4 copied verbatim from the
     MikroTik GPL drop (`devices/cs8210-32x/analysis/research/mikrotik-added/drivers/soc/alpine/HAL`,
@@ -139,12 +154,12 @@ and tested offline 2026-11-15; nothing flashed.
     writes it; `alpine state` only reads it), GPIO 22 (only the factory U-Boot drives it high; stage2 does not, see
     spi-uboot-replacement.md §4 item 4), USB in
     U-Boot, the fan/WDT CPLD preamble.
-- `#uboot-dmc12-stage3app` (`/nix/store/4j3znl4pvf412q58q81j1vs6l7s8rqgh-uboot-dmc12-stage3app`):
+- `#uboot-dmc12-stage3app` (`/nix/store/mz5z0zksrnxaifwb2fqx8dn14zrw5xj0-uboot-dmc12-stage3app`):
   that u-boot.bin, byte for byte, wrapped by [alboot.py](../../nix/packages/alboot/alboot.py)
   (moved into nix so the build can use it; the device copy is a symlink) as IPXE
   objects (id 0x110), load = exec = 0x08000000 (`u-boot-ipxe-08000000.fimg`, sha256
-  `3b0ab933…`) and 0x01100000 (`…-01100000.fimg`, `027bf920…`). 0x7eee4 B each:
-  4380 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
+  `4dbf63f0…`) and 0x01100000 (`…-01100000.fimg`, `8cc89aff…`). 0x7eef4 B each:
+  4364 B left in the 512 KiB IPXE slot, so growth goes to UBOOT 1 (0xe0000) or needs
   trimming (MTD core, `mii`, LZMA are candidates). Same binary as the RAM test: the
   probe policy (keep / init) and the idempotent MUIO/CCU make it entry-agnostic.
 - Offline tests (`#uboot-alpine-v2-tests`):
