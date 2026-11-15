@@ -148,6 +148,9 @@ def step_stage(args, st):
 
 
 def step_uboot(args, st):
+    if args.no_power and pane().rstrip().endswith("ALPINE_DB>"):
+        say(args, "already at the factory U-Boot prompt")
+        return
     cmd = [sys.executable, str(ROOT / "powercycle_to_uboot.py")]
     if args.no_power:
         cmd.append("--no-power")

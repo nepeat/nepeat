@@ -5,20 +5,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.hardware.dmc12.cpld;
-  i2cset = "${pkgs.i2c-tools}/bin/i2cset";
-  # systemd-shutdown runs this after unmounting, with "reboot", "poweroff",
-  # "halt" or "kexec" as $1, right before the kernel's own reboot call. The
-  # CPLD then resets the whole board (USB hubs, PHYs, uC), not only the SoC.
-  # Factory sequence, disassembled from al_dmc12_restart(): 0x29 <- 1, then
-  # 0x28 <- 1; the CPLD acts within a second (u01, 2026-11-15). If the writes fail
-  # we return and the kernel falls back to the sp805 restart handler.
-  cpldReboot = pkgs.writeShellScript "dmc12-cpld-reboot" ''
-    [ "$1" = reboot ] || exit 0
-    echo "dmc12: board reset via CPLD" > /dev/kmsg
-    ${i2cset} -y ${toString cfg.bus} 0x68 0x29 0x01 && ${i2cset} -y ${toString cfg.bus} 0x68 0x28 0x01
-    sleep 5
-    echo "dmc12: CPLD reset did not happen, falling back to the kernel" > /dev/kmsg
-  '';
+
   pyEnv = pkgs.python3.withPackages (ps: [ ps.smbus2 ps.libgpiod ]);
   interruptmon = pkgs.writeScriptBin "dmc12-interruptmon" ''
     #!${pyEnv}/bin/python3
@@ -45,11 +32,12 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf cfg.reboot {
-      # The final step runs from NixOS's shutdown ramfs, where /nix/store is gone
-      # and hooks are read from /lib/systemd/system-shutdown (u01 2026-11-15: as
-      # systemd.shutdown, i.e. /etc/systemd/system-shutdown, it never ran and the
-      # sp805 did a SoC-only reset). contents' store closures go into the ramfs.
-      systemd.shutdownRamfs.contents."/lib/systemd/system-shutdown/dmc12-cpld-reboot".source = cpldReboot;
+      # Kernel reboot notifier (packages/dmc12-cpld-reset). u01 2026-11-15: a
+      # systemd-shutdown hook never ran in NixOS's exitrd, although the same
+      # script run by hand resets the board (CPLD WDT flag 0x03 afterwards).
+      boot.extraModulePackages = [ (config.boot.kernelPackages.callPackage ../../../../packages/dmc12-cpld-reset { }) ];
+      boot.kernelModules = [ "dmc12_cpld_reset" ];
+      boot.extraModprobeConfig = "options dmc12_cpld_reset bus=${toString cfg.bus}";
     })
     (lib.mkIf cfg.interruptmon.enable {
       environment.systemPackages = [ interruptmon ];
