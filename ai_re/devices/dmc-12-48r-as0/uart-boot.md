@@ -222,3 +222,15 @@ Then one cold boot with `e` sent the same way `p` was (16× at 50 ms from the st
 - `md.l 0x0105a48c 1` should then read 1.
 
 Then the ROM dump in §2.
+
+## Hardware results (u01, 2026-11-15)
+- **Stage3 keys work reliably when sent from stage2's last line** ("Executing next at 0x01000000"),
+  every 20 ms until "Loading application". `p` gives "User request for skipping APCEA!" and
+  `0x0105a3e8 = 1`; `e` gives "User request for keeping early APCEA!" and `0x0105a48c = 1` (4/4 runs).
+  Starting at the stage3 banner as seen in tmux missed the single poll 3 times in 4. `e` passes the
+  same `(c & 0xef) == 0x65` compare as `u`, so `u`'s key path is proven; its app != 5 branch is not.
+  Tool: `stage3keys.py`. Stage3 state reads: `inventory/u01/stage3-state.txt` (as predicted, except
+  `0xfbff41c1` = `0x82`, not `0x02`).
+- **Boot ROM dumped**: 0xfbff0000 = alias 0xfd8a0000 (`cmp.l`: 4096 words equal), ARM vector table
+  `ea0000f7...`, crc32 `55171005` on the box and of the rebuilt file. `dumps/u01/bootrom/bootrom.bin`
+  (git-ignored, vendor code), sha256 in `dumps/u01/SHA256SUMS`. 0xfbff3ff0.. is zero up to the SRAM.
