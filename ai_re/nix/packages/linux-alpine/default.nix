@@ -226,7 +226,6 @@ let
     ATA_SFF = lib.mkForce no; # legacy PATA/SFF controllers; AHCI stays
     SCSI_LOWLEVEL = lib.mkForce no; # SCSI HBA cards
     ISCSI_TCP = lib.mkForce no;
-    MD = lib.mkForce no;
     NET_DSA = lib.mkForce no;
     IP_VS = lib.mkForce no;
     "6LOWPAN" = lib.mkForce no;
