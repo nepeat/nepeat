@@ -1,0 +1,90 @@
+# AS7760, services.sonic on sai-openbcm, 2026-11-15
+## (2) counters: 100 raw frames out of Ethernet0 (x2), loop Ethernet1/1 <-> Ethernet32/1
+Usage: show interfaces counters [OPTIONS] [COMMAND] [ARGS]...
+Try 'show interfaces counters --help' for help.
+
+Error: cannot find interface name for alias Ethernet1/1,Ethernet32/1
+sent 100
+Usage: show interfaces counters [OPTIONS] [COMMAND] [ARGS]...
+Try 'show interfaces counters --help' for help.
+
+Error: cannot find interface name for alias Ethernet1/1,Ethernet32/1
+oid=oid:0x1000000000005
+0
+Type       Interval (in ms)    Status
+---------  ------------------  --------
+PORT_STAT  default (1000)      enable
+fields=15
+sent 100
+       IFACE    STATE    RX_OK    RX_BPS    RX_UTIL    RX_ERR    RX_DRP    RX_OVR    TX_OK    TX_BPS    TX_UTIL    TX_ERR    TX_DRP    TX_OVR
+## (3) crash recovery: kill teamd / orchagent
+PortChannel0001  DOWN           8c:ea:1b:89:c9:3c <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+== kill -9 teamd
+PortChannel0001  DOWN           8c:ea:1b:89:c9:3c <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+0
+ 0001  PortChannel0001  LACP(A)(Dw)
+== kill -9 orchagent
+sonic-syncd ActiveState=active	NRestarts=0
+sonic-orchagent ActiveState=active	NRestarts=1
+sonic-portsyncd ActiveState=active	NRestarts=0
+sonic-teammgrd ActiveState=active	NRestarts=0
+1
+0
+temp=41.8 pwm=136
+## full sonic.target restart
+0
+:- PortsOrch: Hostif queue attribute not supported
+:- removeDefaultVlanMembers: Remove 0 VLAN members from default VLAN
+:- removeDefaultBridgePorts: Remove bridge ports from default 1Q bridge
+:- publishTrapIdsCapability: SAI capability query for SAI_HOSTIF_TRAP_ATTR_TRAP_TYPE is failed, falling back to default supported trap IDs
+:- sai_redis_notify_syncd: switched ASIC to APPLY VIEW
+== restart sonic.target
+sonic-syncd ActiveState=active
+sonic-orchagent ActiveState=active
+sonic-portsyncd ActiveState=active
+sonic-teammgrd ActiveState=active
+1
+38
+PortChannel0001  DOWN           8c:ea:1b:89:c9:3c <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+1
+inactive
+temp=41.8 pwm=136
+## config reload without a saved file
+Acquired lock on /etc/sonic/reload.lock
+The config file /var/lib/sonic/config_db.json doesn't exist
+Released lock on /etc/sonic/reload.lock
+Aborted!
+sonic-syncd ActiveState=active	NRestarts=0
+sonic-orchagent ActiveState=active	NRestarts=0
+sonic-portsyncd ActiveState=active	NRestarts=0
+sonic-teammgrd ActiveState=active	NRestarts=0
+sonic-vlanmgrd ActiveState=active	NRestarts=0
+1
+38
+1
+2
+inactive
+temp=40.8 pwm=136
+## config save + config reload
+Running command: /nix/store/q5h7mc4np39di7bb5cr95vrgz4ynz8x4-python3.14-sonic-config-engine-0-47fcc8d-powerpc64-unknown-linux-gnuabielfv2/bin/sonic-cfggen -d --print-data > /var/lib/sonic/config_db.json
+-rw-r--r-- 1 root root 20394 Nov 15 11:44 /var/lib/sonic/config_db.json
+Acquired lock on /etc/sonic/reload.lock
+Running command: /run/current-system/sw/bin/sonic-nix reload
+sonic-nix: CONFIG_DB loaded: 6 tables, 134 keys; 0 conflict(s) with Nix; user layer /var/lib/sonic/config_db.json
+Released lock on /etc/sonic/reload.lock
+sonic-syncd ActiveState=active	NRestarts=0
+sonic-orchagent ActiveState=active	NRestarts=0
+sonic-portsyncd ActiveState=active	NRestarts=0
+sonic-teammgrd ActiveState=active	NRestarts=0
+sonic-vlanmgrd ActiveState=active	NRestarts=0
+1
+38
+PortChannel0001  DOWN           8c:ea:1b:89:c9:3c <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+NULL
+NULL
+temp=40.4 pwm=136
+## cleanup (saved file removed, stack restarted)
+38
+1
+1
+pwm=136
