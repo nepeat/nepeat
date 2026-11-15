@@ -27,6 +27,7 @@ reads in `inventory/<unit>/`.
 | burn-in anomalies | port 30 failed 1 of 3 serial loopback runs |
 | sda.img sha256 | `46dac8f9…` (`dumps/u01/SHA256SUMS`) |
 | mtd0 / mtd1 sha256 | `b66dbca5…` / `9c3a9556…` |
+| now (2026-11-15) | **NixOS on SSD** via chainloaded U-Boot (`inventory/u01/reimage.jsonl`); factory SSD in `dumps/u01/` |
 
 Kernel 1.0.99.0 vs 1.0.101.0: the same source rebuilt (66 bytes differ:
 build host/date). The real changes between OS 457 and 526 are in userspace (see PROGRESS).

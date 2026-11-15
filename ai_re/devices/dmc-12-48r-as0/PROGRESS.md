@@ -1,10 +1,12 @@
 # DMC-12-48R-AS0 serial console server
 
 ## Status
-- Phase: **info gathering only** (runbook phases 0–1, below). Nothing written to
-  flash, SSD or the U-Boot env.
-- Runs the factory OS: `DMC-12 1.0.457.0@5035ece9…` on kernel
-  `4.19.32-al-linux-v10.2.0`. Login credentials unknown.
+- **u01 runs NixOS from its SSD (2026-11-15)**, installed by `reimage.py` in one run (202 s from
+  power-cycle to smoke PASS): factory U-Boot → preamble (bootp) → `scsi read` of our U-Boot 2026.10
+  (al_eth) from raw sda1 → extlinux on sda2 → root sda3. Env: `nixos_boot` + `bootcmd` only, factory
+  chain kept as fallback. Original state: `dumps/u01/` (restore: `reimage.md` "Back to factory").
+- Next: replacing the boot U-Boot in SPI itself (investigation: `spi-uboot-replacement.md`,
+  `spi-recovery.md`, in progress).
 - Console: tmux `serial-dmc12`, tio on the FTDI `B0016Y5Q` (by-id path) at **115200 8N1**,
   confirmed from a readable boot. Captures go to `serial-*.txt` (git-ignored, may
   hold env/keys). The AS7760's console is cabled to **DMC-12 port 48**: read-only

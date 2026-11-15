@@ -10,7 +10,7 @@ device's Status changes, update its row and column here in the same turn.
 | [amzn-pinnacles](devices/amzn-pinnacles/PROGRESS.md) | Amazon-internal Fire HD 10 (2021) work tablet, MT8183 | rooted per boot (CVE-2022-38181); unlock scheme mapped, no bootloader unlock |
 | [broadcom-bcm956845k-02](devices/broadcom-bcm956845k-02/PROGRESS.md) | Broadcom reference switch, BCM56845 Trident, e500v2 CPU card | OpenWrt RAM-netboot; native Linux config programs L2/VLAN/IPv4 in the ASIC; flash untouched |
 | [cs8210-32x](devices/cs8210-32x/PROGRESS.md) | Celestica CS8210-32X, 32x400G, Teralynx 7 | NixOS on SSD; vendor SDK by hand; 10G links + LACP proven; unplugged since the 2026-11-11 house-network incident |
-| [dmc-12-48r-as0](devices/dmc-12-48r-as0/PROGRESS.md) | DMC-12-48R-AS0 48-port console server, Annapurna Alpine V2 | factory OS; info gathering (runbook 0–1); SPI + SSD imaged read-only; NixOS module imported, not built |
+| [dmc-12-48r-as0](devices/dmc-12-48r-as0/PROGRESS.md) | DMC-12-48R-AS0 48-port console server, Annapurna Alpine V2 | NixOS (mainline 7.3) on SSD via chainloaded upstream U-Boot; `reimage.py` one-shot install; SPI untouched except env |
 | [delta-tn48m](devices/delta-tn48m/PROGRESS.md) | Delta TN48M, 48x1G + 4x10G, Prestera AC3X | NixOS boots unattended (chainloaded mainline U-Boot); front ports admin-down; SoC secure-boot fused |
 | [edge-core-7760-32x](devices/edge-core-7760-32x/PROGRESS.md) | Edge-Core AS7760-32X, 32x100G, Tomahawk, T2080 | NixOS on SD, upstream U-Boot in NOR; OpenBCM + sai-openbcm; SONiC bring-up target |
 | [eqam-400b](devices/eqam-400b/) | Blonder Tongue EQAM-400B edge QAM | no PROGRESS; newer-firmware search incomplete (`search-state.json`) |
