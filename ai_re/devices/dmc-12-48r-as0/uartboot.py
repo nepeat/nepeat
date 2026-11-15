@@ -212,10 +212,13 @@ HOOK32_X = HOOK_ADDR + 0x400      # v6: replaces w at stage3's reset call (never
 
 
 def hook_x():
-    """v6 'w' replacement, ARM, at HOOK32_X; entered by the patched `bl 0x01023da0` (r0 = handle, r1 = 0).
-    Prints: w<config_aarch64> <word at 0x1000> then calls stage3's reset request itself. If that
-    returns: q<cpus_software_reset> <cpu0 power_status> <cpus_hold_reset>, 16 dots (~a delay loop each),
-    then WFI up to 8 times, '!' after each WFI that returns. Never returns to stage3."""
+    """'w' replacement, ARM, at HOOK32_X; entered by the patched `bl 0x01023da0`. Never returns.
+    v7 prints: w<config_aarch64> <word at 0x1000> <GICD_CTLR> <GICR_ISPENDR0 (CPU0 SGI/PPI)> <ISR>,
+    then 'Q' and requests CPU0's reset itself as cpus_software_reset = 0x00010013: stage3's 0x13
+    plus WFI_MASK bit 16 (CPU0), so it doesn't wait for STNDBYWFI. v6 (2h) showed stage3's plain
+    0x13 is never applied here: CPU0's WFI wakes at once (8 of 8), so it never reaches STNDBYWFI.
+    If CPU0 is still alive afterwards: q<cpus_software_reset> <cpu0 power_status> <cpus_hold_reset>,
+    16 delayed dots, then WFI up to 8 times with '!' after each that returns."""
     code, labels, fix = [], {}, []
     here = lambda: HOOK32_X + 4 * len(code)
     def putc_r3():
@@ -231,9 +234,12 @@ def hook_x():
     putc("w")
     code.extend([_arm_movw(3, 0x2004), _arm_movt(3, 0xF007), 0xE5933000, 0xE2033001, 0xE2833030])
     putc_r3()
-    putc(" "); hexw(0x1000)
-    code.append(_arm_b(here(), 0x01023DA0, link=True))                 # stage3's reset request
-    code.extend([_arm_movw(2, 0x3000), _arm_movt(2, 0xFD88)])          # r2 is caller-saved: reload
+    putc(" "); hexw(0x1000); putc(" "); hexw(0xF0200000); putc(" "); hexw(0xF0290200)
+    putc(" "); code.append(0xEE1C5F11); hexw()                           # mrc p15,0,r5,c12,c1,0 (ISR)
+    putc("Q")
+    code.extend([_arm_movw(4, 0x0024), _arm_movt(4, 0xF007),           # cpus_software_reset
+                 _arm_movw(5, 0x0013), _arm_movt(5, 0x0001),           # 0x00010013
+                 0xE5845000, 0xF57FF04F, 0xF57FF06F])                  # str r5, [r4]; dsb; isb
     putc("q"); hexw(0xF0070024); putc(" "); hexw(0xF0072024); putc(" "); hexw(0xF0070020)
     code.append(0xE3A07010)                                            # mov r7, #16
     labels["dots"] = len(code)

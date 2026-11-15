@@ -42,8 +42,10 @@ Code addresses are ROM (0xffff…), stage2 A (0xf22…), stage3 (0x010…) and U
   - **v5b** moved the RMR read/set to stage3's entry, which is still Secure. **On hardware (2g):**
     `#P01`, `R` once, `w1`, then nothing. So RMR.AA64 = 1 and config_aarch64 = 1, and CPU0 still
     shows up on neither hooked path after the reset request.
-  - **v6** replaces `w` with a hook that makes the reset request itself and reports whether it
-    returns (§5). The next experiment is in §6.
+  - **v6** replaced `w` with a hook that makes the reset request itself. **On hardware (2h):** the
+    request returned and was never applied, and all 8 WFIs woke at once.
+  - **v7** requests the reset with the WFI-wait mask set (`0x00010013`), so it doesn't depend on
+    CPU0 reaching WFI (§5). The next experiment is in §6.
 - **The `u` escape:** the key path is proven on hardware (`p` and `e`, 4/4). The app ≠ 5 branch is
   tested by Route A with a RAM BOOT_MODE (§6, experiment 3), with no SPI write.
 - **UART boot is real in the ROM, and so is the instance fallback.**
@@ -335,6 +337,37 @@ encodings checked in Ghidra). It never returns to stage3. It prints:
 
 The `P`, `R` and AArch64 agent hooks are unchanged.
 
+**2h (v6):** `w1 14417c00q00000000 00000000 00000000................!!!!!!!!`
+- DRAM 0x1000 holds our patched agent entry.
+- Stage3's reset call returned. The three NB words read 0, as they also do from the factory U-Boot.
+- The 16 dots printed, so the request is not applied at once.
+- **All 8 WFIs woke immediately.** A wake-up event or interrupt is pending for CPU0, so it never
+  stays in WFI, and STNDBYWFI never asserts.
+- *Inferred:* `cpus_software_reset` with WFI_MASK = 0 waits for STNDBYWFI before applying. That is
+  the `cpus_hold_reset` semantics in the HAL: "if set, reset is applied without waiting for
+  STNDBYWFI". The software-reset field's own comment is ambiguous.
+- On a cold boot the GIC distributor is still disabled when stage3 resets, so its WFI holds. Here the
+  first boot's agent left the GIC enabled. Likewise, our trampoline's reset from the factory U-Boot
+  worked because that WFI held.
+- **Non-secure is not the cause.** The factory U-Boot is Non-secure EL2, and its `0x13` worked. And
+  stage3's main runs Non-secure through the SRAM agent on a cold boot too, by the same code path.
+
+**v7 hook `x`:**
+1. Prints `w<config_aarch64> <word at 0x1000> <GICD_CTLR 0xf0200000> <GICR_ISPENDR0 0xf0290200>
+   <ISR>`. The last three identify the pending source: ISR bit 7 = IRQ, bit 6 = FIQ, bit 8 = SError.
+2. Prints `Q` and writes **`cpus_software_reset = 0x00010013`**: stage3's value plus WFI_MASK bit 16
+   for CPU0. Stage3's own call is skipped.
+3. If CPU0 is still alive afterwards: `q…`, dots and WFIs as in v6.
+
+| after the `w1 …` line | meaning |
+| --- | --- |
+| `Q` then `AMgrDWSE…` | **fixed**: the reset waited for WFI. Then the 64-bit agent path, then the factory U-Boot or the next stop |
+| `Q` then `R` | the reset applies but brings CPU0 back in AArch32 |
+| `Q` then nothing | the reset applies, and CPU0 lands on neither hooked path |
+| `Q`, `q…`, dots, `!`s | even the masked request is ignored: the reset logic is blocked some other way. The hex words narrow it down |
+
+**The v6 table (2h answered it):**
+
 | after `w1 <word>` | meaning |
 | --- | --- |
 | nothing | the request is applied at once, and CPU0 lands on neither hooked path. Look at `<word>`: if it isn't `14417c00`, DRAM 0x1000 isn't our patched agent |
@@ -391,7 +424,8 @@ All at the factory `ALPINE_DB>` after a normal cold boot. Power-cycle after each
 | 2e | done twice (v4) | **no agent hook printed** at all; pre-`go` reads normal (above) | — |
 | 2f | done (v5) | `R` once (hook OK), stage3 to "Executing application...", then `w` and a `0x95` flood: RMR UNDEF in Non-secure (above) | — |
 | 2g | done (v5b) | `#P01`, `R` once, `w1`, then nothing: neither hooked path after the reset request | — |
-| 2h | `image --app none` + `route-a --run` (v6). Read the tio log after the last `go` | the line after "Executing application...", per the v6 table | hang → power-cycle |
+| 2h | done (v6) | `w1 14417c00q00000000 00000000 00000000................!!!!!!!!`: the request is never applied, and WFI always wakes | — |
+| 2i | `image --app none` + `route-a --run` (v7). Read the tio log | the `w1 …` line (5 hex words) and what follows `Q`, per the v7 table | hang → power-cycle |
 | 3 | `image --app 0x10000005`, `route-a --run`, then again with `--key u` | **the `u` escape for app ≠ 5**: without the key UBOOT 1 boots (`md.l 0x0105d268 1` = `10000005`); with it, "User request for loading U-Boot!" and `00000005` | same; both outcomes are the factory U-Boot |
 | 4 | `image --app 0x110 --uboot <ours>` + `route-a --run` (and with `--key u`) | **our U-Boot as the stage3 app** via the production agent handoff (expect `Entry: EL2, MMU+caches were off, x0=0`), and the escape back to the factory U-Boot | same |
 | 5 | (spare unit, owner) strap 4, then `uartboot.py s2` + `xmodem` | the ROM's UART boot end to end with the factory stage2 | a solder change |
