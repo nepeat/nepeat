@@ -29,13 +29,22 @@ longer background.
   (`openbcm-asic-temp`) holds the SDK lock: stop it before `bcm.user`/syncd.
   node-exporter on :9100 (+ `switch_*`, `fand_*` metrics) is scraped by the lab
   VictoriaMetrics; Grafana dashboards per [tools/README.md](../../tools/README.md).
-- **Todo (held, needs the console back):** thermal load test under traffic
-  (through syncd, now that it publishes the ASIC temperature); one-time test of
-  the software over-temperature PLL shutdown (low `--shutdown-at`, then a power
-  cycle). LPMODE on an active module needs an optic/AOC.
+- **Todo:** a worst-case thermal test with line-rate traffic (the
+  2026-11-15 loopback storm was throttled, mild load only); the software
+  over-temperature PLL shutdown test (held, needs the console); VLAN + LACP
+  on the lab loop through SONiC (needs the generated config.bcm split).
+  Running kernel has bridge/VLAN/team modules since 2026-11-15.
 - **Open:** `WARNING: adjusting available memory` at boot is stock mpc85xx
   behaviour (lowmem cap), harmless; other T2080 boards (K2 cards) need their
   own DDR/DT patches, later. Details: [u-boot-port.md](u-boot-port.md).
+
+## 2026-11-15 (night) — new kernel booted, loopback load test (mild)
+
+- Rebooted without a console (owner's go) into the kernel with bridge,
+  VLAN, team and dummy modules: up in ~2 min, 0 failed units.
+- Load test via [loadtest.sh](loadtest.sh): 10 min MAC-loopback storm, ASIC
+  +2.4 °C, fans at the minimum, no failsafe; throttled by pause/queue drops,
+  so not a worst case ([thermal.md](thermal.md)).
 
 ## 2026-11-15 (evening) — SAI temperature + LAG on hardware, QSPF control, fand grace
 

@@ -135,8 +135,19 @@ Measured (ASIC initialised, idle; VictoriaMetrics, 10 s scrape):
 | monitor at 80% | 8 min | ~16.9k rpm | avg 29.7 °C, slope −0.08 °C/min |
 | fand floor (pwm 136, 53%) | 10 min test unit, then deployed | ~11–14k rpm | avg 31.0 °C (peak 31.5), flat after a ~1.3 °C rise |
 
-Both zones sit at the hardware minimum at these temperatures. Not yet tried
-under traffic load.
+Both zones sit at the hardware minimum at these temperatures.
+
+**Load test, 2026-11-15** ([loadtest.sh](loadtest.sh), [data](loadtest-20261115.txt)):
+all 32 ports in MAC loopback, one broadcast in VLAN 1 (CPU removed), 10 min,
+the harness feeding fand from `show temp`. ASIC 39.9 -> 42.3 °C (still
+creeping), board 28.5 -> 30.0 °C, fans stayed at the minimum, no failsafe.
+**Mild load, not worst case:** the loop is throttled. In MAC loopback each
+port receives its own pause frames (RXPF/TXPF); turning pause off after
+link-up drops them from ~3360/s to ~400/s, but ports still forward only
+~240 Mbit/s while dropping ~1M pkt/s each at the queue. PHY loopback hung
+bcm.user (chip reset afterwards). Two earlier attempts hung at `tx 64`
+(the storm fills the egress queue; `tx 1` returns). A worst-case test needs
+real line-rate traffic (traffic generator or a cleaner loopback mode).
 
 **Older policy (`controller = "monitor"`):** `as7760-thermal` holds a quiet duty (default 80%, option
 `hardware.as7760Fan.duty`) while all four board sensors are healthy and at or

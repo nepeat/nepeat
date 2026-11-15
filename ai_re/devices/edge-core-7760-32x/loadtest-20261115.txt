@@ -1,0 +1,22 @@
+# loadtest.sh, 2026-11-15 (MAC-loopback broadcast storm via bcm.user, 600 s, fans at the hardware minimum)
+# t[s]  asic_max[C]  pwm  board_max[C]  asic_failsafe
+30 39.9 136 28.5 0
+61 39.9 136 28.5 0
+91 41.3 136 28.5 0
+121 39.9 136 28.5 0
+152 39.9 136 28.5 0
+182 40.4 136 28.5 0
+213 40.4 136 29 0
+243 40.4 136 28.5 0
+273 40.4 136 28.5 0
+304 40.4 136 29 0
+334 40.8 136 28.5 0
+364 40.8 136 29 0
+395 40.8 136 29 0
+425 41.8 136 29.5 0
+456 41.3 136 29.5 0
+486 42.3 136 29.5 0
+516 41.8 136 29.5 0
+547 42.3 136 30 0
+577 41.8 136 30 0
+# end of storm: TPKT.ce5 246,694, TBYT.ce5 29,083,104 over the run (throttled, see thermal.md)
