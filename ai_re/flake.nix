@@ -140,6 +140,15 @@
             pyghidraMcp
             ghidraPy
           ] ++ (with pkgs; [
+            # Lab metrics: single-node VictoriaMetrics as a user service with
+            # drop-in scrape targets (tools/metrics.py, see tools/README.md).
+            victoriametrics
+            (writeShellApplication {
+              name = "ai-re-metrics";
+              runtimeInputs = [ python3 ];
+              text = ''exec python3 ${./tools/metrics.py} "$@"'';
+            })
+
             # Home Assistant outlet control; credentials stay in the environment.
             (writeShellApplication {
               name = "lab-power";

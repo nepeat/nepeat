@@ -96,3 +96,25 @@ then add another entry to `.mcp.json` pointing `--project-path` at the new
 program to an existing project). ELF/PE/etc. need no `-loader BinaryLoader`:
 `import_binary` or `ghidra-analyzeHeadless` auto-detect them. Never commit the
 project directory.
+
+## ai-re-metrics: lab metrics (VictoriaMetrics)
+
+Single-node VictoriaMetrics on the workstation, run as a **user** systemd
+service (`ai-re-victoriametrics`, listens on 127.0.0.1:8428, 180 d retention).
+Data, scrape config and targets live in `~/.local/state/ai_re-metrics/`
+(override with `AI_RE_METRICS_DIR`), never in the repo, because targets carry
+addresses.
+
+```sh
+ai-re-metrics start                       # idempotent; after a reboot run it again
+ai-re-metrics target add as7760 <switch-ip>:9100 --label device=edge-core-7760-32x
+ai-re-metrics target ls | target rm as7760
+ai-re-metrics status                      # service + per-target health/last error
+ai-re-metrics query 'switch_optic_temperature_celsius'
+ai-re-metrics range 'max(node_hwmon_temp_celsius)' --since 6h --step 5m   # min/avg/max
+```
+
+Agents: add a target when you bring up an exporter on a device and remove it
+when the device goes away; the NAME becomes the `job` label, so use the device
+directory name. Targets are picked up within about 10 s, no restart. The web
+UI (vmui) is at http://127.0.0.1:8428/vmui.
