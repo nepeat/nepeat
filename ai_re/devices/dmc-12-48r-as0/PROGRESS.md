@@ -48,7 +48,7 @@
   `uboot-vendor-commands.md`, factory hardware tooling `vendor-tooling.md`. Earlier Status text: `HISTORY.md`.
 - Research (`research-open-items.md`): CS1 is picked by the K2 uC; CPLD = MachXO3 configured over
   I2C 4-0x10 (readback needs the owner's OK); uC firmware unreachable without SWD; TPM is SPI-only.
-  Open: photos of the K2 card (flash/uC/headers), the CPLD readback decision, an SPI TPM DT node.
+  TPM 2.0 works on SPI SS2 (2026-11-16). Open: photos of the K2 card (flash/uC/headers), the CPLD readback decision.
 
 ## Identity
 - Board EEPROM (ONIE TLV, 24c02 @ I2C 7-0051): **Accton / Edgecore**,
@@ -159,6 +159,9 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 00:20: **SPI TPM** (516bf72): SLB9670 node on SS2, I2C tpm@20 dropped. Probes as TPM 2.0
+  (0x15D1/0x1B), PCR reads work (all zero: nothing measures), flash sha256 unchanged across the probe
+  (before/after of all four mtd partitions), smoke 16/16 on minimal.
 - 2026-11-16 00:05: **minimal kernel, provisioning, research.**
   - `minimal` variant fixed (MDIO_DEVICE gone in 7.3) and checked against what lean binds on u01
     (agent; 7ab341c, neutral for lean). Booted on u01: 11.1 MiB Image vs 45.7, 20 modules vs 1506,
@@ -255,38 +258,4 @@ Phase 1
   loading U-Boot" + factory 2015.07. Record: `inventory/u01/spi-upgrade.jsonl`. Found: the BOOT_MODE TOC
   slot is 64 KiB (docs said 4 KiB; only its first sector is written). GPIO 22 was already out 1 on the
   stage3-app path too, but the factory U-Boot ran earlier in that power-on (Route A), so cold is untested.
-- 2026-11-15 13:00: chainload disk image finished (`u-boot-port.md` "on-disk boot").
-  `hardware.dmc12.bootLoader = "chainload"` → output `dmc12-disk-image-chainload`
-  (`/nix/store/9kfqi1zd…-dmc12-disk-image`, disk.img sha256 `f5e6c1ea…`, U-Boot uImage
-  `3851ae72…`, new because patch 0017 sets 64-bit `fdt_high`/`initrd_high`). No kernel
-  rebuilt. Offline: MBR sda1 type da 2048+16384, sda2 18432+1048576 bootable, sda3;
-  `dumpimage -l` on both slots = the uImage (byte-equal); extlinux.conf names the raw
-  `Image`, initrd, `FDT …/amazon/alpine-v2-dmc12.dtb`; root ext4 DMC12ROOT holds the
-  toplevel, both fs `e2fsck -n` clean; QEMU alpine-v2 tests pass ("Using Device Tree in
-  place"). uboot-menu image: same `.drvPath` as before. The factory env now runs
-  `dmc12_boot_preamble` first (al_eth params via `bootp`). reimage.py/md changes for the
-  image's `factory-env.txt` are with the main agent. Dropped the previous agent's
-  unfinished QEMU network stage (needed a test e1000 + www dir, not wired up).
-- 2026-11-15 03:40: factory tooling pass (`vendor-tooling.md`). Found the CPLD reboot
-  driver (0x29/0x28, disassembled from the vendor kernel via vmlinux-to-elf), the
-  interrupt monitor + GPIO lines, and that uplink re-sync is ≥526-only. Kept the factory OS
-  images, symbol ELF and burn-in logs in `dumps/u01/factory-os/`. Moved everything to
-  per-unit `dumps/u01/` and `inventory/u01/`, added `units.md`.
-- 2026-11-15 03:20: inventory + offline analysis (above). Also learned: plain `.zst`
-  can't be mounted. nbdkit 1.48 has no zstd decompress filter, but its `qcow2dec` (nixpkgs build) and
-  qemu read zstd-compressed qcow2, so that's the random-access format (runbook).
-- 2026-11-15 03:00: SSD image done. The first run verified the raw image, but its zstd step
-  (`-T0`) died at 02:56 in a host-wide OOM: a `cc1plus` nix build plus zstd. The OOM
-  killer took `sd-pam` and with it the whole user session (tmux, tio, every Claude
-  session). Recompressed from the re-hashed raw with `acquire.py --compress` (now
-  `-T6`, niced). The box stayed in the rdinit shell throughout (uptime >30 min, so the
-  uC watchdog doesn't fire there). Then: I2C sysfs map, `hdparm -I`, live DTB,
-  EEPROMs.
-- 2026-11-15: info-gathering pass. Moved the FTDI session over from `serial-7760`
-  (told that session; the AS7760 is SSH-only now). The first power-cycle missed
-  autoboot because of tio log buffering; the helper now watches the pane. Got into
-  U-Boot, saved the env privately, ran read-only `uc_get_*` and the flash TOC, booted
-  rdinit shell, imaged mtd0/mtd1 (triple-hashed, zstd). Imported the first
-  iteration's NixOS module verbatim into `ai_re/nix`.
-- 2026-11-15: `lab-power` now needs a plug number. Plug 2 on/off tested,
-  plug 1 unchanged (HA state only).
+- Older entries (2026-11-15 up to 13:00: first boot, chainload image, dumps, factory tooling): `HISTORY.md`.

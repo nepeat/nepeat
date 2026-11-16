@@ -15,8 +15,9 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
   generic K2C-AB al-boot 2.44. `spi-recovery.md`.
 - **I2C EEPROM 0x57** = boot-ROM preload table + DDR4 SPD; **0x51** = ONIE TLV board EEPROM (Accton,
   serial, MAC). `boot-chain-details.md`.
-- **TPM:** SLB9670 on SPI CS2 (vendor DT; not in ours). The I2C node at 3-0020 is a leftover: nothing
-  answers on bus 3, hence "could not request locality" on every boot since 2019 (`research-open-items.md` §6). **RTC** DS1339 2-0068. Sensors: lm75 5-004a (uC), tmp75 7-0048/0049.
+- **TPM 2.0:** Infineon SLB9670 on SPI SS2 of the boot-flash controller (`tpm_tis_spi`, `/dev/tpmrm0`;
+  vendor 0x15D1 dev 0x1B). PCRs are all zero: nothing in our chain measures. The vendor DT's I2C
+  tpm@20 is a leftover (nothing answers on bus 3: the old "could not request locality"). [hw] **RTC** DS1339 2-0068. Sensors: lm75 5-004a (uC), tmp75 7-0048/0049.
 - **NIC:** al_eth (PCI 00:01.0), RGMII 1G to an "upper/lower PHY pair" the CPLD manages (`setphyspeed`);
   SFP option; no SerDes on this port ("serdes regs base failed" is harmless). [hw]
 - **Storage:** M.2 SATA SSD (AHCI 00:08.0). No eMMC/SD, no NVMe. [hw]

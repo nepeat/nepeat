@@ -149,6 +149,8 @@ datasheet, check*), then `0x26` ISC_DISABLE and `0xFF`.
   `dmc12-metrics` an input-power series.
 
 ## 6. TPM "could not request locality"
+**Resolved 2026-11-16:** SPI node added (516bf72); `tpm_tis_spi spi0.2: 2.0 TPM (vendor-id 0x15D1,
+device-id 0x1B)`, PCR reads work, every mtd partition's sha256 unchanged across the first probe.
 - **Error:** `tpm_i2c_infineon 3-0020: could not request locality` on every boot.
   - It happens under the factory 4.19 kernel too: 8 burn-in boots in `factory-os/dmc12_diag_log/bi_dmesg.log`
     (2019), the operator syslog on sda1 (2022) and the initial capture.

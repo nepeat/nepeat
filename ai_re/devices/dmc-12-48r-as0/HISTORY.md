@@ -59,3 +59,40 @@
   **After NixOS:** back up and analyse the CPLD (MachXO3 JTAG readback, cf. `cpldupd`), the uC
   firmware and the SPI `APCEA`/`APCEA_CFG` objects.
 
+## PROGRESS log entries, 2026-11-15 up to 13:00 (moved verbatim 2026-11-16)
+
+- 2026-11-15 13:00: chainload disk image finished (`u-boot-port.md` "on-disk boot").
+  `hardware.dmc12.bootLoader = "chainload"` → output `dmc12-disk-image-chainload`
+  (`/nix/store/9kfqi1zd…-dmc12-disk-image`, disk.img sha256 `f5e6c1ea…`, U-Boot uImage
+  `3851ae72…`, new because patch 0017 sets 64-bit `fdt_high`/`initrd_high`). No kernel
+  rebuilt. Offline: MBR sda1 type da 2048+16384, sda2 18432+1048576 bootable, sda3;
+  `dumpimage -l` on both slots = the uImage (byte-equal); extlinux.conf names the raw
+  `Image`, initrd, `FDT …/amazon/alpine-v2-dmc12.dtb`; root ext4 DMC12ROOT holds the
+  toplevel, both fs `e2fsck -n` clean; QEMU alpine-v2 tests pass ("Using Device Tree in
+  place"). uboot-menu image: same `.drvPath` as before. The factory env now runs
+  `dmc12_boot_preamble` first (al_eth params via `bootp`). reimage.py/md changes for the
+  image's `factory-env.txt` are with the main agent. Dropped the previous agent's
+  unfinished QEMU network stage (needed a test e1000 + www dir, not wired up).
+- 2026-11-15 03:40: factory tooling pass (`vendor-tooling.md`). Found the CPLD reboot
+  driver (0x29/0x28, disassembled from the vendor kernel via vmlinux-to-elf), the
+  interrupt monitor + GPIO lines, and that uplink re-sync is ≥526-only. Kept the factory OS
+  images, symbol ELF and burn-in logs in `dumps/u01/factory-os/`. Moved everything to
+  per-unit `dumps/u01/` and `inventory/u01/`, added `units.md`.
+- 2026-11-15 03:20: inventory + offline analysis (above). Also learned: plain `.zst`
+  can't be mounted. nbdkit 1.48 has no zstd decompress filter, but its `qcow2dec` (nixpkgs build) and
+  qemu read zstd-compressed qcow2, so that's the random-access format (runbook).
+- 2026-11-15 03:00: SSD image done. The first run verified the raw image, but its zstd step
+  (`-T0`) died at 02:56 in a host-wide OOM: a `cc1plus` nix build plus zstd. The OOM
+  killer took `sd-pam` and with it the whole user session (tmux, tio, every Claude
+  session). Recompressed from the re-hashed raw with `acquire.py --compress` (now
+  `-T6`, niced). The box stayed in the rdinit shell throughout (uptime >30 min, so the
+  uC watchdog doesn't fire there). Then: I2C sysfs map, `hdparm -I`, live DTB,
+  EEPROMs.
+- 2026-11-15: info-gathering pass. Moved the FTDI session over from `serial-7760`
+  (told that session; the AS7760 is SSH-only now). The first power-cycle missed
+  autoboot because of tio log buffering; the helper now watches the pane. Got into
+  U-Boot, saved the env privately, ran read-only `uc_get_*` and the flash TOC, booted
+  rdinit shell, imaged mtd0/mtd1 (triple-hashed, zstd). Imported the first
+  iteration's NixOS module verbatim into `ai_re/nix`.
+- 2026-11-15: `lab-power` now needs a plug number. Plug 2 on/off tested,
+  plug 1 unchanged (HA state only).
