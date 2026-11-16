@@ -1,0 +1,141 @@
+{
+ "components": {
+  "board_eeprom": {
+   "crc_ok": true,
+   "fields": {
+    "country": "TW",
+    "device_version": 9,
+    "diag_version": "V1.0.3.0",
+    "label_revision": "R02E",
+    "mac_count": 1,
+    "manufacture_date": "06/18/2021 13:40:09",
+    "manufacturer": "Accton",
+    "onie_version": "V1.0.0.1",
+    "part_number": "FU2AOS481000A",
+    "platform_name": "K2C-AB-T2_DMC-12-48R-AS0",
+    "product_name": "DMC-12-48R-AS0",
+    "vendor": "Edgecore"
+   },
+   "withheld": [
+    "base_mac",
+    "serial_number",
+    "service_tag"
+   ]
+  },
+  "cpld.cfg": {
+   "bytes": 51168,
+   "data_pages": 1571,
+   "sha256": "ff56fa3a44ae647ebb8384858aa4b6a3c5bfdb51fbbfd6315079249c334efe61"
+  },
+  "cpld.part": {
+   "feabits": "0ac0",
+   "feature_row": "0000040000000000",
+   "idcode": "0x612bb043",
+   "usercode": "0x00000000"
+  },
+  "cpld.ufm": {
+   "bytes": 10224,
+   "data_pages": 0,
+   "sha256": "9fd295f332fcfb2f28833b4afacd3bde1d346587422089daffbb2535246d5973"
+  },
+  "cpld.version_reg": {
+   "version": "0x88"
+  },
+  "pci.0000:00:01.0": {
+   "class": "0x020000",
+   "id": "1c36:0001",
+   "rev": "0x02"
+  },
+  "pci.0000:00:04.0": {
+   "class": "0x100000",
+   "id": "1c36:0022",
+   "rev": "0x02"
+  },
+  "pci.0000:00:05.0": {
+   "class": "0x010400",
+   "id": "1c36:0022",
+   "rev": "0x02"
+  },
+  "pci.0000:00:08.0": {
+   "class": "0x010601",
+   "id": "1c36:0031",
+   "rev": "0x02"
+  },
+  "pci.0001:00:00.0": {
+   "class": "0x060400",
+   "id": "1c36:0031",
+   "rev": "0x01"
+  },
+  "pci.0001:01:00.0": {
+   "class": "0x060400",
+   "id": "12d8:400c",
+   "rev": "0x02"
+  },
+  "pci.0001:02:03.0": {
+   "class": "0x060400",
+   "id": "12d8:400c",
+   "rev": "0x02"
+  },
+  "pci.0001:03:00.0": {
+   "class": "0x0c0310",
+   "id": "12d8:400e",
+   "rev": "0x01"
+  },
+  "pci.0001:03:00.1": {
+   "class": "0x0c0310",
+   "id": "12d8:400e",
+   "rev": "0x01"
+  },
+  "pci.0001:03:00.2": {
+   "class": "0x0c0320",
+   "id": "12d8:400f",
+   "rev": "0x01"
+  },
+  "preload_eeprom": {
+   "bytes": 8192,
+   "sha256": "8a39e7af4096276875b38234046fc9dd5289fcd9181c0ff40cff29f9d0a1df1a",
+   "used": 1472
+  },
+  "soc": {
+   "midr": "0x00000000411fd073"
+  },
+  "software": {
+   "kernel": "7.2.3 #1-NixOS SMP PREEMPT Wed Sep  2 12:33:21 UTC 2026",
+   "system": "/nix/store/2j4pvma0xzfpv80g4r92mm90cjmxvpsl-nixos-system-dma-con-sw-0-rev-62c107f-26.11.20260907.dc5d91f"
+  },
+  "spi.current": {
+   "state": "not readable live (no SPI flash in this kernel's DT: mtd none)"
+  },
+  "ssd": {
+   "ata_model": "M.2 (S42) 3TE7",
+   "ata_version": null,
+   "firmware": "S19C04B",
+   "sectors": "53742528"
+  },
+  "tpm": {
+   "state": "absent"
+  },
+  "uc": {
+   "state": "not captured (provision.py register step)"
+  },
+  "usb.05e3:0608": {
+   "bcdDevice": [
+    "6070"
+   ],
+   "count": 3,
+   "manufacturer": null,
+   "product": "USB2.0 Hub"
+  },
+  "usb.10c4:ea71": {
+   "bcdDevice": [
+    "0190"
+   ],
+   "count": 12,
+   "manufacturer": "Silicon Labs",
+   "product": "CP2108 Quad USB to UART Bridge Controller"
+  }
+ },
+ "date": "2026-11-16T01:38:23-0800",
+ "mode": "live",
+ "unit": "p01"
+}

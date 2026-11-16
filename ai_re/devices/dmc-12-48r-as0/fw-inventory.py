@@ -23,6 +23,7 @@ import argparse, hashlib, importlib.util, json, pathlib, subprocess, sys, time
 
 ROOT = pathlib.Path(__file__).resolve().parent
 AIRE = ROOT.parents[1]
+NO_SUDO = False
 SSH = ["sudo", "-n", "ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=no",
        "-o", "UserKnownHostsFile=/dev/null", "-o", "LogLevel=ERROR"]
 
@@ -42,7 +43,8 @@ def sha(b):
 
 
 def ssh(ip, cmd, stdin=None, binary=False):
-    r = subprocess.run(SSH + [f"root@{ip}", cmd], input=stdin, capture_output=True,
+    pre = SSH[2:] if NO_SUDO else SSH          # --no-sudo: the invoking user's key/agent
+    r = subprocess.run(pre + [f"root@{ip}", cmd], input=stdin, capture_output=True,
                        text=not binary, timeout=600)
     if r.returncode:
         raise SystemExit(f"ssh {cmd[:40]!r}: exit {r.returncode} {r.stderr[-200:]!r}")
@@ -144,6 +146,49 @@ print(json.dumps(o))
 '''
 
 
+# Hosts without python3 (older images): the same fields via sysfs + a static busybox on the box.
+BB_REMOTE = r'''
+B=__BB__
+for d in /sys/bus/usb/devices/[0-9]*; do case ${d##*/} in *:*) continue;; esac; [ -e $d/idVendor ] || continue
+  printf 'usb\t%s\t%s\t%s\t%s\t%s\n' "$(cat $d/idVendor)" "$(cat $d/idProduct)" "$(cat $d/bcdDevice)" "$(cat $d/manufacturer 2>/dev/null)" "$(cat $d/product 2>/dev/null)"; done
+for d in /sys/bus/pci/devices/*; do printf 'pci\t%s\t%s:%s\t%s\t%s\n' "${d##*/}" "$(cut -c3- $d/vendor)" "$(cut -c3- $d/device)" "$(cat $d/revision)" "$(cat $d/class)"; done
+printf 'sectors\t%s\n' "$(cat /sys/block/sda/size)"
+# drive identify; the serial number never leaves the box
+$B hdparm -i /dev/sda 2>/dev/null | tr ',' '\n' | sed -n 's/^ *\(Model\|FwRev\)=\(.*\)/hdparm_\1\t\2/p'
+printf 'midr\t%s\n' "$(cat /sys/devices/system/cpu/cpu0/regs/identification/midr_el1)"
+printf 'kernel\t%s %s\n' "$(uname -r)" "$(uname -v)"
+printf 'system\t%s\n' "$(readlink -f /run/current-system)"
+printf 'eeprom\t%s\n' "$($B xxd -p /sys/bus/i2c/devices/7-0051/eeprom 2>/dev/null | head -c 1024 | tr -d '\n')"
+printf 'preload\t%s\n' "$($B xxd -p /sys/bus/i2c/devices/0-0057/eeprom 2>/dev/null | tr -d '\n')"
+printf 'tpm\t%s\n' "$(cat /sys/class/tpm/tpm0/tpm_version_major 2>/dev/null)"
+printf 'cpld_version\t%s\n' "$($B i2cget -y 4 0x68 0x01)"
+printf 'mtd\t%s\n' "$(grep -c mtd /proc/mtd)"
+'''
+
+
+def bb_live(ip, bb):
+    out = ssh(ip, "sh -s", stdin=BB_REMOTE.replace("__BB__", bb))
+    live = {"usb": [], "pci": [], "ssd": {}, "tpm": {}}
+    for line in out.splitlines():
+        f = line.split("\t")
+        if f[0] == "usb":
+            live["usb"].append(dict(zip(("idVendor", "idProduct", "bcdDevice", "manufacturer", "product"),
+                                        [x or None for x in f[1:]])))
+        elif f[0] == "pci":
+            live["pci"].append({"slot": f[1], "id": f[2], "rev": f[3], "class": f[4]})
+        elif f[0] == "sectors":
+            live["ssd"]["sectors"] = f[1]
+        elif f[0] == "hdparm_Model":
+            live["ssd"]["ata_model"] = f[1].strip()
+        elif f[0] == "hdparm_FwRev":
+            live["ssd"]["firmware"] = f[1].strip()
+        elif f[0] == "tpm":
+            live["tpm"] = {"sysfs_version": f[1] or None}
+        elif f[0] in ("midr", "kernel", "system", "eeprom", "preload", "cpld_version", "mtd"):
+            live[f[0]] = f[1] if len(f) > 1 else ""
+    return live
+
+
 def tpm_component(t):
     p = t.get("props", {})
     if not p:
@@ -187,17 +232,28 @@ def collect(a):
     comp["uc"] = uc_versions(unit)
     cpld_info = dumps / "cpld" / "info.json"
     if not a.offline:
-        live = json.loads(ssh(a.ip, "python3 -", stdin=REMOTE))
+        live = bb_live(a.ip, a.busybox) if a.busybox else json.loads(ssh(a.ip, "python3 -", stdin=REMOTE))
         # current SPI, reassembled from the named mtd partitions
         names = ssh(a.ip, "for m in /sys/class/mtd/mtd[0-9]*; do [ -e $m/name ] && echo $(basename $m) $(cat $m/name); done; true").split("\n")
         part = {l.split()[1]: l.split()[0] for l in names if len(l.split()) == 2}
-        cs0 = b"".join(ssh(a.ip, f"cat /dev/{part[n]}", binary=True) for n in ("spi0-boot", "u-boot-env", "spi0-tail"))
-        cs1 = ssh(a.ip, f"cat /dev/{part['spi1-alt']}", binary=True)
-        for chip, d in (("cs0", cs0), ("cs1", cs1)):
-            comp[f"spi.current.{chip}.image"] = {"bytes": len(d)}
-            comp.update({k.replace("spi.", "spi.current."): v for k, v in spi_objects(d, chip, blobs / "current").items()})
+        if {"spi0-boot", "u-boot-env", "spi0-tail", "spi1-alt"} <= set(part):
+            cs0 = b"".join(ssh(a.ip, f"cat /dev/{part[n]}", binary=True) for n in ("spi0-boot", "u-boot-env", "spi0-tail"))
+            cs1 = ssh(a.ip, f"cat /dev/{part['spi1-alt']}", binary=True)
+            for chip, d in (("cs0", cs0), ("cs1", cs1)):
+                comp[f"spi.current.{chip}.image"] = {"bytes": len(d)}
+                comp.update({k.replace("spi.", "spi.current."): v for k, v in spi_objects(d, chip, blobs / "current").items()})
+        else:
+            comp["spi.current"] = {"state": f"not readable live (no SPI flash in this kernel's DT: mtd {sorted(part) or 'none'})"}
         # CPLD flash readback (read-only allowlist; cpld-readback.py)
-        if a.cpld:
+        if a.cpld and a.busybox:
+            cr = mod("cpldrb", ROOT / "cpld-readback.py")
+            out = ssh(a.ip, "sh -s", stdin=cr.emit_sh(a.busybox))
+            tmp = dumps / "cpld" / "readback-sh.txt"
+            (dumps / "cpld").mkdir(parents=True, exist_ok=True)
+            tmp.write_text(out)
+            cr.parse_sh(str(tmp), str(dumps / "cpld"))
+            tmp.unlink()
+        elif a.cpld:
             ssh(a.ip, "rm -rf /tmp/cpld-inv; python3 - --out /tmp/cpld-inv >/dev/null",
                 stdin=(ROOT / "cpld-readback.py").read_text())
             (dumps / "cpld").mkdir(parents=True, exist_ok=True)
@@ -298,7 +354,12 @@ def byte_ranges(x, y, limit=12):
 
 def cmd_diff(a):
     x, y = load(a.a), load(a.b)
-    for k in sorted(set(x) | set(y)):
+    for u, mine, other in ((a.a, x, y), (a.b, y, x)):
+        only = sorted(k for k in mine if k not in other)
+        if only:
+            groups = sorted({".".join(k.split(".")[:3]) for k in only})
+            print(f"only in {u}: {len(only)} components ({', '.join(groups)})")
+    for k in sorted(set(x) & set(y)):
         if x.get(k) == y.get(k):
             continue
         print(f"{k}:\n  {a.a}: {json.dumps(x.get(k), sort_keys=True)}\n  {a.b}: {json.dumps(y.get(k), sort_keys=True)}")
@@ -338,12 +399,16 @@ def main():
     c.add_argument("--ip")
     c.add_argument("--offline", action="store_true", help="factory dumps only")
     c.add_argument("--no-cpld", dest="cpld", action="store_false", help="skip the CPLD flash readback")
+    c.add_argument("--busybox", metavar="PATH", help="no python3 on the box: a static busybox there (e.g. in /dev/shm)")
+    c.add_argument("--no-sudo", action="store_true", help="ssh as the invoking user (agent) instead of root's key")
     s = sub.add_parser("show"); s.add_argument("unit")
     t = sub.add_parser("table"); t.add_argument("units", nargs="*")
     d = sub.add_parser("diff"); d.add_argument("a"); d.add_argument("b"); d.add_argument("--bytes", action="store_true")
     r = sub.add_parser("drift"); r.add_argument("unit")
     a = ap.parse_args()
     if a.cmd == "collect":
+        global NO_SUDO
+        NO_SUDO = a.no_sudo
         if not a.offline and not a.ip:
             ap.error("collect needs --ip (or --offline)")
         collect(a)

@@ -159,6 +159,10 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 01:40: **production unit p01 inventoried read-only** (`units.md` "Production units"): CPLD identical
+  to u01, SSD differs; its `/run` is full (journald) and it has the USB INTx bug. Tools: `cpld-readback.py
+  --emit-sh/--parse-sh` and `fw-inventory.py --busybox --no-sudo` for python-less hosts. A readback leaves
+  config status bits 0/3 set (`…0109` vs `…0100`, also on u01; ISC off, logic unaffected; clear on refresh).
 - 2026-11-16 02:00: **CPLD read back and decoded; firmware inventory.**
   - `cpld-readback.py` (read-only subset of the factory cpldupd flow, transparent mode): LCMXO3LF-2100C
     confirmed, two identical reads, CPLD/fans unaffected (1efd88c).

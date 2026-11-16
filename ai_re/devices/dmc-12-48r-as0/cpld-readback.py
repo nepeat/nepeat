@@ -18,6 +18,11 @@ expressible here): erase 0E, program 70/C2/E4/F8, done 5E, refresh 79, offline C
   python3 - --dry-run           print every transaction, touch nothing
   python3 - --id-only           IDCODE/USERCODE/STATUS/TraceID/feature row (no transparent mode)
   python3 - --out DIR           everything above + CFG + UFM pages
+
+Hosts without python (busybox i2ctransfer instead), from the workstation:
+  cpld-readback.py --emit-sh BUSYBOX > read.sh     # the same allowlisted sequence as a shell script
+  ssh root@box sh -s < read.sh > out.txt           # (BUSYBOX = path of a static busybox on the box)
+  cpld-readback.py --parse-sh out.txt --out DIR    # -> cfg.bin, ufm.bin, info.json
 """
 import argparse, ctypes, fcntl, json, os, sys, time
 
@@ -98,7 +103,78 @@ def pages(p, n, label):
     return bytes(out)
 
 
+def emit_sh(bb):
+    """The --out sequence as a POSIX sh script for busybox i2ctransfer. Every command is checked
+    against ALLOW here, at generation time; the script itself contains nothing else that writes."""
+    def tx(tag, hexcmd):
+        cmd = bytes.fromhex(hexcmd)
+        if cmd not in ALLOW:
+            raise SystemExit(f"refusing non-allowlisted command {hexcmd}")
+        w = " ".join(f"0x{b:02x}" for b in cmd)
+        r = f" r{ALLOW[cmd]}" if ALLOW[cmd] else ""
+        return f'{tag}() {{ $BB i2ctransfer -y {BUS} w{len(cmd)}@0x{ADDR:02x} {w}{r}; }}'
+    L = ["set -u", f"BB={bb}",
+         tx("idcode", "E0000000"), tx("usercode", "C0000000"), tx("status", "3C000000"),
+         tx("traceid", "19000000"), tx("feature", "E7000000"), tx("feabits", "FB000000"),
+         tx("busy", "F0000000"), tx("transparent", "740800"), tx("init_cfg", "46000000"),
+         tx("init_ufm", "47000000"), tx("page", "73000001"), tx("disable", "260000"),
+         tx("bypass", "FFFFFFFF"),
+         # cpldupd's machxo3_wait_ready: poll F0 until bit 7 clears (bounded here)
+         'wr() { n=0; while :; do b=$(busy) || exit 3; [ $(( b & 0x80 )) -eq 0 ] && return; '
+         'n=$((n+1)); [ $n -gt 10000 ] && { echo "ERR busy"; exit 4; }; done; }',
+         f'id=$(idcode) || exit 2; echo "idcode $id"',
+         f'[ "$id" = "0x{EXPECT_IDCODE >> 24 & 255:02x} 0x{EXPECT_IDCODE >> 16 & 255:02x} '
+         f'0x{EXPECT_IDCODE >> 8 & 255:02x} 0x{EXPECT_IDCODE & 255:02x}" ] || {{ echo "ERR idcode"; exit 5; }}',
+         'echo "usercode $(usercode)"', 'echo "status_before $(status)"', 'echo "traceid $(traceid)"',
+         'echo "feature_row $(feature)"', 'echo "feabits $(feabits)"',
+         # from here on, always leave transparent mode (no refresh) whatever happens
+         "trap 'disable; bypass; echo \"status_after $(status)\"' EXIT",
+         'transparent; wr', 'echo "status_transparent $(status)"',
+         'echo "feature_row_isc $(feature)"', 'echo "feabits_isc $(feabits)"', 'echo "usercode_isc $(usercode)"',
+         f'init_cfg; wr; i=0; while [ $i -lt {CFG_PAGES} ]; do echo "cfg $(page)"; wr; i=$((i+1)); done',
+         f'init_ufm; wr; i=0; while [ $i -lt {UFM_PAGES} ]; do echo "ufm $(page)"; wr; i=$((i+1)); done',
+         'echo "done"']
+    return "\n".join(L) + "\n"
+
+
+def parse_sh(path, out):
+    info, cfg, ufm = {}, bytearray(), bytearray()
+    for line in open(path):
+        tag, _, rest = line.strip().partition(" ")
+        val = bytes(int(x, 16) for x in rest.split()) if rest.startswith("0x") else None
+        if tag == "cfg":
+            cfg += val
+        elif tag == "ufm":
+            ufm += val
+        elif tag.startswith("status"):
+            info[tag] = status_bits(be32(val))
+        elif tag in ("idcode", "usercode", "usercode_isc"):
+            info[tag] = f"0x{be32(val):08x}"
+        elif tag in ("traceid", "feature_row", "feabits", "feature_row_isc", "feabits_isc"):
+            info[tag] = val.hex()
+        elif tag.startswith("ERR"):
+            raise SystemExit(f"box script failed: {line.strip()}")
+    if len(cfg) != CFG_PAGES * 16 or len(ufm) != UFM_PAGES * 16 or "status_after" not in info:
+        raise SystemExit(f"incomplete output: cfg {len(cfg)} ufm {len(ufm)} B, status_after {'status_after' in info}")
+    os.makedirs(out, exist_ok=True)
+    open(f"{out}/cfg.bin", "wb").write(cfg)
+    open(f"{out}/ufm.bin", "wb").write(ufm)
+    info["cfg_bytes"], info["ufm_bytes"] = len(cfg), len(ufm)
+    info["cfg_blank_pages"] = sum(cfg[i:i + 16] in (b"\0" * 16, b"\xff" * 16) for i in range(0, len(cfg), 16))
+    info["ufm_blank_pages"] = sum(ufm[i:i + 16] in (b"\0" * 16, b"\xff" * 16) for i in range(0, len(ufm), 16))
+    info["method"] = "busybox i2ctransfer (cpld-readback.py --emit-sh)"
+    open(f"{out}/info.json", "w").write(json.dumps(info, indent=1) + "\n")
+    print(json.dumps({k: v for k, v in info.items() if k != "traceid"}, indent=1))
+
+
 def main():
+    if "--emit-sh" in sys.argv:
+        print(emit_sh(sys.argv[sys.argv.index("--emit-sh") + 1]), end="")
+        return
+    if "--parse-sh" in sys.argv:
+        i = sys.argv.index("--parse-sh")
+        parse_sh(sys.argv[i + 1], sys.argv[sys.argv.index("--out") + 1])
+        return
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--id-only", action="store_true")

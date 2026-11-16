@@ -32,6 +32,16 @@ reads in `inventory/<unit>/`.
 Kernel 1.0.99.0 vs 1.0.101.0: the same source rebuilt (66 bytes differ:
 build host/date). The real changes between OS 457 and 526 are in userspace (see PROGRESS).
 
+## Production units (read-only inventory, no reboot)
+- **p01** (2026-11-16; identity in `units-private.txt`): NixOS first-iteration image (7.2.3, comin), up 41 d.
+  Same board rev as u01 (R02E, device ver 9, ONIE V1.0.0.1, diag V1.0.3.0; made 2021-06-18), **CPLD flash
+  byte-identical to u01** (`ff56fa3a`), same preload EEPROM, USB/PCI revisions. Differs: SSD Innodisk
+  `M.2 (S42) 3TE7` fw S19C04B (27.5 GB). Not readable live: SPI (no SPI node in its DT), TPM (I2C node only),
+  uC. `inventory/p01/firmware.json`; collected with `fw-inventory.py collect --busybox /dev/shm/... --no-sudo`
+  and `cpld-readback.py --emit-sh` (static busybox in RAM, removed after).
+  Seen there: `/run` 100% full (journald volatile 961 MB, no cap) and the USB INTx bug (EHCI 1 irq in
+  41 d: serial byte loss under sustained output; fix = 494d188).
+
 ## New units
 1. Hands: unit id sticker; the box on a switchable lab plug (`tools/lab_power.py`; plug 1 = CS8210,
    plug 2 = u01, so a new unit needs a third plug or u01 off its plug); the FTDI console cable
