@@ -71,7 +71,7 @@ answers to the read-only questions below.
     `<gpio, dir, value>`, dir 0 = input (*code*: U-Boot 2.60 0x01107f50; 2.44 assumed the same).
     So GPIO 41 (the CPLD interrupt) is not fought. GPIO 34 is *inferred* to be the K2C-AB's
     preload-EEPROM write protect; what it drives on the DMC-12 is unknown. GPIO 22, which the
-    DMC-12 DT drives high, is left alone.
+    DMC-12 DT drives high (the CPLD's hitless-update hold), is left alone.
   - U-Boot 2.44 has **no `uc_*` commands**, so it can't set the select back.
   - Its `UBOOT_SCRIPT` (the same one as CS0's) finds no `boot_app_toc`. It then sets
     `bootcmd` = `al_pcie_ext; … bootm BOOT_APP`, sets `bootdelay 0`, and runs
@@ -129,7 +129,7 @@ answers to the read-only questions below.
   lead somewhere else.
 - **uC watchdog** ("enabled, 10 s, reset count 0"): nobody pets it. Stage2 sends only uC
   0x0101 (reset SoC), 0x1e1e (secure-state mirror), 0x1f1f (physical presence), 0x3535
-  and 0xa9a9 (I2C / TPM access) and 0xcaca3737. Stage3 and U-Boot send no watchdog command
+  and 0xa9a9 (FRU-SRAM ready / I2C-FIFO clean, per the HAL) and 0xcaca3737 (uC SPI buffer: MOBO vs TPM; `research-open-items.md` §3). Stage3 and U-Boot send no watchdog command
   either. Since it never fires, it must watch something we don't drive, or be armed only
   by an event. *Inferred:* the Nitro/host or mgmt-I2C flow.
 - Even if it fired, the reset would re-enter the **same chip and the same instance**.
@@ -207,8 +207,8 @@ answers to the read-only questions below.
   pulses it; CPLD reg 0x28/0x29 too). Assume chip-off or a powered board with the SoC
   held in reset, and settle that with a photo and a rail measurement first.
 - **JTAG:** OTP has `jtag-soc-disable` / `jtag-debug-disable` (state unknown until
-  `otp show`). No header has been identified. The CPLD's MachXO3 JTAG is bit-banged from
-  SoC GPIO 22 (`cpldupd`); it is not the SoC's JTAG.
+  `otp show`). No header has been identified. The CPLD (MachXO3) is configured over I2C 4-0x10,
+  not JTAG; SoC GPIO 22 is its hitless-update hold (`research-open-items.md` §2).
 - **UART boot** ([uart-boot.md](uart-boot.md)):
   - **How it starts:** the ROM XMODEM-loads an S2 image to 0xf2200000 and runs it. That happens
     with strap `boot_strap[17:15]` = 4, or by itself once no valid S2 is left in the first 2 MiB.

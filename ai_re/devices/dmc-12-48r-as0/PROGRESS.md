@@ -10,6 +10,8 @@
   `ssh -t console@10.60.2.10 [watch] P12` (`ssh -t console@…` = the menu); one writer, others watch;
   keys tmux-style (`C-b`, `^]` alias; `CONSOLED_PREFIX`); runtime baud; 1 MiB RAM scrollback per
   port, lost on a consoled restart. P1 = cs8210, P48 = as7760 (115200), the rest 9600 8N1.
+- **Kernel: `minimal`** (allnoconfig + explicit; 11 MiB Image, 2 modules loaded, smoke 16/16); `lean` is the fallback
+  (`hardware.alpineV2.kernelVariant`).
 - **USB interrupts** (494d188): the Pericom OHCI/EHCI INTx go through the PCIe port's IOFIC
   (`amazon,al-fic` @0xfd803000, GIC SPI 47). Before that they never fired and sustained 115200
   input lost ~62 % (`board-notes.md`, "USB/serial").
@@ -44,8 +46,9 @@
 - Reference: units and versions `units.md` (serials in `units-private.txt`, ignored); images
   `ai-re-images` / `images.jsonl`; K2 uC + factory U-Boot internals `k2-uc.md`, vendor commands
   `uboot-vendor-commands.md`, factory hardware tooling `vendor-tooling.md`. Earlier Status text: `HISTORY.md`.
-- Open (research): what selects CS1 (mtd1); back up/analyse the CPLD (MachXO3 JTAG readback), the uC
-  firmware and the SPI `APCEA`/`APCEA_CFG` objects; `show power` INA219 reads 0; TPM locality error.
+- Research (`research-open-items.md`): CS1 is picked by the K2 uC; CPLD = MachXO3 configured over
+  I2C 4-0x10 (readback needs the owner's OK); uC firmware unreachable without SWD; TPM is SPI-only.
+  Open: photos of the K2 card (flash/uC/headers), the CPLD readback decision, an SPI TPM DT node.
 
 ## Identity
 - Board EEPROM (ONIE TLV, 24c02 @ I2C 7-0051): **Accton / Edgecore**,
@@ -156,6 +159,18 @@ Phase 1
 - [~] secure boot: uC says NOT-SECURE; OTP unread
 
 ## Log (newest first)
+- 2026-11-16 00:05: **minimal kernel, provisioning, research.**
+  - `minimal` variant fixed (MDIO_DEVICE gone in 7.3) and checked against what lean binds on u01
+    (agent; 7ab341c, neutral for lean). Booted on u01: 11.1 MiB Image vs 45.7, 20 modules vs 1506,
+    -70 MiB closure; no failed units, 48 ports, nft, env. Smoke failed only on the missing
+    `WATCHDOG_SYSFS` (sp805 was bound): added. Reboot from minimal works. MTD numbering differs from lean
+    (spi0-tail = mtd0); everything uses `/dev/mtd-u-boot-env`/names.
+  - `provision.py` (87894a5): one resumable command per new unit (20 coming), Fable review fixes in.
+    Untested on hardware. Needs a free switchable plug.
+  - Research agent (`research-open-items.md`, read-only on u01; its bus-5..8 scan sent 4 receive-byte
+    reads to the CPLD's 0x68, no writes, fans unchanged). Folded into board-notes, vendor-tooling,
+    spi-recovery. `show power` printed 0 (gawk hex): fixed, 11.9 V / 1.73 A / 21.2 W.
+  - Console user takes erin@sea420-desktop; VictoriaMetrics scrapes u01 (job `dmc-12-48r-as0`).
 - 2026-11-15 23:15: **serial byte loss fixed: USB INTx via the IOFIC.** Reported by the AS7760/CS8210 session:
   sustained 115200 on P1 lost ~62 % of lines in contiguous ~650-byte gaps every 100 ms. Same loss with
   consoled stopped and only P1 open (plain `cat`), so not consoled; `/proc/interrupts`: the shared

@@ -15,8 +15,8 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
   generic K2C-AB al-boot 2.44. `spi-recovery.md`.
 - **I2C EEPROM 0x57** = boot-ROM preload table + DDR4 SPD; **0x51** = ONIE TLV board EEPROM (Accton,
   serial, MAC). `boot-chain-details.md`.
-- **TPMs:** Infineon on I2C (3-0020, "could not request locality" under Linux) and SLB9670 on SPI CS2
-  (in the vendor DT, not in ours). **RTC** DS1339 2-0068. Sensors: lm75 5-004a (uC), tmp75 7-0048/0049.
+- **TPM:** SLB9670 on SPI CS2 (vendor DT; not in ours). The I2C node at 3-0020 is a leftover: nothing
+  answers on bus 3, hence "could not request locality" on every boot since 2019 (`research-open-items.md` §6). **RTC** DS1339 2-0068. Sensors: lm75 5-004a (uC), tmp75 7-0048/0049.
 - **NIC:** al_eth (PCI 00:01.0), RGMII 1G to an "upper/lower PHY pair" the CPLD manages (`setphyspeed`);
   SFP option; no SerDes on this port ("serdes regs base failed" is harmless). [hw]
 - **Storage:** M.2 SATA SSD (AHCI 00:08.0). No eMMC/SD, no NVMe. [hw]
@@ -44,8 +44,12 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
   WFI from holding). [hw] `uart-boot.md`
 - **al_eth board params + MAC** are written by stage3 (present at the factory prompt before any dhcp);
   our U-Boot keeps or rewrites them. [hw/code] `u-boot-port.md`
-- **Cold start (no factory U-Boot): GPIO 22 is an input** and 3 MUIO pins differ; our U-Boot sets both,
+- **Cold start (no factory U-Boot): GPIO 22 is an input** (pulled up: the CPLD's hitless-update hold) and 3 MUIO pins differ; our U-Boot sets both,
   and does its own PCIe RC init. [hw, first SPI boot]
+- **I2C 4-0x10 is the CPLD's config port** (and 0x11/0x13 answer): any write there is a CPLD config
+  command (erase/refresh/offline: fans, PSU sense, reset). No `sensors-detect` or write-mode probes on
+  bus 4. CS0's APCEA slots (0x110000, 0x3d0000) must stay blank: stage3 runs any valid object there. [code] `research-open-items.md`
+- **What picks CS1** (the "recovery" flash): the K2 uC, GPIO port 2 bit 2 (HAL); not straps or CPLD. [code] `research-open-items.md`
 - **Fans fail safe:** with no OS the CPLD runs them full speed until the WDT flag 0x2a is cleared. [hw]
 - **Our U-Boot's env:** redundant 2 × 64 KiB at 0xf90000/0xfa0000 (blank tail of BOOT_APP 1), the only
   SPI range our U-Boot can write (patch 0019). MX25U12835F: min 100,000 erase/program cycles per sector
@@ -77,7 +81,7 @@ Edgecore/Accton 48-port serial console server on an Annapurna Alpine V2 "K2C-AB"
   and opening all 48 ports ~56 s. Fixed (494d188): enumeration 4 s, 48 opens 0.45 s. A sibling Alpine
   board with external-PCIe INTx needs the same node. Check: `grep hcd /proc/interrupts` counts up. [hw]
 - **USB serial enumeration takes ~4 s** after boot; wait for 48 `/dev/P*` before tests. [hw]
-- **Kernel:** nixpkgs' aarch64 config builds ~50 foreign SoC families; use `linux-alpine` lean/minimal.
+- **Kernel:** nixpkgs' aarch64 config builds ~50 foreign SoC families; `linux-alpine` minimal (u01) or lean.
 - Boot timeline: SPI install (stage3 → ours) login ≈ 38 s; the old chainload path (factory countdown +
   BOOTP preamble, still the `u` path) ≈ 64 s. [hw] `inventory/u01/soak.jsonl`
 

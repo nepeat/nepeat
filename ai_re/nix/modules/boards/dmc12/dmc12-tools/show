@@ -91,8 +91,11 @@ case "${1:-}" in
     v_raw=$(i2cget -f -y 7 0x44 0x02 w); v_inv=$(flip "$v_raw")
     p_raw=$(i2cget -f -y 7 0x44 0x03 w); p_inv=$(flip "$p_raw")
     c_raw=$(i2cget -f -y 7 0x44 0x04 w); c_inv=$(flip "$c_raw")
-    awk -v v="$v_inv" -v p="$p_inv" -v c="$c_inv" 'BEGIN {
-      printf "VOLTAGE: %.3fV\nPOWER:   %.2fW\nCURRENT: %.3fA\n", v/8*0.004, p*0.02, c*0.001
+    # gawk reads "0x..." as 0 (busybox awk, on the factory OS, parsed hex): convert in the shell.
+    # Bus voltage = bits 15..3 x 4 mV; current is signed (two's complement).
+    c_dec=$((c_inv)); [ "$c_dec" -ge 32768 ] && c_dec=$((c_dec - 65536))
+    awk -v v="$(( (v_inv) >> 3 ))" -v p="$((p_inv))" -v c="$c_dec" 'BEGIN {
+      printf "VOLTAGE: %.3fV\nPOWER:   %.2fW\nCURRENT: %.3fA\n", v*0.004, p*0.02, c*0.001
     }'
     ;;
 

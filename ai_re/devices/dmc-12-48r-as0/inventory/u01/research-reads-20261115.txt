@@ -1,0 +1,18 @@
+# u01 read-only reads for research-open-items.md (INA219 + TPM), 2026-11-15, NixOS 7.3.4.
+# INA219 = i2c-7 (mux 0x71 ch2) 0x44, unbound. Commands: `i2cget -y 7 0x44 <reg> w` (SMBus word = byte-swapped).
+# Earlier run (3 samples, 1 s apart, 23:40):
+#   0x00=0x9f39 0x01=0xad00 0x02=0xf25c 0x03=0x0000 0x04=0x0000 0x05=0x0000
+#   0x00=0x9f39 0x01=0xb800 0x02=0x125d 0x03=0x0000 0x04=0x0000 0x05=0x0000
+#   0x00=0x9f39 0x01=0xa600 0x02=0x1a5d 0x03=0x0000 0x04=0x0000 0x05=0x0000
+# Decoded (swap bytes): config 0x399F = power-on default; shunt 0x00ad/0x00b8/0x00a6 = 1.73/1.84/1.66 mV;
+# bus 0x5cf2/0x5d12/0x5d1a >>3 x 4 mV = 11.90/11.91/11.92 V (CNVR=1, OVF=0); power/current/calibration = 0.
+# Second run:
+2026-11-15T23:51:45-08:00
+0x00=0x9f39 0x01=0xb500 0x02=0x125d 0x03=0x0000 0x04=0x0000 0x05=0x0000 
+--- tpm
+[    1.253508] tpm_i2c_infineon 3-0020: could not request locality
+[    1.662866] systemd[1]: systemd 262 running in system mode (+PAM +AUDIT -SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP -GNUTLS +OPENSSL +ACL +BLKID -CURL +ELFUTILS -FIDO2 +IDN2 +KMOD -LIBCRYPTSETUP -LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY -P11KIT +QRENCODE -TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -BPF_FRAMEWORK -BTF -XKBCOMMON +UTMP +LIBARCHIVE)
+[    5.978873] systemd[1]: systemd 262 running in system mode (+PAM +AUDIT -SELINUX +APPARMOR +IMA +IPE +SMACK +SECCOMP -GNUTLS +OPENSSL +ACL +BLKID -CURL +ELFUTILS -FIDO2 +IDN2 +KMOD -LIBCRYPTSETUP -LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY -P11KIT +QRENCODE -TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -BPF_FRAMEWORK -BTF -XKBCOMMON +UTMP +LIBARCHIVE)
+3-0020 name=slb9645tt driver=none
+spi devices: spi0.0 spi0.1 
+CONFIG_TCG_TIS_I2C_INFINEON=y

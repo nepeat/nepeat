@@ -30,9 +30,9 @@ differences. Live values are u01's (2026-11-15, `inventory/u01/`). "Module" mean
 | interrupts / alarms | `interruptmon`: gpiod line **gpiochip5 = PL061 @0xfd897000 line 1**, falling edge → read 0x20, mask in 0x21; also polls every 15 s; DN0 has no fan 3; DC input masks PSU bits | none | add: alarm logging + uplink re-sync. The DT needs the PL061 nodes, which the module's DTS lacks entirely |
 | uplink PHY sync | `setphyspeed`: mux 0x70/0x71 ← 0x08, PHY @0x40 regs 0x16/0x09/0x00 by CPLD 0x18; re-run on interrupt b5 and every 15 s (≥526 only) | ported, same I2C ops, **boot-time only** | re-trigger on link change. Its raw mux writes fight the kernel's pca954x driver: do them via the mux channel bus, or with the mux idle state set |
 | status LED | `setled` at end of boot | ported | none |
-| power / INA219 | `show power`: mux 0x71←0x04, INA219 @0x44 config 0x9f01, reads shunt/bus V | ported (in `show`) | none; maybe a hwmon `ina2xx` node instead of raw writes |
+| power / INA219 | `show power`: mux 0x71←0x04, INA219 @0x44 config 0x9f01, reads shunt/bus V | ported (in `show`; it printed 0 until 2026-11-15: gawk parsed the hex as 0) | none; maybe an `ina219` DT node with `shunt-resistor = <1000>` (1 mΩ) instead of raw writes (`research-open-items.md` §5) |
 | board EEPROM | `onieeeprom` → `/etc/eeprom.json` at sysinit (used by interruptmon model check, snmp) | ported (`/run/dmc12/eeprom.json`) | make interruptmon-equivalent read it from there |
-| CPLD firmware update | `cpldupd`: MachXO3 over bit-banged JTAG, toggles **GPIO 494 = PL061 @0xfd889000 line 6** | none | **do not port**; recovery tool only |
+| CPLD firmware update | `cpldupd`: MachXO3 (IDCODE 0x612BB043, LCMXO3LF-2100C) over its **I2C config port 4-0x10**; holds **GPIO 494 = SoC GPIO 22** (hitless-update hold) low meanwhile (`research-open-items.md` §2) | none | **do not port**; recovery tool only. Never write to 4-0x10 |
 | FRU/MAC programming | `changemac`, `eepromer`, `fru_gen_bin` (526 only) | none | factory only; don't port |
 | boot slots | U-Boot boots `/boot/primary`, then `/boot/secondary`, then `/`; `/boot/recoverymode` present ⇒ secondary once; init deletes the flag on every boot | own bootmenu | decide whether to keep a fallback slot |
 | watchdogs | sp805 present, not armed by userspace; uC watchdog "enabled 10 s" yet never fired in 40 min idle | none | none needed today; record it if NixOS ever arms the sp805 |
@@ -42,4 +42,4 @@ differences. Live values are u01's (2026-11-15, `inventory/u01/`). "Module" mean
 
 ## Leftovers in the vendor DT (reference board, nothing behind them on u01)
 NAND partitions (U-Boot: `NAND: 0 MiB`), `gpio-leds` "ETH 0/1 10G/25G" on SGPO,
-and a second TPM node on SPI (`infineon,slb9670`). The I2C TPM at 3-0020 is instantiated, but whether the SPI one exists is unchecked.
+and a second TPM node on SPI (`infineon,slb9670`). Nothing answers on I2C bus 3, so the 3-0020 TPM node is a reference-design leftover; the SPI SLB9670 on CS2 is the real one (the factory U-Boot extended its PCRs; `research-open-items.md` §6).
