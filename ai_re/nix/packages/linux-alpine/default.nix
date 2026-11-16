@@ -12,6 +12,16 @@
 # - "minimal": allnoconfig + explicit (the pattern of linux-qoriq-t2080). The
 #   list is what the factory kernel bound on DMC-12 u01 plus NixOS's needs;
 #   switch to it once a boot has confirmed what's used.
+#   2026-11-15 (unbooted): fixed to configure (MDIO_DEVICE is gone in 7.3) and
+#   checked against what lean binds and uses on u01 (lsmod, /sys/bus/*/drivers,
+#   mounts, nft ruleset, cmdline; local, untracked: dmc-12 nixos-build/minimal-survey/).
+#   Added: ZONE_DMA/DMA32 (RAM above 4 GiB, 32-bit USB HCs), PM, A57 errata +
+#   Spectre-BHB, WATCHDOG_HANDLE_BOOT_ENABLED, MTD_OF_PARTS/4K sectors/BLOCK,
+#   eventfd/membarrier/rseq/mqueue/vmstat/ELF cores, fq_codel (systemd's
+#   default_qdisc), NF_TABLES_IPV4/6, diag sockets, policy routing, landlock +
+#   yama, RTC_HCTOSYS, USB NICs as modules. Every driver bound on lean is y
+#   (al_eth/cpld-reset modules build); ARM_PMUV3, fuse, dm_mod are left out.
+#   Image 11.1 MiB vs 45.7, 20 modules vs 1506, system -70 MiB (diff-closures).
 # Board-only drivers go in `boardConfig` (both variants).
 { pkgs, lib, boardConfig ? { }, variant ? "trimmed" }:
 let
@@ -30,6 +40,19 @@ let
       SMP = yes;
       NR_CPUS = freeform "16";
       ARM64_4K_PAGES = yes;
+      # RAM runs to 0x2_3fff_ffff; the USB HCs (Pericom) are 32-bit DMA masters.
+      ZONE_DMA = yes;
+      ZONE_DMA32 = yes;
+      PM = yes; # runtime PM paths the bound drivers are tested with; PCIe PME
+      HIGH_RES_TIMERS = yes;
+      NO_HZ_IDLE = yes; # as lean (allnoconfig's choice is HZ_PERIODIC)
+      COMPACTION = yes; # higher-order allocs (DMA rings) after long uptimes
+      # Cortex-A57 errata and Spectre-BHB (allnoconfig drops these default-y bools).
+      ARM64_ERRATUM_832075 = yes; # device-load deadlock, A57 r0p0..r1p2
+      ARM64_ERRATUM_1319367 = yes; # speculative AT (A57/A72)
+      MITIGATE_SPECTRE_BRANCH_HISTORY = yes;
+      STACKPROTECTOR = yes;
+      STACKPROTECTOR_STRONG = yes;
       COMMON_CLK = yes; # fixed-clock sbclk
       ARM_AMBA = yes; # PL061, sp805
       PCI = yes;
@@ -37,6 +60,7 @@ let
       PCI_IOV = yes; # al_eth calls pci_enable_sriov
       PCIEPORTBUS = yes;
       PCIEAER = yes;
+      PCI_QUIRKS = yes;
       PCI_HOST_GENERIC = yes; # internal bus (ecam-generic)
       PCIE_AL = yes; # external ports
       PCIE_DW_HOST = yes;
@@ -51,6 +75,8 @@ let
       GPIO_CDEV = yes;
       GPIO_PL061 = yes;
       WATCHDOG = yes;
+      # Keep pinging a watchdog firmware left running until userspace opens it.
+      WATCHDOG_HANDLE_BOOT_ENABLED = yes;
       ARM_SP805_WATCHDOG = yes; # the platform restart path (PSCI v0.1 has no SYSTEM_RESET)
       I2C = yes;
       I2C_CHARDEV = yes;
@@ -63,6 +89,9 @@ let
       SPI_DW_MMIO = yes;
       MTD = yes;
       MTD_SPI_NOR = yes;
+      MTD_SPI_NOR_USE_4K_SECTORS = yes; # erasesize 4 KiB as on lean (DT partitions)
+      MTD_OF_PARTS = yes; # DT fixed-partitions (spi0-boot, u-boot-env, ...)
+      MTD_BLOCK = yes; # /dev/mtdblockN, as on lean
       ATA = yes;
       SATA_AHCI = yes;
       SCSI = yes;
@@ -74,7 +103,6 @@ let
       NETDEVICES = yes;
       ETHERNET = yes;
       PHYLIB = yes;
-      MDIO_DEVICE = yes;
       FIXED_PHY = yes;
       MODULES = yes;
       MODULE_UNLOAD = yes;
@@ -89,6 +117,14 @@ let
       EPOLL = yes;
       SIGNALFD = yes;
       TIMERFD = yes;
+      EVENTFD = yes;
+      MEMBARRIER = yes;
+      RSEQ = yes;
+      POSIX_MQUEUE = yes; # dev-mqueue.mount
+      VM_EVENT_COUNTERS = yes; # /proc/vmstat (node_exporter)
+      ELF_CORE = yes; # systemd-coredump gets real cores
+      PRINTK_TIME = yes;
+      MAGIC_SYSRQ = yes; # SysRq over the serial console (break)
       INOTIFY_USER = yes;
       FILE_LOCKING = yes;
       SHMEM = yes;
@@ -117,6 +153,18 @@ let
       PACKET = yes;
       INET = yes;
       IPV6 = yes;
+      IP_MULTICAST = yes; # resolved LLMNR/mDNS
+      INET_DIAG = yes; # ss
+      INET_UDP_DIAG = yes;
+      UNIX_DIAG = yes; # ss -x
+      SYN_COOKIES = yes;
+      # Policy routing, so networkd's rule handling matches what lean tested.
+      IP_ADVANCED_ROUTER = yes;
+      IP_MULTIPLE_TABLES = yes;
+      IPV6_MULTIPLE_TABLES = yes;
+      # systemd's sysctl sets net.core.default_qdisc = fq_codel.
+      NET_SCHED = yes;
+      NET_SCH_FQ_CODEL = yes;
       NETFILTER = yes;
       NETFILTER_ADVANCED = yes;
       NF_TABLES = yes;
@@ -127,6 +175,8 @@ let
       NFT_REJECT = yes;
       NFT_REJECT_INET = yes;
       NF_TABLES_INET = yes;
+      NF_TABLES_IPV4 = yes;
+      NF_TABLES_IPV6 = yes;
       NFT_FIB_IPV4 = yes;
       NFT_FIB_IPV6 = yes;
       NFT_FIB_INET = yes;
@@ -180,6 +230,10 @@ let
       CGROUP_BPF = yes;
       SECURITY = yes;
       SECURITYFS = yes;
+      # lsm=landlock,yama,bpf on the cmdline; the bpf LSM is left out (needs
+      # BPF_EVENTS + JIT, and the appliance systemd is built without libbpf).
+      SECURITY_LANDLOCK = yes;
+      SECURITY_YAMA = yes;
       KEYS = yes;
       CRYPTO = yes;
       CRYPTO_USER_API_HASH = yes;
@@ -190,7 +244,22 @@ let
       # Keep symbols for diagnosis; omit bulky DWARF/BTF, LTO and Rust.
       DEBUG_INFO_NONE = yes;
       CC_OPTIMIZE_FOR_SIZE = yes;
-    } // boardConfig;
+    }
+    # Follow-ons of board subsystems (an unused option is an error here).
+    // lib.optionalAttrs (boardConfig ? RTC_CLASS) {
+      RTC_HCTOSYS = yes; # system clock from the RTC before NTP, as on lean
+      RTC_SYSTOHC = yes;
+    }
+    // lib.optionalAttrs (boardConfig ? USB) {
+      # USB NICs for the lab, as modules (lean keeps them all).
+      USB_NET_DRIVERS = yes;
+      USB_USBNET = module;
+      USB_NET_CDCETHER = module;
+      USB_NET_CDC_NCM = module;
+      USB_RTL8152 = module;
+      USB_NET_AX88179_178A = module;
+    }
+    // boardConfig;
   };
   # Foreign SoC families nixpkgs turns on for aarch64 (7.3.4 config, 2026-11-15);
   # their sub-options (R8A*, TEGRA_*_SOC, ...) depend on these.

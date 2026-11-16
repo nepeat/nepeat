@@ -45,6 +45,9 @@ in
     # Boot-critical drivers are built in (packages/linux-alpine), so the initrd
     # carries no modules; listing built-ins here would fail the initrd build.
     boot.initrd.availableKernelModules = lib.mkForce [ ];
+    # NixOS's default initrd module is dm_mod (LVM); the minimal kernel has no
+    # device mapper and nothing here uses LVM.
+    boot.initrd.includeDefaultModules = lib.mkIf (cfg.kernelVariant == "minimal") false;
     # The kernel, not U-Boot, unpacks the initrd (legacy uImage via the factory
     # loader, or raw via upstream U-Boot's booti), so any compressor it has works.
     boot.initrd.compressor = "zstd";
