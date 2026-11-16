@@ -12,9 +12,7 @@ for the next session.
   NixOS 26.11 ([config](../../nix/configs/as7760/configuration.nix)), 0 failed units.
   At boot: OpenBCM kmods, fand, node-exporter :9100 (lab VictoriaMetrics) and SONiC
   (`services.sonic`, syncd owns the ASIC: [sonic-nixos](../sonic-nixos/PROGRESS.md)).
-- **Reach:** `sudo ssh root@10.60.2.253`. Serial: the cable is on DMC-12 port 48, not
-  served yet (ask the DMC-12 session); until then no U-Boot work or risky reboots.
-  Power: `lab-power 1 …` (`tools/lab_power.py`). Details: [HANDOFF.md](HANDOFF.md).
+- **Reach:** SSH `sudo ssh root@10.60.2.253`; console on DMC-12 port 48 through consoled: `sudo ssh -t console@10.60.2.10 watch as7760` (read-only) / `… as7760` (attach), see [HANDOFF.md](HANDOFF.md); power: `lab-power 1`.
 - **Change it:** `./deploy.sh` (Nix in [ai_re/nix](../../nix/README.md)),
   `./flash_uboot.py` (U-Boot, from the console), `./chainload_uboot.py` (RAM test first).
 - **Recover:** NixOS: `nixos-rebuild --rollback` or an older extlinux entry (console).

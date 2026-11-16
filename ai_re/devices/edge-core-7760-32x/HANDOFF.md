@@ -4,6 +4,8 @@ Present state only; the journal is [PROGRESS.md](PROGRESS.md), older notes
 [HISTORY.md](HISTORY.md). Device: Edge-Core AS7760-32X, serial 776032X16521259,
 NXP T2080 (8 e6500 threads, ppc64 big-endian), 16 GiB, BCM56930 (`14e4:b930`).
 
+Console: DMC-12 port 48 via its consoled service (since 2026-11-15): `sudo ssh -t console@10.60.2.10 watch as7760` (read-only) or `sudo ssh -t console@10.60.2.10 as7760` (attach, write if free; `^]` then `.` quit, `w` take write, `r` release). 115200 8N1, 1 MiB scrollback replayed on attach (lost when consoled restarts); one writer, others watch.
+
 ## boot path
 
 Boot NOR `uboot` (mtd7, 0x7F40000) = upstream U-Boot 2026.10 (`#uboot-as7760-nor`)
