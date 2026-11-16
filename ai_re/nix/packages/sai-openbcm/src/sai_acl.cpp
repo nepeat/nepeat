@@ -361,12 +361,19 @@ void copp_refresh()
 {
     auto& c = ctx();
     if (!c.be) return;
+    // Traps the backend programs itself (Backend::trap_program): hand it the
+    // current trap / group / policer state; no field entries for them.
+    for (auto& t : c.traps) {
+        if (!t.second.full) continue;
+        sai_status_t st = c.be->trap_program(trap_spec(t.second), false);
+        if (st != SAI_STATUS_SUCCESS) OB_ERR(SAI_API_HOSTIF, "trap type %d: backend reprogram failed (%d)", t.second.type, st);
+    }
     struct Want { FpRule r; sai_object_id_t pol; };
     std::map<std::string, Want> want;
     std::vector<int32_t> unpoliced;
     bool need_cpu = false;
     for (auto& t : c.traps) {
-        if (!to_cpu(t.second.action)) continue;
+        if (t.second.full || !to_cpu(t.second.action)) continue;
         TrapGroupObj* g = lookup(c.trap_groups, t.second.group);
         if (!g || !g->policer) continue;
         PolicerObj* p = lookup(c.policers, g->policer);

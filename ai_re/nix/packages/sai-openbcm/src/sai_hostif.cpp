@@ -215,6 +215,10 @@ static sai_status_t set_hostif_trap_group_attribute(_In_ sai_object_id_t id, _In
         if (!attr) return SAI_STATUS_INVALID_PARAMETER;
         sai_status_t st = trap_group_attr(*g, *attr, 0);
         if (st == SAI_STATUS_SUCCESS && attr->id == SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER) copp_refresh();
+        else if (st == SAI_STATUS_SUCCESS) {   // queue / admin: only full traps carry them to the backend
+            for (auto& t : ctx().traps)
+                if (t.second.full && t.second.group == id) { copp_refresh(); break; }
+        }
         return st;
     });
 }
@@ -238,8 +242,36 @@ static sai_status_t get_hostif_trap_group_attribute(_In_ sai_object_id_t id, _In
 }
 
 // ------------------------------------------------------------------ traps
+TrapSpec trap_spec(const TrapObj& t)
+{
+    auto& c = ctx();
+    TrapSpec s;
+    s.type = t.type;
+    s.action = t.action;
+    s.priority = t.priority;
+    if (TrapGroupObj* g = lookup(c.trap_groups, t.group)) {
+        s.queue = g->queue;
+        s.group_up = g->admin;
+        if (PolicerObj* p = g->policer ? lookup(c.policers, g->policer) : nullptr) {
+            s.policer = p->pid;
+            s.yellow_drop = p->yellow == SAI_PACKET_ACTION_DROP;
+            s.red_drop = p->red == SAI_PACKET_ACTION_DROP;
+        }
+    }
+    return s;
+}
+
+// A backend with trap_program takes the whole trap (full); otherwise the
+// trap kind's switch control (trap_set) and CoPP field entries.
 static sai_status_t trap_program(TrapObj& t, int32_t action)
 {
+    TrapObj want = t;
+    want.action = action;
+    sai_status_t fs = ctx().be->trap_program(trap_spec(want), false);
+    if (fs != SAI_STATUS_NOT_SUPPORTED) {
+        if (fs == SAI_STATUS_SUCCESS) t.programmed = t.full = true;
+        return fs;
+    }
     TrapKind k = trap_kind(t.type);
     sai_status_t st = ctx().be->trap_set(k, action_to_cpu(action));
     if (st == SAI_STATUS_NOT_SUPPORTED) {
@@ -292,7 +324,8 @@ static sai_status_t remove_hostif_trap(_In_ sai_object_id_t id)
         auto& c = ctx();
         TrapObj* t = lookup(c.traps, id);
         if (!t) return SAI_STATUS_INVALID_OBJECT_ID;
-        if (t->programmed) c.be->trap_set(trap_kind(t->type), false);
+        if (t->full) c.be->trap_program(trap_spec(*t), true);
+        else if (t->programmed) c.be->trap_set(trap_kind(t->type), false);
         c.traps.erase(id);
         copp_refresh();
         return SAI_STATUS_SUCCESS;
@@ -313,7 +346,10 @@ static sai_status_t set_hostif_trap_attribute(_In_ sai_object_id_t id, _In_ cons
             copp_refresh();
             return st;
         }
-        case SAI_HOSTIF_TRAP_ATTR_TRAP_PRIORITY: t->priority = attr->value.u32; return SAI_STATUS_SUCCESS;
+        case SAI_HOSTIF_TRAP_ATTR_TRAP_PRIORITY:
+            t->priority = attr->value.u32;
+            if (t->full) copp_refresh();
+            return SAI_STATUS_SUCCESS;
         case SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP:
             if (attr->value.oid && !c.trap_groups.count(attr->value.oid)) return attr_invalid(0);
             t->group = attr->value.oid ? attr->value.oid : c.default_trap_group;

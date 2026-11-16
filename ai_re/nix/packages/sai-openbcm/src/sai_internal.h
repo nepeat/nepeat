@@ -196,6 +196,7 @@ struct TrapObj {
     uint32_t priority = 0;
     sai_object_id_t group = 0;
     bool programmed = false;
+    bool full = false;            // the backend's trap_program owns it (queue, policer); no CoPP field entries
     StubMap stub;
 };
 struct HostifTableEntryObj {
@@ -480,6 +481,7 @@ sai_status_t acl_bind_set(sai_object_id_t obj, bool ingress, sai_object_id_t acl
 sai_object_id_t acl_bind_get(sai_object_id_t obj, bool ingress);
 void acl_reprogram();                                // after binding / LAG membership changes
 void copp_refresh();                                 // after trap / trap group / policer changes
+TrapSpec trap_spec(const TrapObj& t);               // the trap with its group and policer (Backend::trap_program)
 bool policer_valid(sai_object_id_t oid);
 void acl_clear_objects();                            // switch removal
 bool acl_table_field_supported(sai_attr_id_t table_field);

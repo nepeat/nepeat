@@ -157,6 +157,18 @@ struct PolicerCfg {
     uint64_t cir = 0, cbs = 0, pir = 0, pbs = 0;
 };
 
+// A host-interface trap as SAI configures it: the HOSTIF_TRAP and what its
+// trap group and that group's policer say (Backend::trap_program).
+struct TrapSpec {
+    int32_t type = 0;               // sai_hostif_trap_type_t
+    int32_t action = 0;             // sai_packet_action_t
+    uint32_t priority = 0;          // TRAP_PRIORITY
+    uint32_t queue = 0;             // the group's CPU queue
+    bool group_up = true;           // the group's ADMIN_STATE
+    int policer = -1;               // backend policer id of the group's POLICER, -1: none
+    bool yellow_drop = false, red_drop = false;   // the policer's YELLOW/RED_PACKET_ACTION is DROP
+};
+
 using LinkCallback = std::function<void(int hw_port, bool up)>;
 using FdbCallback = std::function<void(const FdbEvent&)>;
 
@@ -236,6 +248,16 @@ public:
     // when the backend has no control for that kind (the SAI layer keeps the
     // object and reports it as not programmed).
     virtual sai_status_t trap_set(TrapKind kind, bool to_cpu) = 0;
+    // Optional: a backend that steers, queues and polices a trap itself
+    // programs it here (remove: take it away). The SAI layer calls it for
+    // every change of the trap, its group or the group's policer. The default,
+    // NOT_SUPPORTED, keeps the trap_set + CoPP field entry path (sai_acl.cpp).
+    virtual sai_status_t trap_program(const TrapSpec& t, bool remove)
+    {
+        (void)t;
+        (void)remove;
+        return SAI_STATUS_NOT_SUPPORTED;
+    }
 
     // L3 (SDK "egress mode": egress objects referenced by host/route entries).
     // vrf: SDK VRF id, 0 = the default virtual router; an L3 interface
