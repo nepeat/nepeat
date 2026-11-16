@@ -59,6 +59,12 @@ credo=${CS8210_CREDO_PORTS:-$credo}
 # scripts/credo_macsec.py (macsec-400g.md). Keys stay on the box, outside
 # the Nix store.
 postload=${CS8210_PHY_POSTLOAD:-}
+# Optional library preloaded into phy_server only (the MACsec shim, see
+# nixos/module/cs8210/macsec); cs8210-sdk-chroot binds it in at this path.
+phypre=""
+if [ -n "${CS8210_PHY_PRELOAD:-}" ]; then
+  phypre="LD_PRELOAD=/usr/lib/libcs8210-phy-preload.so"
+fi
 
 if [ ! -c /dev/ipd ]; then
   echo "cs8210-switch-up: /dev/ipd missing (ipd module not loaded with legacy_abi=1?)" >&2
@@ -149,7 +155,7 @@ cs8210-sdk-chroot /bin/bash -c "
   set -e
   cd $SDK
   ./auto_load_user.sh -m '$innv' -k $macarg -d
-  ./c-phy/auto_load_user.sh -m '$credo' -e $MACSEC -l
+  $phypre ./c-phy/auto_load_user.sh -m '$credo' -e $MACSEC -l
   # phy_server reads commands from /tmp/cls_phy_fifo and, once the last
   # writer (phy_shell, the loader) has closed it, every read() returns EOF at
   # once: it spun at 100% of a core (~29k read()/s, strace 2026-11-11). Hold
@@ -158,6 +164,9 @@ cs8210-sdk-chroot /bin/bash -c "
   # away with the SDK on stop.
   for _ in 1 2 3 4 5 6 7 8 9 10; do [ -p /tmp/cls_phy_fifo ] && break; sleep 1; done
   if [ -p /tmp/cls_phy_fifo ]; then
+    # phy_server runs any line it does not know with system(), and MACsec
+    # commands pass through here: root only (the chroot /tmp is 1777).
+    chmod 0600 /tmp/cls_phy_fifo
     # Plain sleep: the chroot is busybox, which picks the applet from argv[0]
     # (exec -a renaming made it exit at once).
     sleep 2147483647 </dev/null >/tmp/cls_phy_fifo 2>/dev/null &

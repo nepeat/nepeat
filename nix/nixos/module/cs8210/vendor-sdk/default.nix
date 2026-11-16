@@ -182,6 +182,17 @@ in
         MACsec SAs). Kept on the box, not in the Nix store: it holds keys.
       '';
     };
+    phyPreload = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "/etc/cs8210-macsec/libcs8210-macsec-shim.so";
+      description = ''
+        Host path of a library to LD_PRELOAD into the Credo phy_server (the
+        chroot helper binds it in as /usr/lib/libcs8210-phy-preload.so).
+        Set by hardware.cs8210.macsec. Use a stable path (/etc), not a store
+        path: a changed unit environment restarts cs8210-switch.
+      '';
+    };
     innoviumPorts = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
@@ -226,6 +237,9 @@ in
         }
         // lib.optionalAttrs (cfg.phyPostLoad != null) {
           CS8210_PHY_POSTLOAD = cfg.phyPostLoad;
+        }
+        // lib.optionalAttrs (cfg.phyPreload != null) {
+          CS8210_PHY_PRELOAD = cfg.phyPreload;
         };
       serviceConfig = {
         Type = "oneshot";

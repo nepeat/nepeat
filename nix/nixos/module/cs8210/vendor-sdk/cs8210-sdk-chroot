@@ -14,6 +14,9 @@
 #     Credo tools drive the MDIO FPGA from userspace
 #   * /sys/bus/mdio_bus/devices/mdio-N:XX/mdc_freq as plain files, which is
 #     how the vendor command files tell that library the MDC clock
+#   * $CS8210_PHY_PRELOAD (host path, optional) bound in as
+#     /usr/lib/libcs8210-phy-preload.so, for cs8210-switch-up to LD_PRELOAD
+#     into phy_server (the MACsec shim)
 set -euo pipefail
 
 ROOT=${CS8210_SDK_ROOT:-/var/lib/cs8210-sdk/root}
@@ -31,7 +34,8 @@ if [ $# -eq 0 ]; then
   set -- /bin/bash
 fi
 
-export ROOT LIBMDIO
+PRELOAD=${CS8210_PHY_PRELOAD:-}
+export ROOT LIBMDIO PRELOAD
 exec unshare --mount -- bash -euo pipefail -c '
   mount --make-rprivate /
   mount --rbind /dev "$ROOT/dev"
@@ -51,6 +55,10 @@ exec unshare --mount -- bash -euo pipefail -c '
   for lib in "$ROOT"/root/sdk/*/c-phy/libMdio.so; do
     [ -e "$lib" ] && mount --bind "$LIBMDIO" "$lib"
   done
+  if [ -n "$PRELOAD" ]; then
+    [ -e "$ROOT/usr/lib/libcs8210-phy-preload.so" ] || : > "$ROOT/usr/lib/libcs8210-phy-preload.so"
+    mount --bind -o ro "$(readlink -f "$PRELOAD")" "$ROOT/usr/lib/libcs8210-phy-preload.so"
+  fi
   if [ -d "$ROOT/sys/bus/mdio_bus/devices" ]; then
     mount -t tmpfs tmpfs "$ROOT/sys/bus/mdio_bus/devices"
     for n in $(seq 1 16); do
