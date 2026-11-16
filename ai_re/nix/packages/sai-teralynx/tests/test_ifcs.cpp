@@ -136,6 +136,8 @@ int main(int argc, char** argv)
     if ((dir + "/diag.sock").size() < 100) g_profile["SAI_OPENBCM_DIAG_SOCKET"] = dir + "/diag.sock";   // t_counters.cpp
     g_profile["SAI_TERALYNX_HASH_FIELDS"] = "src_ip,dst_ip,ip_protocol,l4_src_port,l4_dst_port,in_port";   // t_lag.cpp
     g_profile["SAI_TERALYNX_HASH_SEED"] = "10";
+    g_profile["SAI_TERALYNX_SFLOW_CPU_QUEUE"] = "2";   // t_sflow.cpp: the samples' queue (init config traffic_monitor_cpu_queue)
+    g_profile["SAI_TERALYNX_SFLOW_METER"] = "on";      // t_sflow.cpp: the sflow group's policer as that queue's meter
     OK(sw->create_switch(&s, 3, ca));
     void* mh = g_mock = dlopen(mock.c_str(), RTLD_NOW | RTLD_NOLOAD);
     CHECK(mh != nullptr);

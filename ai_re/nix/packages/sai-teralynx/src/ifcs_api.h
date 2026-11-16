@@ -263,6 +263,12 @@ enum { IFCS_HOSTIF_TRAP_ATTR_QUEUE_NUM = 0, IFCS_HOSTIF_TRAP_ATTR_ENABLE = 1 }; 
 enum { IFCS_HOSTIF_TRAP_STATS_ID_RX_PACKET_COUNT = 0, IFCS_HOSTIF_TRAP_STATS_ID_RX_BYTE_COUNT = 1 };
 /* ifcs_hostif_trap_e: system (drop/exception) traps; handle = IFCS_HANDLE(HOSTIF, HOSTIF_TRAP, reason) */
 enum { IFCS_HOSTIF_TRAP_FWD_L3_TTL_CHECK_FAIL = 17, IFCS_HOSTIF_TRAP_L3MTU_CHECK_FAIL = 23 };
+/* sFlow samples (tl_sflow, the SAMPLEPACKET trap): traffic-monitor copies to the CPU (isai's trap),
+ * their CPU queue (boot-time: init yaml traffic_monitor_cpu_queue), that queue's meter (cpu_queue.py) */
+enum { IFCS_HOSTIF_TRAP_MIRROR_TO_CPU = 512 };
+enum { IFCS_NODE_ATTR_TRAFFIC_MONITOR_CPU_QUEUE = 18 /* u32 */ };
+enum { IFCS_CPU_QUEUE_ATTR_METER_COMMITTED_INFORMATION_RATE_ENABLE = 27 /* data */,
+       IFCS_CPU_QUEUE_ATTR_METER_COMMITTED_INFORMATION_RATE = 28 /* u32 */, IFCS_CPU_QUEUE_ATTR_METER_COMMITTED_BURST_SIZE = 29 /* u32 */ };
 #define IFCS_HANDLE_HOSTIF_TRAP(v) IFCS_HANDLE(IFCS_MOD_HOSTIF, IFCS_API_CLASS_HOSTIF_TRAP, (v))
 
 /* ------------------------------------------------------------------- ACL
@@ -497,6 +503,7 @@ IFCS_FN(ifcs_status_t, ifcs_acl_port_remove, (ifcs_node_id_t, ifcs_handle_t, uin
 IFCS_FN(ifcs_status_t, ifcs_acl_counter_stats_clear, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_acl_counter_stats_id_t*))
 IFCS_FN(ifcs_status_t, ifcs_ace_attr_set, (ifcs_node_id_t, ifcs_handle_t, uint32_t, ifcs_attr_t*))
 IFCS_FN(ifcs_status_t, ifcs_cpu_queue_stats_get, (ifcs_node_id_t, ifcs_cpu_queue_t, uint32_t, ifcs_cpu_queue_stats_id_t*, uint64_t*, uint32_t*))
+IFCS_FN(ifcs_status_t, ifcs_cpu_queue_attr_set, (ifcs_node_id_t, ifcs_cpu_queue_t, uint32_t, ifcs_attr_t*))
 
 /* ------------------------------------------------ phase C (integration)
  * pyctypes 0.12.41 names / values; call forms: isai 6.2.0 on this chip
@@ -536,7 +543,7 @@ IFCS_FN(ifcs_status_t, ifcs_acl_comparator_group_delete, (ifcs_node_id_t, ifcs_h
 #define IFCS_SYMBOLS(X) \
     IFCS_SYMBOLS_QOS(X) \
     X(ifcs_acl_port_add) X(ifcs_acl_port_remove) X(ifcs_acl_counter_stats_clear) X(ifcs_ace_attr_set) \
-    X(ifcs_cpu_queue_stats_get) \
+    X(ifcs_cpu_queue_stats_get) X(ifcs_cpu_queue_attr_set) \
     X(ifcs_acl_comparator_create) X(ifcs_acl_comparator_delete) X(ifcs_acl_comparator_group_create) \
     X(ifcs_acl_comparator_group_delete) \
     X(ifcs_init) X(ifcs_deinit) X(ifcs_node_create) X(ifcs_node_attr_set) X(ifcs_node_attr_get) \

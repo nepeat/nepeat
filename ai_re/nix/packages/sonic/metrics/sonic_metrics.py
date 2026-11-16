@@ -386,11 +386,13 @@ def collect_bgp(s, o, ctx):
               dict(lab, asn=f.get("asn", ""), local_addr=f.get("local_addr", ""), bfd=f.get("bfd", "false")))
         o.add("sonic_bgp_neighbor_admin_up", "1 unless the neighbor's admin_status is down.",
               int(f.get("admin_status", "up") != "down"), lab)
-    # bgpmon: "show bgp summary json" of the default VRF only.
-    for ip, f in sorted(s.hashes("STATE_DB", "NEIGH_STATE_TABLE").items()):
-        lab = {"vrf": "default", "neighbor": ip, "name": conf.get(("default", ip), {}).get("name", "")}
+    # bgpmon (all VRFs, packages/sonic/routing patch 0006): NEIGH_STATE_TABLE|<ip> in the
+    # default VRF, NEIGH_STATE_TABLE|<vrf>|<ip> in the others (VRF names have no "|").
+    for key, f in sorted(s.hashes("STATE_DB", "NEIGH_STATE_TABLE").items()):
+        vrf, _, ip = key.partition("|") if "|" in key else ("default", "", key)
+        lab = {"vrf": vrf, "neighbor": ip, "name": conf.get((vrf, ip), {}).get("name", "")}
         state = f.get("state", "")
-        o.add("sonic_bgp_neighbor_state", "BGP session state (STATE_DB NEIGH_STATE_TABLE, bgpmon, default VRF only), "
+        o.add("sonic_bgp_neighbor_state", "BGP session state (STATE_DB NEIGH_STATE_TABLE, bgpmon, all VRFs), "
               "RFC 4273 numbering: 1 Idle, 2 Connect, 3 Active, 4 OpenSent, 5 OpenConfirm, 6 Established, 0 other.",
               bgp_code(state), lab)
         o.add("sonic_bgp_neighbor_established", "1 when the BGP session is Established.", int(bgp_code(state) == 6), lab)
@@ -477,6 +479,75 @@ def collect_copp(s, o, ctx):
         o.add("sonic_copp_trap_bytes_total", "Bytes trapped to the CPU.", None if b is None else int(b), {"trap": trap}, "counter")
 
 
+QUEUE_COUNTERS = [  # (family, help, SAI stat)
+    ("packets", "Packets sent from the queue", "SAI_QUEUE_STAT_PACKETS"),
+    ("bytes", "Bytes sent from the queue", "SAI_QUEUE_STAT_BYTES"),
+    ("dropped_packets", "Packets the queue dropped", "SAI_QUEUE_STAT_DROPPED_PACKETS"),
+    ("dropped_bytes", "Bytes the queue dropped", "SAI_QUEUE_STAT_DROPPED_BYTES"),
+]
+QUEUE_TYPES = {"SAI_QUEUE_TYPE_UNICAST": "UC", "SAI_QUEUE_TYPE_MULTICAST": "MC", "SAI_QUEUE_TYPE_ALL": "ALL"}
+
+
+def collect_queues(s, o, ctx):
+    # orchagent's COUNTERS_QUEUE_NAME_MAP "<port>:<index>" -> queue oid; values while flex counter QUEUE polls
+    names = s.hgetall("COUNTERS_DB", "COUNTERS_QUEUE_NAME_MAP")
+    types = s.hgetall("COUNTERS_DB", "COUNTERS_QUEUE_TYPE_MAP")
+    qs = []
+    for ident, oid in names.items():
+        port, _, idx = ident.rpartition(":")
+        if port and idx.isdigit():
+            qs.append((port_order((port, None)), int(idx), port, oid))
+    qs.sort()
+    sep = s.dbs["COUNTERS_DB"][1]
+    rows = s.hmget("COUNTERS_DB", ["COUNTERS" + sep + oid for _, _, _, oid in qs], [f for _, _, f in QUEUE_COUNTERS])
+    for (_, idx, port, oid), row in zip(qs, rows):
+        lab = {"port": port, "alias": ctx["alias"].get(port, port), "queue": str(idx), "type": QUEUE_TYPES.get(types.get(oid), "")}
+        for fam, help_, f in QUEUE_COUNTERS:
+            v = num(row.get(f))
+            o.add("sonic_queue_%s_total" % fam, help_ + " (COUNTERS_DB, flex counter QUEUE).", None if v is None else int(v),
+                  lab, "counter")
+
+
+def collect_crm(s, o, ctx):
+    # crmorch (COUNTERS_DB CRM:STATS, CRM:ACL_STATS:<stage>:<bind>, CRM:ACL_TABLE_STATS:<oid>),
+    # fields crm_stats_<resource>_{used,available}, every CRM polling interval (default 300 s)
+    for key, f in sorted(s.hashes("COUNTERS_DB", "CRM").items()):
+        parts = key.split(s.dbs["COUNTERS_DB"][1])
+        for field, v in sorted(f.items()):
+            if not field.startswith("crm_stats_") or not field.endswith(("_used", "_available")):
+                continue
+            res, _, kind = field[len("crm_stats_"):].rpartition("_")
+            val = num(v)
+            if parts[0] == "STATS":
+                o.add("sonic_crm_" + kind, "CRM resource %s (COUNTERS_DB CRM:STATS, crmorch)." % kind, val, {"resource": res})
+            elif parts[0] == "ACL_STATS" and len(parts) >= 3:
+                o.add("sonic_crm_acl_" + kind, "CRM ACL resource %s per stage and bind point (CRM:ACL_STATS)." % kind, val,
+                      {"stage": parts[1].lower(), "bind": parts[2].lower(), "resource": res})
+            elif parts[0] == "ACL_TABLE_STATS" and len(parts) >= 2:
+                o.add("sonic_crm_acl_table_" + kind, "CRM ACL entries / counters %s per ACL table (CRM:ACL_TABLE_STATS)." % kind, val,
+                      {"table_oid": ":".join(parts[1:]), "resource": res})
+
+
+def collect_sflow(s, o, ctx):
+    g = s.hashes("CONFIG_DB", "SFLOW").get("global", {})
+    o.add("sonic_sflow_admin_up", "1 when sFlow is admin up (CONFIG_DB SFLOW|global).", int(g.get("admin_state") == "up"))
+    o.add("sonic_sflow_polling_interval_seconds", "Counter polling interval (CONFIG_DB SFLOW|global).", num(g.get("polling_interval")))
+    cols = s.hashes("CONFIG_DB", "SFLOW_COLLECTOR")
+    o.add("sonic_sflow_collectors", "sFlow collectors configured (CONFIG_DB SFLOW_COLLECTOR).", len(cols))
+    for name, f in sorted(cols.items()):
+        o.add("sonic_sflow_collector_info", "sFlow collector: address, UDP port, VRF.", 1,
+              {"collector": name, "ip": f.get("collector_ip", ""), "udp_port": f.get("collector_port", "6343"),
+               "vrf": f.get("collector_vrf", "default")})
+    # sflowmgrd's APPL_DB SFLOW_SESSION_TABLE:<port>: what sfloworch programs (a rate per admin-up port)
+    for port, f in sorted(s.hashes("APPL_DB", "SFLOW_SESSION_TABLE").items(), key=port_order):
+        lab = {"port": port, "alias": ctx["alias"].get(port, port)}
+        up = f.get("admin_state") == "up"
+        o.add("sonic_sflow_port_admin_up", "1 when the port samples (APPL_DB SFLOW_SESSION_TABLE, sflowmgrd).", int(up), lab)
+        if up:
+            o.add("sonic_sflow_port_sample_rate", "1-in-N sampling rate of the port; direction rx, tx or both.",
+                  num(f.get("sample_rate")), dict(lab, direction=f.get("sample_direction", "rx")))
+
+
 def collect_routes(s, o, ctx):
     rep = s.eval("APPL_DB", LUA_APPL_ROUTES, "ROUTE_TABLE" + s.dbs["APPL_DB"][1])
     counts = {}
@@ -538,7 +609,8 @@ REDIS_COLLECTORS = [
     ("device", collect_device), ("ports", collect_ports), ("counters", collect_counters),
     ("portchannels", collect_portchannels), ("bfd", collect_bfd), ("bgp", collect_bgp),
     ("lldp", collect_lldp), ("transceivers", collect_transceivers), ("acl", collect_acl),
-    ("copp", collect_copp), ("routes", collect_routes),
+    ("copp", collect_copp), ("routes", collect_routes), ("queues", collect_queues), ("crm", collect_crm),
+    ("sflow", collect_sflow),
 ]
 
 

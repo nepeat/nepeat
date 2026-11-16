@@ -30,6 +30,7 @@ ifcs_status_t mock_create_obj(const char* what, ifcs_handle_t* h, uint32_t c);
 void mock_port_reset(void);            /* ifcs_init: every devport admin up, 400G, KP */
 
 extern int g_inited, g_node, g_enabled;
+extern int g_egress_sflow;
 extern uint32_t next_handle;
 
 static inline ifcs_handle_t sp_of(uint32_t d) { return d == 0 ? IFCS_HANDLE_SYSPORT(1000) : IFCS_HANDLE_SYSPORT(d); }

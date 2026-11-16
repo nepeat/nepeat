@@ -93,7 +93,7 @@ Accton AS7760-32X ([its answers](../edge-core-7760-32x/sonic.md)).
   (PortChannel + BGP/BFD to a peer, Vrf-test, LLDP, fake optics, ACL, a conflict, a killed unit, redis
   stopped): pass; producer run 0.17 s in the VM. Existing VM tests: same drvPath; AS7760 closure +28 KiB
   ([evidence](sonic-metrics-20261115.txt)). Dashboard `ai-re-sonic` (tools/grafana), SONiC panel on the lab overview.
-- Found: bgpmon covers the default VRF only (VRF neighbors: config, no state); no bgp CoPP trap (Status, Open);
+- Found: bgpmon covers the default VRF only (VRF neighbors: config, no state; fixed 2026-11-16, routing patch 0006); no bgp CoPP trap (Status, Open);
   vs SAI gives no ACL counter values. Switch check: [README](../../nix/packages/sonic/metrics/README.md#check).
 
 ## 2026-11-15 (evening, night) — the stack on the chip: platform, FRR, recovery, routing, ACL/CoPP, BFD

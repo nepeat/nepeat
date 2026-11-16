@@ -39,6 +39,7 @@ int g_inited, g_node, g_enabled;
 int g_mlr;   /* MULTICAST_LAG_RESOLUTION_ENABLE: only before ENABLE (mock_l2.c checks it for LAG mc_dests) */
 uint32_t next_handle = 0x100;
 static uint32_t g_aging;
+int g_egress_sflow;   /* node EGRESS_SFLOW_ENABLE (tl_sflow; mock_sflow.c's mock_sflow_egress sets it too) */
 static int temp_reads;
 static float g_temp[5] = {55.5f, 54.0f, 53.5f, -300.0f, 52.0f};
 static ifcs_log_notify_t log_cb;
@@ -87,6 +88,7 @@ ifcs_status_t ifcs_node_attr_set(ifcs_node_id_t n, uint32_t c, ifcs_attr_t* a)
         mock_logf("ifcs_node_attr_set node=%u count=%u id=%u u32=%u", n, c, a[i].id, a[i].value.u32);
         if (a[i].id == IFCS_NODE_ATTR_ENABLE) g_enabled = a[i].value.data;
         if (a[i].id == IFCS_NODE_ATTR_L2_ENTRY_AGING_INTERVAL) g_aging = a[i].value.u32;
+        if (a[i].id == IFCS_NODE_ATTR_EGRESS_SFLOW_ENABLE) g_egress_sflow = a[i].value.data;
         if (a[i].id == IFCS_NODE_ATTR_MULTICAST_LAG_RESOLUTION_ENABLE) {
             if (g_enabled) return IFCS_UNSUPPORTED;
             g_mlr = a[i].value.data;
@@ -106,6 +108,7 @@ ifcs_status_t ifcs_node_attr_get(ifcs_node_id_t n, uint32_t c, ifcs_attr_t* a, u
         else if (id == IFCS_NODE_ATTR_ACL_ENTRY_MINIMUM_PRIORITY) a[i].value.u32 = 1;
         else if (id == IFCS_NODE_ATTR_ACL_ENTRY_MAXIMUM_PRIORITY) a[i].value.u32 = 4096;
         else if (id == IFCS_NODE_ATTR_NUMBER_OF_ECMP_GROUPS) a[i].value.u32 = 512;
+        else if (id == IFCS_NODE_ATTR_EGRESS_SFLOW_ENABLE) a[i].value.data = g_egress_sflow;
         else return IFCS_UNSUPPORTED;
     }
     if (got) *got = c;

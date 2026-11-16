@@ -80,6 +80,13 @@ wait("BFD Up in STATE_DB", "redis-cli -s /var/run/redis/redis.sock -n 6 hget 'BF
      "redis-cli -s /var/run/redis/redis.sock -n 6 keys 'BFD*'")
 wait("BGP Vrf-test 10.1.0.2 Established (FRR)",
      "vtysh -c 'show bgp vrf Vrf-test neighbors 10.1.0.2 json' | grep -q '\"bgpState\":\"Established\"'", 120)
+wait("bgpmon, all VRFs: STATE_DB NEIGH_STATE_TABLE|Vrf-test|10.1.0.2 Established",
+     "redis-cli -s /var/run/redis/redis.sock -n 6 hget 'NEIGH_STATE_TABLE|Vrf-test|10.1.0.2' state | grep -qx Established", 90,
+     "redis-cli -s /var/run/redis/redis.sock -n 6 keys 'NEIGH_STATE_TABLE*'")
+# sFlow config (sflowmgrd -> APPL_DB SFLOW_SESSION_TABLE) for the sflow collector
+db(4, "hset 'SFLOW_COLLECTOR|c1' collector_ip 127.0.0.1 collector_port 6343")
+db(4, "hset 'SFLOW_SESSION|Ethernet16' admin_state up sample_rate 1000")
+db(4, "hset 'SFLOW|global' admin_state up polling_interval 20")
 wait("LACP: both members selected", "test $(redis-cli -s /var/run/redis/redis.sock -n 6 --scan --pattern 'LAG_MEMBER_TABLE|PortChannel0001|*' | "
      "xargs -I{} redis-cli -s /var/run/redis/redis.sock -n 6 hget {} runner.aggregator.selected | grep -c true) = 2", 120)
 wait("LLDP: peer seen on Ethernet16", "redis-cli -s /var/run/redis/redis.sock -n 0 exists LLDP_ENTRY_TABLE:Ethernet16 | grep -qx 1", 180)
@@ -104,7 +111,7 @@ rc, out = sh("promtool check metrics < /run/prometheus-textfile/sonic.prom")
 check("promtool check metrics (strict lint)", rc == 0, out)
 check("sonic_up 1", get(ms, "sonic_up") == 1)
 bad = [(l, v) for l, v in series(ms, "sonic_collector_success") if v != 1]
-check("all 13 collectors succeeded", len(series(ms, "sonic_collector_success")) == 13 and not bad, bad)
+check("all 16 collectors succeeded", len(series(ms, "sonic_collector_success")) == 16 and not bad, bad)
 nports = int(sh("redis-cli -s /var/run/redis/redis.sock -n 4 --scan --pattern 'PORT|*' | wc -l")[1].strip())
 check("one sonic_port_info per CONFIG_DB port (%d)" % nports, len(series(ms, "sonic_port_info")) == nports, len(series(ms, "sonic_port_info")))
 check("Ethernet16 / Ethernet5/1 admin + oper up", get(ms, "sonic_port_oper_up", port="Ethernet16", alias="Ethernet5/1") == 1
@@ -120,9 +127,14 @@ check("BFD default/PortChannel0001/10.0.0.2 Up (3)",
       get(ms, "sonic_bfd_session_state", vrf="default", interface="PortChannel0001", peer="10.0.0.2") == 3, series(ms, "sonic_bfd_session_state"))
 check("BGP 10.0.0.2 Established (6), name peer-pc", get(ms, "sonic_bgp_neighbor_state", neighbor="10.0.0.2", name="peer-pc") == 6
       and get(ms, "sonic_bgp_neighbor_established", neighbor="10.0.0.2") == 1, series(ms, "sonic_bgp_neighbor_state"))
-check("BGP Vrf-test neighbor: configured, no state (bgpmon: default VRF only)",
+check("BGP Vrf-test neighbor: configured and Established (6) (bgpmon, all VRFs)",
       get(ms, "sonic_bgp_neighbor_info", vrf="Vrf-test", neighbor="10.1.0.2", name="peer-vrf") == 1
-      and get(ms, "sonic_bgp_neighbor_state", vrf="Vrf-test") is None)
+      and get(ms, "sonic_bgp_neighbor_state", vrf="Vrf-test", neighbor="10.1.0.2", name="peer-vrf") == 6, series(ms, "sonic_bgp_neighbor_state"))
+# queue counters need flex counter QUEUE (not seeded: the vs SAI / sai-openbcm answer port stats only)
+print("INFO queue series: %d" % len(series(ms, "sonic_queue_packets_total")))
+print("INFO CRM: %s" % [(l["resource"], v) for l, v in series(ms, "sonic_crm_used")][:12])
+print("INFO sFlow: %s %s" % (series(ms, "sonic_sflow_admin_up"), series(ms, "sonic_sflow_port_sample_rate")[:3]))
+check("sFlow: admin up, 1 collector", get(ms, "sonic_sflow_admin_up") == 1 and get(ms, "sonic_sflow_collectors") == 1)
 check("LLDP: Ethernet5/1 neighbor = the peer", get(ms, "sonic_lldp_neighbor_info", port="Ethernet16", alias="Ethernet5/1", remote_system="peer") == 1
       and get(ms, "sonic_lldp_neighbors", port="Ethernet16") == 1, series(ms, "sonic_lldp_neighbor_info"))
 check("transceivers: Ethernet0 + Ethernet124 present, SR4 at 30.5 C",

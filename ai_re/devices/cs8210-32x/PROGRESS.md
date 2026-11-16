@@ -6,7 +6,8 @@
   (vendor `libifcs.so`, ipd 0.16.2 `legacy_abi=1`): Vrf-a/Vrf-b eBGP + BFD over LACP on the cage 1 <-> 16 400G DAC loop, Credo
   in MACsec bypass ([sonic.md](sonic.md), [sai-features.md](sai-features.md)); only cages 1 and 16 populated (guard refuses syncd otherwise).
   Also: fand; node exporter :9100 on enp0s1; MACsec module (`cs8210-macsec`, MKA; acts under the vendor stack only, [macsec.md](macsec.md));
-  sFlow (ipd `psample=1`, sflowmgrd; hsflowd waits for a CONFIG_DB collector, none set). Vendor stack: `systemctl start cs8210-switch` (stops SONiC).
+  sFlow (ipd `psample=1`, sflowmgrd; hsflowd waits for a CONFIG_DB collector, none set). Metrics: job `cs8210-32x` in
+  ai-re-metrics, Grafana `ai-re-sonic` ([sonic-metrics-20261116.txt](sonic-metrics-20261116.txt)). Vendor stack: `systemctl start cs8210-switch` (stops SONiC).
 - **Reach:** `sudo ssh root@10.60.2.190` (enp0s1). Console: DMC-12 P1 via consoled, `sudo ssh -t console@10.60.2.10 watch cs8210`
   (read-only) / `… cs8210` (attach, `^] w` takes write), `sudo ssh console@10.60.2.10 log cs8210` (scrollback). Power: lab plug 1 (`lab-power 1 …`).
 - **Recover:** `systemctl stop sonic.target` or an older generation from the U-Boot menu; hung box or dead I2C FPGA
@@ -15,7 +16,9 @@
 - **Open:** our U-Boot: RAM chainload from the vendor prompt boots NixOS + SONiC like the vendor path (2026-11-16, [u-boot-port.md](u-boot-port.md)); standalone items and the permanent scheme open, nothing written to SPI; owner decision on
   publishing `ai_re/nix/packages/sai-teralynx/src/ifcs_api.h` (our IFCS declarations from the vendor ctypes + DWARF); AS7760 redeploy of
   the shared SONiC changes (local_asn, teamd MAC, networkd rules); SAI gaps in sai-features.md (WRED/ECN, PFC/lossless, SET_DSCP/remarking,
-  egress sFlow, sFlow trap policing, tunnels/IPMC/MPLS/NAT, warm boot, BFD offload); MACsec under SONiC; MKA across two boxes.
+  sFlow sample policing (isai's ACE impossible on 0.12.41, the CPU-queue meter misbehaves: off), tunnels/IPMC/MPLS/NAT, warm boot,
+  BFD offload); MACsec under SONiC; MKA across two boxes; CRM panels empty (crmorch writes no CRM:STATS here, cause open);
+  xcvrd reports no module in cages 1/16 (transceiver panels empty).
 
 ## Identity
 
@@ -107,6 +110,19 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-16 (late) — sFlow trap group, egress sFlow, metrics for the CS8210 (not deployed yet)
+
+- isai oracle `sflow-police`: SAMPLEPACKET = system trap MIRROR_TO_CPU + an ACE on the sFlow collector (MIRROR_2) with the
+  group's meter. 0.12.41 refuses a MIRROR match in any ingress profile (adding it to the CoPP profile broke the CoPP table:
+  BGP/BFD down until reverted, then restored). tl_sflow: the trap's ENABLE as isai; samples on CPU queue 2 via the init yaml
+  (`traffic_monitor_cpu_queue`, board default now); the CPU-queue meter as policer did not hold its rate (kept off,
+  `SAI_TERALYNX_SFLOW_METER`). Evidence: [sai-hw-sflow-20261116.txt](sai-hw-sflow-20261116.txt) (22:00Z / 23:02Z sections).
+- Egress sampling works with node EGRESS_SFLOW_ENABLE set before node enable (`SAI_TERALYNX_EGRESS_SFLOW=on`, board default;
+  the yaml key is ignored): 1 in 9.2 at rate 10, oif right; samples cut to 176 B. No side effect seen (ports, LACP, BGP, BFD).
+- Metrics: bgpmon over all VRFs (routing patch 0006, NEIGH_STATE_TABLE|<vrf>|<ip>; bgpcfgd tests 2797 pass, vm-metrics 51/51);
+  sonic-metrics: queues, CRM, sFlow collectors; dashboard rows Queues, CRM, sFlow, MACsec. The SONiC Credo unit now preloads
+  the MACsec shim (next boot) so `cs8210_macsec_*` has data under SONiC. Evidence: [sonic-metrics-20261116.txt](sonic-metrics-20261116.txt).
 
 ### 2026-11-16 — upstream U-Boot 2026.10: milestone 1 (offline)
 

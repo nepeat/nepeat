@@ -26,6 +26,16 @@
 //  - genetlink_trap_set(SAMPLEPACKET, on): SET_PARAMS + CREATE_NETLINK, then
 //    every sampled port's rate; off: DELETE_NETLINK. Other trap types:
 //    NOT_SUPPORTED. One sFlow netlink at a time (the driver has one);
+//  - trap_program (HostifArea::trap_program hands the SAMPLEPACKET trap
+//    over): system trap MIRROR_TO_CPU enabled (disabled for DROP), as
+//    isai; the group's policer as a meter on the CPU queue the samples
+//    arrive on (node TRAFFIC_MONITOR_CPU_QUEUE, a boot-time parameter:
+//    init yaml traffic_monitor_cpu_queue; if unreadable,
+//    SAI_TERALYNX_SFLOW_CPU_QUEUE), only when that is the group's queue,
+//    and only with SAI_TERALYNX_SFLOW_METER=on (default off: on the chip
+//    the meter did not hold its rate, sai-features.md). isai polices with
+//    an ACE matching the sFlow collector (MIRROR_2, oracle sflow-police);
+//    0.12.41 refuses a MIRROR match in every ingress match profile;
 //  - port_rate (from MirrorArea on every sampler change): the port's rate
 //    for the samples' metadata, pushed while a netlink is active. A driver
 //    without the rate ioctl in legacy mode (no patch) refuses it: logged
@@ -47,6 +57,14 @@ public:
     sai_status_t genetlink_destroy(int id);
     sai_status_t genetlink_trap_set(int id, int32_t trap_type, bool on);
     void port_rate(int hw, bool ingress, uint32_t rate);   // 0: sampler off
+    sai_status_t trap_program(const TrapSpec& s, bool remove);   // the SAMPLEPACKET trap
+    void policer_changed(int pid);                         // AclArea::policer_set: the queue meter follows
+    // Egress sampling needs the node's EGRESS_SFLOW_ENABLE, a boot-time
+    // parameter (init yaml node option egress_sflow_enable): read once.
+    bool egress_enabled();
+    // Before node enable: SAI_TERALYNX_EGRESS_SFLOW=on sets node EGRESS_SFLOW_ENABLE
+    // (the init yaml's egress_sflow_enable is not honoured by 0.12.41, chip 2026-11-16).
+    void pre_enable();
     void shutdown();
     std::string show();                                    // part of diag "mirror"
 
@@ -63,6 +81,9 @@ private:
     sai_status_t activate(Genl& g);
     void deactivate(Genl& g);
     int push_rate(int hw, bool ingress, uint32_t rate);
+    sai_status_t police();                                 // the sample queue's meter from the trap's group
+    void unpolice();
+    int sample_queue();                                    // CPU queue of the samples, -1: unknown
 
     Core& c_;
     int next_ = 1;
@@ -72,6 +93,15 @@ private:
     int fd_ = -1;
     bool resolved_ = false;
     unsigned rate_errors_ = 0;
+    // SAMPLEPACKET trap policing
+    bool have_trap_ = false;
+    TrapSpec trap_;
+    int queue_ = -2;                                       // sample_queue() cache, -2: not read yet
+    int policed_q_ = -1;                                   // CPU queue whose meter we set
+    uint32_t cir_kbps_ = 0, cbs_bytes_ = 0;
+    int failed_q_ = -1;                                    // last refused meter (not retried for the same rate)
+    uint32_t failed_kbps_ = 0;
+    int egress_ = -1;                                      // node EGRESS_SFLOW_ENABLE, -1: not read yet
 };
 
 } // namespace tlb

@@ -114,6 +114,11 @@ let
     echo "cage guard: present mask 0x$raw within allowed cages (${allowed})"
   '';
 
+  # The MACsec shim (hardware.cs8210.macsec: vendorSdk.phyPreload) in phy_server, as
+  # cs8210-switch-up does: cs8210-sdk-chroot binds $CS8210_PHY_PRELOAD in at this path.
+  # Under SONiC it serves cs8210-macsec status/metrics (ports stay in bypass).
+  phyPreload = config.hardware.cs8210.vendorSdk.phyPreload;
+  phyPre = lib.optionalString (phyPreload != null) "LD_PRELOAD=/usr/lib/libcs8210-phy-preload.so ";
   credoUp = pkgs.writeShellScript "sonic-cs8210-credo-up" ''
     set -euo pipefail
     SDK=${sdkDirChroot}
@@ -123,7 +128,7 @@ let
       # A FIFO left by a phy_server that is gone makes the loader's write to
       # it block forever (open() for writing without a reader; chip 2026-11-16).
       pgrep -x phy_server >/dev/null || rm -f /tmp/cls_phy_fifo
-      ./c-phy/auto_load_user.sh -m '${credo}' -e macsecbypass -l
+      ${phyPre}./c-phy/auto_load_user.sh -m '${credo}' -e macsecbypass -l
       # phy_server busy-loops on its FIFO once the last writer is gone;
       # hold one open (same as cs8210-switch-up).
       for _ in 1 2 3 4 5 6 7 8 9 10; do [ -p /tmp/cls_phy_fifo ] && break; sleep 1; done
@@ -305,6 +310,7 @@ in
         requires = lib.optional (cfg.allowedCages != null) "sonic-cs8210-guard.service";
         partOf = [ "sonic.target" ];
         conflicts = [ "cs8210-switch.service" ];
+        environment = lib.optionalAttrs (phyPreload != null) { CS8210_PHY_PRELOAD = phyPreload; };
         # the chroot's /tmp (Credo FIFOs) is its own tmpfs (vendor-sdk)
         unitConfig.RequiresMountsFor = [ "/run/cs8210-sdk/tmp" sdkRoot ];
         path = [ pkgs.procps pkgs.gnused pkgs.coreutils pkgs.util-linux pkgs.bash runtimePath ];

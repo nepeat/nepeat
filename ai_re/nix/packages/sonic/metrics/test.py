@@ -89,6 +89,7 @@ def build():
     H[(CONFIG, "BGP_NEIGHBOR|fc00::2")] = {"asn": "65200", "name": "v6-peer", "admin_status": "down"}
     H[(STATE, "NEIGH_STATE_TABLE|10.0.0.1")] = {"state": "Established", "peerType": "i-BGP"}
     H[(STATE, "NEIGH_STATE_TABLE|fc00::2")] = {"state": "Idle (Admin)", "peerType": "e-BGP"}
+    H[(STATE, "NEIGH_STATE_TABLE|Vrf-test|10.0.0.0")] = {"state": "Active", "peerType": "i-BGP"}   # bgpmon, all VRFs
     # BFD (bfdsyncd): one Up, one Down, one Admin_Down in Vrf-test
     bfd = {"type": "async_active", "local_addr": "10.0.0.0", "tx_interval": "300", "rx_interval": "300",
            "multiplier": "3", "multihop": "false", "local_discriminator": "1"}
@@ -134,6 +135,28 @@ def build():
     for p in ("10.0.0.0/31", "192.0.2.0/24", "fc00::/64"):
         H[(ASIC, 'ASIC_STATE:SAI_OBJECT_TYPE_ROUTE_ENTRY:{"dest":"%s","switch_id":"oid:0x21000000000000","vr":"oid:0x3000000000022"}' % p)] = \
             {"SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION": "SAI_PACKET_ACTION_FORWARD"}
+    # Queues (flex counter QUEUE): Ethernet0 queues 0-2 (UC 0/1, MC 2), Ethernet124 queue 3
+    qmap, qtype = {}, {}
+    for n, (port, q, t) in enumerate((("Ethernet0", 0, "UNICAST"), ("Ethernet0", 1, "UNICAST"), ("Ethernet0", 2, "MULTICAST"),
+                                      ("Ethernet124", 3, "UNICAST"))):
+        oid = "oid:0x15000000000%03x" % n
+        qmap["%s:%d" % (port, q)] = oid
+        qtype[oid] = "SAI_QUEUE_TYPE_" + t
+        H[(COUNTERS, "COUNTERS:" + oid)] = {"SAI_QUEUE_STAT_PACKETS": str(100 + n), "SAI_QUEUE_STAT_BYTES": str(10000 + n),
+                                            "SAI_QUEUE_STAT_DROPPED_PACKETS": str(n), "SAI_QUEUE_STAT_DROPPED_BYTES": "0"}
+    H[(COUNTERS, "COUNTERS_QUEUE_NAME_MAP")] = qmap
+    H[(COUNTERS, "COUNTERS_QUEUE_TYPE_MAP")] = qtype
+    # CRM (crmorch)
+    H[(COUNTERS, "CRM:STATS")] = {"crm_stats_ipv4_route_used": "7", "crm_stats_ipv4_route_available": "24569",
+                                  "crm_stats_fdb_entry_used": "3", "crm_stats_fdb_entry_available": "32765"}
+    H[(COUNTERS, "CRM:ACL_STATS:INGRESS:PORT")] = {"crm_stats_acl_table_used": "1", "crm_stats_acl_table_available": "7",
+                                                   "crm_stats_acl_group_used": "1", "crm_stats_acl_group_available": "31"}
+    H[(COUNTERS, "CRM:ACL_TABLE_STATS:oid:0x7000000000600")] = {"crm_stats_acl_entry_used": "2", "crm_stats_acl_entry_available": "254"}
+    # sFlow: global up, a collector, Ethernet124 sampled 1 in 1000 (rx), Ethernet0 off
+    H[(CONFIG, "SFLOW|global")] = {"admin_state": "up", "polling_interval": "20"}
+    H[(CONFIG, "SFLOW_COLLECTOR|c1")] = {"collector_ip": "127.0.0.1", "collector_port": "6343", "collector_vrf": "default"}
+    H[(APPL, "SFLOW_SESSION_TABLE:Ethernet124")] = {"admin_state": "up", "sample_rate": "1000", "sample_direction": "rx"}
+    H[(APPL, "SFLOW_SESSION_TABLE:Ethernet0")] = {"admin_state": "down", "sample_rate": "1000"}
     # A non-hash key inside a table's key space must not break the table.
     S[(STATE, "TRANSCEIVER_INFO|garbage")] = "x"
 
@@ -230,7 +253,7 @@ def main():
               % (len(ms), nports, dt, get(ms, "sonic_collect_duration_seconds")))
         check("sonic_up 1", get(ms, "sonic_up") == 1)
         succ = [(n, sorted(l), v) for (n, l), v in ms.items() if n == "sonic_collector_success"]
-        check("all 13 collectors succeeded", len(succ) == 13 and all(v == 1 for _, _, v in succ), succ)
+        check("all 16 collectors succeeded", len(succ) == 16 and all(v == 1 for _, _, v in succ), succ)
         check("device info", get(ms, "sonic_device_info", hwsku="Accton-AS7760-32X", type="LeafRouter", bgp_asn="65100") == 1)
         check("config initialized, ports init done", get(ms, "sonic_config_db_initialized") == 1 and get(ms, "sonic_port_init_done") == 1)
         # ports
@@ -273,7 +296,25 @@ def main():
               and get(ms, "sonic_bgp_neighbor_established", neighbor="10.0.0.1") == 1)
         check("BGP 'Idle (Admin)' -> 1, admin down", get(ms, "sonic_bgp_neighbor_state", neighbor="fc00::2") == 1
               and get(ms, "sonic_bgp_neighbor_admin_up", neighbor="fc00::2") == 0)
-        check("no state for the Vrf-test neighbor (bgpmon: default VRF only)", get(ms, "sonic_bgp_neighbor_state", vrf="Vrf-test") == "0 matches")
+        check("Vrf-test neighbor state from NEIGH_STATE_TABLE|Vrf-test|10.0.0.0 (Active, 3) with its name",
+              get(ms, "sonic_bgp_neighbor_state", vrf="Vrf-test", neighbor="10.0.0.0", name="to-default") == 3
+              and get(ms, "sonic_bgp_neighbor_established", vrf="Vrf-test") == 0
+              and count(ms, "sonic_bgp_neighbor_state") == 3)
+        # queues / crm / sflow
+        check("queue counters: 4 queues, labels port/alias/queue/type", count(ms, "sonic_queue_packets_total") == 4
+              and get(ms, "sonic_queue_packets_total", port="Ethernet0", alias="Ethernet1/1", queue="2", type="MC") == 102
+              and get(ms, "sonic_queue_dropped_packets_total", port="Ethernet124", queue="3", type="UC") == 3
+              and "# TYPE sonic_queue_bytes_total counter" in p.stdout)
+        check("CRM used/available", get(ms, "sonic_crm_used", resource="ipv4_route") == 7
+              and get(ms, "sonic_crm_available", resource="fdb_entry") == 32765 and count(ms, "sonic_crm_used") == 2)
+        check("CRM ACL per stage/bind and per table", get(ms, "sonic_crm_acl_available", stage="ingress", bind="port", resource="acl_table") == 7
+              and get(ms, "sonic_crm_acl_table_used", table_oid="oid:0x7000000000600", resource="acl_entry") == 2)
+        check("sFlow: global up, 1 collector, Ethernet124 1 in 1000 rx, Ethernet0 off",
+              get(ms, "sonic_sflow_admin_up") == 1 and get(ms, "sonic_sflow_collectors") == 1
+              and get(ms, "sonic_sflow_collector_info", collector="c1", ip="127.0.0.1", udp_port="6343") == 1
+              and get(ms, "sonic_sflow_port_sample_rate", port="Ethernet124", alias="Ethernet32/1", direction="rx") == 1000
+              and get(ms, "sonic_sflow_port_admin_up", port="Ethernet0") == 0
+              and get(ms, "sonic_sflow_port_sample_rate", port="Ethernet0") == "0 matches")
         # lldp
         check("LLDP neighbors per port", count(ms, "sonic_lldp_neighbors") == nports
               and get(ms, "sonic_lldp_neighbors", port="Ethernet0") == 1 and get(ms, "sonic_lldp_neighbors", port="Ethernet4") == 0)

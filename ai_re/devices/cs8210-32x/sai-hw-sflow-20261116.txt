@@ -88,3 +88,14 @@
    the frame length (as egress mirror copies, 180 B). Init, ports, LACP, BGP, BFD as usual over the run (~3 min).
    The first egress try (run-eg-tx, 10000 pps of routed frames to the Vrf-a address = ip2me) flapped BFD for ~4 s
    (CPU-bound ip2me load from the test frames; BGP re-established); the 2000 pps run did not.
+== CPU queue 2 meter (23:02-23:11Z, same method, init yaml traffic_monitor_cpu_queue "2" + egress, profile
+   SAI_TERALYNX_SFLOW_METER on; libsai 0z9392ia): node TRAFFIC_MONITOR_CPU_QUEUE reads 2; cpu_queue_attr_set
+   METER_MODE refused ("Attr id(25) is Not valid", INVAL), CIR / CBS / CIR_ENABLE accepted. Rate 10 on Ethernet120,
+   300000 frames at 50000 pps (~5000 samples/s offered), samples delivered in 6 s per CIR (COPP_GROUP|queue2_group1
+   cir/cbs changed at run time, policer_set -> meter): 672 kbit/s (SONiC's 1000 pps at 84 B) 20051 (queue 2
+   drops 9932, run-meter-10), 201 kbit/s 11637, 2016 kbit/s 27354, 20 / 67 kbit/s 0; back to 672 kbit/s: still 0
+   (run-meter-restored). Rate 100 at 20000 pps under 672 kbit/s: 956 (1 in 104.6, unpoliced as expected). Queue
+   counters lag the psample counts. => the meter drops, but not at its rate and it can stick at zero: kept off
+   (SAI_TERALYNX_SFLOW_METER default off). Teardown as before; SONiC as booted, BGP/BFD up. Journal:
+   analysis/sflow-police-20261116/syncd-journal-meter.txt 5785a093 (run-meter-10 19aec2d3, -100 4322f9d1, -cir300
+   d00f5b95, -cir3000 f2abd6b0, -cir30 / -cir100 / -restored 8c3f35c9 = "n=0").

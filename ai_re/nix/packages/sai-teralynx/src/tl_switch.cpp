@@ -9,6 +9,7 @@
 //    in vendor files are skipped and never enable a port;
 //  - shutdown sets every port admin-down before anything else.
 #include "tl_switch.h"
+#include "tl_sflow.h"
 
 #include "tl_acl.h"
 #include "tl_hostif.h"
@@ -156,6 +157,7 @@ sai_status_t SwitchArea::init(const BackendConfig& cfg, LinkCallback link_cb, Fd
     }
     c_.l2->pre_enable();   // node attributes that must precede ENABLE (tl_l2.h)
     c_.l3->pre_enable();   // L3 interface counter modes (tl_l3.h)
+    if (c_.sflow) c_.sflow->pre_enable();   // egress sampling, a boot-time node attribute (tl_sflow.h)
     ifcs_attr_t en;
     c_.L.ifcs_attr_t_init(&en);
     c_.L.ifcs_attr_t_id_set(&en, IFCS_NODE_ATTR_ENABLE);

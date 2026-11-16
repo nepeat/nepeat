@@ -1,0 +1,14 @@
+# CS8210-32X: sonic-metrics + Grafana ai-re-sonic for job cs8210-32x (2026-11-16 22:50-23:14Z)
+# Raw files (git-ignored): analysis/sflow-police-20261116/vm-metrics.txt e3c8b540, sonic-metrics-live.prom 7d8b2dd0.
+== Producer tests: packages/sonic/metrics/test.nix (redis + fake dump, 35 and 128 ports, promtool): 0 failed; new families
+   queues / CRM / sFlow and Vrf-test BGP state from NEIGH_STATE_TABLE|Vrf-test|10.0.0.0 checked. VM test
+   modules/switch/sonic/tests/vm-metrics.nix: 51 PASS, 0 FAIL; the patched bgpmon wrote NEIGH_STATE_TABLE|Vrf-test|10.1.0.2
+   Established and sonic_bgp_neighbor_state{vrf="Vrf-test"} = 6; 16 collectors; sFlow admin/collector seen.
+== bgpmon patch: routing.bgpcfgd-tests 2797 passed (3 deselected as before), incl. tests/test_sonic_nixos_bgpmon_vrf.py (3).
+== Live CS8210 (new sonic_metrics.py run by hand, read-only, booted generation): 16 collectors succeed, 256 queue series,
+   0.06 s; CRM none (no COUNTERS_DB CRM:* keys 17 min after boot; orchagent logs ACL resources "not supported"); BGP state
+   none until the patched bgpmon is deployed (the VRFs' neighbors: config only).
+== Dashboard panels vs VictoriaMetrics, job cs8210-32x (booted producer): data in every panel except BGP state (above),
+   Transceivers / module temperature (xcvrd: no module seen in cages 1 and 16), Trapped to the CPU (no FLOW_CNT_TRAP:
+   frontend request in sai-features.md), MACsec (shim not in SONiC's phy_server until the next boot), and the new rows
+   until the deploy. All new panel queries parse in VictoriaMetrics.

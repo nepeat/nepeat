@@ -21,6 +21,9 @@
 #                link training), as cs8210-switch-up's default spec.
 #   cages 17-32  side "line": the vendor's fec-def per media; media optics unless
 #                media."<cage>" says copper (DAC: link training, other taps).
+#   sFlow        traffic_monitor_cpu_queue "2": sFlow samples on CPU queue 2,
+#                SONiC's sflow trap group's queue (boot-time: the node attribute
+#                is refused at run time).
 #   devport 0    cpu, sysport 1000; devport 129 the 10G AUX lane (serdes group
 #                32 lane 0) to the CPU card's second NIC, type "mgmt 0", fec NONE.
 # Pre-emphasis and the isg (lane swap/polarity) section are vendor tuning data
@@ -47,6 +50,7 @@ teralynx.teralynx7 {
     sys_clk = "1720";
     mbist_on_init = "true";
     ifc_clk = "1200";
+    traffic_monitor_cpu_queue = "2";
     txring = [ (ring "tx" 0 { }) ] ++ map (i: ring "tx" i { netdev = "true"; }) [ 1 2 3 ];
     rxring = map (i: ring "rx" i { queues = queues i; netdev = "true"; }) [ 0 1 2 3 ];
   };

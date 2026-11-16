@@ -127,7 +127,7 @@ void test_copp(Env& e)
     CHECK_EQ(count(m_log(), "type=59 value=00b3"), 6u);         // src port 179
     CHECK_EQ(count(m_log(), "type=98 value= object=" + ip2me.substr(0, ip2me.find(' '))), 12u);
 
-    // ---- a trap type without a mapping is kept, not programmed (isai refuses SAMPLEPACKET too)
+    // ---- SAMPLEPACKET makes no CoPP entry (tl_sflow: system trap + the samples' queue meter, t_sflow.cpp)
     m_log_clear();
     aces = m_aces();
     make_trap(e, SAI_HOSTIF_TRAP_TYPE_SAMPLEPACKET, SAI_PACKET_ACTION_TRAP, grp);

@@ -57,7 +57,7 @@ in pkgs.runCommand "cs8210-sdk-config-tests" ({
   }) ''
   set -euo pipefail
   # Stability: change these only with a reviewed generator change.
-  sed 's|^    sku: .*|    sku: SKU|' $default | sha256sum | grep -q '^a37b5e5bafdf99865c117e4f0c889529a67c459c0e423c07648b7677475dbde3 '
+  sed 's|^    sku: .*|    sku: SKU|' $default | sha256sum | grep -q '^511e412b8638b1e20d038045bdf7d16b970d0a81cd8259b731e704b29dc2195f '
   (cd $defaultSide && sha256sum port-map init.cmd link-training.cmd layout.json) | sha256sum | grep -q '^bad010ecea35c234e62bad246f57c80675cc03f52e1740a7e19992261222b0c2 '
   # The sku file is the public one, copied.
   cmp "$(sed -n 's|^    sku: "\(.*\)"$|\1|p' $default)" $sku
@@ -72,6 +72,7 @@ in pkgs.runCommand "cs8210-sdk-config-tests" ({
   [ "$(wc -l < $defaultSide/init.cmd)" = 33 ]
   [ "$(cut -d' ' -f4 $defaultSide/link-training.cmd | tr '\n' ,)" = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16," ]
   grep -q '^  - id: "129"$' $default && grep -q '^    type: "mgmt 0"$' $default
+  grep -qx '    traffic_monitor_cpu_queue: "2"' $default   # sFlow samples on SONiC's sflow queue
 
   # Breakout: cage 1 4x100G (devports 1-4, 2 lanes each), cage 2 -> devport 5,
   # cage 17 2x200G (20, 21), cage 18 8x50G (22-29), cage 32 -> 43.

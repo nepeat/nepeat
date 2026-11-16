@@ -38,7 +38,7 @@ owns them and maps the frontend's `Backend` interface onto them.
 | `src/tl_lag.*` | LAGs and members, LAG dests for L2/L3, the switch hash (entropy) |
 | `src/tl_qos.*` | QoS maps (qos_map + shared map groups on sysports), PFC, queue schedulers / port shaper, WRED (AQM curve groups), queue buffer thresholds, queue / PG / PFC counters |
 | `src/tl_mirror.*` | mirror sessions (DCDP + collector + collector set), port mirroring and sFlow sampling (sysport traffic-monitor policies); `collector_set()` for ACL mirror actions |
-| `src/tl_sflow.*` | genetlink host interfaces: sFlow samples to psample through the ipd driver's sFlow netlink (ioctls on libifcs' `/dev/ipd` fd), the ports' sample rates for the samples' metadata |
+| `src/tl_sflow.*` | genetlink host interfaces: sFlow samples to psample through the ipd driver's sFlow netlink (ioctls on libifcs' `/dev/ipd` fd), the ports' sample rates for the samples' metadata; the SAMPLEPACKET trap (MIRROR_TO_CPU, its group's policer as the samples' CPU-queue meter); egress sampling's node attribute |
 | `src/ifcs_api_qos.h` | the IFCS declarations of those two areas (included by `ifcs_api.h`, `IFCS_SYMBOLS_QOS`) |
 | `tests/test_ifcs.cpp`, `tests/t_<area>.cpp`, `tests/harness.h` | end-to-end test: main + one file per area |
 | `tests/mock/mock_<area>.c`, `mock.h` | mock libifcs, one file per area; type-checked against `ifcs_api.h`, none missing (link check) |
@@ -61,6 +61,9 @@ The Makefile picks up `src/*.cpp`, `tests/t_*.cpp` and `tests/mock/*.c` by wildc
 | `SAI_TERALYNX_NETDEV` | `adopt` (default): rename the SDK's `inno_0_<sysport>` (init yaml with netdev `auto_create`, the vendor `-k` mode); `create`: `ifcs_netdev_create` per hostif, which makes no netdev on the deployed init yaml (chip 2026-11-16) |
 | `SAI_TERALYNX_L3INTF_STATS`, `_MODES`, `_COUNTERS` | RIF counters: `off` skips the node setup; modes tried before node enable (default `4,1,2,3`: 0.12.41 refuses 1 = ALL, takes 4 = IPv4 + IPv6), flex counters per direction (default 4096) |
 | `SAI_TERALYNX_SYSTEM_TRAPS` | `isai` (default): system traps as isai sets them at init (TTL, IPv4 options on; L2 source miss/move, L3 MTU off), before the first netdev or trap; `sdk`: leave the SDK's |
+| `SAI_TERALYNX_SFLOW_CPU_QUEUE` | CPU queue the init yaml's `traffic_monitor_cpu_queue` puts sFlow samples on, when node `TRAFFIC_MONITOR_CPU_QUEUE` is unreadable; with `SAI_TERALYNX_SFLOW_METER=on` the SAMPLEPACKET trap group's policer meters it if it is the group's queue |
+| `SAI_TERALYNX_SFLOW_METER` | `on`: the sflow trap group's policer as the samples' CPU-queue meter; default `off` (on the chip the meter did not hold its rate and once stopped all samples, sai-features.md) |
+| `SAI_TERALYNX_EGRESS_SFLOW` | `on`: node `EGRESS_SFLOW_ENABLE` before node enable (egress sampling; the yaml's `egress_sflow_enable` is ignored by 0.12.41); default `off` |
 | `SAI_TERALYNX_SHUTDOWN` | `deinit` (default): ports down, then `ifcs_deinit(COLD)`; `ports-down`: ports down only |
 | `SAI_TERALYNX_CPU_FLOOD` | `off` (default): the CPU is in no VLAN (traps bring what it needs); `on`: CPU in every VLAN's L2VNI and flood group (the old model: COPY traps doubled) |
 | `SAI_TERALYNX_LAG_FLOOD` | `on` (default): node `MULTICAST_LAG_RESOLUTION_ENABLE` before node enable (a LAG in a VLAN needs it); `off`: skip (LAGs cannot join VLANs) |
@@ -157,10 +160,12 @@ I = inferred (API exists, form or semantics not seen in use).
 | LAG | `ifcs_lag_create(0, &h, 0, NULL)`, `lag_member_add/remove(lag, 1, [sysport])`; a member is out of the IFCS LAG while egress and ingress are both disabled (isai's rule), learning off then; libifcs refuses a member in an L2VNI / mc_dest / L2 entry, so ports in no VLAN hold none; STP stays per member sysport (`stp_port_add` refuses a LAG) | V (oracle, chip) |
 | hash | per packet type an `ifcs_extended_field_list` (ELEMENTS) on node `ENTROPY_SELECT_*`, node `ENTROPY_SEED`; one entropy for LAG and ECMP | V (oracle; chip: accepted, distribution untested) |
 | SAI ACL tables (fp groups / entries) | per table: match profile (fields, `PORT_SHARING`, `MAX_WIDTH` by key bits: mandatory in 0.12.41), action profile (drop, copy, copy override, counter, meter), node-scope table (size 256, `DEFAULT_STATS` off, priority 12-15), one ACL bound to the entries' ports (`acl_port_add`); per entry one ACE (or one per port with `INGRESS_L2_INTERFACE` for IN_PORTS on part of them), values + masks in network order, DROP / zero DROP (FORWARD) / COPY_TO_CPU (shared ACL hostif trap, queue 0) / METER / counter, priority 0xffffffff - 2 x SAI priority; counter reads lag ~1 s (SDK) | V (isai, oracle acl; on chip) |
-| host traps (`trap_program`) | per SAI trap: a hostif trap (user trap with the group's `QUEUE_NUM`; IP2ME = the TRAP routes' one; TTL/MTU = system traps 17/23 with `ENABLE`; NEIGHBOR_MISS = a glean trap of its own) and CoPP entries (below; IGMP / MLD: ether type + protocol + L4 byte 1); types without a mapping NOT_SUPPORTED (kept) | V (isai's model, oracle) |
+| host traps (`trap_program`) | per SAI trap: a hostif trap (user trap with the group's `QUEUE_NUM`; IP2ME = the TRAP routes' one; TTL/MTU = system traps 17/23 with `ENABLE`; NEIGHBOR_MISS = a glean trap of its own) and CoPP entries (below; IGMP / MLD: ether type + protocol + L4 byte 1); SAMPLEPACKET: tl_sflow (below); types without a mapping NOT_SUPPORTED (kept) | V (isai's model, oracle) |
 | CoPP table | ingress control table, scope PER_IB, one ACL per inno block (6, probed); match DMAC / ether type / L4 proto / ports / L4 byte 1 / hostif trap; actions copy, copy override, drop, meter, counter; table needs `DEFAULT_STATS` off and `MAX_METERS` | V (on chip; isai's `TYPE` attribute refused by 0.12) |
 | trap entries | one ACE per rule and IB: L2 protocols by DMAC + ether type, IP protocols by ether type + L4, BGP/SSH/SNMP/BFD = protocol + IP2ME trap, IP2ME = hostif trap match; COPY_TO_CPU (all colours unless policed), COPY_TO_CPU_OVERRIDE for policed colours, DROP for TRAP, METER, colour counter; priority lower wins | V (on chip) / I (priority direction) |
 | sFlow to the host (GENETLINK hostif + SAMPLEPACKET table entry) | no IFCS call: ipd ioctls IPD_SET_PARAMS (sample GRE protocol 0x8818), IPD_CREATE_NETLINK (SFLOW, the hostif's name / group), IPD_SET_NETDEV sample rate per sysport; the driver strips the sample frames and sends psample messages (kernel psample with ipd `psample=1`) | V (ipd source; chip: SONiC + hsflowd + sflowtool) |
+| SAMPLEPACKET trap, its group | system trap 512 MIRROR_TO_CPU `ENABLE` (isai); group policer = `cpu_queue_attr_set` METER_MODE / CIR (kbit/s, packets x 84 B) / CBS (B) / CIR_ENABLE on the samples' queue (init yaml `traffic_monitor_cpu_queue`), only when it is the group's queue and `SAI_TERALYNX_SFLOW_METER=on` (off by default). isai's ACE on the collector (MIRROR_2): 0.12.41 refuses a MIRROR match | V trap (oracle sflow-police) / I meter (chip: accepted, rate not held; METER_MODE refused) |
+| egress sampling | node `EGRESS_SFLOW_ENABLE` before enable (`SAI_TERALYNX_EGRESS_SFLOW`), read back per egress sampler change | I (chip: egress samples, cut to 176 B) |
 | policers | IFCS `acl_meter` per policer and IB (srTCM = RFC 2697, trTCM = 2698, colour aware), packets as 84 B (CIR x 672 bit/s, CBS x 84 B, isai's conversion); updated in place | V (on chip: 100 pps policer held a 1000 pps burst to ~95 pps); CIR 10 pps rejected (range check) |
 
 ## Tests
@@ -189,7 +194,7 @@ I = inferred (API exists, form or semantics not seen in use).
   port counters by id + stats capability, hash objects, VLAN flood control, storm
   control, ACL ranges / SET_TC / REDIRECT / MIRROR / egress + OUT_PORTS, entry admin
   and in-place update, AVAILABLE_ACL_ENTRY, SET_DSCP refused); temperatures
-  (round-robin, cached); remove_switch order. 914 checks (all areas, 2026-11-16).
+  (round-robin, cached); remove_switch order; the SAMPLEPACKET trap's queue meter and egress sampling (`t_sflow.cpp`). 967 checks (all areas, 2026-11-16).
 - sai-openbcm's `tests/test_sai.cpp`, unchanged, against this library's
   objects (frontend + fake backend): 2667 checks.
 - Built natively with nix (`callPackage ./sai-teralynx { inherit sonic; }`) and

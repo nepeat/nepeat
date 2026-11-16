@@ -363,7 +363,7 @@ sai_status_t MirrorArea::port_sample_set(int hw, bool ingress, int id)
     Guard g(c_.mu);
     if (!c_.front(hw)) return SAI_STATUS_INVALID_PORT_NUMBER;
     if (id >= 0 && !samples_.count(id)) return SAI_STATUS_ITEM_NOT_FOUND;
-    if (!ingress && id >= 0) {
+    if (!ingress && id >= 0 && !(c_.sflow && c_.sflow->egress_enabled())) {
         c_.log_once("sflow:egress", "egress sampling: not supported (node EGRESS_SFLOW_ENABLE is off in this init config)");
         return SAI_STATUS_NOT_SUPPORTED;
     }

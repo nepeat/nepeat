@@ -49,6 +49,9 @@ public:
     sai_status_t policer_create(const PolicerCfg& cfg, int& pid);
     sai_status_t policer_set(int pid, const PolicerCfg& cfg);
     sai_status_t policer_destroy(int pid);
+    // tl_sflow's sample policer (an ACL table of its own): a policer's config and meter attributes
+    bool policer_get(int pid, PolicerCfg& cfg);
+    void policer_meter_attrs(const PolicerCfg& p, std::vector<ifcs_attr_t>& a) { meter_attrs(p, a); }
 
     // CoPP: install rules (one ACE per rule in every inno block's ACL) with
     // actions, at ACE priority prio (lower wins, I); id for removal.

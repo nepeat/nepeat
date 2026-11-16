@@ -3,6 +3,7 @@
 #include "tl_hostif.h"
 
 #include "tl_acl.h"
+#include "tl_sflow.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -253,6 +254,8 @@ sai_status_t HostifArea::trap_program(const TrapSpec& s, bool remove)
 {
     Guard g(c_.mu);
     system_traps_init();
+    // sFlow samples: the MIRROR_TO_CPU system trap + a collector-matched policer entry (tl_sflow)
+    if (s.type == SAI_HOSTIF_TRAP_TYPE_SAMPLEPACKET && c_.sflow) return c_.sflow->trap_program(s, remove);
     ifcs_handle_t ip2me = IFCS_NULL_HANDLE, glean = IFCS_NULL_HANDLE;
     sai_status_t st = ip2me_trap(ip2me);
     if (st != SAI_STATUS_SUCCESS) return st;

@@ -1,0 +1,50 @@
+bgpmon: neighbor state of every VRF (show bgp vrf all summary json); non-default
+VRF neighbors as NEIGH_STATE_TABLE|<vrf>|<ip>, default-VRF ones keep NEIGH_STATE_TABLE|<ip>.
+Upstream bgpmon polls "show bgp summary json", the default VRF only (sonic-nixos PROGRESS:
+"Vrf-test BGP state missing"); the CS8210 loop has all its BGP in VRFs.
+--- a/bgpmon/bgpmon.py
++++ b/bgpmon/bgpmon.py
+@@ -67,17 +67,17 @@
+         except (IOError, OSError):
+             return True
+ 
+-    def update_new_peer_states(self, peer_dict):
+-        peer_l = peer_dict["peers"].keys()
+-        self.new_peer_l.update(peer_l)
+-        for peer in peer_l:
+-            self.new_peer_state[peer] = (peer_dict["peers"][peer]["state"], 
+-                                         peer_dict["peers"][peer]["remoteAs"],
+-                                         peer_dict["peers"][peer]["localAs"])
++    # Neighbors of a non-default VRF are keyed "<vrf>|<ip>" (NEIGH_STATE_TABLE|Vrf-a|10.0.1.1,
++    # as CONFIG_DB BGP_NEIGHBOR|<vrf>|<ip>); default-VRF neighbors keep the plain "<ip>" key.
++    def update_new_peer_states(self, peer_dict, vrf="default"):
++        for peer, p in peer_dict.get("peers", {}).items():
++            name = peer if vrf == "default" else "%s|%s" % (vrf, peer)
++            self.new_peer_l.add(name)
++            self.new_peer_state[name] = (p["state"], p["remoteAs"], p["localAs"])
+ 
+     # Get a new snapshot of BGP neighbors and store them in the "new" location
+     def get_all_neigh_states(self):
+-        cmd = ["vtysh", "-H", "/dev/null",  "-c", 'show bgp summary json']
++        cmd = ["vtysh", "-H", "/dev/null",  "-c", 'show bgp vrf all summary json']
+         retry_attempt = 0
+ 
+         while retry_attempt < self.MAX_RETRY_ATTEMPTS:
+@@ -97,9 +97,14 @@
+                 # cmd ran successfully, safe to Clean the "new" set/dict for new snapshot
+                 self.new_peer_l.clear()
+                 self.new_peer_state.clear()
+-                for key, value in peer_info.items():
+-                    if key == "ipv4Unicast" or key == "ipv6Unicast":
+-                        self.update_new_peer_states(value)
++                # "vrf all": {"<vrf>": {"ipv4Unicast": {...}, ...}, ...}; one VRF's form at the top level too
++                vrfs = peer_info if not ("ipv4Unicast" in peer_info or "ipv6Unicast" in peer_info) else {"default": peer_info}
++                for vrf, afis in vrfs.items():
++                    if not isinstance(afis, dict):
++                        continue
++                    for key, value in afis.items():
++                        if key == "ipv4Unicast" or key == "ipv6Unicast":
++                            self.update_new_peer_states(value, vrf)
+                 return
+ 
+             except json.JSONDecodeError as decode_error:

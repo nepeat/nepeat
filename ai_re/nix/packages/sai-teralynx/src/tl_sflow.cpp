@@ -4,13 +4,17 @@
 // ipd 0.16.2, GPL; mrvl-teralynx), restated here for interop only.
 #include "tl_sflow.h"
 
+#include "tl_acl.h"
+
 #include <dirent.h>
 #include <dlfcn.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdio>
+#include <cstdlib>
 
 namespace ob {
 namespace tlb {
@@ -202,6 +206,146 @@ void SflowArea::port_rate(int hw, bool ingress, uint32_t rate)
         if (o.second.active) { push_rate(hw, ingress, rate); break; }
 }
 
+// ------------------------------------------------- SAMPLEPACKET policing
+// The trap = system trap MIRROR_TO_CPU, ENABLE on (off for DROP; removal
+// leaves it), as isai 6.2.0 (oracle sflow-police, 2026-11-16). Its group's
+// policer: isai makes an acl_meter + counter and one ACE in its CoPP table
+// on the CPU's IB, matching the sFlow collector (MIRROR_2), dropping red.
+// 0.12.41 refuses a MIRROR match in any ingress match profile (in the CoPP
+// table's it broke the whole table; alone, at widths 80-320: PARAM), so the
+// policer becomes the token-bucket meter of the CPU queue the samples land
+// on (cpu_queue.py: meter_mode TOKEN_BUCKET, meter_committed_information_rate
+// and _burst_size, u32), policed only when that queue is the group's queue
+// (a meter on a shared queue would police other traps). Units (I): rate in
+// kbit/s, burst in bytes, packets at 84 B as isai converts for ACL meters.
+static bool trap_to_cpu(int32_t a) { return a == SAI_PACKET_ACTION_TRAP || a == SAI_PACKET_ACTION_COPY || a == SAI_PACKET_ACTION_LOG; }
+
+sai_status_t SflowArea::trap_program(const TrapSpec& s, bool remove)
+{
+    Guard g(c_.mu);
+    ifcs_handle_t h = IFCS_HANDLE_HOSTIF_TRAP(IFCS_HOSTIF_TRAP_MIRROR_TO_CPU);
+    if (remove) {
+        unpolice();
+        have_trap_ = false;
+        return SAI_STATUS_SUCCESS;
+    }
+    bool fresh = !have_trap_;
+    TrapSpec old = trap_;
+    trap_ = s;
+    have_trap_ = true;
+    bool cpu = trap_to_cpu(s.action) && s.group_up;
+    if (fresh || cpu != (trap_to_cpu(old.action) && old.group_up)) {
+        ifcs_attr_t e = attr_data(IFCS_HOSTIF_TRAP_ATTR_ENABLE, cpu);
+        sai_status_t st = c_.call(c_.L.ifcs_hostif_trap_attr_set(NODE, h, 1, &e), "hostif_trap_attr_set (MIRROR_TO_CPU)");
+        if (st != SAI_STATUS_SUCCESS) { have_trap_ = !fresh; trap_ = old; return st; }
+    }
+    police();   // a refused meter leaves the samples unpoliced, not lost: no error to the caller
+    return SAI_STATUS_SUCCESS;
+}
+
+void SflowArea::policer_changed(int pid)
+{
+    Guard g(c_.mu);
+    if (have_trap_ && trap_.policer == pid) police();
+}
+
+int SflowArea::sample_queue()
+{
+    if (queue_ != -2) return queue_;
+    ifcs_attr_t a = attr_of(IFCS_NODE_ATTR_TRAFFIC_MONITOR_CPU_QUEUE);
+    uint32_t n = 0;
+    int r = IFCS_STATUS_REASON(c_.L.ifcs_node_attr_get(NODE, 1, &a, &n));
+    if (r == IFCS_SUCCESS) queue_ = (int)a.value.u32;
+    else {
+        std::string k = c_.key("SAI_TERALYNX_SFLOW_CPU_QUEUE", "");
+        queue_ = k.empty() ? -1 : std::atoi(k.c_str());
+    }
+    OB_NOTICE(SAI_API_HOSTIF, "sflow: samples on CPU queue %d (%s)", queue_,
+              r == IFCS_SUCCESS ? "node TRAFFIC_MONITOR_CPU_QUEUE" : queue_ < 0 ? "unknown" : "SAI_TERALYNX_SFLOW_CPU_QUEUE");
+    return queue_;
+}
+
+void SflowArea::unpolice()
+{
+    if (policed_q_ < 0) return;
+    ifcs_attr_t e = attr_data(IFCS_CPU_QUEUE_ATTR_METER_COMMITTED_INFORMATION_RATE_ENABLE, false);
+    c_.call(c_.L.ifcs_cpu_queue_attr_set(NODE, (ifcs_cpu_queue_t)policed_q_, 1, &e), "cpu_queue meter off (sflow)");
+    policed_q_ = -1;
+    cir_kbps_ = cbs_bytes_ = 0;
+    failed_q_ = -1;
+}
+
+sai_status_t SflowArea::police()
+{
+    PolicerCfg cfg;
+    bool want = have_trap_ && trap_.policer >= 0 && c_.acl && c_.acl->policer_get(trap_.policer, cfg);
+    // Off unless asked for: on the chip (2026-11-16) the meter dropped samples but not at its rate
+    // (672 kbit/s let ~3300 of 5000 samples/s through, 67 kbit/s none) and a raised rate did not
+    // bring them back; isai's ACE form is impossible on 0.12.41 (tl_sflow.h).
+    if (want && c_.key("SAI_TERALYNX_SFLOW_METER", "off") != "on") {
+        c_.log_once("sflow:meter-off", "sflow: the sflow trap group's policer is not applied to samples (SAI_TERALYNX_SFLOW_METER off)");
+        want = false;
+    }
+    int q = want ? sample_queue() : -1;
+    if (want && q != (int)trap_.queue) {
+        c_.log_once("sflow:police-q" + std::to_string(q) + "-" + std::to_string(trap_.queue),
+                    "sflow: samples arrive on CPU queue %d, the trap group's queue is %u: not policed (init config "
+                    "traffic_monitor_cpu_queue = the group's queue to police them)", q, trap_.queue);
+        want = false;
+    }
+    if (policed_q_ >= 0 && (!want || policed_q_ != q)) unpolice();
+    if (!want) return SAI_STATUS_SUCCESS;
+    // packets at 84 B (frame + preamble + IPG), isai's ACL meter conversion
+    uint64_t bps = cfg.packets ? cfg.cir * 84 * 8 : cfg.cir * 8;
+    uint64_t burst = cfg.packets ? (cfg.cbs ? cfg.cbs : 1) * 84 : (cfg.cbs ? cfg.cbs : 1);
+    uint32_t kbps = (uint32_t)std::max<uint64_t>(1, std::min<uint64_t>(bps / 1000, UINT32_MAX));
+    uint32_t cbs = (uint32_t)std::min<uint64_t>(burst, UINT32_MAX);
+    if (q == policed_q_ && kbps == cir_kbps_ && cbs == cbs_bytes_) return SAI_STATUS_SUCCESS;   // as programmed
+    if (q == failed_q_ && kbps == failed_kbps_) return SAI_STATUS_SUCCESS;                      // refused before
+    // METER_MODE (TOKEN_BUCKET, the only mode) is refused by cpu_queue_attr_set (chip 2026-11-16): not set
+    ifcs_attr_t a[3] = {attr_u32(IFCS_CPU_QUEUE_ATTR_METER_COMMITTED_INFORMATION_RATE, kbps),
+                        attr_u32(IFCS_CPU_QUEUE_ATTR_METER_COMMITTED_BURST_SIZE, cbs),
+                        attr_data(IFCS_CPU_QUEUE_ATTR_METER_COMMITTED_INFORMATION_RATE_ENABLE, true)};
+    for (auto& x : a) {   // one attribute per call: a refusal names the attribute
+        sai_status_t st = c_.call(c_.L.ifcs_cpu_queue_attr_set(NODE, (ifcs_cpu_queue_t)q, 1, &x), "cpu_queue meter (sflow)");
+        if (st != SAI_STATUS_SUCCESS) {
+            OB_ERR(SAI_API_HOSTIF, "sflow: CPU queue %d meter attribute %u refused: samples not policed", q, x.id);
+            policed_q_ = q;
+            unpolice();
+            failed_q_ = q;
+            failed_kbps_ = kbps;
+            return st;
+        }
+    }
+    policed_q_ = q;
+    cir_kbps_ = kbps;
+    cbs_bytes_ = cbs;
+    OB_NOTICE(SAI_API_HOSTIF, "sflow: samples policed on CPU queue %d: %u kbit/s, burst %u B (policer %d)", q, kbps, cbs, trap_.policer);
+    return SAI_STATUS_SUCCESS;
+}
+
+void SflowArea::pre_enable()
+{
+    if (c_.key("SAI_TERALYNX_EGRESS_SFLOW", "off") != "on") return;
+    ifcs_attr_t e = attr_data(IFCS_NODE_ATTR_EGRESS_SFLOW_ENABLE, true);
+    int r = IFCS_STATUS_REASON(c_.L.ifcs_node_attr_set(NODE, 1, &e));
+    if (r != IFCS_SUCCESS) OB_WARN(SAI_API_SWITCH, "node EGRESS_SFLOW_ENABLE: %s (egress sampling stays off)", c_.reason(r));
+}
+
+// Read on every egress sampler change (rare; a cached value would hide the init's).
+bool SflowArea::egress_enabled()
+{
+    Guard g(c_.mu);
+    ifcs_attr_t a = attr_of(IFCS_NODE_ATTR_EGRESS_SFLOW_ENABLE);
+    uint32_t n = 0;
+    int r = IFCS_STATUS_REASON(c_.L.ifcs_node_attr_get(NODE, 1, &a, &n));
+    int on = r == IFCS_SUCCESS && a.value.data ? 1 : 0;
+    if (on != egress_)
+        OB_NOTICE(SAI_API_SAMPLEPACKET, "sflow: node EGRESS_SFLOW_ENABLE %s", r != IFCS_SUCCESS ? c_.reason(r) : on ? "on" : "off");
+    egress_ = on;
+    return on == 1;
+}
+
 void SflowArea::shutdown()
 {
     Guard g(c_.mu);
@@ -209,6 +353,10 @@ void SflowArea::shutdown()
         if (o.second.active) deactivate(o.second);
     rates_.clear();
     fd_ = -1;
+    unpolice();
+    have_trap_ = false;
+    queue_ = -2;
+    egress_ = -1;
 }
 
 std::string SflowArea::show()
@@ -222,6 +370,18 @@ std::string SflowArea::show()
         s += b;
     }
     if (genl_.empty()) s = "sflow: no genetlink host interface\n";
+    if (have_trap_) {
+        std::snprintf(b, sizeof(b), "sflow: SAMPLEPACKET trap action %d queue %u policer %d (yellow drop %d, red drop %d)\n",
+                      trap_.action, trap_.queue, trap_.policer, trap_.yellow_drop, trap_.red_drop);
+        s += b;
+    }
+    if (policed_q_ >= 0) {
+        std::snprintf(b, sizeof(b), "sflow: samples policed on CPU queue %d: meter %u kbit/s, burst %u B\n", policed_q_, cir_kbps_,
+                      cbs_bytes_);
+        s += b;
+    } else if (have_trap_) {
+        s += "sflow: samples not policed\n";
+    }
     return s;
 }
 

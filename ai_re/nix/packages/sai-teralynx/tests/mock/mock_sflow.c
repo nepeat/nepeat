@@ -2,7 +2,8 @@
  * Mock of the ipd driver's sFlow ioctls for tl_sflow.cpp: the backend calls
  * tl_ipd_ioctl when the loaded libifcs exports it (only this mock does).
  * Records one line per ioctl; mock_ipd_fail(nr, errno) makes the next call
- * with that nr fail (nr 0: none). */
+ * with that nr fail (nr 0: none). ifcs_cpu_queue_attr_set (the sample queue's meter,
+ * tl_sflow) is here too: one line per attribute. */
 #include "mock.h"
 
 #include <errno.h>
@@ -20,6 +21,14 @@ void mock_ipd_fail(unsigned nr, int err)
 }
 
 int mock_ipd_calls(void) { return calls; }
+void mock_sflow_egress(int on) { g_egress_sflow = on; }   /* as if the init had set node EGRESS_SFLOW_ENABLE */
+
+ifcs_status_t ifcs_cpu_queue_attr_set(ifcs_node_id_t n, ifcs_cpu_queue_t q, uint32_t c, ifcs_attr_t* a)
+{
+    (void)n;
+    for (uint32_t i = 0; i < c; i++) mock_logf("ifcs_cpu_queue_attr_set q=%u id=%u u32=%u", q, a[i].id, a[i].value.u32);
+    return q < 48 ? IFCS_SUCCESS : IFCS_PARAM;
+}
 
 int tl_ipd_ioctl(int fd, unsigned long req, void* arg)
 {

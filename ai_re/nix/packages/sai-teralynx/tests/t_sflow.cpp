@@ -5,11 +5,14 @@
 // the driver's sFlow netlink (sample GRE protocol, then the netlink, then
 // every sampled port's rate); sampler changes push the rate; refusals
 // (other trap types, a second sFlow netlink, failing ioctls); removal
-// deletes the netlink (harness: tests/harness.h).
+// deletes the netlink; the SAMPLEPACKET trap: system trap MIRROR_TO_CPU (isai)
+// and its group's policer as the meter of the samples' CPU queue, following
+// policer, group, queue and action changes (harness: tests/harness.h).
 #include "harness.h"
 
 static int (*m_ipd_calls)();
 static void (*m_ipd_fail)(unsigned, int);
+static void (*m_egress)(int);
 
 // The SAMPLEPACKET trap (t_copp.cpp keeps one): ours if creating works, else
 // found among the hostif trap ids below a fresh one.
@@ -82,6 +85,7 @@ void test_sflow(Env& e)
     USE_ENV(e);
     hook(g_mock, m_ipd_calls, "mock_ipd_calls");
     hook(g_mock, m_ipd_fail, "mock_ipd_fail");
+    hook(g_mock, m_egress, "mock_sflow_egress");
     sai_samplepacket_api_t* spa;
     OK(sai_api_query(SAI_API_SAMPLEPACKET, (void**)&spa));
     sai_attribute_t a;
@@ -159,6 +163,20 @@ void test_sflow(Env& e)
     a.id = SAI_PORT_ATTR_EGRESS_SAMPLEPACKET_ENABLE;
     CHECK_EQ(pa->set_port_attribute(p1, &a), SAI_STATUS_ATTR_NOT_SUPPORTED_0);
     CHECK(!has(m_log(), "ipd_ioctl"));
+    // with node EGRESS_SFLOW_ENABLE (SAI_TERALYNX_EGRESS_SFLOW=on at init): an egress collector,
+    // SFLOW_EGRESS (26) on the sysport, the egress rate (id 9) to the driver; off again
+    m_egress(1);
+    m_log_clear();
+    OK(pa->set_port_attribute(p1, &a));
+    log = m_log();
+    CHECK(has(log, "ifcs_collector_create") && has(log, "ifcs_sysport_attr_set sp=0x3e200001 id=26 u32=0"));
+    CHECK(has(log, "ipd_ioctl SET_NETDEV id=9 sysport=1 rate=4096"));
+    m_log_clear();
+    a.value.oid = 0;
+    OK(pa->set_port_attribute(p1, &a));
+    CHECK(has(m_log(), "id=26 u32=1") && has(m_log(), "SET_NETDEV id=9 sysport=1 rate=0") && has(m_log(), "ifcs_collector_delete"));
+    m_egress(0);
+    a.value.oid = smp;
 
     // ---- refusals: another trap type to a genetlink hostif; a second sFlow netlink
     sai_object_id_t ttl = 0, te2 = 0;
@@ -205,6 +223,89 @@ void test_sflow(Env& e)
     OK(ha->remove_hostif(gh2));
     CHECK(!has(m_log(), "ipd_ioctl"));
     OK(ha->remove_hostif(gh));
+
+    // ---- sample policing: SONiC's sflow group (queue 2, 1000 pps sr_tcm, red drop) on the trap.
+    //      The samples' queue is 2 (test profile SAI_TERALYNX_SFLOW_CPU_QUEUE; the mock has no node
+    //      TRAFFIC_MONITOR_CPU_QUEUE): CPU queue 2's token-bucket meter, 1000 x 84 B x 8 = 672 kbit/s, 84000 B
+    sai_attribute_t pp[5];
+    pp[0].id = SAI_POLICER_ATTR_METER_TYPE; pp[0].value.s32 = SAI_METER_TYPE_PACKETS;
+    pp[1].id = SAI_POLICER_ATTR_MODE; pp[1].value.s32 = SAI_POLICER_MODE_SR_TCM;
+    pp[2].id = SAI_POLICER_ATTR_CIR; pp[2].value.u64 = 1000;
+    pp[3].id = SAI_POLICER_ATTR_CBS; pp[3].value.u64 = 1000;
+    pp[4].id = SAI_POLICER_ATTR_RED_PACKET_ACTION; pp[4].value.s32 = SAI_PACKET_ACTION_DROP;
+    sai_object_id_t pol = 0;
+    OK(e.pola->create_policer(&pol, s, 5, pp));
+    sai_attribute_t gg[2];
+    gg[0].id = SAI_HOSTIF_TRAP_GROUP_ATTR_QUEUE; gg[0].value.u32 = 2;
+    gg[1].id = SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER; gg[1].value.oid = pol;
+    sai_object_id_t gp = 0;
+    OK(ha->create_hostif_trap_group(&gp, s, 2, gg));
+    const char* m2c = "00200 id=1 u32=";   // ifcs_hostif_trap_attr_set on system trap 512 (MIRROR_TO_CPU), ENABLE
+    sai_attribute_t ta;
+    ta.id = SAI_HOSTIF_TRAP_ATTR_TRAP_GROUP;
+    ta.value.oid = gp;
+    m_log_clear();
+    OK(ha->set_hostif_trap_attribute(trap, &ta));
+    log = m_log();
+    CHECK(!has(log, "id=25 "));                                          // METER_MODE: refused by the SDK, not set
+    CHECK(has(log, "ifcs_cpu_queue_attr_set q=2 id=28 u32=672"));      // CIR, kbit/s
+    CHECK(has(log, "ifcs_cpu_queue_attr_set q=2 id=29 u32=84000"));    // CBS, bytes
+    CHECK(has(log, "ifcs_cpu_queue_attr_set q=2 id=27 u32=1"));        // CIR enable
+    CHECK(log.find("id=28 u32=672") < log.find("q=2 id=27 u32=1"));    // enabled last
+    CHECK(!has(log, "ifcs_acl_") && !has(log, "ifcs_ace_"));            // no ACL objects (0.12.41: no MIRROR match)
+    // policer update: the queue meter follows
+    m_log_clear();
+    pp[2].value.u64 = 2000;
+    OK(e.pola->set_policer_attribute(pol, &pp[2]));
+    CHECK(has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=28 u32=1344"));
+    // group policer off: meter off; on again: back
+    sai_attribute_t gpol;
+    gpol.id = SAI_HOSTIF_TRAP_GROUP_ATTR_POLICER;
+    gpol.value.oid = 0;
+    m_log_clear();
+    OK(ha->set_hostif_trap_group_attribute(gp, &gpol));
+    CHECK(has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=27 u32=0") && !has(m_log(), "id=27 u32=1"));
+    gpol.value.oid = pol;
+    m_log_clear();
+    OK(ha->set_hostif_trap_group_attribute(gp, &gpol));
+    CHECK(has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=28 u32=1344") && has(m_log(), "q=2 id=27 u32=1"));
+    // action DROP: MIRROR_TO_CPU off (isai); TRAP: on again
+    sai_attribute_t act;
+    act.id = SAI_HOSTIF_TRAP_ATTR_PACKET_ACTION;
+    act.value.s32 = SAI_PACKET_ACTION_DROP;
+    m_log_clear();
+    OK(ha->set_hostif_trap_attribute(trap, &act));
+    CHECK(has(m_log(), std::string(m2c) + "0"));
+    act.value.s32 = SAI_PACKET_ACTION_TRAP;
+    m_log_clear();
+    OK(ha->set_hostif_trap_attribute(trap, &act));
+    CHECK(has(m_log(), std::string(m2c) + "1"));
+    // samplers do not touch the meter
+    a.id = SAI_PORT_ATTR_INGRESS_SAMPLEPACKET_ENABLE;
+    a.value.oid = 0;
+    m_log_clear();
+    OK(pa->set_port_attribute(p1, &a));
+    CHECK(!has(m_log(), "ifcs_cpu_queue_attr_set"));
+    a.value.oid = smp;
+    OK(pa->set_port_attribute(p1, &a));
+    // the group's queue is not the samples' queue: no meter there, ours goes
+    sai_attribute_t gq;
+    gq.id = SAI_HOSTIF_TRAP_GROUP_ATTR_QUEUE;
+    gq.value.u32 = 3;
+    m_log_clear();
+    OK(ha->set_hostif_trap_group_attribute(gp, &gq));
+    CHECK(has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=27 u32=0") && !has(m_log(), "q=3 "));
+    gq.value.u32 = 2;
+    m_log_clear();
+    OK(ha->set_hostif_trap_group_attribute(gp, &gq));
+    CHECK(has(m_log(), "q=2 id=27 u32=1"));
+    // the trap back to its first group; ours and its policer go (meter off)
+    ta.value.oid = grp;
+    m_log_clear();
+    OK(ha->set_hostif_trap_attribute(trap, &ta));
+    CHECK(has(m_log(), "ifcs_cpu_queue_attr_set q=2 id=27 u32=0"));
+    OK(ha->remove_hostif_trap_group(gp));
+    OK(e.pola->remove_policer(pol));
 
     // ---- clean up: samplers off, objects gone
     a.id = SAI_PORT_ATTR_INGRESS_SAMPLEPACKET_ENABLE;

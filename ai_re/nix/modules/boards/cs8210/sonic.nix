@@ -93,6 +93,12 @@ in {
         # openbcm-diag /run/sai-teralynx/diag.sock <command>
         SAI_OPENBCM_DIAG_SOCKET = "/run/sai-teralynx/diag.sock";
         SAI_TERALYNX_RUN_DIR = "/run/sai-teralynx";
+        # sFlow: samples land on CPU queue 2, the sflow trap group's queue (sdk-config.nix
+        # traffic_monitor_cpu_queue); its policer is not applied (SAI_TERALYNX_SFLOW_METER
+        # stays off: the queue meter misbehaved on the chip, sai-features.md). Egress
+        # sampling: node EGRESS_SFLOW_ENABLE before node enable (the yaml key is ignored).
+        SAI_TERALYNX_SFLOW_CPU_QUEUE = "2";
+        SAI_TERALYNX_EGRESS_SFLOW = "on";
       } // {
         # Generated with the IFCS config; init commands in the vendor's order:
         # rx_eq_fine_tune, the pre-emphasis tables, link training.

@@ -19,6 +19,7 @@
 // policers at 84 B per packet (CIR = pps * 672 bit/s, CBS = packets * 84 B),
 // byte policers at CIR * 8 bit/s, CBS bytes (I: the vendor's conversion).
 #include "tl_acl.h"
+#include "tl_sflow.h"
 
 #include "tl_l3.h"
 #include "tl_lag.h"
@@ -62,7 +63,17 @@ sai_status_t AclArea::policer_set(int pid, const PolicerCfg& cfg)
             if (st != SAI_STATUS_SUCCESS) worst = st;
         }
     }
+    if (c_.sflow) c_.sflow->policer_changed(pid);   // the sample policer's meter (tl_sflow)
     return worst;
+}
+
+bool AclArea::policer_get(int pid, PolicerCfg& cfg)
+{
+    Guard g(c_.mu);
+    auto it = policers_.find(pid);
+    if (it == policers_.end()) return false;
+    cfg = it->second;
+    return true;
 }
 
 sai_status_t AclArea::policer_destroy(int pid)

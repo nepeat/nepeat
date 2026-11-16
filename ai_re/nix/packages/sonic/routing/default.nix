@@ -98,7 +98,8 @@ let
   '';
   templateDir = "${templates}/share/sonic/frr-templates";
 
-  bgpcfgdPatches = [ ./patches/0003-bgpcfgd-software-bfd.patch ./patches/0005-bgpcfgd-local-as-live.patch ];
+  bgpcfgdPatches = [ ./patches/0003-bgpcfgd-software-bfd.patch ./patches/0005-bgpcfgd-local-as-live.patch
+                     ./patches/0006-bgpmon-all-vrfs.patch ];
   bgpcfgd = spy.copyPkg {
     pname = "sonic-bgpcfgd";
     src = "${bi}/src/sonic-bgpcfgd";

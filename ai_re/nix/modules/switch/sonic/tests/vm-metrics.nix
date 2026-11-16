@@ -2,7 +2,7 @@
 # textfile producer against a live stack, read back through the node
 # exporter. Switch: PortChannel0001 (Ethernet5/1 + Ethernet6/1, LACP) to the
 # peer with eBGP + BFD in the default VRF, Ethernet7/1 in Vrf-test
-# (eBGP to the peer, which bgpmon does not report), LLDP, pmon on the fake
+# (eBGP to the peer; bgpmon reports every VRF, routing patch 0006), sFlow config, LLDP, pmon on the fake
 # AS7760 board (two modules), an ACL rule, CoPP, a runtime conflict, a killed
 # unit; then redis stopped (sonic_up 0, file still published).
 #   nix build -L --impure --expr 'let f = builtins.getFlake "path:<ai_re>/nix";

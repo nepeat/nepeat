@@ -26,17 +26,20 @@ Port labels: `port` (SONiC name, `Ethernet0`) and `alias` (`Ethernet1/1`).
 | `sonic_portchannel_member_{selected,enabled}` | STATE_DB LAG_MEMBER_TABLE (tlm_teamd), APPL_DB | portchannel, port, alias |
 | `sonic_bfd_session_{state,up,info,tx_interval_seconds,rx_interval_seconds,detect_multiplier}` | STATE_DB BFD_SESSION_TABLE (bfdsyncd); state 0 AdminDown, 1 Down, 2 Init, 3 Up | vrf, interface, alias, peer |
 | `sonic_bgp_neighbor_{info,admin_up}` | CONFIG_DB BGP_NEIGHBOR (all VRFs) | vrf, neighbor, name (+ asn, local_addr, bfd) |
-| `sonic_bgp_neighbor_{state,established}` | STATE_DB NEIGH_STATE_TABLE (bgpmon); 1 Idle .. 6 Established (RFC 4273), 0 other | vrf, neighbor, name |
+| `sonic_bgp_neighbor_{state,established}` | STATE_DB NEIGH_STATE_TABLE (bgpmon, all VRFs: `<ip>` default, `<vrf>\|<ip>` others, routing patch 0006); 1 Idle .. 6 Established (RFC 4273), 0 other | vrf, neighbor, name |
 | `sonic_lldp_neighbors`, `sonic_lldp_neighbor_info` | APPL_DB LLDP_ENTRY_TABLE (lldp_syncd) | port, alias (+ remote_system, remote_port, remote_port_desc, remote_chassis) |
 | `sonic_transceiver_{present,info,temperature_celsius,voltage_volts}` | STATE_DB TRANSCEIVER_INFO / _DOM_SENSOR (xcvrd) | port, alias (+ type, vendor, model) |
 | `sonic_acl_rule_{info,active,packets_total,bytes_total}` | CONFIG_DB ACL_RULE, STATE_DB ACL_RULE_TABLE, COUNTERS_DB ACL_COUNTER_RULE_MAP | table, rule (+ action, priority) |
 | `sonic_copp_group_{info,cir,cbs,traps}`, `sonic_copp_trap_info`, `sonic_copp_trap_{packets,bytes}_total` | APPL_DB COPP_TABLE (coppmgrd), COUNTERS_TRAP_NAME_MAP | group, trap |
 | `sonic_routes`, `sonic_asic_routes` | APPL_DB ROUTE_TABLE, ASIC_DB route entries | vrf, family |
+| `sonic_queue_{packets,bytes,dropped_packets,dropped_bytes}_total` | COUNTERS_DB COUNTERS_QUEUE_NAME_MAP / _TYPE_MAP (flex counter QUEUE) | port, alias, queue, type (UC/MC/ALL) |
+| `sonic_crm_{used,available}`, `sonic_crm_acl_{used,available}`, `sonic_crm_acl_table_{used,available}` | COUNTERS_DB CRM:STATS, CRM:ACL_STATS:<stage>:<bind>, CRM:ACL_TABLE_STATS:<oid> (crmorch) | resource (+ stage, bind / table_oid) |
+| `sonic_sflow_{admin_up,polling_interval_seconds,collectors,collector_info}`, `sonic_sflow_port_{admin_up,sample_rate}` | CONFIG_DB SFLOW, SFLOW_COLLECTOR; APPL_DB SFLOW_SESSION_TABLE (sflowmgrd) | collector, ip, udp_port, vrf; port, alias, direction |
 | `sonic_nix_conflicts`, `_by_table`, `sonic_nix_notes`, `sonic_nix_conflicts_updated_timestamp_seconds` | /run/sonic-nix/conflicts.json | table |
 | `sonic_service_{active,restarts,start_timestamp_seconds}` | `systemctl show` of sonic-*.service + redis-sonic.service | unit |
 
-Limits: bgpmon reports the default VRF only, so BGP neighbors in other VRFs
-have `_info` but no `_state`. ACL counters exist only while `counterpoll
+Limits: queue counters need flex counter QUEUE (not seeded by services.sonic); CRM
+appears after crmorch's first poll (300 s). ACL counters exist only while `counterpoll
 acl enable` is on (off by default); trap counters need flex counter
 FLOW_CNT_TRAP, which sai-openbcm does not answer. `sonic_service_restarts`
 is systemd's NRestarts (automatic restarts since the last manual start);
