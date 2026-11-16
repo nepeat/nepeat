@@ -186,3 +186,15 @@ The RAM probe’s `sensors` prints `pwm1: 128%` while raw hwmon reads 255
 (full duty). Treat raw `/sys/class/hwmon/hwmon*/pwm1` and the board control
 tool as authoritative; the generic percentage display is not yet corrected.
 Twelve RPM readings and four LM75 temperatures are valid live measurements.
+
+**Software over-temperature shutdown, tested 2026-11-15** (owner's go):
+SONiC stopped, `openbcm-asic-temp --shutdown-at 38` at ~41 °C. The core PLL
+power-down fired, and the host went down with it: within about a minute the
+switch was booting again (kernel `panic=10`), consistent with an SDK access
+to the powered-down chip (our own follow-up `--once` read) causing a
+machine check / hang. No persistent journal and no live console, so the
+exact error is not captured. Recovery needed nothing (it rebooted itself;
+SONiC came back). Consequence: after exit 5 the reader must not touch the
+chip again: `RestartPreventExitStatus=5` (fand then holds 100% until a power
+cycle). The SDK's own hardware shutdown at 125 °C, armed by syncd's `init
+all`, is untouched by this.

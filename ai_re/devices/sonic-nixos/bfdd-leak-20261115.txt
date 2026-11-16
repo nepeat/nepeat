@@ -1,0 +1,42 @@
+# AS7760: bfdd RSS growth during the BFD soak, 2026-11-15
+2 single-hop sessions at 300 ms x3 (default VRF Ethernet0 <-> Vrf-test Ethernet124, iBGP with bfd true), FRR 10.7.1 (frr-sonic)
+## soak logger (bfdd RSS kB per minute)
+T17:16:21	bfdd=25468
+T17:17:22	bfdd=28384
+T17:18:23	bfdd=31304
+    PID   RSS     ELAPSED CMD
+   2174 32100       07:11 /nix/store/53pyiaqcrawi0zqzhnxlxjnlhbahhflb-frr-sonic-powerpc64-unknown-linux-gnuabielfv2-10.7
+## isolation: bfdsyncd stopped 3 min, then restarted
+stop bfdsyncd at 17:18:52 rss=32584
+17:19:52 rss=35432
+17:20:52 rss=38284
+17:21:52 rss=41144
+17:22:52 with bfdsyncd rss=43996
+17:23:52 with bfdsyncd rss=46856
+2
+## vtysh show memory bfdd, 60 s apart (FRR MTYPEs flat, heap +3 MiB)
+System allocator statistics:
+  Total heap allocated:  38 MiB
+  Holding block headers: 648 KiB
+  Used small blocks:     0 bytes
+  Used ordinary blocks:  38 MiB
+  Free small blocks:     0 bytes
+  Free ordinary blocks:  49 KiB
+  Ordinary blocks:       42
+  Small blocks:          0
+  Holding blocks:        2
+(see system documentation for 'mallinfo' for meaning)
+--- qmem libfrr ---
+== growing types (count/size before -> after)
+<   Total heap allocated:  35 MiB
+>   Total heap allocated:  38 MiB
+<   Used ordinary blocks:  35 MiB
+>   Used ordinary blocks:  38 MiB
+<   Free ordinary blocks:  125 KiB
+<   Ordinary blocks:       46
+>   Free ordinary blocks:  49 KiB
+>   Ordinary blocks:       42
+< Buffer data                   :        1   4120        4120        1      4120
+> Buffer data                   :        1   4120        4120        2      8240
+< Vector index                  :     4271 variable    136664     4280    136960
+> Vector index                  :     4271 variable    136648     4280    136960
