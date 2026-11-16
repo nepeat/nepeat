@@ -7,17 +7,23 @@ working one ([sonic.md](sonic.md)).
 
 ## Status (2026-11-16)
 
-- **Phase 1 (offline) done.** Release chosen (isai 6.2.0), ioctl surface listed, qemu patched and
-  tested, amd64 closure (libsai, syncd, smoke tools, memcpy preload) and the arm64 runner build.
-- **Phase 2 (2026-11-16): Marvell's SAI runs the chip under qemu-ipd.** isai 6.2.0 on the A72:
-  create_switch 0 in 22 s (MBIST, SerDes + SBM firmware, 32 x 400G ports with our lanes), ASIC
-  temperature 50-51 C, admin up/down, remove_switch 0, clean driver close; no kernel message, no guest
-  fault. **No link yet** on the cage 1 <-> 16 loop (no pre-emphasis / link-training settings given to
-  isai). Box restored to `legacy_abi=1`. [Evidence](sai-qemu-hw-20261116.txt).
-- Next: the CS8210 SerDes settings in isai's terms (yaml or SAI port serdes attributes), then syncd.
-- Code: [packages/qemu-ipd](../../nix/packages/qemu-ipd/README.md),
+- **Upstream SONiC runs the chip through Marvell's SAI under qemu-ipd**, 2 ports (cages 1, 16):
+  pinned orchagent/portsyncd/managers (arm64) + sairedis **202505** syncd (amd64, under qemu-ipd) on
+  isai 6.2.0. Both ports oper up in SONiC 36 s after start (create_switch 20 s, under sairedis' 60 s
+  sync timeout), traps installed, counters polled, LLDP sees the loop. Started by hand, nothing deployed.
+- **Link via SAI only:** `SAI_PORT_SERDES` TX taps from the vendor tables + FEC RS + link training:
+  400G up in 5.6 s, 0 uncorrectable FEC. No RX settings or rx_eq_fine_tune needed.
+- **Speed:** isai under qemu is 6.6x slower to create_switch (21.3 s vs 3.2 s) and 8-25x slower per
+  route/FDB call than our native SAI; table below.
+- **SAI ABI trap:** isai is SAI 1.16.1, where `sai_attribute_t` is 48 bytes; the pinned sairedis
+  (SAI 1.19.2) has 64. syncd must be built from SONiC 202505 (patched, below), not the pinned one.
+- Box left restored: ipd `legacy_abi=1`, nothing running. [Evidence](sai-qemu-hw-20261116.txt).
+- Next: a syncd/orchagent pairing without the version gap (orchagent 202505 too, or a 1.16->1.19
+  attribute shim), all 32 ports, traffic; whether the speed gap matters for SONiC operations (bulk
+  route programming) before choosing between this and our own SAI.
+- Code: [packages/qemu-ipd](../../nix/packages/qemu-ipd/README.md) (+ `sonic-isai.nix`),
   [packages/isai-amd64](../../nix/packages/isai-amd64/default.nix). Not wired into
-  `packages/default.nix` yet (build commands in the README).
+  `packages/default.nix` (build commands in the README).
 
 ## Release: isai 6.2.0 (SAI 1.16.1), Marvell `debian/202505/T6.2.0`
 
@@ -43,8 +49,9 @@ working one ([sonic.md](sonic.md)).
   `configs/yaml/board/innovium_32x400G.config.yaml`; sonic-buildimage has the x86 TL7 32x400
   Midstone-200i (`sai.profile` -> `inno.config.yaml` -> IFCS yaml + SKU, same IFCS yaml family
   as our generator's).
-- SAI ABI: sairedis' configure (pinned SONiC stack, SAI headers 1.19.2) accepts vendor >= 1.9;
-  the build ran it: "vendor lib SAI query api version: 11601".
+- SAI ABI: sairedis' configure check (vendor >= 1.9) passes for the pinned sairedis (1.19.2), but
+  the structs are not binary compatible: `sizeof(sai_attribute_t)` 48 (1.16.1) vs 64 (1.19.2),
+  enum values equal. syncd = sairedis 202505 (SAI submodule 1.16.1), see "SONiC" below.
 
 Dependencies of `libsai.so.1.0` (207 MB, stripped, IFCS + AAPL linked in): libstdc++, jansson,
 libyaml, libpython3.11, libortools.so.9, libmkaecp.so (bundled; imports 35 OR-Tools 9.11 CP-SAT
@@ -123,6 +130,44 @@ gets through `sai_api_initialize`, reads the profile and the IFCS yaml, scans `/
 returns `create_switch` -7 (ITEM_NOT_FOUND), the same natively and under qemu-ipd + devmem; the
 syncd built against this libsai loads it and stops at the missing redis config.
 
+## Benchmark: our SAI (native) vs isai (qemu-ipd), 2026-11-16
+
+Same boot, same IFCS yaml (32 x 400G), [tools/sai_bench.cpp](../../nix/packages/qemu-ipd/tools/sai_bench.cpp)
+built for each, mean of 3 runs at IFCS `log_level: "error"` (all calls SUCCESS):
+
+| operation | calls | native ms | isai+qemu ms | isai / native |
+|---|---|---|---|---|
+| create_switch | 1 | 3228 | 21322 | 6.6x |
+| port get oper_status | 32 | 2001 | 3.5 | 0.002x (ours: 62.5 ms per call) |
+| port get speed / mtu | 32 | 0.6 / 0.01 | 3.1 / 11.8 | |
+| port set mtu | 32 | 3.3 | 54.8 | 17x |
+| port get_stats (4 ids) | 32 | 55.3 | 27.9 | 0.5x |
+| route create / remove (drop, VRF) | 1000 | 34.7 / 25.0 | 264 / 308 | 7.6x / 12x |
+| fdb create / remove (static) | 100 | 13.8 / 10.8 | 321 / 271 | 23x / 25x |
+| remove_switch | 1 | 243 | 13208 | 54x |
+
+Logging: isai at the default `info` writes ~13 k lines per init (the "ECCH UE Cache update" flood):
++3.7 % create_switch, +31 % routes, +20 % FDB; the knob is `ifcs.options.log_level` in the IFCS
+yaml. Our SAI's 0.12 SDK logs to a file and hardly at info (no cost). Two findings for our SAI:
+**OPER_STATUS get takes 62.5 ms** (the slow getter of the smoke tool's report tick), and counter
+reads are 2x slower than isai's. Full table with per-call us: the evidence file.
+
+## Link and SONiC with isai, 2026-11-16
+
+- Link: `create_port_serdes` (TX_FIR_ATTN/PRE1/PRE2/PRE3 per lane from `preemphasis.cmd`),
+  `FEC_MODE` RS, `LINK_TRAINING_ENABLE`, admin up: both ports up in 5.6 s, 0 uncorrectable FEC,
+  ~3-8 correctable/s. In SONiC the same values go into CONFIG_DB PORT (`attn`, `pre1`..`pre3` as
+  hex lists, `fec rs`, `link_training on`); upstream boards feed them via media_settings.json/xcvrd.
+- SONiC: [sonic-isai.nix](../../nix/packages/qemu-ipd/sonic-isai.nix) on nepeat/nix's cs8210 config
+  (2 cages via empty breakouts), unit files run as runtime units. syncd = sairedis 202505 built
+  with doxygen 1.9.5 (the SAI 1.16 meta generator fails with current doxygen) plus one patch
+  (`patches/sairedis-202505-capability-unknown-attr.patch`: a capability query for an attribute
+  SAI 1.16 lacks answers NOT_SUPPORTED instead of shutting syncd down; the pinned orchagent asks for
+  SAI_SWITCH_ATTR_FAST_LINKUP_POLLING_TIMEOUT). Left over from the version gap: warnings for 1.19-only
+  port stats in flex counters; any 1.19-only attribute orchagent *sets* would still stop syncd.
+- No syncd timeout seen; create_switch 20 s of the 60 s sync budget. A start-limit loop happened with
+  the 1.19 syncd (orchagent's failure hook restarts syncd): each attempt failed before ASIC access.
+
 ## Alternatives weighed (FEX-Emu 2608, box64 0.4.4, both in nixpkgs)
 
 Both pass LP64 ioctls straight through, so neither needs an ioctl patch, and both are faster than
@@ -134,7 +179,7 @@ exclusives with a SIGBUS fix-up path whose behaviour on Device memory is unknown
 whose generated code we tested for this CPU. Keep box64 as plan B if TCG is too slow for the SDK's
 time-based timeouts (SerDes firmware download, PLL/link polls).
 
-## Phase 2 plan (run 2026-11-16 as written; results in the Status block and the evidence file)
+## Phase 2 plan (first window, run as written; results above and in the evidence file)
 
 Preconditions: MACsec agent done; `cs8210-switch`, `sonic.target`, any sai-smoke unit inactive;
 `cs8210-qsfp` shows only cages 1 and 16 (stop otherwise); no flash/EEPROM/CPLD writes, no reboot,

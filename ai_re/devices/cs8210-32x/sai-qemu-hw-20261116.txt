@@ -1377,3 +1377,126 @@ profile, inno.config.yaml, config.yaml, journal copies), /tmp/saiq (probe logs),
 [ 9607.891578] cs8210 systemd[1]: isai-smoke2.service: Deactivated successfully.
 [ 9607.892344] cs8210 systemd[1]: isai-smoke2.service: Consumed 58.208s CPU time over 1min 52.211s wall clock time, 370.6M memory peak.
 
+
+
+# 2026-11-16 (second window): benchmark, link with isai, syncd
+
+## Benchmark (same boot, transient units, RuntimeMaxSec=300, sync before each)
+Tool: nix/packages/qemu-ipd/tools/sai_bench.cpp (one source, generic SAI): sai_api_initialize + create_switch
+(INIT_SWITCH, port-state + shutdown callbacks), 32 x OPER_STATUS / SPEED / MTU gets, 32 MTU sets, 32 get_port_stats
+(4 ids), a new VRF with 1000 IPv4 /24 DROP routes created + removed, VLAN 100 + member + 100 static FDB entries
+created + removed, remove_switch. (a) native: sai-bench linked to our sai-teralynx (store bzl3754l...,
+backend dlopens the box's libifcs 0.12.41), ipd legacy_abi=1; (b) isai 6.2.0 under qemu-ipd (runner 4ppxp89g...,
+guest z9knlv5y...), ipd legacy_abi=0. Same IFCS yaml for both (our generated CS8210 yaml + vendor isg.yaml,
+netdev auto_create "no", 32 x 400G); native without its init .cmd files (no link work in the benchmark).
+Log level: IFCS yaml ifcs.options.log_level "error" (both) vs "info" (default). sai_log_set not used.
+isai info: 13140 journal lines per run (the "ECCH UE Cache update" flood); native info: 1170 bytes in
+$II_ROOT/log/sai-teralynx.log (the 0.12 SDK logs to a file and hardly at info).
+Results (ms per batch, mean of 3 runs at "error"; one run at "info"; all calls returned SUCCESS):
+| operation | calls | native ms (3 runs, mean) | isai+qemu ms (mean) | native us/call | isai us/call | isai/native | native info-log ms | isai info-log ms |
+|---|---|---|---|---|---|---|---|---|
+| sai_api_initialize | 1 | 0.01 | 2.64 | 9.9 | 2642.2 | 264.0x | 0.01 | 2.63 |
+| create_switch | 1 | 3228.45 | 21322.07 | 3228455.6 | 21322065.0 | 6.6x | 3233.40 | 22103.26 |
+| port get oper_status | 32 | 2001.49 | 3.48 | 62546.6 | 108.7 | 0.0x | 2001.87 | 3.47 |
+| port get speed | 32 | 0.62 | 3.05 | 19.5 | 95.2 | 4.9x | 0.32 | 3.03 |
+| port get mtu | 32 | 0.01 | 11.79 | 0.3 | 368.3 | 1178.7x | 0.01 | 12.00 |
+| port set mtu | 32 | 3.27 | 54.82 | 102.0 | 1713.2 | 16.8x | 3.31 | 59.50 |
+| port get_stats x4 | 32 | 55.25 | 27.90 | 1726.5 | 872.0 | 0.5x | 55.51 | 27.74 |
+| create vrf | 1 | 0.03 | 2.72 | 28.9 | 2724.8 | 90.8x | 0.03 | 2.87 |
+| route create (drop) | 1000 | 34.68 | 264.07 | 34.7 | 264.0 | 7.6x | 35.58 | 344.96 |
+| route remove | 1000 | 25.03 | 308.46 | 25.0 | 308.5 | 12.3x | 27.00 | 395.55 |
+| remove vrf | 1 | 0.00 | 4.92 | 1.2 | 4917.5 | n/a (native < 0.01 ms) | 0.00 | 7.01 |
+| create vlan | 1 | 0.55 | 4.93 | 547.4 | 4928.6 | 9.0x | 0.81 | 5.49 |
+| create vlan member | 1 | 0.19 | 15.50 | 194.2 | 15502.5 | 80.2x | 0.25 | 16.57 |
+| fdb create (static) | 100 | 13.77 | 320.65 | 137.7 | 3206.5 | 23.3x | 15.32 | 383.47 |
+| fdb remove | 100 | 10.75 | 270.78 | 107.5 | 2707.8 | 25.2x | 11.28 | 292.07 |
+| remove vlan member | 1 | 0.17 | 44.02 | 171.6 | 44016.5 | 258.9x | 0.26 | 45.68 |
+| remove vlan | 1 | 0.82 | 20.77 | 817.9 | 20772.3 | 25.4x | 1.07 | 22.52 |
+| remove_switch | 1 | 242.97 | 13207.75 | 242971.8 | 13207750.6 | 54.4x | 221.36 | 12763.57 |
+
+create_switch range: native 3225.9-3232.8 ms, isai 21284.3-21347.2 ms. Unit wall time: native 5.66 s / 1.51 s CPU,
+isai 36.6 s / 35.4 s CPU (qemu is CPU-bound). Raw files: devices/cs8210-32x/analysis/sai-qemu/hw/bench/ (git-ignored),
+native runs bench-native-error-{1,2,3}-0220{15,21,26}, bench-native-info-1-022032, isai bench-isai-error-{1,2,3}-022{129,205,242},
+bench-isai-info-1-022319 (an extra trial run of each, 022004 / 022047, matches).
+
+## Link with isai on the cage 1 <-> 16 400G CR8 DAC loop
+Credo: credo-up.sh again as unit isai-credo2: hung after "killing the old phy_server process!" and was stopped by its
+RuntimeMaxSec=360 (no phy_server left); the PHYs kept the first load's configuration (copper_1x400G line side on
+1 and 16, MACsec bypass), as in native run 3.
+SAI path only (no IFCS call from outside isai): SAI_PORT_SERDES per port with TX_FIR_{ATTN,PRE1,PRE2,PRE3} from the
+vendor tables our SAI uses (/run/sai-smoke/preemphasis.cmd, devport 1 = lanes 209-216, 16 = 81-88),
+SAI_PORT_ATTR_FEC_MODE RS, SAI_PORT_ATTR_LINK_TRAINING_ENABLE true, MTU 9100, admin up. RX settings (ctle,
+gainshape) and rx_eq_fine_tune were not given (no SAI attribute; the tool's --ifcs016-cmds path stayed unused).
+lane 209 devport 1 tx_eq_attn 0 0 2 1 0 2 1 2
+lane 209 devport 1 tx_eq_pre1 8 8 8 8 8 8 8 8
+lane 209 devport 1 tx_eq_pre2 -1 -1 -1 -1 -1 -1 -1 -1
+lane 209 devport 1 tx_eq_pre3 0 0 0 0 0 0 0 0
+create_port_serdes lane 209 (4 attrs): 0
+lane 81 devport 16 tx_eq_attn 0 2 0 2 2 0 1 0
+lane 81 devport 16 tx_eq_pre1 8 10 8 10 8 10 8 10
+lane 81 devport 16 tx_eq_pre2 -1 -2 -1 -2 -1 -2 -1 -2
+lane 81 devport 16 tx_eq_pre3 0 0 0 0 0 0 0 0
+create_port_serdes lane 81 (4 attrs): 0
+lane 209 fec rs: 0
+lane 209 link training: 0
+lane 209 admin up: 0
+lane 81 fec rs: 0
+lane 81 link training: 0
+lane 81 admin up: 0
+LINK t=0 temp 50 C | lane 209 oper 2 fec(0) corr 0 uncorr 0 sym 0 inerr 0 | lane 81 oper 2 fec(0) corr 0 uncorr 0 sym 0 inerr 0
+LINK t=2 temp 50 C | lane 209 oper 2 fec(0) corr 81 uncorr 0 sym 81 inerr 0 | lane 81 oper 2 fec(0) corr 9 uncorr 0 sym 9 inerr 0
+event port 0x100000000000001 oper 1
+event port 0x100000000000010 oper 1
+LINK t=4 temp 50 C | lane 209 oper 1 fec(0) corr 108 uncorr 0 sym 108 inerr 0 (up after 5.6 s) | lane 81 oper 1 fec(0) corr 91 uncorr 0 sym 91 inerr 0 (up after 5.6 s)
+LINK t=6 temp 50 C | lane 209 oper 1 fec(0) corr 110 uncorr 0 sym 110 inerr 0 (up after 8.1 s) | lane 81 oper 1 fec(0) corr 107 uncorr 0 sym 107 inerr 0 (up after 8.1 s)
+LINK t=30 temp 51 C | lane 209 oper 1 fec(0) corr 164 uncorr 0 sym 164 inerr 0 (up after 38.1 s) | lane 81 oper 1 fec(0) corr 280 uncorr 0 sym 280 inerr 0 (up after 38.1 s)
+LINK t=60 temp 51 C | lane 209 oper 1 fec(0) corr 216 uncorr 0 sym 216 inerr 0 (up after 75.7 s) | lane 81 oper 1 fec(0) corr 511 uncorr 0 sym 511 inerr 0 (up after 75.7 s)
+LINK t=88 temp 51 C | lane 209 oper 1 fec(0) corr 273 uncorr 0 sym 273 inerr 0 (up after 110.7 s) | lane 81 oper 1 fec(0) corr 740 uncorr 0 sym 740 inerr 0 (up after 110.7 s)
+event port 0x100000000000001 oper 2
+event port 0x100000000000010 oper 2
+Oper up on both ports 5.6 s after admin up (port events at t~4 s), stayed up for the 90 s window; FEC: 0
+uncorrectable, correctable/symbol errors growing ~2.9/s (209) and ~8/s (81); in-errors 0. Full output: run file
+bench-isai-error-1-023041 (sha256 eb74fff6..., see the syncd section).
+
+## syncd + SONiC stack (upstream sairedis amd64 under qemu-ipd, native orchagent etc.), 2 ports
+How: nepeat/nix nixosConfigurations.cs8210 extendModules'd with nix/packages/qemu-ipd/sonic-isai.nix (sonic enabled,
+cages 1 and 16 only via empty breakouts, sai.package = the arm64 syncd-runner) in a throwaway expression; only unit
+files and store paths were built and copied (units link farm yzdzadma...); nothing deployed. On the box: redis as
+transient unit redis-sonic (root, the module's redis.conf), the module's unit files for sonic-config-loader,
+syncd, portsyncd, orchagent, portmgrd, coppmgrd, intfmgrd, vlanmgrd, nbrmgrd, neighsyncd, fdbsyncd copied to
+/run/systemd/system with a drop-in Restart=no (orchagent also ExecStopPost= empty), tmpfiles/etc entries by hand.
+CONFIG_DB from sonic-nix load (2 PORTs: Ethernet0 lanes 209-216, Ethernet120 lanes 81-88), then by hand per port:
+fec rs, link_training on, admin_status up, attn/pre1/pre2/pre3 (hex, the same vendor taps as the link test).
+IFCS yaml: the module's 2-port generated yaml (whwp7b75...) + vendor isg.yaml, auto_create "no", isai's SKU file.
+1. syncd built from the pinned sairedis (SAI 1.19.2): create_switch failed "Cannot Create with Readonly Attribute
+   SAI_SWITCH_ATTR_PORT_NUMBER" at index 1 = SAI_STATUS_INVALID_ATTRIBUTE_1, 10 times (orchagent's ExecStopPost
+   restarted syncd until the start limit; each attempt failed before any ASIC access). Cause: sizeof(sai_attribute_t)
+   is 48 bytes in isai's SAI 1.16.1 headers and 64 in SAI 1.19.2 (attribute enum values identical), so isai reads
+   the attribute array with the wrong stride. sairedis' configure check (vendor >= 1.9) does not catch it.
+2. syncd from sonic-sairedis 202505 (14db8ad4, SAI submodule = 1.16.1; built with doxygen 1.9.5 from nixos-22.11,
+   the SAI 1.16 meta generator fails with current doxygen): switch created, then orchagent's capability query for
+   SAI_SWITCH_ATTR_FAST_LINKUP_POLLING_TIMEOUT (1.19-only) threw in syncd's deserializer -> shutdown request.
+3. + patch (qemu-ipd/patches/sairedis-202505-capability-unknown-attr.patch: unknown attribute in a capability query
+   -> NOT_SUPPORTED): **stack up, both ports oper up**. Timeline (monotonic s): syncd/orchagent start 12414,
+   INIT_VIEW 12415.9, create_switch in syncd 20 s (12415.9 -> 12436.2, under sairedis' 60 s sync timeout),
+   APPLY_VIEW 12437.9, hostif netdevs Ethernet0/Ethernet120 created by isai via ipd 12438, link up on both 12450.4
+   (36 s after start). APPL_DB PORT_TABLE oper_status up (fec rs, link_training on, the taps), STATE_DB ok,
+   netdevs UP LOWER_UP; 11 host traps in ASIC_DB (ARP req/resp, BGP v4/v6, IP2ME, ND, LACP, LLDP, NEIGHBOR_MISS,
+   TTL_ERROR, UDLD); COUNTERS_DB polled (79 port counters; FEC correctable 110, uncorrectable 0 after ~30 s).
+   Orchagent: no timeout; "Could not query" capability notes (PFC, mirror, TAM, DSCP-to-TC) and ACL enum queries
+   not implemented. syncd: per-poll warnings for 1.19-only port stats (SAI_PORT_STAT_TX_TRIM_*, DROPPED_TRIM_*).
+   IPv6 DAD on Ethernet120 reported fe80:: as duplicate (its own NS came back through the loop).
+   LLDP: a separate lldpd (-I Ethernet0,Ethernet120, own socket; the system lldpd stays on enp0s1,fpp*) for 45 s:
+   each port lists the other as neighbour (SysName cs8210, PortDescr Ethernet120 / Ethernet0), 12 sent / 12 received.
+   Stop: orchagent then syncd: "inno_cleanup_resources success", driver closed; orchagent ended "failed" on stop.
+Evidence (git-ignored, analysis/sai-qemu/hw/sonic/, sha256): sonic-syncd.txt 2a8ad4dc..., sonic-orchagent.txt e6eb3be8...,
+sonic-portsyncd.txt f5233d06..., sonic-portmgrd.txt f70eb366..., sonic-coppmgrd.txt 203ff38a..., appl-port-Ethernet120.txt
+ac9dcff9..., state-port-Ethernet0.txt e050128a...; link run hw/bench/bench-isai-error-1-023041.txt eb74fff6....
+
+## end state (02:58)
+All experiment units stopped and their unit files/drop-ins removed (daemon-reload, reset-failed); redis stopped;
+netdevs Bridge/dummy (vlanmgrd) deleted, Ethernet0/120 gone with syncd; removed /var/lib/sonic, /var/lib/redis-sonic,
+/var/lib/sonic-syncd, /zmq_swss, /etc/sonic, /var/log/swss, /usr/share/sonic and the /usr/share I had created,
+/run/redis*, /run/sonic-nix. ipd reloaded with legacy_abi=Y, /dev/ipd present, refcnt 0. cs8210-switch and
+sonic.target inactive, fand active, no qemu/syncd/orchagent/redis/phy_server process, cages 0x00008001.
+Left in tmpfs: /run/bench, /run/isai, /run/isai-sonic (profiles, yaml, journal copies). Copied store paths stay in /nix.
