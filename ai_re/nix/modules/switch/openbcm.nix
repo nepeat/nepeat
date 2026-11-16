@@ -82,6 +82,11 @@ in {
         RuntimeDirectory = "asic";
         Restart = "always";
         RestartSec = "5s";
+        # Exit 5 = it powered the ASIC core down (--shutdown-at). Any SDK access
+        # after that can crash the host (2026-11-15: the box panicked and
+        # rebooted right after the test), so stay down: no reading means fand
+        # holds 100% until a power cycle.
+        RestartPreventExitStatus = "5";
         # The SDK maps the BDE devices and its DMA pool; it runs as root.
         NoNewPrivileges = true;
         ProtectHome = true;
