@@ -25,11 +25,17 @@
 
 ## todo / standing notes
 
+- **External PCIe INTx (2026-11-15, from the DMC-12 USB finding):** on the DMC-12 (Alpine V2) the factory DT routes external-PCIe INTx through an Annapurna IOFIC that mainline lacks, so its USB only ran from the EHCI 100 ms watchdog. Here the ASIC (0001:01:00.0, `ipd`) has legacy irq 17 = GIC SPI 73, today only PME/AER on it (SDK not running); the FPGAs have no driver. Check `/proc/interrupts` for ipd while `cs8210-switch` runs, and compare with the vendor DT's interrupt-map. On-SoC devices are fine: AHCI and ttyS0 count interrupts, al_eth uses MSI-X.
+
 - **Fans** (user request 2026-11-09: slow them down, the unit is very loud at the
-  CPLD power-on default). Done from Linux: `services.cs8210-fancontrol` disarms
-  the fan watchdog and holds PWM 127 (~50%, ~10-11k rpm) below 35 C, ramping to
-  full speed at 55 C; any error or service stop forces full speed and re-arms
-  the watchdog. Manual control: `cs8210-fan status|set|quiet|max|watchdog`.
+  CPLD power-on default; keep them quiet). Linux holds PWM 127 (~50%, ~11k rpm)
+  until the hottest LM75 passes 40 C or the ASIC die 70 C, full speed at 55 /
+  95 C; any fault or stop forces full speed and re-arms the fan watchdog.
+  Deployed daemon: `services.cs8210-fancontrol` (python). **fand replaces it
+  in the nix tree (2026-11-15, built, not deployed yet)**:
+  `hardware.cs8210.fan.controller` = `fand` (default) | `python` (fallback).
+  Manual control: `fand status`, `fand set 80% --for 10m`; `cs8210-fan
+  status|set|quiet|max|watchdog` for when no daemon runs.
   **Still loud between power-on and NixOS userspace (~40 s)**: nothing in
   U-Boot touches the fans (no env var, no script, only the CPLD version
   banner). The U-Boot equivalent would be raw writes, not yet tried:
@@ -81,6 +87,40 @@ Binary images, photos, and raw evidence are local-only and ignored by git. They
 can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
+
+### 2026-11-15 — fan control moved to fand (built offline, not deployed)
+
+- `nix/nixos/module/cs8210/fan-control` now configures fand
+  (`rust/crates/fand`, imported from the monorepo; the nepeat/nix flake is
+  `git+file:…?dir=nix`, so `../rust` is in its source). Same curves and floor
+  as fancontrol.py (board 40->55 C, ASIC 70->95 C, PWM 127 floor, 2 C
+  hysteresis), plus: 14 outputs (one per fan slot, PWM 0x?2) with the fan
+  watchdog 0x0c as `arm` (writes 0x18), CPLD version 0x00 = 3 as `expect`,
+  front/rear tachs (x100, min 3000 rpm); the 13 LM75s by devicetree node (all
+  required); the MCP3425 ASIC read as an exec sensor (`i2ctransfer r3@0x68`:
+  an SMBus register read would write the ADC's config byte), critical 100 C;
+  the system CPLD 0x05 bits 7/5 as an exec output (released every tick
+  below 100 %, set at 100 %, RMW). ExecStopPost: `fand failsafe`, then
+  `cs8210-fan-exit` (sys CPLD force, PWM 255, both watchdogs re-armed).
+- The 0x74 mux is a kernel pca9548 (DT), not userspace-controlled: the manual
+  `i2c mw 0x74 …` recipe is U-Boot only. Nothing on NixOS writes a mux by
+  hand (tools, vendor-sdk scripts checked; the SDK chroot does not run the
+  vendor install.sh, whose `-y 8` bus numbers are stock-kernel ones). The
+  kernel locks the parent adapter per transfer, so fand, the lm75 driver and
+  `cs8210-fan` cannot interleave. Mux channels are numbered in probe order,
+  so fand got `bus: {of_node: "i2c-mux@74/i2c@2"}` (additive; tests in
+  `src/i2c.rs`, `src/config.rs`) instead of DT `i2cN` aliases, which would
+  renumber every bus and need a reboot.
+- Checks: `cargo test -p fand` (and the aarch64 build's tests under
+  emulation) pass; the rendered config passes `fand check --syntax-only` at
+  build time; an offline run against a fake sysfs/CPLD tree (startup, SDK
+  force-max, ASIC read failure, stalled rotor, watchdog re-armed, CPLD version
+  change, SIGTERM, `fand failsafe`) behaved as intended. System built:
+  `nix store diff-closures` vs master shows only the fan changes; the
+  `cs8210-switch` unit, kernel, initrd and DTB are unchanged vs master.
+- Open: tach scale x100 and the rotor maxima come from one fan sample; 7th
+  slot populated on every board is assumed (`hardware.cs8210.fan.slots`). No
+  node exporter on the box, so no Prometheus file (`…fan.prometheusFile`).
 
 ### 2026-11-15 — boot chain dissected; boot ROM dumped; vendor U-Boot checklist
 
