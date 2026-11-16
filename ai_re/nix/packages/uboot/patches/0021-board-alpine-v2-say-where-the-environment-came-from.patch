@@ -4,21 +4,23 @@ Date: Sun, 15 Nov 2026 04:30:00 +0000
 Subject: [PATCH] board: alpine-v2: say where the environment came from
 
 With the env in SPI flash (ENV_IS_IN_SPI_FLASH), board_late_init prints
-"Env:   SPI flash, copy at <offset>" or "Env:   compiled-in default" and
-sets $env_source to spi, spi-redund or default (rewritten at every
-boot). Compiled out otherwise.
+"Env:   SPI flash, copy at <offset>" or "Env:   compiled-in default", and
+"alpine state" shows the same line. The origin is computed from gd each
+time and never stored in the environment, so saveenv cannot keep a stale
+copy. Compiled out otherwise.
 
 Scope: alpine-v2.
 ---
  board/amazon/alpine-v2/Makefile     |  1 +
  board/amazon/alpine-v2/alpine-v2.c  |  2 ++
- board/amazon/alpine-v2/env-report.c | 31 +++++++++++++++++++++++++++++
+ board/amazon/alpine-v2/env-report.c | 24 ++++++++++++++++++++++++
+ board/amazon/alpine-v2/soc-init.c   |  2 ++
  board/amazon/alpine-v2/soc-init.h   |  1 +
- 4 files changed, 35 insertions(+)
+ 5 files changed, 30 insertions(+)
  create mode 100644 board/amazon/alpine-v2/env-report.c
 
 diff --git a/board/amazon/alpine-v2/Makefile b/board/amazon/alpine-v2/Makefile
-index 0c3406c..ecb935f 100644
+index 0c3406c2..ecb935f2 100644
 --- a/board/amazon/alpine-v2/Makefile
 +++ b/board/amazon/alpine-v2/Makefile
 @@ -5,3 +5,4 @@ obj-$(CONFIG_ALPINE_V2_ETH_HANDOFF) += eth-handoff.o
@@ -27,7 +29,7 @@ index 0c3406c..ecb935f 100644
  endif
 +obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env-report.o
 diff --git a/board/amazon/alpine-v2/alpine-v2.c b/board/amazon/alpine-v2/alpine-v2.c
-index 9394e6c..b1e4c3d 100644
+index 9394e6c2..b1e4c3da 100644
 --- a/board/amazon/alpine-v2/alpine-v2.c
 +++ b/board/amazon/alpine-v2/alpine-v2.c
 @@ -195,6 +195,8 @@ int board_late_init(void)
@@ -41,16 +43,16 @@ index 9394e6c..b1e4c3d 100644
  
 diff --git a/board/amazon/alpine-v2/env-report.c b/board/amazon/alpine-v2/env-report.c
 new file mode 100644
-index 0000000..8fe7afb
+index 00000000..61715f11
 --- /dev/null
 +++ b/board/amazon/alpine-v2/env-report.c
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,24 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Where the environment came from, for a board whose env lives in SPI
-+ * flash: a boot line and $env_source ("spi", "spi-redund" or "default").
-+ * $env_source is rewritten at every boot, so a value carried along by
-+ * saveenv does not matter.
++ * flash: a boot line, and the same line in "alpine state". Computed from
++ * gd each time and never put into the environment itself, so saveenv
++ * cannot store a stale copy.
 + */
 +
 +#include <env.h>
@@ -62,22 +64,28 @@ index 0000000..8fe7afb
 +
 +void alpine_v2_env_report(void)
 +{
-+	const char *src;
-+
-+	if (gd->flags & GD_FLG_ENV_DEFAULT) {
-+		src = "default";
++	if (gd->flags & GD_FLG_ENV_DEFAULT)
 +		printf("Env:   compiled-in default (see the warning above)\n");
-+	} else if (gd->env_valid == ENV_REDUND) {
-+		src = "spi-redund";
++	else if (gd->env_valid == ENV_REDUND)
 +		printf("Env:   SPI flash, copy at %#x\n", CONFIG_ENV_OFFSET_REDUND);
-+	} else {
-+		src = "spi";
++	else
 +		printf("Env:   SPI flash, copy at %#x\n", CONFIG_ENV_OFFSET);
-+	}
-+	env_set("env_source", src);
 +}
+diff --git a/board/amazon/alpine-v2/soc-init.c b/board/amazon/alpine-v2/soc-init.c
+index d4d5dc25..3133c02a 100644
+--- a/board/amazon/alpine-v2/soc-init.c
++++ b/board/amazon/alpine-v2/soc-init.c
+@@ -249,6 +249,8 @@ static int do_alpine(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv
+ 		printf("GPIO 16-23: dir %02x data %02x\n", readl(GPIO2_BASE + 0x400) & 0xff,
+ 		       readl(GPIO2_BASE + 0x3fc) & 0xff);
+ 		gpio_show();
++		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
++			alpine_v2_env_report();
+ 		return 0;
+ 	}
+ 	if (!strcmp(argv[1], "ccu")) {
 diff --git a/board/amazon/alpine-v2/soc-init.h b/board/amazon/alpine-v2/soc-init.h
-index 15d4444..3be8a65 100644
+index 15d4444e..3be8a659 100644
 --- a/board/amazon/alpine-v2/soc-init.h
 +++ b/board/amazon/alpine-v2/soc-init.h
 @@ -6,5 +6,6 @@ int alpine_v2_muio_init(bool verbose);

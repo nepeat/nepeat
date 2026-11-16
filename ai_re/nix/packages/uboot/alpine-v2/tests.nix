@@ -285,12 +285,14 @@ let
     grep -aqF 'SF: erase %#llx+%#llx outside the write window, refused' $b
     grep -aqF 'SF: write %#llx+%#zx outside the write window, refused' $b
     # cold stage3 boot: no slave left selected before the first command (0018);
-    # the env origin is printed and in $env_source (0021)
+    # the env origin is printed at boot and in "alpine state", never stored in the env (0021)
     grep -aq 'slave select %#x left set by the firmware, cleared' $b
     grep -aq 'Env:   SPI flash, copy at %#x' $b
     grep -aq 'Env:   compiled-in default' $b
     grep -q ' alpine_v2_env_report$' syms.txt
     fn board_late_init | grep -q 'bl.*<alpine_v2_env_report>' || { echo "elf: board_late_init does not report the env"; exit 1; }
+    fn do_alpine | grep -q 'bl.*<alpine_v2_env_report>' || { echo "elf: alpine state does not report the env"; exit 1; }
+    ! grep -aq 'env_source' $b || { echo "elf: env_source is back (saveenv would store it)"; exit 1; }
     # Instruction order (0018): probe stores SER (+0x10) = 0 before it calls the
     # variant init (blr); exec_op stores SER = 0 after the first SSIENR (+0x08) = 0 and
     # before the first DR (+0x60) write; GPIO init stores DATA before and after DIR (+0x400).
