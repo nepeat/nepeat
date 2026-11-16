@@ -1,9 +1,10 @@
 # Runbook: porting a switch to mainline Linux, NixOS, upstream U-Boot and an open switch SDK
 
 For agents and the owner. Distilled from the AS7760-32X port (NXP T2080 ppc64 BE, BCM56930
-Tomahawk-class). Work top to bottom; each phase ends in a **gate**: don't start the next phase's
-risky items until the gate holds. Items marked *(not yet done on AS7760)* are aspirational: nobody
-has proven them on real hardware yet. "how" sub-bullets give the technique that worked. Owner's outline:
+Tomahawk-class), with lessons from the DMC-12 (boot flash A/B, consoled) and the CS8210 where named.
+Work top to bottom; each phase ends in a **gate**: don't start the next phase's risky items until the
+gate holds. Items marked *(not yet done on AS7760)* are aspirational: nobody has proven them on real
+hardware yet. "how" sub-bullets give the technique that worked. Owner's outline:
 Mapping = phases 0–1, Dev = phases 2–5, Bonus = phase 7 + the Bonus section.
 
 Read first: the device's `PROGRESS.md` (Status block), `ai_re/CLAUDE.md`, `ai_re/nix/README.md`.
@@ -16,6 +17,11 @@ Goal: a logged console, scripted power, a written recovery story, and private da
 - [ ] One serial session in a named tmux pane running tio, logged to a .txt file in the device dir
   (.log is gitignored). Use the stable `/dev/serial/by-id/` path. Every tool shares this pane; never open the UART separately.
   - how: if the user lacks the dialout group, keep one persistent sudo tio. Add tmux `pipe-pane` to a capture file that helper scripts can tail.
+- [ ] Or a console-server port: the DMC-12's consoled (`rust/consoled/README.md`; `ssh -t console@<dmc12> watch|attach <label>`,
+  scripts use `send`/`expect`/`run`, one writer, others watch). Its scrollback lives in RAM and is lost when consoled restarts, so
+  record captures yourself: `ssh console@<dmc12> log <label> --follow > <device>/serial-<date>.txt`.
+  - how: prove a new console path loses no bytes (`rust/consoled/tools/stream-check.py`) before trusting its captures.
+- [ ] The console stays with the device for the whole port. If it moves, stop bootloader work and any reboot that might need a prompt until a replacement is live (the AS7760's cable moved to another project on 2026-11-15).
 - [ ] Confirm baud/framing from a readable boot, then record it in PROGRESS. Never assume it.
 - [ ] Paced-input helper: send keystrokes one at a time (a few ms apart). Old loaders drop characters from bursts, especially while echoing or computing CRCs.
   - how: a script returning does not mean the device command finished. Wait for the prompt regex.
@@ -27,6 +33,7 @@ Goal: a logged console, scripted power, a written recovery story, and private da
   - e.g. on the AS7760: the fan CPLD sits at full duty until told otherwise.
 - [ ] Network map: what each front-panel port is cabled to, and that the management port sits on an access
   (untagged) switch port. Use a TFTP dir that serves **only public build artifacts**.
+  - house-network guard: front-panel ports go only to lab loops on the same box or a separate test switch, never to the house network, until Phase 5's guard holds (AS7760: one breakout loop; CS8210 incident in the gotchas).
 - [ ] Recovery inventory: which flash the board boots from, alternate bank or not, JTAG/COP header, and what
   programmer that flash needs. On the AS7760 the boot flash is parallel CFI NOR (TSOP-56), which a SOIC-8 clip can't reach.
 - [ ] Before the first capture: device dir mode 0700, and a .gitignore for `dumps/`, build outputs, `*-private.txt` and raw serial captures.
@@ -105,13 +112,27 @@ Goal: every board device is bound, monitored, or listed as absent or unknown. Fa
 - [ ] Fan driver (hwmon) built from the recovered CPLD registers: read-only probe, read back every write, refuse unsafe low duty, never stop a fan.
   - how: repeat the vendor's exact write sequence from disassembly. Treat unknown registers as unknown.
 - [ ] Temperature sensors bound and labelled, cross-checked against a bootloader-prompt readout.
-- [ ] Monitor service: 100% on any sensor/rotor fault or on exit (`ExecStopPost`). Hold a guarded quiet duty only once measured.
+  - how: check what a read does on odd parts: an SMBus register read writes an MCP3425 ADC's config byte, so CS8210 reads it with a raw `i2ctransfer`.
+- [ ] Fan control by fand (`rust/crates/fand`, one module per fan part in `nix/modules/thermal/`): 100% on any sensor/rotor fault or on exit
+  (`ExecStopPost=fand failsafe`, systemd watchdog). Floor = the hardware minimum (`raw_min`); readback and tach-follow checks; a fan
+  watchdog register as `arm` and a CPLD version as `expect`; `fand check --syntax-only` at build time. Hold a guarded fixed duty until a quiet curve is measured.
   - e.g. on the AS7760: first 80% while all board sensors read ≤40 °C, 100% at 45 °C; now fand's curve from the hardware minimum (thermal.md).
+  - how: put curve idle points exactly on the minimum and let the curve reach 100% before `critical` (see gotchas).
+- [ ] fand failsafe/exit tests, each ending at 100% and recorded in PROGRESS: `systemctl stop fand`, `kill -9` (Restart + ExecStopPost),
+  a required sensor gone or its writer stopped, a stalled rotor or failed write, a second instance (exits before touching a fan).
+  Run the ones you can't cause safely offline against a fake sysfs/CPLD tree (CS8210 PROGRESS, 2026-11-15 "fan control moved to fand").
 - [ ] Feed ASIC die temperature (on-die PVTMON via the SDK) into the fan policy as a required sensor: no reading = full speed.
   - e.g. on the AS7760: `openbcm-asic-temp` (attach only) → `/run/asic/temperature` → fand zone `asic`. Test it after a cold power cycle, not only after an SDK session.
+  - how: one SDK process per unit (a lock file). When the NOS owns the chip its SAI writes the same file (AS7760: `SAI_OPENBCM_TEMP_FILE` in syncd, the reader restarts when syncd stops),
+    and a fand sensor `grace` (AS7760: 15 s) holds the last value across the handover and writer restarts. Check that a restart costs no failsafe blip.
+- [ ] Over-temperature test, with the owner's go and the console attached: the chip's own shutdown and any software one, fired at a low threshold.
+  Expect it to take the host down, and make sure nothing touches the chip after it fired (AS7760, 2026-11-15: the host rebooted itself; `RestartPreventExitStatus`, thermal.md).
 - [ ] Module EEPROM tool: port → mux/channel map from the vendor table, SFF-8636/SFF-8472 decode, JSON output, hot-inserted modules.
   - how: open /dev/i2c-N with `I2C_SLAVE_FORCE` next to at24. at24 binds only at boot, and "busy" is not "empty".
+  - how: page-select reads as one combined transfer (`I2C_RDWR`) under a per-bus lock, so the NOS's xcvrd and the tool can't interleave (AS7760 `as7760-qsfp`).
+- [ ] Optics inventory: every module in the lab (cage, form factor, vendor, part, reach/length, what it's cabled to) from the EEPROM tool into PROGRESS. Re-check it before every SDK start; the `ai-re-switch-optics` dashboard shows it live.
 - [ ] QSFP reset/LPMode/presence/interrupt lines via the CPLD (AS7760: reset/presence/interrupt done; no LPMODE pin, SFF-8636 soft low power untested).
+  - how: read-modify-write under one lock (one register covers 8 cages, so a whole-byte write resets 8 modules), and ask which ports are cabled before a reset (`qsfp-control.md` don'ts).
 - [ ] Board identity: find where MAC/serial really live (AS7760: ONIE TLV in a NOR partition, not the declared I2C EEPROM). Make the loader pass them on.
 - [ ] LEDs: system/management LEDs (CPLD) and port LEDs (ASIC LED processor program) (AS7760: the public port LED program loads at SDK init, not checked by eye; CPLD LEDs *not yet done*).
 - [ ] CPLDs: map versions and reset registers read-only. Don't run vendor reset commands you haven't verified.
@@ -123,6 +144,7 @@ Goal: every board device is bound, monitored, or listed as absent or unknown. Fa
 Goal: the device's health is scraped and kept, so thermal and fan changes are judged on trends, not single reads.
 
 - [ ] node-exporter on the device (shared module `monitoring-node-exporter`, port 9100, firewall opened), cross-built for the target. Collectors: hwmon, thermal_zone, cpu, loadavg, meminfo, pressure, filesystem, diskstats, netdev, netclass, systemd, textfile, time, uname; drop noisy/useless ones.
+  - how: Go's node_exporter needs POWER8 and dies with SIGILL on older PowerPC; use `node-exporter-lite` there (`nix/modules/monitoring/README.md`).
 - [ ] Board producer writing textfile metrics (atomic write, timeout, delete on failure, a `_last_success_timestamp` per producer), best effort:
   - optics per port: presence, info (type, vendor, part), temperature, supply voltage, and for active optics per-lane rx power / tx bias;
   - fans: controller duty in percent, per-rotor rpm and fault with front/rear labels, thermal-service failsafe state;
@@ -131,7 +153,9 @@ Goal: the device's health is scraped and kept, so thermal and fan changes are ju
   - PSU presence/status, CPLD/board health registers where known *(not yet done on AS7760)*;
   - load, memory, uptime, disk and NIC counters come from node-exporter itself.
   Prefer generic names (`switch_optic_temperature_celsius{port=}`, `switch_fan_rpm{rotor=}`) with board specifics in labels, so dashboards carry over between boards.
-- [ ] Register a scrape target in the lab VictoriaMetrics (`ai-re-metrics target add <device> <host>:9100`) and confirm `up == 1` and the custom series exist.
+- [ ] Register a scrape target in the lab VictoriaMetrics (`ai-re-metrics target add <device> <host>:9100`, NAME = the device dir) and confirm `up == 1` and the custom series exist. Remove it when the device goes away.
+- [ ] Dashboards: the shared ones (`ai-re-lab-overview`, `-switch-thermals`, `-switch-optics`, `-node`, `-sonic`) should fill from the generic names. Add board panels as JSON in
+  `tools/grafana/dashboards/` (fixed uid, `$job`/`$instance` variables, no IPs or hostnames; the UI can't save). See `tools/README.md` (Grafana).
 - [ ] Baseline: at least an hour (ideally a day) of temperatures and fan rpm at the current fan policy, with the ASIC idle and initialised, before lowering fan duty. Record min/avg/max in PROGRESS (`ai-re-metrics range ... --since`).
 - **Gate:** the device is scraped, a baseline is recorded, and the fan policy change can be compared against it.
 
@@ -154,6 +178,8 @@ Goal: front-panel ports as Linux netdevs passing frames over real cables, all bu
 - [ ] Real links, isolated: remove all ports from the default VLAN, give each test port its own VLAN with only the CPU,
   keep the other ports disabled, use an experimental ethertype (`0x88b5`), and disable the ports again afterwards.
   - how: read both module EEPROMs first, force speed with autoneg off, use SerDes diagnostics (eye/lock) to tell the cable apart from config.
+- [ ] House-network guard, before any front port meets a network you care about: SDK start, stop and restart under traffic survived on a lab loop;
+  ports admin-down unless declared; one leg until LACP teardown is proven; the data plane off at boot until then. **Ask the owner** first (CS8210 incident in the gotchas).
 - [ ] Check the port mode's per-lane speed limits before blaming optics or adapters.
 - [ ] 100G on real cables, FEC, all lanes, SDK interrupts instead of polling, throughput, soak runs *(not yet done on AS7760; pre-emphasis and the LED program come with the SDK init since 2026-11-15)*.
 - [ ] Load test that is really load: a MAC-loopback broadcast storm is throttled (see gotchas). Use a traffic generator or real line-rate peers *(not yet done on AS7760)*.
@@ -169,8 +195,12 @@ Goal: the board is a thin layer on shared profiles, platforms and functions, and
 - [ ] Cross-build each package for the target before adding it to a shared profile. Write trimmed variants when a
   dependency blows up (e.g. `fastfetch-tiny`). Record packages that can't be built (e.g. ubootTools via python-cryptography/Rust).
 - [ ] Image builder: closure budget check, size report, fsck, ELF audit (every binary is the target arch), header/CRC checks for legacy images.
+  `disallowedReferences` on build-host tools that leak in through headers or libtool files.
 - [ ] Bootloader hook installs kernel/initrd/DTB plus extlinux and keeps the previous generation.
-- [ ] `deploy.sh` = `nixos-rebuild --target-host`. Prove it with a real kernel change.
+- [ ] `deploy.sh` = `nixos-rebuild --target-host`. Prove it with a real kernel change. Boxes on small flash take `profile-rebuildable` (no on-box builds); measure what a no-op and a real deploy write.
+- [ ] Deploy and rollback discipline: build from committed HEAD, not the working tree (other sessions edit it); one deployer per box; know which units
+  a deploy restarts (AS7760: a changed orchagent restarts syncd, links flap) and say so; `nixos-rebuild boot` + reboot for kernel or boot changes;
+  have the rollback command for this box written down and tried once (`nixos-rebuild switch --rollback`, plus `--no-reexec` on `profile-rebuildable`).
 - [ ] Out-of-tree kernel modules: install via kbuild `modules_install`, so nixpkgs' module signing certificate files are generated.
 - [ ] Prove refactors neutral (same `.drvPath`/output hash, or `nix store diff-closures`) and record that in PROGRESS.
 - [ ] Reference files with `builtins.path`. nix/ never reads devices/. Build logs and result links go to the device's `nixos-build/`.
@@ -180,26 +210,37 @@ Goal: the board is a thin layer on shared profiles, platforms and functions, and
 Goal: the newest upstream U-Boot with a minimal, scoped patch series, tested in RAM, then flashed by a checked script.
 
 - [ ] Feasibility gates: secure boot not enforced, a reference board upstream, matching flash layout, sibling GPL port read, **recovery path agreed with the owner**.
+- [ ] Recovery ladder written before the first write: rungs from least to most invasive (stay at the prompt and rewrite from RAM, escape key, alternate instance,
+  ROM UART boot, programmer), each marked proven on hardware / from code / inferred (DMC-12 `spi-recovery.md` §7, CS8210 `uart-recovery.md` §5).
+  - how: trace what really picks the boot instance and what happens on a bad checksum. "A/B in flash" is not a fallback until that trace says so.
+- [ ] Where the boot chain allows it, A/B: install into a blank or inactive slot and flip one selector, keep the factory loader reachable by a key press,
+  never overwrite the active copy; rollback = reset the selector (DMC-12: IPXE 0/1 + BOOT_MODE, `spi-upgrade-plan.md`; CS8210 plan: a second TOC, `boot-chain.md`).
+  With a single slot (AS7760) the ladder is the RAM rollback copy plus a programmer.
 - [ ] Build the stock reference board through nixpkgs `buildUBoot`. Check the image size equals the partition and the reset vector matches the vendor image. Never flash this stock build.
 - [ ] Config deltas: turn off anything that writes to absent hardware (VID regulator, reference CPLD, ID EEPROM).
   Set the real SYS_CLK, a board DT, the SPD addresses and DIMM slots, and turn off dead scan targets (SATA/USB).
 - [ ] One ordered patch series with a scope per patch (platform vs board). Check it applies to a pristine tree. Keep fixes
   that could go upstream separate from board hacks.
+- [ ] Refactors of the series are byte-neutral: same `u-boot.bin` sha256 (or drvPath) for every affected build (`nix/packages/uboot/README.md`).
 - [ ] Static tests (ELF class/entry, CPU flags, no illegal opcodes, image size, reset vector) and a QEMU boot, no board needed.
 - [ ] RAM chainload test: a RAM-linked build loaded with `tftp + go` from the current loader, driven by a harness that
   requires banner + prompt, runs checks, saves a transcript and exits non-zero on failure.
   - how (e6500): skip CCSR relocation if the parent already moved it, flush L2/CPC before invalidating, drop the
     parent's TLB1 entries, pulse the secondaries' reset after the new spin table is up, report full RAM to the OS.
+  - limit: a RAM run after the factory loader can't reproduce cold state that loader leaves behind (DMC-12: the SPI controller's chip select). Rehearse with the exact payload bytes, then make the first real test a write into the inactive slot.
 - [ ] In the chainloaded build, verify: console, clocks, SPD sizing, MMC, I2C, Ethernet TFTP, PCIe sees the ASIC, Linux boots with all CPUs/RAM/MAC, and the vendor env can be read (`env import -c`).
 - [ ] DDR: a command that computes the controller registers from SPD and diffs them against the live factory-programmed controller. Iterate to 0 meaningful diffs.
 - [ ] Diff flash chip-select (IFC) timings, live vs defines: a NOR U-Boot reprograms them while running from that flash.
 - [ ] Standard boot: `bootflow scan` → extlinux (`BOOTSTD_FULL`, `SUPPORT_RAW_INITRD`, bootdev/bootmeth commands). Env scripts may only test commands that are compiled in.
-- [ ] Independent review of the patches and the flash plan (a second agent or stronger model) before the first write.
+- [ ] Independent reviews of the patches and the flasher (a second agent or stronger model; the DMC-12 had two) before the first write. Fix the must-fixes and run the flasher against a fake flash.
 - [ ] First flash from the loader's proven write path. Stage the new image and the current one in RAM and CRC both.
   `cmp.b` flash against the backup (this proves the address map), then erase, write, compare, CRC, re-protect.
 - [ ] Flasher script: image checks; SoC/RCW/identity/flash-map/DIMM checks; verified console backup; RAM rollback
   copy; typed confirmation; one retry, then write the old image back; post-boot DDR self-check. `--dry-run` first.
-- [ ] First boot: banner, DDR compare, `mtest`, boot. Then a warm reboot and at least 2 unattended cold cycles.
+  - how (DMC-12 `spi-upgrade.py`): a host model of the whole flash (verified dump + a journal: intent before each write, done after a matching read-back);
+    every full re-read must equal it, and after a write the diff must be exactly the intended regions. Write data first and the header last, so a torn write
+    leaves an invalid object. Type each destructive command, compare its echo exactly, then send Enter. Preconditions live in a gates file, and overrides are recorded with a reason.
+- [ ] First boot: banner, DDR compare, `mtest`, boot. Then a warm reboot and at least 2 unattended cold cycles; a scripted soak (DMC-12: 6/6 power, warm and 30 s cold cycles) if one exists.
 - [ ] Restoring the factory image via the flasher, updating U-Boot from Linux (mtd write path), a JTAG/programmer recovery rehearsal *(not yet done on AS7760)*.
 - **Gate:** NOR U-Boot cold-boots the installed system unattended, again and again. Backup and restore are documented, and RAM chainload testing still works from the new loader.
 
@@ -210,14 +251,31 @@ Goal: the switch stack running as native NixOS services, first on the virtual SA
 - [ ] Check whether a SAI binary exists for this CPU arch. If not, that is the kill criterion for ASIC programming. Rank alternatives
   (open SDK + thin SAI, smaller open driver, emulation) and record where each claim came from.
 - [ ] Pin every upstream rev in one file. Build each library natively, then cross. Smoke-test on the target, because big-endian bugs only show there.
+- [ ] Config ownership agreed with the owner before the first CONFIG_DB key: the host stays NixOS, Nix keys are `enforce` or `seed`, the rest
+  is the user's (`config save`); conflicts are shown (`/etc/issue`, `sonic-nix-diff`), never reverted live (`devices/sonic-nixos/config-ownership.md`).
+- [ ] Ports from one Nix list: front-panel aliases (`Ethernet<cage>/<sub>`), SONiC names generated from the first lane, every split listed explicitly,
+  lanes and speeds checked at build time, undeclared ports admin-down. Generate the SDK config from the same list (one source of truth for breakout);
+  check each global key the public base sets against what your SDK build has.
+
+Bring-up order: each step in a VM first where the fake backend covers it, then on the chip over the lab loop, transcript saved.
 - [ ] Database layer on the target (done on AS7760: swss-common + redis). TCP access to redis (failed, undiagnosed).
 - [ ] sairedis with the virtual SAI (the SAI metadata generator needs its XML::Simple mode with current doxygen), then swss/orchagent: in a VM first, then on the target (AS7760: at boot since 2026-11-15).
 - [ ] Thin SAI over the open SDK (ports, L2, then L3), with a fake backend so orchagent can run in a VM against it (AS7760: sai-openbcm; L2, LAG, VRF/ECMP, ACL/CoPP on the chip).
-- [ ] Generate the SDK config from the NOS's port list (one source of truth for breakout); check each global key the public base sets against what your SDK build has.
+  - how: answer every capability orchagent reads at init and CRM polls, or it aborts; the fake-backend VM reproduces those switch aborts.
+- [ ] syncd on the ASIC at boot: one SDK process per unit (syncd conflicts with standalone SDK tools), syncd restarts with orchagent and always starts cold (DB flush), and it feeds the fan policy's ASIC sensor.
 - [ ] A way into the SDK while the NOS owns the chip (AS7760: `openbcm-diag`, a diag-shell socket inside syncd). Without it routing bugs are guesswork.
+- [ ] Ports, links, counters (flex counters seeded so syncd polls from boot), LLDP across the loop.
+- [ ] L2: LAG with LACP (teamd), VLAN + SVI.
+- [ ] L3: router interfaces, neighbours, routes, VRFs, ECMP. Read the hardware route table after the first route.
+- [ ] Routing stack (FRR + FPM, bgpcfgd and the keys it waits for), BGP, BFD, with the firewall opened on switch interfaces only (AS7760: lab loop, 2026-11-15).
+- [ ] ACL and CoPP policers, measured against a flood (`devices/sonic-nixos/copp_flood.py`; AS7760: ARP still over its cap).
 - [ ] Platform API (fans, thermals, PSUs, optics, syseeprom) exposed to the NOS from the Phase 4 drivers, read-only towards fan control (AS7760: pmon on the switch).
-- [ ] Routing stack (FRR + FPM), BFD, crash recovery as the NOS's supervisors do it, each tested over a real cable (AS7760: lab loop, 2026-11-15).
+- [ ] Metrics: the `services.sonic.metrics` producer and the `ai-re-sonic` dashboard *(AS7760: VM-tested, not deployed)*.
+- [ ] Recovery as the NOS's supervisors do it: kill teamd, orchagent and syncd; `config reload` with and without a saved file; a deploy that touches orchagent; a reboot.
+  Each must end with every netdev back and 0 failed units (AS7760: teamd, orchagent, reload without a saved file, 2026-11-15). Warm reboot *(not yet done on AS7760)*.
+- [ ] Soak: hours with routing, BFD and the pollers running, each daemon's RSS trended (`sonic.routing.malloc-trace` for a grower). The bfdd leak showed up only here.
 - **Gate:** the stack's daemons come up on the target with the virtual SAI, and ASIC-backed ports appear only after Phase 5's gate.
+- **Gate (in service):** every step above passes on the chip and the soak shows no daemon growing *(AS7760: open; the bfdd fix isn't deployed, warm reboot not built)*.
 
 ## Phase 9: Docs, commits, publishing hygiene
 Goal: the next reader understands the state in ten minutes, and nothing private leaks.
@@ -232,6 +290,9 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - [ ] Vendor files (SDK configs, LED microcode, SAI .debs, factory binaries) stay out of the repo. Reference them by URL or read
   them from the local extracted image. Write the facts (lane maps, register meanings) into files of your own.
 - [ ] After moving files, grep the docs and scripts for old paths. Watch for side effects from `git add -N` (flakes only see tracked files).
+- [ ] Tick this runbook in the device's PROGRESS Status (which gates hold, what each is short of) and update its `DEVICES.md` row in the same turn.
+- [ ] A topic file's new result goes into Status and HANDOFF in the same turn ("held" in Status above a test the topic file says ran is a bug).
+- [ ] New gotchas go into this file as one line (symptom → cause → fix) with a pointer to the evidence. Don't restate the details.
 - **Gate:** git status is clean, the staged diff is reviewed for private data, and PROGRESS Status matches reality.
 
 ---
@@ -243,7 +304,7 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - [ ] Bootloader static + QEMU tests wired into `nix flake check`, so every patch change runs them.
 - [ ] A quiet fan curve driven by ASIC die temperature plus board sensors, validated under traffic load *(AS7760: curve done; the only load test was throttled)*.
 - [ ] Hot-plug handling for optics: bind at24 on insertion, CPLD module control, and a port LED program loaded from your own file *(AS7760: CPLD control and the public LED program; no at24 hot-bind)*.
-- [ ] fw_`printenv`/fw_setenv on the target (needs a trimmed u-boot-tools cross-build) *(not yet done on AS7760)*.
+- [ ] fw_`printenv`/fw_setenv on the target (needs a trimmed u-boot-tools cross-build) *(not yet done on AS7760; DMC-12: U-Boot's envtools, 67 KiB, behind a logged, rate-limited wrapper)*.
 - [ ] Send the board DT/machine match to mainline Linux *(not yet done on AS7760)*.
 - [ ] Cold DDR init test without flashing (SPL run from CPC-as-SRAM). Tried: it faulted in the SPL reset path, unresolved and moot once NOR boot worked.
 - [ ] Publishing checklist done for the device dir (see Phase 9) before any push.
@@ -296,6 +357,10 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
   instance and hung on a bad object, with no counter or watchdog to flip it; a vendor "fallback" helper only covered
   "object not in TOC" → before writing, trace what actually picks the instance and what happens on a checksum failure
   (`devices/dmc-12-48r-as0/spi-recovery.md`). Also: a "read-only" `sf probe` can write the status register.
+- RAM rehearsal passed, then the cold boot from SPI read the env flash as ff ff ff → stage3 leaves the SPI chip select set, and in the RAM test the factory
+  loader had already cleared it → a RAM run can't stand in for the cold path for anything touching the boot-flash controller (DMC-12 PROGRESS, 2026-11-15 18:45).
+- An escape key that "always works" couldn't help → a valid BOOT_MODE header over bad data hangs stage3 past its key poll (DMC-12, review) → write data first and the header last, and re-erase at once on a read-back mismatch (`spi-upgrade-plan.md`, Failure handling).
+- A flasher typed destructive `sf` commands blind (review find, DMC-12 PROGRESS 2026-11-15 15:30) → a dropped character makes another command → compare the echo exactly before Enter.
 
 **Switch chip / optics**
 - Frames went to the wrong netdev → KNET netif IDs persist across SDK restarts → destroy stale netifs before creating new ones.
@@ -317,6 +382,8 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
   queue; `tx 1` returns → seed with one packet, and expect to reset the chip (`init all`) afterwards.
 - LACP never selected a member on a same-switch loop → libteam refuses to aggregate with its own system MAC → give one
   end its own system MAC for the test.
+- The house uplink (USW Aggregation ↔ UDM) went down while a switch hung → an SDK restart under load soft-locked CPU 0 holding rtnl, LACP stopped, and the
+  ASIC likely bridged the un-bundled legs (CS8210 PROGRESS, 2026-11-11 (z)) → lab loops only until Phase 5's house-network guard holds.
 
 **NOS stack (SONiC on NixOS)**
 - No KNET netdevs after a deploy → `nixos-rebuild` restarted only the changed orchagent while syncd kept running
@@ -327,6 +394,13 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - Every port VLAN read back as 0 on big-endian → orchagent wrote a `u16` attribute through the `u32` union member →
   check every `.value.<member>` against the SAI header's type (swss patch 0001); test on the BE target, not only x86.
 - Two SONiC ends' BFD sessions never came up → upstream bgpcfgd creates passive sessions → make one side active.
+- orchagent aborted in AclOrch init and PortInitDone never came → the SAI didn't answer ACL priority ranges and other init/CRM queries → answer what
+  orchagent reads; the fake-backend VM test reproduced it (sonic-nixos PROGRESS, "orchagent runs on sai-openbcm").
+- bgpcfgd configured no neighbour → it waits for DEVICE_METADATA `type`, `BGP_DEVICE_GLOBAL|STATE` and Loopback0 → seed the first two from Nix (sonic-nixos PROGRESS, FRR entry).
+- Default-VRF routes missing in fpmsyncd, or stuck "queued" in zebra → FRR's `dplane_fpm_nl` without sonic-frr patch 0008 / without the offload-ack patch → `nix/modules/switch/sonic/README.md` (routing).
+- ACL counters stayed empty → ACL counter polling is off by default → `counterpoll acl enable` (sonic-nixos PROGRESS, ACL entry).
+- bfdd grew ~2.9 MB/min in the soak → json-c 0.19 frees containers inside `assert()`, compiled out under NDEBUG → patched json-c (`devices/sonic-nixos/bfdd-leak.md`).
+- A "daemon stopped" test was undone at once → the upstream unit `Upholds` it → `systemctl mask --runtime --now`.
 
 **Hardware and thermal**
 - sensors printed PWM 255 as 128% → generic display bug → trust raw sysfs and the board tool.
@@ -334,6 +408,7 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - ASIC temperature reader worked all day, then timed out after a cold power cycle → Tomahawk's S-bus ring map is zero until the SDK's chip reset programs it, and every earlier test ran after an `init all` → program the ring map (same values as the SDK) when it is zero, and test sensors from a cold boot.
 - A fan curve whose idle point is a hair above the hardware minimum ran one CPLD step louder (54% → raw 153 = 60%) → coarse duty steps round up → put idle points exactly on the minimum.
 - `critical` set where the curve was still at ~55% → bang-bang between quiet and failsafe 100% → let the curve reach 100% first and keep critical as an emergency.
+- The software over-temperature shutdown fired and the whole host went down (it rebooted itself) → most likely a follow-up SDK read of the powered-down chip → after it fires nothing touches the chip until a power cycle (`RestartPreventExitStatus`; AS7760 `thermal.md`).
 
 **Build / Nix**
 - A tiny cross package pulled in nss/libdrm and failed → optional features enabled for the target → a trimmed local package.
@@ -343,6 +418,10 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - Remote build bootstrapped a toolchain from scratch → the client lacked locally cross-built paths → copy them over first.
 - Patch "ends in middle of line" → a shell helper trimmed the trailing newline → write patches byte-exact and check they apply to a pristine tree.
 - Harness printed FAIL while every check passed → a regex expected one line, or the terminal wrapped a long line → test harness matchers against saved transcripts.
+- Harness "passed" on old output → it matched text still on the screen from an earlier command → clear the history per command or match after a fresh marker (DMC-12 PROGRESS, 2026-11-15 17:40).
+- Go node_exporter cross-built fine and died with SIGILL on the e6500 → Go's ppc64 port needs POWER8 → `node-exporter-lite` (`nix/modules/monitoring/README.md`).
+- Switch closure +235 MiB of x86_64 binaries → FRR's installed headers/libtool files referenced the build machine's clippy → strip them and add `disallowedReferences` (sonic-nixos PROGRESS, FRR entry).
+- `nix copy --to ssh-ng://` refused the closure → unsigned paths (nixos-rebuild's copy accepts them); on-box `--rollback` tried to rebuild nixos-rebuild from `<nixpkgs>` → add `--no-reexec` (DMC-12 PROGRESS, 2026-11-15 18:15).
 
 **Process / environment**
 - A shell that runs `pkill -f PATTERN` (or a waiter looping on `pgrep -f PATTERN`) kills or finds *itself*, because
@@ -354,12 +433,17 @@ Goal: the next reader understands the state in ten minutes, and nothing private 
 - A raw sub-agent transcript got committed, and the "cleanup" (reflog expire + gc) wiped repo-wide undo history → never commit transcripts, and ask before any history rewrite.
 - `git add -N` run by accident to make a flake see files → undo it at once and tell the owner.
 - Dead SSH sessions left behind after the box panicked → reap them before the next test.
+- A deploy shipped another session's uncommitted edits for ~10 min → `deploy.sh` built the working tree → build from committed HEAD (DMC-12 PROGRESS, 2026-11-15 23:15).
+- Console captures had ~650-byte gaps (most lines lost at 115200) → the console server's USB serial INTx never fired → check a console path with `stream-check.py` before trusting its captures (DMC-12 PROGRESS, 2026-11-15 23:15).
+- PROGRESS.md came out empty, and the next commit deleted it → a script ran `open(p,'w').write(open(p).read())`, which truncates before reading → edit with a tool that reads first, and check `git diff --stat` before committing (CS8210 PROGRESS, 2026-11-11 (z)).
 
 ## Decision points to raise with the owner (ask, don't assume)
 
 - Any write to boot flash, env (`saveenv`), RCW, fuses or the original storage. State the backup and the recovery path in the same message.
 - Overwriting the original disk/SD, even with a verified backup. Ask "resume probing" ≠ "install".
 - Power-cycling or leaving the board up in a state without fan control (new kernel without the fan driver, experimental duty below the validated value).
+- Over-temperature tests (a deliberately low shutdown threshold). Say that the host may go down with the chip.
+- Overriding a flasher gate (e.g. skipping the programmer read), and moving a console cable or console-server port away from a device in bring-up.
 - Enabling front-panel ports or running chip init while anything is cabled. Ask which ports go where. A hung ASIC has taken down a house uplink before (on another switch).
 - Reading, using, storing or publishing vendor blobs or configs (SDK configs, LED microcode, factory binaries, closed SAI).
 - Which SSH keys to authorize, and any change to other hosts (remote builders, the desktop's NixOS config).
