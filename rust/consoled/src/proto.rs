@@ -2,7 +2,13 @@
 //!
 //! client -> daemon: HELLO (JSON `Hello`), DATA (keystrokes), CMD (JSON `Cmd`)
 //! daemon -> client: DATA (port output: scrollback, then live), INFO (a line for the user),
-//!                   ERROR (then the daemon closes), LIST (JSON array of `PortStatus`)
+//!                   ERROR (then the daemon closes), LIST (JSON array of `PortStatus`),
+//!                   STATE (JSON `PortState`: after HELLO and whenever write, the line
+//!                   settings or the device change), SCROLLBACK (the answer to
+//!                   `Cmd::Scrollback`: the ring in chunks, then one empty frame)
+//!
+//! Old clients ignore frame types they don't know, and every field added to `Hello` has a
+//! serde default, so a client older than a field keeps working.
 
 use serde::{Deserialize, Serialize};
 
@@ -12,6 +18,8 @@ pub const CMD: u8 = 3;
 pub const INFO: u8 = 4;
 pub const ERROR: u8 = 5;
 pub const LIST: u8 = 6;
+pub const SCROLLBACK: u8 = 7;
+pub const STATE: u8 = 8;
 
 /// Larger frames are a protocol error (scrollback replay is chunked below this).
 pub const MAX_FRAME: usize = 256 * 1024;
@@ -32,6 +40,27 @@ pub struct Hello {
     /// Send the scrollback and close (no attach).
     #[serde(default)]
     pub dump: bool,
+    /// With `write`: take write over from whoever holds it (`line send --take`).
+    #[serde(default)]
+    pub take: bool,
+    /// The client's prefix key ("C-b"), so the daemon's hints name the right keys; empty
+    /// for clients older than it (their keys are `^] w` and friends).
+    #[serde(default)]
+    pub prefix: String,
+}
+
+impl Default for Hello {
+    fn default() -> Hello {
+        Hello {
+            port: None,
+            write: false,
+            who: String::new(),
+            replay: true,
+            dump: false,
+            take: false,
+            prefix: String::new(),
+        }
+    }
 }
 
 fn yes() -> bool {
@@ -47,6 +76,28 @@ pub enum Cmd {
     Release,
     /// Send a serial break (writer only).
     Break,
+    /// Change the line speed (writer only; runs on the daemon's worker thread).
+    Baud(u32),
+    /// Send the port's scrollback as SCROLLBACK frames (then an empty one).
+    Scrollback,
+}
+
+/// What a client attached to a port knows about it (the STATE frame).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub struct PortState {
+    pub port: String,
+    #[serde(default)]
+    pub label: String,
+    #[serde(default)]
+    pub settings: String,
+    #[serde(default)]
+    pub up: bool,
+    /// This client holds write.
+    #[serde(default)]
+    pub write: bool,
+    /// Who holds write (maybe this client).
+    #[serde(default)]
+    pub writer: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -94,6 +145,7 @@ impl Decoder {
     }
 
     /// Ok(None): need more bytes. Err: the peer is speaking nonsense.
+    #[allow(clippy::should_implement_trait)] // fallible, so not an Iterator
     pub fn next(&mut self) -> Result<Option<(u8, Vec<u8>)>, String> {
         if self.buf.len() < 5 {
             return Ok(None);
@@ -130,6 +182,31 @@ mod tests {
         assert_eq!(k, CMD);
         assert_eq!(serde_json::from_slice::<Cmd>(&p).unwrap(), Cmd::Take);
         assert_eq!(d.next().unwrap(), None);
+    }
+
+    #[test]
+    fn old_hellos_and_cmds_still_parse() {
+        // a client from before `take` and `prefix`
+        let h: Hello =
+            serde_json::from_str(r#"{"port":"P1","write":true,"who":"x","replay":true,"dump":false}"#).unwrap();
+        assert_eq!(
+            h,
+            Hello {
+                port: Some("P1".into()),
+                write: true,
+                who: "x".into(),
+                ..Hello::default()
+            }
+        );
+        let h: Hello = serde_json::from_str(r#"{"port":null}"#).unwrap();
+        assert!(h.replay && !h.take && h.prefix.is_empty());
+        assert_eq!(serde_json::from_str::<Cmd>(r#""take""#).unwrap(), Cmd::Take);
+        assert_eq!(serde_json::to_string(&Cmd::Baud(9600)).unwrap(), r#"{"baud":9600}"#);
+        assert_eq!(
+            serde_json::from_str::<Cmd>(r#"{"baud":9600}"#).unwrap(),
+            Cmd::Baud(9600)
+        );
+        assert_eq!(serde_json::from_str::<Cmd>(r#""scrollback""#).unwrap(), Cmd::Scrollback);
     }
 
     #[test]

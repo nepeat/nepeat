@@ -7,7 +7,9 @@
 #
 # Users reach a port with `ssh -t console@<host> P1` / `... watch P1` / `ssh -t console@<host>` (menu)
 # (sshd ForceCommand runs `line ssh`; keys: services.consoled.ssh.authorizedKeys, by default
-# root's), or `line` on the box (menu, list, info, watch, attach, log).
+# root's), or `line` on the box (menu, list, info, watch, attach, log); scripts and agents use
+# `ssh console@<host> run P1 'uname -a'` (also send, expect, log --follow). sshd accepts
+# CONSOLED_PREFIX from the client (`ssh -o SetEnv=CONSOLED_PREFIX=C-a`) for the attach keys.
 # Scrollback lives in RAM only; nothing is logged to disk but attach/detach lines.
 # Metrics: `line metrics` prints Prometheus text (use it as a textfile producer).
 { config, lib, pkgs, ... }:
@@ -98,6 +100,7 @@ in
         AllowAgentForwarding no
         PermitTunnel no
         PermitTTY yes
+        AcceptEnv CONSOLED_PREFIX
     '';
     environment.systemPackages = [ cfg.package ];
 

@@ -98,7 +98,12 @@ impl Config {
     pub fn validate(&self) -> Result<(), String> {
         let mut seen = std::collections::HashSet::new();
         for p in &self.ports {
-            if p.name.is_empty() || !p.name.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_') {
+            if p.name.is_empty()
+                || !p
+                    .name
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+            {
                 return Err(format!("port name {:?}: use letters, digits, - and _", p.name));
             }
             if !seen.insert(p.name.to_ascii_lowercase()) {
@@ -123,6 +128,10 @@ impl Config {
         self.ports
             .iter()
             .position(|p| p.name.to_ascii_lowercase() == k)
-            .or_else(|| self.ports.iter().position(|p| !p.label.is_empty() && p.label.to_ascii_lowercase() == k))
+            .or_else(|| {
+                self.ports
+                    .iter()
+                    .position(|p| !p.label.is_empty() && p.label.to_ascii_lowercase() == k)
+            })
     }
 }

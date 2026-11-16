@@ -10,7 +10,10 @@ pub struct Ring {
 
 impl Ring {
     pub fn new(cap: usize) -> Ring {
-        Ring { buf: VecDeque::new(), cap }
+        Ring {
+            buf: VecDeque::new(),
+            cap,
+        }
     }
 
     pub fn push(&mut self, data: &[u8]) {

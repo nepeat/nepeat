@@ -6,6 +6,11 @@ use std::io;
 use std::os::fd::{FromRawFd, OwnedFd};
 use std::os::unix::ffi::OsStrExt;
 
+/// The line speeds consoled supports (config and `baud` at runtime).
+pub const BAUD_RATES: &[u32] = &[
+    1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600, 1000000, 2000000,
+];
+
 pub fn baud_constant(baud: u32) -> Option<libc::speed_t> {
     Some(match baud {
         1200 => libc::B1200,
@@ -34,7 +39,10 @@ pub fn open(port: &Port) -> io::Result<OwnedFd> {
     let path = CString::new(port.device.as_os_str().as_bytes())
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "NUL in device path"))?;
     let raw = unsafe {
-        libc::open(path.as_ptr(), libc::O_RDWR | libc::O_NOCTTY | libc::O_NONBLOCK | libc::O_CLOEXEC)
+        libc::open(
+            path.as_ptr(),
+            libc::O_RDWR | libc::O_NOCTTY | libc::O_NONBLOCK | libc::O_CLOEXEC,
+        )
     };
     if raw < 0 {
         return Err(io::Error::last_os_error());
@@ -75,6 +83,21 @@ fn configure(fd: libc::c_int, port: &Port) -> io::Result<()> {
         t.c_cc[libc::VMIN] = 0;
         t.c_cc[libc::VTIME] = 0;
         let speed = baud_constant(port.baud).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "baud"))?;
+        check(libc::cfsetispeed(&mut t, speed))?;
+        check(libc::cfsetospeed(&mut t, speed))?;
+        check(libc::tcsetattr(fd, libc::TCSANOW, &t))?;
+    }
+    Ok(())
+}
+
+/// Change the speed of an open port, keeping its other settings. Callers run this off the
+/// poll loop (the daemon's worker thread), like open and break.
+pub fn set_baud(fd: libc::c_int, baud: u32) -> io::Result<()> {
+    let speed =
+        baud_constant(baud).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "unsupported baud rate"))?;
+    unsafe {
+        let mut t: libc::termios = std::mem::zeroed();
+        check(libc::tcgetattr(fd, &mut t))?;
         check(libc::cfsetispeed(&mut t, speed))?;
         check(libc::cfsetospeed(&mut t, speed))?;
         check(libc::tcsetattr(fd, libc::TCSANOW, &t))?;

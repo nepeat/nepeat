@@ -4,21 +4,22 @@
 //!
 //! One poll(2) loop over the listener, the ports and the clients; it never blocks on a
 //! device: opening a tty (~1 s each on CP210x), closing one (the kernel may wait for output
-//! to drain) and tcsendbreak run on a worker thread that reports back through a pipe. A port
+//! to drain), tcsendbreak and runtime baud changes (tcsetattr) run on a worker thread that
+//! reports back through a pipe. A port
 //! that is missing or goes away (USB serial) is retried every 2 s; its clients stay attached.
 //! A client too far behind (4 MiB queued) is dropped rather than slowing everyone down.
 
 use consoled::config::{Config, Port as PortCfg};
-use consoled::proto::{self, Cmd, Hello, PortStatus};
+use consoled::proto::{self, Cmd, Hello, PortState, PortStatus};
 use consoled::{ring::Ring, serial};
 use std::io::{ErrorKind, Read, Write};
+use std::os::fd::FromRawFd;
 use std::os::fd::{AsRawFd, OwnedFd};
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
-use std::os::fd::FromRawFd;
 use std::time::{Duration, Instant};
 
 static STOP: AtomicBool = AtomicBool::new(false);
@@ -41,9 +42,19 @@ struct Client {
     close_after_flush: bool,
     dead: bool,
     last_hint: Option<Instant>,
+    /// The client's prefix key ("C-b"); empty for old clients (^] keys).
+    prefix: String,
 }
 
 impl Client {
+    /// How this client takes write, for hints ("C-b t", or "^] w" for old clients).
+    fn take_key(&self) -> String {
+        if self.prefix.is_empty() {
+            "^] w".into()
+        } else {
+            format!("{} t", self.prefix)
+        }
+    }
     fn send(&mut self, kind: u8, payload: &[u8]) {
         proto::encode(kind, payload, &mut self.out);
     }
@@ -63,11 +74,24 @@ enum Job {
     Open(usize, PortCfg),
     Close(OwnedFd),
     Break(usize, OwnedFd), // requesting client, a dup of the port fd
+    Baud(BaudJob),
+}
+
+/// A runtime speed change: `fd` is a dup of the port's; the config already says `rate`
+/// (so a reopen uses it) and goes back to `old` if it fails.
+struct BaudJob {
+    client: usize,
+    who: String,
+    port: usize,
+    fd: OwnedFd,
+    rate: u32,
+    old: u32,
 }
 
 enum Done {
     Opened(usize, Result<OwnedFd, String>),
     Broke(usize, Result<(), String>), // client
+    Bauded(BaudJob, Result<(), String>),
 }
 
 struct Worker {
@@ -97,10 +121,18 @@ fn spawn_worker() -> Worker {
                     drop(fd);
                     wake(Done::Broke(client, r));
                 }
+                Job::Baud(b) => {
+                    let r = serial::set_baud(b.fd.as_raw_fd(), b.rate).map_err(|e| e.to_string());
+                    wake(Done::Bauded(b, r));
+                }
             }
         }
     });
-    Worker { jobs: jtx, done: drx, wake: rd }
+    Worker {
+        jobs: jtx,
+        done: drx,
+        wake: rd,
+    }
 }
 
 struct Port {
@@ -152,6 +184,63 @@ impl Server {
         }
     }
 
+    /// A message per recipient (hints name each client's own keys).
+    fn broadcast_with(&mut self, port: usize, except: Option<usize>, msg: impl Fn(&Client) -> String) {
+        for id in self.ports[port].clients.clone() {
+            if Some(id) != except {
+                let c = self.client(id);
+                let m = msg(c);
+                c.info(&m);
+            }
+        }
+    }
+
+    /// A STATE frame to every client on the port (each with its own `write`).
+    fn send_state(&mut self, i: usize) {
+        let writer_id = self.ports[i].writer;
+        let p = &self.ports[i];
+        let base = PortState {
+            port: p.cfg.name.clone(),
+            label: p.cfg.label.clone(),
+            settings: p.cfg.line_settings(),
+            up: p.fd.is_some(),
+            write: false,
+            writer: writer_id.and_then(|w| self.clients[w].as_ref()).map(|c| c.who.clone()),
+        };
+        for id in p.clients.clone() {
+            let st = PortState {
+                write: Some(id) == writer_id,
+                ..base.clone()
+            };
+            proto::encode_json(proto::STATE, &st, &mut self.client(id).out);
+        }
+    }
+
+    fn bauded(&mut self, b: BaudJob, r: Result<(), String>) {
+        let i = b.port;
+        let name = self.ports[i].cfg.name.clone();
+        match r {
+            Ok(()) => {
+                let settings = self.ports[i].cfg.line_settings();
+                log(&format!("{} set {name} to {settings} (was {} baud)", b.who, b.old));
+                self.broadcast(
+                    i,
+                    None,
+                    &format!("{} set the line to {settings} (was {} baud)", b.who, b.old),
+                );
+                self.send_state(i);
+            }
+            Err(e) => {
+                if self.ports[i].cfg.baud == b.rate {
+                    self.ports[i].cfg.baud = b.old;
+                }
+                if self.ports[i].clients.contains(&b.client) {
+                    self.client(b.client).info(&format!("baud {} failed: {e}", b.rate));
+                }
+            }
+        }
+    }
+
     fn opened(&mut self, i: usize, r: Result<OwnedFd, String>) {
         let first = !self.ports[i].tried;
         self.ports[i].tried = true;
@@ -164,14 +253,25 @@ impl Server {
             Ok(fd) => {
                 p.fd = Some(fd);
                 if p.last_err.take().is_some() {
-                    log(&format!("{} ({}) is up, {}", p.cfg.name, p.cfg.device.display(), p.cfg.line_settings()));
+                    log(&format!(
+                        "{} ({}) is up, {}",
+                        p.cfg.name,
+                        p.cfg.device.display(),
+                        p.cfg.line_settings()
+                    ));
                 }
                 self.broadcast(i, None, "device is up");
+                self.send_state(i);
             }
             Err(err) => {
                 p.next_try = Instant::now() + REOPEN;
                 if p.last_err.as_deref() != Some(&err) {
-                    log(&format!("{} ({}): {err}; retrying every {} s", p.cfg.name, p.cfg.device.display(), REOPEN.as_secs()));
+                    log(&format!(
+                        "{} ({}): {err}; retrying every {} s",
+                        p.cfg.name,
+                        p.cfg.device.display(),
+                        REOPEN.as_secs()
+                    ));
                     p.last_err = Some(err);
                 }
             }
@@ -191,8 +291,14 @@ impl Server {
         p.tx.clear();
         p.next_try = Instant::now() + REOPEN;
         p.last_err = Some(why.to_string());
-        log(&format!("{} ({}): {why}; retrying every {} s", p.cfg.name, p.cfg.device.display(), REOPEN.as_secs()));
+        log(&format!(
+            "{} ({}): {why}; retrying every {} s",
+            p.cfg.name,
+            p.cfg.device.display(),
+            REOPEN.as_secs()
+        ));
         self.broadcast(i, None, &format!("device gone ({why}); retrying"));
+        self.send_state(i);
     }
 
     fn read_port(&mut self, i: usize) {
@@ -211,7 +317,11 @@ impl Server {
                     c.send(proto::DATA, data);
                     if c.out.len() > CLIENT_OUT_MAX && !c.dead {
                         c.dead = true;
-                        log(&format!("dropping {}: more than {} MiB behind", c.who, CLIENT_OUT_MAX >> 20));
+                        log(&format!(
+                            "dropping {}: more than {} MiB behind",
+                            c.who,
+                            CLIENT_OUT_MAX >> 20
+                        ));
                     }
                 }
                 continue;
@@ -261,6 +371,7 @@ impl Server {
                         close_after_flush: false,
                         dead: false,
                         last_hint: None,
+                        prefix: String::new(),
                     };
                     match self.clients.iter().position(Option::is_none) {
                         Some(id) => self.clients[id] = Some(c),
@@ -295,7 +406,10 @@ impl Server {
                 users: {
                     let mut ids = p.clients.clone();
                     ids.sort_by_key(|&id| Some(id) != p.writer); // writer first
-                    ids.iter().filter_map(|&id| self.clients[id].as_ref()).map(|c| c.who.clone()).collect()
+                    ids.iter()
+                        .filter_map(|&id| self.clients[id].as_ref())
+                        .map(|c| c.who.clone())
+                        .collect()
                 },
             })
             .collect()
@@ -311,7 +425,10 @@ impl Server {
         };
         let Some(i) = self.cfg.find(&key) else {
             let c = self.client(id);
-            c.send(proto::ERROR, format!("no port {key:?} (run `console` for the list)").as_bytes());
+            c.send(
+                proto::ERROR,
+                format!("no port {key:?} (run `console` for the list)").as_bytes(),
+            );
             c.close_after_flush = true;
             return;
         };
@@ -326,51 +443,80 @@ impl Server {
         }
         let who = if h.who.is_empty() { format!("client{id}") } else { h.who };
         let p = &self.ports[i];
-        let label = if p.cfg.label.is_empty() { String::new() } else { format!(" ({})", p.cfg.label) };
+        let label = if p.cfg.label.is_empty() {
+            String::new()
+        } else {
+            format!(" ({})", p.cfg.label)
+        };
+        let keys = if h.prefix.is_empty() {
+            "Escape: ^] then . detach, w write, r release, b break, ? help".to_string()
+        } else {
+            format!("Keys: {0} d detach, {0} ? help", h.prefix)
+        };
         let banner = format!(
-            "{}{}, {}, {}{}. Escape: ^] then . detach, w write, r release, b break, ? help",
+            "{}{}, {}, {}{}. {keys}",
             p.cfg.name,
             label,
             p.cfg.line_settings(),
             p.cfg.device.display(),
             if p.fd.is_some() { "" } else { " (not present, retrying)" }
         );
-        let chunks = if h.replay { p.ring.chunks(REPLAY_CHUNK) } else { Vec::new() };
-        let holder = p.writer.and_then(|w| self.clients[w].as_ref()).map(|c| c.who.clone());
+        let chunks = if h.replay {
+            p.ring.chunks(REPLAY_CHUNK)
+        } else {
+            Vec::new()
+        };
+        let holder_id = p.writer;
+        let holder = holder_id.and_then(|w| self.clients[w].as_ref()).map(|c| c.who.clone());
         let name = p.cfg.name.clone();
-        {
+        let take_key = {
             let c = self.client(id);
             c.port = Some(i);
             c.who = who.clone();
+            c.prefix = h.prefix;
             c.info(&banner);
             for chunk in &chunks {
                 c.send(proto::DATA, chunk);
             }
-        }
+            c.take_key()
+        };
         self.ports[i].clients.push(id);
         let mode = match (h.write, holder) {
             (true, None) => {
                 self.ports[i].writer = Some(id);
                 self.client(id).info("you have write");
-                "write"
+                "write".to_string()
+            }
+            (true, Some(old)) if h.take => {
+                self.ports[i].writer = Some(id);
+                self.client(id).info(&format!("you have write (taken over from {old})"));
+                if let Some(o) = holder_id {
+                    self.client(o).info(&format!("{who} took write; you are read-only"));
+                }
+                format!("write, taken over from {old}")
             }
             (true, Some(h)) => {
-                self.client(id).info(&format!("read-only: {h} has write; ^] w takes it over"));
-                "read-only"
+                self.client(id)
+                    .info(&format!("read-only: {h} has write; {take_key} takes it over"));
+                "read-only".to_string()
             }
             (false, _) => {
-                self.client(id).info("read-only (watching); ^] w takes write");
-                "watching"
+                self.client(id)
+                    .info(&format!("read-only (watching); {take_key} takes write"));
+                "watching".to_string()
             }
         };
         self.broadcast(i, Some(id), &format!("{who} attached ({mode})"));
+        self.send_state(i);
         log(&format!("{who} attached to {name} ({mode})"));
     }
 
     fn data(&mut self, id: usize, bytes: &[u8]) {
         let Some(i) = self.client(id).port else { return };
         if self.ports[i].writer != Some(id) {
-            self.client(id).hint("read-only: ^] w takes write");
+            let c = self.client(id);
+            let m = format!("read-only: {} takes write", c.take_key());
+            c.hint(&m);
             return;
         }
         if self.ports[i].fd.is_none() {
@@ -381,7 +527,10 @@ impl Server {
         let take = bytes.len().min(room);
         self.ports[i].tx.extend_from_slice(&bytes[..take]);
         if take < bytes.len() {
-            self.client(id).hint(&format!("port output buffer full: dropped {} bytes", bytes.len() - take));
+            self.client(id).hint(&format!(
+                "port output buffer full: dropped {} bytes",
+                bytes.len() - take
+            ));
         }
     }
 
@@ -401,13 +550,17 @@ impl Server {
                     self.client(o).info(&format!("{who} took write; you are read-only"));
                 }
                 self.broadcast(i, Some(id), &format!("{who} has write"));
+                self.send_state(i);
                 log(&format!("{who} took write on {name}"));
             }
             Cmd::Release => {
                 if self.ports[i].writer == Some(id) {
                     self.ports[i].writer = None;
                     self.client(id).info("released write");
-                    self.broadcast(i, Some(id), &format!("{who} released write; ^] w takes it"));
+                    self.broadcast_with(i, Some(id), |c| {
+                        format!("{who} released write; {} takes it", c.take_key())
+                    });
+                    self.send_state(i);
                 } else {
                     self.client(id).info("you don't have write");
                 }
@@ -416,14 +569,70 @@ impl Server {
                 if self.ports[i].writer != Some(id) {
                     return self.client(id).info("only the writer can send a break");
                 }
-                let dup = self.ports[i].fd.as_ref().map(|fd| unsafe { libc::fcntl(fd.as_raw_fd(), libc::F_DUPFD_CLOEXEC, 0) });
+                let dup = self.ports[i]
+                    .fd
+                    .as_ref()
+                    .map(|fd| unsafe { libc::fcntl(fd.as_raw_fd(), libc::F_DUPFD_CLOEXEC, 0) });
                 match dup {
                     Some(d) if d >= 0 => {
-                        let _ = self.worker.jobs.send(Job::Break(id, unsafe { OwnedFd::from_raw_fd(d) }));
+                        let _ = self
+                            .worker
+                            .jobs
+                            .send(Job::Break(id, unsafe { OwnedFd::from_raw_fd(d) }));
                     }
                     Some(_) => self.client(id).info("break failed: dup"),
                     None => self.client(id).info("device not present"),
                 }
+            }
+            Cmd::Baud(rate) => {
+                if self.ports[i].writer != Some(id) {
+                    return self.client(id).info("only the writer can change the baud rate");
+                }
+                if serial::baud_constant(rate).is_none() {
+                    let all: Vec<String> = serial::BAUD_RATES.iter().map(u32::to_string).collect();
+                    return self
+                        .client(id)
+                        .info(&format!("unsupported baud rate {rate}; one of {}", all.join(" ")));
+                }
+                let old = self.ports[i].cfg.baud;
+                if old == rate {
+                    let s = self.ports[i].cfg.line_settings();
+                    return self.client(id).info(&format!("the line is already {s}"));
+                }
+                let dup = self.ports[i]
+                    .fd
+                    .as_ref()
+                    .map(|fd| unsafe { libc::fcntl(fd.as_raw_fd(), libc::F_DUPFD_CLOEXEC, 0) });
+                match dup {
+                    Some(d) if d >= 0 => {
+                        // the config says the new rate now, so a reopen (USB serial coming
+                        // back) uses it; `bauded` puts the old one back if this fails
+                        self.ports[i].cfg.baud = rate;
+                        let fd = unsafe { OwnedFd::from_raw_fd(d) };
+                        let _ = self.worker.jobs.send(Job::Baud(BaudJob {
+                            client: id,
+                            who,
+                            port: i,
+                            fd,
+                            rate,
+                            old,
+                        }));
+                    }
+                    Some(_) => self.client(id).info("baud failed: dup"),
+                    None => self.client(id).info("device not present"),
+                }
+            }
+            Cmd::Scrollback => {
+                let chunks = self.ports[i].ring.chunks(REPLAY_CHUNK);
+                let c = self.client(id);
+                if c.out.len() > CLIENT_OUT_MAX / 2 {
+                    c.info("busy: try the scrollback again in a moment");
+                } else {
+                    for chunk in &chunks {
+                        c.send(proto::SCROLLBACK, chunk);
+                    }
+                }
+                c.send(proto::SCROLLBACK, &[]); // the end
             }
         }
     }
@@ -517,10 +726,11 @@ impl Server {
                 let name = self.ports[i].cfg.name.clone();
                 if self.ports[i].writer == Some(id) {
                     self.ports[i].writer = None;
-                    self.broadcast(i, None, &format!("{} left; write is free (^] w)", c.who));
+                    self.broadcast_with(i, None, |o| format!("{} left; write is free ({})", c.who, o.take_key()));
                 } else {
                     self.broadcast(i, None, &format!("{} left", c.who));
                 }
+                self.send_state(i);
                 log(&format!("{} detached from {name}", c.who));
             }
         }
@@ -538,21 +748,37 @@ impl Server {
             }
 
             let mut fds = vec![
-                libc::pollfd { fd: self.worker.wake.as_raw_fd(), events: libc::POLLIN, revents: 0 },
-                libc::pollfd { fd: self.listener.as_raw_fd(), events: libc::POLLIN, revents: 0 },
+                libc::pollfd {
+                    fd: self.worker.wake.as_raw_fd(),
+                    events: libc::POLLIN,
+                    revents: 0,
+                },
+                libc::pollfd {
+                    fd: self.listener.as_raw_fd(),
+                    events: libc::POLLIN,
+                    revents: 0,
+                },
             ];
             let mut slots = vec![Slot::Wake, Slot::Listener];
             for (i, p) in self.ports.iter().enumerate() {
                 if let Some(fd) = &p.fd {
                     let ev = libc::POLLIN | if p.tx.is_empty() { 0 } else { libc::POLLOUT };
-                    fds.push(libc::pollfd { fd: fd.as_raw_fd(), events: ev, revents: 0 });
+                    fds.push(libc::pollfd {
+                        fd: fd.as_raw_fd(),
+                        events: ev,
+                        revents: 0,
+                    });
                     slots.push(Slot::Port(i));
                 }
             }
             for (id, c) in self.clients.iter().enumerate() {
                 if let Some(c) = c {
                     let ev = libc::POLLIN | if c.out.is_empty() { 0 } else { libc::POLLOUT };
-                    fds.push(libc::pollfd { fd: c.stream.as_raw_fd(), events: ev, revents: 0 });
+                    fds.push(libc::pollfd {
+                        fd: c.stream.as_raw_fd(),
+                        events: ev,
+                        revents: 0,
+                    });
                     slots.push(Slot::Client(id));
                 }
             }
@@ -576,6 +802,7 @@ impl Server {
                         while let Ok(d) = self.worker.done.try_recv() {
                             match d {
                                 Done::Opened(i, r) => self.opened(i, r),
+                                Done::Bauded(b, r) => self.bauded(b, r),
                                 Done::Broke(id, r) => {
                                     if let Some(c) = self.clients.get_mut(id).and_then(Option::as_mut) {
                                         c.info(&match r {
@@ -610,7 +837,10 @@ impl Server {
                 }
             }
             for id in 0..self.clients.len() {
-                if self.clients[id].as_ref().is_some_and(|c| !c.out.is_empty() || c.close_after_flush) {
+                if self.clients[id]
+                    .as_ref()
+                    .is_some_and(|c| !c.out.is_empty() || c.close_after_flush)
+                {
                     self.flush_client(id);
                 }
             }
@@ -656,7 +886,12 @@ fn main() {
         }
     };
     if check {
-        println!("{}: {} ports, scrollback {} bytes each", config.display(), cfg.ports.len(), cfg.scrollback);
+        println!(
+            "{}: {} ports, scrollback {} bytes each",
+            config.display(),
+            cfg.ports.len(),
+            cfg.scrollback
+        );
         return;
     }
     unsafe {
@@ -694,7 +929,18 @@ fn main() {
         })
         .collect();
     let initial = ports.len();
-    log(&format!("serving {} ports on {} (opening the devices)", initial, cfg.socket.display()));
-    let mut server = Server { cfg, listener, ports, clients: Vec::new(), worker: spawn_worker(), initial };
+    log(&format!(
+        "serving {} ports on {} (opening the devices)",
+        initial,
+        cfg.socket.display()
+    ));
+    let mut server = Server {
+        cfg,
+        listener,
+        ports,
+        clients: Vec::new(),
+        worker: spawn_worker(),
+        initial,
+    };
     server.run();
 }
