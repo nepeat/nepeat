@@ -1,0 +1,53 @@
+# CS8210-32X: QoS / buffers on our SAI (sai-teralynx), chip runs 2026-11-16
+# Script: nix/packages/sai-teralynx/oracle/scripts/qos-hw.json (sha256 3928c129), PROFILE /run/bench/traps.profile,
+# run with oracle/box-run.sh ours (lease "qos-mirror", only cages 1 and 16 populated: present=00008001).
+# Loop: Ethernet0 (cage 1) <-> 400G DAC <-> Ethernet120 (cage 16). Frames: oracle qos-frames (tools/qos_frames.c),
+# sent from the Ethernet0 netdev. Classification path: a port RIF on Ethernet120 (02:00:00:00:01:20), route
+# 10.99.3.0/24 -> 10.99.2.2 (neighbor 02:00:00:00:02:02) back out of Ethernet120: frames enter Ethernet120,
+# are classified there, routed, and leave through an Ethernet120 queue (a hairpin, no loop).
+# Raw output (git-ignored): analysis/oracle/<run>/ours/stdout.txt
+#   qos-hw-20261116-054543  stdout d8a7efd3  trace f29e0e09   (classification, shaper raw value, DWRR, strict)
+#   qos-hw-20261116-055013  stdout 09f8aa07  trace a746da34   (queue shaper x8, WRED refusal)
+#   qos-hw-20261116-055312  stdout 4e2bf496  trace 063fb78a   (repeat of the classification)
+# Queue counters (PACKET_TX_COUNT) lag by seconds (the SDK syncs them periodically); the numbers below are
+# read 2.5 s after each burst. Occupancy = CURR_OCCUPANCY_BYTES (cells x 224 B; a 1000 B frame = 5 cells).
+
+== DSCP -> TC -> queue (DSCP_TO_TC 10->1, 46->5, rest 0 on Ethernet120; TC_TO_QUEUE identity), 3000 x 256 B,
+   DSCP 0/10/46 in turn. Ethernet120 queue PACKETS (q0 q1 q3 q5), 054543:
+   before                 1000    0    0    0        (q0: earlier traffic)
+   after 1st burst        2000 1000    0 1000        +1000 / +1000 / - / +1000: as mapped
+   map changed 10 -> 3    3000 1000 1000 2000        DSCP 10 now in q3: map update in place
+   PASS: classification and map update on the chip.
+
+== Port shaper (QOS_SCHEDULER_PROFILE_ID on Ethernet120), devport MAX_RATE = 12500000 as isai passes it, 054543:
+   20000 x 1000 B burst at 1.6 Gbit/s; q0 occupancy t+0 4089120, t+0.5 3234560, t+1 2380000, t+2 670880 B:
+   1.709 MB/s of cells = 1526 frames/s x 1024 B on the wire = 12.5 Mbit/s. -> IFCS MAX_RATE is bits/s:
+   the backend now writes SAI bytes/s x 8 (isai's unscaled value would shape 8x too slow). Drops 13708 of 20000.
+== Queue shaper (scheduler MAX_BANDWIDTH_RATE 6250000 B/s on q0's scheduler group), x 8, 055013:
+   occupancy t+0 3647840, t+0.2 2276960, t+0.4 906080 B: 6.86 MB/s of cells = 6.27 MB/s on the wire
+   = 50.2 Mbit/s for 50 Mbit/s asked. PASS (units and the queue-level shaper).
+
+== DWRR under the 12.5 Mbit/s port shaper: q1 weight 10, q5 weight 40; 20000 x 1000 B each (DSCP 10 / 46), 054543:
+   occupancy t+0 -> t+1:  q1 3246880 -> 2897440 (-349440)   q5 1561280 -> 201600 (-1359680)
+   drained 1 s: q5 / q1 = 3.9 (weights 4:1). PASS.
+== Strict: q5 STRICT, q1 DWRR 10, same load:
+   q1 3808000 -> 3104640 (-703360), q5 1005760 -> 0 within 1 s: q5 emptied first (1.0 MB = 0.59 s at
+   the shaper), q1 got the rest of the second. PASS.
+
+== WRED / ECN: aqm_curve_group create, its update and the queue's AQM_CURVE_GROUP are accepted; the queue's
+   WRED_ENABLE 1 and ECN_EXTENSION_ENABLE 1 are refused by IFCS 0.12.41 ("[QUEUE] Failed to Set PD State 0.
+   rc 5", PARAM), also with the port disabled (054543, 055013). The SAI now returns ATTR_NOT_SUPPORTED for a
+   WRED profile on a queue (055013 step G2: -327680) and rolls the curve back. NOT WORKING on this SDK.
+
+== Buffer profiles on queues: not exercised on the chip (mock only; the RESERVED_SIZE change flaps the port as
+   isai does). Ingress PG profiles: kept, not programmed (no lossless DTM partition in this init config; isai
+   finds none either). Buffer pools: kept (the SDK partitions are fixed by the init config).
+
+== PFC: PRIORITY_FLOW_CONTROL 0x08 on Ethernet120 accepted (devport PFC3_ENABLE); 200 PFC frames (0x8808,
+   prio 3) written to the Ethernet0 netdev gave RX_FRAMES_PFC3 = 0 on Ethernet120 (qos-hw-20261116-053729,
+   stdout 6dc9f877): CPU-injected MAC-control frames do not reach the wire (or are not counted). PFC frames and
+   the PFC watchdog cannot be tested on this loop without an external PFC source.
+
+== CPU-injected frames bypass the egress queues' counters: plain frames out of the Ethernet0 netdev left the
+   port (Ethernet0 IF_OUT_UCAST +N) but no Ethernet0 queue PACKETS moved, and egress mirroring of them did
+   nothing (see sai-hw-mirror-20261116.txt); every QoS check above therefore uses routed (hairpin) frames.

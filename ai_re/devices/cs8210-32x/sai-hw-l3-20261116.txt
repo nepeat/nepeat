@@ -1,0 +1,109 @@
+CS8210-32X: L3 of our SAI (sai-teralynx tl_l3) on the chip, 2026-11-16
+=====================================================================
+
+Setup: the 400G DAC loop cage 1 (Ethernet0, devport 1) <-> cage 16 (Ethernet120); only cages
+1 and 16 populated (cs8210-qsfp present=00008001, checked before every run); ASIC lease "l3";
+runs = sai-script (oracle/sai_script.cpp) as transient units via oracle/box-run.sh (traced) or a
+copy without the tracer (scale); profile /run/bench/traps.profile (adopted netdevs, vendor
+pre-emphasis + link training, diag socket). libsai = git 3404f14 with the L3 files of this
+change (src/tl_l3.*, src/ifcs_api.h) on top; last run /nix/store/dzwjl909cawybz5siw5qavcqk3d30ygv-sai-teralynx.
+Box left after every run: ipd legacy_abi=1, cs8210-switch inactive, no SAI process, no netns.
+
+How frames are observed: a frame sent out netdev X leaves port X and enters the ASIC on the
+other port. A routed copy leaving on port P re-enters on the far port with the next hop's DMAC
+(not a router MAC) and is flooded in that port RIF's internal VLAN to the CPU, so it shows up on
+the far port's netdev; frames the ASIC sends to the CPU show up on the netdev of the port they
+entered. tools/l3_frames.c tags its frames and groups what comes back by (netdev, DMAC, SMAC,
+TTL, length). RIF A = Ethernet0 (MAC ..01:0a), RIF B = Ethernet120 (..01:0b), H1 = ..0a:02
+(neighbor on A), H2 = ..0b:02 (neighbor on B). "in A" = sent on Ethernet120 (enters RIF A).
+
+Scripts: oracle/scripts/l3-{basic,vrf,ns,ecmpw,scale,scale-isai}.json. Raw output (git-ignored),
+path under devices/cs8210-32x/, sha256 prefix:
+  analysis/oracle/l3-basic-20261116-050006/ours/stdout.txt af3e04ce  (first run, before the TTL/ECMP fixes)
+  analysis/oracle/l3-basic-20261116-050006/ours/trace.txt 73912b27
+  analysis/oracle/l3-basic-20261116-050141/isai/trace.txt 8f80d42d   report.txt dcfefb7e (oracle diff)
+  analysis/oracle/l3-vrf-20261116-050107/ours/stdout.txt 5e85d3ef
+  analysis/oracle/l3-basic-20261116-051749/ours/stdout.txt 4d806b77  (TTL fix in)
+  analysis/oracle/l3-ecmpw-20261116-052440/{ours/stdout.txt 71d4d38c, isai/trace.txt 84a51277}
+  analysis/oracle/l3-scale-20261116-052622/ours/stdout.txt 3ce62b6c
+  analysis/oracle/l3-basic-20261116-060112/ours/stdout.txt 0f35b7d9  (final code)
+  analysis/oracle/l3-ecmpw-20261116-060223/ours/stdout.txt 53777aea
+  analysis/oracle/l3-ns-20261116-060250/ours/stdout.txt 5e49c9ae
+  analysis/oracle/l3-scale-20261116-060323/ours/stdout.txt 885b220a
+  analysis/oracle/l3-scale-isai-20261116-060407/isai/stdout.txt 25608bf5
+
+Forwarding (l3-basic, final run 060112; counts = frames received / sent)
+  in A -> 10.2.0.2 (neighbor host route, RIF B)          100/100 on Ethernet0, DMAC H2, SMAC RIF B, TTL 63
+  in B -> 10.10.0.5 (/16 via nh1, RIF A)                 100/100 on Ethernet120, DMAC H1, SMAC RIF A, TTL 63
+  in A -> 10.20.1.1 (/16 via nh2)                        100/100, TTL 63
+  in A -> fc00:2::2 (v6 neighbor), 2001:db8:20::77 (/48)  100/100 each, hop limit 63
+  default route 0/0 DROP, dst 192.0.2.1                  0/50 anywhere
+  default route set to nh2 + FORWARD                     50/50 via nh2
+  neighbor MAC change (set DST_MAC on 10.2.0.2)          50/50 with the new DMAC ..0b:09
+  glean: 10.2.0.77 in connected 10.2.0.0/24, no neighbor 50/50 to the CPU (Ethernet0, unmodified);
+                                                         after create_neighbor: 50/50 routed
+  ip2me 10.2.0.1/32 -> CPU                               50/50 to the CPU
+ECMP (next-hop group nh1 + nh2, 10.30.0.0/16)
+  in A, 256 UDP source ports                             512 + 512 (128 flows each side)
+  in B, 256 destinations                                 508 + 516
+  member nh2 removed / added back                        256/256 on nh1 / 512 + 512 again
+  weights 3:1, 3:3, 1:3 (1024 flows, ecmpw 060223)       1474:574, 1030:1018, 526:1522
+    (first code, IFCS ECMP member WEIGHT attribute: 1024:1024 for 3:1, ignored by IFCS;
+     now the nexthop repeated in the member list + ifcs_ecmp_member_replace, as isai)
+TTL
+  TTL 2 routed                                           50/50 forwarded with TTL 1
+  TTL 1 routed (v4 and v6)                               0 forwarded; 50/50 each to the CPU (TTL_ERROR
+                                                         ACE counter 100). First code: dropped silently.
+  TTL 1 to ip2me 10.2.0.1                                50/50 to the CPU (TTL check profile 1)
+MTU (RIF B MTU 1500, port MTU 9100)
+  frame 1400 / 1514 B (IP 1500)                          forwarded
+  frame 1515 / 1518 / 2000 B (IP > 1500)                 not forwarded, 50/50 each to the CPU (L3_MTU_ERROR)
+  RIF B MTU back to 9100, 2000 B                         forwarded  => RIF MTU = IP MTU (SAI semantics)
+
+VRFs (l3-vrf 050107: RIF A in VRF red, RIF B in VRF blue)
+  red 10.2.0.0/24 -> nh2 (blue), blue 10.1.0.0/24 -> nh1 (red): leaked both ways  100/100 each
+  10.50.0.0/16 in both VRFs, different next hops        red -> H2, blue -> H1 (100/100 each)
+  10.60.0.0/16 only in red                               red forwards 100/100, blue 0/100
+  v6 2001:db8:50::/48 in red                             100/100
+
+Linux hosts (l3-ns 060250; Ethernet120 moved into netns h1 = 10.1.0.2 / fc00:1::2)
+  part 1, Ethernet0 = RIF A's kernel side 10.1.0.1 / fc00:1::1 (as SONiC):
+    h1 ping 10.1.0.1: ARP request and reply through the ARP traps, ICMP via IP2ME  10/10
+    h1 ping -6 fc00:1::1: NS / NA through the ND trap                              10/10
+    the root kernel learnt 10.1.0.2 and fc00:1::2 -> H1 (what neighsyncd turns into SAI neighbors);
+    with those SAI neighbors created: 10/10 v4, 10/10 v6
+  part 2, Ethernet0 moved into netns h2 = 10.2.0.2 behind RIF B (router IPs only in the ASIC):
+    h1 -> h2 ping 20/20 (TTL 63), ping -6 20/20, 8000 B DF 5/5, TTL 1 0/3, flood ping 2000/2000 in 195 ms
+  (first try 051901 aborted: v6 disabled on Ethernet0 and a port RIF could not be re-created, below)
+
+Route scale (l3-scale 060323, untraced, one sai-script process, routes one by one)
+  v4 /24 until IFCS RESOURCE_FULL            24,571 (TCAM 24,576 minus the defaults); 47-50 us/route
+                                             (routes 23,001-24,000: 0.7 ms each); total 5.9 s
+  v6 /64 with the v4 table full              1   (v4 and v6 prefixes share the TCAM)
+  v6 /64 alone                               12,285 (2 TCAM entries each); 52 us/route
+  v4 /32 with the TCAM full / alone          92,632 / 92,632 (95,043 in run 052622) = the host hash
+                                             (98,304); 70-86 us/route
+  remove                                     26-46 us/route (prefixes), 59-66 us (hosts)
+  CRM AVAILABLE_IPV4/IPV6_ROUTE_ENTRY        24,573 / 12,286 empty, 2 / 1 after the v4 fill; host
+                                             routes now count against the host table (5,669 left
+                                             with 92,632 /32 routes)
+  isai 6.2.0 (its own IFCS 0.16.2, built with ILPM; l3-scale-isai 060407, under qemu): the same
+    24,571 v4 /24 and 12,285 v6 /64 (250-690 us/route) -- on this chip isai has no larger table
+    either. (Its RIF on port 16 failed there, OBJECT_IN_USE: the routes were next-hop-less, which
+    still take TCAM entries.)
+
+What isai does differently (oracle l3-basic 050141, l3-ecmpw 052440; names from each pyctypes)
+  - port RIF: intf TYPE L3PORT on the sysport, sysport PORT_FWD_MODE 1 (no VLAN); ours: SVI on the
+    frontend's internal VLAN (works, see above; unknown unicast entering a routed port floods to the CPU)
+  - L3VNI attrs IPV4/IPV6_UNICAST_TTL_CHECK_FAIL_CTC, IPV4_OPTIONS_CTC + _DROP at creation; node
+    TTL_CHECK_PROFILE_1_THRESHOLD 0; IP2ME routes TTL_CHECK_PROFILE 1  (ours now: the TTL ones)
+  - ECMP weight = repeated nexthop, ifcs_ecmp_member_replace for every change  (ours now: same)
+  - glean (connected subnet) routes copy to their own hostif trap, IP2ME to another (ours: one shared)
+  - RIF counters: node INGRESS/EGRESS_L3INTF_STATS_MODE/_CONFIG before node enable, then
+    ifcs_intf_stats_get (ours: backend ready, needs a frontend hook and the node config, see sai-features.md)
+  - default VR = L3VNI 0 (ours L3VNI 1)
+
+Found, not L3: ifcs_l2vni_delete of a port RIF's internal VLAN returns BUSY in every run (traces
+050006, 050107, 051901); the frontend ignores it, and the next port RIF on that port fails
+ITEM_ALREADY_EXISTS (l3-ns 051901 step 0.47). isai flushes the L2VNI's entries
+(ifcs_l2_entry_delete_all) before deleting an L2VNI.

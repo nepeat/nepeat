@@ -1,0 +1,64 @@
+# CS8210-32X sai-teralynx L2 + LAG on the chip, 2026-11-16 (sai-script via the oracle runner, no syncd)
+
+Setup: only cages 1 and 16 populated (box-run.sh check), 400G DAC loop Ethernet0 (devport 1) <->
+Ethernet120 (devport 16), adopted netdevs, profile /run/bench/traps.profile + SAI_TERALYNX_HASH_FIELDS=
+src_ip,dst_ip,ip_protocol,l4_src_port,l4_dst_port,in_port, SAI_TERALYNX_HASH_SEED=10. libsai
+/nix/store/2wa9ifjb8y66bljs87hlhhpqlxjlkksf-sai-teralynx-aarch64-unknown-linux-gnu-0.1.0 (this tree +
+the live frontend at 14:06; lag-l2 run: bmabbpvm...). teamd: libteam-sonic 1.31 aarch64
+(packages/sonic libteam). Raw runs (git-ignored) under analysis/oracle/, sha256 prefix in brackets.
+
+## isai 6.2.0 reference: oracle/scripts/lag-l2.json (lag-l2-20261116-043720 [1126aa5a])
+- lag_create(0, &h, 0, NULL); lag_member_add(lag, 1, [sysport], 0, NULL); member sysport DEFAULT_CVID,
+  EGRESS_UNTAGGED, LEARN_ENABLE set per member.
+- EGRESS_DISABLE alone: no IFCS call; both disabled: lag_member_remove + learning off; egress enabled
+  again: lag_member_add.
+- LAG bridge port in VLAN 100: l2vni_member_add(LAG) SUCCESS, mc_dest_create(LOCAL_DESTINATION = LAG)
+  SUCCESS, mdg_mc_dest_add INVAL: isai cannot put a LAG into a VLAN on this chip (VLAN member -5).
+- FDB on the LAG: ENTRY_DEST = LAG handle; flush by bridge port = l2_entry_delete_all(dest, type).
+- Port RIF on a LAG: intf TRANSPORT_INSTANCE = LAG; next hop LOCAL_DESTINATION = LAG.
+- Hash: extended_field_list per packet type on node ENTROPY_SELECT_*, ENTROPY_SEED (one for LAG and ECMP).
+
+## ours, lag-l2.json
+- first run (lag-l2-20261116-045854 [15d834c2]): same INVAL as isai; SDK log: "Multicast lag
+  resolution needs to be enabled on node", "Cannot set attribute MULTICAST_LAG_RESOLUTION_ENABLE after
+  node is enabled".
+- with MULTICAST_LAG_RESOLUTION_ENABLE between node create and enable (lag-l2-20261116-050410
+  [3f3dbb56], trace [78de658d]): 0 failed steps. LAGs, members, disable/enable, LAG tagged and
+  untagged in VLAN 100, member join/leave while in the VLAN, FDB static/dynamic/drop on the LAG,
+  flushes, a plain port in VLAN 200, port RIF + neighbor + next hop + route on a LAG, hash lists at
+  init (5 ELEMENTS lists + seed: SUCCESS). lag_member_add/remove take ~13 ms with the resolution on
+  (0.2 ms without). stp_port_add(LAG) = PARAM ("port check failed"): STP stays per member sysport.
+
+## ours, l2lag-hw.json (l2lag-hw-20261116-060549 [7272e057], trace [e40e78c0]), 0 failed steps
+PHASE 1 ports in no VLAN, the CPU in no flood group:
+  RESULT kind=plain tx=Ethernet0 rx=Ethernet120 sent=50 ... rx_ours=0      (phase A: every frame reached the netdev)
+  RESULT kind=arp tx=Ethernet0 rx=Ethernet120 sent=50 ... rx_ours=50     (phase A: 2 per frame)
+PHASE 2 Ethernet0 untagged in VLAN 100, aging 10 s:
+  event fdb 0 mac 02:00:00:00:00:01 bv 0x2600000000000064 bp 0x3a00000000000021   (learned on Ethernet0's bridge port)
+  RESULT kind=plain tx=Ethernet120 rx=Ethernet0 sent=50 ... rx_ours=0     (unknown unicast: no CPU flood)
+  RESULT kind=arp tx=Ethernet120 rx=Ethernet0 sent=50 ... rx_ours=50
+  event fdb 1 mac 02:00:00:00:00:01 ... bp 0x3a00000000000021              (aged within the 30 s wait)
+  static + drop entries, flush by bridge port (static): accepted; remove after the flush = NOT_FOUND
+PHASE 3 PortChannel1 = {Ethernet0} untagged in VLAN 100 (LAG bridge port 0x3a...22), PortChannel2 =
+{Ethernet120} in no VLAN, LACP trap, teamd (lacp, active, fast rate) on Ethernet0 / Ethernet120:
+  event fdb 0 mac 02:00:00:00:01:20 bv 0x2600000000000064 bp 0x3a00000000000022   (learned on the LAG)
+  TEAMD sync after 1s: PortChannel1/2 selected=true state=current
+  RESULT plain into the LAG: rx_ours=0 rx_other=2 (the partner's LACPDUs on the member netdev)
+  Ethernet0 admin down: both ends oper down, teamd selected=false state=disabled;
+  members egress+ingress disabled (as orchagent on deselect), admin up: oper up,
+  TEAMD sync after 1s (LACPDUs trapped while the members are out of the IFCS LAG);
+  members enabled again: TEAMD sync after 1s, learned on the LAG again.
+Teardown: teamd killed, team devices deleted, SAI objects removed, ports down, remove_switch;
+afterwards no teamd / team devices, team modules unloaded, ipd legacy_abi=Y, lease released.
+
+## Dead ends (do not retry)
+- teamd with "hwaddr" differing from the member netdev's MAC, or teamd -d with the team device set up
+  right after it returns: port refresh fails ("Failed to find enabled option"), the port is dropped.
+  Works: no hwaddr, foreground teamd, team devices up 2 s later (oracle/scripts/l2lag-teamd.sh). The
+  same teamd works on veth with kernel 7.3.4 on the workstation.
+- Two LACP ends on one box: both member netdevs carry the switch MAC; PortChannel2's member gets
+  02:00:00:00:01:20 first (one system id per end).
+- Linux bonding 802.3ad on the same netdevs (lacp-probe-20261116-052817 [96ec58ad]): no partner
+  (Partner Mac 00:00:00:00:00:00, port state 79 vs 0); not pursued (SONiC uses teamd).
+- Not testable on one loop: forwarding to a static FDB entry / LAG member choice (hash distribution),
+  multi-member LAGs, both loop ports in one VLAN (storm).

@@ -1,0 +1,77 @@
+CS8210-32X, sai-teralynx on the chip, 2026-11-16: SAI ACL tables, host traps (IGMP/MLD/NEIGHBOR_MISS,
+system traps, CPU queues), counters breadth. Runner: oracle/run-oracle.sh SCRIPT ours, profile
+/run/bench/traps.profile (adopted netdevs) unless noted; frames over the cage 1 -> 16 400G DAC
+(Ethernet0 = devport 1 TX, Ethernet120 = devport 16 RX); only cages 1 and 16 populated (present=00008001
+checked before each run); ASIC lease held per run, chip left stopped (ipd legacy_abi=Y, no SAI process).
+Raw traces / journals (git-ignored): devices/cs8210-32x/analysis/oracle/<run>/ (sha256 below).
+
+Scripts (oracle/scripts, sha256): acl.json 8c02f80e, hostif-counters.json d1f7bbd4, acl-hw.json 164914ae,
+acl-hw2.json 954759fb, hostif-create.json 724e3702; tools/raw_frames.c 83f6088d (built for aarch64 with
+pkgsCross runCommandCC, /nix/store/d0j0ir6r...-raw-frames, copied to the box).
+
+== isai 6.2.0 references (oracle, isai side only; see sai-oracle.md)
+acl-20261116-045333/isai/trace.txt              9aecc063  SAI ACL -> IFCS sequence
+hostif-counters-20261116-045615/isai/trace.txt  9e1d7607  port stat ids, CPU queues, IGMP/MLD/NM traps
+
+== acl-hw-20261116-052256 (first try)  ours trace 90f26314
+ifcs_acl_match_profile_create = PARAM: "Mandatory attr check failed attr.id 11" (MAX_WIDTH is mandatory
+in 0.12.41, not in isai's 0.16) -> fixed (width 80/160/320/480 by the fields' key bits).
+
+== acl-hw-20261116-055551  stdout 8fbf6c21
+Lesson 1: IFCS ACL counter reads lag the traffic by up to ~1 s (a read right after a batch shows the
+previous batch). Lesson 2: ACL DROP does not stop frames routed to the CPU (ip2me: the route's copy to
+the CPU happens anyway), so drop tests need forwarded traffic. Both fixed in the next scripts.
+
+== acl-hw-20261116-060814  stdout 32f80be5, trace 5055e22d
+System traps as isai (first netdev): plain unicast into a port in no VLAN:      rx_ours=0  (phase A, SDK
+  defaults: 50/50 reached the netdev). ip2me TCP / ICMP / DSCP46 / ICMPv6 to 2001:db8::1: 50/50 each.
+CPU queues: IP2ME on group queue 1 -> "cpu queue 1: tx 400" (8 batches of 50); IGMP/MLD traps on queue 3
+  -> "cpu queue 3: tx 300" (6 batches); ACL COPY/TRAP -> "cpu queue 0: tx 250" (A3 50 + A4 100 + C1 50 +
+  C2 50).
+IGMP / MLD traps (TRAP, group queue 3), raw-frames, 50 each:
+  before the traps: IGMP query rx 0, MLD query rx 0 (no punting)
+  IGMP query 50 | IGMP v3 report 42 (8 lost, no CPU queue drop counted) | MLD query 50 | MLD query with a
+  hop-by-hop header 50 | MLDv2 report 50 | MLDv2 report with a record 50
+  ACE counters: IGMP_TYPE_QUERY 50, IGMP_TYPE_V3_REPORT 50, IPV6_MLD_V1_V2 100, MLD_V2_REPORT 100
+SAI ACL, L3 table bound to Ethernet120 (group), routed frames to 10.98.0.5 (route 10.98.0.0/24 -> next
+  hop on an Ethernet0 port RIF): Ethernet0 IF_OUT_UCAST_PKTS +50 per batch = CPU-sent only (frame dropped),
+  +100 = also routed out. After each create/set a 2 s pause.
+  baseline (no ACL)                                   +100
+  A1 DROP dst 10.98.0.5 + proto 6 + dport 8888        +50   counter 50
+  A2 same entry -> FORWARD                            +100
+  A3 -> TRAP                                          +50   rx_ours 50 on Ethernet120
+  A4 -> COPY                                          +100  rx_ours 100 (the original + the routed copy
+                                                            that loops back, same DIP)
+  M1 src 10.0.0.0/8 + TCP flags SYN/0x3f DROP         +50
+  M2 TCP flags ACK/ACK DROP (frames are SYN)          +100  (no match)
+  M3 L4 src port 40000 DROP                           +50
+  M4 ACL_IP_TYPE IPV4ANY + dst DROP                   +50
+  P1 FORWARD dport 8888 prio 200 over DROP prio 100   +100; FORWARD set to prio 50: +50
+  I1 IN_PORTS [Ethernet0] DROP (frames enter 16)      +100  (no match)
+  I2 IN_PORTS [Ethernet120] DROP                      +50
+  C1 COPY dmac 02:99:99:99:99:99 (plain frames)       rx_ours 50
+  C2 TRAP ACL_IP_TYPE ARP_REQUEST (arp frames)        rx_ours 50
+  R1 SET_POLICER 100 pps CBS 100 red drop, 1000 routed frames at 1000/s: +1089 = 1000 CPU-sent + 89
+     forwarded
+L0 activation: an entry counted right after create (1000 frames over 1 s): all of them (the counter read
+  2100 = 2 x 1050 once synced: each routed frame passes port 16 twice).
+
+== acl-hw2-20261116-061317  stdout 61050ad4, trace f5a268d3
+Counter read delay: count entry, 50 ip2me frames: read right after 0, +1 s 50, +3 s 50.
+M5 DSCP 46 (50 DSCP-46 + 50 DSCP-0 frames)            counter 50
+M6 ICMP type 8 code 0 (50 ICMP + 50 TCP)              counter 50
+V1 L3V6 table: dst 2001:db8::1 + ICMPv6 type 128 (50 v6 + 50 v4 ICMP)   counter 50
+
+== Port counters (acl-hw 060814, diag "counters <devport>", SAI_PORT_STAT_<id>=value, after ~5000 frames)
+devport 16: 0 IF_IN_OCTETS=179700 1 IN_UCAST=2000 2 IN_NON_UCAST=450 6 IN_BCAST=50 7 IN_MCAST=400
+  178 IF_IN_FEC_CORRECTABLE_FRAMES=192 179 NOT_CORRECTABLE=0 180 IF_IN_FEC_SYMBOL_ERRORS=192
+  22 ETHER_STATS_PKTS_64=250 71 ETHER_IN_PKTS_64=250 23 ETHER_STATS_65_127=2200 72 ETHER_IN_65_127=2200
+devport 1: 9 IF_OUT_OCTETS (TX_BYTES_OK)=179700 = devport 16 IF_IN_OCTETS (RX_BYTES_ALL); 81
+  ETHER_OUT_PKTS_64=250; FEC correctable 646 (the RX side of cage 1). Run 052256: frontend
+  get_port_stats on IF_IN_FEC_* = NOT_SUPPORTED (frontend PortStat only): reachable via the diag shell.
+
+== hostif-create-20261116-061107  stdout ce308282  (profile: traps.profile with SAI_TERALYNX_NETDEV=create)
+ifcs_netdev_create(Ethernet0, devport 1) and (Ethernet120, devport 16) return SUCCESS, but no Linux
+netdev of that name appears (3 s later: only the SDK's inno_0_0001 / inno_0_0016, from the init yaml's
+netdev auto_create); trap-frames: "Ethernet0: No such device". Create mode does not work with this init
+yaml; adopt stays the working mode.
