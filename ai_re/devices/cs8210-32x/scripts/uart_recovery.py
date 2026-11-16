@@ -514,7 +514,7 @@ A32 stub entry {a32:#x}; nothing here touches SPI, OTP writes or EEPROMs."""
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub = ap.add_subparsers(dest="action", required=True)
 
     def port_args(p):
         p.add_argument("--tty", help="local serial device or pty (exclusive)")
@@ -551,7 +551,7 @@ def main():
     p.add_argument("out", nargs="?", default=str(DEV / "analysis/boot-rom/route-r.bin"))
     a = ap.parse_args()
     {"s2": cmd_s2, "xmodem": cmd_xmodem, "rom-cli": cmd_rom_cli, "route-r": cmd_route_r,
-     "testfile": cmd_testfile}[a.cmd](a)
+     "testfile": cmd_testfile}[a.action](a)
 
 
 if __name__ == "__main__":

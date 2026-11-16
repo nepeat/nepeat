@@ -25,7 +25,7 @@
 
 ## todo / standing notes
 
-- **In flight (2026-11-15):** node exporter + metrics target (agent); 400G + MACsec on the cage 1 <-> 16 loop (agent; only cages 1 and 16 are populated, re-check before every SDK start); SONiC on NixOS with a Teralynx SAI (agent, offline first); U-Boot replacement (scheme A' in boot-chain.md, no write planned yet); vendor-prompt batch (UART route R, uC readouts, CPLD v15/v2 register dump, cpld-diff.md); switch-porting-runbook.md refresh from the AS7760.
+- **In flight (2026-11-15):** node exporter built, not deployed yet (log entry "node exporter"), then the ai-re-metrics target; 400G + MACsec on the cage 1 <-> 16 loop (agent; only cages 1 and 16 are populated, re-check before every SDK start); SONiC on NixOS with a Teralynx SAI (agent, offline first); U-Boot replacement (scheme A' in boot-chain.md, no write planned yet); vendor-prompt batch (UART route R, uC readouts, CPLD v15/v2 register dump, cpld-diff.md); switch-porting-runbook.md refresh from the AS7760.
 
 - **External PCIe INTx (2026-11-15, from the DMC-12 USB finding):** on the DMC-12 (Alpine V2) the factory DT routes external-PCIe INTx through an Annapurna IOFIC that mainline lacks, so its USB only ran from the EHCI 100 ms watchdog. Here the ASIC (0001:01:00.0, `ipd`) has legacy irq 17 = GIC SPI 73, today only PME/AER on it (SDK not running); the FPGAs have no driver. Check `/proc/interrupts` for ipd while `cs8210-switch` runs, and compare with the vendor DT's interrupt-map. On-SoC devices are fine: AHCI and ttyS0 count interrupts, al_eth uses MSI-X.
 
@@ -89,6 +89,21 @@ can contain device configuration or secrets. Summarized findings belong here.
 
 ## log
 
+### 2026-11-15 — vendor-prompt batch: Route R works, stage3 keys, uC, CPLD live dump
+
+- **Route R proven on hardware:** vendor U-Boot -> `loadx 0x01700000` route-r.bin (crc32 d5ef1e13) -> `go` -> ROM 3.1.0 UART CLI (`>`, boot_device UART CLI). ROM CLI `help` (12 commands), `rd`/`rdr` ok, ROM `xmodem 1800000` 64 KiB 0 retries, words as predicted; `quit` -> `Q`; then power cycle (plug 1 = CS8210 confirmed: /proc/uptime reset; `uptime` misleads, the RTC boots at Mar 17). Byte path: U-Boot `loadx` 64 KiB through consoled, 0 retries, crc32 671f0733. Fixed an argparse dest clash in `scripts/uart_recovery.py` (subcommand vs `--cmd`). Capture: `serial-20261115-vendor-batch.txt` (git-ignored).
+- **Stage3 keys work on V3** when queued from stage2's banner: `p` -> `User request for skipping APCEA!` (sent after `Executing next` they arrive too late).
+- Straps `0xfd8a8110` = 0x377feeef (bits 17:15 = 7 SPI mode 0, bit 18 = 1 debug off), `0xfd8a8278` bit 0 = 0; ROM alias at 0xffff0000 (crc32 d1a98647).
+- uC: bootloader 2.28 / app 2.1.14, `uc_get_recovery` 0, SDR version 1, secure log counters 0.
+- CPLD live dump (sys 254 regs, SWLED/MACLED 256): `analysis/cpld-diff/live-{dump,diff}-20261115.txt`. Differences vs the v13/v1-era expectations: sys 0x05 = 0x40 (fan force-max, normal without fand), sys 0x0d = 0xfa (one VRM status bit low vs 0xfb), SWLED/MACLED 0x01 scratch = 0xff (expected 0xde) and 0x09 = 0xff; 154 registers outside the known map read non-trivial values (mostly 0xcc). Analysis of what v15/v2 changed: open (cpld-diff.md).
+
+### 2026-11-15 — node exporter (built, not deployed)
+
+- `nixos/module/cs8210/default.nix` imports the shared `ai_re/nix/modules/monitoring/node-exporter.nix` (upstream node_exporter 1.12.1 on :9100, default collector set + systemd, textfile dir `/run/prometheus-textfile`); firewall opens 9100 on enp0s1 only (`openFirewall = false`).
+- fand writes `fand.prom` there (`hardware.cs8210.fan.prometheusFile` now defaults to it; fand ordered after tmpfiles-resetup). Producer `cs8210` (every 15 s, no I2C) republishes fand's readings as `switch_board_info`, `switch_board_temperature_celsius{sensor}` (13 LM75s by position), `switch_asic_temperature{,_max}_celsius` for the switch-thermals dashboard; it fails when fand.prom is older than 30 s. `unmanagedMaxAge = 60` drops a stopped fand's file after a minute.
+- Raw LM75s also come through node_exporter's hwmon collector (14 hwmon chips: 13 lm75b + one `800`).
+- `nix store diff-closures` vs the running ias6p68f…: node_exporter, the producer/cleanup units, `source` (monorepo copy) only; unit diffs: fand (After, ReadWritePaths, config adds `runtime.prometheus_file`), firewall, tmpfiles, a `node-exporter` system user. Deploy restarts fand (brief failsafe to 100 %).
+
 ### 2026-11-15 — fand live; UART recovery mapped
 
 - fand deployed (generation 26.11.20261114.2f709fe, also Linux 7.3.4; switch unit unchanged): `fand check --exec` all 14 sensors / 14 outputs ok, curve at PWM 127 after the 60 s first-reading failsafe; `systemctl stop fand` -> PWM 255, both watchdogs armed, sys CPLD force.
@@ -126,8 +141,7 @@ can contain device configuration or secrets. Summarized findings belong here.
   `nix store diff-closures` vs master shows only the fan changes; the
   `cs8210-switch` unit, kernel, initrd and DTB are unchanged vs master.
 - Open: tach scale x100 and the rotor maxima come from one fan sample; 7th
-  slot populated on every board is assumed (`hardware.cs8210.fan.slots`). No
-  node exporter on the box, so no Prometheus file (`…fan.prometheusFile`).
+  slot populated on every board is assumed (`hardware.cs8210.fan.slots`).
 
 ### 2026-11-15 — boot chain dissected; boot ROM dumped; vendor U-Boot checklist
 
