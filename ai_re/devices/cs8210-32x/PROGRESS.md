@@ -41,6 +41,8 @@
 
 ## current status
 
+- **Console (2026-11-15):** DMC-12 port P1 via consoled: `sudo ssh -t console@10.60.2.10 watch cs8210` (read-only) / `… cs8210` (attach, `^] w` takes write); `ssh console@10.60.2.10 log cs8210` prints the scrollback. Up 4 d 20 h at the time, NixOS, Linux 7.3.3.
+
 **NixOS 26.11 / mainline Linux 7.3.3 on the SSD, booting unattended.**
 Working: serial console, 16 cores, 8 GiB, SATA SSD, management Ethernet
 (al_eth + 88E1510), TPM 2.0, lldpd, I2C sensors, RTC, fan control, all three
