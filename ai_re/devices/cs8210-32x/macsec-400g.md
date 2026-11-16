@@ -100,22 +100,21 @@ not-valid errors; ASIC tx frames = far-end rx frames. Files:
 - **Wrong key** (slice 16 ingress SAK changed): 1 -> 16 drops completely,
   slice 16 InPktsNotValid = every frame sent; 16 -> 1 keeps working
   (`macsec-wrong-key.txt`).
-- **Rekey limits (V):** `macsec_sa_set` after `macsec_vport_add` changes
-  nothing on the live SA, and `macsec_datapath_flush` + a new SA does not
-  replace the old one (traffic kept using the old key; the new SAs show 0).
-  So with these tools a key change = `cs8210-switch` restart + reload.
-- SA counters are 32 bit: octets wrap every ~0.1 s and packets every ~2 min
-  at line rate; read them as deltas over short intervals.
+- **Rekey with the vendor CLI (V):** `macsec_sa_set` after `macsec_vport_add`
+  changes nothing on the live SA, and `macsec_datapath_flush` + a new SA does
+  not replace the old one (traffic kept using the old key; the new SAs show 0).
+  Why, and the hitless path the engine has: [macsec.md](macsec.md).
+- The CLI prints only the low 32 bits of the (64-bit) SA counters, so its
+  octets wrap every ~0.1 s at line rate; `cs8210-macsec status` shows all 64.
+- These runs used the vendor's `SAB_MACSEC_FLAG_ROLLOVER` (PN may wrap, I),
+  with throwaway keys; [macsec.md](macsec.md) "Other findings".
 
-## Not done / what blocks full MACsec
+## Not done
 
-- **Hitless rekey and MKA**: the vendor CLI has no SA delete/next-AN
-  switch (see above); MKA (wpa_supplicant, `ip macsec` offload) needs a
-  driver path into the PHY: either the Credo SAI (`credo-sai/`, stop-ship
-  items in 2.8 there still open) or our own EIP-164 SA install/delete on
-  top of `libdriver_164_u`. ipd has no macsec offload ops.
-- Interop: only Credo <-> Credo was tested; replay protection, XPN, and
-  the line-side FEC analyser were not.
+- Hitless rekey, MKA, XPN, counters: implemented offline, hardware pending,
+  in [macsec.md](macsec.md).
+- Interop: only Credo <-> Credo was tested; the line-side FEC analyser was not
+  used.
 - Persistence: `hardware.cs8210.vendorSdk.phyPostLoad` (new, not deployed)
   loads such a command file after every bring-up; the file lives on the
   box (it holds keys).

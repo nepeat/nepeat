@@ -18,7 +18,13 @@ H = AES_K(0^128) (checked against the vendor's built-in key/auth pair).
 first use (JSON, keep it out of git) and reused afterwards.
 Port mode stays MacsecBypass, as the vendor loader leaves it in MACsec mode
 too; macsec_datapath_init + macsec_enable switch the engine in.
-Needs openssl(1) for the hash subkey.
+Needs openssl(1) for the hash subkey (key on argv: test keys only).
+
+No SAB_MACSEC_FLAG_ROLLOVER (the vendor loader sets it): by its name it lets
+the 32-bit PN wrap, i.e. reuses GCM nonces after 2^32 frames (~2 min at
+400G/1500 B); Credo's own 2026 code never sets it. Without it an exhausted SA
+stops sending. Superseded by cs8210-macsec
+(nix/nixos/module/cs8210/macsec; hitless rekey, XPN, MKA): macsec.md.
 """
 import argparse
 import binascii
@@ -26,7 +32,6 @@ import json
 import os
 import subprocess
 
-FLAGS = 'SAB_MACSEC_FLAG_ROLLOVER'
 
 
 def hexlist(b):
@@ -64,7 +69,6 @@ def sa(slice_id, direct, sci_b, sak, salt, ssci=b'\x00\x00\x00\x01', an=0, rule=
     s = 'slice_id=%d direct=%s sa_id=1' % (slice_id, direct)
     return [
         'macsec_allocate_sa %s sci=%s an=%d' % (s, hexlist(sci_b), an),
-        'macsec_sa_set %s k=flags v=%s' % (s, FLAGS),
         'macsec_sa_set %s k=sak v=%s' % (s, hexlist(sak)),
         'macsec_sa_set %s k=ssci v=%s' % (s, hexlist(ssci)),
         'macsec_sa_set %s k=salt v=%s' % (s, hexlist(salt)),
