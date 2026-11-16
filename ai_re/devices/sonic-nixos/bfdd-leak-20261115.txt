@@ -40,3 +40,10 @@ System allocator statistics:
 > Buffer data                   :        1   4120        4120        2      8240
 < Vector index                  :     4271 variable    136664     4280    136960
 > Vector index                  :     4271 variable    136648     4280    136960
+
+## correction (19:58)
+The "bfdsyncd stopped" isolation above was INVALID: sonic-bfdsyncd is UpheldBy
+sonic-orchagent with Restart=always, so `systemctl stop` was undone at once.
+malloc-trace on the switch (bfdd-malloc-trace-20261115.txt) shows the leak is
+json-c objects built for a vty JSON show command (~5/s = bfdsyncd's 200 ms
+poll) and never freed (allocs ~16600 per 30 min, frees 0).
